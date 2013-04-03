@@ -43,29 +43,29 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
 
 /* Assumes t + startOffset is on the stack and does a linear interpolation on t
    between startOffset and endOffset from prevColor to curColor (for each color
-   component), leaving the result in component order on the stack.
+   component), leaving the result in component order on the stack. It assumes
+   there are always 3 components per color.
    @param range                  endOffset - startOffset
    @param curColor[components]   The current color components.
    @param prevColor[components]  The previous color components.
    @param result                 The result ps function.
  */
 static void interpolateColorCode(SkScalar range, SkScalar* curColor,
-                                 SkScalar* prevColor, int components,
-                                 SkString* result) {
+                                 SkScalar* prevColor, SkString* result) {
+    static const int kColorComponents = 3;
+
     // Figure out how to scale each color component.
-    SkAutoSTMalloc<4, SkScalar> multiplierAlloc(components);
-    SkScalar *multiplier = multiplierAlloc.get();
-    for (int i = 0; i < components; i++) {
+    SkScalar multiplier[kColorComponents];
+    for (int i = 0; i < kColorComponents; i++) {
         multiplier[i] = SkScalarDiv(curColor[i] - prevColor[i], range);
     }
 
     // Calculate when we no longer need to keep a copy of the input parameter t.
     // If the last component to use t is i, then dupInput[0..i - 1] = true
     // and dupInput[i .. components] = false.
-    SkAutoSTMalloc<4, bool> dupInputAlloc(components);
-    bool *dupInput = dupInputAlloc.get();
-    dupInput[components - 1] = false;
-    for (int i = components - 2; i >= 0; i--) {
+    bool dupInput[kColorComponents];
+    dupInput[kColorComponents - 1] = false;
+    for (int i = kColorComponents - 2; i >= 0; i--) {
         dupInput[i] = dupInput[i + 1] || multiplier[i + 1] != 0;
     }
 
@@ -73,7 +73,7 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
         result->append("pop ");
     }
 
-    for (int i = 0; i < components; i++) {
+    for (int i = 0; i < kColorComponents; i++) {
         // If the next components needs t and this component will consume a
         // copy, make another copy.
         if (dupInput[i] && multiplier[i] != 0) {
@@ -159,8 +159,7 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
         }
 
         interpolateColorCode(info.fColorOffsets[i] - info.fColorOffsets[i - 1],
-                             colorData[i], colorData[i - 1], kColorComponents,
-                             result);
+                             colorData[i], colorData[i - 1], result);
         result->append("}\n");
     }
 
