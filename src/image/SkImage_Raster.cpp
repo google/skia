@@ -100,7 +100,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
     fBitmap.setPixelRef(pr);
     fBitmap.setIsOpaque(isOpaque);
-    fBitmap.setImmutable();
 }
 
 SkImage_Raster::~SkImage_Raster() {}
