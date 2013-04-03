@@ -412,8 +412,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
     // If the dst is not a texture then we don't currently have a way of copying the
-    // texture. TODO: make copying RT->Tex (or Surface->Surface) a GrDrawTarget operation that can
-    // be built on top of GL/D3D APIs.
+    // texture. TODO: API-specific impl of onCopySurface that can handle more cases.
     if (NULL == rt->asTexture()) {
         GrPrintf("Reading Dst of non-texture render target is not currently supported.\n");
         return false;
@@ -436,8 +435,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
 #endif
     }
 
-    GrDrawTarget::AutoGeometryAndStatePush agasp(this, kReset_ASRInit);
-
     // The draw will resolve dst if it has MSAA. Two things to consider in the future:
     // 1) to make the dst values be pre-resolve we'd need to be able to copy to MSAA
     // texture and sample it correctly in the shader. 2) If 1 isn't available then we
@@ -456,21 +453,14 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
         GrPrintf("Failed to create temporary copy of destination texture.\n");
         return false;
     }
-    this->drawState()->disableState(GrDrawState::kClip_StateBit);
-    this->drawState()->setRenderTarget(ast.texture()->asRenderTarget());
-    static const int kTextureStage = 0;
-    SkMatrix matrix;
-    matrix.setIDiv(rt->width(), rt->height());
-    this->drawState()->createTextureEffect(kTextureStage, rt->asTexture(), matrix);
-
-    SkRect srcRect = SkRect::MakeFromIRect(copyRect);
-    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(copyRect.width()),
-                                    SkIntToScalar(copyRect.height()));
-    this->drawRect(dstRect, NULL, &srcRect, NULL);
-
-    info->fDstCopy.setTexture(ast.texture());
-    info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
-    return true;
+    SkIPoint dstPoint = {0, 0};
+    if (this->copySurface(ast.texture(), rt, copyRect, dstPoint)) {
+        info->fDstCopy.setTexture(ast.texture());
+        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void GrDrawTarget::drawIndexed(GrPrimitiveType type,
@@ -759,6 +749,100 @@ GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRe
     fStack.get()->clipDevRect(newClip, SkRegion::kReplace_Op);
     fReplacementClip.fClipStack = fStack.get();
     target->setClip(&fReplacementClip);
+}
+
+bool GrDrawTarget::copySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint) {
+    SkIRect clippedSrcRect(srcRect);
+    SkIPoint clippedDstPoint(dstPoint);
+    
+    // clip the left edge to src and dst bounds, adjusting dstPoint if neceessary
+    if (clippedSrcRect.fLeft < 0) {
+        clippedDstPoint.fX -= clippedSrcRect.fLeft;
+        clippedSrcRect.fLeft = 0;
+    }
+    if (clippedDstPoint.fX < 0) {
+        clippedSrcRect.fLeft -= clippedDstPoint.fX;
+        clippedDstPoint.fX = 0;
+    }
+
+    // clip the top edge to src and dst bounds, adjusting dstPoint if neceessary
+    if (clippedSrcRect.fTop < 0) {
+        clippedDstPoint.fY -= clippedSrcRect.fTop;
+        clippedSrcRect.fTop = 0;
+    }
+    if (clippedDstPoint.fY < 0) {
+        clippedSrcRect.fTop -= clippedDstPoint.fY;
+        clippedDstPoint.fY = 0;
+    }
+    
+    // clip the right edge to the src and dst bounds.
+    if (clippedSrcRect.fRight > src->width()) {
+        clippedSrcRect.fRight = src->width();
+    }
+    if (clippedDstPoint.fX + clippedSrcRect.width() > dst->width()) {
+        clippedSrcRect.fRight = clippedSrcRect.fLeft + dst->width() - clippedDstPoint.fX;
+    }
+
+    // clip the bottom edge to the src and dst bounds.
+    if (clippedSrcRect.fBottom > src->height()) {
+        clippedSrcRect.fBottom = src->height();
+    }
+    if (clippedDstPoint.fY + clippedSrcRect.height() > dst->height()) {
+        clippedSrcRect.fBottom = clippedSrcRect.fTop + dst->height() - clippedDstPoint.fY;
+    }
+  
+    // The above clipping steps may have inverted the rect if it didn't intersect either the src or
+    // dst bounds.
+    if (clippedSrcRect.isEmpty()) {
+        return true;
+    }
+
+    bool result = this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
+    GrAssert(result == this->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint));
+    return result;
+}
+
+bool GrDrawTarget::canCopySurface(GrSurface* dst,
+                                  GrSurface* src,
+                                  const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint) {
+    // Check that the read/write rects are contained within the src/dst bounds.
+    GrAssert(!srcRect.isEmpty());
+    GrAssert(SkIRect::MakeWH(src->width(), src->height()).contains(srcRect));
+    GrAssert(dstPoint.fX >= 0 && dstPoint.fY >= 0);
+    GrAssert(dstPoint.fX + srcRect.width() <= dst->width() &&
+             dstPoint.fY + srcRect.height() <= dst->height());
+
+    return NULL != dst->asRenderTarget() && NULL != src->asTexture();
+}
+
+bool GrDrawTarget::onCopySurface(GrSurface* dst,
+                                 GrSurface* src,
+                                 const SkIRect& srcRect,
+                                 const SkIPoint& dstPoint) {
+    if (!GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint)) {
+        return false;
+    }
+
+    GrRenderTarget* rt = dst->asRenderTarget();
+    GrTexture* tex = src->asTexture();
+
+    GrDrawTarget::AutoStateRestore asr(this, kReset_ASRInit);
+    this->drawState()->setRenderTarget(rt);
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(srcRect.fLeft - dstPoint.fX),
+                        SkIntToScalar(srcRect.fTop - dstPoint.fY));
+    matrix.postIDiv(tex->width(), tex->height());
+    this->drawState()->createTextureEffect(0, tex, matrix);
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX,
+                                        dstPoint.fY,
+                                        srcRect.width(),
+                                        srcRect.height());
+    this->drawSimpleRect(dstRect);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

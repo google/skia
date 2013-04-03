@@ -139,8 +139,8 @@ public:
      *    data. The target provides ptrs to hold the vertex and/or index data.
      *
      *    The data is writable up until the next drawIndexed, drawNonIndexed,
-     *    drawIndexedInstances, or pushGeometrySource. At this point the data is
-     *    frozen and the ptrs are no longer valid.
+     *    drawIndexedInstances, drawRect, copySurface, or pushGeometrySource. At
+     *    this point the data is frozen and the ptrs are no longer valid.
      *
      *    Where the space is allocated and how it is uploaded to the GPU is
      *    subclass-dependent.
@@ -169,9 +169,9 @@ public:
      * source is reset and likewise for indexCount.
      *
      * The pointers to the space allocated for vertices and indices remain valid
-     * until a drawIndexed, drawNonIndexed, drawIndexedInstances, or push/
-     * popGeomtrySource is called. At that point logically a snapshot of the
-     * data is made and the pointers are invalid.
+     * until a drawIndexed, drawNonIndexed, drawIndexedInstances, drawRect,
+     * copySurface, or push/popGeomtrySource is called. At that point logically a
+     * snapshot of the data is made and the pointers are invalid.
      *
      * @param vertexCount  the number of vertices to reserve space for. Can be
      *                     0. Vertex size is queried from the current GrDrawState.
@@ -406,6 +406,22 @@ public:
     virtual void clear(const GrIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) = 0;
+    
+    /**
+     * Copies a pixel rectangle from one surface to another. This call may finalize
+     * reserved vertex/index data (as though a draw call was made). The src pixels
+     * copied are specified by srcRect. They are copied to a rect of the same
+     * size in dst with top left at dstPoint. If the src rect is clipped by the
+     * src bounds then  pixel values in the dst rect corresponding to area clipped
+     * by the src rect are not overwritten. This method can fail and return false
+     * depending on the type of surface, configs, etc, and the backend-specific
+     * limitations. If rect is clipped out entirely by the src or dst bounds then
+     * true is returned since there is no actual copy necessary to succeed.
+     */
+    bool copySurface(GrSurface* dst,
+                     GrSurface* src,
+                     const SkIRect& srcRect,
+                     const SkIPoint& dstPoint);
 
     /**
      * Release any resources that are cached but not currently in use. This
@@ -615,6 +631,25 @@ protected:
                 return 0;
         }
     }
+
+    // This method is called by copySurface  The srcRect is guaranteed to be entirely within the
+    // src bounds. Likewise, the dst rect implied by dstPoint and srcRect's width and height falls
+    // entirely within the dst. The default implementation will draw a rect from the src to the
+    // dst if the src is a texture and the dst is a render target and fail otherwise.
+    virtual bool onCopySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint);
+
+    // Called to determine whether an onCopySurface call would succeed or not. This is useful for
+    // proxy subclasses to test whether the copy would succeed without executing it yet. Derived
+    // classes must keep this consistent with their implementation of onCopySurface(). The inputs
+    // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
+    // and dst bounds.
+    virtual bool canCopySurface(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint);
 
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
