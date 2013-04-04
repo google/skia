@@ -4,9 +4,10 @@ GM: Ran 1 GMs
 GM: ... over  2 configs ["8888", "565"]
 GM: ...  and  7 modes   ["pipe", "pipe cross-process", "pipe cross-process, shared address", "replay", "rtree", "serialize", "tilegrid"]
 GM: ... so there should be a total of 9 tests.
-GM: Ran 9 tests: NoGpuContext=0 ImageMismatch=0 MissingExpectations=0 WritingReferenceImage=0
+GM: Ran 9 tests: NoGpuContext=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=0 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
-GM: [*] 0 ImageMismatch:
+GM: [*] 0 RenderModeMismatch:
+GM: [*] 0 ExpectationsMismatch:
 GM: [ ] 0 MissingExpectations:
 GM: [*] 0 WritingReferenceImage:
 GM: (results marked with [*] will cause nonzero return value)
