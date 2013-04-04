@@ -757,7 +757,7 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
                                const SkIPoint& dstPoint) {
     SkIRect clippedSrcRect(srcRect);
     SkIPoint clippedDstPoint(dstPoint);
-    
+
     // clip the left edge to src and dst bounds, adjusting dstPoint if neceessary
     if (clippedSrcRect.fLeft < 0) {
         clippedDstPoint.fX -= clippedSrcRect.fLeft;
@@ -777,7 +777,7 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
         clippedSrcRect.fTop -= clippedDstPoint.fY;
         clippedDstPoint.fY = 0;
     }
-    
+
     // clip the right edge to the src and dst bounds.
     if (clippedSrcRect.fRight > src->width()) {
         clippedSrcRect.fRight = src->width();
@@ -793,7 +793,7 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
     if (clippedDstPoint.fY + clippedSrcRect.height() > dst->height()) {
         clippedSrcRect.fBottom = clippedSrcRect.fTop + dst->height() - clippedDstPoint.fY;
     }
-  
+
     // The above clipping steps may have inverted the rect if it didn't intersect either the src or
     // dst bounds.
     if (clippedSrcRect.isEmpty()) {
