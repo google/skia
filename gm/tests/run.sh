@@ -156,7 +156,4 @@ gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" 
 # section should be empty.
 gm_test "--hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
-# Test what happens if a subset of the renderModes fail (e.g. pipe)
-gm_test "--simulatePipePlaybackFailure --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/pipe-playback-failure"
-
 echo "All tests passed."

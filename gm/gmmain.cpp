@@ -272,8 +272,7 @@ public:
         }
 
         // Things to do only if there is some error condition.
-        SkString fullName = name;
-        fullName.append(renderModeDescriptor);
+        SkString fullName = make_name(name.c_str(), renderModeDescriptor);
         for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
             ErrorType type = static_cast<ErrorType>(typeInt);
             if (errorCombination.includes(type)) {
@@ -684,17 +683,18 @@ public:
      * @param baseNameString name of test without renderModeDescriptor added
      * @param renderModeDescriptor e.g., "-rtree", "-deferred"
      * @param addToJsonSummary whether to add these results (both actual and
-     *        expected) to the JSON summary. Regardless of this setting, if
-     *        we find an image mismatch in this test, we will write these
-     *        results to the JSON summary.  (This is so that we will always
-     *        report errors across rendering modes, such as pipe vs tiled.
-     *        See https://codereview.chromium.org/13650002/ )
+     *        expected) to the JSON summary
+     *
+     * TODO: For now, addToJsonSummary is only set to true within
+     * compare_test_results_to_stored_expectations(), so results of our
+     * in-memory comparisons (Rtree vs regular, etc.) are not written to the
+     * JSON summary.  We may wish to change that.
      */
     ErrorCombination compare_to_expectations(Expectations expectations,
                                              const SkBitmap& actualBitmap,
                                              const SkString& baseNameString,
                                              const char renderModeDescriptor[],
-                                             bool addToJsonSummary) {
+                                             bool addToJsonSummary=false) {
         ErrorCombination errors;
         Checksum actualChecksum = SkBitmapChecksummer::Compute64(actualBitmap);
         SkString completeNameString = baseNameString;
@@ -704,14 +704,7 @@ public:
         if (expectations.empty()) {
             errors.add(kMissingExpectations_ErrorType);
         } else if (!expectations.match(actualChecksum)) {
-            addToJsonSummary = true;
-            // The error mode we record depends on whether this was running
-            // in a non-standard renderMode.
-            if ('\0' == *renderModeDescriptor) {
-                errors.add(kExpectationsMismatch_ErrorType);
-            } else {
-                errors.add(kRenderModeMismatch_ErrorType);
-            }
+            errors.add(kImageMismatch_ErrorType);
 
             // Write out the "actuals" for any mismatches, if we have
             // been directed to do so.
@@ -760,7 +753,7 @@ public:
                 // (where we can set ignore-failure to either true or
                 // false), add test cases that exercise ignored
                 // failures (both for kMissingExpectations_ErrorType
-                // and kExpectationsMismatch_ErrorType).
+                // and kImageMismatch_ErrorType).
                 this->fJsonActualResults_FailureIgnored[testName] =
                     actualResults;
             } else {
@@ -779,8 +772,7 @@ public:
                     this->fJsonActualResults_NoComparison[testName] =
                         actualResults;
                 }
-                if (result.includes(kExpectationsMismatch_ErrorType) ||
-                    result.includes(kRenderModeMismatch_ErrorType)) {
+                if (result.includes(kImageMismatch_ErrorType)) {
                     this->fJsonActualResults_Failed[testName] = actualResults;
                 }
             }
@@ -874,11 +866,18 @@ public:
         GM* gm, const ConfigData& gRec, const char renderModeDescriptor [],
         SkBitmap& actualBitmap, const SkBitmap* referenceBitmap) {
 
+        // TODO(epoger): This method is run to compare results across
+        // different rendering modes (as opposed to
+        // compare_test_results_to_stored_expectations(), which
+        // compares results against expectations stored on disk).  If
+        // we would like the GenerateGMs step to distinguish between
+        // those two types of mismatches, we should report image
+        // mismatches in here with a different ErrorType.
         SkASSERT(referenceBitmap);
         SkString name = make_name(gm->shortName(), gRec.fName);
         Expectations expectations(*referenceBitmap);
         return compare_to_expectations(expectations, actualBitmap,
-                                       name, renderModeDescriptor, false);
+                                       name, renderModeDescriptor);
     }
 
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
@@ -997,8 +996,9 @@ public:
         return kEmpty_ErrorCombination;
     }
 
-    ErrorCombination test_pipe_playback(GM* gm, const ConfigData& gRec,
-                                        const SkBitmap& referenceBitmap, bool simulateFailure) {
+    ErrorCombination test_pipe_playback(GM* gm,
+                                        const ConfigData& gRec,
+                                        const SkBitmap& referenceBitmap) {
         ErrorCombination errors;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
@@ -1010,9 +1010,7 @@ public:
             SkGPipeWriter writer;
             SkCanvas* pipeCanvas = writer.startRecording(
               &pipeController, gPipeWritingFlagCombos[i].flags);
-            if (!simulateFailure) {
-                invokeGM(gm, pipeCanvas, false, false);
-            }
+            invokeGM(gm, pipeCanvas, false, false);
             complete_bitmap(&bitmap);
             writer.endRecording();
             SkString string("-pipe");
@@ -1179,7 +1177,6 @@ DEFINE_bool(replay, true, "Exercise the SkPicture replay test pass.");
 DEFINE_string2(resourcePath, i, "", "Directory that stores image resources.");
 DEFINE_bool(rtree, true, "Exercise the R-Tree variant of SkPicture test pass.");
 DEFINE_bool(serialize, true, "Exercise the SkPicture serialization & deserialization test pass.");
-DEFINE_bool(simulatePipePlaybackFailure, false, "Simulate a rendering failure in pipe mode only.");
 DEFINE_bool(tiledPipe, false, "Exercise tiled SkGPipe replay.");
 DEFINE_bool(tileGrid, true, "Exercise the tile grid variant of SkPicture.");
 DEFINE_string(tileGridReplayScales, "", "Space separated list of floating-point scale "
@@ -1414,6 +1411,10 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
         errorsForAllModes.add(pictErrors);
     }
 
+    // TODO: add a test in which the RTree rendering results in a
+    // different bitmap than the standard rendering.  It should
+    // show up as failed in the JSON summary, and should be listed
+    // in the stdout also.
     if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_rtree) {
         SkPicture* pict = gmmain.generate_new_picture(
             gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
@@ -1458,8 +1459,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
         ErrorCombination pipeErrors;
 
         if (FLAGS_pipe) {
-            pipeErrors.add(gmmain.test_pipe_playback(gm, compareConfig, comparisonBitmap,
-                                                     FLAGS_simulatePipePlaybackFailure));
+            pipeErrors.add(gmmain.test_pipe_playback(gm, compareConfig, comparisonBitmap));
         }
 
         if ((pipeErrors.isEmpty()) &&

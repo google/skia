@@ -1,1 +1,0 @@
-out/Debug/gm --simulatePipePlaybackFailure --hierarchy --match selftest1 --config 8888 565 -r gm/tests/inputs/json/identical-pixels.json --writeJsonSummaryPath gm/tests/outputs/pipe-playback-failure/output-actual/json-summary.txt
