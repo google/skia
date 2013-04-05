@@ -596,7 +596,7 @@ private:
         this->addTextureAccess(&fNoiseAccess);
     }
 
-    GR_DECLARE_EFFECT_TEST;
+//    GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess                 fPermutationsAccess;
     GrTextureAccess                 fNoiseAccess;
@@ -612,7 +612,7 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////
-
+#if 0
 GR_DEFINE_EFFECT_TEST(GrPerlinNoiseEffect);
 
 GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkMWCRandom* random,
@@ -641,7 +641,7 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkMWCRandom* random,
 
     return effect;
 }
-
+#endif
 /////////////////////////////////////////////////////////////////////
 
 void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
