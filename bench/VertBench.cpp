@@ -31,7 +31,6 @@ class VertBench : public SkBenchmark {
 
     SkPoint fPts[PTS];
     SkColor fColors[PTS];
-    SkPoint fTex[PTS];
     uint16_t fIdx[IDX];
 
     static void load_2_tris(uint16_t idx[], int x, int y, int rb) {

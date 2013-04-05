@@ -12,8 +12,6 @@
 #include "SkMatrixConvolutionImageFilter.h"
 
 class MatrixConvolutionBench : public SkBenchmark {
-    SkMatrixConvolutionImageFilter::TileMode  fTileMode;
-
 public:
     MatrixConvolutionBench(void* param, SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
         : INHERITED(param), fName("matrixconvolution") {

@@ -53,10 +53,7 @@ protected:
     }
 
 private:
-    SkRect      fClip;
-    SkIPoint*   fPoints;
     SkPath      fPath;
-    int         fPtCount;
 
     typedef SkView INHERITED;
 };
