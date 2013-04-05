@@ -64,6 +64,7 @@
     '../gm/pathfill.cpp',
     '../gm/pathinterior.cpp',
     '../gm/pathreverse.cpp',
+    '../gm/perlinnoise.cpp',
     '../gm/points.cpp',
     '../gm/poly2poly.cpp',
     '../gm/quadpaths.cpp',
