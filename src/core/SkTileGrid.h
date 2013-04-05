@@ -94,19 +94,27 @@ template <typename T>
 void* SkTileGridNextDatum(SkTDArray<void*>** tileData, SkTDArray<int>& tileIndices) {
     T* minVal = NULL;
     int tileCount = tileIndices.count();
-    // Find the next Datum
+    int minIndex = tileCount;
+    int maxIndex = 0;
+    // Find the next Datum; track where it's found so we reduce the size of the second loop.
     for (int tile = 0; tile < tileCount; ++tile) {
         int pos = tileIndices[tile];
         if (pos != SkTileGrid::kTileFinished) {
             T* candidate = (T*)(*tileData[tile])[pos];
             if (NULL == minVal || (*candidate) < (*minVal)) {
                 minVal = candidate;
+                minIndex = tile;
+                maxIndex = tile;
+            } else if (!((*minVal) < (*candidate))) {
+                // We don't require operator==; if !(candidate<minVal) && !(minVal<candidate),
+                // candidate==minVal and we have to add this tile to the range searched.
+                maxIndex = tile;
             }
         }
     }
     // Increment indices past the next datum
     if (minVal != NULL) {
-        for (int tile = 0; tile < tileCount; ++tile) {
+        for (int tile = minIndex; tile <= maxIndex; ++tile) {
             int pos = tileIndices[tile];
             if (pos != SkTileGrid::kTileFinished && (*tileData[tile])[pos] == minVal) {
                 if (++(tileIndices[tile]) >= tileData[tile]->count()) {
