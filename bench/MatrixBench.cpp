@@ -266,12 +266,12 @@ private:
 
 class ScaleTransMixedMatrixBench : public MatrixBench {
  public:
-    ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed"), fCount (16) {
+    ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed") {
         fMatrix.setAll(fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
                        fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
                        fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1());
         int i;
-        for (i = 0; i < SkBENCHLOOP(fCount); i++) {
+        for (i = 0; i < kCount; i++) {
             fSrc[i].fX = fRandom.nextSScalar1();
             fSrc[i].fY = fRandom.nextSScalar1();
             fDst[i].fX = fRandom.nextSScalar1();
@@ -282,7 +282,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     virtual void performTest() {
         SkPoint* dst = fDst;
         const SkPoint* src = fSrc;
-        int count = SkBENCHLOOP(fCount);
+        int count = kCount;
         float mx = fMatrix[SkMatrix::kMScaleX];
         float my = fMatrix[SkMatrix::kMScaleY];
         float tx = fMatrix[SkMatrix::kMTransX];
@@ -295,20 +295,22 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
         } while (--count);
     }
  private:
+    enum {
+        kCount = SkBENCHLOOP(16)
+    };
     SkMatrix fMatrix;
     SkPoint fSrc [16];
     SkPoint fDst [16];
-    int fCount;
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
 
 class ScaleTransDoubleMatrixBench : public MatrixBench {
  public:
-    ScaleTransDoubleMatrixBench(void* p) : INHERITED(p, "scaletrans_double"), fCount (16) {
+    ScaleTransDoubleMatrixBench(void* p) : INHERITED(p, "scaletrans_double") {
         init9(fMatrix);
         int i;
-        for (i = 0; i < SkBENCHLOOP(fCount); i++) {
+        for (i = 0; i < kCount; i++) {
             fSrc[i].fX = fRandom.nextSScalar1();
             fSrc[i].fY = fRandom.nextSScalar1();
             fDst[i].fX = fRandom.nextSScalar1();
@@ -319,7 +321,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     virtual void performTest() {
         SkPoint* dst = fDst;
         const SkPoint* src = fSrc;
-        int count = SkBENCHLOOP(fCount);
+        int count = kCount;
         // As doubles, on Z600 Linux systems this is 2.5x as expensive as mixed mode
         float mx = (float) fMatrix[SkMatrix::kMScaleX];
         float my = (float) fMatrix[SkMatrix::kMScaleY];
@@ -333,10 +335,12 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
         } while (--count);
     }
  private:
+    enum {
+        kCount = SkBENCHLOOP(16)
+    };
     double fMatrix [9];
     SkPoint fSrc [16];
     SkPoint fDst [16];
-    int fCount;
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };

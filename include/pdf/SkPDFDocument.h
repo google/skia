@@ -83,7 +83,6 @@ private:
     SkTSet<SkPDFObject*>* fFirstPageResources;
     SkTSet<SkPDFObject*>* fOtherPageResources;
     SkTDArray<SkPDFObject*> fSubstitutes;
-    int fSecondPageFirstResourceIndex;
 
     SkPDFDict* fTrailerDict;
 
