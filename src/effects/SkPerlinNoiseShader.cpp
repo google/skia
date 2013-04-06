@@ -172,7 +172,7 @@ public:
                 fGradient[channel][i] = SkPoint::Make(
                     SkScalarMul(SkIntToScalar(fNoise[channel][i][0] - kBlockSize),
                                 gInvBlockSizef),
-                    SkScalarMul(SkIntToScalar(fNoise[channel][i][1] - kBlockSize), 
+                    SkScalarMul(SkIntToScalar(fNoise[channel][i][1] - kBlockSize),
                                 gInvBlockSizef));
                 fGradient[channel][i].normalize();
                 // Put the normalized gradient back into the noise data
@@ -202,7 +202,7 @@ public:
             SkScalar highFrequencx = SkScalarDiv(
                 SkScalarMulCeil(tileWidth, fBaseFrequency.fX), tileWidth);
             // BaseFrequency should be non-negative according to the standard.
-            if (SkScalarDiv(fBaseFrequency.fX, lowFrequencx) < 
+            if (SkScalarDiv(fBaseFrequency.fX, lowFrequencx) <
                 SkScalarDiv(highFrequencx, fBaseFrequency.fX)) {
                 fBaseFrequency.fX = lowFrequencx;
             } else {
@@ -214,7 +214,7 @@ public:
                 SkScalarMulFloor(tileHeight, fBaseFrequency.fY), tileHeight);
             SkScalar highFrequency = SkScalarDiv(
                 SkScalarMulCeil(tileHeight, fBaseFrequency.fY), tileHeight);
-            if (SkScalarDiv(fBaseFrequency.fY, lowFrequency) < 
+            if (SkScalarDiv(fBaseFrequency.fY, lowFrequency) <
                 SkScalarDiv(highFrequency, fBaseFrequency.fY)) {
                 fBaseFrequency.fY = lowFrequency;
             } else {
@@ -375,10 +375,10 @@ SkScalar SkPerlinNoiseShader::noise2D(int channel, const PaintingData& paintingD
     noiseX.noisePositionIntegerValue &= kBlockMask;
     noiseY.noisePositionIntegerValue &= kBlockMask;
     int latticeIndex =
-        paintingData.fLatticeSelector[noiseX.noisePositionIntegerValue] + 
+        paintingData.fLatticeSelector[noiseX.noisePositionIntegerValue] +
         noiseY.noisePositionIntegerValue;
     int nextLatticeIndex =
-        paintingData.fLatticeSelector[(noiseX.noisePositionIntegerValue + 1) & kBlockMask] + 
+        paintingData.fLatticeSelector[(noiseX.noisePositionIntegerValue + 1) & kBlockMask] +
         noiseY.noisePositionIntegerValue;
     SkScalar sx = smoothCurve(noiseX.noisePositionFractionValue);
     SkScalar sy = smoothCurve(noiseY.noisePositionFractionValue);
@@ -705,7 +705,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         // Set up TurbulenceInitial stitch values.
         builder->fsCodeAppendf("\t\tvec4 %s = %s;", stitchData, stitchDataUni);
     }
-    
+
     builder->fsCodeAppendf("\t\t%s[channel] = 0.0;", outputColor);
 
     builder->fsCodeAppendf("\t\tfloat %s = 1.0;", ratio);
@@ -939,10 +939,10 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
         context, *fPaintingData->getNoiseBitmap(), NULL);
 
     GrEffectRef* effect = (NULL != permutationsTexture) && (NULL != noiseTexture) ?
-        GrPerlinNoiseEffect::Create(fType, fPaintingData->fBaseFrequency, 
+        GrPerlinNoiseEffect::Create(fType, fPaintingData->fBaseFrequency,
                                     fNumOctaves, fStitchTiles,
                                     fPaintingData->fStitchDataInit,
-                                    permutationsTexture, noiseTexture, 
+                                    permutationsTexture, noiseTexture,
                                     this->getLocalMatrix(), paint.getAlpha()) :
         NULL;
 
