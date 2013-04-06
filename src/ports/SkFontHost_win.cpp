@@ -1386,7 +1386,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         info->fStemV = 0;
         info->fCapHeight = 0;
         info->fBBox = SkIRect::MakeEmpty();
-        return info;
+        goto ReturnInfo;
     }
 
     // If this bit is clear the font is a fixed pitch font.
@@ -1453,6 +1453,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     }
 
 Error:
+ReturnInfo:
     SelectObject(hdc, savefont);
     DeleteObject(designFont);
     DeleteObject(font);
