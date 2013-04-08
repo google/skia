@@ -21,7 +21,7 @@
 static void usage() {
     SkDebugf("Usage: filter -i inFile [-o outFile] [--input-dir path] [--output-dir path]\n");
     SkDebugf("                        [-h|--help]\n\n");
-    SkDebugf("    -i inFile  : file to file.\n");
+    SkDebugf("    -i inFile  : file to filter.\n");
     SkDebugf("    -o outFile : result of filtering.\n");
     SkDebugf("    --input-dir : process all files in dir with .skp extension.\n");
     SkDebugf("    --output-dir : results of filtering the input dir.\n");
@@ -654,6 +654,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
     }
 
     bool changed = true;
+    int numBefore = debugCanvas.getSize();
 
     while (changed) {
         changed = false;
@@ -676,6 +677,8 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
             }
         }
     }
+
+    int numAfter = debugCanvas.getSize();
 
     if (!outFile.isEmpty()) {
         SkPicture outPicture;
@@ -700,7 +703,8 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
     if (!someOptFired) {
         SkDebugf("No opts fired\n");
     } else {
-        SkDebugf("\n");
+        SkDebugf("\t before: %d after: %d delta: %d\n", 
+                 numBefore, numAfter, numBefore-numAfter);
     }
 
     return 0;
