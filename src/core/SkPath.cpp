@@ -7,9 +7,10 @@
  */
 
 
-#include "SkPath.h"
 #include "SkBuffer.h"
+#include "SkErrorInternals.h"
 #include "SkMath.h"
+#include "SkPath.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
 #include "SkThread.h"
@@ -1034,6 +1035,14 @@ bool SkPath::hasOnlyMoveTos() const {
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
     assert_known_direction(dir);
+    
+    if (rx < 0 || ry < 0) {
+        SkErrorInternals::SetError( kInvalidArgument_SkError, 
+                                    "I got %f and %f as radii to SkPath::AddRoundRect, "
+                                    "but negative radii are not allowed.", 
+                                    SkScalarToDouble(rx), SkScalarToDouble(ry) );
+        return;
+    }
 
     SkScalar    w = rect.width();
     SkScalar    halfW = SkScalarHalf(w);

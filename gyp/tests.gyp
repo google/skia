@@ -44,6 +44,7 @@
         '../tests/DrawPathTest.cpp',
         '../tests/DrawTextTest.cpp',
         '../tests/EmptyPathTest.cpp',
+        '../tests/ErrorTest.cpp',
         '../tests/FillPathTest.cpp',
         '../tests/FlatDataTest.cpp',
         '../tests/FlateTest.cpp',
