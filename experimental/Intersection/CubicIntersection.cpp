@@ -20,7 +20,7 @@
 #endif
 
 #if ONE_OFF_DEBUG
-static const double tLimits1[2][2] = {{0.865205808, 0.865215212}, {0.865207696, 0.865208078}};
+static const double tLimits1[2][2] = {{0.36, 0.37}, {0.63, 0.64}};
 static const double tLimits2[2][2] = {{-0.865211397, -0.865215212}, {-0.865207696, -0.865208078}};
 #endif
 

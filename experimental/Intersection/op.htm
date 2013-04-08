@@ -382,6 +382,11 @@ path.close();
     path.close();
 </div>
 
+<div id="testLine16">
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 4, 9, 9, SkPath::kCW_Direction);
+</div>
+
 <div id="testLine17">
     SkPath path, simple;
     path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
@@ -4078,6 +4083,7 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
 <script type="text/javascript">
 
 var testDivs = [
+    testLine16,
     cubicOp63d,
     cubicOp62d,
     cubicOp61d,
@@ -4366,6 +4372,7 @@ var testDivs = [
     testLine22,
     testLine19,
     testLine17,
+    testLine16,
     testLine13,
     testLine12,
     testLine9,
