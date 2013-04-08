@@ -62,6 +62,12 @@ static void standardTestCases() {
 }
 
 static const Cubic testSet[] = {
+{{67.426548091427676, 37.993772624988935}, {23.483695892376684, 90.476863174921306}, {35.597065061143162, 79.872482633158796}, {75.38634169631932, 18.244890038969412}},
+{{67.4265481, 37.9937726}, {23.4836959, 90.4768632}, {35.5970651, 79.8724826}, {75.3863417, 18.24489}},
+
+{{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+{{1, 0}, {0, 0}, {0, 1}, {1, 1}},
+
 {{0,1}, {4,5}, {1,0}, {5,3}},
 {{0,1}, {3,5}, {1,0}, {5,4}},
 
@@ -89,9 +95,6 @@ static const Cubic testSet[] = {
 
 {{0,2}, {0,1}, {1,0}, {1,0}},
 {{0,1}, {0,1}, {2,0}, {1,0}},
-
-{{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-{{1, 0}, {0, 0}, {0, 1}, {1, 1}},
 
 {{0, 1}, {0, 2}, {1, 0}, {1, 0}},
 {{0, 1}, {0, 1}, {1, 0}, {2, 0}},
@@ -375,7 +378,7 @@ static void oneOff(int outer, int inner) {
 }
 
 void CubicIntersection_OneOffTest() {
-    oneOff(12, 14);
+    oneOff(0, 1);
 }
 
 static void newOneOff(int outer, int inner) {
@@ -732,7 +735,8 @@ void CubicIntersection_SelfTest() {
         {{12.81,7.27}, {7.22,6.98}, {12.49,8.97}, {11.42,6.18}},
     };
     size_t selfSetCount = sizeof(selfSet) / sizeof(selfSet[0]);
-    for (size_t index = 0; index < selfSetCount; ++index) {
+    size_t firstFail = 1;
+    for (size_t index = firstFail; index < selfSetCount; ++index) {
         const Cubic& cubic = selfSet[index];
     #if ONE_OFF_DEBUG
         int idx2;

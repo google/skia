@@ -2142,11 +2142,86 @@ quad=(1.20573276,0.813456177 1.2679289,0.830085346 1.33333333,0.851851852)
 
 </div>
 
+<div id="line0">
+    {{2, 1}, {2, 1}},
+</div>
+
+<div id="line1">
+    {{2, 1}, {1, 1}},
+</div>
+
+<div id="line2">
+    {{2, 1}, {2, 2}}
+</div>
+
+<div id="line3">
+    {{1, 1}, {2, 2}},
+</div>
+
+<div id="line4">
+    {{3, 0}, {2, 1}},
+</div>
+
+<div id="line5">
+    {{3, 2}, {1, 1}},
+</div>
+
+<div id="tri0">
+    {{2, 0}, {3, 1}},
+    {{3, 1}, {2, 2}},
+    {{2, 2}, {2, 0}},
+</div>
+<div id="tri1">
+    {{3, 1}, {2, 2}},
+    {{2, 2}, {1, 1}},
+    {{1, 1}, {3, 1}},
+</div>
+<div id="tri2">
+    {{3, 0}, {2, 1}},
+    {{2, 1}, {3, 2}},
+    {{3, 2}, {3, 0}},
+</div>
+<div id="testQuad0">
+    {{1, 1}, {2, 1}, {0, 2}},
+</div>
+<div id="testQuad1">
+    {{0, 0}, {1, 1}, {3, 1}},
+</div>
+<div id="testQuad2">
+    {{2, 0}, {1, 1}, {2, 2}},
+</div>
+<div id="testQuad3">
+    {{4, 0}, {0, 1}, {4, 2}},
+</div>
+<div id="testQuad4">
+    {{0, 0}, {0, 1}, {1, 1}},
+</div>
+
+<div id="cubicOp65d">
+{{0,1}, {1,5}, {1,0}, {1,0}},
+{{0,1}, {0,1}, {1,0}, {5,1}},
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp65d,
+    testQuad0,
+    testQuad1,
+    testQuad2,
+    testQuad3,
+    testQuad4,
+    tri0,
+    tri1, 
+    tri2,
+    line0,
+    line1,
+    line2,
+    line3,
+    line4,
+    line5,
     cubicOp35da,
     cubicOp35d,
     quadOp34d,
@@ -2596,6 +2671,9 @@ function draw(test, title, scale) {
                 break;
         }
         ctx.strokeStyle = drawQuads && drawCubics && curve.length == 6 ? "red" : "black";
+        if (curve.length == 4) {
+            ctx.strokeStyle = "blue";
+        }
         ctx.stroke();
         if (drawControlLines && (curve.length == 6 || curve.length == 8)) {
             ctx.strokeStyle = "rgba(0,0,0, 0.3)";

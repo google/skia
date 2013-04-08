@@ -3536,7 +3536,6 @@ static void testCubic1() {
     testSimplifyx(path);
 }
 
-#if 0
 static void testQuadratic93() {
     SkPath path;
     path.moveTo(3, 0);
@@ -3549,7 +3548,6 @@ static void testQuadratic93() {
     path.close();
     testSimplifyx(path);
 }
-#endif
 
 static void cubicOp1d() {
     SkPath path, pathB;
@@ -4611,12 +4609,79 @@ static void cubicOp63d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static void (*firstTest)() = cubicOp63d;
+static void testQuad1() {
+    SkPath path;
+    path.moveTo(0,0);
+    path.quadTo(0,0, 0,1);
+    path.lineTo(1,1);
+    path.close();
+    path.moveTo(0,0);
+    path.quadTo(1,1, 0,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuad1z() {
+    SkPath path;
+    path.moveTo(0,0);
+    path.quadTo(0,0, 0,1);
+    path.lineTo(1,1);
+    path.close();
+    path.moveTo(0,0);
+    path.lineTo(0.5f,1);
+    path.lineTo(0,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuad1c() {
+    SkPath path;
+    path.moveTo(0,0);
+    path.quadTo(0,0, 0,1);
+    path.lineTo(1,1);
+    path.close();
+    path.moveTo(0,0);
+    path.cubicTo(0.5f,0.5f, 0.5f,1.5f, 0,2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testRectOp1d() {
+    SkPath path, pathB;
+    path.moveTo(0,1);
+    path.cubicTo(0,1, 1,0, 3,0);
+    path.lineTo(0,1);
+    path.close();
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,3, 1,0, 1,0);
+    pathB.lineTo(0,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testCubicOp64d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(2, 2, 3, 3, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.addRect(0, 0, 4, 4, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = testRectOp1d;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testRectOp1d),
+    TEST(testCubicOp64d),
+    TEST(testQuad1c),
+    TEST(testQuad1z),
+    TEST(testQuad1),
+    TEST(testQuadratic93),    // FIXME: gets stuck in a loop because top is unsortable
     TEST(cubicOp63d),
     TEST(cubicOp62d),
     TEST(cubicOp61d),
@@ -4704,7 +4769,6 @@ static struct {
     TEST(cubicOp3d),
     TEST(cubicOp2d),
     TEST(cubicOp1d),
- //   TEST(testQuadratic93),    // FIXME: gets stuck in a loop because top is unsortable
     TEST(testCubic1),
     TEST(testQuadralateral1),
     TEST(testLine85),
@@ -5063,7 +5127,7 @@ static void (*firstSubTest)() = 0;
 
 static bool skipAll = false;
 static bool runSubTestsFirst = false;
-static bool runReverse = true;
+static bool runReverse = false;
 static void (*stopTest)() = 0;
 
 void SimplifyNew_Test() {

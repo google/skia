@@ -3612,11 +3612,92 @@ markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.666666667 [2] (4.85185194,3.96296287) 
 path.cubicTo(4.97231197,3.77658033, 4.93595362,3.85783577, 4.85185194,3.96296287);
 </div>
 
+<div id="testQuad1">
+  RunTestSet [testQuad1]
+{{0,0}, {0,0}, {0,1}},
+{{0,1}, {1,1}},
+{{1,1}, {0,0}},
+{{0,0}, {1,1}, {0,2}},
+{{0,2}, {0,0}},
+debugShowLineIntersection wtTs[0]=0 {{0,0}, {0,1}} {{0,1}} wnTs[0]=1 {{0,1}, {1,1}}
+debugShowLineIntersection wtTs[0]=1 {{0,0}, {0,1}} {{0,0}} wnTs[0]=0 {{1,1}, {0,0}}
+debugShowLineIntersection wtTs[0]=-0 {{0,1}, {1,1}} {{1,1}} wnTs[0]=1 {{1,1}, {0,0}}
+debugShowQuadLineIntersection wtTs[0]=0 {{0,0}, {1,1}, {0,2}} {{0,0}} wnTs[0]=0 {{0,0}, {0,1}}
+debugShowLineIntersection wtTs[0]=1 {{0,0}, {0,1}} {{0,0}} wtTs[1]=0.5 {{0,1}} wnTs[0]=-0 {{0,2}, {0,0}} wnTs[1]=1
+debugShowQuadLineIntersection wtTs[0]=0.5 {{0,0}, {1,1}, {0,2}} {{0.5,1}} wnTs[0]=0.5 {{0,1}, {1,1}}
+debugShowLineIntersection wtTs[0]=0.5 {{0,1}, {1,1}} {{0,1}} wnTs[0]=0 {{0,2}, {0,0}}
+debugShowQuadLineIntersection wtTs[0]=0 {{0,0}, {1,1}, {0,2}} {{0,0}} wnTs[0]=1 {{1,1}, {0,0}}
+debugShowLineIntersection wtTs[0]=1 {{1,1}, {0,0}} {{0,0}} wnTs[0]=1 {{0,2}, {0,0}}
+debugShowQuadLineIntersection wtTs[0]=0 {{0,0}, {1,1}, {0,2}} {{0,0}} wtTs[1]=1 {{0,2}} wnTs[0]=1 {{0,2}, {0,0}} wnTs[1]=0
+debugShowTs id=1 [o=3,4 t=0 0,0 w=1 o=0] [o=2 t=1 0,1 w=1 o=0]
+debugShowTs id=5 [o=4 t=0 0,2 w=1 o=0] [o=2 t=0.5 0,1 w=1 o=0] [o=3,4 t=1 0,0 w=1 o=0]
+addTPair addTPair this=5 0.5 other=1 1
+debugShowTs id=1 [o=3,4 t=0 0,0 w=1 o=0] [o=2,5 t=1 0,1 w=1 o=0]
+debugShowTs id=5 [o=4 t=0 0,2 w=1 o=0] [o=2,1 t=0.5 0,1 w=1 o=0] [o=3,4 t=1 0,0 w=1 o=0]
+debugShowTs id=1 [o=3,4 t=0 0,0 w=0 o=0] [o=2,5 t=1 0,1 w=1 o=0] done
+debugShowTs id=5 [o=4 t=0 0,2 w=1 o=0] [o=2,1 t=0.5 0,1 w=0 o=0] [o=3,4 t=1 0,0 w=1 o=0]
+debugShowActiveSpans id=2 (0,1 1,1) t=0 (0,1) tEnd=0.5 other=1 otherT=1 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (0,1 1,1) t=0 (0,1) tEnd=0.5 other=5 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (0,1 1,1) t=0.5 (0.5,1) tEnd=1 other=4 otherT=0.5 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,1 0,0) t=-0 (1,1) tEnd=1 other=2 otherT=1 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (0,0 1,1 0,2) t=0 (0,0) tEnd=0.5 other=1 otherT=0 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (0,0 1,1 0,2) t=0 (0,0) tEnd=0.5 other=3 otherT=1 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (0,0 1,1 0,2) t=0 (0,0) tEnd=0.5 other=5 otherT=1 otherIndex=4 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (0,0 1,1 0,2) t=0.5 (0.5,1) tEnd=1 other=2 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=5 (0,2 0,0) t=0 (0,2) tEnd=0.5 other=4 otherT=1 otherIndex=4 windSum=? windValue=1 oppValue=0
+findTop debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+debugShowSort [0] {{0,0}, {1,1}, {0,2}} tStart=0 tEnd=0.5 sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [1] {{1,1}, {0,0}} tStart=1 tEnd=-0 sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+findTop swap=1 serpentine=0 controls_contained_by_ends=0
+markWinding id=4 (0,0 1,1 0,2) t=0 [0] (0,0) tEnd=0 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=4 (0,0 1,1 0,2) t=0 [1] (0,0) tEnd=0 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=4 (0,0 1,1 0,2) t=0 [2] (0,0) tEnd=0.5 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=4 (0,0 1,1 0,2) t=0 [0] (0,0) tEnd=0 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1
+markWinding id=4 (0,0 1,1 0,2) t=0 [1] (0,0) tEnd=0 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1
+markWinding id=4 (0,0 1,1 0,2) t=0 [2] (0,0) tEnd=0.5 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1
+findNextWinding debugShowSort contourWinding=0 oppContourWinding=0 sign=1
+debugShowSort [0] {{0,0}, {1,1}, {0,2}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] {{0,1}, {1,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=? -1->-2 (max=-2) done=0 tiny=0 opp=0
+debugShowSort [2] {{0,0}, {1,1}, {0,2}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=? -2->-1 (max=-2) done=0 tiny=0 opp=0
+debugShowSort [3] {{0,1}, {1,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=0
+findNextWinding firstIndex=[0] sign=1
+markDone id=2 (0,1 1,1) t=0 [0] (0,1) tEnd=0 newWindSum=-2 windSum=? windValue=1
+markDone id=2 (0,1 1,1) t=0 [1] (0,1) tEnd=0.5 newWindSum=-2 windSum=? windValue=1
+findNextWinding chase.append id=2
+markDone id=4 (0,0 1,1 0,2) t=0.5 [3] (0.5,1) tEnd=1 newWindSum=-2 windSum=? windValue=1
+markDone id=5 (0,2 0,0) t=0 [0] (0,2) tEnd=0.5 newWindSum=-2 windSum=? windValue=1
+findNextWinding chase.append id=5
+markWinding id=2 (0,1 1,1) t=0.5 [2] (0.5,1) tEnd=1 newWindSum=-1 windSum=? windValue=1
+markWinding id=3 (1,1 0,0) t=-0 [0] (1,1) tEnd=1 newWindSum=-1 windSum=? windValue=1
+findNextWinding chase.append id=3
+markDoneUnary id=4 (0,0 1,1 0,2) t=0 [0] (0,0) tEnd=0 newWindSum=-1 windSum=-1 windValue=1
+markDoneUnary id=4 (0,0 1,1 0,2) t=0 [1] (0,0) tEnd=0 newWindSum=-1 windSum=-1 windValue=1
+markDoneUnary id=4 (0,0 1,1 0,2) t=0 [2] (0,0) tEnd=0.5 newWindSum=-1 windSum=-1 windValue=1
+findNextWinding from:[4] to:[2] start=2 end=3
+bridgeWinding current id=4 from=(0,0) to=(0.5,1)
+path.moveTo(0,0);
+path.quadTo(0.5,0.5, 0.5,1);
+findNextWinding simple
+markDoneUnary id=2 (0,1 1,1) t=0.5 [2] (0.5,1) tEnd=1 newWindSum=-1 windSum=-1 windValue=1
+bridgeWinding current id=2 from=(0.5,1) to=(1,1)
+findNextWinding debugShowSort contourWinding=0 oppContourWinding=? sign=1
+debugShowSort [1] {{1,1}, {0,0}} tStart=1 tEnd=-0 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [0] {{0,0}, {1,1}, {0,2}} tStart=0 tEnd=0.5 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=0
+findNextWinding firstIndex=[1] sign=1
+markDoneUnary id=3 (1,1 0,0) t=-0 [0] (1,1) tEnd=1 newWindSum=-1 windSum=-1 windValue=1
+findNextWinding from:[3] to:[4] start=1 end=3
+bridgeWinding current id=3 from=(1,1) to=(0,0)
+path.lineTo(1,1);
+path.lineTo(0,0);
+path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuad1,
     cubicOp62d,
     cubicOp61d,
     cubicOp58da,
@@ -3825,8 +3906,17 @@ var MARK_DONE_CUBIC =         MARK_DONE_QUAD + 1;
 var MARK_UNSORTABLE_LINE =    MARK_DONE_CUBIC + 1;
 var MARK_UNSORTABLE_QUAD =    MARK_UNSORTABLE_LINE + 1;
 var MARK_UNSORTABLE_CUBIC =   MARK_UNSORTABLE_QUAD + 1;
+var MARK_SIMPLE_LINE =        MARK_UNSORTABLE_CUBIC + 1;
+var MARK_SIMPLE_QUAD =        MARK_SIMPLE_LINE + 1;
+var MARK_SIMPLE_CUBIC =       MARK_SIMPLE_QUAD + 1;
+var MARK_SIMPLE_DONE_LINE =   MARK_SIMPLE_CUBIC + 1;
+var MARK_SIMPLE_DONE_QUAD =   MARK_SIMPLE_DONE_LINE + 1;
+var MARK_SIMPLE_DONE_CUBIC =  MARK_SIMPLE_DONE_QUAD + 1;
+var MARK_DONE_UNARY_LINE =    MARK_SIMPLE_DONE_CUBIC + 1;
+var MARK_DONE_UNARY_QUAD =    MARK_DONE_UNARY_LINE + 1;
+var MARK_DONE_UNARY_CUBIC =   MARK_DONE_UNARY_QUAD + 1;
 
-var COMPUTED_SET_1 =          MARK_UNSORTABLE_CUBIC + 1;
+var COMPUTED_SET_1 =          MARK_DONE_UNARY_CUBIC + 1;
 var COMPUTED_SET_2 =          COMPUTED_SET_1 + 1;
 var FRAG_TYPE_LAST =          COMPUTED_SET_2;
 
@@ -3839,7 +3929,8 @@ var REC_TYPE_SORT = 4;
 var REC_TYPE_OP = 5;
 var REC_TYPE_MARK = 6;
 var REC_TYPE_COMPUTED = 7;
-var REC_TYPE_LAST = REC_TYPE_COMPUTED;
+var REC_TYPE_COIN = 8;
+var REC_TYPE_LAST = REC_TYPE_COIN;
 
 function strs_to_nums(strs) {
     var result = [];
@@ -3919,6 +4010,7 @@ function parse_all(test) {
         }
         var type = line.lastIndexOf("debugShowSort", 0) === 0 ? REC_TYPE_SORT
                 : line.lastIndexOf("debugShowActiveSpans", 0) === 0 ? REC_TYPE_ACTIVE 
+                : line.lastIndexOf("debugShowTs", 0) === 0 ? REC_TYPE_COIN 
                 : line.lastIndexOf("debugShow", 0) === 0 ? REC_TYPE_SECT 
                 : line.lastIndexOf("computed", 0) === 0 ? REC_TYPE_COMPUTED
                 : line.lastIndexOf("path.", 0) === 0 ? REC_TYPE_ADD
@@ -3975,6 +4067,9 @@ function parse_all(test) {
                 } else {
                     found = match_regexp(line, lineNo, record, ADD_CLOSE, "path.close();");
                 }
+                break;
+            case REC_TYPE_COIN:
+                found = true;
                 break;
             case REC_TYPE_COMPUTED:
                 found = line ==  "computed quadratics given"
@@ -4072,6 +4167,24 @@ function parse_all(test) {
                 ) || match_regexp(line, lineNo, record, MARK_UNSORTABLE_QUAD, "markUnsortable" +
 " id=IDX QUAD_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
                 ) || match_regexp(line, lineNo, record, MARK_UNSORTABLE_CUBIC, "markUnsortable" +
+" id=IDX CUBIC_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_LINE, "markWinding" +
+" id=IDX LINE_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_QUAD, "markWinding" +
+" id=IDX QUAD_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_CUBIC, "markWinding" +
+" id=IDX CUBIC_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_DONE_LINE, "markDone" +
+" id=IDX LINE_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_DONE_QUAD, "markDone" +
+" id=IDX QUAD_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_SIMPLE_DONE_CUBIC, "markDone" +
+" id=IDX CUBIC_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_DONE_UNARY_LINE, "markDoneUnary" +
+" id=IDX LINE_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_DONE_UNARY_QUAD, "markDoneUnary" +
+" id=IDX QUAD_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
+                ) || match_regexp(line, lineNo, record, MARK_DONE_UNARY_CUBIC, "markDoneUnary" +
 " id=IDX CUBIC_VAL t=T_VAL [IDX] PT_VAL tEnd=T_VAL newWindSum=NUM windSum=OPT windValue=IDX"
                 );
                 break;
@@ -5499,18 +5612,27 @@ function draw(test, lines, title) {
                         case MARK_LINE:
                         case MARK_DONE_LINE:
                         case MARK_UNSORTABLE_LINE:
+                        case MARK_SIMPLE_LINE:
+                        case MARK_SIMPLE_DONE_LINE:
+                        case MARK_DONE_UNARY_LINE:
                             drawLinePartial(frags[1], frags[2], frags[3], frags[4],
                                 frags[5], frags[9]);
                             break;
                         case MARK_QUAD:
                         case MARK_DONE_QUAD:
                         case MARK_UNSORTABLE_QUAD:
+                        case MARK_SIMPLE_QUAD:
+                        case MARK_SIMPLE_DONE_QUAD:
+                        case MARK_DONE_UNARY_QUAD:
                             drawQuadPartial(frags[1], frags[2], frags[3], frags[4],
                                 frags[5], frags[6], frags[7], frags[11]);
                             break;
                         case MARK_CUBIC:
                         case MARK_DONE_CUBIC:
                         case MARK_UNSORTABLE_CUBIC:
+                        case MARK_SIMPLE_CUBIC:
+                        case MARK_SIMPLE_DONE_CUBIC:
+                        case MARK_DONE_UNARY_CUBIC:
                             drawCubicPartial(frags[1], frags[2], frags[3], frags[4],
                                 frags[5], frags[6], frags[7], frags[8], frags[9], frags[13]);
                             break;
