@@ -1,0 +1,53 @@
+/*
+ * Copyright 2012 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+#include "SkDQuadImplicit.h"
+#include "SkPathOpsQuad.h"
+#include "Test.h"
+
+static bool point_on_parameterized_curve(const SkDQuad& quad, const SkDPoint& point) {
+    SkDQuadImplicit q(quad);
+    double  xx = q.x2() * point.fX * point.fX;
+    double  xy = q.xy() * point.fX * point.fY;
+    double  yy = q.y2() * point.fY * point.fY;
+    double   x = q.x() * point.fX;
+    double   y = q.y() * point.fY;
+    double   c = q.c();
+    double sum = xx + xy + yy + x + y + c;
+    return approximately_zero(sum);
+}
+
+static const SkDQuad quadratics[] = {
+    {{{0, 0}, {1, 0}, {1, 1}}},
+};
+
+static const size_t quadratics_count = sizeof(quadratics) / sizeof(quadratics[0]);
+
+static void TestQuadraticCoincidence(skiatest::Reporter* reporter) {
+    // split large quadratic
+    // compare original, parts, to see if the are coincident
+    for (size_t index = 0; index < quadratics_count; ++index) {
+        const SkDQuad& test = quadratics[index];
+        SkDQuadPair split = test.chopAt(0.5);
+        SkDQuad midThird = test.subDivide(1.0/3, 2.0/3);
+        const SkDQuad* quads[] = {
+            &test, &midThird, &split.first(), &split.second()
+        };
+        size_t quadsCount = sizeof(quads) / sizeof(quads[0]);
+        for (size_t one = 0; one < quadsCount; ++one) {
+            for (size_t two = 0; two < quadsCount; ++two) {
+                for (size_t inner = 0; inner < 3; inner += 2) {
+                     REPORTER_ASSERT(reporter, point_on_parameterized_curve(*quads[one],
+                            (*quads[two])[inner]));
+                }
+                REPORTER_ASSERT(reporter, SkDQuadImplicit::Match(*quads[one], *quads[two]));
+            }
+        }
+    }
+}
+
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("PathOpsQuadImplicit", QuadImplicitTestClass, TestQuadraticCoincidence)
