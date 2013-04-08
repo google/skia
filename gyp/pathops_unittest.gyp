@@ -98,6 +98,7 @@
         '../tests/PathOpsQuadLineIntersectionTest.cpp',
         '../tests/PathOpsQuadLineIntersectionThreadedTest.cpp',
         '../tests/PathOpsQuadParameterizationTest.cpp',
+        '../tests/PathOpsQuadReduceOrderTest.cpp',
         '../tests/PathOpsSimplifyDegenerateThreadedTest.cpp',
         '../tests/PathOpsSimplifyQuadralateralsThreadedTest.cpp',
         '../tests/PathOpsSimplifyQuadThreadedTest.cpp',
