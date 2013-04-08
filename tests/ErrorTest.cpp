@@ -18,7 +18,7 @@
      SkClearLastError();                                                      \
   }
                        
-void cb(SkError err, void *context) {
+static void cb(SkError err, void *context) {
     int *context_ptr = static_cast<int *>(context);
     SkDebugf("CB (0x%x): %s\n", *context_ptr, SkGetLastErrorString());
 }
