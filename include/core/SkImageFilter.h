@@ -99,16 +99,18 @@ public:
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
      *  rendered to textures.  For single-pass effects, use asNewEffect().
-     *  The default implementation returns false.
+     *  The default implementation returns asNewEffect(NULL, NULL).
      */
     virtual bool canFilterImageGPU() const;
 
     /**
-     *  Process this image filter on the GPU.  src is the source image for
-     *  processing, as a texture-backed bitmap.  result is the destination
-     *  bitmap, which should contain a texture-backed pixelref on success.
-     *  The default implementation returns returns false and ignores the
-     *  result parameter.
+     *  Process this image filter on the GPU.  This is most often used for 
+     *  multi-pass effects, where intermediate results must be rendered to
+     *  textures.  For single-pass effects, use asNewEffect().  src is the
+     *  source image for processing, as a texture-backed bitmap.  result is
+     *  the destination bitmap, which should contain a texture-backed pixelref
+     *  on success.  The default implementation does single-pass processing
+     *  using asNewEffect().
      */
     virtual bool filterImageGPU(Proxy*, const SkBitmap& src, SkBitmap* result);
 

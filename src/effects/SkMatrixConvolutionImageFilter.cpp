@@ -562,18 +562,19 @@ GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkMWCRandom* random,
 
 bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffectRef** effect,
                                                  GrTexture* texture) const {
-    bool ok = fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
-    if (ok && effect) {
-        *effect = GrMatrixConvolutionEffect::Create(texture,
-                                                    fKernelSize,
-                                                    fKernel,
-                                                    fGain,
-                                                    fBias,
-                                                     fTarget,
-                                                     fTileMode,
-                                                     fConvolveAlpha);
+    if (!effect) {
+        return fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     }
-    return ok;
+    SkASSERT(fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE);
+    *effect = GrMatrixConvolutionEffect::Create(texture,
+                                                fKernelSize,
+                                                fKernel,
+                                                fGain,
+                                                fBias,
+                                                fTarget,
+                                                fTileMode,
+                                                fConvolveAlpha);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
