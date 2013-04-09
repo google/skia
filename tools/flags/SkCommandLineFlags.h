@@ -41,8 +41,6 @@
  *  "--boolean true" (where "true" can be replaced by "false", "TRUE", "FALSE",
  *  "1" or "0").
  *
- *  Single dashes are also permitted for this and other flags.
- *
  *  The helpString will be printed if the help flag (-h or -help) is used.
  *
  *  Similarly, the line
@@ -149,8 +147,8 @@ static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
                                                          defaultValue,      \
                                                          helpString)
 
-// string2 allows specifying a short name. No check is done to ensure that shortName
-// is actually shorter than name.
+// string2 allows specifying a short name. There is an assert that shortName
+// is only 1 character.
 #define DEFINE_string2(name, shortName, defaultValue, helpString)               \
 SkTDArray<const char*> FLAGS_##name;                                            \
 static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),       \
@@ -192,8 +190,7 @@ public:
     // Create flags of the desired type, and append to the list.
     static bool CreateBoolFlag(const char* name, const char* shortName, bool* pBool,
                                bool defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kBool_FlagType, helpString));
-        info->fShortName.set(shortName);
+        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kBool_FlagType, helpString));
         info->fBoolValue = pBool;
         *info->fBoolValue = info->fDefaultBool = defaultValue;
         return true;
@@ -202,8 +199,7 @@ public:
     static bool CreateStringFlag(const char* name, const char* shortName,
                                  SkTDArray<const char*>* pStrings,
                                  const char* defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kString_FlagType, helpString));
-        info->fShortName.set(shortName);
+        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kString_FlagType, helpString));
         info->fDefaultString.set(defaultValue);
 
         info->fStrings = pStrings;
@@ -217,7 +213,7 @@ public:
 
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kInt_FlagType, helpString));
+        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kInt_FlagType, helpString));
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;
@@ -225,7 +221,7 @@ public:
 
     static bool CreateDoubleFlag(const char* name, double* pDouble,
                                  double defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kDouble_FlagType, helpString));
+        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kDouble_FlagType, helpString));
         info->fDoubleValue = pDouble;
         *info->fDoubleValue = info->fDefaultDouble = defaultValue;
         return true;
@@ -333,8 +329,9 @@ public:
     }
 
 private:
-    SkFlagInfo(const char* name, FlagTypes type, const char* helpString)
+    SkFlagInfo(const char* name, const char* shortName, FlagTypes type, const char* helpString)
         : fName(name)
+        , fShortName(shortName)
         , fFlagType(type)
         , fHelpString(helpString)
         , fBoolValue(NULL)
@@ -346,6 +343,8 @@ private:
         , fStrings(NULL) {
         fNext = SkCommandLineFlags::gHead;
         SkCommandLineFlags::gHead = this;
+        SkASSERT(NULL != name && strlen(name) > 1);
+        SkASSERT(NULL == shortName || 1 == strlen(shortName));
     }
     // Name of the flag, without initial dashes
     SkString             fName;

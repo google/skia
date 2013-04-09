@@ -27,8 +27,8 @@ DECLARE_bool(deferImageDecoding);
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
-DECLARE_string(r);
-DEFINE_string(w, "", "Directory to write the rendered images.");
+DECLARE_string(readPath);
+DEFINE_string2(writePath, w, "", "Directory to write the rendered images.");
 DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered image to a "
             "file, instead of an image for each tile.");
 DEFINE_bool(validate, false, "Verify that the rendered image contains the same pixels as "
@@ -277,7 +277,7 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Render .skp files.");
     SkCommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_r.isEmpty()) {
+    if (FLAGS_readPath.isEmpty()) {
         SkDebugf(".skp files or directories are required.\n");
         exit(-1);
     }
@@ -311,13 +311,13 @@ int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
 
     SkString outputDir;
-    if (FLAGS_w.count() == 1) {
-        outputDir.set(FLAGS_w[0]);
+    if (FLAGS_writePath.count() == 1) {
+        outputDir.set(FLAGS_writePath[0]);
     }
 
     int failures = 0;
-    for (int i = 0; i < FLAGS_r.count(); i ++) {
-        failures += process_input(FLAGS_r[i], &outputDir, *renderer.get());
+    for (int i = 0; i < FLAGS_readPath.count(); i ++) {
+        failures += process_input(FLAGS_readPath[i], &outputDir, *renderer.get());
     }
     if (failures != 0) {
         SkDebugf("Failed to render %i pictures.\n", failures);
