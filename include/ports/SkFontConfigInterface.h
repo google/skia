@@ -86,11 +86,15 @@ public:
 
     // New APIS, which have default impls for now (which do nothing)
 
-    virtual int countFamilies();
+    virtual int countFamilies() { return 0; };
     virtual int getFamilySet(int index, SkString* outFamilyName,
-                             FontIdentity outIdentities[], int maxCount);
+                             FontIdentity outIdentities[], int maxCount) {
+        return 0;
+    }
     virtual int matchFamilySet(const char familyName[], SkString* outFamilyName,
-                               FontIdentity outIdentities[], int maxCount);
+                               FontIdentity outIdentities[], int maxCount) {
+        return 0;
+    }
 };
 
 #endif
