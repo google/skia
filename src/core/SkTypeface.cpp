@@ -118,11 +118,18 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
         if (addr) {
             SkAutoTUnref<SkStream> localStream(SkNEW_ARGS(SkMemoryStream,
                                                         (addr, length, false)));
+            if (stream->read(addr, length) == length) {
+                return SkTypeface::CreateFromStream(localStream.get());
+            } else {
+                // Failed to read the full font data, so fall through and try to create from name.
+                // If this is because of EOF, all subsequent reads from the stream will be EOF.
+                // If this is because of a stream error, the stream is in an error state,
+                // do not attempt to skip any remaining bytes.
+            }
+        } else {
+            // failed to allocate, so just skip and create-from-name
             stream->skip(length);
-            return SkTypeface::CreateFromStream(localStream.get());
         }
-        // failed to allocate, so just skip and create-from-name
-        stream->skip(length);
     }
 
     return SkTypeface::CreateFromName(desc.getFamilyName(), desc.getStyle());
