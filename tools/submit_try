@@ -16,6 +16,7 @@ adds some validation and supports both git and svn.
 import httplib
 import json
 import os
+import re
 import subprocess
 import svn
 import sys
@@ -32,6 +33,14 @@ def GetGlobalVariable(var_name):
 
 # Alias which can be used to run a try on every builder.
 ALL_BUILDERS = 'all'
+# Alias which can be used to run a try on all compile builders.
+COMPILE_BUILDERS = 'compile'
+# Alias which can be used to run a try on all builders that are run in the CQ.
+CQ_BUILDERS = 'cq'
+# Alias which can be used to specify a regex to choose builders.
+REGEX = 'regex'
+
+ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, CQ_BUILDERS, REGEX]
 
 # Contact information for the build master.
 SKIA_BUILD_MASTER_HOST = str(GetGlobalVariable('master_host'))
@@ -102,13 +111,13 @@ def GetTryRepo():
                   'defined in the %s file.' % CODEREVIEW_SETTINGS)
 
 
-def RetrieveTrybotList():
+def RetrieveTrybotList(json_filename):
   """ Retrieve the list of known trybots from the build master, stripping
   TRYBOT_SUFFIX from the name. """
   trybots = []
   connection = httplib.HTTPConnection(SKIA_BUILD_MASTER_HOST,  
-                                      SKIA_BUILD_MASTER_PORT)  
-  connection.request('GET', '/json/builders')  
+                                      SKIA_BUILD_MASTER_PORT)
+  connection.request('GET', '/json/%s' % json_filename)
   response = connection.getresponse()  
   builders = json.load(response)
 
@@ -148,11 +157,12 @@ def ValidateArgs(argv, trybots, is_svn=True):
 """submit_try: Submit a try request.
 submit_try %s--bot <buildername> [<buildername> ...]
 
--b, --bot           Builder on which to run the try. Required.
+-b, --bot           Builder(s) or Alias on which to run the try. Required.
+                    Allowed aliases: %s
 -h, --help          Show this message.
 -r <revision#>      Revision from which to run the try.
--l, --list_bots     List the available try builders and exit.
-""" % ('<changelist> ' if is_svn else ''))
+-l, --list_bots     List the available try builders and aliases and exit.
+""" % ('<changelist> ' if is_svn else '', ALL_ALIASES))
 
   def Error(msg=None):
     if msg:
@@ -169,7 +179,18 @@ submit_try %s--bot <buildername> [<buildername> ...]
     if arg == '-h' or arg == '--help':
       Error()
     elif arg == '-l' or arg == '--list_bots':
-      print 'submit_try: Available builders:\n  %s' % '\n  '.join(trybots)
+      format_args = ['\n  '.join(trybots)] + ALL_ALIASES
+      print (
+"""
+submit_try: Available builders:\n  %s
+
+Can also use the following aliases to run on groups of builders-
+  %s: Will run against all trybots.
+  %s: Will run against all compile trybots.
+  %s: Will run against the same trybots as the commit queue.
+  %s: You will be prompted to enter a regex to select builders with.
+
+""" % tuple(format_args))
       sys.exit(0)
     elif arg == '-b' or arg == '--bot':
       if using_bots:
@@ -179,10 +200,25 @@ submit_try %s--bot <buildername> [<buildername> ...]
       using_bots = []
       while argv and not argv[0].startswith('-'):
         for bot in argv.pop(0).split(','):
-          if bot == ALL_BUILDERS:
+          if bot in ALL_ALIASES:
             if using_bots:
-              Error('Cannot specify "all" with additional builder names.')
-            using_bots = trybots
+              Error('Cannot specify "%s" with additional builder names or '
+                    'aliases.' % bot)
+            if bot == ALL_BUILDERS:
+              using_bots = trybots
+            elif bot == COMPILE_BUILDERS:
+              using_bots = [t for t in trybots if '_Compile_' in t]
+            elif bot == CQ_BUILDERS:
+              using_bots = RetrieveTrybotList(json_filename='cqtrybots')
+            elif bot == REGEX:
+              while True:
+                regex = raw_input("Enter your trybot regex: ")
+                p = re.compile(regex)
+                using_bots = [t for t in trybots if p.match(t)]
+                print '\n\nTrybots that match your regex:\n%s\n\n' % '\n'.join(
+                    using_bots)
+                if raw_input('Re-enter regex? [y,n]: ') == 'n':
+                  break
             break
           else:
             if not bot in trybots:
@@ -248,7 +284,7 @@ def SubmitTryRequest(args, is_svn=True):
 
 def main():
   # Retrieve the list of active try builders from the build master.
-  trybots = RetrieveTrybotList()
+  trybots = RetrieveTrybotList(json_filename='trybots')
 
   # Determine if we're in an SVN checkout.
   is_svn = os.path.isdir('.svn')
