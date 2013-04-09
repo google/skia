@@ -671,9 +671,16 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     if (paint.getMaskFilter() || paint.getPathEffect()) {
         usePath = true;
     }
-    // until we aa rotated rects...
     if (!usePath && paint.isAntiAlias() && !fContext->getMatrix().rectStaysRect()) {
-        usePath = true;
+#ifdef SHADER_AA_FILL_RECT
+        if (doStroke) {
+#endif
+            usePath = true;
+#ifdef SHADER_AA_FILL_RECT
+        } else {
+            usePath = !fContext->getMatrix().preservesRightAngles();
+        }
+#endif
     }
     // small miter limit means right angles show bevel...
     if (SkPaint::kMiter_Join == paint.getStrokeJoin() &&

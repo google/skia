@@ -15,6 +15,7 @@
 class GrGpu;
 class GrDrawTarget;
 class GrIndexBuffer;
+class SkMatrix;
 
 /*
  * This class wraps helper functions that draw AA rects (filled & stroked)
@@ -35,7 +36,7 @@ public:
     }
 
     // TODO: potentialy fuse the fill & stroke methods and differentiate
-    // btween them by passing in strokeWidth (<0 means fill).
+    // between them by passing in strokeWidth (<0 means fill).
 
     // TODO: Remove the useVertexCoverage boolean. Just use it all the time
     // since we now have a coverage vertex attribute
@@ -43,6 +44,13 @@ public:
                     GrDrawTarget* target,
                     const GrRect& devRect,
                     bool useVertexCoverage);
+
+    void shaderFillAARect(GrGpu* gpu,
+                          GrDrawTarget* target,
+                          const GrRect& rect,
+                          const SkMatrix& combinedMatrix,
+                          const GrRect& devRect,
+                          bool useVertexCoverage);
 
     void strokeAARect(GrGpu* gpu,
                       GrDrawTarget* target,
