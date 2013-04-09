@@ -252,4 +252,3 @@ void SkOpAngle::setSpans() {
     fUnsortable = true;
 #endif
 }
-

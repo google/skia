@@ -180,7 +180,7 @@ public:
     void updatePts(const SkPoint pts[]) {
         fPts = pts;
     }
-    
+
     SkPath::Verb verb() const {
         return fVerb;
     }
@@ -213,7 +213,7 @@ public:
     const SkPoint& xyAtT(int index) const {
         return xyAtT(&fTs[index]);
     }
-    
+
     SkScalar yAtT(int index) const {
         return yAtT(&fTs[index]);
     }

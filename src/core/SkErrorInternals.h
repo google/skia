@@ -12,7 +12,7 @@
 #include "SkError.h"
 
 class SkErrorInternals {
-    
+
 public:
     static void ClearError();
     static void SetError(SkError code, const char *fmt, ...);
@@ -21,7 +21,7 @@ public:
     static void SetErrorCallback(SkErrorCallbackFunction cb, void *context);
     static void DefaultErrorCallback(SkError code, void *context);
 };
- 
+
 
 
 #endif /* SkErrorInternals_DEFINED */

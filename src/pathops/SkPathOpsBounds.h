@@ -52,7 +52,7 @@ struct SkPathOpsBounds : public SkRect {
         fLeft = fRight = pt.fX;
         fTop = fBottom = pt.fY;
     }
-    
+
     typedef SkRect INHERITED;
 };
 

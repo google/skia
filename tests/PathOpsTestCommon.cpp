@@ -24,4 +24,3 @@ void CubicToQuads(const SkDCubic& cubic, double precision, SkTDArray<SkDQuad>& q
         tStart = tEnd;
     }
 }
-

@@ -1035,11 +1035,11 @@ bool SkPath::hasOnlyMoveTos() const {
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
     assert_known_direction(dir);
-    
+
     if (rx < 0 || ry < 0) {
-        SkErrorInternals::SetError( kInvalidArgument_SkError, 
+        SkErrorInternals::SetError( kInvalidArgument_SkError,
                                     "I got %f and %f as radii to SkPath::AddRoundRect, "
-                                    "but negative radii are not allowed.", 
+                                    "but negative radii are not allowed.",
                                     SkScalarToDouble(rx), SkScalarToDouble(ry) );
         return;
     }

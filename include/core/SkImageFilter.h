@@ -104,7 +104,7 @@ public:
     virtual bool canFilterImageGPU() const;
 
     /**
-     *  Process this image filter on the GPU.  This is most often used for 
+     *  Process this image filter on the GPU.  This is most often used for
      *  multi-pass effects, where intermediate results must be rendered to
      *  textures.  For single-pass effects, use asNewEffect().  src is the
      *  source image for processing, as a texture-backed bitmap.  result is

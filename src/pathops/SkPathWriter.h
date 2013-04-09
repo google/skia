@@ -25,11 +25,11 @@ public:
     void nudge();
     void quadTo(const SkPoint& pt1, const SkPoint& pt2);
     bool someAssemblyRequired() const;
-    
+
 private:
     bool changedSlopes(const SkPoint& pt) const;
     void moveTo();
-    
+
     SkPath* fPathPtr;
     SkPoint fDefer[2];
     SkPoint fFirstPt;

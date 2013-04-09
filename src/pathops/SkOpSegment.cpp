@@ -2490,7 +2490,7 @@ void SkOpSegment::zeroSpan(SkOpSpan* span) {
     span->fDone = true;
     ++fDoneSpans;
 }
-    
+
 #if DEBUG_SWAP_TOP
 bool SkOpSegment::controlsContainedByEnds(int tStart, int tEnd) const {
     if (fVerb != SkPath::kCubic_Verb) {

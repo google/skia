@@ -12,7 +12,7 @@
 
 struct SkDTriangle {
     SkDPoint fPts[3];
-    
+
     bool contains(const SkDPoint& pt) const;
 
 };

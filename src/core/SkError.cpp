@@ -34,7 +34,7 @@ namespace {
     #define THREAD_ERROR_CALLBACK                                                             \
         *(reinterpret_cast<SkErrorCallbackFunction *>(SkTLS::Get(CreateThreadErrorCallback,   \
                                                                  DeleteThreadErrorCallback)))
-   
+
     void *CreateThreadErrorContext() {
         return SkNEW_ARGS(void **, (NULL));
     }
@@ -99,7 +99,7 @@ const char *SkErrorInternals::GetLastErrorString() {
 void SkErrorInternals::SetError(SkError code, const char *fmt, ...) {
     THREAD_ERROR = code;
     va_list args;
-    
+
     char *str = THREAD_ERROR_STRING;
     const char *error_name = NULL;
     switch( code ) {
@@ -107,10 +107,10 @@ void SkErrorInternals::SetError(SkError code, const char *fmt, ...) {
             error_name = "No Error";
             break;
         case kInvalidArgument_SkError:
-            error_name = "Invalid Argument";  
+            error_name = "Invalid Argument";
             break;
-        case kInvalidOperation_SkError: 
-            error_name = "Invalid Operation"; 
+        case kInvalidOperation_SkError:
+            error_name = "Invalid Operation";
             break;
         case kInvalidHandle_SkError:
             error_name = "Invalid Handle";
@@ -128,11 +128,11 @@ void SkErrorInternals::SetError(SkError code, const char *fmt, ...) {
             error_name = "Unknown error";
             break;
     }
-    
+
     sprintf( str, "%s: ", error_name );
     int string_left = ERROR_STRING_LENGTH - strlen( str );
     str += strlen(str);
-    
+
     va_start( args, fmt );
     vsnprintf( str, string_left, fmt, args );
     va_end( args );

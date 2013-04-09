@@ -132,7 +132,7 @@ public:
     }
 
     SkOpSegment* nonVerticalSegment(int* start, int* end);
-    
+
     bool operand() const {
         return fOperand;
     }
@@ -168,13 +168,13 @@ public:
     }
 
     void sortSegments();
-    
+
     const SkPoint& start() const {
         return fSegments.front().pts()[0];
     }
-    
+
     void toPath(SkPathWriter* path) const;
-    
+
     void toPartialBackward(SkPathWriter* path) const {
         int segmentCount = fSegments.count();
         for (int test = segmentCount - 1; test >= 0; --test) {

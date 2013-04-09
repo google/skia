@@ -16,4 +16,3 @@ void AddSelfIntersectTs(SkOpContour* test);
 void CoincidenceCheck(SkTDArray<SkOpContour*>* contourList, int total);
 
 #endif
-

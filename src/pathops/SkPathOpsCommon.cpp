@@ -324,7 +324,7 @@ SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& contourList, bool* f
         // if only remaining candidates are vertical, then they can be marked done
         SkASSERT(*indexPtr != *endIndexPtr && *indexPtr >= 0 && *endIndexPtr >= 0);
         skipVertical(contourList, &current, indexPtr, endIndexPtr);
-        
+
         SkASSERT(*indexPtr != *endIndexPtr && *indexPtr >= 0 && *endIndexPtr >= 0);
         tryAgain = false;
         contourWinding = rightAngleWinding(contourList, &current, indexPtr, endIndexPtr, &tHit,
@@ -575,4 +575,3 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     }
 #endif
 }
-
