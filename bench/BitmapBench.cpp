@@ -21,25 +21,6 @@ static const char* gConfigName[] = {
     "ERROR", "a1", "a8", "index8", "565", "4444", "8888"
 };
 
-static void drawIntoBitmap(const SkBitmap& bm) {
-    const int w = bm.width();
-    const int h = bm.height();
-
-    SkCanvas canvas(bm);
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setColor(SK_ColorRED);
-    canvas.drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
-                      SkIntToScalar(SkMin32(w, h))*3/8, p);
-
-    SkRect r;
-    r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(SkIntToScalar(4));
-    p.setColor(SK_ColorBLUE);
-    canvas.drawRect(r, p);
-}
-
 static int conv6ToByte(int x) {
     return x * 0xFF / 5;
 }
@@ -102,38 +83,23 @@ class BitmapBench : public SkBenchmark {
     bool        fIsOpaque;
     bool        fForceUpdate; //bitmap marked as dirty before each draw. forces bitmap to be updated on device cache
     int         fTileX, fTileY; // -1 means don't use shader
+    bool        fIsVolatile;
+    SkBitmap::Config fConfig;
     SkString    fName;
     enum { N = SkBENCHLOOP(300) };
+    enum { W = 128 };
+    enum { H = 128 };
 public:
     BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
                 bool forceUpdate = false, bool bitmapVolatile = false,
                 int tx = -1, int ty = -1)
-        : INHERITED(param), fIsOpaque(isOpaque), fForceUpdate(forceUpdate), fTileX(tx), fTileY(ty) {
-        const int w = 128;
-        const int h = 128;
-        SkBitmap bm;
-
-        if (SkBitmap::kIndex8_Config == c) {
-            bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        } else {
-            bm.setConfig(c, w, h);
-        }
-        bm.allocPixels();
-        bm.eraseColor(isOpaque ? SK_ColorBLACK : 0);
-
-        drawIntoBitmap(bm);
-
-        if (SkBitmap::kIndex8_Config == c) {
-            convertToIndex666(bm, &fBitmap);
-        } else {
-            fBitmap = bm;
-        }
-
-        if (fBitmap.getColorTable()) {
-            fBitmap.getColorTable()->setIsOpaque(isOpaque);
-        }
-        fBitmap.setIsOpaque(isOpaque);
-        fBitmap.setIsVolatile(bitmapVolatile);
+        : INHERITED(param)
+        , fIsOpaque(isOpaque)
+        , fForceUpdate(forceUpdate)
+        , fTileX(tx)
+        , fTileY(ty)
+        , fIsVolatile(bitmapVolatile)
+        , fConfig(c) {
     }
 
 protected:
@@ -145,14 +111,41 @@ protected:
                 fName.appendf("_%s", gTileName[fTileY]);
             }
         }
-        fName.appendf("_%s%s", gConfigName[fBitmap.config()],
+        fName.appendf("_%s%s", gConfigName[fConfig],
                       fIsOpaque ? "" : "_A");
         if (fForceUpdate)
             fName.append("_update");
-        if (fBitmap.isVolatile())
+        if (fIsVolatile)
             fName.append("_volatile");
 
         return fName.c_str();
+    }
+
+    virtual void onPreDraw() {
+        SkBitmap bm;
+
+        if (SkBitmap::kIndex8_Config == fConfig) {
+            bm.setConfig(SkBitmap::kARGB_8888_Config, W, H);
+        } else {
+            bm.setConfig(fConfig, W, H);
+        }
+
+        bm.allocPixels();
+        bm.eraseColor(fIsOpaque ? SK_ColorBLACK : 0);
+
+        onDrawIntoBitmap(bm);
+
+        if (SkBitmap::kIndex8_Config == fConfig) {
+            convertToIndex666(bm, &fBitmap);
+        } else {
+            fBitmap = bm;
+        }
+
+        if (fBitmap.getColorTable()) {
+            fBitmap.getColorTable()->setIsOpaque(fIsOpaque);
+        }
+        fBitmap.setIsOpaque(fIsOpaque);
+        fBitmap.setIsVolatile(fIsVolatile);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -175,6 +168,25 @@ protected:
 
             canvas->drawBitmap(bitmap, x, y, &paint);
         }
+    }
+
+    virtual void onDrawIntoBitmap(const SkBitmap& bm) {
+        const int w = bm.width();
+        const int h = bm.height();
+
+        SkCanvas canvas(bm);
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setColor(SK_ColorRED);
+        canvas.drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
+                          SkIntToScalar(SkMin32(w, h))*3/8, p);
+
+        SkRect r;
+        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(SkIntToScalar(4));
+        p.setColor(SK_ColorBLUE);
+        canvas.drawRect(r, p);
     }
 
 private:
@@ -241,6 +253,95 @@ private:
     typedef BitmapBench INHERITED;
 };
 
+/** Verify optimizations that test source alpha values. */
+
+class SourceAlphaBitmapBench : public BitmapBench {
+public:
+    enum SourceAlpha { kOpaque_SourceAlpha, kTransparent_SourceAlpha,
+                       kTwoStripes_SourceAlpha, kThreeStripes_SourceAlpha};
+private:
+    SkString    fFullName;
+    SourceAlpha fSourceAlpha;
+public:
+    SourceAlphaBitmapBench(void* param, SourceAlpha alpha, SkBitmap::Config c,
+                bool forceUpdate = false, bool bitmapVolatile = false,
+                int tx = -1, int ty = -1)
+        : INHERITED(param, false, c, forceUpdate, bitmapVolatile, tx, ty)
+        , fSourceAlpha(alpha) {
+    }
+
+protected:
+    virtual const char* onGetName() {
+        fFullName.set(INHERITED::onGetName());
+
+        if (fSourceAlpha == kOpaque_SourceAlpha) {
+                fFullName.append("_source_opaque");
+        } else if (fSourceAlpha == kTransparent_SourceAlpha) {
+                fFullName.append("_source_transparent");
+        } else if (fSourceAlpha == kTwoStripes_SourceAlpha) {
+                fFullName.append("_source_stripes_two");
+        } else if (fSourceAlpha == kThreeStripes_SourceAlpha) {
+                fFullName.append("_source_stripes_three");
+        }
+
+        return fFullName.c_str();
+    }
+
+    virtual void onDrawIntoBitmap(const SkBitmap& bm) SK_OVERRIDE {
+        const int w = bm.width();
+        const int h = bm.height();
+
+        if (kOpaque_SourceAlpha == fSourceAlpha) {
+            bm.eraseColor(SK_ColorBLACK);
+        } else if (kTransparent_SourceAlpha == fSourceAlpha) {
+            bm.eraseColor(0);
+        } else if (kTwoStripes_SourceAlpha == fSourceAlpha) {
+            bm.eraseColor(0);
+
+            SkCanvas canvas(bm);
+            SkPaint p;
+            p.setAntiAlias(false);
+            p.setStyle(SkPaint::kFill_Style);
+            p.setColor(SK_ColorRED);
+
+            // Draw red vertical stripes on transparent background
+            SkRect r;
+            for (int x = 0; x < w; x+=2)
+            {
+                r.set(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
+                canvas.drawRect(r, p);
+            }
+
+        } else if (kThreeStripes_SourceAlpha == fSourceAlpha) {
+            bm.eraseColor(0);
+
+            SkCanvas canvas(bm);
+            SkPaint p;
+            p.setAntiAlias(false);
+            p.setStyle(SkPaint::kFill_Style);
+
+            // Draw vertical stripes on transparent background with a pattern
+            // where the first pixel is fully transparent, the next is semi-transparent
+            // and the third is fully opaque.
+            SkRect r;
+            for (int x = 0; x < w; x++)
+            {
+                if (x % 3 == 0) {
+                    continue; // Keep transparent
+                } else if (x % 3 == 1) {
+                    p.setColor(SkColorSetARGB(127, 127, 127, 127)); // Semi-transparent
+                } else if (x % 3 == 2) {
+                    p.setColor(SK_ColorRED); // Opaque
+                }
+                r.set(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
+                canvas.drawRect(r, p);
+            }
+        }
+    }
+
+private:
+    typedef BitmapBench INHERITED;
+};
 static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); }
 static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); }
 static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); }
@@ -263,6 +364,12 @@ static SkBenchmark* Fact14(void* p) { return new FilterBitmapBench(p, true, SkBi
 static SkBenchmark* Fact15(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, true, true); }
 static SkBenchmark* Fact16(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, true, true); }
 
+// source alpha tests -> S32A_Opaque_BlitRow32_{arm,neon}
+static SkBenchmark* Fact17(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact18(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTransparent_SourceAlpha, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact19(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTwoStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact20(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kThreeStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); }
+
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
@@ -282,3 +389,8 @@ static BenchRegistry gReg13(Fact13);
 static BenchRegistry gReg14(Fact14);
 static BenchRegistry gReg15(Fact15);
 static BenchRegistry gReg16(Fact16);
+
+static BenchRegistry gReg17(Fact17);
+static BenchRegistry gReg18(Fact18);
+static BenchRegistry gReg19(Fact19);
+static BenchRegistry gReg20(Fact20);
