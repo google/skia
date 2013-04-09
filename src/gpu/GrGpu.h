@@ -78,8 +78,7 @@ public:
      *
      * If kRenderTarget_TextureFlag is specified the GrRenderTarget is
      * accessible via GrTexture::asRenderTarget(). The texture will hold a ref
-     * on the render target until its releaseRenderTarget() is called or it is
-     * destroyed.
+     * on the render target until the texture is destroyed.
      *
      * @param desc        describes the texture to be created.
      * @param srcData     texel data to load texture. Begins with full-size
