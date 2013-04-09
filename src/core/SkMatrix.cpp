@@ -189,6 +189,7 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
     SkScalar sx = fMat[kMSkewX];
     SkScalar sy = fMat[kMSkewY];
 
+    // TODO: I (rphillips) think there should be an || in here (see preservesRightAngles)
     // degenerate matrix, non-similarity
     if (SkScalarNearlyZero(mx) && SkScalarNearlyZero(my)
         && SkScalarNearlyZero(sx) && SkScalarNearlyZero(sy)) {
@@ -202,7 +203,41 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
 
     return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
            SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
-                SkScalarSquare(tol));
+                               SkScalarSquare(tol));
+}
+
+bool SkMatrix::preservesRightAngles(SkScalar tol) const {
+    TypeMask mask = this->getType();
+    
+    if (mask <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
+        // identity, translate and/or scale
+        return true;
+    }
+    if (mask & kPerspective_Mask) {
+        return false;
+    }
+
+    SkASSERT(mask & kAffine_Mask);
+
+    SkScalar mx = fMat[kMScaleX];
+    SkScalar my = fMat[kMScaleY];
+    SkScalar sx = fMat[kMSkewX];
+    SkScalar sy = fMat[kMSkewY];
+
+    if ((SkScalarNearlyZero(mx) && SkScalarNearlyZero(sx)) ||
+        (SkScalarNearlyZero(my) && SkScalarNearlyZero(sy))) {
+        // degenerate matrix
+        return false;
+    }
+
+    // it has scales and skews, but it could also be rotation, check it out.
+    SkVector vec[2];
+    vec[0].set(mx, sx);
+    vec[1].set(sy, my);
+
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
+           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
+                               SkScalarSquare(tol));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
