@@ -40,6 +40,7 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     return gDirect;
 }
 
+#if 0
 int SkFontConfigInterface::countFamilies() { return 0; }
 
 int SkFontConfigInterface::getFamilySet(int index, SkString* outFamilyName,
@@ -54,6 +55,7 @@ int SkFontConfigInterface::matchFamilySet(const char familyName[],
                                           int maxCount) {
     return 0;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
