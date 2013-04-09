@@ -116,7 +116,7 @@ public:
 
 
 private:
-    GrRectEffect::GrRectEffect() : GrEffect() {
+    GrRectEffect() : GrEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
         this->addVertexAttrib(kVec2f_GrSLType);
     }
