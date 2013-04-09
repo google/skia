@@ -40,6 +40,23 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     return gDirect;
 }
 
+int SkFontConfigInterface::countFamilies() { return 0; }
+
+int SkFontConfigInterface::getFamilySet(int index, SkString* outFamilyName,
+                                        FontIdentity outIdentities[],
+                                        int maxCount) {
+    return 0;
+}
+
+int SkFontConfigInterface::matchFamilySet(const char familyName[],
+                                          SkString* outFamilyName,
+                                          FontIdentity outIdentities[],
+                                          int maxCount) {
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 namespace {
 
 // Equivalence classes, used to match the Liberation and other fonts

@@ -8,6 +8,7 @@
 #ifndef SkFontConfigInterface_DEFINED
 #define SkFontConfigInterface_DEFINED
 
+#include "SkFontStyle.h"
 #include "SkRefCnt.h"
 #include "SkTypeface.h"
 
@@ -50,6 +51,7 @@ public:
         uint32_t    fID;
         int32_t     fTTCIndex;
         SkString    fString;
+        SkFontStyle fStyle;
     };
 
     /**
@@ -81,6 +83,14 @@ public:
      *  libfontconfig. This does not affect the refcnt of the returned instance.
      */
     static SkFontConfigInterface* GetSingletonDirectInterface();
+
+    // New APIS, which have default impls for now (which do nothing)
+
+    virtual int countFamilies();
+    virtual int getFamilySet(int index, SkString* outFamilyName,
+                             FontIdentity outIdentities[], int maxCount);
+    virtual int matchFamilySet(const char familyName[], SkString* outFamilyName,
+                               FontIdentity outIdentities[], int maxCount);
 };
 
 #endif
