@@ -41,19 +41,25 @@ static bool parse_bool_arg(const char* string, bool* result) {
 bool SkFlagInfo::match(const char* string) {
     if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
         string++;
-        // Allow one or two dashes
+        const SkString* compareName;
         if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
             string++;
+            // There were two dashes. Compare against full name.
+            compareName = &fName;
+        } else {
+            // One dash. Compare against the short name.
+            compareName = &fShortName;
         }
         if (kBool_FlagType == fFlagType) {
             // In this case, go ahead and set the value.
-            if (fName.equals(string) || fShortName.equals(string)) {
+            if (compareName->equals(string)) {
                 *fBoolValue = true;
                 return true;
             }
             if (SkStrStartsWith(string, "no") && strlen(string) > 2) {
                 string += 2;
-                if (fName.equals(string) || fShortName.equals(string)) {
+                // Only allow "no" to be prepended to the full name.
+                if (fName.equals(string)) {
                     *fBoolValue = false;
                     return true;
                 }
@@ -63,15 +69,17 @@ bool SkFlagInfo::match(const char* string) {
             if (equalIndex > 0) {
                 // The string has an equal sign. Check to see if the string matches.
                 SkString flag(string, equalIndex);
-                if (flag.equals(fName) || flag.equals(fShortName)) {
+                if (flag.equals(*compareName)) {
                     // Check to see if the remainder beyond the equal sign is true or false:
                     string += equalIndex + 1;
                     parse_bool_arg(string, fBoolValue);
                     return true;
+                } else {
+                    return false;
                 }
             }
         }
-        return fName.equals(string) || fShortName.equals(string);
+        return compareName->equals(string);
     } else {
         // Has no dash
         return false;
@@ -143,8 +151,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
     // Only allow calling this function once.
     static bool gOnce;
     if (gOnce) {
-        SkDebugf("Parse should only be called once at the beginning"
-                 " of main!\n");
+        SkDebugf("Parse should only be called once at the beginning of main!\n");
         SkASSERT(false);
         return;
     }
@@ -153,8 +160,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
     bool helpPrinted = false;
     // Loop over argv, starting with 1, since the first is just the name of the program.
     for (int i = 1; i < argc; i++) {
-        if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--h", argv[i])
-                || 0 == strcmp("-help", argv[i]) || 0 == strcmp("--help", argv[i])) {
+        if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--help", argv[i])) {
             // Print help message.
             SkTDArray<const char*> helpFlags;
             for (int j = i + 1; j < argc; j++) {

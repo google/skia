@@ -40,7 +40,7 @@ DEFINE_string(logFile, "", "Destination for writing log output, in addition to s
 DEFINE_bool(logPerIter, false, "Log each repeat timer instead of mean.");
 DEFINE_bool(min, false, "Print the minimum times (instead of average).");
 DECLARE_int32(multi);
-DECLARE_string(r);
+DECLARE_string(readPath);
 DEFINE_int32(repeat, 1, "Set the number of times to repeat each test.");
 DEFINE_bool(timeIndividualTiles, false, "Report times for drawing individual tiles, rather than "
             "times for drawing the whole page. Requires tiled rendering.");
@@ -345,7 +345,7 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
         benchmark->setTimeIndividualTiles(true);
     }
 
-    if (FLAGS_r.count() < 1) {
+    if (FLAGS_readPath.count() < 1) {
         gLogger.logError(".skp files or directories are required.\n");
         exit(-1);
     }
@@ -423,8 +423,8 @@ int tool_main(int argc, char** argv) {
     setup_benchmark(&benchmark);
 
     int failures = 0;
-    for (int i = 0; i < FLAGS_r.count(); ++i) {
-        failures += process_input(FLAGS_r[i], benchmark);
+    for (int i = 0; i < FLAGS_readPath.count(); ++i) {
+        failures += process_input(FLAGS_readPath[i], benchmark);
     }
 
     if (failures != 0) {

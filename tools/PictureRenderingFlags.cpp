@@ -60,7 +60,7 @@ DEFINE_string(mode, "simple", "Run in the corresponding mode:\n"
 DEFINE_int32(multi, 1, "Set the number of threads for multi threaded drawing. "
              "If > 1, requires tiled rendering.");
 DEFINE_bool(pipe, false, "Use SkGPipe rendering. Currently incompatible with \"mode\".");
-DEFINE_string(r, "", "skp files or directories of skp files to process.");
+DEFINE_string2(readPath, r, "", "skp files or directories of skp files to process.");
 DEFINE_double(scale, 1, "Set the scale factor.");
 DEFINE_string(tiles, "", "Used with --mode copyTile to specify number of tiles per larger tile "
               "in the x and y directions.");

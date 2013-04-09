@@ -1187,7 +1187,7 @@ DEFINE_string(tileGridReplayScales, "", "Space separated list of floating-point 
 DEFINE_string(writeJsonSummaryPath, "", "Write a JSON-formatted result summary to this file.");
 DEFINE_bool2(verbose, v, false, "Print diagnostics (e.g. list each config to be tested).");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
-DEFINE_string2(writePicturePath, wp, "", "Write .skp files into this directory.");
+DEFINE_string2(writePicturePath, p, "", "Write .skp files into this directory.");
 
 static int findConfig(const char config[]) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {

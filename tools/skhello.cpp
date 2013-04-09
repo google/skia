@@ -11,8 +11,8 @@
 #include "SkImageEncoder.h"
 #include "SkString.h"
 
-DEFINE_string(o, "skhello.png", "The filename to write the image.");
-DEFINE_string(t, "Hello", "The string to write.");
+DEFINE_string2(outFile, o, "skhello.png", "The filename to write the image.");
+DEFINE_string2(text, t, "Hello", "The string to write.");
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -23,11 +23,11 @@ int tool_main(int argc, char** argv) {
     SkString path("skhello.png");
     SkString text("Hello");
 
-    if (!FLAGS_o.isEmpty()) {
-        path.set(FLAGS_o[0]);
+    if (!FLAGS_outFile.isEmpty()) {
+        path.set(FLAGS_outFile[0]);
     }
-    if (!FLAGS_t.isEmpty()) {
-        text.set(FLAGS_t[0]);
+    if (!FLAGS_text.isEmpty()) {
+        text.set(FLAGS_text[0]);
     }
 
     SkPaint paint;
