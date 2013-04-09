@@ -465,4 +465,3 @@ static void TestQuadIntersection(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("PathOpsQuadIntersection", QuadIntersectionTestClass, TestQuadIntersection)
-

@@ -703,7 +703,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
     if (!someOptFired) {
         SkDebugf("No opts fired\n");
     } else {
-        SkDebugf("\t before: %d after: %d delta: %d\n", 
+        SkDebugf("\t before: %d after: %d delta: %d\n",
                  numBefore, numAfter, numBefore-numAfter);
     }
 

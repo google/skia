@@ -22,10 +22,10 @@
 
 #ifdef SK_BUILD_FOR_WIN
     #define SK_RAND(seed) rand()
-    #define SK_SNPRINTF _snprintf 
+    #define SK_SNPRINTF _snprintf
 #else
     #define SK_RAND(seed) rand_r(&seed)
-	#define SK_SNPRINTF snprintf
+    #define SK_SNPRINTF snprintf
 #endif
 
 void mathematica_ize(char* str, size_t bufferSize);

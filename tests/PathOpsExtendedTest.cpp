@@ -162,7 +162,7 @@ static void showPath(const SkPath& path, const char* str, const SkMatrix& scale)
     SkPath scaled;
     SkMatrix inverse;
     bool success = scale.invert(&inverse);
-    if (!success) { 
+    if (!success) {
         SkASSERT(0);
     }
     path.transform(inverse, &scaled);
@@ -330,7 +330,7 @@ static void showPathOpPath(const SkPath& one, const SkPath& two, const SkPath& a
 
 static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const SkPath& scaledOne,
                         const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
-                        const SkPath& a, const SkPath& b, const SkPathOp shapeOp, 
+                        const SkPath& a, const SkPath& b, const SkPathOp shapeOp,
                         const SkMatrix& scale) {
     int errors2x2;
     int errors = pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);

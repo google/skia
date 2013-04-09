@@ -262,4 +262,3 @@ void SkOpContour::setBounds() {
         fBounds.add(fSegments[index].bounds());
     }
 }
-

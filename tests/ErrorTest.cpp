@@ -17,7 +17,7 @@
      SkDebugf("Last error string: %s\n", SkGetLastErrorString());             \
      SkClearLastError();                                                      \
   }
-                       
+
 static void cb(SkError err, void *context) {
     int *context_ptr = static_cast<int *>(context);
     SkDebugf("CB (0x%x): %s\n", *context_ptr, SkGetLastErrorString());
@@ -25,16 +25,16 @@ static void cb(SkError err, void *context) {
 
 static void ErrorTest(skiatest::Reporter* reporter) {
     SkError err;
-    
+
     CHECK(kNoError_SkError);
-    
+
     SkRect r = SkRect::MakeWH(50, 100);
     CHECK(kNoError_SkError);
 
     SkPath path;
     path.addRect(r);
     CHECK(kNoError_SkError);
-    
+
     path.addRoundRect(r, 10, 10);
     CHECK(kNoError_SkError);
 
