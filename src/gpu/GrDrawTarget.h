@@ -422,6 +422,14 @@ public:
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
+    /**
+     * Function that determines whether a copySurface call would succeed without
+     * performing the copy.
+     */
+    bool canCopySurface(GrSurface* dst,
+                        GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint);
 
     /**
      * Release any resources that are cached but not currently in use. This
@@ -646,10 +654,10 @@ protected:
     // classes must keep this consistent with their implementation of onCopySurface(). The inputs
     // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
     // and dst bounds.
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint);
+    virtual bool onCanCopySurface(GrSurface* dst,
+                                  GrSurface* src,
+                                  const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint);
 
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }

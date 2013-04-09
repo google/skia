@@ -422,6 +422,7 @@ void GrInOrderDrawBuffer::reset() {
     fIndexPool.reset();
     fClips.reset();
     fClipOrigins.reset();
+    fCopySurfaces.reset();
     fClipSet = true;
 }
 
@@ -456,6 +457,7 @@ bool GrInOrderDrawBuffer::flush() {
     int currClear       = 0;
     int currDraw        = 0;
     int currStencilPath = 0;
+    int currCopySurface = 0;
 
     for (int c = 0; c < numCmds; ++c) {
         switch (fCmds[c]) {
@@ -492,6 +494,13 @@ bool GrInOrderDrawBuffer::flush() {
                                fClears[currClear].fRenderTarget);
                 ++currClear;
                 break;
+            case kCopySurface_Cmd:
+                fDstGpu->copySurface(fCopySurfaces[currCopySurface].fDst.get(),
+                                     fCopySurfaces[currCopySurface].fSrc.get(),
+                                     fCopySurfaces[currCopySurface].fSrcRect,
+                                     fCopySurfaces[currCopySurface].fDstPoint);
+                ++currCopySurface;
+                break;
         }
     }
     // we should have consumed all the states, clips, etc.
@@ -500,11 +509,35 @@ bool GrInOrderDrawBuffer::flush() {
     GrAssert(fClipOrigins.count() == currClip);
     GrAssert(fClears.count() == currClear);
     GrAssert(fDraws.count()  == currDraw);
+    GrAssert(fCopySurfaces.count() == currCopySurface);
 
     fDstGpu->setDrawState(prevDrawState);
     prevDrawState->unref();
     this->reset();
     return true;
+}
+
+bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
+                                        GrSurface* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint) {
+    if (fDstGpu->canCopySurface(dst, src, srcRect, dstPoint)) {
+        CopySurface* cs = this->recordCopySurface();
+        cs->fDst.reset(SkRef(dst));
+        cs->fSrc.reset(SkRef(src));
+        cs->fSrcRect = srcRect;
+        cs->fDstPoint = dstPoint;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool GrInOrderDrawBuffer::onCanCopySurface(GrSurface* dst,
+                                           GrSurface* src,
+                                           const SkIRect& srcRect,
+                                           const SkIPoint& dstPoint) {
+    return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint);
 }
 
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
@@ -755,6 +788,12 @@ GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear() {
     fCmds.push_back(kClear_Cmd);
     return &fClears.push_back();
 }
+
+GrInOrderDrawBuffer::CopySurface* GrInOrderDrawBuffer::recordCopySurface() {
+    fCmds.push_back(kCopySurface_Cmd);
+    return &fCopySurfaces.push_back();
+}
+
 
 void GrInOrderDrawBuffer::clipWillBeSet(const GrClipData* newClipData) {
     INHERITED::clipWillBeSet(newClipData);

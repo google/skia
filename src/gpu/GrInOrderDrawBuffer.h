@@ -33,7 +33,7 @@ class GrVertexBufferAllocPool;
  * responsibility to ensure that all referenced textures, buffers, and render-targets are associated
  * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
  * store geometry.
- */
+ */ 
 class GrInOrderDrawBuffer : public GrDrawTarget {
 public:
 
@@ -87,6 +87,7 @@ private:
         kSetState_Cmd       = 3,
         kSetClip_Cmd        = 4,
         kClear_Cmd          = 5,
+        kCopySurface_Cmd    = 6,
     };
 
     class DrawRecord : public DrawInfo {
@@ -96,7 +97,7 @@ private:
         const GrIndexBuffer*    fIndexBuffer;
     };
 
-    struct StencilPath {
+    struct StencilPath : GrNoncopyable {
         StencilPath();
 
         SkAutoTUnref<const GrPath>  fPath;
@@ -104,13 +105,20 @@ private:
         SkPath::FillType            fFill;
     };
 
-    struct Clear {
+    struct Clear  : GrNoncopyable {
         Clear() : fRenderTarget(NULL) {}
         ~Clear() { GrSafeUnref(fRenderTarget); }
 
         GrIRect         fRect;
         GrColor         fColor;
         GrRenderTarget* fRenderTarget;
+    };
+
+    struct CopySurface  : GrNoncopyable {
+        SkAutoTUnref<GrSurface> fDst;
+        SkAutoTUnref<GrSurface> fSrc;
+        SkIRect                 fSrcRect;
+        SkIPoint                fDstPoint;
     };
 
     // overrides from GrDrawTarget
@@ -137,6 +145,15 @@ private:
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
     virtual void willReserveVertexAndIndexSpace(int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
+    virtual bool onCopySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint)  SK_OVERRIDE;
+    virtual bool onCanCopySurface(GrSurface* dst,
+                                  GrSurface* src,
+                                  const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint) SK_OVERRIDE;
+
     bool quickInsideClip(const SkRect& devBounds);
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
@@ -154,7 +171,9 @@ private:
     DrawRecord*     recordDraw(const DrawInfo&);
     StencilPath*    recordStencilPath();
     Clear*          recordClear();
+    CopySurface*    recordCopySurface();
 
+    // TODO: Use a single allocator for commands and records
     enum {
         kCmdPreallocCnt          = 32,
         kDrawPreallocCnt         = 8,
@@ -163,6 +182,7 @@ private:
         kClipPreallocCnt         = 8,
         kClearPreallocCnt        = 4,
         kGeoPoolStatePreAllocCnt = 4,
+        kCopySurfacePreallocCnt  = 4,
     };
 
     SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
@@ -170,9 +190,9 @@ private:
     GrSTAllocator<kStatePreallocCnt, StencilPath>                      fStencilPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
-
-    GrSTAllocator<kClipPreallocCnt, SkClipStack>        fClips;
-    GrSTAllocator<kClipPreallocCnt, SkIPoint>           fClipOrigins;
+    GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
+    GrSTAllocator<kClipPreallocCnt, SkClipStack>                       fClips;
+    GrSTAllocator<kClipPreallocCnt, SkIPoint>                          fClipOrigins;
 
     GrDrawTarget*                   fDstGpu;
 
