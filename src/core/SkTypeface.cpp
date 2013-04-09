@@ -118,6 +118,7 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
         if (addr) {
             SkAutoTUnref<SkStream> localStream(SkNEW_ARGS(SkMemoryStream,
                                                         (addr, length, false)));
+            stream->skip(length);
             return SkTypeface::CreateFromStream(localStream.get());
         }
         // failed to allocate, so just skip and create-from-name
