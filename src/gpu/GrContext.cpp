@@ -373,7 +373,6 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
             verts[1].setIRectFan(0, 0, 1, 1, 2 * sizeof(GrPoint));
             fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
         }
-        texture->releaseRenderTarget();
     } else {
         // TODO: Our CPU stretch doesn't filter. But we create separate
         // stretched textures when the texture params is either filtered or

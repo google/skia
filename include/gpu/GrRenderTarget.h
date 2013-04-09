@@ -148,22 +148,18 @@ protected:
         fResolveRect.setLargestInverted();
     }
 
-    friend class GrTexture;
-    // When a texture unrefs an owned render target this func
-    // removes the back pointer. This could be called from
-    // texture's destructor but would have to be done in derived
-    // classes. By the time of texture base destructor it has already
-    // lost its pointer to the rt.
-    void onTextureReleaseRenderTarget() {
-        GrAssert(NULL != fTexture);
-        fTexture = NULL;
-    }
-
     // override of GrResource
     virtual void onAbandon() SK_OVERRIDE;
     virtual void onRelease() SK_OVERRIDE;
 
 private:
+    friend class GrTexture;
+    // called by ~GrTexture to remove the non-ref'ed back ptr.
+    void owningTextureDestroyed() {
+        GrAssert(NULL != fTexture);
+        fTexture = NULL;
+    }
+
     GrStencilBuffer*  fStencilBuffer;
     GrTexture*        fTexture; // not ref'ed
 

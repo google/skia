@@ -17,6 +17,12 @@
 
 SK_DEFINE_INST_COUNT(GrTexture)
 
+GrTexture::~GrTexture() {
+    if (NULL != fRenderTarget.get()) {
+        fRenderTarget.get()->owningTextureDestroyed();
+    }
+}
+
 /**
  * This method allows us to interrupt the normal deletion process and place
  * textures back in the texture cache when their ref count goes to zero.
@@ -67,33 +73,15 @@ void GrTexture::writePixels(int left, int top, int width, int height,
                                 pixelOpsFlags);
 }
 
-void GrTexture::releaseRenderTarget() {
-    if (NULL != fRenderTarget) {
-        GrAssert(fRenderTarget->asTexture() == this);
-        GrAssert(fDesc.fFlags & kRenderTarget_GrTextureFlagBit);
-
-        fRenderTarget->onTextureReleaseRenderTarget();
-        fRenderTarget->unref();
-        fRenderTarget = NULL;
-
-        fDesc.fFlags = fDesc.fFlags &
-            ~(kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit);
-        fDesc.fSampleCnt = 0;
-    }
-}
-
 void GrTexture::onRelease() {
     GrAssert(!this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
-    this->releaseRenderTarget();
-
     INHERITED::onRelease();
 }
 
 void GrTexture::onAbandon() {
-    if (NULL != fRenderTarget) {
+    if (NULL != fRenderTarget.get()) {
         fRenderTarget->abandon();
     }
-
     INHERITED::onAbandon();
 }
 

@@ -64,6 +64,22 @@ public:
     virtual const GrRenderTarget* asRenderTarget() const = 0;
 
     /**
+     * Checks whether this GrSurface refers to the same GPU object as other. This
+     * catches the case where a GrTexture and GrRenderTarget refer to the same
+     * GPU memory.
+     */
+    bool isSameAs(const GrSurface* other) const {
+        const GrRenderTarget* thisRT = this->asRenderTarget();
+        if (NULL != thisRT) {
+            return thisRT == other->asRenderTarget();
+        } else {
+            const GrTexture* thisTex = this->asTexture();
+            GrAssert(NULL != thisTex); // We must be one or the other
+            return thisTex == other->asTexture();
+        }
+    }
+
+    /**
      * Reads a rectangle of pixels from the surface.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
