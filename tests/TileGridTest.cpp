@@ -113,6 +113,39 @@ public:
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
         }
+        // Out of bounds queries, snap to border tiles
+        {
+            SkDevice device(store);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(2.0f), SkFloatToScalar(0.0f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        }
+        {
+            SkDevice device(store);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(0.0f), SkFloatToScalar(2.0f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        }
+        {
+            SkDevice device(store);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(-22.0f), SkFloatToScalar(-16.0f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
+        }
+        {
+            SkDevice device(store);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(-16.0f), SkFloatToScalar(-22.0f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
+        }
     }
 
     static void TestOverlapOffsetQueryAlignment(skiatest::Reporter* reporter) {
@@ -215,7 +248,6 @@ public:
         verifyTileHits(reporter, SkIRect::MakeXYWH(9, 9, 1, 1),  kAll_Tile, 1);
         verifyTileHits(reporter, SkIRect::MakeXYWH(10, 10, 1, 1),  kBottomRight_Tile, 1);
         verifyTileHits(reporter, SkIRect::MakeXYWH(17, 17, 1, 1),  kBottomRight_Tile, 1);
-        verifyTileHits(reporter, SkIRect::MakeXYWH(18, 18, 1, 1),  0, 1);
 
         // BBoxes that overlap tiles
         verifyTileHits(reporter, SkIRect::MakeXYWH(5, 5, 10, 1),  kTopLeft_Tile | kTopRight_Tile);

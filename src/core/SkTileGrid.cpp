@@ -64,8 +64,12 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
 
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
     SkIRect adjustedQuery = query;
+    // The inset is to counteract the outset that was applied in 'insert'
+    // The outset/inset is to optimize for lookups of size
+    // 'tileInterval + 2 * margin' that are aligned with the tile grid.
     adjustedQuery.inset(fInfo.fMargin.width(), fInfo.fMargin.height());
     adjustedQuery.offset(fInfo.fOffset);
+    adjustedQuery.sort();  // in case the inset inverted the rectangle
     // Convert the query rectangle from device coordinates to tile coordinates
     // by rounding outwards to the nearest tile boundary so that the resulting tile
     // region includes the query rectangle. (using truncating division to "floor")
@@ -75,16 +79,14 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
     int tileStartY = adjustedQuery.top() / fInfo.fTileInterval.height();
     int tileEndY = (adjustedQuery.bottom() + fInfo.fTileInterval.height() - 1) /
         fInfo.fTileInterval.height();
-    if (tileStartX >= fXTileCount || tileStartY >= fYTileCount || tileEndX <= 0 || tileEndY <= 0) {
-        return; // query does not intersect the grid
-    }
-    // clamp to grid
-    if (tileStartX < 0) tileStartX = 0;
-    if (tileStartY < 0) tileStartY = 0;
-    if (tileEndX > fXTileCount) tileEndX = fXTileCount;
-    if (tileEndY > fYTileCount) tileEndY = fYTileCount;
+
+    tileStartX = SkPin32(tileStartX, 0, fXTileCount - 1);
+    tileEndX = SkPin32(tileEndX, 1, fXTileCount);
+    tileStartY = SkPin32(tileStartY, 0, fYTileCount - 1);
+    tileEndY = SkPin32(tileEndY, 1, fYTileCount);
 
     int queryTileCount = (tileEndX - tileStartX) * (tileEndY - tileStartY);
+    SkASSERT(queryTileCount);
     if (queryTileCount == 1) {
         *results = this->tile(tileStartX, tileStartY);
     } else {
