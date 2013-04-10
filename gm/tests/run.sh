@@ -159,4 +159,7 @@ gm_test "--hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 # Test what happens if a subset of the renderModes fail (e.g. pipe)
 gm_test "--simulatePipePlaybackFailure --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/pipe-playback-failure"
 
+# Confirm that IntentionallySkipped tests are recorded as such.
+gm_test "--hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUTS/intentionally-skipped-tests"
+
 echo "All tests passed."
