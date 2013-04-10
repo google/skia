@@ -137,29 +137,32 @@ GM_TEMPFILES=$GM_TESTDIR/tempfiles
 create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/compared-against-identical-bytes-json"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/compared-against-identical-bytes-json"
 
 # Compare generated image against an input image file with identical pixels but different PNG encoding.
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/compared-against-identical-pixels-json"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/compared-against-identical-pixels-json"
 
 # Compare generated image against an input image file with different pixels.
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
 # Compare generated image against an empty "expected image" dir.
-gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+
+# Compare generated image against an empty "expected image" dir, but NOT in verbose mode.
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/nonverbose"
 
 # If run without "-r", the JSON's "actual-results" section should contain
 # actual checksums marked as "failure-ignored", but the "expected-results"
 # section should be empty.
-gm_test "--hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
 # Test what happens if a subset of the renderModes fail (e.g. pipe)
-gm_test "--simulatePipePlaybackFailure --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/pipe-playback-failure"
+gm_test "--simulatePipePlaybackFailure --verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/pipe-playback-failure"
 
 # Confirm that IntentionallySkipped tests are recorded as such.
-gm_test "--hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUTS/intentionally-skipped-tests"
+gm_test "--verbose --hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUTS/intentionally-skipped-tests"
 
 echo "All tests passed."

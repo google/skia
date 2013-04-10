@@ -299,9 +299,40 @@ public:
     }
 
     /**
-     * List contents of fFailedTests to stdout.
+     * Display the summary of results with this ErrorType.
+     *
+     * @param type which ErrorType
+     * @param verbose whether to be all verbose about it
      */
-    void ListErrors() {
+    void DisplayResultTypeSummary(ErrorType type, bool verbose) {
+        bool isIgnorableType = fIgnorableErrorCombination.includes(type);
+
+        SkString line;
+        if (isIgnorableType) {
+            line.append("[ ] ");
+        } else {
+            line.append("[*] ");
+        }
+
+        SkTArray<SkString> *failedTestsOfThisType = &fFailedTests[type];
+        int count = failedTestsOfThisType->count();
+        line.appendf("%d %s", count, getErrorTypeName(type));
+        if (!isIgnorableType || verbose) {
+            line.append(":");
+            for (int i = 0; i < count; ++i) {
+                line.append(" ");
+                line.append((*failedTestsOfThisType)[i]);
+            }
+        }
+        gm_fprintf(stdout, "%s\n", line.c_str());
+    }
+
+    /**
+     * List contents of fFailedTests to stdout.
+     *
+     * @param verbose whether to be all verbose about it
+     */
+    void ListErrors(bool verbose) {
         // First, print a single summary line.
         SkString summary;
         summary.appendf("Ran %d tests:", fTestsRun);
@@ -313,22 +344,7 @@ public:
 
         // Now, for each failure type, list the tests that failed that way.
         for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
-            SkString line;
-            ErrorType type = static_cast<ErrorType>(typeInt);
-            if (fIgnorableErrorCombination.includes(type)) {
-                line.append("[ ] ");
-            } else {
-                line.append("[*] ");
-            }
-
-            SkTArray<SkString> *failedTestsOfThisType = &fFailedTests[type];
-            int count = failedTestsOfThisType->count();
-            line.appendf("%d %s:", count, getErrorTypeName(type));
-            for (int i = 0; i < count; ++i) {
-                line.append(" ");
-                line.append((*failedTestsOfThisType)[i]);
-            }
-            gm_fprintf(stdout, "%s\n", line.c_str());
+            this->DisplayResultTypeSummary(static_cast<ErrorType>(typeInt), verbose);
         }
         gm_fprintf(stdout, "(results marked with [*] will cause nonzero return value)\n");
     }
@@ -1686,15 +1702,6 @@ int tool_main(int argc, char** argv) {
     GrContextFactory* grFactory = NULL;
 #endif
 
-    if (FLAGS_verbose) {
-        SkString str;
-        str.printf("%d configs:", configs.count());
-        for (int i = 0; i < configs.count(); ++i) {
-            str.appendf(" %s", gRec[configs[i]].fName);
-        }
-        gm_fprintf(stderr, "%s\n", str.c_str());
-    }
-
     if (FLAGS_resourcePath.count() == 1) {
         GM::SetResourcePath(FLAGS_resourcePath[0]);
     }
@@ -1798,15 +1805,17 @@ int tool_main(int argc, char** argv) {
     if (gmmain.NumSignificantErrors() > 0) {
         reportError = true;
     }
+    int expectedNumberOfTests = gmsRun * (configs.count() + modes.count());
 
     // Output summary to stdout.
-    gm_fprintf(stdout, "Ran %d GMs\n", gmsRun);
-    gm_fprintf(stdout, "... over %2d configs [%s]\n", configs.count(),
-               list_all_config_names(configs).c_str());
-    gm_fprintf(stdout, "...  and %2d modes   [%s]\n", modes.count(), list_all(modes).c_str());
-    int expectedNumberOfTests = gmsRun * (configs.count() + modes.count());
-    gm_fprintf(stdout, "... so there should be a total of %d tests.\n", expectedNumberOfTests);
-    gmmain.ListErrors();
+    if (FLAGS_verbose) {
+        gm_fprintf(stdout, "Ran %d GMs\n", gmsRun);
+        gm_fprintf(stdout, "... over %2d configs [%s]\n", configs.count(),
+                   list_all_config_names(configs).c_str());
+        gm_fprintf(stdout, "...  and %2d modes   [%s]\n", modes.count(), list_all(modes).c_str());
+        gm_fprintf(stdout, "... so there should be a total of %d tests.\n", expectedNumberOfTests);
+    }
+    gmmain.ListErrors(FLAGS_verbose);
 
     // TODO(epoger): in a standalone CL, enable this new check.
 #if 0
