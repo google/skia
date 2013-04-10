@@ -3571,9 +3571,25 @@ static void testQuad1(skiatest::Reporter* reporter) {
 }
 #endif
 
+static void testQuadralateral2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(2, 2);
+    path.lineTo(0, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(3, 0);
+    path.lineTo(0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuadralateral2),
     TEST(testQuad1),  // FIXME: fails, need to investigate
     TEST(testCubic2),
     TEST(testCubic1),

@@ -490,8 +490,6 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
 const int maxThreadsAllocated = 64;
 static int maxThreads = 1;
 
-SK_DECLARE_STATIC_MUTEX(gQueueMutex);
-
 int initializeTests(const char* test) {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
