@@ -225,12 +225,8 @@ namespace skiagm {
          *
          * rootDir: directory under which to look for image files
          *          (this string will be copied to storage within this object)
-         * notifyOfMissingFiles: whether to log a message to stderr if an image
-         *                       file cannot be found
          */
-        IndividualImageExpectationsSource(const char *rootDir,
-                                          bool notifyOfMissingFiles) :
-            fRootDir(rootDir), fNotifyOfMissingFiles(notifyOfMissingFiles) {}
+        IndividualImageExpectationsSource(const char *rootDir) : fRootDir(rootDir) {}
 
         Expectations get(const char *testName) SK_OVERRIDE {
             SkString path = make_filename(fRootDir.c_str(), "", testName,
@@ -244,16 +240,12 @@ namespace skiagm {
             if (decodedReferenceBitmap) {
                 return Expectations(referenceBitmap);
             } else {
-                if (fNotifyOfMissingFiles) {
-                    gm_fprintf(stderr, "FAILED to read %s\n", path.c_str());
-                }
                 return Expectations();
             }
         }
 
     private:
         const SkString fRootDir;
-        const bool fNotifyOfMissingFiles;
     };
 
     /**
