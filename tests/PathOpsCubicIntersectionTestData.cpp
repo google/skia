@@ -97,42 +97,15 @@ const SkDCubic tests[][2] = {
     }, {
         {{{125.79356, 199.57382}, {51.16556, 128.93575}, {87.494,  16.67848}, {167.29361, 16.67848}}},
         {{{167.29361, 55.81876}, {100.36128, 55.81876}, {68.64099, 145.4755}, {125.7942, 199.57309}}}
+    }, {
+        {{{104.11546583642826, 370.21352558595504}, {122.96968232592344, 404.54489231839295},
+          {169.90881005384728, 425.00067000000007}, {221.33045999999999, 425.00067000000001}}},
+        {{{116.32365976159625, 381.71048540582598}, {103.86096590870899, 381.71048540581626},
+          {91.394188003200725, 377.17917781762833}, {82.622283093355179, 368.11683661930334}}}
     }
 };
 
 const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
-
-SkDCubic hexTests[][2] = {
-    {
-        // placeholder for hex converted below
-        {{{0, 0}, {0, 0}, {0, 0}, {0, 0}}}, {{{0, 0}, {0, 0}, {0, 0}, {0, 0}}}
-    }
-};
-
-const size_t hexTests_count = sizeof(hexTests) / sizeof(hexTests[0]);
-
-static const uint64_t testx[2][8] = {
-    {
-        0xf0d0d1ca63075a40LLU, 0x9408ce996a237740LLU, 0x6d5675460fbe5e40LLU, 0x6ef501e1b7487940LLU,
-        0x9a71d2f8143d6540LLU, 0x6bc18bbe02907a40LLU, 0x5b94d92093aa6b40LLU, 0x6ac18bbe02907a40LLU
-    },
-    {
-        0x92c56ed7b6145d40LLU, 0xede4f1255edb7740LLU, 0x1138c1101af75940LLU, 0x42e4f1255edb7740LLU,
-        0x408e51603ad95640LLU, 0x1e2e8fe9dd927740LLU, 0x1cb4777cd3a75440LLU, 0x212e1390de017740LLU
-    }
-};
-
-void convert_testx() {
-    const uint64_t* inPtr = testx[0];
-    double* outPtr = &hexTests[sizeof(tests) / sizeof(tests[0]) - 1][0][0].fX;
-    for (unsigned index = 0; index < sizeof(testx) / sizeof(testx[0][0]); ++index) {
-        uint64_t input = *inPtr++;
-        unsigned char* output = (unsigned char*) outPtr++;
-        for (unsigned byte = 0; byte < sizeof(input); ++byte) {
-            output[byte] = input >> (7 - byte) * 8;
-        }
-    }
-}
 
 const SkDCubic lines[] = {
     {{{0, 0}, {0, 0}, {0, 0}, {1, 0}}},  // 0: horizontal

@@ -18,8 +18,6 @@
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
-#if defined SK_DEBUG || !FORCE_RELEASE
-
 #ifdef SK_BUILD_FOR_WIN
     #define SK_RAND(seed) rand()
     #define SK_SNPRINTF _snprintf
@@ -28,12 +26,15 @@
     #define SK_SNPRINTF snprintf
 #endif
 
+#if defined SK_DEBUG || !FORCE_RELEASE
+
 void mathematica_ize(char* str, size_t bufferSize);
 bool valid_wind(int winding);
 void winding_printf(int winding);
 
 extern int gDebugMaxWindSum;
 extern int gDebugMaxWindValue;
+
 #endif
 
 #if FORCE_RELEASE
