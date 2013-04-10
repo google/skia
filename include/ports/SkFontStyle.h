@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-class SkFontStyle {
+class SK_API SkFontStyle {
 public:
     enum Weight {
         kThin_Weight        = 100,
