@@ -26,6 +26,7 @@ namespace skiagm {
         // or off (as long as the number of these errors is 0).
         kNoGpuContext_ErrorType,
 
+        kIntentionallySkipped_ErrorType,
         kRenderModeMismatch_ErrorType,
         kExpectationsMismatch_ErrorType,
         kMissingExpectations_ErrorType,
@@ -40,6 +41,8 @@ namespace skiagm {
         switch(type) {
         case kNoGpuContext_ErrorType:
             return "NoGpuContext";
+        case kIntentionallySkipped_ErrorType:
+            return "IntentionallySkipped";
         case kRenderModeMismatch_ErrorType:
             return "RenderModeMismatch";
         case kExpectationsMismatch_ErrorType:
