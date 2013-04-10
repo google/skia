@@ -31,6 +31,7 @@ namespace skiatest {
         };
 
         void resetReporting();
+        void bumpTestCount() { ++fTestCount; }
         int countTests() const { return fTestCount; }
         int countResults(Result r) {
             SkASSERT((unsigned)r <= kLastResult);
@@ -40,6 +41,7 @@ namespace skiatest {
         void startTest(Test*);
         void report(const char testDesc[], Result);
         void endTest(Test*);
+        virtual bool allowExtendedTest() const { return false; }
 
         // helpers for tests
         void assertTrue(bool cond, const char desc[]) {

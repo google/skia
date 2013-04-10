@@ -20,7 +20,8 @@ SK_DEFINE_INST_COUNT(skiatest::Reporter)
 
 using namespace skiatest;
 
-Reporter::Reporter() {
+Reporter::Reporter()
+    : fTestCount(0) {
     this->resetReporting();
 }
 
