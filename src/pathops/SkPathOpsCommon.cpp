@@ -89,7 +89,7 @@ abortContours:
             return 0;
         }
         result = bestSeg->windingAtT(*bestHit, bestTIndex, bestOpp, bestDx);
-        SkASSERT(*bestDx);
+        SkASSERT(result == SK_MinS32 || *bestDx);
     }
     double baseT = current->t(index);
     double endT = current->t(endIndex);
