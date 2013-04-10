@@ -1,0 +1,10 @@
+GM: reading from gm/tests/inputs/images/empty-dir
+GM: drawing... selftest1 [300 200]
+GM: Ran 9 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=2 WritingReferenceImage=0
+GM: [*] 0 NoGpuContext:
+GM: [ ] 0 IntentionallySkipped
+GM: [*] 0 RenderModeMismatch:
+GM: [*] 0 ExpectationsMismatch:
+GM: [ ] 2 MissingExpectations
+GM: [*] 0 WritingReferenceImage:
+GM: (results marked with [*] will cause nonzero return value)

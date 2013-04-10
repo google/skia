@@ -1,0 +1,1 @@
+out/Debug/gm --hierarchy --match selftest1 --config 8888 565 -r gm/tests/inputs/images/empty-dir --writeJsonSummaryPath gm/tests/outputs/nonverbose/output-actual/json-summary.txt
