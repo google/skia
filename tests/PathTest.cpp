@@ -31,6 +31,28 @@ static SkSurface* new_surface(int w, int h) {
     return SkSurface::NewRaster(info);
 }
 
+static void test_bad_cubic_crbug229478() {
+    const SkPoint pts[] = {
+        { 4595.91064f,	-11596.9873f },
+        { 4597.2168f,	-11595.9414f },
+        { 4598.52344f,	-11594.8955f },
+        { 4599.83008f,	-11593.8496f },
+    };
+    
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.cubicTo(pts[1], pts[2], pts[3]);
+    
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+    
+    SkPath dst;
+    // Before the fix, this would infinite-recurse, and run out of stack
+    // because we would keep trying to subdivide a degenerate cubic segment.
+    paint.getFillPath(path, &dst, NULL);
+}
+
 static void build_path_170666(SkPath& path) {
     path.moveTo(17.9459f, 21.6344f);
     path.lineTo(139.545f, -47.8105f);
@@ -2353,6 +2375,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_tricky_cubic();
     test_clipped_cubic();
     test_crbug_170666();
+    test_bad_cubic_crbug229478();
 }
 
 #include "TestClassDef.h"
