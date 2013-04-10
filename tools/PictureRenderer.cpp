@@ -112,8 +112,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             // fall through
 #endif
         case kGPU_DeviceType: {
-            SkAutoTUnref<GrRenderTarget> rt;
-            bool grSuccess = false;
+            SkAutoTUnref<GrSurface> target;
             if (fGrContext) {
                 // create a render target to back the device
                 GrTextureDesc desc;
@@ -122,20 +121,14 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 desc.fWidth = width;
                 desc.fHeight = height;
                 desc.fSampleCnt = 0;
-                GrTexture* tex = fGrContext->createUncachedTexture(desc, NULL, 0);
-                if (tex) {
-                    rt.reset(tex->asRenderTarget());
-                    rt.get()->ref();
-                    tex->unref();
-                    grSuccess = NULL != rt.get();
-                }
+                target.reset(fGrContext->createUncachedTexture(desc, NULL, 0));
             }
-            if (!grSuccess) {
+            if (NULL == target.get()) {
                 SkASSERT(0);
                 return NULL;
             }
 
-            SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice, (fGrContext, rt)));
+            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target));
             canvas = SkNEW_ARGS(SkCanvas, (device.get()));
             break;
         }
