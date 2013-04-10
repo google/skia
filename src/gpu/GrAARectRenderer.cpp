@@ -16,7 +16,7 @@ SK_DEFINE_INST_COUNT(GrAARectRenderer)
 class GrGLRectEffect;
 
 /**
- * The output of this effect is a modulation of the input color and coverage 
+ * The output of this effect is a modulation of the input color and coverage
  * for an arbitrarily oriented rect. The rect is specified as:
  *      Center of the rect
  *      Unit vector point down the height of the rect
@@ -40,7 +40,7 @@ public:
 
     static const char* Name() { return "RectEdge"; }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -63,15 +63,15 @@ public:
             // setup the varying for the center point and the unit vector
             // that points down the height of the rect
             const char *vsRectEdgeName, *fsRectEdgeName;
-            builder->addVarying(kVec4f_GrSLType, "RectEdge", 
+            builder->addVarying(kVec4f_GrSLType, "RectEdge",
                                 &vsRectEdgeName, &fsRectEdgeName);
-            const SkString* attr0Name = 
+            const SkString* attr0Name =
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
             builder->vsCodeAppendf("\t%s = %s;\n", vsRectEdgeName, attr0Name->c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
             const char *vsWidthHeightName, *fsWidthHeightName;
-            builder->addVarying(kVec2f_GrSLType, "WidthHeight", 
+            builder->addVarying(kVec2f_GrSLType, "WidthHeight",
                                 &vsWidthHeightName, &fsWidthHeightName);
             const SkString* attr1Name =
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
@@ -79,13 +79,13 @@ public:
 
             // TODO: compute these scale factors in the VS
             // These scale factors adjust the coverage for < 1 pixel wide/high rects
-            builder->fsCodeAppendf("\tfloat wScale = max(1.0, 2.0/(0.5+%s.x));\n", 
+            builder->fsCodeAppendf("\tfloat wScale = max(1.0, 2.0/(0.5+%s.x));\n",
                                    fsWidthHeightName);
-            builder->fsCodeAppendf("\tfloat hScale = max(1.0, 2.0/(0.5+%s.y));\n", 
+            builder->fsCodeAppendf("\tfloat hScale = max(1.0, 2.0/(0.5+%s.y));\n",
                                    fsWidthHeightName);
 
             // Compute the coverage for the rect's width
-            builder->fsCodeAppendf("\tvec2 offset = %s.xy - %s.xy;\n", 
+            builder->fsCodeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
                                    builder->fragmentPosition(), fsRectEdgeName);
             builder->fsCodeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
                                    fsRectEdgeName, fsRectEdgeName);
@@ -335,9 +335,9 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
     // compute transformed (width, 0) and (0, height) vectors
     SkVector vec[2] = {
-      { combinedMatrix[SkMatrix::kMScaleX] * rect.width(), 
+      { combinedMatrix[SkMatrix::kMScaleX] * rect.width(),
     combinedMatrix[SkMatrix::kMSkewY] * rect.width() },
-      { combinedMatrix[SkMatrix::kMSkewX] * rect.height(), 
+      { combinedMatrix[SkMatrix::kMSkewX] * rect.height(),
     combinedMatrix[SkMatrix::kMScaleY] * rect.height() }
     };
 
