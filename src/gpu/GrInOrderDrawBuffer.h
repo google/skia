@@ -33,7 +33,7 @@ class GrVertexBufferAllocPool;
  * responsibility to ensure that all referenced textures, buffers, and render-targets are associated
  * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
  * store geometry.
- */ 
+ */
 class GrInOrderDrawBuffer : public GrDrawTarget {
 public:
 

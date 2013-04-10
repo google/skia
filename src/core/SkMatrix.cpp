@@ -208,7 +208,7 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
 
 bool SkMatrix::preservesRightAngles(SkScalar tol) const {
     TypeMask mask = this->getType();
-    
+
     if (mask <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
         // identity, translate and/or scale
         return true;
