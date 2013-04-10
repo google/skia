@@ -10,7 +10,7 @@
 #include "SkPath.h"
 
 #define kMaxQuadSubdivide   5
-#define kMaxCubicSubdivide  4
+#define kMaxCubicSubdivide  7
 
 static inline bool degenerate_vector(const SkVector& v) {
     return !SkPoint::CanNormalize(v.fX, v.fY);
@@ -304,12 +304,8 @@ DRAW_LINE:
     bool degenerateBC = !set_normal_unitnormal(pts[1], pts[2], fRadius,
                                                &normalBC, &unitNormalBC);
 #ifndef SK_IGNORE_CUBIC_STROKE_FIX
-    if (subDivide <= 0) {
-        if (degenerateBC) {
-            goto DRAW_LINE;
-        } else {
-            goto DRAW_CUBIC;
-        }
+    if (--subDivide < 0) {
+        goto DRAW_LINE;
     }
 #endif
     if (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
@@ -330,9 +326,6 @@ DRAW_LINE:
         // normals for CD
         this->cubic_to(&tmp[3], norm, unit, &dummy, &unitDummy, subDivide);
     } else {
-#ifndef SK_IGNORE_CUBIC_STROKE_FIX
-    DRAW_CUBIC:
-#endif
         SkVector    normalB, normalC;
 
         // need normals to inset/outset the off-curve pts B and C
