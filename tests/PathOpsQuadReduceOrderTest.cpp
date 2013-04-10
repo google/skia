@@ -62,7 +62,7 @@ static void standardTestCases(skiatest::Reporter* reporter) {
     }
 }
 
-void QuadReduceOrderTest(skiatest::Reporter* reporter) {
+static void QuadReduceOrderTest(skiatest::Reporter* reporter) {
     oneOffTest(reporter);
     standardTestCases(reporter);
 }

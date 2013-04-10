@@ -15,7 +15,10 @@
 #define PATH_STR_SIZE 512
 
 class PathOpsThreadedRunnable;
-class skiatest::Reporter;
+
+namespace skiatest {
+class Reporter;
+}
 
 struct PathOpsThreadState {
     unsigned char fA;
