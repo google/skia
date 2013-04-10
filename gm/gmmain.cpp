@@ -1035,7 +1035,8 @@ public:
                 PipeController pipeController(&canvas);
                 SkGPipeWriter writer;
                 SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-                                                             gPipeWritingFlagCombos[i].flags);
+                                                             gPipeWritingFlagCombos[i].flags,
+                                                             size.width(), size.height());
                 if (!simulateFailure) {
                     invokeGM(gm, pipeCanvas, false, false);
                 }
@@ -1073,7 +1074,8 @@ public:
                 TiledPipeController pipeController(bitmap);
                 SkGPipeWriter writer;
                 SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-                                                             gPipeWritingFlagCombos[i].flags);
+                                                             gPipeWritingFlagCombos[i].flags,
+                                                             size.width(), size.height());
                 invokeGM(gm, pipeCanvas, false, false);
                 complete_bitmap(&bitmap);
                 writer.endRecording();

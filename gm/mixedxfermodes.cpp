@@ -90,9 +90,6 @@ protected:
         canvas->restore();
     }
 
-    // https://code.google.com/p/skia/issues/detail?id=1199&thanks=1199&ts=1364839297
-    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
-
 private:
     enum {
         kMinR = 10,
