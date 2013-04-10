@@ -11,8 +11,6 @@ extern const SkDCubic notPointDegenerates[];
 extern const SkDCubic tests[][2];
 extern SkDCubic hexTests[][2];
 
-extern void convert_testx();
-
 extern const SkDCubic lines[];
 extern const SkDCubic notLines[];
 extern const SkDCubic modEpsilonLines[];

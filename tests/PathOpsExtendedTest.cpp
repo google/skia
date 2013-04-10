@@ -6,6 +6,7 @@
  */
 
 #include "PathOpsExtendedTest.h"
+#include "PathOpsThreadedCommon.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
@@ -15,9 +16,6 @@
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
 #endif
-
-bool gShowTestProgress = false;
-bool gAllowExtendedTest = false;
 
 static const char marker[] =
     "</div>\n"
@@ -37,17 +35,15 @@ static const char* opSuffixes[] = {
     "d",
     "i",
     "u",
-    "x",
+    "o",
 };
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
-static bool gShowOutputProgress = false;
 static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
-static bool gUsePhysicalFiles = false;
 
-#if FORCE_RELEASE && !defined SK_BUILD_FOR_WIN
+#if FORCE_RELEASE
 static bool gRunTestsInOneThread = false;
 #else
 static bool gRunTestsInOneThread = true;
@@ -120,15 +116,17 @@ void showPathData(const SkPath& path) {
             case SkPath::kMove_Verb:
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);
+                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", pts[0].fX, pts[0].fY,
+                        pts[1].fX, pts[1].fY);
                 break;
             case SkPath::kQuad_Verb:
                 SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
-                    pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                        pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPath::kCubic_Verb:
                 SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
-                    pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                        pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
+                        pts[3].fX, pts[3].fY);
                 break;
             case SkPath::kClose_Verb:
                 break;
@@ -162,7 +160,7 @@ static void showPath(const SkPath& path, const char* str, const SkMatrix& scale)
     SkPath scaled;
     SkMatrix inverse;
     bool success = scale.invert(&inverse);
-    if (!success) {
+    if (!success) { 
         SkASSERT(0);
     }
     path.transform(inverse, &scaled);
@@ -330,7 +328,7 @@ static void showPathOpPath(const SkPath& one, const SkPath& two, const SkPath& a
 
 static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const SkPath& scaledOne,
                         const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
-                        const SkPath& a, const SkPath& b, const SkPathOp shapeOp,
+                        const SkPath& a, const SkPath& b, const SkPathOp shapeOp, 
                         const SkMatrix& scale) {
     int errors2x2;
     int errors = pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
@@ -349,7 +347,63 @@ static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const S
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-bool testSimplify(SkPath& path, bool useXor, SkPath& out, State4& state, const char* pathStr) {
+static int testNumber;
+static const char* testName;
+
+static void writeTestName(const char* nameSuffix, SkMemoryWStream& outFile) {
+    outFile.writeText(testName);
+    outFile.writeDecAsText(testNumber);
+    if (nameSuffix) {
+        outFile.writeText(nameSuffix);
+    }
+}
+
+static void outputToStream(const char* pathStr, const char* pathPrefix, const char* nameSuffix,
+        const char* testFunction, bool twoPaths, SkMemoryWStream& outFile) {
+    outFile.writeText("<div id=\"");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText("\">\n");
+    if (pathPrefix) {
+        outFile.writeText(pathPrefix);
+    }
+    outFile.writeText(pathStr);
+    outFile.writeText("</div>\n\n");
+
+    outFile.writeText(marker);
+    outFile.writeText("    ");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText(",\n\n\n");
+
+    outFile.writeText("static void ");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText("() {\n    SkPath path");
+    if (twoPaths) {
+        outFile.writeText(", pathB");
+    }
+    outFile.writeText(";\n");
+    if (pathPrefix) {
+        outFile.writeText(pathPrefix);
+    }
+    outFile.writeText(pathStr);
+    outFile.writeText("    ");
+    outFile.writeText(testFunction);
+    outFile.writeText("\n}\n\n");
+    outFile.writeText("static void (*firstTest)() = ");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText(";\n\n");
+
+    outFile.writeText("static struct {\n");
+    outFile.writeText("    void (*fun)();\n");
+    outFile.writeText("    const char* str;\n");
+    outFile.writeText("} tests[] = {\n");
+    outFile.writeText("    TEST(");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText("),\n");
+    outFile.flush();
+}
+
+bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
+                  const char* pathStr) {
     SkPath::FillType fillType = useXor ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
     path.setFillType(fillType);
     if (gShowPath) {
@@ -359,9 +413,8 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, State4& state, const c
     if (!gComparePaths) {
         return true;
     }
-    int result = comparePaths(state.reporter, path, out, state.bitmap);
+    int result = comparePaths(state.fReporter, path, out, *state.fBitmap);
     if (result && gPathStrAssert) {
-        SkDebugf("addTest %s\n", state.filename);
         char temp[8192];
         sk_bzero(temp, sizeof(temp));
         SkMemoryWStream stream(temp, sizeof(temp));
@@ -372,10 +425,11 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, State4& state, const c
             nameSuffix = "x";
         }
         const char testFunction[] = "testSimplifyx(path);";
-        outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, stream);
+        outputToStream(pathStr, pathPrefix, nameSuffix, testFunction, false, stream);
         SkDebugf(temp);
-        REPORTER_ASSERT(state.reporter, 0);
+        REPORTER_ASSERT(state.fReporter, 0);
     }
+    state.fReporter->bumpTestCount();
     return result == 0;
 }
 
@@ -387,6 +441,7 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
     if (result && gPathStrAssert) {
         REPORTER_ASSERT(reporter, 0);
     }
+    reporter->bumpTestCount();
     return result == 0;
 }
 
@@ -428,124 +483,22 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
     if (result && gPathStrAssert) {
         REPORTER_ASSERT(reporter, 0);
     }
+    reporter->bumpTestCount();
     return result == 0;
 }
 
 const int maxThreadsAllocated = 64;
 static int maxThreads = 1;
-static int threadIndex;
-State4 threadState[maxThreadsAllocated];
-static int testNumber;
-static const char* testName;
-static bool debugThreads = false;
 
-State4* State4::queue = NULL;
-
-#if HARD_CODE_PTHREAD
-pthread_mutex_t State4::addQueue = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t State4::checkQueue = PTHREAD_COND_INITIALIZER;
-#else
 SK_DECLARE_STATIC_MUTEX(gQueueMutex);
-#endif
 
-State4::State4() {
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 150 * 2, 100);
-    bitmap.allocPixels();
-}
-
-void createThread(State4* statePtr, ThreadFunction testFun) {
-#if HARD_CODE_PTHREAD
-    SkDEBUGCODE(int threadError =) pthread_create(&statePtr->threadID, NULL, testFun,
-            (void*) statePtr);
-    SkASSERT(!threadError);
-#else
-    statePtr->thread = new SkThread(testFun, (void*) statePtr);
-    statePtr->thread->start();
+int initializeTests(const char* test) {
+#ifdef SK_DEBUG
+    gDebugMaxWindSum = 4;
+    gDebugMaxWindValue = 4;
 #endif
-}
-
-int dispatchTest4(ThreadFunction testFun, int a, int b, int c, int d) {
-    int testsRun = 0;
-    State4* statePtr;
-    if (!gRunTestsInOneThread) {
-#if HARD_CODE_PTHREAD
-        pthread_mutex_lock(&State4::addQueue);
-#else
-        SkAutoMutexAcquire aq(&gQueueMutex);
-#endif
-        if (threadIndex < maxThreads) {
-            statePtr = &threadState[threadIndex];
-            statePtr->testsRun = 0;
-            statePtr->a = a;
-            statePtr->b = b;
-            statePtr->c = c;
-            statePtr->d = d;
-            statePtr->done = false;
-            statePtr->index = threadIndex;
-            statePtr->last = false;
-            if (debugThreads) SkDebugf("%s %d create done=%d last=%d\n", __FUNCTION__,
-                    statePtr->index, statePtr->done, statePtr->last);
-#if HARD_CODE_PTHREAD
-            pthread_cond_init(&statePtr->initialized, NULL);
-#else
-            // statePtr->thread contains fData which points to SkThread_PThreadData which
-            // contains PThreadEvent fStarted, all of which is initialized by createThread below
-#endif
-            ++threadIndex;
-            createThread(statePtr, testFun);
-        } else {
-            while (!State4::queue) {
-                if (debugThreads) SkDebugf("%s checkQueue\n", __FUNCTION__);
-#if HARD_CODE_PTHREAD
-                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
-#else
-                // incomplete
-#endif
-            }
-            statePtr = State4::queue;
-            testsRun += statePtr->testsRun;
-            statePtr->testsRun = 0;
-            statePtr->a = a;
-            statePtr->b = b;
-            statePtr->c = c;
-            statePtr->d = d;
-            statePtr->done = false;
-            State4::queue = NULL;
-            for (int index = 0; index < maxThreads; ++index) {
-                if (threadState[index].done) {
-                    State4::queue = &threadState[index];
-                }
-            }
-            if (debugThreads) SkDebugf("%s %d init done=%d last=%d queued=%d\n", __FUNCTION__,
-                    statePtr->index, statePtr->done, statePtr->last,
-                    State4::queue ? State4::queue->index : -1);
-#if HARD_CODE_PTHREAD
-            pthread_cond_signal(&statePtr->initialized);
-#else
-            // incomplete
-#endif
-        }
-#if HARD_CODE_PTHREAD
-        pthread_mutex_unlock(&State4::addQueue);
-#endif
-    } else {
-        statePtr = &threadState[0];
-        testsRun += statePtr->testsRun;
-        statePtr->testsRun = 0;
-        statePtr->a = a;
-        statePtr->b = b;
-        statePtr->c = c;
-        statePtr->d = d;
-        statePtr->done = false;
-        statePtr->index = threadIndex;
-        statePtr->last = false;
-        (*testFun)(statePtr);
-    }
-    return testsRun;
-}
-
-void initializeTests(skiatest::Reporter* reporter, const char* test, size_t testNameSize) {
     testName = test;
+    size_t testNameSize = strlen(test);
     if (!gRunTestsInOneThread) {
         int threads = -1;
 #ifdef SK_BUILD_FOR_MAC
@@ -555,7 +508,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test, size_t test
         if (threads > 0) {
             maxThreads = threads;
         } else {
-            maxThreads = 8;
+            maxThreads = 16;
         }
     }
     SkFILEStream inFile("../../experimental/Intersection/op.htm");
@@ -572,218 +525,27 @@ void initializeTests(skiatest::Reporter* reporter, const char* test, size_t test
             testNumber = atoi(numLoc) + 1;
         }
     }
-    const char* filename = "debugXX.txt";
-    for (int index = 0; index < maxThreads; ++index) {
-        State4* statePtr = &threadState[index];
-        statePtr->reporter = reporter;
-        strcpy(statePtr->filename, filename);
-        size_t len = strlen(filename);
-        SkASSERT(statePtr->filename[len - 6] == 'X');
-        SkASSERT(statePtr->filename[len - 5] == 'X');
-        statePtr->filename[len - 6] = '0' + index / 10;
-        statePtr->filename[len - 5] = '0' + index % 10;
-    }
-    threadIndex = 0;
+    return maxThreads;
 }
 
-void outputProgress(const State4& state, const char* pathStr, SkPath::FillType pathFillType) {
-    if (gRunTestsInOneThread && gShowOutputProgress) {
-        if (pathFillType == SkPath::kEvenOdd_FillType) {
-            SkDebugf("    path.setFillType(SkPath::kEvenOdd_FillType);\n", pathStr);
-        }
-        SkDebugf("%s\n", pathStr);
-    }
-    const char testFunction[] = "testSimplifyx(path);";
+void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType pathFillType) {
+    const char testFunction[] = "testSimplify(path);";
     const char* pathPrefix = NULL;
     const char* nameSuffix = NULL;
     if (pathFillType == SkPath::kEvenOdd_FillType) {
         pathPrefix = "    path.setFillType(SkPath::kEvenOdd_FillType);\n";
         nameSuffix = "x";
     }
-    if (gUsePhysicalFiles) {
-        SkFILEWStream outFile(state.filename);
-        if (!outFile.isValid()) {
-            SkASSERT(0);
-            return;
-        }
-        outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, outFile);
-        return;
-    }
-    state.ramStream.reset();
-    outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, state.ramStream);
+    SkMemoryWStream rRamStream(ramStr, PATH_STR_SIZE);
+    outputToStream(pathStr, pathPrefix, nameSuffix, testFunction, false, rRamStream);
 }
 
-void outputProgress(const State4& state, const char* pathStr, SkPathOp op) {
-    SkString testFunc("testPathOp(path, pathB, ");
-    testFunc += opStrs[op];
-    testFunc += ");";
-    const char* testFunction = testFunc.c_str();
-    if (gRunTestsInOneThread && gShowOutputProgress) {
-        SkDebugf("%s\n", pathStr);
-        SkDebugf("    %s\n", testFunction);
-    }
+void outputProgress(char* ramStr, const char* pathStr, SkPathOp op) {
+    const char testFunction[] = "testOp(path);";
+    SkASSERT(op < sizeof(opSuffixes) / sizeof(opSuffixes[0]));
     const char* nameSuffix = opSuffixes[op];
-    if (gUsePhysicalFiles) {
-        SkFILEWStream outFile(state.filename);
-        if (!outFile.isValid()) {
-            SkASSERT(0);
-            return;
-        }
-        outputToStream(state, pathStr, NULL, nameSuffix, testFunction, outFile);
-        return;
-    }
-    state.ramStream.reset();
-    outputToStream(state, pathStr, NULL, nameSuffix, testFunction, state.ramStream);
-}
-
-static void writeTestName(const char* nameSuffix, SkWStream& outFile) {
-    outFile.writeText(testName);
-    outFile.writeDecAsText(testNumber);
-    if (nameSuffix) {
-        outFile.writeText(nameSuffix);
-    }
-}
-
-void outputToStream(const State4& state, const char* pathStr, const char* pathPrefix,
-        const char* nameSuffix,
-        const char* testFunction, SkWStream& outFile) {
-    outFile.writeText("<div id=\"");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText("\">\n");
-    if (pathPrefix) {
-        outFile.writeText(pathPrefix);
-    }
-    outFile.writeText(pathStr);
-    outFile.writeText("</div>\n\n");
-
-    outFile.writeText(marker);
-    outFile.writeText("    ");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText(",\n\n\n");
-
-    outFile.writeText("static void ");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText("() {\n    SkPath path");
-    if (!pathPrefix) {
-        outFile.writeText(", pathB");
-    }
-    outFile.writeText(";\n");
-    if (pathPrefix) {
-        outFile.writeText(pathPrefix);
-    }
-    outFile.writeText(pathStr);
-    outFile.writeText("    ");
-    outFile.writeText(testFunction);
-    outFile.writeText("\n}\n\n");
-    outFile.writeText("static void (*firstTest)() = ");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText(";\n\n");
-
-    outFile.writeText("static struct {\n");
-    outFile.writeText("    void (*fun)();\n");
-    outFile.writeText("    const char* str;\n");
-    outFile.writeText("} tests[] = {\n");
-    outFile.writeText("    TEST(");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText("),\n");
-    outFile.flush();
-}
-
-bool runNextTestSet(State4& state) {
-    if (gRunTestsInOneThread) {
-        return false;
-    }
-#if HARD_CODE_PTHREAD
-    pthread_mutex_lock(&State4::addQueue);
-#else
-    SkAutoMutexAcquire aq(&gQueueMutex);
-#endif
-    state.done = true;
-    State4::queue = &state;
-    if (debugThreads) SkDebugf("%s %d checkQueue done=%d last=%d\n", __FUNCTION__, state.index,
-        state.done, state.last);
-#if HARD_CODE_PTHREAD
-    pthread_cond_signal(&State4::checkQueue);
-#else
-    // incomplete
-#endif
-    while (state.done && !state.last) {
-        if (debugThreads) SkDebugf("%s %d done=%d last=%d\n", __FUNCTION__, state.index, state.done, state.last);
-#if HARD_CODE_PTHREAD
-        pthread_cond_wait(&state.initialized, &State4::addQueue);
-#else
-        // incomplete
-#endif
-    }
-#if HARD_CODE_PTHREAD
-    pthread_mutex_unlock(&State4::addQueue);
-#endif
-    return !state.last;
-}
-
-int waitForCompletion() {
-    int testsRun = 0;
-    if (!gRunTestsInOneThread) {
-#if HARD_CODE_PTHREAD
-        pthread_mutex_lock(&State4::addQueue);
-#else
-        SkAutoMutexAcquire aq(gQueueMutex);
-#endif
-        int runningThreads = threadIndex;
-        int index;
-        while (runningThreads > 0) {
-            while (!State4::queue) {
-                if (debugThreads) SkDebugf("%s checkQueue\n", __FUNCTION__);
-#if HARD_CODE_PTHREAD
-                pthread_cond_wait(&State4::checkQueue, &State4::addQueue);
-#else
-                // ioncomplete
-#endif
-            }
-            while (State4::queue) {
-                --runningThreads;
-#if DEBUG_SHOW_TEST_PROGRESS
-                SkDebugf("•");
-#endif
-                State4::queue->last = true;
-                State4* next = NULL;
-                for (index = 0; index < maxThreads; ++index) {
-                    State4& test = threadState[index];
-                    if (test.done && !test.last) {
-                        next = &test;
-                    }
-                }
-                if (debugThreads) SkDebugf("%s %d next=%d deQueue\n", __FUNCTION__,
-                    State4::queue->index, next ? next->index : -1);
-#if HARD_CODE_PTHREAD
-                pthread_cond_signal(&State4::queue->initialized);
-#else
-                // incomplete
-#endif
-                State4::queue = next;
-            }
-        }
-#if HARD_CODE_PTHREAD
-        pthread_mutex_unlock(&State4::addQueue);
-#endif
-        for (index = 0; index < maxThreads; ++index) {
-#if HARD_CODE_PTHREAD
-            pthread_join(threadState[index].threadID, NULL);
-#else
-            threadState[index].thread->join();
-            delete threadState[index].thread;
-#endif
-            testsRun += threadState[index].testsRun;
-        }
-#if DEBUG_SHOW_TEST_PROGRESS
-        SkDebugf("\n");
-#endif
-    }
-#ifdef SK_DEBUG
-    gDebugMaxWindSum = SK_MaxS32;
-    gDebugMaxWindValue = SK_MaxS32;
-#endif
-    return testsRun;
+    SkMemoryWStream rRamStream(ramStr, PATH_STR_SIZE);
+    outputToStream(pathStr, NULL, nameSuffix, testFunction, true, rRamStream);
 }
 
 void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,

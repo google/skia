@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "PathOpsThreadedCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -43,7 +44,8 @@ static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
     sk_bzero(pathStr, sizeof(pathStr));
     char* str = pathStr;
     str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", quad[0].fX, quad[0].fY);
-    str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX, quad[1].fY, quad[2].fX, quad[2].fY);
+    str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX,
+            quad[1].fY, quad[2].fX, quad[2].fY);
     str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", line[0].fX, line[0].fY);
     str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].fX, line[1].fY);
 
@@ -69,65 +71,60 @@ static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
 // verify that intersecting the vertical span and the quad returns t
 // verify that a vertical span starting at quad[0] intersects at t=0
 // verify that a vertical span starting at quad[2] intersects at t=1
-static THREAD_TYPE testQuadLineIntersectMain(void* data)
+static void testQuadLineIntersectMain(PathOpsThreadState* data)
 {
-    State4& state = *(State4*) data;
-    REPORTER_ASSERT(state.reporter, data);
-    do {
-        int ax = state.a & 0x03;
-        int ay = state.a >> 2;
-        int bx = state.b & 0x03;
-        int by = state.b >> 2;
-        int cx = state.c & 0x03;
-        int cy = state.c >> 2;
-        SkDQuad quad = {{{ax, ay}, {bx, by}, {cx, cy}}};
-        SkReduceOrder reducer;
-        int order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
-        if (order < 3) {
-            continue;  // skip degenerates
-        }
-        for (int tIndex = 0; tIndex <= 4; ++tIndex) {
-            SkDPoint xy = quad.xyAtT(tIndex / 4.0);
-            for (int h = -2; h <= 2; ++h) {
-                for (int v = -2; v <= 2; ++v) {
-                    if (h == v && abs(h) != 1) {
-                        continue;
-                    }
-                    double x = xy.fX;
-                    double y = xy.fY;
-                    SkDLine line = {{{x - h, y - v}, {x, y}}};
-                    testLineIntersect(state.reporter, quad, line, x, y);
-                    SkDLine line2 = {{{x, y}, {x + h, y + v}}};
-                    testLineIntersect(state.reporter, quad, line2, x, y);
-                    SkDLine line3 = {{{x - h, y - v}, {x + h, y + v}}};
-                    testLineIntersect(state.reporter, quad, line3, x, y);
-                    state.testsRun += 3;
+    PathOpsThreadState& state = *data;
+    REPORTER_ASSERT(state.fReporter, data);
+    int ax = state.fA & 0x03;
+    int ay = state.fA >> 2;
+    int bx = state.fB & 0x03;
+    int by = state.fB >> 2;
+    int cx = state.fC & 0x03;
+    int cy = state.fC >> 2;
+    SkDQuad quad = {{{ax, ay}, {bx, by}, {cx, cy}}};
+    SkReduceOrder reducer;
+    int order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
+    if (order < 3) {
+        return;
+    }
+    for (int tIndex = 0; tIndex <= 4; ++tIndex) {
+        SkDPoint xy = quad.xyAtT(tIndex / 4.0);
+        for (int h = -2; h <= 2; ++h) {
+            for (int v = -2; v <= 2; ++v) {
+                if (h == v && abs(h) != 1) {
+                    continue;
                 }
+                double x = xy.fX;
+                double y = xy.fY;
+                SkDLine line = {{{x - h, y - v}, {x, y}}};
+                testLineIntersect(state.fReporter, quad, line, x, y);
+                state.fReporter->bumpTestCount();
+                SkDLine line2 = {{{x, y}, {x + h, y + v}}};
+                testLineIntersect(state.fReporter, quad, line2, x, y);
+                state.fReporter->bumpTestCount();
+                SkDLine line3 = {{{x - h, y - v}, {x + h, y + v}}};
+                testLineIntersect(state.fReporter, quad, line3, x, y);
+                state.fReporter->bumpTestCount();
             }
         }
-    } while (runNextTestSet(state));
-    THREAD_RETURN
+    }
 }
 
 static void TestQuadLineIntersectionThreaded(skiatest::Reporter* reporter)
 {
-    int testsRun = 0;
-    if (gShowTestProgress) SkDebugf("%s\n", __FUNCTION__);
-    const char testStr[] = "testQuadLineIntersect";
-    initializeTests(reporter, testStr, sizeof(testStr));
+    int threadCount = initializeTests("testQuadLineIntersect");
+    PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
         for (int b = 0 ; b < 16; ++b) {
             for (int c = 0 ; c < 16; ++c) {
-                testsRun += dispatchTest4(testQuadLineIntersectMain, a, b, c, 0);
+                    *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
+                            (&testQuadLineIntersectMain, a, b, c, 0, &testRunner));
             }
-            if (!gAllowExtendedTest) goto finish;
-            if (gShowTestProgress) SkDebugf(".");
+            if (!reporter->allowExtendedTest()) goto finish;
         }
-        if (gShowTestProgress) SkDebugf("%d", a);
     }
 finish:
-    testsRun += waitForCompletion();
-    if (gShowTestProgress) SkDebugf("\n%s tests=%d\n", __FUNCTION__, testsRun);
+    testRunner.render();
 }
 
 #include "TestClassDef.h"
