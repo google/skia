@@ -1191,8 +1191,6 @@ static SkString configUsage() {
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
 DEFINE_string(config, "", configUsage().c_str());
 DEFINE_bool(deferred, true, "Exercise the deferred rendering test pass.");
-DEFINE_bool(enableMissingWarning, true, "Print message to stderr (but don't fail) if "
-            "unable to read a reference image for any tests.");
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
 #if SK_SUPPORT_GPU
@@ -1222,7 +1220,8 @@ DEFINE_bool(tileGrid, true, "Exercise the tile grid variant of SkPicture.");
 DEFINE_string(tileGridReplayScales, "", "Space separated list of floating-point scale "
               "factors to be used for tileGrid playback testing. Default value: 1.0");
 DEFINE_string(writeJsonSummaryPath, "", "Write a JSON-formatted result summary to this file.");
-DEFINE_bool2(verbose, v, false, "Print diagnostics (e.g. list each config to be tested).");
+DEFINE_bool2(verbose, v, false, "Give more detail (e.g. list all GMs run, more info about "
+             "each test).");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
 DEFINE_string2(writePicturePath, p, "", "Write .skp files into this directory.");
 
@@ -1687,14 +1686,14 @@ int tool_main(int argc, char** argv) {
         if (kGPU_Backend == gRec[index].fBackend) {
             GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
             if (NULL == ctx) {
-                SkDebugf("GrContext could not be created for config %s. Config will be skipped.",
-                         gRec[index].fName);
+                gm_fprintf(stderr, "GrContext could not be created for config %s."
+                           " Config will be skipped.\n", gRec[index].fName);
                 configs.remove(i);
                 --i;
             }
             if (gRec[index].fSampleCnt > ctx->getMaxSampleCount()) {
-                SkDebugf("Sample count (%d) of config %s is not supported. Config will be skipped.",
-                         gRec[index].fSampleCnt, gRec[index].fName);
+                gm_fprintf(stderr, "Sample count (%d) of config %s is not supported."
+                           " Config will be skipped.\n", gRec[index].fSampleCnt, gRec[index].fName);
                 configs.remove(i);
                 --i;
             }
@@ -1715,24 +1714,29 @@ int tool_main(int argc, char** argv) {
             return -1;
         }
         if (sk_isdir(readPath)) {
-            gm_fprintf(stdout, "reading from %s\n", readPath);
+            if (FLAGS_verbose) {
+                gm_fprintf(stdout, "reading from %s\n", readPath);
+            }
             gmmain.fExpectationsSource.reset(SkNEW_ARGS(
-                IndividualImageExpectationsSource,
-                (readPath, FLAGS_enableMissingWarning)));
+                IndividualImageExpectationsSource, (readPath)));
         } else {
-            gm_fprintf(stdout, "reading expectations from JSON summary file %s\n", readPath);
+            if (FLAGS_verbose) {
+                gm_fprintf(stdout, "reading expectations from JSON summary file %s\n", readPath);
+            }
             gmmain.fExpectationsSource.reset(SkNEW_ARGS(
                 JsonExpectationsSource, (readPath)));
         }
     }
-    if (FLAGS_writePath.count() == 1) {
-        gm_fprintf(stderr, "writing to %s\n", FLAGS_writePath[0]);
-    }
-    if (FLAGS_writePicturePath.count() == 1) {
-        gm_fprintf(stderr, "writing pictures to %s\n", FLAGS_writePicturePath[0]);
-    }
-    if (FLAGS_resourcePath.count() == 1) {
-        gm_fprintf(stderr, "reading resources from %s\n", FLAGS_resourcePath[0]);
+    if (FLAGS_verbose) {
+        if (FLAGS_writePath.count() == 1) {
+            gm_fprintf(stdout, "writing to %s\n", FLAGS_writePath[0]);
+        }
+        if (FLAGS_writePicturePath.count() == 1) {
+            gm_fprintf(stdout, "writing pictures to %s\n", FLAGS_writePicturePath[0]);
+        }
+        if (FLAGS_resourcePath.count() == 1) {
+            gm_fprintf(stdout, "reading resources from %s\n", FLAGS_resourcePath[0]);
+        }
     }
 
     if (moduloDivisor <= 0) {
@@ -1784,8 +1788,10 @@ int tool_main(int argc, char** argv) {
 
         gmsRun++;
         SkISize size = gm->getISize();
-        gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
-                   size.width(), size.height());
+        if (FLAGS_verbose) {
+            gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
+                       size.width(), size.height());
+        }
 
         run_multiple_configs(gmmain, gm, configs, grFactory);
 
@@ -1852,7 +1858,7 @@ int tool_main(int argc, char** argv) {
     for (int i = 0; i < configs.count(); i++) {
         ConfigData config = gRec[configs[i]];
 
-        if (kGPU_Backend == config.fBackend) {
+        if (FLAGS_verbose && (kGPU_Backend == config.fBackend)) {
             GrContext* gr = grFactory->get(config.fGLContextType);
 
             gm_fprintf(stdout, "config: %s %x\n", config.fName, gr);
