@@ -85,6 +85,18 @@ public:
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
 
+protected:
+    virtual bool onCopySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint) SK_OVERRIDE;
+
+    virtual bool onCanCopySurface(GrSurface* dst,
+                                  GrSurface* src,
+                                  const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint) SK_OVERRIDE;
+
+
 private:
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;

@@ -2227,6 +2227,157 @@ void GrGpuGL::setSpareTextureUnit() {
     }
 }
 
+namespace {
+// Determines whether glBlitFramebuffer could be used between src and dst.
+inline bool can_blit_framebuffer(const GrSurface* dst, const GrSurface* src, const GrGpuGL* gpu) {
+    return gpu->isConfigRenderable(dst->config()) && gpu->isConfigRenderable(src->config()) &&
+           (GrGLCaps::kDesktopEXT_MSFBOType == gpu->glCaps().msFBOType() ||
+            GrGLCaps::kDesktopARB_MSFBOType == gpu->glCaps().msFBOType());
+}
+}
+
+bool GrGpuGL::onCopySurface(GrSurface* dst,
+                            GrSurface* src,
+                            const SkIRect& srcRect,
+                            const SkIPoint& dstPoint) {
+    // TODO: Add support for glCopyTexSubImage for cases when src is an FBO and dst is not
+    // renderable or we don't have glBlitFramebuffer.
+    bool copied = false;
+    // Check whether both src and dst could be attached to an FBO and we're on a GL that supports
+    // glBlitFramebuffer.
+    if (can_blit_framebuffer(dst, src, this)) {
+        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                            srcRect.width(), srcRect.height());
+        bool selfOverlap = false;
+        if (dst->isSameAs(src)) {
+            selfOverlap = SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
+        }
+
+        if (!selfOverlap) {
+            GrGLuint dstFBO = 0;
+            GrGLuint srcFBO = 0;
+            GrGLIRect dstVP;
+            GrGLIRect srcVP;
+            GrGLRenderTarget* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget());
+            GrGLRenderTarget* srcRT = static_cast<GrGLRenderTarget*>(src->asRenderTarget());
+            if (NULL == dstRT) {
+                GrAssert(NULL != dst->asTexture());
+                GrGLuint texID = static_cast<GrGLTexture*>(dst->asTexture())->textureID();
+                GL_CALL(GenFramebuffers(1, &dstFBO));
+                GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, dstFBO));
+                GL_CALL(FramebufferTexture2D(GR_GL_DRAW_FRAMEBUFFER,
+                                             GR_GL_COLOR_ATTACHMENT0,
+                                             GR_GL_TEXTURE_2D,
+                                             texID,
+                                             0));
+                dstVP.fLeft = 0;
+                dstVP.fBottom = 0;
+                dstVP.fWidth = dst->width();
+                dstVP.fHeight = dst->height();
+            } else {
+                GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, dstRT->renderFBOID()));
+                dstVP = dstRT->getViewport();
+            }
+            if (NULL == srcRT) {
+                GrAssert(NULL != src->asTexture());
+                GrGLuint texID = static_cast<GrGLTexture*>(src->asTexture())->textureID();
+                GL_CALL(GenFramebuffers(1, &srcFBO));
+                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, srcFBO));
+                GL_CALL(FramebufferTexture2D(GR_GL_READ_FRAMEBUFFER,
+                                             GR_GL_COLOR_ATTACHMENT0,
+                                             GR_GL_TEXTURE_2D,
+                                             texID,
+                                             0));
+                srcVP.fLeft = 0;
+                srcVP.fBottom = 0;
+                srcVP.fWidth = src->width();
+                srcVP.fHeight = src->height();
+            } else {
+                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, srcRT->renderFBOID()));
+                srcVP = srcRT->getViewport();
+            }
+
+            // We modified the bound FB
+            fHWBoundRenderTarget = NULL;
+            GrGLIRect srcGLRect;
+            GrGLIRect dstGLRect;
+            srcGLRect.setRelativeTo(srcVP,
+                                    srcRect.fLeft,
+                                    srcRect.fTop,
+                                    srcRect.width(),
+                                    srcRect.height(),
+                                    src->origin());
+            dstGLRect.setRelativeTo(dstVP,
+                                    dstRect.fLeft,
+                                    dstRect.fTop,
+                                    dstRect.width(),
+                                    dstRect.height(),
+                                    dst->origin());
+
+            GrAutoTRestore<ScissorState> asr;
+            if (GrGLCaps::kDesktopEXT_MSFBOType == this->glCaps().msFBOType()) {
+                // The EXT version applies the scissor during the blit, so disable it.
+                asr.reset(&fScissorState);
+                fScissorState.fEnabled = false;
+                this->flushScissor();
+            }
+            GrGLint srcY0;
+            GrGLint srcY1;
+            // Does the blit need to y-mirror or not?
+            if (src->origin() == dst->origin()) {
+                srcY0 = srcGLRect.fBottom;
+                srcY1 = srcGLRect.fBottom + srcGLRect.fHeight;
+            } else {
+                srcY0 = srcGLRect.fBottom + srcGLRect.fHeight;
+                srcY1 = srcGLRect.fBottom;
+            }
+            GL_CALL(BlitFramebuffer(srcGLRect.fLeft,
+                                    srcY0,
+                                    srcGLRect.fLeft + srcGLRect.fWidth,
+                                    srcY1,
+                                    dstGLRect.fLeft,
+                                    dstGLRect.fBottom,
+                                    dstGLRect.fLeft + dstGLRect.fWidth,
+                                    dstGLRect.fBottom + dstGLRect.fHeight,
+                                    GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+            if (dstFBO) {
+                GL_CALL(DeleteFramebuffers(1, &dstFBO));
+            }
+            if (srcFBO) {
+                GL_CALL(DeleteFramebuffers(1, &srcFBO));
+            }
+            copied = true;
+        }
+    }
+    if (!copied) {
+        copied = INHERITED::onCopySurface(dst, src, srcRect, dstPoint);
+    }
+    return copied;
+}
+
+bool GrGpuGL::onCanCopySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint) {
+    // This mirrors the logic in onCopySurface.
+    bool canBlitFramebuffer = false;
+    if (can_blit_framebuffer(dst, src, this)) {
+        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                            srcRect.width(), srcRect.height());
+        if (dst->isSameAs(src)) {
+            canBlitFramebuffer = !SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
+        } else {
+            canBlitFramebuffer = true;
+        }
+    }
+    if (canBlitFramebuffer) {
+        return true;
+    } else {
+        return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
