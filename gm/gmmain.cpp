@@ -1825,8 +1825,10 @@ int tool_main(int argc, char** argv) {
     }
     gmmain.ListErrors(FLAGS_verbose);
 
-    // TODO(epoger): in a standalone CL, enable this new check.
-#if 0
+    // TODO(epoger): Enable this check for Android, too, once we resolve
+    // https://code.google.com/p/skia/issues/detail?id=1222
+    // ('GM is unexpectedly skipping tests on Android')
+#ifndef SK_BUILD_FOR_ANDROID
     if (expectedNumberOfTests != gmmain.fTestsRun) {
         gm_fprintf(stderr, "expected %d tests, but ran or skipped %d tests\n",
                    expectedNumberOfTests, gmmain.fTestsRun);
