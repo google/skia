@@ -17,6 +17,7 @@
         'SampleApp.gyp:SampleApp',
         'tests.gyp:tests',
         'tools.gyp:tools',
+        'pathops_unittest.gyp:*',
       ],
       'conditions': [
         ['skia_os == "android"', {

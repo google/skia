@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTRegistry.h"
+#include "SkThread.h"
 
 class GrContextFactory;
 
@@ -31,7 +32,7 @@ namespace skiatest {
         };
 
         void resetReporting();
-        void bumpTestCount() { ++fTestCount; }
+        void bumpTestCount() { sk_atomic_inc(&fTestCount); }
         int countTests() const { return fTestCount; }
         int countResults(Result r) {
             SkASSERT((unsigned)r <= kLastResult);

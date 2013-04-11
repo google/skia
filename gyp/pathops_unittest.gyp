@@ -7,6 +7,7 @@
     {
       'target_name': 'pathops_unittest',
       'type': 'executable',
+      'suppress_wildcard': '1',
       'include_dirs' : [
         '../include/pathops',
         '../src/core',

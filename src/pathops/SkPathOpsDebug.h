@@ -18,11 +18,14 @@
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_ANDROID)
     #define SK_RAND(seed) rand()
-    #define SK_SNPRINTF _snprintf
 #else
     #define SK_RAND(seed) rand_r(&seed)
+#endif
+#ifdef SK_BUILD_FOR_WIN
+    #define SK_SNPRINTF _snprintf
+#else
     #define SK_SNPRINTF snprintf
 #endif
 
