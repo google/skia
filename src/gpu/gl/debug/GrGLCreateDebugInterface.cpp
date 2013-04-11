@@ -202,7 +202,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
  GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target,
                                                      GrGLuint frameBufferID) {
 
-     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target ||
+                    GR_GL_READ_FRAMEBUFFER == target ||
+                    GR_GL_DRAW_FRAMEBUFFER);
 
      // a frameBufferID of 0 is acceptable - it binds to the default
      // frame buffer
