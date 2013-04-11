@@ -82,6 +82,7 @@
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
+        'flags.gyp:flags',
       ],
     },
     {
