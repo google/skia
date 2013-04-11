@@ -50,6 +50,7 @@
         '../tests/FlateTest.cpp',
         '../tests/FontHostStreamTest.cpp',
         '../tests/FontHostTest.cpp',
+        '../tests/FontMgrTest.cpp',
         '../tests/FontNamesTest.cpp',
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
