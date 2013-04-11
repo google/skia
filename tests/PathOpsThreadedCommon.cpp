@@ -25,5 +25,3 @@ void PathOpsThreadedTestRunner::render() {
     gDebugMaxWindValue = SK_MaxS32;
 #endif
 }
-
-

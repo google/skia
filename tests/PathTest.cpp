@@ -33,20 +33,20 @@ static SkSurface* new_surface(int w, int h) {
 
 static void test_bad_cubic_crbug229478() {
     const SkPoint pts[] = {
-        { 4595.91064f,	-11596.9873f },
-        { 4597.2168f,	-11595.9414f },
-        { 4598.52344f,	-11594.8955f },
-        { 4599.83008f,	-11593.8496f },
+        { 4595.91064f,    -11596.9873f },
+        { 4597.2168f,    -11595.9414f },
+        { 4598.52344f,    -11594.8955f },
+        { 4599.83008f,    -11593.8496f },
     };
-    
+
     SkPath path;
     path.moveTo(pts[0]);
     path.cubicTo(pts[1], pts[2], pts[3]);
-    
+
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
-    
+
     SkPath dst;
     // Before the fix, this would infinite-recurse, and run out of stack
     // because we would keep trying to subdivide a degenerate cubic segment.
