@@ -83,31 +83,24 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fDevice->accessBitmap(false), x, y, paint);
 }
 
-// Copy the contents of the SkGpuDevice into a new texture and give that
-// texture to the SkImage. Note that this flushes the SkGpuDevice but
+// Create a new SkGpuDevice and, if necessary, copy the contents of the old
+// device into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
-void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas*) {
+void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
     GrRenderTarget* rt = (GrRenderTarget*) fDevice->accessRenderTarget();
 
     // are we sharing our render target with the image?
     if (rt->asTexture() == SkTextureImageGetTexture(image)) {
-        GrTextureDesc desc;
-        // copyTexture requires a render target as the destination
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
-        desc.fWidth = fDevice->width();
-        desc.fHeight = fDevice->height();
-        desc.fConfig = SkBitmapConfig2GrPixelConfig(fDevice->config());
-        desc.fSampleCnt = 0;
-
-        SkAutoTUnref<GrTexture> tex(fDevice->context()->createUncachedTexture(desc, NULL, 0));
-        if (NULL == tex) {
-            SkTextureImageSetTexture(image, NULL);
-            return;
-        }
-
-        fDevice->context()->copyTexture(rt->asTexture(), tex->asRenderTarget());
-
-        SkTextureImageSetTexture(image, tex);
+        SkGpuDevice* newDevice = static_cast<SkGpuDevice*>(
+            fDevice->createCompatibleDevice(fDevice->config(), fDevice->width(),
+            fDevice->height(), fDevice->isOpaque()));
+        SkAutoTUnref<SkGpuDevice> aurd(newDevice);
+        fDevice->context()->copyTexture(rt->asTexture(),
+            (GrRenderTarget*)newDevice->accessRenderTarget());
+        SkASSERT(NULL != canvas);
+        SkASSERT(canvas->getDevice() == fDevice);
+        canvas->setDevice(newDevice);
+        SkRefCnt_SafeAssign(fDevice, newDevice);
     }
 }
 

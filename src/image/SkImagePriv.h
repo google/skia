@@ -55,10 +55,13 @@ static inline size_t SkImageMinRowBytes(const SkImage::Info& info) {
 // in which case the surface may need to perform a copy-on-write.
 extern SkPixelRef* SkBitmapImageGetPixelRef(SkImage* rasterImage);
 
+// Given an image created with NewPicture, return its SkPicture.
+extern SkPicture* SkPictureImageGetPicture(SkImage* pictureImage);
+
 // Given an image created with NewTexture, return its GrTexture. This
 // may be called to see if the surface and the image share the same GrTexture,
 // in which case the surface may need to perform a copy-on-write.
-extern GrTexture* SkTextureImageGetTexture(SkImage* rasterImage);
+extern GrTexture* SkTextureImageGetTexture(SkImage* textureImage);
 
 // Update the texture wrapped by an image created with NewTexture. This
 // is called when a surface and image share the same GrTexture and the

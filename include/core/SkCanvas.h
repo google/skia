@@ -1023,6 +1023,7 @@ private:
         fSurfaceBase = sb;
     }
     friend class SkSurface_Base;
+    friend class SkSurface_Gpu;
 
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();

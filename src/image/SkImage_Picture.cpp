@@ -16,6 +16,8 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
 
+    SkPicture* getPicture() { return fPicture; }
+
 private:
     SkPicture*  fPicture;
 
@@ -51,4 +53,8 @@ SkImage* SkNewImageFromPicture(const SkPicture* srcPicture) {
     SkAutoTUnref<SkPicture> playback(SkNEW_ARGS(SkPicture, (*srcPicture)));
 
     return SkNEW_ARGS(SkImage_Picture, (playback));
+}
+
+SkPicture* SkPictureImageGetPicture(SkImage* pictureImage) {
+    return static_cast<SkImage_Picture*>(pictureImage)->getPicture();
 }
