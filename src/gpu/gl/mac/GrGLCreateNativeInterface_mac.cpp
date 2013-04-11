@@ -87,6 +87,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GET_PROC(ColorMask);
         GET_PROC(CompileShader);
         GET_PROC(CompressedTexImage2D);
+        GET_PROC(CopyTexSubImage2D);
         GET_PROC(CreateProgram);
         GET_PROC(CreateShader);
         GET_PROC(CullFace);

@@ -66,6 +66,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(ColorMask);
         GR_GL_GET_PROC(CompileShader);
         GR_GL_GET_PROC(CompressedTexImage2D);
+        GR_GL_GET_PROC(CopyTexSubImage2D);
         GR_GL_GET_PROC(CreateProgram);
         GR_GL_GET_PROC(CreateShader);
         GR_GL_GET_PROC(CullFace);

@@ -92,6 +92,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         SET_PROC(ClearColor)
         SET_PROC(ClearStencil)
         SET_PROC(ColorMask)
+        SET_PROC(CopyTexSubImage2D)
         SET_PROC(CullFace)
         SET_PROC(DeleteTextures)
         SET_PROC(DepthMask)
