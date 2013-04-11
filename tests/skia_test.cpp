@@ -73,7 +73,7 @@ public:
     }
 
     virtual bool allowExtendedTest() const {
-        return fAllowExtendedTest; 
+        return fAllowExtendedTest;
     }
 
 protected:

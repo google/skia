@@ -87,4 +87,3 @@ finish:
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("PathOpsRectsThreaded", OpRectsThreadedTestClass, \
         TestPathOpsRectsThreaded)
-
