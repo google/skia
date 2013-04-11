@@ -159,8 +159,15 @@ int tool_main(int argc, char** argv) {
 void forceLinking();
 
 void forceLinking() {
+    // This function leaks, but that is okay because it is not intended
+    // to be called. It is only here so that the linker will include the
+    // decoders.
     SkDEBUGCODE(SkImageDecoder *creator = ) CreateJPEGImageDecoder();
     SkASSERT(creator);
+#ifdef SK_BUILD_FOR_UNIX
+    SkDEBUGCODE(creator = ) CreateGIFImageDecoder();
+    SkASSERT(creator);
+#endif
 }
 
 #if !defined SK_BUILD_FOR_IOS
