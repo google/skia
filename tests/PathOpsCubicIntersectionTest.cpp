@@ -305,7 +305,7 @@ static void oneOffTests(skiatest::Reporter* reporter) {
 static void CubicIntersection_RandTest(skiatest::Reporter* reporter) {
     srand(0);
     const int tests = 10000000;
-#ifndef SK_BUILD_FOR_WIN
+#if !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)
     unsigned seed = 0;
 #endif
     for (int test = 0; test < tests; ++test) {

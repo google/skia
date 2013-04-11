@@ -81,7 +81,8 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
     int by = state.fB >> 2;
     int cx = state.fC & 0x03;
     int cy = state.fC >> 2;
-    SkDQuad quad = {{{ax, ay}, {bx, by}, {cx, cy}}};
+    SkDQuad quad = {{{(double) ax, (double) ay}, {(double) bx, (double) by},
+            {(double) cx, (double) cy}}};
     SkReduceOrder reducer;
     int order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
     if (order < 3) {
