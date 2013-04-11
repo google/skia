@@ -120,6 +120,7 @@
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
+        'flags.gyp:flags',
         'images.gyp:images',
         'utils.gyp:utils',
       ],
