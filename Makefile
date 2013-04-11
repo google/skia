@@ -42,6 +42,7 @@ VALID_TARGETS := \
                  everything \
                  gm \
                  most \
+                 pathops_unittest \
                  SampleApp \
                  SkiaAndroidApp \
                  skia_base_libs \

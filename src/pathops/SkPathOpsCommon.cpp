@@ -21,7 +21,7 @@ static int contourRangeCheckY(const SkTDArray<SkOpContour*>& contourList, SkOpSe
     int contourCount = contourList.count();
     SkScalar bestY = SK_ScalarMin;
     SkOpSegment* bestSeg = NULL;
-    int bestTIndex;
+    int bestTIndex = 0;
     bool bestOpp;
     bool hitSomething = false;
     for (int cTest = 0; cTest < contourCount; ++cTest) {
