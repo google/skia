@@ -1,10 +1,11 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "Test.h"
 #include "SkOSFile.h"
@@ -121,64 +122,34 @@ const SkString& Test::GetResourcePath() {
     return gResourcePath;
 }
 
+DEFINE_string2(matchStr, m, NULL, "substring of test name to run.");
+DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
+DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
+DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+DEFINE_bool2(verbose, v, false, "enable verbose output.");
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SkCommandLineFlags::SetUsage("");
+    SkCommandLineFlags::Parse(argc, argv);
+
+    if (!FLAGS_tmpDir.isEmpty()) {
+        make_canonical_dir_path(FLAGS_tmpDir[0], &gTmpDir);
+    }
+    if (!FLAGS_resourcePath.isEmpty()) {
+        make_canonical_dir_path(FLAGS_resourcePath[0], &gResourcePath);
+    }
+
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = true;
 #endif
-    bool allowExtendedTest = false;
-    bool verboseOutput = false;
 
     SkGraphics::Init();
 
-    const char* matchStr = NULL;
-
-    char* const* stop = argv + argc;
-    for (++argv; argv < stop; ++argv) {
-        if (0 == strcmp(*argv, "--match") || 0 == strcmp(*argv, "-m")) {
-            ++argv;
-            if (argv < stop && **argv) {
-                matchStr = *argv;
-            } else {
-                SkDebugf("no following argument to --match\n");
-                return -1;
-            }
-        } else if (0 == strcmp(*argv, "--tmpDir") || 0 == strcmp(*argv, "-t")) {
-            ++argv;
-            if (argv < stop && **argv) {
-                make_canonical_dir_path(*argv, &gTmpDir);
-            } else {
-                SkDebugf("no following argument to --tmpDir\n");
-                return -1;
-            }
-        } else if (0 == strcmp(*argv, "--resourcePath") || 0 == strcmp(*argv, "-i")) {
-            argv++;
-            if (argv < stop && **argv) {
-                make_canonical_dir_path(*argv, &gResourcePath);
-            }
-        } else if (0 == strcmp(*argv, "--extendedTest") || 0 == strcmp(*argv, "-x")) {
-            allowExtendedTest = true;
-        } else if (0 == strcmp(*argv, "--verbose") || 0 == strcmp(*argv, "-v")) {
-            verboseOutput = true;
-        } else {
-            if (0 != strcmp(*argv, "--help") && 0 != strcmp(*argv, "-h")
-                    && 0 != strcmp(*argv, "-?")) {
-                SkDebugf("Unknown option %s. ", *argv);
-            }
-            SkDebugf("Skia UnitTests options are:\n");
-            SkDebugf("  -m --match [test-name-substring]\n");
-            SkDebugf("  -t --tmpDir [dir]\n");
-            SkDebugf("  -i --resourcePath [dir]\n");
-            SkDebugf("  -x --extendedTest\n");
-            SkDebugf("  -v --verbose\n");
-            return 1;
-        }
-    }
-
     {
         SkString header("Skia UnitTests:");
-        if (matchStr) {
-            header.appendf(" --match %s", matchStr);
+        if (!FLAGS_matchStr.isEmpty()) {
+            header.appendf(" --match %s", FLAGS_matchStr[0]);
         }
         if (!gTmpDir.isEmpty()) {
             header.appendf(" --tmpDir %s", gTmpDir.c_str());
@@ -199,7 +170,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%s\n", header.c_str());
     }
 
-    DebugfReporter reporter(allowExtendedTest);
+    DebugfReporter reporter(FLAGS_extendedTest);
     Iter iter(&reporter);
     Test* test;
 
@@ -209,7 +180,7 @@ int tool_main(int argc, char** argv) {
     int skipCount = 0;
     while ((test = iter.next()) != NULL) {
         reporter.setIndexOfTotal(index, count);
-        if (NULL != matchStr && !strstr(test->getName(), matchStr)) {
+        if (!FLAGS_matchStr.isEmpty() && !strstr(test->getName(), FLAGS_matchStr[0])) {
             ++skipCount;
         } else {
             if (!test->run()) {
@@ -223,7 +194,7 @@ int tool_main(int argc, char** argv) {
     SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
              count, failCount, skipCount);
     int testCount = reporter.countTests();
-    if (verboseOutput && testCount > 0) {
+    if (FLAGS_verbose && testCount > 0) {
         SkDebugf("Ran %d Internal tests.\n", testCount);
     }
 #if SK_SUPPORT_GPU

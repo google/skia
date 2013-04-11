@@ -122,6 +122,7 @@
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
+        'flags.gyp:flags',
         'experimental.gyp:experimental',
         'images.gyp:images',
         'pdf.gyp:pdf',
