@@ -43,7 +43,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
-DEFINE_bool2(verboseFontMgr, vfm, false, "run verbose fontmgr tests.");
+DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
 static void TestFontMgr(skiatest::Reporter* reporter) {
     test_fontiter(reporter, FLAGS_verboseFontMgr);
