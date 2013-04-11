@@ -14,6 +14,7 @@
 class SkData;
 class SkStream;
 class SkString;
+class SkTypeface;
 
 class SK_API SkFontStyleSet : public SkRefCnt {
 public:
