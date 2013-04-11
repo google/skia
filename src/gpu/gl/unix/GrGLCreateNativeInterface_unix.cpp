@@ -66,6 +66,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fColorMask = glColorMask;
         GR_GL_GET_PROC(CompileShader);
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
+        interface->fCopyTexSubImage2D = glCopyTexSubImage2D;
         GR_GL_GET_PROC(CreateProgram);
         GR_GL_GET_PROC(CreateShader);
         interface->fCullFace = glCullFace;

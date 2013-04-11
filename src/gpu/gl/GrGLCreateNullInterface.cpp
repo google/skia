@@ -179,6 +179,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fColorMask = noOpGLColorMask;
         interface->fCompileShader = noOpGLCompileShader;
         interface->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
+        interface->fCopyTexSubImage2D = noOpGLCopyTexSubImage2D;
         interface->fCreateProgram = nullGLCreateProgram;
         interface->fCreateShader = nullGLCreateShader;
         interface->fCullFace = noOpGLCullFace;

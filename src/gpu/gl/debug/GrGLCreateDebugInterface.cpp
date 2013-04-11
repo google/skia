@@ -797,6 +797,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fColorMask = noOpGLColorMask;
     interface->fCompileShader = noOpGLCompileShader;
     interface->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
+    interface->fCopyTexSubImage2D = noOpGLCopyTexSubImage2D;
     interface->fCreateProgram = debugGLCreateProgram;
     interface->fCreateShader = debugGLCreateShader;
     interface->fCullFace = noOpGLCullFace;

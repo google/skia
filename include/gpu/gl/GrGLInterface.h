@@ -159,6 +159,7 @@ public:
     GLPtr<GrGLColorMaskProc> fColorMask;
     GLPtr<GrGLCompileShaderProc> fCompileShader;
     GLPtr<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;
+    GLPtr<GrGLCopyTexSubImage2DProc> fCopyTexSubImage2D;
     GLPtr<GrGLCreateProgramProc> fCreateProgram;
     GLPtr<GrGLCreateShaderProc> fCreateShader;
     GLPtr<GrGLCullFaceProc> fCullFace;
