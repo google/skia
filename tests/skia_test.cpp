@@ -122,7 +122,7 @@ const SkString& Test::GetResourcePath() {
     return gResourcePath;
 }
 
-DEFINE_string2(matchStr, m, NULL, "substring of test name to run.");
+DEFINE_string2(match, m, NULL, "substring of test name to run.");
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
@@ -148,8 +148,8 @@ int tool_main(int argc, char** argv) {
 
     {
         SkString header("Skia UnitTests:");
-        if (!FLAGS_matchStr.isEmpty()) {
-            header.appendf(" --match %s", FLAGS_matchStr[0]);
+        if (!FLAGS_match.isEmpty()) {
+            header.appendf(" --match %s", FLAGS_match[0]);
         }
         if (!gTmpDir.isEmpty()) {
             header.appendf(" --tmpDir %s", gTmpDir.c_str());
@@ -180,7 +180,7 @@ int tool_main(int argc, char** argv) {
     int skipCount = 0;
     while ((test = iter.next()) != NULL) {
         reporter.setIndexOfTotal(index, count);
-        if (!FLAGS_matchStr.isEmpty() && !strstr(test->getName(), FLAGS_matchStr[0])) {
+        if (!FLAGS_match.isEmpty() && !strstr(test->getName(), FLAGS_match[0])) {
             ++skipCount;
         } else {
             if (!test->run()) {
