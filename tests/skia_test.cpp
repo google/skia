@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
+#include "../tools/flags/SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "Test.h"
 #include "SkOSFile.h"
