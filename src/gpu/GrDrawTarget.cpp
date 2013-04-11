@@ -411,12 +411,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
         return true;
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
-    // If the dst is not a texture then we don't currently have a way of copying the
-    // texture. TODO: API-specific impl of onCopySurface that can handle more cases.
-    if (NULL == rt->asTexture()) {
-        GrPrintf("Reading Dst of non-texture render target is not currently supported.\n");
-        return false;
-    }
 
     const GrClipData* clip = this->getClip();
     GrIRect copyRect;
@@ -435,11 +429,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
 #endif
     }
 
-    // The draw will resolve dst if it has MSAA. Two things to consider in the future:
-    // 1) to make the dst values be pre-resolve we'd need to be able to copy to MSAA
-    // texture and sample it correctly in the shader. 2) If 1 isn't available then we
-    // should just resolve and use the resolved texture directly rather than making a
-    // copy of it.
+    // MSAA consideration: When there is support for reading MSAA samples in the shader we could
+    // have per-sample dst values by making the copy multisampled.
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fWidth = copyRect.width();

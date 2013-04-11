@@ -45,12 +45,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        // FIXME: Currently necessary for GPU to be able to make dst-copy in SampleApp because
-        // main layer is not a texture.
-        SkPaint layerPaint;
-        layerPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas->saveLayer(NULL, &layerPaint);
-
         SkPaint bgPaint;
         bgPaint.setShader(fBG.get());
         canvas->drawPaint(bgPaint);
@@ -86,8 +80,6 @@ protected:
                          areaSqrt/50,
                          SkIntToScalar(size.fHeight / 2),
                          txtPaint);
-
-        canvas->restore();
     }
 
 private:
