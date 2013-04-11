@@ -97,12 +97,7 @@
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
-          'sources!': [
-            '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkMovie_gif.cpp',
-          ],
-          # libpng stuff:
-          # Any targets that depend on this target should link in libpng and
+          # Any targets that depend on this target should link in libpng, libgif, and
           # our code that calls it.
           # See http://code.google.com/p/gyp/wiki/InputFormatReference#Dependent_Settings
           'link_settings': {
@@ -110,11 +105,12 @@
               '../src/images/SkImageDecoder_libpng.cpp',
             ],
             'libraries': [
+              '-lgif',
               '-lpng',
               '-lz',
             ],
           },
-          # end libpng stuff
+          # end libpng/libgif stuff
         }],
         [ 'skia_os == "android"', {
           'include_dirs': [
