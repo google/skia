@@ -12,6 +12,12 @@
 #include "SkDevice.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
+#include "SkSurface.h"
+#if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
+#else
+class GrContextFactory;
+#endif
 
 static const int gWidth = 2;
 static const int gHeight = 2;
@@ -465,7 +471,75 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
     }
 }
 
-static void TestDeferredCanvas(skiatest::Reporter* reporter) {
+
+typedef void* PixelPtr;
+// Returns an opaque pointer which, either points to a GrTexture or RAM pixel
+// buffer. Used to test pointer equality do determine whether a surface points
+// to the same pixel data storage as before.
+PixelPtr getSurfacePixelPtr(SkSurface* surface, bool useGpu) {
+    return useGpu ? surface->getCanvas()->getDevice()->accessBitmap(false).getTexture() :
+        surface->getCanvas()->getDevice()->accessBitmap(false).getPixels();
+}
+
+static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    SkImage::Info imageSpec = {
+        10,  // width
+        10,  // height
+        SkImage::kPMColor_ColorType,
+        SkImage::kPremul_AlphaType
+    };
+    SkSurface* surface;
+    bool useGpu = NULL != factory;
+#if SK_SUPPORT_GPU
+    if (useGpu) {
+        GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        surface = SkSurface::NewRenderTarget(context, imageSpec);
+    } else {
+        surface = SkSurface::NewRaster(imageSpec);
+    }
+#else
+    SkASSERT(!useGpu);
+    surface = SkSurface::NewRaster(imageSpec);
+#endif
+    SkASSERT(NULL != surface);
+    SkAutoTUnref<SkSurface> aur(surface);
+    SkDeferredCanvas canvas(surface);
+
+    SkImage* image1 = canvas.newImageShapshot();
+    SkAutoTUnref<SkImage> aur_i1(image1);
+    PixelPtr pixels1 = getSurfacePixelPtr(surface, useGpu);
+    // The following clear would normally trigger a copy on write, but
+    // it won't because rendering is deferred.
+    canvas.clear(SK_ColorBLACK);
+    // Obtaining a snapshot directly from the surface (as opposed to the
+    // SkDeferredCanvas) will not trigger a flush of deferred draw operations
+    // and will therefore return the same image as the previous snapshot.
+    SkImage* image2 = surface->newImageShapshot();
+    SkAutoTUnref<SkImage> aur_i2(image2);
+    // Images identical because of deferral
+    REPORTER_ASSERT(reporter, image1->uniqueID() == image2->uniqueID());
+    // Now we obtain a snpshot via the deferred canvas, which triggers a flush.
+    // Because there is a pending clear, this will generate a different image.
+    SkImage* image3 = canvas.newImageShapshot();
+    SkAutoTUnref<SkImage> aur_i3(image3);
+    REPORTER_ASSERT(reporter, image1->uniqueID() != image3->uniqueID());
+    // Verify that backing store is now a different buffer because of copy on
+    // write
+    PixelPtr pixels2 = getSurfacePixelPtr(surface, useGpu);
+    REPORTER_ASSERT(reporter, pixels1 != pixels2);
+    canvas.clear(SK_ColorWHITE);
+    canvas.flush();
+    PixelPtr pixels3 = getSurfacePixelPtr(surface, useGpu);
+    // Verify that a direct canvas flush with a pending draw does not trigger
+    // a copy on write when the surface is not sharing its buffer with an
+    // SkImage.
+    canvas.clear(SK_ColorBLACK);
+    canvas.flush();
+    PixelPtr pixels4 = getSurfacePixelPtr(surface, useGpu);
+    REPORTER_ASSERT(reporter, pixels3 == pixels4);
+}
+
+static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* factory) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
@@ -474,7 +548,12 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasSkip(reporter);
     TestDeferredCanvasBitmapShaderNoLeak(reporter);
     TestDeferredCanvasBitmapSizeThreshold(reporter);
+    TestDeferredCanvasSurface(reporter, NULL);
+    if (NULL != factory) {
+        TestDeferredCanvasSurface(reporter, factory);
+    }
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("DeferredCanvas", TestDeferredCanvasClass, TestDeferredCanvas)
+DEFINE_GPUTESTCLASS("DeferredCanvas", TestDeferredCanvasClass, TestDeferredCanvas)
+
