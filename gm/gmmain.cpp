@@ -1788,10 +1788,8 @@ int tool_main(int argc, char** argv) {
 
         gmsRun++;
         SkISize size = gm->getISize();
-        if (FLAGS_verbose) {
-            gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
-                       size.width(), size.height());
-        }
+        gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
+                   size.width(), size.height());
 
         run_multiple_configs(gmmain, gm, configs, grFactory);
 
