@@ -165,4 +165,7 @@ gm_test "--simulatePipePlaybackFailure --verbose --hierarchy --match selftest1 $
 # Confirm that IntentionallySkipped tests are recorded as such.
 gm_test "--verbose --hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUTS/intentionally-skipped-tests"
 
+# Ignore some error types (including ExpectationsMismatch)
+gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignore-expectations-mismatch"
+
 echo "All tests passed."

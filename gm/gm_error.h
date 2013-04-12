@@ -58,6 +58,22 @@ namespace skiagm {
     }
 
     /**
+     * Fills in "type" with the ErrorType associated with name "name".
+     * Returns true if we found one, false if it is an unknown type name.
+     */
+    static bool getErrorTypeByName(const char name[], ErrorType *type) {
+        for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
+            ErrorType thisType = static_cast<ErrorType>(typeInt);
+            const char *thisTypeName = getErrorTypeName(thisType);
+            if (0 == strcmp(thisTypeName, name)) {
+                *type = thisType;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * A combination of 0 or more ErrorTypes.
      */
     class ErrorCombination {
@@ -91,6 +107,26 @@ namespace skiagm {
          */
         bool includes(const ErrorType type) const {
             return !(0 == (this->fBitfield & (1 << type)));
+        }
+
+        /**
+         * Returns a string representation of all ErrorTypes in this
+         * ErrorCombination.
+         *
+         * @param separator text with which to separate ErrorType names
+         */
+        SkString asString(const char separator[]) const {
+            SkString s;
+            for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
+                ErrorType type = static_cast<ErrorType>(typeInt);
+                if (this->includes(type)) {
+                    if (!s.isEmpty()) {
+                        s.append(separator);
+                    }
+                    s.append(getErrorTypeName(type));
+                }
+            }
+            return s;
         }
 
         /**

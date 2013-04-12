@@ -1,0 +1,1 @@
+out/Debug/gm --ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierarchy --match selftest1 --config 8888 565 -r gm/tests/inputs/json/different-pixels.json --writeJsonSummaryPath gm/tests/outputs/ignore-expectations-mismatch/output-actual/json-summary.txt
