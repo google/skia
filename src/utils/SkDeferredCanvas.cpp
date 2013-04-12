@@ -147,7 +147,7 @@ public:
     SkCanvas* recordingCanvas();
     SkCanvas* immediateCanvas() const {return fImmediateCanvas;}
     SkDevice* immediateDevice() const {return fImmediateDevice;}
-    SkImage* newImageShapshot();
+    SkImage* newImageSnapshot();
     bool isFreshFrame();
     bool hasPendingCommands();
     size_t storageAllocatedForRecording() const;
@@ -400,9 +400,9 @@ SkCanvas* DeferredDevice::recordingCanvas() {
     return fRecordingCanvas;
 }
 
-SkImage* DeferredDevice::newImageShapshot() {
+SkImage* DeferredDevice::newImageSnapshot() {
     this->flush();
-    return fSurface ? fSurface->newImageShapshot() : NULL;
+    return fSurface ? fSurface->newImageSnapshot() : NULL;
 }
 
 uint32_t DeferredDevice::getDeviceCapabilities() {
@@ -620,10 +620,10 @@ SkDeferredCanvas::NotificationClient* SkDeferredCanvas::setNotificationClient(
     return notificationClient;
 }
 
-SkImage* SkDeferredCanvas::newImageShapshot() {
+SkImage* SkDeferredCanvas::newImageSnapshot() {
     DeferredDevice* deferredDevice = this->getDeferredDevice();
     SkASSERT(deferredDevice);
-    return deferredDevice ? deferredDevice->newImageShapshot() : NULL;
+    return deferredDevice ? deferredDevice->newImageSnapshot() : NULL;
 }
 
 bool SkDeferredCanvas::isFullFrame(const SkRect* rect,

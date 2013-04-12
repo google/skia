@@ -31,7 +31,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is chaged after this calle (e.g. it is drawn to via its canvas).
      */
-    virtual SkImage* onNewImageShapshot() = 0;
+    virtual SkImage* onNewImageSnapshot() = 0;
 
     /**
      *  Default implementation:

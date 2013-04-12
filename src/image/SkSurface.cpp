@@ -36,7 +36,7 @@ SkSurface_Base::~SkSurface_Base() {
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                             const SkPaint* paint) {
-    SkImage* image = this->newImageShapshot();
+    SkImage* image = this->newImageSnapshot();
     if (image) {
         image->draw(canvas, x, y, paint);
         image->unref();
@@ -53,7 +53,7 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
 
 SkImage* SkSurface_Base::getCachedImage() {
     if (NULL == fCachedImage) {
-        fCachedImage = this->onNewImageShapshot();
+        fCachedImage = this->onNewImageSnapshot();
         this->installIntoCanvasForDirtyNotification();
     }
     return fCachedImage;
@@ -117,7 +117,7 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-SkImage* SkSurface::newImageShapshot() {
+SkImage* SkSurface::newImageSnapshot() {
     SkImage* image = asSB(this)->getCachedImage();
     SkSafeRef(image);   // the caller will call unref() to balance this
     return image;

@@ -21,7 +21,7 @@ public:
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
     virtual SkSurface* onNewSurface(const SkImage::Info&) SK_OVERRIDE;
-    virtual SkImage* onNewImageShapshot() SK_OVERRIDE;
+    virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
@@ -55,7 +55,7 @@ SkSurface* SkSurface_Picture::onNewSurface(const SkImage::Info& info) {
     return SkSurface::NewPicture(info.fWidth, info.fHeight);
 }
 
-SkImage* SkSurface_Picture::onNewImageShapshot() {
+SkImage* SkSurface_Picture::onNewImageSnapshot() {
     if (fPicture) {
         return SkNewImageFromPicture(fPicture);
     } else {
