@@ -10,7 +10,7 @@
 #include <stdarg.h>
 #include "gm.h"
 #include "SkBitmap.h"
-#include "SkBitmapChecksummer.h"
+#include "SkBitmapHasher.h"
 #include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
@@ -94,7 +94,13 @@ namespace skiagm {
         Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure) {
             fBitmap = bitmap;
             fIgnoreFailure = ignoreFailure;
-            fAllowedChecksums.push_back() = SkBitmapChecksummer::Compute64(bitmap);
+            SkHashDigest digest;
+            // TODO(epoger): Better handling for error returned by ComputeDigest()?
+            // For now, we just report a digest of 0 in error cases, like before.
+            if (!SkBitmapHasher::ComputeDigest(bitmap, &digest)) {
+                digest = 0;
+            }
+            fAllowedChecksums.push_back() = digest;
         }
 
         /**

@@ -7,7 +7,7 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapChecksummer.h"
+#include "SkBitmapHasher.h"
 #include "SkBitmapTransformer.h"
 #include "SkCityHash.h"
 #include "SkEndian.h"
@@ -23,8 +23,8 @@ static void write_int_to_buffer(int val, char* buf) {
     }
 }
 
-/*static*/ uint64_t SkBitmapChecksummer::Compute64Internal(
-        const SkBitmap& bitmap, const SkBitmapTransformer& transformer) {
+/*static*/ bool SkBitmapHasher::ComputeDigestInternal(
+        const SkBitmap& bitmap, const SkBitmapTransformer& transformer, SkHashDigest *result) {
     size_t pixelBufferSize = transformer.bytesNeededTotal();
     size_t totalBufferSize = pixelBufferSize + 8; // leave room for x/y dimensions
 
@@ -39,12 +39,13 @@ static void write_int_to_buffer(int val, char* buf) {
 
     // add all the pixel data
     if (!transformer.copyBitmapToPixelBuffer(bufPtr, pixelBufferSize)) {
-        return 0;
+        return false;
     }
-    return SkCityHash::Compute64(bufferStart, totalBufferSize);
+    *result = SkCityHash::Compute64(bufferStart, totalBufferSize);
+    return true;
 }
 
-/*static*/ uint64_t SkBitmapChecksummer::Compute64(const SkBitmap& bitmap) {
+/*static*/ bool SkBitmapHasher::ComputeDigest(const SkBitmap& bitmap, SkHashDigest *result) {
     const SkBitmapTransformer::PixelFormat kPixelFormat =
         SkBitmapTransformer::kARGB_8888_Premul_PixelFormat;
 
@@ -52,7 +53,7 @@ static void write_int_to_buffer(int val, char* buf) {
     const SkBitmapTransformer transformer =
         SkBitmapTransformer(bitmap, kPixelFormat);
     if (transformer.isValid(false)) {
-        return Compute64Internal(bitmap, transformer);
+        return ComputeDigestInternal(bitmap, transformer, result);
     }
 
     // Hmm, that didn't work. Maybe if we create a new
@@ -62,8 +63,8 @@ static void write_int_to_buffer(int val, char* buf) {
     const SkBitmapTransformer copyTransformer =
         SkBitmapTransformer(copyBitmap, kPixelFormat);
     if (copyTransformer.isValid(true)) {
-        return Compute64Internal(copyBitmap, copyTransformer);
+        return ComputeDigestInternal(copyBitmap, copyTransformer, result);
     } else {
-        return 0;
+        return false;
     }
 }
