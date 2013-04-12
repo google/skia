@@ -564,7 +564,7 @@ void SkPictureRecord::restore() {
     }
 
     uint32_t initialOffset, size;
-    size_t opt;
+    size_t opt = 0;
     if (!(fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag)) {
         for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
             if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
