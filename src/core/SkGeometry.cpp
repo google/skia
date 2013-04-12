@@ -1401,6 +1401,34 @@ static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
     return SkScalarDiv(numer, denom);
 }
 
+struct SkP3D {
+    SkScalar fX, fY, fZ;
+    
+    void set(SkScalar x, SkScalar y, SkScalar z) {
+        fX = x; fY = y; fZ = z;
+    }
+    
+    void projectDown(SkPoint* dst) const {
+        dst->set(fX / fZ, fY / fZ);
+    }
+};
+
+// we just return the middle 3 points, since the first and last are dups of src
+//
+static void p3d_interp(const SkScalar src[3], SkScalar dst[3], SkScalar t) {
+    SkScalar ab = SkScalarInterp(src[0], src[3], t);
+    SkScalar bc = SkScalarInterp(src[3], src[6], t);
+    dst[0] = ab;
+    dst[3] = SkScalarInterp(ab, bc, t);
+    dst[6] = bc;
+}
+
+static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
+    dst[0].set(src[0].fX * 1, src[0].fY * 1, 1);
+    dst[1].set(src[1].fX * w, src[1].fY * w, w);
+    dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
+}
+
 void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
     
@@ -1411,5 +1439,21 @@ void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
 }
 
 void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
+    SkP3D tmp[3], tmp2[3];
+
+    ratquad_mapTo3D(fPts, fW, tmp);
+    
+    p3d_interp(&tmp[0].fX, &tmp2[0].fX, t);
+    p3d_interp(&tmp[0].fY, &tmp2[0].fY, t);
+    p3d_interp(&tmp[0].fZ, &tmp2[0].fZ, t);
+    
+    dst[0].fPts[0] = fPts[0];
+    tmp2[0].projectDown(&dst[0].fPts[1]);
+    tmp2[1].projectDown(&dst[0].fPts[2]); dst[1].fPts[0] = dst[0].fPts[2];
+    tmp2[2].projectDown(&dst[1].fPts[1]);
+    dst[1].fPts[2] = fPts[2];
+
+    dst[0].fW = tmp2[0].fZ; // ?????
+    dst[1].fW = tmp2[2].fZ; // ?????
 }
 
