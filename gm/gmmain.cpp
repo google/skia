@@ -174,13 +174,14 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
         | SkGPipeWriter::kSharedAddressSpace_Flag }
 };
 
+const static ErrorCombination kDefaultIgnorableErrorTypes = ErrorCombination()
+    .plus(kMissingExpectations_ErrorType)
+    .plus(kIntentionallySkipped_ErrorType);
+
 class GMMain {
 public:
-    GMMain() : fUseFileHierarchy(false), fMismatchPath(NULL), fTestsRun(0),
-               fRenderModesEncountered(1) {
-        fIgnorableErrorCombination.add(kMissingExpectations_ErrorType);
-        fIgnorableErrorCombination.add(kIntentionallySkipped_ErrorType);
-    }
+    GMMain() : fUseFileHierarchy(false), fIgnorableErrorTypes(kDefaultIgnorableErrorTypes),
+               fMismatchPath(NULL), fTestsRun(0), fRenderModesEncountered(1) {}
 
     SkString make_name(const char shortName[], const char configName[]) {
         SkString name;
@@ -291,7 +292,7 @@ public:
         int significantErrors = 0;
         for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
             ErrorType type = static_cast<ErrorType>(typeInt);
-            if (!fIgnorableErrorCombination.includes(type)) {
+            if (!fIgnorableErrorTypes.includes(type)) {
                 significantErrors += fFailedTests[type].count();
             }
         }
@@ -305,7 +306,7 @@ public:
      * @param verbose whether to be all verbose about it
      */
     void DisplayResultTypeSummary(ErrorType type, bool verbose) {
-        bool isIgnorableType = fIgnorableErrorCombination.includes(type);
+        bool isIgnorableType = fIgnorableErrorTypes.includes(type);
 
         SkString line;
         if (isIgnorableType) {
@@ -1105,7 +1106,7 @@ public:
     //
 
     bool fUseFileHierarchy;
-    ErrorCombination fIgnorableErrorCombination;
+    ErrorCombination fIgnorableErrorTypes;
 
     const char* fMismatchPath;
 
@@ -1209,6 +1210,18 @@ DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte si
 #endif
 DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
             "when reading/writing files.");
+// TODO(epoger): Maybe should make SkCommandLineFlags handle default string
+// values differently, so that the first definition of ignoreErrorTypes worked?
+#if 0
+DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(),
+              "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
+              "types are encountered, the tool will exit with a nonzero return value.");
+#else
+DEFINE_string(ignoreErrorTypes, "", SkString(SkString(
+              "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
+              "types are encountered, the tool will exit with a nonzero return value. "
+              "Defaults to: ") += kDefaultIgnorableErrorTypes.asString(" ")).c_str());
+#endif
 DEFINE_string(match, "",  "Only run tests whose name includes this substring/these substrings "
               "(more than one can be supplied, separated by spaces).");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
@@ -1636,6 +1649,20 @@ int tool_main(int argc, char** argv) {
         if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
             gm_fprintf(stderr, "invalid modulo values.");
             return -1;
+        }
+    }
+
+    if (FLAGS_ignoreErrorTypes.count() > 0) {
+        gmmain.fIgnorableErrorTypes = ErrorCombination();
+        for (int i = 0; i < FLAGS_ignoreErrorTypes.count(); i++) {
+            ErrorType type;
+            const char *name = FLAGS_ignoreErrorTypes[i];
+            if (!getErrorTypeByName(name, &type)) {
+                gm_fprintf(stderr, "cannot find ErrorType with name '%s'\n", name);
+                return -1;
+            } else {
+                gmmain.fIgnorableErrorTypes.add(type);
+            }
         }
     }
 
