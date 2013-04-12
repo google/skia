@@ -8,6 +8,7 @@
       'target_name': 'gm',
       'type': 'executable',
       'include_dirs' : [
+        '../debugger',
         '../src/core',
         '../src/effects',
         '../src/pipe/utils/',
@@ -17,9 +18,17 @@
         'gmslides.gypi',
       ],
       'sources': [
+        '../debugger/SkDrawCommand.h',
+        '../debugger/SkDrawCommand.cpp',
+        '../debugger/SkDebugCanvas.h',
+        '../debugger/SkDebugCanvas.cpp',
+        '../debugger/SkObjectParser.h',
+        '../debugger/SkObjectParser.cpp',
+
         '../gm/gm.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
+
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
