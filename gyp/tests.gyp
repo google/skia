@@ -23,6 +23,7 @@
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapFactoryTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
+        '../tests/BitmapHasherTest.cpp',
         '../tests/BitmapHeapTest.cpp',
         '../tests/BitmapTransformerTest.cpp',
         '../tests/BitSetTest.cpp',
@@ -143,6 +144,7 @@
           # TODO(borenet): Find a way to either provide this dependency or
           # replace it.
           'sources!': [
+            '../tests/BitmapHasherTest.cpp',
             '../tests/ChecksumTest.cpp',
           ],
         }],

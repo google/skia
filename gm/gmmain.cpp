@@ -18,7 +18,7 @@
 #include "gm_expectations.h"
 #include "system_preferences.h"
 #include "SkBitmap.h"
-#include "SkBitmapChecksummer.h"
+#include "SkBitmapHasher.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -401,24 +401,24 @@ public:
      *    will be written to, or compared against, PNG files.
      *    PRO: Preserve/compare alpha channel info for the non-PNG cases
      *         (comparing different renderModes in-memory)
-     *    CON: The bitmaps (and checksums) for these non-PNG cases would be
+     *    CON: The bitmaps (and hash digests) for these non-PNG cases would be
      *         different than those for the PNG-compared cases, and in the
      *         case of a failed renderMode comparison, how would we write the
      *         image to disk for examination?
      *
-     * 2. Always compute image checksums from PNG format (either
+     * 2. Always compute image hash digests from PNG format (either
      *    directly from the the bytes of a PNG file, or capturing the
      *    bytes we would have written to disk if we were writing the
      *    bitmap out as a PNG).
      *    PRO: I think this would allow us to never force opaque, and to
      *         the extent that alpha channel data can be preserved in a PNG
      *         file, we could observe it.
-     *    CON: If we read a bitmap from disk, we need to take its checksum
+     *    CON: If we read a bitmap from disk, we need to take its hash digest
      *         from the source PNG (we can't compute it from the bitmap we
      *         read out of the PNG, because we will have already premultiplied
      *         the alpha).
      *    CON: Seems wasteful to convert a bitmap to PNG format just to take
-     *         its checksum. (Although we're wasting lots of effort already
+     *         its hash digest. (Although we're wasting lots of effort already
      *         calling force_all_opaque().)
      *
      * 3. Make the alpha premultiply/unpremultiply routines 100% consistent,
@@ -428,7 +428,7 @@ public:
      *
      * 4. Perform a "close enough" comparison of bitmaps (+/- 1 bit in each
      *    channel), rather than demanding absolute equality.
-     *    CON: Can't do this with checksums.
+     *    CON: Can't do this with hash digests.
      */
     static void complete_bitmap(SkBitmap* bitmap) {
         force_all_opaque(*bitmap);
@@ -690,7 +690,7 @@ public:
     }
 
     /**
-     * Compares actual checksum to expectations, returning the set of errors
+     * Compares actual hash digest to expectations, returning the set of errors
      * (if any) that we saw along the way.
      *
      * If fMismatchPath has been set, and there are pixel diffs, then the
@@ -713,14 +713,19 @@ public:
                                              const char renderModeDescriptor[],
                                              bool addToJsonSummary) {
         ErrorCombination errors;
-        Checksum actualChecksum = SkBitmapChecksummer::Compute64(actualBitmap);
+        SkHashDigest actualBitmapHash;
+        // TODO(epoger): Better handling for error returned by ComputeDigest()?
+        // For now, we just report a digest of 0 in error cases, like before.
+        if (!SkBitmapHasher::ComputeDigest(actualBitmap, &actualBitmapHash)) {
+            actualBitmapHash = 0;
+        }
         SkString completeNameString = baseNameString;
         completeNameString.append(renderModeDescriptor);
         const char* completeName = completeNameString.c_str();
 
         if (expectations.empty()) {
             errors.add(kMissingExpectations_ErrorType);
-        } else if (!expectations.match(actualChecksum)) {
+        } else if (!expectations.match(actualBitmapHash)) {
             addToJsonSummary = true;
             // The error mode we record depends on whether this was running
             // in a non-standard renderMode.
@@ -749,7 +754,7 @@ public:
         RecordTestResults(errors, baseNameString, renderModeDescriptor);
 
         if (addToJsonSummary) {
-            add_actual_results_to_json_summary(completeName, actualChecksum, errors,
+            add_actual_results_to_json_summary(completeName, actualBitmapHash, errors,
                                                expectations.ignoreFailure());
             add_expected_results_to_json_summary(completeName, expectations);
         }
@@ -762,12 +767,12 @@ public:
      * depending on status.
      */
     void add_actual_results_to_json_summary(const char testName[],
-                                            Checksum actualChecksum,
+                                            const SkHashDigest& actualBitmapHash,
                                             ErrorCombination result,
                                             bool ignoreFailure) {
         Json::Value actualResults;
         actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
-            asJsonValue(actualChecksum);
+            asJsonValue(actualBitmapHash);
         if (result.isEmpty()) {
             this->fJsonActualResults_Succeeded[testName] = actualResults;
         } else {
@@ -783,7 +788,7 @@ public:
             } else {
                 if (result.includes(kMissingExpectations_ErrorType)) {
                     // TODO: What about the case where there IS an
-                    // expected image checksum, but that gm test
+                    // expected image hash digest, but that gm test
                     // doesn't actually run?  For now, those cases
                     // will always be ignored, because gm only looks
                     // at expectations that correspond to gm tests
@@ -841,14 +846,14 @@ public:
         if (expectationsSource && (gRec.fFlags & kRead_ConfigFlag)) {
             /*
              * Get the expected results for this test, as one or more allowed
-             * checksums. The current implementation of expectationsSource
-             * get this by computing the checksum of a single PNG file on disk.
+             * hash digests. The current implementation of expectationsSource
+             * get this by computing the hash digest of a single PNG file on disk.
              *
              * TODO(epoger): This relies on the fact that
              * force_all_opaque() was called on the bitmap before it
              * was written to disk as a PNG in the first place. If
-             * not, the checksum returned here may not match the
-             * checksum of actualBitmap, which *has* been run through
+             * not, the hash digest returned here may not match the
+             * hash digest of actualBitmap, which *has* been run through
              * force_all_opaque().
              * See comments above complete_bitmap() for more detail.
              */
@@ -858,9 +863,13 @@ public:
         } else {
             // If we are running without expectations, we still want to
             // record the actual results.
-            Checksum actualChecksum =
-                SkBitmapChecksummer::Compute64(actualBitmap);
-            add_actual_results_to_json_summary(name.c_str(), actualChecksum,
+            SkHashDigest actualBitmapHash;
+            // TODO(epoger): Better handling for error returned by ComputeDigest()?
+            // For now, we just report a digest of 0 in error cases, like before.
+            if (!SkBitmapHasher::ComputeDigest(actualBitmap, &actualBitmapHash)) {
+                actualBitmapHash = 0;
+            }
+            add_actual_results_to_json_summary(name.c_str(), actualBitmapHash,
                                                ErrorCombination(kMissingExpectations_ErrorType),
                                                false);
             RecordTestResults(ErrorCombination(kMissingExpectations_ErrorType), name, "");
@@ -1105,7 +1114,7 @@ public:
     int fTestsRun;
     SkTDict<int> fRenderModesEncountered;
 
-    // Where to read expectations (expected image checksums, etc.) from.
+    // Where to read expectations (expected image hash digests, etc.) from.
     // If unset, we don't do comparisons.
     SkAutoTUnref<ExpectationsSource> fExpectationsSource;
 
