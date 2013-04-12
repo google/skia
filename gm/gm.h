@@ -58,7 +58,7 @@ namespace skiagm {
             return SkIntToScalar(this->getISize().width());
         }
         SkScalar height() {
-            return SkIntToScalar(this->getISize().width());
+            return SkIntToScalar(this->getISize().height());
         }
 
         // TODO(vandebo) Instead of exposing this, we should run all the GMs
