@@ -412,7 +412,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
 /*
  * Restore has just been called (but not recorded), look back at the
  * matching save* and see if we are in the configuration:
- *   SAVE_LAYER
+ *   SAVE_LAYER (with NULL == bounds)
  *      SAVE
  *         CLIP_RECT
  *         DRAW_BITMAP|DRAW_BITMAP_MATRIX|DRAW_BITMAP_NINE|DRAW_BITMAP_RECT_TO_RECT
@@ -565,18 +565,21 @@ void SkPictureRecord::restore() {
 
     uint32_t initialOffset, size;
     size_t opt;
-    for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
-        if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
-            // Some optimization fired so don't add the RESTORE
-            size = 0;
-            initialOffset = fWriter.size();
-            apply_optimization_to_bbh(gPictureRecordOpts[opt].fType,
-                                      fStateTree, fBoundingHierarchy);
-            break;
+    if (!(fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag)) {
+        for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
+            if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
+                // Some optimization fired so don't add the RESTORE
+                size = 0;
+                initialOffset = fWriter.size();
+                apply_optimization_to_bbh(gPictureRecordOpts[opt].fType,
+                                          fStateTree, fBoundingHierarchy);
+                break;
+            }
         }
-    }
+    } 
 
-    if (SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {
+    if ((fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag) ||
+        SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {
         // No optimization fired so add the RESTORE
         fillRestoreOffsetPlaceholdersForCurrentStackLevel((uint32_t)fWriter.size());
         size = 1 * kUInt32Size; // RESTORE consists solely of 1 op code
