@@ -115,16 +115,7 @@ public:
             Note: Currently this is not serializable, the bounding data will be
             discarded if you serialize into a stream and then deserialize.
         */
-        kOptimizeForClippedPlayback_RecordingFlag = 0x02,
-        /*
-            This flag disables all the picture recording optimizations (i.e.,
-            those in SkPictureRecord). It is mainly intended for testing the 
-            existing optimizations (i.e., to actually have the pattern
-            appear in an .skp we have to disable the optimization). This
-            option doesn't affect the optimizations controlled by
-            'kOptimizeForClippedPlayback_RecordingFlag'.
-         */
-        kDisableRecordOptimizations_RecordingFlag = 0x04
+        kOptimizeForClippedPlayback_RecordingFlag = 0x02
     };
 
     /** Returns the canvas that records the drawing commands.

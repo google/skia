@@ -60,7 +60,6 @@
     '../gm/morphology.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',
-    '../gm/optimizations.cpp',
     '../gm/patheffects.cpp',
     '../gm/pathfill.cpp',
     '../gm/pathinterior.cpp',
