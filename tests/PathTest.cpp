@@ -365,12 +365,13 @@ static void test_arb_zero_rad_round_rect_is_rect(skiatest::Reporter* reporter) {
 
 static void test_rect_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
+    const SkScalar negInf = SK_ScalarNegativeInfinity;
     const SkScalar nan = SK_ScalarNaN;
 
     SkRect r;
     r.setEmpty();
     REPORTER_ASSERT(reporter, r.isFinite());
-    r.set(0, 0, inf, -inf);
+    r.set(0, 0, inf, negInf);
     REPORTER_ASSERT(reporter, !r.isFinite());
     r.set(0, 0, nan, 0);
     REPORTER_ASSERT(reporter, !r.isFinite());
