@@ -107,7 +107,7 @@ public:
      *  reflected in this image.  Will return NULL if the deferred canvas
      *  was not constructed from an SkSurface.
      */
-    SkImage* newImageShapshot();
+    SkImage* newImageSnapshot();
 
     /**
      *  Specify the maximum number of bytes to be allocated for the purpose

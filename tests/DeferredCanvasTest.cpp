@@ -505,7 +505,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     SkAutoTUnref<SkSurface> aur(surface);
     SkDeferredCanvas canvas(surface);
 
-    SkImage* image1 = canvas.newImageShapshot();
+    SkImage* image1 = canvas.newImageSnapshot();
     SkAutoTUnref<SkImage> aur_i1(image1);
     PixelPtr pixels1 = getSurfacePixelPtr(surface, useGpu);
     // The following clear would normally trigger a copy on write, but
@@ -514,13 +514,13 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     // Obtaining a snapshot directly from the surface (as opposed to the
     // SkDeferredCanvas) will not trigger a flush of deferred draw operations
     // and will therefore return the same image as the previous snapshot.
-    SkImage* image2 = surface->newImageShapshot();
+    SkImage* image2 = surface->newImageSnapshot();
     SkAutoTUnref<SkImage> aur_i2(image2);
     // Images identical because of deferral
     REPORTER_ASSERT(reporter, image1->uniqueID() == image2->uniqueID());
     // Now we obtain a snpshot via the deferred canvas, which triggers a flush.
     // Because there is a pending clear, this will generate a different image.
-    SkImage* image3 = canvas.newImageShapshot();
+    SkImage* image3 = canvas.newImageSnapshot();
     SkAutoTUnref<SkImage> aur_i3(image3);
     REPORTER_ASSERT(reporter, image1->uniqueID() != image3->uniqueID());
     // Verify that backing store is now a different buffer because of copy on

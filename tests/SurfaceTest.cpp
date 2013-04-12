@@ -105,10 +105,10 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
 
 #define EXPECT_COPY_ON_WRITE(command)                               \
     {                                                               \
-        SkImage* imageBefore = surface->newImageShapshot();         \
+        SkImage* imageBefore = surface->newImageSnapshot();         \
         SkAutoTUnref<SkImage> aur_before(imageBefore);              \
         canvas-> command ;                                          \
-        SkImage* imageAfter = surface->newImageShapshot();          \
+        SkImage* imageAfter = surface->newImageSnapshot();          \
         SkAutoTUnref<SkImage> aur_after(imageAfter);                \
         REPORTER_ASSERT(reporter, imageBefore != imageAfter);       \
     }
@@ -143,7 +143,7 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
     SkAutoTUnref<SkSurface> aur_surface(surface);
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(1);
-    surface->newImageShapshot()->unref();  // Create and destroy SkImage
+    surface->newImageSnapshot()->unref();  // Create and destroy SkImage
     canvas->clear(2);
 }
 

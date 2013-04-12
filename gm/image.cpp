@@ -64,16 +64,16 @@ static void drawContents(SkSurface* surface, SkColor fillC) {
 
 static void test_surface(SkCanvas* canvas, SkSurface* surf) {
     drawContents(surf, SK_ColorRED);
-    SkImage* imgR = surf->newImageShapshot();
+    SkImage* imgR = surf->newImageSnapshot();
 
     if (true) {
-        SkImage* imgR2 = surf->newImageShapshot();
+        SkImage* imgR2 = surf->newImageSnapshot();
         SkASSERT(imgR == imgR2);
         imgR2->unref();
     }
 
     drawContents(surf, SK_ColorGREEN);
-    SkImage* imgG = surf->newImageShapshot();
+    SkImage* imgG = surf->newImageSnapshot();
 
     // since we've drawn after we snapped imgR, imgG will be a different obj
     SkASSERT(imgR != imgG);

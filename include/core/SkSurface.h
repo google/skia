@@ -112,7 +112,7 @@ public:
      *  point. Subsequent changes to the surface (by drawing into its canvas)
      *  will not be reflected in this image.
      */
-    SkImage* newImageShapshot();
+    SkImage* newImageSnapshot();
 
     /**
      *  Thought the caller could get a snapshot image explicitly, and draw that,

@@ -22,7 +22,7 @@ public:
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
     virtual SkSurface* onNewSurface(const SkImage::Info&) SK_OVERRIDE;
-    virtual SkImage* onNewImageShapshot() SK_OVERRIDE;
+    virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
@@ -120,7 +120,7 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-SkImage* SkSurface_Raster::onNewImageShapshot() {
+SkImage* SkSurface_Raster::onNewImageSnapshot() {
     return SkNewImageFromBitmap(fBitmap, fWeOwnThePixels);
 }
 
