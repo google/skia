@@ -268,11 +268,15 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     */
     int sampleSize = this->getSampleSize();
 
+#ifdef DCT_IFAST_SUPPORTED
     if (this->getPreferQualityOverSpeed()) {
         cinfo.dct_method = JDCT_ISLOW;
     } else {
         cinfo.dct_method = JDCT_IFAST;
     }
+#else
+    cinfo.dct_method = JDCT_ISLOW;
+#endif
 
     cinfo.scale_num = 1;
     cinfo.scale_denom = sampleSize;
