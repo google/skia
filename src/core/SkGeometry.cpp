@@ -1380,3 +1380,36 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     matrix.mapPoints(quadPoints, pointCount);
     return pointCount;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
+    SkASSERT(src);
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+    
+    SkScalar    src2w = SkScalarMul(src[2], w);
+    SkScalar    C = src[0];
+    SkScalar    A = src[4] - 2 * src2w + C;
+    SkScalar    B = 2 * (src2w - C);
+    SkScalar numer = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+
+    B = 2 * (w - SK_Scalar1);
+    C = SK_Scalar1;
+    A = -B;
+    SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+
+    return SkScalarDiv(numer, denom);
+}
+
+void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+    
+    if (pt) {
+        pt->set(eval_ratquad(&fPts[0].fX, fW, t),
+                eval_ratquad(&fPts[0].fY, fW, t));
+    }
+}
+
+void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
+}
+

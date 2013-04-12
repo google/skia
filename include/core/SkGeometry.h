@@ -206,4 +206,18 @@ enum SkRotationDirection {
 int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
                    SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
 
+// experimental
+struct SkRationalQuad {
+    SkPoint  fPts[3];
+    SkScalar fW;
+
+    void set(const SkPoint pts[3], SkScalar w) {
+        memcpy(fPts, pts, 3 * sizeof(SkPoint));
+        fW = w;
+    }
+
+    void evalAt(SkScalar t, SkPoint* pt) const;
+    void chopAt(SkScalar t, SkRationalQuad dst[2]) const;
+};
+
 #endif
