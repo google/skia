@@ -389,7 +389,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[0].fInnerRadius = innerRadius;
 
     verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-    verts[1].fOffset = SkPoint::Make(outerRadius, -outerRadius);   
+    verts[1].fOffset = SkPoint::Make(outerRadius, -outerRadius);
     verts[1].fOuterRadius = outerRadius;
     verts[1].fInnerRadius = innerRadius;
 
@@ -509,9 +509,9 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         center.fY + yRadius
     );
 
-    // The offsets are created by scaling the y radius by the appropriate ratio. This way we end up 
-    // with a circle equation which can be checked quickly in the shader. We need one offset for 
-    // outer and one for inner because they have different scale factors -- otherwise we end up with 
+    // The offsets are created by scaling the y radius by the appropriate ratio. This way we end up
+    // with a circle equation which can be checked quickly in the shader. We need one offset for
+    // outer and one for inner because they have different scale factors -- otherwise we end up with
     // non-uniform strokes.
     verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
     verts[0].fOuterXRadius = xRadius;
@@ -522,8 +522,8 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
     verts[1].fOuterXRadius = xRadius;
     verts[1].fInnerXRadius = innerXRadius;
-    verts[1].fOuterOffset = SkPoint::Make(xRadius, -outerRatio*yRadius);    
-    verts[1].fInnerOffset = SkPoint::Make(xRadius, -innerRatio*yRadius);    
+    verts[1].fOuterOffset = SkPoint::Make(xRadius, -outerRatio*yRadius);
+    verts[1].fInnerOffset = SkPoint::Make(xRadius, -innerRatio*yRadius);
 
     verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
     verts[2].fOuterXRadius = xRadius;
@@ -536,6 +536,6 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fInnerXRadius = innerXRadius;
     verts[3].fOuterOffset = SkPoint::Make(xRadius, outerRatio*yRadius);
     verts[3].fInnerOffset = SkPoint::Make(xRadius, innerRatio*yRadius);
- 
+
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
 }
