@@ -5,6 +5,7 @@
       'type': 'executable',
       'mac_bundle' : 1,
       'include_dirs' : [
+        '../debugger',
         '../src/core',
         '../src/effects', #needed for BlurMask.h
         '../gm',       # needed to pull gm.h
@@ -15,6 +16,13 @@
         'gmslides.gypi',
       ],
       'sources': [
+        '../debugger/SkDrawCommand.h',
+        '../debugger/SkDrawCommand.cpp',
+        '../debugger/SkDebugCanvas.h',
+        '../debugger/SkDebugCanvas.cpp',
+        '../debugger/SkObjectParser.h',
+        '../debugger/SkObjectParser.cpp',
+        
         '../gm/gm.cpp',
         '../gm/gm.h',
 
