@@ -17,6 +17,7 @@
 #include "SkPaintPriv.h"
 #include "SkRRect.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 
 enum {
     // Deferred canvas will auto-flush when recording reaches this limit
@@ -138,14 +139,15 @@ void DeferredPipeController::playback(bool silent) {
 //-----------------------------------------------------------------------------
 class DeferredDevice : public SkDevice {
 public:
-    DeferredDevice(SkDevice* immediateDevice,
-        SkDeferredCanvas::NotificationClient* notificationClient = NULL);
+    explicit DeferredDevice(SkDevice* immediateDevice);
+    explicit DeferredDevice(SkSurface* surface);
     ~DeferredDevice();
 
     void setNotificationClient(SkDeferredCanvas::NotificationClient* notificationClient);
     SkCanvas* recordingCanvas();
     SkCanvas* immediateCanvas() const {return fImmediateCanvas;}
     SkDevice* immediateDevice() const {return fImmediateDevice;}
+    SkImage* newImageShapshot();
     bool isFreshFrame();
     bool hasPendingCommands();
     size_t storageAllocatedForRecording() const;
@@ -237,12 +239,14 @@ private:
     virtual void flush();
 
     void beginRecording();
+    void init();
 
     DeferredPipeController fPipeController;
     SkGPipeWriter  fPipeWriter;
     SkDevice* fImmediateDevice;
     SkCanvas* fImmediateCanvas;
     SkCanvas* fRecordingCanvas;
+    SkSurface* fSurface;
     SkDeferredCanvas::NotificationClient* fNotificationClient;
     bool fFreshFrame;
     size_t fMaxRecordingStorageBytes;
@@ -250,21 +254,40 @@ private:
     size_t fBitmapSizeThreshold;
 };
 
-DeferredDevice::DeferredDevice(
-    SkDevice* immediateDevice, SkDeferredCanvas::NotificationClient* notificationClient) :
-    SkDevice(SkBitmap::kNo_Config,
-             immediateDevice->width(), immediateDevice->height(),
-             immediateDevice->isOpaque(),
-             immediateDevice->getDeviceProperties())
-    , fRecordingCanvas(NULL)
-    , fFreshFrame(true)
-    , fPreviousStorageAllocated(0)
-    , fBitmapSizeThreshold(kDeferredCanvasBitmapSizeThreshold){
-
-    fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
-    fNotificationClient = notificationClient;
-    fImmediateDevice = immediateDevice; // ref counted via fImmediateCanvas
+DeferredDevice::DeferredDevice(SkDevice* immediateDevice)
+    : SkDevice(SkBitmap::kNo_Config,
+               immediateDevice->width(), immediateDevice->height(),
+               immediateDevice->isOpaque(),
+               immediateDevice->getDeviceProperties()) {
+    fSurface = NULL;
+    fImmediateDevice = immediateDevice;  // ref counted via fImmediateCanvas
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (fImmediateDevice));
+    this->init();
+}
+
+DeferredDevice::DeferredDevice(SkSurface* surface)
+    : SkDevice(SkBitmap::kNo_Config,
+               surface->getCanvas()->getDevice()->width(),
+               surface->getCanvas()->getDevice()->height(),
+               surface->getCanvas()->getDevice()->isOpaque(),
+               surface->getCanvas()->getDevice()->getDeviceProperties()) {
+    fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
+    fNotificationClient = NULL;
+    fImmediateCanvas = surface->getCanvas();
+    SkSafeRef(fImmediateCanvas);
+    fSurface = surface;
+    SkSafeRef(fSurface);
+    fImmediateDevice = fImmediateCanvas->getDevice();  // ref counted via fImmediateCanvas
+    this->init();
+}
+
+void DeferredDevice::init() {
+    fRecordingCanvas = NULL;
+    fFreshFrame = true;
+    fPreviousStorageAllocated = 0;
+    fBitmapSizeThreshold = kDeferredCanvasBitmapSizeThreshold;
+    fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
+    fNotificationClient = NULL;
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
     this->beginRecording();
 }
@@ -272,6 +295,7 @@ DeferredDevice::DeferredDevice(
 DeferredDevice::~DeferredDevice() {
     this->flushPendingCommands(kSilent_PlaybackMode);
     SkSafeUnref(fImmediateCanvas);
+    SkSafeUnref(fSurface);
 }
 
 void DeferredDevice::setMaxRecordingStorage(size_t maxStorage) {
@@ -376,6 +400,11 @@ SkCanvas* DeferredDevice::recordingCanvas() {
     return fRecordingCanvas;
 }
 
+SkImage* DeferredDevice::newImageShapshot() {
+    this->flush();
+    return fSurface ? fSurface->newImageShapshot() : NULL;
+}
+
 uint32_t DeferredDevice::getDeviceCapabilities() {
     return fImmediateDevice->getDeviceCapabilities();
 }
@@ -437,7 +466,9 @@ SkDevice* DeferredDevice::onCreateCompatibleDevice(
     SkAutoTUnref<SkDevice> compatibleDevice
         (fImmediateDevice->createCompatibleDevice(config, width, height,
             isOpaque));
-    return SkNEW_ARGS(DeferredDevice, (compatibleDevice, fNotificationClient));
+    DeferredDevice* device = SkNEW_ARGS(DeferredDevice, (compatibleDevice));
+    device->setNotificationClient(fNotificationClient);
+    return device;
 }
 
 bool DeferredDevice::onReadPixels(
@@ -486,6 +517,11 @@ SkDeferredCanvas::SkDeferredCanvas() {
 SkDeferredCanvas::SkDeferredCanvas(SkDevice* device) {
     this->init();
     this->setDevice(device);
+}
+
+SkDeferredCanvas::SkDeferredCanvas(SkSurface* surface) {
+    this->init();
+    this->INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (surface)))->unref();
 }
 
 void SkDeferredCanvas::init() {
@@ -582,6 +618,12 @@ SkDeferredCanvas::NotificationClient* SkDeferredCanvas::setNotificationClient(
         deferredDevice->setNotificationClient(notificationClient);
     }
     return notificationClient;
+}
+
+SkImage* SkDeferredCanvas::newImageShapshot() {
+    DeferredDevice* deferredDevice = this->getDeferredDevice();
+    SkASSERT(deferredDevice);
+    return deferredDevice ? deferredDevice->newImageShapshot() : NULL;
 }
 
 bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
