@@ -476,7 +476,7 @@ typedef void* PixelPtr;
 // Returns an opaque pointer which, either points to a GrTexture or RAM pixel
 // buffer. Used to test pointer equality do determine whether a surface points
 // to the same pixel data storage as before.
-PixelPtr getSurfacePixelPtr(SkSurface* surface, bool useGpu) {
+static PixelPtr getSurfacePixelPtr(SkSurface* surface, bool useGpu) {
     return useGpu ? surface->getCanvas()->getDevice()->accessBitmap(false).getTexture() :
         surface->getCanvas()->getDevice()->accessBitmap(false).getPixels();
 }
