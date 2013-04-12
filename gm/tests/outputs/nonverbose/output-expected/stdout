@@ -1,3 +1,4 @@
+GM: drawing... selftest1 [300 200]
 GM: Ran 9 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=2 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
 GM: [ ] 0 IntentionallySkipped
