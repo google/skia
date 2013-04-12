@@ -13,6 +13,9 @@ import os
 import sys
 
 
+SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
+
+
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with atleast one \n (LF)."""
   eof_files = []
@@ -80,6 +83,16 @@ def _CheckTreeStatus(input_api, output_api, json_url):
       tree_status_results.append(
           output_api.PresubmitPromptWarning(
               message=short_text, long_text=long_text))
+  else:
+    # Tree status is closed. Put in message about contacting sheriff.
+    connection = input_api.urllib2.urlopen(
+        SKIA_TREE_STATUS_URL + '/current-sheriff')
+    sheriff_details = input_api.json.loads(connection.read())
+    if sheriff_details:
+      tree_status_results[0]._message += (
+          '\n\nPlease contact the current Skia sheriff (%s) if you are trying '
+          'to submit a build fix\nand do not know how to submit because the '
+          'tree is closed') % sheriff_details['username']
   return tree_status_results
 
 
@@ -96,5 +109,5 @@ def CheckChangeOnCommit(input_api, output_api):
   results.extend(_CommonChecks(input_api, output_api))
   results.extend(
       _CheckTreeStatus(input_api, output_api, json_url=(
-          'http://skia-tree-status.appspot.com/banner-status?format=json')))
+          SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   return results
