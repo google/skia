@@ -1453,6 +1453,14 @@ void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
     tmp2[2].projectDown(&dst[1].fPts[1]);
     dst[1].fPts[2] = fPts[2];
 
-    dst[0].fW = tmp2[0].fZ; // ?????
-    dst[1].fW = tmp2[2].fZ; // ?????
+    // to put in "standard form", where w0 and w2 are both 1, we compute the
+    // new w1 as sqrt(w1*w1/w0*w2)
+    // or
+    // w1 /= sqrt(w0*w2)
+    //
+    // However, in our case, we know that for dst[0], w0 == 1, and for dst[1], w2 == 1
+    //
+    SkScalar root = SkScalarSqrt(tmp2[1].fZ);
+    dst[0].fW = tmp2[0].fZ / root;
+    dst[1].fW = tmp2[2].fZ / root;
 }
