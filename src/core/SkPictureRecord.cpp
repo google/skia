@@ -576,7 +576,7 @@ void SkPictureRecord::restore() {
                 break;
             }
         }
-    } 
+    }
 
     if ((fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag) ||
         SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {

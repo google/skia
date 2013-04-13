@@ -15,7 +15,7 @@
 namespace {
 
 // Do the commands in 'input' match the supplied pattern? Note: this is a pretty
-// heavy-weight operation since we are drawing the picture into a debug canvas 
+// heavy-weight operation since we are drawing the picture into a debug canvas
 // to extract the commands.
 bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
     SkDebugCanvas debugCanvas(input.width(), input.height());
@@ -392,7 +392,7 @@ private:
         static const unsigned int kCheckerboardWidth = 16;
         static const unsigned int kCheckerboardHeight = 16;
 
-        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, 
+        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config,
                                 kCheckerboardWidth, kCheckerboardHeight);
         fCheckerboard.allocPixels();
         SkAutoLockPixels lock(fCheckerboard);
