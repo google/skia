@@ -118,7 +118,7 @@ public:
         kOptimizeForClippedPlayback_RecordingFlag = 0x02,
         /*
             This flag disables all the picture recording optimizations (i.e.,
-            those in SkPictureRecord). It is mainly intended for testing the 
+            those in SkPictureRecord). It is mainly intended for testing the
             existing optimizations (i.e., to actually have the pattern
             appear in an .skp we have to disable the optimization). This
             option doesn't affect the optimizations controlled by

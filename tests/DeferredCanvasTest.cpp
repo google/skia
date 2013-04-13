@@ -556,4 +556,3 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* f
 
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("DeferredCanvas", TestDeferredCanvasClass, TestDeferredCanvas)
-

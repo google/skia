@@ -1386,7 +1386,7 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
 static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    
+
     SkScalar    src2w = SkScalarMul(src[2], w);
     SkScalar    C = src[0];
     SkScalar    A = src[4] - 2 * src2w + C;
@@ -1403,11 +1403,11 @@ static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
 
 struct SkP3D {
     SkScalar fX, fY, fZ;
-    
+
     void set(SkScalar x, SkScalar y, SkScalar z) {
         fX = x; fY = y; fZ = z;
     }
-    
+
     void projectDown(SkPoint* dst) const {
         dst->set(fX / fZ, fY / fZ);
     }
@@ -1431,7 +1431,7 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
 
 void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    
+
     if (pt) {
         pt->set(eval_ratquad(&fPts[0].fX, fW, t),
                 eval_ratquad(&fPts[0].fY, fW, t));
@@ -1442,11 +1442,11 @@ void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
     SkP3D tmp[3], tmp2[3];
 
     ratquad_mapTo3D(fPts, fW, tmp);
-    
+
     p3d_interp(&tmp[0].fX, &tmp2[0].fX, t);
     p3d_interp(&tmp[0].fY, &tmp2[0].fY, t);
     p3d_interp(&tmp[0].fZ, &tmp2[0].fZ, t);
-    
+
     dst[0].fPts[0] = fPts[0];
     tmp2[0].projectDown(&dst[0].fPts[1]);
     tmp2[1].projectDown(&dst[0].fPts[2]); dst[1].fPts[0] = dst[0].fPts[2];
@@ -1456,4 +1456,3 @@ void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
     dst[0].fW = tmp2[0].fZ; // ?????
     dst[1].fW = tmp2[2].fZ; // ?????
 }
-
