@@ -880,19 +880,19 @@ public:
         fRQ.fPts[2].set(100, 100);
         fRQ.fW = SkScalarCos(SK_ScalarPI/4);
     }
-    
+
 private:
     virtual const char* onGetName() SK_OVERRIDE {
         return "ratquad-chop-0.5";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkRationalQuad dst[2];
         for (int i = 0; i < N; ++i) {
             fRQ.chopAt(0.5f, dst);
         }
     }
-    
+
     typedef SkBenchmark INHERITED;
 };
 
@@ -908,19 +908,19 @@ public:
         fRQ.fPts[2].set(100, 100);
         fRQ.fW = SkScalarCos(SK_ScalarPI/4);
     }
-    
+
 private:
     virtual const char* onGetName() SK_OVERRIDE {
         return "ratquad-chop-half";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkRationalQuad dst[2];
         for (int i = 0; i < N; ++i) {
             fRQ.chop(dst);
         }
     }
-    
+
     typedef SkBenchmark INHERITED;
 };
 
