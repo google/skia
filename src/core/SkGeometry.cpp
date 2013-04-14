@@ -1464,3 +1464,24 @@ void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
     dst[0].fW = tmp2[0].fZ / root;
     dst[1].fW = tmp2[2].fZ / root;
 }
+
+void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
+    SkScalar scale = SkScalarInvert(SK_Scalar1 + fW);
+    SkScalar p1x = fW * fPts[1].fX;
+    SkScalar p1y = fW * fPts[1].fY;
+    SkScalar mx = (fPts[0].fX + 2 * p1x + fPts[2].fX) * scale * SK_ScalarHalf;
+    SkScalar my = (fPts[0].fY + 2 * p1y + fPts[2].fY) * scale * SK_ScalarHalf;
+
+    dst[0].fPts[0] = fPts[0];
+    dst[0].fPts[1].set((fPts[0].fX + p1x) * scale,
+                       (fPts[0].fY + p1y) * scale);
+    dst[0].fPts[2].set(mx, my);
+
+    dst[1].fPts[0].set(mx, my);
+    dst[1].fPts[1].set((p1x + fPts[2].fX) * scale,
+                       (p1y + fPts[2].fY) * scale);
+    dst[1].fPts[2] = fPts[2];
+
+    dst[0].fW = dst[1].fW = SkScalarSqrt((1 + fW) * SK_ScalarHalf);
+}
+
