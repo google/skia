@@ -864,6 +864,68 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkGeometry.h"
+
+class RationalQuadBench_Chop5 : public SkBenchmark {
+    enum {
+        N = 100000
+    };
+    SkRationalQuad fRQ;
+public:
+    RationalQuadBench_Chop5(void* param) : INHERITED(param) {
+        fRQ.fPts[0].set(0, 0);
+        fRQ.fPts[1].set(100, 0);
+        fRQ.fPts[2].set(100, 100);
+        fRQ.fW = SkScalarCos(SK_ScalarPI/4);
+    }
+    
+private:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "ratquad-chop-0.5";
+    }
+    
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        SkRationalQuad dst[2];
+        for (int i = 0; i < N; ++i) {
+            fRQ.chopAt(0.5f, dst);
+        }
+    }
+    
+    typedef SkBenchmark INHERITED;
+};
+
+class RationalQuadBench_ChopHalf : public SkBenchmark {
+    enum {
+        N = 100000
+    };
+    SkRationalQuad fRQ;
+public:
+    RationalQuadBench_ChopHalf(void* param) : INHERITED(param) {
+        fRQ.fPts[0].set(0, 0);
+        fRQ.fPts[1].set(100, 0);
+        fRQ.fPts[2].set(100, 100);
+        fRQ.fW = SkScalarCos(SK_ScalarPI/4);
+    }
+    
+private:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "ratquad-chop-half";
+    }
+    
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        SkRationalQuad dst[2];
+        for (int i = 0; i < N; ++i) {
+            fRQ.chop(dst);
+        }
+    }
+    
+    typedef SkBenchmark INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 const SkRect ConservativelyContainsBench::kBounds = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 const SkSize ConservativelyContainsBench::kQueryMin = SkSize::Make(SkIntToScalar(1), SkIntToScalar(1));
 const SkSize ConservativelyContainsBench::kQueryMax = SkSize::Make(SkIntToScalar(40), SkIntToScalar(40));
@@ -918,3 +980,6 @@ DEF_BENCH( return new ArbRoundRectBench(p, true); )
 DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench::kRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench::kOval_Type); )
+
+DEF_BENCH( return new RationalQuadBench_Chop5(p) )
+DEF_BENCH( return new RationalQuadBench_ChopHalf(p) )
