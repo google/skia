@@ -1484,4 +1484,3 @@ void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
 
     dst[0].fW = dst[1].fW = SkScalarSqrt((1 + fW) * SK_ScalarHalf);
 }
-
