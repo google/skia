@@ -55,6 +55,8 @@ public:
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
+
     virtual void abandonResources() SK_OVERRIDE;
 
     const GrGLCaps& glCaps() const { return *fGLContext.info().caps(); }
@@ -95,7 +97,6 @@ protected:
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) SK_OVERRIDE;
-
 
 private:
     // GrGpu overrides

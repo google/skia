@@ -432,11 +432,9 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    this->initCopySurfaceDstDesc(rt, &desc);
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
-    desc.fSampleCnt = 0;
-    desc.fConfig = rt->config();
 
     GrAutoScratchTexture ast(fContext, desc, GrContext::kApprox_ScratchTexMatch);
 
@@ -447,7 +445,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     SkIPoint dstPoint = {0, 0};
     if (this->copySurface(ast.texture(), rt, copyRect, dstPoint)) {
         info->fDstCopy.setTexture(ast.texture());
-        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
+        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);    
         return true;
     } else {
         return false;
@@ -879,6 +877,13 @@ bool GrDrawTarget::onCopySurface(GrSurface* dst,
                                         srcRect.height());
     this->drawSimpleRect(dstRect);
     return true;
+}
+
+void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+    // Make the dst of the copy be a render target because the default copySurface draws to the dst.
+    desc->fOrigin = kDefault_GrSurfaceOrigin;
+    desc->fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc->fConfig = src->config();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
