@@ -653,7 +653,7 @@ static const ProcCoeff gProcCoeffs[] = {
 
     { plus_modeproc,    SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff },
     { modulate_modeproc,SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
-    { screen_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
     { overlay_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { darken_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { lighten_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },

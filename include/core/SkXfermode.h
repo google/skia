@@ -104,13 +104,12 @@ public:
         kPlus_Mode,     //!< [Sa + Da, Sc + Dc]
         kModulate_Mode, // multiplies all components (= alpha and color)
 
-        // all above modes can be expressed as pair of src/dst Coeffs
-        kCoeffModesCnt,
-
         // Following blend modes are defined in the CSS Compositing standard:
         // https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blending
-        kScreen_Mode = kCoeffModesCnt,
-        kOverlay_Mode,
+        kScreen_Mode,
+        // all above modes can be expressed as pair of src/dst Coeffs
+        kCoeffModesCnt,
+        kOverlay_Mode = kCoeffModesCnt,
         kDarken_Mode,
         kLighten_Mode,
         kColorDodge_Mode,
