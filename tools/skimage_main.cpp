@@ -164,6 +164,8 @@ void forceLinking() {
     // decoders.
     SkDEBUGCODE(SkImageDecoder *creator = ) CreateJPEGImageDecoder();
     SkASSERT(creator);
+    SkDEBUGCODE(creator = ) CreateWEBPImageDecoder();
+    SkASSERT(creator);
 #ifdef SK_BUILD_FOR_UNIX
     SkDEBUGCODE(creator = ) CreateGIFImageDecoder();
     SkASSERT(creator);
