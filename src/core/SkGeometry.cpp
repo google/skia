@@ -1538,7 +1538,7 @@ int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     }
 
     *pts = fPts[0];
-    SkPoint* endPts = subdivide(*this, pts + 1, pow2);
+    SkDEBUGCODE(SkPoint* endPts =) subdivide(*this, pts + 1, pow2);
     SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
     return 1 << pow2;
 }
