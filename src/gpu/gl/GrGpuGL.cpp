@@ -2310,7 +2310,7 @@ void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) 
     if (kES2_GrGLBinding == this->glBinding() && this->glCaps().bgraIsInternalFormat() &&
         kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. We'll want to make it a render target
-        // to in order to call glBlitFramebuffer or to copy to it by rendering.
+        // in order to call glBlitFramebuffer or to copy to it by rendering.
         INHERITED::initCopySurfaceDstDesc(src, desc);
     } else if (NULL == src->asRenderTarget()) {
         // We don't want to have to create an FBO just to use glCopyTexSubImage2D. Let the base
