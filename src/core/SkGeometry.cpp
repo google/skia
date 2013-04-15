@@ -1465,6 +1465,10 @@ void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
     dst[1].fW = tmp2[2].fZ / root;
 }
 
+static SkScalar subdivide_w_value(SkScalar w) {
+    return SkScalarSqrt((1 + w) * SK_ScalarHalf);
+}
+
 void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
     SkScalar scale = SkScalarInvert(SK_Scalar1 + fW);
     SkScalar p1x = fW * fPts[1].fX;
@@ -1482,5 +1486,60 @@ void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
                        (p1y + fPts[2].fY) * scale);
     dst[1].fPts[2] = fPts[2];
 
-    dst[0].fW = dst[1].fW = SkScalarSqrt((1 + fW) * SK_ScalarHalf);
+    dst[0].fW = dst[1].fW = subdivide_w_value(fW);
 }
+
+int SkRationalQuad::computeQuadPOW2(SkScalar tol) const {
+    if (fW <= SK_ScalarNearlyZero) {
+        return 0;   // treat as a line
+    }
+    
+    tol = SkScalarAbs(tol);
+    SkScalar w = fW;
+    int i = 0;
+    for (; i < 8; ++i) {
+        if (SkScalarAbs(w - 1) <= tol) {
+            break;
+        }
+        w = subdivide_w_value(w);
+    }
+    return i;
+}
+
+static SkPoint* subdivide(const SkRationalQuad& src, SkPoint pts[], int level) {
+    SkASSERT(level >= 0);
+    if (0 == level) {
+        memcpy(pts, &src.fPts[1], 2 * sizeof(SkPoint));
+        return pts + 2;
+    } else {
+        SkRationalQuad dst[2];
+        src.chop(dst);
+        --level;
+        pts = subdivide(dst[0], pts, level);
+        return subdivide(dst[1], pts, level);
+    }
+}
+
+int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
+    if (pow2 < 0) {
+        return 0;
+    }
+    if (0 == pow2) {
+        memcpy(pts, fPts, 3 * sizeof(SkPoint));
+        return 1;
+    }
+    if (1 == pow2) {
+        SkRationalQuad dst[2];
+        this->chop(dst);
+        memcpy(pts, dst[0].fPts, 3 * sizeof(SkPoint));
+        pts += 3;
+        memcpy(pts, dst[1].fPts + 1, 2 * sizeof(SkPoint));
+        return 2;
+    }
+
+    *pts = fPts[0];
+    SkPoint* endPts = subdivide(*this, pts + 1, pow2);
+    SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
+    return 1 << pow2;
+}
+
