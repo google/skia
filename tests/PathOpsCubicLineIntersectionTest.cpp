@@ -18,9 +18,9 @@ static struct lineCubic {
     {{{{0, 0}, {0, 1}, {0, 1}, {1, 1}}}, {{{0, 1}, {1, 0}}}},
 };
 
-static const size_t lineCubicTests_count = sizeof(lineCubicTests) / sizeof(lineCubicTests[0]);
+static const size_t lineCubicTests_count = SK_ARRAY_COUNT(lineCubicTests);
 
-static void CubicLineIntersectionTest(skiatest::Reporter* reporter) {
+static void PathOpsCubicLineIntersectionTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < lineCubicTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDCubic& cubic = lineCubicTests[index].cubic;
@@ -57,5 +57,4 @@ static void CubicLineIntersectionTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsCubicLineIntersection", CubicLineIntersectionTestClass, \
-        CubicLineIntersectionTest)
+DEFINE_TESTCLASS_SHORT(PathOpsCubicLineIntersectionTest)

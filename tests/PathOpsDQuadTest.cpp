@@ -31,9 +31,9 @@ static const SkDPoint outPoint[]= {
     {1.1, 0.5},
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void DQuadTest(skiatest::Reporter* reporter) {
+static void PathOpsDQuadTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDQuad& quad = tests[index];
         bool result = quad.pointInHull(inPoint[index]);
@@ -50,4 +50,4 @@ static void DQuadTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsDQuad", PathOpsDQuadClass, DQuadTest)
+DEFINE_TESTCLASS_SHORT(PathOpsDQuadTest)

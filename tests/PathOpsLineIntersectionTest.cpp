@@ -19,7 +19,7 @@ static const SkDLine tests[][2] = {
      {{{166.86960700313026, 112.6965477747386}, {166.86925794355412, 112.69656471103423}}}}
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
 static const SkDLine noIntersect[][2] = {
     {{{{0, 0}, {1, 0}}}, {{{3, 0}, {2, 0}}}},
@@ -29,9 +29,9 @@ static const SkDLine noIntersect[][2] = {
     {{{{1, 1}, {2, 2}}}, {{{4, 4}, {3, 3}}}},
 };
 
-static const size_t noIntersect_count = sizeof(noIntersect) / sizeof(noIntersect[0]);
+static const size_t noIntersect_count = SK_ARRAY_COUNT(noIntersect);
 
-static void TestLineIntersection(skiatest::Reporter* reporter) {
+static void PathOpsLineIntersectionTest(skiatest::Reporter* reporter) {
     size_t index;
     for (index = 0; index < tests_count; ++index) {
         const SkDLine& line1 = tests[index][0];
@@ -58,4 +58,4 @@ static void TestLineIntersection(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsLineIntersection", LineIntersectionTestClass, TestLineIntersection)
+DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionTest)

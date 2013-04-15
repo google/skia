@@ -15,7 +15,7 @@ static const SkDQuad testSet[] = {
     {{{1, 0}, {2, 6}, {3, 0}}}
 };
 
-static const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
+static const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static void oneOffTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < testSetCount; ++index) {
@@ -62,10 +62,10 @@ static void standardTestCases(skiatest::Reporter* reporter) {
     }
 }
 
-static void QuadReduceOrderTest(skiatest::Reporter* reporter) {
+static void PathOpsReduceOrderQuadTest(skiatest::Reporter* reporter) {
     oneOffTest(reporter);
     standardTestCases(reporter);
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsReduceOrderQuad", ReduceOrderQuadTestClass, QuadReduceOrderTest)
+DEFINE_TESTCLASS_SHORT(PathOpsReduceOrderQuadTest)

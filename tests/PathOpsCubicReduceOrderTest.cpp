@@ -55,7 +55,7 @@ static void find_tight_bounds(const SkDCubic& cubic, SkDRect& bounds) {
     }
 }
 
-static void CubicReduceOrderTest(skiatest::Reporter* reporter) {
+static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
     size_t index;
     SkReduceOrder reducer;
     int order;
@@ -223,4 +223,4 @@ static void CubicReduceOrderTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsReduceOrderCubic", ReduceOrderCubicTestClass, CubicReduceOrderTest)
+DEFINE_TESTCLASS_SHORT(PathOpsReduceOrderCubicTest)

@@ -33,11 +33,11 @@ static const SkDCubic cubicTests[] = {
     {{{3, 0}, {2, 1}, {3, 2}, {1, 1}}},
 };
 
-static const size_t lineTests_count = sizeof(lineTests) / sizeof(lineTests[0]);
-static const size_t quadTests_count = sizeof(quadTests) / sizeof(quadTests[0]);
-static const size_t cubicTests_count = sizeof(cubicTests) / sizeof(cubicTests[0]);
+static const size_t lineTests_count = SK_ARRAY_COUNT(lineTests);
+static const size_t quadTests_count = SK_ARRAY_COUNT(quadTests);
+static const size_t cubicTests_count = SK_ARRAY_COUNT(cubicTests);
 
-static void DRectTest(skiatest::Reporter* reporter) {
+static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     size_t index;
     SkDRect rect, rect2;
     for (index = 0; index < lineTests_count; ++index) {
@@ -97,4 +97,4 @@ static void DRectTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsDRect", PathOpsDRectClass, DRectTest)
+DEFINE_TESTCLASS_SHORT(PathOpsDRectTest)

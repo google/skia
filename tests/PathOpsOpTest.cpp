@@ -1190,7 +1190,7 @@ static struct TestDesc tests[] = {
     TEST(cubicOp1d),
 };
 
-static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
+static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
     TEST(cubicOp43d),
@@ -1210,7 +1210,7 @@ static struct TestDesc subTests[] = {
     TEST(cubicOp40d),
 };
 
-static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
+static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* ) = 0;
 
@@ -1218,7 +1218,7 @@ static bool runSubTestsFirst = false;
 static bool runReverse = false;
 static void (*stopTest)(skiatest::Reporter* ) = 0;
 
-static void OpTest(skiatest::Reporter* reporter) {
+static void PathOpsOpTest(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
     gDebugMaxWindValue = 4;
@@ -1237,4 +1237,4 @@ static void OpTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsOpTest", PathOpsOpClass, OpTest)
+DEFINE_TESTCLASS_SHORT(PathOpsOpTest)

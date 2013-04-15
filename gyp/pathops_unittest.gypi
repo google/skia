@@ -1,5 +1,6 @@
 {
   'sources': [
+    '../tests/PathOpsAngleTest.cpp',
     '../tests/PathOpsBoundsTest.cpp',
     '../tests/PathOpsCubicIntersectionTest.cpp',
     '../tests/PathOpsCubicIntersectionTestData.cpp',

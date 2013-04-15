@@ -17,9 +17,9 @@ static const SkDPoint tests[] = {
     {2, 2}
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void DVectorTest(skiatest::Reporter* reporter) {
+static void PathOpsDVectorTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count - 1; ++index) {
         SkDVector v1 = tests[index + 1] - tests[index];
         SkDVector v2 = tests[index] - tests[index + 1];
@@ -47,4 +47,4 @@ static void DVectorTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsDVector", PathOpsDVectorClass, DVectorTest)
+DEFINE_TESTCLASS_SHORT(PathOpsDVectorTest)

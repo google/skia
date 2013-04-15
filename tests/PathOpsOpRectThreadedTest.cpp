@@ -66,7 +66,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
     }
 }
 
-static void TestPathOpsRectsThreaded(skiatest::Reporter* reporter) {
+static void PathOpsRectsThreadedTest(skiatest::Reporter* reporter) {
     int threadCount = initializeTests("testOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 6; ++a) {  // outermost
@@ -85,5 +85,4 @@ finish:
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsRectsThreaded", OpRectsThreadedTestClass, \
-        TestPathOpsRectsThreaded)
+DEFINE_TESTCLASS_SHORT(PathOpsRectsThreadedTest)

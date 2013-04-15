@@ -4078,11 +4078,55 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     pathB.close();
 </div>
 
+<div id="testQuadratic94">
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(8, 8);
+    path.quadTo(8, 4, 4, 4);
+    path.quadTo(4, 0, 0, 0);
+    path.close();
+    testSimplify(reporter, path);
+</div>
+
+<div id="testQuadratic95">
+    SkPath path;
+    path.moveTo(8, 8);
+    path.lineTo(0, 0);
+    path.quadTo(4, 0, 4, 4);
+    path.quadTo(8, 4, 8, 8);
+    path.close();
+    testSimplify(reporter, path);
+</div>
+
+<div id="testQuadratic96">
+    SkPath path;
+    path.moveTo(8, 0);
+    path.lineTo(0, 8);
+    path.quadTo(0, 4, 4, 4);
+    path.quadTo(4, 0, 8, 0);
+    path.close();
+    testSimplify(reporter, path);
+</div>
+
+<div id="testQuadratic97">
+    SkPath path;
+    path.moveTo(0, 8);
+    path.lineTo(8, 0);
+    path.quadTo(4, 0, 4, 4);
+    path.quadTo(0, 4, 0, 8);
+    path.close();
+    testSimplify(reporter, path);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic97,
+    testQuadratic96,
+    testQuadratic95,
+    testQuadratic94,
     testLine16,
     cubicOp63d,
     cubicOp62d,

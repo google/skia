@@ -151,6 +151,11 @@ public:
         return fTs[tIndex];
     }
 
+    // OPTIMIZATION: mark as debugging only if used solely by tests
+    const SkTDArray<SkOpSpan>& spans() const {
+        return fTs;
+    }
+
     int spanSign(const SkOpAngle* angle) const {
         SkASSERT(angle->segment() == this);
         return spanSign(angle->start(), angle->end());

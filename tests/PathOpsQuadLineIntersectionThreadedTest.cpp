@@ -111,7 +111,7 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
     }
 }
 
-static void TestQuadLineIntersectionThreaded(skiatest::Reporter* reporter)
+static void PathOpsQuadLineIntersectionThreadedTest(skiatest::Reporter* reporter)
 {
     int threadCount = initializeTests("testQuadLineIntersect");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
@@ -129,5 +129,4 @@ finish:
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsQuadLineIntersectionThreaded", QuadLineIntersectionThreadedTestClass, \
-        TestQuadLineIntersectionThreaded)
+DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionThreadedTest)

@@ -14,7 +14,7 @@ const SkDQuad quadraticPoints[] = {
     {{{1, 1}, {2, 2}, {1, 1}}},
 };
 
-const size_t quadraticPoints_count = sizeof(quadraticPoints) / sizeof(quadraticPoints[0]);
+const size_t quadraticPoints_count = SK_ARRAY_COUNT(quadraticPoints);
 
 const SkDQuad quadraticLines[] = {
     {{{0, 0}, {0, 0}, {1, 0}}},
@@ -42,7 +42,7 @@ const SkDQuad quadraticLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}}},
 };
 
-const size_t quadraticLines_count = sizeof(quadraticLines) / sizeof(quadraticLines[0]);
+const size_t quadraticLines_count = SK_ARRAY_COUNT(quadraticLines);
 
 static const double F = FLT_EPSILON * 3;
 static const double H = FLT_EPSILON * 4;
@@ -80,7 +80,7 @@ const SkDQuad quadraticModEpsilonLines[] = {
 };
 
 const size_t quadraticModEpsilonLines_count =
-        sizeof(quadraticModEpsilonLines) / sizeof(quadraticModEpsilonLines[0]);
+        SK_ARRAY_COUNT(quadraticModEpsilonLines);
 
 const SkDQuad quadraticTests[][2] = {
     {  // one intersection
@@ -101,4 +101,4 @@ const SkDQuad quadraticTests[][2] = {
     }
 };
 
-const size_t quadraticTests_count = sizeof(quadraticTests) / sizeof(quadraticTests[0]);
+const size_t quadraticTests_count = SK_ARRAY_COUNT(quadraticTests);

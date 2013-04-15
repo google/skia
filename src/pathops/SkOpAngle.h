@@ -18,6 +18,7 @@
 class SkOpAngle {
 public:
     bool operator<(const SkOpAngle& rh) const;
+
     double dx() const {
         return fTangent1.dx();
     }
@@ -36,10 +37,12 @@ public:
 
     bool lengthen();
     bool reverseLengthen();
+
     void set(const SkPoint* orig, SkPath::Verb verb, const SkOpSegment* segment,
             int start, int end, const SkTDArray<SkOpSpan>& spans);
 
     void setSpans();
+
     SkOpSegment* segment() const {
         return const_cast<SkOpSegment*>(fSegment);
     }

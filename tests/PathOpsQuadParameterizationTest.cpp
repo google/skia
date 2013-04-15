@@ -24,9 +24,9 @@ static const SkDQuad quadratics[] = {
     {{{0, 0}, {1, 0}, {1, 1}}},
 };
 
-static const size_t quadratics_count = sizeof(quadratics) / sizeof(quadratics[0]);
+static const size_t quadratics_count = SK_ARRAY_COUNT(quadratics);
 
-static void TestQuadraticCoincidence(skiatest::Reporter* reporter) {
+static void PathOpsQuadImplicitTest(skiatest::Reporter* reporter) {
     // split large quadratic
     // compare original, parts, to see if the are coincident
     for (size_t index = 0; index < quadratics_count; ++index) {
@@ -36,7 +36,7 @@ static void TestQuadraticCoincidence(skiatest::Reporter* reporter) {
         const SkDQuad* quads[] = {
             &test, &midThird, &split.first(), &split.second()
         };
-        size_t quadsCount = sizeof(quads) / sizeof(quads[0]);
+        size_t quadsCount = SK_ARRAY_COUNT(quads);
         for (size_t one = 0; one < quadsCount; ++one) {
             for (size_t two = 0; two < quadsCount; ++two) {
                 for (size_t inner = 0; inner < 3; inner += 2) {
@@ -50,4 +50,4 @@ static void TestQuadraticCoincidence(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsQuadImplicit", QuadImplicitTestClass, TestQuadraticCoincidence)
+DEFINE_TESTCLASS_SHORT(PathOpsQuadImplicitTest)

@@ -25,9 +25,9 @@ static const SkDPoint left[] = {
     {2, 1}
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void DLineTest(skiatest::Reporter* reporter) {
+static void PathOpsLineUtilitiesTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDLine& line = tests[index];
         SkDLine line2;
@@ -51,4 +51,4 @@ static void DLineTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsLineUtilities", PathOpsLineUtilitiesClass, DLineTest)
+DEFINE_TESTCLASS_SHORT(PathOpsLineUtilitiesTest)
