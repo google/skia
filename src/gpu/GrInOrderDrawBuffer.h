@@ -77,6 +77,9 @@ public:
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
+
+
 protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
 

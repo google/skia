@@ -2229,23 +2229,142 @@ void GrGpuGL::setSpareTextureUnit() {
 
 namespace {
 // Determines whether glBlitFramebuffer could be used between src and dst.
-inline bool can_blit_framebuffer(const GrSurface* dst, const GrSurface* src, const GrGpuGL* gpu) {
-    return gpu->isConfigRenderable(dst->config()) && gpu->isConfigRenderable(src->config()) &&
-           (GrGLCaps::kDesktopEXT_MSFBOType == gpu->glCaps().msFBOType() ||
-            GrGLCaps::kDesktopARB_MSFBOType == gpu->glCaps().msFBOType());
+inline bool can_blit_framebuffer(const GrSurface* dst,
+                                 const GrSurface* src,
+                                 const GrGpuGL* gpu,
+                                 bool* wouldNeedTempFBO = NULL) {
+    if (gpu->isConfigRenderable(dst->config()) && gpu->isConfigRenderable(src->config()) &&
+        (GrGLCaps::kDesktopEXT_MSFBOType == gpu->glCaps().msFBOType() ||
+         GrGLCaps::kDesktopARB_MSFBOType == gpu->glCaps().msFBOType())) {
+        if (NULL != wouldNeedTempFBO) {
+            *wouldNeedTempFBO = NULL == dst->asRenderTarget() || NULL == src->asRenderTarget();
+        }
+        return true;
+    } else {
+        return false;
+    }
 }
+
+inline bool can_copy_texsubimage(const GrSurface* dst,
+                                 const GrSurface* src,
+                                 const GrGpuGL* gpu,
+                                 bool* wouldNeedTempFBO = NULL) {
+    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
+    // many drivers would allow it to work, but ANGLE does not.
+    if (kES2_GrGLBinding == gpu->glBinding() && gpu->glCaps().bgraIsInternalFormat() &&
+        (kBGRA_8888_GrPixelConfig == dst->config() || kBGRA_8888_GrPixelConfig == src->config())) {
+        return false;
+    }
+    const GrGLRenderTarget* dstRT = static_cast<const GrGLRenderTarget*>(dst->asRenderTarget());
+    // If dst is multisampled (and uses an extension where there is a separate MSAA renderbuffer)
+    // then we don't want to copy to the texture but to the MSAA buffer.
+    if (NULL != dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
+        return false;
+    }
+    if (gpu->isConfigRenderable(src->config()) && NULL != dst->asTexture() &&
+        dst->origin() == src->origin() && kIndex_8_GrPixelConfig != src->config()) {
+        if (NULL != wouldNeedTempFBO) {
+            *wouldNeedTempFBO = NULL == src->asRenderTarget();
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
+// relative to is output.
+inline GrGLuint bind_surface_as_fbo(const GrGLInterface* gl,
+                                    GrSurface* surface,
+                                    GrGLenum fboTarget,
+                                    GrGLIRect* viewport) {
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
+    GrGLuint tempFBOID;
+    if (NULL == rt) {
+        GrAssert(NULL != surface->asTexture());
+        GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
+        GR_GL_CALL(gl, GenFramebuffers(1, &tempFBOID));
+        GR_GL_CALL(gl, BindFramebuffer(fboTarget, tempFBOID));
+        GR_GL_CALL(gl, FramebufferTexture2D(fboTarget,
+                                            GR_GL_COLOR_ATTACHMENT0,
+                                            GR_GL_TEXTURE_2D,
+                                            texID,
+                                            0));
+        viewport->fLeft = 0;
+        viewport->fBottom = 0;
+        viewport->fWidth = surface->width();
+        viewport->fHeight = surface->height();
+    } else {
+        tempFBOID = 0;
+        GR_GL_CALL(gl, BindFramebuffer(fboTarget, rt->renderFBOID()));
+        *viewport = rt->getViewport();
+    }
+    return tempFBOID;
+}
+
+}
+
+void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+    // Check for format issues with glCopyTexSubImage2D
+    if (kES2_GrGLBinding == this->glBinding() && this->glCaps().bgraIsInternalFormat() &&
+        kBGRA_8888_GrPixelConfig == src->config()) {
+        // glCopyTexSubImage2D doesn't work with this config. We'll want to make it a render target
+        // to in order to call glBlitFramebuffer or to copy to it by rendering.
+        INHERITED::initCopySurfaceDstDesc(src, desc);
+    } else if (NULL == src->asRenderTarget()) {
+        // We don't want to have to create an FBO just to use glCopyTexSubImage2D. Let the base
+        // class handle it by rendering.
+        INHERITED::initCopySurfaceDstDesc(src, desc);
+    } else {
+        desc->fConfig = src->config();
+        desc->fOrigin = src->origin();
+        desc->fFlags = kNone_GrTextureFlags;
+    }
 }
 
 bool GrGpuGL::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
-    // TODO: Add support for glCopyTexSubImage for cases when src is an FBO and dst is not
-    // renderable or we don't have glBlitFramebuffer.
+    bool inheritedCouldCopy = INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
     bool copied = false;
-    // Check whether both src and dst could be attached to an FBO and we're on a GL that supports
-    // glBlitFramebuffer.
-    if (can_blit_framebuffer(dst, src, this)) {
+    bool wouldNeedTempFBO = false;
+    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) &&
+        (!wouldNeedTempFBO || !inheritedCouldCopy)) {
+        GrGLuint srcFBO;
+        GrGLIRect srcVP;
+        srcFBO = bind_surface_as_fbo(this->glInterface(), src, GR_GL_FRAMEBUFFER, &srcVP);
+        GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
+        GrAssert(NULL != dstTex);
+        // We modified the bound FBO
+        fHWBoundRenderTarget = NULL;
+        GrGLIRect srcGLRect;
+        srcGLRect.setRelativeTo(srcVP,
+                                srcRect.fLeft,
+                                srcRect.fTop,
+                                srcRect.width(),
+                                srcRect.height(),
+                                src->origin());
+
+        this->setSpareTextureUnit();
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, dstTex->textureID()));
+        GrGLint dstY;
+        if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+            dstY = dst->height() - (dstPoint.fY + srcGLRect.fHeight);
+        } else {
+            dstY = dstPoint.fY;
+        }
+        GL_CALL(CopyTexSubImage2D(GR_GL_TEXTURE_2D, 0,
+                                  dstPoint.fX, dstY,
+                                  srcGLRect.fLeft, srcGLRect.fBottom,
+                                  srcGLRect.fWidth, srcGLRect.fHeight));
+        copied = true;
+        if (srcFBO) {
+            GL_CALL(DeleteFramebuffers(1, &srcFBO));
+        }
+    } else if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) &&
+               (!wouldNeedTempFBO || !inheritedCouldCopy)) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                             srcRect.width(), srcRect.height());
         bool selfOverlap = false;
@@ -2254,50 +2373,13 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
         }
 
         if (!selfOverlap) {
-            GrGLuint dstFBO = 0;
-            GrGLuint srcFBO = 0;
+            GrGLuint dstFBO;
+            GrGLuint srcFBO;
             GrGLIRect dstVP;
             GrGLIRect srcVP;
-            GrGLRenderTarget* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget());
-            GrGLRenderTarget* srcRT = static_cast<GrGLRenderTarget*>(src->asRenderTarget());
-            if (NULL == dstRT) {
-                GrAssert(NULL != dst->asTexture());
-                GrGLuint texID = static_cast<GrGLTexture*>(dst->asTexture())->textureID();
-                GL_CALL(GenFramebuffers(1, &dstFBO));
-                GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, dstFBO));
-                GL_CALL(FramebufferTexture2D(GR_GL_DRAW_FRAMEBUFFER,
-                                             GR_GL_COLOR_ATTACHMENT0,
-                                             GR_GL_TEXTURE_2D,
-                                             texID,
-                                             0));
-                dstVP.fLeft = 0;
-                dstVP.fBottom = 0;
-                dstVP.fWidth = dst->width();
-                dstVP.fHeight = dst->height();
-            } else {
-                GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, dstRT->renderFBOID()));
-                dstVP = dstRT->getViewport();
-            }
-            if (NULL == srcRT) {
-                GrAssert(NULL != src->asTexture());
-                GrGLuint texID = static_cast<GrGLTexture*>(src->asTexture())->textureID();
-                GL_CALL(GenFramebuffers(1, &srcFBO));
-                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, srcFBO));
-                GL_CALL(FramebufferTexture2D(GR_GL_READ_FRAMEBUFFER,
-                                             GR_GL_COLOR_ATTACHMENT0,
-                                             GR_GL_TEXTURE_2D,
-                                             texID,
-                                             0));
-                srcVP.fLeft = 0;
-                srcVP.fBottom = 0;
-                srcVP.fWidth = src->width();
-                srcVP.fHeight = src->height();
-            } else {
-                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, srcRT->renderFBOID()));
-                srcVP = srcRT->getViewport();
-            }
-
-            // We modified the bound FB
+            dstFBO = bind_surface_as_fbo(this->glInterface(), dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP);
+            srcFBO = bind_surface_as_fbo(this->glInterface(), src, GR_GL_READ_FRAMEBUFFER, &srcVP);
+            // We modified the bound FBO
             fHWBoundRenderTarget = NULL;
             GrGLIRect srcGLRect;
             GrGLIRect dstGLRect;
@@ -2349,8 +2431,9 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
             copied = true;
         }
     }
-    if (!copied) {
+    if (!copied && inheritedCouldCopy) {
         copied = INHERITED::onCopySurface(dst, src, srcRect, dstPoint);
+        GrAssert(copied);
     }
     return copied;
 }
@@ -2360,21 +2443,21 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) {
     // This mirrors the logic in onCopySurface.
-    bool canBlitFramebuffer = false;
+    if (can_copy_texsubimage(dst, src, this)) {
+        return true;
+    }
     if (can_blit_framebuffer(dst, src, this)) {
-        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
-                                            srcRect.width(), srcRect.height());
         if (dst->isSameAs(src)) {
-            canBlitFramebuffer = !SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
+            SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                                srcRect.width(), srcRect.height());
+            if(!SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {
+                return true;
+            }
         } else {
-            canBlitFramebuffer = true;
+            return true;
         }
     }
-    if (canBlitFramebuffer) {
-        return true;
-    } else {
-        return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
-    }
+    return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
 

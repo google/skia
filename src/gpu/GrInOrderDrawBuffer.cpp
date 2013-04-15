@@ -540,6 +540,10 @@ bool GrInOrderDrawBuffer::onCanCopySurface(GrSurface* dst,
     return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint);
 }
 
+void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
+    fDstGpu->initCopySurfaceDstDesc(src, desc);
+}
+
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
                                 int vertexCount,
                                 int indexCount) {

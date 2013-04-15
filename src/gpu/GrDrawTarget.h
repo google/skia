@@ -432,6 +432,14 @@ public:
                         const SkIPoint& dstPoint);
 
     /**
+     * This is can be called before allocating a texture to be a dst for copySurface. It will
+     * populate the origin, config, and flags fields of the desc such that copySurface is more
+     * likely to succeed and be efficient.
+     */
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc);
+
+
+    /**
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.
      */
