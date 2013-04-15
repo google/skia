@@ -75,7 +75,7 @@
             'config/win',
           ],
         }],
-        [ 'skia_os in ("android", "nacl")', {
+        [ 'skia_os == "nacl"', {
           'dependencies': [
             'freetype.gyp:freetype',
           ],
