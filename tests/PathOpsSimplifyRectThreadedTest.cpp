@@ -171,7 +171,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
     }
 }
 
-static void TestSimplifyRectsThreaded(skiatest::Reporter* reporter)
+static void PathOpsSimplifyRectsThreadedTest(skiatest::Reporter* reporter)
 {
     int threadCount = initializeTests("testLine");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
@@ -191,5 +191,4 @@ finish:
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsSimplifyRectsThreaded",SimplifyRectsThreadedTestClass, \
-        TestSimplifyRectsThreaded)
+DEFINE_TESTCLASS_SHORT(PathOpsSimplifyRectsThreadedTest)

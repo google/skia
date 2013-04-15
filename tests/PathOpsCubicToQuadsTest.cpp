@@ -160,7 +160,7 @@ static SkDCubic locals[] = {
             {1.4974754310666936, 68.069569937917208}, {45.261946574441133, 17.536076632112298}}},
 };
 
-static size_t localsCount = sizeof(locals) / sizeof(locals[0]);
+static size_t localsCount = SK_ARRAY_COUNT(locals);
 
 #define DEBUG_CRASH 0
 #define TEST_AVERAGE_END_POINTS 0  // must take const off to test
@@ -192,11 +192,11 @@ static void CubicsToQuadratics_OneOffTest(skiatest::Reporter* reporter) {
     oneOff(reporter, 0);
 }
 
-static void TestCubicToQuads(skiatest::Reporter* reporter) {
+static void PathOpsCubicToQuadsTest(skiatest::Reporter* reporter) {
     CubicToQuads_Test(reporter);
     CubicsToQuadratics_OneOffTest(reporter);
     CubicsToQuadratics_OneOffTests(reporter);
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsCubicToQuads", PathOpsCubicToQuads, TestCubicToQuads)
+DEFINE_TESTCLASS_SHORT(PathOpsCubicToQuadsTest)

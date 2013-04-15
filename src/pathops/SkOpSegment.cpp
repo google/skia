@@ -2663,7 +2663,7 @@ void SkOpSegment::debugShowSort(const char* fun, const SkTDArray<SkOpAngle*>& an
     int oppoSign = oppSign(firstAngle);
     int oppWindSum = oppLastSum - oppoSign;
     #define WIND_AS_STRING(x) char x##Str[12]; if (!valid_wind(x)) strcpy(x##Str, "?"); \
-        else snprintf(x##Str, sizeof(x##Str), "%d", x)
+        else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
     WIND_AS_STRING(contourWinding);
     WIND_AS_STRING(oppContourWinding);
     SkDebugf("%s %s contourWinding=%s oppContourWinding=%s sign=%d\n", fun, __FUNCTION__,
@@ -2747,7 +2747,7 @@ void SkOpSegment::debugShowSort(const char* fun, const SkTDArray<SkOpAngle*>& an
                     opp ? windSumStr : oppWindSumStr);
         }
         SkDebugf(" done=%d tiny=%d opp=%d\n", mSpan.fDone, mSpan.fTiny, opp);
-#if false && DEBUG_ANGLE
+#if 0 && DEBUG_ANGLE
         angle.debugShow(segment.xyAtT(&sSpan));
 #endif
         ++index;

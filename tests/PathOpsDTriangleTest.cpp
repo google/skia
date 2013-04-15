@@ -25,9 +25,9 @@ static const SkDPoint outPoint[] = {
     {2.5, 2},
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void TriangleUtilitiesTest(skiatest::Reporter* reporter) {
+static void PathOpsTriangleUtilitiesTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDTriangle& triangle = tests[index];
         bool result = triangle.contains(inPoint[index]);
@@ -44,4 +44,4 @@ static void TriangleUtilitiesTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsTriangleUtilities", PathOpsTriangleUtilitiesClass, TriangleUtilitiesTest)
+DEFINE_TESTCLASS_SHORT(PathOpsTriangleUtilitiesTest)

@@ -17,6 +17,19 @@
         void MyTestFunction(skiatest::Reporter*)
 */
 
+// FIXME: replace all three param callers with the short one param version
+#define DEFINE_TESTCLASS_SHORT(function)                                                 \
+    namespace skiatest {                                                                 \
+        class function##Class : public Test {                                            \
+        public:                                                                          \
+            static Test* Factory(void*) { return SkNEW(function##Class); }               \
+        protected:                                                                       \
+            virtual void onGetName(SkString* name) SK_OVERRIDE { name->set(#function); } \
+            virtual void onRun(Reporter* reporter) SK_OVERRIDE { function(reporter); }   \
+        };                                                                               \
+        static TestRegistry gReg_##function##Class(function##Class::Factory);            \
+    }
+
 #define DEFINE_TESTCLASS(uiname, classname, function)                                   \
     namespace skiatest {                                                                \
         class classname : public Test {                                                 \

@@ -316,7 +316,7 @@ static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const S
 static void showPathOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b,
         const SkPath& scaledOne, const SkPath& scaledTwo, const SkPathOp shapeOp,
         const SkMatrix& scale) {
-    SkASSERT((unsigned) shapeOp < sizeof(opStrs) / sizeof(opStrs[0]));
+    SkASSERT((unsigned) shapeOp < SK_ARRAY_COUNT(opStrs));
     showPath(a, "minuend:");
     SkDebugf("op: %s\n", opStrs[shapeOp]);
     showPath(b, "subtrahend:");
@@ -540,7 +540,7 @@ void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType pathFill
 
 void outputProgress(char* ramStr, const char* pathStr, SkPathOp op) {
     const char testFunction[] = "testOp(path);";
-    SkASSERT(op < sizeof(opSuffixes) / sizeof(opSuffixes[0]));
+    SkASSERT((size_t) op < SK_ARRAY_COUNT(opSuffixes));
     const char* nameSuffix = opSuffixes[op];
     SkMemoryWStream rRamStream(ramStr, PATH_STR_SIZE);
     outputToStream(pathStr, NULL, nameSuffix, testFunction, true, rRamStream);

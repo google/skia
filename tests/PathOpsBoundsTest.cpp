@@ -18,14 +18,14 @@ static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 1, 5, 2}},  // touching just on a corner is OK
 };
 
-static const size_t sectTestsCount = sizeof(sectTests) / sizeof(sectTests[0]);
+static const size_t sectTestsCount = SK_ARRAY_COUNT(sectTests);
 
 static const SkRect noSectTests[][2] = {
     {{2, 0, 4, 1}, {5, 0, 6, 1}},
     {{2, 0, 4, 1}, {3, 2, 5, 2}},
 };
 
-static const size_t noSectTestsCount = sizeof(noSectTests) / sizeof(noSectTests[0]);
+static const size_t noSectTestsCount = SK_ARRAY_COUNT(noSectTests);
 
 static const SkRect reallyEmpty[] = {
     {0, 0, 0, 0},
@@ -35,7 +35,7 @@ static const SkRect reallyEmpty[] = {
     {1, 2, 3, SK_ScalarNaN},
 };
 
-static const size_t emptyTestsCount = sizeof(reallyEmpty) / sizeof(reallyEmpty[0]);
+static const size_t emptyTestsCount = SK_ARRAY_COUNT(reallyEmpty);
 
 static const SkRect notReallyEmpty[] = {
     {0, 0, 1, 0},
@@ -43,9 +43,9 @@ static const SkRect notReallyEmpty[] = {
     {0, 0, 1, 1},
 };
 
-static const size_t notEmptyTestsCount = sizeof(notReallyEmpty) / sizeof(notReallyEmpty[0]);
+static const size_t notEmptyTestsCount = SK_ARRAY_COUNT(notReallyEmpty);
 
-static void OpBoundsTest(skiatest::Reporter* reporter) {
+static void PathOpsBoundsTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < sectTestsCount; ++index) {
         const SkPathOpsBounds& bounds1 = static_cast<const SkPathOpsBounds&>(sectTests[index][0]);
         const SkPathOpsBounds& bounds2 = static_cast<const SkPathOpsBounds&>(sectTests[index][1]);
@@ -103,4 +103,4 @@ static void OpBoundsTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsBounds", PathOpsBoundsClass, OpBoundsTest)
+DEFINE_TESTCLASS_SHORT(PathOpsBoundsTest)

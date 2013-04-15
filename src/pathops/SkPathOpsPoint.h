@@ -108,7 +108,7 @@ struct SkDPoint {
 
     bool approximatelyEqual(const SkPoint& a) const {
         double denom = SkTMax<double>(fabs(fX), SkTMax<double>(fabs(fY),
-                SkScalarToDouble(SkTMax<SkScalar>(fabs(a.fX), fabs(a.fY)))));
+                SkScalarToDouble(SkTMax<SkScalar>(fabsf(a.fX), fabsf(a.fY)))));
         if (denom == 0) {
             return true;
         }

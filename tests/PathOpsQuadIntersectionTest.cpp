@@ -226,7 +226,7 @@ static const SkDQuad testSet[] = {
     {{{8, 8}, {9, 9}, {10, 8}}}
 };
 
-const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
+const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner) {
     const SkDQuad& quad1 = testSet[outer];
@@ -271,7 +271,7 @@ static const SkDQuad coincidentTestSet[] = {
     {{{8, -10}, {10, 10}, {8, 8}}},
 };
 
-const size_t coincidentTestSetCount = sizeof(coincidentTestSet) / sizeof(coincidentTestSet[0]);
+const size_t coincidentTestSetCount = SK_ARRAY_COUNT(coincidentTestSet);
 
 static void coincidentTest(skiatest::Reporter* reporter) {
     for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
@@ -453,7 +453,7 @@ static void QuadraticIntersection_IntersectionFinder() {
     intersectionFinder(0, 1);
 }
 
-static void TestQuadIntersection(skiatest::Reporter* reporter) {
+static void PathOpsQuadIntersectionTest(skiatest::Reporter* reporter) {
     oneOffTests(reporter);
     coincidentTest(reporter);
     standardTestCases(reporter);
@@ -464,4 +464,4 @@ static void TestQuadIntersection(skiatest::Reporter* reporter) {
 
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsQuadIntersection", QuadIntersectionTestClass, TestQuadIntersection)
+DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionTest)

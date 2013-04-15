@@ -13,9 +13,9 @@ static const SkDCubic tests[] = {
     {{{3, 0}, {2, 1}, {3, 2}, {1, 1}}},
 };
 
-static const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void DCubicTest(skiatest::Reporter* reporter) {
+static void PathOpsDCubicTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDCubic& cubic = tests[index];
         bool result = cubic.clockwise();
@@ -27,4 +27,4 @@ static void DCubicTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsDCubic", PathOpsDCubic, DCubicTest)
+DEFINE_TESTCLASS_SHORT(PathOpsDCubicTest)

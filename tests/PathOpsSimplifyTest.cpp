@@ -3586,9 +3586,53 @@ static void testQuadralateral2(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+static void testQuadratic94(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(8, 8);
+    path.quadTo(8, 4, 4, 4);
+    path.quadTo(4, 0, 0, 0);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuadratic95(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(8, 8);
+    path.lineTo(0, 0);
+    path.quadTo(4, 0, 4, 4);
+    path.quadTo(8, 4, 8, 8);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuadratic96(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(8, 0);
+    path.lineTo(0, 8);
+    path.quadTo(0, 4, 4, 4);
+    path.quadTo(4, 0, 8, 0);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuadratic97(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 8);
+    path.lineTo(8, 0);
+    path.quadTo(4, 0, 4, 4);
+    path.quadTo(0, 4, 0, 8);
+    path.close();
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuadratic97),
+    TEST(testQuadratic96),
+    TEST(testQuadratic95),
+    TEST(testQuadratic94),
     TEST(testQuadralateral2),
     TEST(testQuad1),  // FIXME: fails, need to investigate
     TEST(testCubic2),
@@ -3921,7 +3965,7 @@ static TestDesc tests[] = {
     TEST(testLine1),
 };
 
-static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
+static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static TestDesc subTests[] = {
     TEST(testLine3),
@@ -3929,7 +3973,7 @@ static TestDesc subTests[] = {
     TEST(testLine1),
 };
 
-static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
+static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* ) = 0;
 
@@ -3937,7 +3981,7 @@ static bool runSubTestsFirst = false;
 static bool runReverse = false;
 static void (*stopTest)(skiatest::Reporter* ) = 0;
 
-static void SimplifyTest(skiatest::Reporter* reporter) {
+static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
     gDebugMaxWindValue = 4;
@@ -3956,4 +4000,4 @@ static void SimplifyTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsSimplifyTest", PathOpsSimplifyClass, SimplifyTest)
+DEFINE_TESTCLASS_SHORT(PathOpsSimplifyTest)

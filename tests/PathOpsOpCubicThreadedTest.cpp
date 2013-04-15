@@ -57,7 +57,7 @@ static void testOpCubicsMain(PathOpsThreadState* data)
     }
 }
 
-static void TestOpCubicsThreaded(skiatest::Reporter* reporter)
+static void PathOpsOpCubicsThreadedTest(skiatest::Reporter* reporter)
 {
     int threadCount = initializeTests("cubicOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
@@ -77,5 +77,4 @@ finish:
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsOpCubicsThreaded", OpCubicsThreadedTestClass, \
-        TestOpCubicsThreaded)
+DEFINE_TESTCLASS_SHORT(PathOpsOpCubicsThreadedTest)

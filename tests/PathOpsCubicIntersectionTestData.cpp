@@ -41,7 +41,7 @@ const SkDCubic pointDegenerates[] = {
     {{{1, 1}, {2, 2}, {2, 2+N}, {1, 1}}},
 };
 
-const size_t pointDegenerates_count = sizeof(pointDegenerates) / sizeof(pointDegenerates[0]);
+const size_t pointDegenerates_count = SK_ARRAY_COUNT(pointDegenerates);
 
 const SkDCubic notPointDegenerates[] = {
     {{{1 + FLT_EPSILON * 2, 1}, {1, FLT_EPSILON * 2}, {1, 1}, {1, 1}}},
@@ -49,7 +49,7 @@ const SkDCubic notPointDegenerates[] = {
 };
 
 const size_t notPointDegenerates_count =
-        sizeof(notPointDegenerates) / sizeof(notPointDegenerates[0]);
+        SK_ARRAY_COUNT(notPointDegenerates);
 
 // from http://www.truetex.com/bezint.htm
 const SkDCubic tests[][2] = {
@@ -105,7 +105,7 @@ const SkDCubic tests[][2] = {
     }
 };
 
-const size_t tests_count = sizeof(tests) / sizeof(tests[0]);
+const size_t tests_count = SK_ARRAY_COUNT(tests);
 
 const SkDCubic lines[] = {
     {{{0, 0}, {0, 0}, {0, 0}, {1, 0}}},  // 0: horizontal
@@ -140,7 +140,7 @@ const SkDCubic lines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1}}},
 };
 
-const size_t lines_count = sizeof(lines) / sizeof(lines[0]);
+const size_t lines_count = SK_ARRAY_COUNT(lines);
 
 // 'not a line' tries to fool the line detection code
 const SkDCubic notLines[] = {
@@ -152,7 +152,7 @@ const SkDCubic notLines[] = {
     {{{0, 1}, {1, 0}, {0, 0}, {0, 0}}},
 };
 
-const size_t notLines_count = sizeof(notLines) / sizeof(notLines[0]);
+const size_t notLines_count = SK_ARRAY_COUNT(notLines);
 
 static const double E = FLT_EPSILON * 2;
 static const double F = FLT_EPSILON * 3;
@@ -198,7 +198,7 @@ const SkDCubic modEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+E}}},
 };
 
-const size_t modEpsilonLines_count = sizeof(modEpsilonLines) / sizeof(modEpsilonLines[0]);
+const size_t modEpsilonLines_count = SK_ARRAY_COUNT(modEpsilonLines);
 
 const SkDCubic lessEpsilonLines[] = {
     {{{0, D}, {0, 0}, {0, 0}, {1, 0}}},  // horizontal
@@ -234,7 +234,7 @@ const SkDCubic lessEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+D}}},
 };
 
-const size_t lessEpsilonLines_count = sizeof(lessEpsilonLines) / sizeof(lessEpsilonLines[0]);
+const size_t lessEpsilonLines_count = SK_ARRAY_COUNT(lessEpsilonLines);
 
 const SkDCubic negEpsilonLines[] = {
     {{{0, N}, {0, 0}, {0, 0}, {1, 0}}},  // horizontal
@@ -270,4 +270,4 @@ const SkDCubic negEpsilonLines[] = {
     {{{2, 2}, {4, 4}, {3, 3}, {1, 1+N}}},
 };
 
-const size_t negEpsilonLines_count = sizeof(negEpsilonLines) / sizeof(negEpsilonLines[0]);
+const size_t negEpsilonLines_count = SK_ARRAY_COUNT(negEpsilonLines);

@@ -101,8 +101,6 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
             char tab[] = "                  ";
             if (tLimits1[0][0] >= t1Start && tLimits1[0][1] <= t1
                     && tLimits1[1][0] >= t2Start && tLimits1[1][1] <= t2) {
-                SkDCubic cSub1 = cubic1.subDivide(t1Start, t1);
-                SkDCubic cSub2 = cubic2.subDivide(t2Start, t2);
                 SkDebugf("%.*s %s t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)", i.depth()*2, tab,
                         __FUNCTION__, t1Start, t1, t2Start, t2);
                 SkIntersections xlocals;

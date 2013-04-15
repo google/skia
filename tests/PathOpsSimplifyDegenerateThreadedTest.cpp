@@ -60,7 +60,7 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
     }
 }
 
-static void TestSimplifyDegeneratesThreaded(skiatest::Reporter* reporter) {
+static void PathOpsSimplifyDegeneratesThreadedTest(skiatest::Reporter* reporter) {
     int threadCount = initializeTests("testDegenerates");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
@@ -85,5 +85,4 @@ finish:
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsSimplifyDegeneratesThreaded", SimplifyDegeneratesThreadedTestClass, \
-        TestSimplifyDegeneratesThreaded)
+DEFINE_TESTCLASS_SHORT(PathOpsSimplifyDegeneratesThreadedTest)

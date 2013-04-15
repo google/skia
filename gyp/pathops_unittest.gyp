@@ -9,11 +9,9 @@
       'type': 'executable',
       'suppress_wildcard': '1',
       'include_dirs' : [
-        '../include/pathops',
         '../src/core',
         '../src/effects',
         '../src/lazy',
-        '../src/pathops',
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',

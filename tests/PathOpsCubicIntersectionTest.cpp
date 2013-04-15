@@ -160,7 +160,7 @@ static const SkDCubic testSet[] = {
         {56.4860195, 60.529264}}},
 };
 
-const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
+const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static const SkDCubic newTestSet[] = {
 {{{0, 1}, {1, 5}, {1, 0}, {1, 0}}},
@@ -220,7 +220,7 @@ static const SkDCubic newTestSet[] = {
 {{{0, 3}, {0, 1}, {2, 0}, {1, 0}}},
 };
 
-const size_t newTestSetCount = sizeof(newTestSet) / sizeof(newTestSet[0]);
+const size_t newTestSetCount = SK_ARRAY_COUNT(newTestSet);
 
 static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const SkDCubic& cubic2) {
 #if ONE_OFF_DEBUG
@@ -463,7 +463,7 @@ static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
         {{{6.71, 3.14}, {7.99, 2.75}, {8.27, 1.96}, {6.35, 3.57}}},
         {{{12.81, 7.27}, {7.22, 6.98}, {12.49, 8.97}, {11.42, 6.18}}},
     };
-    size_t selfSetCount = sizeof(selfSet) / sizeof(selfSet[0]);
+    size_t selfSetCount = SK_ARRAY_COUNT(selfSet);
     size_t firstFail = 1;
     for (size_t index = firstFail; index < selfSetCount; ++index) {
         const SkDCubic& cubic = selfSet[index];
@@ -500,7 +500,7 @@ static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestCubicIntersection(skiatest::Reporter* reporter) {
+static void PathOpsCubicIntersectionTest(skiatest::Reporter* reporter) {
     oneOffTest(reporter);
     oneOffTests(reporter);
     cubicIntersectionSelfTest(reporter);
@@ -510,4 +510,4 @@ static void TestCubicIntersection(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("PathOpsCubicIntersectionTest", CubicIntersectionTestClass, TestCubicIntersection)
+DEFINE_TESTCLASS_SHORT(PathOpsCubicIntersectionTest)

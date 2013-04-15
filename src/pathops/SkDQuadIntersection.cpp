@@ -96,6 +96,9 @@ static bool only_end_pts_in_common(const SkDQuad& q1, const SkDQuad& q2, SkInter
         }
         for (int n = 0; n < 3; ++n) {
             double test = (q2[n].fY - origY) * adj - (q2[n].fX - origX) * opp;
+            if (test * sign > 0 && precisely_zero(test)) {
+                SkDebugf("*** very teeny\n");
+            }
             if (test * sign > 0) {
                 goto tryNextHalfPlane;
             }
@@ -151,7 +154,7 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
     SkDQuad hull = q1.subDivide(t1s, t1e);
     SkDLine line = {{hull[2], hull[0]}};
     const SkDLine* testLines[] = { &line, (const SkDLine*) &hull[0], (const SkDLine*) &hull[1] };
-    size_t testCount = sizeof(testLines) / sizeof(testLines[0]);
+    size_t testCount = SK_ARRAY_COUNT(testLines);
     SkTDArray<double> tsFound;
     for (size_t index = 0; index < testCount; ++index) {
         SkIntersections rootTs;
