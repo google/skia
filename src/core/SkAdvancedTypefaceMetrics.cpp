@@ -16,9 +16,10 @@ SK_DEFINE_INST_COUNT(SkAdvancedTypefaceMetrics)
 #include <dwrite.h>
 #endif
 
-#if defined(SK_BUILD_FOR_NACL)
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
+// forward declare structs needed for getAdvanceData() template for freetype
+struct FT_FaceRec;
+typedef struct FT_FaceRec_* FT_Face;
 #endif
 
 #ifdef SK_BUILD_FOR_MAC
@@ -268,8 +269,6 @@ template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(IDWriteFontFace* fontFace, int gId, int16_t* data));
 #elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
-struct FT_FaceRec;
-typedef struct FT_FaceRec_* FT_Face;
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,
         int num_glyphs,
