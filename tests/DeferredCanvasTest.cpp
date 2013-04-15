@@ -527,16 +527,25 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     // write
     PixelPtr pixels2 = getSurfacePixelPtr(surface, useGpu);
     REPORTER_ASSERT(reporter, pixels1 != pixels2);
-    canvas.clear(SK_ColorWHITE);
-    canvas.flush();
+    // Verify copy-on write with a draw operation that gets deferred by
+    // the in order draw buffer.
+    SkPaint paint;
+    canvas.drawPaint(paint);
+    SkImage* image4 = canvas.newImageSnapshot();  // implicit flush
+    SkAutoTUnref<SkImage> aur_i4(image4);
+    REPORTER_ASSERT(reporter, image4->uniqueID() != image3->uniqueID());
     PixelPtr pixels3 = getSurfacePixelPtr(surface, useGpu);
+    REPORTER_ASSERT(reporter, pixels2 != pixels3);
     // Verify that a direct canvas flush with a pending draw does not trigger
     // a copy on write when the surface is not sharing its buffer with an
     // SkImage.
-    canvas.clear(SK_ColorBLACK);
+    canvas.clear(SK_ColorWHITE);
     canvas.flush();
     PixelPtr pixels4 = getSurfacePixelPtr(surface, useGpu);
-    REPORTER_ASSERT(reporter, pixels3 == pixels4);
+    canvas.drawPaint(paint);
+    canvas.flush();
+    PixelPtr pixels5 = getSurfacePixelPtr(surface, useGpu);
+    REPORTER_ASSERT(reporter, pixels4 == pixels5);
 }
 
 static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* factory) {
