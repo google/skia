@@ -219,6 +219,9 @@ struct SkRationalQuad {
     void evalAt(SkScalar t, SkPoint* pt) const;
     void chopAt(SkScalar t, SkRationalQuad dst[2]) const;
     void chop(SkRationalQuad dst[2]) const;
+    
+    int computeQuadPOW2(SkScalar tol) const;
+    int chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 };
 
 #endif
