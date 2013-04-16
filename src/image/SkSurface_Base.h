@@ -72,4 +72,20 @@ private:
     typedef SkSurface INHERITED;
 };
 
+SkCanvas* SkSurface_Base::getCachedCanvas() {
+    if (NULL == fCachedCanvas) {
+        fCachedCanvas = this->onNewCanvas();
+        this->installIntoCanvasForDirtyNotification();
+    }
+    return fCachedCanvas;
+}
+
+SkImage* SkSurface_Base::getCachedImage() {
+    if (NULL == fCachedImage) {
+        fCachedImage = this->onNewImageSnapshot();
+        this->installIntoCanvasForDirtyNotification();
+    }
+    return fCachedImage;
+}
+
 #endif
