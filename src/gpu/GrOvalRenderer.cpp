@@ -297,7 +297,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, co
 
     // and axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        drawEllipse(target, paint, oval, stroke);
+        return drawEllipse(target, paint, oval, stroke);
 
     } else {
         return false;
@@ -406,7 +406,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
 }
 
-void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
+bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  const GrPaint& paint,
                                  const GrRect& ellipse,
                                  const SkStrokeRec& stroke)
@@ -425,10 +425,15 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     vm.mapPoints(&center, 1);
     SkRect xformedRect;
     vm.mapRect(&xformedRect, ellipse);
+    SkScalar xRadius = SkScalarHalf(xformedRect.width());
+    SkScalar yRadius = SkScalarHalf(xformedRect.height());
+    if (SkScalarDiv(xRadius, yRadius) > 2 || SkScalarDiv(yRadius, xRadius) > 2) {
+        return false;
+    }
 
     GrDrawState::AutoDeviceCoordDraw adcd(drawState);
     if (!adcd.succeeded()) {
-        return;
+        return false;
     }
 
     // position + edge
@@ -443,7 +448,7 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
-        return;
+        return false;
     }
 
     EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());
@@ -463,8 +468,6 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     drawState->setEffect(kEdgeEffectStage, effect,
                          kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
 
-    SkScalar xRadius = SkScalarHalf(xformedRect.width());
-    SkScalar yRadius = SkScalarHalf(xformedRect.height());
     SkScalar innerXRadius = 0.0f;
     SkScalar innerRatio = 1.0f;
 
@@ -538,4 +541,6 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fInnerOffset = SkPoint::Make(xRadius, innerRatio*yRadius);
 
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
+
+    return true;
 }
