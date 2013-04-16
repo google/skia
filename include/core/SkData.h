@@ -122,41 +122,10 @@ private:
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     virtual ~SkData();
 
-    // This is here because SkAutoTUnref creates an internal helper class
-    // that derives from SkData (i.e., BlockRef) to prevent refs\unrefs.
-    // This helper class generates a compiler warning on Windows since the
-    // SkData's destructor is private. This friending gives the helper class
-    // access to the destructor.
-    friend class SkAutoTUnref<SkData>::BlockRef<SkData>;
-
     typedef SkFlattenable INHERITED;
 };
 
-/**
- *  Specialized version of SkAutoTUnref<SkData> for automatically unref-ing a
- *  SkData.
- */
-class SkAutoDataUnref : SkNoncopyable {
-public:
-    SkAutoDataUnref(SkData* data) : fRef(data) {}
-    ~SkAutoDataUnref() {
-        SkSafeUnref(fRef);
-    }
-
-    SkData* get() const { return fRef; }
-
-    void release() {
-        if (fRef) {
-            fRef->unref();
-            fRef = NULL;
-        }
-    }
-
-    SkData *operator->() const { return fRef; }
-    operator SkData*() { return fRef; }
-
-private:
-    SkData*     fRef;
-};
+/** Typedef of SkAutoTUnref<SkData> for automatically unref-ing a SkData. */
+typedef SkAutoTUnref<SkData> SkAutoDataUnref;
 
 #endif
