@@ -122,7 +122,7 @@ typedef SkTLazy<SkPaint> SkLazyPaint;
 
 void SkCanvas::predrawNotify() {
     if (fSurfaceBase) {
-        fSurfaceBase->aboutToDraw(this);
+        fSurfaceBase->aboutToDraw();
     }
 }
 

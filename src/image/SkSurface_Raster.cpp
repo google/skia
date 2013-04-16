@@ -25,7 +25,7 @@ public:
     virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
-    virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
+    virtual void onCopyOnWrite() SK_OVERRIDE;
 
 private:
     SkBitmap    fBitmap;
@@ -124,16 +124,18 @@ SkImage* SkSurface_Raster::onNewImageSnapshot() {
     return SkNewImageFromBitmap(fBitmap, fWeOwnThePixels);
 }
 
-void SkSurface_Raster::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
+void SkSurface_Raster::onCopyOnWrite() {
     // are we sharing pixelrefs with the image?
-    if (SkBitmapImageGetPixelRef(image) == fBitmap.pixelRef()) {
+    SkASSERT(NULL !=this->getCachedImage());
+    if (SkBitmapImageGetPixelRef(this->getCachedImage()) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         SkBitmap prev(fBitmap);
         prev.deepCopyTo(&fBitmap, prev.config());
         // Now fBitmap is a deep copy of itself (and therefore different from
         // what is being used by the image. Next we update the canvas to use
         // this as its backend, so we can't modify the image's pixels anymore.
-        canvas->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+        SkASSERT(NULL != this->getCachedCanvas());
+        this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
 }
 

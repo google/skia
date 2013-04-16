@@ -23,7 +23,7 @@ public:
     virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
-    virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
+    virtual void onCopyOnWrite() SK_OVERRIDE;
 
 private:
     SkGpuDevice* fDevice;
@@ -86,20 +86,21 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 // Create a new SkGpuDevice and, if necessary, copy the contents of the old
 // device into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
-void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
+void SkSurface_Gpu::onCopyOnWrite() {
     GrRenderTarget* rt = (GrRenderTarget*) fDevice->accessRenderTarget();
 
     // are we sharing our render target with the image?
-    if (rt->asTexture() == SkTextureImageGetTexture(image)) {
+    SkASSERT(NULL != this->getCachedImage());
+    if (rt->asTexture() == SkTextureImageGetTexture(this->getCachedImage())) {
         SkGpuDevice* newDevice = static_cast<SkGpuDevice*>(
             fDevice->createCompatibleDevice(fDevice->config(), fDevice->width(),
             fDevice->height(), fDevice->isOpaque()));
         SkAutoTUnref<SkGpuDevice> aurd(newDevice);
         fDevice->context()->copyTexture(rt->asTexture(),
             (GrRenderTarget*)newDevice->accessRenderTarget());
-        SkASSERT(NULL != canvas);
-        SkASSERT(canvas->getDevice() == fDevice);
-        canvas->setDevice(newDevice);
+        SkASSERT(NULL != this->getCachedCanvas());
+        SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
+        this->getCachedCanvas()->setDevice(newDevice);
         SkRefCnt_SafeAssign(fDevice, newDevice);
     }
 }

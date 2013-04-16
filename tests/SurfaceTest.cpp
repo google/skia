@@ -146,17 +146,49 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
     surface->newImageSnapshot()->unref();  // Create and destroy SkImage
     canvas->clear(2);
 }
+static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
+                                          SurfaceType surfaceType,
+                                          GrContext* context) {
+    // Verifies the robustness of SkSurface for handling use cases where calls
+    // are made before a canvas is created.
+    {
+        // Test passes by not asserting
+        SkSurface* surface = createSurface(surfaceType, context);
+        SkAutoTUnref<SkSurface> aur_surface(surface);
+        surface->notifyContentChanged();
+        surface->validate();
+    }
+    {
+        SkSurface* surface = createSurface(surfaceType, context);
+        SkAutoTUnref<SkSurface> aur_surface(surface);
+        SkImage* image1 = surface->newImageSnapshot();
+        SkAutoTUnref<SkImage> aur_image1(image1);
+        image1->validate();
+        surface->validate();
+        surface->notifyContentChanged();
+        image1->validate();
+        surface->validate();
+        SkImage* image2 = surface->newImageSnapshot();
+        SkAutoTUnref<SkImage> aur_image2(image2);
+        image2->validate();
+        surface->validate();
+        REPORTER_ASSERT(reporter, image1 != image2);
+    }
+    
+}
 
 static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
     TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
     TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
+    TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL);
 #if SK_SUPPORT_GPU
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
         TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
         TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
+        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context);
     }
 #endif
 }

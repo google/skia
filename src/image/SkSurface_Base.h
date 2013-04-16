@@ -51,7 +51,7 @@ public:
      *
      *  The default implementation does nothing.
      */
-    virtual void onCopyOnWrite(SkImage* cachedImage, SkCanvas*) = 0;
+    virtual void onCopyOnWrite() = 0;
 
     inline SkCanvas* getCachedCanvas();
     inline SkImage* getCachedImage();
@@ -63,7 +63,7 @@ private:
     SkCanvas*   fCachedCanvas;
     SkImage*    fCachedImage;
 
-    void aboutToDraw(SkCanvas*);
+    void aboutToDraw();
     friend class SkCanvas;
     friend class SkSurface;
 
