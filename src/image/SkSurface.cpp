@@ -13,12 +13,6 @@ SK_DEFINE_INST_COUNT(SkSurface)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkSurface_Base::installIntoCanvasForDirtyNotification() {
-    if (fCachedCanvas) {
-        fCachedCanvas->setSurfaceBase(this);
-    }
-}
-
 SkSurface_Base::SkSurface_Base(int width, int height) : INHERITED(width, height) {
     fCachedCanvas = NULL;
     fCachedImage = NULL;
