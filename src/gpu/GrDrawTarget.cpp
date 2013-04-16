@@ -445,7 +445,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     SkIPoint dstPoint = {0, 0};
     if (this->copySurface(ast.texture(), rt, copyRect, dstPoint)) {
         info->fDstCopy.setTexture(ast.texture());
-        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);    
+        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
         return true;
     } else {
         return false;
