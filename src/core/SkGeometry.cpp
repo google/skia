@@ -1401,6 +1401,43 @@ static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
     return SkScalarDiv(numer, denom);
 }
 
+#if 0
+// F = (A (1 - t)^2 + C t^2 + 2 B (1 - t) t w)
+//     ------------------------------------------
+//         ((1 - t)^2 + t^2 + 2 (1 - t) t w)
+//
+//   = {t^2 (P0 + P2 - 2 P1 w), t (-2 P0 + 2 P1 w), P0}
+//     ------------------------------------------------
+//             {t^2 (2 - 2 w), t (-2 + 2 w), 1}
+//
+// F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)
+//
+// {t^2 (2 P0 - 2 P2 - 2 P0 w + 2 P2 w), t (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w), -2 P0 w + 2 P1 w}
+//
+
+// Take the parametric specification for the conic (either X or Y) and return
+// in coeff[] the coefficients for the simple quadratic polynomial
+//    coeff[0] for t^2
+//    coeff[1] for t
+//    coeff[2] for constant term
+//
+static void conic_numer_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+    coeff[0] = src[0] + src[4] - 2 * src[2] * w;
+    coeff[1] = 2 * (src[2] * w - src[0]);
+    coeff[0] = src[0];
+}
+
+//    coeff[0] for t^2
+//    coeff[1] for t
+//    coeff[2] for constant term
+//
+static void conic_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+    coeff[0] = 2 * (src[0] - src[2] + w * (src[4] - src[0]));
+    coeff[1] = 2 (src[4] - src[0] + 2 * w * (src[0] - src[2]));
+    coeff[2] = 2 * w * (src[2] - src[0]);
+}
+#endif
+
 struct SkP3D {
     SkScalar fX, fY, fZ;
 
