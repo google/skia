@@ -46,7 +46,7 @@ public:
 
 protected:
     virtual SkString onShortName() {
-        return SkString("bitmaprectest");
+        return SkString("bitmaprecttest");
     }
 
     virtual SkISize onISize() {
