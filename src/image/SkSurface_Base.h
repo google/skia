@@ -9,6 +9,7 @@
 #define SkSurface_Base_DEFINED
 
 #include "SkSurface.h"
+#include "SkCanvas.h"
 
 class SkSurface_Base : public SkSurface {
 public:
@@ -86,6 +87,12 @@ SkImage* SkSurface_Base::getCachedImage() {
         this->installIntoCanvasForDirtyNotification();
     }
     return fCachedImage;
+}
+
+void SkSurface_Base::installIntoCanvasForDirtyNotification() {
+    if (NULL != fCachedCanvas) {
+        fCachedCanvas->setSurfaceBase(this);
+    }
 }
 
 #endif
