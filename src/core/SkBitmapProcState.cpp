@@ -32,7 +32,7 @@ extern void  Clamp_SI8_opaque_D32_filter_DX_shaderproc_neon(const SkBitmapProcSt
 
 // true iff the matrix contains, at most, scale and translate elements
 static bool matrix_only_scale_translate(const SkMatrix& m) {
-    return m.getType() <= SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask;
+    return m.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask);
 }
 
 /**
