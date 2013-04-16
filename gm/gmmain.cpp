@@ -1807,7 +1807,7 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
-
+        SkAutoTDelete<GM> adgm(gm);
         ++gmIndex;
         if (moduloRemainder >= 0) {
             if ((gmIndex % moduloDivisor) != moduloRemainder) {
@@ -1818,7 +1818,6 @@ int tool_main(int argc, char** argv) {
 
         const char* shortName = gm->shortName();
         if (skip_name(FLAGS_match, shortName)) {
-            SkDELETE(gm);
             continue;
         }
 
@@ -1837,8 +1836,6 @@ int tool_main(int argc, char** argv) {
         // TODO(epoger): only run this if gmmain.generate_image() succeeded?
         // Otherwise, what are we comparing against?
         run_multiple_modes(gmmain, gm, compareConfig, comparisonBitmap, tileGridReplayScales);
-
-        SkDELETE(gm);
     }
 
     SkTArray<SkString> modes;
