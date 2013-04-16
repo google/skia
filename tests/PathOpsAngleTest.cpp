@@ -46,7 +46,7 @@ static const SortSetTests tests[] = {
     { set2, SK_ARRAY_COUNT(set2) }
 };
 
-static void setup(const SortSet* set, const size_t idx, SkPoint const ** data, 
+static void setup(const SortSet* set, const size_t idx, SkPoint const ** data,
         SkPoint* reverse, SkOpSegment* seg) {
     SkPoint start, end;
     if (set[idx].ptCount == 2) {

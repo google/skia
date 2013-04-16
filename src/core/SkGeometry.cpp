@@ -1493,7 +1493,7 @@ int SkRationalQuad::computeQuadPOW2(SkScalar tol) const {
     if (fW <= SK_ScalarNearlyZero) {
         return 0;   // treat as a line
     }
-    
+
     tol = SkScalarAbs(tol);
     SkScalar w = fW;
     int i = 0;
@@ -1542,4 +1542,3 @@ int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
     return 1 << pow2;
 }
-
