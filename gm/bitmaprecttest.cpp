@@ -16,7 +16,7 @@ static void make_bm(SkBitmap* bm) {
     SkCanvas canvas(*bm);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 29.5f, 29.5f), paint);
+    canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 59.5f, 59.5f), paint);
 }
 
 // This creates a close, but imperfect concatenation of
@@ -33,7 +33,7 @@ static void test_bitmaprect(SkCanvas* canvas) {
 
     canvas->drawBitmap(bm, 150, 45, NULL);
     
-    SkScalar scale = 0.452560018f;
+    SkScalar scale = 0.472560018f;
     canvas->scale(scale, scale);
     canvas->drawBitmapRectToRect(bm, NULL, SkRect::MakeXYWH(100, 100, 128, 128), NULL);
 }
