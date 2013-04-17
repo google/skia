@@ -18,6 +18,7 @@
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
     '../bench/DeferredCanvasBench.cpp',
+    '../bench/DeferredSurfaceCopyBench.cpp',
     '../bench/FontScalerBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
