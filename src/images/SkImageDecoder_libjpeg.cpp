@@ -965,7 +965,9 @@ protected:
 
         jpeg_set_defaults(&cinfo);
         jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+#ifdef DCT_IFAST_SUPPORTED
         cinfo.dct_method = JDCT_IFAST;
+#endif
 
         jpeg_start_compress(&cinfo, TRUE);
 
