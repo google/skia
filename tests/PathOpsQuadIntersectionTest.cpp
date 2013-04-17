@@ -252,8 +252,7 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
 }
 
 static void QuadraticIntersection_OneOffTest(skiatest::Reporter* reporter) {
-    oneOffTest1(reporter, 0, 1);
-    oneOffTest1(reporter, 1, 0);
+    oneOffTest1(reporter, 43, 47);
 }
 
 static void oneOffTests(skiatest::Reporter* reporter) {
@@ -465,3 +464,4 @@ static void PathOpsQuadIntersectionTest(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionTest)
+DEFINE_TESTCLASS_SHORT(QuadraticIntersection_OneOffTest)

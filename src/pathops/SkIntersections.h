@@ -36,6 +36,15 @@ public:
     };
     TArray operator[](int n) const { return TArray(fT[n]); }
 
+    void set(const SkIntersections& i) {
+        memcpy(fPt, i.fPt, sizeof(fPt));
+        memcpy(fT, i.fT, sizeof(fT));
+        memcpy(fIsCoincident, i.fIsCoincident, sizeof(fIsCoincident));
+        fUsed = i.fUsed;
+        fSwap = i.fSwap;
+        SkDEBUGCODE(fDepth = i.fDepth);
+    }
+
     int cubic(const SkPoint a[4]) {
         SkDCubic cubic;
         cubic.set(a);

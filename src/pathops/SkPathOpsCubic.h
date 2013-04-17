@@ -41,6 +41,13 @@ struct SkDCubic {
     bool endsAreExtremaInXOrY() const;
     static int FindExtrema(double a, double b, double c, double d, double tValue[2]);
     int findInflections(double tValues[]) const;
+
+    static int FindInflections(const SkPoint a[4], double tValues[]) {
+        SkDCubic cubic;
+        cubic.set(a);
+        return cubic.findInflections(tValues);
+    }
+
     int findMaxCurvature(double tValues[]) const;
     bool isLinear(int startIndex, int endIndex) const;
     bool monotonicInY() const;
@@ -48,11 +55,13 @@ struct SkDCubic {
     static int RootsValidT(const double A, const double B, const double C, double D, double s[3]);
     bool serpentine() const;
     SkDCubic subDivide(double t1, double t2) const;
+
     static SkDCubic SubDivide(const SkPoint a[4], double t1, double t2) {
         SkDCubic cubic;
         cubic.set(a);
         return cubic.subDivide(t1, t2);
     }
+
     void subDivide(const SkDPoint& a, const SkDPoint& d, double t1, double t2, SkDPoint p[2]) const;
 
     static void SubDivide(const SkPoint pts[4], const SkDPoint& a, const SkDPoint& d, double t1,

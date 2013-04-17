@@ -72,7 +72,7 @@ static int addValidRoots(const double roots[4], const int count, double valid[4]
     return result;
 }
 
-static bool only_end_pts_in_common(const SkDQuad& q1, const SkDQuad& q2, SkIntersections* i) {
+static bool only_end_pts_in_common(const SkDQuad& q1, const SkDQuad& q2) {
 // the idea here is to see at minimum do a quick reject by rotating all points
 // to either side of the line formed by connecting the endpoints
 // if the opposite curves points are on the line or on the other side, the
@@ -96,21 +96,10 @@ static bool only_end_pts_in_common(const SkDQuad& q1, const SkDQuad& q2, SkInter
         }
         for (int n = 0; n < 3; ++n) {
             double test = (q2[n].fY - origY) * adj - (q2[n].fX - origX) * opp;
-            if (test * sign > 0 && precisely_zero(test)) {
-                SkDebugf("*** very teeny\n");
-            }
-            if (test * sign > 0) {
+            if (test * sign > 0 && !precisely_zero(test)) {
                 goto tryNextHalfPlane;
             }
         }
-        for (int i1 = 0; i1 < 3; i1 += 2) {
-            for (int i2 = 0; i2 < 3; i2 += 2) {
-                if (q1[i1] == q2[i2]) {
-                    i->insert(i1 >> 1, i2 >> 1, q1[i1]);
-                }
-            }
-        }
-        SkASSERT(i->used() < 3);
         return true;
 tryNextHalfPlane:
         ;
@@ -365,19 +354,28 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
 int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     // if the quads share an end point, check to see if they overlap
 
-    if (only_end_pts_in_common(q1, q2, this)) {
+    for (int i1 = 0; i1 < 3; i1 += 2) {
+        for (int i2 = 0; i2 < 3; i2 += 2) {
+            if (q1[i1].approximatelyEqualHalf(q2[i2])) {
+                insert(i1 >> 1, i2 >> 1, q1[i1]);
+            }
+        }
+    }
+    SkASSERT(fUsed < 3);
+    if (only_end_pts_in_common(q1, q2)) {
         return fUsed;
     }
-    if (only_end_pts_in_common(q2, q1, this)) {
-        swapPts();
+    if (only_end_pts_in_common(q2, q1)) {
         return fUsed;
     }
     // see if either quad is really a line
     if (is_linear(q1, q2, this)) {
         return fUsed;
     }
-    if (is_linear(q2, q1, this)) {
-        swapPts();
+    SkIntersections swapped;
+    if (is_linear(q2, q1, &swapped)) {
+        swapped.swapPts();
+        set(swapped);
         return fUsed;
     }
     SkDQuadImplicit i1(q1);
@@ -385,6 +383,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     if (i1.match(i2)) {
         // FIXME: compute T values
         // compute the intersections of the ends to find the coincident span
+        reset();
         bool useVertical = fabs(q1[0].fX - q1[2].fX) < fabs(q1[0].fY - q1[2].fY);
         double t;
         if ((t = SkIntersections::Axial(q1, q2[0], useVertical)) >= 0) {

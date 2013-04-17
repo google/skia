@@ -1096,9 +1096,37 @@ static void rectOp1d(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kDifference_PathOp);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = rectOp1d;
+static void cubicOp66u(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,6, 4,2, 5,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,4);
+    pathB.cubicTo(3,5, 1,0, 6,2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kUnion_PathOp);
+}
+
+static void cubicOp67u(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.moveTo(3,5);
+    path.cubicTo(1,6, 5,0, 3,1);
+    path.lineTo(3,5);
+    path.close();
+    pathB.moveTo(0,5);
+    pathB.cubicTo(1,3, 5,3, 6,1);
+    pathB.lineTo(0,5);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kUnion_PathOp);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = cubicOp1i;
 
 static struct TestDesc tests[] = {
+    TEST(cubicOp67u),
+    TEST(cubicOp66u),
     TEST(rectOp1d),
     TEST(cubicOp65d),
     TEST(cubicOp64d),

@@ -163,6 +163,9 @@ static const SkDCubic testSet[] = {
 const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static const SkDCubic newTestSet[] = {
+{{{3, 5}, {1, 6}, {5, 0}, {3, 1}}},
+{{{0, 5}, {1, 3}, {5, 3}, {6, 1}}},
+
 {{{0, 1}, {1, 5}, {1, 0}, {1, 0}}},
 {{{0, 1}, {0, 1}, {1, 0}, {5, 1}}},
 
@@ -283,8 +286,8 @@ static void newOneOff(skiatest::Reporter* reporter, int outer, int inner) {
 }
 
 static void oneOffTest(skiatest::Reporter* reporter) {
+    oneOff(reporter, 14, 16);
     newOneOff(reporter, 0, 1);
-    oneOff(reporter, 0, 1);
 }
 
 static void oneOffTests(skiatest::Reporter* reporter) {
