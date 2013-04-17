@@ -33,6 +33,7 @@
     '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
+    '../bench/PerlinNoiseBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/PictureRecordBench.cpp',
     '../bench/ReadPixBench.cpp',

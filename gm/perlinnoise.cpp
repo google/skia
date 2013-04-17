@@ -39,8 +39,7 @@ protected:
 
     void test(SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
-              bool stitchTiles)
-    {
+              bool stitchTiles) {
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
             SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
                                                    seed, stitchTiles ? &fSize : NULL) :
