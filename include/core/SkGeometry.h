@@ -222,6 +222,11 @@ struct SkRationalQuad {
 
     int computeQuadPOW2(SkScalar tol) const;
     int chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
+
+    bool findXExtrema(SkScalar* t) const;
+    bool findYExtrema(SkScalar* t) const;
+    bool chopAtXExtrema(SkRationalQuad dst[2]) const;
+    bool chopAtYExtrema(SkRationalQuad dst[2]) const;
 };
 
 #endif
