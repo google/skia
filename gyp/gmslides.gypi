@@ -100,6 +100,7 @@
     '../gm/verttext2.cpp',
     '../gm/verylargebitmap.cpp',
     '../gm/xfermodes.cpp',
+    '../gm/xfermodes2.cpp',
   ],
 }
 
