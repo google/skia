@@ -717,7 +717,7 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkMWCRandom* random,
                                              GrContext* context,
                                              const GrDrawTargetCaps&,
                                              GrTexture**) {
-    int      numOctaves = random->nextRangeU(2, 10);
+    int      numOctaves = 2;
     bool     stitchTiles = random->nextBool();
     SkScalar seed = SkIntToScalar(random->nextU());
     SkISize  tileSize = SkISize::Make(random->nextRangeU(4, 4096), random->nextRangeU(4, 4096));
