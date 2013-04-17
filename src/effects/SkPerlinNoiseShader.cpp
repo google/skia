@@ -1295,7 +1295,9 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
 #else
 
 GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&) const {
+#if !defined(SK_BUILD_FOR_ANDROID)
     SkDEBUGFAIL("Should not call in GPU-less build");
+#endif
     return NULL;
 }
 
