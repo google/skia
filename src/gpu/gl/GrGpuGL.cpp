@@ -2262,6 +2262,12 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     if (NULL != dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
         return false;
     }
+    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
+    // If the src is multisampled (and uses an extension where there is a separate MSAA
+    // renderbuffer) then it is an invalid operation to call CopyTexSubImage
+    if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+        return false;
+    }
     if (gpu->isConfigRenderable(src->config()) && NULL != dst->asTexture() &&
         dst->origin() == src->origin() && kIndex_8_GrPixelConfig != src->config()) {
         if (NULL != wouldNeedTempFBO) {
@@ -2312,9 +2318,17 @@ void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) 
         // glCopyTexSubImage2D doesn't work with this config. We'll want to make it a render target
         // in order to call glBlitFramebuffer or to copy to it by rendering.
         INHERITED::initCopySurfaceDstDesc(src, desc);
+        return;
     } else if (NULL == src->asRenderTarget()) {
         // We don't want to have to create an FBO just to use glCopyTexSubImage2D. Let the base
         // class handle it by rendering.
+        INHERITED::initCopySurfaceDstDesc(src, desc);
+        return;
+    }
+
+    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
+    if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer.
         INHERITED::initCopySurfaceDstDesc(src, desc);
     } else {
         desc->fConfig = src->config();
