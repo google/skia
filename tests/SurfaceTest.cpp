@@ -174,7 +174,7 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
         surface->validate();
         REPORTER_ASSERT(reporter, image1 != image2);
     }
-    
+
 }
 
 static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
