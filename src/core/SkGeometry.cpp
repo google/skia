@@ -1383,25 +1383,6 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
-    SkASSERT(src);
-    SkASSERT(t >= 0 && t <= SK_Scalar1);
-
-    SkScalar    src2w = SkScalarMul(src[2], w);
-    SkScalar    C = src[0];
-    SkScalar    A = src[4] - 2 * src2w + C;
-    SkScalar    B = 2 * (src2w - C);
-    SkScalar numer = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-
-    B = 2 * (w - SK_Scalar1);
-    C = SK_Scalar1;
-    A = -B;
-    SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-
-    return SkScalarDiv(numer, denom);
-}
-
-#if 0
 // F = (A (1 - t)^2 + C t^2 + 2 B (1 - t) t w)
 //     ------------------------------------------
 //         ((1 - t)^2 + t^2 + 2 (1 - t) t w)
@@ -1410,10 +1391,6 @@ static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
 //     ------------------------------------------------
 //             {t^2 (2 - 2 w), t (-2 + 2 w), 1}
 //
-// F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)
-//
-// {t^2 (2 P0 - 2 P2 - 2 P0 w + 2 P2 w), t (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w), -2 P0 w + 2 P1 w}
-//
 
 // Take the parametric specification for the conic (either X or Y) and return
 // in coeff[] the coefficients for the simple quadratic polynomial
@@ -1421,22 +1398,62 @@ static SkScalar eval_ratquad(const SkScalar src[], SkScalar w, SkScalar t) {
 //    coeff[1] for t
 //    coeff[2] for constant term
 //
-static void conic_numer_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+#if 0
+static void rat_numer_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
     coeff[0] = src[0] + src[4] - 2 * src[2] * w;
     coeff[1] = 2 * (src[2] * w - src[0]);
     coeff[0] = src[0];
 }
+#endif
 
+static SkScalar rat_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
+    SkASSERT(src);
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+    
+    SkScalar    src2w = SkScalarMul(src[2], w);
+    SkScalar    C = src[0];
+    SkScalar    A = src[4] - 2 * src2w + C;
+    SkScalar    B = 2 * (src2w - C);
+    SkScalar numer = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+    
+    B = 2 * (w - SK_Scalar1);
+    C = SK_Scalar1;
+    A = -B;
+    SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+    
+    return SkScalarDiv(numer, denom);
+}
+
+// F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)
+//
+// {t^2 (2 P0 - 2 P2 - 2 P0 w + 2 P2 w), t (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w), -2 P0 w + 2 P1 w}
+//
 //    coeff[0] for t^2
 //    coeff[1] for t
 //    coeff[2] for constant term
 //
-static void conic_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
-    coeff[0] = 2 * (src[0] - src[2] + w * (src[4] - src[0]));
-    coeff[1] = 2 (src[4] - src[0] + 2 * w * (src[0] - src[2]));
-    coeff[2] = 2 * w * (src[2] - src[0]);
+static void rat_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+    SkScalar diff40 = src[4] - src[0];
+    SkScalar diff20 = 2 * w * (src[2] - src[0]);
+    coeff[0] = 2 * (w * diff40 - diff40);
+    coeff[1] = 2 * (diff40 - diff20);
+    coeff[2] = diff20;
 }
-#endif
+
+static bool rat_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
+    SkScalar coeff[3];
+    rat_deriv_coeff(src, w, coeff);
+
+    SkScalar tValues[2];
+    int roots = SkFindUnitQuadRoots(coeff[0], coeff[1], coeff[2], tValues);
+    SkASSERT(0 == roots || 1 == roots);
+    
+    if (1 == roots) {
+        *t = tValues[0];
+        return true;
+    }
+    return false;
+}
 
 struct SkP3D {
     SkScalar fX, fY, fZ;
@@ -1470,8 +1487,8 @@ void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     if (pt) {
-        pt->set(eval_ratquad(&fPts[0].fX, fW, t),
-                eval_ratquad(&fPts[0].fY, fW, t));
+        pt->set(rat_eval_pos(&fPts[0].fX, fW, t),
+                rat_eval_pos(&fPts[0].fY, fW, t));
     }
 }
 
@@ -1579,3 +1596,42 @@ int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
     return 1 << pow2;
 }
+
+bool SkRationalQuad::findXExtrema(SkScalar* t) const {
+    return rat_find_extrema(&fPts[0].fX, fW, t);
+}
+
+bool SkRationalQuad::findYExtrema(SkScalar* t) const {
+    return rat_find_extrema(&fPts[0].fY, fW, t);
+}
+
+bool SkRationalQuad::chopAtXExtrema(SkRationalQuad dst[2]) const {
+    SkScalar t;
+    if (this->findXExtrema(&t)) {
+        this->chopAt(t, dst);
+        // now clean-up the middle, since we know t was meant to be at
+        // an X-extrema
+        SkScalar value = dst[0].fPts[2].fX;
+        dst[0].fPts[1].fX = value;
+        dst[1].fPts[0].fX = value;
+        dst[1].fPts[1].fX = value;
+        return true;
+    }
+    return false;
+}
+
+bool SkRationalQuad::chopAtYExtrema(SkRationalQuad dst[2]) const {
+    SkScalar t;
+    if (this->findYExtrema(&t)) {
+        this->chopAt(t, dst);
+        // now clean-up the middle, since we know t was meant to be at
+        // an Y-extrema
+        SkScalar value = dst[0].fPts[2].fY;
+        dst[0].fPts[1].fY = value;
+        dst[1].fPts[0].fY = value;
+        dst[1].fPts[1].fY = value;
+        return true;
+    }
+    return false;
+}
+
