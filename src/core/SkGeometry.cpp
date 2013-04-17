@@ -1409,18 +1409,18 @@ static void rat_numer_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3])
 static SkScalar rat_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    
+
     SkScalar    src2w = SkScalarMul(src[2], w);
     SkScalar    C = src[0];
     SkScalar    A = src[4] - 2 * src2w + C;
     SkScalar    B = 2 * (src2w - C);
     SkScalar numer = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-    
+
     B = 2 * (w - SK_Scalar1);
     C = SK_Scalar1;
     A = -B;
     SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-    
+
     return SkScalarDiv(numer, denom);
 }
 
@@ -1447,7 +1447,7 @@ static bool rat_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
     SkScalar tValues[2];
     int roots = SkFindUnitQuadRoots(coeff[0], coeff[1], coeff[2], tValues);
     SkASSERT(0 == roots || 1 == roots);
-    
+
     if (1 == roots) {
         *t = tValues[0];
         return true;

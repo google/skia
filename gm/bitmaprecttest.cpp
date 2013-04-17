@@ -32,7 +32,7 @@ static void test_bitmaprect(SkCanvas* canvas) {
     make_bm(&bm);
 
     canvas->drawBitmap(bm, 150, 45, NULL);
-    
+
     SkScalar scale = 0.472560018f;
     canvas->scale(scale, scale);
     canvas->drawBitmapRectToRect(bm, NULL, SkRect::MakeXYWH(100, 100, 128, 128), NULL);
@@ -64,4 +64,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new BitmapRectTestGM; )
-
