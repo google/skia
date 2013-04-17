@@ -154,8 +154,16 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
 /////////////////////////////////////////////////////////////////////////
 
+extern SkImageDecoder* image_decoder_from_stream(SkStream*);
+
 SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
-    return SkNEW(SkImageDecoder_WIC);
+    SkImageDecoder* decoder = image_decoder_from_stream(stream);
+    if (NULL == decoder) {
+        // If no image decoder specific to the stream exists, use SkImageDecoder_WIC.
+        return SkNEW(SkImageDecoder_WIC);
+    } else {
+        return decoder;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -183,6 +191,15 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 {
     GUID type;
     switch (fType) {
+        case kBMP_Type:
+            type = GUID_ContainerFormatBmp;
+            break;
+        case kGIF_Type:
+            type = GUID_ContainerFormatGif;
+            break;
+        case kICO_Type:
+            type = GUID_ContainerFormatIco;
+            break;
         case kJPEG_Type:
             type = GUID_ContainerFormatJpeg;
             break;
@@ -324,13 +341,22 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     return SUCCEEDED(hr);
 }
 
-SkImageEncoder* SkImageEncoder::Create(Type t) {
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     switch (t) {
-        case kJPEG_Type:
-        case kPNG_Type:
+        case SkImageEncoder::kBMP_Type:
+        case SkImageEncoder::kGIF_Type:
+        case SkImageEncoder::kICO_Type:
+        case SkImageEncoder::kJPEG_Type:
+        case SkImageEncoder::kPNG_Type:
             break;
         default:
             return NULL;
     }
     return SkNEW_ARGS(SkImageEncoder_WIC, (t));
 }
+
+static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_imageencoder_wic_factory);

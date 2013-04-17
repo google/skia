@@ -16,9 +16,13 @@ class SkWStream;
 class SkImageEncoder {
 public:
     enum Type {
+        kBMP_Type,
+        kGIF_Type,
+        kICO_Type,
         kJPEG_Type,
         kPNG_Type,
-        kWEBP_Type
+        kWBMP_Type,
+        kWEBP_Type,
     };
     static SkImageEncoder* Create(Type);
 

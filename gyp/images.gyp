@@ -1,4 +1,4 @@
-﻿{
+{
   'targets': [
     {
       'target_name': 'images',
@@ -36,7 +36,8 @@
         '../src/images/SkBitmapRegionDecoder.cpp',
 
         '../src/images/SkImageDecoder.cpp',
-        '../src/images/SkImageDecoder_Factory.cpp',
+        '../src/images/SkImageDecoder_FactoryDefault.cpp',
+        '../src/images/SkImageDecoder_FactoryRegistrar.cpp',
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
@@ -67,10 +68,9 @@
         [ 'skia_os == "win"', {
           'sources!': [
             '../src/images/SkFDStream.cpp',
-            '../src/images/SkImageDecoder_Factory.cpp',
+            '../src/images/SkImageDecoder_FactoryDefault.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
-            '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
           'link_settings': {
@@ -85,10 +85,9 @@
         }],
         [ 'skia_os in ["mac", "ios"]', {
           'sources!': [
-            '../src/images/SkImageDecoder_Factory.cpp',
+            '../src/images/SkImageDecoder_FactoryDefault.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
         },{ #else if skia_os != mac

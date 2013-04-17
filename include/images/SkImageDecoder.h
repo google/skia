@@ -26,7 +26,7 @@ class SkImageDecoder {
 public:
     virtual ~SkImageDecoder();
 
-    // Should be consistent with kFormatName
+    // Should be consistent with sFormatName
     enum Format {
         kUnknown_Format,
         kBMP_Format,
@@ -40,11 +40,12 @@ public:
         kLastKnownFormat = kWEBP_Format
     };
 
-    /** Return the compressed data's format (see Format enum)
+    /** Return the format of image this decoder can decode. If this decoder can decode multiple
+        formats, kUnknown_Format will be returned.
     */
     virtual Format getFormat() const;
 
-    /** Return the compressed data's format name.
+    /** Return a readable string of the value returned by getFormat().
     */
     const char* getFormatName() const;
 
