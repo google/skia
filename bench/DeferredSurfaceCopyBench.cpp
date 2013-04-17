@@ -35,7 +35,6 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // The canvas is not actually used for this test except to provide
         // configuration information: gpu, multisampling, size, etc?
-        SkDevice* referenceDevice = canvas->getDevice();
         SkImage::Info info;
         info.fWidth = kSurfaceWidth;
         info.fHeight = kSurfaceHeight;
@@ -45,7 +44,8 @@ protected:
             SkIntToScalar(kSurfaceWidth), SkIntToScalar(kSurfaceHeight));
         SkSurface* surface;
 #if SK_SUPPORT_GPU
-        GrRenderTarget* rt = reinterpret_cast<GrRenderTarget*>(referenceDevice->accessRenderTarget());
+        GrRenderTarget* rt = reinterpret_cast<GrRenderTarget*>(
+            canvas->getDevice()->accessRenderTarget());
         if (NULL != rt) {
             surface = SkSurface::NewRenderTarget(rt->getContext(), info, rt->numSamples());
         } else
