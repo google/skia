@@ -227,6 +227,9 @@ struct SkRationalQuad {
     bool findYExtrema(SkScalar* t) const;
     bool chopAtXExtrema(SkRationalQuad dst[2]) const;
     bool chopAtYExtrema(SkRationalQuad dst[2]) const;
+    
+    void computeTightBounds(SkRect* bounds) const;
+    void computeFastBounds(SkRect* bounds) const;
 };
 
 #endif
