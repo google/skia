@@ -136,6 +136,10 @@ void SkIntersections::insertCoincidentPair(double s1, double e1, double s2, doub
 }
 
 int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
+    if (fIsCoincident[0] == 3 && between(fT[0][0], one, fT[0][1])) {
+        // For now, don't allow a mix of coincident and non-coincident intersections
+        return -1;
+    }
     SkASSERT(fUsed <= 1 || fT[0][0] <= fT[0][1]);
     int index;
     for (index = 0; index < fUsed; ++index) {

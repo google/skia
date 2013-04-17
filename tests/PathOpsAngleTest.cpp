@@ -23,17 +23,17 @@ struct SortSet {
 };
 
 static const SortSet set1[] = {
-    {lines[0], 2, 0.54070336, 0.388888889},
-    {cubics[0], 4, 0.666669871, 0.405037112},
-    {lines[0], 2, 0.54070336, 0.9140625},
-    {cubics[0], 4, 0.666669871, 0.875},
+    {cubics[0], 4, 0.66666987081928919, 0.875},
+    {lines[0], 2, 0.574070336, 0.388888889},
+    {cubics[0], 4, 0.66666987081928919, 0.4050371120499307 },
+    {lines[0], 2, 0.574070336, 0.9140625},
 };
 
 static const SortSet set2[] = {
+    {cubics[0], 4, 0.666666667, 0.875},
     {lines[0], 2, 0.574074074, 0.388888889},
     {cubics[0], 4, 0.666666667, 0.405037112},
     {lines[0], 2, 0.574074074, 0.9140625},
-    {cubics[0], 4, 0.666666667, 0.875},
 };
 
 struct SortSetTests {
@@ -42,36 +42,22 @@ struct SortSetTests {
 };
 
 static const SortSetTests tests[] = {
-    { set1, SK_ARRAY_COUNT(set1) },
-    { set2, SK_ARRAY_COUNT(set2) }
+    { set2, SK_ARRAY_COUNT(set2) },
+    { set1, SK_ARRAY_COUNT(set1) }
 };
 
 static void setup(const SortSet* set, const size_t idx, SkPoint const ** data,
-        SkPoint* reverse, SkOpSegment* seg) {
+        SkOpSegment* seg, int* ts) {
     SkPoint start, end;
     if (set[idx].ptCount == 2) {
-        if (set[idx].tStart < set[idx].tEnd) {
-            *data = set[idx].ptData;
-        } else {
-            reverse[0] = set[idx].ptData[1];
-            reverse[1] = set[idx].ptData[0];
-            *data = reverse;
-        }
+        *data = set[idx].ptData;
         seg->addLine(*data, false, false);
         SkDLine dLine;
         dLine.set(set[idx].ptData);
         start = dLine.xyAtT(set[idx].tStart).asSkPoint();
         end = dLine.xyAtT(set[idx].tEnd).asSkPoint();
     } else if (set[idx].ptCount == 4) {
-        if (set[idx].tStart < set[idx].tEnd) {
-            *data = set[idx].ptData;
-        } else {
-            reverse[0] = set[idx].ptData[3];
-            reverse[1] = set[idx].ptData[2];
-            reverse[2] = set[idx].ptData[1];
-            reverse[3] = set[idx].ptData[0];
-            *data = reverse;
-        }
+        *data = set[idx].ptData;
         seg->addCubic(*data, false, false);
         SkDCubic dCubic;
         dCubic.set(set[idx].ptData);
@@ -82,6 +68,18 @@ static void setup(const SortSet* set, const size_t idx, SkPoint const ** data,
     seg->addT(NULL, end, set[idx].tEnd);
     seg->addT(NULL, set[idx].ptData[0], 0);
     seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], 1);
+    int tIndex = 0;
+    do {
+        if (seg->t(tIndex) == set[idx].tStart) {
+            ts[0] = tIndex;
+        }
+        if (seg->t(tIndex) == set[idx].tEnd) {
+            ts[1] = tIndex;
+        }
+        if (seg->t(tIndex) >= 1) {
+            break;
+        }
+    } while (++tIndex);
 }
 
 static void PathOpsAngleTest(skiatest::Reporter* reporter) {
@@ -89,19 +87,17 @@ static void PathOpsAngleTest(skiatest::Reporter* reporter) {
         const SortSetTests& test = tests[index];
         for (size_t idxL = 0; idxL < test.count - 1; ++idxL) {
             SkOpSegment lesser, greater;
-            SkPoint lesserReverse[4], greaterReverse[4];
+            int lesserTs[2], greaterTs[2];
             const SkPoint* lesserData, * greaterData;
             const SortSet* set = test.set;
-            setup(set, idxL, &lesserData, lesserReverse, &lesser);
+            setup(set, idxL, &lesserData, &lesser, lesserTs);
             size_t idxG = idxL + 1;
-            setup(set, idxG, &greaterData, greaterReverse, &greater);
+            setup(set, idxG, &greaterData, &greater, greaterTs);
             SkOpAngle first, second;
             first.set(lesserData, (SkPath::Verb) (set[idxL].ptCount - 1), &lesser,
-                    0, 1, lesser.spans());
-            first.setSpans();
+                    lesserTs[0], lesserTs[1], lesser.spans());
             second.set(greaterData, (SkPath::Verb) (set[idxG].ptCount - 1), &greater,
-                    0, 1, greater.spans());
-            second.setSpans();
+                    greaterTs[0], greaterTs[1], greater.spans());
             bool compare = first < second;
             if (!compare) {
                 SkDebugf("%s test[%d]:  lesser[%d] > greater[%d]\n", __FUNCTION__,

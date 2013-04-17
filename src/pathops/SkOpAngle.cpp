@@ -7,6 +7,7 @@
 #include "SkIntersections.h"
 #include "SkOpAngle.h"
 #include "SkPathOpsCurve.h"
+#include "TSearch.h"
 
 // FIXME: this is bogus for quads and cubics
 // if the quads and cubics' line from end pt to ctrl pt are coincident,
@@ -194,20 +195,54 @@ void SkOpAngle::setSpans() {
         fSide = -fTangent1.pointDistance(fCurvePart[2]);  // not normalized -- compare sign only
         } break;
     case SkPath::kCubic_Verb: {
-        int nextC = 2;
+ //     int nextC = 2;
         fCurvePart = SkDCubic::SubDivide(fPts, startT, endT);
         fTangent1.cubicEndPoints(fCurvePart, 0, 1);
         if (dx() == 0 && dy() == 0) {
             fTangent1.cubicEndPoints(fCurvePart, 0, 2);
-            nextC = 3;
+ //         nextC = 3;
             if (dx() == 0 && dy() == 0) {
                 fTangent1.cubicEndPoints(fCurvePart, 0, 3);
             }
         }
-        fSide = -fTangent1.pointDistance(fCurvePart[nextC]);  // compare sign only
-        if (nextC == 2 && approximately_zero(fSide)) {
-            fSide = -fTangent1.pointDistance(fCurvePart[3]);
+ //     fSide = -fTangent1.pointDistance(fCurvePart[nextC]);  // compare sign only
+ //     if (nextC == 2 && approximately_zero(fSide)) {
+ //         fSide = -fTangent1.pointDistance(fCurvePart[3]);
+ //     }
+        double testTs[4];
+        // OPTIMIZATION: keep inflections precomputed with cubic segment?
+        int testCount = SkDCubic::FindInflections(fPts, testTs);
+        double limitT = endT;
+        int index;
+        for (index = 0; index < testCount; ++index) {
+            if (!between(startT, testTs[index], limitT)) {
+                testTs[index] = -1;
+            }
         }
+        testTs[testCount++] = startT;
+        testTs[testCount++] = endT;
+        QSort<double>(testTs, &testTs[testCount - 1]);
+        double bestSide = 0;
+        int testCases = (testCount << 1) - 1;
+        index = 0;
+        while (testTs[index] < 0) {
+            ++index;
+        }
+        index <<= 1;
+        for (; index < testCases; ++index) {
+            int testIndex = index >> 1;
+            double testT = testTs[testIndex];
+            if (index & 1) {
+                testT = (testT + testTs[testIndex + 1]) / 2;
+            }
+            // OPTIMIZE: could avoid call for t == startT, endT
+            SkDPoint pt = dcubic_xy_at_t(fPts, testT);
+            double testSide = fTangent1.pointDistance(pt);
+            if (fabs(bestSide) < fabs(testSide)) {
+                bestSide = testSide;
+            }
+        }
+        fSide = -bestSide;  // compare sign only
         } break;
     default:
         SkASSERT(0);

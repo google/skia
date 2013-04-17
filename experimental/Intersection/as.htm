@@ -3692,11 +3692,161 @@ path.lineTo(0,0);
 path.close();
 </div>
 
+<div id="cubicOp67u">
+  RunTestSet [cubicOp67u]
+{{3,5}, {1,6}, {5,0}, {3,1}},
+{{3,1}, {3,5}},
+op union
+{{0,5}, {1,3}, {5,3}, {6,1}},
+{{6,1}, {0,5}},
+debugShowCubicIntersection no self intersect {{3,5}, {1,6}, {5,0}, {3,1}}
+debugShowCubicLineIntersection wtTs[0]=0 {{3,5}, {1,6}, {5,0}, {3,1}} {{3,5}} wtTs[1]=0.5 {{3,3}} wtTs[2]=1 {{3,1}} wnTs[0]=1 {{3,1}, {3,5}} wnTs[1]=0.5 wnTs[2]=0
+debugShowCubicIntersection no intersect {{3,5}, {1,6}, {5,0}, {3,1}} {{0,5}, {1,3}, {5,3}, {6,1}}
+debugShowCubicLineIntersection wtTs[0]=0.5 {{3,5}, {1,6}, {5,0}, {3,1}} {{2.9999999999999991,3.0000000000000004}} wnTs[0]=0.5 {{6,1}, {0,5}}
+debugShowCubicLineIntersection wtTs[0]=0.5 {{0,5}, {1,3}, {5,3}, {6,1}} {{2.9999999999999991,2.9999999999999991}} wnTs[0]=0.5 {{3,1}, {3,5}}
+debugShowLineIntersection wtTs[0]=0.5 {{3,1}, {3,5}} {{3,3}} wnTs[0]=0.5 {{6,1}, {0,5}}
+debugShowCubicIntersection no self intersect {{0,5}, {1,3}, {5,3}, {6,1}}
+debugShowCubicLineIntersection wtTs[0]=0 {{0,5}, {1,3}, {5,3}, {6,1}} {{0,5}} wtTs[1]=0.5 {{3,3}} wtTs[2]=1 {{6,1}} wnTs[0]=1 {{6,1}, {0,5}} wnTs[1]=0.5 wnTs[2]=0
+SkOpSegment::debugShowActiveSpans id=1 (3,5 1,6 5,0 3,1) t=0 (3,5) tEnd=0.5 other=2 otherT=1 otherIndex=4 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=1 (3,5 1,6 5,0 3,1) t=0.5 (3,3) tEnd=1 other=4 otherT=0.5 otherIndex=3 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=1 (3,5 1,6 5,0 3,1) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=2 (3,1 3,5) t=0 (3,1) tEnd=0.5 other=1 otherT=1 otherIndex=3 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=2 (3,1 3,5) t=0.5 (3,3) tEnd=1 other=3 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=2 (3,1 3,5) t=0.5 (3,3) tEnd=1 other=1 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=2 (3,1 3,5) t=0.5 (3,3) tEnd=1 other=4 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0 (0,5) tEnd=0.5 other=4 otherT=1 otherIndex=4 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0.5 (3,3) tEnd=1 other=4 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0 (6,1) tEnd=0.5 other=3 otherT=1 otherIndex=3 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=3 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=3 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=1 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
+SkOpSegment::findTop SkOpSegment::debugShowSort contourWinding=0 oppContourWinding=0 sign=1
+SkOpSegment::debugShowSort [0] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=1 tEnd=0.5 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [1] {{3,1}, {3,5}} tStart=0 tEnd=0.5 sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::findTop swap=1 serpentine=0 containedByEnds=0 monotonic=0
+SkOpSegment::markWinding id=1 (3,5 1,6 5,0 3,1) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=1 (3,5 1,6 5,0 3,1) t=0.5 [2] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=1 (3,5 1,6 5,0 3,1) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markWinding id=1 (3,5 1,6 5,0 3,1) t=0.5 [2] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markWinding id=2 (3,1 3,5) t=0 [0] (3,1) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+SkOpSegment::findNextOp SkOpSegment::debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+SkOpSegment::debugShowSort [1] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [2] {{3,1}, {3,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [3] {{6,1}, {0,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=1
+SkOpSegment::debugShowSort [4] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [5] {{3,1}, {3,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [0] {{6,1}, {0,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=1
+SkOpSegment::findNextOp firstIndex=[1] sign=-1
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=0 suTo=1 result=1
+SkOpSegment::markWinding id=4 (6,1 0,5) t=0.5 [2] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=4 (6,1 0,5) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=4 (6,1 0,5) t=0.5 [3] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=3 (0,5 1,3 5,3 6,1) t=0 [0] (0,5) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::findNextOp chase.append id=3
+SkOpSegment::activeOp op=union miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+SkOpSegment::markDoneBinary id=1 (3,5 1,6 5,0 3,1) t=0 [0] (3,5) tEnd=0.5 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+SkOpSegment::markDoneBinary id=2 (3,1 3,5) t=0.5 [2] (3,3) tEnd=0.5 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+SkOpSegment::markDoneBinary id=2 (3,1 3,5) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+SkOpSegment::markDoneBinary id=2 (3,1 3,5) t=0.5 [3] (3,3) tEnd=1 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+SkOpSegment::findNextOp chase.append id=2
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=0 result=1
+SkOpSegment::markWinding id=4 (6,1 0,5) t=0 [0] (6,1) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=3 (0,5 1,3 5,3 6,1) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::markWinding id=3 (0,5 1,3 5,3 6,1) t=0.5 [2] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+SkOpSegment::findNextOp chase.append id=3
+SkOpSegment::markDoneBinary id=1 (3,5 1,6 5,0 3,1) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markDoneBinary id=1 (3,5 1,6 5,0 3,1) t=0.5 [2] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::findNextOp from:[1] to:[2] start=2 end=0
+bridgeOp current id=1 from=(3,1) to=(3,3)
+path.moveTo(3,1);
+path.cubicTo(4,0.5, 3.5,1.75, 3,3);
+SkOpSegment::findNextOp simple
+SkOpSegment::markDoneBinary id=2 (3,1 3,5) t=0 [0] (3,1) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=2 from=(3,3) to=(3,1)
+path.lineTo(3,1);
+path.close();
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0 (0,5) tEnd=0.5 other=4 otherT=1 otherIndex=4 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=1 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0.5 (3,3) tEnd=1 other=4 otherT=0.5 otherIndex=2 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0 (6,1) tEnd=0.5 other=3 otherT=1 otherIndex=3 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=3 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=3 otherT=0.5 otherIndex=2 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=1 otherT=0.5 otherIndex=1 windSum=1 windValue=1 oppValue=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=0 suTo=1 result=1
+SkOpSegment::findNextOp simple
+SkOpSegment::markDoneBinary id=3 (0,5 1,3 5,3 6,1) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markDoneBinary id=3 (0,5 1,3 5,3 6,1) t=0.5 [2] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=3 from=(3,3) to=(6,1)
+path.moveTo(3,3);
+path.cubicTo(4.25,2.5, 5.5,2, 6,1);
+SkOpSegment::findNextOp SkOpSegment::debugShowSort contourWinding=1 oppContourWinding=0 sign=1
+SkOpSegment::debugShowSort [1] {{6,1}, {0,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [2] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [3] {{3,1}, {3,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [4] {{0,5}, {1,3}, {5,3}, {6,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 0->-1 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [5] {{6,1}, {0,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 -1->0 (max=-1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [6] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [7] {{3,1}, {3,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [0] {{0,5}, {1,3}, {5,3}, {6,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=0
+SkOpSegment::findNextOp firstIndex=[1] sign=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=0 suTo=1 result=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=0 suTo=1 result=1
+SkOpSegment::markDoneBinary id=4 (6,1 0,5) t=0 [0] (6,1) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::findNextOp from:[4] to:[3] start=2 end=0
+bridgeOp current id=4 from=(6,1) to=(3,3)
+path.lineTo(3,3);
+path.close();
+SkOpSegment::debugShowActiveSpans id=3 (0,5 1,3 5,3 6,1) t=0 (0,5) tEnd=0.5 other=4 otherT=1 otherIndex=4 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=2 otherT=0.5 otherIndex=3 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=3 otherT=0.5 otherIndex=2 windSum=1 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=4 (6,1 0,5) t=0.5 (3,3) tEnd=1 other=1 otherT=0.5 otherIndex=1 windSum=1 windValue=1 oppValue=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=0 result=1
+SkOpSegment::findNextOp simple
+SkOpSegment::markDoneBinary id=3 (0,5 1,3 5,3 6,1) t=0 [0] (0,5) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=3 from=(3,3) to=(0,5)
+path.moveTo(3,3);
+path.cubicTo(1.75,3.5, 0.5,4, 0,5);
+SkOpSegment::findNextOp SkOpSegment::debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+SkOpSegment::debugShowSort [5] {{6,1}, {0,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+SkOpSegment::debugShowSort [6] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [7] {{3,1}, {3,5}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [0] {{0,5}, {1,3}, {5,3}, {6,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 1->2 (max=2) done=1 tiny=0 opp=0
+SkOpSegment::debugShowSort [1] {{6,1}, {0,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 2->1 (max=2) done=1 tiny=0 opp=0
+SkOpSegment::debugShowSort [2] {{3,5}, {1,6}, {5,0}, {3,1}} tStart=0.5 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [3] {{3,1}, {3,5}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=1
+SkOpSegment::debugShowSort [4] {{0,5}, {1,3}, {5,3}, {6,1}} tStart=0.5 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=0
+SkOpSegment::findNextOp firstIndex=[5] sign=-1
+SkOpSegment::activeOp op=union miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+SkOpSegment::activeOp op=union miFrom=0 miTo=0 suFrom=1 suTo=0 result=1
+SkOpSegment::markDoneBinary id=4 (6,1 0,5) t=0.5 [2] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markDoneBinary id=4 (6,1 0,5) t=0.5 [1] (3,3) tEnd=0.5 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::markDoneBinary id=4 (6,1 0,5) t=0.5 [3] (3,3) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+SkOpSegment::findNextOp from:[4] to:[3] start=2 end=0
+bridgeOp current id=4 from=(0,5) to=(3,3)
+path.lineTo(3,3);
+path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp67u,
     testQuad1,
     cubicOp62d,
     cubicOp61d,
@@ -4007,6 +4157,10 @@ function parse_all(test) {
         var line = lines[lineNo];
         if (line.length == 0) {
             continue;
+        }
+        var opStart = "SkOpSegment::";
+        if (line.lastIndexOf(opStart, 0) === 0) {
+            line = line.substr(opStart.length);
         }
         var type = line.lastIndexOf("debugShowSort", 0) === 0 ? REC_TYPE_SORT
                 : line.lastIndexOf("debugShowActiveSpans", 0) === 0 ? REC_TYPE_ACTIVE 
