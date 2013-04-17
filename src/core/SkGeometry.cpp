@@ -1635,3 +1635,22 @@ bool SkRationalQuad::chopAtYExtrema(SkRationalQuad dst[2]) const {
     return false;
 }
 
+void SkRationalQuad::computeTightBounds(SkRect* bounds) const {
+    SkPoint pts[4];
+    pts[0] = fPts[0];
+    pts[1] = fPts[2];
+    int count = 2;
+
+    SkScalar t;
+    if (this->findXExtrema(&t)) {
+        this->evalAt(t, &pts[count++]);
+    }
+    if (this->findYExtrema(&t)) {
+        this->evalAt(t, &pts[count++]);
+    }
+    bounds->set(pts, count);
+}
+
+void SkRationalQuad::computeFastBounds(SkRect* bounds) const {
+    bounds->set(fPts, 3);
+}
