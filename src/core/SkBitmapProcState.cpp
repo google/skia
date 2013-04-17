@@ -30,39 +30,36 @@ extern void  Clamp_SI8_opaque_D32_filter_DX_shaderproc_neon(const SkBitmapProcSt
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// true iff the matrix contains, at most, scale and translate elements
-static bool matrix_only_scale_translate(const SkMatrix& m) {
-    return m.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask);
-}
-
 /**
  *  For the purposes of drawing bitmaps, if a matrix is "almost" translate
  *  go ahead and treat it as if it were, so that subsequent code can go fast.
  */
 static bool just_trans_clamp(const SkMatrix& matrix, const SkBitmap& bitmap) {
-    SkASSERT(matrix_only_scale_translate(matrix));
+    SkMatrix::TypeMask mask = matrix.getType();
 
-    if (matrix.getType() & SkMatrix::kScale_Mask) {
-        SkRect src, dst;
-        bitmap.getBounds(&src);
-        matrix.mapRect(&dst, src);
-
-        // Now round all 4 edges to device space, and then compare the device
-        // width/height to the original. Note: we must map all 4 and subtract
-        // rather than map the "width" and compare, since we care about the
-        // phase (in pixel space) that any translate in the matrix might impart.
-        SkIRect idst;
-        dst.round(&idst);
-        return idst.width() == bitmap.width() && idst.height() == bitmap.height();
+    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return false;
+    }
+    if (mask & SkMatrix::kScale_Mask) {
+        SkScalar sx = matrix[SkMatrix::kMScaleX];
+        SkScalar sy = matrix[SkMatrix::kMScaleY];
+        int w = bitmap.width();
+        int h = bitmap.height();
+        int sw = SkScalarRound(SkScalarMul(sx, SkIntToScalar(w)));
+        int sh = SkScalarRound(SkScalarMul(sy, SkIntToScalar(h)));
+        return sw == w && sh == h;
     }
     // if we got here, we're either kTranslate_Mask or identity
     return true;
 }
 
 static bool just_trans_general(const SkMatrix& matrix) {
-    SkASSERT(matrix_only_scale_translate(matrix));
+    SkMatrix::TypeMask mask = matrix.getType();
 
-    if (matrix.getType() & SkMatrix::kScale_Mask) {
+    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return false;
+    }
+    if (mask & SkMatrix::kScale_Mask) {
         const SkScalar tol = SK_Scalar1 / 32768;
 
         if (!SkScalarNearlyZero(matrix[SkMatrix::kMScaleX] - SK_Scalar1, tol)) {
@@ -123,11 +120,16 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
 
     // wack our matrix to exactly no-scale, if we're really close to begin with
-    if (matrix_only_scale_translate(*m)) {
-        SkMatrix forward;
-        if (m->invert(&forward)) {
-            if (clamp_clamp ? just_trans_clamp(forward, *fBitmap)
-                            : just_trans_general(forward)) {
+    {
+        bool fixupMatrix = clamp_clamp ?
+        just_trans_clamp(*m, *fBitmap) : just_trans_general(*m);
+        if (fixupMatrix) {
+            // If we can be treated just like translate, construct that inverse
+            // such that we landed in the proper place. Given that m may have
+            // some slight scale, we have to invert it to compute this new
+            // matrix.
+            SkMatrix forward;
+            if (m->invert(&forward)) {
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
                 SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
                 fUnitInvMatrix.setTranslate(tx, ty);
