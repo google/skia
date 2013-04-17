@@ -254,13 +254,19 @@ static int check_quadratic(const SkDCubic& cubic, SkDCubic& reduction) {
     double dx10 = cubic[1].fX - cubic[0].fX;
     double dx23 = cubic[2].fX - cubic[3].fX;
     double midX = cubic[0].fX + dx10 * 3 / 2;
-    if (!AlmostEqualUlps(midX - cubic[3].fX, dx23 * 3 / 2)) {
+    double sideAx = midX - cubic[3].fX;
+    double sideBx = dx23 * 3 / 2;
+    if (approximately_zero(sideAx) ? !approximately_equal(sideAx, sideBx)
+            : !AlmostEqualUlps(sideAx, sideBx)) {
         return 0;
     }
     double dy10 = cubic[1].fY - cubic[0].fY;
     double dy23 = cubic[2].fY - cubic[3].fY;
     double midY = cubic[0].fY + dy10 * 3 / 2;
-    if (!AlmostEqualUlps(midY - cubic[3].fY, dy23 * 3 / 2)) {
+    double sideAy = midY - cubic[3].fY;
+    double sideBy = dy23 * 3 / 2;
+    if (approximately_zero(sideAy) ? !approximately_equal(sideAy, sideBy)
+            : !AlmostEqualUlps(sideAy, sideBy)) {
         return 0;
     }
     reduction[0] = cubic[0];
