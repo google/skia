@@ -62,6 +62,7 @@
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',
     '../gm/optimizations.cpp',
+    '../gm/ovals.cpp',
     '../gm/patheffects.cpp',
     '../gm/pathfill.cpp',
     '../gm/pathinterior.cpp',
