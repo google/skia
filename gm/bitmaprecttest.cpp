@@ -15,6 +15,13 @@ static void make_bm(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     SkPaint paint;
+
+    SkPath path;
+    path.moveTo(6, 6);
+    path.lineTo(6, 54);
+    path.lineTo(30, 54);
+    canvas.drawPath(path, paint);
+
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 59.5f, 59.5f), paint);
 }
@@ -34,8 +41,13 @@ static void test_bitmaprect(SkCanvas* canvas) {
     canvas->drawBitmap(bm, 150, 45, NULL);
 
     SkScalar scale = 0.472560018f;
+    canvas->save();
     canvas->scale(scale, scale);
     canvas->drawBitmapRectToRect(bm, NULL, SkRect::MakeXYWH(100, 100, 128, 128), NULL);
+    canvas->restore();
+
+    canvas->scale(-1, 1);
+    canvas->drawBitmap(bm, -310, 45, NULL);
 }
 
 class BitmapRectTestGM : public skiagm::GM {

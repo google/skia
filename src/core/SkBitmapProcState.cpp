@@ -45,7 +45,13 @@ static bool just_trans_clamp(const SkMatrix& matrix, const SkBitmap& bitmap) {
     if (matrix.getType() & SkMatrix::kScale_Mask) {
         SkRect src, dst;
         bitmap.getBounds(&src);
-        matrix.mapRect(&dst, src);
+
+        // Can't call mapRect(), since that will fix up inverted rectangles,
+        // e.g. when scale is negative, and we don't want to return true for
+        // those.
+        matrix.mapPoints(SkTCast<SkPoint*>(&dst),
+                         SkTCast<const SkPoint*>(&src),
+                         2);
 
         // Now round all 4 edges to device space, and then compare the device
         // width/height to the original. Note: we must map all 4 and subtract
