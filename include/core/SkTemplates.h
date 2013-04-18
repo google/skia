@@ -80,15 +80,21 @@ private:
     T* fObj;
 };
 
-// See also SkTScopedPtr.
 template <typename T> class SkAutoTDelete : SkNoncopyable {
 public:
-    SkAutoTDelete(T* obj) : fObj(obj) {}
+    SkAutoTDelete(T* obj = NULL) : fObj(obj) {}
     ~SkAutoTDelete() { delete fObj; }
 
     T* get() const { return fObj; }
     T& operator*() const { SkASSERT(fObj); return *fObj; }
     T* operator->() const { SkASSERT(fObj); return fObj; }
+
+    void reset(T* obj) {
+        if (fObj != obj) {
+            delete fObj;
+            fObj = obj;
+        }
+    }
 
     /**
      *  Delete the owned object, setting the internal pointer to NULL.
