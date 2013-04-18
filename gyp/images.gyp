@@ -67,7 +67,6 @@
       'conditions': [
         [ 'skia_os == "win"', {
           'sources!': [
-            '../src/images/SkFDStream.cpp',
             '../src/images/SkImageDecoder_FactoryDefault.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
