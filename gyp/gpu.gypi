@@ -171,6 +171,7 @@
       '<(skia_src_path)/gpu/gl/GrGLShaderVar.h',
       '<(skia_src_path)/gpu/gl/GrGLSL.cpp',
       '<(skia_src_path)/gpu/gl/GrGLSL.h',
+      '<(skia_src_path)/gpu/gl/GrGLSL_impl.h',
       '<(skia_src_path)/gpu/gl/GrGLStencilBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLStencilBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLTexture.cpp',

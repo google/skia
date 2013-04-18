@@ -125,13 +125,13 @@ private:
      */
     bool genProgram(const GrEffectStage* stages[]);
 
-    void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
+    GrSLConstantVec genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
+
+    GrSLConstantVec genInputCoverage(GrGLShaderBuilder* builder, SkString* inCoverage);
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 
     typedef GrGLUniformManager::UniformHandle UniformHandle;
-
-    void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,

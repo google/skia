@@ -84,6 +84,23 @@ enum GrColorComponentFlags {
                                    kB_GrColorComponentFlag | kA_GrColorComponentFlag)
 };
 
+static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
+    GrAssert(GrIsPow2(component));
+    switch (component) {
+        case kR_GrColorComponentFlag:
+            return 'r';
+        case kG_GrColorComponentFlag:
+            return 'g';
+        case kB_GrColorComponentFlag:
+            return 'b';
+        case kA_GrColorComponentFlag:
+            return 'a';
+        default:
+            GrCrash("Invalid color component flag.");
+            return '\0';
+    }
+}
+
 static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
     GrAssert(config >= 0 && config < kGrPixelConfigCnt);
     static const uint32_t kFlags[] = {

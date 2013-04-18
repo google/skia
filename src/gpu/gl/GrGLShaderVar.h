@@ -268,43 +268,19 @@ public:
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
                 out->appendf("%s %s[]",
-                             TypeString(effectiveType),
+                             GrGLSLTypeString(effectiveType),
                              this->getName().c_str());
             } else {
                 GrAssert(this->getArrayCount() > 0);
                 out->appendf("%s %s[%d]",
-                             TypeString(effectiveType),
+                             GrGLSLTypeString(effectiveType),
                              this->getName().c_str(),
                              this->getArrayCount());
             }
         } else {
             out->appendf("%s %s",
-                         TypeString(effectiveType),
+                         GrGLSLTypeString(effectiveType),
                          this->getName().c_str());
-        }
-    }
-
-    static const char* TypeString(GrSLType t) {
-        switch (t) {
-            case kVoid_GrSLType:
-                return "void";
-            case kFloat_GrSLType:
-                return "float";
-            case kVec2f_GrSLType:
-                return "vec2";
-            case kVec3f_GrSLType:
-                return "vec3";
-            case kVec4f_GrSLType:
-                return "vec4";
-            case kMat33f_GrSLType:
-                return "mat3";
-            case kMat44f_GrSLType:
-                return "mat4";
-            case kSampler2D_GrSLType:
-                return "sampler2D";
-            default:
-                GrCrash("Unknown shader var type.");
-                return ""; // suppress warning
         }
     }
 
