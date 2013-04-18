@@ -11,7 +11,7 @@
 #include "GrMemoryPool.h"
 #include "SkRandom.h"
 #include "SkTDArray.h"
-#include "SkTScopedPtr.h"
+#include "SkTemplates.h"
 #include "SkInstCnt.h"
 
 namespace {
@@ -65,11 +65,11 @@ public:
     }
 
 private:
-    static SkTScopedPtr<GrMemoryPool> gPool;
+    static SkAutoTDelete<GrMemoryPool> gPool;
     char fChar;
 };
 SK_DEFINE_INST_COUNT(A);
-SkTScopedPtr<GrMemoryPool> A::gPool;
+SkAutoTDelete<GrMemoryPool> A::gPool;
 
 class B : public A {
 public:
