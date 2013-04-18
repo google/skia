@@ -69,7 +69,7 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
 }
 
 static void PathOpsSimplifyQuadralateralsThreadedTest(skiatest::Reporter* reporter) {
-    int threadCount = initializeTests("testQuadralaterals");
+    int threadCount = initializeTests(reporter, "testQuadralaterals");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
         for (int b = a ; b < 16; ++b) {

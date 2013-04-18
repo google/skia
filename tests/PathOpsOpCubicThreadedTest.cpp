@@ -59,7 +59,7 @@ static void testOpCubicsMain(PathOpsThreadState* data)
 
 static void PathOpsOpCubicsThreadedTest(skiatest::Reporter* reporter)
 {
-    int threadCount = initializeTests("cubicOp");
+    int threadCount = initializeTests(reporter, "cubicOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 6; ++a) {  // outermost
         for (int b = a + 1; b < 7; ++b) {

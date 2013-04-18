@@ -113,7 +113,7 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
 
 static void PathOpsQuadLineIntersectionThreadedTest(skiatest::Reporter* reporter)
 {
-    int threadCount = initializeTests("testQuadLineIntersect");
+    int threadCount = initializeTests(reporter, "testQuadLineIntersect");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
         for (int b = 0 ; b < 16; ++b) {

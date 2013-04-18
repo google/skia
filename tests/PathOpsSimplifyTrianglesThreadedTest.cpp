@@ -66,7 +66,7 @@ static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
 }
 
 static void PathOpsSimplifyTrianglesThreadedTest(skiatest::Reporter* reporter) {
-    int threadCount = initializeTests("testTriangles");
+    int threadCount = initializeTests(reporter, "testTriangles");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 15; ++a) {
         int ax = a & 0x03;

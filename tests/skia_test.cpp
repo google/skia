@@ -62,10 +62,11 @@ static const char* result2string(Reporter::Result result) {
 
 class DebugfReporter : public Reporter {
 public:
-    DebugfReporter(bool allowExtendedTest)
+    DebugfReporter(bool allowExtendedTest, bool allowThreaded)
         : fIndex(0)
         , fTotal(0)
-        , fAllowExtendedTest(allowExtendedTest) {
+        , fAllowExtendedTest(allowExtendedTest)
+        , fAllowThreaded(allowThreaded) {
     }
 
     void setIndexOfTotal(int index, int total) {
@@ -75,6 +76,10 @@ public:
 
     virtual bool allowExtendedTest() const {
         return fAllowExtendedTest;
+    }
+
+    virtual bool allowThreaded() const {
+        return fAllowThreaded;
     }
 
 protected:
@@ -92,6 +97,7 @@ protected:
 private:
     int fIndex, fTotal;
     bool fAllowExtendedTest;
+    bool fAllowThreaded;
 };
 
 static const char* make_canonical_dir_path(const char* path, SkString* storage) {
@@ -126,6 +132,7 @@ DEFINE_string2(match, m, NULL, "substring of test name to run.");
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+DEFINE_bool2(threaded, z, false, "allow tests to use multiple threads.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
 
 int tool_main(int argc, char** argv);
@@ -170,7 +177,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%s\n", header.c_str());
     }
 
-    DebugfReporter reporter(FLAGS_extendedTest);
+    DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded);
     Iter iter(&reporter);
     Test* test;
 

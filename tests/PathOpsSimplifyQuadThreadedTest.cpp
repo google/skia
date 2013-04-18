@@ -68,7 +68,7 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
 
 static void PathOpsSimplifyQuadsThreadedTest(skiatest::Reporter* reporter)
 {
-    int threadCount = initializeTests("testQuads");
+    int threadCount = initializeTests(reporter, "testQuads");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     int a = 0;
     for (; a < 16; ++a) {
