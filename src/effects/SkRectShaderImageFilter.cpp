@@ -43,16 +43,25 @@ SkRectShaderImageFilter::~SkRectShaderImageFilter() {
 }
 
 bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
-                                        const SkBitmap& source,
-                                        const SkMatrix& matrix,
-                                        SkBitmap* result,
-                                        SkIPoint* loc) {
-    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(fRect.width()),
-                                                      SkScalarCeilToInt(fRect.height())));
+                                            const SkBitmap& source,
+                                            const SkMatrix&,
+                                            SkBitmap* result,
+                                            SkIPoint*) {
+    SkRect rect(fRect);
+    if (rect.isEmpty()) {
+        rect = SkRect::MakeWH(source.width(), source.height());
+    }
+
+    if (rect.isEmpty()) {
+        return false;
+    }
+
+    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(rect.width()),
+                                                      SkScalarCeilToInt(rect.height())));
     SkCanvas canvas(device.get());
     SkPaint paint;
     paint.setShader(fShader);
-    canvas.drawRect(fRect, paint);
+    canvas.drawRect(rect, paint);
     *result = device.get()->accessBitmap(false);
     return true;
 }
