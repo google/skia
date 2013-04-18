@@ -49,7 +49,7 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
                                             SkIPoint*) {
     SkRect rect(fRect);
     if (rect.isEmpty()) {
-        rect = SkRect::MakeWH(source.width(), source.height());
+        rect = SkRect::MakeWH(SkIntToScalar(source.width()), SkIntToScalar(source.height()));
     }
 
     if (rect.isEmpty()) {
