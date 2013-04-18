@@ -36,8 +36,6 @@ class PathOpsThreadedTestRunner {
 public:
     PathOpsThreadedTestRunner(skiatest::Reporter* reporter, int threadCount)
         : fNumThreads(threadCount)
-        , fThreadPool(threadCount)
-        , fCountdown(threadCount)
         , fReporter(reporter) {
     }
 
@@ -48,8 +46,6 @@ public:
 public:
     int fNumThreads;
     SkTDArray<PathOpsThreadedRunnable*> fRunnables;
-    SkThreadPool fThreadPool;
-    SkCountdown fCountdown;
     skiatest::Reporter* fReporter;
 };
 
@@ -63,7 +59,6 @@ public:
         fState.fD = d;
         fState.fReporter = runner->fReporter;
         fTestFun = testFun;
-        fDone = &runner->fCountdown;
     }
 
     virtual void run() SK_OVERRIDE {
@@ -72,13 +67,11 @@ public:
         char pathStr[PATH_STR_SIZE];
         fState.fPathStr = pathStr;
         (*fTestFun)(&fState);
-        fDone->run();
     }
 
 private:
     PathOpsThreadState fState;
     void (*fTestFun)(PathOpsThreadState*);
-    SkRunnable* fDone;
 };
 
 #endif
