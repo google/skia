@@ -4118,11 +4118,23 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     testSimplify(reporter, path);
 </div>
 
+<div id="testTriangle2">
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(2, 3);
+    path.lineTo(1, 2);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testTriangle2,
     testQuadratic97,
     testQuadratic96,
     testQuadratic95,

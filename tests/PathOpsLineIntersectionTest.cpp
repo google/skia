@@ -10,6 +10,7 @@
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {
+    {{{{5, 0}, {0, 5}}}, {{{5, 4}, {1, 4}}}},
     {{{{0, 0}, {1, 0}}}, {{{1, 0}, {0, 0}}}},
     {{{{0, 0}, {0, 0}}}, {{{0, 0}, {1, 0}}}},
     {{{{0, 1}, {0, 1}}}, {{{0, 0}, {0, 2}}}},

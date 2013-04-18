@@ -28,7 +28,9 @@ void mathematica_ize(char* str, size_t bufferLen) {
         num = str[idx] >= '0' && str[idx] <= '9';
     }
 }
+#endif
 
+#if DEBUG_SORT || DEBUG_SWAP_TOP
 bool valid_wind(int wind) {
     return wind > SK_MinS32 + 0xFFFF && wind < SK_MaxS32 - 0xFFFF;
 }

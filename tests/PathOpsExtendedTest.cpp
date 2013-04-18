@@ -44,7 +44,7 @@ static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 
 #if FORCE_RELEASE
-static bool gRunTestsInOneThread = false;
+static bool gRunTestsInOneThread = true;
 #else
 static bool gRunTestsInOneThread = true;
 #endif
@@ -165,6 +165,35 @@ static void showPath(const SkPath& path, const char* str, const SkMatrix& scale)
     }
     path.transform(inverse, &scaled);
     showPath(scaled, str);
+}
+
+#if DEBUG_SHOW_TEST_NAME
+static char hexorator(int x) {
+    if (x < 10) {
+        return x + '0';
+    }
+    x -= 10;
+    SkASSERT(x < 26);
+    return x + 'A';
+}
+#endif
+
+void ShowTestName(PathOpsThreadState* state, int a, int b, int c, int d) {
+#if DEBUG_SHOW_TEST_NAME
+    state->fSerialNo[0] = hexorator(state->fA);
+    state->fSerialNo[1] = hexorator(state->fB);
+    state->fSerialNo[2] = hexorator(state->fC);
+    state->fSerialNo[3] = hexorator(state->fD);
+    state->fSerialNo[4] = hexorator(a);
+    state->fSerialNo[5] = hexorator(b);
+    state->fSerialNo[6] = hexorator(c);
+    state->fSerialNo[7] = hexorator(d);
+    state->fSerialNo[8] = '\0';
+    SkDebugf("%s\n", state->fSerialNo);
+    if (strcmp(state->fSerialNo, state->fKey) == 0) {
+        SkDebugf("%s\n", state->fPathStr);
+    }
+#endif
 }
 
 const int bitWidth = 64;
@@ -434,6 +463,9 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
 }
 
 bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
+#if FORCE_RELEASE == 0
+    showPathData(path);
+#endif
     SkPath out;
     Simplify(path, &out);
     SkBitmap bitmap;

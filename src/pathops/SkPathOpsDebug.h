@@ -32,8 +32,6 @@
 #if defined SK_DEBUG || !FORCE_RELEASE
 
 void mathematica_ize(char* str, size_t bufferSize);
-bool valid_wind(int winding);
-void winding_printf(int winding);
 
 extern int gDebugMaxWindSum;
 extern int gDebugMaxWindValue;
@@ -56,6 +54,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_SHOW_TEST_NAME 0
 #define DEBUG_SHOW_TEST_PROGRESS 0
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
@@ -81,6 +80,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 1
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SHOW_TEST_PROGRESS 1
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
@@ -123,6 +123,9 @@ extern int gSegmentID;
 #if DEBUG_SORT || DEBUG_SWAP_TOP
 extern int gDebugSortCountDefault;
 extern int gDebugSortCount;
+
+bool valid_wind(int winding);
+void winding_printf(int winding);
 #endif
 
 #if DEBUG_ACTIVE_OP

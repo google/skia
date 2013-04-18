@@ -214,8 +214,12 @@ void SkOpSegment::addAngle(SkTDArray<SkOpAngle>* anglesPtr, int start, int end) 
         SkPoint angle0Pt = (*CurvePointAtT[angles[0].verb()])(angles[0].pts(),
                 (*angles[0].spans())[angles[0].start()].fT);
         SkPoint newPt = (*CurvePointAtT[fVerb])(fPts, fTs[start].fT);
-        SkASSERT(AlmostEqualUlps(angle0Pt.fX, newPt.fX));
-        SkASSERT(AlmostEqualUlps(angle0Pt.fY, newPt.fY));
+        bool match = AlmostEqualUlps(angle0Pt.fX, newPt.fX);
+        match &= AlmostEqualUlps(angle0Pt.fY, newPt.fY);
+        if (!match) {
+            SkDebugf("%s no match\n", __FUNCTION__);
+            SkASSERT(0);
+        }
     }
 #endif
     angle->set(fPts, fVerb, this, start, end, fTs);
@@ -394,13 +398,11 @@ void SkOpSegment::addLine(const SkPoint pts[2], bool operand, bool evenOdd) {
 // add 2 to edge or out of range values to get T extremes
 void SkOpSegment::addOtherT(int index, double otherT, int otherIndex) {
     SkOpSpan& span = fTs[index];
-#if PIN_ADD_T
-    if (precisely_less_than_zero(otherT)) {
+    if (precisely_zero(otherT)) {
         otherT = 0;
-    } else if (precisely_greater_than_one(otherT)) {
+    } else if (precisely_equal(otherT, 1)) {
         otherT = 1;
     }
-#endif
     span.fOtherT = otherT;
     span.fOtherIndex = otherIndex;
 }
@@ -418,6 +420,11 @@ void SkOpSegment::addQuad(const SkPoint pts[3], bool operand, bool evenOdd) {
 
     // add non-coincident intersection. Resulting edges are sorted in T.
 int SkOpSegment::addT(SkOpSegment* other, const SkPoint& pt, double newT) {
+    if (precisely_zero(newT)) {
+        newT = 0;
+    } else if (precisely_equal(newT, 1)) {
+        newT = 1;
+    }
     // FIXME: in the pathological case where there is a ton of intercepts,
     //  binary search?
     int insertedAt = -1;
@@ -2721,9 +2728,7 @@ void SkOpSegment::debugShowSort(const char* fun, const SkTDArray<SkOpAngle*>& an
         SkDebugf(" tStart=%1.9g tEnd=%1.9g", sSpan.fT, eSpan.fT);
     #endif
         SkDebugf(" sign=%d windValue=%d windSum=", angle.sign(), mSpan.fWindValue);
-        #ifdef SK_DEBUG
-            winding_printf(mSpan.fWindSum);
-        #endif
+        winding_printf(mSpan.fWindSum);
         int last, wind;
         if (opp) {
             last = oppLastSum;

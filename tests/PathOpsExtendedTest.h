@@ -42,5 +42,6 @@ void outputProgress(char* ramStr, const char* pathStr, SkPathOp op);
 void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
                 void (*firstTest)(skiatest::Reporter* ),
                 void (*stopTest)(skiatest::Reporter* ), bool reverse);
+void ShowTestName(PathOpsThreadState* data, int a, int b, int c, int d);
 
 #endif
