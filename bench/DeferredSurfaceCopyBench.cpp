@@ -84,4 +84,3 @@ static SkBenchmark* Fact1(void* p) { return new DeferredSurfaceCopyBench(p, true
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
-

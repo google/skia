@@ -98,20 +98,20 @@ private:
         SkAutoLockPixels bgAlp(bg);
         memcpy(bg.getPixels(), kCheckData, sizeof(kCheckData));
         bg.setIsOpaque(true);
-        
+
         fBG.reset(SkShader::CreateBitmapShader(bg,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode));
         SkMatrix lm;
         lm.setScale(SkIntToScalar(16), SkIntToScalar(16));
         fBG->setLocalMatrix(lm);
-        
+
         SkBitmap dstBmp;
         dstBmp.setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
         dstBmp.allocPixels();
         SkAutoLockPixels dstAlp(dstBmp);
         SkPMColor* pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
-        
+
         for (int y = 0; y < kSize; ++y) {
             int c = y * (1 << kShift);
             SkPMColor rowColor = SkPackARGB32(c, c, 0, c/2);
@@ -127,7 +127,7 @@ private:
         srcBmp.allocPixels();
         SkAutoLockPixels srcAlp(srcBmp);
         pixels = reinterpret_cast<SkPMColor*>(srcBmp.getPixels());
-        
+
         for (int x = 0; x < kSize; ++x) {
             int c = x * (1 << kShift);
             SkPMColor colColor = SkPackARGB32(c, 0, c, c/2);
@@ -139,12 +139,12 @@ private:
                                                 SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode));
     }
-    
+
     enum {
         kShift = 2,
         kSize = 256 >> kShift,
     };
-    
+
     SkAutoTUnref<SkShader> fBG;
     SkAutoTUnref<SkShader> fSrc;
     SkAutoTUnref<SkShader> fDst;
