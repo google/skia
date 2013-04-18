@@ -494,7 +494,7 @@ void SkPerlinNoiseShader::shadeSpan16(int x, int y, uint16_t result[], int count
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_ANDROID)
+#if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_WIN)
 // CPU noise is faster on Android, so the GPU implementation is only for desktop
 
 #include "GrTBackendEffectFactory.h"
@@ -717,7 +717,7 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkMWCRandom* random,
                                              GrContext* context,
                                              const GrDrawTargetCaps&,
                                              GrTexture**) {
-    int      numOctaves = 2;
+    int      numOctaves = random->nextRangeU(2, 10);
     bool     stitchTiles = random->nextBool();
     SkScalar seed = SkIntToScalar(random->nextU());
     SkISize  tileSize = SkISize::Make(random->nextRangeU(4, 4096), random->nextRangeU(4, 4096));
@@ -1295,7 +1295,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
 #else
 
 GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&) const {
-#if !defined(SK_BUILD_FOR_ANDROID)
+#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_WIN)
     SkDEBUGFAIL("Should not call in GPU-less build");
 #endif
     return NULL;
