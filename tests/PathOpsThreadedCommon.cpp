@@ -15,11 +15,10 @@ PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
 }
 
 void PathOpsThreadedTestRunner::render() {
-    fCountdown.reset(fRunnables.count());
+    SkThreadPool pool(fNumThreads);
     for (int index = 0; index < fRunnables.count(); ++ index) {
-        fThreadPool.add(fRunnables[index]);
+        pool.add(fRunnables[index]);
     }
-    fCountdown.wait();
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
     gDebugMaxWindValue = SK_MaxS32;
