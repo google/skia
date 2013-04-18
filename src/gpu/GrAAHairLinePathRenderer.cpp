@@ -560,7 +560,7 @@ public:
             builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
 
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
@@ -653,7 +653,7 @@ public:
             builder->fsCodeAppendf("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
 
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());

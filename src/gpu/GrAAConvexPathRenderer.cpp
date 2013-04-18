@@ -508,7 +508,7 @@ public:
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
 
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());

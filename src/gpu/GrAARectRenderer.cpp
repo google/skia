@@ -100,7 +100,7 @@ public:
                     fsWidthHeightName);
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "coverage");
+            GrGLSLModulatef<4>(&modulate, inputColor, "coverage");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
         }
 

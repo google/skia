@@ -273,7 +273,7 @@ void GrGLShaderBuilder::appendTextureLookupAndModulate(
     GrAssert(kFragment_ShaderType == type);
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
-    GrGLSLModulate4f(&fFSCode, modulation, lookup.c_str());
+    GrGLSLModulatef<4>(&fFSCode, modulation, lookup.c_str());
 }
 
 GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
@@ -485,7 +485,7 @@ void GrGLShaderBuilder::emitFunction(ShaderType shader,
                                      const char* body,
                                      SkString* outName) {
     GrAssert(kFragment_ShaderType == shader);
-    fFSFunctions.append(GrGLShaderVar::TypeString(returnType));
+    fFSFunctions.append(GrGLSLTypeString(returnType));
     if (kNonStageIdx != fCurrentStageIdx) {
         outName->printf(" %s_%d", name, fCurrentStageIdx);
     } else {

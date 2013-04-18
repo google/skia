@@ -48,6 +48,8 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(GR_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
+/** Return the type enum for a vector of floats of length n (1..4),
+ e.g. 1 -> kFloat_GrSLType, 2 -> kVec2_GrSLType, ... */
 static inline GrSLType GrSLFloatVectorType(int count) {
     GrAssert(count > 0 && count <= 4);
     return (GrSLType)(count);

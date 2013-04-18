@@ -108,7 +108,7 @@ public:
             }
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
         }
 
@@ -234,7 +234,7 @@ public:
             }
 
             SkString modulate;
-            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
         }
 
