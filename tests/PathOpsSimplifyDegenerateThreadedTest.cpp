@@ -61,7 +61,7 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
 }
 
 static void PathOpsSimplifyDegeneratesThreadedTest(skiatest::Reporter* reporter) {
-    int threadCount = initializeTests("testDegenerates");
+    int threadCount = initializeTests(reporter, "testDegenerates");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
         int ax = a & 0x03;

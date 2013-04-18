@@ -35,7 +35,7 @@ extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadSt
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path);
 
-int initializeTests(const char* testName);
+int initializeTests(skiatest::Reporter* reporter, const char* testName);
 void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType );
 void outputProgress(char* ramStr, const char* pathStr, SkPathOp op);
 

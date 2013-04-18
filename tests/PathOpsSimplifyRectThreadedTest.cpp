@@ -173,7 +173,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
 
 static void PathOpsSimplifyRectsThreadedTest(skiatest::Reporter* reporter)
 {
-    int threadCount = initializeTests("testLine");
+    int threadCount = initializeTests(reporter, "testLine");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 8; ++a) {  // outermost
         for (int b = a ; b < 8; ++b) {

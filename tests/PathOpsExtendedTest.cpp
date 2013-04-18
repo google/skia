@@ -43,12 +43,6 @@ static bool gComparePaths = true;
 static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 
-#if FORCE_RELEASE
-static bool gRunTestsInOneThread = true;
-#else
-static bool gRunTestsInOneThread = true;
-#endif
-
 static void showPathContour(SkPath::Iter& iter) {
     uint8_t verb;
     SkPoint pts[4];
@@ -522,14 +516,14 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
 const int maxThreadsAllocated = 64;
 static int maxThreads = 1;
 
-int initializeTests(const char* test) {
+int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
     gDebugMaxWindValue = 4;
 #endif
     testName = test;
     size_t testNameSize = strlen(test);
-    if (!gRunTestsInOneThread) {
+    if (reporter->allowThreaded()) {
         int threads = -1;
 #ifdef SK_BUILD_FOR_MAC
         size_t size = sizeof(threads);

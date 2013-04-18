@@ -43,7 +43,7 @@ namespace skiatest {
         void report(const char testDesc[], Result);
         void endTest(Test*);
         virtual bool allowExtendedTest() const { return false; }
-
+        virtual bool allowThreaded() const { return false; }
         // helpers for tests
         void assertTrue(bool cond, const char desc[]) {
             if (!cond) {

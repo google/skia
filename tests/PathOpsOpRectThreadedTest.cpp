@@ -67,7 +67,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
 }
 
 static void PathOpsRectsThreadedTest(skiatest::Reporter* reporter) {
-    int threadCount = initializeTests("testOp");
+    int threadCount = initializeTests(reporter, "testOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 6; ++a) {  // outermost
         for (int b = a + 1; b < 7; ++b) {
