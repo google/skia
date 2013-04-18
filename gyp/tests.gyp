@@ -16,10 +16,10 @@
         '../src/utils',
         '../tools/',
       ],
-      'includes': [
-        'pathops.gypi',
-        'pathops_unittest.gypi',
-      ],
+#      'includes': [
+#        'pathops.gypi',
+#        'pathops_unittest.gypi',
+#      ],
       'sources': [
         '../tests/AAClipTest.cpp',
         '../tests/AnnotationTest.cpp',
