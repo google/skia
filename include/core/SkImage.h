@@ -33,7 +33,7 @@ class GrTexture;
  *  change, if for example that image can be re-created via encoded data or
  *  other means.
  */
-class SkImage : public SkRefCnt {
+class SK_API SkImage : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkImage)
 

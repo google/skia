@@ -24,7 +24,7 @@ class GrRenderTarget;
  *  To draw into a canvas, first create the appropriate type of Surface, and
  *  then request the canvas from the surface.
  */
-class SkSurface : public SkRefCnt {
+class SK_API SkSurface : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkSurface)
 
