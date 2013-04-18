@@ -1260,7 +1260,7 @@ tabl_cuteoverload.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25t
 tabl_cuteoverload.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,40.420,26.378,54.462
 tabl_cuteoverload.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,79.090,61.181,96.999
 tabl_cuteoverload.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,79.370,61.433,97.307
-tabl_cuteoverload.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,1452.200,1296.980,1607.420
+tabl_cuteoverload.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,1452.200,1266.980,1607.420
 tabl_cuteoverload.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,60.970,44.873,77.067
 tabl_cuteoverload.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,64.940,48.446,81.434
 tabl_cuteoverload.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,1158.370,1032.533,1284.207
