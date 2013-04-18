@@ -3626,9 +3626,37 @@ static void testQuadratic97(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+static void testTriangles1(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 2);
+    path.lineTo(1, 1);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testTriangles2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(1, 1);
+    path.lineTo(2, 3);
+    path.lineTo(1, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testTriangles2),
+    TEST(testTriangles1),
     TEST(testQuadratic97),
     TEST(testQuadratic96),
     TEST(testQuadratic95),

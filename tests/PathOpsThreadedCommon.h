@@ -26,6 +26,8 @@ struct PathOpsThreadState {
     unsigned char fC;
     unsigned char fD;
     char* fPathStr;
+    const char* fKey;
+    char fSerialNo[9];
     skiatest::Reporter* fReporter;
     SkBitmap* fBitmap;
 };

@@ -158,7 +158,7 @@ int SkIntersections::horizontal(const SkDLine& line, double left, double right, 
         return result;
     }
     double xIntercept = line[0].fX + fT[0][0] * (line[1].fX - line[0].fX);
-    if (xIntercept > right || xIntercept < left) {
+    if (!precisely_between(left, xIntercept, right)) {
         return fUsed = 0;
     }
     return result;
@@ -172,7 +172,7 @@ int SkIntersections::horizontal(const SkDLine& line, double left, double right,
             break;
         case 1: {
             double xIntercept = line[0].fX + fT[0][0] * (line[1].fX - line[0].fX);
-            if (xIntercept > right || xIntercept < left) {
+            if (!precisely_between(left, xIntercept, right)) {
                 return fUsed = 0;
             }
             fT[1][0] = (xIntercept - left) / (right - left);
@@ -213,7 +213,7 @@ int SkIntersections::vertical(const SkDLine& line, double x) {
     if (min > max) {
         SkTSwap(min, max);
     }
-    if (min > x || max < x) {
+    if (!precisely_between(min, x, max)) {
         return fUsed = 0;
     }
     if (AlmostEqualUlps(min, max)) {
@@ -233,7 +233,7 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
             break;
         case 1: {
             double yIntercept = line[0].fY + fT[0][0] * (line[1].fY - line[0].fY);
-            if (yIntercept > bottom || yIntercept < top) {
+            if (!precisely_between(top, yIntercept, bottom)) {
                 return fUsed = 0;
             }
             fT[1][0] = (yIntercept - top) / (bottom - top);

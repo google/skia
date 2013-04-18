@@ -12,6 +12,7 @@ static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
     PathOpsThreadState& state = *data;
     char pathStr[1024];
     sk_bzero(pathStr, sizeof(pathStr));
+    state.fKey = "?";
     int ax = state.fA & 0x03;
     int ay = state.fA >> 2;
     int bx = state.fB & 0x03;
@@ -53,9 +54,11 @@ static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
                 str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
                 str += sprintf(str, "    path.close();\n");
                 outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
+                ShowTestName(&state, d, e, f, 0);
                 testSimplify(path, false, out, state, pathStr);
                 path.setFillType(SkPath::kEvenOdd_FillType);
                 outputProgress(state.fPathStr, pathStr, SkPath::kEvenOdd_FillType);
+                ShowTestName(&state, d, e, f, 1);
                 testSimplify(path, true, out, state, pathStr);
             }
         }

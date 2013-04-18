@@ -58,7 +58,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
         return fSide < rh.fSide;
     }
     // see if either curve can be lengthened and try the tangent compare again
-    if (cmp && (*fSpans)[fEnd].fOther != rh.fSegment  // tangents not absolutely identical
+    if (/* cmp && */ (*fSpans)[fEnd].fOther != rh.fSegment  // tangents not absolutely identical
             && (*rh.fSpans)[rh.fEnd].fOther != fSegment) {  // and not intersecting
         SkOpAngle longer = *this;
         SkOpAngle rhLonger = rh;

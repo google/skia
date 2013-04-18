@@ -177,6 +177,11 @@ inline bool approximately_between(double a, double b, double c) {
             : approximately_negative(b - a) && approximately_negative(c - b);
 }
 
+inline bool precisely_between(double a, double b, double c) {
+    return a <= c ? precisely_negative(a - b) && precisely_negative(b - c)
+            : precisely_negative(b - a) && precisely_negative(c - b);
+}
+
 // returns true if (a <= b <= c) || (a >= b >= c)
 inline bool between(double a, double b, double c) {
     SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0));

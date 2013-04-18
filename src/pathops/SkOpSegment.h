@@ -134,12 +134,6 @@ public:
         fOppXor = isOppXor;
     }
 
-    void setSpanT(int index, double t) {
-        SkOpSpan& span = fTs[index];
-        span.fT = t;
-        span.fOther->fTs[span.fOtherIndex].fOtherT = t;
-    }
-
     void setUpWinding(int index, int endIndex, int* maxWinding, int* sumWinding) {
         int deltaSum = spanSign(index, endIndex);
         *maxWinding = *sumWinding;
