@@ -31,13 +31,8 @@ namespace skiatest {
             kLastResult = kFailed
         };
 
-        void resetReporting();
         void bumpTestCount() { sk_atomic_inc(&fTestCount); }
         int countTests() const { return fTestCount; }
-        int countResults(Result r) {
-            SkASSERT((unsigned)r <= kLastResult);
-            return fResultCount[r];
-        }
 
         void startTest(Test*);
         void report(const char testDesc[], Result);
@@ -45,16 +40,6 @@ namespace skiatest {
         virtual bool allowExtendedTest() const { return false; }
         virtual bool allowThreaded() const { return false; }
         // helpers for tests
-        void assertTrue(bool cond, const char desc[]) {
-            if (!cond) {
-                this->report(desc, kFailed);
-            }
-        }
-        void assertFalse(bool cond, const char desc[]) {
-            if (cond) {
-                this->report(desc, kFailed);
-            }
-        }
         void reportFailed(const char desc[]) {
             this->report(desc, kFailed);
         }
@@ -62,9 +47,6 @@ namespace skiatest {
             this->report(desc.c_str(), kFailed);
         }
 
-        bool getCurrSuccess() const {
-            return fCurrTestSuccess;
-        }
 
     protected:
         virtual void onStart(Test*) {}
@@ -72,10 +54,7 @@ namespace skiatest {
         virtual void onEnd(Test*) {}
 
     private:
-        Test* fCurrTest;
-        int fTestCount;
-        int fResultCount[kLastResult+1];
-        bool fCurrTestSuccess;
+        int32_t fTestCount;
 
         typedef SkRefCnt INHERITED;
     };
@@ -89,11 +68,14 @@ namespace skiatest {
         void setReporter(Reporter*);
 
         const char* getName();
-        bool run(); // returns true on success
+        void run();
+        bool passed() const { return fPassed; }
 
         static const SkString& GetTmpDir();
 
         static const SkString& GetResourcePath();
+
+        virtual bool isThreadsafe() const { return true; }
 
     protected:
         virtual void onGetName(SkString*) = 0;
@@ -102,6 +84,7 @@ namespace skiatest {
     private:
         Reporter*   fReporter;
         SkString    fName;
+        bool        fPassed;
     };
 
     class GpuTest : public Test{
@@ -109,6 +92,7 @@ namespace skiatest {
         GpuTest() : Test() {}
         static GrContextFactory* GetGrContextFactory();
         static void DestroyContexts();
+        virtual bool isThreadsafe() const { return false; }
     private:
     };
 

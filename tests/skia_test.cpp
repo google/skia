@@ -7,6 +7,10 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
+#include "SkRunnable.h"
+#include "SkThreadPool.h"
+#include "SkTArray.h"
+#include "SkTemplates.h"
 #include "Test.h"
 #include "SkOSFile.h"
 
@@ -63,14 +67,13 @@ static const char* result2string(Reporter::Result result) {
 class DebugfReporter : public Reporter {
 public:
     DebugfReporter(bool allowExtendedTest, bool allowThreaded)
-        : fIndex(0)
+        : fNextIndex(0)
         , fTotal(0)
         , fAllowExtendedTest(allowExtendedTest)
         , fAllowThreaded(allowThreaded) {
     }
 
-    void setIndexOfTotal(int index, int total) {
-        fIndex = index;
+    void setTotal(int total) {
         fTotal = total;
     }
 
@@ -84,18 +87,22 @@ public:
 
 protected:
     virtual void onStart(Test* test) {
-        SkDebugf("[%d/%d] %s...\n", fIndex+1, fTotal, test->getName());
+        const int index = sk_atomic_inc(&fNextIndex);
+        SkDebugf("[%d/%d] %s...\n", index+1, fTotal, test->getName());
     }
     virtual void onReport(const char desc[], Reporter::Result result) {
         SkDebugf("\t%s: %s\n", result2string(result), desc);
     }
-    virtual void onEnd(Test*) {
-        if (!this->getCurrSuccess()) {
-            SkDebugf("---- FAILED\n");
+
+    virtual void onEnd(Test* test) {
+        if (!test->passed()) {
+          SkDebugf("---- FAILED\n");
         }
     }
+
 private:
-    int fIndex, fTotal;
+    int32_t fNextIndex;
+    int fTotal;
     bool fAllowExtendedTest;
     bool fAllowThreaded;
 };
@@ -132,8 +139,29 @@ DEFINE_string2(match, m, NULL, "substring of test name to run.");
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(threaded, z, false, "allow tests to use multiple threads.");
+DEFINE_bool2(threaded, z, false, "allow tests to use multiple threads internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
+DEFINE_int32(threads, 8,
+             "If >0, run threadsafe tests on a threadpool with this many threads.");
+
+// Deletes self when run.
+class SkTestRunnable : public SkRunnable {
+public:
+  // Takes ownership of test.
+  SkTestRunnable(Test* test, int32_t* failCount) : fTest(test), fFailCount(failCount) {}
+
+  virtual void run() {
+      fTest->run();
+      if(!fTest->passed()) {
+          sk_atomic_inc(fFailCount);
+      }
+      SkDELETE(this);
+  }
+
+private:
+    SkAutoTDelete<Test> fTest;
+    int32_t* fFailCount;
+};
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -179,28 +207,36 @@ int tool_main(int argc, char** argv) {
 
     DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded);
     Iter iter(&reporter);
-    Test* test;
 
     const int count = Iter::Count();
-    int index = 0;
-    int failCount = 0;
+    reporter.setTotal(count);
+    int32_t failCount = 0;
     int skipCount = 0;
-    while ((test = iter.next()) != NULL) {
-        reporter.setIndexOfTotal(index, count);
+
+    SkAutoTDelete<SkThreadPool> threadpool(SkNEW_ARGS(SkThreadPool, (FLAGS_threads)));
+    SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
+    for (int i = 0; i < count; i++) {
+        SkAutoTDelete<Test> test(iter.next());
         if (!FLAGS_match.isEmpty() && !strstr(test->getName(), FLAGS_match[0])) {
             ++skipCount;
+        } else if (!test->isThreadsafe()) {
+            unsafeTests.push_back() = test.detach();
         } else {
-            if (!test->run()) {
-                ++failCount;
-            }
+            threadpool->add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
         }
-        SkDELETE(test);
-        index += 1;
     }
+
+    // Run the tests that aren't threadsafe.
+    for (int i = 0; i < unsafeTests.count(); i++) {
+        SkNEW_ARGS(SkTestRunnable, (unsafeTests[i], &failCount))->run();
+    }
+
+    // Blocks until threaded tests finish.
+    threadpool.free();
 
     SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
              count, failCount, skipCount);
-    int testCount = reporter.countTests();
+    const int testCount = reporter.countTests();
     if (FLAGS_verbose && testCount > 0) {
         SkDebugf("Ran %d Internal tests.\n", testCount);
     }

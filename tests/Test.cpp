@@ -7,7 +7,8 @@
  */
 #include "Test.h"
 
-#include "SkTLazy.h"
+#include "SkString.h"
+#include "SkTArray.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -20,45 +21,25 @@ SK_DEFINE_INST_COUNT(skiatest::Reporter)
 
 using namespace skiatest;
 
-Reporter::Reporter()
-    : fTestCount(0) {
-    this->resetReporting();
-}
-
-void Reporter::resetReporting() {
-    fCurrTest = NULL;
-    fTestCount = 0;
-    sk_bzero(fResultCount, sizeof(fResultCount));
+Reporter::Reporter() : fTestCount(0) {
 }
 
 void Reporter::startTest(Test* test) {
-    SkASSERT(NULL == fCurrTest);
-    fCurrTest = test;
+    this->bumpTestCount();
     this->onStart(test);
-    fTestCount += 1;
-    fCurrTestSuccess = true;    // we're optimistic
 }
 
 void Reporter::report(const char desc[], Result result) {
-    if (NULL == desc) {
-        desc = "<no description>";
-    }
-    this->onReport(desc, result);
-    fResultCount[result] += 1;
-    if (kFailed == result) {
-        fCurrTestSuccess = false;
-    }
+    this->onReport(desc ? desc : "<no description>", result);
 }
 
 void Reporter::endTest(Test* test) {
-    SkASSERT(test == fCurrTest);
     this->onEnd(test);
-    fCurrTest = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Test::Test() : fReporter(NULL) {}
+Test::Test() : fReporter(NULL), fPassed(true) {}
 
 Test::~Test() {
     SkSafeUnref(fReporter);
@@ -75,11 +56,41 @@ const char* Test::getName() {
     return fName.c_str();
 }
 
-bool Test::run() {
+namespace {
+    class LocalReporter : public Reporter {
+    public:
+        LocalReporter() {}
+
+        int failure_size() const { return fFailures.count(); }
+        const char* failure(int i) const { return fFailures[i].c_str(); }
+
+    protected:
+        void onReport(const char desc[], Result result) SK_OVERRIDE {
+            if (kFailed == result) {
+                fFailures.push_back().set(desc);
+            }
+        }
+
+    private:
+        SkTArray<SkString> fFailures;
+    };
+}  // namespace
+
+void Test::run() {
+    // Tell (likely shared) fReporter that this test has started.
     fReporter->startTest(this);
-    this->onRun(fReporter);
+
+    // Run the test into a LocalReporter so we know if it's passed or failed without interference
+    // from other tests that might share fReporter.
+    LocalReporter local;
+    this->onRun(&local);
+    fPassed = local.failure_size() == 0;
+
+    // Now tell fReporter about any failures and wrap up.
+    for (int i = 0; i < local.failure_size(); i++) {
+      fReporter->report(local.failure(i), Reporter::kFailed);
+    }
     fReporter->endTest(this);
-    return fReporter->getCurrSuccess();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
