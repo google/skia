@@ -65,17 +65,36 @@ private:
 
         kColorInputCnt
     };
-    // Dual-src blending makes use of a secondary output color that can be
-    // used as a per-pixel blend coefficient. This controls whether a
-    // secondary source is output and what value it holds.
-    enum DualSrcOutput {
-        kNone_DualSrcOutput,
-        kCoverage_DualSrcOutput,
-        kCoverageISA_DualSrcOutput,
-        kCoverageISC_DualSrcOutput,
 
-        kDualSrcOutputCnt
+    enum CoverageOutput {
+        // modulate color and coverage, write result as the color output.
+        kModulate_CoverageOutput,
+        // Writes color*coverage as the primary color output and also writes coverage as the
+        // secondary output. Only set if dual source blending is supported.
+        kSecondaryCoverage_CoverageOutput,
+        // Writes color*coverage as the primary color output and also writes coverage * (1 - colorA)
+        // as the secondary output. Only set if dual source blending is supported.
+        kSecondaryCoverageISA_CoverageOutput,
+        // Writes color*coverage as the primary color output and also writes coverage *
+        // (1 - colorRGB) as the secondary output. Only set if dual source blending is supported.
+        kSecondaryCoverageISC_CoverageOutput,
+        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
+        // can only be set if fDstRead is set.
+        kCombineWithDst_CoverageOutput,
+
+        kCoverageOutputCnt
     };
+
+    static bool CoverageOutputUsesSecondaryOutput(CoverageOutput co) {
+        switch (co) {
+            case kSecondaryCoverage_CoverageOutput: //  fallthru
+            case kSecondaryCoverageISA_CoverageOutput:
+            case kSecondaryCoverageISC_CoverageOutput:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     /** Non-zero if this stage has an effect */
     GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
@@ -95,7 +114,7 @@ private:
 
     uint8_t                     fColorInput;            // casts to enum ColorInput
     uint8_t                     fCoverageInput;         // casts to enum ColorInput
-    uint8_t                     fDualSrcOutput;         // casts to enum DualSrcOutput
+    uint8_t                     fCoverageOutput;        // casts to enum CoverageOutput
 
     int8_t                      fFirstCoverageStage;
     SkBool8                     fEmitsPointSize;

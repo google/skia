@@ -501,10 +501,8 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     if (SkXfermode::AsNewEffectOrCoeff(mode, dev->context(), &xferEffect, &sm, &dm)) {
         if (NULL != xferEffect) {
             grPaint->colorStage(kXfermodeEffectIdx)->setEffect(xferEffect)->unref();
-            // This may not be the right place to have this logic but we set the GPU blend to
-            // src-over so that fractional coverage will be accounted for correctly.
             sm = SkXfermode::kOne_Coeff;
-            dm = SkXfermode::kISA_Coeff;
+            dm = SkXfermode::kZero_Coeff;
         }
     } else {
         //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)

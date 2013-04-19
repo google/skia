@@ -54,12 +54,6 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
 
     fDiscardIfZeroCoverage = random->nextBool();
 
-    if (gpu->caps()->dualSourceBlendingSupport()) {
-        fDualSrcOutput = random->nextULessThan(kDualSrcOutputCnt);
-    } else {
-        fDualSrcOutput = kNone_DualSrcOutput;
-    }
-
     bool useLocalCoords = random->nextBool() && currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
     fLocalCoordAttributeIndex = useLocalCoords ? currAttribIndex++ : -1;
 
@@ -78,6 +72,17 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
     if (dstRead) {
         this->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstTexture, gpu->glCaps());
     }
+
+    CoverageOutput coverageOutput;
+    bool illegalCoverageOutput;
+    do {
+        coverageOutput = static_cast<CoverageOutput>(random->nextULessThan(kCoverageOutputCnt));
+        illegalCoverageOutput = (!gpu->caps()->dualSourceBlendingSupport() &&
+                                 CoverageOutputUsesSecondaryOutput(coverageOutput)) ||
+                                !dstRead && kCombineWithDst_CoverageOutput == coverageOutput;
+    } while (illegalCoverageOutput);
+
+    fCoverageOutput = coverageOutput;
 }
 
 bool GrGpuGL::programUnitTest(int maxStages) {
