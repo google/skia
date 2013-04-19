@@ -34,13 +34,13 @@ GrSLConstantVec GrGLSLModulatef(SkString* outAppend,
                                 bool omitIfConstVec) {
     GrAssert(N > 0 && N <= 4);
     GrAssert(NULL != outAppend);
-    
+
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
-    
+
     GrAssert(has0 || kNone_GrSLConstantVec != default0);
     GrAssert(has1 || kNone_GrSLConstantVec != default1);
-    
+
     if (!has0 && !has1) {
         GrAssert(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
         GrAssert(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
@@ -81,10 +81,10 @@ GrSLConstantVec GrGLSLAddf(SkString* outAppend,
                            bool omitIfConstVec) {
     GrAssert(N > 0 && N <= 4);
     GrAssert(NULL != outAppend);
-    
+
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
-    
+
     if (!has0 && !has1) {
         GrAssert(kNone_GrSLConstantVec != default0);
         GrAssert(kNone_GrSLConstantVec != default1);
@@ -140,10 +140,10 @@ GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
                                  bool omitIfConstVec) {
     GrAssert(N > 0 && N <= 4);
     GrAssert(NULL != outAppend);
-    
+
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
-    
+
     if (!has0 && !has1) {
         GrAssert(kNone_GrSLConstantVec != default0);
         GrAssert(kNone_GrSLConstantVec != default1);

@@ -526,7 +526,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     // incoming coverage to current stage being processed.
     SkString inCoverage;
     GrSLConstantVec knownCoverageValue = this->genInputCoverage(&builder, &inCoverage);
-    
+
     SkString outCoverage;
     for (int s = fDesc.fFirstCoverageStage; s < GrDrawState::kNumStages; ++s) {
         if (fDesc.fEffectKeys[s]) {

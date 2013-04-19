@@ -152,17 +152,17 @@ protected:
         rectPaint.setColor(SK_ColorLTGRAY);
 
         int testCount = 0;
-        for (int i = 0; i < fPaints.count(); ++i) {        
+        for (int i = 0; i < fPaints.count(); ++i) {
             for (int j = 0; j < fMatrices.count(); ++j) {
                 canvas->save();
                 SkMatrix mat = fMatrices[j];
                 // position the oval, and make it at off-integer coords.
-                mat.postTranslate(kXStart + SK_Scalar1 * kXStep * (testCount % maxX) + 
+                mat.postTranslate(kXStart + SK_Scalar1 * kXStep * (testCount % maxX) +
                                   SK_Scalar1 / 4,
-                                  kYStart + SK_Scalar1 * kYStep * (testCount / maxX) + 
+                                  kYStart + SK_Scalar1 * kYStep * (testCount / maxX) +
                                   3 * SK_Scalar1 / 4);
                 canvas->concat(mat);
-            
+
                 SkColor color = genColor(&rand);
                 fPaints[i].setColor(color);
 
@@ -178,13 +178,13 @@ protected:
         // special cases
 
         // non-scaled tall and skinny oval
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect oval = SkRect::MakeLTRB(-20, -60, 20, 60);
             canvas->save();
             // position the oval, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 2.55f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -194,14 +194,14 @@ protected:
         }
 
         // non-scaled wide and short oval
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect oval = SkRect::MakeLTRB(-80, -30, 80, 30);
             canvas->save();
             // position the oval, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 4 + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -211,13 +211,13 @@ protected:
         }
 
         // super skinny oval
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect oval = SkRect::MakeLTRB(0, -60, 1, 60);
             canvas->save();
             // position the oval, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 3.25f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -226,14 +226,14 @@ protected:
         }
 
         // super short oval
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect oval = SkRect::MakeLTRB(-80, -1, 80, 0);
             canvas->save();
             // position the oval, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 2.5f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -252,13 +252,13 @@ protected:
                                                      SK_ARRAY_COUNT(colors),
                                                      SkShader::kClamp_TileMode));
 
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             canvas->save();
             // position the path, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 0 + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
             fPaints[i].setShader(shader);
