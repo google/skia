@@ -189,5 +189,4 @@ GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
     }
 }
 
-
 #endif
