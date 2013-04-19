@@ -64,6 +64,8 @@ public:
         return str;
     }
 
+    static SkDataTable* NewEmpty();
+
     /**
      *  Return a new DataTable that contains a copy of the data stored in each
      *  "array".

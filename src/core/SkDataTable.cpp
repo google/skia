@@ -53,6 +53,17 @@ void SkDataTable::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeFlattenable(fData);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+SkDataTable* SkDataTable::NewEmpty() {
+    static SkDataTable* gEmpty;
+    if (NULL == gEmpty) {
+        gEmpty = SkNEW_ARGS(SkDataTable, (0, SkData::NewEmpty()));
+    }
+    gEmpty->ref();
+    return gEmpty;
+}
+
 SkDataTable* SkDataTable::NewCopyArrays(const void * const * ptrs,
                                         const size_t sizes[], int count) {
     if (count < 0) {
