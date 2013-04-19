@@ -353,8 +353,6 @@ SkFontStyleSet_FC::SkFontStyleSet_FC(FcPattern** matches, int count) {
         fRecs[i].fStyleName.set(get_name(matches[i], FC_STYLE));
         fRecs[i].fFileName.set(get_name(matches[i], FC_FILE));
         fRecs[i].fStyle = make_fontconfig_style(matches[i]);
-        
-//        SkDebugf("%s [%d %d %d]\n", fRecs[i].fFileName.c_str(), fRecs[i].fStyle.weight(), fRecs[i].fStyle.width(), fRecs[i].fStyle.isItalic());
     }
 }
 
@@ -381,74 +379,39 @@ SkTypeface* SkFontStyleSet_FC::matchStyle(const SkFontStyle& pattern) {
     return NULL;
 }
 
-static bool find_name(const SkTDArray<const char*>& array, const char* name) {
-    for (int i = 0; i < array.count(); ++i) {
-        if (0 == strcmp(array[i], name)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 class SkFontMgr_fontconfig : public SkFontMgr {
     SkAutoTUnref<SkFontConfigInterface> fFCI;
-
-    int fFamilyCount;
-    SkString* fFamilyNames;
+    SkDataTable* fFamilyNames;
 
     void init() {
-        if (fFamilyCount >= 0) {
-            return;
+        if (!fFamilyNames) {
+            fFamilyNames = fFCI->getFamilyNames();
         }
-
-        FcPattern* pat = FcPatternCreate();
-        FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, (char *) 0);
-        FcFontSet* fs = FcFontList(NULL, pat, os);
-
-        SkTDArray<const char*> familyNames;
-        familyNames.setReserve(fs->nfont);
-        for (int i=0; fs && i < fs->nfont; ++i) {
-            FcPattern* match = fs->fonts[i];
-            const char* famName = get_name(match, FC_FAMILY);
-            if (!find_name(familyNames, famName)) {
-                *familyNames.append() = famName;
-            }
-//            SkDebugf("[%d %d] %s %s %x\n", i, fs->nfont, get_name(match, FC_FILE),
-//                     get_name(match, FC_FAMILY), get_name(match, FC_FAMILY));
-        }
-        
-        fFamilyCount = familyNames.count();
-        fFamilyNames = SkNEW_ARRAY(SkString, fFamilyCount);
-        for (int i = 0; i < fFamilyCount; ++i) {
-            fFamilyNames[i].set(familyNames[i]);
-        }
-
-        if (fs) FcFontSetDestroy(fs);
-        FcPatternDestroy(pat);
     }
 
 public:
-    SkFontMgr_fontconfig(SkFontConfigInterface* fci) : fFCI(fci) {
-        fFamilyCount = -1;
-    }
+    SkFontMgr_fontconfig(SkFontConfigInterface* fci)
+        : fFCI(fci)
+        , fFamilyNames(NULL) {}
     
     virtual ~SkFontMgr_fontconfig() {
-        SkDELETE_ARRAY(fFamilyNames);
+        SkSafeUnref(fFamilyNames);
     }
 
 protected:
-    virtual int onCountFamilies() { this->init(); return fFamilyCount; }
+    virtual int onCountFamilies() {
+        this->init();
+        return fFamilyNames->count();
+    }
 
     virtual void onGetFamilyName(int index, SkString* familyName) {
         this->init();
-        SkASSERT((unsigned)index < (unsigned)fFamilyCount);
-        *familyName = fFamilyNames[index];
+        familyName->set(fFamilyNames->atStr(index));
     }
 
     virtual SkFontStyleSet* onCreateStyleSet(int index) {
         this->init();
-        SkASSERT((unsigned)index < (unsigned)fFamilyCount);
-        return this->onMatchFamily(fFamilyNames[index].c_str());
+        return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
     virtual SkFontStyleSet* onMatchFamily(const char familyName[]) {
@@ -488,12 +451,6 @@ protected:
             if (!is_lower(*justName)) {
                 *trimmedMatches.append() = match[i];
             }
-            #if 0
-            printf("[%d:%d] %s %s [%d %d %d]\n", i, count,
-                   get_name(match[i], FC_STYLE), get_name(match[i], FC_FILE),
-                   get_int(match[i], FC_WEIGHT), get_int(match[i], FC_WIDTH),
-                   get_int(match[i], FC_SLANT));
-            #endif
         }
 
         SkFontStyleSet_FC* sset = SkNEW_ARGS(SkFontStyleSet_FC,

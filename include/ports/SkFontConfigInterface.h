@@ -8,8 +8,10 @@
 #ifndef SkFontConfigInterface_DEFINED
 #define SkFontConfigInterface_DEFINED
 
+#include "SkDataTable.h"
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
+#include "SkTArray.h"
 #include "SkTypeface.h"
 
 /**
@@ -86,14 +88,11 @@ public:
 
     // New APIS, which have default impls for now (which do nothing)
 
-    virtual int countFamilies() { return 0; };
-    virtual int getFamilySet(int index, SkString* outFamilyName,
-                             FontIdentity outIdentities[], int maxCount) {
-        return 0;
-    }
-    virtual int matchFamilySet(const char familyName[], SkString* outFamilyName,
-                               FontIdentity outIdentities[], int maxCount) {
-        return 0;
+    virtual SkDataTable* getFamilyNames() { return SkDataTable::NewEmpty(); }
+    virtual bool matchFamilySet(const char inFamilyName[],
+                                SkString* outFamilyName,
+                                SkTArray<FontIdentity>*) {
+        return false;
     }
 };
 

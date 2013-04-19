@@ -28,6 +28,12 @@ public:
                                  SkTypeface::Style* outStyle) SK_OVERRIDE;
     virtual SkStream* openStream(const FontIdentity&) SK_OVERRIDE;
 
+    // new APIs
+    virtual SkDataTable* getFamilyNames() SK_OVERRIDE;
+    virtual bool matchFamilySet(const char inFamilyName[],
+                                SkString* outFamilyName,
+                                SkTArray<FontIdentity>*) SK_OVERRIDE;
+
 private:
     SkMutex mutex_;
 };
@@ -448,3 +454,61 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
     return SkStream::NewFromFile(identity.fString.c_str());
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* get_name(FcPattern* pattern, const char field[]) {
+    const char* name;
+    if (FcPatternGetString(pattern, field, 0, (FcChar8**)&name) != FcResultMatch) {
+        name = "";
+    }
+    return name;
+}
+
+static bool find_name(const SkTDArray<const char*>& list, const char* str) {
+    int count = list.count();
+    for (int i = 0; i < count; ++i) {
+        if (!strcmp(list[i], str)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
+    FcPattern* pat = FcPatternCreate();
+    FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, (char *) 0);
+    if (NULL == os) {
+        return false;
+    }
+    FcFontSet* fs = FcFontList(NULL, pat, os);
+    if (NULL == fs) {
+        FcObjectSetDestroy(os);
+        return false;
+    }
+
+    SkTDArray<const char*> names;
+    SkTDArray<size_t> sizes;
+    for (int i = 0; i < fs->nfont; ++i) {
+        FcPattern* match = fs->fonts[i];
+        const char* famName = get_name(match, FC_FAMILY);
+        if (!find_name(names, famName)) {
+            *names.append() = famName;
+            *sizes.append() = strlen(famName) + 1;
+        }
+    }
+
+    FcFontSetDestroy(fs);
+    FcObjectSetDestroy(os);
+    FcPatternDestroy(pat);
+
+    return SkDataTable::NewCopyArrays((const void*const*)names.begin(),
+                                      sizes.begin(), names.count());
+}
+
+bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
+                                                 SkString* outFamilyName,
+                                                 SkTArray<FontIdentity>* ids) {
+    return false;
+}
+
