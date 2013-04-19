@@ -1105,7 +1105,7 @@ public:
                                         const char* dst,
                                         const char component) {
             builder->fsCodeAppendf("\t\tif (0.0 == %s.%c) {\n", dst, component);
-            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1 - %s.a);\n",
+            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, component, dst);
             builder->fsCodeAppend("\t\t} else {\n");
             builder->fsCodeAppendf("\t\t\tfloat d = %s.a - %s.%c;\n", src, src, component);
@@ -1152,7 +1152,7 @@ public:
             // if (2S < Sa)
             builder->fsCodeAppendf("\t\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
             // (D^2 (Sa-2 S))/Da+(1-Da) S+D (-Sa+2 S+1)
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = (%s.%c*%s.%c*(%s.a - 2*%s.%c)) / %s.a + (1 - %s.a) * %s.%c + %s.%c*(-%s.a + 2*%s.%c + 1);\n",
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = (%s.%c*%s.%c*(%s.a - 2*%s.%c)) / %s.a + (1.0 - %s.a) * %s.%c + %s.%c*(-%s.a + 2*%s.%c + 1.0);\n",
                                    final, component, dst, component, dst, component, src, src,
                                    component, dst, dst, src, component, dst, component, src, src,
                                    component);
@@ -1165,13 +1165,13 @@ public:
             builder->fsCodeAppendf("\t\t\t\tfloat DaSqd = %s.a * %s.a;\n", dst, dst);
             builder->fsCodeAppendf("\t\t\t\tfloat DaCub = DaSqd * %s.a;\n", dst);
             // (Da^3 (-S)+Da^2 (S-D (3 Sa-6 S-1))+12 Da D^2 (Sa-2 S)-16 D^3 (Sa-2 S))/Da^2
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = (-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3*%s.a - 6*%s.%c - 1)) + 12*%s.a*DSqd*(%s.a - 2*%s.%c) - 16*DCub * (%s.a - 2*%s.%c)) / DaSqd;\n",
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = (-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3*%s.a - 6*%s.%c - 1.0)) + 12*%s.a*DSqd*(%s.a - 2*%s.%c) - 16*DCub * (%s.a - 2*%s.%c)) / DaSqd;\n",
                                    final, component, src, component, src, component, dst, component,
                                    src, src, component, dst, src, src, component, src, src,
                                    component);
             builder->fsCodeAppendf("\t\t\t} else {\n");
             // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
-            builder->fsCodeAppendf("\t\t\t\t%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2*%s.%c) - %s.a*%s.%c + %s.%c*(%s.a - 2*%s.%c + 1) + %s.%c;\n",
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2*%s.%c) - %s.a*%s.%c + %s.%c*(%s.a - 2*%s.%c + 1.0) + %s.%c;\n",
                                     final, component, dst, dst, component, src, src, component, dst,
                                     src, component, dst, component, src, src, component, src,
                                     component);
