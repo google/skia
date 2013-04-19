@@ -124,6 +124,13 @@ protected:
     }
 };
 
+static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
+    if (NULL == fsset) {
+        fsset = SkFontStyleSet::CreateEmpty();
+    }
+    return fsset;
+}
+
 int SkFontMgr::countFamilies() {
     return this->onCountFamilies();
 }
@@ -133,11 +140,11 @@ void SkFontMgr::getFamilyName(int index, SkString* familyName) {
 }
 
 SkFontStyleSet* SkFontMgr::createStyleSet(int index) {
-    return this->onCreateStyleSet(index);
+    return emptyOnNull(this->onCreateStyleSet(index));
 }
 
 SkFontStyleSet* SkFontMgr::matchFamily(const char familyName[]) {
-    return this->onMatchFamily(familyName);
+    return emptyOnNull(this->onMatchFamily(familyName));
 }
 
 SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
