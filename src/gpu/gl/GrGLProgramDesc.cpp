@@ -103,7 +103,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         desc->fDstRead = 0;
     }
 
-    desc->fDualSrcOutput = kNone_DualSrcOutput;
+    desc->fCoverageOutput = kModulate_CoverageOutput;
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
     // other than pass through values from the VS to the FS anyway).
@@ -151,17 +151,22 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
                            GrDrawState::kCoverageAsAlpha_BlendOptFlag))) {
             if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color
-                desc->fDualSrcOutput =  kCoverage_DualSrcOutput;
+                desc->fCoverageOutput =  kSecondaryCoverage_CoverageOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             } else if (kSA_GrBlendCoeff == dstCoeff) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                desc->fDualSrcOutput = kCoverageISA_DualSrcOutput;
+                desc->fCoverageOutput = kSecondaryCoverageISA_CoverageOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             } else if (kSC_GrBlendCoeff == dstCoeff) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                desc->fDualSrcOutput = kCoverageISC_DualSrcOutput;
+                desc->fCoverageOutput = kSecondaryCoverageISC_CoverageOutput;
                 desc->fFirstCoverageStage = firstCoverageStage;
             }
+        } else if (readsDst &&
+                   kOne_GrBlendCoeff == drawState.getSrcBlendCoeff() &&
+                   kZero_GrBlendCoeff == drawState.getDstBlendCoeff()) {
+            desc->fCoverageOutput = kCombineWithDst_CoverageOutput;
+            desc->fFirstCoverageStage = firstCoverageStage;
         }
     }
 

@@ -96,24 +96,28 @@ void GrGLProgram::abandon() {
 
 void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
                                 GrBlendCoeff* dstCoeff) const {
-    switch (fDesc.fDualSrcOutput) {
-        case GrGLProgramDesc::kNone_DualSrcOutput:
+    switch (fDesc.fCoverageOutput) {
+        case GrGLProgramDesc::kModulate_CoverageOutput:
             break;
-        // the prog will write a coverage value to the secondary
+        // The prog will write a coverage value to the secondary
         // output and the dst is blended by one minus that value.
-        case GrGLProgramDesc::kCoverage_DualSrcOutput:
-        case GrGLProgramDesc::kCoverageISA_DualSrcOutput:
-        case GrGLProgramDesc::kCoverageISC_DualSrcOutput:
-        *dstCoeff = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
-        break;
+        case GrGLProgramDesc::kSecondaryCoverage_CoverageOutput:
+        case GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput:
+        case GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput:
+            *dstCoeff = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            break;
+        case GrGLProgramDesc::kCombineWithDst_CoverageOutput:
+            // We should only have set this if the blend was specified as (1, 0)
+            GrAssert(kOne_GrBlendCoeff == *srcCoeff && kZero_GrBlendCoeff == *dstCoeff);
+            break;
         default:
-            GrCrash("Unexpected dual source blend output");
+            GrCrash("Unexpected coverage output");
             break;
     }
 }
 
 namespace {
-// given two blend coeffecients determine whether the src
+// given two blend coefficients determine whether the src
 // and/or dst computation can be omitted.
 inline void need_blend_inputs(SkXfermode::Coeff srcCoeff,
                               SkXfermode::Coeff dstCoeff,
@@ -375,6 +379,20 @@ GrGLuint compile_shader(const GrGLContext& gl, GrGLenum type, const SkString& sh
     return compile_shader(gl, type, 1, &str, &length);
 }
 
+void expand_known_value4f(SkString* string, GrSLConstantVec vec) {
+    GrAssert(string->isEmpty() == (vec != kNone_GrSLConstantVec));
+    switch (vec) {
+        case kNone_GrSLConstantVec:
+            break;
+        case kZeros_GrSLConstantVec:
+            *string = GrGLSLZerosVecf(4);
+            break;
+        case kOnes_GrSLConstantVec:
+            *string = GrGLSLOnesVecf(4);
+            break;
+    }
+}
+
 }
 
 // compiles all the shaders from builder and stores the shader IDs
@@ -564,14 +582,16 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
         }
     }
 
-    if (GrGLProgramDesc::kNone_DualSrcOutput != fDesc.fDualSrcOutput) {
+    GrGLProgramDesc::CoverageOutput coverageOutput =
+        static_cast<GrGLProgramDesc::CoverageOutput>(fDesc.fCoverageOutput);
+    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(coverageOutput)) {
         builder.fFSOutputs.push_back().set(kVec4f_GrSLType,
                                            GrGLShaderVar::kOut_TypeModifier,
                                            dual_source_output_name());
         // default coeff to ones for kCoverage_DualSrcOutput
         SkString coeff;
         GrSLConstantVec knownCoeffValue = kOnes_GrSLConstantVec;
-        if (GrGLProgramDesc::kCoverageISA_DualSrcOutput == fDesc.fDualSrcOutput) {
+        if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == fDesc.fCoverageOutput) {
             // Get (1-A) into coeff
             SkString inColorAlpha;
             GrGLSLGetComponent4f(&inColorAlpha,
@@ -585,7 +605,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                                                  kOnes_GrSLConstantVec,
                                                  knownColorValue,
                                                  true);
-        } else if (GrGLProgramDesc::kCoverageISC_DualSrcOutput == fDesc.fDualSrcOutput) {
+        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == coverageOutput) {
             // Get (1-RGBA) into coeff
             knownCoeffValue = GrGLSLSubtractf<4>(&coeff,
                                                  NULL,
@@ -609,15 +629,42 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     ///////////////////////////////////////////////////////////////////////////
     // combine color and coverage as frag color
 
-    // Get color * coverage into modulate and write that to frag shader's output.
-    SkString modulate;
-    GrGLSLModulatef<4>(&modulate,
-                       inColor.c_str(),
-                       inCoverage.c_str(),
-                       knownColorValue,
-                       knownCoverageValue,
-                       false);
-    builder.fsCodeAppendf("\t%s = %s;\n", colorOutput.getName().c_str(), modulate.c_str());
+    // Get "color * coverage" into fragColor
+    SkString fragColor;
+    GrSLConstantVec knownFragColorValue = GrGLSLModulatef<4>(&fragColor,
+                                                             inColor.c_str(),
+                                                             inCoverage.c_str(),
+                                                             knownColorValue,
+                                                             knownCoverageValue,
+                                                             true);
+    // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
+    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == coverageOutput) {
+        SkString dstCoeff;
+        GrSLConstantVec knownDstCoeffValue = GrGLSLSubtractf<4>(&dstCoeff,
+                                                                NULL,
+                                                                inCoverage.c_str(),
+                                                                kOnes_GrSLConstantVec,
+                                                                knownCoverageValue,
+                                                                true);
+        SkString dstContribution;
+        GrSLConstantVec knownDstContributionValue = GrGLSLModulatef<4>(&dstContribution,
+                                                                       dstCoeff.c_str(),
+                                                                       builder.dstColor(),
+                                                                       knownDstCoeffValue,
+                                                                       kNone_GrSLConstantVec,
+                                                                       true);
+        SkString oldFragColor = fragColor;
+        fragColor.reset();
+        GrGLSLAddf<4>(&fragColor,
+                      oldFragColor.c_str(),
+                      dstContribution.c_str(),
+                      knownFragColorValue,
+                      knownDstContributionValue,
+                      false);
+    } else {
+        expand_known_value4f(&fragColor, knownFragColorValue);
+    }
+    builder.fsCodeAppendf("\t%s = %s;\n", colorOutput.getName().c_str(), fragColor.c_str());
 
     ///////////////////////////////////////////////////////////////////////////
     // insert GS
