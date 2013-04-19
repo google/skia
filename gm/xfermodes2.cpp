@@ -86,7 +86,7 @@ protected:
 
 private:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        const uint32_t kCheckData[] = {
+        static const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40),
             SkPackARGB32(0xFF, 0xD0, 0xD0, 0xD0),
             SkPackARGB32(0xFF, 0xD0, 0xD0, 0xD0),
