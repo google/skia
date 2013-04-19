@@ -950,14 +950,21 @@ void SkProcXfermode::toString(SkString* str) const {
 #include "gl/GrGLEffect.h"
 
 /**
- * GrEffect that implements the kDarken_Mode Xfermode. It requires access to the dst pixel color
- * in the shader. TODO: Make this work for all non-Coeff SkXfermode::Mode values.
+ * GrEffect that implements the all the separable xfer modes that cannot be expressed as Coeffs.
  */
-class DarkenEffect : public GrEffect {
+class XferEffect : public GrEffect {
 public:
-    static GrEffectRef* Create() {
-        static AutoEffectUnref gEffect(SkNEW(DarkenEffect));
-        return CreateEffectRef(gEffect);
+    static bool IsSupportedMode(SkXfermode::Mode mode) {
+        return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastSeparableMode;
+    }
+
+    static GrEffectRef* Create(SkXfermode::Mode mode) {
+        if (!IsSupportedMode(mode)) {
+            return NULL;
+        } else {
+            AutoEffectUnref effect(SkNEW_ARGS(XferEffect, (mode)));
+            return CreateEffectRef(effect);
+        }
     }
 
     virtual void getConstantColorComponents(GrColor* color,
@@ -966,10 +973,12 @@ public:
     }
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<DarkenEffect>::getInstance();
+        return GrTBackendEffectFactory<XferEffect>::getInstance();
     }
 
-    static const char* Name() { return "XfermodeDarken"; }
+    static const char* Name() { return "XferEffect"; }
+
+    SkXfermode::Mode mode() const { return fMode; }
 
     class GLEffect : public GrGLEffect {
     public:
@@ -982,47 +991,214 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const char* dstColorName = builder->dstColor();
-            GrAssert(NULL != dstColorName);
+            const char* dstColor = builder->dstColor();
+            GrAssert(NULL != dstColor);
+
+            // We don't try to optimize for this case at all
             if (NULL == inputColor) {
-                // the input color is solid white
-                builder->fsCodeAppendf("\t\t%s.a = 1.0;\n", outputColor);
-                builder->fsCodeAppendf("\t\t%s.rgb = vec3(1.0, 1.0, 1.0) - %s.aaa + %s.rgb;\n",
-                                       outputColor, dstColorName, dstColorName);
-            } else {
-                builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
-                                       outputColor, dstColorName, inputColor);
-                builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb,"
-                                                       " (1.0 - %s.a) * %s.rgb + %s.rgb);\n",
-                                       outputColor,
-                                       inputColor, dstColorName, inputColor,
-                                       dstColorName, inputColor, dstColorName);
+                builder->fsCodeAppendf("\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
+                inputColor = "ones";
+            }
+
+            // These all perform src-over on the alpha channel.
+            builder->fsCodeAppendf("\t\t%s.a = %s.a + (1.0 - %s.a) * %s.a;\n",
+                                    outputColor, inputColor, inputColor, dstColor);
+
+            switch (drawEffect.castEffect<XferEffect>().mode()) {
+                case SkXfermode::kOverlay_Mode:
+                    // Overlay is Hard-Light with the src and dst reversed
+                    HardLight(builder, outputColor, dstColor, inputColor);
+                    break;
+                case SkXfermode::kDarken_Mode:
+                    builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                                                            "(1.0 - %s.a) * %s.rgb + %s.rgb);\n",
+                                            outputColor,
+                                            inputColor, dstColor, inputColor,
+                                            dstColor, inputColor, dstColor);
+                    break;
+                case SkXfermode::kLighten_Mode:
+                    builder->fsCodeAppendf("\t\t%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                                                            "(1.0 - %s.a) * %s.rgb + %s.rgb);\n",
+                                            outputColor,
+                                            inputColor, dstColor, inputColor,
+                                            dstColor, inputColor, dstColor);
+                    break;
+                case SkXfermode::kColorDodge_Mode:
+                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'r');
+                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'g');
+                    ColorDodgeComponent(builder, outputColor, inputColor, dstColor, 'b');
+                    break;
+                case SkXfermode::kColorBurn_Mode:
+                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'r');
+                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'g');
+                    ColorBurnComponent(builder, outputColor, inputColor, dstColor, 'b');
+                    break;
+                case SkXfermode::kHardLight_Mode:
+                    HardLight(builder, outputColor, inputColor, dstColor);
+                    break;
+                case SkXfermode::kSoftLight_Mode:
+                    builder->fsCodeAppendf("\t\tif (0.0 == %s.a) {\n", dstColor);
+                    builder->fsCodeAppendf("\t\t\t%s.rgba = %s;\n", outputColor, inputColor);
+                    builder->fsCodeAppendf("\t\t} else {\n");
+                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'r');
+                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'g');
+                    SoftLightComponentPosDstAlpha(builder, outputColor, inputColor, dstColor, 'b');
+                    builder->fsCodeAppendf("\t\t}\n");
+                    break;
+                case SkXfermode::kDifference_Mode:
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb -"
+                                                       "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);\n", 
+                                           outputColor, inputColor, dstColor, inputColor, dstColor,
+                                           dstColor, inputColor);
+                    break;
+                case SkXfermode::kExclusion_Mode:
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb - "
+                                                        "2.0 * %s.rgb * %s.rgb;\n",
+                                           outputColor, dstColor, inputColor, dstColor, inputColor);
+                    break;
+                case SkXfermode::kMultiply_Mode:
+                    builder->fsCodeAppendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + "
+                                                        "(1.0 - %s.a) * %s.rgb + "
+                                                         "%s.rgb * %s.rgb;\n",
+                                           outputColor, inputColor, dstColor, dstColor, inputColor,
+                                           inputColor, dstColor);
+                    break;
+                case SkXfermode::kHue_Mode:
+                case SkXfermode::kSaturation_Mode:
+                case SkXfermode::kColor_Mode:
+                case SkXfermode::kLuminosity_Mode:
+                    GrCrash("Unimplemented XferEffect mode.");
+                    break;
+                default:
+                    GrCrash("Unknown XferEffect mode.");
+                    break;
             }
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return drawEffect.castEffect<XferEffect>().mode();
+        }
 
         virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
     private:
+        static void HardLight(GrGLShaderBuilder* builder,
+                              const char* final,
+                              const char* src,
+                              const char* dst) {
+            builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
+                                   final, dst, src);
+            builder->fsCodeAppendf("\t\t%s.rgb = mix(2.0 * %s.rgb * %s.rgb, ",
+                                   final, src, dst);
+            builder->fsCodeAppendf("%s.aaa * %s.aaa - 2.0 * (%s.aaa - %s.rgb) * (%s.aaa - %s.rgb),",
+                                   src, dst, dst, dst, src, src);
+            builder->fsCodeAppendf("vec3(greaterThan(2.0 * %s.rgb, %s.aaa)));\n",
+                                   src, src);
+            builder->fsCodeAppendf("\t\t%s.rgb += %s.rgb * (1.0 - %s.a) + %s.rgb * (1.0 - %s.a);\n",
+                                   final, src, dst, dst, src);
+        }
+
+        // Does one component of color-dodge
+        static void ColorDodgeComponent(GrGLShaderBuilder* builder,
+                                        const char* final,
+                                        const char* src,
+                                        const char* dst,
+                                        const char component) {
+            builder->fsCodeAppendf("\t\tif (0.0 == %s.%c) {\n", dst, component);
+            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1 - %s.a);\n",
+                                   final, component, src, component, dst);
+            builder->fsCodeAppend("\t\t} else {\n");
+            builder->fsCodeAppendf("\t\t\tfloat d = %s.a - %s.%c;\n", src, src, component);
+            builder->fsCodeAppend("\t\t\tif (0 == d) {\n");
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+                                   final, component, src, dst, src, component, dst, dst, component,
+                                   src);
+            builder->fsCodeAppend("\t\t\t} else {\n");
+            builder->fsCodeAppendf("\t\t\t\td = min(%s.a, %s.%c * %s.a / d);\n",
+                                   dst, dst, component, src);
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = d * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+                                   final, component, src, src, component, dst, dst, component, src);
+            builder->fsCodeAppend("\t\t\t}\n");
+            builder->fsCodeAppend("\t\t}\n");
+        }
+
+        // Does one component of color-burn
+        static void ColorBurnComponent(GrGLShaderBuilder* builder,
+                                       const char* final,
+                                       const char* src,
+                                       const char* dst,
+                                       const char component) {
+            builder->fsCodeAppendf("\t\tif (%s.a == %s.%c) {\n", dst, dst, component);
+            builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+                                   final, component, src, dst, src, component, dst, dst, component,
+                                   src);
+            builder->fsCodeAppendf("\t\t} else if (0.0 == %s.%c) {\n", src, component);
+            builder->fsCodeAppendf("\t\t\t%s.%c = %s.%c * (1.0 - %s.a);\n",
+                                   final, component, dst, component, src);
+            builder->fsCodeAppend("\t\t} else {\n");
+            builder->fsCodeAppendf("\t\t\tfloat d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / %s.%c);\n",
+                                   dst, dst, dst, component, src, src, component);
+            builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * d + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
+                                   final, component, src, src, component, dst, dst, component, src);
+            builder->fsCodeAppend("\t\t}\n");
+        }
+
+        // Does one component of soft-light. Caller should have already checked that dst alpha > 0.
+        static void SoftLightComponentPosDstAlpha(GrGLShaderBuilder* builder,
+                                                  const char* final,
+                                                  const char* src,
+                                                  const char* dst,
+                                                  const char component) {
+            // if (2S < Sa)
+            builder->fsCodeAppendf("\t\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
+            // (D^2 (Sa-2 S))/Da+(1-Da) S+D (-Sa+2 S+1)
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = (%s.%c*%s.%c*(%s.a - 2*%s.%c)) / %s.a + (1 - %s.a) * %s.%c + %s.%c*(-%s.a + 2*%s.%c + 1);\n",
+                                   final, component, dst, component, dst, component, src, src,
+                                   component, dst, dst, src, component, dst, component, src, src,
+                                   component);
+            // else if (4D < Da)
+            builder->fsCodeAppendf("\t\t\t} else if (4.0 * %s.%c <= %s.a) {\n",
+                                   dst, component, dst);
+            builder->fsCodeAppendf("\t\t\t\tfloat DSqd = %s.%c * %s.%c;\n",
+                                   dst, component, dst, component);
+            builder->fsCodeAppendf("\t\t\t\tfloat DCub = DSqd * %s.%c;\n", dst, component);
+            builder->fsCodeAppendf("\t\t\t\tfloat DaSqd = %s.a * %s.a;\n", dst, dst);
+            builder->fsCodeAppendf("\t\t\t\tfloat DaCub = DaSqd * %s.a;\n", dst);
+            // (Da^3 (-S)+Da^2 (S-D (3 Sa-6 S-1))+12 Da D^2 (Sa-2 S)-16 D^3 (Sa-2 S))/Da^2
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = (-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3*%s.a - 6*%s.%c - 1)) + 12*%s.a*DSqd*(%s.a - 2*%s.%c) - 16*DCub * (%s.a - 2*%s.%c)) / DaSqd;\n",
+                                   final, component, src, component, src, component, dst, component,
+                                   src, src, component, dst, src, src, component, src, src,
+                                   component);
+            builder->fsCodeAppendf("\t\t\t} else {\n");
+            // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
+            builder->fsCodeAppendf("\t\t\t\t%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2*%s.%c) - %s.a*%s.%c + %s.%c*(%s.a - 2*%s.%c + 1) + %s.%c;\n",
+                                    final, component, dst, dst, component, src, src, component, dst,
+                                    src, component, dst, component, src, src, component, src,
+                                    component);
+            builder->fsCodeAppendf("\t\t\t}\n");
+        }
+
         typedef GrGLEffect INHERITED;
     };
 
     GR_DECLARE_EFFECT_TEST;
 
 private:
-    DarkenEffect() { this->setWillReadDst(); }
+    XferEffect(SkXfermode::Mode mode) : fMode(mode) { this->setWillReadDst(); }
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE { return true; }
+    
+    SkXfermode::Mode fMode;
 
     typedef GrEffect INHERITED;
 };
 
-GR_DEFINE_EFFECT_TEST(DarkenEffect);
-GrEffectRef* DarkenEffect::TestCreate(SkMWCRandom*,
-                                      GrContext*,
-                                      const GrDrawTargetCaps&,
-                                      GrTexture*[]) {
-    static AutoEffectUnref gEffect(SkNEW(DarkenEffect));
+GR_DEFINE_EFFECT_TEST(XferEffect);
+GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
+                                    GrContext*,
+                                    const GrDrawTargetCaps&,
+                                    GrTexture*[]) {
+    int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
+    static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode))));
     return CreateEffectRef(gEffect);
 }
 
@@ -1070,9 +1246,10 @@ public:
         if (this->asCoeff(src, dst)) {
             return true;
         }
-        if (kDarken_Mode == fMode) {
+        if (XferEffect::IsSupportedMode(fMode)) {
             if (NULL != effect) {
-                *effect = DarkenEffect::Create();
+                *effect = XferEffect::Create(fMode);
+                SkASSERT(NULL != *effect);
             }
             return true;
         }

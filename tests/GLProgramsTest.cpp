@@ -44,7 +44,7 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
              kAttribute_ColorInput == fCoverageInput);
     fCoverageAttributeIndex = (fCoverageInput == kAttribute_ColorInput) ? currAttribIndex++ : -1;
 
-    fColorFilterXfermode = random->nextULessThan(SkXfermode::kCoeffModesCnt);
+    fColorFilterXfermode = random->nextULessThan(SkXfermode::kLastCoeffMode + 1);
 
     fFirstCoverageStage = random->nextULessThan(GrDrawState::kNumStages);
 
