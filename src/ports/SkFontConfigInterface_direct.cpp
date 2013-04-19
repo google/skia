@@ -479,12 +479,12 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
     FcPattern* pat = FcPatternCreate();
     FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, (char *) 0);
     if (NULL == os) {
-        return false;
+        return NULL;
     }
     FcFontSet* fs = FcFontList(NULL, pat, os);
     if (NULL == fs) {
         FcObjectSetDestroy(os);
-        return false;
+        return NULL;
     }
 
     SkTDArray<const char*> names;
