@@ -104,11 +104,11 @@ GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
                                  const char* mulFactor,
                                  GrSLConstantVec mulFactorDefault) {
     bool haveFactor = NULL != mulFactor && '\0' != *mulFactor;
-    
+
     GrAssert(NULL != outAppend);
     GrAssert(NULL != vec4VarName);
     GrAssert(kNone_GrSLConstantVec != mulFactorDefault || haveFactor);
-    
+
     if (!haveFactor) {
         if (kOnes_GrSLConstantVec == mulFactorDefault) {
             return kNone_GrSLConstantVec;
