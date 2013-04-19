@@ -1109,7 +1109,7 @@ public:
                                    final, component, src, component, dst);
             builder->fsCodeAppend("\t\t} else {\n");
             builder->fsCodeAppendf("\t\t\tfloat d = %s.a - %s.%c;\n", src, src, component);
-            builder->fsCodeAppend("\t\t\tif (0 == d) {\n");
+            builder->fsCodeAppend("\t\t\tif (0.0 == d) {\n");
             builder->fsCodeAppendf("\t\t\t\t%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);\n",
                                    final, component, src, dst, src, component, dst, dst, component,
                                    src);
