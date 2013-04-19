@@ -420,16 +420,25 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     }
 #endif
 
+    // do any matrix crunching before we reset the draw state for device coords
     const SkMatrix& vm = drawState->getViewMatrix();
     GrPoint center = GrPoint::Make(ellipse.centerX(), ellipse.centerY());
     vm.mapPoints(&center, 1);
-    SkRect xformedRect;
-    vm.mapRect(&xformedRect, ellipse);
-    SkScalar xRadius = SkScalarHalf(xformedRect.width());
-    SkScalar yRadius = SkScalarHalf(xformedRect.height());
+    SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
+    SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
+    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*ellipseXRadius + 
+                                   vm[SkMatrix::kMSkewY]*ellipseYRadius);
+    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*ellipseXRadius + 
+                                   vm[SkMatrix::kMScaleY]*ellipseYRadius);
     if (SkScalarDiv(xRadius, yRadius) > 2 || SkScalarDiv(yRadius, xRadius) > 2) {
         return false;
     }
+
+    // do (potentially) anisotropic mapping of stroke
+    SkVector scaledStroke;
+    SkScalar strokeWidth = stroke.getWidth();
+    scaledStroke.fX = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMScaleX] + vm[SkMatrix::kMSkewY]));
+    scaledStroke.fY = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMSkewX] + vm[SkMatrix::kMScaleY]));
 
     GrDrawState::AutoDeviceCoordDraw adcd(drawState);
     if (!adcd.succeeded()) {
@@ -472,12 +481,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     SkScalar innerRatio = 1.0f;
 
     if (SkStrokeRec::kFill_Style != style) {
-        SkScalar strokeWidth = stroke.getWidth();
 
-        // do (potentially) anisotropic mapping
-        SkVector scaledStroke;
-        scaledStroke.set(strokeWidth, strokeWidth);
-        vm.mapVectors(&scaledStroke, 1);
 
         if (SkScalarNearlyZero(scaledStroke.length())) {
             scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
