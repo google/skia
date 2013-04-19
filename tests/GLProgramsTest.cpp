@@ -79,7 +79,7 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
         coverageOutput = static_cast<CoverageOutput>(random->nextULessThan(kCoverageOutputCnt));
         illegalCoverageOutput = (!gpu->caps()->dualSourceBlendingSupport() &&
                                  CoverageOutputUsesSecondaryOutput(coverageOutput)) ||
-                                !dstRead && kCombineWithDst_CoverageOutput == coverageOutput;
+                                (!dstRead && kCombineWithDst_CoverageOutput == coverageOutput);
     } while (illegalCoverageOutput);
 
     fCoverageOutput = coverageOutput;

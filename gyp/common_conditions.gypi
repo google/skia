@@ -62,7 +62,7 @@
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '3',      # programDatabase (/Zi)
                 'Optimization': '3',                # full (/Ox)
-                'WholeProgramOptimization': 'true', #/GL
+#'WholeProgramOptimization': 'true', #/GL
                # Changing the floating point model requires rebaseling gm images
                #'FloatingPointModel': '2',          # fast (/fp:fast)
                 'FavorSizeOrSpeed': '1',            # speed (/Ot)
@@ -73,10 +73,10 @@
               },
               'VCLinkerTool': {
                 'GenerateDebugInformation': 'true', # /DEBUG
-                'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
+#'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
               },
               'VCLibrarianTool': {
-                'LinkTimeCodeGeneration': 'true',   # useLinkTimeCodeGeneration /LTCG
+#                'LinkTimeCodeGeneration': 'true',   # useLinkTimeCodeGeneration /LTCG
               },
             },
           },
