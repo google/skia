@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkData.h"
 #include "SkDataSet.h"
+#include "SkDataTable.h"
 #include "SkStream.h"
 
 template <typename T> class SkTUnref {
@@ -21,6 +22,79 @@ public:
 private:
     T*  fRef;
 };
+
+static void test_simpletable(skiatest::Reporter* reporter) {
+    const int idata[] = { 1, 4, 9, 16, 25, 63 };
+    int icount = SK_ARRAY_COUNT(idata);
+    SkAutoTUnref<SkDataTable> itable(SkDataTable::NewCopyArray(idata,
+                                                               sizeof(idata[0]),
+                                                               icount));
+    REPORTER_ASSERT(reporter, itable->count() == icount);
+    for (int i = 0; i < icount; ++i) {
+        size_t size;
+        REPORTER_ASSERT(reporter, sizeof(int) == itable->atSize(i));
+        REPORTER_ASSERT(reporter, *itable->atDataT<int>(i, &size) == idata[i]);
+        REPORTER_ASSERT(reporter, sizeof(int) == size);
+    }
+}
+
+static void test_vartable(skiatest::Reporter* reporter) {
+    const char* str[] = {
+        "", "a", "be", "see", "deigh", "ef", "ggggggggggggggggggggggggggg"
+    };
+    int count = SK_ARRAY_COUNT(str);
+    size_t sizes[SK_ARRAY_COUNT(str)];
+    for (int i = 0; i < count; ++i) {
+        sizes[i] = strlen(str[i]) + 1;
+    }
+    
+    SkAutoTUnref<SkDataTable> table(SkDataTable::NewCopyArrays(
+                                        (const void*const*)str, sizes, count));
+    
+    REPORTER_ASSERT(reporter, table->count() == count);
+    for (int i = 0; i < count; ++i) {
+        size_t size;
+        REPORTER_ASSERT(reporter, table->atSize(i) == sizes[i]);
+        REPORTER_ASSERT(reporter, !strcmp(table->atDataT<const char>(i, &size),
+                                          str[i]));
+        REPORTER_ASSERT(reporter, size == sizes[i]);
+        
+        const char* s = table->atStr(i);
+        REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
+    }
+}
+
+static void test_tablebuilder(skiatest::Reporter* reporter) {
+    const char* str[] = {
+        "", "a", "be", "see", "deigh", "ef", "ggggggggggggggggggggggggggg"
+    };
+    int count = SK_ARRAY_COUNT(str);
+
+    SkDataTableBuilder builder(16);
+    
+    for (int i = 0; i < count; ++i) {
+        builder.append(str[i], strlen(str[i]) + 1);
+    }
+    SkAutoTUnref<SkDataTable> table(builder.createDataTable());
+    
+    REPORTER_ASSERT(reporter, table->count() == count);
+    for (int i = 0; i < count; ++i) {
+        size_t size;
+        REPORTER_ASSERT(reporter, table->atSize(i) == strlen(str[i]) + 1);
+        REPORTER_ASSERT(reporter, !strcmp(table->atDataT<const char>(i, &size),
+                                          str[i]));
+        REPORTER_ASSERT(reporter, size == strlen(str[i]) + 1);
+        
+        const char* s = table->atStr(i);
+        REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
+    }
+}
+
+static void test_datatable(skiatest::Reporter* reporter) {
+    test_simpletable(reporter);
+    test_vartable(reporter);
+    test_tablebuilder(reporter);
+}
 
 static void unrefAll(const SkDataSet::Pair pairs[], int count) {
     for (int i = 0; i < count; ++i) {
@@ -146,6 +220,7 @@ static void TestData(skiatest::Reporter* reporter) {
 
     test_cstring(reporter);
     test_dataset(reporter);
+    test_datatable(reporter);
 }
 
 #include "TestClassDef.h"

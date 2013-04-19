@@ -65,6 +65,7 @@
         '<(skia_src_path)/core/SkCubicClipper.cpp',
         '<(skia_src_path)/core/SkCubicClipper.h',
         '<(skia_src_path)/core/SkData.cpp',
+        '<(skia_src_path)/core/SkDataTable.cpp',
         '<(skia_src_path)/core/SkDebug.cpp',
         '<(skia_src_path)/core/SkDeque.cpp',
         '<(skia_src_path)/core/SkDevice.cpp',
