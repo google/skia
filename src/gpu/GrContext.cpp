@@ -853,30 +853,7 @@ void GrContext::drawRect(const GrPaint& paint,
         target->drawNonIndexed(primType, 0, vertCount);
     } else {
         // filled BW rect
-#if GR_STATIC_RECT_VB
-            const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
-            if (NULL == sqVB) {
-                GrPrintf("Failed to create static rect vb.\n");
-                return;
-            }
-
-            GrDrawState* drawState = target->drawState();
-            target->drawState()->setDefaultVertexAttribs();
-            target->setVertexSourceToBuffer(sqVB);
-            SkMatrix m;
-            m.setAll(rect.width(),    0,             rect.fLeft,
-                        0,            rect.height(), rect.fTop,
-                        0,            0,             SkMatrix::I()[8]);
-
-            if (NULL != matrix) {
-                m.postConcat(*matrix);
-            }
-            GrDrawState::AutoViewMatrixRestore avmr(drawState, m);
-
-            target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
-#else
-            target->drawSimpleRect(rect, matrix);
-#endif
+        target->drawSimpleRect(rect, matrix);
     }
 }
 
@@ -890,46 +867,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-#if GR_STATIC_RECT_VB
-    GrDrawState* drawState = target->drawState();
-
-    SkMatrix m;
-
-    m.setAll(dstRect.width(), 0,                dstRect.fLeft,
-             0,               dstRect.height(), dstRect.fTop,
-             0,               0,                SkMatrix::I()[8]);
-    if (NULL != dstMatrix) {
-        m.postConcat(*dstMatrix);
-    }
-
-    // This code path plays a little fast and loose with the notion of local coords and coord
-    // change matrices in order to account for localRect and localMatrix. The unit square VB only
-    // has one set of coords. Rather than using AutoViewMatrixRestore we instead directly set concat
-    // with m and then call GrDrawState::localCoordChange() with a matrix that accounts for
-    // localRect and localMatrix. This code path is preventing some encapsulation in GrDrawState.
-    SkMatrix savedViewMatrix = drawState->getViewMatrix();
-    drawState->preConcatViewMatrix(m);
-
-    m.setAll(localRect.width(), 0,                localRect.fLeft,
-             0,               localRect.height(), localRect.fTop,
-             0,               0,                  SkMatrix::I()[8]);
-    if (NULL != localMatrix) {
-        m.postConcat(*localMatrix);
-    }
-    drawState->localCoordChange(m);
-
-    const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
-    if (NULL == sqVB) {
-        GrPrintf("Failed to create static rect vb.\n");
-        return;
-    }
-    drawState->setDefaultVertexAttribs();
-    target->setVertexSourceToBuffer(sqVB);
-    target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
-    drawState->setViewMatrix(savedViewMatrix);
-#else
     target->drawRect(dstRect, dstMatrix, &localRect, localMatrix);
-#endif
 }
 
 void GrContext::drawVertices(const GrPaint& paint,

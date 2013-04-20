@@ -22,15 +22,6 @@
 #endif
 
 /**
- * When drawing rects this causes Ganesh to use a vertex buffer containing
- * a unit square that is positioned by a matrix. Enable on systems where
- * emitting per-rect-draw verts is more expensive than constant/matrix
- * updates. Defaults to 0.
- */
-//#define GR_STATIC_RECT_VB 1
-
-
-/**
  * This gives a threshold in bytes of when to lock a GrGeometryBuffer vs using
  * updateData. (Note the depending on the underlying 3D API the update functions
  * may always be implemented using a lock)
