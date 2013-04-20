@@ -34,7 +34,6 @@ GrGpu::GrGpu(GrContext* context)
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)
     , fIndexPoolUseCnt(0)
-    , fUnitSquareVertexBuffer(NULL)
     , fQuadIndexBuffer(NULL)
     , fContextIsDirty(true) {
 
@@ -67,10 +66,7 @@ void GrGpu::abandonResources() {
     }
 
     GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
-    GrAssert(NULL == fUnitSquareVertexBuffer ||
-             !fUnitSquareVertexBuffer->isValid());
     GrSafeSetNull(fQuadIndexBuffer);
-    GrSafeSetNull(fUnitSquareVertexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
     delete fIndexPool;
@@ -86,10 +82,7 @@ void GrGpu::releaseResources() {
     }
 
     GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
-    GrAssert(NULL == fUnitSquareVertexBuffer ||
-             !fUnitSquareVertexBuffer->isValid());
     GrSafeSetNull(fQuadIndexBuffer);
-    GrSafeSetNull(fUnitSquareVertexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
     delete fIndexPool;
@@ -295,37 +288,6 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
     }
 
     return fQuadIndexBuffer;
-}
-
-const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
-    if (NULL == fUnitSquareVertexBuffer) {
-
-        static const GrPoint DATA[] = {
-            { 0,            0 },
-            { SK_Scalar1,   0 },
-            { SK_Scalar1,   SK_Scalar1 },
-            { 0,            SK_Scalar1 }
-#if 0
-            GrPoint(0,         0),
-            GrPoint(SK_Scalar1,0),
-            GrPoint(SK_Scalar1,SK_Scalar1),
-            GrPoint(0,         SK_Scalar1)
-#endif
-        };
-        static const size_t SIZE = sizeof(DATA);
-
-        GrGpu* me = const_cast<GrGpu*>(this);
-        fUnitSquareVertexBuffer = me->createVertexBuffer(SIZE, false);
-        if (NULL != fUnitSquareVertexBuffer) {
-            if (!fUnitSquareVertexBuffer->updateData(DATA, SIZE)) {
-                fUnitSquareVertexBuffer->unref();
-                fUnitSquareVertexBuffer = NULL;
-                GrCrash("Can't get vertices into buffer!");
-            }
-        }
-    }
-
-    return fUnitSquareVertexBuffer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
