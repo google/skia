@@ -590,27 +590,36 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+// position + (optional) texture coord
+extern const GrVertexAttrib gBWRectPosUVAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding}
+};
+
+void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
+    if (hasUVs) {
+        drawState->setVertexAttribs<gBWRectPosUVAttribs>(2);
+    } else {
+        drawState->setVertexAttribs<gBWRectPosUVAttribs>(1);
+    }
+}
+
+};
+
 void GrDrawTarget::onDrawRect(const GrRect& rect,
                               const SkMatrix* matrix,
                               const GrRect* localRect,
                               const SkMatrix* localMatrix) {
-    // position + (optional) texture coord
-    static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-        {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding}
-    };
-    int attribCount = 1;
-
-    if (NULL != localRect) {
-        attribCount = 2;
-    }
 
     GrDrawState::AutoViewMatrixRestore avmr;
     if (NULL != matrix) {
         avmr.set(this->drawState(), *matrix);
     }
 
-    this->drawState()->setVertexAttribs(kAttribs, attribCount);
+    set_vertex_attributes(this->drawState(), NULL != localRect);
+
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
@@ -620,9 +629,8 @@ void GrDrawTarget::onDrawRect(const GrRect& rect,
     size_t vsize = this->drawState()->getVertexSize();
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
     if (NULL != localRect) {
-        GrAssert(attribCount == 2);
         GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                            kAttribs[1].fOffset);
+                                            sizeof(GrPoint));
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
                            vsize);

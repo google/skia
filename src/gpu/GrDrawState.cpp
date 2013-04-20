@@ -68,14 +68,16 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 }
 
 size_t GrDrawState::getVertexSize() const {
-    return vertex_size(fCommon.fVertexAttribs.begin(), fCommon.fVertexAttribs.count());
+    return vertex_size(fCommon.fVAPtr, fCommon.fVACount);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
     GrAssert(count <= kMaxVertexAttribCnt);
-    fCommon.fVertexAttribs.reset(attribs, count);
+
+    fCommon.fVAPtr = attribs;
+    fCommon.fVACount = count;
 
     // Set all the indices to -1
     memset(fCommon.fFixedFunctionVertexAttribIndices,
@@ -109,7 +111,10 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
 void GrDrawState::setDefaultVertexAttribs() {
     static const GrVertexAttrib kPositionAttrib =
         {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding};
-    fCommon.fVertexAttribs.reset(&kPositionAttrib, 1);
+
+    fCommon.fVAPtr = &kPositionAttrib;
+    fCommon.fVACount = 1;
+
     // set all the fixed function indices to -1 except position.
     memset(fCommon.fFixedFunctionVertexAttribIndices,
            0xff,
@@ -136,13 +141,13 @@ bool GrDrawState::validateVertexAttribs() const {
             int numAttributes = stage.getVertexAttribIndexCount();
             for (int i = 0; i < numAttributes; ++i) {
                 int attribIndex = attributeIndices[i];
-                if (attribIndex >= fCommon.fVertexAttribs.count() ||
-                    kEffect_GrVertexAttribBinding != fCommon.fVertexAttribs[attribIndex].fBinding) {
+                if (attribIndex >= fCommon.fVACount ||
+                    kEffect_GrVertexAttribBinding != fCommon.fVAPtr[attribIndex].fBinding) {
                     return false;
                 }
 
                 GrSLType effectSLType = (*effect)->vertexAttribType(i);
-                GrVertexAttribType attribType = fCommon.fVertexAttribs[attribIndex].fType;
+                GrVertexAttribType attribType = fCommon.fVAPtr[attribIndex].fType;
                 int slVecCount = GrSLTypeVectorCount(effectSLType);
                 int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
                 if (slVecCount != attribVecCount ||

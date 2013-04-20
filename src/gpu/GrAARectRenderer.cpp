@@ -142,17 +142,22 @@ GrEffectRef* GrRectEffect::TestCreate(SkMWCRandom* random,
 
 namespace {
 
-static void aa_rect_attributes(bool useCoverage, const GrVertexAttrib** attribs, int* count) {
-    static const GrVertexAttrib kCoverageAttribs[] = {
-        {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding},
-        {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kCoverage_GrVertexAttribBinding},
-    };
-    static const GrVertexAttrib kColorAttribs[] = {
-        {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding},
-        {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
-    };
-    *attribs = useCoverage ? kCoverageAttribs : kColorAttribs;
-    *count = 2;
+extern const GrVertexAttrib gAARectCoverageAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kCoverage_GrVertexAttribBinding},
+};
+
+extern const GrVertexAttrib gAARectColorAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
+};
+
+static void set_aa_rect_vertex_attributes(GrDrawState* drawState, bool useCoverage) {
+    if (useCoverage) {
+        drawState->setVertexAttribs<gAARectCoverageAttribs>(SK_ARRAY_COUNT(gAARectCoverageAttribs));
+    } else {
+        drawState->setVertexAttribs<gAARectColorAttribs>(SK_ARRAY_COUNT(gAARectColorAttribs));
+    }
 }
 
 static void set_inset_fan(GrPoint* pts, size_t stride,
@@ -259,10 +264,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
 
-    const GrVertexAttrib* attribs;
-    int attribCount;
-    aa_rect_attributes(useVertexCoverage, &attribs, &attribCount);
-    drawState->setVertexAttribs(attribs, attribCount);
+    set_aa_rect_vertex_attributes(drawState, useVertexCoverage);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 8, 0);
     if (!geo.succeeded()) {
@@ -317,6 +319,15 @@ struct RectVertex {
     GrPoint fWidthHeight;
 };
 
+namespace {
+
+extern const GrVertexAttrib gAARectVertexAttribs[] = {
+    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
+    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
+};
+
+};
 
 void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
                                         GrDrawTarget* target,
@@ -344,12 +355,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
     SkScalar newWidth = vec[0].length() / 2.0f + 0.5f;
     SkScalar newHeight = vec[1].length() / 2.0f + 0.5f;
 
-    static const GrVertexAttrib kVertexAttribs[] = {
-        { kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding },
-        { kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding },
-        { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
-    };
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
+    drawState->setVertexAttribs<gAARectVertexAttribs>(SK_ARRAY_COUNT(gAARectVertexAttribs));
     GrAssert(sizeof(RectVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
@@ -422,10 +428,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         return;
     }
 
-    const GrVertexAttrib* attribs;
-    int attribCount;
-    aa_rect_attributes(useVertexCoverage, &attribs, &attribCount);
-    drawState->setVertexAttribs(attribs, attribCount);
+    set_aa_rect_vertex_attributes(drawState, useVertexCoverage);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
     if (!geo.succeeded()) {

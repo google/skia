@@ -558,6 +558,16 @@ bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
+namespace {
+
+// position + edge
+extern const GrVertexAttrib gPathAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+};
+
+};
+
 bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
                                         const SkStrokeRec&,
                                         GrDrawTarget* target,
@@ -602,12 +612,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return false;
     }
 
-    // position + edge
-    static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
-    };
-    drawState->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
+    drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs));
 
     enum {
         // the edge effects share this stage with glyph rendering

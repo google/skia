@@ -306,6 +306,16 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, co
     return true;
 }
 
+namespace {
+
+// position + edge
+extern const GrVertexAttrib gCircleVertexAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+};
+
+};
+
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 const GrPaint& paint,
                                 const GrRect& circle,
@@ -324,12 +334,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         return;
     }
 
-    // position + edge
-    static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
-    };
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
+    drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs));
     GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
@@ -406,6 +411,17 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
 }
 
+namespace {
+
+// position + edge
+extern const GrVertexAttrib gEllipseVertexAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+};
+
+};
+
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  const GrPaint& paint,
                                  const GrRect& ellipse,
@@ -445,13 +461,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    // position + edge
-    static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
-        {kVec2f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding},
-        {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding}
-    };
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
+    drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs));
     GrAssert(sizeof(EllipseVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);

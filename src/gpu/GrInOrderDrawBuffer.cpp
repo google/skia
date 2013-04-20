@@ -73,6 +73,50 @@ void get_vertex_bounds(const void* vertices,
 }
 }
 
+
+namespace {
+
+extern const GrVertexAttrib kRectPosColorUVAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType,  sizeof(GrPoint)+sizeof(GrColor), 
+                                                  kLocalCoord_GrVertexAttribBinding},
+};
+
+extern const GrVertexAttrib kRectPosUVAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,              kPosition_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding},
+};
+
+static void set_vertex_attributes(GrDrawState* drawState,
+                                  bool hasColor, bool hasUVs,
+                                  int* colorOffset, int* localOffset) {
+    *colorOffset = -1;
+    *localOffset = -1;
+
+    // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
+    // only in color is a common occurrence in tables). However, having per-vertex colors disables
+    // blending optimizations because we don't know if the color will be solid or not. These
+    // optimizations help determine whether coverage and color can be blended correctly when
+    // dual-source blending isn't available. This comes into play when there is coverage. If colors
+    // were a stage it could take a hint that every vertex's color will be opaque.
+    if (hasColor && hasUVs) {
+        *colorOffset = sizeof(GrPoint);
+        *localOffset = sizeof(GrPoint) + sizeof(GrColor);
+        drawState->setVertexAttribs<kRectPosColorUVAttribs>(3);
+    } else if (hasColor) {
+        *colorOffset = sizeof(GrPoint);
+        drawState->setVertexAttribs<kRectPosColorUVAttribs>(2);
+    } else if (hasUVs) {
+        *localOffset = sizeof(GrPoint);
+        drawState->setVertexAttribs<kRectPosUVAttribs>(2);
+    } else {
+        drawState->setVertexAttribs<kRectPosUVAttribs>(1);
+    }
+}
+
+};
+
 void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
                                      const SkMatrix* matrix,
                                      const GrRect* localRect,
@@ -82,45 +126,21 @@ void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
     GrDrawState* drawState = this->drawState();
 
     GrColor color = drawState->getColor();
-    GrVertexAttribArray<3> attribs;
 
-    // set position attrib
-    static const GrVertexAttrib kPosAttrib =
-        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding};
-    attribs.push_back(kPosAttrib);
-
-    size_t currentOffset = sizeof(GrPoint);
-    int colorOffset = -1;
-    int localOffset = -1;
-
-    // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
-    // only in color is a common occurrence in tables). However, having per-vertex colors disables
-    // blending optimizations because we don't know if the color will be solid or not. These
-    // optimizations help determine whether coverage and color can be blended correctly when
-    // dual-source blending isn't available. This comes into play when there is coverage. If colors
-    // were a stage it could take a hint that every vertex's color will be opaque.
-    if (this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage()) {
-        colorOffset = currentOffset;
-        GrVertexAttrib colorAttrib =
-            {kVec4ub_GrVertexAttribType, currentOffset, kColor_GrVertexAttribBinding};
-        attribs.push_back(colorAttrib);
-        currentOffset += sizeof(GrColor);
+    int colorOffset, localOffset;
+    set_vertex_attributes(drawState,
+                   this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage(),
+                   NULL != localRect,
+                   &colorOffset, &localOffset);
+    if (colorOffset >= 0) {
         // We set the draw state's color to white here. This is done so that any batching performed
         // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
         // mismatch. TODO: Once vertex layout is owned by GrDrawState it should skip comparing the
-        // constant color in its op== when the kColor layout bit is set and then we can remove this.
+        // constant color in its op== when the kColor layout bit is set and then we can remove 
+        // this.
         acr.set(drawState, 0xFFFFFFFF);
     }
 
-    if (NULL != localRect) {
-        localOffset = currentOffset;
-        GrVertexAttrib localCoordAttrib =
-            {kVec2f_GrVertexAttribType, currentOffset, kLocalCoord_GrVertexAttribBinding};
-        attribs.push_back(localCoordAttrib);
-        currentOffset += sizeof(GrPoint);
-    }
-
-    drawState->setVertexAttribs(attribs.begin(), attribs.count());
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
@@ -144,7 +164,6 @@ void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
     }
 
     size_t vsize = drawState->getVertexSize();
-    GrAssert(vsize == currentOffset);
 
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
     combinedMatrix.mapPointsWithStride(geo.positions(), vsize, 4);
