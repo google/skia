@@ -1047,7 +1047,7 @@ public:
                     break;
                 case SkXfermode::kDifference_Mode:
                     builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb -"
-                                                       "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);\n", 
+                                                       "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);\n",
                                            outputColor, inputColor, dstColor, inputColor, dstColor,
                                            dstColor, inputColor);
                     break;
@@ -1186,7 +1186,7 @@ public:
 private:
     XferEffect(SkXfermode::Mode mode) : fMode(mode) { this->setWillReadDst(); }
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE { return true; }
-    
+
     SkXfermode::Mode fMode;
 
     typedef GrEffect INHERITED;

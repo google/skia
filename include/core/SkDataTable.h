@@ -88,13 +88,13 @@ public:
      */
     static SkDataTable* NewCopyArray(const void* array, size_t elemSize,
                                      int count);
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDataTable)
 
 protected:
     SkDataTable(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
 private:
     SkDataTable(int count, SkData* dataWeTakeOverOwnership);
     virtual ~SkDataTable();

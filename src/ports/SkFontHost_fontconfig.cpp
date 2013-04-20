@@ -280,7 +280,7 @@ static FcPattern** MatchFont(FcFontSet* font_set,
                              int* count) {
   // Older versions of fontconfig have a bug where they cannot select
   // only scalable fonts so we have to manually filter the results.
-  
+
     FcPattern** iter = font_set->fonts;
     FcPattern** stop = iter + font_set->nfont;
     // find the first good match
@@ -300,7 +300,7 @@ static FcPattern** MatchFont(FcFontSet* font_set,
             break;
         }
     }
-    
+
     *count = iter - firstIter;
     return firstIter;
 }
@@ -314,7 +314,7 @@ public:
     virtual void getStyle(int index, SkFontStyle*, SkString* style) SK_OVERRIDE;
     virtual SkTypeface* createTypeface(int index) SK_OVERRIDE;
     virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
-    
+
 private:
     struct Rec {
         SkString    fStyleName;
@@ -328,7 +328,7 @@ private:
 static int map_range(int value,
                      int old_min, int old_max, int new_min, int new_max) {
     SkASSERT(old_min < old_max);
-    SkASSERT(new_min < new_max);    
+    SkASSERT(new_min < new_max);
     return new_min + SkMulDiv(value - old_min,
                               new_max - new_min, old_max - old_min);
 }
@@ -338,7 +338,7 @@ static SkFontStyle make_fontconfig_style(FcPattern* match) {
     int width = get_int(match, FC_WIDTH);
     int slant = get_int(match, FC_SLANT);
 //    SkDebugf("old weight %d new weight %d\n", weight, map_range(weight, 0, 80, 0, 400));
-   
+
     // fontconfig weight seems to be 0..200 or so, so we remap it here
     weight = map_range(weight, 0, 80, 0, 400);
     width = map_range(width, 0, 200, 0, 9);
@@ -393,7 +393,7 @@ public:
     SkFontMgr_fontconfig(SkFontConfigInterface* fci)
         : fFCI(fci)
         , fFamilyNames(NULL) {}
-    
+
     virtual ~SkFontMgr_fontconfig() {
         SkSafeUnref(fFamilyNames);
     }
@@ -477,5 +477,3 @@ SkFontMgr* SkFontMgr::Factory() {
     SkFontConfigInterface* fci = RefFCI();
     return fci ? SkNEW_ARGS(SkFontMgr_fontconfig, (fci)) : NULL;
 }
-
-
