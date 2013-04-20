@@ -97,13 +97,13 @@ SkDataTable* SkDataTable::NewCopyArray(const void* array, size_t elemSize,
     if (count < 0) {
         count = 0;
     }
-    
+
     size_t headerSize = count * sizeof(ElemHead);
     size_t dataSize = count * elemSize;
-    
+
     size_t bufferSize = headerSize + dataSize;
     void* buffer = sk_malloc_throw(bufferSize);
-    
+
     ElemHead* headerCurr = (ElemHead*)buffer;
     char* dataCurr = (char*)buffer + headerSize;
     for (int i = 0; i < count; ++i) {
@@ -112,7 +112,7 @@ SkDataTable* SkDataTable::NewCopyArray(const void* array, size_t elemSize,
         dataCurr += elemSize;
     }
     memcpy((char*)buffer + headerSize, array, dataSize);
-    
+
     return SkNEW_ARGS(SkDataTable, (count,
                                     SkData::NewFromMalloc(buffer, bufferSize)));
 }
@@ -143,4 +143,3 @@ SkDataTable* SkDataTableBuilder::createDataTable() {
     return SkDataTable::NewCopyArrays(fPtrs.begin(), fSizes.begin(),
                                       fSizes.count());
 }
-

@@ -511,4 +511,3 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
                                                  SkTArray<FontIdentity>* ids) {
     return false;
 }
-

@@ -426,9 +426,9 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     vm.mapPoints(&center, 1);
     SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
     SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
-    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*ellipseXRadius + 
+    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*ellipseXRadius +
                                    vm[SkMatrix::kMSkewY]*ellipseYRadius);
-    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*ellipseXRadius + 
+    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*ellipseXRadius +
                                    vm[SkMatrix::kMScaleY]*ellipseYRadius);
     if (SkScalarDiv(xRadius, yRadius) > 2 || SkScalarDiv(yRadius, xRadius) > 2) {
         return false;

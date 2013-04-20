@@ -47,10 +47,10 @@ static void test_vartable(skiatest::Reporter* reporter) {
     for (int i = 0; i < count; ++i) {
         sizes[i] = strlen(str[i]) + 1;
     }
-    
+
     SkAutoTUnref<SkDataTable> table(SkDataTable::NewCopyArrays(
                                         (const void*const*)str, sizes, count));
-    
+
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
         size_t size;
@@ -58,7 +58,7 @@ static void test_vartable(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !strcmp(table->atDataT<const char>(i, &size),
                                           str[i]));
         REPORTER_ASSERT(reporter, size == sizes[i]);
-        
+
         const char* s = table->atStr(i);
         REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
     }
@@ -71,12 +71,12 @@ static void test_tablebuilder(skiatest::Reporter* reporter) {
     int count = SK_ARRAY_COUNT(str);
 
     SkDataTableBuilder builder(16);
-    
+
     for (int i = 0; i < count; ++i) {
         builder.append(str[i], strlen(str[i]) + 1);
     }
     SkAutoTUnref<SkDataTable> table(builder.createDataTable());
-    
+
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
         size_t size;
@@ -84,7 +84,7 @@ static void test_tablebuilder(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !strcmp(table->atDataT<const char>(i, &size),
                                           str[i]));
         REPORTER_ASSERT(reporter, size == strlen(str[i]) + 1);
-        
+
         const char* s = table->atStr(i);
         REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
     }
