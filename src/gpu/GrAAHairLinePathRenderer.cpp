@@ -694,6 +694,16 @@ GrEffectRef* HairLineEdgeEffect::TestCreate(SkMWCRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+// position + edge
+extern const GrVertexAttrib gHairlineAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
+};
+
+};
+
 bool GrAAHairLinePathRenderer::createGeom(
             const SkPath& path,
             GrDrawTarget* target,
@@ -707,11 +717,6 @@ bool GrAAHairLinePathRenderer::createGeom(
     target->getClip()->getConservativeBounds(drawState->getRenderTarget(),
                                              &devClipBounds);
 
-    // position + edge
-    static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
-    };
     SkMatrix viewM = drawState->getViewMatrix();
 
     PREALLOC_PTARRAY(128) lines;
@@ -723,7 +728,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     *lineCnt = lines.count() / 2;
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
 
-    target->drawState()->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
+    target->drawState()->setVertexAttribs<gHairlineAttribs>(SK_ARRAY_COUNT(gHairlineAttribs));
     GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {

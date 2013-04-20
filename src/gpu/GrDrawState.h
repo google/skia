@@ -120,15 +120,15 @@ public:
      */
 
     /**
-     *  Sets vertex attributes for next draw.
-     *
-     *  @param attribs    the array of vertex attributes to set.
-     *  @param count      the number of attributes being set, limited to kMaxVertexAttribCnt.
+     *  Sets vertex attributes for next draw. The object driving the templatization
+     *  should be a global GrVertexAttrib array that is never changed.
      */
-    void setVertexAttribs(const GrVertexAttrib attribs[], int count);
+    template <const GrVertexAttrib A[]> void setVertexAttribs(int count) {
+        this->setVertexAttribs(A, count);
+    }
 
-    const GrVertexAttrib* getVertexAttribs() const { return fCommon.fVertexAttribs.begin(); }
-    int getVertexAttribCount() const { return fCommon.fVertexAttribs.count(); }
+    const GrVertexAttrib* getVertexAttribs() const { return fCommon.fVAPtr; }
+    int getVertexAttribCount() const { return fCommon.fVACount; }
 
     size_t getVertexSize() const;
 
@@ -177,17 +177,20 @@ public:
          AutoVertexAttribRestore(GrDrawState* drawState) {
              GrAssert(NULL != drawState);
              fDrawState = drawState;
-             fVertexAttribs = drawState->fCommon.fVertexAttribs;
+             fVAPtr = drawState->fCommon.fVAPtr;
+             fVACount = drawState->fCommon.fVACount;
              fDrawState->setDefaultVertexAttribs();
          }
 
          ~AutoVertexAttribRestore(){
-             fDrawState->fCommon.fVertexAttribs = fVertexAttribs;
+             fDrawState->fCommon.fVAPtr = fVAPtr;
+             fDrawState->fCommon.fVACount = fVACount;
          }
 
      private:
-         GrDrawState*                               fDrawState;
-         GrVertexAttribArray<kMaxVertexAttribCnt>   fVertexAttribs;
+         GrDrawState*          fDrawState;
+         const GrVertexAttrib* fVAPtr;
+         int                   fVACount;
      };
 
     /**
@@ -1034,19 +1037,20 @@ private:
     /** Fields that are identical in GrDrawState and GrDrawState::DeferredState. */
     struct CommonState {
         // These fields are roughly sorted by decreasing likelihood of being different in op==
-        GrColor                                  fColor;
-        SkMatrix                                 fViewMatrix;
-        GrBlendCoeff                             fSrcBlend;
-        GrBlendCoeff                             fDstBlend;
-        GrColor                                  fBlendConstant;
-        uint32_t                                 fFlagBits;
-        GrVertexAttribArray<kMaxVertexAttribCnt> fVertexAttribs;
-        GrStencilSettings                        fStencilSettings;
-        int                                      fFirstCoverageStage;
-        GrColor                                  fCoverage;
-        SkXfermode::Mode                         fColorFilterMode;
-        GrColor                                  fColorFilterColor;
-        DrawFace                                 fDrawFace;
+        GrColor               fColor;
+        SkMatrix              fViewMatrix;
+        GrBlendCoeff          fSrcBlend;
+        GrBlendCoeff          fDstBlend;
+        GrColor               fBlendConstant;
+        uint32_t              fFlagBits;
+        const GrVertexAttrib* fVAPtr;
+        int                   fVACount;
+        GrStencilSettings     fStencilSettings;
+        int                   fFirstCoverageStage;
+        GrColor               fCoverage;
+        SkXfermode::Mode      fColorFilterMode;
+        GrColor               fColorFilterColor;
+        DrawFace              fDrawFace;
 
         // This is simply a different representation of info in fVertexAttribs and thus does
         // not need to be compared in op==.
@@ -1059,7 +1063,8 @@ private:
                           fDstBlend == other.fDstBlend &&
                           fBlendConstant == other.fBlendConstant &&
                           fFlagBits == other.fFlagBits &&
-                          fVertexAttribs == other.fVertexAttribs &&
+                          fVACount == other.fVACount &&
+                          !memcmp(fVAPtr, other.fVAPtr, fVACount * sizeof(GrVertexAttrib)) &&
                           fStencilSettings == other.fStencilSettings &&
                           fFirstCoverageStage == other.fFirstCoverageStage &&
                           fCoverage == other.fCoverage &&
@@ -1145,6 +1150,14 @@ private:
     SkAutoTUnref<GrRenderTarget>           fRenderTarget;
     CommonState                            fCommon;
     GrEffectStage                          fStages[kNumStages];
+
+    /**
+     *  Sets vertex attributes for next draw.
+     *
+     *  @param attribs    the array of vertex attributes to set.
+     *  @param count      the number of attributes being set, limited to kMaxVertexAttribCnt.
+     */
+    void setVertexAttribs(const GrVertexAttrib attribs[], int count);
 
     typedef GrRefCnt INHERITED;
 };
