@@ -647,10 +647,10 @@ desk_pokemonwiki.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-2
 desk_pokemonwiki.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,167.830,141.047,204.613
 desk_pokemonwiki.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,208.760,177.884,239.636
 desk_pokemonwiki.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,581.590,513.431,659.749
-desk_pokemonwiki.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,711.080,629.972,792.188
+desk_pokemonwiki.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,711.080,629.972,832.188
 desk_pokemonwiki.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,5691.880,5112.692,6271.068
 desk_pokemonwiki.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,372.990,325.691,450.289
-desk_pokemonwiki.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,472.640,415.376,529.904
+desk_pokemonwiki.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,472.640,415.376,559.904
 desk_pokemonwiki.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,6978.240,6270.416,7686.064
 desk_pokemonwiki.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,651.560,576.404,726.716
 desk_pokemonwiki.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,630.240,557.216,703.264
