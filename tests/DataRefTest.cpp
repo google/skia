@@ -63,8 +63,8 @@ static void test_datatable_is_empty(skiatest::Reporter* reporter,
 static void test_emptytable(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkDataTable> table0(SkDataTable::NewEmpty());
     SkAutoTUnref<SkDataTable> table1(SkDataTable::NewCopyArrays(NULL, NULL, 0));
-    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(NULL, NULL, 0));
-    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(NULL, NULL, 0,
+    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(NULL, 0, 0));
+    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(NULL, 0, 0,
                                                                NULL, NULL));
 
     test_datatable_is_empty(reporter, table0);
