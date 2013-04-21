@@ -49,7 +49,6 @@ static void test_datatable_flatten(skiatest::Reporter* reporter,
     SkOrderedReadBuffer rb(storage.get(), wsize);
     SkAutoTUnref<SkDataTable> newTable((SkDataTable*)rb.readFlattenable());
 
-    SkDebugf("%d entries, %d flatten-size\n", table->count(), wsize);
     test_is_equal(reporter, table, newTable);
 }
 
