@@ -37,7 +37,7 @@ public:
      *  Return the size of the index'th entry in the table. The caller must
      *  ensure that index is valid for this table.
      */
-    size_t  atSize(int index) const;
+    size_t atSize(int index) const;
 
     /**
      *  Return a pointer to the data of the index'th entry in the table.
@@ -46,11 +46,11 @@ public:
      *  @param size If non-null, this returns the byte size of this entry. This
      *              will be the same value that atSize(index) would return.
      */
-    const void* atData(int index, size_t* size = NULL) const;
+    const void* at(int index, size_t* size = NULL) const;
 
     template <typename T>
-    const T* atDataT(int index, size_t* size = NULL) const {
-        return reinterpret_cast<const T*>(this->atData(index, size));
+    const T* atT(int index, size_t* size = NULL) const {
+        return reinterpret_cast<const T*>(this->at(index, size));
     }
 
     /**
@@ -59,10 +59,12 @@ public:
      */
     const char* atStr(int index) const {
         size_t size;
-        const char* str = this->atDataT<const char>(index, &size);
+        const char* str = this->atT<const char>(index, &size);
         SkASSERT(strlen(str) + 1 == size);
         return str;
     }
+
+    typedef void (*FreeProc)(void* context);
 
     static SkDataTable* NewEmpty();
 
@@ -75,8 +77,8 @@ public:
      *               ptrs[] array.
      *  @param count the number of array elements in ptrs[] and sizes[] to copy.
      */
-    static SkDataTable* NewCopyArrays(const void * const * ptrs, const size_t sizes[],
-                                      int count);
+    static SkDataTable* NewCopyArrays(const void * const * ptrs,
+                                      const size_t sizes[], int count);
 
     /**
      *  Return a new table that contains a copy of the data in array.
@@ -89,6 +91,9 @@ public:
     static SkDataTable* NewCopyArray(const void* array, size_t elemSize,
                                      int count);
 
+    static SkDataTable* NewArrayProc(const void* array, size_t elemSize,
+                                     int count, FreeProc proc, void* context);
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDataTable)
 
 protected:
@@ -96,11 +101,28 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
-    SkDataTable(int count, SkData* dataWeTakeOverOwnership);
+    struct Dir {
+        const void* fPtr;
+        uintptr_t   fSize;
+    };
+
+    int         fCount;
+    size_t      fElemSize;
+    union {
+        const Dir*  fDir;
+        const char* fElems;
+    } fU;
+
+    FreeProc    fFreeProc;
+    void*       fFreeProcContext;
+
+    SkDataTable();
+    SkDataTable(const void* array, size_t elemSize, int count,
+                FreeProc, void* context);
+    SkDataTable(const Dir*, int count, FreeProc, void* context);
     virtual ~SkDataTable();
 
-    int     fCount;
-    SkData* fData;
+    friend class SkDataTableBuilder;    // access to Dir
 
     typedef SkFlattenable INHERITED;
 };
@@ -109,17 +131,21 @@ private:
  *  Helper class that allows for incrementally building up the data needed to
  *  create a SkDataTable.
  */
-class SK_API SkDataTableBuilder {
+class SK_API SkDataTableBuilder : SkNoncopyable {
 public:
     SkDataTableBuilder(size_t minChunkSize);
     ~SkDataTableBuilder();
 
-    int  count() const { return fSizes.count(); }
+    int  count() const { return fDir.count(); }
+    size_t minChunkSize() const { return fMinChunkSize; }
 
     /**
      *  Forget any previously appended entries, setting count() back to 0.
      */
-    void reset();
+    void reset(size_t minChunkSize);
+    void reset() {
+        this->reset(fMinChunkSize);
+    }
 
     /**
      *  Copy size-bytes from data, and append it to the growing SkDataTable.
@@ -144,15 +170,15 @@ public:
 
     /**
      *  Return an SkDataTable from the accumulated entries that were added by
-     *  calls to append(). This data is logically distinct from the builder, and
-     *  will not be affected by any subsequent calls to the builder.
+     *  calls to append(). This call also clears any accumluated entries from
+     *  this builder, so its count() will be 0 after this call.
      */
-    SkDataTable* createDataTable();
+    SkDataTable* detachDataTable();
 
 private:
-    SkTDArray<size_t> fSizes;
-    SkTDArray<void*>  fPtrs;
-    SkChunkAlloc      fHeap;
+    SkTDArray<SkDataTable::Dir> fDir;
+    SkChunkAlloc*               fHeap;
+    size_t                      fMinChunkSize;
 };
 
 #endif
