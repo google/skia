@@ -54,7 +54,7 @@ static inline int GrSLTypeToVecLength(GrSLType type) {
         1, // kMat44f_GrSLType
         1, // kSampler2D_GrSLType
     };
-    GrAssert((size_t) type < GR_ARRAY_COUNT(kVecLengths));
+    GR_STATIC_ASSERT(kGrSLTypeCount == GR_ARRAY_COUNT(kVecLengths));
     return kVecLengths[type];
 }
 

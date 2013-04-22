@@ -1966,7 +1966,7 @@ inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
         GR_GL_REPEAT,
         GR_GL_MIRRORED_REPEAT
     };
-    GrAssert((unsigned) tm <= SK_ARRAY_COUNT(gWrapModes));
+    GR_STATIC_ASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gWrapModes));
     GR_STATIC_ASSERT(0 == SkShader::kClamp_TileMode);
     GR_STATIC_ASSERT(1 == SkShader::kRepeat_TileMode);
     GR_STATIC_ASSERT(2 == SkShader::kMirror_TileMode);

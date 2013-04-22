@@ -323,12 +323,13 @@ public:
     enum LineType {
         kHori_LineType,
         kVert_LineType,
-        kDiag_LineType
+        kDiag_LineType,
+        kLineTypeCount
     };
 
     static const char* LineTypeName(LineType lt) {
         static const char* gNames[] = { "hori", "vert", "diag" };
-        SkASSERT((size_t)lt <= SK_ARRAY_COUNT(gNames));
+        SK_COMPILE_ASSERT(kLineTypeCount == SK_ARRAY_COUNT(gNames), names_wrong_size);
         return gNames[lt];
     }
 
@@ -355,6 +356,9 @@ public:
                 break;
             case kDiag_LineType:
                 matrix.setRotate(45, cx, cy);
+                break;
+            case kLineTypeCount:
+                // Not a real enum value.
                 break;
         }
 
