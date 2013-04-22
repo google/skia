@@ -139,7 +139,7 @@ static inline bool SkIsPow2(int value) {
  *  Return a*b/((1 << shift) - 1), rounding any fractional bits.
  *  Only valid if a and b are unsigned and <= 32767 and shift is > 0 and <= 8
  */
-static inline unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
+static inline unsigned SkMul16ShiftRound(U16CPU a, U16CPU b, int shift) {
     SkASSERT(a <= 32767);
     SkASSERT(b <= 32767);
     SkASSERT(shift > 0 && shift <= 8);
@@ -148,12 +148,12 @@ static inline unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
 }
 
 /**
- *  Return a*b/255, rounding any fractional bits. Only valid if both
- *  a and b are 0..255
+ *  Return a*b/255, rounding any fractional bits.
+ *  Only valid if a and b are unsigned and <= 32767.
  */
-static inline U8CPU SkMulDiv255Round(U8CPU a, U8CPU b) {
-    SkASSERT((uint8_t)a == a);
-    SkASSERT((uint8_t)b == b);
+static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
+    SkASSERT(a <= 32767);
+    SkASSERT(b <= 32767);
     unsigned prod = SkMulS16(a, b) + 128;
     return (prod + (prod >> 8)) >> 8;
 }
