@@ -16,23 +16,22 @@ namespace skiagm {
 class PathOpsInverseGM : public GM {
 public:
     PathOpsInverseGM() {
-        this->makePaints();
     }
 
 protected:
-    void makePaints() {
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
         const unsigned oneColor = 0xFF8080FF;
         const unsigned twoColor = 0x807F1f1f;
         SkColor blendColor = blend(oneColor, twoColor);
-        makePaint(&onePaint, oneColor);
-        makePaint(&twoPaint, twoColor);
-        makePaint(&opPaint[kDifference_PathOp], oneColor);
-        makePaint(&opPaint[kIntersect_PathOp], blendColor);
-        makePaint(&opPaint[kUnion_PathOp], 0xFFc0FFc0);
-        makePaint(&opPaint[kReverseDifference_PathOp], twoColor);
-        makePaint(&opPaint[kXOR_PathOp], 0xFFa0FFe0);
-        makePaint(&outlinePaint, 0xFF000000);
-        outlinePaint.setStyle(SkPaint::kStroke_Style);
+        makePaint(&fOnePaint, oneColor);
+        makePaint(&fTwoPaint, twoColor);
+        makePaint(&fOpPaint[kDifference_PathOp], oneColor);
+        makePaint(&fOpPaint[kIntersect_PathOp], blendColor);
+        makePaint(&fOpPaint[kUnion_PathOp], 0xFFc0FFc0);
+        makePaint(&fOpPaint[kReverseDifference_PathOp], twoColor);
+        makePaint(&fOpPaint[kXOR_PathOp], 0xFFa0FFe0);
+        makePaint(&fOutlinePaint, 0xFF000000);
+        fOutlinePaint.setStyle(SkPaint::kStroke_Style);
     }
 
     SkColor blend(SkColor one, SkColor two) {
@@ -78,10 +77,10 @@ protected:
                 canvas->save();
                 canvas->translate(0, SkIntToScalar(yPos));
                 canvas->clipRect(SkRect::MakeWH(110, 110), SkRegion::kIntersect_Op, true);
-                canvas->drawPath(one, onePaint);
-                canvas->drawPath(one, outlinePaint);
-                canvas->drawPath(two, twoPaint);
-                canvas->drawPath(two, outlinePaint);
+                canvas->drawPath(one, fOnePaint);
+                canvas->drawPath(one, fOutlinePaint);
+                canvas->drawPath(two, fTwoPaint);
+                canvas->drawPath(two, fOutlinePaint);
                 canvas->restore();
                 int xPos = 150;
                 for (int op = kDifference_PathOp; op <= kReverseDifference_PathOp; ++op) {
@@ -90,8 +89,8 @@ protected:
                     canvas->save();
                     canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
                     canvas->clipRect(SkRect::MakeWH(110, 110), SkRegion::kIntersect_Op, true);
-                    canvas->drawPath(result, opPaint[op]);
-                    canvas->drawPath(result, outlinePaint);
+                    canvas->drawPath(result, fOpPaint[op]);
+                    canvas->drawPath(result, fOutlinePaint);
                     canvas->restore();
                     xPos += 150;
                 }
@@ -101,10 +100,10 @@ protected:
     }
 
 private:
-    SkPaint onePaint;
-    SkPaint twoPaint;
-    SkPaint outlinePaint;
-    SkPaint opPaint[kReverseDifference_PathOp - kDifference_PathOp + 1];
+    SkPaint fOnePaint;
+    SkPaint fTwoPaint;
+    SkPaint fOutlinePaint;
+    SkPaint fOpPaint[kReverseDifference_PathOp - kDifference_PathOp + 1];
     typedef GM INHERITED;
 };
 
