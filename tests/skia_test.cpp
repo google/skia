@@ -141,8 +141,8 @@ DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(threaded, z, false, "allow tests to use multiple threads internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
-DEFINE_int32(threads, 8,
-             "If >0, run threadsafe tests on a threadpool with this many threads.");
+DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
+             "Run threadsafe tests on a threadpool with this many threads.");
 
 // Deletes self when run.
 class SkTestRunnable : public SkRunnable {
