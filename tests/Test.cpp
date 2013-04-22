@@ -9,6 +9,7 @@
 
 #include "SkString.h"
 #include "SkTArray.h"
+#include "SkTime.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -80,11 +81,13 @@ void Test::run() {
     // Tell (likely shared) fReporter that this test has started.
     fReporter->startTest(this);
 
+    const SkMSec start = SkTime::GetMSecs();
     // Run the test into a LocalReporter so we know if it's passed or failed without interference
     // from other tests that might share fReporter.
     LocalReporter local;
     this->onRun(&local);
     fPassed = local.failure_size() == 0;
+    fElapsed = SkTime::GetMSecs() - start;
 
     // Now tell fReporter about any failures and wrap up.
     for (int i = 0; i < local.failure_size(); i++) {

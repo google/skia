@@ -7,12 +7,13 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
+#include "SkOSFile.h"
 #include "SkRunnable.h"
-#include "SkThreadPool.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
+#include "SkThreadPool.h"
+#include "SkTime.h"
 #include "Test.h"
-#include "SkOSFile.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -27,6 +28,10 @@ class Iter {
 public:
     Iter(Reporter* r) : fReporter(r) {
         r->ref();
+        this->reset();
+    }
+
+    void reset() {
         fReg = TestRegistry::Head();
     }
 
@@ -45,16 +50,6 @@ public:
         return NULL;
     }
 
-    static int Count() {
-        const TestRegistry* reg = TestRegistry::Head();
-        int count = 0;
-        while (reg) {
-            count += 1;
-            reg = reg->next();
-        }
-        return count;
-    }
-
 private:
     Reporter* fReporter;
     const TestRegistry* fReg;
@@ -68,6 +63,7 @@ class DebugfReporter : public Reporter {
 public:
     DebugfReporter(bool allowExtendedTest, bool allowThreaded)
         : fNextIndex(0)
+        , fPending(0)
         , fTotal(0)
         , fAllowExtendedTest(allowExtendedTest)
         , fAllowThreaded(allowThreaded) {
@@ -88,7 +84,8 @@ public:
 protected:
     virtual void onStart(Test* test) {
         const int index = sk_atomic_inc(&fNextIndex);
-        SkDebugf("[%d/%d] %s...\n", index+1, fTotal, test->getName());
+        sk_atomic_inc(&fPending);
+        SkDebugf("[%3d/%3d] (%d) %s\n", index+1, fTotal, fPending, test->getName());
     }
     virtual void onReport(const char desc[], Reporter::Result result) {
         SkDebugf("\t%s: %s\n", result2string(result), desc);
@@ -96,12 +93,20 @@ protected:
 
     virtual void onEnd(Test* test) {
         if (!test->passed()) {
-          SkDebugf("---- FAILED\n");
+            SkDebugf("---- %s FAILED\n", test->getName());
+        }
+
+        sk_atomic_dec(&fPending);
+        if (fNextIndex == fTotal) {
+            // Just waiting on straggler tests.  Shame them by printing their name and runtime.
+            SkDebugf("          (%d) %5.1fs %s\n",
+                     fPending, test->elapsedMs() / 1e3, test->getName());
         }
     }
 
 private:
     int32_t fNextIndex;
+    int32_t fPending;
     int fTotal;
     bool fAllowExtendedTest;
     bool fAllowThreaded;
@@ -163,6 +168,10 @@ private:
     int32_t* fFailCount;
 };
 
+static bool shouldSkip(const char* testName) {
+    return !FLAGS_match.isEmpty() && !strstr(testName, FLAGS_match[0]);
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
@@ -208,16 +217,29 @@ int tool_main(int argc, char** argv) {
     DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded);
     Iter iter(&reporter);
 
-    const int count = Iter::Count();
-    reporter.setTotal(count);
+    // Count tests first.
+    int total = 0;
+    int toRun = 0;
+    Test* test;
+    while ((test = iter.next()) != NULL) {
+        SkAutoTDelete<Test> owned(test);
+        if(!shouldSkip(test->getName())) {
+            toRun++;
+        }
+        total++;
+    }
+    reporter.setTotal(toRun);
+
+    // Now run them.
+    iter.reset();
     int32_t failCount = 0;
     int skipCount = 0;
 
     SkAutoTDelete<SkThreadPool> threadpool(SkNEW_ARGS(SkThreadPool, (FLAGS_threads)));
     SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < total; i++) {
         SkAutoTDelete<Test> test(iter.next());
-        if (!FLAGS_match.isEmpty() && !strstr(test->getName(), FLAGS_match[0])) {
+        if (shouldSkip(test->getName())) {
             ++skipCount;
         } else if (!test->isThreadsafe()) {
             unsafeTests.push_back() = test.detach();
@@ -235,7 +257,7 @@ int tool_main(int argc, char** argv) {
     threadpool.free();
 
     SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
-             count, failCount, skipCount);
+             toRun, failCount, skipCount);
     const int testCount = reporter.countTests();
     if (FLAGS_verbose && testCount > 0) {
         SkDebugf("Ran %d Internal tests.\n", testCount);
