@@ -12,6 +12,7 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 #include "SkThread.h"
+#include "SkTypes.h"
 
 class GrContextFactory;
 
@@ -70,6 +71,7 @@ namespace skiatest {
         const char* getName();
         void run();
         bool passed() const { return fPassed; }
+        SkMSec elapsedMs() const { return fElapsed; }
 
         static const SkString& GetTmpDir();
 
@@ -85,6 +87,7 @@ namespace skiatest {
         Reporter*   fReporter;
         SkString    fName;
         bool        fPassed;
+        SkMSec      fElapsed;
     };
 
     class GpuTest : public Test{
