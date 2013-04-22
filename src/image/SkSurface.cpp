@@ -37,7 +37,7 @@ void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     }
 }
 
-void SkSurface_Base::aboutToDraw() {
+void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
     this->dirtyGenerationID();
 
     if (NULL != fCachedCanvas) {
@@ -51,7 +51,7 @@ void SkSurface_Base::aboutToDraw() {
         // the cached image. Note: we only call if there is an outstanding owner
         // on the image (besides us).
         if (fCachedImage->getRefCnt() > 1) {
-            this->onCopyOnWrite();
+            this->onCopyOnWrite(mode);
         }
 
         // regardless of copy-on-write, we must drop our cached image now, so
@@ -87,8 +87,8 @@ uint32_t SkSurface::generationID() {
     return fGenerationID;
 }
 
-void SkSurface::notifyContentChanged() {
-    asSB(this)->aboutToDraw();
+void SkSurface::notifyContentWillChange(ContentChangeMode mode) {
+    asSB(this)->aboutToDraw(mode);
 }
 
 SkCanvas* SkSurface::getCanvas() {

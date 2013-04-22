@@ -248,6 +248,7 @@ private:
     SkSurface* fSurface;
     SkDeferredCanvas::NotificationClient* fNotificationClient;
     bool fFreshFrame;
+    bool fCanDiscardCanvasContents;
     size_t fMaxRecordingStorageBytes;
     size_t fPreviousStorageAllocated;
     size_t fBitmapSizeThreshold;
@@ -281,6 +282,7 @@ DeferredDevice::DeferredDevice(SkSurface* surface)
 void DeferredDevice::init() {
     fRecordingCanvas = NULL;
     fFreshFrame = true;
+    fCanDiscardCanvasContents = false;
     fPreviousStorageAllocated = 0;
     fBitmapSizeThreshold = kDeferredCanvasBitmapSizeThreshold;
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
@@ -312,11 +314,14 @@ void DeferredDevice::setNotificationClient(
 }
 
 void DeferredDevice::skipPendingCommands() {
-    if (!fRecordingCanvas->isDrawingToLayer() && fPipeController.hasPendingCommands()) {
-        fFreshFrame = true;
-        flushPendingCommands(kSilent_PlaybackMode);
-        if (fNotificationClient) {
-            fNotificationClient->skippedPendingDrawCommands();
+    if (!fRecordingCanvas->isDrawingToLayer()) {
+        fCanDiscardCanvasContents = true;
+        if (fPipeController.hasPendingCommands()) {
+            fFreshFrame = true;
+            flushPendingCommands(kSilent_PlaybackMode);
+            if (fNotificationClient) {
+                fNotificationClient->skippedPendingDrawCommands();
+            }
         }
     }
 }
@@ -335,8 +340,18 @@ void DeferredDevice::flushPendingCommands(PlaybackMode playbackMode) {
     if (!fPipeController.hasPendingCommands()) {
         return;
     }
-    if (playbackMode == kNormal_PlaybackMode && fNotificationClient) {
-        fNotificationClient->prepareForDraw();
+    if (playbackMode == kNormal_PlaybackMode) {
+        if (NULL != fNotificationClient) {
+            fNotificationClient->prepareForDraw();
+        }
+        if (fCanDiscardCanvasContents) {
+            if (NULL != fSurface) {
+                // Pre-empt notifyContentChanged(false) calls that will happen
+                // during flush
+                fSurface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
+            }
+            fCanDiscardCanvasContents = false;
+        }
     }
     fPipeWriter.flushRecording(true);
     fPipeController.playback(kSilent_PlaybackMode == playbackMode);

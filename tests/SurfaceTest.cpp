@@ -148,14 +148,15 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
 }
 static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
                                           SurfaceType surfaceType,
-                                          GrContext* context) {
+                                          GrContext* context,
+                                          SkSurface::ContentChangeMode mode) {
     // Verifies the robustness of SkSurface for handling use cases where calls
     // are made before a canvas is created.
     {
         // Test passes by not asserting
         SkSurface* surface = createSurface(surfaceType, context);
         SkAutoTUnref<SkSurface> aur_surface(surface);
-        surface->notifyContentChanged();
+        surface->notifyContentWillChange(mode);
         surface->validate();
     }
     {
@@ -165,7 +166,7 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
         SkAutoTUnref<SkImage> aur_image1(image1);
         image1->validate();
         surface->validate();
-        surface->notifyContentChanged();
+        surface->notifyContentWillChange(mode);
         image1->validate();
         surface->validate();
         SkImage* image2 = surface->newImageSnapshot();
@@ -182,13 +183,15 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
     TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
-    TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL);
+    TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
+    TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
 #if SK_SUPPORT_GPU
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
         TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
         TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
-        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context);
+        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
+        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
     }
 #endif
 }
