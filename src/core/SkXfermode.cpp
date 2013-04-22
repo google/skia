@@ -955,7 +955,7 @@ void SkProcXfermode::toString(SkString* str) const {
 class XferEffect : public GrEffect {
 public:
     static bool IsSupportedMode(SkXfermode::Mode mode) {
-        return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastSeparableMode;
+        return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;
     }
 
     static GrEffectRef* Create(SkXfermode::Mode mode) {
@@ -1000,11 +1000,14 @@ public:
                 inputColor = "ones";
             }
 
+            SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
+            builder->fsCodeAppendf("\t\t// SkXfermode::Mode: %s\n", SkXfermode::ModeName(mode));
+
             // These all perform src-over on the alpha channel.
             builder->fsCodeAppendf("\t\t%s.a = %s.a + (1.0 - %s.a) * %s.a;\n",
                                     outputColor, inputColor, inputColor, dstColor);
 
-            switch (drawEffect.castEffect<XferEffect>().mode()) {
+            switch (mode) {
                 case SkXfermode::kOverlay_Mode:
                     // Overlay is Hard-Light with the src and dst reversed
                     HardLight(builder, outputColor, dstColor, inputColor);
@@ -1063,12 +1066,58 @@ public:
                                            outputColor, inputColor, dstColor, dstColor, inputColor,
                                            inputColor, dstColor);
                     break;
-                case SkXfermode::kHue_Mode:
-                case SkXfermode::kSaturation_Mode:
-                case SkXfermode::kColor_Mode:
-                case SkXfermode::kLuminosity_Mode:
-                    GrCrash("Unimplemented XferEffect mode.");
+                case SkXfermode::kHue_Mode: {
+                    //  SetLum(SetSat(S * Da, Sat(D * Sa)), Sa*Da, D*Sa) + (1 - Sa) * D + (1 - Da) * S
+                    SkString setSat, setLum;
+                    AddSatFunction(builder, &setSat);
+                    AddLumFunction(builder, &setLum);
+                    builder->fsCodeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
+                                           dstColor, inputColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s(%s.rgb * %s.a, dstSrcAlpha.rgb), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
+                                           outputColor, setLum.c_str(), setSat.c_str(), inputColor,
+                                           dstColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                                           outputColor, inputColor, dstColor, dstColor, inputColor);
                     break;
+                }
+                case SkXfermode::kSaturation_Mode: {
+                    // SetLum(SetSat(D * Sa, Sat(S * Da)), Sa*Da, D*Sa)) + (1 - Sa) * D + (1 - Da) * S
+                    SkString setSat, setLum;
+                    AddSatFunction(builder, &setSat);
+                    AddLumFunction(builder, &setLum);
+                    builder->fsCodeAppendf("\t\tvec4 dstSrcAlpha = %s * %s.a;\n",
+                                           dstColor, inputColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s(dstSrcAlpha.rgb, %s.rgb * %s.a), dstSrcAlpha.a, dstSrcAlpha.rgb);\n",
+                                           outputColor, setLum.c_str(), setSat.c_str(), inputColor,
+                                           dstColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                                           outputColor, inputColor, dstColor, dstColor, inputColor);
+                    break;
+                }
+                case SkXfermode::kColor_Mode: {
+                    //  SetLum(S * Da, Sa* Da, D * Sa) + (1 - Sa) * D + (1 - Da) * S
+                    SkString setLum;
+                    AddLumFunction(builder, &setLum);
+                    builder->fsCodeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
+                                           inputColor, dstColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s(srcDstAlpha.rgb, srcDstAlpha.a, %s.rgb * %s.a);\n",
+                                           outputColor, setLum.c_str(), dstColor, inputColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                                           outputColor, inputColor, dstColor, dstColor, inputColor);
+                    break;
+                }
+                case SkXfermode::kLuminosity_Mode: {
+                    //  SetLum(D * Sa, Sa* Da, S * Da) + (1 - Sa) * D + (1 - Da) * S
+                    SkString setLum;
+                    AddLumFunction(builder, &setLum);
+                    builder->fsCodeAppendf("\t\tvec4 srcDstAlpha = %s * %s.a;\n",
+                                           inputColor, dstColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb = %s(%s.rgb * %s.a, srcDstAlpha.a, srcDstAlpha.rgb);\n",
+                                           outputColor, setLum.c_str(), dstColor, inputColor);
+                    builder->fsCodeAppendf("\t\t%s.rgb += (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb;\n",
+                                           outputColor, inputColor, dstColor, dstColor, inputColor);
+                    break;
+                }
                 default:
                     GrCrash("Unknown XferEffect mode.");
                     break;
@@ -1176,6 +1225,126 @@ public:
                                     src, component, dst, component, src, src, component, src,
                                     component);
             builder->fsCodeAppendf("\t\t\t}\n");
+        }
+
+        // Adds a function that takes two colors and an alpha as input. It produces a color with the
+        // hue and saturation of the first color, the luminosity of the second color, and the input
+        // alpha. It has this signature:
+        //      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
+        static void AddLumFunction(GrGLShaderBuilder* builder, SkString* setLumFunction) {
+            // Emit a helper that gets the luminance of a color.
+            SkString getFunction;
+            GrGLShaderVar getLumArgs[] = {
+                GrGLShaderVar("color", kVec3f_GrSLType),
+            };
+            SkString getLumBody("\treturn dot(vec3(0.3, 0.59, 0.11), color);\n");
+            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
+                                  kFloat_GrSLType,
+                                  "luminance",
+                                   SK_ARRAY_COUNT(getLumArgs), getLumArgs,
+                                   getLumBody.c_str(),
+                                   &getFunction);
+
+            // Emit the set luminance function.
+            GrGLShaderVar setLumArgs[] = {
+                GrGLShaderVar("hueSat", kVec3f_GrSLType),
+                GrGLShaderVar("alpha", kFloat_GrSLType),
+                GrGLShaderVar("lumColor", kVec3f_GrSLType),
+            };
+            SkString setLumBody;
+            setLumBody.printf("\tfloat diff = %s(lumColor - hueSat);\n", getFunction.c_str());
+            setLumBody.append("\tvec3 outColor = hueSat + diff;\n");
+            setLumBody.appendf("\tfloat outLum = %s(outColor);\n", getFunction.c_str());
+            setLumBody.append("\tfloat minComp = min(min(outColor.r, outColor.g), outColor.b);\n"
+                              "\tfloat maxComp = max(max(outColor.r, outColor.g), outColor.b);\n"
+                              "\tif (minComp < 0.0) {\n"
+                              "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * outLum) / (outLum - minComp);\n"
+                              "\t}\n"
+                              "\tif (maxComp > alpha) {\n"
+                              "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * (alpha - outLum)) / (maxComp - outLum);\n"
+                              "\t}\n"
+                              "\treturn outColor;\n");
+            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
+                        kVec3f_GrSLType,
+                        "set_luminance",
+                        SK_ARRAY_COUNT(setLumArgs), setLumArgs,
+                        setLumBody.c_str(),
+                        setLumFunction);
+        }
+
+        // Adds a function that creates a color with the hue and luminosity of one input color and
+        // the saturation of another color. It will have this signature:
+        //      float set_saturation(vec3 hueLumColor, vec3 satColor)
+        static void AddSatFunction(GrGLShaderBuilder* builder, SkString* setSatFunction) {
+            // Emit a helper that gets the saturation of a color
+            SkString getFunction;
+            GrGLShaderVar getSatArgs[] = { GrGLShaderVar("color", kVec3f_GrSLType) };
+            SkString getSatBody;
+            getSatBody.printf("\treturn max(max(color.r, color.g), color.b) - "
+                              "min(min(color.r, color.g), color.b);\n");
+            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
+                                  kFloat_GrSLType,
+                                  "saturation",
+                                  SK_ARRAY_COUNT(getSatArgs), getSatArgs,
+                                  getSatBody.c_str(),
+                                  &getFunction);
+
+            // Emit a helper that sets the saturation given sorted input channels
+            SkString helperFunction;
+            GrGLShaderVar helperArgs[] = {
+                GrGLShaderVar("minComp", kFloat_GrSLType),
+                GrGLShaderVar("midComp", kFloat_GrSLType),
+                GrGLShaderVar("maxComp", kFloat_GrSLType),
+                GrGLShaderVar("sat", kFloat_GrSLType),
+            };
+            helperArgs[0].setTypeModifier(GrGLShaderVar::kInOut_TypeModifier);
+            helperArgs[1].setTypeModifier(GrGLShaderVar::kInOut_TypeModifier);
+            helperArgs[2].setTypeModifier(GrGLShaderVar::kInOut_TypeModifier);
+            SkString helperBody;
+            helperBody.append("\tif (minComp < maxComp) {\n"
+                              "\t\tmidComp = sat * (midComp - minComp) / (maxComp - minComp);\n"
+                              "\t\tmaxComp = sat;\n"
+                              "\t} else {\n"
+                              "\t\tmidComp = midComp = 0.0;\n"
+                              "\t}\n"
+                              "\tminComp = 0.0;\n");
+            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
+                                  kVoid_GrSLType,
+                                  "set_saturation_helper",
+                                  SK_ARRAY_COUNT(helperArgs), helperArgs,
+                                  helperBody.c_str(),
+                                  &helperFunction);
+
+            GrGLShaderVar setSatArgs[] = {
+                GrGLShaderVar("hueLumColor", kVec3f_GrSLType),
+                GrGLShaderVar("satColor", kVec3f_GrSLType),
+            };
+            const char* helpFunc = helperFunction.c_str();
+            SkString setSatBody;
+            setSatBody.appendf("\tfloat sat = %s(satColor);\n"
+                               "\tif (hueLumColor.r <= hueLumColor.g) {\n"
+                               "\t\tif (hueLumColor.g <= hueLumColor.b) {\n"
+                               "\t\t\t%s(hueLumColor.r, hueLumColor.g, hueLumColor.b, sat);\n"
+                               "\t\t} else {\n"
+                               "\t\t\t%s(hueLumColor.r, hueLumColor.b, hueLumColor.g, sat);\n"
+                               "\t\t}\n"
+                               "\t} else if (hueLumColor.r <= hueLumColor.b) {\n"
+                               "\t\t%s(hueLumColor.g, hueLumColor.r, hueLumColor.b, sat);\n"
+                               "\t} else if (hueLumColor.g <= hueLumColor.b) {\n"
+                               "\t\t%s(hueLumColor.g, hueLumColor.b, hueLumColor.r, sat);\n"
+                               "\t} else {\n"
+                               "\t\t%s(hueLumColor.b, hueLumColor.g, hueLumColor.r, sat);\n"
+                               "\t}\n"
+                               "\treturn hueLumColor;",
+                               getFunction.c_str(), helpFunc, helpFunc, helpFunc, helpFunc,\
+                               helpFunc);
+            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
+                                  kVec3f_GrSLType,
+                                  "set_saturation",
+                                  SK_ARRAY_COUNT(setSatArgs), setSatArgs,
+                                  setSatBody.c_str(),
+                                  setSatFunction);
+
         }
 
         typedef GrGLEffect INHERITED;

@@ -29,8 +29,11 @@ public:
         kNone_TypeModifier,
         kOut_TypeModifier,
         kIn_TypeModifier,
+        kInOut_TypeModifier,
         kUniform_TypeModifier,
-        kAttribute_TypeModifier
+        kAttribute_TypeModifier,
+        kVaryingIn_TypeModifier,
+        kVaryingOut_TypeModifier
     };
 
     enum Precision {
@@ -303,14 +306,20 @@ private:
         switch (t) {
             case kNone_TypeModifier:
                 return "";
-            case kOut_TypeModifier:
-                return k110_GrGLSLGeneration == gen ? "varying" : "out";
             case kIn_TypeModifier:
-                return k110_GrGLSLGeneration == gen ? "varying" : "in";
+                return "in";
+            case kInOut_TypeModifier:
+                return "inout";
+            case kOut_TypeModifier:
+                return "out";
             case kUniform_TypeModifier:
                 return "uniform";
             case kAttribute_TypeModifier:
                 return k110_GrGLSLGeneration == gen ? "attribute" : "in";
+            case kVaryingIn_TypeModifier:
+                return k110_GrGLSLGeneration == gen ? "varying" : "in";
+            case kVaryingOut_TypeModifier:
+                return k110_GrGLSLGeneration == gen ? "varying" : "out";
             default:
                 GrCrash("Unknown shader variable type modifier.");
                 return ""; // suppress warning
