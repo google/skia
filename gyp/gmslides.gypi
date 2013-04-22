@@ -78,6 +78,7 @@
     '../gm/rects.cpp',
     '../gm/rrect.cpp',
     '../gm/rrects.cpp',
+    '../gm/roundrects.cpp',
     '../gm/samplerstress.cpp',
     '../gm/shaderbounds.cpp',
     '../gm/selftest.cpp',
