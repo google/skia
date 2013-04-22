@@ -73,11 +73,11 @@ public:
         fTotal = total;
     }
 
-    virtual bool allowExtendedTest() const {
+    virtual bool allowExtendedTest() const SK_OVERRIDE {
         return fAllowExtendedTest;
     }
 
-    virtual bool allowThreaded() const {
+    virtual bool allowThreaded() const SK_OVERRIDE {
         return fAllowThreaded;
     }
 
