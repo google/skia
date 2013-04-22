@@ -13,8 +13,90 @@
 
 #include <fontconfig/fontconfig.h>
 
+#include "SkBuffer.h"
 #include "SkFontConfigInterface.h"
 #include "SkStream.h"
+
+size_t SkFontConfigInterface::FontIdentity::writeToMemory(void* addr) const {
+    size_t size = sizeof(fID) + sizeof(fTTCIndex);
+    size += sizeof(int32_t) + sizeof(int32_t) + sizeof(uint8_t); // weight, width, italic
+    size += sizeof(int32_t) + fString.size();    // store length+data
+    if (addr) {
+        SkWBuffer buffer(addr, size);
+
+        buffer.write32(fID);
+        buffer.write32(fTTCIndex);
+        buffer.write32(fString.size());
+        buffer.write32(fStyle.weight());
+        buffer.write32(fStyle.width());
+        buffer.write8(fStyle.slant());
+        buffer.write(fString.c_str(), fString.size());
+        buffer.padToAlign4();
+
+        SkASSERT(buffer.pos() == size);
+    }
+    return size;
+}
+
+size_t SkFontConfigInterface::FontIdentity::readFromMemory(const void* addr,
+                                                           size_t size) {
+    SkRBuffer buffer(addr, size);
+
+    fID = buffer.readU32();
+    fTTCIndex = buffer.readU32();
+    size_t strLen = buffer.readU32();
+    int weight = buffer.readU32();
+    int width = buffer.readU32();
+    SkFontStyle::Slant slant = (SkFontStyle::Slant)buffer.readU8();
+    fStyle = SkFontStyle(weight, width, slant);
+    fString.resize(strLen);
+    buffer.read(fString.writable_str(), strLen);
+    buffer.skipToAlign4();
+
+    return buffer.pos();    // the actual number of bytes read
+}
+
+#ifdef SK_DEBUG
+static void make_iden(SkFontConfigInterface::FontIdentity* iden) {
+    iden->fID = 10;
+    iden->fTTCIndex = 2;
+    iden->fString.set("Hello world");
+    iden->fStyle = SkFontStyle(300, 6, SkFontStyle::kItalic_Slant);
+}
+
+static void test_writeToMemory(const SkFontConfigInterface::FontIdentity& iden0,
+                               int initValue) {
+    SkFontConfigInterface::FontIdentity iden1;
+
+    size_t size0 = iden0.writeToMemory(NULL);
+
+    SkAutoMalloc storage(size0);
+    memset(storage.get(), initValue, size0);
+
+    size_t size1 = iden0.writeToMemory(storage.get());
+    SkASSERT(size0 == size1);
+
+    SkASSERT(iden0 != iden1);
+    size_t size2 = iden1.readFromMemory(storage.get(), size1);
+    SkASSERT(size2 == size1);
+    SkASSERT(iden0 == iden1);
+}
+
+static void fontconfiginterface_unittest() {
+    SkFontConfigInterface::FontIdentity iden0, iden1;
+
+    SkASSERT(iden0 == iden1);
+
+    make_iden(&iden0);
+    SkASSERT(iden0 != iden1);
+
+    make_iden(&iden1);
+    SkASSERT(iden0 == iden1);
+
+    test_writeToMemory(iden0, 0);
+    test_writeToMemory(iden0, 0);
+}
+#endif
 
 class SkFontConfigInterfaceDirect : public SkFontConfigInterface {
 public:
@@ -50,23 +132,6 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     }
     return gDirect;
 }
-
-#if 0
-int SkFontConfigInterface::countFamilies() { return 0; }
-
-int SkFontConfigInterface::getFamilySet(int index, SkString* outFamilyName,
-                                        FontIdentity outIdentities[],
-                                        int maxCount) {
-    return 0;
-}
-
-int SkFontConfigInterface::matchFamilySet(const char familyName[],
-                                          SkString* outFamilyName,
-                                          FontIdentity outIdentities[],
-                                          int maxCount) {
-    return 0;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -354,7 +419,11 @@ SkTypeface::Style GetFontStyle(FcPattern* font) {
 #define kMaxFontFamilyLength    2048
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
+    SkAutoMutexAcquire ac(mutex_);
+
     FcInit();
+
+    SkDEBUGCODE(fontconfiginterface_unittest();)
 }
 
 SkFontConfigInterfaceDirect::~SkFontConfigInterfaceDirect() {
@@ -490,6 +559,8 @@ static bool find_name(const SkTDArray<const char*>& list, const char* str) {
 }
 
 SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
+    SkAutoMutexAcquire ac(mutex_);
+
     FcPattern* pat = FcPatternCreate();
     FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, (char *) 0);
     if (NULL == os) {
@@ -523,5 +594,130 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
 bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
                                                  SkString* outFamilyName,
                                                  SkTArray<FontIdentity>* ids) {
+    SkAutoMutexAcquire ac(mutex_);
+
+#if 0
+    std::string familyStr(familyName ? familyName : "");
+    if (familyStr.length() > kMaxFontFamilyLength) {
+        return false;
+    }
+
+    SkAutoMutexAcquire ac(mutex_);
+
+    FcPattern* pattern = FcPatternCreate();
+
+    if (familyName) {
+        FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+    }
+    FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
+
+    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+
+    // Font matching:
+    // CSS often specifies a fallback list of families:
+    //    font-family: a, b, c, serif;
+    // However, fontconfig will always do its best to find *a* font when asked
+    // for something so we need a way to tell if the match which it has found is
+    // "good enough" for us. Otherwise, we can return NULL which gets piped up
+    // and lets WebKit know to try the next CSS family name. However, fontconfig
+    // configs allow substitutions (mapping "Arial -> Helvetica" etc) and we
+    // wish to support that.
+    //
+    // Thus, if a specific family is requested we set @family_requested. Then we
+    // record two strings: the family name after config processing and the
+    // family name after resolving. If the two are equal, it's a good match.
+    //
+    // So consider the case where a user has mapped Arial to Helvetica in their
+    // config.
+    //    requested family: "Arial"
+    //    post_config_family: "Helvetica"
+    //    post_match_family: "Helvetica"
+    //      -> good match
+    //
+    // and for a missing font:
+    //    requested family: "Monaco"
+    //    post_config_family: "Monaco"
+    //    post_match_family: "Times New Roman"
+    //      -> BAD match
+    //
+    // However, we special-case fallback fonts; see IsFallbackFontAllowed().
+
+    const char* post_config_family = get_name(pattern, FC_FAMILY);
+
+    FcResult result;
+    FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
+    if (!font_set) {
+        FcPatternDestroy(pattern);
+        return false;
+    }
+
+    FcPattern* match = MatchFont(font_set, post_config_family, familyStr);
+    if (!match) {
+        FcPatternDestroy(pattern);
+        FcFontSetDestroy(font_set);
+        return false;
+    }
+
+    FcPatternDestroy(pattern);
+
+    // From here out we just extract our results from 'match'
+
+    if (FcPatternGetString(match, FC_FAMILY, 0, &post_config_family) != FcResultMatch) {
+        FcFontSetDestroy(font_set);
+        return false;
+    }
+
+    FcChar8* c_filename;
+    if (FcPatternGetString(match, FC_FILE, 0, &c_filename) != FcResultMatch) {
+        FcFontSetDestroy(font_set);
+        return false;
+    }
+
+    int face_index;
+    if (FcPatternGetInteger(match, FC_INDEX, 0, &face_index) != FcResultMatch) {
+        FcFontSetDestroy(font_set);
+        return false;
+    }
+
+    FcFontSetDestroy(font_set);
+
+    if (outIdentity) {
+        outIdentity->fTTCIndex = face_index;
+        outIdentity->fString.set((const char*)c_filename);
+    }
+    if (outFamilyName) {
+        outFamilyName->set((const char*)post_config_family);
+    }
+    if (outStyle) {
+        *outStyle = GetFontStyle(match);
+    }
+    return true;
+
+////////////////////
+
+        int count;
+        FcPattern** match = MatchFont(font_set, post_config_family, &count);
+        if (!match) {
+            FcPatternDestroy(pattern);
+            FcFontSetDestroy(font_set);
+            return NULL;
+        }
+
+        FcPatternDestroy(pattern);
+
+        SkTDArray<FcPattern*> trimmedMatches;
+        for (int i = 0; i < count; ++i) {
+            const char* justName = find_just_name(get_name(match[i], FC_FILE));
+            if (!is_lower(*justName)) {
+                *trimmedMatches.append() = match[i];
+            }
+        }
+
+        SkFontStyleSet_FC* sset = SkNEW_ARGS(SkFontStyleSet_FC,
+                                             (trimmedMatches.begin(),
+                                              trimmedMatches.count()));
+#endif
     return false;
 }
+
