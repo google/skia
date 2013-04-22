@@ -58,6 +58,5 @@
     '../src/pathops/SkPathWriter.h',
     '../src/pathops/SkQuarticRoot.h',
     '../src/pathops/SkReduceOrder.h',
-    '../src/pathops/TSearch.h',
   ],
 }
