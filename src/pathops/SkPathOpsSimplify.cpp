@@ -149,7 +149,9 @@ void Simplify(const SkPath& path, SkPath* result) {
 #endif
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     result->reset();
-    result->setFillType(SkPath::kEvenOdd_FillType);
+    SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
+            : SkPath::kEvenOdd_FillType;
+    result->setFillType(fillType);
     SkPathWriter simple(*result);
 
     // turn path into list of segments
@@ -187,7 +189,7 @@ void Simplify(const SkPath& path, SkPath* result) {
                 : !bridgeXor(contourList, &simple))
     {  // if some edges could not be resolved, assemble remaining fragments
         SkPath temp;
-        temp.setFillType(SkPath::kEvenOdd_FillType);
+        temp.setFillType(fillType);
         SkPathWriter assembled(temp);
         Assemble(simple, &assembled);
         *result = *assembled.nativePath();

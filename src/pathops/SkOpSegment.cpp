@@ -7,7 +7,7 @@
 #include "SkIntersections.h"
 #include "SkOpSegment.h"
 #include "SkPathWriter.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 #define F (false)      // discard the edge
 #define T (true)       // keep the edge
@@ -18,7 +18,6 @@ static const bool gUnaryActiveEdge[2][2] = {
     {F, T}, {T, F},
 };
 
-// FIXME: add support for kReverseDifference_Op
 static const bool gActiveEdge[kXOR_PathOp + 1][2][2][2][2] = {
 //                 miFrom=0                              miFrom=1
 //         miTo=0            miTo=1              miTo=0             miTo=1
@@ -2318,7 +2317,7 @@ bool SkOpSegment::SortAngles(const SkTDArray<SkOpAngle>& angles,
         sortable &= !angle.unsortable();
     }
     if (sortable) {
-        QSort<SkOpAngle>(angleList->begin(), angleList->end() - 1);
+        SkTQSort<SkOpAngle>(angleList->begin(), angleList->end() - 1);
         for (angleIndex = 0; angleIndex < angleCount; ++angleIndex) {
             if (angles[angleIndex].unsortable()) {
                 sortable = false;

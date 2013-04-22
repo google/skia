@@ -15,6 +15,7 @@
     '../tests/PathOpsDTriangleTest.cpp',
     '../tests/PathOpsDVectorTest.cpp',
     '../tests/PathOpsExtendedTest.cpp',
+    '../tests/PathOpsInverseTest.cpp',
     '../tests/PathOpsLineIntersectionTest.cpp',
     '../tests/PathOpsLineParametetersTest.cpp',
     '../tests/PathOpsOpCubicThreadedTest.cpp',

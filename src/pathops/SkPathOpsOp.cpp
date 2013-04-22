@@ -206,18 +206,48 @@ static bool bridgeOp(SkTDArray<SkOpContour*>& contourList, const SkPathOp op,
     return simple->someAssemblyRequired();
 }
 
+// pretty picture:
+// https://docs.google.com/a/google.com/drawings/d/1sPV8rPfpEFXymBp3iSbDRWAycp1b-7vD9JP2V-kn9Ss/edit?usp=sharing
+static const SkPathOp gOpInverse[kReverseDifference_PathOp + 1][2][2] = {
+//                  inside minuend                               outside minuend
+//     inside subtrahend     outside subtrahend      inside subtrahend     outside subtrahend
+    {{ kDifference_PathOp,    kIntersect_PathOp }, { kUnion_PathOp, kReverseDifference_PathOp }},
+    {{ kIntersect_PathOp,    kDifference_PathOp }, { kReverseDifference_PathOp, kUnion_PathOp }},
+    {{ kUnion_PathOp, kReverseDifference_PathOp }, { kDifference_PathOp,    kIntersect_PathOp }},
+    {{ kXOR_PathOp,                 kXOR_PathOp }, { kXOR_PathOp,                 kXOR_PathOp }},
+    {{ kReverseDifference_PathOp, kUnion_PathOp }, { kIntersect_PathOp,    kDifference_PathOp }},
+};
+
+static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
+    {{ false, false }, { true, false }},  // diff
+    {{ false, false }, { false, true }},  // sect
+    {{ false, true }, { true, true }},    // union
+    {{ false, true }, { true, false }},   // xor
+    {{ false, true }, { false, false }},  // rev diff
+};
+
 void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+    op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
+    result->reset();
+    SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]
+            ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
+    result->setFillType(fillType);
+    const SkPath* minuend = &one;
+    const SkPath* subtrahend = &two;
+    if (op == kReverseDifference_PathOp) {
+        minuend = &two;
+        subtrahend = &one;
+        op = kDifference_PathOp;
+    }
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     gDebugSortCount = gDebugSortCountDefault;
 #endif
-    result->reset();
-    result->setFillType(SkPath::kEvenOdd_FillType);
     // turn path into list of segments
     SkTArray<SkOpContour> contours;
     // FIXME: add self-intersecting cubics' T values to segment
-    SkOpEdgeBuilder builder(one, contours);
+    SkOpEdgeBuilder builder(*minuend, contours);
     const int xorMask = builder.xorMask();
-    builder.addOperand(two);
+    builder.addOperand(*subtrahend);
     builder.finish();
     const int xorOpMask = builder.xorMask();
     SkTDArray<SkOpContour*> contourList;
@@ -264,7 +294,7 @@ void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper);
     {  // if some edges could not be resolved, assemble remaining fragments
         SkPath temp;
-        temp.setFillType(SkPath::kEvenOdd_FillType);
+        temp.setFillType(fillType);
         SkPathWriter assembled(temp);
         Assemble(wrapper, &assembled);
         *result = *assembled.nativePath();
