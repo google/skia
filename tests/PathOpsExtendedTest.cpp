@@ -513,9 +513,6 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
     return result == 0;
 }
 
-const int maxThreadsAllocated = 64;
-static int maxThreads = 1;
-
 int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
@@ -523,18 +520,6 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #endif
     testName = test;
     size_t testNameSize = strlen(test);
-    if (reporter->allowThreaded()) {
-        int threads = -1;
-#ifdef SK_BUILD_FOR_MAC
-        size_t size = sizeof(threads);
-        sysctlbyname("hw.logicalcpu_max", &threads, &size, NULL, 0);
-#endif
-        if (threads > 0) {
-            maxThreads = threads;
-        } else {
-            maxThreads = 16;
-        }
-    }
     SkFILEStream inFile("../../experimental/Intersection/op.htm");
     if (inFile.isValid()) {
         SkTDArray<char> inData;
@@ -549,7 +534,7 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
             testNumber = atoi(numLoc) + 1;
         }
     }
-    return maxThreads;
+    return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 0;
 }
 
 void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType pathFillType) {

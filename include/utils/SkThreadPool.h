@@ -19,8 +19,9 @@ class SkThreadPool {
 
 public:
     /**
-     * Create a threadpool with exactly count (>=0) threads.
+     * Create a threadpool with count threads, or one thread per core if kThreadPerCore.
      */
+    static const int kThreadPerCore = -1;
     explicit SkThreadPool(int count);
     ~SkThreadPool();
 

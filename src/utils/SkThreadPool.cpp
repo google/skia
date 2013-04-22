@@ -5,12 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "SkThreadPool.h"
 #include "SkRunnable.h"
+#include "SkThreadPool.h"
 #include "SkThreadUtils.h"
+#include "SkTypes.h"
 
-SkThreadPool::SkThreadPool(const int count)
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_ANDROID)
+#include <unistd.h>
+#endif
+
+// Returns the number of cores on this machine.
+static int num_cores() {
+#if defined(SK_BUILD_FOR_WIN32)
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_ANDROID)
+    return sysconf(_SC_NPROCESSORS_ONLN);
+#else
+    return 1;
+#endif
+}
+
+SkThreadPool::SkThreadPool(int count)
 : fDone(false) {
+    if (count < 0) count = num_cores();
     // Create count threads, all running SkThreadPool::Loop.
     for (int i = 0; i < count; i++) {
         SkThread* thread = SkNEW_ARGS(SkThread, (&SkThreadPool::Loop, this));
