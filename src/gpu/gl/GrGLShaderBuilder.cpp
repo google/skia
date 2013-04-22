@@ -386,7 +386,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
                                    const char** fsInName) {
     fVSOutputs.push_back();
     fVSOutputs.back().setType(type);
-    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
+    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
     if (kNonStageIdx == fCurrentStageIdx) {
         fVSOutputs.back().accessName()->printf("v%s", name);
     } else {
@@ -402,12 +402,12 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
         // and output as non-array.
         fGSInputs.push_back();
         fGSInputs.back().setType(type);
-        fGSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
+        fGSInputs.back().setTypeModifier(GrGLShaderVar::kVaryingIn_TypeModifier);
         fGSInputs.back().setUnsizedArray();
         *fGSInputs.back().accessName() = fVSOutputs.back().getName();
         fGSOutputs.push_back();
         fGSOutputs.back().setType(type);
-        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
+        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
         if (kNonStageIdx == fCurrentStageIdx) {
             fGSOutputs.back().accessName()->printf("g%s", name);
         } else {
@@ -419,7 +419,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     }
     fFSInputs.push_back();
     fFSInputs.back().setType(type);
-    fFSInputs.back().setTypeModifier(GrGLShaderVar::kIn_TypeModifier);
+    fFSInputs.back().setTypeModifier(GrGLShaderVar::kVaryingIn_TypeModifier);
     fFSInputs.back().setName(*fsName);
     if (fsInName) {
         *fsInName = fsName->c_str();
@@ -487,11 +487,11 @@ void GrGLShaderBuilder::emitFunction(ShaderType shader,
     GrAssert(kFragment_ShaderType == shader);
     fFSFunctions.append(GrGLSLTypeString(returnType));
     if (kNonStageIdx != fCurrentStageIdx) {
-        outName->printf(" %s_%d", name, fCurrentStageIdx);
+        outName->printf("%s_%d", name, fCurrentStageIdx);
     } else {
         *outName = name;
     }
-    fFSFunctions.append(*outName);
+    fFSFunctions.appendf(" %s", outName->c_str());
     fFSFunctions.append("(");
     for (int i = 0; i < argCnt; ++i) {
         args[i].appendDecl(fCtxInfo, &fFSFunctions);
