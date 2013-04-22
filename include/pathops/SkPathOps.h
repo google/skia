@@ -9,18 +9,18 @@
 
 class SkPath;
 
-// FIXME: move this into SkPaths.h or just use the equivalent in SkRegion.h
+// FIXME: move everything below into the SkPath class
+/**
+  *  The logical operations that can be performed when combining two paths.
+  */
 enum SkPathOp {
-    kDifference_PathOp,  //!< subtract the op path from the first path
-    kIntersect_PathOp,   //!< intersect the two paths
-    kUnion_PathOp,       //!< union (inclusive-or) the two paths
-    kXOR_PathOp,         //!< exclusive-or the two paths
-    /** subtract the first path from the op path */
-    kReverseDifference_PathOp,  // FIXME: unsupported
-    kReplace_PathOp      //!< replace the dst path with the op  FIXME: unsupported: should it be?
+    kDifference_PathOp,         //!< subtract the op path from the first path
+    kIntersect_PathOp,          //!< intersect the two paths
+    kUnion_PathOp,              //!< union (inclusive-or) the two paths
+    kXOR_PathOp,                //!< exclusive-or the two paths
+    kReverseDifference_PathOp,  //!< subtract the first path from the op path
 };
 
-// FIXME: these functions become members of SkPath
 /**
   *  Set this path to the result of applying the Op to this path and the
   *  specified path: this = (this op operand). The resulting path will be constructed
