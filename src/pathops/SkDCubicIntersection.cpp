@@ -13,7 +13,7 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "SkTDArray.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 #if ONE_OFF_DEBUG
 static const double tLimits1[2][2] = {{0.36, 0.37}, {0.63, 0.64}};
@@ -342,7 +342,7 @@ static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cub
     if (tVals.count() == 0) {
         return;
     }
-    QSort<double>(tVals.begin(), tVals.end() - 1);
+    SkTQSort<double>(tVals.begin(), tVals.end() - 1);
     double tMin1 = start ? 0 : 1 - LINE_FRACTION;
     double tMax1 = start ? LINE_FRACTION : 1;
     int tIdx = 0;

@@ -7,7 +7,7 @@
 #include "SkOpEdgeBuilder.h"
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 static int contourRangeCheckY(const SkTDArray<SkOpContour*>& contourList, SkOpSegment** currentPtr,
                               int* indexPtr, int* endIndexPtr, double* bestHit, SkScalar* bestDx,
@@ -370,16 +370,22 @@ void MakeContourList(SkTArray<SkOpContour>& contours, SkTDArray<SkOpContour*>& l
         contour.setOppXor(contour.operand() ? evenOdd : oppEvenOdd);
         *list.append() = &contour;
     }
-    QSort<SkOpContour>(list.begin(), list.end() - 1);
+    SkTQSort<SkOpContour>(list.begin(), list.end() - 1);
 }
 
 static bool approximatelyEqual(const SkPoint& a, const SkPoint& b) {
     return AlmostEqualUlps(a.fX, b.fX) && AlmostEqualUlps(a.fY, b.fY);
 }
 
-static bool lessThan(SkTDArray<double>& distances, const int one, const int two) {
-    return distances[one] < distances[two];
-}
+class DistanceLessThan {
+public:
+    DistanceLessThan(double* distances) : fDistances(distances) { }
+    double* fDistances;
+    bool operator()(const int one, const int two) {
+        return fDistances[one] < fDistances[two];
+    }
+};
+
     /*
         check start and end of each contour
         if not the same, record them
@@ -453,7 +459,7 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         sortedDist[rIndex] = rIndex;
     }
-    QSort<SkTDArray<double>, int>(distances, sortedDist.begin(), sortedDist.end() - 1, lessThan);
+    SkTQSort<int>(sortedDist.begin(), sortedDist.end() - 1, DistanceLessThan(distances.begin()));
     int remaining = count;  // number of start/end pairs
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         int pair = sortedDist[rIndex];

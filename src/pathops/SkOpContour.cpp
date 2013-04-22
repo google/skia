@@ -7,7 +7,7 @@
 #include "SkIntersections.h"
 #include "SkOpContour.h"
 #include "SkPathWriter.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 void SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, bool swap) {
@@ -159,7 +159,7 @@ void SkOpContour::sortSegments() {
     for (int test = 0; test < segmentCount; ++test) {
         *fSortedSegments.append() = &fSegments[test];
     }
-    QSort<SkOpSegment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
+    SkTQSort<SkOpSegment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
     fFirstSorted = 0;
 }
 
