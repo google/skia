@@ -79,10 +79,26 @@ public:
     uint32_t generationID();
 
     /**
-     *  Call this if the contents have changed. This will (lazily) force a new
+     *  Modes that can be passed to notifyContentWillChange
+     */
+    enum ContentChangeMode {
+        /** 
+         *  Use this mode if it is known that the upcoming content changes will
+         *  clear or overwrite prior contents, thus making them discardable.
+         */
+        kDiscard_ContentChangeMode,
+        /** 
+         *  Use this mode if prior surface contents need to be preserved or
+         *  if in doubt.
+         */
+        kRetain_ContentChangeMode,
+    };
+
+    /**
+     *  Call this if the contents are about to change. This will (lazily) force a new
      *  value to be returned from generationID() when it is called next.
      */
-    void notifyContentChanged();
+    void notifyContentWillChange(ContentChangeMode mode);
 
     /**
      *  Return a canvas that will draw into this surface. This will always

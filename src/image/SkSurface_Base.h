@@ -49,10 +49,8 @@ public:
      *  If the surface is about to change, we call this so that our subclass
      *  can optionally fork their backend (copy-on-write) in case it was
      *  being shared with the cachedImage.
-     *
-     *  The default implementation does nothing.
      */
-    virtual void onCopyOnWrite() = 0;
+    virtual void onCopyOnWrite(ContentChangeMode) = 0;
 
     inline SkCanvas* getCachedCanvas();
     inline SkImage* getCachedImage();
@@ -64,7 +62,7 @@ private:
     SkCanvas*   fCachedCanvas;
     SkImage*    fCachedImage;
 
-    void aboutToDraw();
+    void aboutToDraw(ContentChangeMode mode);
     friend class SkCanvas;
     friend class SkSurface;
 
