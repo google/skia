@@ -41,7 +41,12 @@ private:
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     static SkFontConfigInterface* gDirect;
     if (NULL == gDirect) {
-        gDirect = new SkFontConfigInterfaceDirect;
+        static SkMutex gMutex;
+        SkAutoMutexAcquire ac(gMutex);
+
+        if (NULL == gDirect) {
+            gDirect = new SkFontConfigInterfaceDirect;
+        }
     }
     return gDirect;
 }
