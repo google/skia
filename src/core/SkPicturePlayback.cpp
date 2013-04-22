@@ -508,7 +508,13 @@ void SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
             SkASSERT(!haveBuffer);
             fTFPlayback.setCount(size);
             for (size_t i = 0; i < size; i++) {
-                SkSafeUnref(fTFPlayback.set(i, SkTypeface::Deserialize(stream)));
+                SkAutoTUnref<SkTypeface> tf(SkTypeface::Deserialize(stream));
+                if (!tf.get()) {    // failed to deserialize
+                    // fTFPlayback asserts it never has a null, so we plop in
+                    // the default here.
+                    tf.reset(SkTypeface::RefDefault());
+                }
+                fTFPlayback.set(i, tf);
             }
         } break;
         case PICT_PICTURE_TAG: {
