@@ -27,7 +27,7 @@ SkDataTable::SkDataTable() {
 SkDataTable::SkDataTable(const void* array, size_t elemSize, int count,
                          FreeProc proc, void* context) {
     SkASSERT(count > 0);
-    
+
     fCount = count;
     fElemSize = elemSize;   // non-zero signals we use fElems instead of fDir
     fU.fElems = (const char*)array;
@@ -37,7 +37,7 @@ SkDataTable::SkDataTable(const void* array, size_t elemSize, int count,
 
 SkDataTable::SkDataTable(const Dir* dir, int count, FreeProc proc, void* ctx) {
     SkASSERT(count > 0);
-    
+
     fCount = count;
     fElemSize = 0;  // 0 signals that we use fDir instead of fElems
     fU.fDir = dir;
@@ -169,7 +169,7 @@ SkDataTable* SkDataTable::NewCopyArrays(const void * const * ptrs,
         memcpy(elem, ptrs[i], sizes[i]);
         elem += sizes[i];
     }
-    
+
     return SkNEW_ARGS(SkDataTable, (dir, count, malloc_freeproc, buffer));
 }
 
@@ -248,4 +248,3 @@ SkDataTable* SkDataTableBuilder::detachDataTable() {
     fDir.reset();
     return table;
 }
-

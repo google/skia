@@ -154,7 +154,7 @@ static void test_globaltable(skiatest::Reporter* reporter) {
 
     SkAutoTUnref<SkDataTable> table(SkDataTable::NewArrayProc(gData,
                                           sizeof(gData[0]), count, NULL, NULL));
-    
+
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
         size_t size;

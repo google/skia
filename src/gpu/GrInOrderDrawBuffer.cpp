@@ -79,7 +79,7 @@ namespace {
 extern const GrVertexAttrib kRectPosColorUVAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
     {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(GrPoint)+sizeof(GrColor), 
+    {kVec2f_GrVertexAttribType,  sizeof(GrPoint)+sizeof(GrColor),
                                                   kLocalCoord_GrVertexAttribBinding},
 };
 
@@ -136,7 +136,7 @@ void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
         // We set the draw state's color to white here. This is done so that any batching performed
         // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
         // mismatch. TODO: Once vertex layout is owned by GrDrawState it should skip comparing the
-        // constant color in its op== when the kColor layout bit is set and then we can remove 
+        // constant color in its op== when the kColor layout bit is set and then we can remove
         // this.
         acr.set(drawState, 0xFFFFFFFF);
     }
