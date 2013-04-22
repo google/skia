@@ -10,7 +10,7 @@
 #include "SkPathOpsLine.h"
 #include "SkQuarticRoot.h"
 #include "SkTDArray.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 /* given the implicit form 0 = Ax^2 + Bxy + Cy^2 + Dx + Ey + F
  * and given x = at^2 + bt + c  (the parameterized form)
@@ -169,7 +169,7 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
     if (tCount == 1) {
         tMin = tMax = tsFound[0];
     } else if (tCount > 1) {
-        QSort<double>(tsFound.begin(), tsFound.end() - 1);
+        SkTQSort<double>(tsFound.begin(), tsFound.end() - 1);
         tMin = tsFound[0];
         tMax = tsFound[tsFound.count() - 1];
     }

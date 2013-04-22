@@ -7,7 +7,7 @@
 #include "SkIntersections.h"
 #include "SkOpAngle.h"
 #include "SkPathOpsCurve.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 // FIXME: this is bogus for quads and cubics
 // if the quads and cubics' line from end pt to ctrl pt are coincident,
@@ -221,7 +221,7 @@ void SkOpAngle::setSpans() {
         }
         testTs[testCount++] = startT;
         testTs[testCount++] = endT;
-        QSort<double>(testTs, &testTs[testCount - 1]);
+        SkTQSort<double>(testTs, &testTs[testCount - 1]);
         double bestSide = 0;
         int testCases = (testCount << 1) - 1;
         index = 0;

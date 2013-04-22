@@ -50,7 +50,7 @@ http://www.caffeineowl.com/graphics/2d/vectorial/cubic2quad01.html
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
 #include "SkTDArray.h"
-#include "TSearch.h"
+#include "SkTSort.h"
 
 #define USE_CUBIC_END_POINTS 1
 
@@ -129,7 +129,7 @@ void SkDCubic::toQuadraticTs(double precision, SkTDArray<double>* ts) const {
         inflections += findMaxCurvature(&inflectT[inflections]);
         SkASSERT(inflections <= 5);
     }
-    QSort<double>(inflectT, &inflectT[inflections - 1]);
+    SkTQSort<double>(inflectT, &inflectT[inflections - 1]);
     // OPTIMIZATION: is this filtering common enough that it needs to be pulled out into its
     // own subroutine?
     while (inflections && approximately_less_than_zero(inflectT[0])) {
