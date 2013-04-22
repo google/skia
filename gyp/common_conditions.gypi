@@ -178,12 +178,12 @@
         'conditions' : [
           [ 'skia_arch_width == 64', {
             'xcode_settings': {
-              'ARCHS': 'x86_64',
+              'ARCHS': ['x86_64'],
             },
           }],
           [ 'skia_arch_width == 32', {
             'xcode_settings': {
-              'ARCHS': 'i386',
+              'ARCHS': ['i386'],
             },
           }],
           [ 'skia_warnings_as_errors', {
@@ -274,7 +274,7 @@
           },
         },
         'xcode_settings': {
-          'ARCHS': 'armv6 armv7',
+          'ARCHS': ['armv6', 'armv7'],
           'CODE_SIGNING_REQUIRED': 'NO',
           'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
