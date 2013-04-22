@@ -880,7 +880,7 @@ namespace {
 extern const GrVertexAttrib gPosUVColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding },
     {kVec2f_GrVertexAttribType,  sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding },
-    {kVec4ub_GrVertexAttribType, 2*sizeof(GrPoint), kColor_GrVertexAttribBinding} 
+    {kVec4ub_GrVertexAttribType, 2*sizeof(GrPoint), kColor_GrVertexAttribBinding}
 };
 
 extern const GrVertexAttrib gPosColorAttribs[] = {
