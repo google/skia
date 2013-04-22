@@ -65,6 +65,19 @@ int SkFontConfigInterface::matchFamilySet(const char familyName[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Returns the string from the pattern, or NULL
+static const char* get_name(FcPattern* pattern, const char field[],
+                            int index = 0) {
+    const char* name;
+    if (FcPatternGetString(pattern, field, index,
+                           (FcChar8**)&name) != FcResultMatch) {
+        name = NULL;
+    }
+    return name;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 namespace {
 
 // Equivalence classes, used to match the Liberation and other fonts
@@ -238,54 +251,54 @@ bool IsFallbackFontAllowed(const std::string& family) {
          strcasecmp(family_cstr, "monospace") == 0;
 }
 
+static bool valid_pattern(FcPattern* pattern) {
+    FcBool is_scalable;
+    if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &is_scalable) != FcResultMatch
+        || !is_scalable) {
+        return false;
+    }
+
+    // fontconfig can also return fonts which are unreadable
+    const char* c_filename = get_name(pattern, FC_FILE);
+    if (!c_filename) {
+        return false;
+    }
+    if (access(c_filename, R_OK) != 0) {
+        return false;
+    }
+    return true;
+}
+
 // Find matching font from |font_set| for the given font family.
 FcPattern* MatchFont(FcFontSet* font_set,
-                     FcChar8* post_config_family,
+                     const char* post_config_family,
                      const std::string& family) {
   // Older versions of fontconfig have a bug where they cannot select
   // only scalable fonts so we have to manually filter the results.
   FcPattern* match = NULL;
   for (int i = 0; i < font_set->nfont; ++i) {
     FcPattern* current = font_set->fonts[i];
-    FcBool is_scalable;
-
-    if (FcPatternGetBool(current, FC_SCALABLE, 0,
-                         &is_scalable) != FcResultMatch ||
-        !is_scalable) {
-      continue;
+    if (valid_pattern(current)) {
+      match = current;
+      break;
     }
-
-    // fontconfig can also return fonts which are unreadable
-    FcChar8* c_filename;
-    if (FcPatternGetString(current, FC_FILE, 0, &c_filename) != FcResultMatch)
-      continue;
-
-    if (access(reinterpret_cast<char*>(c_filename), R_OK) != 0)
-      continue;
-
-    match = current;
-    break;
   }
 
   if (match && !IsFallbackFontAllowed(family)) {
     bool acceptable_substitute = false;
     for (int id = 0; id < 255; ++id) {
-      FcChar8* post_match_family;
-      if (FcPatternGetString(match, FC_FAMILY, id, &post_match_family) !=
-          FcResultMatch)
+      const char* post_match_family = get_name(match, FC_FAMILY, id);
+      if (!post_match_family)
         break;
       acceptable_substitute =
-          (strcasecmp(reinterpret_cast<char*>(post_config_family),
-                      reinterpret_cast<char*>(post_match_family)) == 0 ||
+          (strcasecmp(post_config_family, post_match_family) == 0 ||
            // Workaround for Issue 12530:
            //   requested family: "Bitstream Vera Sans"
            //   post_config_family: "Arial"
            //   post_match_family: "Bitstream Vera Sans"
            // -> We should treat this case as a good match.
-           strcasecmp(family.c_str(),
-                      reinterpret_cast<char*>(post_match_family)) == 0) ||
-           IsMetricCompatibleReplacement(family.c_str(),
-               reinterpret_cast<char*>(post_match_family));
+           strcasecmp(family.c_str(), post_match_family) == 0) ||
+           IsMetricCompatibleReplacement(family.c_str(), post_match_family);
       if (acceptable_substitute)
         break;
     }
@@ -398,8 +411,11 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     //      -> BAD match
     //
     // However, we special-case fallback fonts; see IsFallbackFontAllowed().
-    FcChar8* post_config_family;
-    FcPatternGetString(pattern, FC_FAMILY, 0, &post_config_family);
+
+    const char* post_config_family = get_name(pattern, FC_FAMILY);
+    if (!post_config_family) {
+        return false;
+    }
 
     FcResult result;
     FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
@@ -419,13 +435,14 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     // From here out we just extract our results from 'match'
 
-    if (FcPatternGetString(match, FC_FAMILY, 0, &post_config_family) != FcResultMatch) {
+    post_config_family = get_name(match, FC_FAMILY);
+    if (!post_config_family) {
         FcFontSetDestroy(font_set);
         return false;
     }
 
-    FcChar8* c_filename;
-    if (FcPatternGetString(match, FC_FILE, 0, &c_filename) != FcResultMatch) {
+    const char* c_filename = get_name(match, FC_FILE);
+    if (!c_filename) {
         FcFontSetDestroy(font_set);
         return false;
     }
@@ -440,10 +457,10 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     if (outIdentity) {
         outIdentity->fTTCIndex = face_index;
-        outIdentity->fString.set((const char*)c_filename);
+        outIdentity->fString.set(c_filename);
     }
     if (outFamilyName) {
-        outFamilyName->set((const char*)post_config_family);
+        outFamilyName->set(post_config_family);
     }
     if (outStyle) {
         *outStyle = GetFontStyle(match);
@@ -456,14 +473,6 @@ SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-static const char* get_name(FcPattern* pattern, const char field[]) {
-    const char* name;
-    if (FcPatternGetString(pattern, field, 0, (FcChar8**)&name) != FcResultMatch) {
-        name = "";
-    }
-    return name;
-}
 
 static bool find_name(const SkTDArray<const char*>& list, const char* str) {
     int count = list.count();
@@ -492,7 +501,7 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
     for (int i = 0; i < fs->nfont; ++i) {
         FcPattern* match = fs->fonts[i];
         const char* famName = get_name(match, FC_FAMILY);
-        if (!find_name(names, famName)) {
+        if (famName && !find_name(names, famName)) {
             *names.append() = famName;
             *sizes.append() = strlen(famName) + 1;
         }
