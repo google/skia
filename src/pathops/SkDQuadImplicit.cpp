@@ -48,8 +48,8 @@
  *
  */
 
-// OPTIMIZATION: test, verify tricky arithmetic
-static bool straight_forward = true;
+// use the tricky arithmetic path, but leave the original to compare just in case
+static bool straight_forward = false;
 
 SkDQuadImplicit::SkDQuadImplicit(const SkDQuad& q) {
     double a, b, c;
@@ -89,7 +89,7 @@ SkDQuadImplicit::SkDQuadImplicit(const SkDQuad& q) {
  /* Given a pair of quadratics, determine their parametric coefficients.
   * If the scaled coefficients are nearly equal, then the part of the quadratics
   * may be coincident.
-  * FIXME: optimization -- since comparison short-circuits on no match,
+  * OPTIMIZATION -- since comparison short-circuits on no match,
   * lazily compute the coefficients, comparing the easiest to compute first.
   * xx and yy first; then xy; and so on.
   */
