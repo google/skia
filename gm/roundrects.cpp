@@ -155,17 +155,17 @@ protected:
         rectPaint.setColor(SK_ColorLTGRAY);
 
         int testCount = 0;
-        for (int i = 0; i < fPaints.count(); ++i) {        
+        for (int i = 0; i < fPaints.count(); ++i) {
             for (int j = 0; j < fMatrices.count(); ++j) {
                 canvas->save();
                 SkMatrix mat = fMatrices[j];
                 // position the roundrect, and make it at off-integer coords.
-                mat.postTranslate(kXStart + SK_Scalar1 * kXStep * (testCount % maxX) + 
+                mat.postTranslate(kXStart + SK_Scalar1 * kXStep * (testCount % maxX) +
                                   SK_Scalar1 / 4,
-                                  kYStart + SK_Scalar1 * kYStep * (testCount / maxX) + 
+                                  kYStart + SK_Scalar1 * kYStep * (testCount / maxX) +
                                   3 * SK_Scalar1 / 4);
                 canvas->concat(mat);
-            
+
                 SkColor color = genColor(&rand);
                 fPaints[i].setColor(color);
 
@@ -181,7 +181,7 @@ protected:
         // special cases
 
         // non-scaled tall and skinny roundrect
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect rect = SkRect::MakeLTRB(-20, -60, 20, 60);
             SkRRect ellipseRect;
             ellipseRect.setRectXY(rect, 5, 10);
@@ -190,7 +190,7 @@ protected:
             // position the roundrect, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 2.55f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -200,7 +200,7 @@ protected:
         }
 
         // non-scaled wide and short roundrect
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect rect = SkRect::MakeLTRB(-80, -30, 80, 30);
             SkRRect ellipseRect;
             ellipseRect.setRectXY(rect, 20, 5);
@@ -210,7 +210,7 @@ protected:
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 4 + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -220,7 +220,7 @@ protected:
         }
 
         // super skinny roundrect
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect rect = SkRect::MakeLTRB(0, -60, 1, 60);
             SkRRect circleRect;
             circleRect.setRectXY(rect, 5, 5);
@@ -229,7 +229,7 @@ protected:
             // position the roundrect, and make it at off-integer coords.
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 3.25f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
@@ -238,7 +238,7 @@ protected:
         }
 
         // super short roundrect
-        for (int i = 0; i < fPaints.count(); ++i) { 
+        for (int i = 0; i < fPaints.count(); ++i) {
             SkRect rect = SkRect::MakeLTRB(-80, -1, 80, 0);
             SkRRect circleRect;
             circleRect.setRectXY(rect, 5, 5);
@@ -248,14 +248,14 @@ protected:
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 2.5f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
 
             canvas->drawRRect(circleRect, fPaints[i]);
             canvas->restore();
         }
-        
+
         // radial gradient
         SkPoint center = SkPoint::Make(SkIntToScalar(0), SkIntToScalar(0));
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
@@ -273,7 +273,7 @@ protected:
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 0 + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
-            
+
             SkColor color = genColor(&rand);
             fPaints[i].setColor(color);
             fPaints[i].setShader(shader);
@@ -287,7 +287,7 @@ protected:
         }
 
         // strokes and radii
-        { 
+        {
             SkScalar radii[][2] = {
                 {10,10},
                 {5,15},
@@ -308,7 +308,7 @@ protected:
                 canvas->translate(kXStart + SK_Scalar1 * kXStep * 5 + SK_Scalar1 / 4,
                                   kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                                   SK_ScalarHalf * kYStep);
-            
+
                 SkColor color = genColor(&rand);
 
                 SkPaint p;

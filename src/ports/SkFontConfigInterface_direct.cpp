@@ -720,4 +720,3 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
 #endif
     return false;
 }
-
