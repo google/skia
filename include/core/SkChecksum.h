@@ -10,6 +10,15 @@
 
 #include "SkTypes.h"
 
+/**
+ *  Computes a 32bit checksum from a blob of 32bit aligned data. This is meant
+ *  to be very very fast, as it is used internally by the font cache, in
+ *  conjuction with the entire raw key. This algorithm does not generate
+ *  unique values as well as others (e.g. MD5) but it performs much faster.
+ *  Skia's use cases can survive non-unique values (since the entire key is
+ *  always available). Clients should only be used in circumstances where speed
+ *  over uniqueness is at a premium.
+ */
 class SkChecksum : SkNoncopyable {
 private:
     /*
