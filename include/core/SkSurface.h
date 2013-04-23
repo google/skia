@@ -82,12 +82,12 @@ public:
      *  Modes that can be passed to notifyContentWillChange
      */
     enum ContentChangeMode {
-        /** 
+        /**
          *  Use this mode if it is known that the upcoming content changes will
          *  clear or overwrite prior contents, thus making them discardable.
          */
         kDiscard_ContentChangeMode,
-        /** 
+        /**
          *  Use this mode if prior surface contents need to be preserved or
          *  if in doubt.
          */
