@@ -508,12 +508,9 @@ class HairQuadEdgeEffect : public GrEffect {
 public:
 
     static GrEffectRef* Create() {
-        // we go through this so we only have one copy of each effect
-        static SkAutoTUnref<GrEffectRef> gHairQuadEdgeEffectRef(
-                         CreateEffectRef(AutoEffectUnref(SkNEW(HairQuadEdgeEffect))));
-
-        gHairQuadEdgeEffectRef.get()->ref();
-        return gHairQuadEdgeEffectRef;
+        GR_CREATE_STATIC_EFFECT(gHairQuadEdgeEffect, HairQuadEdgeEffect, ());
+        gHairQuadEdgeEffect->ref();
+        return gHairQuadEdgeEffect;
     }
 
     virtual ~HairQuadEdgeEffect() {}
@@ -609,12 +606,9 @@ class HairLineEdgeEffect : public GrEffect {
 public:
 
     static GrEffectRef* Create() {
-        // we go through this so we only have one copy of each effect
-        static SkAutoTUnref<GrEffectRef> gHairLineEdgeEffectRef(
-                            CreateEffectRef(AutoEffectUnref(SkNEW(HairLineEdgeEffect))));
-
-        gHairLineEdgeEffectRef.get()->ref();
-        return gHairLineEdgeEffectRef;
+        GR_CREATE_STATIC_EFFECT(gHairLineEdge, HairLineEdgeEffect, ());
+        gHairLineEdge->ref();
+        return gHairLineEdge;
     }
 
     virtual ~HairLineEdgeEffect() {}

@@ -30,10 +30,9 @@ class GrGLRectEffect;
 class GrRectEffect : public GrEffect {
 public:
     static GrEffectRef* Create() {
-        static SkAutoTUnref<GrEffectRef> gRectEffectRef(
-                        CreateEffectRef(AutoEffectUnref(SkNEW(GrRectEffect))));
-        gRectEffectRef.get()->ref();
-        return gRectEffectRef;
+        GR_CREATE_STATIC_EFFECT(gRectEffect, GrRectEffect, ());
+        gRectEffect->ref();
+        return gRectEffect;
     }
 
     virtual ~GrRectEffect() {}

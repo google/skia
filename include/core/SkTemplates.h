@@ -119,6 +119,24 @@ private:
     T*  fObj;
 };
 
+// Calls ~T() in the destructor.
+template <typename T> class SkAutoTDestroy : SkNoncopyable {
+public:
+    SkAutoTDestroy(T* obj = NULL) : fObj(obj) {}
+    ~SkAutoTDestroy() {
+        if (NULL != fObj) {
+            fObj->~T();
+        }
+    }
+
+    T* get() const { return fObj; }
+    T& operator*() const { SkASSERT(fObj); return *fObj; }
+    T* operator->() const { SkASSERT(fObj); return fObj; }
+
+private:
+    T*  fObj;
+};
+
 template <typename T> class SkAutoTDeleteArray : SkNoncopyable {
 public:
     SkAutoTDeleteArray(T array[]) : fArray(array) {}

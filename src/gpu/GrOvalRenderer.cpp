@@ -51,18 +51,15 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 class CircleEdgeEffect : public GrEffect {
 public:
     static GrEffectRef* Create(bool stroke) {
-        // we go through this so we only have one copy of each effect (stroked/filled)
-        static SkAutoTUnref<GrEffectRef> gCircleStrokeEdgeEffectRef(
-                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircleEdgeEffect, (true)))));
-        static SkAutoTUnref<GrEffectRef> gCircleFillEdgeEffectRef(
-                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircleEdgeEffect, (false)))));
+        GR_CREATE_STATIC_EFFECT(gCircleStrokeEdge, CircleEdgeEffect, (true));
+        GR_CREATE_STATIC_EFFECT(gCircleFillEdge, CircleEdgeEffect, (false));
 
         if (stroke) {
-            gCircleStrokeEdgeEffectRef.get()->ref();
-            return gCircleStrokeEdgeEffectRef;
+            gCircleStrokeEdge->ref();
+            return gCircleStrokeEdge;
         } else {
-            gCircleFillEdgeEffectRef.get()->ref();
-            return gCircleFillEdgeEffectRef;
+            gCircleFillEdge->ref();
+            return gCircleFillEdge;
         }
     }
 
@@ -162,18 +159,15 @@ GrEffectRef* CircleEdgeEffect::TestCreate(SkMWCRandom* random,
 class EllipseEdgeEffect : public GrEffect {
 public:
     static GrEffectRef* Create(bool stroke) {
-        // we go through this so we only have one copy of each effect (stroked/filled)
-        static SkAutoTUnref<GrEffectRef> gEllipseStrokeEdgeEffectRef(
-                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEdgeEffect, (true)))));
-        static SkAutoTUnref<GrEffectRef> gEllipseFillEdgeEffectRef(
-                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEdgeEffect, (false)))));
+        GR_CREATE_STATIC_EFFECT(gEllipseStrokeEdge, EllipseEdgeEffect, (true));
+        GR_CREATE_STATIC_EFFECT(gEllipseFillEdge, EllipseEdgeEffect, (false));
 
         if (stroke) {
-            gEllipseStrokeEdgeEffectRef.get()->ref();
-            return gEllipseStrokeEdgeEffectRef;
+            gEllipseStrokeEdge->ref();
+            return gEllipseStrokeEdge;
         } else {
-            gEllipseFillEdgeEffectRef.get()->ref();
-            return gEllipseFillEdgeEffectRef;
+            gEllipseFillEdge->ref();
+            return gEllipseFillEdge;
         }
     }
 
