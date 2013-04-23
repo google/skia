@@ -243,7 +243,7 @@ static void relaxed_is_linear(const SkDQuad& q1, const SkDQuad& q2, SkIntersecti
     double m1 = flat_measure(q1);
     double m2 = flat_measure(q2);
 #if DEBUG_FLAT_QUADS
-    double min = SkTMin<double>(m1, m2);
+    double min = SkTMin(m1, m2);
     if (min > 5) {
         SkDebugf("%s maybe not flat enough.. %1.9g\n", __FUNCTION__, min);
     }

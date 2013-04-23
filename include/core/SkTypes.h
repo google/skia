@@ -314,6 +314,14 @@ static inline int32_t SkMin32(int32_t a, int32_t b) {
     return a;
 }
 
+template <typename T> const T& SkTMin(const T& a, const T& b) {
+    return (a < b) ? a : b;
+}
+
+template <typename T> const T& SkTMax(const T& a, const T& b) {
+    return (b < a) ? a : b;
+}
+
 static inline int32_t SkSign32(int32_t a) {
     return (a >> 31) | ((unsigned) -a >> 31);
 }

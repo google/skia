@@ -109,16 +109,16 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
         if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
             return fUsed = 0;
         }
-        fT[0][0] = SkTMax<double>(SkTMin<double>(at0, 1.0), 0.0);
-        fT[0][1] = SkTMax<double>(SkTMin<double>(at1, 1.0), 0.0);
+        fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+        fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
     }
     double bDenom = b0 - b1;
     if (approximately_zero(bDenom)) {
         fT[1][0] = fT[1][1] = 0;
     } else {
         int bIn = aDenom * bDenom < 0;
-        fT[1][bIn] = SkTMax<double>(SkTMin<double>((b0 - a0) / bDenom, 1.0), 0.0);
-        fT[1][!bIn] = SkTMax<double>(SkTMin<double>((b0 - a1) / bDenom, 1.0), 0.0);
+        fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
+        fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
     }
     bool second = fabs(fT[0][0] - fT[0][1]) > FLT_EPSILON;
     SkASSERT((fabs(fT[1][0] - fT[1][1]) <= FLT_EPSILON) ^ second);
@@ -189,11 +189,11 @@ int SkIntersections::horizontal(const SkDLine& line, double left, double right,
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
                 return fUsed = 0;
             }
-            fT[0][0] = SkTMax<double>(SkTMin<double>(at0, 1.0), 0.0);
-            fT[0][1] = SkTMax<double>(SkTMin<double>(at1, 1.0), 0.0);
+            fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+            fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
             int bIn = (a0 - a1) * (b0 - b1) < 0;
-            fT[1][bIn] = SkTMax<double>(SkTMin<double>((b0 - a0) / (b0 - b1), 1.0), 0.0);
-            fT[1][!bIn] = SkTMax<double>(SkTMin<double>((b0 - a1) / (b0 - b1), 1.0), 0.0);
+            fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / (b0 - b1), 1.0), 0.0);
+            fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / (b0 - b1), 1.0), 0.0);
             bool second = fabs(fT[0][0] - fT[0][1]) > FLT_EPSILON;
             SkASSERT((fabs(fT[1][0] - fT[1][1]) <= FLT_EPSILON) ^ second);
             return computePoints(line, 1 + second);
@@ -250,11 +250,11 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
                 return fUsed = 0;
             }
-            fT[0][0] = SkTMax<double>(SkTMin<double>(at0, 1.0), 0.0);
-            fT[0][1] = SkTMax<double>(SkTMin<double>(at1, 1.0), 0.0);
+            fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+            fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
             int bIn = (a0 - a1) * (b0 - b1) < 0;
-            fT[1][bIn] = SkTMax<double>(SkTMin<double>((b0 - a0) / (b0 - b1), 1.0), 0.0);
-            fT[1][!bIn] = SkTMax<double>(SkTMin<double>((b0 - a1) / (b0 - b1), 1.0), 0.0);
+            fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / (b0 - b1), 1.0), 0.0);
+            fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / (b0 - b1), 1.0), 0.0);
             bool second = fabs(fT[0][0] - fT[0][1]) > FLT_EPSILON;
             SkASSERT((fabs(fT[1][0] - fT[1][1]) <= FLT_EPSILON) ^ second);
             return computePoints(line, 1 + second);

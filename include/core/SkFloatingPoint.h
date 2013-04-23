@@ -77,6 +77,8 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_isinf(x)       isinf(x)
 #endif
 
+#define sk_double_isnan(a)          sk_float_isnan(a)
+
 #ifdef SK_USE_FLOATBITS
     #define sk_float_floor2int(x)   SkFloatToIntFloor(x)
     #define sk_float_round2int(x)   SkFloatToIntRound(x)
