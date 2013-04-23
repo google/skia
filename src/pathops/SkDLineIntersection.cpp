@@ -76,8 +76,7 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
      axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
      axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
     */
-    // FIXME: need to use AlmostEqualUlps variant instead
-    if (!approximately_equal_squared(axLen * a[0].fY - ayLen * a[0].fX,
+    if (!AlmostEqualUlps(axLen * a[0].fY - ayLen * a[0].fX,
             axLen * b[0].fY - ayLen * b[0].fX)) {
         return fUsed = 0;
     }
@@ -154,7 +153,7 @@ int SkIntersections::horizontal(const SkDLine& line, double y) {
 int SkIntersections::horizontal(const SkDLine& line, double left, double right, double y) {
     int result = horizontal(line, y);
     if (result != 1) {
-        SkASSERT(result == 0);  // FIXME: this is incorrect if result == 2
+        SkASSERT(0);
         return result;
     }
     double xIntercept = line[0].fX + fT[0][0] * (line[1].fX - line[0].fX);
@@ -258,7 +257,6 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
             bool second = fabs(fT[0][0] - fT[0][1]) > FLT_EPSILON;
             SkASSERT((fabs(fT[1][0] - fT[1][1]) <= FLT_EPSILON) ^ second);
             return computePoints(line, 1 + second);
-            break;
     }
     if (flipped) {
         // OPTIMIZATION: instead of swapping, pass original line, use [1].fY - [0].fY

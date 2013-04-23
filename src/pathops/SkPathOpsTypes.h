@@ -21,6 +21,7 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
+// Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 extern bool AlmostEqualUlps(float A, float B);
 inline bool AlmostEqualUlps(double A, double B) {
     return AlmostEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
