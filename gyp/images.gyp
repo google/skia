@@ -47,6 +47,7 @@
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
+        '../src/images/SkImageEncoder_argb.cpp',
         '../src/images/SkImageRef.cpp',
         '../src/images/SkImageRefPool.cpp',
         '../src/images/SkImageRefPool.h',

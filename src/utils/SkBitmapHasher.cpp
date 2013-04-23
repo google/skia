@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -8,63 +7,55 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapHasher.h"
-#include "SkBitmapTransformer.h"
 #include "SkCityHash.h"
 #include "SkEndian.h"
+#include "SkImageEncoder.h"
+#include "SkStream.h"
 
 /**
- * Write an integer value into a bytebuffer in little-endian order.
+ * Write an integer value to a stream in little-endian order.
  */
-static void write_int_to_buffer(int val, char* buf) {
+static void write_int_to_buffer(uint32_t val, SkWStream* out) {
     val = SkEndian_SwapLE32(val);
-    for (int byte=0; byte<4; byte++) {
-        *buf++ = (char)(val & 0xff);
+    for (size_t byte = 0; byte < 4; ++byte) {
+        out->write8((uint8_t)(val & 0xff));
         val = val >> 8;
     }
 }
 
-/*static*/ bool SkBitmapHasher::ComputeDigestInternal(
-        const SkBitmap& bitmap, const SkBitmapTransformer& transformer, SkHashDigest *result) {
-    size_t pixelBufferSize = transformer.bytesNeededTotal();
-    size_t totalBufferSize = pixelBufferSize + 8; // leave room for x/y dimensions
+/*static*/ bool SkBitmapHasher::ComputeDigestInternal(const SkBitmap& bitmap,
+                                                      SkHashDigest *result) {
+    size_t pixelBufferSize = bitmap.width() * bitmap.height() * 4;
+    size_t totalBufferSize = pixelBufferSize + 2 * sizeof(uint32_t);
 
     SkAutoMalloc bufferManager(totalBufferSize);
     char *bufferStart = static_cast<char *>(bufferManager.get());
-    char *bufPtr = bufferStart;
+    SkMemoryWStream out(bufferStart, totalBufferSize);
+
     // start with the x/y dimensions
-    write_int_to_buffer(bitmap.width(), bufPtr);
-    bufPtr += 4;
-    write_int_to_buffer(bitmap.height(), bufPtr);
-    bufPtr += 4;
+    write_int_to_buffer(SkToU32(bitmap.width()), &out);
+    write_int_to_buffer(SkToU32(bitmap.height()), &out);
 
     // add all the pixel data
-    if (!transformer.copyBitmapToPixelBuffer(bufPtr, pixelBufferSize)) {
+    SkAutoTDelete<SkImageEncoder> enc(CreateARGBImageEncoder());
+    if (!enc->encodeStream(&out, bitmap, SkImageEncoder::kDefaultQuality)) {
         return false;
     }
+
     *result = SkCityHash::Compute64(bufferStart, totalBufferSize);
     return true;
 }
 
 /*static*/ bool SkBitmapHasher::ComputeDigest(const SkBitmap& bitmap, SkHashDigest *result) {
-    const SkBitmapTransformer::PixelFormat kPixelFormat =
-        SkBitmapTransformer::kARGB_8888_Premul_PixelFormat;
-
-    // First, try to transform the existing bitmap.
-    const SkBitmapTransformer transformer =
-        SkBitmapTransformer(bitmap, kPixelFormat);
-    if (transformer.isValid(false)) {
-        return ComputeDigestInternal(bitmap, transformer, result);
+    if (ComputeDigestInternal(bitmap, result)) {
+        return true;
     }
 
     // Hmm, that didn't work. Maybe if we create a new
     // kARGB_8888_Config version of the bitmap it will work better?
     SkBitmap copyBitmap;
-    bitmap.copyTo(&copyBitmap, SkBitmap::kARGB_8888_Config);
-    const SkBitmapTransformer copyTransformer =
-        SkBitmapTransformer(copyBitmap, kPixelFormat);
-    if (copyTransformer.isValid(true)) {
-        return ComputeDigestInternal(copyBitmap, copyTransformer, result);
-    } else {
+    if (!bitmap.copyTo(&copyBitmap, SkBitmap::kARGB_8888_Config)) {
         return false;
     }
+    return ComputeDigestInternal(copyBitmap, result);
 }

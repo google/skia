@@ -17,7 +17,7 @@
 //SK_CPU_LENDIAN allows 32 bit <=> 8 bit conversions without copies (if alligned).
 //SK_CPU_FAST_UNALIGNED_ACCESS allows 32 bit <=> 8 bit conversions without copies if SK_CPU_LENDIAN.
 
-class SkMD5 : SkWStream {
+class SkMD5 : public SkWStream {
 public:
     SkMD5();
 

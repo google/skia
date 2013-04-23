@@ -17,7 +17,7 @@
 //SK_CPU_BENDIAN allows 32 bit <=> 8 bit conversions without copies (if alligned).
 //SK_CPU_FAST_UNALIGNED_ACCESS allows 32 bit <=> 8 bit conversions without copies if SK_CPU_BENDIAN.
 
-class SkSHA1 : SkWStream {
+class SkSHA1 : public SkWStream {
 public:
     SkSHA1();
 
