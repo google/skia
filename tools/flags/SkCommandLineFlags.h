@@ -9,7 +9,7 @@
 #define SK_COMMAND_LINE_FLAGS_H
 
 #include "SkString.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
 /**
  *  Including this file (and compiling SkCommandLineFlags.cpp) provides command line
@@ -68,7 +68,7 @@
  *
  *  creates an array:
  *
- *  SkTDArray<const char*> FLAGS_args;
+ *  SkCommandLineFlags::StringArray FLAGS_args;
  *
  *  If the default value is the empty string, FLAGS_args will default to a size
  *  of zero. Otherwise it will default to a size of 1 with the default string
@@ -108,6 +108,35 @@ public:
      */
     static void Parse(int argc, char** argv);
 
+    /**
+     *  Custom class for holding the arguments for a string flag.
+     *  Publicly only has accessors so the strings cannot be modified.
+     */
+    class StringArray {
+    public:
+        const char* operator[](int i) const {
+            SkASSERT(i >= 0 && i < fStrings.count());
+            return fStrings[i].c_str();
+        }
+
+        int count() const {
+            return fStrings.count();
+        }
+
+        bool isEmpty() const { return this->count() == 0; }
+
+    private:
+        void reset() { fStrings.reset(); }
+
+        void append(const char* string) {
+            fStrings.push_back().set(string);
+        }
+
+        SkTArray<SkString> fStrings;
+
+        friend class SkFlagInfo;
+    };
+
 private:
     static SkFlagInfo* gHead;
     static SkString    gUsage;
@@ -140,7 +169,7 @@ static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name),     \
 #define DECLARE_bool(name) extern bool FLAGS_##name;
 
 #define DEFINE_string(name, defaultValue, helpString)                       \
-SkTDArray<const char*> FLAGS_##name;                                        \
+SkCommandLineFlags::StringArray FLAGS_##name;                               \
 static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
                                                          NULL,              \
                                                          &FLAGS_##name,     \
@@ -150,14 +179,14 @@ static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
 // string2 allows specifying a short name. There is an assert that shortName
 // is only 1 character.
 #define DEFINE_string2(name, shortName, defaultValue, helpString)               \
-SkTDArray<const char*> FLAGS_##name;                                            \
+SkCommandLineFlags::StringArray FLAGS_##name;                                   \
 static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),       \
                                                          TO_STRING(shortName),  \
                                                          &FLAGS_##name,         \
                                                          defaultValue,          \
                                                          helpString)
 
-#define DECLARE_string(name) extern SkTDArray<const char*> FLAGS_##name;
+#define DECLARE_string(name) extern SkCommandLineFlags::StringArray FLAGS_##name;
 
 #define DEFINE_int32(name, defaultValue, helpString)                        \
 int32_t FLAGS_##name;                                                       \
@@ -197,7 +226,7 @@ public:
     }
 
     static bool CreateStringFlag(const char* name, const char* shortName,
-                                 SkTDArray<const char*>* pStrings,
+                                 SkCommandLineFlags::StringArray* pStrings,
                                  const char* defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kString_FlagType, helpString));
         info->fDefaultString.set(defaultValue);
@@ -206,7 +235,7 @@ public:
         info->fStrings->reset();
         // If default is "", leave the array empty.
         if (info->fDefaultString.size() > 0) {
-            info->fStrings->append(1, &defaultValue);
+            info->fStrings->append(defaultValue);
         }
         return true;
     }
@@ -254,7 +283,7 @@ public:
 
     void append(const char* string) {
         if (kString_FlagType == fFlagType) {
-            fStrings->append(1, &string);
+            fStrings->append(string);
         } else {
             SkASSERT(!"Can only append to kString_FlagType");
         }
@@ -357,7 +386,7 @@ private:
     int32_t              fDefaultInt;
     double*              fDoubleValue;
     double               fDefaultDouble;
-    SkTDArray<const char*>* fStrings;
+    SkCommandLineFlags::StringArray* fStrings;
     // Both for the help string and in case fStrings is empty.
     SkString             fDefaultString;
 

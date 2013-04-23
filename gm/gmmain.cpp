@@ -1256,7 +1256,7 @@ static int findConfig(const char config[]) {
     return -1;
 }
 
-static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
+static bool skip_name(SkCommandLineFlags::StringArray array, const char name[]) {
     if (0 == array.count()) {
         // no names, so don't skip anything
         return false;
