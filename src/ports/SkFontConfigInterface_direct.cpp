@@ -488,7 +488,8 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     const char* post_config_family = get_name(pattern, FC_FAMILY);
     if (!post_config_family) {
-        return false;
+        // we can just continue with an empty name, e.g. default font
+        post_config_family = "";
     }
 
     FcResult result;
