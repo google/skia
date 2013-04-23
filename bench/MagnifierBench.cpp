@@ -10,10 +10,10 @@
 #include "SkMagnifierImageFilter.h"
 #include "SkRandom.h"
 
-#define FILTER_WIDTH_SMALL  SkIntToScalar(32)
-#define FILTER_HEIGHT_SMALL SkIntToScalar(32)
-#define FILTER_WIDTH_LARGE  SkIntToScalar(256)
-#define FILTER_HEIGHT_LARGE SkIntToScalar(256)
+#define FILTER_WIDTH_SMALL  32
+#define FILTER_HEIGHT_SMALL 32
+#define FILTER_WIDTH_LARGE  256
+#define FILTER_HEIGHT_LARGE 256
 
 class MagnifierBench : public SkBenchmark {
 public:
