@@ -6,6 +6,7 @@
  */
 
 #include "SkCommandLineFlags.h"
+#include "SkTDArray.h"
 
 static bool string_is_in(const char* target, const char* set[], size_t len) {
     for (size_t i = 0; i < len; i++) {
