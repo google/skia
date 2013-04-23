@@ -83,6 +83,11 @@ protected:
 
 // All the encoders known by Skia. Note that, depending on the compiler settings,
 // not all of these will be available
+/** An ARGBImageEncoder will always write out
+ *  bitmap.width() * bitmap.height() * 4
+ *  bytes.
+ */
+DECLARE_ENCODER_CREATOR(ARGBImageEncoder);
 DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
 DECLARE_ENCODER_CREATOR(PNGImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);

@@ -10,7 +10,6 @@
 #define SkBitmapHasher_DEFINED
 
 #include "SkBitmap.h"
-#include "SkBitmapTransformer.h"
 
 // TODO(epoger): Soon, SkHashDigest will become a real class of its own,
 // and callers won't be able to assume it converts to/from a uint64_t.
@@ -34,9 +33,7 @@ public:
     static bool ComputeDigest(const SkBitmap& bitmap, SkHashDigest *result);
 
 private:
-    static bool ComputeDigestInternal(const SkBitmap& bitmap,
-                                      const SkBitmapTransformer& transformer,
-                                      SkHashDigest *result);
+    static bool ComputeDigestInternal(const SkBitmap& bitmap, SkHashDigest *result);
 };
 
 #endif
