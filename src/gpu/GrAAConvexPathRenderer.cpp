@@ -450,12 +450,9 @@ class QuadEdgeEffect : public GrEffect {
 public:
 
     static GrEffectRef* Create() {
-        // we go through this so we only have one copy of each effect
-        static SkAutoTUnref<GrEffectRef> gQuadEdgeEffectRef(
-                    CreateEffectRef(AutoEffectUnref(SkNEW(QuadEdgeEffect))));
-
-        gQuadEdgeEffectRef.get()->ref();
-        return gQuadEdgeEffectRef;
+        GR_CREATE_STATIC_EFFECT(gQuadEdgeEffect, QuadEdgeEffect, ());
+        gQuadEdgeEffect->ref();
+        return gQuadEdgeEffect;
     }
 
     virtual ~QuadEdgeEffect() {}

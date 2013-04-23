@@ -27,10 +27,15 @@ class SkString;
  * GrEffectRef ref count reaches zero the scratch GrResources owned by the effect can be recycled
  * in service of later draws. However, the deferred draw queue may still own direct references to
  * the underlying GrEffect.
+ *
+ * GrEffectRefs created by new are placed in a per-thread managed pool. The pool is destroyed when
+ * the thread ends. Therefore, all dynamically allocated GrEffectRefs must be unreffed before thread
+ * termination.
  */
 class GrEffectRef : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffectRef);
+    virtual ~GrEffectRef();
 
     GrEffect* get() { return fEffect; }
     const GrEffect* get() const { return fEffect; }
@@ -41,12 +46,17 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
+    void* operator new(size_t size, void* placement) {
+        return ::operator new(size, placement);
+    }
+    void operator delete(void* target, void* placement) {
+        ::operator delete(target, placement);
+    }
+
 private:
     friend class GrEffect; // to construct these
 
     explicit GrEffectRef(GrEffect* effect);
-
-    virtual ~GrEffectRef();
 
     GrEffect* fEffect;
 
@@ -63,8 +73,12 @@ private:
     There is no public way to wrap a GrEffect in a GrEffectRef. Thus, a factory should be a static
     member function of a GrEffect subclass.
 
-    Because almost no code should ever handle a GrEffect outside of a GrEffectRef, we privately
-    inherit from GrRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
+    Because almost no code should ever handle a GrEffect directly outside of a GrEffectRef, we
+    privately inherit from GrRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
+
+    Dynamically allocated GrEffects and their corresponding GrEffectRefs are managed by a per-thread
+    memory pool. The ref count of an effect must reach 0 before the thread terminates and the pool
+    is destroyed. To create a static effect use the macro GR_CREATE_STATIC_EFFECT declared below.
   */
 class GrEffect : private GrRefCnt {
 public:
@@ -159,6 +173,13 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
+    void* operator new(size_t size, void* placement) {
+        return ::operator new(size, placement);
+    }
+    void operator delete(void* target, void* placement) {
+        ::operator delete(target, placement);
+    }
+
     /** These functions are used when recording effects into a deferred drawing queue. The inc call
         keeps the effect alive outside of GrEffectRef while allowing any resources owned by the
         effect to be returned to the cache for reuse. The dec call must balance the inc call. */
@@ -208,6 +229,14 @@ protected:
     static const GrEffectRef* CreateEffectRef(const GrEffect* effect) {
         return CreateEffectRef(const_cast<GrEffect*>(effect));
     }
+
+    /** Used by GR_CREATE_STATIC_EFFECT below */
+    static GrEffectRef* CreateStaticEffectRef(void* refStorage, GrEffect* effect) {
+        GrAssert(NULL == effect->fEffectRef);
+        effect->fEffectRef = SkNEW_PLACEMENT_ARGS(refStorage, GrEffectRef, (effect));
+        return effect->fEffectRef;
+    }
+
 
     /** Helper used in subclass factory functions to unref the effect after it has been wrapped in a
         GrEffectRef. E.g.:
@@ -284,5 +313,22 @@ inline GrEffectRef::GrEffectRef(GrEffect* effect) {
     effect->ref();
     fEffect = effect;
 }
+
+/**
+ * This creates an effect outside of the effect memory pool. The effect's destructor will be called
+ * at global destruction time. NAME will be the name of the created GrEffectRef.
+ */
+#define GR_CREATE_STATIC_EFFECT(NAME, EFFECT_CLASS, ARGS)                                         \
+enum {                                                                                            \
+    k_##NAME##_EffectRefOffset = GR_CT_ALIGN_UP(sizeof(EFFECT_CLASS), 8),                         \
+    k_##NAME##_StorageSize = k_##NAME##_EffectRefOffset + sizeof(GrEffectRef)                     \
+};                                                                                                \
+static SkAlignedSStorage<k_##NAME##_StorageSize> g_##NAME##_Storage;                              \
+static void* NAME##_RefLocation = (char*)g_##NAME##_Storage.get() + k_##NAME##_EffectRefOffset;   \
+static GrEffect* NAME##_Effect SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), EFFECT_CLASS, ARGS);\
+static SkAutoTDestroy<GrEffect> NAME##_ad(NAME##_Effect);                                         \
+static GrEffectRef* NAME(GrEffect::CreateStaticEffectRef(NAME##_RefLocation, NAME##_Effect));     \
+static SkAutoTDestroy<GrEffectRef> NAME##_Ref_ad(NAME)
+
 
 #endif
