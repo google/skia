@@ -32,14 +32,16 @@ namespace skiatest {
             kLastResult = kFailed
         };
 
-        void bumpTestCount() { sk_atomic_inc(&fTestCount); }
         int countTests() const { return fTestCount; }
 
         void startTest(Test*);
         void report(const char testDesc[], Result);
         void endTest(Test*);
+
         virtual bool allowExtendedTest() const { return false; }
         virtual bool allowThreaded() const { return false; }
+        virtual void bumpTestCount() { sk_atomic_inc(&fTestCount); }
+
         // helpers for tests
         void reportFailed(const char desc[]) {
             this->report(desc, kFailed);

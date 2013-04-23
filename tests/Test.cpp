@@ -60,7 +60,7 @@ const char* Test::getName() {
 namespace {
     class LocalReporter : public Reporter {
     public:
-        explicit LocalReporter(const Reporter& reporterToMimic) : fReporter(reporterToMimic) {}
+        explicit LocalReporter(Reporter* reporterToMimic) : fReporter(reporterToMimic) {}
 
         int failure_size() const { return fFailures.count(); }
         const char* failure(int i) const { return fFailures[i].c_str(); }
@@ -72,16 +72,21 @@ namespace {
             }
         }
 
+        // Proxy down to fReporter.  We assume these calls are threadsafe.
         virtual bool allowExtendedTest() const SK_OVERRIDE {
-            return fReporter.allowExtendedTest();
+            return fReporter->allowExtendedTest();
         }
 
         virtual bool allowThreaded() const SK_OVERRIDE {
-            return fReporter.allowThreaded();
+            return fReporter->allowThreaded();
+        }
+
+        virtual void bumpTestCount() SK_OVERRIDE {
+            fReporter->bumpTestCount();
         }
 
     private:
-        const Reporter& fReporter;
+        Reporter* fReporter;  // Unowned.
         SkTArray<SkString> fFailures;
     };
 }  // namespace
@@ -93,7 +98,7 @@ void Test::run() {
     const SkMSec start = SkTime::GetMSecs();
     // Run the test into a LocalReporter so we know if it's passed or failed without interference
     // from other tests that might share fReporter.
-    LocalReporter local(*fReporter);
+    LocalReporter local(fReporter);
     this->onRun(&local);
     fPassed = local.failure_size() == 0;
     fElapsed = SkTime::GetMSecs() - start;
