@@ -119,7 +119,7 @@ protected:
 
 class RRectBench : public RectBench {
 public:
-    RRectBench(void* param, int shift) : RectBench(param, shift) {}
+    RRectBench(void* param, int shift, int stroke = 0) : RectBench(param, shift, stroke) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
@@ -282,7 +282,9 @@ DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3, 4)); )
 DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1)); )
 DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3)); )
 DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1, 4)); )
 DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3, 4)); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points")); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines")); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon")); )
