@@ -96,8 +96,8 @@ struct SkDPoint {
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
     // because that will not take the magnitude of the values
     bool approximatelyEqual(const SkDPoint& a) const {
-        double denom = SkTMax<double>(fabs(fX), SkTMax<double>(fabs(fY),
-                SkTMax<double>(fabs(a.fX), fabs(a.fY))));
+        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
+                SkTMax(fabs(a.fX), fabs(a.fY))));
         if (denom == 0) {
             return true;
         }
@@ -107,8 +107,8 @@ struct SkDPoint {
     }
 
     bool approximatelyEqual(const SkPoint& a) const {
-        double denom = SkTMax<double>(fabs(fX), SkTMax<double>(fabs(fY),
-                SkScalarToDouble(SkTMax<SkScalar>(fabsf(a.fX), fabsf(a.fY)))));
+        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
+                SkScalarToDouble(SkTMax(fabsf(a.fX), fabsf(a.fY)))));
         if (denom == 0) {
             return true;
         }
@@ -118,8 +118,8 @@ struct SkDPoint {
     }
 
     bool approximatelyEqualHalf(const SkDPoint& a) const {
-        double denom = SkTMax<double>(fabs(fX), SkTMax<double>(fabs(fY),
-                SkTMax<double>(fabs(a.fX), fabs(a.fY))));
+        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
+                SkTMax(fabs(a.fX), fabs(a.fY))));
         if (denom == 0) {
             return true;
         }

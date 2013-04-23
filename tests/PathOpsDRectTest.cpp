@@ -43,30 +43,30 @@ static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     for (index = 0; index < lineTests_count; ++index) {
         const SkDLine& line = lineTests[index];
         rect.setBounds(line);
-        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin<double>(line[0].fX, line[1].fX));
-        REPORTER_ASSERT(reporter, rect.fTop == SkTMin<double>(line[0].fY, line[1].fY));
-        REPORTER_ASSERT(reporter, rect.fRight == SkTMax<double>(line[0].fX, line[1].fX));
-        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax<double>(line[0].fY, line[1].fY));
+        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(line[0].fX, line[1].fX));
+        REPORTER_ASSERT(reporter, rect.fTop == SkTMin(line[0].fY, line[1].fY));
+        REPORTER_ASSERT(reporter, rect.fRight == SkTMax(line[0].fX, line[1].fX));
+        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax(line[0].fY, line[1].fY));
         rect2.set(line[0]);
         rect2.add(line[1]);
-        REPORTER_ASSERT(reporter, rect2.fLeft == SkTMin<double>(line[0].fX, line[1].fX));
-        REPORTER_ASSERT(reporter, rect2.fTop == SkTMin<double>(line[0].fY, line[1].fY));
-        REPORTER_ASSERT(reporter, rect2.fRight == SkTMax<double>(line[0].fX, line[1].fX));
-        REPORTER_ASSERT(reporter, rect2.fBottom == SkTMax<double>(line[0].fY, line[1].fY));
+        REPORTER_ASSERT(reporter, rect2.fLeft == SkTMin(line[0].fX, line[1].fX));
+        REPORTER_ASSERT(reporter, rect2.fTop == SkTMin(line[0].fY, line[1].fY));
+        REPORTER_ASSERT(reporter, rect2.fRight == SkTMax(line[0].fX, line[1].fX));
+        REPORTER_ASSERT(reporter, rect2.fBottom == SkTMax(line[0].fY, line[1].fY));
         REPORTER_ASSERT(reporter, rect.contains(line[0]));
         REPORTER_ASSERT(reporter, rect.intersects(&rect2));
     }
     for (index = 0; index < quadTests_count; ++index) {
         const SkDQuad& quad = quadTests[index];
         rect.setRawBounds(quad);
-        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin<double>(quad[0].fX,
-                SkTMin<double>(quad[1].fX, quad[2].fX)));
-        REPORTER_ASSERT(reporter, rect.fTop == SkTMin<double>(quad[0].fY,
-                SkTMin<double>(quad[1].fY, quad[2].fY)));
-        REPORTER_ASSERT(reporter, rect.fRight == SkTMax<double>(quad[0].fX,
-                SkTMax<double>(quad[1].fX, quad[2].fX)));
-        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax<double>(quad[0].fY,
-                SkTMax<double>(quad[1].fY, quad[2].fY)));
+        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(quad[0].fX,
+                SkTMin(quad[1].fX, quad[2].fX)));
+        REPORTER_ASSERT(reporter, rect.fTop == SkTMin(quad[0].fY,
+                SkTMin(quad[1].fY, quad[2].fY)));
+        REPORTER_ASSERT(reporter, rect.fRight == SkTMax(quad[0].fX,
+                SkTMax(quad[1].fX, quad[2].fX)));
+        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax(quad[0].fY,
+                SkTMax(quad[1].fY, quad[2].fY)));
         rect2.setBounds(quad);
         REPORTER_ASSERT(reporter, rect.intersects(&rect2));
         // FIXME: add a recursive box subdivision method to verify that tight bounds is correct
@@ -78,14 +78,14 @@ static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     for (index = 0; index < cubicTests_count; ++index) {
         const SkDCubic& cubic = cubicTests[index];
         rect.setRawBounds(cubic);
-        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin<double>(cubic[0].fX,
-                SkTMin<double>(cubic[1].fX, SkTMin<double>(cubic[2].fX, cubic[3].fX))));
-        REPORTER_ASSERT(reporter, rect.fTop == SkTMin<double>(cubic[0].fY,
-                SkTMin<double>(cubic[1].fY, SkTMin<double>(cubic[2].fY, cubic[3].fY))));
-        REPORTER_ASSERT(reporter, rect.fRight == SkTMax<double>(cubic[0].fX,
-                SkTMax<double>(cubic[1].fX, SkTMax<double>(cubic[2].fX, cubic[3].fX))));
-        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax<double>(cubic[0].fY,
-                SkTMax<double>(cubic[1].fY, SkTMax<double>(cubic[2].fY, cubic[3].fY))));
+        REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(cubic[0].fX,
+                SkTMin(cubic[1].fX, SkTMin(cubic[2].fX, cubic[3].fX))));
+        REPORTER_ASSERT(reporter, rect.fTop == SkTMin(cubic[0].fY,
+                SkTMin(cubic[1].fY, SkTMin(cubic[2].fY, cubic[3].fY))));
+        REPORTER_ASSERT(reporter, rect.fRight == SkTMax(cubic[0].fX,
+                SkTMax(cubic[1].fX, SkTMax(cubic[2].fX, cubic[3].fX))));
+        REPORTER_ASSERT(reporter, rect.fBottom == SkTMax(cubic[0].fY,
+                SkTMax(cubic[1].fY, SkTMax(cubic[2].fY, cubic[3].fY))));
         rect2.setBounds(cubic);
         REPORTER_ASSERT(reporter, rect.intersects(&rect2));
         // FIXME: add a recursive box subdivision method to verify that tight bounds is correct

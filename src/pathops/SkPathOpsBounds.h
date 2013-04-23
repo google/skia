@@ -17,7 +17,9 @@ struct SkPathOpsBounds : public SkRect {
                 a.fTop <= b.fBottom && b.fTop <= a.fBottom;
     }
 
-    // FIXME: add() is generically useful and could be added directly to SkRect
+   // Note that add(), unlike SkRect::join() or SkRect::growToInclude()
+   // does not treat the bounds of horizontal and vertical lines as
+   // empty rectangles.
     void add(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
         if (left < fLeft) fLeft = left;
         if (top < fTop) fTop = top;

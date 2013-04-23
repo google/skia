@@ -26,7 +26,7 @@ double SkDQuad::nearestT(const SkDPoint& pt) const {
     int roots = SkDCubic::RootsValidT(a, b, c, d, ts);
     double d0 = pt.distanceSquared(fPts[0]);
     double d2 = pt.distanceSquared(fPts[2]);
-    double distMin = SkTMin<double>(d0, d2);
+    double distMin = SkTMin(d0, d2);
     int bestIndex = -1;
     for (int index = 0; index < roots; ++index) {
         SkDPoint onQuad = xyAtT(ts[index]);
