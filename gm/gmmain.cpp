@@ -1171,10 +1171,14 @@ static const ConfigData gRec[] = {
 #endif // SK_SUPPORT_PDF
 };
 
+static const char kDefaultsConfigStr[] = "defaults";
+static const char kExcludeConfigChar = '~';
+
 static SkString configUsage() {
     SkString result;
     result.appendf("Space delimited list of which configs to run. Possible options: [");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        SkASSERT(gRec[i].fName != kDefaultsConfigStr);
         if (i > 0) {
             result.append("|");
         }
@@ -1182,16 +1186,39 @@ static SkString configUsage() {
     }
     result.append("]\n");
     result.appendf("The default value is: \"");
+    SkString firstDefault;
+    SkString allButFirstDefaults;
+    SkString nonDefault;
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (gRec[i].fRunByDefault) {
             if (i > 0) {
                 result.append(" ");
             }
-            result.appendf("%s", gRec[i].fName);
+            result.append(gRec[i].fName);
+            if (firstDefault.isEmpty()) {
+                firstDefault = gRec[i].fName;
+            } else {
+                if (!allButFirstDefaults.isEmpty()) {
+                    allButFirstDefaults.append(" ");
+                }
+                allButFirstDefaults.append(gRec[i].fName);
+            }
+        } else {
+            nonDefault = gRec[i].fName;
         }
     }
-    result.appendf("\"");
-
+    result.append("\"\n");
+    result.appendf("\"%s\" evaluates to the default set of configs.\n", kDefaultsConfigStr);
+    result.appendf("Prepending \"%c\" on a config name excludes it from the set of configs to run.\n"
+                   "Exclusions always override inclusions regardless of order.\n",
+                   kExcludeConfigChar);
+    result.appendf("E.g. \"--config %s %c%s %s\" will run these configs:\n\t%s %s",
+                   kDefaultsConfigStr,
+                   kExcludeConfigChar,
+                   firstDefault.c_str(),
+                   nonDefault.c_str(),
+                   allButFirstDefaults.c_str(),
+                   nonDefault.c_str());
     return result;
 }
 
@@ -1654,12 +1681,34 @@ int tool_main(int argc, char** argv) {
     }
 
     for (int i = 0; i < FLAGS_config.count(); i++) {
-        int index = findConfig(FLAGS_config[i]);
+        const char* config = FLAGS_config[i];
+        userConfig = true;
+        bool exclude = false;
+        if (*config == kExcludeConfigChar) {
+            exclude = true;
+            config += 1;
+        }
+        int index = findConfig(config);
         if (index >= 0) {
-            appendUnique<size_t>(&configs, index);
-            userConfig = true;
+            if (exclude) {
+                *excludeConfigs.append() = index;
+            } else {
+                appendUnique<size_t>(&configs, index);
+            }
+        } else if (0 == strcmp(kDefaultsConfigStr, config)) {
+            for (size_t c = 0; c < SK_ARRAY_COUNT(gRec); ++c) {
+                if (gRec[c].fRunByDefault) {
+                    if (exclude) {
+                        gm_fprintf(stderr, "%c%s is not allowed.\n",
+                                   kExcludeConfigChar, kDefaultsConfigStr);
+                        return -1;
+                    } else {
+                        appendUnique<size_t>(&configs, c);
+                    }
+                }
+            }
         } else {
-            gm_fprintf(stderr, "unrecognized config %s\n", FLAGS_config[i]);
+            gm_fprintf(stderr, "unrecognized config %s\n", config);
             return -1;
         }
     }
@@ -1772,6 +1821,19 @@ int tool_main(int argc, char** argv) {
 #else
     GrContextFactory* grFactory = NULL;
 #endif
+
+    if (configs.isEmpty()) {
+        gm_fprintf(stderr, "No configs to run.");
+        return -1;
+    }
+
+    // now show the user the set of configs that will be run.
+    SkString configStr("These configs will be run: ");
+    // show the user the config that will run.
+    for (int i = 0; i < configs.count(); ++i) {
+        configStr.appendf("%s%s", gRec[configs[i]].fName, (i == configs.count() - 1) ? "\n" : " ");
+    }
+    gm_fprintf(stdout, "%s", configStr.c_str());
 
     if (FLAGS_resourcePath.count() == 1) {
         GM::SetResourcePath(FLAGS_resourcePath[0]);
