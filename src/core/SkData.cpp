@@ -123,7 +123,7 @@ SkData* SkData::NewFromFILE(SkFILE* f) {
     return SkData::NewWithProc(addr, size, sk_munmap_releaseproc, NULL);
 }
 
-#elif SK_BUILD_FOR_WIN32
+#elif defined(SK_BUILD_FOR_WIN32)
 
 template <typename HandleType, HandleType InvalidValue, BOOL (WINAPI * Close)(HandleType)>
 class SkAutoTHandle : SkNoncopyable {
