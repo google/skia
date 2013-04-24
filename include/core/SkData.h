@@ -13,6 +13,8 @@
 
 #include "SkFlattenable.h"
 
+struct SkFILE;
+
 /**
  *  SkData holds an immutable data buffer. Not only is the data immutable,
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
@@ -89,10 +91,12 @@ public:
     static SkData* NewFromMalloc(const void* data, size_t length);
 
     /**
-     *  Create a new dataref from a pointer allocated by mmap. The Data object
-     *  will handle calling munmap().
+     *  Create a new dataref from a SkFILE.
+     *  This does not take ownership of the SkFILE, nor close it.
+     *  The SkFILE must be open for reading only.
+     *  Returns NULL on failure.
      */
-    static SkData* NewFromMMap(const void* data, size_t length);
+    static SkData* NewFromFILE(SkFILE* f);
 
     /**
      *  Create a new dataref using a subset of the data in the specified
