@@ -168,4 +168,3 @@ DEF_BENCH( return new DisplacementFullBench(p, true); )
 DEF_BENCH( return new DisplacementZeroBench(p, false); )
 DEF_BENCH( return new DisplacementAlphaBench(p, false); )
 DEF_BENCH( return new DisplacementFullBench(p, false); )
-

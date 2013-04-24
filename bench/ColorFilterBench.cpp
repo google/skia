@@ -333,4 +333,3 @@ DEF_BENCH( return new ColorFilterBrightBench(p, false); )
 DEF_BENCH( return new ColorFilterBlueBench(p, false); )
 DEF_BENCH( return new ColorFilterGrayBench(p, false); )
 DEF_BENCH( return new TableColorFilterBench(p, false); )
-

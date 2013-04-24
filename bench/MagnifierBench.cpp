@@ -82,4 +82,3 @@ private:
 
 DEF_BENCH( return new MagnifierBench(p, true); )
 DEF_BENCH( return new MagnifierBench(p, false); )
-
