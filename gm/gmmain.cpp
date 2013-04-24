@@ -1240,18 +1240,9 @@ DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte si
 #endif
 DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
             "when reading/writing files.");
-// TODO(epoger): Maybe should make SkCommandLineFlags handle default string
-// values differently, so that the first definition of ignoreErrorTypes worked?
-#if 0
 DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(),
               "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
               "types are encountered, the tool will exit with a nonzero return value.");
-#else
-DEFINE_string(ignoreErrorTypes, "", SkString(SkString(
-              "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
-              "types are encountered, the tool will exit with a nonzero return value. "
-              "Defaults to: ") += kDefaultIgnorableErrorTypes.asString(" ")).c_str());
-#endif
 DEFINE_string(match, "",  "Only run tests whose name includes this substring/these substrings "
               "(more than one can be supplied, separated by spaces).");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "

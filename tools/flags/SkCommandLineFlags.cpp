@@ -8,6 +8,44 @@
 #include "SkCommandLineFlags.h"
 #include "SkTDArray.h"
 
+bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
+                                  SkCommandLineFlags::StringArray* pStrings,
+                                  const char* defaultValue, const char* helpString) {
+    SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kString_FlagType, helpString));
+    info->fDefaultString.set(defaultValue);
+
+    info->fStrings = pStrings;
+    SetDefaultStrings(pStrings, defaultValue);
+    return true;
+}
+
+void SkFlagInfo::SetDefaultStrings(SkCommandLineFlags::StringArray* pStrings,
+                                   const char* defaultValue) {
+    pStrings->reset();
+    // If default is "", leave the array empty.
+    size_t defaultLength = strlen(defaultValue);
+    if (defaultLength > 0) {
+        const char* const defaultEnd = defaultValue + defaultLength;
+        const char* begin = defaultValue;
+        while (true) {
+            while (begin < defaultEnd && ' ' == *begin) {
+                begin++;
+            }
+            if (begin < defaultEnd) {
+                const char* end = begin + 1;
+                while (end < defaultEnd && ' ' != *end) {
+                    end++;
+                }
+                size_t length = end - begin;
+                pStrings->append(begin, length);
+                begin = end + 1;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
 static bool string_is_in(const char* target, const char* set[], size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (0 == strcmp(target, set[i])) {
