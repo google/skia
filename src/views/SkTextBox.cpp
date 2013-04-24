@@ -232,7 +232,7 @@ void SkTextBox::draw(SkCanvas* canvas, const char text[], size_t len, const SkPa
         if (text >= textStop)
             break;
         y += scaledSpacing;
-        if (y + metrics.fAscent >= height)
+        if (y + metrics.fAscent >= fBox.fBottom)
             break;
     }
 }
