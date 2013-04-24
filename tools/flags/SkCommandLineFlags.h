@@ -132,6 +132,10 @@ public:
             fStrings.push_back().set(string);
         }
 
+        void append(const char* string, size_t length) {
+            fStrings.push_back().set(string, length);
+        }
+
         SkTArray<SkString> fStrings;
 
         friend class SkFlagInfo;
@@ -216,7 +220,20 @@ public:
         kDouble_FlagType,
     };
 
-    // Create flags of the desired type, and append to the list.
+    /**
+     *  Each Create<Type>Flag function creates an SkFlagInfo of the specified type. The SkFlagInfo
+     *  object is appended to a list, which is deleted when SkCommandLineFlags::Parse is called.
+     *  Therefore, each call should be made before the call to ::Parse. They are not intended
+     *  to be called directly. Instead, use the macros described above.
+     *  @param name Long version (at least 2 characters) of the name of the flag. This name can
+     *      be referenced on the command line as "--name" to set the value of this flag.
+     *  @param shortName Short version (one character) of the name of the flag. This name can
+     *      be referenced on the command line as "-shortName" to set the value of this flag.
+     *  @param p<Type> Pointer to a global variable which holds the value set by SkCommandLineFlags.
+     *  @param defaultValue The default value of this flag. The variable pointed to by p<Type> will
+     *      be set to this value initially. This is also displayed as part of the help output.
+     *  @param helpString Explanation of what this flag changes in the program.
+     */
     static bool CreateBoolFlag(const char* name, const char* shortName, bool* pBool,
                                bool defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kBool_FlagType, helpString));
@@ -225,21 +242,19 @@ public:
         return true;
     }
 
+    /**
+     *  See comments for CreateBoolFlag.
+     *  @param pStrings Unlike the others, this is a pointer to an array of values.
+     *  @param defaultValue Thise default will be parsed so that strings separated by spaces
+     *      will be added to pStrings.
+     */
     static bool CreateStringFlag(const char* name, const char* shortName,
                                  SkCommandLineFlags::StringArray* pStrings,
-                                 const char* defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kString_FlagType, helpString));
-        info->fDefaultString.set(defaultValue);
+                                 const char* defaultValue, const char* helpString);
 
-        info->fStrings = pStrings;
-        info->fStrings->reset();
-        // If default is "", leave the array empty.
-        if (info->fDefaultString.size() > 0) {
-            info->fStrings->append(defaultValue);
-        }
-        return true;
-    }
-
+    /**
+     *  See comments for CreateBoolFlag.
+     */
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kInt_FlagType, helpString));
@@ -248,6 +263,9 @@ public:
         return true;
     }
 
+    /**
+     *  See comments for CreateBoolFlag.
+     */
     static bool CreateDoubleFlag(const char* name, double* pDouble,
                                  double defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kDouble_FlagType, helpString));
@@ -375,6 +393,16 @@ private:
         SkASSERT(NULL != name && strlen(name) > 1);
         SkASSERT(NULL == shortName || 1 == strlen(shortName));
     }
+
+    /**
+     *  Set a StringArray to hold the values stored in defaultStrings.
+     *  @param array The StringArray to modify.
+     *  @param defaultStrings Space separated list of strings that should be inserted into array
+     *      individually.
+     */
+    static void SetDefaultStrings(SkCommandLineFlags::StringArray* array,
+                                  const char* defaultStrings);
+
     // Name of the flag, without initial dashes
     SkString             fName;
     SkString             fShortName;
