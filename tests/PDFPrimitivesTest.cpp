@@ -240,22 +240,8 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
                                             buffer.getOffset()));
 }
 
-// Create a bitmap that would be easier to be compressed in a JPEG than ZIP.
-static void setup_jpegBitmap(SkBitmap* bitmap, int width, int height) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bitmap->allocPixels();
-    for (int y = 0;  y < bitmap->height(); y++) {
-        for (int x = 0; x < bitmap->width(); x++) {
-            *bitmap->getAddr32(x, y) =
-                SkColorSetRGB(0 + y % 20 + 128 + 100 * cos(x * 0.01F),
-                              1 + y % 20 + 128 + 100 * cos(x * 0.1F),
-                              2 + y % 20 + 128 + 100 * cos(x * 1.0F));
-        }
-    }
-}
-
 // Create a bitmap that would be very eficiently compressed in a ZIP.
-static void setup_solidBitmap(SkBitmap* bitmap, int width, int height) {
+static void setup_bitmap(SkBitmap* bitmap, int width, int height) {
     bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     bitmap->allocPixels();
     bitmap->eraseColor(SK_ColorWHITE);
@@ -284,7 +270,7 @@ static void TestImage(skiatest::Reporter* reporter, const SkBitmap& bitmap,
 
 static void TestUncompressed(skiatest::Reporter* reporter) {
     SkBitmap bitmap;
-    setup_solidBitmap(&bitmap, 1, 1);
+    setup_bitmap(&bitmap, 1, 1);
     TestImage(reporter, bitmap,
               "/Subtype /Image\n"
               "/Width 1\n"
@@ -301,7 +287,7 @@ static void TestFlateDecode(skiatest::Reporter* reporter) {
         return;
     }
     SkBitmap bitmap;   
-    setup_solidBitmap(&bitmap, 10, 10);
+    setup_bitmap(&bitmap, 10, 10);
     TestImage(reporter, bitmap,
               "/Subtype /Image\n"
               "/Width 10\n"
@@ -316,7 +302,7 @@ static void TestFlateDecode(skiatest::Reporter* reporter) {
 
 static void TestDCTDecode(skiatest::Reporter* reporter) {
     SkBitmap bitmap;
-    setup_jpegBitmap(&bitmap, 32, 32);
+    setup_bitmap(&bitmap, 32, 32);
     TestImage(reporter, bitmap,
               "/Subtype /Image\n"
               "/Width 32\n"
