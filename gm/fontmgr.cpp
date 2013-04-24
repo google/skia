@@ -59,6 +59,7 @@ protected:
                 SkString sname;
                 SkFontStyle fs;
                 set->getStyle(j, &fs, &sname);
+                sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.isItalic());
 
                 SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, paint) + 20;
