@@ -34,6 +34,8 @@
         '../src/pdf/SkPDFGraphicState.h',
         '../src/pdf/SkPDFImage.cpp',
         '../src/pdf/SkPDFImage.h',
+        '../src/pdf/SkPDFImageStream.cpp',
+        '../src/pdf/SkPDFImageStream.h',
         '../src/pdf/SkPDFPage.cpp',
         '../src/pdf/SkPDFPage.h',
         '../src/pdf/SkPDFShader.cpp',
