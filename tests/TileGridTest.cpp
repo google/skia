@@ -178,6 +178,9 @@ public:
         SkBitmap moreThanATileBitmap;
         moreThanATileBitmap.setConfig(SkBitmap::kARGB_8888_Config, 11, 11);
         moreThanATileBitmap.allocPixels();
+        SkBitmap tinyBitmap;
+        tinyBitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
+        tinyBitmap.allocPixels();
         // Test parts of top-left tile
         {
             // The offset should cancel the top and left borders of the top left tile
@@ -225,6 +228,20 @@ public:
             REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
             REPORTER_ASSERT(reporter, rect3 == mockCanvas.fRects[1]);
+        }
+        {
+            // Regression test for crbug.com/234688
+            // Once the 2x2 device region is inset by margin, it yields an empty
+            // adjusted region, sitting right on top of the tile boundary.
+            SkDevice device(tinyBitmap);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(-8.0f), SkFloatToScalar(-8.0f));
+            picture.draw(&mockCanvas);
+            // This test passes by not asserting. We do not validate the rects recorded
+            // because the result is numerically unstable (floating point equality). 
+            // The content of any one of the four tiles of the tilegrid would be a valid
+            // result since any bbox that covers the center point of the canvas will be
+            // recorded in all four tiles.
         }
     }
 
