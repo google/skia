@@ -194,4 +194,3 @@ DEF_BENCH( return new BlendMultiplyBench(p); )
 DEF_BENCH( return new BlendScreenBench(p); )
 DEF_BENCH( return new BlendDarkenBench(p); )
 DEF_BENCH( return new BlendLightenBench(p); )
-

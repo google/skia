@@ -98,4 +98,3 @@ private:
 
 DEF_BENCH( return new MergeBench(p, true); )
 DEF_BENCH( return new MergeBench(p, false); )
-
