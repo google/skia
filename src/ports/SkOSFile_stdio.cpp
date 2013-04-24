@@ -33,6 +33,8 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags)
     *p++ = 'b';
     *p = 0;
 
+    //TODO: on Windows fopen is just ASCII or the current code page,
+    //convert to utf16 and use _wfopen
     SkFILE* f = (SkFILE*)::fopen(path, perm);
 #if 0
     if (NULL == f)

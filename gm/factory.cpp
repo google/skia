@@ -32,12 +32,12 @@ protected:
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         filename.append("plane.png");
 
-        SkFILEStream stream(filename.c_str());
-        if (stream.isValid()) {
-            stream.rewind();
-            size_t length = stream.getLength();
+        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
+        if (NULL != stream.get()) {
+            stream->rewind();
+            size_t length = stream->getLength();
             void* buffer = sk_malloc_throw(length);
-            stream.read(buffer, length);
+            stream->read(buffer, length);
             SkAutoDataUnref data(SkData::NewFromMalloc(buffer, length));
             SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
             // Create a cache which will boot the pixels out anytime the

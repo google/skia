@@ -7,12 +7,16 @@
 
 #include "SkData.h"
 #include "SkFlattenableBuffers.h"
+#include "SkOSFile.h"
 
 #if SK_MMAP_SUPPORT
     #include <unistd.h>
     #include <sys/mman.h>
     #include <fcntl.h>
     #include <errno.h>
+    #include <unistd.h>
+#else
+    #include <io.h>
 #endif
 
 SK_DEFINE_INST_COUNT(SkData)
@@ -94,6 +98,90 @@ static void sk_dataref_releaseproc(const void*, size_t, void* context) {
     src->unref();
 }
 
+#if SK_MMAP_SUPPORT
+
+static void sk_munmap_releaseproc(const void* addr, size_t length, void*) {
+    munmap(const_cast<void*>(addr), length);
+}
+
+SkData* SkData::NewFromFILE(SkFILE* f) {
+    size_t size = sk_fgetsize(f);
+    if (0 == size) {
+        return NULL;
+    }
+
+    int fd = fileno((FILE*)f);
+    if (fd < 0) {
+        return NULL;
+    }
+
+    void* addr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    if (MAP_FAILED == addr) {
+        return NULL;
+    }
+
+    return SkData::NewWithProc(addr, size, sk_munmap_releaseproc, NULL);
+}
+
+#elif SK_BUILD_FOR_WIN32
+
+template <typename HandleType, HandleType InvalidValue, BOOL (WINAPI * Close)(HandleType)>
+class SkAutoTHandle : SkNoncopyable {
+public:
+    SkAutoTHandle(HandleType handle) : fHandle(handle) { }
+    ~SkAutoTHandle() { Close(fHandle); }
+    operator HandleType() { return fHandle; }
+    bool isValid() { return InvalidValue != fHandle; }
+private:
+    HandleType fHandle;
+};
+typedef SkAutoTHandle<HANDLE, INVALID_HANDLE_VALUE, CloseHandle> SkAutoWinFile;
+typedef SkAutoTHandle<HANDLE, NULL, CloseHandle> SkAutoWinMMap;
+
+static void sk_munmap_releaseproc(const void* addr, size_t, void*) {
+    UnmapViewOfFile(addr);
+}
+
+SkData* SkData::NewFromFILE(SkFILE* f) {
+    size_t size = sk_fgetsize(f);
+    if (0 == size) {
+        return NULL;
+    }
+
+    int fileno = _fileno((FILE*)f);
+    if (fileno < 0) {
+        return NULL;
+    }
+
+    HANDLE file = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return NULL;
+    }
+
+    SkAutoWinMMap mmap(CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL));
+    if (!mmap.isValid()) {
+        //TODO: use SK_TRACEHR(GetLastError(), "Could not create file mapping.") to report.
+        return NULL;
+    }
+
+    // Eventually call UnmapViewOfFile
+    void* addr = MapViewOfFile(mmap, FILE_MAP_READ, 0, 0, 0);
+    if (NULL == addr) {
+        //TODO: use SK_TRACEHR(GetLastError(), "Could not map view of file.") to report.
+        return NULL;
+    }
+
+    return SkData::NewWithProc(addr, size, sk_munmap_releaseproc, NULL);
+}
+
+#else
+
+SkData* SkData::NewFromFILE(SkFILE* f) {
+    return NULL;
+}
+
+#endif
+
 SkData* SkData::NewSubset(const SkData* src, size_t offset, size_t length) {
     /*
         We could, if we wanted/need to, just make a deep copy of src's data,
@@ -126,20 +214,6 @@ SkData* SkData::NewWithCString(const char cstr[]) {
     }
     return NewWithCopy(cstr, size);
 }
-
-#if SK_MMAP_SUPPORT
-static void sk_munmap_releaseproc(const void* addr, size_t length, void*) {
-    munmap(const_cast<void*>(addr), length);
-}
-
-SkData* SkData::NewFromMMap(const void* addr, size_t length) {
-    return SkNEW_ARGS(SkData, (addr, length, sk_munmap_releaseproc, NULL));
-}
-#else
-SkData* SkData::NewFromMMap(const void* addr, size_t length) {
-    return NULL;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
