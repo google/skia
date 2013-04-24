@@ -81,9 +81,9 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
         fInfo.fTileInterval.height();
 
     tileStartX = SkPin32(tileStartX, 0, fXTileCount - 1);
-    tileEndX = SkPin32(tileEndX, 1, fXTileCount);
+    tileEndX = SkPin32(tileEndX, tileStartX+1, fXTileCount);
     tileStartY = SkPin32(tileStartY, 0, fYTileCount - 1);
-    tileEndY = SkPin32(tileEndY, 1, fYTileCount);
+    tileEndY = SkPin32(tileEndY, tileStartY+1, fYTileCount);
 
     int queryTileCount = (tileEndX - tileStartX) * (tileEndY - tileStartY);
     SkASSERT(queryTileCount);
