@@ -14,6 +14,7 @@
 //
 
 #include "SkMath.h"
+#include "SkPDFDevice.h"
 #include "SkPicture.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
@@ -22,7 +23,6 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkPDFDevice;
 
 namespace sk_tools {
 
@@ -33,9 +33,10 @@ public:
     virtual void render() = 0;
     virtual void end();
 
-    PdfRenderer()
+    PdfRenderer(EncodeToDCTStream encoder)
         : fPicture(NULL)
         , fPDFDevice(NULL)
+        , fEncoder(encoder)
         {}
 
     void write(SkWStream* stream) const;
@@ -47,7 +48,7 @@ protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
     SkPDFDevice* fPDFDevice;
-
+    EncodeToDCTStream fEncoder;
 
 private:
     typedef SkRefCnt INHERITED;
@@ -55,6 +56,8 @@ private:
 
 class SimplePdfRenderer : public PdfRenderer {
 public:
+    SimplePdfRenderer(EncodeToDCTStream encoder)
+        : PdfRenderer(encoder) {}
     virtual void render() SK_OVERRIDE;
 
 private:

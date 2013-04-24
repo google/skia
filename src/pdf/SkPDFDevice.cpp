@@ -591,7 +591,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
       fContentSize(contentSize),
       fLastContentEntry(NULL),
       fLastMarginContentEntry(NULL),
-      fClipStack(NULL) {
+      fClipStack(NULL),
+      fEncoder(NULL) {
     // Skia generally uses the top left as the origin but PDF natively has the
     // origin at the bottom left. This matrix corrects for that.  But that only
     // needs to be done once, we don't do it when layering.
@@ -1822,7 +1823,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
         return;
     }
 
-    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset);
+    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, fEncoder);
     if (!image) {
         return;
     }

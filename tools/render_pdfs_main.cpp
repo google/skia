@@ -9,6 +9,7 @@
 #include "SkDevice.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -38,7 +39,7 @@ static void usage(const char* argv0) {
     SkDebugf("SKP to PDF rendering tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <input>... -w <outputDir> \n"
+"     %s <input>... [-w <outputDir>] [--jpegQuality N] \n"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -46,6 +47,12 @@ static void usage(const char* argv0) {
 "                expected to have the .skp extension.\n\n");
     SkDebugf(
 "     outputDir: directory to write the rendered pdfs.\n\n");
+    SkDebugf("\n");
+        SkDebugf(
+"     jpegQuality N: encodes images in JPEG at quality level N, which can\n"
+"                    be in range 0-100).\n"
+"                    N = -1 will disable JPEG compression.\n"
+"                    Default is N = 100, maximum quality.\n\n");
     SkDebugf("\n");
 }
 
@@ -69,6 +76,33 @@ static bool replace_filename_extension(SkString* path,
         return true;
     }
     return false;
+}
+
+int gJpegQuality = 100;
+static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
+    if (gJpegQuality == -1) return false;
+
+        SkIRect bitmapBounds;
+        SkBitmap subset;
+        const SkBitmap* bitmapToUse = &bitmap;
+        bitmap.getBounds(&bitmapBounds);
+        if (rect != bitmapBounds) {
+            SkAssertResult(bitmap.extractSubset(&subset, rect));
+            bitmapToUse = &subset;
+        }
+    
+#if defined(SK_BUILD_FOR_MAC)
+        // Workaround bug #1043 where bitmaps with referenced pixels cause
+        // CGImageDestinationFinalize to crash
+        SkBitmap copy;
+        bitmapToUse->deepCopyTo(&copy, bitmapToUse->config());
+        bitmapToUse = &copy;
+#endif
+
+    return SkImageEncoder::EncodeStream(stream,
+                                        *bitmapToUse,
+                                        SkImageEncoder::kJPEG_Type,
+                                        gJpegQuality);
 }
 
 /** Builds the output filename. path = dir/name, and it replaces expected
@@ -200,6 +234,19 @@ static void parse_commandline(int argc, char* const argv[],
                 exit(-1);
             }
             *outputDir = SkString(*argv);
+        } else if (0 == strcmp(*argv, "--jpegQuality")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing argument for --jpegQuality\n");
+                usage(argv0);
+                exit(-1);
+            }
+            gJpegQuality = atoi(*argv);
+            if (gJpegQuality < -1 || gJpegQuality > 100) {
+                SkDebugf("Invalid argument for --jpegQuality\n");
+                usage(argv0);
+                exit(-1);            
+            }
         } else {
             inputs->push_back(SkString(*argv));
         }
@@ -217,7 +264,7 @@ int tool_main_core(int argc, char** argv) {
     SkTArray<SkString> inputs;
 
     SkAutoTUnref<sk_tools::PdfRenderer>
-        renderer(SkNEW(sk_tools::SimplePdfRenderer));
+        renderer(SkNEW_ARGS(sk_tools::SimplePdfRenderer, (encode_to_dct_stream)));
     SkASSERT(renderer.get());
 
     SkString outputDir;

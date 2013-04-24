@@ -10,7 +10,8 @@
 #ifndef SkPDFImage_DEFINED
 #define SkPDFImage_DEFINED
 
-#include "SkPDFStream.h"
+#include "SkPDFDevice.h"
+#include "SkPDFImageStream.h"
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 
@@ -26,7 +27,7 @@ struct SkIRect;
 // We could play the same trick here as is done in SkPDFGraphicState, storing
 // a copy of the Bitmap object (not the pixels), the pixel generation number,
 // and settings used from the paint to canonicalize image objects.
-class SkPDFImage : public SkPDFStream {
+class SkPDFImage : public SkPDFImageStream {
 public:
     /** Create a new Image XObject to represent the passed bitmap.
      *  @param bitmap   The image to encode.
@@ -36,7 +37,8 @@ public:
      *           the given parameters.
      */
     static SkPDFImage* CreateImage(const SkBitmap& bitmap,
-                                   const SkIRect& srcRect);
+                                   const SkIRect& srcRect,
+                                   EncodeToDCTStream encoder);
 
     virtual ~SkPDFImage();
 
@@ -63,7 +65,7 @@ private:
      *  @param paint      Used to calculate alpha, masks, etc.
      */
     SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
-               const SkIRect& srcRect, bool alpha);
+               const SkIRect& srcRect, bool alpha, EncodeToDCTStream encoder);
 };
 
 #endif

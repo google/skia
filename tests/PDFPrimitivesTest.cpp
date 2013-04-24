@@ -6,11 +6,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "Test.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkFlate.h"
+#include "SkImageEncoder.h"
+#include "SkMatrix.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFStream.h"
@@ -37,6 +39,11 @@ private:
     SkTDArray<SkPDFObject*> fResources;
 };
 
+static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
+    stream->writeText("DCT compessed stream.");
+    return true;
+}
+
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const void* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
@@ -44,6 +51,20 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
         return false;
     }
     return memcmp(data->bytes() + offset, buffer, len) == 0;
+}
+
+static bool stream_contains(const SkDynamicMemoryWStream& stream,
+                            const char* buffer) {
+    SkAutoDataUnref data(stream.copyToData());
+    int len = strlen(buffer);  // our buffer does not have EOSs.
+
+    for (int offset = 0 ; offset < (int)data->size() - len; offset++) {
+        if (memcmp(data->bytes() + offset, buffer, len) == 0) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
@@ -219,6 +240,102 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
                                             buffer.getOffset()));
 }
 
+// Create a bitmap that would be easier to be compressed in a JPEG than ZIP.
+static void setup_jpegBitmap(SkBitmap* bitmap, int width, int height) {
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    bitmap->allocPixels();
+    for (int y = 0;  y < bitmap->height(); y++) {
+        for (int x = 0; x < bitmap->width(); x++) {
+            *bitmap->getAddr32(x, y) =
+                SkColorSetRGB(0 + y % 20 + 128 + 100 * cos(x * 0.01F),
+                              1 + y % 20 + 128 + 100 * cos(x * 0.1F),
+                              2 + y % 20 + 128 + 100 * cos(x * 1.0F));
+        }
+    }
+}
+
+// Create a bitmap that would be very eficiently compressed in a ZIP.
+static void setup_solidBitmap(SkBitmap* bitmap, int width, int height) {
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    bitmap->allocPixels();
+    bitmap->eraseColor(SK_ColorWHITE);
+}
+
+static void TestImage(skiatest::Reporter* reporter, const SkBitmap& bitmap,
+                      const char* expected, bool useDCTEncoder) {
+    SkISize pageSize = SkISize::Make(bitmap.width(), bitmap.height());
+    SkPDFDevice* dev = new SkPDFDevice(pageSize, pageSize, SkMatrix::I());
+
+    if (useDCTEncoder) {
+        dev->setDCTEncoder(encode_to_dct_stream);
+    }
+
+    SkCanvas c(dev);
+    c.drawBitmap(bitmap, 0, 0, NULL);
+
+    SkPDFDocument doc;
+    doc.appendPage(dev);
+
+    SkDynamicMemoryWStream stream;
+    doc.emitPDF(&stream);
+
+    REPORTER_ASSERT(reporter, stream_contains(stream, expected));
+}
+
+static void TestUncompressed(skiatest::Reporter* reporter) {
+    SkBitmap bitmap;
+    setup_solidBitmap(&bitmap, 1, 1);
+    TestImage(reporter, bitmap,
+              "/Subtype /Image\n"
+              "/Width 1\n"
+              "/Height 1\n"
+              "/ColorSpace /DeviceRGB\n"
+              "/BitsPerComponent 8\n"
+              "/Length 3\n"
+              ">> stream",
+              true);
+}
+
+static void TestFlateDecode(skiatest::Reporter* reporter) {
+    if (!SkFlate::HaveFlate()) {
+        return;
+    }
+    SkBitmap bitmap;   
+    setup_solidBitmap(&bitmap, 10, 10);
+    TestImage(reporter, bitmap,
+              "/Subtype /Image\n"
+              "/Width 10\n"
+              "/Height 10\n"
+              "/ColorSpace /DeviceRGB\n"
+              "/BitsPerComponent 8\n"
+              "/Filter /FlateDecode\n"
+              "/Length 13\n"
+              ">> stream",
+              false);
+}
+
+static void TestDCTDecode(skiatest::Reporter* reporter) {
+    SkBitmap bitmap;
+    setup_jpegBitmap(&bitmap, 32, 32);
+    TestImage(reporter, bitmap,
+              "/Subtype /Image\n"
+              "/Width 32\n"
+              "/Height 32\n"
+              "/ColorSpace /DeviceRGB\n"
+              "/BitsPerComponent 8\n"
+              "/Filter /DCTDecode\n"
+              "/ColorTransform 0\n"
+              "/Length 21\n"
+              ">> stream",
+              true);
+}
+
+static void TestImages(skiatest::Reporter* reporter) {
+    TestUncompressed(reporter);
+    TestFlateDecode(reporter);
+    TestDCTDecode(reporter);
+}
+
 // This test used to assert without the fix submitted for
 // http://code.google.com/p/skia/issues/detail?id=1083.
 // SKP files might have invalid glyph ids. This test ensures they are ignored,
@@ -324,6 +441,8 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     TestSubstitute(reporter);
 
     test_issue1083();
+
+    TestImages(reporter);    
 }
 
 #include "TestClassDef.h"

@@ -37,6 +37,8 @@ struct ContentEntry;
 struct GraphicStateEntry;
 struct NamedDestination;
 
+typedef bool (*EncodeToDCTStream)(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect);
+
 /** \class SkPDFDevice
 
     The drawing context for the PDF backend.
@@ -125,6 +127,21 @@ public:
      *  content last.
      */
     SK_API void setDrawingArea(DrawingArea drawingArea);
+
+    /** Sets the DCTEncoder for images.
+     *  @param encoder The encoder to encode a bitmap as JPEG (DCT).
+     *         Result of encodings are cached, if the encoder changes the
+     *         behaivor dynamically and an image is added to a second catalog,
+     *         we will likely use the result of the first encoding call.
+     *         By returning false from the encoder function, the encoder result
+     *         is not used.
+     *         Callers might not want to encode small images, as the time spent
+     *         encoding and decoding might not be worth the space savings,
+     *         if any at all.
+     */
+    void setDCTEncoder(EncodeToDCTStream encoder) {
+        fEncoder = encoder;
+    }
 
     // PDF specific methods.
 
@@ -229,6 +246,8 @@ private:
 
     // Glyph ids used for each font on this device.
     SkTScopedPtr<SkPDFGlyphSetMap> fFontGlyphUsage;
+
+    EncodeToDCTStream fEncoder;
 
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);

@@ -36,6 +36,7 @@ SkCanvas* PdfRenderer::setupCanvas() {
 SkCanvas* PdfRenderer::setupCanvas(int width, int height) {
     SkISize pageSize = SkISize::Make(width, height);
     fPDFDevice = SkNEW_ARGS(SkPDFDevice, (pageSize, pageSize, SkMatrix::I()));
+    fPDFDevice->setDCTEncoder(fEncoder);
     return SkNEW_ARGS(SkCanvas, (fPDFDevice));
 }
 
