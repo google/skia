@@ -22,6 +22,9 @@ bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
 void SkFlagInfo::SetDefaultStrings(SkCommandLineFlags::StringArray* pStrings,
                                    const char* defaultValue) {
     pStrings->reset();
+    if (NULL == defaultValue) {
+        return;
+    }
     // If default is "", leave the array empty.
     size_t defaultLength = strlen(defaultValue);
     if (defaultLength > 0) {
