@@ -764,7 +764,6 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     }
 
     combinedMatrix->mapRect(devRect, rect);
-    devRect->sort();
 
     if (strokeWidth < 0) {
         return !isIRect(*devRect);
