@@ -134,6 +134,12 @@ bool SkRRect::contains(SkScalar x, SkScalar y) const {
 
     // We know the point is inside the RR's bounds. The only way it can
     // be out is if it outside one of the corners
+    return checkCornerContainment(x, y);
+}
+
+// This method determines if a point known to be inside the RRect's bounds is 
+// inside all the corners.
+bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     SkPoint canonicalPt; // (x,y) translated to one of the quadrants
     int index;
 
@@ -179,9 +185,32 @@ bool SkRRect::contains(SkScalar x, SkScalar y) const {
     //      x^2     y^2
     //     ----- + ----- <= 1
     //      a^2     b^2
-    SkScalar dist =  SkScalarDiv(SkScalarSquare(canonicalPt.fX), SkScalarSquare(fRadii[index].fX)) +
-                     SkScalarDiv(SkScalarSquare(canonicalPt.fY), SkScalarSquare(fRadii[index].fY));
-    return dist <= SK_Scalar1;
+    // or :
+    //     b^2*x^2 + a^2*y^2 <= (ab)^2
+    SkScalar dist =  SkScalarMul(SkScalarSquare(canonicalPt.fX), SkScalarSquare(fRadii[index].fY)) +
+                     SkScalarMul(SkScalarSquare(canonicalPt.fY), SkScalarSquare(fRadii[index].fX));
+    return dist <= SkScalarSquare(SkScalarMul(fRadii[index].fX, fRadii[index].fY));
+}
+
+bool SkRRect::contains(const SkRect& rect) const {
+    if (!this->getBounds().contains(rect)) {
+        // If 'rect' isn't contained by the RR's bounds then the
+        // RR definitely doesn't contain it
+        return false;
+    }
+
+    if (this->isRect()) {
+        // the prior test was sufficient
+        return true;
+    }
+
+    // At this point we know all four corners of 'rect' are inside the
+    // bounds of of this RR. Check to make sure all the corners are inside
+    // all the curves
+    return this->checkCornerContainment(rect.fLeft, rect.fTop) &&
+           this->checkCornerContainment(rect.fRight, rect.fTop) &&
+           this->checkCornerContainment(rect.fRight, rect.fBottom) &&
+           this->checkCornerContainment(rect.fLeft, rect.fBottom);
 }
 
 // There is a simplified version of this method in setRectXY
