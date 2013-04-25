@@ -21,6 +21,7 @@
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkPathEffect.h"
+#include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkUtils.h"
 
@@ -703,6 +704,39 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         return;
     }
     fContext->drawRect(grPaint, rect, doStroke ? width : -1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
+                           const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
+    CHECK_SHOULD_DRAW(draw, false);
+
+    bool usePath = !rect.isSimple() || !paint.isAntiAlias();
+    // another two reasons we might need to call drawPath...
+    if (paint.getMaskFilter() || paint.getPathEffect()) {
+        usePath = true;
+    }
+    // until we can rotate rrects...
+    if (!usePath && !fContext->getMatrix().rectStaysRect()) {
+        usePath = true;
+    }
+
+    if (usePath) {
+        SkPath path;
+        path.addRRect(rect);
+        this->drawPath(draw, path, paint, NULL, true);
+        return;
+    }
+
+    GrPaint grPaint;
+    if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+        return;
+    }
+
+    SkStrokeRec stroke(paint);
+    fContext->drawRRect(grPaint, rect, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

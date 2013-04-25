@@ -31,6 +31,7 @@ public:
         kLine_Type,
         kBitmap_Type,
         kRect_Type,
+        kRRect_Type,
         kOval_Type,
         kPath_Type,
         kText_Type,

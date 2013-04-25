@@ -12,6 +12,7 @@
 #include "SkMetaData.h"
 #include "SkRasterClip.h"
 #include "SkRect.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 
 SK_DEFINE_INST_COUNT(SkDevice)
@@ -364,6 +365,16 @@ void SkDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& p
     path.addOval(oval);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawOval.
+    this->drawPath(draw, path, paint, NULL, true);
+}
+
+void SkDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
+
+    SkPath  path;
+    path.addRRect(rrect);
+    // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
+    // required to override drawRRect.
     this->drawPath(draw, path, paint, NULL, true);
 }
 

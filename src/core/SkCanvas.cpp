@@ -1612,12 +1612,20 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     if (rrect.isRect()) {
         // call the non-virtual version
         this->SkCanvas::drawRect(rrect.getBounds(), paint);
-    } else {
-        SkPath  path;
-        path.addRRect(rrect);
+        return;
+    } else if (rrect.isOval()) {
         // call the non-virtual version
-        this->SkCanvas::drawPath(path, paint);
+        this->SkCanvas::drawOval(rrect.getBounds(), paint);
+        return;
     }
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type)
+
+    while (iter.next()) {
+        iter.fDevice->drawRRect(iter, rrect, looper.paint());
+    }
+
+    LOOPER_END
 }
 
 

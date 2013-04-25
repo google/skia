@@ -410,6 +410,17 @@ public:
                         const SkMatrix* localMatrix = NULL);
 
     /**
+     *  Draw a roundrect using a paint.
+     *
+     *  @param paint        describes how to color pixels.
+     *  @param rrect        the roundrect to draw
+     *  @param stroke       the stroke information (width, join, cap)
+     */
+    void drawRRect(const GrPaint& paint,
+                   const SkRRect& rrect,
+                   const SkStrokeRec& stroke);
+
+    /**
      * Draws a path.
      *
      * @param paint         describes how to color pixels.
