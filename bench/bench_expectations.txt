@@ -319,7 +319,7 @@ desk_espn.skp_record_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.508,-
 desk_espn.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.446,-9.599,10.491
 desk_espn.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,115.470,83.923,137.017
 desk_espn.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,27.280,14.552,40.008
-desk_espn.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,114.970,93.473,136.467
+desk_espn.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,114.970,87.473,136.467
 desk_espn.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,8.890,-1.999,19.779
 desk_espn.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.050,-0.955,21.055
 desk_espn.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,11.720,0.548,22.892
@@ -363,7 +363,7 @@ desk_facebook.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,60.630,44
 desk_facebook.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,730.290,647.261,813.319
 desk_facebook.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,51.840,36.656,67.024
 desk_facebook.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.130,31.517,60.743
-desk_facebook.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,871.710,774.539,968.881
+desk_facebook.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,871.710,774.539,978.881
 desk_facebook.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,125.320,102.788,147.852
 desk_facebook.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,107.640,86.876,128.404
 desk_facebook.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,375.780,328.202,423.358
@@ -1111,7 +1111,7 @@ tabl_androidpolice.skp_record_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25t
 tabl_androidpolice.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.145,-9.869,10.160
 tabl_androidpolice.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,34.400,20.960,47.840
 tabl_androidpolice.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,391.770,342.593,440.947
-tabl_androidpolice.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,37.100,23.390,50.810
+tabl_androidpolice.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,37.100,19.390,50.810
 tabl_androidpolice.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,14.590,3.131,26.049
 tabl_androidpolice.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.240,4.616,27.864
 tabl_androidpolice.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,21.950,9.755,34.145
