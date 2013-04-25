@@ -90,7 +90,7 @@ static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, cons
             SkAssertResult(bitmap.extractSubset(&subset, rect));
             bitmapToUse = &subset;
         }
-    
+
 #if defined(SK_BUILD_FOR_MAC)
         // Workaround bug #1043 where bitmaps with referenced pixels cause
         // CGImageDestinationFinalize to crash
@@ -245,7 +245,7 @@ static void parse_commandline(int argc, char* const argv[],
             if (gJpegQuality < -1 || gJpegQuality > 100) {
                 SkDebugf("Invalid argument for --jpegQuality\n");
                 usage(argv0);
-                exit(-1);            
+                exit(-1);
             }
         } else {
             inputs->push_back(SkString(*argv));

@@ -224,4 +224,3 @@ DEF_BENCH( return new LightingDistantLitSpecularBench(p, true); )
 DEF_BENCH( return new LightingDistantLitSpecularBench(p, false); )
 DEF_BENCH( return new LightingSpotLitSpecularBench(p, true); )
 DEF_BENCH( return new LightingSpotLitSpecularBench(p, false); )
-
