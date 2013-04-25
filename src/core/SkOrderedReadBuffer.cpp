@@ -7,6 +7,7 @@
  */
 
 #include "SkBitmap.h"
+#include "SkErrorInternals.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -179,7 +180,8 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
         } else {
             // This bitmap was encoded when written, but we are unable to decode, possibly due to
             // not having a decoder. Use a placeholder bitmap.
-            SkDebugf("Could not decode bitmap. Resulting bitmap will be red.\n");
+            SkErrorInternals::SetError(kParseError_SkError,
+                                       "Could not decode bitmap. Resulting bitmap will be red.");
             bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
             bitmap->allocPixels();
             bitmap->eraseColor(SK_ColorRED);

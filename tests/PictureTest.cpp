@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
+#include "SkError.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
@@ -371,6 +372,22 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     return wStream.copyToData();
 }
 
+struct ErrorContext {
+    int fErrors;
+    skiatest::Reporter* fReporter;
+};
+
+static void assert_one_parse_error_cb(SkError error, void* context) {
+    ErrorContext* errorContext = static_cast<ErrorContext*>(context);
+    errorContext->fErrors++;
+    // This test only expects one error, and that is a kParseError. If there are others,
+    // there is some unknown problem.
+    REPORTER_ASSERT_MESSAGE(errorContext->fReporter, 1 == errorContext->fErrors,
+                            "This threw more errors than expected.");
+    REPORTER_ASSERT_MESSAGE(errorContext->fReporter, kParseError_SkError == error,
+                            SkGetLastErrorString());
+}
+
 static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     // Create a bitmap that will be encoded.
     SkBitmap original;
@@ -395,6 +412,19 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkAutoDataUnref picture1(serialized_picture_from_bitmap(original));
     SkAutoDataUnref picture2(serialized_picture_from_bitmap(bm));
     REPORTER_ASSERT(reporter, picture1->equals(picture2));
+    // Now test that a parse error was generated when trying to create a new SkPicture without
+    // providing a function to decode the bitmap.
+    ErrorContext context;
+    context.fErrors = 0;
+    context.fReporter = reporter;
+    SkSetErrorCallback(assert_one_parse_error_cb, &context);
+    SkMemoryStream pictureStream(picture1);
+    bool success;
+    SkClearLastError();
+    SkPicture pictureFromStream(&pictureStream, &success, NULL);
+    REPORTER_ASSERT(reporter, success);
+    SkClearLastError();
+    SkSetErrorCallback(NULL, NULL);
 }
 
 static void test_clone_empty(skiatest::Reporter* reporter) {
