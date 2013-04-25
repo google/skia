@@ -238,7 +238,7 @@ public:
             mockCanvas.translate(SkFloatToScalar(-8.0f), SkFloatToScalar(-8.0f));
             picture.draw(&mockCanvas);
             // This test passes by not asserting. We do not validate the rects recorded
-            // because the result is numerically unstable (floating point equality). 
+            // because the result is numerically unstable (floating point equality).
             // The content of any one of the four tiles of the tilegrid would be a valid
             // result since any bbox that covers the center point of the canvas will be
             // recorded in all four tiles.

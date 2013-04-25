@@ -286,7 +286,7 @@ static void TestFlateDecode(skiatest::Reporter* reporter) {
     if (!SkFlate::HaveFlate()) {
         return;
     }
-    SkBitmap bitmap;   
+    SkBitmap bitmap;
     setup_bitmap(&bitmap, 10, 10);
     TestImage(reporter, bitmap,
               "/Subtype /Image\n"
@@ -428,7 +428,7 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
 
     test_issue1083();
 
-    TestImages(reporter);    
+    TestImages(reporter);
 }
 
 #include "TestClassDef.h"

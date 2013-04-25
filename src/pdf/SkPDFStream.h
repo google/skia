@@ -85,7 +85,7 @@ protected:
 private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
-    
+
     // TODO(vandebo): Use SkData (after removing deprecated constructor).
     SkAutoTUnref<SkStream> fData;
     SkAutoTUnref<SkPDFStream> fSubstitute;
