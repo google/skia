@@ -1534,7 +1534,7 @@ static HANDLE activate_font(SkData* fontData) {
     return fontHandle;
 }
 
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+static SkTypeface* create_from_stream(SkStream* stream) {
     // Create a unique and unpredictable font name.
     // Avoids collisions and access from CSS.
     char familyName[BASE64_GUID_ID_LEN];
@@ -1560,6 +1560,10 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     logfont_for_name(familyName, &lf);
 
     return SkCreateFontMemResourceTypefaceFromLOGFONT(lf, fontReference);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+    return create_from_stream(stream);
 }
 
 SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
@@ -1778,8 +1782,6 @@ class SkFontMgrGDI : public SkFontMgr {
 
 public:
     SkFontMgrGDI() {}
-    virtual ~SkFontMgrGDI() {
-    }
 
 protected:
     virtual int onCountFamilies() SK_OVERRIDE {
@@ -1808,28 +1810,35 @@ protected:
         return SkNEW_ARGS(SkFontStyleSetGDI, (lf));
     }
 
-    // this impl should be moved to base-class
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontstyle) SK_OVERRIDE {
+        // could be in base impl
         SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontstyle);
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontstyle) SK_OVERRIDE {
+        // could be in base impl
         SkString familyName;
         ((LogFontTypeface*)familyMember)->getFamilyName(&familyName);
         return this->matchFamilyStyle(familyName.c_str(), fontstyle);
     }
 
-    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) SK_OVERRIDE {
-        return NULL;
+    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) SK_OVERRIDE {
+        return create_from_stream(stream);
     }
-    virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) SK_OVERRIDE {
-        return NULL;
+
+    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) SK_OVERRIDE {
+        // could be in base impl
+        SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
+        return this->createFromStream(stream);
     }
+
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) SK_OVERRIDE {
-        return NULL;
+        // could be in base impl
+        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+        return this->createFromStream(stream);
     }
 
 private:
