@@ -974,6 +974,22 @@ void GrContext::drawVertices(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrContext::drawRRect(const GrPaint& paint,
+                          const SkRRect& rect,
+                          const SkStrokeRec& stroke) {
+
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
+    GrDrawState::AutoStageDisable atr(fDrawState);
+
+    if (!fOvalRenderer->drawSimpleRRect(target, this, paint, rect, stroke)) {
+        SkPath path;
+        path.addRRect(rect);
+        this->internalDrawPath(target, paint, path, stroke);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void GrContext::drawOval(const GrPaint& paint,
                          const GrRect& oval,
                          const SkStrokeRec& stroke) {
