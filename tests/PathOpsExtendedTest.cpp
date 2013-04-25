@@ -29,6 +29,7 @@ static const char* opStrs[] = {
     "kIntersect_PathOp",
     "kUnion_PathOp",
     "kXor_PathOp",
+    "kReverseDifference_PathOp",
 };
 
 static const char* opSuffixes[] = {
@@ -43,7 +44,7 @@ static bool gComparePaths = true;
 static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 
-static void showPathContour(SkPath::Iter& iter) {
+static void showPathContours(SkPath::Iter& iter) {
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
@@ -77,6 +78,13 @@ void showPath(const SkPath& path, const char* str) {
     showPath(path);
 }
 
+const char* fillTypeStr[] = {
+    "kWinding_FillType",
+    "kEvenOdd_FillType",
+    "kInverseWinding_FillType",
+    "kInverseEvenOdd_FillType"
+};
+
 void showPath(const SkPath& path) {
     SkPath::Iter iter(path, true);
 #define SUPPORT_RECT_CONTOUR_DETECTION 0
@@ -97,8 +105,11 @@ void showPath(const SkPath& path) {
         return;
     }
 #endif
+    SkPath::FillType fillType = path.getFillType();
+    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
+    SkDebugf("path.setFillType(%s);\n", fillTypeStr[fillType]);
     iter.setPath(path, true);
-    showPathContour(iter);
+    showPathContours(iter);
 }
 
 void showPathData(const SkPath& path) {
@@ -144,6 +155,9 @@ void showOp(const SkPathOp op) {
             break;
         case kXOR_PathOp:
             SkDebugf("op xor\n");
+            break;
+        case kReverseDifference_PathOp:
+            SkDebugf("op reverse difference\n");
             break;
         default:
             SkASSERT(0);
@@ -356,10 +370,13 @@ static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const S
     int errors2x2;
     int errors = pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
     if (errors2x2 == 0) {
+        if (gShowPath) {
+            showPathOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
+        }
         return 0;
     }
     const int MAX_ERRORS = 8;
-    if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
+    if (gShowPath || errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
         showPathOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
     }
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
