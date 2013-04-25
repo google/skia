@@ -373,9 +373,7 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
 DEFINE_DECODER_CREATOR(ICOImageDecoder);
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
-static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
+static bool is_ico(SkStream* stream) {
     // Check to see if the first four bytes are 0,0,1,0
     // FIXME: Is that required and sufficient?
     SkAutoMalloc autoMal(4);
@@ -385,9 +383,27 @@ static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
     int type = read2Bytes(buf, 2);
     if (reserved != 0 || type != 1) {
         // This stream does not represent an ICO image.
-        return NULL;
+        return false;
     }
-    return SkNEW(SkICOImageDecoder);
+    return true;
+}
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
+    if (is_ico(stream)) {
+        return SkNEW(SkICOImageDecoder);
+    }
+    return NULL;
 }
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libico_dfactory);
+
+static SkImageDecoder::Format get_format_ico(SkStream* stream) {
+    if (is_ico(stream)) {
+        return SkImageDecoder::kICO_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_ico);

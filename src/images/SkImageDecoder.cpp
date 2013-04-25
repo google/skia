@@ -18,17 +18,6 @@ SK_DEFINE_INST_COUNT(SkImageDecoder::Peeker)
 SK_DEFINE_INST_COUNT(SkImageDecoder::Chooser)
 SK_DEFINE_INST_COUNT(SkImageDecoderFactory)
 
-const char *SkImageDecoder::sFormatName[] = {
-    "Unknown Format",
-    "BMP",
-    "GIF",
-    "ICO",
-    "JPEG",
-    "PNG",
-    "WBMP",
-    "WEBP",
-};
-
 static SkBitmap::Config gDeviceConfig = SkBitmap::kNo_Config;
 
 SkBitmap::Config SkImageDecoder::GetDeviceConfig()
@@ -60,8 +49,27 @@ SkImageDecoder::Format SkImageDecoder::getFormat() const {
 }
 
 const char* SkImageDecoder::getFormatName() const {
-    SkASSERT(SK_ARRAY_COUNT(sFormatName) == kLastKnownFormat);
-    return sFormatName[this->getFormat()];
+    switch (this->getFormat()) {
+        case kUnknown_Format:
+            return "Unknown Format";
+        case kBMP_Format:
+            return "BMP";
+        case kGIF_Format:
+            return "GIF";
+        case kICO_Format:
+            return "ICO";
+        case kJPEG_Format:
+            return "JPEG";
+        case kPNG_Format:
+            return "PNG";
+        case kWBMP_Format:
+            return "WBMP";
+        case kWEBP_Format:
+            return "WEBP";
+        default:
+            SkASSERT(!"Invalid format type!");
+    }
+    return "Unknown Format";
 }
 
 SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker* peeker) {
@@ -321,6 +329,11 @@ bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
         success = codec->decode(stream, bm, pref, mode);
         if (success && format) {
             *format = codec->getFormat();
+            if (kUnknown_Format == *format) {
+                if (stream->rewind()) {
+                    *format = GetStreamFormat(stream);
+                }
+            }
         }
         delete codec;
     }

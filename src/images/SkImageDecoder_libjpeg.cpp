@@ -998,9 +998,7 @@ DEFINE_DECODER_CREATOR(JPEGImageDecoder);
 DEFINE_ENCODER_CREATOR(JPEGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
-static SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
+static bool is_jpeg(SkStream* stream) {
     static const unsigned char gHeader[] = { 0xFF, 0xD8, 0xFF };
     static const size_t HEADER_SIZE = sizeof(gHeader);
 
@@ -1008,12 +1006,28 @@ static SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
     size_t len = stream->read(buffer, HEADER_SIZE);
 
     if (len != HEADER_SIZE) {
-        return NULL;   // can't read enough
+        return false;   // can't read enough
     }
     if (memcmp(buffer, gHeader, HEADER_SIZE)) {
-        return NULL;
+        return false;
     }
-    return SkNEW(SkJPEGImageDecoder);
+    return true;
+}
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
+    if (is_jpeg(stream)) {
+        return SkNEW(SkJPEGImageDecoder);
+    }
+    return NULL;
+}
+
+static SkImageDecoder::Format get_format_jpeg(SkStream* stream) {
+    if (is_jpeg(stream)) {
+        return SkImageDecoder::kJPEG_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
 }
 
 static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
@@ -1022,4 +1036,5 @@ static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
 
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libjpeg_dfactory);
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_jpeg);
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libjpeg_efactory);

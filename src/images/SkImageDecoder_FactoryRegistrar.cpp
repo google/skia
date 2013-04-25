@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkErrorInternals.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkTRegistry.h"
@@ -44,4 +45,25 @@ SkImageDecoder* image_decoder_from_stream(SkStream* stream) {
         curr = curr->next();
     }
     return NULL;
+}
+
+typedef SkTRegistry<SkImageDecoder::Format, SkStream*> FormatReg;
+
+template FormatReg* SkTRegistry<SkImageDecoder::Format, SkStream*>::gHead;
+
+SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStream* stream) {
+    const FormatReg* curr = FormatReg::Head();
+    while (curr != NULL) {
+        Format format = curr->factory()(stream);
+        if (!stream->rewind()) {
+            SkErrorInternals::SetError(kInvalidOperation_SkError,
+                                       "Unable to rewind the image stream\n");
+            return kUnknown_Format;
+        }
+        if (format != kUnknown_Format) {
+            return format;
+        }
+        curr = curr->next();
+    }
+    return kUnknown_Format;
 }

@@ -170,4 +170,13 @@ static SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
     return NULL;
 }
 
+static SkImageDecoder::Format get_format_wbmp(SkStream* stream) {
+    wbmp_head head;
+    if (head.init(stream)) {
+        return SkImageDecoder::kWBMP_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
 static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_wbmp_dfactory);
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_wbmp);

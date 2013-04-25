@@ -91,9 +91,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//#define GIF_STAMP       "GIF"    /* First chars in file - GIF stamp. */
-//#define GIF_STAMP_LEN   (sizeof(GIF_STAMP) - 1)
-
 static int DecodeCallBackProc(GifFileType* fileType, GifByteType* out,
                               int size) {
     SkStream* stream = (SkStream*) fileType->UserData;
@@ -365,18 +362,34 @@ DONE:
 DEFINE_DECODER_CREATOR(GIFImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
-static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
+static bool is_gif(SkStream* stream) {
     char buf[GIF_STAMP_LEN];
     if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
                 memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
                 memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
-            return SkNEW(SkGIFImageDecoder);
+            return true;
         }
+    }
+    return false;
+}
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
+    if (is_gif(stream)) {
+        return SkNEW(SkGIFImageDecoder);
     }
     return NULL;
 }
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libgif_dfactory);
+
+static SkImageDecoder::Format get_format_gif(SkStream* stream) {
+    if (is_gif(stream)) {
+        return SkImageDecoder::kGIF_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_gif);

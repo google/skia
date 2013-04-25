@@ -26,7 +26,6 @@ class SkImageDecoder {
 public:
     virtual ~SkImageDecoder();
 
-    // Should be consistent with sFormatName
     enum Format {
         kUnknown_Format,
         kBMP_Format,
@@ -37,13 +36,18 @@ public:
         kWBMP_Format,
         kWEBP_Format,
 
-        kLastKnownFormat = kWEBP_Format
+        kLastKnownFormat = kWEBP_Format,
     };
 
     /** Return the format of image this decoder can decode. If this decoder can decode multiple
         formats, kUnknown_Format will be returned.
     */
     virtual Format getFormat() const;
+
+    /** Return the format of the SkStream or kUnknown_Format if it cannot be determined. Rewinds the
+        stream before returning.
+    */
+    static Format GetStreamFormat(SkStream*);
 
     /** Return a readable string of the value returned by getFormat().
     */
@@ -415,13 +419,6 @@ private:
     bool                    fUsePrefTable;
     mutable bool            fShouldCancelDecode;
     bool                    fPreferQualityOverSpeed;
-
-    /** Contains the image format name.
-     *  This should be consistent with Format.
-     *
-     *  The format name gives a more meaningful error message than enum.
-     */
-    static const char* sFormatName[];
 
     // illegal
     SkImageDecoder(const SkImageDecoder&);

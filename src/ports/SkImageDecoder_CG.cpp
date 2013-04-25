@@ -245,3 +245,45 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
 }
 
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_imageencoder_cg_factory);
+
+struct FormatConversion {
+    CFStringRef             fUTType;
+    SkImageDecoder::Format  fFormat;
+};
+
+// Array of the types supported by the decoder.
+static const FormatConversion gFormatConversions[] = {
+    { kUTTypeBMP, SkImageDecoder::kBMP_Format },
+    { kUTTypeGIF, SkImageDecoder::kGIF_Format },
+    { kUTTypeICO, SkImageDecoder::kICO_Format },
+    { kUTTypeJPEG, SkImageDecoder::kJPEG_Format },
+    // Also include JPEG2000
+    { kUTTypeJPEG2000, SkImageDecoder::kJPEG_Format },
+    { kUTTypePNG, SkImageDecoder::kPNG_Format },
+};
+
+static SkImageDecoder::Format UTType_to_Format(const CFStringRef uttype) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormatConversions); i++) {
+        if (CFStringCompare(uttype, gFormatConversions[i].fUTType, 0) == kCFCompareEqualTo) {
+            return gFormatConversions[i].fFormat;
+        }
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
+static SkImageDecoder::Format get_format_cg(SkStream *stream) {
+    CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
+
+    if (NULL == imageSrc) {
+        return SkImageDecoder::kUnknown_Format;
+    }
+
+    SkAutoTCallVProc<const void, CFRelease> arsrc(imageSrc);
+    const CFStringRef name = CGImageSourceGetType(imageSrc);
+    if (NULL == name) {
+        return SkImageDecoder::kUnknown_Format;
+    }
+    return UTType_to_Format(name);
+}
+
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_cg);

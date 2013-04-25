@@ -16,6 +16,7 @@ class SkWStream;
 class SkImageEncoder {
 public:
     enum Type {
+        kUnknown_Type,
         kBMP_Type,
         kGIF_Type,
         kICO_Type,
