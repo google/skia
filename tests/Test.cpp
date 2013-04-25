@@ -10,6 +10,7 @@
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTime.h"
+#include "SkError.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -92,6 +93,10 @@ namespace {
 }  // namespace
 
 void Test::run() {
+    // Clear the Skia error callback before running any test, to ensure that tests
+    // don't have unintended side effects when running more than one.
+    SkSetErrorCallback( NULL, NULL );
+
     // Tell (likely shared) fReporter that this test has started.
     fReporter->startTest(this);
 
@@ -108,6 +113,7 @@ void Test::run() {
       fReporter->report(local.failure(i), Reporter::kFailed);
     }
     fReporter->endTest(this);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
