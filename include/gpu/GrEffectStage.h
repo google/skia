@@ -42,6 +42,14 @@ public:
             return false;
         }
 
+        if (fCoordChangeMatrixSet != other.fCoordChangeMatrixSet) {
+            return false;
+        }
+
+        if (!fCoordChangeMatrixSet) {
+            return true;
+        }
+
         return fCoordChangeMatrix == other.fCoordChangeMatrix;
     }
 
@@ -49,7 +57,8 @@ public:
 
     GrEffectStage& operator =(const GrEffectStage& other) {
         GrSafeAssign(fEffectRef, other.fEffectRef);
-        if (NULL != fEffectRef) {
+        fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
+        if (NULL != fEffectRef && fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
         return *this;
@@ -61,10 +70,18 @@ public:
      * @param matrix    The transformation from the old coord system in which geometry is specified
      *                  to the new one from which it will actually be drawn.
      */
-    void localCoordChange(const SkMatrix& matrix) { fCoordChangeMatrix.preConcat(matrix); }
+    void localCoordChange(const SkMatrix& matrix) { 
+        if (fCoordChangeMatrixSet) {
+            fCoordChangeMatrix.preConcat(matrix); 
+        } else {
+            fCoordChangeMatrixSet = true;
+            fCoordChangeMatrix = matrix;
+        }
+    }
 
     class SavedCoordChange {
     private:
+        bool fCoordChangeMatrixSet;
         SkMatrix fCoordChangeMatrix;
         GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectRef;)
 
@@ -78,7 +95,10 @@ public:
      * restore the previous coord system (e.g. temporarily draw in device coords).
      */
     void saveCoordChange(SavedCoordChange* savedCoordChange) const {
-        savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
+        savedCoordChange->fCoordChangeMatrixSet = fCoordChangeMatrixSet;
+        if (fCoordChangeMatrixSet) {
+            savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
+        }
         GrAssert(NULL == savedCoordChange->fEffectRef.get());
         GR_DEBUGCODE(GrSafeRef(fEffectRef);)
         GR_DEBUGCODE(savedCoordChange->fEffectRef.reset(fEffectRef);)
@@ -89,7 +109,10 @@ public:
      * This balances the saveCoordChange call.
      */
     void restoreCoordChange(const SavedCoordChange& savedCoordChange) {
-        fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
+        fCoordChangeMatrixSet = savedCoordChange.fCoordChangeMatrixSet;
+        if (fCoordChangeMatrixSet) {
+            fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
+        }
         GrAssert(savedCoordChange.fEffectRef.get() == fEffectRef);
         GR_DEBUGCODE(--fSavedCoordChangeCnt);
         GR_DEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
@@ -116,7 +139,10 @@ public:
             if (NULL != stage.fEffectRef) {
                 stage.fEffectRef->get()->incDeferredRefCounts();
                 fEffect = stage.fEffectRef->get();
-                fCoordChangeMatrix = stage.fCoordChangeMatrix;
+                fCoordChangeMatrixSet = stage.fCoordChangeMatrixSet;
+                if (fCoordChangeMatrixSet) {
+                    fCoordChangeMatrix = stage.fCoordChangeMatrix;
+                }
                 fVertexAttribIndices[0] = stage.fVertexAttribIndices[0];
                 fVertexAttribIndices[1] = stage.fVertexAttribIndices[1];
             }
@@ -128,7 +154,10 @@ public:
             const GrEffectRef* oldEffectRef = stage->fEffectRef;
             if (NULL != fEffect) {
                 stage->fEffectRef = GrEffect::CreateEffectRef(fEffect);
-                stage->fCoordChangeMatrix = fCoordChangeMatrix;
+                stage->fCoordChangeMatrixSet = fCoordChangeMatrixSet;
+                if (fCoordChangeMatrixSet) {
+                    stage->fCoordChangeMatrix = fCoordChangeMatrix;
+                }
                 stage->fVertexAttribIndices[0] = fVertexAttribIndices[0];
                 stage->fVertexAttribIndices[1] = fVertexAttribIndices[1];
             } else {
@@ -153,11 +182,20 @@ public:
                 return false;
             }
 
+            if (fCoordChangeMatrixSet != stage.fCoordChangeMatrixSet) {
+                return false;
+            }
+
+            if (!fCoordChangeMatrixSet) {
+                return true;
+            }
+
             return fCoordChangeMatrix == stage.fCoordChangeMatrix;
         }
 
     private:
         const GrEffect*               fEffect;
+        bool                          fCoordChangeMatrixSet;
         SkMatrix                      fCoordChangeMatrix;
         int                           fVertexAttribIndices[2];
         SkDEBUGCODE(bool fInitialized;)
@@ -167,7 +205,13 @@ public:
      * Gets the matrix representing all changes of coordinate system since the GrEffect was
      * installed in the stage.
      */
-    const SkMatrix& getCoordChangeMatrix() const { return fCoordChangeMatrix; }
+    const SkMatrix& getCoordChangeMatrix() const { 
+        if (fCoordChangeMatrixSet) {
+            return fCoordChangeMatrix;
+        } else {
+            return SkMatrix::I();    
+        }
+    }
 
     void reset() {
         GrSafeSetNull(fEffectRef);
@@ -176,7 +220,7 @@ public:
     const GrEffectRef* setEffect(const GrEffectRef* EffectRef) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffectRef, EffectRef);
-        fCoordChangeMatrix.reset();
+        fCoordChangeMatrixSet = false;
 
         fVertexAttribIndices[0] = -1;
         fVertexAttribIndices[1] = -1;
@@ -187,7 +231,7 @@ public:
     const GrEffectRef* setEffect(const GrEffectRef* EffectRef, int attr0, int attr1 = -1) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffectRef, EffectRef);
-        fCoordChangeMatrix.reset();
+        fCoordChangeMatrixSet = false;
 
         fVertexAttribIndices[0] = attr0;
         fVertexAttribIndices[1] = attr1;
@@ -201,6 +245,7 @@ public:
     int getVertexAttribIndexCount() const { return fEffectRef->get()->numVertexAttribs(); }
 
 private:
+    bool                    fCoordChangeMatrixSet;
     SkMatrix                fCoordChangeMatrix;
     const GrEffectRef*      fEffectRef;
     int                     fVertexAttribIndices[2];
