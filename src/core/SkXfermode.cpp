@@ -1305,7 +1305,7 @@ public:
                               "\t\tmidComp = sat * (midComp - minComp) / (maxComp - minComp);\n"
                               "\t\tmaxComp = sat;\n"
                               "\t} else {\n"
-                              "\t\tmidComp = midComp = 0.0;\n"
+                              "\t\tmidComp = maxComp = 0.0;\n"
                               "\t}\n"
                               "\tminComp = 0.0;\n");
             builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
@@ -1325,8 +1325,10 @@ public:
                                "\tif (hueLumColor.r <= hueLumColor.g) {\n"
                                "\t\tif (hueLumColor.g <= hueLumColor.b) {\n"
                                "\t\t\t%s(hueLumColor.r, hueLumColor.g, hueLumColor.b, sat);\n"
-                               "\t\t} else {\n"
+                               "\t\t} else if (hueLumColor.r <= hueLumColor.b) {\n"
                                "\t\t\t%s(hueLumColor.r, hueLumColor.b, hueLumColor.g, sat);\n"
+                               "\t\t} else {\n"
+                               "\t\t\t%s(hueLumColor.b, hueLumColor.r, hueLumColor.g, sat);\n"
                                "\t\t}\n"
                                "\t} else if (hueLumColor.r <= hueLumColor.b) {\n"
                                "\t\t%s(hueLumColor.g, hueLumColor.r, hueLumColor.b, sat);\n"
@@ -1336,8 +1338,8 @@ public:
                                "\t\t%s(hueLumColor.b, hueLumColor.g, hueLumColor.r, sat);\n"
                                "\t}\n"
                                "\treturn hueLumColor;",
-                               getFunction.c_str(), helpFunc, helpFunc, helpFunc, helpFunc,\
-                               helpFunc);
+                               getFunction.c_str(), helpFunc, helpFunc, helpFunc, helpFunc,
+                               helpFunc, helpFunc);
             builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
                                   kVec3f_GrSLType,
                                   "set_saturation",
