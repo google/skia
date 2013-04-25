@@ -1368,7 +1368,11 @@ GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
                                     GrContext*,
                                     const GrDrawTargetCaps&,
                                     GrTexture*[]) {
-    int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
+    int mode;
+    do {
+        mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
+    } while (mode == SkXfermode::kHardLight_Mode);
+    
     static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode))));
     return CreateEffectRef(gEffect);
 }
