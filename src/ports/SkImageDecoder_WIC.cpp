@@ -29,11 +29,66 @@
 #endif
 
 class SkImageDecoder_WIC : public SkImageDecoder {
+public:
+    // Decoding modes corresponding to SkImageDecoder::Mode, plus an extra mode for decoding
+    // only the format.
+    enum WICModes {
+        kDecodeFormat_WICMode,
+        kDecodeBounds_WICMode,
+        kDecodePixels_WICMode,
+    };
+
+    /**
+     *  Helper function to decode an SkStream.
+     *  @param stream SkStream to decode. Must be at the beginning.
+     *  @param bm   SkBitmap to decode into. Only used if wicMode is kDecodeBounds_WICMode or
+     *      kDecodePixels_WICMode, in which case it must not be NULL.
+     *  @param format Out parameter for the SkImageDecoder::Format of the SkStream. Only used if
+     *      wicMode is kDecodeFormat_WICMode.
+     */
+    bool decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode, Format* format) const;
+
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
 };
 
+struct FormatConversion {
+    GUID                    fGuidFormat;
+    SkImageDecoder::Format  fFormat;
+};
+
+static const FormatConversion gFormatConversions[] = {
+    { GUID_ContainerFormatBmp, SkImageDecoder::kBMP_Format },
+    { GUID_ContainerFormatGif, SkImageDecoder::kGIF_Format },
+    { GUID_ContainerFormatIco, SkImageDecoder::kICO_Format },
+    { GUID_ContainerFormatJpeg, SkImageDecoder::kJPEG_Format },
+    { GUID_ContainerFormatPng, SkImageDecoder::kPNG_Format },
+};
+
+static SkImageDecoder::Format GuidContainerFormat_to_Format(REFGUID guid) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormatConversions); i++) {
+        if (IsEqualGUID(guid, gFormatConversions[i].fGuidFormat)) {
+            return gFormatConversions[i].fFormat;
+        }
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
 bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
+    WICModes wicMode;
+    switch (mode) {
+        case SkImageDecoder::kDecodeBounds_Mode:
+            wicMode = kDecodeBounds_WICMode;
+            break;
+        case SkImageDecoder::kDecodePixels_Mode:
+            wicMode = kDecodePixels_WICMode;
+            break;
+    }
+    return this->decodeStream(stream, bm, wicMode, NULL);
+}
+
+bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode,
+                                      Format* format) const {
     //Initialize COM.
     SkAutoCoInitialize scopedCo;
     if (!scopedCo.succeeded()) {
@@ -76,6 +131,20 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         );
     }
 
+    if (kDecodeFormat_WICMode == wicMode) {
+        SkASSERT(format != NULL);
+        //Get the format
+        if (SUCCEEDED(hr)) {
+            GUID guidFormat;
+            hr = piBitmapDecoder->GetContainerFormat(&guidFormat);
+            if (SUCCEEDED(hr)) {
+                *format = GuidContainerFormat_to_Format(guidFormat);
+                return true;
+            }
+        }
+        return false;
+    }
+
     //Get the first frame from the decoder.
     SkTScopedComPtr<IWICBitmapFrameDecode> piBitmapFrameDecode;
     if (SUCCEEDED(hr)) {
@@ -100,7 +169,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     //Exit early if we're only looking for the bitmap bounds.
     if (SUCCEEDED(hr)) {
         bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+        if (kDecodeBounds_WICMode == wicMode) {
             return true;
         }
         if (!this->allocPixelRef(bm, NULL)) {
@@ -193,9 +262,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     switch (fType) {
         case kBMP_Type:
             type = GUID_ContainerFormatBmp;
-            break;
-        case kGIF_Type:
-            type = GUID_ContainerFormatGif;
             break;
         case kICO_Type:
             type = GUID_ContainerFormatIco;
@@ -348,7 +414,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     switch (t) {
         case SkImageEncoder::kBMP_Type:
-        case SkImageEncoder::kGIF_Type:
         case SkImageEncoder::kICO_Type:
         case SkImageEncoder::kJPEG_Type:
         case SkImageEncoder::kPNG_Type:
@@ -360,3 +425,14 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
 }
 
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_imageencoder_wic_factory);
+
+static SkImageDecoder::Format get_format_wic(SkStream* stream) {
+    SkImageDecoder::Format format;
+    SkImageDecoder_WIC codec;
+    if (!codec.decodeStream(stream, NULL, SkImageDecoder_WIC::kDecodeFormat_WICMode, &format)) {
+        format = SkImageDecoder::kUnknown_Format;
+    }
+    return format;
+}
+
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_wic);

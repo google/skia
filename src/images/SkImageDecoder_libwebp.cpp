@@ -587,9 +587,18 @@ static SkImageDecoder* sk_libwebp_dfactory(SkStream* stream) {
     return SkNEW(SkWEBPImageDecoder);
 }
 
+static SkImageDecoder::Format get_format_webp(SkStream* stream) {
+    int width, height, hasAlpha;
+    if (webp_parse_header(stream, &width, &height, &hasAlpha)) {
+        return SkImageDecoder::kWEBP_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
 static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
       return (SkImageEncoder::kWEBP_Type == t) ? SkNEW(SkWEBPImageEncoder) : NULL;
 }
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libwebp_dfactory);
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_webp);
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libwebp_efactory);

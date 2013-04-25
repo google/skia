@@ -18,6 +18,8 @@
         '../include/core',
         '../include/images',
         '../include/lazy',
+        # for access to SkErrorInternals.h
+        '../src/core/',
         # for access to SkImagePriv.h
         '../src/image/',
       ],

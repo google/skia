@@ -34,20 +34,33 @@ private:
 DEFINE_DECODER_CREATOR(BMPImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
+static bool is_bmp(SkStream* stream) {
     static const char kBmpMagic[] = { 'B', 'M' };
 
 
     char buffer[sizeof(kBmpMagic)];
 
-    if (stream->read(buffer, sizeof(kBmpMagic)) == sizeof(kBmpMagic) &&
-        !memcmp(buffer, kBmpMagic, sizeof(kBmpMagic))) {
+    return stream->read(buffer, sizeof(kBmpMagic)) == sizeof(kBmpMagic) &&
+        !memcmp(buffer, kBmpMagic, sizeof(kBmpMagic));
+}
+
+static SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
+    if (is_bmp(stream)) {
         return SkNEW(SkBMPImageDecoder);
     }
     return NULL;
 }
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libbmp_dfactory);
+
+static SkImageDecoder::Format get_format_bmp(SkStream* stream) {
+    if (is_bmp(stream)) {
+        return SkImageDecoder::kBMP_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_bmp);
 
 ///////////////////////////////////////////////////////////////////////////////
 

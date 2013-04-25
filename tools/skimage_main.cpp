@@ -6,7 +6,9 @@
  */
 
 #include "SkBitmap.h"
+#include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
+#include "SkData.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -15,46 +17,55 @@
 #include "SkTArray.h"
 #include "SkTemplates.h"
 
-
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
+DEFINE_bool(reencode, true, "Reencode the images to test encoding.");
 
-// Store the names of the filenames to report later which ones failed, succeeded, and were
-// invalid.
-static SkTArray<SkString, false> invalids;
-static SkTArray<SkString, false> nocodecs;
-static SkTArray<SkString, false> failures;
-static SkTArray<SkString, false> successes;
+struct Format {
+    SkImageEncoder::Type    fType;
+    SkImageDecoder::Format  fFormat;
+    const char*             fSuffix;
+};
 
-static bool decodeFile(SkBitmap* bitmap, const char srcPath[]) {
-    SkFILEStream stream(srcPath);
-    if (!stream.isValid()) {
-        invalids.push_back().set(srcPath);
-        return false;
+static const Format gFormats[] = {
+    { SkImageEncoder::kBMP_Type, SkImageDecoder::kBMP_Format, ".bmp" },
+    { SkImageEncoder::kGIF_Type, SkImageDecoder::kGIF_Format, ".gif" },
+    { SkImageEncoder::kICO_Type, SkImageDecoder::kICO_Format, ".ico" },
+    { SkImageEncoder::kJPEG_Type, SkImageDecoder::kJPEG_Format, ".jpg" },
+    { SkImageEncoder::kPNG_Type, SkImageDecoder::kPNG_Format, ".png" },
+    { SkImageEncoder::kWBMP_Type, SkImageDecoder::kWBMP_Format, ".wbmp" },
+    { SkImageEncoder::kWEBP_Type, SkImageDecoder::kWEBP_Format, ".webp" }
+};
+
+static SkImageEncoder::Type format_to_type(SkImageDecoder::Format format) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormats); i++) {
+        if (gFormats[i].fFormat == format) {
+            return gFormats[i].fType;
+        }
     }
-
-    SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
-    if (NULL == codec) {
-        nocodecs.push_back().set(srcPath);
-        return false;
-    }
-
-    SkAutoTDelete<SkImageDecoder> ad(codec);
-
-    stream.rewind();
-    if (!codec->decode(&stream, bitmap, SkBitmap::kARGB_8888_Config,
-                       SkImageDecoder::kDecodePixels_Mode)) {
-        failures.push_back().set(srcPath);
-        return false;
-    }
-
-    successes.push_back().printf("%s [%d %d]", srcPath, bitmap->width(), bitmap->height());
-    return true;
+    return SkImageEncoder::kUnknown_Type;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+static const char* suffix_for_type(SkImageEncoder::Type type) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormats); i++) {
+        if (gFormats[i].fType == type) {
+            return gFormats[i].fSuffix;
+        }
+    }
+    return "";
+}
 
-static void make_outname(SkString* dst, const char outDir[], const char src[]) {
+static SkImageDecoder::Format guess_format_from_suffix(const char suffix[]) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormats); i++) {
+        if (strcmp(suffix, gFormats[i].fSuffix) == 0) {
+            return gFormats[i].fFormat;
+        }
+    }
+    return SkImageDecoder::kUnknown_Format;
+}
+
+static void make_outname(SkString* dst, const char outDir[], const char src[],
+                         const char suffix[]) {
     dst->set(outDir);
     const char* start = strrchr(src, '/');
     if (start) {
@@ -63,39 +74,163 @@ static void make_outname(SkString* dst, const char outDir[], const char src[]) {
         start = src;
     }
     dst->append(start);
-    if (!dst->endsWith(".png")) {
+    if (!dst->endsWith(suffix)) {
         const char* cstyleDst = dst->c_str();
         const char* dot = strrchr(cstyleDst, '.');
         if (dot != NULL) {
             int32_t index = SkToS32(dot - cstyleDst);
             dst->remove(index, dst->size() - index);
         }
-        dst->append(".png");
+        dst->append(suffix);
     }
 }
 
+// Store the names of the filenames to report later which ones failed, succeeded, and were
+// invalid.
+static SkTArray<SkString, false> gInvalidStreams;
+static SkTArray<SkString, false> gMissingCodecs;
+static SkTArray<SkString, false> gDecodeFailures;
+static SkTArray<SkString, false> gEncodeFailures;
+static SkTArray<SkString, false> gSuccessfulDecodes;
+
+static bool write_bitmap(const char outName[], SkBitmap* bm) {
+    SkBitmap bitmap8888;
+    if (SkBitmap::kARGB_8888_Config != bm->config()) {
+        if (!bm->copyTo(&bitmap8888, SkBitmap::kARGB_8888_Config)) {
+            return false;
+        }
+        bm = &bitmap8888;
+    }
+    // FIXME: This forces all pixels to be opaque, like the many implementations
+    // of force_all_opaque. These should be unified if they cannot be eliminated.
+    SkAutoLockPixels lock(*bm);
+    for (int y = 0; y < bm->height(); y++) {
+        for (int x = 0; x < bm->width(); x++) {
+            *bm->getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
+        }
+    }
+    return SkImageEncoder::EncodeFile(outName, *bm, SkImageEncoder::kPNG_Type, 100);
+}
+
+static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) {
+    SkBitmap bitmap;
+    SkFILEStream stream(srcPath);
+    if (!stream.isValid()) {
+        gInvalidStreams.push_back().set(srcPath);
+        return;
+    }
+
+    SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
+    if (NULL == codec) {
+        gMissingCodecs.push_back().set(srcPath);
+        return;
+    }
+
+    SkAutoTDelete<SkImageDecoder> ad(codec);
+
+    stream.rewind();
+    if (!codec->decode(&stream, &bitmap, SkBitmap::kARGB_8888_Config,
+                       SkImageDecoder::kDecodePixels_Mode)) {
+        gDecodeFailures.push_back().set(srcPath);
+        return;
+    }
+
+    gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(), bitmap.height());
+
+    if (FLAGS_reencode) {
+        // Encode to the format the file was originally in, or PNG if the encoder for the same
+        // format is unavailable.
+        SkImageDecoder::Format format = codec->getFormat();
+        if (SkImageDecoder::kUnknown_Format == format) {
+            if (stream.rewind()) {
+                format = SkImageDecoder::GetStreamFormat(&stream);
+            }
+            if (SkImageDecoder::kUnknown_Format == format) {
+                const char* dot = strrchr(srcPath, '.');
+                if (NULL != dot) {
+                    format = guess_format_from_suffix(dot);
+                }
+                if (SkImageDecoder::kUnknown_Format == format) {
+                    SkDebugf("Could not determine type for '%s'\n", srcPath);
+                    format = SkImageDecoder::kPNG_Format;
+                }
+
+            }
+        } else {
+            SkASSERT(!stream.rewind() || SkImageDecoder::GetStreamFormat(&stream) == format);
+        }
+        SkImageEncoder::Type type = format_to_type(format);
+        // format should never be kUnknown_Format, so type should never be kUnknown_Type.
+        SkASSERT(type != SkImageEncoder::kUnknown_Type);
+
+        SkImageEncoder* encoder = SkImageEncoder::Create(type);
+        if (NULL == encoder) {
+            type = SkImageEncoder::kPNG_Type;
+            encoder = SkImageEncoder::Create(type);
+            SkASSERT(encoder);
+        }
+        SkAutoTDelete<SkImageEncoder> ade(encoder);
+        // Encode to a stream.
+        SkDynamicMemoryWStream wStream;
+        if (!encoder->encodeStream(&wStream, bitmap, 100)) {
+            gEncodeFailures.push_back().printf("Failed to reencode %s to type '%s'", srcPath,
+                                               suffix_for_type(type));
+            return;
+        }
+
+        SkAutoTUnref<SkData> data(wStream.copyToData());
+        if (writePath != NULL && type != SkImageEncoder::kPNG_Type) {
+            // Write the encoded data to a file. Do not write to PNG, which will be written later,
+            // regardless of the input format.
+            SkString outPath;
+            make_outname(&outPath, writePath->c_str(), srcPath, suffix_for_type(type));
+            SkFILEWStream file(outPath.c_str());
+            if(file.write(data->data(), data->size())) {
+                gSuccessfulDecodes.push_back().appendf("\twrote %s", outPath.c_str());
+            } else {
+                gEncodeFailures.push_back().printf("Failed to write %s", outPath.c_str());
+            }
+        }
+        // Ensure that the reencoded data can still be decoded.
+        SkMemoryStream memStream(data);
+        SkBitmap redecodedBitmap;
+        SkImageDecoder::Format formatOnSecondDecode;
+        if (SkImageDecoder::DecodeStream(&memStream, &redecodedBitmap, SkBitmap::kNo_Config,
+                                          SkImageDecoder::kDecodePixels_Mode,
+                                          &formatOnSecondDecode)) {
+            SkASSERT(format_to_type(formatOnSecondDecode) == type);
+        } else {
+            gDecodeFailures.push_back().printf("Failed to redecode %s after reencoding to '%s'",
+                                               srcPath, suffix_for_type(type));
+        }
+    }
+
+    if (writePath != NULL) {
+        SkString outPath;
+        make_outname(&outPath, writePath->c_str(), srcPath, ".png");
+        if (write_bitmap(outPath.c_str(), &bitmap)) {
+            gSuccessfulDecodes.push_back().appendf("\twrote %s", outPath.c_str());
+        } else {
+            gEncodeFailures.push_back().set(outPath);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 // If strings is not empty, print title, followed by each string on its own line starting
 // with a tab.
-static void print_strings(const char* title, const SkTArray<SkString, false>& strings) {
+// @return bool True if strings had at least one entry.
+static bool print_strings(const char* title, const SkTArray<SkString, false>& strings) {
     if (strings.count() > 0) {
         SkDebugf("%s:\n", title);
         for (int i = 0; i < strings.count(); i++) {
             SkDebugf("\t%s\n", strings[i].c_str());
         }
         SkDebugf("\n");
+        return true;
     }
-}
-
-static void decodeFileAndWrite(const char filePath[], const SkString* writePath) {
-    SkBitmap bitmap;
-    if (decodeFile(&bitmap, filePath)) {
-        if (writePath != NULL) {
-            SkString outPath;
-            make_outname(&outPath, writePath->c_str(), filePath);
-            successes.push_back().appendf("\twrote %s", outPath.c_str());
-            SkImageEncoder::EncodeFile(outPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-        }
-    }
+    return false;
 }
 
 int tool_main(int argc, char** argv);
@@ -148,12 +283,13 @@ int tool_main(int argc, char** argv) {
     // Add some space, since codecs may print warnings without newline.
     SkDebugf("\n\n");
 
-    print_strings("Invalid files", invalids);
-    print_strings("Missing codec", nocodecs);
-    print_strings("Failed to decode", failures);
-    print_strings("Decoded", successes);
+    bool failed = print_strings("Invalid files", gInvalidStreams);
+    failed |= print_strings("Missing codec", gMissingCodecs);
+    failed |= print_strings("Failed to decode", gDecodeFailures);
+    failed |= print_strings("Failed to encode", gEncodeFailures);
+    print_strings("Decoded", gSuccessfulDecodes);
 
-    return 0;
+    return failed ? -1 : 0;
 }
 
 void forceLinking();

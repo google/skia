@@ -47,6 +47,7 @@ public:
     virtual Format getFormat() const SK_OVERRIDE {
         return kPNG_Format;
     }
+
     virtual ~SkPNGImageDecoder() {
         SkDELETE(fImageIndex);
     }
@@ -1086,13 +1087,27 @@ DEFINE_ENCODER_CREATOR(PNGImageEncoder);
 
 #include "SkTRegistry.h"
 
-SkImageDecoder* sk_libpng_dfactory(SkStream* stream) {
+static bool is_png(SkStream* stream) {
     char buf[PNG_BYTES_TO_CHECK];
     if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&
         !png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
+        return true;
+    }
+    return false;
+}
+
+SkImageDecoder* sk_libpng_dfactory(SkStream* stream) {
+    if (is_png(stream)) {
         return SkNEW(SkPNGImageDecoder);
     }
     return NULL;
+}
+
+static SkImageDecoder::Format get_format_png(SkStream* stream) {
+    if (is_png(stream)) {
+        return SkImageDecoder::kPNG_Format;
+    }
+    return SkImageDecoder::kUnknown_Format;
 }
 
 SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
@@ -1100,4 +1115,5 @@ SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
 }
 
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libpng_efactory);
+static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_png);
 static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libpng_dfactory);
