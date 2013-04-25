@@ -15,6 +15,7 @@
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
 #include "SkMetaData.h"
+#include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
@@ -508,6 +509,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
     fAllowSoftClip = true;
+    fAllowSimplifyClip = false;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
     fMetaData = NULL;
@@ -1240,6 +1242,35 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
     // if we called path.swap() we could avoid a deep copy of this path
     fClipStack.clipDevPath(devPath, op, doAA);
+
+    if (fAllowSimplifyClip) {
+        devPath.reset();
+        devPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+        const SkClipStack* clipStack = getClipStack();
+        SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
+        const SkClipStack::Element* element;
+        while ((element = iter.next())) {
+            SkClipStack::Element::Type type = element->getType();
+            if (type == SkClipStack::Element::kEmpty_Type) {
+                continue;
+            }
+            SkPath operand;
+            if (type == SkClipStack::Element::kRect_Type) {
+                operand.addRect(element->getRect());
+            } else if (type == SkClipStack::Element::kPath_Type) {
+                operand = element->getPath();
+            } else {
+                SkDEBUGFAIL("Unexpected type.");
+            }
+            SkRegion::Op elementOp = element->getOp();
+            if (elementOp == SkRegion::kReplace_Op) {
+                devPath = operand;
+            } else {
+                Op(devPath, operand, (SkPathOp) elementOp, &devPath);
+            }
+        }
+        op = SkRegion::kReplace_Op;
+    }
 
     return clipPathHelper(this, fMCRec->fRasterClip, devPath, op, doAA);
 }
