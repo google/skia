@@ -69,34 +69,42 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     m.fBounds = mask.fBounds;
     m.fBounds.fRight = cx;
     m.fBounds.fBottom = cy;
-    extractMaskSubset(mask, &m);
-    m.fBounds.offsetTo(outerR.left(), outerR.top());
-    blitClippedMask(blitter, m, m.fBounds, clipR);
+    if (m.fBounds.width() > 0 && m.fBounds.height() > 0) {
+        extractMaskSubset(mask, &m);
+        m.fBounds.offsetTo(outerR.left(), outerR.top());
+        blitClippedMask(blitter, m, m.fBounds, clipR);
+    }
 
     // top-right
     m.fBounds = mask.fBounds;
     m.fBounds.fLeft = cx + 1;
     m.fBounds.fBottom = cy;
-    extractMaskSubset(mask, &m);
-    m.fBounds.offsetTo(outerR.right() - m.fBounds.width(), outerR.top());
-    blitClippedMask(blitter, m, m.fBounds, clipR);
+    if (m.fBounds.width() > 0 && m.fBounds.height() > 0) {
+        extractMaskSubset(mask, &m);
+        m.fBounds.offsetTo(outerR.right() - m.fBounds.width(), outerR.top());
+        blitClippedMask(blitter, m, m.fBounds, clipR);
+    }
 
     // bottom-left
     m.fBounds = mask.fBounds;
     m.fBounds.fRight = cx;
     m.fBounds.fTop = cy + 1;
-    extractMaskSubset(mask, &m);
-    m.fBounds.offsetTo(outerR.left(), outerR.bottom() - m.fBounds.height());
-    blitClippedMask(blitter, m, m.fBounds, clipR);
+    if (m.fBounds.width() > 0 && m.fBounds.height() > 0) {
+        extractMaskSubset(mask, &m);
+        m.fBounds.offsetTo(outerR.left(), outerR.bottom() - m.fBounds.height());
+        blitClippedMask(blitter, m, m.fBounds, clipR);
+    }
 
     // bottom-right
     m.fBounds = mask.fBounds;
     m.fBounds.fLeft = cx + 1;
     m.fBounds.fTop = cy + 1;
-    extractMaskSubset(mask, &m);
-    m.fBounds.offsetTo(outerR.right() - m.fBounds.width(),
-                       outerR.bottom() - m.fBounds.height());
-    blitClippedMask(blitter, m, m.fBounds, clipR);
+    if (m.fBounds.width() > 0 && m.fBounds.height() > 0) {
+        extractMaskSubset(mask, &m);
+        m.fBounds.offsetTo(outerR.right() - m.fBounds.width(),
+                           outerR.bottom() - m.fBounds.height());
+        blitClippedMask(blitter, m, m.fBounds, clipR);
+    }
 
     SkIRect innerR;
     innerR.set(outerR.left() + cx - mask.fBounds.left(),
