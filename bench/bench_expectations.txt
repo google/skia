@@ -1119,7 +1119,7 @@ tabl_androidpolice.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.2
 tabl_androidpolice.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,311.350,270.215,352.485
 tabl_androidpolice.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,21.110,8.999,33.221
 tabl_androidpolice.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.950,8.855,33.045
-tabl_androidpolice.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,853.260,757.934,948.586
+tabl_androidpolice.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,853.260,737.934,948.586
 tabl_androidpolice.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,108.310,87.479,129.141
 tabl_androidpolice.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,91.260,72.134,110.386
 tabl_androidpolice.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,259.810,223.829,295.791
@@ -1911,7 +1911,7 @@ tabl_sahadan.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,32.880,19.
 tabl_sahadan.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,338.260,294.434,382.086
 tabl_sahadan.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,23.900,11.510,36.290
 tabl_sahadan.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.860,15.074,40.646
-tabl_sahadan.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,419.450,367.505,471.395
+tabl_sahadan.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,419.450,267.505,471.395
 tabl_sahadan.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,65.420,48.878,81.962
 tabl_sahadan.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,64.740,48.266,81.214
 tabl_sahadan.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,281.650,243.485,319.815
@@ -2163,7 +2163,7 @@ tabl_worldjournal.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.72
 tabl_worldjournal.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,291.190,252.071,330.309
 tabl_worldjournal.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,23.150,10.835,35.465
 tabl_worldjournal.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.720,10.448,34.992
-tabl_worldjournal.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,615.580,544.022,687.138
+tabl_worldjournal.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,615.580,504.022,687.138
 tabl_worldjournal.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,114.950,93.455,136.445
 tabl_worldjournal.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,111.540,90.386,132.694
 tabl_worldjournal.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,262.580,226.322,298.838
