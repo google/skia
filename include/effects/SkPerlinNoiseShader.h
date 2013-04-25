@@ -22,7 +22,7 @@
     The algorithm used is described here :
     http://www.w3.org/TR/SVG/filters.html#feTurbulenceElement
 */
-class SkPerlinNoiseShader : public SkShader {
+class SK_API SkPerlinNoiseShader : public SkShader {
     struct PaintingData;
 public:
     struct StitchData;
