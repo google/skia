@@ -11,13 +11,13 @@
         '../src/core',
         '../src/effects',
         '../src/lazy',
+        '../src/pathops',
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',
         '../tools/',
       ],
       'includes': [
-        'pathops.gypi',
         'pathops_unittest.gypi',
       ],
       'sources': [

@@ -18,7 +18,6 @@
         '../tools/',
       ],
       'includes': [
-        'pathops.gypi',
         'pathops_unittest.gypi',
       ],
       'sources': [
