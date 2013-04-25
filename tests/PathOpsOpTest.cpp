@@ -1144,9 +1144,52 @@ static void cubicOp69d(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kDifference_PathOp);
 }
 
+SkPathOp ops[] = {
+    kUnion_PathOp,
+    kXOR_PathOp,
+    kReverseDifference_PathOp,
+    kXOR_PathOp,
+    kReverseDifference_PathOp,
+};
+
+static void rRect1(skiatest::Reporter* reporter) {
+        SkScalar xA = SkFloatToScalar(0.65f);
+        SkScalar xB = SkFloatToScalar(10.65f);
+        SkScalar xC = SkFloatToScalar(20.65f);
+        SkScalar xD = SkFloatToScalar(30.65f);
+        SkScalar xE = SkFloatToScalar(40.65f);
+        SkScalar xF = SkFloatToScalar(50.65f);
+
+        SkScalar yA = SkFloatToScalar(0.65f);
+        SkScalar yB = SkFloatToScalar(10.65f);
+        SkScalar yC = SkFloatToScalar(20.65f);
+        SkScalar yD = SkFloatToScalar(30.65f);
+        SkScalar yE = SkFloatToScalar(40.65f);
+        SkScalar yF = SkFloatToScalar(50.65f);
+        SkPath paths[5];
+        SkRect rects[5];
+        rects[0].set(xB, yB, xE, yE);
+        paths[0].addRoundRect(rects[0], SkIntToScalar(5), SkIntToScalar(5));  // red
+        rects[1].set(xA, yA, xD, yD);
+        paths[1].addRoundRect(rects[1], SkIntToScalar(5), SkIntToScalar(5));  // green
+        rects[2].set(xC, yA, xF, yD);
+        paths[2].addRoundRect(rects[2], SkIntToScalar(5), SkIntToScalar(5));  // blue
+        rects[3].set(xA, yC, xD, yF);
+        paths[3].addRoundRect(rects[3], SkIntToScalar(5), SkIntToScalar(5));  // yellow
+        rects[4].set(xC, yC, xF, yF);
+        paths[4].addRoundRect(rects[4], SkIntToScalar(5), SkIntToScalar(5));  // cyan
+        SkPath path;
+        path.setFillType(SkPath::kInverseEvenOdd_FillType);
+        for (int index = 0; index < 5; ++index) {
+            testPathOp(reporter, path, paths[index], ops[index]);
+            Op(path, paths[index], ops[index], &path);
+        }
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(rRect1),
     TEST(cubicOp69d),
     TEST(cubicOp68u),
     TEST(cubicOp67u),

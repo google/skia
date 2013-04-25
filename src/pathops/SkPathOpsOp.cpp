@@ -228,10 +228,8 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
 
 void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
-    result->reset();
     SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]
             ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
-    result->setFillType(fillType);
     const SkPath* minuend = &one;
     const SkPath* subtrahend = &two;
     if (op == kReverseDifference_PathOp) {
@@ -249,6 +247,8 @@ void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     const int xorMask = builder.xorMask();
     builder.addOperand(*subtrahend);
     builder.finish();
+    result->reset();
+    result->setFillType(fillType);
     const int xorOpMask = builder.xorMask();
     SkTDArray<SkOpContour*> contourList;
     MakeContourList(contours, contourList, xorMask == kEvenOdd_PathOpsMask,

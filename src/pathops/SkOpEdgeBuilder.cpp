@@ -53,9 +53,13 @@ void SkOpEdgeBuilder::finish() {
     fExtra.reset();  // we're done with this
 }
 
-// FIXME:remove once we can access path pts directly
+// Note that copying the points here avoids copying the resulting path later.
+// To allow Op() to take one of the input paths as an output parameter, either the source data
+// must be copied (as implemented below) or the result must be copied.
+// OPTIMIZATION: This copies both sets of input points every time. If the input data was read
+// directly, the output path would only need to be copied if it was also one of the input paths.
 int SkOpEdgeBuilder::preFetch() {
-    SkPath::RawIter iter(*fPath);  // FIXME: access path directly when allowed
+    SkPath::RawIter iter(*fPath);
     SkPoint pts[4];
     SkPath::Verb verb;
     do {
@@ -78,7 +82,11 @@ void SkOpEdgeBuilder::walk() {
     const SkPoint* finalCurveStart = NULL;
     const SkPoint* finalCurveEnd = NULL;
     SkPath::Verb verb;
-    while ((verb = (SkPath::Verb) *verbPtr++) != SkPath::kDone_Verb) {
+    while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
+        if (verbPtr == endOfFirstHalf) {
+            fOperand = true;
+        }
+        verbPtr++;
         switch (verb) {
             case SkPath::kMove_Verb:
                 complete();
@@ -89,7 +97,7 @@ void SkOpEdgeBuilder::walk() {
                     *fExtra.append() = -1;  // start new contour
                 }
                 finalCurveEnd = pointsPtr++;
-                goto nextVerb;
+                continue;
             case SkPath::kLine_Verb:
                 // skip degenerate points
                 if (pointsPtr[-1].fX != pointsPtr[0].fX || pointsPtr[-1].fY != pointsPtr[0].fY) {
@@ -132,7 +140,7 @@ void SkOpEdgeBuilder::walk() {
                     *fExtra.append() = fCurrentContour->addLine(fReducePts.end() - 2);
                 }
                 complete();
-                goto nextVerb;
+                continue;
             default:
                 SkDEBUGFAIL("bad verb");
                 return;
@@ -140,9 +148,5 @@ void SkOpEdgeBuilder::walk() {
         finalCurveStart = &pointsPtr[verb - 1];
         pointsPtr += verb;
         SkASSERT(fCurrentContour);
-    nextVerb:
-        if (verbPtr == endOfFirstHalf) {
-            fOperand = true;
-        }
     }
 }
