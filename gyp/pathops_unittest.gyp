@@ -12,6 +12,7 @@
         '../src/core',
         '../src/effects',
         '../src/lazy',
+        '../src/pathops',
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',
