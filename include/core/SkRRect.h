@@ -251,6 +251,12 @@ public:
         this->inset(-dx, -dy, this);
     }
 
+    /**
+     *  Returns true if 'rect' is wholy inside the RR, and both
+     *  are not empty.
+     */
+    bool contains(const SkRect& rect) const;
+
     SkDEBUGCODE(void validate() const;)
 
     enum {
@@ -280,6 +286,7 @@ private:
     // uninitialized data
 
     void computeType() const;
+    bool checkCornerContainment(SkScalar x, SkScalar y) const;
 
     // to access fRadii directly
     friend class SkPath;

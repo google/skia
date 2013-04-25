@@ -317,6 +317,140 @@ static void test_round_rect_iffy_parameters(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0.0f == p2.fY);
 }
 
+// Move a small box from the start position by (stepX, stepY) 'numSteps' times
+// testing for containment in 'rr' at each step.
+static void test_direction(skiatest::Reporter* reporter, const SkRRect &rr,
+                           SkScalar initX, int stepX, SkScalar initY, int stepY, 
+                           int numSteps, const bool* contains) {
+    SkScalar x = initX, y = initY;
+    for (int i = 0; i < numSteps; ++i) {
+        SkRect test = SkRect::MakeXYWH(x, y, 
+                                       stepX ? SkIntToScalar(stepX) : SK_Scalar1, 
+                                       stepY ? SkIntToScalar(stepY) : SK_Scalar1);
+        test.sort();
+
+        REPORTER_ASSERT(reporter, contains[i] == rr.contains(test));
+
+        x += stepX;
+        y += stepY;
+    }
+}
+
+// Exercise the RR's contains rect method
+static void test_round_rect_contains_rect(skiatest::Reporter* reporter) {
+
+    static const int kNumRRects = 4;
+    static const SkVector gRadii[kNumRRects][4] = {
+        { {  0,  0 }, {  0,  0 }, {  0,  0 }, {  0,  0 } },  // rect
+        { { 20, 20 }, { 20, 20 }, { 20, 20 }, { 20, 20 } },  // circle
+        { { 10, 10 }, { 10, 10 }, { 10, 10 }, { 10, 10 } },  // simple
+        { {  0,  0 }, { 20, 20 }, { 10, 10 }, { 30, 30 } }   // complex
+    };
+
+    SkRRect rrects[kNumRRects];
+    for (int i = 0; i < kNumRRects; ++i) {
+        rrects[i].setRectRadii(SkRect::MakeWH(40, 40), gRadii[i]);
+    }
+
+    // First test easy outs - boxes that are obviously out on
+    // each corner and edge
+    static const SkRect easyOuts[] = {
+        { -5, -5,  5,  5 }, // NW
+        { 15, -5, 20,  5 }, // N
+        { 35, -5, 45,  5 }, // NE
+        { 35, 15, 45, 20 }, // E
+        { 35, 45, 35, 45 }, // SE
+        { 15, 35, 20, 45 }, // S
+        { -5, 35,  5, 45 }, // SW
+        { -5, 15,  5, 20 }  // W
+    };
+    
+    for (int i = 0; i < kNumRRects; ++i) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(easyOuts); ++j) {
+            REPORTER_ASSERT(reporter, !rrects[i].contains(easyOuts[j]));
+        }
+    }
+
+    // Now test non-trivial containment. For each compass 
+    // point walk a 1x1 rect in from the edge  of the bounding 
+    // rect
+    static const int kNumSteps = 15;
+    bool answers[kNumRRects][8][kNumSteps] = {
+        // all the test rects are inside the degenerate rrect
+        {
+            // rect
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        },
+        // for the circle we expect 6 blocks to be out on the
+        // corners (then the rest in) and only the first block 
+        // out on the vertical and horizontal axes (then 
+        // the rest in)
+        {
+            // circle
+            { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        },
+        // for the simple round rect we expect 3 out on
+        // the corners (then the rest in) and no blocks out
+        // on the vertical and horizontal axes
+        {
+            // simple RR
+            { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        },
+        // for the complex case the answer is different for each direction
+        {
+            // complex RR
+            // all in for NW (rect) corner (same as rect case)
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // only first block out for N (same as circle case)
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // first 6 blocks out for NE (same as circle case)
+            { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // only first block out for E (same as circle case)
+            { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // first 3 blocks out for SE (same as simple case)
+            { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // first two blocks out for S
+            { 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+            // first 9 blocks out for SW
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 },
+            // first two blocks out for W (same as S)
+            { 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+         }
+    };
+
+    for (int i = 0; i < kNumRRects; ++i) {
+        test_direction(reporter, rrects[i],     0,  1,     0,  1, kNumSteps, answers[i][0]); // NW
+        test_direction(reporter, rrects[i], 19.5f,  0,     0,  1, kNumSteps, answers[i][1]); // N
+        test_direction(reporter, rrects[i],    40, -1,     0,  1, kNumSteps, answers[i][2]); // NE
+        test_direction(reporter, rrects[i],    40, -1, 19.5f,  0, kNumSteps, answers[i][3]); // E
+        test_direction(reporter, rrects[i],    40, -1,    40, -1, kNumSteps, answers[i][4]); // SE
+        test_direction(reporter, rrects[i], 19.5f,  0,    40, -1, kNumSteps, answers[i][5]); // S
+        test_direction(reporter, rrects[i],     0,  1,    40, -1, kNumSteps, answers[i][6]); // SW
+        test_direction(reporter, rrects[i],     0,  1, 19.5f,  0, kNumSteps, answers[i][7]); // W
+    }
+}
+
 static void TestRoundRect(skiatest::Reporter* reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -324,6 +458,7 @@ static void TestRoundRect(skiatest::Reporter* reporter) {
     test_round_rect_general(reporter);
     test_round_rect_iffy_parameters(reporter);
     test_inset(reporter);
+    test_round_rect_contains_rect(reporter);
 }
 
 #include "TestClassDef.h"
