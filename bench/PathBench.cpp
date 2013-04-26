@@ -868,13 +868,13 @@ private:
 
 #include "SkGeometry.h"
 
-class RationalQuadBench_Chop5 : public SkBenchmark {
+class ConicBench_Chop5 : public SkBenchmark {
     enum {
         N = 100000
     };
-    SkRationalQuad fRQ;
+    SkConic fRQ;
 public:
-    RationalQuadBench_Chop5(void* param) : INHERITED(param) {
+    ConicBench_Chop5(void* param) : INHERITED(param) {
         fRQ.fPts[0].set(0, 0);
         fRQ.fPts[1].set(100, 0);
         fRQ.fPts[2].set(100, 100);
@@ -887,7 +887,7 @@ private:
     }
 
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        SkRationalQuad dst[2];
+        SkConic dst[2];
         for (int i = 0; i < N; ++i) {
             fRQ.chopAt(0.5f, dst);
         }
@@ -896,13 +896,13 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-class RationalQuadBench_ChopHalf : public SkBenchmark {
+class ConicBench_ChopHalf : public SkBenchmark {
     enum {
         N = 100000
     };
-    SkRationalQuad fRQ;
+    SkConic fRQ;
 public:
-    RationalQuadBench_ChopHalf(void* param) : INHERITED(param) {
+    ConicBench_ChopHalf(void* param) : INHERITED(param) {
         fRQ.fPts[0].set(0, 0);
         fRQ.fPts[1].set(100, 0);
         fRQ.fPts[2].set(100, 100);
@@ -915,7 +915,7 @@ private:
     }
 
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        SkRationalQuad dst[2];
+        SkConic dst[2];
         for (int i = 0; i < N; ++i) {
             fRQ.chop(dst);
         }
@@ -981,5 +981,5 @@ DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench
 DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(p, ConservativelyContainsBench::kOval_Type); )
 
-DEF_BENCH( return new RationalQuadBench_Chop5(p) )
-DEF_BENCH( return new RationalQuadBench_ChopHalf(p) )
+DEF_BENCH( return new ConicBench_Chop5(p) )
+DEF_BENCH( return new ConicBench_ChopHalf(p) )

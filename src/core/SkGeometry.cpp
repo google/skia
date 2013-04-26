@@ -1483,7 +1483,7 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
 }
 
-void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
+void SkConic::evalAt(SkScalar t, SkPoint* pt) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     if (pt) {
@@ -1492,7 +1492,7 @@ void SkRationalQuad::evalAt(SkScalar t, SkPoint* pt) const {
     }
 }
 
-void SkRationalQuad::chopAt(SkScalar t, SkRationalQuad dst[2]) const {
+void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     SkP3D tmp[3], tmp2[3];
 
     ratquad_mapTo3D(fPts, fW, tmp);
@@ -1523,7 +1523,7 @@ static SkScalar subdivide_w_value(SkScalar w) {
     return SkScalarSqrt((1 + w) * SK_ScalarHalf);
 }
 
-void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
+void SkConic::chop(SkConic dst[2]) const {
     SkScalar scale = SkScalarInvert(SK_Scalar1 + fW);
     SkScalar p1x = fW * fPts[1].fX;
     SkScalar p1y = fW * fPts[1].fY;
@@ -1543,7 +1543,7 @@ void SkRationalQuad::chop(SkRationalQuad dst[2]) const {
     dst[0].fW = dst[1].fW = subdivide_w_value(fW);
 }
 
-int SkRationalQuad::computeQuadPOW2(SkScalar tol) const {
+int SkConic::computeQuadPOW2(SkScalar tol) const {
     if (fW <= SK_ScalarNearlyZero) {
         return 0;   // treat as a line
     }
@@ -1560,13 +1560,13 @@ int SkRationalQuad::computeQuadPOW2(SkScalar tol) const {
     return i;
 }
 
-static SkPoint* subdivide(const SkRationalQuad& src, SkPoint pts[], int level) {
+static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     SkASSERT(level >= 0);
     if (0 == level) {
         memcpy(pts, &src.fPts[1], 2 * sizeof(SkPoint));
         return pts + 2;
     } else {
-        SkRationalQuad dst[2];
+        SkConic dst[2];
         src.chop(dst);
         --level;
         pts = subdivide(dst[0], pts, level);
@@ -1574,7 +1574,7 @@ static SkPoint* subdivide(const SkRationalQuad& src, SkPoint pts[], int level) {
     }
 }
 
-int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
+int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     if (pow2 < 0) {
         return 0;
     }
@@ -1583,7 +1583,7 @@ int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
         return 1;
     }
     if (1 == pow2) {
-        SkRationalQuad dst[2];
+        SkConic dst[2];
         this->chop(dst);
         memcpy(pts, dst[0].fPts, 3 * sizeof(SkPoint));
         pts += 3;
@@ -1597,15 +1597,15 @@ int SkRationalQuad::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
     return 1 << pow2;
 }
 
-bool SkRationalQuad::findXExtrema(SkScalar* t) const {
+bool SkConic::findXExtrema(SkScalar* t) const {
     return rat_find_extrema(&fPts[0].fX, fW, t);
 }
 
-bool SkRationalQuad::findYExtrema(SkScalar* t) const {
+bool SkConic::findYExtrema(SkScalar* t) const {
     return rat_find_extrema(&fPts[0].fY, fW, t);
 }
 
-bool SkRationalQuad::chopAtXExtrema(SkRationalQuad dst[2]) const {
+bool SkConic::chopAtXExtrema(SkConic dst[2]) const {
     SkScalar t;
     if (this->findXExtrema(&t)) {
         this->chopAt(t, dst);
@@ -1620,7 +1620,7 @@ bool SkRationalQuad::chopAtXExtrema(SkRationalQuad dst[2]) const {
     return false;
 }
 
-bool SkRationalQuad::chopAtYExtrema(SkRationalQuad dst[2]) const {
+bool SkConic::chopAtYExtrema(SkConic dst[2]) const {
     SkScalar t;
     if (this->findYExtrema(&t)) {
         this->chopAt(t, dst);
@@ -1635,7 +1635,7 @@ bool SkRationalQuad::chopAtYExtrema(SkRationalQuad dst[2]) const {
     return false;
 }
 
-void SkRationalQuad::computeTightBounds(SkRect* bounds) const {
+void SkConic::computeTightBounds(SkRect* bounds) const {
     SkPoint pts[4];
     pts[0] = fPts[0];
     pts[1] = fPts[2];
@@ -1651,6 +1651,6 @@ void SkRationalQuad::computeTightBounds(SkRect* bounds) const {
     bounds->set(pts, count);
 }
 
-void SkRationalQuad::computeFastBounds(SkRect* bounds) const {
+void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
