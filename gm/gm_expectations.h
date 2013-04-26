@@ -7,12 +7,10 @@
 #ifndef gm_expectations_DEFINED
 #define gm_expectations_DEFINED
 
-#include <stdarg.h>
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkBitmapHasher.h"
 #include "SkData.h"
-#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
@@ -29,19 +27,6 @@
 #ifdef SK_BUILD_FOR_WIN
     #pragma warning(pop)
 #endif
-
-#define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
-
-const static char kJsonKey_ActualResults[]   = "actual-results";
-const static char kJsonKey_ActualResults_Failed[]        = "failed";
-const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
-const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
-const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-const static char kJsonKey_ActualResults_AnyStatus_Checksum[]    = "checksum";
-
-const static char kJsonKey_ExpectedResults[] = "expected-results";
-const static char kJsonKey_ExpectedResults_Checksums[]     = "checksums";
-const static char kJsonKey_ExpectedResults_IgnoreFailure[] = "ignore-failure";
 
 namespace skiagm {
 
@@ -75,6 +60,14 @@ namespace skiagm {
         return filename;
     }
 
+    Json::Value ActualResultAsJsonValue(const SkHashDigest& result);
+
+    Json::Value CreateJsonTree(Json::Value expectedResults,
+                               Json::Value actualResultsFailed,
+                               Json::Value actualResultsFailureIgnored,
+                               Json::Value actualResultsNoComparison,
+                               Json::Value actualResultsSucceeded);
+
     /**
      * Test expectations (allowed image checksums, etc.)
      */
@@ -83,25 +76,13 @@ namespace skiagm {
         /**
          * No expectations at all.
          */
-        Expectations(bool ignoreFailure=kDefaultIgnoreFailure) {
-            fIgnoreFailure = ignoreFailure;
-        }
+        Expectations(bool ignoreFailure=kDefaultIgnoreFailure);
 
         /**
          * Expect exactly one image (appropriate for the case when we
          * are comparing against a single PNG file).
          */
-        Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure) {
-            fBitmap = bitmap;
-            fIgnoreFailure = ignoreFailure;
-            SkHashDigest digest;
-            // TODO(epoger): Better handling for error returned by ComputeDigest()?
-            // For now, we just report a digest of 0 in error cases, like before.
-            if (!SkBitmapHasher::ComputeDigest(bitmap, &digest)) {
-                digest = 0;
-            }
-            fAllowedChecksums.push_back() = digest;
-        }
+        Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure);
 
         /**
          * Create Expectations from a JSON element as found within the
@@ -110,48 +91,7 @@ namespace skiagm {
          * It's fine if the jsonElement is null or empty; in that case, we just
          * don't have any expectations.
          */
-        Expectations(Json::Value jsonElement) {
-            if (jsonElement.empty()) {
-                fIgnoreFailure = kDefaultIgnoreFailure;
-            } else {
-                Json::Value ignoreFailure = jsonElement[kJsonKey_ExpectedResults_IgnoreFailure];
-                if (ignoreFailure.isNull()) {
-                    fIgnoreFailure = kDefaultIgnoreFailure;
-                } else if (!ignoreFailure.isBool()) {
-                    gm_fprintf(stderr, "found non-boolean json value"
-                               " for key '%s' in element '%s'\n",
-                               kJsonKey_ExpectedResults_IgnoreFailure,
-                               jsonElement.toStyledString().c_str());
-                    DEBUGFAIL_SEE_STDERR;
-                    fIgnoreFailure = kDefaultIgnoreFailure;
-                } else {
-                    fIgnoreFailure = ignoreFailure.asBool();
-                }
-
-                Json::Value allowedChecksums = jsonElement[kJsonKey_ExpectedResults_Checksums];
-                if (allowedChecksums.isNull()) {
-                    // ok, we'll just assume there aren't any expected checksums to compare against
-                } else if (!allowedChecksums.isArray()) {
-                    gm_fprintf(stderr, "found non-array json value"
-                               " for key '%s' in element '%s'\n",
-                               kJsonKey_ExpectedResults_Checksums,
-                               jsonElement.toStyledString().c_str());
-                    DEBUGFAIL_SEE_STDERR;
-                } else {
-                    for (Json::ArrayIndex i=0; i<allowedChecksums.size(); i++) {
-                        Json::Value checksumElement = allowedChecksums[i];
-                        if (!checksumElement.isIntegral()) {
-                            gm_fprintf(stderr, "found non-integer checksum"
-                                       " in json element '%s'\n",
-                                       jsonElement.toStyledString().c_str());
-                            DEBUGFAIL_SEE_STDERR;
-                        } else {
-                            fAllowedChecksums.push_back() = asChecksum(checksumElement);
-                        }
-                    }
-                }
-            }
-        }
+        Expectations(Json::Value jsonElement);
 
         /**
          * Returns true iff we want to ignore failed expectations.
@@ -161,22 +101,14 @@ namespace skiagm {
         /**
          * Returns true iff there are no allowed checksums.
          */
-        bool empty() const { return this->fAllowedChecksums.empty(); }
+        bool empty() const { return this->fAllowedBitmapCityhashes.empty(); }
 
         /**
          * Returns true iff actualChecksum matches any allowedChecksum,
          * regardless of fIgnoreFailure.  (The caller can check
          * that separately.)
          */
-        bool match(Checksum actualChecksum) const {
-            for (int i=0; i < this->fAllowedChecksums.count(); i++) {
-                Checksum allowedChecksum = this->fAllowedChecksums[i];
-                if (allowedChecksum == actualChecksum) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        bool match(Checksum actualChecksum) const;
 
         /**
          * If this Expectation is based on a single SkBitmap, return a
@@ -189,25 +121,14 @@ namespace skiagm {
         }
 
         /**
-         * Return a JSON representation of the allowed checksums.
-         * This does NOT include any information about whether to
-         * ignore failures.
+         * Return a JSON representation of the expectations.
          */
-        Json::Value allowedChecksumsAsJson() const {
-            Json::Value allowedChecksumArray;
-            if (!this->fAllowedChecksums.empty()) {
-                for (int i=0; i < this->fAllowedChecksums.count(); i++) {
-                    Checksum allowedChecksum = this->fAllowedChecksums[i];
-                    allowedChecksumArray.append(asJsonValue(allowedChecksum));
-                }
-            }
-            return allowedChecksumArray;
-        }
+        Json::Value asJsonValue() const;
 
     private:
         const static bool kDefaultIgnoreFailure = false;
 
-        SkTArray<Checksum> fAllowedChecksums;
+        SkTArray<Checksum> fAllowedBitmapCityhashes;
         bool fIgnoreFailure;
         SkBitmap fBitmap;
     };
@@ -234,21 +155,7 @@ namespace skiagm {
          */
         IndividualImageExpectationsSource(const char *rootDir) : fRootDir(rootDir) {}
 
-        Expectations get(const char *testName) SK_OVERRIDE {
-            SkString path = make_filename(fRootDir.c_str(), "", testName,
-                                          "png");
-            SkBitmap referenceBitmap;
-            bool decodedReferenceBitmap =
-                SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
-                                           SkBitmap::kARGB_8888_Config,
-                                           SkImageDecoder::kDecodePixels_Mode,
-                                           NULL);
-            if (decodedReferenceBitmap) {
-                return Expectations(referenceBitmap);
-            } else {
-                return Expectations();
-            }
-        }
+        Expectations get(const char *testName) SK_OVERRIDE ;
 
     private:
         const SkString fRootDir;
@@ -265,14 +172,9 @@ namespace skiagm {
          *
          * jsonPath: path to JSON file to read
          */
-        JsonExpectationsSource(const char *jsonPath) {
-            parse(jsonPath, &fJsonRoot);
-            fJsonExpectedResults = fJsonRoot[kJsonKey_ExpectedResults];
-        }
+        JsonExpectationsSource(const char *jsonPath);
 
-        Expectations get(const char *testName) SK_OVERRIDE {
-            return Expectations(fJsonExpectedResults[testName]);
-        }
+        Expectations get(const char *testName) SK_OVERRIDE;
 
     private:
 
@@ -307,23 +209,7 @@ namespace skiagm {
         // TODO(epoger): Move this, into SkStream.[cpp|h] as attempted in
         // https://codereview.appspot.com/7300071 ?
         // And maybe readFileIntoSkData() also?
-        static SkData* readIntoSkData(SkStream &stream, size_t maxBytes) {
-            if (0 == maxBytes) {
-                return SkData::NewEmpty();
-            }
-            char* bufStart = reinterpret_cast<char *>(sk_malloc_throw(maxBytes));
-            char* bufPtr = bufStart;
-            size_t bytesRemaining = maxBytes;
-            while (bytesRemaining > 0) {
-                size_t bytesReadThisTime = stream.read(bufPtr, bytesRemaining);
-                if (0 == bytesReadThisTime) {
-                    break;
-                }
-                bytesRemaining -= bytesReadThisTime;
-                bufPtr += bytesReadThisTime;
-            }
-            return SkData::NewFromMalloc(bufStart, maxBytes - bytesRemaining);
-        }
+        static SkData* readIntoSkData(SkStream &stream, size_t maxBytes);
 
         /**
          * Wrapper around readIntoSkData for files: reads the entire file into
@@ -338,31 +224,7 @@ namespace skiagm {
          *
          * Returns true if successful.
          */
-        static bool parse(const char *jsonPath, Json::Value *jsonRoot) {
-            SkFILEStream inFile(jsonPath);
-            if (!inFile.isValid()) {
-                gm_fprintf(stderr, "unable to read JSON file %s\n", jsonPath);
-                DEBUGFAIL_SEE_STDERR;
-                return false;
-            }
-
-            SkAutoDataUnref dataRef(readFileIntoSkData(inFile));
-            if (NULL == dataRef.get()) {
-                gm_fprintf(stderr, "error reading JSON file %s\n", jsonPath);
-                DEBUGFAIL_SEE_STDERR;
-                return false;
-            }
-
-            const char *bytes = reinterpret_cast<const char *>(dataRef.get()->data());
-            size_t size = dataRef.get()->size();
-            Json::Reader reader;
-            if (!reader.parse(bytes, bytes+size, *jsonRoot)) {
-                gm_fprintf(stderr, "error parsing JSON file %s\n", jsonPath);
-                DEBUGFAIL_SEE_STDERR;
-                return false;
-            }
-            return true;
-        }
+        static bool parse(const char *jsonPath, Json::Value *jsonRoot);
 
         Json::Value fJsonRoot;
         Json::Value fJsonExpectedResults;
