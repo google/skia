@@ -26,6 +26,7 @@
         '../debugger/SkObjectParser.cpp',
 
         '../gm/gm.cpp',
+        '../gm/gm_expectations.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
 

@@ -63,6 +63,8 @@ class GrSurface;
 typedef int GLContextType;
 #endif
 
+#define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
+
 extern bool gSkSuppressFontCachePurgeSpew;
 
 #ifdef SK_SUPPORT_PDF
@@ -768,17 +770,15 @@ public:
 
     /**
      * Add this result to the appropriate JSON collection of actual results,
-     * depending on status.
+     * depending on errors encountered.
      */
     void add_actual_results_to_json_summary(const char testName[],
-                                            const SkHashDigest& actualBitmapHash,
-                                            ErrorCombination result,
+                                            const SkHashDigest& actualResult,
+                                            ErrorCombination errors,
                                             bool ignoreFailure) {
-        Json::Value actualResults;
-        actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
-            asJsonValue(actualBitmapHash);
-        if (result.isEmpty()) {
-            this->fJsonActualResults_Succeeded[testName] = actualResults;
+        Json::Value jsonActualResults = ActualResultAsJsonValue(actualResult);
+        if (errors.isEmpty()) {
+            this->fJsonActualResults_Succeeded[testName] = jsonActualResults;
         } else {
             if (ignoreFailure) {
                 // TODO: Once we have added the ability to compare
@@ -788,9 +788,9 @@ public:
                 // failures (both for kMissingExpectations_ErrorType
                 // and kExpectationsMismatch_ErrorType).
                 this->fJsonActualResults_FailureIgnored[testName] =
-                    actualResults;
+                    jsonActualResults;
             } else {
-                if (result.includes(kMissingExpectations_ErrorType)) {
+                if (errors.includes(kMissingExpectations_ErrorType)) {
                     // TODO: What about the case where there IS an
                     // expected image hash digest, but that gm test
                     // doesn't actually run?  For now, those cases
@@ -803,11 +803,11 @@ public:
                     // (and add a test case for which an expectation
                     // is given but the test is never run).
                     this->fJsonActualResults_NoComparison[testName] =
-                        actualResults;
+                        jsonActualResults;
                 }
-                if (result.includes(kExpectationsMismatch_ErrorType) ||
-                    result.includes(kRenderModeMismatch_ErrorType)) {
-                    this->fJsonActualResults_Failed[testName] = actualResults;
+                if (errors.includes(kExpectationsMismatch_ErrorType) ||
+                    errors.includes(kRenderModeMismatch_ErrorType)) {
+                    this->fJsonActualResults_Failed[testName] = jsonActualResults;
                 }
             }
         }
@@ -818,15 +818,7 @@ public:
      */
     void add_expected_results_to_json_summary(const char testName[],
                                               Expectations expectations) {
-        // For now, we assume that this collection starts out empty and we
-        // just fill it in as we go; once gm accepts a JSON file as input,
-        // we'll have to change that.
-        Json::Value expectedResults;
-        expectedResults[kJsonKey_ExpectedResults_Checksums] =
-            expectations.allowedChecksumsAsJson();
-        expectedResults[kJsonKey_ExpectedResults_IgnoreFailure] =
-            expectations.ignoreFailure();
-        this->fJsonExpectedResults[testName] = expectedResults;
+        this->fJsonExpectedResults[testName] = expectations.asJsonValue();
     }
 
     /**
@@ -1959,18 +1951,10 @@ int tool_main(int argc, char** argv) {
 #endif
 
     if (FLAGS_writeJsonSummaryPath.count() == 1) {
-        Json::Value actualResults;
-        actualResults[kJsonKey_ActualResults_Failed] =
-            gmmain.fJsonActualResults_Failed;
-        actualResults[kJsonKey_ActualResults_FailureIgnored] =
-            gmmain.fJsonActualResults_FailureIgnored;
-        actualResults[kJsonKey_ActualResults_NoComparison] =
-            gmmain.fJsonActualResults_NoComparison;
-        actualResults[kJsonKey_ActualResults_Succeeded] =
-            gmmain.fJsonActualResults_Succeeded;
-        Json::Value root;
-        root[kJsonKey_ActualResults] = actualResults;
-        root[kJsonKey_ExpectedResults] = gmmain.fJsonExpectedResults;
+        Json::Value root = CreateJsonTree(
+            gmmain.fJsonExpectedResults,
+            gmmain.fJsonActualResults_Failed, gmmain.fJsonActualResults_FailureIgnored,
+            gmmain.fJsonActualResults_NoComparison, gmmain.fJsonActualResults_Succeeded);
         std::string jsonStdString = root.toStyledString();
         SkFILEWStream stream(FLAGS_writeJsonSummaryPath[0]);
         stream.write(jsonStdString.c_str(), jsonStdString.length());

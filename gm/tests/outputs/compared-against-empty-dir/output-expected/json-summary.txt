@@ -4,21 +4,21 @@
       "failure-ignored" : null,
       "no-comparison" : {
          "565/selftest1" : {
-            "checksum" : 9512553915271796906
+            "bitmap-cityhash" : 9512553915271796906
          },
          "8888/selftest1" : {
-            "checksum" : 14022967492765711532
+            "bitmap-cityhash" : 14022967492765711532
          }
       },
       "succeeded" : null
    },
    "expected-results" : {
       "565/selftest1" : {
-         "checksums" : null,
+         "allowed-bitmap-cityhashes" : null,
          "ignore-failure" : false
       },
       "8888/selftest1" : {
-         "checksums" : null,
+         "allowed-bitmap-cityhashes" : null,
          "ignore-failure" : false
       }
    }
