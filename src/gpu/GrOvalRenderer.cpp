@@ -291,9 +291,9 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
  * x and y directions.
  *
  * This uses a slightly different algorithm than the EllipseEdgeEffect, above. Rather than
- * scaling an ellipse to be a circle, it attempts to find the distance from the offset point to the 
- * ellipse by determining where the line through the origin and offset point would cross the 
- * ellipse, and computing the distance to that. This is slower but works better for roundrects 
+ * scaling an ellipse to be a circle, it attempts to find the distance from the offset point to the
+ * ellipse by determining where the line through the origin and offset point would cross the
+ * ellipse, and computing the distance to that. This is slower but works better for roundrects
  * because the straight edges will be more accurate.
  */
 
@@ -303,7 +303,7 @@ public:
         // we go through this so we only have one copy of each effect (stroked/filled)
         GR_CREATE_STATIC_EFFECT(gAltEllipseStrokeEdge, AltEllipseEdgeEffect, (true));
         GR_CREATE_STATIC_EFFECT(gAltEllipseFillEdge, AltEllipseEdgeEffect, (false));
-        
+
         if (stroke) {
             gAltEllipseStrokeEdge->ref();
             return gAltEllipseStrokeEdge;
@@ -358,9 +358,9 @@ public:
             // get length of offset
             builder->fsCodeAppendf("\tfloat len = length(%s.xy);\n", fsOffsetName);
             builder->fsCodeAppend("\tvec2 offset;\n");
- 
+
             // for outer curve
-            builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.yx;\n", 
+            builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.yx;\n",
                                    fsOffsetName, fsRadiiName);
             builder->fsCodeAppendf("\tfloat tOuter = "
                                    "%s.x*%s.y*inversesqrt(dot(offset.xy, offset.xy));\n",
@@ -369,7 +369,7 @@ public:
 
             // for inner curve
             if (rrectEffect.isStroked()) {
-                builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.wz;\n", 
+                builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.wz;\n",
                                        fsOffsetName, fsRadiiName);
                 builder->fsCodeAppendf("\tfloat tInner = "
                                        "%s.z*%s.w*inversesqrt(dot(offset.xy, offset.xy));\n",
@@ -713,13 +713,13 @@ static const uint16_t gRRectIndices[] = {
     2, 3, 7, 2, 7, 6,
     8, 9, 13, 8, 13, 12,
     10, 11, 15, 10, 15, 14,
-    
+
     // edges
     1, 2, 6, 1, 6, 5,
     4, 5, 9, 4, 9, 8,
     6, 7, 11, 6, 11, 10,
     9, 10, 14, 9, 14, 13,
-    
+
     // center
     // we place this at the end so that we can ignore these indices when rendering stroke-only
     5, 6, 10, 5, 10, 9
@@ -760,9 +760,9 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
     vm.mapRect(&bounds, rrectBounds);
 
     SkVector radii = rrect.getSimpleRadii();
-    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*radii.fX + 
+    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*radii.fX +
                                    vm[SkMatrix::kMSkewY]*radii.fY);
-    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*radii.fX + 
+    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*radii.fX +
                                    vm[SkMatrix::kMScaleY]*radii.fY);
     // tall or wide quarter-ellipse corners aren't handled
     if (SkScalarDiv(xRadius, yRadius) > 2 || SkScalarDiv(yRadius, xRadius) > 2) {
@@ -806,24 +806,24 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
     if (NULL == indexBuffer) {
         GrPrintf("Failed to create index buffer!\n");
         return false;
-    }    
-    
+    }
+
     // if the corners are circles, use the circle renderer
     if ((!isStroked || scaledStroke.fX == scaledStroke.fY) && xRadius == yRadius) {
         drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs));
         GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
-        
+
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
             return false;
         }
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
-        
+
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
         drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
-        
+
         SkScalar innerRadius = 0.0f;
         SkScalar outerRadius = xRadius;
         SkScalar halfWidth = 0;
@@ -833,24 +833,24 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
             } else {
                 halfWidth = SkScalarHalf(scaledStroke.fX);
             }
-            
+
             if (isStroked) {
                 innerRadius = SkMaxScalar(0, xRadius - halfWidth);
             }
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
         }
-        
+
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
         // verts of the bounding box that is rendered and the outset ensures the box will cover all
         // pixels partially covered by the circle.
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
-        
+
         // Expand the rect so all the pixels will be captured.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-        
+
         SkScalar yCoords[4] = {
             bounds.fTop,
             bounds.fTop + outerRadius,
@@ -869,34 +869,34 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
-            
+
             verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[i]);
             verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
-            
+
             verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[i]);
             verts->fOffset = SkPoint::Make(0, yOuterRadii[i]);
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
-            
+
             verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
             verts->fOffset = SkPoint::Make(outerRadius, yOuterRadii[i]);
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
         }
-        
+
         // drop out the middle quad if we're stroked
         int indexCnt = isStroked ? GR_ARRAY_COUNT(gRRectIndices)-6 : GR_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
         target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
-        
+
     // otherwise we use the special ellipse renderer
     } else {
-    
+
         drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs));
         GrAssert(sizeof(RRectVertex) == drawState->getVertexSize());
 
@@ -980,13 +980,12 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
             verts->fInnerRadii = SkPoint::Make(xInnerRadius, yInnerRadius);
             verts++;
         }
-     
+
         // drop out the middle quad if we're stroked
         int indexCnt = isStroked ? GR_ARRAY_COUNT(gRRectIndices)-6 : GR_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
         target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
     }
-        
+
     return true;
 }
-

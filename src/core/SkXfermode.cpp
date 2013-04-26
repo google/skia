@@ -1372,7 +1372,7 @@ GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
     do {
         mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
     } while (mode == SkXfermode::kHardLight_Mode);
-    
+
     static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode))));
     return CreateEffectRef(gEffect);
 }

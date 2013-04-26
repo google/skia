@@ -320,12 +320,12 @@ static void test_round_rect_iffy_parameters(skiatest::Reporter* reporter) {
 // Move a small box from the start position by (stepX, stepY) 'numSteps' times
 // testing for containment in 'rr' at each step.
 static void test_direction(skiatest::Reporter* reporter, const SkRRect &rr,
-                           SkScalar initX, int stepX, SkScalar initY, int stepY, 
+                           SkScalar initX, int stepX, SkScalar initY, int stepY,
                            int numSteps, const bool* contains) {
     SkScalar x = initX, y = initY;
     for (int i = 0; i < numSteps; ++i) {
-        SkRect test = SkRect::MakeXYWH(x, y, 
-                                       stepX ? SkIntToScalar(stepX) : SK_Scalar1, 
+        SkRect test = SkRect::MakeXYWH(x, y,
+                                       stepX ? SkIntToScalar(stepX) : SK_Scalar1,
                                        stepY ? SkIntToScalar(stepY) : SK_Scalar1);
         test.sort();
 
@@ -364,15 +364,15 @@ static void test_round_rect_contains_rect(skiatest::Reporter* reporter) {
         { -5, 35,  5, 45 }, // SW
         { -5, 15,  5, 20 }  // W
     };
-    
+
     for (int i = 0; i < kNumRRects; ++i) {
         for (size_t j = 0; j < SK_ARRAY_COUNT(easyOuts); ++j) {
             REPORTER_ASSERT(reporter, !rrects[i].contains(easyOuts[j]));
         }
     }
 
-    // Now test non-trivial containment. For each compass 
-    // point walk a 1x1 rect in from the edge  of the bounding 
+    // Now test non-trivial containment. For each compass
+    // point walk a 1x1 rect in from the edge  of the bounding
     // rect
     static const int kNumSteps = 15;
     bool answers[kNumRRects][8][kNumSteps] = {
@@ -389,8 +389,8 @@ static void test_round_rect_contains_rect(skiatest::Reporter* reporter) {
             { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
         },
         // for the circle we expect 6 blocks to be out on the
-        // corners (then the rest in) and only the first block 
-        // out on the vertical and horizontal axes (then 
+        // corners (then the rest in) and only the first block
+        // out on the vertical and horizontal axes (then
         // the rest in)
         {
             // circle
