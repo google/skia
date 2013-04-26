@@ -207,7 +207,7 @@ int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
                    SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
 
 // experimental
-struct SkRationalQuad {
+struct SkConic {
     SkPoint  fPts[3];
     SkScalar fW;
 
@@ -217,16 +217,16 @@ struct SkRationalQuad {
     }
 
     void evalAt(SkScalar t, SkPoint* pt) const;
-    void chopAt(SkScalar t, SkRationalQuad dst[2]) const;
-    void chop(SkRationalQuad dst[2]) const;
+    void chopAt(SkScalar t, SkConic dst[2]) const;
+    void chop(SkConic dst[2]) const;
 
     int computeQuadPOW2(SkScalar tol) const;
     int chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
     bool findXExtrema(SkScalar* t) const;
     bool findYExtrema(SkScalar* t) const;
-    bool chopAtXExtrema(SkRationalQuad dst[2]) const;
-    bool chopAtYExtrema(SkRationalQuad dst[2]) const;
+    bool chopAtXExtrema(SkConic dst[2]) const;
+    bool chopAtYExtrema(SkConic dst[2]) const;
 
     void computeTightBounds(SkRect* bounds) const;
     void computeFastBounds(SkRect* bounds) const;
