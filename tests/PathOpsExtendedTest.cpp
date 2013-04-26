@@ -449,7 +449,11 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     if (gShowPath) {
         showPath(path);
     }
-    Simplify(path, &out);
+    if (!Simplify(path, &out)) {
+        SkDebugf("%s did not expect failure\n", __FUNCTION__);
+        REPORTER_ASSERT(state.fReporter, 0);
+        return false;
+    }
     if (!gComparePaths) {
         return true;
     }
@@ -478,7 +482,11 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
     showPathData(path);
 #endif
     SkPath out;
-    Simplify(path, &out);
+    if (!Simplify(path, &out)) {
+        SkDebugf("%s did not expect failure\n", __FUNCTION__);
+        REPORTER_ASSERT(reporter, 0);
+        return false;
+    }
     SkBitmap bitmap;
     int result = comparePaths(reporter, path, out, bitmap);
     if (result && gPathStrAssert) {
@@ -496,7 +504,11 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
     showPathData(b);
 #endif
     SkPath out;
-    Op(a, b, shapeOp, &out);
+    if (!Op(a, b, shapeOp, &out) ) {
+        SkDebugf("%s did not expect failure\n", __FUNCTION__);
+        REPORTER_ASSERT(reporter, 0);
+        return false;
+    }
     SkPath pathOut, scaledPathOut;
     SkRegion rgnA, rgnB, openClip, rgnOut;
     openClip.setRect(-16000, -16000, 16000, 16000);
