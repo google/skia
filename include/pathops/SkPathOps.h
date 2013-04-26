@@ -21,19 +21,35 @@ enum SkPathOp {
     kReverseDifference_PathOp,  //!< subtract the first path from the op path
 };
 
-/**
-  *  Set this path to the result of applying the Op to this path and the
-  *  specified path: this = (this op operand). The resulting path will be constructed
-  *  from non-overlapping contours. The curve order is reduced where possible so that cubics may
-  *  be turned into quadratics, and quadratics maybe turned into lines.
-  */
-void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
+/** Set this path to the result of applying the Op to this path and the
+    specified path: this = (this op operand).
+    The resulting path will be constructed from non-overlapping contours.
+    The curve order is reduced where possible so that cubics may be turned 
+    into quadratics, and quadratics maybe turned into lines.
 
-/**
-  *  Set this path to a set of non-overlapping contours that describe the same
-  *  area as the original path. The curve order is reduced where possible so that cubics may
-  *  be turned into quadratics, and quadratics maybe turned into lines.
+    Returns true if operation was able to produce a result; 
+    otherwise, result is unmodified.
+
+    @param one The first operand (for difference, the minuend)
+    @param two The second operand (for difference, the subtrahend)
+    @param result The product of the operands. The result may be one of the
+                  inputs.
+    @return True if operation succeeded.
   */
-void Simplify(const SkPath& path, SkPath* result);
+bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
+
+/** Set this path to a set of non-overlapping contours that describe the
+    same area as the original path. 
+    The curve order is reduced where possible so that cubics may
+    be turned into quadratics, and quadratics maybe turned into lines.
+
+    Returns true if operation was able to produce a result; 
+    otherwise, result is unmodified.
+
+    @param path The path to simplify.
+    @param result The simplified path. The result may be the input.
+    @return True if simplification succeeded.
+  */
+bool Simplify(const SkPath& path, SkPath* result);
 
 #endif

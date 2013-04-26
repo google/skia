@@ -143,26 +143,27 @@ static bool bridgeXor(SkTDArray<SkOpContour*>& contourList, SkPathWriter* simple
 }
 
 // FIXME : add this as a member of SkPath
-void Simplify(const SkPath& path, SkPath* result) {
+bool Simplify(const SkPath& path, SkPath* result) {
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     gDebugSortCount = gDebugSortCountDefault;
 #endif
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    result->reset();
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
             : SkPath::kEvenOdd_FillType;
-    result->setFillType(fillType);
-    SkPathWriter simple(*result);
 
     // turn path into list of segments
     SkTArray<SkOpContour> contours;
     SkOpEdgeBuilder builder(path, contours);
-    builder.finish();
+    if (!builder.finish()) {
+        return false;
+    }
     SkTDArray<SkOpContour*> contourList;
     MakeContourList(contours, contourList, false, false);
     SkOpContour** currentPtr = contourList.begin();
+    result->setFillType(fillType);
+    result->reset();
     if (!currentPtr) {
-        return;
+        return true;
     }
     SkOpContour** listEnd = contourList.end();
     // find all intersections between segments
@@ -185,6 +186,7 @@ void Simplify(const SkPath& path, SkPath* result) {
     DebugShowActiveSpans(contourList);
 #endif
     // construct closed contours
+    SkPathWriter simple(*result);
     if (builder.xorMask() == kWinding_PathOpsMask ? bridgeWinding(contourList, &simple)
                 : !bridgeXor(contourList, &simple))
     {  // if some edges could not be resolved, assemble remaining fragments
@@ -193,5 +195,7 @@ void Simplify(const SkPath& path, SkPath* result) {
         SkPathWriter assembled(temp);
         Assemble(simple, &assembled);
         *result = *assembled.nativePath();
+        result->setFillType(fillType);
     }
+    return true;
 }

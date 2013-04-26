@@ -28,6 +28,7 @@
     '../tests/PathOpsQuadParameterizationTest.cpp',
     '../tests/PathOpsQuadReduceOrderTest.cpp',
     '../tests/PathOpsSimplifyDegenerateThreadedTest.cpp',
+    '../tests/PathOpsSimplifyFailTest.cpp',
     '../tests/PathOpsSimplifyQuadralateralsThreadedTest.cpp',
     '../tests/PathOpsSimplifyQuadThreadedTest.cpp',
     '../tests/PathOpsSimplifyRectThreadedTest.cpp',

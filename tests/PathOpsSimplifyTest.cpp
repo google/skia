@@ -3652,9 +3652,54 @@ static void testTriangles2(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+// A test this for this case:
+// contourA has two segments that are coincident
+// contourB has two segments that are coincident in the same place
+// each ends up with +2/0 pairs for winding count
+// since logic in OpSegment::addTCoincident doesn't transfer count (only increments/decrements)
+// can this be resolved to +4/0 ?
+static void testAddTCoincident1(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(1, 1);
+    path.lineTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 1);
+    path.lineTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 1);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+// test with implicit close
+static void testAddTCoincident2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(1, 1);
+    path.lineTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(1, 1);
+    path.moveTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 1);
+    path.lineTo(2, 0);
+    path.lineTo(2, 2);
+    path.lineTo(3, 1);
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testAddTCoincident2),
+    TEST(testAddTCoincident1),
     TEST(testTriangles2),
     TEST(testTriangles1),
     TEST(testQuadratic97),

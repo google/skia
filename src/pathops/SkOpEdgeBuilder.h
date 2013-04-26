@@ -16,13 +16,15 @@ class SkOpEdgeBuilder {
 public:
     SkOpEdgeBuilder(const SkPathWriter& path, SkTArray<SkOpContour>& contours)
         : fPath(path.nativePath())
-        , fContours(contours) {
+        , fContours(contours)
+        , fAllowOpenContours(true) {
         init();
     }
 
     SkOpEdgeBuilder(const SkPath& path, SkTArray<SkOpContour>& contours)
         : fPath(&path)
-        , fContours(contours) {
+        , fContours(contours)
+        , fAllowOpenContours(false) {
         init();
     }
 
@@ -38,23 +40,28 @@ public:
     }
 
     void addOperand(const SkPath& path);
-    void finish();
+    bool finish();
     void init();
 
 private:
+    bool close();
     int preFetch();
-    void walk();
+    bool walk();
 
     const SkPath* fPath;
-    SkTDArray<SkPoint> fPathPts;  // FIXME: point directly to path pts instead
-    SkTDArray<uint8_t> fPathVerbs;  // FIXME: remove
+    SkTDArray<SkPoint> fPathPts;
+    SkTDArray<uint8_t> fPathVerbs;
     SkOpContour* fCurrentContour;
     SkTArray<SkOpContour>& fContours;
     SkTDArray<SkPoint> fReducePts;  // segments created on the fly
     SkTDArray<int> fExtra;  // -1 marks new contour, > 0 offsets into contour
     SkPathOpsMask fXorMask[2];
+    const SkPoint* fFinalCurveStart;
+    const SkPoint* fFinalCurveEnd;
     int fSecondHalf;
     bool fOperand;
+    bool fAllowOpenContours;
+    bool fUnparseable;
 };
 
 #endif

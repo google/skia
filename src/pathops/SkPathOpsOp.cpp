@@ -226,7 +226,7 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
     {{ false, true }, { false, false }},  // rev diff
 };
 
-void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
     SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]
             ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
@@ -246,7 +246,9 @@ void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkOpEdgeBuilder builder(*minuend, contours);
     const int xorMask = builder.xorMask();
     builder.addOperand(*subtrahend);
-    builder.finish();
+    if (!builder.finish()) {
+        return false;
+    }
     result->reset();
     result->setFillType(fillType);
     const int xorOpMask = builder.xorMask();
@@ -255,7 +257,7 @@ void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
             xorOpMask == kEvenOdd_PathOpsMask);
     SkOpContour** currentPtr = contourList.begin();
     if (!currentPtr) {
-        return;
+        return true;
     }
     SkOpContour** listEnd = contourList.end();
     // find all intersections between segments
@@ -298,5 +300,7 @@ void Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
         SkPathWriter assembled(temp);
         Assemble(wrapper, &assembled);
         *result = *assembled.nativePath();
+        result->setFillType(fillType);
     }
+    return true;
 }
