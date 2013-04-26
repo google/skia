@@ -66,6 +66,9 @@ static void PathOpsSimplifyFailTest(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, result.getFillType() == SkPath::kWinding_FillType);
         reporter->bumpTestCount();
     }
+    if (sizeof(reporter) == 4) {
+        return;
+    }
     for (int index = 0; index < (int) (11 * finitePtsCount); ++index) {
         SkPath path;
         int f = (int) (index % finitePtsCount);
