@@ -1654,3 +1654,14 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
 void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
+
+/*
+ *  "High order approximation of conic sections by quadratic splines"
+ *      by Michael Floater, 1993
+ *
+ *  Max error between conic and simple quad is bounded by this equation
+ *
+ *  a <-- w - 1 (where w >= 0)
+ *  diff <-- a * (p0 - 2p1 + p2) / (4*(2 + a))
+ */
+
