@@ -25,6 +25,8 @@ OUTPUT_ACTUAL_SUBDIR=output-actual
 OUTPUT_EXPECTED_SUBDIR=output-expected
 CONFIGS="--config 8888 565"
 
+ENCOUNTERED_ANY_ERRORS=0
+
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
 # If there are any differences, a description is written to stdout and
@@ -38,7 +40,7 @@ function compare_directories {
   diff -r --exclude=.* $1 $2
   if [ $? != 0 ]; then
     echo "failed in: compare_directories $1 $2"
-    exit 1
+    ENCOUNTERED_ANY_ERRORS=1
   fi
 }
 
@@ -171,4 +173,9 @@ gm_test "--verbose --hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUT
 # Ignore some error types (including ExpectationsMismatch)
 gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignore-expectations-mismatch"
 
-echo "All tests passed."
+if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then
+  echo "All tests passed."
+  exit 0
+else
+  exit 1
+fi

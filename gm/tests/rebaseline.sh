@@ -4,9 +4,6 @@
 # gm self-tests.
 # Use with caution: are you sure the new results are actually correct?
 #
-# YOU MUST RE-RUN THIS UNTIL THE SELF-TESTS SUCCEED!
-# (It takes one run for each failing call to gm_test in run.sh)
-#
 # TODO: currently, this must be run on Linux to generate baselines that match
 # the ones on the housekeeper bot (which runs on Linux... see
 # http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1417/steps/RunGmSelfTests/logs/stdio )
@@ -64,11 +61,11 @@ SELFTEST_RESULT=$?
 echo
 if [ "$SELFTEST_RESULT" != "0" ]; then
   replace_expected_with_actual
-  echo "Self-tests still failing, you should probably run this again..."
-else
   svn_add_new_files
   svn_delete_old_files
-  echo "Self-tests succeeded this time, you should be done!"
+  echo "Rebaseline completed.  If you run run.sh now, it should succeed."
+else
+  echo "Self-tests succeeded, nothing to rebaseline."
 fi
 exit $SELFTEST_RESULT
 
