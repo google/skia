@@ -70,9 +70,9 @@ public:
      * @param matrix    The transformation from the old coord system in which geometry is specified
      *                  to the new one from which it will actually be drawn.
      */
-    void localCoordChange(const SkMatrix& matrix) { 
+    void localCoordChange(const SkMatrix& matrix) {
         if (fCoordChangeMatrixSet) {
-            fCoordChangeMatrix.preConcat(matrix); 
+            fCoordChangeMatrix.preConcat(matrix);
         } else {
             fCoordChangeMatrixSet = true;
             fCoordChangeMatrix = matrix;
@@ -205,11 +205,11 @@ public:
      * Gets the matrix representing all changes of coordinate system since the GrEffect was
      * installed in the stage.
      */
-    const SkMatrix& getCoordChangeMatrix() const { 
+    const SkMatrix& getCoordChangeMatrix() const {
         if (fCoordChangeMatrixSet) {
             return fCoordChangeMatrix;
         } else {
-            return SkMatrix::I();    
+            return SkMatrix::I();
         }
     }
 

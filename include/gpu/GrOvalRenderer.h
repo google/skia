@@ -43,9 +43,9 @@ private:
                     const SkStrokeRec& stroke);
 
     GrIndexBuffer* rRectIndexBuffer(GrGpu* gpu);
-    
+
     GrIndexBuffer* fRRectIndexBuffer;
-    
+
     typedef GrRefCnt INHERITED;
 };
 

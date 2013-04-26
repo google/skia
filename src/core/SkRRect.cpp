@@ -137,7 +137,7 @@ bool SkRRect::contains(SkScalar x, SkScalar y) const {
     return checkCornerContainment(x, y);
 }
 
-// This method determines if a point known to be inside the RRect's bounds is 
+// This method determines if a point known to be inside the RRect's bounds is
 // inside all the corners.
 bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     SkPoint canonicalPt; // (x,y) translated to one of the quadrants
