@@ -24,10 +24,10 @@ enum SkPathOp {
 /** Set this path to the result of applying the Op to this path and the
     specified path: this = (this op operand).
     The resulting path will be constructed from non-overlapping contours.
-    The curve order is reduced where possible so that cubics may be turned 
+    The curve order is reduced where possible so that cubics may be turned
     into quadratics, and quadratics maybe turned into lines.
 
-    Returns true if operation was able to produce a result; 
+    Returns true if operation was able to produce a result;
     otherwise, result is unmodified.
 
     @param one The first operand (for difference, the minuend)
@@ -39,11 +39,11 @@ enum SkPathOp {
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
 
 /** Set this path to a set of non-overlapping contours that describe the
-    same area as the original path. 
+    same area as the original path.
     The curve order is reduced where possible so that cubics may
     be turned into quadratics, and quadratics maybe turned into lines.
 
-    Returns true if operation was able to produce a result; 
+    Returns true if operation was able to produce a result;
     otherwise, result is unmodified.
 
     @param path The path to simplify.

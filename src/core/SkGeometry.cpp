@@ -1664,4 +1664,3 @@ void SkConic::computeFastBounds(SkRect* bounds) const {
  *  a <-- w - 1 (where w >= 0)
  *  diff <-- a * (p0 - 2p1 + p2) / (4*(2 + a))
  */
-
