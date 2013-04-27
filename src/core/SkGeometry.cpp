@@ -1543,21 +1543,32 @@ void SkConic::chop(SkConic dst[2]) const {
     dst[0].fW = dst[1].fW = subdivide_w_value(fW);
 }
 
+/*
+ *  "High order approximation of conic sections by quadratic splines"
+ *      by Michael Floater, 1993
+ */
+bool SkConic::computeErrorAsQuad(SkVector* err) const {
+    if (fW <= 0) {
+        return false;
+    }
+    SkScalar a = fW - 1;
+    SkScalar k = a / (4 * (2 + a));
+    err->set(k * (fPts[0].fX - 2 * fPts[1].fX + fPts[2].fX),
+             k * (fPts[0].fY - 2 * fPts[1].fY + fPts[2].fY));
+    return true;
+}
+
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    if (fW <= SK_ScalarNearlyZero) {
-        return 0;   // treat as a line
+    SkVector diff;
+    if (!this->computeErrorAsQuad(&diff)) {
+        return 0;
     }
 
-    tol = SkScalarAbs(tol);
-    SkScalar w = fW;
-    int i = 0;
-    for (; i < 8; ++i) {
-        if (SkScalarAbs(w - 1) <= tol) {
-            break;
-        }
-        w = subdivide_w_value(w);
-    }
-    return i;
+    // the error reduces by 4 with each subdivision, so return the subdivision
+    // count needed.
+    SkScalar error = diff.length() - SkScalarAbs(tol);
+    uint32_t ierr = (uint32_t)error;
+    return (33 - SkCLZ(ierr)) >> 1;
 }
 
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
@@ -1655,12 +1666,3 @@ void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
 
-/*
- *  "High order approximation of conic sections by quadratic splines"
- *      by Michael Floater, 1993
- *
- *  Max error between conic and simple quad is bounded by this equation
- *
- *  a <-- w - 1 (where w >= 0)
- *  diff <-- a * (p0 - 2p1 + p2) / (4*(2 + a))
- */
