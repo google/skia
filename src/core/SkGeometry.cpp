@@ -1665,4 +1665,3 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
 void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
-
