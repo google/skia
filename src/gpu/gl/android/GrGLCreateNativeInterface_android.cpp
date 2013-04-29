@@ -95,6 +95,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #else
         interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
 #endif
+#if GL_EXT_discard_framebuffer
+        interface->fDiscardFramebuffer = glDiscardFramebufferEXT;
+#endif
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;
         interface->fUniform1fv = glUniform1fv;

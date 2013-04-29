@@ -295,6 +295,15 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         }
     }
 
+    if (extensions.has("GL_EXT_discard_framebuffer")) {
+// FIXME: Remove this once Chromium is updated to provide this function
+#if 0
+        if (NULL == fDiscardFramebuffer) {
+            return false;
+        }
+#endif
+    }
+
     // FBO MSAA
     if (kDesktop_GrGLBinding == binding) {
         // GL 3.0 and the ARB extension have multisample + blit

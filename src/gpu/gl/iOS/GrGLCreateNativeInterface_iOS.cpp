@@ -85,6 +85,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #elif GL_EXT_texture_storage
         interface->fTexStorage2D = glTexStorage2DEXT;
 #endif
+#if GL_EXT_discard_framebuffer
+        interface->fDiscardFramebuffer = glDiscardFramebufferEXT;
+#endif
         interface->fTexParameteri = glTexParameteri;
         interface->fTexParameteriv = glTexParameteriv;
         interface->fTexSubImage2D = glTexSubImage2D;

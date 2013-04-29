@@ -236,6 +236,9 @@ public:
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
+    /// Is there support for discarding the frame buffer
+    bool discardFBSupport() const { return fDiscardFBSupport; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -311,6 +314,7 @@ private:
     bool fVertexArrayObjectSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
+    bool fDiscardFBSupport : 1;
 
     typedef GrDrawTargetCaps INHERITED;
 };
