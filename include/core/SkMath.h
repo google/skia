@@ -53,8 +53,11 @@ int SkCLZ_portable(uint32_t);
                 return 32;
             }
         }
-    #elif defined(SK_CPU_ARM)
-        #define SkCLZ(mask) __builtin_clz(mask)
+    #elif defined(SK_CPU_ARM) || defined(__GNUC__) || defined(__clang__)
+        static inline int SkCLZ(uint32_t mask) {
+            // __builtin_clz(0) is undefined, so we have to detect that case.
+            return mask ? __builtin_clz(mask) : 32;
+        }
     #else
         #define SkCLZ(x)    SkCLZ_portable(x)
     #endif
