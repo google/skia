@@ -996,7 +996,7 @@ public:
 
             // We don't try to optimize for this case at all
             if (NULL == inputColor) {
-                builder->fsCodeAppendf("\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
+                builder->fsCodeAppendf("\t\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
                 inputColor = "ones";
             }
 
@@ -1135,8 +1135,6 @@ public:
                               const char* final,
                               const char* src,
                               const char* dst) {
-            builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
-                                   final, dst, src);
             builder->fsCodeAppendf("\t\t%s.rgb = mix(2.0 * %s.rgb * %s.rgb, ",
                                    final, src, dst);
             builder->fsCodeAppendf("%s.aaa * %s.aaa - 2.0 * (%s.aaa - %s.rgb) * (%s.aaa - %s.rgb),",
