@@ -159,6 +159,13 @@ protected:
             m.setRotate(SkIntToScalar(30));
             fMatrices.push_back(m);
         }
+
+        {
+            // 90 degree rotation
+            SkMatrix m;
+            m.setRotate(SkIntToScalar(90));
+            fMatrices.push_back(m);
+        }
     }
 
     void makeRects() {
