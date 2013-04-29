@@ -374,7 +374,7 @@ private:
 class CLZBench : public SkBenchmark {
     enum {
         ARRAY = SkBENCHLOOP(1000),
-        LOOP = SkBENCHLOOP(1000),
+        LOOP = SkBENCHLOOP(5000),
     };
     uint32_t fData[ARRAY];
     bool fUsePortable;
