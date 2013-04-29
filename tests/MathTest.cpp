@@ -17,7 +17,7 @@ static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));
     REPORTER_ASSERT(reporter, 31 == SkCLZ(1));
     REPORTER_ASSERT(reporter, 1 == SkCLZ(1 << 30));
-    REPORTER_ASSERT(reporter, 0 == SkCLZ(~0UL));
+    REPORTER_ASSERT(reporter, 0 == SkCLZ(~0U));
     
     SkRandom rand;
     for (int i = 0; i < 1000; ++i) {
