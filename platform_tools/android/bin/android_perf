@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# android_perf: utility for running perf on an android device
+# 
+# The basic usage sequence is to run...
+#  1) perf record [gm/tests/bench] # runs profiler on specified app
+#  2) perf report # prints profiler results
+#  3) perf clean # cleans the temporary directory used to store results
+#
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PERF_CMD=$1
+
+source $SCRIPT_DIR/utils/setup_adb.sh
+
+if [ $(uname) == "Linux" ]; then
+    PERFHOST=$SCRIPT_DIR/linux/perfhost
+elif [ $(uname) == "Darwin" ]; then
+    PERFHOST=$SCRIPT_DIR/mac/perfhost
+else
+    echo "Could not automatically determine OS!"
+    exit 1;
+fi
+
+# We need the debug symbols from these files
+PERF_TMP_DIR=$(pwd)/android_perf_tmp
+
+TMP_SYS_BIN=$PERF_TMP_DIR/system/bin
+TMP_SYS_LIB=$PERF_TMP_DIR/system/lib
+TMP_APP_LIB=$PERF_TMP_DIR/data/data/com.skia/lib
+
+perf_setup() {
+
+    mkdir -p $TMP_SYS_BIN
+    mkdir -p $TMP_SYS_LIB
+    mkdir -p $TMP_APP_LIB
+
+    # setup symlinks to account for perf potentially looking elsewhere
+    mkdir -p $PERF_TMP_DIR/data/app-lib
+    $( cd $PERF_TMP_DIR/data/app-lib && ln -s ../data/com.skia/lib com.skia-1)
+    $( cd $PERF_TMP_DIR/data/app-lib && ln -s ../data/com.skia/lib com.skia-2)
+    
+    echo "Copying symbol files"
+    $ADB pull /system/bin/skia_launcher $TMP_SYS_BIN
+    $ADB pull /system/lib/libc.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libstlport.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libcutils.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libGLESv2.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libandroid.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libm.so $TMP_SYS_LIB
+    $ADB pull /system/lib/libz.so $TMP_SYS_LIB
+    
+    if [ $# -ge 2 ]
+    then
+        APP_NAME=$(basename $2)
+        $ADB pull /data/data/com.skia/lib/lib${APP_NAME}.so $TMP_APP_LIB
+    else 
+        $ADB pull /data/data/com.skia/lib/ $TMP_APP_LIB
+    fi
+    
+
+}
+
+perf_record() {
+
+    APP_NAME=$(basename $2)
+    # Collect extra arguments to be passed to the skia_launcher binary
+    shift # perf_cmd
+    shift # app_name
+    while (( "$#" )); do
+      APP_ARGS="$APP_ARGS $1"
+      shift
+    done
+
+    echo "Checking for skia_launcher app..."
+    if [ ! -f $TMP_SYS_BIN/skia_launcher ]
+    then
+        echo "Unable to find the skia_launcher on the device"
+        rm -rf $PERF_TMP_DIR
+        exit 1;
+    fi
+    
+    echo "Checking for $APP_NAME library..."
+    if [ ! -f $TMP_APP_LIB/lib$APP_NAME.so ]
+    then
+        echo "Unable to find the app's shared library on the device"
+        rm -rf $PERF_TMP_DIR
+        exit 1;
+    fi
+    
+    echo "Killing any running Skia processes."
+    $ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
+
+    echo "Starting application"
+    $ADB shell skia_launcher $APP_NAME $APP_ARGS &
+
+    # WE REALLY REALLY WANT TO BE ABLE TO PASS THE SKIA_LAUNCHER APP DIRECTLY TO
+    # PERF, BUT AT THIS POINT THE DATA FILE WE GET WHEN GOING THAT ROUTE IS UNABLE
+    # TO BE READ BY THE REPORTING TOOL
+    echo "Starting profiler"
+    APP_PID=$($ADB shell ps | grep skia_launcher | awk '{print $2}')
+    $ADB shell perf record -p ${APP_PID} sleep 70
+
+    $ADB pull /data/perf.data $PERF_TMP_DIR/perf.data
+
+    exit 0;
+}
+
+perf_report() {
+    # Collect extra arguments to be passed to the perfhost binary
+    while (( "$#" )); do
+      APP_ARGS="$APP_ARGS $1"
+      shift
+    done
+    
+    $PERFHOST report -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR $APP_ARGS
+}
+
+# Clean up
+perf_clean() {
+    rm -rf $PERF_TMP_DIR
+}
+
+case $PERF_CMD in
+  setup)
+      perf_setup $@
+      ;;
+  record)
+      perf_setup $@
+      perf_record $@
+      ;;
+  report)
+      perf_report
+      ;;
+  clean)
+      perf_clean
+      ;;
+    *)
+      echo -n "ERROR: unknown perf command ($PERF_CMD), valid values: "
+      echo "setup, record, report, clean"
+      exit 1;
+      ;;
+esac
+
+exit 0;
