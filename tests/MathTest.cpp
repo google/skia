@@ -22,6 +22,9 @@ static void test_clz(skiatest::Reporter* reporter) {
     SkRandom rand;
     for (int i = 0; i < 1000; ++i) {
         uint32_t mask = rand.nextU();
+        // need to get some zeros for testing, but in some obscure way so the
+        // compiler won't "see" that, and work-around calling the functions.
+        mask >>= (mask & 31);
         int intri = SkCLZ(mask);
         int porta = SkCLZ_portable(mask);
         REPORTER_ASSERT(reporter, intri == porta);
