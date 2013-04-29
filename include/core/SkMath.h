@@ -53,8 +53,8 @@ int SkCLZ_portable(uint32_t);
                 return 32;
             }
         }
-    #elif defined(SK_CPU_ARM) || defined(__GNUC__)
-        #define SkCLZ(x)    __builtin_clz(x)
+    #elif defined(SK_CPU_ARM)
+        #define SkCLZ(mask) __builtin_clz(mask)
     #else
         #define SkCLZ(x)    SkCLZ_portable(x)
     #endif
