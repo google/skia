@@ -59,15 +59,15 @@ private:
 class MathBenchU32 : public MathBench {
 public:
     MathBenchU32(void* param, const char name[]) : INHERITED(param, name) {}
-
+    
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
                               int count) = 0;
-
+    
     virtual void performTest(float* SK_RESTRICT dst,
-                              const float* SK_RESTRICT src,
-                              int count) SK_OVERRIDE {
+                             const float* SK_RESTRICT src,
+                             int count) SK_OVERRIDE {
         uint32_t* d = SkTCast<uint32_t*>(dst);
         const uint32_t* s = SkTCast<const uint32_t*>(src);
         this->performITest(d, s, count);
@@ -371,6 +371,66 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class CLZBench : public SkBenchmark {
+    enum {
+        ARRAY = SkBENCHLOOP(1000),
+        LOOP = SkBENCHLOOP(1000),
+    };
+    uint32_t fData[ARRAY];
+    bool fUsePortable;
+
+public:    
+    CLZBench(void* param, bool usePortable)
+        : INHERITED(param)
+        , fUsePortable(usePortable) {
+
+        SkRandom rand;
+        for (int i = 0; i < ARRAY; ++i) {
+            fData[i] = rand.nextU();
+        }
+        
+        if (fUsePortable) {
+            fName = "clz_portable";
+        } else {
+            fName = "clz_intrinsic";
+        }
+        fIsRendering = false;
+    }
+    
+    // just so the compiler doesn't remove our loops
+    virtual void process(int) {}
+    
+protected:
+    virtual void onDraw(SkCanvas*) {
+        int accum = 0;
+        
+        if (fUsePortable) {
+            for (int j = 0; j < LOOP; ++j) {
+                for (int i = 0; i < ARRAY; ++i) {
+                    accum += SkCLZ_portable(fData[i]);
+                }
+                this->process(accum);
+            }
+        } else {
+            for (int j = 0; j < LOOP; ++j) {
+                for (int i = 0; i < ARRAY; ++i) {
+                    accum += SkCLZ(fData[i]);
+                }
+                this->process(accum);
+            }
+        }
+    }
+    
+    virtual const char* onGetName() {
+        return fName;
+    }
+    
+private:
+    const char* fName;
+    
+    typedef SkBenchmark INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new NoOpMathBench(p); )
@@ -390,3 +450,5 @@ DEF_BENCH( return new IsFiniteBench(p, 5); )
 DEF_BENCH( return new FloorBench(p, false); )
 DEF_BENCH( return new FloorBench(p, true); )
 
+DEF_BENCH( return new CLZBench(p, false); )
+DEF_BENCH( return new CLZBench(p, true); )
