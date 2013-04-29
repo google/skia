@@ -861,6 +861,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fTexParameteriv = noOpGLTexParameteriv;
     interface->fTexSubImage2D = noOpGLTexSubImage2D;
     interface->fTexStorage2D = noOpGLTexStorage2D;
+    interface->fDiscardFramebuffer = noOpGLDiscardFramebuffer;
     interface->fUniform1f = noOpGLUniform1f;
     interface->fUniform1i = noOpGLUniform1i;
     interface->fUniform1fv = noOpGLUniform1fv;

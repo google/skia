@@ -1519,13 +1519,13 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
 
     if (fHWBoundRenderTarget != rt) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
-    #if GR_DEBUG
+#if GR_DEBUG
         GrGLenum status;
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
         }
-    #endif
+#endif
         fHWBoundRenderTarget = rt;
         const GrGLIRect& vp = rt->getViewport();
         if (fHWViewport != vp) {

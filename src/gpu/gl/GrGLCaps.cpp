@@ -43,6 +43,7 @@ void GrGLCaps::reset() {
     fVertexArrayObjectSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
+    fDiscardFBSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
@@ -76,6 +77,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
+    fDiscardFBSupport = caps.fDiscardFBSupport;
 
     return *this;
 }
@@ -193,6 +195,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
         fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
     }
+
+    fDiscardFBSupport = ctxInfo.hasExtension("GL_EXT_discard_framebuffer");
 
     if (kDesktop_GrGLBinding == binding) {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
@@ -548,4 +552,5 @@ void GrGLCaps::print() const {
     GrPrintf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     GrPrintf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
+    GrPrintf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
 }
