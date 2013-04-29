@@ -1135,12 +1135,16 @@ public:
                               const char* final,
                               const char* src,
                               const char* dst) {
-            builder->fsCodeAppendf("\t\t%s.rgb = mix(2.0 * %s.rgb * %s.rgb, ",
-                                   final, src, dst);
-            builder->fsCodeAppendf("%s.aaa * %s.aaa - 2.0 * (%s.aaa - %s.rgb) * (%s.aaa - %s.rgb),",
-                                   src, dst, dst, dst, src, src);
-            builder->fsCodeAppendf("vec3(greaterThan(2.0 * %s.rgb, %s.aaa)));\n",
-                                   src, src);
+            static const char kComponents[] = {'r', 'g', 'b'};
+            for (size_t i = 0; i < SK_ARRAY_COUNT(kComponents); ++i) {
+                char component = kComponents[i];
+                builder->fsCodeAppendf("\t\tif (2.0 * %s.%c <= %s.a) {\n", src, component, src);
+                builder->fsCodeAppendf("\t\t\t%s.%c = 2.0 * %s.%c * %s.%c;\n", final, component, src, component, dst, component);
+                builder->fsCodeAppend("\t\t} else {\n");
+                builder->fsCodeAppendf("\t\t\t%s.%c = %s.a * %s.a - 2.0 * (%s.a - %s.%c) * (%s.a - %s.%c);\n",
+                                       final, component, src, dst, dst, dst, component, src, src, component);
+                builder->fsCodeAppend("\t\t}\n");
+            }
             builder->fsCodeAppendf("\t\t%s.rgb += %s.rgb * (1.0 - %s.a) + %s.rgb * (1.0 - %s.a);\n",
                                    final, src, dst, dst, src);
         }
@@ -1367,10 +1371,7 @@ GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
                                     GrContext*,
                                     const GrDrawTargetCaps&,
                                     GrTexture*[]) {
-    int mode;
-    do {
-        mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
-    } while (mode == SkXfermode::kHardLight_Mode);
+    int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
     static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode))));
     return CreateEffectRef(gEffect);
