@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# android_kill_skia: kills any skia processes on the device.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source $SCRIPT_DIR/utils/setup_adb.sh
+
+if [ $(uname) == "Linux" ]; then
+    $ADB shell ps | grep skia | awk '{print $2}' | xargs -r $ADB shell kill
+elif [ $(uname) == "Darwin" ]; then
+    $ADB shell ps | grep skia | awk '{print $2}' | xargs $ADB shell kill
+else
+    echo "Could not automatically determine OS!"
+    exit 1;
+fi

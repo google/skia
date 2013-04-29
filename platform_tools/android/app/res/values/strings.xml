@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Skia Samples</string>
+    <string name="overview">Overview</string>
+    <string name="toggle_rendering">Toggle Rendering</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="fps">FPS</string>
+    <string name="tiling">Toggle Tiling</string>
+    <string name="bbox">Toggle SKP BBox</string>
+    <string name="save_to_pdf">Save to PDF</string>
+    <string name="save_failed">Save Failed</string>
+    <string name="file_saved">%s saved!</string>
+</resources>

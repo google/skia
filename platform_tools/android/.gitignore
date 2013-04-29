@@ -1,0 +1,11 @@
+/third_party/externals/
+/toolchains/
+.cproject
+.externalToolBuilders/
+.project
+.pydevproject
+app/.classpath
+app/.project
+app/bin/
+app/gen/
+app/lint.xml
