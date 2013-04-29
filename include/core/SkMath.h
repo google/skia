@@ -40,24 +40,12 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
 //! Returns the number of leading zero bits (0...32)
 int SkCLZ_portable(uint32_t);
 
-#ifndef SkCLZ
-    #if defined(_MSC_VER) && _MSC_VER >= 1400
-        #include <intrin.h>
+#if defined(SK_CPU_ARM)
+    #define SkCLZ(x)    __builtin_clz(x)
+#endif
 
-        static inline int SkCLZ(uint32_t mask) {
-            if (mask) {
-                DWORD index;
-                _BitScanReverse(&index, mask);
-                return index ^ 0x1F;
-            } else {
-                return 32;
-            }
-        }
-    #elif defined(SK_CPU_ARM) || defined(__GNUC__)
-        #define SkCLZ(x)    __builtin_clz(x)
-    #else
-        #define SkCLZ(x)    SkCLZ_portable(x)
-    #endif
+#ifndef SkCLZ
+    #define SkCLZ(x)    SkCLZ_portable(x)
 #endif
 
 /**
