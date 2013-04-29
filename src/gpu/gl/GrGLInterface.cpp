@@ -59,9 +59,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fClearStencil ||
         NULL == fColorMask ||
         NULL == fCompileShader ||
-#if 0  //  FIXME: Remove this once Chromium is updated to provide this function
         NULL == fCopyTexSubImage2D ||
-#endif
         NULL == fCreateProgram ||
         NULL == fCreateShader ||
         NULL == fCullFace ||
