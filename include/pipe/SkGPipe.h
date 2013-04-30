@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -11,8 +10,9 @@
 #ifndef SkGPipe_DEFINED
 #define SkGPipe_DEFINED
 
-#include "SkWriter32.h"
 #include "SkFlattenable.h"
+#include "SkPicture.h"
+#include "SkWriter32.h"
 
 class SkCanvas;
 
@@ -40,13 +40,20 @@ public:
     };
 
     void setCanvas(SkCanvas*);
+
+    /**
+     *  Set a function for decoding bitmaps that have encoded data.
+     */
+    void setBitmapDecoder(SkPicture::InstallPixelRefProc proc) { fProc = proc; }
+
     // data must be 4-byte aligned
     // length must be a multiple of 4
     Status playback(const void* data, size_t length, uint32_t playbackFlags = 0,
                     size_t* bytesRead = NULL);
 private:
-    SkCanvas*           fCanvas;
-    class SkGPipeState* fState;
+    SkCanvas*                       fCanvas;
+    class SkGPipeState*             fState;
+    SkPicture::InstallPixelRefProc  fProc;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -946,7 +946,10 @@ public:
         //@todo thudson 22 April 2011 when can we safely delete [] dst?
         storage.copyTo(dst);
         SkMemoryStream pictReadback(dst, streamSize);
-        SkPicture* retval = new SkPicture (&pictReadback);
+        bool success;
+        // Pass a decoding bitmap function so that the factory GM (which has an SkBitmap with
+        // encoded data) does not fail.
+        SkPicture* retval = new SkPicture (&pictReadback, &success, &SkImageDecoder::DecodeMemory);
         return retval;
     }
 
@@ -1037,7 +1040,9 @@ public:
                 setup_bitmap(gRec, size, &bitmap);
                 SkCanvas canvas(bitmap);
                 installFilter(&canvas);
-                PipeController pipeController(&canvas);
+                // Pass a decoding function so the factory GM (which has an SkBitmap
+                // with encoded data) will not fail playback.
+                PipeController pipeController(&canvas, &SkImageDecoder::DecodeMemory);
                 SkGPipeWriter writer;
                 SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
                                                              gPipeWritingFlagCombos[i].flags,
@@ -1076,7 +1081,7 @@ public:
                 setup_bitmap(gRec, size, &bitmap);
                 SkCanvas canvas(bitmap);
                 installFilter(&canvas);
-                TiledPipeController pipeController(bitmap);
+                TiledPipeController pipeController(bitmap, &SkImageDecoder::DecodeMemory);
                 SkGPipeWriter writer;
                 SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
                                                              gPipeWritingFlagCombos[i].flags,

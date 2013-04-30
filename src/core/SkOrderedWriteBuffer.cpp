@@ -145,20 +145,28 @@ bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
 }
 
 void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
+    // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
+    // right size.
+    this->writeInt(bitmap.width());
+    this->writeInt(bitmap.height());
+
     // Record information about the bitmap in one of three ways, in order of priority:
     // 1. If there is an SkBitmapHeap, store it in the heap. The client can avoid serializing the
-    //    bitmap entirely or serialize it later as desired.
-    // 2. Write an encoded version of the bitmap. Afterwards the width and height are written, so
-    //    a reader without a decoder can draw a dummy bitmap of the right size.
+    //    bitmap entirely or serialize it later as desired. A boolean value of true will be written
+    //    to the stream to signify that a heap was used.
+    // 2. Write an encoded version of the bitmap. After writing a boolean value of false, signifying
+    //    that a heap was not used, write the size of the encoded data. A non-zero size signifies
+    //    that encoded data was written.
     //    A. If the bitmap has an encoded representation, write it to the stream.
     //    B. If there is a function for encoding bitmaps, use it.
-    // 3. Call SkBitmap::flatten.
-    // For an encoded bitmap, write the size first. Otherwise store a 0 so the reader knows not to
-    // decode.
-    if (fBitmapHeap != NULL) {
+    // 3. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
+    //    not used, write a zero to signify that the data was not encoded.
+    bool useBitmapHeap = fBitmapHeap != NULL;
+    // Write a bool: true if the SkBitmapHeap is to be used, in which case the reader must use an
+    // SkBitmapHeapReader to read the SkBitmap. False if the bitmap was serialized another way.
+    this->writeBool(useBitmapHeap);
+    if (useBitmapHeap) {
         SkASSERT(NULL == fBitmapEncoder);
-        // Bitmap was not encoded. Record a zero, implying that the reader need not decode.
-        this->writeUInt(0);
         int32_t slot = fBitmapHeap->insert(bitmap);
         fWriter.write32(slot);
         // crbug.com/155875
@@ -180,7 +188,7 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
             // Write the length to indicate that the bitmap was encoded successfully, followed
             // by the actual data. This must match the case where fBitmapEncoder is used so the
             // reader need not know the difference.
-            this->writeUInt(data->size());
+            this->writeUInt(SkToU32(data->size()));
             fWriter.writePad(data->data(), data->size());
             encoded = true;
         }
@@ -194,7 +202,7 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
             // by the actual data. This must match the case where the original data is used so the
             // reader need not know the difference.
             size_t length = stream.getOffset();
-            this->writeUInt(length);
+            this->writeUInt(SkToU32(length));
             if (stream.read(fWriter.reservePad(length), 0, length)) {
                 encoded = true;
             } else {
@@ -203,11 +211,7 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
             }
         }
     }
-    if (encoded) {
-        // Write the width and height in case the reader does not have a decoder.
-        this->writeInt(bitmap.width());
-        this->writeInt(bitmap.height());
-    } else {
+    if (!encoded) {
         // Bitmap was not encoded. Record a zero, implying that the reader need not decode.
         this->writeUInt(0);
         bitmap.flatten(*this);
