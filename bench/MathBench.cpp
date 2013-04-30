@@ -59,12 +59,12 @@ private:
 class MathBenchU32 : public MathBench {
 public:
     MathBenchU32(void* param, const char name[]) : INHERITED(param, name) {}
-    
+
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
                               int count) = 0;
-    
+
     virtual void performTest(float* SK_RESTRICT dst,
                              const float* SK_RESTRICT src,
                              int count) SK_OVERRIDE {
@@ -379,7 +379,7 @@ class CLZBench : public SkBenchmark {
     uint32_t fData[ARRAY];
     bool fUsePortable;
 
-public:    
+public:
     CLZBench(void* param, bool usePortable)
         : INHERITED(param)
         , fUsePortable(usePortable) {
@@ -388,7 +388,7 @@ public:
         for (int i = 0; i < ARRAY; ++i) {
             fData[i] = rand.nextU();
         }
-        
+
         if (fUsePortable) {
             fName = "clz_portable";
         } else {
@@ -396,14 +396,14 @@ public:
         }
         fIsRendering = false;
     }
-    
+
     // just so the compiler doesn't remove our loops
     virtual void process(int) {}
-    
+
 protected:
     virtual void onDraw(SkCanvas*) {
         int accum = 0;
-        
+
         if (fUsePortable) {
             for (int j = 0; j < LOOP; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
@@ -420,14 +420,14 @@ protected:
             }
         }
     }
-    
+
     virtual const char* onGetName() {
         return fName;
     }
-    
+
 private:
     const char* fName;
-    
+
     typedef SkBenchmark INHERITED;
 };
 

@@ -159,8 +159,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexStorage2D(GrGLenum target,
                                                 GrGLsizei width,
                                                 GrGLsizei height);
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDiscardFramebuffer(GrGLenum target, 
-                                                      GrGLsizei numAttachments, 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDiscardFramebuffer(GrGLenum target,
+                                                      GrGLsizei numAttachments,
                                                       const GrGLenum* attachments);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexSubImage2D(GrGLenum target,

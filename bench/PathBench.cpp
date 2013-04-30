@@ -907,19 +907,19 @@ public:
         fRQ.fPts[2].set(100, 100);
         fRQ.fW = SkScalarCos(SK_ScalarPI/4);
     }
-    
+
 private:
     virtual const char* onGetName() SK_OVERRIDE {
         return "ratquad-chop-half";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkConic dst[2];
         for (int i = 0; i < N; ++i) {
             fRQ.chop(dst);
         }
     }
-    
+
     typedef SkBenchmark INHERITED;
 };
 
@@ -945,14 +945,14 @@ public:
         }
         fIsRendering = false;
     }
-    
+
 protected:
     enum {
         N = 20000,
         CONICS = 100
     };
     SkConic fConics[CONICS];
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -960,12 +960,12 @@ private:
 class ConicBench_ComputeError : public ConicBench {
 public:
     ConicBench_ComputeError(void* param) : INHERITED(param) {}
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "conic-compute-error";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkVector err;
         for (int i = 0; i < N; ++i) {
@@ -974,7 +974,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef ConicBench INHERITED;
 };
@@ -982,12 +982,12 @@ private:
 class ConicBench_asQuadTol : public ConicBench {
 public:
     ConicBench_asQuadTol(void* param) : INHERITED(param) {}
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "conic-asQuadTol";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         for (int i = 0; i < N; ++i) {
             for (int j = 0; j < CONICS; ++j) {
@@ -995,7 +995,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef ConicBench INHERITED;
 };
@@ -1008,7 +1008,7 @@ protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "conic-quadPow2";
     }
-    
+
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         for (int i = 0; i < N; ++i) {
             for (int j = 0; j < CONICS; ++j) {
@@ -1016,7 +1016,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef ConicBench INHERITED;
 };
@@ -1083,4 +1083,3 @@ DEF_BENCH( return new ConicBench_ChopHalf(p) )
 DEF_BENCH( return new ConicBench_ComputeError(p) )
 DEF_BENCH( return new ConicBench_asQuadTol(p) )
 DEF_BENCH( return new ConicBench_quadPow2(p) )
-

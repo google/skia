@@ -1,12 +1,12 @@
 # This GYP file stores the dependencies necessary to build Skia on the Android
 # platform. The OS doesn't provide many stable libraries as part of the
-# distribution so we have to build a few of them ourselves.  
+# distribution so we have to build a few of them ourselves.
 #
-# NOTE: We tried adding the gyp file to the android/ directory at the root of 
+# NOTE: We tried adding the gyp file to the android/ directory at the root of
 # the Skia repo, but that resulted in the generated makefiles being created
 # outside of the out directory. We may be able to move the bulk of this gyp
 # to the /android directory and put a simple shim here, but that has yet to be
-# tested. 
+# tested.
 
 {
   'variables': {
@@ -210,7 +210,7 @@
       'direct_dependent_settings': {
         'target_conditions': [
           # '_type' is an 'automatic variable' which is defined for any
-          # target which defines a key-value pair with 'type' as the key (so, 
+          # target which defines a key-value pair with 'type' as the key (so,
           # all of them).  Conditionals inside 'target_conditions' are evaluated
           # *after* all other definitions and conditionals are evaluated, so
           # we're guaranteed that '_type' will be defined when we get here.
@@ -239,7 +239,7 @@
       'direct_dependent_settings': {
         'target_conditions': [
           # '_type' is an 'automatic variable' which is defined for any
-          # target which defines a key-value pair with 'type' as the key (so, 
+          # target which defines a key-value pair with 'type' as the key (so,
           # all of them).  Conditionals inside 'target_conditions' are evaluated
           # *after* all other definitions and conditionals are evaluated, so
           # we're guaranteed that '_type' will be defined when we get here.
