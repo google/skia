@@ -27,6 +27,8 @@ public:
 
     virtual SkOrderedReadBuffer* getOrderedBinaryBuffer() SK_OVERRIDE { return this; }
 
+    void setPictureVersion(uint32_t version);
+
     SkReader32* getReader32() { return &fReader; }
 
     uint32_t size() { return fReader.size(); }
@@ -121,6 +123,7 @@ private:
     int                     fFactoryCount;
 
     SkPicture::InstallPixelRefProc fBitmapDecoder;
+    uint32_t fPictureVersion;
 
     typedef SkFlattenableReadBuffer INHERITED;
 };

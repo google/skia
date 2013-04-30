@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkErrorInternals.h"
 #include "SkPictureFlat.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
@@ -283,9 +283,13 @@ void SkPicture::initFromStream(SkStream* stream, bool* success, InstallPixelRefP
     SkPictInfo info;
 
     if (!stream->read(&info, sizeof(info))) {
+        SkErrorInternals::SetError(kParseError_SkError, "Failed to parse skp info.");
         return;
     }
-    if (PICTURE_VERSION != info.fVersion) {
+
+    if (info.fVersion < 10 || info.fVersion > PICTURE_VERSION) {
+        SkErrorInternals::SetError(kParseError_SkError, "skp version %d not supported.",
+                                   info.fVersion);
         return;
     }
 

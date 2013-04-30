@@ -23,6 +23,7 @@ SkOrderedReadBuffer::SkOrderedReadBuffer() : INHERITED() {
     fFactoryArray = NULL;
     fFactoryCount = 0;
     fBitmapDecoder = NULL;
+    fPictureVersion = SkPicture::PICTURE_VERSION;
 }
 
 SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) : INHERITED()  {
@@ -37,6 +38,7 @@ SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) : INHERI
     fFactoryArray = NULL;
     fFactoryCount = 0;
     fBitmapDecoder = NULL;
+    fPictureVersion = SkPicture::PICTURE_VERSION;
 }
 
 SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
@@ -53,6 +55,7 @@ SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
     fFactoryArray = NULL;
     fFactoryCount = 0;
     fBitmapDecoder = NULL;
+    fPictureVersion = SkPicture::PICTURE_VERSION;
 }
 
 SkOrderedReadBuffer::~SkOrderedReadBuffer() {
@@ -168,52 +171,88 @@ uint32_t SkOrderedReadBuffer::getArrayCount() {
     return *(uint32_t*)fReader.peek();
 }
 
+void SkOrderedReadBuffer::setPictureVersion(uint32_t version) {
+    SkASSERT(version <= SkPicture::PICTURE_VERSION);
+    fPictureVersion = version;
+}
+
 void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
-    const int width = this->readInt();
-    const int height = this->readInt();
-    // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
-    // writing.
-    if (this->readBool()) {
-        // An SkBitmapHeap was used for writing. Read the index from the stream and find the
-        // corresponding SkBitmap in fBitmapStorage.
-        const uint32_t index = fReader.readU32();
-        fReader.readU32(); // bitmap generation ID (see SkOrderedWriteBuffer::writeBitmap)
-        if (fBitmapStorage) {
-            *bitmap = *fBitmapStorage->getBitmap(index);
-            fBitmapStorage->releaseRef(index);
-            return;
-        } else {
-            // The bitmap was stored in a heap, but there is no way to access it. Set an error and
-            // fall through to use a place holder bitmap.
-            SkErrorInternals::SetError(kParseError_SkError, "SkOrderedWriteBuffer::writeBitmap "
-                                       "stored the SkBitmap in an SkBitmapHeap, but "
-                                       "SkOrderedReadBuffer has no SkBitmapHeapReader to "
-                                       "retrieve the SkBitmap.");
-        }
-    } else {
-        // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
+    if (10 == fPictureVersion) {
+        // Old code to read a bitmap in PICTURE_VERSION 10
         const size_t length = this->readUInt();
         if (length > 0) {
-            // A non-zero size means the SkBitmap was encoded.
+            // Bitmap was encoded.
             const void* data = this->skip(length);
+            const int width = this->readInt();
+            const int height = this->readInt();
             if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
                 SkASSERT(bitmap->width() == width && bitmap->height() == height);
+            } else {
+                // This bitmap was encoded when written, but we are unable to decode, possibly due to
+                // not having a decoder. Use a placeholder bitmap.
+                SkErrorInternals::SetError(kParseError_SkError,
+                                           "Could not decode bitmap. Resulting bitmap will be red.");
+                bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+                bitmap->allocPixels();
+                bitmap->eraseColor(SK_ColorRED);
+            }
+        } else {
+            if (fBitmapStorage) {
+                const uint32_t index = fReader.readU32();
+                fReader.readU32(); // bitmap generation ID (see SkOrderedWriteBuffer::writeBitmap)
+                *bitmap = *fBitmapStorage->getBitmap(index);
+                fBitmapStorage->releaseRef(index);
+            } else {
+                bitmap->unflatten(*this);
+            }
+        }
+    } else {
+        const int width = this->readInt();
+        const int height = this->readInt();
+        // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
+        // writing.
+        if (this->readBool()) {
+            // An SkBitmapHeap was used for writing. Read the index from the stream and find the
+            // corresponding SkBitmap in fBitmapStorage.
+            const uint32_t index = fReader.readU32();
+            fReader.readU32(); // bitmap generation ID (see SkOrderedWriteBuffer::writeBitmap)
+            if (fBitmapStorage) {
+                *bitmap = *fBitmapStorage->getBitmap(index);
+                fBitmapStorage->releaseRef(index);
+                return;
+            } else {
+                // The bitmap was stored in a heap, but there is no way to access it. Set an error and
+                // fall through to use a place holder bitmap.
+                SkErrorInternals::SetError(kParseError_SkError, "SkOrderedWriteBuffer::writeBitmap "
+                                           "stored the SkBitmap in an SkBitmapHeap, but "
+                                           "SkOrderedReadBuffer has no SkBitmapHeapReader to "
+                                           "retrieve the SkBitmap.");
+            }
+        } else {
+            // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
+            const size_t length = this->readUInt();
+            if (length > 0) {
+                // A non-zero size means the SkBitmap was encoded.
+                const void* data = this->skip(length);
+                if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
+                    SkASSERT(bitmap->width() == width && bitmap->height() == height);
+                    return;
+                }
+                // This bitmap was encoded when written, but we are unable to decode, possibly due to
+                // not having a decoder.
+                SkErrorInternals::SetError(kParseError_SkError,
+                                           "Could not decode bitmap. Resulting bitmap will be red.");
+            } else {
+                // A size of zero means the SkBitmap was simply flattened.
+                bitmap->unflatten(*this);
                 return;
             }
-            // This bitmap was encoded when written, but we are unable to decode, possibly due to
-            // not having a decoder.
-            SkErrorInternals::SetError(kParseError_SkError,
-                                       "Could not decode bitmap. Resulting bitmap will be red.");
-        } else {
-            // A size of zero means the SkBitmap was simply flattened.
-            bitmap->unflatten(*this);
-            return;
         }
+        // Could not read the SkBitmap. Use a placeholder bitmap.
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+        bitmap->allocPixels();
+        bitmap->eraseColor(SK_ColorRED);
     }
-    // Could not read the SkBitmap. Use a placeholder bitmap.
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bitmap->allocPixels();
-    bitmap->eraseColor(SK_ColorRED);
 }
 
 SkTypeface* SkOrderedReadBuffer::readTypeface() {
