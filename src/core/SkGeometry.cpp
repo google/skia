@@ -1547,32 +1547,36 @@ void SkConic::chop(SkConic dst[2]) const {
  *  "High order approximation of conic sections by quadratic splines"
  *      by Michael Floater, 1993
  */
-bool SkConic::computeErrorAsQuad(SkVector* err) const {
-    if (fW <= 0) {
-        return false;
-    }
-    SkScalar a = fW - 1;
-    SkScalar k = a / (4 * (2 + a));
-    err->set(k * (fPts[0].fX - 2 * fPts[1].fX + fPts[2].fX),
-             k * (fPts[0].fY - 2 * fPts[1].fY + fPts[2].fY));
-    return true;
+#define AS_QUAD_ERROR_SETUP                                         \
+    SkScalar a = fW - 1;                                            \
+    SkScalar k = a / (4 * (2 + a));                                 \
+    SkScalar x = k * (fPts[0].fX - 2 * fPts[1].fX + fPts[2].fX);    \
+    SkScalar y = k * (fPts[0].fY - 2 * fPts[1].fY + fPts[2].fY);
+
+void SkConic::computeAsQuadError(SkVector* err) const {
+    AS_QUAD_ERROR_SETUP
+    err->set(x, y);
+}
+
+bool SkConic::asQuadTol(SkScalar tol) const {
+    AS_QUAD_ERROR_SETUP
+    return (x * x + y * y) <= tol * tol;
 }
 
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    SkVector diff;
-    if (!this->computeErrorAsQuad(&diff)) {
+    AS_QUAD_ERROR_SETUP
+    SkScalar error = SkScalarSqrt(x * x + y * y) - tol;
+
+    if (error <= 0) {
         return 0;
     }
-
-    // the error reduces by 4 with each subdivision, so return the subdivision
-    // count needed.
-    SkScalar error = diff.length() - SkScalarAbs(tol);
     uint32_t ierr = (uint32_t)error;
-    return (33 - SkCLZ(ierr)) >> 1;
+    return (34 - SkCLZ(ierr)) >> 1;
 }
 
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     SkASSERT(level >= 0);
+
     if (0 == level) {
         memcpy(pts, &src.fPts[1], 2 * sizeof(SkPoint));
         return pts + 2;
@@ -1586,22 +1590,7 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
 }
 
 int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
-    if (pow2 < 0) {
-        return 0;
-    }
-    if (0 == pow2) {
-        memcpy(pts, fPts, 3 * sizeof(SkPoint));
-        return 1;
-    }
-    if (1 == pow2) {
-        SkConic dst[2];
-        this->chop(dst);
-        memcpy(pts, dst[0].fPts, 3 * sizeof(SkPoint));
-        pts += 3;
-        memcpy(pts, dst[1].fPts + 1, 2 * sizeof(SkPoint));
-        return 2;
-    }
-
+    SkASSERT(pow2 >= 0);
     *pts = fPts[0];
     SkDEBUGCODE(SkPoint* endPts =) subdivide(*this, pts + 1, pow2);
     SkASSERT(endPts - pts == (2 * (1 << pow2) + 1));
