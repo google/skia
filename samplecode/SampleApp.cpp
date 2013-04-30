@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -2203,6 +2204,7 @@ SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
     fStatus = SkGPipeReader::kDone_Status;
     fTotalWritten = 0;
     fAtomsWritten = 0;
+    fReader.setBitmapDecoder(&SkImageDecoder::DecodeMemory);
 }
 
 SimplePC::~SimplePC() {
@@ -2254,6 +2256,7 @@ void SampleView::draw(SkCanvas* canvas) {
         SkGPipeWriter writer;
         SimplePC controller(canvas);
         TiledPipeController tc(canvas->getDevice()->accessBitmap(false),
+                               &SkImageDecoder::DecodeMemory,
                                &canvas->getTotalMatrix());
         SkGPipeController* pc;
         if (SkOSMenu::kMixedState == fPipeState) {

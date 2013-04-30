@@ -12,10 +12,11 @@
 #include "SkGPipe.h"
 #include "SkMatrix.h"
 
-PipeController::PipeController(SkCanvas* target)
+PipeController::PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc)
 :fReader(target) {
     fBlock = NULL;
     fBlockSize = fBytesWritten = 0;
+    fReader.setBitmapDecoder(proc);
 }
 
 PipeController::~PipeController() {
@@ -40,8 +41,9 @@ void PipeController::notifyWritten(size_t bytes) {
 ////////////////////////////////////////////////////////////////////////////////
 
 TiledPipeController::TiledPipeController(const SkBitmap& bitmap,
+                                         SkPicture::InstallPixelRefProc proc,
                                          const SkMatrix* initial)
-: INHERITED(NULL) {
+: INHERITED(NULL, proc) {
     int32_t top = 0;
     int32_t bottom;
     int32_t height = bitmap.height() / NumberOfTiles;
@@ -65,6 +67,7 @@ TiledPipeController::TiledPipeController(const SkBitmap& bitmap,
             fReader.setCanvas(canvas);
         } else {
             fReaders[i - 1].setCanvas(canvas);
+            fReaders[i - 1].setBitmapDecoder(proc);
         }
         canvas->unref();
     }

@@ -124,7 +124,12 @@ public:
         }
     }
 
+    /**
+     * Add a bitmap to the array of bitmaps, or replace an existing one.
+     * This is only used when in cross process mode without a shared heap.
+     */
     void addBitmap(int index) {
+        SkASSERT(shouldFlattenBitmaps(fFlags));
         SkBitmap* bm;
         if(fBitmaps.count() == index) {
             bm = SkNEW(SkBitmap);
@@ -132,14 +137,16 @@ public:
         } else {
             bm = fBitmaps[index];
         }
-        bm->unflatten(*fReader);
+        fReader->readBitmap(bm);
     }
 
     /**
      * Override of SkBitmapHeapReader, so that SkOrderedReadBuffer can use
-     * these SkBitmaps for bitmap shaders.
+     * these SkBitmaps for bitmap shaders. Used only in cross process mode
+     * without a shared heap.
      */
     virtual SkBitmap* getBitmap(int32_t index) const SK_OVERRIDE {
+        SkASSERT(shouldFlattenBitmaps(fFlags));
         return fBitmaps[index];
     }
 
@@ -154,7 +161,12 @@ public:
         this->updateReader();
     }
 
+    /**
+     * Access the shared heap. Only used in the case when bitmaps are not
+     * flattened.
+     */
     SkBitmapHeap* getSharedHeap() const {
+        SkASSERT(!shouldFlattenBitmaps(fFlags));
         return fSharedHeap;
     }
 
@@ -772,12 +784,14 @@ SkGPipeState::~SkGPipeState() {
 SkGPipeReader::SkGPipeReader() {
     fCanvas = NULL;
     fState = NULL;
+    fProc = NULL;
 }
 
 SkGPipeReader::SkGPipeReader(SkCanvas* target) {
     fCanvas = NULL;
     this->setCanvas(target);
     fState = NULL;
+    fProc = NULL;
 }
 
 void SkGPipeReader::setCanvas(SkCanvas *target) {
@@ -805,6 +819,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
 
     const ReadProc* table = gReadTable;
     SkOrderedReadBuffer reader(data, length);
+    reader.setBitmapDecoder(fProc);
     SkCanvas* canvas = fCanvas;
     Status status = kEOF_Status;
 

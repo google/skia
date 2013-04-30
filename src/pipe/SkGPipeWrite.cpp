@@ -343,7 +343,7 @@ bool SkGPipeCanvas::shuttleBitmap(const SkBitmap& bm, int32_t slot) {
     SkASSERT(shouldFlattenBitmaps(fFlags));
     SkOrderedWriteBuffer buffer(1024);
     buffer.setNamedFactoryRecorder(fFactorySet);
-    bm.flatten(buffer);
+    buffer.writeBitmap(bm);
     this->flattenFactoryNames();
     uint32_t size = buffer.size();
     if (this->needOpBytes(size)) {

@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkChunkAlloc.h"
 #include "SkGPipe.h"
+#include "SkPicture.h"
 #include "SkTDArray.h"
 
 class SkCanvas;
@@ -15,7 +16,7 @@ class SkMatrix;
 
 class PipeController : public SkGPipeController {
 public:
-    PipeController(SkCanvas* target);
+    PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc = NULL);
     virtual ~PipeController();
     virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
@@ -33,7 +34,8 @@ private:
 
 class TiledPipeController : public PipeController {
 public:
-    TiledPipeController(const SkBitmap&, const SkMatrix* initialMatrix = NULL);
+    TiledPipeController(const SkBitmap&, SkPicture::InstallPixelRefProc proc = NULL,
+                        const SkMatrix* initialMatrix = NULL);
     virtual ~TiledPipeController() {};
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
     virtual int numberOfReaders() const SK_OVERRIDE { return NumberOfTiles; }
