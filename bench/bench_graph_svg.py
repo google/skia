@@ -20,7 +20,7 @@ MIN_REASONABLE_TIME = 0
 MAX_REASONABLE_TIME = 99999
 
 # Constants for prefixes in output title used in buildbot.
-TITLE_PREAMBLE = 'Bench_Performance_for_Skia_'
+TITLE_PREAMBLE = 'Bench_Performance_for_'
 TITLE_PREAMBLE_LENGTH = len(TITLE_PREAMBLE)
 
 def usage():
@@ -489,7 +489,7 @@ def main():
         time_to_ignore = None
 
     # The title flag (-l) provided in buildbot slave is in the format
-    # Bench_Performance_for_Skia_<platform>, and we want to extract <platform>
+    # Bench_Performance_for_<platform>, and we want to extract <platform>
     # for use in platform_and_alg to track matching benches later. If title flag
     # is not in this format, there may be no matching benches in the file
     # provided by the expectation_file flag (-e).
