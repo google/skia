@@ -40,11 +40,14 @@ BENCH_LB = 0.9
 # performance tunings.
 BENCH_ALLOWED_NOISE = 10
 
+# Name prefix for benchmark builders.
+BENCH_BUILDER_PREFIX = 'Perf-'
+
 # List of platforms to track. Feel free to change it to meet your needs.
-PLATFORMS = ['MacMini_10_8_Float_Bench_32',
-             'Nexus7_4-1_Float_Bench_32',
-             'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
-             'Shuttle_Win7_Intel_Float_Bench_32',
+PLATFORMS = ['Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release',
+             'Perf-Android-Nexus7-Tegra3-Arm7-Release',
+             'Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release',
+             'Perf-Win7-ShuttleA-HD2000-x86-Release',
             ]
 
 # Filter for configs of no interest. They are old config names replaced by more
@@ -94,17 +97,17 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
   uri = boto.storage_uri(URI_BUCKET, GOOGLE_STORAGE_URI_SCHEME)
   for obj in uri.get_bucket():
     # Filters out non-skp-bench files.
-    if ((not obj.name.startswith('perfdata/Skia_') and
-         not obj.name.startswith('playback/perfdata/Skia_')) or
+    if ((not obj.name.startswith('perfdata/%s' % BENCH_BUILDER_PREFIX) and
+         not obj.name.startswith(
+             'playback/perfdata/%s' % BENCH_BUILDER_PREFIX)) or
         obj.name.find('_data_skp_') < 0):
       continue
     # Ignores uninterested platforms.
     platform = obj.name.split('/')[1]
-    if not platform.startswith('Skia_'):
+    if not platform.startswith(BENCH_BUILDER_PREFIX):
       platform = obj.name.split('/')[2]
-    if not platform.startswith('Skia_'):
+    if not platform.startswith(BENCH_BUILDER_PREFIX):
       continue  # Ignores non-platform object
-    platform = platform[5:]  # Removes "Skia_" prefix.
     if platform not in PLATFORMS:
       continue
     # Filters by revision.
