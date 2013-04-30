@@ -126,7 +126,7 @@ void SkEvent::SignalQueueTimer(SkMSec ms)
         return;
     }
     env->CallVoidMethod(gWindowGlue.m_obj,
-    		gWindowGlue.m_startTimer, ms);
+            gWindowGlue.m_startTimer, ms);
 }
 
 void SkEvent::SignalNonEmptyQueue()
@@ -157,7 +157,7 @@ static jmethodID GetJMethod(JNIEnv* env, jclass clazz, const char name[],
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
         jobject thiz, jobject jsampleActivity)
 {
-	// setup jni hooks to the java activity
+    // setup jni hooks to the java activity
     gActivityGlue.m_env = env;
     jclass clazz = env->FindClass("com/skia/SkiaSampleActivity");
     gActivityGlue.m_obj = env->NewWeakGlobalRef(jsampleActivity);
@@ -246,19 +246,19 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_handleClick(JNIEnv* env,
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_nextSample(
         JNIEnv* env, jobject thiz)
 {
-	gWindow->nextSample();
+    gWindow->nextSample();
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_previousSample(
         JNIEnv* env, jobject thiz)
 {
-	gWindow->previousSample();
+    gWindow->previousSample();
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_goToSample(
         JNIEnv* env, jobject thiz, jint position)
 {
-	gWindow->goToSample(position);
+    gWindow->goToSample(position);
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_toggleRenderingMode(
@@ -320,5 +320,5 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_saveToPDF(
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_postInval(
         JNIEnv* env, jobject thiz)
 {
-    gWindow->postInvalDelay();    
+    gWindow->postInvalDelay();
 }
