@@ -33,7 +33,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # hack for x86 support in android_setup.sh
-if [ "$deviceID" == "x86" ]
+if [ "$deviceID" == "x86" ] || [ "$deviceID" == "razr_i" ]
 then
   ANDROID_ARCH="x86"
 fi
