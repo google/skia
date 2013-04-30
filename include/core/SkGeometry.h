@@ -220,13 +220,8 @@ struct SkConic {
     void chopAt(SkScalar t, SkConic dst[2]) const;
     void chop(SkConic dst[2]) const;
 
-    /**
-     *  Return the max difference between the conic and its framing quadratic
-     *  in err and return true. If the conic is degenerate (a line between
-     *  pts[0] and pts[2]) or has a negative weight, return false and ignore
-     *  the diff parameter.
-     */
-    bool computeErrorAsQuad(SkVector* err) const;
+    void computeAsQuadError(SkVector* err) const;
+    bool asQuadTol(SkScalar tol) const;
 
     int computeQuadPOW2(SkScalar tol) const;
     int chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
