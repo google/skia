@@ -71,7 +71,11 @@ protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         // fontdescriptors (and therefore serialization) don't yet understand
         // these new styles, so skip tests that exercise that for now.
-        return kSkipPicture_Flag | kSkipPipe_Flag;
+
+        // If certain fonts are picked up (e.g. Microsoft Jhenghei 20MB for Regular, 12MB for Bold),
+        // the resulting pdf can be ~700MB and crashes Chrome's PDF viewer.
+
+        return kSkipPicture_Flag | kSkipPipe_Flag | kSkipPDF_Flag;
     }
 
 private:
