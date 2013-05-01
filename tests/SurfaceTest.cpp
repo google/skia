@@ -146,6 +146,23 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
     surface->newImageSnapshot()->unref();  // Create and destroy SkImage
     canvas->clear(2);
 }
+
+static void TestGetTexture(skiatest::Reporter* reporter,
+                                 SurfaceType surfaceType,
+                                 GrContext* context) {
+    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    GrTexture* texture = image->getTexture();
+    if (surfaceType == kGpu_SurfaceType) {
+        REPORTER_ASSERT(reporter, NULL != texture);
+        REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
+    } else {
+        REPORTER_ASSERT(reporter, NULL == texture);
+    }
+    surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
+    REPORTER_ASSERT(reporter, image->getTexture() == texture);
+}
+
 static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
                                           SurfaceType surfaceType,
                                           GrContext* context,
@@ -185,6 +202,8 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
     TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
+    TestGetTexture(reporter, kRaster_SurfaceType, NULL);
+    TestGetTexture(reporter, kPicture_SurfaceType, NULL);
 #if SK_SUPPORT_GPU
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
@@ -192,6 +211,7 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
         TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
         TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
         TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
+        TestGetTexture(reporter, kGpu_SurfaceType, context);
     }
 #endif
 }

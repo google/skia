@@ -15,6 +15,7 @@ public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) = 0;
+    virtual GrTexture* onGetTexture() { return NULL; }
 
 private:
     typedef SkImage INHERITED;
