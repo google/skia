@@ -20,7 +20,9 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
         fm->getFamilyName(i, &fname);
         REPORTER_ASSERT(reporter, fname.size() > 0);
 
+        SkAutoTUnref<SkFontStyleSet> fnset(fm->matchFamily(fname.c_str()));
         SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+        REPORTER_ASSERT(reporter, fnset->count() == set->count());
 
         if (verbose) {
             SkDebugf("[%2d] %s\n", i, fname.c_str());

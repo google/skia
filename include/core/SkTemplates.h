@@ -295,11 +295,17 @@ private:
 
 template <size_t N, typename T> class SK_API SkAutoSTMalloc : SkNoncopyable {
 public:
+    SkAutoSTMalloc() {
+        fPtr = NULL;
+    }
+
     SkAutoSTMalloc(size_t count) {
-        if (count <= N) {
+        if (count > N) {
+            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        } else if (count) {
             fPtr = fTStorage;
         } else {
-            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            fPtr = NULL;
         }
     }
 
@@ -314,10 +320,12 @@ public:
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }
-        if (count <= N) {
+        if (count > N) {
+            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        } else if (count) {
             fPtr = fTStorage;
         } else {
-            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            fPtr = NULL;
         }
     }
 
