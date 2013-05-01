@@ -13,6 +13,16 @@
 #  export DOXYGEN_COMMIT=false
 #  bash update-doxygen.sh
 
+function check_out_docs {
+  svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
+  ret_code=$?
+  if [ $ret_code != 0 ]; then
+    # docs directory does not exist, skia-autogen must have been reset.
+    # Create a non svn docs directory instead.
+    mkdir docs
+  fi
+}
+
 # Prepare a temporary dir and check out Skia trunk and docs.
 cd
 DOXYGEN_TEMPDIR=${DOXYGEN_TEMPDIR:-/tmp/skia-doxygen}
@@ -28,11 +38,19 @@ else
 fi
 if [ -d "docs" ]; then
   svn update --accept theirs-full docs
+  svn info docs
+  ret_code=$?
+  if [ $ret_code != 0 ]; then
+    # This is not a valid SVN checkout.
+    rm -rf docs
+    check_out_docs
+  fi
 else
-  svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
+  check_out_docs
+fi
+
 if [ ! -f "docs/static_footer.txt" ]; then
   cp trunk/tools/doxygen_footer.txt docs/static_footer.txt
-fi
 fi
 
 # Run Doxygen.
