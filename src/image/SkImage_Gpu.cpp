@@ -21,6 +21,7 @@ public:
     virtual ~SkImage_Gpu();
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) SK_OVERRIDE;
+    virtual GrTexture* onGetTexture() SK_OVERRIDE;
 
     GrTexture* getTexture() { return fTexture; }
 
@@ -54,6 +55,10 @@ SkImage_Gpu::~SkImage_Gpu() {
 void SkImage_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                          const SkPaint* paint) {
     canvas->drawBitmap(fBitmap, x, y, paint);
+}
+
+GrTexture* SkImage_Gpu::onGetTexture() {
+    return fTexture;
 }
 
 void SkImage_Gpu::setTexture(GrTexture* texture) {
