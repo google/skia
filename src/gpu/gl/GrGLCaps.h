@@ -56,19 +56,27 @@ public:
         /**
          * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
          */
-        kDesktopARB_MSFBOType,
+        kDesktop_ARB_MSFBOType,
         /**
          * earlier GL_EXT_framebuffer* extensions
          */
-        kDesktopEXT_MSFBOType,
+        kDesktop_EXT_MSFBOType,
         /**
          * GL_APPLE_framebuffer_multisample ES extension
          */
-        kAppleES_MSFBOType,
+        kES_Apple_MSFBOType,
         /**
-         * GL_IMG_multisampled_render_to_texture
+         * GL_IMG_multisampled_render_to_texture. This variation does not have MSAA renderbuffers.
+         * Instead the texture is multisampled when bound to the FBO and then resolved automatically
+         * when read. It also defines an alternate value for GL_MAX_SAMPLES (which we call
+         * GR_GL_MAX_SAMPLES_IMG).
          */
-        kImaginationES_MSFBOType,
+        kES_IMG_MsToTexture_MSFBOType,
+        /**
+         * GL_EXT_multisampled_render_to_texture. Same as the IMG one above but uses the standard
+         * GL_MAX_SAMPLES value.
+         */
+        kES_EXT_MsToTexture_MSFBOType,
     };
 
     enum CoverageAAType {
@@ -143,6 +151,24 @@ public:
      * Reports the type of MSAA FBO support.
      */
     MSFBOType msFBOType() const { return fMSFBOType; }
+
+    /**
+     * Does the supported MSAA FBO extension have MSAA renderbuffers?
+     */
+    bool usesMSAARenderBuffers() const {
+        return kNone_MSFBOType != fMSFBOType &&
+               kES_IMG_MsToTexture_MSFBOType != fMSFBOType &&
+               kES_EXT_MsToTexture_MSFBOType != fMSFBOType;
+    }
+
+    /**
+     * Is the MSAA FBO extension one where the texture is multisampled when bound to an FBO and
+     * then implicitly resolved when read.
+     */
+    bool usesImplicitMSAAResolve() const {
+        return kES_IMG_MsToTexture_MSFBOType == fMSFBOType ||
+               kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
+    }
 
     /**
      * Reports the type of coverage sample AA support.

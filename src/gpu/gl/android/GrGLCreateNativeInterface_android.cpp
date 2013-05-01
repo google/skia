@@ -4,6 +4,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 
 #ifndef GL_GLEXT_PROTOTYPES
@@ -18,6 +19,10 @@
 const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
+        GrGLExtensions extensions;
+        if (!extensions.init(kES2_GrGLBinding, glGetString, NULL, glGetIntegerv)) {
+            return NULL;
+        }
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
         interface->fBindingsExported = kES2_GrGLBinding;
@@ -128,10 +133,23 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
         interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
         interface->fFramebufferTexture2D = glFramebufferTexture2D;
-#if GL_IMG_multisampled_render_to_texture
-        interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleIMG;
-        interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleIMG;
+        if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
+#if GL_EXT_multisampled_render_to_texture
+            interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleEXT;
+            interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleEXT;
+#else
+            interface->fFramebufferTexture2DMultisample = (GrGLFramebufferTexture2DMultisampleProc) eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
+            interface->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
 #endif
+        } else if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
+#if GL_IMG_multisampled_render_to_texture
+            interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleIMG;
+            interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleIMG;
+#else
+            interface->fFramebufferTexture2DMultisample = (GrGLFramebufferTexture2DMultisampleProc) eglGetProcAddress("glFramebufferTexture2DMultisampleIMG");
+            interface->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleIMG");
+#endif
+        }
         interface->fGenFramebuffers = glGenFramebuffers;
         interface->fGenRenderbuffers = glGenRenderbuffers;
         interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;

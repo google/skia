@@ -781,6 +781,10 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
 
     GrGLenum msColorFormat = 0; // suppress warning
 
+    if (desc->fSampleCnt > 0 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
+        goto FAILED;
+    }
+
     GL_CALL(GenFramebuffers(1, &desc->fTexFBOID));
     if (!desc->fTexFBOID) {
         goto FAILED;
@@ -791,10 +795,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
-    if (desc->fSampleCnt > 0 && GrGLCaps::kImaginationES_MSFBOType != this->glCaps().msFBOType()) {
-        if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
-            goto FAILED;
-        }
+    if (desc->fSampleCnt > 0 && this->glCaps().usesMSAARenderBuffers()) {
         GL_CALL(GenFramebuffers(1, &desc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &desc->fMSColorRenderbufferID));
         if (!desc->fRTFBOID ||
@@ -802,7 +803,9 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
             !this->configToGLFormats(desc->fConfig,
                                      // GLES requires sized internal formats
                                      kES2_GrGLBinding == this->glBinding(),
-                                     &msColorFormat, NULL, NULL)) {
+                                     &msColorFormat,
+                                     NULL,
+                                     NULL)) {
             goto FAILED;
         }
     } else {
@@ -836,7 +839,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     }
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fTexFBOID));
 
-    if (GrGLCaps::kImaginationES_MSFBOType == this->glCaps().msFBOType() && desc->fSampleCnt > 0) {
+    if (this->glCaps().usesImplicitMSAAResolve() && desc->fSampleCnt > 0) {
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 GR_GL_TEXTURE_2D,
@@ -1681,9 +1684,8 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, SkPath::FillType fill) {
 void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
-        // The IMG extension automatically resolves the texture when it is read.
-        if (GrGLCaps::kImaginationES_MSFBOType != this->glCaps().msFBOType()) {
-            GrAssert(GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType());
+        // Some extensions automatically resolves the texture when it is read.
+        if (this->glCaps().usesMSAARenderBuffers()) {
             GrAssert(rt->textureFBOID() != rt->renderFBOID());
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID()));
             GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID()));
@@ -1697,7 +1699,7 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
                             dirtyRect.width(), dirtyRect.height(), target->origin());
 
             GrAutoTRestore<ScissorState> asr;
-            if (GrGLCaps::kAppleES_MSFBOType == this->glCaps().msFBOType()) {
+            if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
                 asr.reset(&fScissorState);
                 fScissorState.fEnabled = true;
@@ -1705,9 +1707,8 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
                 this->flushScissor();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
-                if (GrGLCaps::kDesktopARB_MSFBOType != this->glCaps().msFBOType()) {
+                if (GrGLCaps::kDesktop_EXT_MSFBOType == this->glCaps().msFBOType()) {
                     // this respects the scissor during the blit, so disable it.
-                    GrAssert(GrGLCaps::kDesktopEXT_MSFBOType == this->glCaps().msFBOType());
                     asr.reset(&fScissorState);
                     fScissorState.fEnabled = false;
                     this->flushScissor();
@@ -2233,9 +2234,9 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
                                  const GrSurface* src,
                                  const GrGpuGL* gpu,
                                  bool* wouldNeedTempFBO = NULL) {
-    if (gpu->isConfigRenderable(dst->config()) && gpu->isConfigRenderable(src->config()) &&
-        (GrGLCaps::kDesktopEXT_MSFBOType == gpu->glCaps().msFBOType() ||
-         GrGLCaps::kDesktopARB_MSFBOType == gpu->glCaps().msFBOType())) {
+    if (gpu->isConfigRenderable(dst->config()) &&
+        gpu->isConfigRenderable(src->config()) &&
+        gpu->glCaps().usesMSAARenderBuffers()) {
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == dst->asRenderTarget() || NULL == src->asRenderTarget();
         }
@@ -2411,7 +2412,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                                     dst->origin());
 
             GrAutoTRestore<ScissorState> asr;
-            if (GrGLCaps::kDesktopEXT_MSFBOType == this->glCaps().msFBOType()) {
+            if (GrGLCaps::kDesktop_EXT_MSFBOType == this->glCaps().msFBOType()) {
                 // The EXT version applies the scissor during the blit, so disable it.
                 asr.reset(&fScissorState);
                 fScissorState.fEnabled = false;
