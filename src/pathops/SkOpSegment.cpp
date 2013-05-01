@@ -2237,7 +2237,7 @@ SkOpSegment* SkOpSegment::nextChase(int* index, const int step, int* min, SkOpSp
     const SkOpSpan& endSpan = fTs[end];
     SkOpSegment* other = endSpan.fOther;
     *index = endSpan.fOtherIndex;
-    SkASSERT(index >= 0);
+    SkASSERT(*index >= 0);
     int otherEnd = other->nextExactSpan(*index, step);
     SkASSERT(otherEnd >= 0);
     *min = SkMin32(*index, otherEnd);
