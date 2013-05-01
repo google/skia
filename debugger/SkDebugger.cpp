@@ -129,19 +129,3 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     overview->append("px");
 }
 
-#include "SkImageDecoder.h"
-
-void forceLinking();
-void forceLinking() {
-    // This function leaks, but that is okay because it is not intended
-    // to be called. It is only here so that the linker will include the
-    // decoders.
-    SkDEBUGCODE(SkImageDecoder *creator = ) CreateJPEGImageDecoder();
-    SkASSERT(creator);
-    SkDEBUGCODE(creator = ) CreateWEBPImageDecoder();
-    SkASSERT(creator);
-#if defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)
-    SkDEBUGCODE(creator = ) CreateGIFImageDecoder();
-    SkASSERT(creator);
-#endif
-}

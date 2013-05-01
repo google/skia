@@ -40,6 +40,9 @@
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_FactoryDefault.cpp',
         '../src/images/SkImageDecoder_FactoryRegistrar.cpp',
+        # If decoders are added/removed to/from (all/individual)
+        # platform(s), be sure to update SkImageDecoder.cpp:force_linking
+        # so the right decoders will be forced to link.
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
