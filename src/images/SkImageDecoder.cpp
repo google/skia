@@ -340,28 +340,26 @@ bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
     return success;
 }
 
-namespace {
-    /**
-     *  This function leaks, but that is okay because it is not intended
-     *  to be called. It is only here so that the linker will include the
-     *  decoders.
-     *  Make sure to keep it in sync with images.gyp, so only the encoders
-     *  which are created on a platform are linked.
-     */
-    void force_linking();
-    void force_linking() {
-        SkASSERT(false);
-        CreateJPEGImageDecoder();
-        CreateWEBPImageDecoder();
-        CreateBMPImageDecoder();
-        CreateICOImageDecoder();
-        CreateWBMPImageDecoder();
-        // Only link GIF and PNG on platforms that build them. See images.gyp
+/**
+ *  This function leaks, but that is okay because it is not intended
+ *  to be called. It is only here so that the linker will include the
+ *  decoders.
+ *  Make sure to keep it in sync with images.gyp, so only the encoders
+ *  which are created on a platform are linked.
+ */
+void force_linking();
+void force_linking() {
+    SkASSERT(false);
+    CreateJPEGImageDecoder();
+    CreateWEBPImageDecoder();
+    CreateBMPImageDecoder();
+    CreateICOImageDecoder();
+    CreateWBMPImageDecoder();
+    // Only link GIF and PNG on platforms that build them. See images.gyp
 #if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_NACL)
-        CreateGIFImageDecoder();
+    CreateGIFImageDecoder();
 #endif
 #if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_WIN)
-        CreatePNGImageDecoder();
+    CreatePNGImageDecoder();
 #endif
-    }
 }
