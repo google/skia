@@ -348,6 +348,7 @@ namespace {
      *  Make sure to keep it in sync with images.gyp, so only the encoders
      *  which are created on a platform are linked.
      */
+    void force_linking();
     void force_linking() {
         SkASSERT(false);
         CreateJPEGImageDecoder();
