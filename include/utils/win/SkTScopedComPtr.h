@@ -24,6 +24,13 @@ template<typename T> T* SkRefComPtr(T* ptr) {
     return ptr;
 }
 
+template<typename T> T* SkSafeRefComPtr(T* ptr) {
+    if (ptr) {
+        ptr->AddRef();
+    }
+    return ptr;
+}
+
 template<typename T>
 class SkTScopedComPtr : SkNoncopyable {
 private:

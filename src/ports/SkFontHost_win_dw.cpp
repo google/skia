@@ -229,9 +229,7 @@ public:
     SkAutoTUnref<SkStream> fStream;
 
 private:
-    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(stream) {
-        stream->ref();
-    }
+    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(SkRef(stream)) { }
 
     ULONG fRefCount;
 };
@@ -302,14 +300,11 @@ private:
 StreamFontFileEnumerator::StreamFontFileEnumerator(IDWriteFactory* factory,
                                                    IDWriteFontFileLoader* fontFileLoader)
     : fRefCount(1)
-    , fFactory(factory)
+    , fFactory(SkRefComPtr(factory))
     , fCurrentFile()
-    , fFontFileLoader(fontFileLoader)
+    , fFontFileLoader(SkRefComPtr(fontFileLoader))
     , fHasNext(true)
-{
-    factory->AddRef();
-    fontFileLoader->AddRef();
-}
+{ }
 
 HRESULT StreamFontFileEnumerator::QueryInterface(REFIID iid, void** ppvObject) {
     if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontFileEnumerator)) {
@@ -359,8 +354,7 @@ HRESULT StreamFontFileEnumerator::GetCurrentFontFile(IDWriteFontFile** fontFile)
         return E_FAIL;
     }
 
-    fCurrentFile.get()->AddRef();
-    *fontFile = fCurrentFile.get();
+    *fontFile = SkRefComPtr(fCurrentFile.get());
     return  S_OK;
 }
 
@@ -389,10 +383,8 @@ public:
 private:
     StreamFontCollectionLoader(IDWriteFontFileLoader* fontFileLoader)
         : fRefCount(1)
-        , fFontFileLoader(fontFileLoader)
-    {
-        fontFileLoader->AddRef();
-    }
+        , fFontFileLoader(SkRefComPtr(fontFileLoader))
+    { }
 
     ULONG fRefCount;
     SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;
@@ -457,22 +449,12 @@ private:
                        StreamFontFileLoader* fontFileLoader = NULL,
                        IDWriteFontCollectionLoader* fontCollectionLoader = NULL)
         : SkTypeface(style, fontID, false)
-        , fDWriteFontCollectionLoader(fontCollectionLoader)
-        , fDWriteFontFileLoader(fontFileLoader)
-        , fDWriteFontFamily(fontFamily)
-        , fDWriteFont(font)
-        , fDWriteFontFace(fontFace) {
-
-        if (fontCollectionLoader != NULL) {
-            fontCollectionLoader->AddRef();
-        }
-        if (fontFileLoader != NULL) {
-            fontFileLoader->AddRef();
-        }
-        fontFamily->AddRef();
-        font->AddRef();
-        fontFace->AddRef();
-    }
+        , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
+        , fDWriteFontFileLoader(SkSafeRefComPtr(fontFileLoader))
+        , fDWriteFontFamily(SkRefComPtr(fontFamily))
+        , fDWriteFont(SkRefComPtr(font))
+        , fDWriteFontFace(SkRefComPtr(fontFace))
+    { }
 
 public:
     SkTScopedComPtr<IDWriteFontCollectionLoader> fDWriteFontCollectionLoader;
@@ -732,8 +714,7 @@ void SkDWriteFontFromTypeface(const SkTypeface* face, IDWriteFont** font) {
     if (NULL == face) {
         HRVM(get_default_font(font), "Could not get default font.");
     } else {
-        *font = static_cast<const DWriteFontTypeface*>(face)->fDWriteFont.get();
-        (*font)->AddRef();
+        *font = SkRefComPtr(static_cast<const DWriteFontTypeface*>(face)->fDWriteFont.get());
     }
 }
 static DWriteFontTypeface* GetDWriteFontByID(SkFontID fontID) {
@@ -1090,41 +1071,91 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
 }
 
-static SkTypeface* create_from_stream(SkStream* stream) {
+template <typename T> class SkAutoIDWriteUnregister {
+public:
+    SkAutoIDWriteUnregister(IDWriteFactory* factory, T* unregister)
+        : fFactory(factory), fUnregister(unregister)
+    { }
+
+    ~SkAutoIDWriteUnregister() {
+        if (fUnregister) {
+            unregister(fFactory, fUnregister);
+        }
+    }
+
+    T* detatch() {
+        T* old = fUnregister;
+        fUnregister = NULL;
+        return old;
+    }
+
+private:
+    HRESULT unregister(IDWriteFactory* factory, IDWriteFontFileLoader* unregister) {
+        return factory->UnregisterFontFileLoader(unregister);
+    }
+
+    HRESULT unregister(IDWriteFactory* factory, IDWriteFontCollectionLoader* unregister) {
+        return factory->UnregisterFontCollectionLoader(unregister);
+    }
+
+    IDWriteFactory* fFactory;
+    T* fUnregister;
+};
+
+static SkTypeface* create_from_stream(SkStream* stream, int ttcIndex) {
     IDWriteFactory* factory;
     HRN(get_dwrite_factory(&factory));
 
     SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
     HRN(StreamFontFileLoader::Create(stream, &fontFileLoader));
     HRN(factory->RegisterFontFileLoader(fontFileLoader.get()));
+    SkAutoIDWriteUnregister<StreamFontFileLoader> autoUnregisterFontFileLoader(
+        factory, fontFileLoader.get());
 
-    SkTScopedComPtr<StreamFontCollectionLoader> streamFontCollectionLoader;
-    HRN(StreamFontCollectionLoader::Create(fontFileLoader.get(), &streamFontCollectionLoader));
-    HRN(factory->RegisterFontCollectionLoader(streamFontCollectionLoader.get()));
+    SkTScopedComPtr<StreamFontCollectionLoader> fontCollectionLoader;
+    HRN(StreamFontCollectionLoader::Create(fontFileLoader.get(), &fontCollectionLoader));
+    HRN(factory->RegisterFontCollectionLoader(fontCollectionLoader.get()));
+    SkAutoIDWriteUnregister<StreamFontCollectionLoader> autoUnregisterFontCollectionLoader(
+        factory, fontCollectionLoader.get());
 
-    SkTScopedComPtr<IDWriteFontCollection> streamFontCollection;
-    HRN(factory->CreateCustomFontCollection(streamFontCollectionLoader.get(), NULL, 0,
-                                            &streamFontCollection));
+    SkTScopedComPtr<IDWriteFontCollection> fontCollection;
+    HRN(factory->CreateCustomFontCollection(fontCollectionLoader.get(), NULL, 0, &fontCollection));
 
-    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    HRN(streamFontCollection->GetFontFamily(0, &fontFamily));
+    // Find the first non-simulated font which has the given ttc index.
+    UINT32 familyCount = fontCollection->GetFontFamilyCount();
+    for (UINT32 familyIndex = 0; familyIndex < familyCount; ++familyIndex) {
+        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+        HRN(fontCollection->GetFontFamily(familyIndex, &fontFamily));
 
-    SkTScopedComPtr<IDWriteFont> font;
-    HRN(fontFamily->GetFont(0, &font));
+        UINT32 fontCount = fontFamily->GetFontCount();
+        for (UINT32 fontIndex = 0; fontIndex < fontCount; ++fontIndex) {
+            SkTScopedComPtr<IDWriteFont> font;
+            HRN(fontFamily->GetFont(fontIndex, &font));
+            if (font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) {
+                continue;
+            }
 
-    SkTScopedComPtr<IDWriteFontFace> fontFace;
-    HRN(font->CreateFontFace(&fontFace));
+            SkTScopedComPtr<IDWriteFontFace> fontFace;
+            HRN(font->CreateFontFace(&fontFace));
 
-    return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get(),
-                                          fontFileLoader.get(), streamFontCollectionLoader.get());
+            UINT32 faceIndex = fontFace->GetIndex();
+            if (faceIndex == ttcIndex) {
+                return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get(),
+                                                      autoUnregisterFontFileLoader.detatch(),
+                                                      autoUnregisterFontCollectionLoader.detatch());
+            }
+        }
+    }
+
+    return NULL;
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    return create_from_stream(stream);
+    return create_from_stream(stream, 0);
 }
 
 SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
-    *ttcIndex = 0;
+    *ttcIndex = fDWriteFontFace->GetIndex();
 
     UINT32 numFiles;
     HRNM(fDWriteFontFace->GetFiles(&numFiles, NULL),
@@ -1190,20 +1221,9 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        SkTypeface::Style style) {
     HRESULT hr;
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    SkTScopedComPtr<IDWriteFontCollectionLoader> fontCollectionLoader;
-    SkTScopedComPtr<IDWriteFontFileLoader> fontFileLoader;
     if (familyFace) {
         const DWriteFontTypeface* face = static_cast<const DWriteFontTypeface*>(familyFace);
-        face->fDWriteFontFamily.get()->AddRef();
-        *(&fontFamily) = face->fDWriteFontFamily.get();
-
-        if (face->fDWriteFontCollectionLoader.get() != NULL) {
-            face->fDWriteFontCollectionLoader.get()->AddRef();
-            *(&fontCollectionLoader) = face->fDWriteFontCollectionLoader.get();
-
-            face->fDWriteFontFileLoader.get()->AddRef();
-            *(&fontFileLoader) = face->fDWriteFontFileLoader.get();
-        }
+        *(&fontFamily) = SkRefComPtr(face->fDWriteFontFamily.get());
 
     } else if (familyName) {
         hr = get_by_family_name(familyName, &fontFamily);
@@ -1349,13 +1369,12 @@ public:
         : fFontFace(fontFace)
         , fExists(FALSE) {
 
-        //fontFace->AddRef();
         const UINT32 tag = DWRITE_MAKE_OPENTYPE_TAG(T::TAG0,
                                                     T::TAG1,
                                                     T::TAG2,
                                                     T::TAG3);
-        // TODO: need to check for failure
-        /*HRESULT hr =*/ fontFace->TryGetFontTable(tag,
+        // Any errors are ignored, user must check fExists anyway.
+        fontFace->TryGetFontTable(tag,
             reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
     }
     ~AutoDWriteTable() {
@@ -1369,7 +1388,7 @@ public:
     UINT32 fSize;
     BOOL fExists;
 private:
-    //SkTScopedComPtr<IDWriteFontFace> fFontFace;
+    // Borrowed reference, the user must ensure the fontFace stays alive.
     IDWriteFontFace* fFontFace;
     void* fLock;
 };
@@ -1673,7 +1692,7 @@ protected:
         return sset.matchStyle(fontstyle);
     }
     virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) SK_OVERRIDE {
-        return create_from_stream(stream);
+        return create_from_stream(stream, ttcIndex);
     }
     virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
