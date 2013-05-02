@@ -13,6 +13,108 @@
 
 SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
+///////////////////////////////////////////////////////////////////////////////
+class GrGLAlignedRectEffect;
+
+// Axis Aligned special case
+class GrAlignedRectEffect : public GrEffect {
+public:
+    static GrEffectRef* Create() {
+        GR_CREATE_STATIC_EFFECT(gAlignedRectEffect, GrAlignedRectEffect, ());
+        gAlignedRectEffect->ref();
+        return gAlignedRectEffect;
+    }
+
+    virtual ~GrAlignedRectEffect() {}
+
+    static const char* Name() { return "AlignedRectEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrAlignedRectEffect>::getInstance();
+    }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            // setup the varying for the Axis aligned rect effect
+            //      xy -> interpolated offset
+            //      zw -> w/2+0.5, h/2+0.5
+            const char *vsRectName, *fsRectName;
+            builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
+            const SkString* attr0Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsRectName, attr0Name->c_str());
+
+            // TODO: compute these scale factors in the VS
+            // These scale factors adjust the coverage for < 1 pixel wide/high rects
+            builder->fsCodeAppendf("\tfloat wScale = max(1.0, 2.0/(0.5+%s.z));\n",
+                                   fsRectName);
+            builder->fsCodeAppendf("\tfloat hScale = max(1.0, 2.0/(0.5+%s.w));\n",
+                                   fsRectName);
+
+            // Compute the coverage for the rect's width
+            builder->fsCodeAppendf("\tfloat coverage = clamp(wScale*(%s.z-abs(%s.x)), 0.0, 1.0);\n",
+                                   fsRectName,
+                                   fsRectName);
+
+            // Compute the coverage for the rect's height and merge with the width
+            builder->fsCodeAppendf(
+                    "\tcoverage = min(coverage, clamp(hScale*(%s.w-abs(%s.y)), 0.0, 1.0));\n",
+                    fsRectName,
+                    fsRectName);
+
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "coverage");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return 0;
+        }
+
+        virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+
+private:
+    GrAlignedRectEffect() : GrEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+    }
+
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE { return true; }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+
+GR_DEFINE_EFFECT_TEST(GrAlignedRectEffect);
+
+GrEffectRef* GrAlignedRectEffect::TestCreate(SkMWCRandom* random,
+                                             GrContext* context,
+                                             const GrDrawTargetCaps&,
+                                             GrTexture* textures[]) {
+    return GrAlignedRectEffect::Create();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 class GrGLRectEffect;
 
 /**
@@ -257,10 +359,10 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
     return fAAStrokeRectIndexBuffer;
 }
 
-void GrAARectRenderer::fillAARect(GrGpu* gpu,
-                                  GrDrawTarget* target,
-                                  const GrRect& devRect,
-                                  bool useVertexCoverage) {
+void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
+                                          GrDrawTarget* target,
+                                          const GrRect& devRect,
+                                          bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
 
     set_aa_rect_vertex_attributes(drawState, useVertexCoverage);
@@ -311,6 +413,9 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     target->resetIndexSource();
 }
 
+namespace {
+
+// Rotated
 struct RectVertex {
     GrPoint fPos;
     GrPoint fCenter;
@@ -318,12 +423,24 @@ struct RectVertex {
     GrPoint fWidthHeight;
 };
 
-namespace {
-
+// Rotated
 extern const GrVertexAttrib gAARectVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
     { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
     { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
+};
+
+// Axis Aligned
+struct AARectVertex {
+    GrPoint fPos;
+    GrPoint fOffset;
+    GrPoint fWidthHeight;
+};
+
+// Axis Aligned
+extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
+    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
+    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
 };
 
 };
@@ -332,8 +449,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
                                         GrDrawTarget* target,
                                         const GrRect& rect,
                                         const SkMatrix& combinedMatrix,
-                                        const GrRect& devRect,
-                                        bool useVertexCoverage) {
+                                        const GrRect& devRect) {
     GrDrawState* drawState = target->drawState();
 
     SkPoint center = SkPoint::Make(rect.centerX(), rect.centerY());
@@ -345,15 +461,12 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
     // compute transformed (width, 0) and (0, height) vectors
     SkVector vec[2] = {
-      { combinedMatrix[SkMatrix::kMScaleX] * rect.width(),
-    combinedMatrix[SkMatrix::kMSkewY] * rect.width() },
-      { combinedMatrix[SkMatrix::kMSkewX] * rect.height(),
-    combinedMatrix[SkMatrix::kMScaleY] * rect.height() }
+      { combinedMatrix[SkMatrix::kMScaleX], combinedMatrix[SkMatrix::kMSkewY] },
+      { combinedMatrix[SkMatrix::kMSkewX],  combinedMatrix[SkMatrix::kMScaleY] }
     };
 
-    SkScalar newWidth = vec[0].length() / 2.0f + 0.5f;
-    SkScalar newHeight = vec[1].length() / 2.0f + 0.5f;
-
+    SkScalar newWidth = SkScalarHalf(rect.width() * vec[0].length()) + SK_ScalarHalf;
+    SkScalar newHeight = SkScalarHalf(rect.height() * vec[1].length()) + SK_ScalarHalf;
     drawState->setVertexAttribs<gAARectVertexAttribs>(SK_ARRAY_COUNT(gAARectVertexAttribs));
     GrAssert(sizeof(RectVertex) == drawState->getVertexSize());
 
@@ -401,6 +514,69 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
     target->resetIndexSource();
 }
 
+void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
+                                               GrDrawTarget* target,
+                                               const GrRect& rect,
+                                               const SkMatrix& combinedMatrix,
+                                               const GrRect& devRect) {
+    GrDrawState* drawState = target->drawState();
+    SkASSERT(combinedMatrix.rectStaysRect());
+
+    drawState->setVertexAttribs<gAAAARectVertexAttribs>(SK_ARRAY_COUNT(gAAAARectVertexAttribs));
+    GrAssert(sizeof(AARectVertex) == drawState->getVertexSize());
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
+
+    AARectVertex* verts = reinterpret_cast<AARectVertex*>(geo.vertices());
+
+    enum {
+        // the edge effects share this stage with glyph rendering
+        // (kGlyphMaskStage in GrTextContext) && SW path rendering
+        // (kPathMaskStage in GrSWMaskHelper)
+        kEdgeEffectStage = GrPaint::kTotalStages,
+    };
+
+    GrEffectRef* effect = GrAlignedRectEffect::Create();
+    static const int kOffsetIndex = 1;
+    drawState->setEffect(kEdgeEffectStage, effect, kOffsetIndex)->unref();
+
+    SkRect devBounds = {
+        devRect.fLeft   - SK_ScalarHalf,
+        devRect.fTop    - SK_ScalarHalf,
+        devRect.fRight  + SK_ScalarHalf,
+        devRect.fBottom + SK_ScalarHalf
+    };
+
+    GrPoint widthHeight = {
+        SkScalarHalf(devRect.width()) + SK_ScalarHalf,
+        SkScalarHalf(devRect.height()) + SK_ScalarHalf
+    };
+
+    verts[0].fPos = SkPoint::Make(devBounds.fLeft, devBounds.fTop);
+    verts[0].fOffset = SkPoint::Make(-widthHeight.fX, -widthHeight.fY);
+    verts[0].fWidthHeight = widthHeight;
+
+    verts[1].fPos = SkPoint::Make(devBounds.fLeft, devBounds.fBottom);
+    verts[1].fOffset = SkPoint::Make(-widthHeight.fX, widthHeight.fY);
+    verts[1].fWidthHeight = widthHeight;
+
+    verts[2].fPos = SkPoint::Make(devBounds.fRight, devBounds.fBottom);
+    verts[2].fOffset = widthHeight;
+    verts[2].fWidthHeight = widthHeight;
+
+    verts[3].fPos = SkPoint::Make(devBounds.fRight, devBounds.fTop);
+    verts[3].fOffset = SkPoint::Make(widthHeight.fX, -widthHeight.fY);
+    verts[3].fWidthHeight = widthHeight;
+
+    target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6);
+    target->resetIndexSource();
+}
+
 void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     GrDrawTarget* target,
                                     const GrRect& devRect,
@@ -423,7 +599,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     if (spare <= 0) {
         GrRect r(devRect);
         r.inset(-rx, -ry);
-        this->fillAARect(gpu, target, r, useVertexCoverage);
+        this->fillAARect(gpu, target, r, SkMatrix::I(), r, useVertexCoverage);
         return;
     }
 
