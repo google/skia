@@ -140,7 +140,14 @@ const SkString& Test::GetResourcePath() {
     return gResourcePath;
 }
 
-DEFINE_string2(match, m, NULL, "substring of test name to run.");
+DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n" \
+                               "Multiple matches may be separated by spaces.\n" \
+                               "~ causes a matching test to always be skipped\n" \
+                               "^ requires the start of the test to match\n" \
+                               "$ requires the end of the test to match\n" \
+                               "^ and $ requires an exact match\n" \
+                               "If a test does not match any list entry,\n" \
+                               "it is skipped unless some list entry starts with ~");
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
@@ -168,8 +175,42 @@ private:
     int32_t* fFailCount;
 };
 
+/* Takes a list of the form [~][^]match[$]
+   ~ causes a matching test to always be skipped
+   ^ requires the start of the test to match
+   $ requires the end of the test to match
+   ^ and $ requires an exact match
+   If a test does not match any list entry, it is skipped unless some list entry starts with ~
+ */
 static bool shouldSkip(const char* testName) {
-    return !FLAGS_match.isEmpty() && !strstr(testName, FLAGS_match[0]);
+    int count = FLAGS_match.count();
+    size_t testLen = strlen(testName);
+    bool anyExclude = false;
+    for (int index = 0; index < count; ++index) {
+        const char* matchName = FLAGS_match[index];
+        size_t matchLen = strlen(matchName);
+        bool matchExclude, matchStart, matchEnd;
+        if ((matchExclude = matchName[0] == '~')) {
+            anyExclude = true;
+            matchName++;
+            matchLen--;
+        }
+        if ((matchStart = matchName[0] == '^')) {
+            matchName++;
+            matchLen--;
+        }
+        if ((matchEnd = matchName[matchLen - 1] == '$')) {
+            matchLen--;
+        }
+        if (matchStart ? (!matchEnd || matchLen == testLen)
+                && strncmp(testName, matchName, matchLen) == 0
+                : matchEnd ? matchLen <= testLen
+                && strncmp(testName + testLen - matchLen, matchName, matchLen) == 0
+                : strstr(testName, matchName) != 0) {
+            return matchExclude;
+        }
+    }
+    return !anyExclude;
 }
 
 int tool_main(int argc, char** argv);
@@ -193,7 +234,10 @@ int tool_main(int argc, char** argv) {
     {
         SkString header("Skia UnitTests:");
         if (!FLAGS_match.isEmpty()) {
-            header.appendf(" --match %s", FLAGS_match[0]);
+            header.appendf(" --match");
+            for (int index = 0; index < FLAGS_match.count(); ++index) {
+                header.appendf(" %s", FLAGS_match[index]);
+            }
         }
         if (!gTmpDir.isEmpty()) {
             header.appendf(" --tmpDir %s", gTmpDir.c_str());
