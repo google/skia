@@ -128,4 +128,3 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     overview->appendS32(pictureHeight());
     overview->append("px");
 }
-
