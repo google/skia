@@ -40,6 +40,8 @@ public:
 
     void reset() { fStrings.reset(); }
 
+    void print(const char* sep = "\n") const;
+
 private:
     SkTArray<SkString> fStrings;
 };

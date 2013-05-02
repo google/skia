@@ -49,10 +49,10 @@ public:
     GrGLVendor vendor() const { return fVendor; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps; }
+    const GrGLExtensions& extensions() const { return fExtensions; }
 
     /**
-     * Checks for extension support using a cached copy of the GL_EXTENSIONS
-     * string.
+     * Shortcut for extensions().has(ext);
      */
     bool hasExtension(const char* ext) const {
         if (!this->isInitialized()) {

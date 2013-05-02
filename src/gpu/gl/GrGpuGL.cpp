@@ -161,8 +161,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     GrGLClearErr(fGLContext.interface());
 
     if (gPrintStartupSpew) {
-        const GrGLubyte* ext;
-        GL_CALL_RET(ext, GetString(GR_GL_EXTENSIONS));
         const GrGLubyte* vendor;
         const GrGLubyte* renderer;
         const GrGLubyte* version;
@@ -174,7 +172,9 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ VENDOR %s\n", vendor);
         GrPrintf("------ RENDERER %s\n", renderer);
         GrPrintf("------ VERSION %s\n",  version);
-        GrPrintf("------ EXTENSIONS\n %s \n", ext);
+        GrPrintf("------ EXTENSIONS\n");
+        ctx.info().extensions().print();
+        GrPrintf("\n");
         ctx.info().caps()->print();
     }
 
