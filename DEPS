@@ -18,6 +18,15 @@ deps = {
   "third_party/externals/libwebp" : "http://src.chromium.org/svn/trunk/src/third_party/libwebp@186718",
 }
 
+deps_os = {
+  "android": {
+    "platform_tools/android/third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git",
+    "platform_tools/android/third_party/externals/gif" : "https://android.googlesource.com/platform/external/giflib.git",
+    "platform_tools/android/third_party/externals/png" : "https://android.googlesource.com/platform/external/libpng.git",
+    "platform_tools/android/third_party/externals/jpeg" : "https://android.googlesource.com/platform/external/jpeg.git",
+  },
+}
+
 #hooks = [
 #  {
 #    # A change to a .gyp, .gypi, or to GYP itself should run the generator.

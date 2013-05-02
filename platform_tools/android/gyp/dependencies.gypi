@@ -223,7 +223,7 @@
         ],
       },
       'sources': [
-        '../../android/app/jni/com_skia_SkiaIntentService.cpp',
+        '../app/jni/com_skia_SkiaIntentService.cpp',
       ],
     },
     {
@@ -251,7 +251,7 @@
           }],
         ],
         'sources': [
-          '../../android/app/jni/com_skia_SkiaSampleRenderer.cpp',
+          '../app/jni/com_skia_SkiaSampleRenderer.cpp',
         ],
       },
 
