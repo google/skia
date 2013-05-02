@@ -191,7 +191,7 @@
         '<(skia_src_path)/image/SkDataPixelRef.cpp',
         '<(skia_src_path)/image/SkImage.cpp',
         '<(skia_src_path)/image/SkImagePriv.cpp',
-        '<(skia_src_path)/image/SkImage_Codec.cpp',
+#        '<(skia_src_path)/image/SkImage_Codec.cpp',
 #        '<(skia_src_path)/image/SkImage_Gpu.cpp',
         '<(skia_src_path)/image/SkImage_Picture.cpp',
         '<(skia_src_path)/image/SkImage_Raster.cpp',
