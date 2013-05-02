@@ -98,7 +98,20 @@ struct SkMask {
         uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
-
+    
+    /**
+     *  Return the address of the specified 32bit mask. In the debug build,
+     *  this asserts that the mask's format is 32bits, and that (x,y)
+     *  are contained in the mask's fBounds.
+     */
+    uint32_t* getAddr32(int x, int y) const {
+        SkASSERT(kLCD32_Format == fFormat || kARGB32_Format == fFormat);
+        SkASSERT(fBounds.contains(x, y));
+        SkASSERT(fImage != NULL);
+        uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
+        return row + (x - fBounds.fLeft);
+    }
+    
     /**
      *  Returns the address of the specified pixel, computing the pixel-size
      *  at runtime based on the mask format. This will be slightly slower than
