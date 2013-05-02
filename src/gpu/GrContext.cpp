@@ -807,14 +807,9 @@ void GrContext::drawRect(const GrPaint& paint,
                                           strokeSize, useVertexCoverage);
         } else {
             // filled AA rect
-#ifdef SHADER_AA_FILL_RECT
-            fAARectRenderer->shaderFillAARect(this->getGpu(), target,
-                                              rect, combinedMatrix, devRect,
-                                              useVertexCoverage);
-#else
             fAARectRenderer->fillAARect(this->getGpu(), target,
-                                        devRect, useVertexCoverage);
-#endif
+                                        rect, combinedMatrix, devRect,
+                                        useVertexCoverage);
         }
         return;
     }

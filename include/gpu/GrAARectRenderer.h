@@ -38,19 +38,25 @@ public:
     // TODO: potentialy fuse the fill & stroke methods and differentiate
     // between them by passing in strokeWidth (<0 means fill).
 
-    // TODO: Remove the useVertexCoverage boolean. Just use it all the time
-    // since we now have a coverage vertex attribute
     void fillAARect(GrGpu* gpu,
                     GrDrawTarget* target,
+                    const GrRect& rect,
+                    const SkMatrix& combinedMatrix,
                     const GrRect& devRect,
-                    bool useVertexCoverage);
-
-    void shaderFillAARect(GrGpu* gpu,
-                          GrDrawTarget* target,
-                          const GrRect& rect,
-                          const SkMatrix& combinedMatrix,
-                          const GrRect& devRect,
-                          bool useVertexCoverage);
+                    bool useVertexCoverage) {
+#ifdef SHADER_AA_FILL_RECT
+        if (combinedMatrix.rectStaysRect()) {
+            this->shaderFillAlignedAARect(gpu, target,
+                                          combinedMatrix, devRect);
+        } else {
+            this->shaderFillAARect(gpu, target,
+                                   rect, combinedMatrix, devRect);
+        }
+#else
+        this->geometryFillAARect(gpu, target,
+                                 devRect, useVertexCoverage);
+#endif
+    }
 
     void strokeAARect(GrGpu* gpu,
                       GrDrawTarget* target,
@@ -66,6 +72,25 @@ private:
 
     static int aaStrokeRectIndexCount();
     GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu);
+
+    // TODO: Remove the useVertexCoverage boolean. Just use it all the time
+    // since we now have a coverage vertex attribute
+    void geometryFillAARect(GrGpu* gpu,
+                            GrDrawTarget* target,
+                            const GrRect& devRect,
+                            bool useVertexCoverage);
+
+    void shaderFillAARect(GrGpu* gpu,
+                          GrDrawTarget* target,
+                          const GrRect& rect,
+                          const SkMatrix& combinedMatrix,
+                          const GrRect& devRect);
+
+    void shaderFillAlignedAARect(GrGpu* gpu,
+                                 GrDrawTarget* target,
+                                 const GrRect& rect,
+                                 const SkMatrix& combinedMatrix,
+                                 const GrRect& devRect);
 
     typedef GrRefCnt INHERITED;
 };

@@ -281,6 +281,8 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
                 getContext()->getAARectRenderer()->fillAARect(fGpu,
                                                               fGpu,
                                                               element->getRect(),
+                                                              SkMatrix::I(),
+                                                              element->getRect(),
                                                               false);
             } else {
                 fGpu->drawSimpleRect(element->getRect(), NULL);
