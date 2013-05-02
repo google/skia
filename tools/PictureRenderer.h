@@ -162,6 +162,12 @@ public:
 #endif
     }
 
+#if SK_SUPPORT_GPU
+    void setSampleCount(int sampleCount) {
+        fSampleCount = sampleCount;
+    }
+#endif
+
     void setDrawFilters(DrawFilterFlags const * const filters, const SkString& configName) {
         memcpy(fDrawFilters, filters, sizeof(fDrawFilters));
         fDrawFiltersConfig = configName;
@@ -201,7 +207,11 @@ public:
 #if SK_SUPPORT_GPU
         switch (fDeviceType) {
             case kGPU_DeviceType:
-                config.append("_gpu");
+                if (fSampleCount) {
+                    config.appendf("_msaa%d", fSampleCount);
+                } else {
+                    config.append("_gpu");
+                }
                 break;
 #if SK_ANGLE
             case kAngle_DeviceType:
@@ -261,6 +271,7 @@ public:
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContext(NULL)
+        , fSampleCount(0)
 #endif
         {
             fGridInfo.fMargin.setEmpty();
@@ -315,6 +326,7 @@ private:
 #if SK_SUPPORT_GPU
     GrContextFactory       fGrContextFactory;
     GrContext*             fGrContext;
+    int                    fSampleCount;
 #endif
 
     virtual SkString getConfigNameInternal() = 0;

@@ -31,9 +31,9 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
 // consistent.
 #if SK_ANGLE
 // ANGLE assumes GPU
-DEFINE_string(config, "8888", "[8888|gpu|angle]: Use the corresponding config.");
+DEFINE_string(config, "8888", "[8888|gpu|msaa4|msaa16|angle]: Use the corresponding config.");
 #elif SK_SUPPORT_GPU
-DEFINE_string(config, "8888", "[8888|gpu]: Use the corresponding config.");
+DEFINE_string(config, "8888", "[8888|gpu|msaa4|msaa16]: Use the corresponding config.");
 #else
 DEFINE_string(config, "8888", "[8888]: Use the corresponding config.");
 #endif
@@ -252,6 +252,9 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 
     sk_tools::PictureRenderer::SkDeviceTypes deviceType =
         sk_tools::PictureRenderer::kBitmap_DeviceType;
+#if SK_SUPPORT_GPU
+    int sampleCount = 0;
+#endif
     if (FLAGS_config.count() > 0) {
         if (0 == strcmp(FLAGS_config[0], "8888")) {
             deviceType = sk_tools::PictureRenderer::kBitmap_DeviceType;
@@ -263,6 +266,22 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 error.printf("GPU not compatible with multithreaded tiling.\n");
                 return NULL;
             }
+        }
+        else if (0 == strcmp(FLAGS_config[0], "msaa4")) {
+            deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            if (FLAGS_multi > 1) {
+                error.printf("GPU not compatible with multithreaded tiling.\n");
+                return NULL;
+            }
+            sampleCount = 4;
+        }
+        else if (0 == strcmp(FLAGS_config[0], "msaa16")) {
+            deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            if (FLAGS_multi > 1) {
+                error.printf("GPU not compatible with multithreaded tiling.\n");
+                return NULL;
+            }
+            sampleCount = 16;
         }
 #if SK_ANGLE
         else if (0 == strcmp(FLAGS_config[0], "angle")) {
@@ -279,6 +298,9 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             return NULL;
         }
         renderer->setDeviceType(deviceType);
+#if SK_SUPPORT_GPU
+        renderer->setSampleCount(sampleCount);
+#endif
     }
 
 
