@@ -43,6 +43,8 @@
 #include "SkTypefaceCache.h"
 #include "SkFontMgr.h"
 
+//#define HACK_COLORGLYPHS
+
 class SkScalerContext_Mac;
 
 // CTFontManagerCopyAvailableFontFamilyNames() is not always available, so we
@@ -1082,6 +1084,9 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         glyph->fLeft += offset.fX;
         glyph->fTop += offset.fY;
     }
+#ifdef HACK_COLORGLYPHS
+    glyph->fMaskFormat = SkMask::kARGB32_Format;
+#endif
 }
 
 #include "SkColorPriv.h"
@@ -1197,6 +1202,23 @@ static void rgb_to_lcd32(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowByt
     }
 }
 
+#ifdef HACK_COLORGLYPHS
+// hack to colorize the output for testing kARGB32_Format
+static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb, const SkGlyph& glyph,
+                                     int x, int y) {
+    U8CPU r = (rgb >> 16) & 0xFF;
+    U8CPU g = (rgb >>  8) & 0xFF;
+    U8CPU b = (rgb >>  0) & 0xFF;
+    unsigned a = SkComputeLuminance(r, g, b);
+    
+    // compute gradient from x,y
+    r = x * 255 / glyph.fWidth;
+    g = 0;
+    b = (glyph.fHeight - y) * 255 / glyph.fHeight;
+    return SkPreMultiplyARGB(a, r, g, b);    // red
+}
+#endif
+
 template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
     return (T*)((char*)ptr + byteOffset);
 }
@@ -1277,6 +1299,20 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 dst += dstRB;
             }
         } break;
+#ifdef HACK_COLORGLYPHS
+        case SkMask::kARGB32_Format: {
+            const int width = glyph.fWidth;
+            size_t dstRB = glyph.rowBytes();
+            SkPMColor* dst = (SkPMColor*)glyph.fImage;
+            for (int y = 0; y < glyph.fHeight; y++) {
+                for (int x = 0; x < width; ++x) {
+                    dst[x] = cgpixels_to_pmcolor(cgPixels[x], glyph, x, y);
+                }
+                cgPixels = (CGRGBPixel*)((char*)cgPixels + cgRowBytes);
+                dst = (SkPMColor*)((char*)dst + dstRB);
+            }
+        } break;
+#endif
         default:
             SkDEBUGFAIL("unexpected mask format");
             break;
