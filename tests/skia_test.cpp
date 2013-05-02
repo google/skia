@@ -185,7 +185,7 @@ private:
 static bool shouldSkip(const char* testName) {
     int count = FLAGS_match.count();
     size_t testLen = strlen(testName);
-    bool anyExclude = false;
+    bool anyExclude = count == 0;
     for (int index = 0; index < count; ++index) {
         const char* matchName = FLAGS_match[index];
         size_t matchLen = strlen(matchName);
