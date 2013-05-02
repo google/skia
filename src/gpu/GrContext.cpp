@@ -723,7 +723,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
     if (strokeWidth >= 0) {
 #endif
         if (!drawState.getViewMatrix().preservesAxisAlignment()) {
@@ -733,7 +733,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         if (NULL != matrix && !matrix->preservesAxisAlignment()) {
             return false;
         }
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
     } else {
         if (!drawState.getViewMatrix().preservesAxisAlignment() &&
             !drawState.getViewMatrix().preservesRightAngles()) {
@@ -751,11 +751,11 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         combinedMatrix->preConcat(*matrix);
 
 #if GR_DEBUG
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
         if (strokeWidth >= 0) {
 #endif
             GrAssert(combinedMatrix->preservesAxisAlignment());
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
         } else {
             GrAssert(combinedMatrix->preservesRightAngles());
         }
@@ -765,7 +765,11 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 
     combinedMatrix->mapRect(devRect, rect);
 
-    if (strokeWidth < 0) {
+    if (strokeWidth < 0 
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
+        && drawState.getViewMatrix().preservesAxisAlignment()
+#endif
+        ) {
         return !isIRect(*devRect);
     } else {
         return true;

@@ -54,6 +54,7 @@ public:
         }
 #else
         this->geometryFillAARect(gpu, target,
+                                 rect, combinedMatrix,
                                  devRect, useVertexCoverage);
 #endif
     }
@@ -77,6 +78,8 @@ private:
     // since we now have a coverage vertex attribute
     void geometryFillAARect(GrGpu* gpu,
                             GrDrawTarget* target,
+                            const GrRect& rect,
+                            const SkMatrix& combinedMatrix,
                             const GrRect& devRect,
                             bool useVertexCoverage);
 
