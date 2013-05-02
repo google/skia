@@ -35,4 +35,3 @@ void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
 GrTexture* SkImage::getTexture() {
     return asIB(this)->onGetTexture();
 }
-
