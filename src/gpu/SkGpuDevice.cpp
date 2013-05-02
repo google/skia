@@ -671,11 +671,11 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         usePath = true;
     }
     if (!usePath && paint.isAntiAlias() && !fContext->getMatrix().rectStaysRect()) {
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
         if (doStroke) {
 #endif
             usePath = true;
-#ifdef SHADER_AA_FILL_RECT
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
         } else {
             usePath = !fContext->getMatrix().preservesRightAngles();
         }

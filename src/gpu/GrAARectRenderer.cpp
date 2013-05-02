@@ -361,6 +361,8 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
 
 void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
                                           GrDrawTarget* target,
+                                          const GrRect& rect,
+                                          const SkMatrix& combinedMatrix,
                                           const GrRect& devRect,
                                           bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
@@ -386,8 +388,42 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
-    set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-    set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
+    if (combinedMatrix.rectStaysRect()) {
+        set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
+    } else {
+        // compute transformed (1, 0) and (0, 1) vectors
+        SkVector vec[2] = {
+          { combinedMatrix[SkMatrix::kMScaleX], combinedMatrix[SkMatrix::kMSkewY] },
+          { combinedMatrix[SkMatrix::kMSkewX],  combinedMatrix[SkMatrix::kMScaleY] }
+        };
+
+        vec[0].normalize();
+        vec[0].scale(SK_ScalarHalf);
+        vec[1].normalize();
+        vec[1].scale(SK_ScalarHalf);
+
+        fan0Pos->setRectFan(rect.fLeft, rect.fTop,
+                            rect.fRight, rect.fBottom, vsize);
+        combinedMatrix.mapPointsWithStride(fan0Pos, vsize, 4);
+
+        // TL
+        *((SkPoint*)((intptr_t)fan1Pos + 0 * vsize)) = 
+            *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) + vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) -= vec[0] + vec[1];
+        // BL
+        *((SkPoint*)((intptr_t)fan1Pos + 1 * vsize)) = 
+            *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) + vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) -= vec[0] - vec[1];
+        // BR
+        *((SkPoint*)((intptr_t)fan1Pos + 2 * vsize)) = 
+            *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) - vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) += vec[0] + vec[1];
+        // TR
+        *((SkPoint*)((intptr_t)fan1Pos + 3 * vsize)) = 
+            *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) - vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) += vec[0] - vec[1];
+    }
 
     verts += sizeof(GrPoint);
     for (int i = 0; i < 4; ++i) {
@@ -395,7 +431,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     }
 
     GrColor innerColor;
-    if (useVertexCoverage) {
+    if (useVertexCoverage) { 
         innerColor = 0xffffffff;
     } else {
         innerColor = target->getDrawState().getColor();
