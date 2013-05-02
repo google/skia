@@ -120,7 +120,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 desc.fFlags = kRenderTarget_GrTextureFlagBit;
                 desc.fWidth = width;
                 desc.fHeight = height;
-                desc.fSampleCnt = 0;
+                desc.fSampleCnt = fSampleCount;
                 target.reset(fGrContext->createUncachedTexture(desc, NULL, 0));
             }
             if (NULL == target.get()) {
