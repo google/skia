@@ -47,7 +47,7 @@ SKIA_BUILD_MASTER_HOST = str(GetGlobalVariable('master_host'))
 SKIA_BUILD_MASTER_PORT = str(GetGlobalVariable('external_port'))
 
 # All try builders have this suffix.
-TRYBOT_SUFFIX = '_Trybot'
+TRYBOT_SUFFIX = '-Trybot'
 
 # Location of the codereview.settings file in the Skia repo.
 SKIA_URL = 'skia.googlecode.com'
