@@ -49,6 +49,7 @@
     '../gm/imageblur.cpp',
     '../gm/imagemagnifier.cpp',
     '../gm/lighting.cpp',
+    '../src/image/SkImage_Codec.cpp',
     '../gm/image.cpp',
     '../gm/imagefiltersbase.cpp',
     '../gm/imagefiltersgraph.cpp',
