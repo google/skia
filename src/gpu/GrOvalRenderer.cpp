@@ -425,10 +425,10 @@ GrEffectRef* AltEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint,
-                    const GrRect& oval, const SkStrokeRec& stroke)
+bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
+                              const GrRect& oval, const SkStrokeRec& stroke)
 {
-    if (!paint.isAntiAlias()) {
+    if (!useAA) {
         return false;
     }
 
@@ -437,11 +437,11 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, co
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        drawCircle(target, paint, oval, stroke);
+        this->drawCircle(target, useAA, oval, stroke);
 
     // and axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return drawEllipse(target, paint, oval, stroke);
+        return this->drawEllipse(target, useAA, oval, stroke);
 
     } else {
         return false;
@@ -463,7 +463,7 @@ extern const GrVertexAttrib gCircleVertexAttribs[] = {
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
-                                const GrPaint& paint,
+                                bool useAA,
                                 const GrRect& circle,
                                 const SkStrokeRec& stroke)
 {
@@ -571,7 +571,7 @@ extern const GrVertexAttrib gEllipseVertexAttribs[] = {
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
-                                 const GrPaint& paint,
+                                 bool useAA,
                                  const GrRect& ellipse,
                                  const SkStrokeRec& stroke)
 {
@@ -580,7 +580,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     {
         // we should have checked for this previously
         bool isAxisAlignedEllipse = drawState->getViewMatrix().rectStaysRect();
-        SkASSERT(paint.isAntiAlias() && isAxisAlignedEllipse);
+        SkASSERT(useAA && isAxisAlignedEllipse);
     }
 #endif
 
@@ -742,15 +742,19 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
     return fRRectIndexBuffer;
 }
 
-bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context,
-                                     const GrPaint& paint, const SkRRect& rrect,
-                                     const SkStrokeRec& stroke)
+bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA, 
+                                     const SkRRect& rrect, const SkStrokeRec& stroke)
 {
+    // only anti-aliased rrects for now
+    if (!useAA) {
+        return false;
+    }
+
     const SkMatrix& vm = context->getMatrix();
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
-        SkASSERT(paint.isAntiAlias() && vm.rectStaysRect() && rrect.isSimple());
+        SkASSERT(useAA && vm.rectStaysRect() && rrect.isSimple());
     }
 #endif
 

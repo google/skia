@@ -980,10 +980,12 @@ void GrContext::drawRRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    if (!fOvalRenderer->drawSimpleRRect(target, this, paint, rect, stroke)) {
+    bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+
+    if (!fOvalRenderer->drawSimpleRRect(target, this, prAA, rect, stroke)) {
         SkPath path;
         path.addRRect(rect);
-        this->internalDrawPath(target, paint, path, stroke);
+        this->internalDrawPath(target, prAA, path, stroke);
     }
 }
 
@@ -996,10 +998,12 @@ void GrContext::drawOval(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    if (!fOvalRenderer->drawOval(target, this, paint, oval, stroke)) {
+    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+
+    if (!fOvalRenderer->drawOval(target, this, useAA, oval, stroke)) {
         SkPath path;
         path.addOval(oval);
-        this->internalDrawPath(target, paint, path, stroke);
+        this->internalDrawPath(target, useAA, path, stroke);
     }
 }
 
@@ -1022,17 +1026,16 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
 
     SkRect ovalRect;
     bool isOval = path.isOval(&ovalRect);
+    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
 
     if (!isOval || path.isInverseFillType()
-        || !fOvalRenderer->drawOval(target, this, paint, ovalRect, stroke)) {
-        this->internalDrawPath(target, paint, path, stroke);
+        || !fOvalRenderer->drawOval(target, this, useAA, ovalRect, stroke)) {
+        this->internalDrawPath(target, useAA, path, stroke);
     }
 }
 
-void GrContext::internalDrawPath(GrDrawTarget* target, const GrPaint& paint, const SkPath& path,
+void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                                  const SkStrokeRec& stroke) {
-
-    bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement
@@ -1042,11 +1045,11 @@ void GrContext::internalDrawPath(GrDrawTarget* target, const GrPaint& paint, con
 #if GR_DEBUG
         //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
-        prAA = false;
+        useAA = false;
     }
 
-    GrPathRendererChain::DrawType type = prAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
-                                                GrPathRendererChain::kColor_DrawType;
+    GrPathRendererChain::DrawType type = useAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
+                                                 GrPathRendererChain::kColor_DrawType;
 
     const SkPath* pathPtr = &path;
     SkPath tmpPath;
@@ -1074,7 +1077,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, const GrPaint& paint, con
         return;
     }
 
-    pr->drawPath(*pathPtr, strokeRec, target, prAA);
+    pr->drawPath(*pathPtr, strokeRec, target, useAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
