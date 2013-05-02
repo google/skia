@@ -1640,6 +1640,26 @@ SkString list_all_config_names(const SkTDArray<size_t> &configs) {
     return total;
 }
 
+bool prepare_subdirectories(const char *root, bool useFileHierarchy,
+                            const SkTDArray<size_t> &configs);
+bool prepare_subdirectories(const char *root, bool useFileHierarchy,
+                            const SkTDArray<size_t> &configs) {
+    if (!sk_mkdir(root)) {
+        return false;
+    }
+    if (useFileHierarchy) {
+        for (int i = 0; i < configs.count(); i++) {
+            ConfigData config = gRec[configs[i]];
+            SkString subdir;
+            subdir.appendf("%s%c%s", root, SkPATH_SEPARATOR, config.fName);
+            if (!sk_mkdir(subdir.c_str())) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
 
@@ -1851,6 +1871,9 @@ int tool_main(int argc, char** argv) {
         if (FLAGS_writePath.count() == 1) {
             gm_fprintf(stdout, "writing to %s\n", FLAGS_writePath[0]);
         }
+        if (NULL != gmmain.fMismatchPath) {
+            gm_fprintf(stdout, "writing mismatches to %s\n", gmmain.fMismatchPath);
+        }
         if (FLAGS_writePicturePath.count() == 1) {
             gm_fprintf(stdout, "writing pictures to %s\n", FLAGS_writePicturePath[0]);
         }
@@ -1872,19 +1895,13 @@ int tool_main(int argc, char** argv) {
 
     // If we will be writing out files, prepare subdirectories.
     if (FLAGS_writePath.count() == 1) {
-        if (!sk_mkdir(FLAGS_writePath[0])) {
+        if (!prepare_subdirectories(FLAGS_writePath[0], gmmain.fUseFileHierarchy, configs)) {
             return -1;
         }
-        if (gmmain.fUseFileHierarchy) {
-            for (int i = 0; i < configs.count(); i++) {
-                ConfigData config = gRec[configs[i]];
-                SkString subdir;
-                subdir.appendf("%s%c%s", FLAGS_writePath[0], SkPATH_SEPARATOR,
-                               config.fName);
-                if (!sk_mkdir(subdir.c_str())) {
-                    return -1;
-                }
-            }
+    }
+    if (NULL != gmmain.fMismatchPath) {
+        if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy, configs)) {
+            return -1;
         }
     }
 
