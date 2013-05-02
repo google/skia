@@ -81,3 +81,14 @@ bool GrGLExtensions::has(const char* ext) const {
                                                      sizeof(SkString));
     return idx >= 0;
 }
+
+void GrGLExtensions::print(const char* sep) const {
+    if (NULL == sep) {
+        sep = " ";
+    }
+    int cnt = fStrings.count();
+    for (int i = 0; i < cnt; ++i) {
+        GrPrintf("%s%s", fStrings[i].c_str(), (i < cnt - 1) ? sep : "");
+    }
+}
+
