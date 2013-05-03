@@ -107,30 +107,74 @@ static inline bool isLengthNearlyZero(float dx, float dy,
 }
 
 SkScalar SkPoint::Normalize(SkPoint* pt) {
+    float x = pt->fX;
+    float y = pt->fY;
     float mag2;
-    if (!isLengthNearlyZero(pt->fX, pt->fY, &mag2)) {
-        float mag = sk_float_sqrt(mag2);
-        float scale = 1.0f / mag;
-        pt->fX = pt->fX * scale;
-        pt->fY = pt->fY * scale;
-        return mag;
+    if (isLengthNearlyZero(x, y, &mag2)) {
+        return 0;
     }
-    return 0;
+
+    float mag, scale;
+    if (SkScalarIsFinite(mag2)) {
+        mag = sk_float_sqrt(mag2);
+        scale = 1 / mag;
+    } else {
+        // our mag2 step overflowed to infinity, so use doubles instead.
+        // much slower, but needed when x or y are very large, other wise we
+        // divide by inf. and return (0,0) vector.
+        double xx = x;
+        double yy = y;
+        double magmag = sqrt(xx * xx + yy * yy);
+        mag = (float)magmag;
+        // we perform the divide with the double magmag, to stay exactly the
+        // same as setLength. It would be faster to perform the divide with
+        // mag, but it is possible that mag has overflowed to inf. but still
+        // have a non-zero value for scale (thanks to denormalized numbers).
+        scale = (float)(1 / magmag);
+    }
+    pt->set(x * scale, y * scale);
+    return mag;
 }
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
-    return sk_float_sqrt(getLengthSquared(dx, dy));
+    float mag2 = dx * dx + dy * dy;
+    if (SkScalarIsFinite(mag2)) {
+        return sk_float_sqrt(mag2);
+    } else {
+        double xx = dx;
+        double yy = dy;
+        return (float)sqrt(xx * xx + yy * yy);
+    }
 }
 
+/*
+ *  We have to worry about 2 tricky conditions:
+ *  1. underflow of mag2 (compared against nearlyzero^2)
+ *  2. overflow of mag2 (compared w/ isfinite)
+ *
+ *  If we underflow, we return false. If we overflow, we compute again using
+ *  doubles, which is much slower (3x in a desktop test) but will not overflow.
+ */
 bool SkPoint::setLength(float x, float y, float length) {
     float mag2;
-    if (!isLengthNearlyZero(x, y, &mag2)) {
-        float scale = length / sk_float_sqrt(mag2);
-        fX = x * scale;
-        fY = y * scale;
-        return true;
+    if (isLengthNearlyZero(x, y, &mag2)) {
+        return false;
     }
-    return false;
+
+    float scale;
+    if (SkScalarIsFinite(mag2)) {
+        scale = length / sk_float_sqrt(mag2);
+    } else {
+        // our mag2 step overflowed to infinity, so use doubles instead.
+        // much slower, but needed when x or y are very large, other wise we
+        // divide by inf. and return (0,0) vector.
+        double xx = x;
+        double yy = y;
+        scale = (float)(length / sqrt(xx * xx + yy * yy));
+    }
+    fX = x * scale;
+    fY = y * scale;
+    return true;
 }
 
 #else

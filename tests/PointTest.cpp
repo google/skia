@@ -22,20 +22,6 @@ static void test_casts(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, r.asScalars() == rPtr);
 }
 
-// Tests that SkPoint::length() and SkPoint::Length() both return
-// approximately expectedLength for this (x,y).
-static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
-                        SkScalar expectedLength) {
-    SkPoint point;
-    point.set(x, y);
-    SkScalar s1 = point.length();
-    SkScalar s2 = SkPoint::Length(x, y);
-    //The following should be exactly the same, but need not be.
-    //See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=323
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, s2));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, expectedLength));
-}
-
 // Tests SkPoint::Normalize() for this (x,y)
 static void test_Normalize(skiatest::Reporter* reporter,
                            SkScalar x, SkScalar y) {
@@ -48,14 +34,69 @@ static void test_Normalize(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(newLength, SK_Scalar1));
 }
 
+// Tests that SkPoint::length() and SkPoint::Length() both return
+// approximately expectedLength for this (x,y).
+static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
+                        SkScalar expectedLength) {
+    SkPoint point;
+    point.set(x, y);
+    SkScalar s1 = point.length();
+    SkScalar s2 = SkPoint::Length(x, y);
+    //The following should be exactly the same, but need not be.
+    //See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=323
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, s2));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, expectedLength));
+    
+    test_Normalize(reporter, x, y);
+}
+
+// test that we handle very large values correctly. i.e. that we can
+// successfully normalize something whose mag overflows a float.
+static void test_overflow(skiatest::Reporter* reporter) {
+    SkPoint pt = { SkFloatToScalar(3.4e38f), SkFloatToScalar(3.4e38f) };
+    
+    SkScalar length = pt.length();
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(length));
+
+    // this should succeed, even though we can't represent length
+    REPORTER_ASSERT(reporter, pt.setLength(SK_Scalar1));
+
+    // now that pt is normalized, we check its length
+    length = pt.length();
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(length, SK_Scalar1));
+}
+
+// test that we handle very small values correctly. i.e. that we can
+// report failure if we try to normalize them.
+static void test_underflow(skiatest::Reporter* reporter) {
+    SkPoint pt = { SkFloatToScalar(1.0e-37f), SkFloatToScalar(1.0e-37f) };
+    SkPoint copy = pt;
+
+    REPORTER_ASSERT(reporter, 0 == SkPoint::Normalize(&pt));
+    REPORTER_ASSERT(reporter, pt == copy);  // pt is unchanged
+
+    REPORTER_ASSERT(reporter, !pt.setLength(SK_Scalar1));
+    REPORTER_ASSERT(reporter, pt == copy);  // pt is unchanged
+}
+
 static void PointTest(skiatest::Reporter* reporter) {
     test_casts(reporter);
 
-    test_length(reporter, SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5));
-    test_length(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f),
-                SK_Scalar1);
-    test_Normalize(reporter, SkIntToScalar(3), SkIntToScalar(4));
-    test_Normalize(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f));
+    static const struct {
+        SkScalar fX;
+        SkScalar fY;
+        SkScalar fLength;
+    } gRec[] = {
+        { SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5) },
+        { SkFloatToScalar(0.6f), SkFloatToScalar(0.8f), SK_Scalar1 },
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fLength);
+    }
+
+    test_underflow(reporter);
+    test_overflow(reporter);
 }
 
 #include "TestClassDef.h"
