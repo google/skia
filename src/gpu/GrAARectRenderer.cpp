@@ -408,19 +408,19 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         combinedMatrix.mapPointsWithStride(fan0Pos, vsize, 4);
 
         // TL
-        *((SkPoint*)((intptr_t)fan1Pos + 0 * vsize)) = 
+        *((SkPoint*)((intptr_t)fan1Pos + 0 * vsize)) =
             *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) + vec[0] + vec[1];
         *((SkPoint*)((intptr_t)fan0Pos + 0 * vsize)) -= vec[0] + vec[1];
         // BL
-        *((SkPoint*)((intptr_t)fan1Pos + 1 * vsize)) = 
+        *((SkPoint*)((intptr_t)fan1Pos + 1 * vsize)) =
             *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) + vec[0] - vec[1];
         *((SkPoint*)((intptr_t)fan0Pos + 1 * vsize)) -= vec[0] - vec[1];
         // BR
-        *((SkPoint*)((intptr_t)fan1Pos + 2 * vsize)) = 
+        *((SkPoint*)((intptr_t)fan1Pos + 2 * vsize)) =
             *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) - vec[0] - vec[1];
         *((SkPoint*)((intptr_t)fan0Pos + 2 * vsize)) += vec[0] + vec[1];
         // TR
-        *((SkPoint*)((intptr_t)fan1Pos + 3 * vsize)) = 
+        *((SkPoint*)((intptr_t)fan1Pos + 3 * vsize)) =
             *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) - vec[0] + vec[1];
         *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) += vec[0] - vec[1];
     }
@@ -431,7 +431,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     }
 
     GrColor innerColor;
-    if (useVertexCoverage) { 
+    if (useVertexCoverage) {
         innerColor = 0xffffffff;
     } else {
         innerColor = target->getDrawState().getColor();

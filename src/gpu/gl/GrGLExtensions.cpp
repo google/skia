@@ -91,4 +91,3 @@ void GrGLExtensions::print(const char* sep) const {
         GrPrintf("%s%s", fStrings[i].c_str(), (i < cnt - 1) ? sep : "");
     }
 }
-
