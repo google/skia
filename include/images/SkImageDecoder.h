@@ -216,13 +216,21 @@ public:
     bool buildTileIndex(SkStream*, int *width, int *height);
 
     /**
-     * Decode a rectangle region in the image specified by rect.
+     * Decode a rectangle subset in the image.
      * The method can only be called after buildTileIndex().
      *
      * Return true for success.
      * Return false if the index is never built or failing in decoding.
      */
-    bool decodeRegion(SkBitmap* bitmap, const SkIRect& rect, SkBitmap::Config pref);
+    bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkBitmap::Config pref);
+
+    /**
+     *  @Deprecated
+     *  Use decodeSubset instead.
+     */
+    bool decodeRegion(SkBitmap* bitmap, const SkIRect& rect, SkBitmap::Config pref) {
+        return this->decodeSubset(bitmap, rect, pref);
+    }
 
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
@@ -344,7 +352,7 @@ protected:
 
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by decodeRegion(...)
-    virtual bool onDecodeRegion(SkBitmap* bitmap, const SkIRect& rect) {
+    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) {
         return false;
     }
 
@@ -359,10 +367,11 @@ protected:
      * @param (dstX, dstY) the upper-left point of the dest bitmap in terms of
      *                     the coordinate in the original bitmap.
      * @param (width, height) the width and height of the unsampled dst.
-     * @param (srcX, srcY) the upper-left point of the src bitimap in terms of
+     * @param (srcX, srcY) the upper-left point of the src bitmap in terms of
      *                     the coordinate in the original bitmap.
+     * @return bool Whether or not it succeeded.
      */
-    void cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
+    bool cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
                     int dstX, int dstY, int width, int height,
                     int srcX, int srcY);
 

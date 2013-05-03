@@ -118,7 +118,7 @@ public:
 protected:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
-    virtual bool onDecodeRegion(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
+    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
 #endif
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
@@ -556,7 +556,7 @@ bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *hei
     return true;
 }
 
-bool SkJPEGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
+bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     if (NULL == fImageIndex) {
         return false;
     }

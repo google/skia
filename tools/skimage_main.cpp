@@ -13,6 +13,7 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkRandom.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -20,6 +21,7 @@
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
 DEFINE_bool(reencode, true, "Reencode the images to test encoding.");
+DEFINE_bool(testSubsetDecoding, true, "Test decoding subsets of images.");
 
 struct Format {
     SkImageEncoder::Type    fType;
@@ -92,6 +94,8 @@ static SkTArray<SkString, false> gMissingCodecs;
 static SkTArray<SkString, false> gDecodeFailures;
 static SkTArray<SkString, false> gEncodeFailures;
 static SkTArray<SkString, false> gSuccessfulDecodes;
+static SkTArray<SkString, false> gSuccessfulSubsetDecodes;
+static SkTArray<SkString, false> gFailedSubsetDecodes;
 
 static bool write_bitmap(const char outName[], SkBitmap* bm) {
     SkBitmap bitmap8888;
@@ -110,6 +114,47 @@ static bool write_bitmap(const char outName[], SkBitmap* bm) {
         }
     }
     return SkImageEncoder::EncodeFile(outName, *bm, SkImageEncoder::kPNG_Type, 100);
+}
+
+/**
+ *  Return a random SkIRect inside the range specified.
+ *  @param rand Random number generator.
+ *  @param maxX Exclusive maximum x-coordinate. SkIRect's fLeft and fRight will be
+ *      in the range [0, maxX)
+ *  @param maxY Exclusive maximum y-coordinate. SkIRect's fTop and fBottom will be
+ *      in the range [0, maxY)
+ *  @return SkIRect Non-empty, non-degenerate rectangle.
+ */
+static SkIRect generate_random_rect(SkRandom* rand, int32_t maxX, int32_t maxY) {
+    SkASSERT(maxX > 1 && maxY > 1);
+    int32_t left = rand->nextULessThan(maxX);
+    int32_t right = rand->nextULessThan(maxX);
+    int32_t top = rand->nextULessThan(maxY);
+    int32_t bottom = rand->nextULessThan(maxY);
+    SkIRect rect = SkIRect::MakeLTRB(left, top, right, bottom);
+    rect.sort();
+    // Make sure rect is not empty.
+    if (rect.fLeft == rect.fRight) {
+        if (rect.fLeft > 0) {
+            rect.fLeft--;
+        } else {
+            rect.fRight++;
+            // This branch is only taken if 0 == rect.fRight, and
+            // maxX must be at least 2, so it must still be in
+            // range.
+            SkASSERT(rect.fRight < maxX);
+        }
+    }
+    if (rect.fTop == rect.fBottom) {
+        if (rect.fTop > 0) {
+            rect.fTop--;
+        } else {
+            rect.fBottom++;
+            // Again, this must be in range.
+            SkASSERT(rect.fBottom < maxY);
+        }
+    }
+    return rect;
 }
 
 static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) {
@@ -137,6 +182,49 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
 
     gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(), bitmap.height());
 
+    if (FLAGS_testSubsetDecoding) {
+        bool couldRewind = stream.rewind();
+        SkASSERT(couldRewind);
+        int width, height;
+        // Build the tile index for decoding subsets. If the image is 1x1, skip subset
+        // decoding since there are no smaller subsets.
+        if (codec->buildTileIndex(&stream, &width, &height) && width > 1 && height > 1) {
+            SkASSERT(bitmap.width() == width && bitmap.height() == height);
+            // Call decodeSubset multiple times:
+            SkRandom rand(0);
+            for (int i = 0; i < 5; i++) {
+                SkBitmap bitmapFromDecodeSubset;
+                // FIXME: Come up with a more representative set of rectangles.
+                SkIRect rect = generate_random_rect(&rand, width, height);
+                SkString subsetDim = SkStringPrintf("[%d,%d,%d,%d]", rect.fLeft, rect.fTop,
+                                                    rect.fRight, rect.fBottom);
+                if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, SkBitmap::kNo_Config)) {
+                    gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
+                                                          subsetDim.c_str(), srcPath);
+                    if (writePath != NULL) {
+                        // Write the region to a file whose name includes the dimensions.
+                        SkString suffix = SkStringPrintf("_%s.png", subsetDim.c_str());
+                        SkString outPath;
+                        make_outname(&outPath, writePath->c_str(), srcPath, suffix.c_str());
+                        bool success = write_bitmap(outPath.c_str(), &bitmapFromDecodeSubset);
+                        SkASSERT(success);
+                        gSuccessfulSubsetDecodes.push_back().printf("\twrote %s", outPath.c_str());
+                        // Also use extractSubset from the original for visual comparison.
+                        SkBitmap extractedSubset;
+                        if (bitmap.extractSubset(&extractedSubset, rect)) {
+                            suffix.printf("_%s_extracted.png", subsetDim.c_str());
+                            make_outname(&outPath, writePath->c_str(), srcPath, suffix.c_str());
+                            success = write_bitmap(outPath.c_str(), &extractedSubset);
+                            SkASSERT(success);
+                        }
+                    }
+                } else {
+                    gFailedSubsetDecodes.push_back().printf("Failed to decode region %s from %s\n",
+                                                            subsetDim.c_str(), srcPath);
+                }
+            }
+        }
+    }
     if (FLAGS_reencode) {
         // Encode to the format the file was originally in, or PNG if the encoder for the same
         // format is unavailable.
@@ -288,6 +376,11 @@ int tool_main(int argc, char** argv) {
     failed |= print_strings("Failed to decode", gDecodeFailures);
     failed |= print_strings("Failed to encode", gEncodeFailures);
     print_strings("Decoded", gSuccessfulDecodes);
+
+    if (FLAGS_testSubsetDecoding) {
+        failed |= print_strings("Failed subset decodes", gFailedSubsetDecodes);
+        print_strings("Decoded subsets", gSuccessfulSubsetDecodes);
+    }
 
     return failed ? -1 : 0;
 }
