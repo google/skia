@@ -50,10 +50,22 @@ static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
     test_Normalize(reporter, x, y);
 }
 
+// Ugh. Windows compiler can dive into other .cpp files, and sometimes
+// notices that I will generate an overflow... which is exactly the point
+// of this test!
+//
+// To avoid this warning, I need to convince the compiler that I might not
+// use that big value, hence this hacky helper function: reporter is
+// ALWAYS non-null. (shhhhhh, don't tell the compiler that).
+template <typename T> T get_value(skiatest::Reporter* reporter, T value) {
+    return reporter ? value : 0;
+}
+
 // test that we handle very large values correctly. i.e. that we can
 // successfully normalize something whose mag overflows a float.
 static void test_overflow(skiatest::Reporter* reporter) {
-    SkPoint pt = { SkFloatToScalar(3.4e38f), SkFloatToScalar(3.4e38f) };
+    SkScalar bigFloat = get_value(reporter, SkFloatToScalar(3.4e38f));
+    SkPoint pt = { bigFloat, bigFloat };
     
     SkScalar length = pt.length();
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(length));
