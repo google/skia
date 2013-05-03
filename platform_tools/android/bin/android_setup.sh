@@ -28,7 +28,7 @@ fi
 
 # check to see that gclient sync ran successfully
 THIRD_PARTY_EXTERNAL_DIR=${SCRIPT_DIR}/../third_party/externals
-if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
+if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then
 	echo ""
 	echo "ERROR: Unable to find the required third_party dependencies needed to build."
 	echo "       To fix this add the following line to your .gclient file and run 'gclient sync'"
