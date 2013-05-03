@@ -206,7 +206,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                         SkString suffix = SkStringPrintf("_%s.png", subsetDim.c_str());
                         SkString outPath;
                         make_outname(&outPath, writePath->c_str(), srcPath, suffix.c_str());
-                        bool success = write_bitmap(outPath.c_str(), &bitmapFromDecodeSubset);
+                        SkDEBUGCODE(bool success =)
+                        write_bitmap(outPath.c_str(), &bitmapFromDecodeSubset);
                         SkASSERT(success);
                         gSuccessfulSubsetDecodes.push_back().printf("\twrote %s", outPath.c_str());
                         // Also use extractSubset from the original for visual comparison.
