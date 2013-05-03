@@ -2,31 +2,31 @@
    "actual-results" : {
       "failed" : {
          "comparison/selftest1-pipe" : {
-            "bitmap-cityhash" : 4259036727585789440
+            "bitmap-cityhash" : 6140979239232854774
          }
       },
       "failure-ignored" : null,
       "no-comparison" : null,
       "succeeded" : {
          "565/selftest1" : {
-            "bitmap-cityhash" : 9512553915271796906
+            "bitmap-cityhash" : 12927999507540085554
          },
          "8888/selftest1" : {
-            "bitmap-cityhash" : 14022967492765711532
+            "bitmap-cityhash" : 1209453360120438698
          }
       }
    },
    "expected-results" : {
       "565/selftest1" : {
-         "allowed-bitmap-cityhashes" : [ 9512553915271796906 ],
+         "allowed-bitmap-cityhashes" : [ 12927999507540085554 ],
          "ignore-failure" : false
       },
       "8888/selftest1" : {
-         "allowed-bitmap-cityhashes" : [ 14022967492765711532 ],
+         "allowed-bitmap-cityhashes" : [ 1209453360120438698 ],
          "ignore-failure" : false
       },
       "comparison/selftest1-pipe" : {
-         "allowed-bitmap-cityhashes" : [ 14022967492765711532 ],
+         "allowed-bitmap-cityhashes" : [ 1209453360120438698 ],
          "ignore-failure" : false
       }
    }

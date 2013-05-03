@@ -42,19 +42,35 @@ namespace skiatest {
             // initial test case
             CreateTestBitmap(bitmap, SkBitmap::kARGB_8888_Config, 333, 555, SK_ColorBLUE);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+            REPORTER_ASSERT(fReporter, digest == 0xfb2903562766ef87ULL);
+#else
             REPORTER_ASSERT(fReporter, digest == 0x18f9df68b1b02f38ULL);
+#endif
             // same pixel data but different dimensions should yield a different checksum
             CreateTestBitmap(bitmap, SkBitmap::kARGB_8888_Config, 555, 333, SK_ColorBLUE);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+            REPORTER_ASSERT(fReporter, digest == 0xfe04023fb97d0f61ULL);
+#else
             REPORTER_ASSERT(fReporter, digest == 0x6b0298183f786c8eULL);
+#endif
             // same dimensions but different color should yield a different checksum
             CreateTestBitmap(bitmap, SkBitmap::kARGB_8888_Config, 555, 333, SK_ColorGREEN);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+            REPORTER_ASSERT(fReporter, digest == 0x2423c51cad6d1edcULL);
+#else
             REPORTER_ASSERT(fReporter, digest == 0xc6b4b3f6fadaaf37ULL);
+#endif
             // same pixel colors in a different config should yield the same checksum
             CreateTestBitmap(bitmap, SkBitmap::kARGB_4444_Config, 555, 333, SK_ColorGREEN);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+            REPORTER_ASSERT(fReporter, digest == 0x2423c51cad6d1edcULL);
+#else
             REPORTER_ASSERT(fReporter, digest == 0xc6b4b3f6fadaaf37ULL);
+#endif
         }
 
         Reporter* fReporter;

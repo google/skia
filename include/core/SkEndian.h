@@ -65,7 +65,7 @@ template<uint32_t N> struct SkTEndianSwap32 {
                                   (N >> 24);
 };
 
-/** Vector version of SkEndianSwap16(), which swaps the
+/** Vector version of SkEndianSwap32(), which swaps the
     bytes of each value in the array.
 */
 static inline void SkEndianSwap32s(uint32_t array[], int count) {
@@ -77,26 +77,70 @@ static inline void SkEndianSwap32s(uint32_t array[], int count) {
     }
 }
 
+/** Reverse all 8 bytes in a 64bit value.
+    e.g. 0x1122334455667788 -> 0x8877665544332211
+*/
+static inline uint64_t SkEndianSwap64(uint64_t value) {
+    return (((value & 0x00000000000000FFULL) << (8*7)) |
+            ((value & 0x000000000000FF00ULL) << (8*5)) |
+            ((value & 0x0000000000FF0000ULL) << (8*3)) |
+            ((value & 0x00000000FF000000ULL) << (8*1)) |
+            ((value & 0x000000FF00000000ULL) >> (8*1)) |
+            ((value & 0x0000FF0000000000ULL) >> (8*3)) |
+            ((value & 0x00FF000000000000ULL) >> (8*5)) |
+            ((value)                         >> (8*7)));
+}
+template<uint64_t N> struct SkTEndianSwap64 {
+    static const uint64_t value = (((N & 0x00000000000000FFULL) << (8*7)) |
+                                   ((N & 0x000000000000FF00ULL) << (8*5)) |
+                                   ((N & 0x0000000000FF0000ULL) << (8*3)) |
+                                   ((N & 0x00000000FF000000ULL) << (8*1)) |
+                                   ((N & 0x000000FF00000000ULL) >> (8*1)) |
+                                   ((N & 0x0000FF0000000000ULL) >> (8*3)) |
+                                   ((N & 0x00FF000000000000ULL) >> (8*5)) |
+                                   ((N)                         >> (8*7)));
+};
+
+/** Vector version of SkEndianSwap64(), which swaps the
+    bytes of each value in the array.
+*/
+static inline void SkEndianSwap64s(uint64_t array[], int count) {
+    SkASSERT(count == 0 || array != NULL);
+
+    while (--count >= 0) {
+        *array = SkEndianSwap64(*array);
+        array += 1;
+    }
+}
+
 #ifdef SK_CPU_LENDIAN
     #define SkEndian_SwapBE16(n)    SkEndianSwap16(n)
     #define SkEndian_SwapBE32(n)    SkEndianSwap32(n)
+    #define SkEndian_SwapBE64(n)    SkEndianSwap64(n)
     #define SkEndian_SwapLE16(n)    (n)
     #define SkEndian_SwapLE32(n)    (n)
+    #define SkEndian_SwapLE64(n)    (n)
 
     #define SkTEndian_SwapBE16(n)    SkTEndianSwap16<n>::value
     #define SkTEndian_SwapBE32(n)    SkTEndianSwap32<n>::value
+    #define SkTEndian_SwapBE64(n)    SkTEndianSwap64<n>::value
     #define SkTEndian_SwapLE16(n)    (n)
     #define SkTEndian_SwapLE32(n)    (n)
+    #define SkTEndian_SwapLE64(n)    (n)
 #else   // SK_CPU_BENDIAN
     #define SkEndian_SwapBE16(n)    (n)
     #define SkEndian_SwapBE32(n)    (n)
+    #define SkEndian_SwapBE64(n)    (n)
     #define SkEndian_SwapLE16(n)    SkEndianSwap16(n)
     #define SkEndian_SwapLE32(n)    SkEndianSwap32(n)
+    #define SkEndian_SwapLE64(n)    SkEndianSwap64(n)
 
     #define SkTEndian_SwapBE16(n)    (n)
     #define SkTEndian_SwapBE32(n)    (n)
+    #define SkTEndian_SwapBE64(n)    (n)
     #define SkTEndian_SwapLE16(n)    SkTEndianSwap16<n>::value
     #define SkTEndian_SwapLE32(n)    SkTEndianSwap32<n>::value
+    #define SkTEndian_SwapLE64(n)    SkTEndianSwap64<n>::value
 #endif
 
 // When a bytestream is embedded in a 32-bit word, how far we need to
