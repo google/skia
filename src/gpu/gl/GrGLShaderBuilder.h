@@ -259,7 +259,7 @@ public:
 
     /** Returns the color of the destination pixel. This may be NULL if no effect advertised
         that it will read the destination. */
-    const char* dstColor() const;
+    const char* dstColor();
 
     /**
      * Are explicit local coordinates provided as input to the vertex shader.
@@ -346,7 +346,9 @@ private:
      * Features that should only be enabled by GrGLShaderBuilder itself.
      */
     enum GLSLPrivateFeature {
-        kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1
+        kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
+        kEXTShaderFramebufferFetch_GLSLPrivateFeature,
+        kNVShaderFramebufferFetch_GLSLPrivateFeature,
     };
     bool enablePrivateFeature(GLSLPrivateFeature);
 

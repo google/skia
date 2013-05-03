@@ -24,6 +24,7 @@ void GrGLCaps::reset() {
     fStencilVerifiedColorConfigs.reset();
     fMSFBOType = kNone_MSFBOType;
     fCoverageAAType = kNone_CoverageAAType;
+    fFBFetchType = kNone_FBFetchType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fRGBA8RenderbufferSupport = false;
@@ -60,6 +61,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fMSFBOType = caps.fMSFBOType;
     fCoverageAAType = caps.fCoverageAAType;
     fMSAACoverageModes = caps.fMSAACoverageModes;
+    fFBFetchType = caps.fFBFetchType;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
     fBGRAFormatSupport = caps.fBGRAFormatSupport;
     fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
@@ -205,6 +207,14 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fVertexArrayObjectSupport = ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
+    if (kES2_GrGLBinding == binding) {
+        if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
+            fFBFetchType = kEXT_FBFetchType;
+        } else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
+            fFBFetchType = kNV_FBFetchType;
+        }
+    }
+
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
 
@@ -273,6 +283,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fPathStencilingSupport = GR_GL_USE_NV_PATH_RENDERING &&
                              ctxInfo.hasExtension("GL_NV_path_rendering");
+
+    fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == binding) {
@@ -521,13 +533,7 @@ void GrGLCaps::print() const {
                  fStencilFormats[i].fTotalBits);
     }
 
-    GR_STATIC_ASSERT(0 == kNone_MSFBOType);
-    GR_STATIC_ASSERT(1 == kDesktop_ARB_MSFBOType);
-    GR_STATIC_ASSERT(2 == kDesktop_EXT_MSFBOType);
-    GR_STATIC_ASSERT(3 == kES_Apple_MSFBOType);
-    GR_STATIC_ASSERT(4 == kES_IMG_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(5 == kES_EXT_MsToTexture_MSFBOType);
-    static const char* gMSFBOExtStr[] = {
+    static const char* kMSFBOExtStr[] = {
         "None",
         "ARB",
         "EXT",
@@ -535,7 +541,27 @@ void GrGLCaps::print() const {
         "IMG MS To Texture",
         "EXT MS To Texture",
     };
-    GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
+    GR_STATIC_ASSERT(0 == kNone_MSFBOType);
+    GR_STATIC_ASSERT(1 == kDesktop_ARB_MSFBOType);
+    GR_STATIC_ASSERT(2 == kDesktop_EXT_MSFBOType);
+    GR_STATIC_ASSERT(3 == kES_Apple_MSFBOType);
+    GR_STATIC_ASSERT(4 == kES_IMG_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(5 == kES_EXT_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
+
+    static const char* kFBFetchTypeStr[] = {
+        "None",
+        "EXT",
+        "NV",
+    };
+    GR_STATIC_ASSERT(0 == kNone_FBFetchType);
+    GR_STATIC_ASSERT(1 == kEXT_FBFetchType);
+    GR_STATIC_ASSERT(2 == kNV_FBFetchType);
+    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
+
+
+    GrPrintf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
+    GrPrintf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     GrPrintf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     GrPrintf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));

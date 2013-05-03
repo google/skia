@@ -96,8 +96,12 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     if (readsDst) {
-        GrAssert(NULL != dstCopy);
-        desc->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstCopy->texture(), gpu->glCaps());
+        GrAssert(NULL != dstCopy || gpu->caps()->dstReadInShaderSupport());
+        const GrTexture* dstCopyTexture = NULL;
+        if (NULL != dstCopy) {
+            dstCopyTexture = dstCopy->texture();
+        }
+        desc->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
         GrAssert(0 != desc->fDstRead);
     } else {
         desc->fDstRead = 0;

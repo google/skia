@@ -77,6 +77,18 @@ public:
          * GL_MAX_SAMPLES value.
          */
         kES_EXT_MsToTexture_MSFBOType,
+
+        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType 
+    };
+
+    enum FBFetchType {
+        kNone_FBFetchType,
+        /** GL_EXT_shader_framebuffer_fetch */
+        kEXT_FBFetchType,
+        /** GL_NV_shader_framebuffer_fetch */
+        kNV_FBFetchType,
+
+        kLast_FBFetchType = kNV_FBFetchType,
     };
 
     enum CoverageAAType {
@@ -183,6 +195,8 @@ public:
      * the fewest color samples is chosen.
      */
     const MSAACoverageMode& getMSAACoverageMode(int desiredSampleCount) const;
+
+    FBFetchType fbFetchType() const { return fFBFetchType; }
 
     /**
      * Prints the caps info using GrPrintf.
@@ -322,6 +336,8 @@ private:
     MSFBOType fMSFBOType;
     CoverageAAType fCoverageAAType;
     SkTDArray<MSAACoverageMode> fMSAACoverageModes;
+
+    FBFetchType fFBFetchType;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAFormatSupport : 1;
