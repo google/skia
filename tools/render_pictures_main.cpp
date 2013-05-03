@@ -28,6 +28,9 @@ DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Compo
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
 DECLARE_string(readPath);
+DEFINE_bool(writeEncodedImages, false, "Any time the skp contains an encoded image, write it to a "
+            "file rather than decoding it. Requires writePath to be set. Skips drawing the full "
+            "skp to a file. Not compatible with deferImageDecoding.");
 DEFINE_string2(writePath, w, "", "Directory to write the rendered images.");
 DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered image to a "
             "file, instead of an image for each tile.");
@@ -44,6 +47,90 @@ static void make_output_filepath(SkString* path, const SkString& dir,
 
 // Defined in PictureRenderingFlags.cpp
 extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Table for translating from format of data to a suffix.
+ */
+struct Format {
+    SkImageDecoder::Format  fFormat;
+    const char*             fSuffix;
+};
+static const Format gFormats[] = {
+    { SkImageDecoder::kBMP_Format, ".bmp" },
+    { SkImageDecoder::kGIF_Format, ".gif" },
+    { SkImageDecoder::kICO_Format, ".ico" },
+    { SkImageDecoder::kJPEG_Format, ".jpg" },
+    { SkImageDecoder::kPNG_Format, ".png" },
+    { SkImageDecoder::kWBMP_Format, ".wbmp" },
+    { SkImageDecoder::kWEBP_Format, ".webp" },
+    { SkImageDecoder::kUnknown_Format, "" },
+};
+
+/**
+ *  Get an appropriate suffix for an image format.
+ */
+static const char* get_suffix_from_format(SkImageDecoder::Format format) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFormats); i++) {
+        if (gFormats[i].fFormat == format) {
+            return gFormats[i].fSuffix;
+        }
+    }
+    return "";
+}
+
+/**
+ *  Base name for an image file created from the encoded data in an skp.
+ */
+static SkString gInputFileName;
+
+/**
+ *  Number to be appended to the image file name so that it is unique.
+ */
+static uint32_t gImageNo;
+
+/**
+ *  Set up the name for writing encoded data to a file.
+ *  Sets gInputFileName to name, minus any extension ".*"
+ *  Sets gImageNo to 0, so images from file "X.skp" will
+ *  look like "X_<gImageNo>.<suffix>", beginning with 0
+ *  for each new skp.
+ */
+static void reset_image_file_base_name(const SkString& name) {
+    gImageNo = 0;
+    // Remove ".skp"
+    const char* cName = name.c_str();
+    const char* dot = strrchr(cName, '.');
+    if (dot != NULL) {
+        gInputFileName.set(cName, dot - cName);
+    } else {
+        gInputFileName.set(name);
+    }
+}
+
+/**
+ *  Write the raw encoded bitmap data to a file.
+ */
+static bool write_image_to_file(const void* buffer, size_t size, SkBitmap* bitmap) {
+    SkASSERT(!FLAGS_writePath.isEmpty());
+    SkMemoryStream memStream(buffer, size);
+    SkString outPath;
+    SkImageDecoder::Format format = SkImageDecoder::GetStreamFormat(&memStream);
+    SkString name = SkStringPrintf("%s_%d%s", gInputFileName.c_str(), gImageNo++,
+                                   get_suffix_from_format(format));
+    SkString dir(FLAGS_writePath[0]);
+    sk_tools::make_filepath(&outPath, dir, name);
+    SkFILEWStream fileStream(outPath.c_str());
+    if (!(fileStream.isValid() && fileStream.write(buffer, size))) {
+        SkDebugf("Failed to write encoded data to \"%s\"\n", outPath.c_str());
+    }
+    // Put in a dummy bitmap.
+    return SkImageDecoder::DecodeStream(&memStream, bitmap, SkBitmap::kNo_Config,
+                                        SkImageDecoder::kDecodeBounds_Mode);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer,
@@ -62,9 +149,14 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     SkPicture* picture;
     if (FLAGS_deferImageDecoding) {
         picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &lazy_decode_bitmap));
+    } else if (FLAGS_writeEncodedImages) {
+        SkASSERT(!FLAGS_writePath.isEmpty());
+        reset_image_file_base_name(inputFilename);
+        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &write_image_to_file));
     } else {
         picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory));
     }
+
     if (!success) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;
@@ -83,7 +175,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     renderer.setup();
 
     SkString* outputPath = NULL;
-    if (NULL != outputDir && outputDir->size() > 0) {
+    if (NULL != outputDir && outputDir->size() > 0 && !FLAGS_writeEncodedImages) {
         outputPath = SkNEW(SkString);
         make_output_filepath(outputPath, *outputDir, inputFilename);
     }
@@ -295,6 +387,17 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_clone < 0) {
         SkDebugf("--clone must be >= 0. Was %i\n", FLAGS_clone);
         exit(-1);
+    }
+
+    if (FLAGS_writeEncodedImages) {
+        if (FLAGS_writePath.isEmpty()) {
+            SkDebugf("--writeEncodedImages requires --writePath\n");
+            exit(-1);
+        }
+        if (FLAGS_deferImageDecoding) {
+            SkDebugf("--writeEncodedImages is not compatible with --deferImageDecoding\n");
+            exit(-1);
+        }
     }
 
     SkString errorString;
