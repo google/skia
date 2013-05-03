@@ -433,6 +433,55 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class NormalizeBench : public SkBenchmark {
+    enum {
+        ARRAY = SkBENCHLOOP(1000),
+        LOOP = SkBENCHLOOP(1000),
+    };
+    SkVector fVec[ARRAY];
+    bool fUsePortable;
+    
+public:
+    NormalizeBench(void* param, bool usePortable)
+    : INHERITED(param)
+    , fUsePortable(usePortable) {
+        
+        SkRandom rand;
+        for (int i = 0; i < ARRAY; ++i) {
+            fVec[i].set(rand.nextSScalar1(), rand.nextSScalar1());
+        }
+        
+        fName = "point_normalize";
+        fIsRendering = false;
+    }
+    
+    // just so the compiler doesn't remove our loops
+    virtual void process(int) {}
+    
+protected:
+    virtual void onDraw(SkCanvas*) {
+        int accum = 0;
+        
+        for (int j = 0; j < LOOP; ++j) {
+            for (int i = 0; i < ARRAY; ++i) {
+                accum += fVec[i].normalize();
+            }
+            this->process(accum);
+        }
+    }
+    
+    virtual const char* onGetName() {
+        return fName;
+    }
+    
+private:
+    const char* fName;
+    
+    typedef SkBenchmark INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 DEF_BENCH( return new NoOpMathBench(p); )
 DEF_BENCH( return new SlowISqrtMathBench(p); )
 DEF_BENCH( return new FastISqrtMathBench(p); )
@@ -452,3 +501,5 @@ DEF_BENCH( return new FloorBench(p, true); )
 
 DEF_BENCH( return new CLZBench(p, false); )
 DEF_BENCH( return new CLZBench(p, true); )
+
+DEF_BENCH( return new NormalizeBench(p, false); )
