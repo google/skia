@@ -648,3 +648,46 @@ static void TestMath(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Math", MathTestClass, TestMath)
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkEndian.h"
+
+template <typename T> struct PairRec {
+    T   fYin;
+    T   fYang;
+};
+
+static void TestEndian(skiatest::Reporter* reporter) {
+    static const PairRec<uint16_t> g16[] = {
+        { 0x0,      0x0     },
+        { 0xFFFF,   0xFFFF  },
+        { 0x1122,   0x2211  },
+    };
+    static const PairRec<uint32_t> g32[] = {
+        { 0x0,          0x0         },
+        { 0xFFFFFFFF,   0xFFFFFFFF  },
+        { 0x11223344,   0x44332211  },
+    };
+    static const PairRec<uint64_t> g64[] = {
+        { 0x0,      0x0                             },
+        { 0xFFFFFFFFFFFFFFFFULL,  0xFFFFFFFFFFFFFFFFULL  },
+        { 0x1122334455667788ULL,  0x8877665544332211ULL  },
+    };
+
+    REPORTER_ASSERT(reporter, 0x1122 == SkTEndianSwap16<0x2211>::value);
+    REPORTER_ASSERT(reporter, 0x11223344 == SkTEndianSwap32<0x44332211>::value);
+    REPORTER_ASSERT(reporter, 0x1122334455667788ULL == SkTEndianSwap64<0x8877665544332211ULL>::value);
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(g16); ++i) {
+        REPORTER_ASSERT(reporter, g16[i].fYang == SkEndianSwap16(g16[i].fYin));
+    }
+    for (size_t i = 0; i < SK_ARRAY_COUNT(g32); ++i) {
+        REPORTER_ASSERT(reporter, g32[i].fYang == SkEndianSwap32(g32[i].fYin));
+    }
+    for (size_t i = 0; i < SK_ARRAY_COUNT(g64); ++i) {
+        REPORTER_ASSERT(reporter, g64[i].fYang == SkEndianSwap64(g64[i].fYin));
+    }
+}
+
+DEFINE_TESTCLASS("Endian", EndianTestClass, TestEndian)
