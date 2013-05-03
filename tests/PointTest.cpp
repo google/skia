@@ -68,7 +68,11 @@ static void test_overflow(skiatest::Reporter* reporter) {
     SkPoint pt = { bigFloat, bigFloat };
     
     SkScalar length = pt.length();
-    REPORTER_ASSERT(reporter, !SkScalarIsFinite(length));
+    // expect this to be non-finite, but dump the results if not.
+    if (SkScalarIsFinite(length)) {
+        SkDebugf("length(%g, %g) == %g\n", pt.fX, pt.fY, length);
+        REPORTER_ASSERT(reporter, !SkScalarIsFinite(length));
+    }
 
     // this should succeed, even though we can't represent length
     REPORTER_ASSERT(reporter, pt.setLength(SK_Scalar1));
