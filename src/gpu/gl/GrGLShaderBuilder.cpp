@@ -87,7 +87,7 @@ void append_swizzle(SkString* outAppend,
 
 }
 
-static const char kDstColorName[] = "_dstColor";
+static const char kDstCopyColorName[] = "_dstColor";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -125,7 +125,9 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     } else {
         fLocalCoordsVar = fPositionVar;
     }
-    if (kNoDstRead_DstReadKey != desc.fDstRead) {
+    // Emit code to read the dst copy textue if necessary.
+    if (kNoDstRead_DstReadKey != desc.fDstRead &&
+        GrGLCaps::kNone_FBFetchType == ctxInfo.caps()->fbFetchType()) {
         bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & desc.fDstRead);
         const char* dstCopyTopLeftName;
         const char* dstCopyCoordScaleName;
@@ -152,7 +154,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
         if (!topDown) {
             this->fsCodeAppend("\t_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
         }
-        this->fsCodeAppendf("\tvec4 %s = ", kDstColorName);
+        this->fsCodeAppendf("\tvec4 %s = ", kDstCopyColorName);
         this->appendTextureLookup(kFragment_ShaderType, fDstCopySampler, "_dstTexCoord");
         this->fsCodeAppend(";\n\n");
     }
@@ -186,6 +188,20 @@ bool GrGLShaderBuilder::enablePrivateFeature(GLSLPrivateFeature feature) {
                                    "GL_ARB_fragment_coord_conventions");
             }
             return true;
+        case kEXTShaderFramebufferFetch_GLSLPrivateFeature:
+            if (GrGLCaps::kEXT_FBFetchType != fCtxInfo.caps()->fbFetchType()) {
+                return false;
+            }
+            this->addFSFeature(1 << kEXTShaderFramebufferFetch_GLSLPrivateFeature,
+                               "GL_EXT_shader_framebuffer_fetch");
+            return true;
+        case kNVShaderFramebufferFetch_GLSLPrivateFeature:
+            if (GrGLCaps::kNV_FBFetchType != fCtxInfo.caps()->fbFetchType()) {
+                return false;
+            }
+            this->addFSFeature(1 << kNVShaderFramebufferFetch_GLSLPrivateFeature,
+                               "GL_NV_shader_framebuffer_fetch");
+            return true;
         default:
             GrCrash("Unexpected GLSLPrivateFeature requested.");
             return false;
@@ -199,9 +215,17 @@ void GrGLShaderBuilder::addFSFeature(uint32_t featureBit, const char* extensionN
     }
 }
 
-const char* GrGLShaderBuilder::dstColor() const {
-    if (fDstCopySampler.isInitialized()) {
-        return kDstColorName;
+const char* GrGLShaderBuilder::dstColor() {
+    static const char kFBFetchColorName[] = "gl_LastFragData[0]";
+    GrGLCaps::FBFetchType fetchType = fCtxInfo.caps()->fbFetchType();
+    if (GrGLCaps::kEXT_FBFetchType == fetchType) {
+        SkAssertResult(this->enablePrivateFeature(kEXTShaderFramebufferFetch_GLSLPrivateFeature));
+        return kFBFetchColorName;
+    } else if (GrGLCaps::kNV_FBFetchType == fetchType) {
+        SkAssertResult(this->enablePrivateFeature(kNVShaderFramebufferFetch_GLSLPrivateFeature));
+        return kFBFetchColorName;
+    } else if (fDstCopySampler.isInitialized()) {
+        return kDstCopyColorName;
     } else {
         return NULL;
     }
@@ -290,6 +314,10 @@ GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
 GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
                                                                const GrGLCaps& caps) {
     uint32_t key = kYesDstRead_DstReadKeyBit;
+    if (GrGLCaps::kNone_FBFetchType != caps.fbFetchType()) {
+        return key;
+    }
+    GrAssert(NULL != dstCopy);
     if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstCopy->config())) {
         // The fact that the config is alpha-only must be considered when generating code.
         key |= kUseAlphaConfig_DstReadKeyBit;

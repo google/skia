@@ -407,7 +407,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
-    if (!this->getDrawState().willEffectReadDst()) {
+    if (this->caps()->dstReadInShaderSupport() || !this->getDrawState().willEffectReadDst()) {
         return true;
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
@@ -946,6 +946,7 @@ void GrDrawTargetCaps::print() const {
     GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
     GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
     GrPrintf("Path Stenciling Support     : %s\n", gNY[fPathStencilingSupport]);
+    GrPrintf("Dst Read In Shader Support  : %s\n", gNY[fDstReadInShaderSupport]);
     GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
     GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
     GrPrintf("Max Sample Count            : %d\n", fMaxSampleCount);
