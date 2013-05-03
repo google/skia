@@ -160,9 +160,13 @@
         }],
         [ 'not skia_angle', {
           'sources!': [
-            '../include/gpu/gl/SkANGLEGLContext.h',
-            '../src/gpu/gl/angle/SkANGLEGLContext.cpp',
-            '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
+            '<@(skgr_angle_gl_sources)',
+          ],
+          'dependencies!': [
+            'angle.gyp:*',
+          ],
+          'export_dependent_settings!': [
+            'angle.gyp:*',
           ],
         }],
       ],
@@ -289,10 +293,13 @@
         }],
         [ 'not skia_angle', {
           'sources!': [
-            '../include/gpu/gl/SkANGLEGLContext.h',
-
-            '../src/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
-            '../src/gpu/gl/angle/SkANGLEGLContext.cpp',
+            '<@(gr_angle_gl_sources)',
+          ],
+          'dependencies!': [
+            'angle.gyp:*',
+          ],
+          'export_dependent_settings!': [
+            'angle.gyp:*',
           ],
         }],
         [ 'skia_os == "android"', {
