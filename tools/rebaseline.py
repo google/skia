@@ -29,7 +29,7 @@ pairs = [
    ['base-macmini-lion-float',
     'Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release'],
    ['base-android-galaxy-nexus',
-    'Test-Android-GalaxyNexus-SGX540-Arm7-Release'],
+    'Test-Android-GalaxyNexus-SGX540-Arm7-Debug'],
    ['base-android-nexus-7',
     'Test-Android-Nexus7-Tegra3-Arm7-Release'],
    ['base-android-nexus-s',
