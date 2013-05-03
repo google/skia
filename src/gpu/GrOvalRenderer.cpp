@@ -742,7 +742,7 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
     return fRRectIndexBuffer;
 }
 
-bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA, 
+bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA,
                                      const SkRRect& rrect, const SkStrokeRec& stroke)
 {
     // only anti-aliased rrects for now

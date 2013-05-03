@@ -625,7 +625,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             extract_alpha(srcM,
                           (const SkPMColor*)glyph->fImage, glyph->rowBytes());
         }
-        
+
         fRec.getMatrixFrom2x2(&matrix);
 
         if (fMaskFilter->filterMask(&dstM, srcM, matrix, NULL)) {

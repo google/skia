@@ -173,11 +173,11 @@ public:
 
 protected:
 
-    virtual const char* onGetName() { 
+    virtual const char* onGetName() {
         if (fRotate) {
-            return "aarects_rotated"; 
+            return "aarects_rotated";
         }
-        return "aarects"; 
+        return "aarects";
     }
 
     virtual void onDraw(SkCanvas* canvas) {

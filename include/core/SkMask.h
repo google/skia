@@ -98,7 +98,7 @@ struct SkMask {
         uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
-    
+
     /**
      *  Return the address of the specified 32bit mask. In the debug build,
      *  this asserts that the mask's format is 32bits, and that (x,y)
@@ -111,7 +111,7 @@ struct SkMask {
         uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
-    
+
     /**
      *  Returns the address of the specified pixel, computing the pixel-size
      *  at runtime based on the mask format. This will be slightly slower than

@@ -1210,7 +1210,7 @@ static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb, const SkGlyph& glyph,
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
     unsigned a = SkComputeLuminance(r, g, b);
-    
+
     // compute gradient from x,y
     r = x * 255 / glyph.fWidth;
     g = 0;
