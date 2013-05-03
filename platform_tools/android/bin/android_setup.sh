@@ -26,6 +26,17 @@ if [[ "$?" != "0" ]]; then
   exit 1
 fi
 
+# check to see that gclient sync ran successfully
+THIRD_PARTY_EXTERNAL_DIR=${SCRIPT_DIR}/../third_party/externals
+if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
+	echo ""
+	echo "ERROR: Unable to find the required third_party dependencies needed to build."
+	echo "       To fix this add the following line to your .gclient file and run 'gclient sync'"
+	echo "        target_os = ['android']"
+	echo ""
+	exit 1;
+fi
+
 # determine the toolchain that we will be using
 API_LEVEL=14
 
