@@ -1697,7 +1697,7 @@ tabl_mlb.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.55
 tabl_mlb.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,20.120,8.108,32.132
 tabl_mlb.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,620.750,548.675,692.825
 tabl_mlb.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,103.090,82.781,123.399
-tabl_mlb.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,89.700,70.730,108.670
+tabl_mlb.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,89.700,60.730,108.670
 tabl_mlb.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,369.170,322.253,416.087
 tabl_mlb.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.830,3.347,26.313
 tabl_mlb.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,17.030,5.327,28.733
