@@ -111,7 +111,7 @@ public:
 
 protected:
     virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
-    virtual bool onDecodeRegion(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
+    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
@@ -321,7 +321,7 @@ static bool is_config_compatible(const SkBitmap& bitmap) {
            config == SkBitmap::kARGB_8888_Config;
 }
 
-bool SkWEBPImageDecoder::onDecodeRegion(SkBitmap* decodedBitmap,
+bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
                                         const SkIRect& region) {
     SkIRect rect = SkIRect::MakeWH(fOrigWidth, fOrigHeight);
 

@@ -72,7 +72,7 @@ public:
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
     virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
-    virtual bool onDecodeRegion(SkBitmap* bitmap, const SkIRect& region) SK_OVERRIDE;
+    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& region) SK_OVERRIDE;
 #endif
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
@@ -642,7 +642,11 @@ bool SkPNGImageDecoder::onBuildTileIndex(SkStream* sk_stream, int *width, int *h
     return true;
 }
 
-bool SkPNGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
+bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
+    if (NULL == fImageIndex) {
+        return false;
+    }
+
     png_structp png_ptr = fImageIndex->png_ptr;
     png_infop info_ptr = fImageIndex->info_ptr;
     if (setjmp(png_jmpbuf(png_ptr))) {
@@ -657,7 +661,7 @@ bool SkPNGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
     SkIRect rect = SkIRect::MakeWH(origWidth, origHeight);
 
     if (!rect.intersect(region)) {
-        // If the requested region is entirely outsides the image, just
+        // If the requested region is entirely outside the image, just
         // returns false
         return false;
     }
@@ -731,8 +735,8 @@ bool SkPNGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
 #if defined(PNG_1_0_X) || defined (PNG_1_2_X)
     png_ptr->pass = 0;
 #else
-    // FIXME: Figure out what (if anything) to do when Android moves to
-    // libpng > 1.2.
+    // FIXME: This sets pass as desired, but also sets iwidth. Is that ok?
+    png_set_interlaced_pass(png_ptr, 0);
 #endif
     png_read_update_info(png_ptr, info_ptr);
 
@@ -745,7 +749,8 @@ bool SkPNGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
                 uint8_t* bmRow = decodedBitmap.getAddr8(0, 0);
                 png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
             }
-            for (png_uint_32 y = 0; y < origHeight; y++) {
+            png_uint_32 bitmapHeight = (png_uint_32) decodedBitmap.height();
+            for (png_uint_32 y = 0; y < bitmapHeight; y++) {
                 uint8_t* bmRow = decodedBitmap.getAddr8(0, y);
                 png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
             }
@@ -826,12 +831,10 @@ bool SkPNGImageDecoder::onDecodeRegion(SkBitmap* bm, const SkIRect& region) {
 
     if (swapOnly) {
         bm->swap(decodedBitmap);
-    } else {
-        cropBitmap(bm, &decodedBitmap, sampleSize, region.x(), region.y(),
-                   region.width(), region.height(), 0, rect.y());
+        return true;
     }
-
-    return true;
+    return this->cropBitmap(bm, &decodedBitmap, sampleSize, region.x(), region.y(),
+                            region.width(), region.height(), 0, rect.y());
 }
 #endif
 
