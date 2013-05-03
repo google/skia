@@ -183,7 +183,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(), bitmap.height());
 
     if (FLAGS_testSubsetDecoding) {
-        bool couldRewind = stream.rewind();
+        SkDEBUGCODE(bool couldRewind =) stream.rewind();
         SkASSERT(couldRewind);
         int width, height;
         // Build the tile index for decoding subsets. If the image is 1x1, skip subset
@@ -215,7 +215,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                         if (bitmap.extractSubset(&extractedSubset, rect)) {
                             suffix.printf("_%s_extracted.png", subsetDim.c_str());
                             make_outname(&outPath, writePath->c_str(), srcPath, suffix.c_str());
-                            success = write_bitmap(outPath.c_str(), &extractedSubset);
+                            SkDEBUGCODE(success =) write_bitmap(outPath.c_str(), &extractedSubset);
                             SkASSERT(success);
                         }
                     }
