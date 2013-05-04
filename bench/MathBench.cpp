@@ -440,28 +440,28 @@ class NormalizeBench : public SkBenchmark {
     };
     SkVector fVec[ARRAY];
     bool fUsePortable;
-    
+
 public:
     NormalizeBench(void* param, bool usePortable)
     : INHERITED(param)
     , fUsePortable(usePortable) {
-        
+
         SkRandom rand;
         for (int i = 0; i < ARRAY; ++i) {
             fVec[i].set(rand.nextSScalar1(), rand.nextSScalar1());
         }
-        
+
         fName = "point_normalize";
         fIsRendering = false;
     }
-    
+
     // just so the compiler doesn't remove our loops
     virtual void process(int) {}
-    
+
 protected:
     virtual void onDraw(SkCanvas*) {
         int accum = 0;
-        
+
         for (int j = 0; j < LOOP; ++j) {
             for (int i = 0; i < ARRAY; ++i) {
                 accum += fVec[i].normalize();
@@ -469,14 +469,14 @@ protected:
             this->process(accum);
         }
     }
-    
+
     virtual const char* onGetName() {
         return fName;
     }
-    
+
 private:
     const char* fName;
-    
+
     typedef SkBenchmark INHERITED;
 };
 

@@ -46,7 +46,7 @@ static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
     //See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=323
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, s2));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, expectedLength));
-    
+
     test_Normalize(reporter, x, y);
 }
 
@@ -66,7 +66,7 @@ template <typename T> T get_value(skiatest::Reporter* reporter, T value) {
 static void test_overflow(skiatest::Reporter* reporter) {
     SkScalar bigFloat = get_value(reporter, SkFloatToScalar(3.4e38f));
     SkPoint pt = { bigFloat, bigFloat };
-    
+
     SkScalar length = pt.length();
     // expect this to be non-finite, but dump the results if not.
     if (SkScalarIsFinite(length)) {
@@ -106,7 +106,7 @@ static void PointTest(skiatest::Reporter* reporter) {
         { SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5) },
         { SkFloatToScalar(0.6f), SkFloatToScalar(0.8f), SK_Scalar1 },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fLength);
     }
