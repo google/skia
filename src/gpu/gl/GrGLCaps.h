@@ -78,7 +78,7 @@ public:
          */
         kES_EXT_MsToTexture_MSFBOType,
 
-        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType 
+        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType
     };
 
     enum FBFetchType {
