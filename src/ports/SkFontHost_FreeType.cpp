@@ -189,6 +189,10 @@ private:
     bool        fDoLinearMetrics;
     bool        fLCDIsVert;
 
+    // Need scalar versions for generateFontMetrics
+    SkVector    fScale;
+    SkMatrix    fMatrix22Scalar;
+
     FT_Error setupSize();
     void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
@@ -756,6 +760,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     SkScalar    sx = m.getScaleX();
     SkScalar    sy = m.getScaleY();
 
+    fMatrix22Scalar.reset();
+
     if (m.getSkewX() || m.getSkewY() || sx < 0 || sy < 0) {
         // sort of give up on hinting
         sx = SkMaxScalar(SkScalarAbs(sx), SkScalarAbs(m.getSkewX()));
@@ -769,6 +775,11 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
         fMatrix22.xy = -SkScalarToFixed(SkScalarMul(m.getSkewX(), inv));
         fMatrix22.yx = -SkScalarToFixed(SkScalarMul(m.getSkewY(), inv));
         fMatrix22.yy = SkScalarToFixed(SkScalarMul(m.getScaleY(), inv));
+        
+        fMatrix22Scalar.setScaleX(SkScalarMul(m.getScaleX(), inv));
+        fMatrix22Scalar.setSkewX(-SkScalarMul(m.getSkewX(), inv));
+        fMatrix22Scalar.setSkewY(-SkScalarMul(m.getSkewY(), inv));
+        fMatrix22Scalar.setScaleY(SkScalarMul(m.getScaleY(), inv));
     } else {
         fMatrix22.xx = fMatrix22.yy = SK_Fixed1;
         fMatrix22.xy = fMatrix22.yx = 0;
@@ -776,20 +787,28 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
 
 #ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
     if (fRec.getHinting() == SkPaint::kNo_Hinting) {
+        fScale.set(sx, sy);
         fScaleX = SkScalarToFixed(sx);
         fScaleY = SkScalarToFixed(sy);
     } else {
         SkScalar hintingScaleFactor = fRec.fHintingScaleFactor;
 
-        fScaleX = SkScalarToFixed(sx / hintingScaleFactor);
-        fScaleY = SkScalarToFixed(sy / hintingScaleFactor);
+        fScale.set(sx / hintingScaleFactor, sy / hintingScaleFactor);
+        fScaleX = SkScalarToFixed(fScale.fX);
+        fScaleY = SkScalarToFixed(fScale.fY);
 
         fMatrix22.xx *= hintingScaleFactor;
         fMatrix22.xy *= hintingScaleFactor;
         fMatrix22.yx *= hintingScaleFactor;
         fMatrix22.yy *= hintingScaleFactor;
+
+        fMatrix22Scalar.setScaleX(fMatrix22Scalar.getScaleX() * hintingScaleFactor);
+        fMatrix22Scalar.setSkewX(fMatrix22Scalar..getSkewX() * hintingScaleFactor);
+        fMatrix22Scalar.setSkewY(fMatrix22Scalar..getSkewY() * hintingScaleFactor);
+        fMatrix22Scalar.setScaleY(fMatrix22Scalar..getScaleY() * hintingScaleFactor);
     }
 #else
+    fScale.set(sx, sy);
     fScaleX = SkScalarToFixed(sx);
     fScaleY = SkScalarToFixed(sy);
 #endif
@@ -1231,9 +1250,9 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     SkPoint pts[6];
     SkFixed ys[6];
-    SkFixed scaleY = fScaleY;
-    SkFixed mxy = fMatrix22.xy;
-    SkFixed myy = fMatrix22.yy;
+    SkScalar scaleY = fScale.y();
+    SkScalar mxy = fMatrix22Scalar.getSkewX();
+    SkScalar myy = fMatrix22Scalar.getScaleY();
     SkScalar xmin = SkIntToScalar(face->bbox.xMin) / upem;
     SkScalar xmax = SkIntToScalar(face->bbox.xMax) / upem;
 
@@ -1255,7 +1274,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     SkScalar x_height;
     if (os2 && os2->sxHeight) {
-        x_height = SkFixedToScalar(SkMulDiv(fScaleX, os2->sxHeight, upem));
+        x_height = fScale.x() * os2->sxHeight / upem;
     } else {
         const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
         if (x_glyph) {
@@ -1265,7 +1284,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
                 emboldenOutline(fFace, &fFace->glyph->outline);
             }
             FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
-            x_height = SkFixedToScalar(SkFDot6ToFixed(bbox.yMax));
+            x_height = bbox.yMax / 64.0f;
         } else {
             x_height = 0;
         }
@@ -1273,10 +1292,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     // convert upem-y values into scalar points
     for (int i = 0; i < 6; i++) {
-        SkFixed y = SkMulDiv(scaleY, ys[i], upem);
-        SkFixed x = SkFixedMul(mxy, y);
-        y = SkFixedMul(myy, y);
-        pts[i].set(SkFixedToScalar(x), SkFixedToScalar(y));
+        SkScalar y = scaleY * ys[i] / upem;
+        pts[i].set(y * mxy, y * myy);
     }
 
     if (mx) {
