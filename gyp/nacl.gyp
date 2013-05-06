@@ -12,7 +12,7 @@
         '../src/utils',
       ],
       'sources': [
-        '../../nacl/src/nacl_interface.cpp',
+        '../platform_tools/nacl/src/nacl_interface.cpp',
       ],
     },
   ],

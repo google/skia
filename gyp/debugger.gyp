@@ -109,7 +109,7 @@
             '../src/utils',
           ],
           'sources': [
-            '../../nacl/src/nacl_debugger.cpp',
+            '../platform_tools/nacl/src/nacl_debugger.cpp',
           ],
         }, { # skia_os != "nacl"
           'include_dirs': [
