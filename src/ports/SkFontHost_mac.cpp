@@ -1832,8 +1832,21 @@ SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkDescriptor* desc)
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
-    unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
-                                  SkScalerContext::kAutohinting_Flag;
+    if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
+        rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
+    {
+        rec->fMaskFormat = SkMask::kA8_Format;
+        // Render the glyphs as close as possible to what was requested.
+        // The above turns off subpixel rendering, but the user requested it.
+        // Normal hinting will cause the A8 masks to be generated from CoreGraphics subpixel masks.
+        // See comments below for more details.
+        rec->setHinting(SkPaint::kNormal_Hinting);
+    }
+    
+    unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag  |
+                                  SkScalerContext::kAutohinting_Flag  |
+                                  SkScalerContext::kLCD_BGROrder_Flag |
+                                  SkScalerContext::kLCD_Vertical_Flag;
 
     rec->fFlags &= ~flagsWeDontSupport;
 

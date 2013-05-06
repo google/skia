@@ -27,6 +27,7 @@
     '../gm/degeneratesegments.cpp',
     '../gm/dashcubics.cpp',
     '../gm/dashing.cpp',
+    '../gm/deviceproperties.cpp',
     '../gm/distantclip.cpp',
     '../gm/displacement.cpp',
     '../gm/drawbitmaprect.cpp',
