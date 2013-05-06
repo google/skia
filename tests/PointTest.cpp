@@ -61,6 +61,26 @@ template <typename T> T get_value(skiatest::Reporter* reporter, T value) {
     return reporter ? value : 0;
 }
 
+// On linux gcc, 32bit, we are seeing the compiler propagate up the value
+// of SkPoint::length() as a double (which we use sometimes to avoid overflow
+// during the computation), even though the signature says float (SkScalar).
+//
+// force_as_float is meant to capture our latest technique (horrible as
+// it is) to force the value to be a float, so we can test whether it was
+// finite or not.
+static float force_as_float(skiatest::Reporter* reporter, float value) {
+    uint32_t storage;
+    memcpy(&storage, &value, 4);
+    // even the pair of memcpy calls are not sufficient, since those seem to
+    // be no-op'd, so we add a runtime tests (just like get_value) to force
+    // the compiler to give us an actual float.
+    if (NULL == reporter) {
+        storage = ~storage;
+    }
+    memcpy(&value, &storage, 4);
+    return value;
+}
+
 // test that we handle very large values correctly. i.e. that we can
 // successfully normalize something whose mag overflows a float.
 static void test_overflow(skiatest::Reporter* reporter) {
@@ -68,6 +88,8 @@ static void test_overflow(skiatest::Reporter* reporter) {
     SkPoint pt = { bigFloat, bigFloat };
 
     SkScalar length = pt.length();
+    length = force_as_float(reporter, length);
+
     // expect this to be non-finite, but dump the results if not.
     if (SkScalarIsFinite(length)) {
         SkDebugf("length(%g, %g) == %g\n", pt.fX, pt.fY, length);
