@@ -46,10 +46,10 @@ struct SkDeviceProperties {
         };
 
         Orientation getOrientation() {
-            return static_cast<Orientation>(fGeometry | kOrientationMask);
+            return static_cast<Orientation>(fGeometry & kOrientationMask);
         }
         Layout getLayout() {
-            return static_cast<Layout>(fGeometry | kLayoutMask);
+            return static_cast<Layout>(fGeometry & kLayoutMask);
         }
 
         bool isOrientationKnown() {

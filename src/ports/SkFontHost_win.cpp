@@ -1639,6 +1639,13 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
+    if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
+        rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
+    {
+        rec->fMaskFormat = SkMask::kA8_Format;
+        rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;
+    }
+
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |

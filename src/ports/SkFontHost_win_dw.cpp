@@ -1258,6 +1258,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
+    if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
+        rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
+    {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
+
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
