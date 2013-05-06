@@ -827,7 +827,7 @@ desk_wordpress.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Ar
 desk_wordpress.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,33.590,20.231,46.949
 desk_wordpress.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,35.910,22.319,49.501
 desk_wordpress.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,89.360,70.424,108.296
-desk_wordpress.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,91.220,72.098,110.342
+desk_wordpress.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,91.220,72.098,120.342
 desk_wordpress.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,956.000,850.400,1061.600
 desk_wordpress.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,64.130,47.717,80.543
 desk_wordpress.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,67.130,50.417,83.843
