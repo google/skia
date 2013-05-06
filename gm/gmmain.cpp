@@ -358,7 +358,7 @@ public:
                                const SkDynamicMemoryWStream& document) {
         SkFILEWStream stream(path.c_str());
         SkAutoDataUnref data(document.copyToData());
-        return stream.writeData(data.get());
+        return stream.write(data->data(), data->size());
     }
 
     /**
