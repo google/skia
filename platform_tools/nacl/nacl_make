@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function exportVar {
+  NAME=$1
+  VALUE=$2
+  echo export $NAME=\"$VALUE\"
+  export $NAME="$VALUE"
+}
+
 function setenv {
   if [ -z "$1" ]; then
     echo "ERROR: setenv() requires one argument."
@@ -40,25 +47,25 @@ function setenv {
   export NACL_CROSS_PREFIX=${CROSS_ID}-nacl
 
   if [[ -z "$NACL_MAKE_CCACHE" ]]; then
-    export NACLCC=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc
-    export NACLCXX=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++
+    exportVar NACLCC ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc
+    exportVar NACLCXX ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++
   else
-    export NACLCC="${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc"
-    export NACLCXX="${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++"
+    exportVar NACLCC "${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc"
+    exportVar NACLCXX "${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++"
   fi
-  export NACLAR=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ar
-  export NACLRANLIB=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ranlib
-  export NACLLD=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ld
-  export NACLSTRINGS=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strings
-  export NACLSTRIP=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strip
+  exportVar NACLAR ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ar
+  exportVar NACLRANLIB ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ranlib
+  exportVar NACLLD ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ld
+  exportVar NACLSTRINGS ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strings
+  exportVar NACLSTRIP ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strip
 
-  export CC=${NACLCC}
-  export CXX=${NACLCXX}
-  export AR=${NACLAR}
-  export RANLIB=${NACLRANLIB}
-  export PATH=${NACL_BIN_PATH}:${PATH};
+  exportVar CC "${NACLCC}"
+  exportVar CXX "${NACLCXX}"
+  exportVar AR "${NACLAR}"
+  exportVar RANLIB "${NACLRANLIB}"
+  exportVar PATH ${NACL_BIN_PATH}:${PATH};
 
-  export GYP_DEFINES="skia_os=nacl skia_arch_width=${ARCH_WIDTH}"
+  exportVar GYP_DEFINES "skia_os=nacl skia_arch_width=${ARCH_WIDTH}"
 }
 
 function build {
