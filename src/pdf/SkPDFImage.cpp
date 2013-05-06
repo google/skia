@@ -321,6 +321,7 @@ SkPDFImage::SkPDFImage(SkStream* imageData,
         insertName("ColorSpace", "DeviceGray");
     } else if (config == SkBitmap::kIndex8_Config ||
         config == SkBitmap::kRLE_Index8_Config) {
+        SkAutoLockPixels alp(bitmap);
         insert("ColorSpace",
                makeIndexedColorSpace(bitmap.getColorTable()))->unref();
     } else {
