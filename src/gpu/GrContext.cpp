@@ -140,6 +140,10 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
+    if (NULL == fGpu) {
+        return;
+    }
+
     this->flush();
 
     // Since the gpu can hold scratch textures, give it a chance to let go
