@@ -1,0 +1,104 @@
+#!/bin/bash
+
+function setenv {
+  if [ -z "$1" ]; then
+    echo "ERROR: setenv() requires one argument."
+    exit 1
+  fi
+  if [ -z "${NACL_SDK_ROOT}" ]; then
+    echo "ERROR: This script requires NACL_SDK_ROOT to be set."
+    exit 1
+  fi
+
+  ARCH_WIDTH=$1
+  if [ ${ARCH_WIDTH} = "32" ]; then
+    CROSS_ID=i686
+  elif [ ${ARCH_WIDTH} = "64" ]; then
+    CROSS_ID=x86_64
+  else
+    echo "ERROR: Unknown arch width: ${ARCH_WIDTH}"
+    exit 1
+  fi
+
+  OS_NAME=$(uname -s)
+  if [ $OS_NAME = "Darwin" ]; then
+    OS_SUBDIR="mac"
+    OS_SUBDIR_SHORT="mac"
+    OS_JOBS=4
+  elif [ $OS_NAME = "Linux" ]; then
+    OS_SUBDIR="linux"
+    OS_SUBDIR_SHORT="linux"
+    OS_JOBS=4
+  else
+    OS_SUBDIR="windows"
+    OS_SUBDIR_SHORT="win"
+    OS_JOBS=1
+  fi
+
+  NACL_TOOLCHAIN_ROOT=${NACL_SDK_ROOT}/toolchain/${OS_SUBDIR_SHORT}_x86_newlib
+  NACL_BIN_PATH=${NACL_TOOLCHAIN_ROOT}/bin
+  export NACL_CROSS_PREFIX=${CROSS_ID}-nacl
+
+  if [[ -z "$NACL_MAKE_CCACHE" ]]; then
+    export NACLCC=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc
+    export NACLCXX=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++
+  else
+    export NACLCC="${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-gcc"
+    export NACLCXX="${NACL_MAKE_CCACHE} ${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-g++"
+  fi
+  export NACLAR=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ar
+  export NACLRANLIB=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ranlib
+  export NACLLD=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-ld
+  export NACLSTRINGS=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strings
+  export NACLSTRIP=${NACL_BIN_PATH}/${NACL_CROSS_PREFIX}-strip
+
+  export CC=${NACLCC}
+  export CXX=${NACLCXX}
+  export AR=${NACLAR}
+  export RANLIB=${NACLRANLIB}
+  export PATH=${NACL_BIN_PATH}:${PATH};
+
+  export GYP_DEFINES="skia_os=nacl skia_arch_width=${ARCH_WIDTH}"
+}
+
+function build {
+  if [ -z "$1" ]; then
+    echo "ERROR: build() requires one argument."
+    exit 1
+  fi
+  setenv $1
+
+  export SKIA_OUT=out/nacl$1
+  make ${MAKE_ARGS}
+}
+
+MAKE_ARGS=""
+
+while (( "$#" )); do
+  if [[ "$1" == "--use-ccache" ]];
+  then
+    if [[ -z "$NACL_MAKE_CCACHE" ]];
+    then
+      NACL_MAKE_CCACHE=$(which ccache)
+    fi
+  elif [ -z "${MAKE_ARGS}" ]; then
+    MAKE_ARGS="$1"
+  else
+    MAKE_ARGS="${MAKE_ARGS} $1"
+  fi
+  shift
+done
+
+if [[ -n "$NACL_MAKE_CCACHE" ]]; then
+  $NACL_MAKE_CCACHE --version &> /dev/null
+  if [[ "$?" != "0" ]]; then
+    echo "Unable to find ccache!"
+    exit 1
+  fi
+fi
+
+build 32 && \
+build 64 && \
+if ! [ -L platform_tools/nacl/out ]; then
+  ln -s ../../out platform_tools/nacl
+fi
