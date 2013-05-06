@@ -371,7 +371,9 @@ public:
      */
     SkGpuTexture* getTexture() const;
 
-    /** Return the bitmap's colortable (if any). Does not affect the colortable's
+    /** Return the bitmap's colortable, if it uses one (i.e. fConfig is
+        kIndex8_Config or kRLE_Index8_Config) and the pixels are locked.
+        Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
     SkColorTable* getColorTable() const { return fColorTable; }
