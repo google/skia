@@ -24,7 +24,7 @@
 static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     SkASSERT(SkBitmap::kIndex8_Config == bitmap.config());
 
-    SkAutoLockPixels apl(bitmap);
+    SkAutoLockPixels alp(bitmap);
     if (!bitmap.readyToDraw()) {
         SkDEBUGFAIL("bitmap not ready to draw!");
         return;
@@ -135,6 +135,10 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         }
     }
 
+    SkAutoLockPixels alp(*bitmap);
+    if (!bitmap->readyToDraw()) {
+        return NULL;
+    }
     if (cache) {
         // This texture is likely to be used again so leave it in the cache
         GrCacheID cacheID;
