@@ -537,7 +537,6 @@ void SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
 
             SkOrderedReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(info.fFlags));
-            buffer.setPictureVersion(info.fVersion);
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
