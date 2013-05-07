@@ -150,6 +150,7 @@ private:
     class TypefaceUse : ::SkNoncopyable {
     public:
         SkFontID typefaceId;
+        int ttcIndex;
         SkStream* fontData;
         IXpsOMFontResource* xpsFont;
         SkBitSet* glyphsUsed;
@@ -247,7 +248,7 @@ private:
         const SkDraw& d,
         IXpsOMObjectFactory* xpsFactory,
         IXpsOMCanvas* canvas,
-        IXpsOMFontResource* font,
+        TypefaceUse* font,
         LPCWSTR text,
         XPS_GLYPH_INDEX* xpsGlyphs,
         UINT32 xpsGlyphsLen,

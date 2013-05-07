@@ -8,6 +8,7 @@
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'images.gyp:images',
+        'sfnt.gyp:sfnt',
       ],
       'include_dirs': [
         '../include/device/xps',
