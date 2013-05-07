@@ -22,6 +22,7 @@
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
+#include "SkEndian.h"
 #include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkHRESULT.h"
@@ -31,12 +32,14 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkRasterizer.h"
+#include "SkSFNTHeader.h"
 #include "SkShader.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTLazy.h"
 #include "SkTScopedComPtr.h"
+#include "SkTTCFHeader.h"
 #include "SkTypefacePriv.h"
 #include "SkUtils.h"
 #include "SkXPSDevice.h"
@@ -80,6 +83,7 @@ static int format_guid(const GUID& guid,
                       guid.Data4[6],
                       guid.Data4[7]);
 }
+
 /**
    Creates a GUID based id and places it into buffer.
    buffer should have space for at least GUID_ID_LEN wide characters.
@@ -179,10 +183,10 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
         "Could not create thumbnail generator.");
 
     SkTScopedComPtr<IOpcPartUri> partUri;
-    static const size_t size = SK_MAX(
+    static const size_t size = SkTUMax<
         SK_ARRAY_COUNT(L"/Documents/1/Metadata/.png") + SK_DIGITS_IN(pageNum),
         SK_ARRAY_COUNT(L"/Metadata/" L_GUID_ID L".png")
-    );
+    >::value;
     wchar_t buffer[size];
     if (pageNum > 0) {
         swprintf_s(buffer, size, L"/Documents/1/Metadata/%u.png", pageNum);
@@ -334,18 +338,20 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
     SkTDArray<unsigned short> keepList;
     current->glyphsUsed->exportTo(&keepList);
 
+    int ttcCount = (current->ttcIndex + 1);
+
     //The following are declared with the types required by CreateFontPackage.
-    unsigned char *puchFontPackageBuffer;
-    unsigned long pulFontPackageBufferSize;
-    unsigned long pulBytesWritten;
+    unsigned char *fontPackageBufferRaw = NULL;
+    unsigned long fontPackageBufferSize;
+    unsigned long bytesWritten;
     unsigned long result = CreateFontPackage(
         (unsigned char *) current->fontData->getMemoryBase(),
         (unsigned long) current->fontData->getLength(),
-        &puchFontPackageBuffer,
-        &pulFontPackageBufferSize,
-        &pulBytesWritten,
-        TTFCFP_FLAGS_SUBSET | TTFCFP_FLAGS_GLYPHLIST,// | TTFCFP_FLAGS_TTC,
-        0,//TTC index
+        &fontPackageBufferRaw,
+        &fontPackageBufferSize,
+        &bytesWritten,
+        TTFCFP_FLAGS_SUBSET | TTFCFP_FLAGS_GLYPHLIST | (ttcCount > 0 ? TTFCFP_FLAGS_TTC : 0),
+        current->ttcIndex,
         TTFCFP_SUBSET,
         0,
         0,
@@ -356,15 +362,51 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         sk_realloc_throw,
         sk_free,
         NULL);
+    SkAutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
     if (result != NO_ERROR) {
         SkDEBUGF(("CreateFontPackage Error %lu", result));
         return E_UNEXPECTED;
     }
 
-    SkMemoryStream* newStream = new SkMemoryStream;
-    newStream->setMemoryOwned(puchFontPackageBuffer, pulBytesWritten);
+    // If it was originally a ttc, keep it a ttc.
+    // CreateFontPackage over-allocates, realloc usually decreases the size substantially.
+    size_t extra;
+    if (ttcCount > 0) {
+        // Create space for a ttc header.
+        extra = sizeof(SkTTCFHeader) + (ttcCount * sizeof(SK_OT_ULONG));
+        fontPackageBuffer.realloc(bytesWritten + extra);
+        //overlap is certain, use memmove
+        memmove(fontPackageBuffer.get() + extra, fontPackageBuffer.get(), bytesWritten);
+
+        // Write the ttc header.
+        SkTTCFHeader* ttcfHeader = reinterpret_cast<SkTTCFHeader*>(fontPackageBuffer.get());
+        ttcfHeader->ttcTag = SkTTCFHeader::TAG;
+        ttcfHeader->version = SkTTCFHeader::version_1;
+        ttcfHeader->numOffsets = SkEndian_SwapBE32(ttcCount);
+        SK_OT_ULONG* offsetPtr = SkTAfter<SK_OT_ULONG>(ttcfHeader);
+        for (int i = 0; i < ttcCount; ++i, ++offsetPtr) {
+            *offsetPtr = SkEndian_SwapBE32(extra);
+        }
+
+        // Fix up offsets in sfnt table entries.
+        SkSFNTHeader* sfntHeader = SkTAddOffset<SkSFNTHeader>(fontPackageBuffer.get(), extra);
+        int numTables = SkEndian_SwapBE16(sfntHeader->numTables);
+        SkSFNTHeader::TableDirectoryEntry* tableDirectory =
+            SkTAfter<SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
+        for (int i = 0; i < numTables; ++i, ++tableDirectory) {
+            tableDirectory->offset = SkEndian_SwapBE32(
+                SkEndian_SwapBE32(tableDirectory->offset) + extra);
+        }
+    } else {
+        extra = 0;
+        fontPackageBuffer.realloc(bytesWritten);
+    }
+
+    SkAutoTUnref<SkMemoryStream> newStream(new SkMemoryStream());
+    newStream->setMemoryOwned(fontPackageBuffer.detach(), bytesWritten + extra);
+
     SkTScopedComPtr<IStream> newIStream;
-    SkIStream::CreateFromSkStream(newStream, true, &newIStream);
+    SkIStream::CreateFromSkStream(newStream.detach(), true, &newIStream);
 
     XPS_FONT_EMBEDDING embedding;
     HRM(current->xpsFont->GetEmbeddingOption(&embedding),
@@ -2034,7 +2076,8 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     XPS_FONT_EMBEDDING embedding = XPS_FONT_EMBEDDING_RESTRICTED;
 
     SkTScopedComPtr<IStream> fontStream;
-    SkStream* fontData = typeface->openStream(NULL);
+    int ttcIndex;
+    SkStream* fontData = typeface->openStream(&ttcIndex);
     HRM(SkIStream::CreateFromSkStream(fontData, true, &fontStream),
         "Could not create font stream.");
 
@@ -2057,8 +2100,15 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
                                               &xpsFontResource),
         "Could not create font resource.");
 
+    //TODO: change openStream to return -1 for non-ttc, get rid of this.
+    uint8_t* data = (uint8_t*)fontData->getMemoryBase();
+    bool isTTC = (data &&
+                  fontData->getLength() >= sizeof(SkTTCFHeader) &&
+                  ((SkTTCFHeader*)data)->ttcTag == SkTTCFHeader::TAG);
+
     TypefaceUse& newTypefaceUse = this->fTypefaces.push_back();
     newTypefaceUse.typefaceId = typefaceID;
+    newTypefaceUse.ttcIndex = isTTC ? ttcIndex : -1;
     newTypefaceUse.fontData = fontData;
     newTypefaceUse.xpsFont = xpsFontResource.release();
 
@@ -2074,7 +2124,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
 HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
                                IXpsOMObjectFactory* xpsFactory,
                                IXpsOMCanvas* canvas,
-                               IXpsOMFontResource* font,
+                               TypefaceUse* font,
                                LPCWSTR text,
                                XPS_GLYPH_INDEX* xpsGlyphs,
                                UINT32 xpsGlyphsLen,
@@ -2084,7 +2134,8 @@ HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
                                const SkMatrix& transform,
                                const SkPaint& paint) {
     SkTScopedComPtr<IXpsOMGlyphs> glyphs;
-    HRM(xpsFactory->CreateGlyphs(font, &glyphs), "Could not create glyphs.");
+    HRM(xpsFactory->CreateGlyphs(font->xpsFont, &glyphs), "Could not create glyphs.");
+    HRM(glyphs->SetFontFaceIndex(font->ttcIndex), "Could not set glyph font face index.");
 
     //XPS uses affine transformations for everything...
     //...except positioning text.
@@ -2282,7 +2333,7 @@ void SkXPSDevice::drawText(const SkDraw& d,
     HRV(AddGlyphs(d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
-                  typeface->xpsFont,
+                  typeface,
                   NULL,
                   procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
                   &origin,
@@ -2334,7 +2385,7 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
     HRV(AddGlyphs(d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
-                  typeface->xpsFont,
+                  typeface,
                   NULL,
                   procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
                   &origin,

@@ -46,6 +46,24 @@ template <typename T> struct SkTConstType<T, true> {
 };
 ///@}
 
+/**
+ *  Returns a pointer to a D which comes immediately after S[count].
+ */
+template <typename D, typename S> static D* SkTAfter(S* ptr, size_t count = 1) {
+    return reinterpret_cast<D*>(ptr + count);
+}
+
+/**
+ *  Returns a pointer to a D which comes byteOffset bytes after S.
+ */
+template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffset) {
+    // The intermediate char* has the same const-ness as D as this produces better error messages.
+    // This relies on the fact that reinterpret_cast can add constness, but cannot remove it.
+    return reinterpret_cast<D*>(
+        reinterpret_cast<typename SkTConstType<char, SkTIsConst<D>::value>::type*>(ptr) + byteOffset
+    );
+}
+
 /** \class SkAutoTCallVProc
 
     Call a function when this goes out of scope. The template uses two
@@ -252,12 +270,18 @@ private:
     char    fStorage[N * sizeof(T)];
 };
 
-/** Allocate a temp array on the stack/heap.
-    Does NOT call any constructors/destructors on T (i.e. T must be POD)
-*/
+/** Manages an array of T elements, freeing the array in the destructor.
+ *  Does NOT call any constructors/destructors on T (T must be POD).
+ */
 template <typename T> class SkAutoTMalloc : SkNoncopyable {
 public:
-    SkAutoTMalloc(size_t count) {
+    /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
+    explicit SkAutoTMalloc(T* ptr = NULL) {
+        fPtr = ptr;
+    }
+
+    /** Allocates space for 'count' Ts. */
+    explicit SkAutoTMalloc(size_t count) {
         fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
     }
 
@@ -265,8 +289,13 @@ public:
         sk_free(fPtr);
     }
 
-    // doesn't preserve contents
-    void reset (size_t count) {
+    /** Resize the memory area pointed to by the current ptr preserving contents. */
+    void realloc(size_t count) {
+        fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
+    }
+
+    /** Resize the memory area pointed to by the current ptr without preserving contents. */
+    void reset(size_t count) {
         sk_free(fPtr);
         fPtr = fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
     }
@@ -289,8 +318,19 @@ public:
         return fPtr[index];
     }
 
+    /**
+     *  Transfer ownership of the ptr to the caller, setting the internal
+     *  pointer to NULL. Note that this differs from get(), which also returns
+     *  the pointer, but it does not transfer ownership.
+     */
+    T* detach() {
+        T* ptr = fPtr;
+        fPtr = NULL;
+        return ptr;
+    }
+
 private:
-    T*  fPtr;
+    T* fPtr;
 };
 
 template <size_t N, typename T> class SK_API SkAutoSTMalloc : SkNoncopyable {

@@ -46,7 +46,9 @@ struct SK_2N1<1> {
 */
 #define SK_DIGITS_IN(t) SK_BASE_N_DIGITS_IN(10, (t))
 
-//! a > b ? a : b
-#define SK_MAX(a,b) (((a) > (b)) ? (a) : (b))
+// Compile-time constant maximum value of two unsigned values.
+template <uintmax_t a, uintmax_t b> struct SkTUMax {
+    static const uintmax_t value = (b < a) ? a : b;
+};
 
 #endif

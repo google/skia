@@ -10,6 +10,7 @@
 #include "SkEndian.h"
 #include "SkString.h"
 #include "SkTSearch.h"
+#include "SkTemplates.h"
 #include "SkUtils.h"
 
 static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
@@ -435,14 +436,6 @@ int BCP47FromLanguageIdCompare(const BCP47FromLanguageId* a, const BCP47FromLang
 }
 }
 
-template <typename D, typename S> static D* SkTAfter(S const * const ptr, size_t count = 1) {
-    return (D*)(ptr + count);
-}
-
-template <typename D, typename S> static D* SkTAddOffset(S const * const ptr, size_t byteOffset) {
-    return (D*)((char*)ptr + byteOffset);
-}
-
 bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     const size_t nameRecordsCount = SkEndian_SwapBE16(fName.count);
     const SkOTTableName::Record* nameRecords = SkTAfter<const SkOTTableName::Record>(&fName);
@@ -459,12 +452,12 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     } while (fType != -1 && nameRecord->nameID.fontSpecific != fType);
 
     const uint16_t stringTableOffset = SkEndian_SwapBE16(fName.stringOffset);
-    const char* stringTable = SkTAddOffset<char>(&fName, stringTableOffset);
+    const char* stringTable = SkTAddOffset<const char>(&fName, stringTableOffset);
 
     // Decode the name into UTF-8.
     const uint16_t nameOffset = SkEndian_SwapBE16(nameRecord->offset);
     const uint16_t nameLength = SkEndian_SwapBE16(nameRecord->length);
-    const char* nameString = SkTAddOffset<char>(stringTable, nameOffset);
+    const char* nameString = SkTAddOffset<const char>(stringTable, nameOffset);
     switch (nameRecord->platformID.value) {
         case SkOTTableName::Record::PlatformID::Windows:
             SkASSERT(SkOTTableName::Record::EncodingID::Windows::UnicodeBMPUCS2
