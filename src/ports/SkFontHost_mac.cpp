@@ -1842,7 +1842,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         // See comments below for more details.
         rec->setHinting(SkPaint::kNormal_Hinting);
     }
-    
+
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag  |
                                   SkScalerContext::kAutohinting_Flag  |
                                   SkScalerContext::kLCD_BGROrder_Flag |

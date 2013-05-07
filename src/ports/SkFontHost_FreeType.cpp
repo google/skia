@@ -775,7 +775,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
         fMatrix22.xy = -SkScalarToFixed(SkScalarMul(m.getSkewX(), inv));
         fMatrix22.yx = -SkScalarToFixed(SkScalarMul(m.getSkewY(), inv));
         fMatrix22.yy = SkScalarToFixed(SkScalarMul(m.getScaleY(), inv));
-        
+
         fMatrix22Scalar.setScaleX(SkScalarMul(m.getScaleX(), inv));
         fMatrix22Scalar.setSkewX(-SkScalarMul(m.getSkewX(), inv));
         fMatrix22Scalar.setSkewY(-SkScalarMul(m.getSkewY(), inv));
