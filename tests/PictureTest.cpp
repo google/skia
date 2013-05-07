@@ -449,6 +449,26 @@ static void test_clone_empty(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_inverse_fill_clip_opt(skiatest::Reporter* reporter) {
+    // Regression test for crbug.com/229011
+    SkPicture picture;
+    SkCanvas* canvas = picture.beginRecording(10, 10,
+        SkPicture::kUsePathBoundsForClip_RecordingFlag);
+    SkRect rect = SkRect::MakeXYWH(SkIntToScalar(4), SkIntToScalar(4),
+                                   SkIntToScalar(2), SkIntToScalar(2));
+    SkPath path;
+    path.addRect(rect);
+    path.setFillType(SkPath::kInverseEvenOdd_FillType);
+    canvas->clipPath(path);
+    SkIRect clipBounds;
+    bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
+    REPORTER_ASSERT(reporter, true == nonEmpty);
+    REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
+    REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
+    REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
+    REPORTER_ASSERT(reporter, 10 == clipBounds.fRight);
+}
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -460,6 +480,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_gatherpixelrefs(reporter);
     test_bitmap_with_encoded_data(reporter);
     test_clone_empty(reporter);
+    test_inverse_fill_clip_opt(reporter);
 }
 
 #include "TestClassDef.h"

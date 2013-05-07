@@ -783,7 +783,11 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     validate(initialOffset, size);
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->INHERITED::clipRect(path.getBounds(), op, doAA);
+        if (path.isInverseFillType()) {
+            return this->getClipDeviceBounds(NULL);
+        } else {
+            return this->INHERITED::clipRect(path.getBounds(), op, doAA);
+        }
     } else {
         return this->INHERITED::clipPath(path, op, doAA);
     }
