@@ -109,7 +109,7 @@ private:
 
 class OvalBench : public RectBench {
 public:
-    OvalBench(void* param, int shift) : RectBench(param, shift) {}
+    OvalBench(void* param, int shift, int stroke = 0) : RectBench(param, shift, stroke) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawOval(r, p);
@@ -299,6 +299,8 @@ DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3)); )
 DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3, 4)); )
 DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1)); )
 DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1, 4)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3, 4)); )
 DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1)); )
 DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1, 4)); )
 DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3)); )
