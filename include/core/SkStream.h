@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
@@ -15,6 +13,23 @@
 
 class SkData;
 
+/**
+ *  SkStream -- abstraction for a source of bytes. Subclasses can be backed by
+ *  memory, or a file, or something else.
+ *
+ *  NOTE:
+ *
+ *  Classic "streams" APIs are sort of async, in that on a request for N
+ *  bytes, they may return fewer than N bytes on a given call, in which case
+ *  the caller can "try again" to get more bytes, eventually (modulo an error)
+ *  receiving their total N bytes.
+ *  
+ *  Skia streams behave differently. They are effectively synchronous, and will
+ *  always return all N bytes of the request if possible. If they return fewer
+ *  (the read() call returns the number of bytes read) then that means there is
+ *  no more data (at EOF or hit an error). The caller should *not* call again
+ *  in hopes of fulfilling more of the request.
+ */
 class SK_API SkStream : public SkRefCnt {
 public:
     /**
