@@ -16,20 +16,28 @@ const static char kJsonKey_ActualResults_Failed[]        = "failed";
 const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
 const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
 const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-const static char kJsonKey_ActualResults_AnyStatus_BitmapCityhash[]  = "bitmap-cityhash";
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+const static char kJsonKey_ActualResults_AnyStatus_BitmapHash[]  = "bitmap-64bitMD5";
+#else
+const static char kJsonKey_ActualResults_AnyStatus_BitmapHash[]  = "bitmap-cityhash";
+#endif
 
 const static char kJsonKey_ExpectedResults[] = "expected-results";
-const static char kJsonKey_ExpectedResults_AllowedBitmapCityhashes[] = "allowed-bitmap-cityhashes";
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
+const static char kJsonKey_ExpectedResults_AllowedBitmapHashes[] = "allowed-bitmap-64bitMD5s";
+#else
+const static char kJsonKey_ExpectedResults_AllowedBitmapHashes[] = "allowed-bitmap-cityhashes";
+#endif
 const static char kJsonKey_ExpectedResults_IgnoreFailure[]           = "ignore-failure";
 
 namespace skiagm {
 
     // TODO(epoger): This currently assumes that the result SkHashDigest was
-    // generated as a CityHash of an SkBitmap.  We'll need to allow for other
-    // hash types to cover non-bitmaps, MD5 instead of CityHash, etc.
+    // generated as an SkHashDigest of an SkBitmap.  We'll need to allow for other
+    // hash types to cover non-bitmaps.
     Json::Value ActualResultAsJsonValue(const SkHashDigest& result) {
         Json::Value jsonValue;
-        jsonValue[kJsonKey_ActualResults_AnyStatus_BitmapCityhash] = asJsonValue(result);
+        jsonValue[kJsonKey_ActualResults_AnyStatus_BitmapHash] = asJsonValue(result);
         return jsonValue;
     }
 
@@ -65,7 +73,7 @@ namespace skiagm {
         if (!SkBitmapHasher::ComputeDigest(bitmap, &digest)) {
             digest = 0;
         }
-        fAllowedBitmapCityhashes.push_back() = digest;
+        fAllowedBitmapChecksums.push_back() = digest;
     }
 
     Expectations::Expectations(Json::Value jsonElement) {
@@ -87,13 +95,13 @@ namespace skiagm {
             }
 
             Json::Value allowedChecksums =
-                jsonElement[kJsonKey_ExpectedResults_AllowedBitmapCityhashes];
+                jsonElement[kJsonKey_ExpectedResults_AllowedBitmapHashes];
             if (allowedChecksums.isNull()) {
                 // ok, we'll just assume there aren't any expected checksums to compare against
             } else if (!allowedChecksums.isArray()) {
                 gm_fprintf(stderr, "found non-array json value"
                            " for key '%s' in element '%s'\n",
-                           kJsonKey_ExpectedResults_AllowedBitmapCityhashes,
+                           kJsonKey_ExpectedResults_AllowedBitmapHashes,
                            jsonElement.toStyledString().c_str());
                 DEBUGFAIL_SEE_STDERR;
             } else {
@@ -105,7 +113,7 @@ namespace skiagm {
                                    jsonElement.toStyledString().c_str());
                         DEBUGFAIL_SEE_STDERR;
                     } else {
-                        fAllowedBitmapCityhashes.push_back() = asChecksum(checksumElement);
+                        fAllowedBitmapChecksums.push_back() = asChecksum(checksumElement);
                     }
                 }
             }
@@ -113,8 +121,8 @@ namespace skiagm {
     }
 
     bool Expectations::match(Checksum actualChecksum) const {
-        for (int i=0; i < this->fAllowedBitmapCityhashes.count(); i++) {
-            Checksum allowedChecksum = this->fAllowedBitmapCityhashes[i];
+        for (int i=0; i < this->fAllowedBitmapChecksums.count(); i++) {
+            Checksum allowedChecksum = this->fAllowedBitmapChecksums[i];
             if (allowedChecksum == actualChecksum) {
                 return true;
             }
@@ -124,15 +132,15 @@ namespace skiagm {
 
     Json::Value Expectations::asJsonValue() const {
         Json::Value allowedChecksumArray;
-        if (!this->fAllowedBitmapCityhashes.empty()) {
-            for (int i=0; i < this->fAllowedBitmapCityhashes.count(); i++) {
-                Checksum allowedChecksum = this->fAllowedBitmapCityhashes[i];
+        if (!this->fAllowedBitmapChecksums.empty()) {
+            for (int i=0; i < this->fAllowedBitmapChecksums.count(); i++) {
+                Checksum allowedChecksum = this->fAllowedBitmapChecksums[i];
                 allowedChecksumArray.append(Json::UInt64(allowedChecksum));
             }
         }
 
         Json::Value jsonValue;
-        jsonValue[kJsonKey_ExpectedResults_AllowedBitmapCityhashes] = allowedChecksumArray;
+        jsonValue[kJsonKey_ExpectedResults_AllowedBitmapHashes] = allowedChecksumArray;
         jsonValue[kJsonKey_ExpectedResults_IgnoreFailure] = this->ignoreFailure();
         return jsonValue;
     }

@@ -101,7 +101,7 @@ namespace skiagm {
         /**
          * Returns true iff there are no allowed checksums.
          */
-        bool empty() const { return this->fAllowedBitmapCityhashes.empty(); }
+        bool empty() const { return this->fAllowedBitmapChecksums.empty(); }
 
         /**
          * Returns true iff actualChecksum matches any allowedChecksum,
@@ -128,7 +128,7 @@ namespace skiagm {
     private:
         const static bool kDefaultIgnoreFailure = false;
 
-        SkTArray<Checksum> fAllowedBitmapCityhashes;
+        SkTArray<Checksum> fAllowedBitmapChecksums;
         bool fIgnoreFailure;
         SkBitmap fBitmap;
     };
