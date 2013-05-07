@@ -27,7 +27,6 @@ struct SkDRect {
         }
     }
 
-    // FIXME: used by debugging only ?
     bool contains(const SkDPoint& pt) const {
         return approximately_between(fLeft, pt.fX, fRight)
                 && approximately_between(fTop, pt.fY, fBottom);
@@ -44,6 +43,14 @@ struct SkDRect {
     void set(const SkDPoint& pt) {
         fLeft = fRight = pt.fX;
         fTop = fBottom = pt.fY;
+    }
+
+    double width() const {
+        return fRight - fLeft;
+    }
+
+    double height() const {
+        return fBottom - fTop;
     }
 
     void setBounds(const SkDLine&);

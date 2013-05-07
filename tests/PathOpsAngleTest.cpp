@@ -8,11 +8,16 @@
 #include "Test.h"
 
 static const SkPoint cubics[][4] = {
-    {{0, 1}, {2, 6}, {4, 2}, {5, 3}}
+    {{0, 1}, {2, 6}, {4, 2}, {5, 3}},
+    {{10, 234}, {10, 229.581726f}, {13.5817204f, 226}, {18, 226}},
+};
+
+static const SkPoint quads[][3] = {
+    {{12.3423996f, 228.342407f}, {10, 230.686295f}, {10, 234}},
 };
 
 static const SkPoint lines[][2] = {
-    {{6, 2}, {2, 4}}
+    {{6, 2}, {2, 4}},
 };
 
 struct SortSet {
@@ -36,38 +41,61 @@ static const SortSet set2[] = {
     {lines[0], 2, 0.574074074, 0.9140625},
 };
 
+static const SortSet set3[] = {
+    {cubics[1], 4, 0, 1},
+    {quads[0], 3, 1, 0},
+};
+
 struct SortSetTests {
     const SortSet* set;
     size_t count;
 };
 
 static const SortSetTests tests[] = {
+    { set3, SK_ARRAY_COUNT(set3) },
     { set2, SK_ARRAY_COUNT(set2) },
-    { set1, SK_ARRAY_COUNT(set1) }
+    { set1, SK_ARRAY_COUNT(set1) },
 };
 
 static void setup(const SortSet* set, const size_t idx, SkPoint const ** data,
         SkOpSegment* seg, int* ts) {
     SkPoint start, end;
-    if (set[idx].ptCount == 2) {
-        *data = set[idx].ptData;
-        seg->addLine(*data, false, false);
-        SkDLine dLine;
-        dLine.set(set[idx].ptData);
-        start = dLine.xyAtT(set[idx].tStart).asSkPoint();
-        end = dLine.xyAtT(set[idx].tEnd).asSkPoint();
-    } else if (set[idx].ptCount == 4) {
-        *data = set[idx].ptData;
-        seg->addCubic(*data, false, false);
-        SkDCubic dCubic;
-        dCubic.set(set[idx].ptData);
-        start = dCubic.xyAtT(set[idx].tStart).asSkPoint();
-        end = dCubic.xyAtT(set[idx].tEnd).asSkPoint();
+    *data = set[idx].ptData;
+    switch(set[idx].ptCount) {
+        case 2: {
+            seg->addLine(*data, false, false);
+            SkDLine dLine;
+            dLine.set(set[idx].ptData);
+            start = dLine.xyAtT(set[idx].tStart).asSkPoint();
+            end = dLine.xyAtT(set[idx].tEnd).asSkPoint();
+            } break;
+        case 3: {
+            seg->addQuad(*data, false, false);
+            SkDQuad dQuad;
+            dQuad.set(set[idx].ptData);
+            start = dQuad.xyAtT(set[idx].tStart).asSkPoint();
+            end = dQuad.xyAtT(set[idx].tEnd).asSkPoint();
+            } break;
+        case 4: {
+            seg->addCubic(*data, false, false);
+            SkDCubic dCubic;
+            dCubic.set(set[idx].ptData);
+            start = dCubic.xyAtT(set[idx].tStart).asSkPoint();
+            end = dCubic.xyAtT(set[idx].tEnd).asSkPoint();
+            } break;
     }
-    seg->addT(NULL, start, set[idx].tStart);
-    seg->addT(NULL, end, set[idx].tEnd);
-    seg->addT(NULL, set[idx].ptData[0], 0);
-    seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], 1);
+    double tStart = set[idx].tStart;
+    double tEnd = set[idx].tEnd;
+    seg->addT(NULL, start, tStart);
+    seg->addT(NULL, end, tEnd);
+    double tLeft = tStart < tEnd ? 0 : 1;
+    if (tStart != tLeft && tEnd != tLeft) {
+        seg->addT(NULL, set[idx].ptData[0], tLeft);
+    }
+    double tRight = tStart < tEnd ? 1 : 0;
+    if (tStart != tRight && tEnd != tRight) {
+        seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], tRight);
+    }
     int tIndex = 0;
     do {
         if (seg->t(tIndex) == set[idx].tStart) {

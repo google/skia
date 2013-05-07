@@ -32,11 +32,15 @@ static bool bridgeWinding(SkTDArray<SkOpContour*>& contourList, SkPathWriter* si
         do {
             if (current->activeWinding(index, endIndex)) {
                 do {
-            #if DEBUG_ACTIVE_SPANS
                     if (!unsortable && current->done()) {
+            #if DEBUG_ACTIVE_SPANS
                         DebugShowActiveSpans(contourList);
-                    }
             #endif
+                        if (simple->isEmpty()) {
+                            simple->init();
+                            break;
+                        }
+                    }
                     SkASSERT(unsortable || !current->done());
                     int nextStart = index;
                     int nextEnd = endIndex;
@@ -63,7 +67,7 @@ static bool bridgeWinding(SkTDArray<SkOpContour*>& contourList, SkPathWriter* si
                 } while (!simple->isClosed() && (!unsortable
                         || !current->done(SkMin32(index, endIndex))));
                 if (current->activeWinding(index, endIndex) && !simple->isClosed()) {
-                    SkASSERT(unsortable);
+                    SkASSERT(unsortable || simple->isEmpty());
                     int min = SkMin32(index, endIndex);
                     if (!current->done(min)) {
                         current->addCurveTo(index, endIndex, simple, true);
@@ -182,7 +186,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     CoincidenceCheck(&contourList, 0);
     FixOtherTIndex(&contourList);
     SortSegments(&contourList);
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     DebugShowActiveSpans(contourList);
 #endif
     // construct closed contours

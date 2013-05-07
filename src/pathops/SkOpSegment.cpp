@@ -450,6 +450,11 @@ int SkOpSegment::addT(SkOpSegment* other, const SkPoint& pt, double newT) {
     span->fT = newT;
     span->fOther = other;
     span->fPt = pt;
+#if 0
+    // cubics, for instance, may not be exact enough to satisfy this check (e.g., cubicOp69d)
+    SkASSERT(approximately_equal(xyAtT(newT).fX, pt.fX)
+            && approximately_equal(xyAtT(newT).fY, pt.fY));
+#endif
     span->fWindSum = SK_MinS32;
     span->fOppSum = SK_MinS32;
     span->fWindValue = 1;
@@ -533,13 +538,16 @@ int SkOpSegment::addT(SkOpSegment* other, const SkPoint& pt, double newT) {
 
 // set spans from start to end to decrement by one
 // note this walks other backwards
-// FIMXE: there's probably an edge case that can be constructed where
+// FIXME: there's probably an edge case that can be constructed where
 // two span in one segment are separated by float epsilon on one span but
 // not the other, if one segment is very small. For this
 // case the counts asserted below may or may not be enough to separate the
 // spans. Even if the counts work out, what if the spans aren't correctly
 // sorted? It feels better in such a case to match the span's other span
 // pointer since both coincident segments must contain the same spans.
+// FIXME? It seems that decrementing by one will fail for complex paths that
+// have three or more coincident edges. Shouldn't this subtract the difference
+// between the winding values?
 void SkOpSegment::addTCancel(double startT, double endT, SkOpSegment* other,
         double oStartT, double oEndT) {
     SkASSERT(!approximately_negative(endT - startT));
@@ -558,14 +566,19 @@ void SkOpSegment::addTCancel(double startT, double endT, SkOpSegment* other,
     SkTDArray<double> outsideTs;
     SkTDArray<double> oOutsideTs;
     do {
-        bool decrement = test->fWindValue && oTest->fWindValue && !binary;
+        bool decrement = test->fWindValue && oTest->fWindValue;
         bool track = test->fWindValue || oTest->fWindValue;
+        bool bigger = test->fWindValue >= oTest->fWindValue;
         double testT = test->fT;
         double oTestT = oTest->fT;
         SkOpSpan* span = test;
         do {
             if (decrement) {
-                decrementSpan(span);
+                if (binary && bigger) {
+                    span->fOppValue--;
+                } else {
+                    decrementSpan(span);
+                }
             } else if (track && span->fT < 1 && oTestT < 1) {
                 TrackOutside(&outsideTs, span->fT, oTestT);
             }
@@ -581,7 +594,11 @@ void SkOpSegment::addTCancel(double startT, double endT, SkOpSegment* other,
             SkASSERT(originalWindValue == oSpan->fWindValue);
     #endif
             if (decrement) {
-                other->decrementSpan(oSpan);
+                if (binary && !bigger) {
+                    oSpan->fOppValue--;
+                } else {
+                    other->decrementSpan(oSpan);
+                }
             } else if (track && oSpan->fT < 1 && testT < 1) {
                 TrackOutside(&oOutsideTs, oSpan->fT, testT);
             }
@@ -758,14 +775,14 @@ void SkOpSegment::addTPair(double t, SkOpSegment* other, double otherT, bool bor
 void SkOpSegment::addTwoAngles(int start, int end, SkTDArray<SkOpAngle>* angles) const {
     // add edge leading into junction
     int min = SkMin32(end, start);
-    if (fTs[min].fWindValue > 0 || fTs[min].fOppValue > 0) {
+    if (fTs[min].fWindValue > 0 || fTs[min].fOppValue != 0) {
         addAngle(angles, end, start);
     }
     // add edge leading away from junction
     int step = SkSign32(end - start);
     int tIndex = nextExactSpan(end, step);
     min = SkMin32(end, tIndex);
-    if (tIndex >= 0 && (fTs[min].fWindValue > 0 || fTs[min].fOppValue > 0)) {
+    if (tIndex >= 0 && (fTs[min].fWindValue > 0 || fTs[min].fOppValue != 0)) {
         addAngle(angles, end, tIndex);
     }
 }
@@ -912,6 +929,10 @@ int SkOpSegment::computeSum(int startIndex, int endIndex, bool binary) {
                 if (oppoSign && UseInnerWinding(maxWinding, winding)) {
                     maxWinding = winding;
                 }
+#ifdef SK_DEBUG
+                SkASSERT(abs(maxWinding) <= gDebugMaxWindSum);
+                SkASSERT(abs(oMaxWinding) <= gDebugMaxWindSum);
+#endif
                 (void) segment->markAndChaseWinding(angle, oMaxWinding, maxWinding);
             } else {
                 if (UseInnerWinding(maxWinding, winding)) {
@@ -920,6 +941,10 @@ int SkOpSegment::computeSum(int startIndex, int endIndex, bool binary) {
                 if (oppoSign && UseInnerWinding(oMaxWinding, oWinding)) {
                     oMaxWinding = oWinding;
                 }
+#ifdef SK_DEBUG
+                SkASSERT(abs(maxWinding) <= gDebugMaxWindSum);
+                SkASSERT(abs(binary ? oMaxWinding : 0) <= gDebugMaxWindSum);
+#endif
                 (void) segment->markAndChaseWinding(angle, maxWinding,
                         binary ? oMaxWinding : 0);
             }
@@ -2241,6 +2266,10 @@ SkOpSegment* SkOpSegment::nextChase(int* index, const int step, int* min, SkOpSp
     int otherEnd = other->nextExactSpan(*index, step);
     SkASSERT(otherEnd >= 0);
     *min = SkMin32(*index, otherEnd);
+    if (other->fTs[*min].fTiny) {
+        *last = NULL;
+        return NULL;
+    }
     return other;
 }
 
@@ -2489,7 +2518,7 @@ int SkOpSegment::windValueAt(double t) const {
 }
 
 void SkOpSegment::zeroSpan(SkOpSpan* span) {
-    SkASSERT(span->fWindValue > 0 || span->fOppValue > 0);
+    SkASSERT(span->fWindValue > 0 || span->fOppValue != 0);
     span->fWindValue = 0;
     span->fOppValue = 0;
     SkASSERT(!span->fDone);
@@ -2557,7 +2586,7 @@ void SkOpSegment::debugShowTs() const {
 }
 #endif
 
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
 void SkOpSegment::debugShowActiveSpans() const {
     if (done()) {
         return;
@@ -2572,6 +2601,7 @@ void SkOpSegment::debugShowActiveSpans() const {
         if (fTs[i].fDone) {
             continue;
         }
+        SkASSERT(i < fTs.count() - 1);
 #if DEBUG_ACTIVE_SPANS_SHORT_FORM
         if (lastId == fID && lastT == fTs[i].fT) {
             continue;

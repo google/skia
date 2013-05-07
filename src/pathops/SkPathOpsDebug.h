@@ -7,6 +7,7 @@
 #ifndef SkPathOpsDebug_DEFINED
 #define SkPathOpsDebug_DEFINED
 
+#include "SkPathOps.h"
 #include "SkTypes.h"
 
 #ifdef SK_RELEASE
@@ -42,7 +43,8 @@ extern int gDebugMaxWindValue;
 
 #define DEBUG_ACTIVE_OP 0
 #define DEBUG_ACTIVE_SPANS 0
-#define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
+#define DEBUG_ACTIVE_SPANS_FIRST_ONLY 0
+#define DEBUG_ACTIVE_SPANS_SHORT_FORM 1
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
 #define DEBUG_ANGLE 0
@@ -54,10 +56,12 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_SHOW_PATH 0
 #define DEBUG_SHOW_TEST_NAME 0
 #define DEBUG_SHOW_TEST_PROGRESS 0
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
+#define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 0
 #define DEBUG_UNSORTABLE 0
 #define DEBUG_WIND_BUMP 0
@@ -68,6 +72,7 @@ extern int gDebugMaxWindValue;
 
 #define DEBUG_ACTIVE_OP 1
 #define DEBUG_ACTIVE_SPANS 1
+#define DEBUG_ACTIVE_SPANS_FIRST_ONLY 0
 #define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
@@ -80,10 +85,12 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 1
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_SHOW_PATH 0
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SHOW_TEST_PROGRESS 1
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
+#define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
 #define DEBUG_WIND_BUMP 0
@@ -93,7 +100,7 @@ extern int gDebugMaxWindValue;
 #endif
 
 #define DEBUG_DUMP (DEBUG_ACTIVE_OP | DEBUG_ACTIVE_SPANS | DEBUG_CONCIDENT | DEBUG_SORT | \
-        DEBUG_PATH_CONSTRUCTION)
+        DEBUG_SORT_SINGLE | DEBUG_PATH_CONSTRUCTION)
 
 #if DEBUG_AS_C_CODE
 #define CUBIC_DEBUG_STR "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
@@ -134,6 +141,11 @@ extern const char* kPathOpStr[];
 
 #ifndef DEBUG_TEST
 #define DEBUG_TEST 0
+#endif
+
+#if DEBUG_SHOW_PATH
+void ShowPath(const SkPath& path, const char* pathName);
+void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo);
 #endif
 
 #endif

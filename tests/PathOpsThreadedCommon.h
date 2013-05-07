@@ -7,10 +7,8 @@
 #ifndef PathOpsThreadedCommon_DEFINED
 #define PathOpsThreadedCommon_DEFINED
 
-#include "SkCountdown.h"
 #include "SkRunnable.h"
 #include "SkTDArray.h"
-#include "SkThreadPool.h"
 
 #define PATH_STR_SIZE 512
 

@@ -329,5 +329,9 @@ int SkIntersections::intersect(const SkDQuad& quad, const SkDLine& line) {
 
 int SkIntersections::intersectRay(const SkDQuad& quad, const SkDLine& line) {
     LineQuadraticIntersections q(quad, line, this);
-    return q.intersectRay(fT[0]);
+    fUsed = q.intersectRay(fT[0]);
+    for (int index = 0; index < fUsed; ++index) {
+        fPt[index] = quad.xyAtT(fT[0][index]);
+    }
+    return fUsed;
 }

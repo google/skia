@@ -20,6 +20,7 @@ public:
     bool hasMove() const;
     void init();
     bool isClosed() const;
+    bool isEmpty() const { return fEmpty; }
     void lineTo();
     const SkPath* nativePath() const;
     void nudge();

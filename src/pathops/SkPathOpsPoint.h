@@ -10,6 +10,10 @@
 #include "SkPathOpsTypes.h"
 #include "SkPoint.h"
 
+inline bool AlmostEqualUlps(const SkPoint& pt1, const SkPoint& pt2) {
+    return AlmostEqualUlps(pt1.fX, pt2.fX) && AlmostEqualUlps(pt1.fY, pt2.fY);
+}
+
 struct SkDVector {
     double fX, fY;
 

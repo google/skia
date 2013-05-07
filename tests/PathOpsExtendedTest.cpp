@@ -12,6 +12,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkStream.h"
+#include "SkThreadPool.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
@@ -78,7 +79,7 @@ void showPath(const SkPath& path, const char* str) {
     showPath(path);
 }
 
-const char* fillTypeStr[] = {
+static const char* fillTypeStr[] = {
     "kWinding_FillType",
     "kEvenOdd_FillType",
     "kInverseWinding_FillType",
@@ -478,7 +479,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
 }
 
 bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
-#if FORCE_RELEASE == 0
+#if DEBUG_SHOW_TEST_NAME
     showPathData(path);
 #endif
     SkPath out;
@@ -498,7 +499,7 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
 
 bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp) {
-#if FORCE_RELEASE == 0
+#if DEBUG_SHOW_TEST_NAME
     showPathData(a);
     showOp(shapeOp);
     showPathData(b);
@@ -595,7 +596,7 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
         while (index > 0 && tests[index].fun != firstTest) {
             --index;
         }
-#if FORCE_RELEASE == 0
+#if DEBUG_SHOW_TEST_NAME
             SkDebugf("<div id=\"%s\">\n", tests[index].str);
             SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
 #endif
@@ -605,7 +606,7 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
     size_t last = reverse ? 0 : count - 1;
     do {
         if (tests[index].fun != firstTest) {
-    #if FORCE_RELEASE == 0
+    #if DEBUG_SHOW_TEST_NAME
             SkDebugf("<div id=\"%s\">\n", tests[index].str);
             SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
     #endif

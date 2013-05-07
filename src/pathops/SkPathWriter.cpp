@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPathOpsTypes.h"
+#include "SkPathOpsPoint.h"
 #include "SkPathWriter.h"
 
 // wrap path to keep track of whether the contour is initialized and non-empty
@@ -37,6 +37,11 @@ void SkPathWriter::close() {
 
 void SkPathWriter::cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkPoint& pt3) {
     lineTo();
+    if (fEmpty && AlmostEqualUlps(fDefer[0], pt1) && AlmostEqualUlps(pt1, pt2)
+            && AlmostEqualUlps(pt2, pt3)) {
+        deferredLine(pt3);
+        return;
+    }
     moveTo();
     fDefer[1] = pt3;
     nudge();
@@ -116,6 +121,10 @@ void SkPathWriter::nudge() {
 
 void SkPathWriter::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     lineTo();
+    if (fEmpty && AlmostEqualUlps(fDefer[0], pt1) && AlmostEqualUlps(pt1, pt2)) {
+        deferredLine(pt2);
+        return;
+    }
     moveTo();
     fDefer[1] = pt2;
     nudge();

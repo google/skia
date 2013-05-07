@@ -58,6 +58,8 @@ static struct oneLineQuad {
     SkDQuad quad;
     SkDLine line;
 } oneOffs[] = {
+    {{{{973, 507}, {973, 508.24264526367187}, {972.12158203125, 509.12161254882812}}},
+        {{{930, 467}, {973, 510}}}},
     {{{{369.848602, 145.680267}, {382.360413, 121.298294}, {406.207703, 121.298294}}},
         {{{406.207703, 121.298294}, {348.781738, 123.864815}}}}
     };
@@ -65,11 +67,11 @@ static struct oneLineQuad {
 static size_t oneOffs_count = SK_ARRAY_COUNT(oneOffs);
 
 static void testOneOffs(skiatest::Reporter* reporter) {
-    SkIntersections intersections;
     bool flipped = false;
     for (size_t index = 0; index < oneOffs_count; ++index) {
         const SkDQuad& quad = oneOffs[index].quad;
         const SkDLine& line = oneOffs[index].line;
+        SkIntersections intersections;
         int result = doIntersect(intersections, quad, line, flipped);
         for (int inner = 0; inner < result; ++inner) {
             double quadT = intersections[0][inner];

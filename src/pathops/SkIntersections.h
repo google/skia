@@ -188,7 +188,6 @@ public:
     int cubicRay(const SkPoint pts[4], const SkDLine& line);
     void flip();
     int horizontal(const SkDLine&, double y);
-    int horizontal(const SkDLine&, double left, double right, double y);
     int horizontal(const SkDLine&, double left, double right, double y, bool flipped);
     int horizontal(const SkDQuad&, double left, double right, double y, bool flipped);
     int horizontal(const SkDQuad&, double left, double right, double y, double tRange[2]);
