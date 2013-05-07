@@ -1268,6 +1268,10 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
             } else {
                 Op(devPath, operand, (SkPathOp) elementOp, &devPath);
             }
+            // if the prev and curr clips disagree about aa -vs- not, favor the aa request.
+            // perhaps we need an API change to avoid this sort of mixed-signals about
+            // clipping.
+            doAA |= element->isAA();
         }
         op = SkRegion::kReplace_Op;
     }
