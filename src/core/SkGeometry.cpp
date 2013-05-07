@@ -1483,12 +1483,52 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
 }
 
-void SkConic::evalAt(SkScalar t, SkPoint* pt) const {
+/* Derivative of conic : just the numerator, as the denom has no P values
+     and can be ignored if we want to return a "normalized" tangent vector.
+
+    2 (P2 t (1 + t (-1 + w)) - P0 (-1 + t) (t (-1 + w) - w) + P1 (1 - 2 t) w)
+
+    -- grouping by powers of t yields --
+
+    t^2 : (2 P0 - 2 P2 - 2 P0 w + 2 P2 w)
+    t^1 : (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w)
+    t^0 : -2 P0 w + 2 P1 w
+
+    We can trivially divide everything by 2 to simplify   
+*/
+static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
+    // At^2 + Bt + C == t * (t * A + B) + C
+
+    const SkScalar P0 = coord[0];
+    const SkScalar P1 = coord[2];
+    const SkScalar P2 = coord[4];
+    const SkScalar P20 = P2 - P0;
+    const SkScalar P10 = P1 - P0;
+    const SkScalar wP10 = w * P10;
+    // 2 P0 - 2 P2 - 2 P0 w + 2 P2 w
+    // 2 * (P0 - P2 - P0w + P2w)
+    // 2 * (invW * P0 - invW * P2
+    SkScalar A = P20 - w * P20;
+    // -2 P0 + 2 P2 + 4 P0 w - 4 P1 w
+    // 2 * (P2 - P0 + P0w - P1w)
+    // 2 * (w * (P0 - P1) + P2 - P0)
+    SkScalar B = P20 - wP10;
+    // -2 P0 w + 2 P1 w
+    SkScalar C = wP10;
+
+    return t * (t * A + B) + C;
+}
+
+void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     if (pt) {
         pt->set(rat_eval_pos(&fPts[0].fX, fW, t),
                 rat_eval_pos(&fPts[0].fY, fW, t));
+    }
+    if (tangent) {
+        tangent->set(conic_eval_tan(&fPts[0].fX, fW, t),
+                     conic_eval_tan(&fPts[0].fY, fW, t));
     }
 }
 
@@ -1654,3 +1694,4 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
 void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
+
