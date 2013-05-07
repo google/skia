@@ -1367,6 +1367,12 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
              bitmap.height() <= fContext->getMaxTextureSize());
 
+    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
+    if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
+        SkDebugf("nothing to draw\n");
+        return;
+    }
+
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, &params, &texture);
     if (NULL == texture) {
