@@ -504,7 +504,7 @@ desk_googlespreadsheetdashed.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x
 desk_googlespreadsheetdashed.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,9.800,-1.180,20.780
 desk_googlespreadsheetdashed.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.310,6.479,30.141
 desk_googlespreadsheetdashed.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.910,5.219,28.601
-desk_googlespreadsheetdashed.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,215.460,183.914,247.006
+desk_googlespreadsheetdashed.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,215.460,173.914,247.006
 desk_googlespreadsheetdashed.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.060,3.554,26.566
 desk_googlespreadsheetdashed.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.070,2.663,25.477
 desk_googlespreadsheetdashed.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,710.160,629.144,791.176
