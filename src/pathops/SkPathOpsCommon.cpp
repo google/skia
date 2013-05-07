@@ -206,7 +206,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
     return NULL;
 }
 
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
 void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList) {
     int index;
     for (index = 0; index < contourList.count(); ++ index) {

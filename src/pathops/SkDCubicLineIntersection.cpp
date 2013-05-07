@@ -257,5 +257,9 @@ int SkIntersections::intersect(const SkDCubic& cubic, const SkDLine& line) {
 
 int SkIntersections::intersectRay(const SkDCubic& cubic, const SkDLine& line) {
     LineCubicIntersections c(cubic, line, *this);
-    return c.intersectRay(fT[0]);
+    fUsed = c.intersectRay(fT[0]);
+    for (int index = 0; index < fUsed; ++index) {
+        fPt[index] = cubic.xyAtT(fT[0][index]);
+    }
+    return fUsed;
 }

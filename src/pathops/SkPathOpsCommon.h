@@ -22,7 +22,7 @@ void MakeContourList(SkTArray<SkOpContour>& contours, SkTDArray<SkOpContour*>& l
                      bool evenOdd, bool oppEvenOdd);
 void SortSegments(SkTDArray<SkOpContour*>* contourList);
 
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
 void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList);
 #endif
 

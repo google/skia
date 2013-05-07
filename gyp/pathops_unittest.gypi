@@ -5,6 +5,7 @@
     '../tests/PathOpsCubicIntersectionTest.cpp',
     '../tests/PathOpsCubicIntersectionTestData.cpp',
     '../tests/PathOpsCubicLineIntersectionTest.cpp',
+    '../tests/PathOpsCubicQuadIntersectionTest.cpp',
     '../tests/PathOpsCubicReduceOrderTest.cpp',
     '../tests/PathOpsCubicToQuadsTest.cpp',
     '../tests/PathOpsDCubicTest.cpp',

@@ -240,6 +240,8 @@ public:
     void addTCoincident(double startT, double endT, SkOpSegment* other, double oStartT,
                         double oEndT);
     void addTPair(double t, SkOpSegment* other, double otherT, bool borrowWind, const SkPoint& pt);
+    void addTPair(double t, SkOpSegment* other, double otherT, bool borrowWind, const SkPoint& pt,
+                  const SkPoint& oPt);
     int addUnsortableT(SkOpSegment* other, bool start, const SkPoint& pt, double newT);
     bool betweenTs(int lesser, double testT, int greater) const;
     int computeSum(int startIndex, int endIndex, bool binary);
@@ -292,7 +294,7 @@ public:
         return fID;
     }
 #endif
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     void debugShowActiveSpans() const;
 #endif
 #if DEBUG_SORT || DEBUG_SWAP_TOP

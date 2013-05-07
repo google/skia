@@ -204,7 +204,7 @@ public:
     }
 #endif
 
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     void debugShowActiveSpans() {
         for (int index = 0; index < fSegments.count(); ++index) {
             fSegments[index].debugShowActiveSpans();

@@ -1153,43 +1153,206 @@ SkPathOp ops[] = {
 };
 
 static void rRect1(skiatest::Reporter* reporter) {
-        SkScalar xA = SkFloatToScalar(0.65f);
-        SkScalar xB = SkFloatToScalar(10.65f);
-        SkScalar xC = SkFloatToScalar(20.65f);
-        SkScalar xD = SkFloatToScalar(30.65f);
-        SkScalar xE = SkFloatToScalar(40.65f);
-        SkScalar xF = SkFloatToScalar(50.65f);
+    SkScalar xA = SkFloatToScalar(0.65f);
+    SkScalar xB = SkFloatToScalar(10.65f);
+    SkScalar xC = SkFloatToScalar(20.65f);
+    SkScalar xD = SkFloatToScalar(30.65f);
+    SkScalar xE = SkFloatToScalar(40.65f);
+    SkScalar xF = SkFloatToScalar(50.65f);
 
-        SkScalar yA = SkFloatToScalar(0.65f);
-        SkScalar yB = SkFloatToScalar(10.65f);
-        SkScalar yC = SkFloatToScalar(20.65f);
-        SkScalar yD = SkFloatToScalar(30.65f);
-        SkScalar yE = SkFloatToScalar(40.65f);
-        SkScalar yF = SkFloatToScalar(50.65f);
-        SkPath paths[5];
-        SkRect rects[5];
-        rects[0].set(xB, yB, xE, yE);
-        paths[0].addRoundRect(rects[0], SkIntToScalar(5), SkIntToScalar(5));  // red
-        rects[1].set(xA, yA, xD, yD);
-        paths[1].addRoundRect(rects[1], SkIntToScalar(5), SkIntToScalar(5));  // green
-        rects[2].set(xC, yA, xF, yD);
-        paths[2].addRoundRect(rects[2], SkIntToScalar(5), SkIntToScalar(5));  // blue
-        rects[3].set(xA, yC, xD, yF);
-        paths[3].addRoundRect(rects[3], SkIntToScalar(5), SkIntToScalar(5));  // yellow
-        rects[4].set(xC, yC, xF, yF);
-        paths[4].addRoundRect(rects[4], SkIntToScalar(5), SkIntToScalar(5));  // cyan
-        SkPath path;
-        path.setFillType(SkPath::kInverseEvenOdd_FillType);
-        for (int index = 0; index < 5; ++index) {
-            testPathOp(reporter, path, paths[index], ops[index]);
-            Op(path, paths[index], ops[index], &path);
-        }
+    SkScalar yA = SkFloatToScalar(0.65f);
+    SkScalar yB = SkFloatToScalar(10.65f);
+    SkScalar yC = SkFloatToScalar(20.65f);
+    SkScalar yD = SkFloatToScalar(30.65f);
+    SkScalar yE = SkFloatToScalar(40.65f);
+    SkScalar yF = SkFloatToScalar(50.65f);
+    SkPath paths[5];
+    SkRect rects[5];
+    rects[0].set(xB, yB, xE, yE);
+    paths[0].addRoundRect(rects[0], SkIntToScalar(5), SkIntToScalar(5));  // red
+    rects[1].set(xA, yA, xD, yD);
+    paths[1].addRoundRect(rects[1], SkIntToScalar(5), SkIntToScalar(5));  // green
+    rects[2].set(xC, yA, xF, yD);
+    paths[2].addRoundRect(rects[2], SkIntToScalar(5), SkIntToScalar(5));  // blue
+    rects[3].set(xA, yC, xD, yF);
+    paths[3].addRoundRect(rects[3], SkIntToScalar(5), SkIntToScalar(5));  // yellow
+    rects[4].set(xC, yC, xF, yF);
+    paths[4].addRoundRect(rects[4], SkIntToScalar(5), SkIntToScalar(5));  // cyan
+    SkPath path;
+    path.setFillType(SkPath::kInverseEvenOdd_FillType);
+    for (int index = 0; index < 5; ++index) {
+        testPathOp(reporter, path, paths[index], ops[index]);
+        Op(path, paths[index], ops[index], &path);
+    }
+}
+
+static void skp1(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(189,7);
+    path.cubicTo(189,5.34314585f, 190.34314f,4, 192,4);
+    path.lineTo(243,4);
+    path.cubicTo(244.65686f,4, 246,5.34314585f, 246,7);
+    path.lineTo(246,21);
+    path.cubicTo(246,22.6568546f, 244.65686f,24, 243,24);
+    path.lineTo(192,24);
+    path.cubicTo(190.34314f,24, 189,22.6568546f, 189,21);
+    path.lineTo(189,7);
+    path.close();
+    path.moveTo(191,8);
+    path.cubicTo(191,6.89543009f, 191.895432f,6, 193,6);
+    path.lineTo(242,6);
+    path.cubicTo(243.104568f,6, 244,6.89543009f, 244,8);
+    path.lineTo(244,20);
+    path.cubicTo(244,21.1045704f, 243.104568f,22, 242,22);
+    path.lineTo(193,22);
+    path.cubicTo(191.895432f,22, 191,21.1045704f, 191,20);
+    path.lineTo(191,8);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(189,4);
+    pathB.lineTo(199,14);
+    pathB.lineTo(236,14);
+    pathB.lineTo(246,4);
+    pathB.lineTo(189,4);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void skp2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(253.000000f, 11757.0000f);
+    path.lineTo(253.000000f, 222.000000f);
+    path.lineTo(823.000000f, 222.000000f);
+    path.lineTo(823.000000f, 11757.0000f);
+    path.lineTo(253.000000f, 11757.0000f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(258.000000f, 1028.00000f);
+    pathB.lineTo(258.000000f, 1027.00000f);
+    pathB.lineTo(823.000000f, 1027.00000f);
+    pathB.lineTo(823.000000f, 1028.00000f);
+    pathB.lineTo(258.000000f, 1028.00000f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void skp3(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(717.000000f, 507.000000f);
+    path.lineTo(717.000000f, 425.000000f);
+    path.lineTo(973.000000f, 425.000000f);
+    path.lineTo(973.000000f, 507.000000f);
+    path.quadTo(973.000000f, 508.242645f, 972.121582f, 509.121613f);
+    path.quadTo(971.242615f, 510.000000f, 970.000000f, 510.000000f);
+    path.lineTo(720.000000f, 510.000000f);
+    path.quadTo(718.757385f, 510.000000f, 717.878418f, 509.121613f);
+    path.quadTo(717.000000f, 508.242645f, 717.000000f, 507.000000f);
+    path.close();
+    path.moveTo(719.000000f, 426.000000f);
+    path.lineTo(971.000000f, 426.000000f);
+    path.lineTo(971.000000f, 506.000000f);
+    path.cubicTo(971.000000f, 507.104584f, 970.104553f, 508.000000f, 969.000000f, 508.000000f);
+    path.lineTo(721.000000f, 508.000000f);
+    path.cubicTo(719.895447f, 508.000000f, 719.000000f, 507.104584f, 719.000000f, 506.000000f);
+    path.lineTo(719.000000f, 426.000000f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(717.000000f, 510.000000f);
+    pathB.lineTo(760.000000f, 467.000000f);
+    pathB.lineTo(930.000000f, 467.000000f);
+    pathB.lineTo(973.000000f, 510.000000f);
+    pathB.lineTo(717.000000f, 510.000000f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void skp4(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(230.756805f, 591.756775f);
+    path.quadTo(232.514725f, 590.000000f, 235.000000f, 590.000000f);
+    path.lineTo(300.000000f, 590.000000f);
+    path.quadTo(302.485291f, 590.000000f, 304.243195f, 591.756775f);
+    path.quadTo(306.000000f, 593.514709f, 306.000000f, 596.000000f);
+    path.lineTo(306.000000f, 617.000000f);
+    path.lineTo(229.000000f, 617.000000f);
+    path.lineTo(229.000000f, 596.000000f);
+    path.quadTo(229.000000f, 593.514709f, 230.756805f, 591.756775f);
+    path.close();
+    path.moveTo(231.000000f, 597.000000f);
+    path.cubicTo(231.000000f, 594.238586f, 233.238571f, 592.000000f, 236.000000f, 592.000000f);
+    path.lineTo(299.000000f, 592.000000f);
+    path.cubicTo(301.761414f, 592.000000f, 304.000000f, 594.238586f, 304.000000f, 597.000000f);
+    path.lineTo(304.000000f, 616.000000f);
+    path.lineTo(231.000000f, 616.000000f);
+    path.lineTo(231.000000f, 597.000000f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(306.000000f, 590.000000f);
+    pathB.lineTo(292.000000f, 604.000000f);
+    pathB.lineTo(305.000000f, 617.000000f);
+    pathB.lineTo(306.000000f, 617.000000f);
+    pathB.lineTo(306.000000f, 590.000000f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void skp5(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(18.0000000f, 226.000000f);
+    path.quadTo(14.6862917f, 226.000000f, 12.3423996f, 228.342407f);
+    path.quadTo(10.0000000f, 230.686295f, 10.0000000f, 234.000000f);
+    path.lineTo(10.0000000f, 253.000000f);
+    path.lineTo(1247.00000f, 253.000000f);
+    path.lineTo(1247.00000f, 234.000000f);
+    path.quadTo(1247.00000f, 230.686295f, 1244.65759f, 228.342407f);
+    path.quadTo(1242.31372f, 226.000000f, 1239.00000f, 226.000000f);
+    path.lineTo(18.0000000f, 226.000000f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kInverseWinding_FillType);
+    pathB.moveTo(18.0000000f, 226.000000f);
+    pathB.lineTo(1239.00000f, 226.000000f);
+    pathB.cubicTo(1243.41833f, 226.000000f, 1247.00000f, 229.581726f, 1247.00000f, 234.000000f);
+    pathB.lineTo(1247.00000f, 252.000000f);
+    pathB.lineTo(10.0000000f, 252.000000f);
+    pathB.lineTo(10.0000000f, 234.000000f);
+    pathB.cubicTo(10.0000000f, 229.581726f, 13.5817204f, 226.000000f, 18.0000000f, 226.000000f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void cubicOp70d(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,5, 4,0, 5,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(0,5, 1,0, 5,0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_PathOp);
 }
 
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skp5),
+    TEST(skp4),
+    TEST(skp3),
+    TEST(skp2),
+    TEST(skp1),
     TEST(rRect1),
+    TEST(cubicOp70d),
     TEST(cubicOp69d),
     TEST(cubicOp68u),
     TEST(cubicOp67u),
@@ -1288,21 +1451,11 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
-    TEST(cubicOp43d),
-    TEST(quadOp9d),
-    TEST(cubicOp9d),
-    TEST(cubicOp1i),
-    TEST(cubicOp10d),
-    TEST(cubicOp11d),
-    TEST(cubicOp15d),
-    TEST(cubicOp18d),
-    TEST(cubicOp22d),
-    TEST(cubicOp23d),
-    TEST(cubicOp24d),
-    TEST(cubicOp28u),
-    TEST(cubicOp33i),
-    TEST(cubicOp36u),
-    TEST(cubicOp40d),
+    TEST(cubicOp6d),
+    TEST(cubicOp8d),
+    TEST(cubicOp70d),
+    TEST(cubicOp16d),
+    TEST(skp5),
 };
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);

@@ -3695,9 +3695,92 @@ static void testAddTCoincident2(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+static void testQuad2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(1, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+}
+
+static void testQuad3(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(1, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuad4(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(0, 1, 2, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuad5(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.quadTo(0, 1, 2, 2);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuad6(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.quadTo(0, 1, 2, 2);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuad7(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuad7),
+    TEST(testQuad6),
+    TEST(testQuad5),
+    TEST(testQuad4),
+    TEST(testQuad3),
+    TEST(testQuad2),
     TEST(testAddTCoincident2),
     TEST(testAddTCoincident1),
     TEST(testTriangles2),
@@ -3707,7 +3790,7 @@ static TestDesc tests[] = {
     TEST(testQuadratic95),
     TEST(testQuadratic94),
     TEST(testQuadralateral2),
-    TEST(testQuad1),  // FIXME: fails, need to investigate
+    TEST(testQuad1),
     TEST(testCubic2),
     TEST(testCubic1),
     TEST(testQuadralateral1),

@@ -9,6 +9,10 @@
 #include "SkPathOpsCurve.h"
 #include "SkTSort.h"
 
+#if DEBUG_SORT || DEBUG_SORT_SINGLE
+#include "SkOpSegment.h"
+#endif
+
 // FIXME: this is bogus for quads and cubics
 // if the quads and cubics' line from end pt to ctrl pt are coincident,
 // there's no obvious way to determine the curve ordering from the
@@ -27,14 +31,10 @@ tangent angle
 
 maybe I could set up LineParameters lazily
 */
-bool SkOpAngle::operator<(const SkOpAngle& rh) const {
-    double y = dy();
-    double ry = rh.dy();
+static int simple_compare(double x, double y, double rx, double ry) {
     if ((y < 0) ^ (ry < 0)) {  // OPTIMIZATION: better to use y * ry < 0 ?
         return y < 0;
     }
-    double x = dx();
-    double rx = rh.dx();
     if (y == 0 && ry == 0 && x * rx < 0) {
         return x < rx;
     }
@@ -47,6 +47,18 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
     if (approximately_zero(x_ry) && approximately_zero(rx_y)
             && !approximately_zero_squared(cmp)) {
         return cmp < 0;
+    }
+    return -1;
+}
+
+bool SkOpAngle::operator<(const SkOpAngle& rh) const {
+    double x = dx();
+    double y = dy();
+    double rx = rh.dx();
+    double ry = rh.dy();
+    int simple = simple_compare(x, y, rx, ry);
+    if (simple >= 0) {
+        return simple;
     }
     // at this point, the initial tangent line is coincident
     // see if edges curl away from each other
@@ -93,8 +105,10 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
     SkIntersections i, ri;
     int roots, rroots;
     bool flip = false;
+    bool useThis;
+    bool leftLessThanRight = fSide > 0;
     do {
-        bool useThis = (len < rlen) ^ flip;
+        useThis = (len < rlen) ^ flip;
         const SkDCubic& part = useThis ? fCurvePart : rh.fCurvePart;
         SkPath::Verb partVerb = useThis ? fVerb : rh.fVerb;
         ray[0] = partVerb == SkPath::kCubic_Verb && part[0].approximatelyEqual(part[1]) ?
@@ -113,28 +127,65 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
         rh.fUnsortable = true;
         return this < &rh;  // even with no solution, return a stable sort
     }
-    SkDPoint loc;
+    SkASSERT(fSide != 0 && rh.fSide != 0);
+    SkASSERT(fSide * rh.fSide > 0); // both are the same sign
+    SkDPoint lLoc;
     double best = SK_ScalarInfinity;
-    SkDVector dxy;
-    double dist;
-    int index;
-    for (index = 0; index < roots; ++index) {
-        loc = (*CurveDPointAtT[fVerb])(fPts, i[0][index]);
-        dxy = loc - ray[0];
-        dist = dxy.lengthSquared();
+#if DEBUG_SORT
+    SkDebugf("lh=%d rh=%d use-lh=%d ray={{%1.9g,%1.9g}, {%1.9g,%1.9g}} %c\n",
+            fSegment->debugID(), rh.fSegment->debugID(), useThis, ray[0].fX, ray[0].fY,
+            ray[1].fX, ray[1].fY, "-+"[fSide > 0]);
+#endif
+    for (int index = 0; index < roots; ++index) {
+        SkDPoint loc = i.pt(index);
+        SkDVector dxy = loc - ray[0];
+        double dist = dxy.lengthSquared();
+#if DEBUG_SORT
+        SkDebugf("best=%1.9g dist=%1.9g loc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n", 
+                best, dist, loc.fX, loc.fY, dxy.fX, dxy.fY);
+#endif
         if (best > dist) {
+            lLoc = loc;
             best = dist;
         }
     }
-    for (index = 0; index < rroots; ++index) {
-        loc = (*CurveDPointAtT[rh.fVerb])(rh.fPts, ri[0][index]);
-        dxy = loc - ray[0];
-        dist = dxy.lengthSquared();
+    flip = false;
+    SkDPoint rLoc;
+    for (int index = 0; index < rroots; ++index) {
+        rLoc = ri.pt(index);
+        SkDVector dxy = rLoc - ray[0];
+        double dist = dxy.lengthSquared();
+#if DEBUG_SORT
+        SkDebugf("best=%1.9g dist=%1.9g %c=(fSide < 0) rLoc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n", 
+                best, dist, "><"[fSide < 0], rLoc.fX, rLoc.fY, dxy.fX, dxy.fY);
+#endif
         if (best > dist) {
-            return fSide < 0;
+            flip = true;
+            break;
         }
     }
-    return fSide > 0;
+ #if 0
+    SkDVector lRay = lLoc - fCurvePart[0];
+    SkDVector rRay = rLoc - fCurvePart[0];
+    int rayDir = simple_compare(lRay.fX, lRay.fY, rRay.fX, rRay.fY);
+    SkASSERT(rayDir >= 0);
+    if (rayDir < 0) {
+        fUnsortable = true;
+        rh.fUnsortable = true;
+        return this < &rh;  // even with no solution, return a stable sort
+    }
+#endif
+   if (flip) {
+        leftLessThanRight = !leftLessThanRight;
+  //      rayDir = !rayDir;
+    }
+#if 0 && (DEBUG_SORT || DEBUG_SORT_SINGLE)
+    SkDebugf("%d %c %d (fSide %c 0) loc={{%1.9g,%1.9g}, {%1.9g,%1.9g}} flip=%d rayDir=%d\n",
+                fSegment->debugID(), "><"[leftLessThanRight], rh.fSegment->debugID(),
+                "<>"[fSide > 0], lLoc.fX, lLoc.fY, rLoc.fX, rLoc.fY, flip, rayDir);
+#endif
+//    SkASSERT(leftLessThanRight == (bool) rayDir);
+    return leftLessThanRight;
 }
 
 bool SkOpAngle::lengthen() {

@@ -142,27 +142,6 @@ int SkIntersections::horizontal(const SkDLine& line, double y) {
     return fUsed = 1;
 }
 
-// OPTIMIZATION  Given: dy = line[1].fY - line[0].fY
-// and: xIntercept / (y - line[0].fY) == (line[1].fX - line[0].fX) / dy
-// then: xIntercept * dy == (line[1].fX - line[0].fX) * (y - line[0].fY)
-// Assuming that dy is always > 0, the line segment intercepts if:
-//   left * dy <= xIntercept * dy <= right * dy
-// thus: left * dy <= (line[1].fX - line[0].fX) * (y - line[0].fY) <= right * dy
-// (clever as this is, it does not give us the t value, so may be useful only
-// as a quick reject -- and maybe not then; it takes 3 muls, 3 adds, 2 cmps)
-int SkIntersections::horizontal(const SkDLine& line, double left, double right, double y) {
-    int result = horizontal(line, y);
-    if (result != 1) {
-        SkASSERT(0);
-        return result;
-    }
-    double xIntercept = line[0].fX + fT[0][0] * (line[1].fX - line[0].fX);
-    if (!precisely_between(left, xIntercept, right)) {
-        return fUsed = 0;
-    }
-    return result;
-}
-
 int SkIntersections::horizontal(const SkDLine& line, double left, double right,
                                 double y, bool flipped) {
     int result = horizontal(line, y);

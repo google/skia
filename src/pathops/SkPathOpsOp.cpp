@@ -149,11 +149,15 @@ static bool bridgeOp(SkTDArray<SkOpContour*>& contourList, const SkPathOp op,
         do {
             if (current->activeOp(index, endIndex, xorMask, xorOpMask, op)) {
                 do {
-            #if DEBUG_ACTIVE_SPANS
                     if (!unsortable && current->done()) {
+            #if DEBUG_ACTIVE_SPANS
                         DebugShowActiveSpans(contourList);
-                    }
             #endif
+                        if (simple->isEmpty()) {
+                            simple->init();
+                            break;
+                        }
+                    }
                     SkASSERT(unsortable || !current->done());
                     int nextStart = index;
                     int nextEnd = endIndex;
@@ -177,10 +181,10 @@ static bool bridgeOp(SkTDArray<SkOpContour*>& contourList, const SkPathOp op,
                     current = next;
                     index = nextStart;
                     endIndex = nextEnd;
-                } while (!simple->isClosed() && ((!unsortable)
+                } while (!simple->isClosed() && (!unsortable
                         || !current->done(SkMin32(index, endIndex))));
                 if (current->activeWinding(index, endIndex) && !simple->isClosed()) {
-                    SkASSERT(unsortable);
+                    SkASSERT(unsortable || simple->isEmpty());
                     int min = SkMin32(index, endIndex);
                     if (!current->done(min)) {
                         current->addCurveTo(index, endIndex, simple, true);
@@ -227,6 +231,11 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
 };
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+#if DEBUG_SHOW_PATH
+    ShowPath(one, "path");
+    ShowPath(two, "pathB");
+    ShowOp(op, "path", "pathB");
+#endif
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
     SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]
             ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
@@ -288,7 +297,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
 #endif
     FixOtherTIndex(&contourList);
     SortSegments(&contourList);
-#if DEBUG_ACTIVE_SPANS
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     DebugShowActiveSpans(contourList);
 #endif
     // construct closed contours

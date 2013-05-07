@@ -208,7 +208,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                         case SkIntersectionHelper::kLine_Segment: {
                             pts = ts.lineHorizontal(wn.pts(), wt.left(),
                                     wt.right(), wt.y(), wt.xFlipped());
-                            debugShowLineIntersection(pts, wt, wn, ts);
+                            debugShowLineIntersection(pts, wn, wt, ts);
                             break;
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
@@ -235,7 +235,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                         case SkIntersectionHelper::kLine_Segment: {
                             pts = ts.lineVertical(wn.pts(), wt.top(),
                                     wt.bottom(), wt.x(), wt.yFlipped());
-                            debugShowLineIntersection(pts, wt, wn, ts);
+                            debugShowLineIntersection(pts, wn, wt, ts);
                             break;
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
