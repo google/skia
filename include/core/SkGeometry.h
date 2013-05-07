@@ -216,7 +216,14 @@ struct SkConic {
         fW = w;
     }
 
-    void evalAt(SkScalar t, SkPoint* pt) const;
+    /**
+     *  Given a t-value [0...1] return its position and/or tangent.
+     *  If pos is not null, return its position at the t-value.
+     *  If tangent is not null, return its tangent at the t-value. NOTE the
+     *  tangent value's length is arbitrary, and only its direction should
+     *  be used.
+     */
+    void evalAt(SkScalar t, SkPoint* pos, SkVector* tangent = NULL) const;
     void chopAt(SkScalar t, SkConic dst[2]) const;
     void chop(SkConic dst[2]) const;
 
