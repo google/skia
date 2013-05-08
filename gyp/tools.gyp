@@ -78,11 +78,18 @@
       'sources': [
         '../tools/skimage_main.cpp',
       ],
+      'include_dirs': [
+        # For SkBitmapHasher.h
+        '../src/utils/',
+      ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
-        'images.gyp:images',
         'flags.gyp:flags',
+        'gm.gyp:gm_expectations',
+        'images.gyp:images',
+        'jsoncpp.gyp:jsoncpp',
+        'utils.gyp:utils',
       ],
     },
     {

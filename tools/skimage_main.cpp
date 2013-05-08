@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "gm_expectations.h"
 #include "SkBitmap.h"
+#include "SkBitmapHasher.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -18,7 +20,9 @@
 #include "SkTArray.h"
 #include "SkTemplates.h"
 
+DEFINE_string(createExpectationsPath, "", "Path to write JSON expectations.");
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
+DEFINE_string(readExpectationsPath, "", "Path to read JSON expectations from.");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
 DEFINE_bool(reencode, true, "Reencode the images to test encoding.");
 DEFINE_bool(testSubsetDecoding, true, "Test decoding subsets of images.");
@@ -97,6 +101,10 @@ static SkTArray<SkString, false> gSuccessfulDecodes;
 static SkTArray<SkString, false> gSuccessfulSubsetDecodes;
 static SkTArray<SkString, false> gFailedSubsetDecodes;
 
+// Expections read from a file specified by readExpectationsPath. The expectations must have been
+// previously written using createExpectationsPath.
+SkAutoTUnref<skiagm::JsonExpectationsSource> gJsonExpectations;
+
 static bool write_bitmap(const char outName[], SkBitmap* bm) {
     SkBitmap bitmap8888;
     if (SkBitmap::kARGB_8888_Config != bm->config()) {
@@ -157,6 +165,79 @@ static SkIRect generate_random_rect(SkRandom* rand, int32_t maxX, int32_t maxY) 
     return rect;
 }
 
+// Stored expectations to be written to a file if createExpectationsPath is specified.
+static Json::Value gExpectationsToWrite;
+
+/**
+ *  If expectations are to be recorded, record the expected checksum of bitmap into global
+ *  expectations array.
+ */
+static void write_expectations(const SkBitmap& bitmap, const char* filename) {
+    if (!FLAGS_createExpectationsPath.isEmpty()) {
+        // Creates an Expectations object, and add it to the list to write.
+        skiagm::Expectations expectation(bitmap);
+        Json::Value value = expectation.asJsonValue();
+        gExpectationsToWrite[filename] = value;
+    }
+}
+
+/**
+ *  Return the name of the file, ignoring the directory structure.
+ *  Does not create a new string.
+ *  @param fullPath Full path to the file.
+ *  @return string The basename of the file - anything beyond the final slash, or the full name
+ *      if there is no slash.
+ *  TODO: Might this be useful as a utility function in SkOSFile? Would it be more appropriate to
+ *  create a new string?
+ */
+static const char* SkBasename(const char* fullPath) {
+    const char* filename = strrchr(fullPath, SkPATH_SEPARATOR);
+    if (NULL == filename || ++filename == '\0') {
+        filename = fullPath;
+    }
+    return filename;
+}
+
+/**
+ *  Compare against an expectation for this filename, if there is one.
+ *  @param bitmap SkBitmap to compare to the expected value.
+ *  @param filename String used to find the expected value.
+ *  @return bool True if the bitmap matched the expectation, or if there was no expectation. False
+ *      if there was an expecation that the bitmap did not match, or if an expectation could not be
+ *      computed from an expectation.
+ */
+static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const char* filename,
+                                                 SkTArray<SkString, false>* failureArray) {
+    if (NULL == gJsonExpectations.get()) {
+        return true;
+    }
+
+    skiagm::Expectations jsExpectation = gJsonExpectations->get(filename);
+    if (jsExpectation.empty()) {
+        return true;
+    }
+
+    SkHashDigest checksum;
+    if (!SkBitmapHasher::ComputeDigest(bitmap, &checksum)) {
+        if (failureArray != NULL) {
+            failureArray->push_back().printf("decoded %s, but could not create a checksum.",
+                                             filename);
+        }
+        return false;
+    }
+
+    if (jsExpectation.match(checksum)) {
+        return true;
+    }
+
+    if (failureArray != NULL) {
+        failureArray->push_back().printf("decoded %s, but the result does not match "
+                                         "expectations.",
+                                         filename);
+    }
+    return false;
+}
+
 static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) {
     SkBitmap bitmap;
     SkFILEStream stream(srcPath);
@@ -180,7 +261,15 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         return;
     }
 
-    gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(), bitmap.height());
+    // Create a string representing just the filename itself, for use in json expectations.
+    const char* filename = SkBasename(srcPath);
+
+    if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
+        gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
+                                              bitmap.height());
+    }
+
+    write_expectations(bitmap, filename);
 
     if (FLAGS_testSubsetDecoding) {
         SkDEBUGCODE(bool couldRewind =) stream.rewind();
@@ -199,8 +288,16 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                 SkString subsetDim = SkStringPrintf("[%d,%d,%d,%d]", rect.fLeft, rect.fTop,
                                                     rect.fRight, rect.fBottom);
                 if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, SkBitmap::kNo_Config)) {
-                    gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
-                                                          subsetDim.c_str(), srcPath);
+                    SkString subsetName = SkStringPrintf("%s_%s", filename, subsetDim.c_str());
+                    if (compare_to_expectations_if_necessary(bitmapFromDecodeSubset,
+                                                             subsetName.c_str(),
+                                                             &gFailedSubsetDecodes)) {
+                        gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
+                                                              subsetDim.c_str(), srcPath);
+                    }
+
+                    write_expectations(bitmapFromDecodeSubset, subsetName.c_str());
+
                     if (writePath != NULL) {
                         // Write the region to a file whose name includes the dimensions.
                         SkString suffix = SkStringPrintf("_%s.png", subsetDim.c_str());
@@ -322,6 +419,17 @@ static bool print_strings(const char* title, const SkTArray<SkString, false>& st
     return false;
 }
 
+/**
+ *  If directory is non null and does not end with a path separator, append one.
+ *  @param directory SkString representing the path to a directory. If the last character is not a
+ *      path separator (specific to the current OS), append one.
+ */
+static void append_path_separator_if_necessary(SkString* directory) {
+    if (directory != NULL && directory->c_str()[directory->size() - 1] != SkPATH_SEPARATOR) {
+        directory->appendf("%c", SkPATH_SEPARATOR);
+    }
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Decode files, and optionally write the results to files.");
@@ -335,14 +443,17 @@ int tool_main(int argc, char** argv) {
 
     SkAutoGraphics ag;
 
+    if (!FLAGS_readExpectationsPath.isEmpty()) {
+        gJsonExpectations.reset(SkNEW_ARGS(skiagm::JsonExpectationsSource,
+                                           (FLAGS_readExpectationsPath[0])));
+    }
+
     SkString outDir;
     SkString* outDirPtr;
 
     if (FLAGS_writePath.count() == 1) {
         outDir.set(FLAGS_writePath[0]);
-        if (outDir.c_str()[outDir.size() - 1] != '/') {
-            outDir.append("/");
-        }
+        append_path_separator_if_necessary(&outDir);
         outDirPtr = &outDir;
     } else {
         outDirPtr = NULL;
@@ -356,9 +467,7 @@ int tool_main(int argc, char** argv) {
         SkString filename;
         if (iter.next(&filename)) {
             SkString directory(FLAGS_readPath[i]);
-            if (directory[directory.size() - 1] != '/') {
-                directory.append("/");
-            }
+            append_path_separator_if_necessary(&directory);
             do {
                 SkString fullname(directory);
                 fullname.append(filename);
@@ -369,6 +478,18 @@ int tool_main(int argc, char** argv) {
         }
     }
 
+    if (!FLAGS_createExpectationsPath.isEmpty()) {
+        // Use an empty value for everything besides expectations, since the reader only cares
+        // about the expectations.
+        Json::Value nullValue;
+        Json::Value root = skiagm::CreateJsonTree(gExpectationsToWrite, nullValue, nullValue,
+                                                  nullValue, nullValue);
+        std::string jsonStdString = root.toStyledString();
+        SkString path = SkStringPrintf("%s%cresults.json", FLAGS_createExpectationsPath[0],
+                                       SkPATH_SEPARATOR);
+        SkFILEWStream stream(path.c_str());
+        stream.write(jsonStdString.c_str(), jsonStdString.length());
+    }
     // Add some space, since codecs may print warnings without newline.
     SkDebugf("\n\n");
 

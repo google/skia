@@ -24,6 +24,27 @@ const static char kJsonKey_ExpectedResults_IgnoreFailure[]           = "ignore-f
 
 namespace skiagm {
 
+    void gm_fprintf(FILE *stream, const char format[], ...) {
+        va_list args;
+        va_start(args, format);
+        fprintf(stream, "GM: ");
+        vfprintf(stream, format, args);
+        va_end(args);
+    }
+
+    SkString make_filename(const char path[],
+                           const char renderModeDescriptor[],
+                           const char *name,
+                           const char suffix[]) {
+        SkString filename(path);
+        if (filename.endsWith(SkPATH_SEPARATOR)) {
+            filename.remove(filename.size() - 1, 1);
+        }
+        filename.appendf("%c%s%s.%s", SkPATH_SEPARATOR,
+                         name, renderModeDescriptor, suffix);
+        return filename;
+    }
+
     // TODO(epoger): This currently assumes that the result SkHashDigest was
     // generated as an SkHashDigest of an SkBitmap.  We'll need to allow for other
     // hash types to cover non-bitmaps.
@@ -160,7 +181,7 @@ namespace skiagm {
     // JsonExpectationsSource class...
 
     JsonExpectationsSource::JsonExpectationsSource(const char *jsonPath) {
-        parse(jsonPath, &fJsonRoot);
+        Parse(jsonPath, &fJsonRoot);
         fJsonExpectedResults = fJsonRoot[kJsonKey_ExpectedResults];
     }
 
@@ -168,7 +189,7 @@ namespace skiagm {
         return Expectations(fJsonExpectedResults[testName]);
     }
 
-    /*static*/ SkData* JsonExpectationsSource::readIntoSkData(SkStream &stream, size_t maxBytes) {
+    /*static*/ SkData* JsonExpectationsSource::ReadIntoSkData(SkStream &stream, size_t maxBytes) {
         if (0 == maxBytes) {
             return SkData::NewEmpty();
         }
@@ -186,7 +207,7 @@ namespace skiagm {
         return SkData::NewFromMalloc(bufStart, maxBytes - bytesRemaining);
     }
 
-    /*static*/ bool JsonExpectationsSource::parse(const char *jsonPath, Json::Value *jsonRoot) {
+    /*static*/ bool JsonExpectationsSource::Parse(const char *jsonPath, Json::Value *jsonRoot) {
         SkFILEStream inFile(jsonPath);
         if (!inFile.isValid()) {
             gm_fprintf(stderr, "unable to read JSON file %s\n", jsonPath);
@@ -194,7 +215,7 @@ namespace skiagm {
             return false;
         }
 
-        SkAutoDataUnref dataRef(readFileIntoSkData(inFile));
+        SkAutoDataUnref dataRef(ReadFileIntoSkData(inFile));
         if (NULL == dataRef.get()) {
             gm_fprintf(stderr, "error reading JSON file %s\n", jsonPath);
             DEBUGFAIL_SEE_STDERR;

@@ -5,6 +5,30 @@
   ],
   'targets': [
     {
+      'target_name': 'gm_expectations',
+      'type': 'static_library',
+      'include_dirs' : [
+        '../include/core/',
+        '../src/utils/',
+      ],
+      'sources': [
+        '../gm/gm_expectations.h',
+        '../gm/gm_expectations.cpp',
+      ],
+      'dependencies': [
+        'skia_base_libs.gyp:skia_base_libs',
+        'core.gyp:core',
+        'images.gyp:images',
+        'jsoncpp.gyp:jsoncpp',
+        'utils.gyp:utils',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../gm/',
+        ],
+      },
+    },
+    {
       'target_name': 'gm',
       'type': 'executable',
       'include_dirs' : [
@@ -26,7 +50,6 @@
         '../debugger/SkObjectParser.cpp',
 
         '../gm/gm.cpp',
-        '../gm/gm_expectations.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
 
@@ -37,6 +60,7 @@
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'flags.gyp:flags',
+        'gm.gyp:gm_expectations',
         'images.gyp:images',
         'jsoncpp.gyp:jsoncpp',
         'pdf.gyp:pdf',
