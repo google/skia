@@ -16,10 +16,18 @@ const static char kJsonKey_ActualResults_Failed[]        = "failed";
 const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
 const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
 const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
 const static char kJsonKey_ActualResults_AnyStatus_BitmapHash[]  = "bitmap-64bitMD5";
+#else
+const static char kJsonKey_ActualResults_AnyStatus_BitmapHash[]  = "bitmap-cityhash";
+#endif
 
 const static char kJsonKey_ExpectedResults[] = "expected-results";
+#ifdef BITMAPHASHER_USES_TRUNCATED_MD5
 const static char kJsonKey_ExpectedResults_AllowedBitmapHashes[] = "allowed-bitmap-64bitMD5s";
+#else
+const static char kJsonKey_ExpectedResults_AllowedBitmapHashes[] = "allowed-bitmap-cityhashes";
+#endif
 const static char kJsonKey_ExpectedResults_IgnoreFailure[]           = "ignore-failure";
 
 namespace skiagm {
