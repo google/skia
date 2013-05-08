@@ -10,6 +10,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkBBoxHierarchy.h"
+#include "SkDevice.h"
 #include "SkPictureStateTree.h"
 
 #define MIN_WRITER_SIZE 16384
@@ -755,7 +756,7 @@ bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA
     validate(initialOffset, size);
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->INHERITED::clipRect(rrect.getBounds(), op, doAA);
+        return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, doAA, false);
     } else {
         return this->INHERITED::clipRRect(rrect, op, doAA);
     }
@@ -783,10 +784,81 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     validate(initialOffset, size);
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->INHERITED::clipRect(path.getBounds(), op, doAA);
+        return this->updateClipConservativelyUsingBounds(path.getBounds(), op, doAA,
+                                                         path.isInverseFillType());
     } else {
         return this->INHERITED::clipPath(path, op, doAA);
     }
+}
+
+bool SkPictureRecord::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
+                                                          bool doAA, bool inverseFilled) {
+    // This is for updating the clip when kUsePathBoundsForClip_RecordingFlag
+    // is set. The current clip of the recording canvas is used for quick
+    // culling of clipped-out primitives, which must not yield any false
+    // positives, while still rejecting as many as possible.
+    // Contract: 
+    //    The current clip must contain the true clip. The true
+    //    clip is the clip that would have been computed with 
+    //    kUsePathBoundsForClip_RecordingFlag disabled. 
+    // Objective:
+    //    Keep the current clip as small as possible without
+    //    breaking the contract, using only clip bounding rectangles
+    //    (for performance).
+    if (inverseFilled) {
+        switch (op) {
+            case SkRegion::kIntersect_Op:
+            case SkRegion::kDifference_Op:
+                // These ops can only shrink the current clip. So leaving
+                // the clip unchanges conservatively respects the contract.
+                return this->getClipDeviceBounds(NULL);
+            case SkRegion::kUnion_Op:
+            case SkRegion::kReplace_Op:
+            case SkRegion::kReverseDifference_Op:
+            case SkRegion::kXOR_Op:
+                {
+                    // These ops can grow the current clip up to the extents of
+                    // the input clip, which is inverse filled, so we just set
+                    // the current clip to the device bounds.
+                    SkRect deviceBounds;
+                    SkIRect deviceIBounds;
+                    this->getDevice()->getGlobalBounds(&deviceIBounds);
+                    deviceBounds = SkRect::MakeFromIRect(deviceIBounds);
+                    this->INHERITED::save(SkCanvas::kMatrix_SaveFlag);
+                    // set the clip in device space
+                    this->INHERITED::setMatrix(SkMatrix::I());
+                    bool result = this->INHERITED::clipRect(deviceBounds,
+                        SkRegion::kReplace_Op, doAA);
+                    this->INHERITED::restore(); //pop the matrix, but keep the clip
+                    return result;
+                }
+            default:
+                SkASSERT(0); // unhandled op?
+        }
+    } else {
+        // Not inverse filled
+        switch (op) {
+            case SkRegion::kIntersect_Op:
+            case SkRegion::kUnion_Op:
+            case SkRegion::kReplace_Op:
+                return this->INHERITED::clipRect(bounds, op, doAA);
+            case SkRegion::kDifference_Op:
+                // Difference can only shrink the current clip.
+                // Leaving clip unchanged conservatively fullfills the contract.
+                return this->getClipDeviceBounds(NULL);
+            case SkRegion::kReverseDifference_Op:
+                // To reverse, we swap in the bounds with a replace op.
+                // As with difference, leave it unchanged.
+                return this->INHERITED::clipRect(bounds, SkRegion::kReplace_Op, doAA);
+            case SkRegion::kXOR_Op:
+                // Be conservative, based on (A XOR B) always included in (A union B),
+                // which is always included in (bounds(A) union bounds(B))
+                return this->INHERITED::clipRect(bounds, SkRegion::kUnion_Op, doAA);
+            default:
+                SkASSERT(0); // unhandled op?
+        }
+    }    
+    return true;
 }
 
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {

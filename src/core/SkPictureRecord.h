@@ -103,6 +103,8 @@ public:
     void endRecording();
 
 private:
+    bool updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
+                                             bool doAA, bool inverseFilled);
     void handleOptimization(int opt);
     void recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
