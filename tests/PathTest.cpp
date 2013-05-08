@@ -31,6 +31,20 @@ static SkSurface* new_surface(int w, int h) {
     return SkSurface::NewRaster(info);
 }
 
+// This used to assert in the debug build, as the edges did not all line-up.
+static void test_bad_cubic_crbug234190() {
+    SkPath path;
+    path.moveTo(13.8509f, 3.16858f);
+    path.cubicTo(-2.35893e+08f, -4.21044e+08f,
+                 -2.38991e+08f, -4.26573e+08f,
+                 -2.41016e+08f, -4.30188e+08f);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkAutoTUnref<SkSurface> surface(new_surface(84, 88));
+    surface->getCanvas()->drawPath(path, paint);
+}
+
 static void test_bad_cubic_crbug229478() {
     const SkPoint pts[] = {
         { 4595.91064f,    -11596.9873f },
@@ -2377,6 +2391,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_clipped_cubic();
     test_crbug_170666();
     test_bad_cubic_crbug229478();
+    test_bad_cubic_crbug234190();
 }
 
 #include "TestClassDef.h"
