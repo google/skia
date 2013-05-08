@@ -894,7 +894,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
         my->fTop = -fScale * otm.otmrcFontBox.top;
         my->fAscent = -fScale * otm.otmAscent;
         my->fDescent = -fScale * otm.otmDescent;
-        my->fBottom = fScale * otm.otmrcFontBox.bottom;
+        my->fBottom = -fScale * otm.otmrcFontBox.bottom;
         my->fLeading = fScale * otm.otmLineGap;
         my->fAvgCharWidth = fScale * otm.otmTextMetrics.tmAveCharWidth;
         my->fXHeight = fScale * otm.otmsXHeight;
