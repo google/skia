@@ -158,7 +158,8 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
 
 void GrGLBufferImpl::validate() const {
     GrAssert(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
-    GrAssert((0 == fDesc.fID) == (NULL != fCPUData));
+    // The following assert isn't valid when the buffer has been abandoned:
+    // GrAssert((0 == fDesc.fID) == (NULL != fCPUData));
     GrAssert(0 != fDesc.fID || !fDesc.fIsWrapped);
     GrAssert(NULL == fCPUData || NULL == fLockPtr || fCPUData == fLockPtr);
 }
