@@ -99,8 +99,11 @@ static uint8_t glyphbuf[BUFFERSIZE];
  *  and since we have a cache of LOGFONTs for our tyepfaces, we always set the
  *  lfHeight to a canonical size, and then we use the 2x2 matrix to achieve the
  *  actual requested size.
+ *
+ *  Not critical to match the font's upem, but we want it big enough to avoid
+ *  precision loss for GDI calls that return ints (e.g. GetOutlineFontMetrics).
  */
-static const int gCanonicalTextSize = 64;
+static const int gCanonicalTextSize = 2048;
 
 static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #ifdef UNICODE
@@ -835,10 +838,16 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my) {
-// Note: This code was borrowed from generateLineHeight, which has a note
-// stating that it may be incorrect.
-    if (!(mx || my))
+    if (!(mx || my)) {
       return;
+    }
+
+    if (mx) {
+        sk_bzero(mx, sizeof(*mx));
+    }
+    if (my) {
+        sk_bzero(my, sizeof(*my));
+    }
 
     SkASSERT(fDDC);
 
@@ -848,8 +857,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
             mx->fAscent = SkIntToScalar(-fTM.tmAscent);
             mx->fDescent = -SkIntToScalar(fTM.tmDescent);
             mx->fBottom = SkIntToScalar(fTM.tmDescent);
-            mx->fLeading = SkIntToScalar(fTM.tmInternalLeading
-                                         + fTM.tmExternalLeading);
+            mx->fLeading = SkIntToScalar(fTM.tmExternalLeading);
         }
 
         if (my) {
@@ -857,8 +865,8 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
             my->fAscent = SkIntToScalar(-fTM.tmAscent);
             my->fDescent = SkIntToScalar(-fTM.tmDescent);
             my->fBottom = SkIntToScalar(fTM.tmDescent);
-            my->fLeading = SkIntToScalar(fTM.tmInternalLeading
-                                         + fTM.tmExternalLeading);
+            my->fLeading = SkIntToScalar(fTM.tmExternalLeading);
+            my->fAvgCharWidth = SkIntToScalar(fTM.tmAveCharWidth);
         }
         return;
     }
@@ -875,21 +883,21 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     }
 
     if (mx) {
-        mx->fTop = -fScale * otm.otmTextMetrics.tmAscent;
+        mx->fTop = -fScale * otm.otmrcFontBox.left;
         mx->fAscent = -fScale * otm.otmAscent;
         mx->fDescent = -fScale * otm.otmDescent;
-        mx->fBottom = fScale * otm.otmTextMetrics.tmDescent;
-        mx->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
-                                 + otm.otmTextMetrics.tmExternalLeading);
+        mx->fBottom = fScale * otm.otmrcFontBox.right;
+        mx->fLeading = fScale * otm.otmLineGap;
     }
 
     if (my) {
-        my->fTop = -fScale * otm.otmTextMetrics.tmAscent;
+        my->fTop = -fScale * otm.otmrcFontBox.top;
         my->fAscent = -fScale * otm.otmAscent;
         my->fDescent = -fScale * otm.otmDescent;
-        my->fBottom = fScale * otm.otmTextMetrics.tmDescent;
-        my->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
-                                 + otm.otmTextMetrics.tmExternalLeading);
+        my->fBottom = fScale * otm.otmrcFontBox.bottom;
+        my->fLeading = fScale * otm.otmLineGap;
+        my->fAvgCharWidth = fScale * otm.otmTextMetrics.tmAveCharWidth;
+        my->fXHeight = fScale * otm.otmsXHeight;
     }
 }
 
