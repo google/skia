@@ -5,6 +5,9 @@
       'product_name': 'skia_utils',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'cityhash.gyp:cityhash',
+      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
@@ -61,6 +64,8 @@
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
+        '../src/utils/SkCityHash.cpp',
+        '../src/utils/SkCityHash.h',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
         '../src/utils/SkDeferredCanvas.cpp',
@@ -190,6 +195,15 @@
           ],
           'sources!': [
             '../src/utils/SkThreadUtils_pthread_linux.cpp',
+            '../src/utils/SkCityHash.cpp',
+            '../src/utils/SkCityHash.h',
+          ],
+          'dependencies!': [
+            # CityHash is not supported on NaCl because the NaCl toolchain is
+            # missing byteswap.h which is needed by CityHash.
+            # TODO(borenet): Find a way to either provide this dependency or
+            # replace it.
+            'cityhash.gyp:cityhash',
           ],
         }],
         [ 'skia_os == "android"', {

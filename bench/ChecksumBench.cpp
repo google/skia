@@ -7,6 +7,7 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkChecksum.h"
+#include "SkCityHash.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
 #include "SkSHA1.h"
@@ -15,7 +16,9 @@
 enum ChecksumType {
     kChecksum_ChecksumType,
     kMD5_ChecksumType,
-    kSHA1_ChecksumType
+    kSHA1_ChecksumType,
+    kCityHash32,
+    kCityHash64
 };
 
 class ComputeChecksumBench : public SkBenchmark {
@@ -42,6 +45,8 @@ protected:
             case kChecksum_ChecksumType: return "compute_checksum";
             case kMD5_ChecksumType: return "compute_md5";
             case kSHA1_ChecksumType: return "compute_sha1";
+            case kCityHash32: return "compute_cityhash32";
+            case kCityHash64: return "compute_cityhash64";
             default: SK_CRASH(); return "";
         }
     }
@@ -70,6 +75,18 @@ protected:
                     sha1.finish(digest);
                 }
             } break;
+            case kCityHash32: {
+                for (int i = 0; i < N; i++) {
+                    volatile uint32_t result = SkCityHash::Compute32(reinterpret_cast<char*>(fData), sizeof(fData));
+                    sk_ignore_unused_variable(result);
+                }
+            } break;
+            case kCityHash64: {
+                for (int i = 0; i < N; i++) {
+                    volatile uint64_t result = SkCityHash::Compute64(reinterpret_cast<char*>(fData), sizeof(fData));
+                    sk_ignore_unused_variable(result);
+                }
+            } break;
         }
 
     }
@@ -83,7 +100,11 @@ private:
 static SkBenchmark* Fact0(void* p) { return new ComputeChecksumBench(p, kChecksum_ChecksumType); }
 static SkBenchmark* Fact1(void* p) { return new ComputeChecksumBench(p, kMD5_ChecksumType); }
 static SkBenchmark* Fact2(void* p) { return new ComputeChecksumBench(p, kSHA1_ChecksumType); }
+static SkBenchmark* Fact3(void* p) { return new ComputeChecksumBench(p, kCityHash32); }
+static SkBenchmark* Fact4(void* p) { return new ComputeChecksumBench(p, kCityHash64); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
+static BenchRegistry gReg3(Fact3);
+static BenchRegistry gReg4(Fact4);
