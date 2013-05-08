@@ -1398,15 +1398,7 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
 //    coeff[1] for t
 //    coeff[2] for constant term
 //
-#if 0
-static void rat_numer_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
-    coeff[0] = src[0] + src[4] - 2 * src[2] * w;
-    coeff[1] = 2 * (src[2] * w - src[0]);
-    coeff[0] = src[0];
-}
-#endif
-
-static SkScalar rat_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
+static SkScalar conic_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
@@ -1426,23 +1418,35 @@ static SkScalar rat_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
 
 // F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)
 //
-// {t^2 (2 P0 - 2 P2 - 2 P0 w + 2 P2 w), t (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w), -2 P0 w + 2 P1 w}
+//  t^2 : (2 P0 - 2 P2 - 2 P0 w + 2 P2 w)
+//  t^1 : (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w)
+//  t^0 : -2 P0 w + 2 P1 w
+//
+//  We disregard magnitude, so we can freely ignore the denominator of F', and
+//  divide the numerator by 2
 //
 //    coeff[0] for t^2
-//    coeff[1] for t
-//    coeff[2] for constant term
+//    coeff[1] for t^1
+//    coeff[2] for t^0
 //
-static void rat_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
-    SkScalar diff40 = src[4] - src[0];
-    SkScalar diff20 = 2 * w * (src[2] - src[0]);
-    coeff[0] = 2 * (w * diff40 - diff40);
-    coeff[1] = 2 * (diff40 - diff20);
-    coeff[2] = diff20;
+static void conic_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+    const SkScalar P20 = src[4] - src[0];
+    const SkScalar P10 = src[2] - src[0];
+    const SkScalar wP10 = w * P10;
+    coeff[0] = w * P20 - P20;
+    coeff[1] = P20 - 2 * wP10;
+    coeff[2] = wP10;
 }
 
-static bool rat_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
+static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
     SkScalar coeff[3];
-    rat_deriv_coeff(src, w, coeff);
+    conic_deriv_coeff(coord, w, coeff);
+    return t * (t * coeff[0] + coeff[1]) + coeff[2];
+}
+
+static bool conic_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
+    SkScalar coeff[3];
+    conic_deriv_coeff(src, w, coeff);
 
     SkScalar tValues[2];
     int roots = SkFindUnitQuadRoots(coeff[0], coeff[1], coeff[2], tValues);
@@ -1483,47 +1487,12 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
 }
 
-/* Derivative of conic : just the numerator, as the denom has no P values
-     and can be ignored if we want to return a "normalized" tangent vector.
-
-    2 (P2 t (1 + t (-1 + w)) - P0 (-1 + t) (t (-1 + w) - w) + P1 (1 - 2 t) w)
-
-    -- grouping by powers of t yields --
-
-    t^2 : (2 P0 - 2 P2 - 2 P0 w + 2 P2 w)
-    t^1 : (-2 P0 + 2 P2 + 4 P0 w - 4 P1 w)
-    t^0 : -2 P0 w + 2 P1 w
-
-    We can trivially divide everything by 2 to simplify   
-*/
-static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
-    // At^2 + Bt + C == t * (t * A + B) + C
-
-    const SkScalar P0 = coord[0];
-    const SkScalar P1 = coord[2];
-    const SkScalar P2 = coord[4];
-    const SkScalar P20 = P2 - P0;
-    const SkScalar P10 = P1 - P0;
-    const SkScalar wP10 = w * P10;
-    // 2 P0 - 2 P2 - 2 P0 w + 2 P2 w
-    // 2 * (P0 - P2 - P0w + P2w)
-    SkScalar A = w * P20 - P20;
-    // -2 P0 + 2 P2 + 4 P0 w - 4 P1 w
-    // 2 * (P2 - P0 + 2 * w (P0 - P1))
-    // 2 * (w * (P0 - P1) + P2 - P0)
-    SkScalar B = P20 - 2 * wP10;
-    // -2 P0 w + 2 P1 w
-    SkScalar C = wP10;
-
-    return t * (t * A + B) + C;
-}
-
 void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     if (pt) {
-        pt->set(rat_eval_pos(&fPts[0].fX, fW, t),
-                rat_eval_pos(&fPts[0].fY, fW, t));
+        pt->set(conic_eval_pos(&fPts[0].fX, fW, t),
+                conic_eval_pos(&fPts[0].fY, fW, t));
     }
     if (tangent) {
         tangent->set(conic_eval_tan(&fPts[0].fX, fW, t),
@@ -1559,7 +1528,7 @@ void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
 }
 
 static SkScalar subdivide_w_value(SkScalar w) {
-    return SkScalarSqrt((1 + w) * SK_ScalarHalf);
+    return SkScalarSqrt(SK_ScalarHalf + w * SK_ScalarHalf);
 }
 
 void SkConic::chop(SkConic dst[2]) const {
@@ -1637,11 +1606,11 @@ int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
 }
 
 bool SkConic::findXExtrema(SkScalar* t) const {
-    return rat_find_extrema(&fPts[0].fX, fW, t);
+    return conic_find_extrema(&fPts[0].fX, fW, t);
 }
 
 bool SkConic::findYExtrema(SkScalar* t) const {
-    return rat_find_extrema(&fPts[0].fY, fW, t);
+    return conic_find_extrema(&fPts[0].fY, fW, t);
 }
 
 bool SkConic::chopAtXExtrema(SkConic dst[2]) const {
