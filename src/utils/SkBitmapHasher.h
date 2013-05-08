@@ -11,8 +11,6 @@
 
 #include "SkBitmap.h"
 
-#define BITMAPHASHER_USES_TRUNCATED_MD5
-
 // TODO(epoger): Soon, SkHashDigest will become a real class of its own,
 // and callers won't be able to assume it converts to/from a uint64_t.
 typedef uint64_t SkHashDigest;

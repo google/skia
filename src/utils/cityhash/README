@@ -1,2 +1,0 @@
-This directory contains files needed to build third_party/externals/cityhash
-(such as the config.h file that would normally be created by autoconf)
