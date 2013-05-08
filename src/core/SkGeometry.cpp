@@ -1507,12 +1507,11 @@ static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
     const SkScalar wP10 = w * P10;
     // 2 P0 - 2 P2 - 2 P0 w + 2 P2 w
     // 2 * (P0 - P2 - P0w + P2w)
-    // 2 * (invW * P0 - invW * P2
-    SkScalar A = P20 - w * P20;
+    SkScalar A = w * P20 - P20;
     // -2 P0 + 2 P2 + 4 P0 w - 4 P1 w
-    // 2 * (P2 - P0 + P0w - P1w)
+    // 2 * (P2 - P0 + 2 * w (P0 - P1))
     // 2 * (w * (P0 - P1) + P2 - P0)
-    SkScalar B = P20 - wP10;
+    SkScalar B = P20 - 2 * wP10;
     // -2 P0 w + 2 P1 w
     SkScalar C = wP10;
 
