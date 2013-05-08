@@ -95,8 +95,8 @@ public:
 
     /** Return the vertical metrics for this strike.
     */
-    const SkPaint::FontMetrics& getFontMetricsY() const {
-        return fFontMetricsY;
+    const SkPaint::FontMetrics& getFontMetrics() const {
+        return fFontMetrics;
     }
 
     const SkDescriptor& getDescriptor() const { return *fDesc; }
@@ -220,7 +220,7 @@ private:
     SkGlyphCache*       fNext, *fPrev;
     SkDescriptor*       fDesc;
     SkScalerContext*    fScalerContext;
-    SkPaint::FontMetrics fFontMetricsY;
+    SkPaint::FontMetrics fFontMetrics;
 
     enum {
         kHashBits   = 12,

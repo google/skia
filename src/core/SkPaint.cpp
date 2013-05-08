@@ -1203,7 +1203,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool FontMetricsCacheProc(const SkGlyphCache* cache, void* context) {
-    *(SkPaint::FontMetrics*)context = cache->getFontMetricsY();
+    *(SkPaint::FontMetrics*)context = cache->getFontMetrics();
     return false;   // don't detach the cache
 }
 
@@ -1228,11 +1228,6 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         zoomPtr = &zoomMatrix;
     }
 
-#if 0
-    SkAutoGlyphCache    autoCache(*this, zoomPtr);
-    SkGlyphCache*       cache = autoCache.getCache();
-    const FontMetrics&  my = cache->getFontMetricsY();
-#endif
     FontMetrics storage;
     if (NULL == metrics) {
         metrics = &storage;
@@ -1246,6 +1241,10 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics->fDescent = SkScalarMul(metrics->fDescent, scale);
         metrics->fBottom = SkScalarMul(metrics->fBottom, scale);
         metrics->fLeading = SkScalarMul(metrics->fLeading, scale);
+        metrics->fAvgCharWidth = SkScalarMul(metrics->fAvgCharWidth, scale);
+        metrics->fXMin = SkScalarMul(metrics->fXMin, scale);
+        metrics->fXMax = SkScalarMul(metrics->fXMax, scale);
+        metrics->fXHeight = SkScalarMul(metrics->fXHeight, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }

@@ -62,7 +62,7 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
 
     fDesc = desc->copy();
     fScalerContext = typeface->createScalerContext(desc);
-    fScalerContext->getFontMetrics(NULL, &fFontMetricsY);
+    fScalerContext->getFontMetrics(&fFontMetrics);
 
     // init to 0 so that all of the pointers will be null
     memset(fGlyphHash, 0, sizeof(fGlyphHash));

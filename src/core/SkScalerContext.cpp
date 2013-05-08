@@ -663,8 +663,16 @@ void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path) {
     this->internalGetPath(glyph, NULL, path, NULL);
 }
 
-void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* mx,
-                                     SkPaint::FontMetrics* my) {
+void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
+    // All of this complexity should go away when we change generateFontMetrics
+    // to just take one parameter (since it knows if it is vertical or not)
+    SkPaint::FontMetrics* mx = NULL;
+    SkPaint::FontMetrics* my = NULL;
+    if (fRec.fFlags & kVertical_Flag) {
+        mx = fm;
+    } else {
+        my = fm;
+    }
     this->generateFontMetrics(mx, my);
 }
 

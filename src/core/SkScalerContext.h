@@ -180,8 +180,7 @@ public:
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
     void        getPath(const SkGlyph&, SkPath*);
-    void        getFontMetrics(SkPaint::FontMetrics* mX,
-                               SkPaint::FontMetrics* mY);
+    void        getFontMetrics(SkPaint::FontMetrics*);
 
 #ifdef SK_BUILD_FOR_ANDROID
     unsigned getBaseGlyphCount(SkUnichar charCode);
