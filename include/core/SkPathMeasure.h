@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
 #include "SkPath.h"
 #include "SkTDArray.h"
 
-class SkPathMeasure : SkNoncopyable {
+class SK_API SkPathMeasure : SkNoncopyable {
 public:
     SkPathMeasure();
     /** Initialize the pathmeasure with the specified path. The path must remain valid
