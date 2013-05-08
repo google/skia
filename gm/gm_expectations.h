@@ -39,26 +39,12 @@ namespace skiagm {
         return jsonValue.asUInt64();
     }
 
-    static void gm_fprintf(FILE *stream, const char format[], ...) {
-        va_list args;
-        va_start(args, format);
-        fprintf(stream, "GM: ");
-        vfprintf(stream, format, args);
-        va_end(args);
-    }
+    void gm_fprintf(FILE *stream, const char format[], ...);
 
-    static SkString make_filename(const char path[],
-                                  const char renderModeDescriptor[],
-                                  const char *name,
-                                  const char suffix[]) {
-        SkString filename(path);
-        if (filename.endsWith(SkPATH_SEPARATOR)) {
-            filename.remove(filename.size() - 1, 1);
-        }
-        filename.appendf("%c%s%s.%s", SkPATH_SEPARATOR,
-                         name, renderModeDescriptor, suffix);
-        return filename;
-    }
+    SkString make_filename(const char path[],
+                           const char renderModeDescriptor[],
+                           const char *name,
+                           const char suffix[]);
 
     Json::Value ActualResultAsJsonValue(const SkHashDigest& result);
 
@@ -208,15 +194,15 @@ namespace skiagm {
          */
         // TODO(epoger): Move this, into SkStream.[cpp|h] as attempted in
         // https://codereview.appspot.com/7300071 ?
-        // And maybe readFileIntoSkData() also?
-        static SkData* readIntoSkData(SkStream &stream, size_t maxBytes);
+        // And maybe ReadFileIntoSkData() also?
+        static SkData* ReadIntoSkData(SkStream &stream, size_t maxBytes);
 
         /**
-         * Wrapper around readIntoSkData for files: reads the entire file into
+         * Wrapper around ReadIntoSkData for files: reads the entire file into
          * an SkData object.
          */
-        static SkData* readFileIntoSkData(SkFILEStream &stream) {
-            return readIntoSkData(stream, stream.getLength());
+        static SkData* ReadFileIntoSkData(SkFILEStream &stream) {
+            return ReadIntoSkData(stream, stream.getLength());
         }
 
         /**
@@ -224,7 +210,7 @@ namespace skiagm {
          *
          * Returns true if successful.
          */
-        static bool parse(const char *jsonPath, Json::Value *jsonRoot);
+        static bool Parse(const char *jsonPath, Json::Value *jsonRoot);
 
         Json::Value fJsonRoot;
         Json::Value fJsonExpectedResults;
