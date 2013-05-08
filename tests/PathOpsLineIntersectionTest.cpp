@@ -91,7 +91,7 @@ static void PathOpsLineIntersectionTest(skiatest::Reporter* reporter) {
         const SkDLine& line2 = noIntersect[index][1];
         SkIntersections ts;
         int pts = ts.intersect(line1, line2);
-        REPORTER_ASSERT(reporter, !pts);    
+        REPORTER_ASSERT(reporter, !pts);
         REPORTER_ASSERT(reporter, pts == ts.used());
     }
 }

@@ -141,7 +141,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
         SkDVector dxy = loc - ray[0];
         double dist = dxy.lengthSquared();
 #if DEBUG_SORT
-        SkDebugf("best=%1.9g dist=%1.9g loc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n", 
+        SkDebugf("best=%1.9g dist=%1.9g loc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n",
                 best, dist, loc.fX, loc.fY, dxy.fX, dxy.fY);
 #endif
         if (best > dist) {
@@ -156,7 +156,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
         SkDVector dxy = rLoc - ray[0];
         double dist = dxy.lengthSquared();
 #if DEBUG_SORT
-        SkDebugf("best=%1.9g dist=%1.9g %c=(fSide < 0) rLoc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n", 
+        SkDebugf("best=%1.9g dist=%1.9g %c=(fSide < 0) rLoc={%1.9g,%1.9g} dxy={%1.9g,%1.9g}\n",
                 best, dist, "><"[fSide < 0], rLoc.fX, rLoc.fY, dxy.fX, dxy.fY);
 #endif
         if (best > dist) {

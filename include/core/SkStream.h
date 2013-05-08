@@ -23,7 +23,7 @@ class SkData;
  *  bytes, they may return fewer than N bytes on a given call, in which case
  *  the caller can "try again" to get more bytes, eventually (modulo an error)
  *  receiving their total N bytes.
- *  
+ *
  *  Skia streams behave differently. They are effectively synchronous, and will
  *  always return all N bytes of the request if possible. If they return fewer
  *  (the read() call returns the number of bytes read) then that means there is

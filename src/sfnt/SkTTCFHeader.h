@@ -23,7 +23,7 @@ struct SkTTCFHeader {
     SK_OT_Fixed version;
     static const SK_OT_Fixed version_1 = SkTEndian_SwapBE32(1 << 16);
     static const SK_OT_Fixed version_2 = SkTEndian_SwapBE32(2 << 16);
-    
+
     SK_OT_ULONG numOffsets;
     //SK_OT_ULONG offset[numOffsets]
 
