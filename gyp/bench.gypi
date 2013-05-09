@@ -24,6 +24,7 @@
     '../bench/DeferredSurfaceCopyBench.cpp',
     '../bench/DisplacementBench.cpp',
     '../bench/FontScalerBench.cpp',
+    '../bench/GameBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
     '../bench/InterpBench.cpp',
