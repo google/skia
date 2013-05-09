@@ -230,6 +230,14 @@ void GrGLShaderBuilder::nameVariable(SkString* out, char prefix, const char* nam
 }
 
 const char* GrGLShaderBuilder::dstColor() {
+    if (fCodeStage.inStageCode()) {
+        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        if (!effect->willReadDstColor()) {
+            GrDebugCrash("GrGLEffect asked for dst color but its generating GrEffect "
+                         "did not request access.");
+            return "";
+        }
+    }
     static const char kFBFetchColorName[] = "gl_LastFragData[0]";
     GrGLCaps::FBFetchType fetchType = fCtxInfo.caps()->fbFetchType();
     if (GrGLCaps::kEXT_FBFetchType == fetchType) {
@@ -241,7 +249,7 @@ const char* GrGLShaderBuilder::dstColor() {
     } else if (fDstCopySampler.isInitialized()) {
         return kDstCopyColorName;
     } else {
-        return NULL;
+        return "";
     }
 }
 
@@ -457,6 +465,14 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 }
 
 const char* GrGLShaderBuilder::fragmentPosition() {
+    if (fCodeStage.inStageCode()) {
+        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        if (!effect->willReadFragmentPosition()) {
+            GrDebugCrash("GrGLEffect asked for frag position but its generating GrEffect "
+                         "did not request access.");
+            return "";
+        }
+    }
 #if 1
     if (fCtxInfo.caps()->fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {

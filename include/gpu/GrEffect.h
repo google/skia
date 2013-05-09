@@ -153,7 +153,10 @@ public:
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
     /** Will this effect read the destination pixel value? */
-    bool willReadDst() const { return fWillReadDst; }
+    bool willReadDstColor() const { return fWillReadDstColor; }
+
+    /** Will this effect read the fragment position? */
+    bool willReadFragmentPosition() const { return fWillReadFragmentPosition; }
 
     int numVertexAttribs() const { return fVertexAttribTypes.count(); }
 
@@ -213,7 +216,7 @@ protected:
      */
     void addVertexAttrib(GrSLType type);
 
-    GrEffect() : fWillReadDst(false), fEffectRef(NULL) {}
+    GrEffect() : fWillReadDstColor(false), fWillReadFragmentPosition(false), fEffectRef(NULL) {}
 
     /** This should be called by GrEffect subclass factories. See the comment on AutoEffectUnref for
         an example factory function. */
@@ -269,7 +272,14 @@ protected:
      * from its constructor. Otherwise, when its generated backend-specific effect class attempts
      * to generate code that reads the destination pixel it will fail.
      */
-    void setWillReadDst() { fWillReadDst = true; }
+    void setWillReadDstColor() { fWillReadDstColor = true; }
+
+    /**
+     * If the effect will generate a backend-specific effect that will read the fragment position
+     * in the FS then it must call this method from its constructor. Otherwise, the request to
+     * access the fragment position will be denied.
+     */
+    void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
 private:
     bool isEqual(const GrEffect& other) const {
@@ -302,7 +312,8 @@ private:
 
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
     SkSTArray<kMaxVertexAttribs, GrSLType, true> fVertexAttribTypes;
-    bool                                         fWillReadDst;
+    bool                                         fWillReadDstColor;
+    bool                                         fWillReadFragmentPosition;
     GrEffectRef*                                 fEffectRef;
 
     typedef GrRefCnt INHERITED;

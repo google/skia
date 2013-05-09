@@ -453,7 +453,7 @@ public:
      */
     bool willEffectReadDst() const {
         for (int s = 0; s < kNumStages; ++s) {
-            if (this->isStageEnabled(s) && (*this->getStage(s).getEffect())->willReadDst()) {
+            if (this->isStageEnabled(s) && (*this->getStage(s).getEffect())->willReadDstColor()) {
                 return true;
             }
         }
