@@ -87,7 +87,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
             const GrBackendEffectFactory& factory = effect->getFactory();
             GrDrawEffect drawEffect(drawState.getStage(s), requiresLocalCoordAttrib);
             desc->fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
-            if (effect->willReadDst()) {
+            if (effect->willReadDstColor()) {
                 readsDst = true;
             }
         } else {

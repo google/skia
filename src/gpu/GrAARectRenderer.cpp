@@ -220,6 +220,7 @@ private:
     GrRectEffect() : GrEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
         this->addVertexAttrib(kVec2f_GrSLType);
+        this->setWillReadFragmentPosition();
     }
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE { return true; }

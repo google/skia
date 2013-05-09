@@ -1358,7 +1358,7 @@ public:
     GR_DECLARE_EFFECT_TEST;
 
 private:
-    XferEffect(SkXfermode::Mode mode) : fMode(mode) { this->setWillReadDst(); }
+    XferEffect(SkXfermode::Mode mode) : fMode(mode) { this->setWillReadDstColor(); }
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE { return true; }
 
     SkXfermode::Mode fMode;

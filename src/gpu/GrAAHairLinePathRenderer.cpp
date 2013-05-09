@@ -666,6 +666,7 @@ public:
 private:
     HairLineEdgeEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
+        this->setWillReadFragmentPosition();
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {

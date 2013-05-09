@@ -447,6 +447,7 @@ public:
     virtual ~GrGLDistantLight() {}
     virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(GrGLShaderBuilder*, const char* z) SK_OVERRIDE;
+
 private:
     typedef GrGLLight INHERITED;
     UniformHandle fDirectionUni;
@@ -459,6 +460,7 @@ public:
     virtual ~GrGLPointLight() {}
     virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(GrGLShaderBuilder*, const char* z) SK_OVERRIDE;
+
 private:
     typedef GrGLLight INHERITED;
     SkPoint3 fLocation;
@@ -473,6 +475,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(GrGLShaderBuilder*, const char* z) SK_OVERRIDE;
     virtual void emitLightColor(GrGLShaderBuilder*, const char *surfaceToLight) SK_OVERRIDE;
+
 private:
     typedef GrGLLight INHERITED;
 
@@ -509,6 +512,8 @@ public:
     virtual bool isEqual(const SkLight& other) const {
         return fColor == other.fColor;
     }
+    // Called to know whether the generated GrGLLight will require access to the fragment position.
+    virtual bool requiresFragmentPosition() const = 0;
 
 protected:
     SkLight(SkColor color)
@@ -553,6 +558,8 @@ public:
         return NULL;
 #endif
     }
+    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return false; }
+
     virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kDistant_LightType) {
             return false;
@@ -604,6 +611,7 @@ public:
         return NULL;
 #endif
     }
+    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
     virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kPoint_LightType) {
             return false;
@@ -674,6 +682,7 @@ public:
         return NULL;
 #endif
     }
+    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
     virtual LightType type() const { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
     const SkPoint3& target() const { return fTarget; }
@@ -1044,6 +1053,9 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture, const SkLight* light, SkS
     , fLight(light)
     , fSurfaceScale(surfaceScale) {
     fLight->ref();
+    if (light->requiresFragmentPosition()) {
+        this->setWillReadFragmentPosition();
+    }
 }
 
 GrLightingEffect::~GrLightingEffect() {

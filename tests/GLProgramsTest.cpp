@@ -63,7 +63,7 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
             const GrBackendEffectFactory& factory = (*stages[s]->getEffect())->getFactory();
             GrDrawEffect drawEffect(*stages[s], useLocalCoords);
             fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
-            if ((*stages[s]->getEffect())->willReadDst()) {
+            if ((*stages[s]->getEffect())->willReadDstColor()) {
                 dstRead = true;
             }
         }
