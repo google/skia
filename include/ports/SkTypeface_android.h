@@ -9,8 +9,6 @@
 #ifndef SkTypeface_android_DEFINED
 #define SkTypeface_android_DEFINED
 
-#ifdef SK_BUILD_FOR_ANDROID
-
 #include "SkTypeface.h"
 
 /**
@@ -41,8 +39,6 @@ SK_API void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackco
  *  get the 3rd can still inspect the original, and try to match its
  *  stylistic attributes.
  */
-SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
-                                         const SkPaintOptionsAndroid& options);
+SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
 
-#endif // #ifdef SK_BUILD_FOR_ANDROID
-#endif // #ifndef SkTypeface_android_DEFINED
+#endif
