@@ -21,7 +21,6 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
-#include "SkTScopedPtr.h"
 
 // A WebP decoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -344,13 +343,12 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
                          (is_config_compatible(*decodedBitmap) &&
                          (decodedBitmap->width() == width) &&
                          (decodedBitmap->height() == height)));
-    SkTScopedPtr<SkBitmap> adb;
+
+    SkBitmap tmpBitmap;
     SkBitmap *bitmap = decodedBitmap;
 
     if (!directDecode) {
-        // allocates a temp bitmap
-        bitmap = new SkBitmap;
-        adb.reset(bitmap);
+        bitmap = &tmpBitmap;
     }
 
     if (bitmap->isNull()) {
