@@ -180,13 +180,18 @@ uint32_t SkPaint::getGenerationID() const {
 void SkPaint::setGenerationID(uint32_t generationID) {
     fGenerationID = generationID;
 }
-#endif
 
-#ifdef SK_BUILD_FOR_ANDROID
 unsigned SkPaint::getBaseGlyphCount(SkUnichar text) const {
     SkAutoGlyphCache autoCache(*this, NULL, NULL);
     SkGlyphCache* cache = autoCache.getCache();
     return cache->getBaseGlyphCount(text);
+}
+
+void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
+    if(!memcmp(&fPaintOptionsAndroid, &options, sizeof(SkPaintOptionsAndroid))) {
+        fPaintOptionsAndroid = options;
+        GEN_ID_INC;
+    }
 }
 #endif
 
@@ -1806,6 +1811,13 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
         rec.fMaskFormat = SkMask::kA8_Format;   // force antialiasing when we do the scan conversion
     }
 
+#ifdef SK_BUILD_FOR_ANDROID
+    SkOrderedWriteBuffer androidBuffer(128);
+    fPaintOptionsAndroid.flatten(androidBuffer);
+    descSize += androidBuffer.size();
+    entryCount += 1;
+#endif
+
     ///////////////////////////////////////////////////////////////////////////
     // Now that we're done tweaking the rec, call the PostMakeRec cleanup
     SkScalerContext::PostMakeRec(*this, &rec);
@@ -1817,6 +1829,10 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
 
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+
+#ifdef SK_BUILD_FOR_ANDROID
+    add_flattenable(desc, kAndroidOpts_SkDescriptorTag, &androidBuffer);
+#endif
 
     if (pe) {
         add_flattenable(desc, kPathEffect_SkDescriptorTag, &peBuffer);
