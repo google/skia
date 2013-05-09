@@ -797,10 +797,10 @@ bool SkPictureRecord::updateClipConservativelyUsingBounds(const SkRect& bounds, 
     // is set. The current clip of the recording canvas is used for quick
     // culling of clipped-out primitives, which must not yield any false
     // positives, while still rejecting as many as possible.
-    // Contract: 
+    // Contract:
     //    The current clip must contain the true clip. The true
-    //    clip is the clip that would have been computed with 
-    //    kUsePathBoundsForClip_RecordingFlag disabled. 
+    //    clip is the clip that would have been computed with
+    //    kUsePathBoundsForClip_RecordingFlag disabled.
     // Objective:
     //    Keep the current clip as small as possible without
     //    breaking the contract, using only clip bounding rectangles
@@ -857,7 +857,7 @@ bool SkPictureRecord::updateClipConservativelyUsingBounds(const SkRect& bounds, 
             default:
                 SkASSERT(0); // unhandled op?
         }
-    }    
+    }
     return true;
 }
 
