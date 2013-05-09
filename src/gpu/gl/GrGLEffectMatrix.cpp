@@ -87,7 +87,7 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                    &uniName);
     }
 
-    const char* varyingName = "StageCoord";
+    const char* varyingName = "MatrixCoord";
     SkString suffixedVaryingName;
     if (NULL != suffix) {
         suffixedVaryingName.append(varyingName);

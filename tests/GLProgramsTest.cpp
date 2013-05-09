@@ -24,7 +24,7 @@
 void GrGLProgramDesc::setRandom(SkMWCRandom* random,
                                 const GrGpuGL* gpu,
                                 const GrTexture* dstTexture,
-                                const GrEffectStage stages[GrDrawState::kNumStages],
+                                const GrEffectStage* stages[GrDrawState::kNumStages],
                                 int currAttribIndex) {
     fEmitsPointSize = random->nextBool();
 
@@ -59,11 +59,11 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
 
     bool dstRead = false;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (NULL != stages[s].getEffect()) {
-            const GrBackendEffectFactory& factory = (*stages[s].getEffect())->getFactory();
-            GrDrawEffect drawEffect(stages[s], useLocalCoords);
+        if (NULL != stages[s]) {
+            const GrBackendEffectFactory& factory = (*stages[s]->getEffect())->getFactory();
+            GrDrawEffect drawEffect(*stages[s], useLocalCoords);
             fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
-            if ((*stages[s].getEffect())->willReadDst()) {
+            if ((*stages[s]->getEffect())->willReadDst()) {
                 dstRead = true;
             }
         }
@@ -113,7 +113,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 #endif
 
         GrGLProgramDesc pdesc;
-        GrEffectStage stages[GrDrawState::kNumStages];
+        const GrEffectStage* stages[GrDrawState::kNumStages];
+        memset(stages, 0, sizeof(stages));
 
         int currAttribIndex = 1;  // we need to always leave room for position
         int attribIndices[2];
@@ -137,19 +138,20 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 for (int i = 0; i < numAttribs; ++i) {
                     attribIndices[i] = currAttribIndex++;
                 }
-                stages[s].setEffect(effect.get(), attribIndices[0], attribIndices[1]);
+                GrEffectStage* stage = SkNEW(GrEffectStage);
+                stage->setEffect(effect.get(), attribIndices[0], attribIndices[1]);
+                stages[s] = stage;
             }
         }
         const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
         pdesc.setRandom(&random, this, dstTexture, stages, currAttribIndex);
 
-        const GrEffectStage* stagePtrs[GrDrawState::kNumStages];
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            stagePtrs[s] = &stages[s];
-        }
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContext(),
                                                               pdesc,
-                                                              stagePtrs));
+                                                              stages));
+        for (int s = 0; s < maxStages; ++s) {
+            SkDELETE(stages[s]);
+        }
         if (NULL == program.get()) {
             return false;
         }

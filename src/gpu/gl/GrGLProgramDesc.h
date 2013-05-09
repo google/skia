@@ -39,7 +39,7 @@ public:
     void setRandom(SkMWCRandom*,
                    const GrGpuGL* gpu,
                    const GrTexture* dummyDstTexture,
-                   const GrEffectStage stages[GrDrawState::kNumStages],
+                   const GrEffectStage* stages[GrDrawState::kNumStages],
                    int currAttribIndex);
 
     /**
