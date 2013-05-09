@@ -170,18 +170,18 @@ private:
 
     // Note: the resulting checker board has transparency
     void makeCheckerboard() {
-        static unsigned int kCheckSize = 16;
+        static int kCheckSize = 16;
 
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config,
                                 kCheckerboardWidth, kCheckerboardHeight);
         fCheckerboard.allocPixels();
         SkAutoLockPixels lock(fCheckerboard);
-        for (unsigned int y = 0; y < kCheckerboardHeight; ++y) {
+        for (int y = 0; y < kCheckerboardHeight; ++y) {
             int even = (y / kCheckSize) % 2;
 
             SkPMColor* scanline = fCheckerboard.getAddr32(0, y);
 
-            for (unsigned int x = 0; x < kCheckerboardWidth; ++x) {
+            for (int x = 0; x < kCheckerboardWidth; ++x) {
                 if (even == (x / kCheckSize) % 2) {
                     *scanline++ = 0xFFFF0000;
                 } else {
