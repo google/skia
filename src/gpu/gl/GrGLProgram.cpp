@@ -485,35 +485,21 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     bool needColor, needFilterColor;
     need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
 
-    if (needColor) {
-        ///////////////////////////////////////////////////////////////////////////
-        // compute the color
-        // if we have color stages string them together, feeding the output color
-        // of each to the next and generating code for each stage.
-        SkString outColor;
-        for (int s = 0; s < fDesc.fFirstCoverageStage; ++s) {
-            if (GrGLEffect::kNoEffectKey != fDesc.fEffectKeys[s]) {
-                if (kZeros_GrSLConstantVec == knownColorValue) {
-                    // Effects have no way to communicate zeros, they treat an empty string as ones.
-                    inColor = "initialColor";
-                    builder.fsCodeAppendf("\tvec4 %s = %s;\n", inColor.c_str(), GrGLSLZerosVecf(4));
-                }
-                // create var to hold stage result
-                outColor = "color";
-                outColor.appendS32(s);
-                builder.fsCodeAppendf("\tvec4 %s;\n", outColor.c_str());
+    // used in order for builder to return the per-stage uniform handles.
+    SkTArray<GrGLUniformManager::UniformHandle, true>* stageUniformArrays[GrDrawState::kNumStages];
 
-                builder.setCurrentStage(s);
-                fEffects[s] = builder.createAndEmitGLEffect(*stages[s],
-                                                            fDesc.fEffectKeys[s],
-                                                            inColor.size() ? inColor.c_str() : NULL,
-                                                            outColor.c_str(),
-                                                            &fUniformHandles.fEffectSamplerUnis[s]);
-                builder.setNonStage();
-                inColor = outColor;
-                knownColorValue = kNone_GrSLConstantVec;
-            }
+    if (needColor) {
+        for (int s = 0; s < fDesc.fFirstCoverageStage; ++s) {
+            stageUniformArrays[s] = &fUniformHandles.fEffectSamplerUnis[s];
         }
+
+        builder.emitEffects(stages,
+                            fDesc.fEffectKeys,
+                            fDesc.fFirstCoverageStage,
+                            &inColor,
+                            &knownColorValue,
+                            stageUniformArrays,
+                            fEffects);
     }
 
     // Insert the color filter. This will soon be replaced by a color effect.
@@ -540,36 +526,20 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     ///////////////////////////////////////////////////////////////////////////
     // compute the partial coverage
-
-    // incoming coverage to current stage being processed.
     SkString inCoverage;
     GrSLConstantVec knownCoverageValue = this->genInputCoverage(&builder, &inCoverage);
 
-    SkString outCoverage;
-    for (int s = fDesc.fFirstCoverageStage; s < GrDrawState::kNumStages; ++s) {
-        if (fDesc.fEffectKeys[s]) {
-            if (kZeros_GrSLConstantVec == knownCoverageValue) {
-                // Effects have no way to communicate zeros, they treat an empty string as ones.
-                inCoverage = "initialCoverage";
-                builder.fsCodeAppendf("\tvec4 %s = %s;\n", inCoverage.c_str(), GrGLSLZerosVecf(4));
-            }
-            // create var to hold stage output
-            outCoverage = "coverage";
-            outCoverage.appendS32(s);
-            builder.fsCodeAppendf("\tvec4 %s;\n", outCoverage.c_str());
-
-            builder.setCurrentStage(s);
-            fEffects[s] = builder.createAndEmitGLEffect(
-                                            *stages[s],
-                                            fDesc.fEffectKeys[s],
-                                            inCoverage.size() ? inCoverage.c_str() : NULL,
-                                            outCoverage.c_str(),
-                                            &fUniformHandles.fEffectSamplerUnis[s]);
-            builder.setNonStage();
-            inCoverage = outCoverage;
-            knownCoverageValue = kNone_GrSLConstantVec;
-        }
+    for (int s = fDesc.fFirstCoverageStage, i = 0; s < GrDrawState::kNumStages; ++s, ++i) {
+        stageUniformArrays[i] = &fUniformHandles.fEffectSamplerUnis[s];
     }
+
+    builder.emitEffects(stages + fDesc.fFirstCoverageStage,
+                        fDesc.fEffectKeys + fDesc.fFirstCoverageStage,
+                        GrDrawState::kNumStages - fDesc.fFirstCoverageStage,
+                        &inCoverage,
+                        &knownCoverageValue,
+                        stageUniformArrays,
+                        fEffects + fDesc.fFirstCoverageStage);
 
     // discard if coverage is zero
     if (fDesc.fDiscardIfZeroCoverage && kOnes_GrSLConstantVec != knownCoverageValue) {
