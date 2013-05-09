@@ -14,9 +14,6 @@
 #include "SkColor.h"
 #include "SkDrawLooper.h"
 #include "SkXfermode.h"
-#ifdef SK_BUILD_FOR_ANDROID
-#include "SkPaintOptionsAndroid.h"
-#endif
 
 class SkAnnotation;
 class SkAutoGlyphCache;
@@ -863,11 +860,6 @@ public:
     /** Returns the base glyph count for the strike associated with this paint
     */
     unsigned getBaseGlyphCount(SkUnichar text) const;
-
-    const SkPaintOptionsAndroid& getPaintOptionsAndroid() const {
-        return fPaintOptionsAndroid;
-    }
-    void setPaintOptionsAndroid(const SkPaintOptionsAndroid& options);
 #endif
 
     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
@@ -998,8 +990,6 @@ private:
     friend class SkTextToPathIter;
 
 #ifdef SK_BUILD_FOR_ANDROID
-    SkPaintOptionsAndroid fPaintOptionsAndroid;
-
     // In order for the == operator to work properly this must be the last field
     // in the struct so that we can do a memcmp to this field's offset.
     uint32_t        fGenerationID;
