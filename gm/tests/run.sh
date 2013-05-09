@@ -21,12 +21,6 @@ cd $(dirname $0)/../..
 # TODO(epoger): make it look in Release and/or Debug
 GM_BINARY=out/Debug/gm
 
-# If WRITE_IMAGE_FILES is nonzero, then the self-test will pass --writePath
-# and --mismatchPath arguments to GM.  Currently, for various reasons, we
-# cannot run these arguments on the production buildbots, so this should
-# only be set to nonzero for local testing.
-WRITE_IMAGE_FILES=0
-
 OUTPUT_ACTUAL_SUBDIR=output-actual
 OUTPUT_EXPECTED_SUBDIR=output-expected
 CONFIGS="--config 8888 565"
@@ -69,10 +63,7 @@ function gm_test {
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
 
-  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE"
-  if [ $WRITE_IMAGE_FILES != 0 ]; then
-    COMMAND="$COMMAND --writePath $ACTUAL_OUTPUT_DIR/writePath --mismatchPath $ACTUAL_OUTPUT_DIR/mismatchPath"
-  fi
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE --writePath $ACTUAL_OUTPUT_DIR/writePath --mismatchPath $ACTUAL_OUTPUT_DIR/mismatchPath"
 
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND >$ACTUAL_OUTPUT_DIR/stdout 2>$ACTUAL_OUTPUT_DIR/stderr
@@ -88,16 +79,16 @@ function gm_test {
   grep ^GM: $ACTUAL_OUTPUT_DIR/stderr >$ACTUAL_OUTPUT_DIR/stderr-tmp
   mv $ACTUAL_OUTPUT_DIR/stderr-tmp $ACTUAL_OUTPUT_DIR/stderr
 
-  if [ $WRITE_IMAGE_FILES != 0 ]; then
-    for IMAGEFILE in $(ls $ACTUAL_OUTPUT_DIR/*/*/*.png); do
-      SUM=$(sum $IMAGEFILE)
-      echo "Replaced image bytes with a checksum, because of https://code.google.com/p/chromium/issues/detail?id=169600 ('gcl/upload.py fail to upload binary files to rietveld')" >$IMAGEFILE
-      echo $SUM >> $IMAGEFILE
-    done
-    for MISMATCHDIR in $(ls -d $ACTUAL_OUTPUT_DIR/mismatchPath/*); do
-      echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$MISMATCHDIR/bogusfile
-    done
-  fi
+  # Replace image file contents with just the filename, for two reasons:
+  # 1. Image file encoding may vary by platform
+  # 2. https://code.google.com/p/chromium/issues/detail?id=169600
+  #    ('gcl/upload.py fail to upload binary files to rietveld')
+  for IMAGEFILE in $(ls $ACTUAL_OUTPUT_DIR/*/*/*.png); do
+    echo "[contents of $IMAGEFILE]" >$IMAGEFILE
+  done
+  for MISMATCHDIR in $(ls -d $ACTUAL_OUTPUT_DIR/mismatchPath/*); do
+    echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$MISMATCHDIR/bogusfile
+  done
 
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
