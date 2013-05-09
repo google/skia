@@ -113,10 +113,11 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
 #ifdef SK_BUILD_FOR_ANDROID
     uint32_t len;
     const void* data = desc->findEntry(kAndroidOpts_SkDescriptorTag, &len);
-    SkASSERT(data);
-    SkOrderedReadBuffer buffer(data, len);
-    fPaintOptionsAndroid.unflatten(buffer);
-    SkASSERT(buffer.offset() == buffer.size());
+    if (data) {
+        SkOrderedReadBuffer buffer(data, len);
+        fPaintOptionsAndroid.unflatten(buffer);
+        SkASSERT(buffer.offset() == buffer.size());
+    }
 #endif
 }
 
