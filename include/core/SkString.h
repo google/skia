@@ -168,7 +168,6 @@ public:
     void insertScalar(size_t offset, SkScalar);
 
     void append(const SkString& str) { this->insert((size_t)-1, str); }
-    void append(const char c) { this->insert((size_t)-1, &c, 1); }
     void append(const char text[]) { this->insert((size_t)-1, text); }
     void append(const char text[], size_t len) { this->insert((size_t)-1, text, len); }
     void appendUnichar(SkUnichar uni) { this->insertUnichar((size_t)-1, uni); }
@@ -195,7 +194,7 @@ public:
 
     SkString& operator+=(const SkString& s) { this->append(s); return *this; }
     SkString& operator+=(const char text[]) { this->append(text); return *this; }
-    SkString& operator+=(const char c) { this->append(c); return *this; }
+    SkString& operator+=(const char c) { this->append(&c, 1); return *this; }
 
     /**
      *  Swap contents between this and other. This function is guaranteed
