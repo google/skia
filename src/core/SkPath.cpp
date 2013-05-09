@@ -611,8 +611,8 @@ bool SkPath::isNestedRects(SkRect rects[2]) const {
     const SkPoint* last = pts;
     SkRect testRects[2];
     if (isRectContour(false, &currVerb, &pts, NULL, NULL)) {
-        testRects[0].set(first, last - first);
-        testRects[1].set(last, pts - last);
+        testRects[0].set(first, SkToS32(last - first));
+        testRects[1].set(last, SkToS32(pts - last));
         if (testRects[0].contains(testRects[1])) {
             if (rects) {
                 rects[0] = testRects[0];
@@ -2084,7 +2084,7 @@ uint32_t SkPath::writeToMemory(void* storage) const {
     buffer.write(&bounds, sizeof(bounds));
 
     buffer.padToAlign4();
-    return buffer.pos();
+    return SkToU32(buffer.pos());
 }
 
 uint32_t SkPath::readFromMemory(const void* storage) {
@@ -2116,7 +2116,7 @@ uint32_t SkPath::readFromMemory(const void* storage) {
     GEN_ID_INC;
 
     SkDEBUGCODE(this->validate();)
-    return buffer.pos();
+    return SkToU32(buffer.pos());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
