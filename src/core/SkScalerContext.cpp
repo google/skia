@@ -110,6 +110,14 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
              desc->findEntry(kPathEffect_SkDescriptorTag, NULL),
         desc->findEntry(kMaskFilter_SkDescriptorTag, NULL));
 #endif
+#ifdef SK_BUILD_FOR_ANDROID
+    uint32_t len;
+    const void* data = desc->findEntry(kAndroidOpts_SkDescriptorTag, &len);
+    SkASSERT(data);
+    SkOrderedReadBuffer buffer(data, len);
+    fPaintOptionsAndroid.unflatten(buffer);
+    SkASSERT(buffer.offset() == buffer.size());
+#endif
 }
 
 SkScalerContext::~SkScalerContext() {
@@ -125,7 +133,8 @@ SkScalerContext::~SkScalerContext() {
 SkScalerContext* SkScalerContext::allocNextContext() const {
 #ifdef SK_BUILD_FOR_ANDROID
     SkTypeface* newFace = SkAndroidNextLogicalTypeface(fRec.fFontID,
-                                                       fRec.fOrigFontID);
+                                                       fRec.fOrigFontID,
+                                                       fPaintOptionsAndroid);
     if (0 == newFace) {
         return NULL;
     }
