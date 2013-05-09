@@ -93,18 +93,6 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.equals("hello world") && a == e && a == f);
 
     a.reset();
-    a.append(SkString("string"));
-    a.append("text");
-    a.append('c');
-    REPORTER_ASSERT(reporter, a.equals("stringtextc"));
-
-    a.reset();
-    a += 'c';
-    a += "text";
-    a += SkString("string");
-    REPORTER_ASSERT(reporter, a.equals("ctextstring"));
-
-    a.reset();
     b.resize(0);
     REPORTER_ASSERT(reporter, a.isEmpty() && b.isEmpty() && a == b);
 
