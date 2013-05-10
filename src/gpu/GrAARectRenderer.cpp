@@ -487,8 +487,7 @@ extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
 void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
                                         GrDrawTarget* target,
                                         const GrRect& rect,
-                                        const SkMatrix& combinedMatrix,
-                                        const GrRect& devRect) {
+                                        const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
 
     SkPoint center = SkPoint::Make(rect.centerX(), rect.centerY());
@@ -536,6 +535,9 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
         verts[i].fWidthHeight.fY = newHeight;
     }
 
+    SkRect devRect;
+    combinedMatrix.mapRect(&devRect, rect);
+
     SkRect devBounds = {
         devRect.fLeft   - SK_ScalarHalf,
         devRect.fTop    - SK_ScalarHalf,
@@ -556,8 +558,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
                                                GrDrawTarget* target,
                                                const GrRect& rect,
-                                               const SkMatrix& combinedMatrix,
-                                               const GrRect& devRect) {
+                                               const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
     SkASSERT(combinedMatrix.rectStaysRect());
 
@@ -582,6 +583,9 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
     GrEffectRef* effect = GrAlignedRectEffect::Create();
     static const int kOffsetIndex = 1;
     drawState->setEffect(kEdgeEffectStage, effect, kOffsetIndex)->unref();
+
+    SkRect devRect;
+    combinedMatrix.mapRect(&devRect, rect);
 
     SkRect devBounds = {
         devRect.fLeft   - SK_ScalarHalf,
