@@ -361,7 +361,7 @@ private:
         }
 
         int stageIndex() const {
-            this->validate(); 
+            this->validate();
             return fCurrentIndex;
         }
 

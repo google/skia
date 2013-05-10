@@ -17,12 +17,12 @@
 class GameBench : public SkBenchmark {
 public:
     enum Type {
-        kScale_Type, 
-        kTranslate_Type, 
+        kScale_Type,
+        kTranslate_Type,
         kRotate_Type
     };
 
-    GameBench(void* param, Type type, bool partialClear) 
+    GameBench(void* param, Type type, bool partialClear)
         : INHERITED(param)
         , fType(type)
         , fPartialClear(partialClear)
@@ -93,7 +93,7 @@ protected:
         SkMatrix mat;
         SkIRect src = { 0, 0, kCheckerboardWidth, kCheckerboardHeight };
         SkRect dst = { 0, 0, kCheckerboardWidth, kCheckerboardHeight };
-        SkRect clearRect = { -1.0f, -1.0f, 
+        SkRect clearRect = { -1.0f, -1.0f,
                              kCheckerboardWidth+1.0f, kCheckerboardHeight+1.0f };
 
         SkPaint p;
@@ -203,4 +203,3 @@ DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, false)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type, true)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, true)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, true)); )
-
