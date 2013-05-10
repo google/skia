@@ -929,30 +929,20 @@ void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
 }
 
 void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    uint32_t initialOffset, size;
     if (rrect.isRect()) {
-        // op + paint index + rect
-        size = 2 * kUInt32Size + sizeof(SkRect);
-        initialOffset = this->addDraw(DRAW_RECT, &size);
-        SkASSERT(initialOffset+getPaintOffset(DRAW_RECT, size) == fWriter.size());
-        addPaint(paint);
-        addRect(rrect.getBounds());
+        this->SkPictureRecord::drawRect(rrect.getBounds(), paint);
     } else if (rrect.isOval()) {
-        // op + paint index + rect
-        size = 2 * kUInt32Size + sizeof(SkRect);
-        initialOffset = this->addDraw(DRAW_OVAL, &size);
-        SkASSERT(initialOffset+getPaintOffset(DRAW_OVAL, size) == fWriter.size());
-        addPaint(paint);
-        addRect(rrect.getBounds());
+        this->SkPictureRecord::drawOval(rrect.getBounds(), paint);
     } else {
         // op + paint index + rrect
+        uint32_t initialOffset, size;
         size = 2 * kUInt32Size + SkRRect::kSizeInMemory;
         initialOffset = this->addDraw(DRAW_RRECT, &size);
         SkASSERT(initialOffset+getPaintOffset(DRAW_RRECT, size) == fWriter.size());
         addPaint(paint);
         addRRect(rrect);
+        validate(initialOffset, size);
     }
-    validate(initialOffset, size);
 }
 
 void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
