@@ -158,22 +158,22 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
     bool first = true;
 
     SkPath::Iter iter(path, false);
-    GrPathCmd cmd;
+    SkPath::Verb verb;
 
     GrPoint pts[4];
-    while ((cmd = (GrPathCmd)iter.next(pts)) != kEnd_PathCmd) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
 
-        switch (cmd) {
-            case kLine_PathCmd:
+        switch (verb) {
+            case SkPath::kLine_Verb:
                 pointCount += 1;
                 break;
-            case kQuadratic_PathCmd:
+            case SkPath::kQuad_Verb:
                 pointCount += quadraticPointCount(pts, tol);
                 break;
-            case kCubic_PathCmd:
+            case SkPath::kCubic_Verb:
                 pointCount += cubicPointCount(pts, tol);
                 break;
-            case kMove_PathCmd:
+            case SkPath::kMove_Verb:
                 pointCount += 1;
                 if (!first) {
                     ++(*subpaths);

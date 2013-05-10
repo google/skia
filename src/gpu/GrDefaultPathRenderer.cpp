@@ -253,9 +253,9 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     SkPath::Iter iter(path, false);
 
     for (;;) {
-        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
-        switch (cmd) {
-            case kMove_PathCmd:
+        SkPath::Verb verb = iter.next(pts);
+        switch (verb) {
+            case SkPath::kMove_Verb:
                 if (!first) {
                     uint16_t currIdx = (uint16_t) (vert - base);
                     subpathIdxStart = currIdx;
@@ -264,7 +264,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                 *vert = pts[0];
                 vert++;
                 break;
-            case kLine_PathCmd:
+            case SkPath::kLine_Verb:
                 if (indexed) {
                     uint16_t prevIdx = (uint16_t)(vert - base) - 1;
                     append_countour_edge_indices(isHairline, subpathIdxStart,
@@ -272,7 +272,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                 }
                 *(vert++) = pts[1];
                 break;
-            case kQuadratic_PathCmd: {
+            case SkPath::kQuad_Verb: {
                 // first pt of quad is the pt we ended on in previous step
                 uint16_t firstQPtIdx = (uint16_t)(vert - base) - 1;
                 uint16_t numPts =  (uint16_t)
@@ -288,7 +288,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                 }
                 break;
             }
-            case kCubic_PathCmd: {
+            case SkPath::kCubic_Verb: {
                 // first pt of cubic is the pt we ended on in previous step
                 uint16_t firstCPtIdx = (uint16_t)(vert - base) - 1;
                 uint16_t numPts = (uint16_t) GrPathUtils::generateCubicPoints(
@@ -303,9 +303,9 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                 }
                 break;
             }
-            case kClose_PathCmd:
+            case SkPath::kClose_Verb:
                 break;
-            case kEnd_PathCmd:
+            case SkPath::kDone_Verb:
              // uint16_t currIdx = (uint16_t) (vert - base);
                 goto FINISHED;
         }
