@@ -626,14 +626,14 @@ struct OptTableEntry {
 
 
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
-    SkPicture* inPicture = NULL;
+    SkAutoTDelete<SkPicture> inPicture;
 
     SkFILEStream inStream(inFile.c_str());
     if (inStream.isValid()) {
-        inPicture = SkNEW_ARGS(SkPicture, (&inStream, NULL, &SkImageDecoder::DecodeMemory));
+        inPicture.reset(SkNEW_ARGS(SkPicture, (&inStream, NULL, &SkImageDecoder::DecodeMemory)));
     }
 
-    if (NULL == inPicture) {
+    if (NULL == inPicture.get()) {
         SkDebugf("Could not read file %s\n", inFile.c_str());
         return -1;
     }
@@ -715,6 +715,10 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 int tool_main(int argc, char** argv); // suppress a warning on mac
 
 int tool_main(int argc, char** argv) {
+#if SK_ENABLE_INST_COUNT
+    gPrintInstCount = true;
+#endif
+
     SkGraphics::Init();
 
     if (argc < 3) {
