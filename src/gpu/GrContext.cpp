@@ -680,20 +680,10 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
     verts[9] = verts[1];
 }
 
-/**
- * Returns true if the rects edges are integer-aligned.
- */
-static bool isIRect(const GrRect& r) {
-    return SkScalarIsInt(r.fLeft) && SkScalarIsInt(r.fTop) &&
-           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
-}
-
 static bool apply_aa_to_rect(GrDrawTarget* target,
-                             const GrRect& rect,
                              SkScalar strokeWidth,
                              const SkMatrix* matrix,
                              SkMatrix* combinedMatrix,
-                             GrRect* devRect,
                              bool* useVertexCoverage) {
     // we use a simple coverage ramp to do aa on axis-aligned rects
     // we check if the rect will be axis-aligned, and the rect won't land on
@@ -763,17 +753,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 #endif
     }
 
-    combinedMatrix->mapRect(devRect, rect);
-
-    if (strokeWidth < 0
-#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
-        && drawState.getViewMatrix().preservesAxisAlignment()
-#endif
-        ) {
-        return !isIRect(*devRect);
-    } else {
-        return true;
-    }
+    return true;
 }
 
 void GrContext::drawRect(const GrPaint& paint,
@@ -785,13 +765,12 @@ void GrContext::drawRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    GrRect devRect;
     SkMatrix combinedMatrix;
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !this->getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix,
-                                           &combinedMatrix, &devRect,
+    bool doAA = needAA && apply_aa_to_rect(target, width, matrix,
+                                           &combinedMatrix,
                                            &useVertexCoverage);
     if (doAA) {
         GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
@@ -807,12 +786,13 @@ void GrContext::drawRect(const GrPaint& paint,
             } else {
                 strokeSize.set(SK_Scalar1, SK_Scalar1);
             }
-            fAARectRenderer->strokeAARect(this->getGpu(), target, devRect,
+            fAARectRenderer->strokeAARect(this->getGpu(), target,
+                                          rect, combinedMatrix,
                                           strokeSize, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
-                                        rect, combinedMatrix, devRect,
+                                        rect, combinedMatrix,
                                         useVertexCoverage);
         }
         return;
