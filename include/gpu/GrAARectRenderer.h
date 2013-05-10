@@ -11,11 +11,11 @@
 
 #include "GrRect.h"
 #include "GrRefCnt.h"
+#include "SkMatrix.h"
 
 class GrGpu;
 class GrDrawTarget;
 class GrIndexBuffer;
-class SkMatrix;
 
 /*
  * This class wraps helper functions that draw AA rects (filled & stroked)
@@ -46,10 +46,10 @@ public:
 #ifdef SHADER_AA_FILL_RECT
         if (combinedMatrix.rectStaysRect()) {
             this->shaderFillAlignedAARect(gpu, target,
-                                          combinedMatrix, devRect);
+                                          rect, combinedMatrix);
         } else {
             this->shaderFillAARect(gpu, target,
-                                   rect, combinedMatrix, devRect);
+                                   rect, combinedMatrix);
         }
 #else
         this->geometryFillAARect(gpu, target,
@@ -85,14 +85,12 @@ private:
     void shaderFillAARect(GrGpu* gpu,
                           GrDrawTarget* target,
                           const GrRect& rect,
-                          const SkMatrix& combinedMatrix,
-                          const GrRect& devRect);
+                          const SkMatrix& combinedMatrix);
 
     void shaderFillAlignedAARect(GrGpu* gpu,
                                  GrDrawTarget* target,
                                  const GrRect& rect,
-                                 const SkMatrix& combinedMatrix,
-                                 const GrRect& devRect);
+                                 const SkMatrix& combinedMatrix);
 
     typedef GrRefCnt INHERITED;
 };
