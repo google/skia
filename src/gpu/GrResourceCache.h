@@ -206,6 +206,10 @@ bool GrResourceKey::EQ(const GrResourceEntry& a, const GrResourceEntry& b) {
  *  For even faster searches, a hash is computed from the Key. If there is
  *  a collision between two keys with the same hash, we fall back on the
  *  bsearch, and update the hash to reflect the most recent Key requested.
+ *
+ *  It is a goal to make the GrResourceCache the central repository and bookkeeper
+ *  of all resources. It should replace the linked list of GrResources that
+ *  GrGpu uses to call abandon/release.
  */
 class GrResourceCache {
 public:
