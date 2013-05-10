@@ -112,9 +112,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fDocCatalog->insert("OutputIntent", intentArray.get());
         */
 
-        SkPDFDict* dests = SkNEW(SkPDFDict);  // fPageResources owns reference
-        fCatalog->addObject(dests, true /* onFirstPage */);
-        fFirstPageResources->add(dests);
+        SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
 
         bool firstPage = true;
         /* The references returned in newResources are transfered to
@@ -151,7 +149,12 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
             fPages[i]->appendDestinations(dests);
         }
 
-        fDocCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (dests)))->unref();
+        if (dests->size() > 0) {
+            SkPDFDict* raw_dests = dests.get();
+            fFirstPageResources->add(dests.detach());  // Transfer ownership.
+            fCatalog->addObject(raw_dests, true /* onFirstPage */);
+            fDocCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (raw_dests)))->unref();
+        }
 
         // Build font subsetting info before proceeding.
         perform_font_subsetting(fCatalog.get(), fPages, &fSubstitutes);
