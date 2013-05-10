@@ -271,17 +271,35 @@ static int findConfig(const char config[]) {
 }
 
 static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
-    if (0 == array.count()) {
-        // no names, so don't skip anything
-        return false;
-    }
+    // FIXME: this duplicates the logic in skia_test.cpp, gmmain.cpp -- consolidate
+    int count = array.count();
+    size_t testLen = strlen(name);
+    bool anyExclude = count == 0;
     for (int i = 0; i < array.count(); ++i) {
-        if (strstr(name, array[i])) {
-            // found the name, so don't skip
-            return false;
+        const char* matchName = array[i];
+        size_t matchLen = strlen(matchName);
+        bool matchExclude, matchStart, matchEnd;
+        if ((matchExclude = matchName[0] == '~')) {
+            anyExclude = true;
+            matchName++;
+            matchLen--;
+        }
+        if ((matchStart = matchName[0] == '^')) {
+            matchName++;
+            matchLen--;
+        }
+        if ((matchEnd = matchName[matchLen - 1] == '$')) {
+            matchLen--;
+        }
+        if (matchStart ? (!matchEnd || matchLen == testLen)
+                && strncmp(name, matchName, matchLen) == 0
+                : matchEnd ? matchLen <= testLen
+                && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
+                : strstr(name, matchName) != 0) {
+            return matchExclude;
         }
     }
-    return true;
+    return !anyExclude;
 }
 
 static void help() {
@@ -329,7 +347,14 @@ static void help() {
     SkDebugf("      -1 for either value means use the default. 0 for either disables the cache.\n");
 #endif
     SkDebugf("    --strokeWidth width : The width for path stroke.\n");
-    SkDebugf("    --match name : Only run bench whose name is matched.\n");
+    SkDebugf("    --match [~][^]substring[$] [...] of test name to run.\n"
+             "             Multiple matches may be separated by spaces.\n"
+             "             ~ causes a matching test to always be skipped\n"
+             "             ^ requires the start of the test to match\n"
+             "             $ requires the end of the test to match\n"
+             "             ^ and $ requires an exact match\n"
+             "             If a test does not match any list entry,\n"
+             "             it is skipped unless some list entry starts with ~\n");
     SkDebugf("    --mode normal|deferred|deferredSilent|record|picturerecord :\n"
              "             Run in the corresponding mode\n"
              "                 normal, Use a normal canvas to draw to;\n"
@@ -526,9 +551,11 @@ int tool_main(int argc, char** argv) {
             }
         } else if (strcmp(*argv, "--match") == 0) {
             argv++;
-            if (argv < stop) {
-                *fMatches.append() = *argv;
-            } else {
+            while (argv < stop && (*argv)[0] != '-') {
+                *fMatches.append() = *argv++;
+            }
+            argv--;
+            if (!fMatches.count()) {
                 logger.logError("missing arg for --match\n");
                 help();
                 return -1;

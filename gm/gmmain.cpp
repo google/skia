@@ -1240,8 +1240,14 @@ DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
 DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(),
               "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
               "types are encountered, the tool will exit with a nonzero return value.");
-DEFINE_string(match, "",  "Only run tests whose name includes this substring/these substrings "
-              "(more than one can be supplied, separated by spaces).");
+DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
+              "Multiple matches may be separated by spaces.\n"
+              "~ causes a matching test to always be skipped\n"
+              "^ requires the start of the test to match\n"
+              "$ requires the end of the test to match\n"
+              "^ and $ requires an exact match\n"
+              "If a test does not match any list entry,\n"
+              "it is skipped unless some list entry starts with ~");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
               "pixel mismatches into this directory.");
 DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
@@ -1306,17 +1312,35 @@ static int findConfig(const char config[]) {
 }
 
 static bool skip_name(SkCommandLineFlags::StringArray array, const char name[]) {
-    if (0 == array.count()) {
-        // no names, so don't skip anything
-        return false;
-    }
+    // FIXME: this duplicates the logic in test/skia_test.cpp -- consolidate
+    int count = array.count();
+    size_t testLen = strlen(name);
+    bool anyExclude = count == 0;
     for (int i = 0; i < array.count(); ++i) {
-        if (strstr(name, array[i])) {
-            // found the name, so don't skip
-            return false;
+        const char* matchName = array[i];
+        size_t matchLen = strlen(matchName);
+        bool matchExclude, matchStart, matchEnd;
+        if ((matchExclude = matchName[0] == '~')) {
+            anyExclude = true;
+            matchName++;
+            matchLen--;
+        }
+        if ((matchStart = matchName[0] == '^')) {
+            matchName++;
+            matchLen--;
+        }
+        if ((matchEnd = matchName[matchLen - 1] == '$')) {
+            matchLen--;
+        }
+        if (matchStart ? (!matchEnd || matchLen == testLen)
+                && strncmp(name, matchName, matchLen) == 0
+                : matchEnd ? matchLen <= testLen
+                && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
+                : strstr(name, matchName) != 0) {
+            return matchExclude;
         }
     }
-    return true;
+    return !anyExclude;
 }
 
 namespace skiagm {
