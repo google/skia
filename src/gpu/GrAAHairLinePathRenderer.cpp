@@ -219,11 +219,11 @@ int generate_lines_and_quads(const SkPath& path,
     for (;;) {
         GrPoint pts[4];
         GrPoint devPts[4];
-        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
-        switch (cmd) {
-            case kMove_PathCmd:
+        SkPath::Verb verb = iter.next(pts);
+        switch (verb) {
+            case SkPath::kMove_Verb:
                 break;
-            case kLine_PathCmd:
+            case SkPath::kLine_Verb:
                 m.mapPoints(devPts, pts, 2);
                 bounds.setBounds(devPts, 2);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -234,7 +234,7 @@ int generate_lines_and_quads(const SkPath& path,
                     pts[1] = devPts[1];
                 }
                 break;
-            case kQuadratic_PathCmd:
+            case SkPath::kQuad_Verb:
                 m.mapPoints(devPts, pts, 3);
                 bounds.setBounds(devPts, 3);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -260,7 +260,7 @@ int generate_lines_and_quads(const SkPath& path,
                     }
                 }
                 break;
-            case kCubic_PathCmd:
+            case SkPath::kCubic_Verb:
                 m.mapPoints(devPts, pts, 4);
                 bounds.setBounds(devPts, 4);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -317,9 +317,9 @@ int generate_lines_and_quads(const SkPath& path,
                     }
                 }
                 break;
-            case kClose_PathCmd:
+            case SkPath::kClose_Verb:
                 break;
-            case kEnd_PathCmd:
+            case SkPath::kDone_Verb:
                 return totalQuadCount;
         }
     }

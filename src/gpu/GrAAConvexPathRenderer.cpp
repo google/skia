@@ -243,13 +243,13 @@ bool get_segments(const SkPath& path,
 
     for (;;) {
         GrPoint pts[4];
-        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
-        switch (cmd) {
-            case kMove_PathCmd:
+        SkPath::Verb verb = iter.next(pts);
+        switch (verb) {
+            case SkPath::kMove_Verb:
                 m.mapPoints(pts, 1);
                 update_degenerate_test(&degenerateData, pts[0]);
                 break;
-            case kLine_PathCmd: {
+            case SkPath::kLine_Verb: {
                 m.mapPoints(pts + 1, 1);
                 update_degenerate_test(&degenerateData, pts[1]);
                 segments->push_back();
@@ -257,7 +257,7 @@ bool get_segments(const SkPath& path,
                 segments->back().fPts[0] = pts[1];
                 break;
             }
-            case kQuadratic_PathCmd:
+            case SkPath::kQuad_Verb:
                 m.mapPoints(pts + 1, 2);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
@@ -266,7 +266,7 @@ bool get_segments(const SkPath& path,
                 segments->back().fPts[0] = pts[1];
                 segments->back().fPts[1] = pts[2];
                 break;
-            case kCubic_PathCmd: {
+            case SkPath::kCubic_Verb: {
                 m.mapPoints(pts, 4);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
@@ -284,7 +284,7 @@ bool get_segments(const SkPath& path,
                 }
                 break;
             };
-            case kEnd_PathCmd:
+            case SkPath::kDone_Verb:
                 if (degenerateData.isDegenerate()) {
                     return false;
                 } else {
