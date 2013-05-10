@@ -66,7 +66,7 @@ protected:
         SkScalar vertMargin(SkIntToScalar(10));
 
         draw_checks(canvas, 40, 40);
-        SkBitmap src = canvas->getDevice()->accessBitmap(false);
+        SkBitmap src = canvas->getTopDevice()->accessBitmap(false);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
             if (!src.deepCopyTo(&fDst[i], gConfigs[i])) {
