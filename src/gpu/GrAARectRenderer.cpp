@@ -388,10 +388,10 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
-    SkRect devRect;
-    combinedMatrix.mapRect(&devRect, rect);
-
     if (combinedMatrix.rectStaysRect()) {
+        SkRect devRect;
+        combinedMatrix.mapRect(&devRect, rect);
+
         set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
         set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
     } else {
@@ -406,9 +406,13 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         vec[1].normalize();
         vec[1].scale(SK_ScalarHalf);
 
+        // create the rotated rect
         fan0Pos->setRectFan(rect.fLeft, rect.fTop,
                             rect.fRight, rect.fBottom, vsize);
         combinedMatrix.mapPointsWithStride(fan0Pos, vsize, 4);
+
+        // Now create the inset points and then outset the original
+        // rotated points
 
         // TL
         *((SkPoint*)((intptr_t)fan1Pos + 0 * vsize)) =
