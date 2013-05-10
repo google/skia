@@ -116,8 +116,9 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     if (length > 0) {
         void* addr = sk_malloc_flags(length, 0);
         if (addr) {
-            SkAutoTUnref<SkStream> localStream(SkNEW_ARGS(SkMemoryStream,
-                                                        (addr, length, false)));
+            SkAutoTUnref<SkMemoryStream> localStream(SkNEW(SkMemoryStream));
+            localStream->setMemoryOwned(addr, length);
+
             if (stream->read(addr, length) == length) {
                 return SkTypeface::CreateFromStream(localStream.get());
             } else {
