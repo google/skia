@@ -42,7 +42,6 @@ public:
                     GrDrawTarget* target,
                     const GrRect& rect,
                     const SkMatrix& combinedMatrix,
-                    const GrRect& devRect,
                     bool useVertexCoverage) {
 #ifdef SHADER_AA_FILL_RECT
         if (combinedMatrix.rectStaysRect()) {
@@ -55,13 +54,14 @@ public:
 #else
         this->geometryFillAARect(gpu, target,
                                  rect, combinedMatrix,
-                                 devRect, useVertexCoverage);
+                                 useVertexCoverage);
 #endif
     }
 
     void strokeAARect(GrGpu* gpu,
                       GrDrawTarget* target,
-                      const GrRect& devRect,
+                      const GrRect& rect,
+                      const SkMatrix& combinedMatrix,
                       const GrVec& devStrokeSize,
                       bool useVertexCoverage);
 
@@ -80,7 +80,6 @@ private:
                             GrDrawTarget* target,
                             const GrRect& rect,
                             const SkMatrix& combinedMatrix,
-                            const GrRect& devRect,
                             bool useVertexCoverage);
 
     void shaderFillAARect(GrGpu* gpu,
