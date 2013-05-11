@@ -523,7 +523,7 @@ private:
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
     bool                                                                fContextIsDirty;
-    // Used to abandon/release all resources created by this GrGpu. TODO: Move this 
+    // Used to abandon/release all resources created by this GrGpu. TODO: Move this
     // functionality to GrResourceCache.
     ResourceList                                                        fResourceList;
 
