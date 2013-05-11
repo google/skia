@@ -978,6 +978,9 @@ public:
      * returned texture.
      */
     GrTexture* detach() {
+        if (NULL == fTexture) {
+            return NULL;
+        }
         GrTexture* texture = fTexture;
         fTexture = NULL;
 
