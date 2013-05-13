@@ -38,7 +38,7 @@ protected:
 
             SkRect outer(inner);
             // outer is always outset either 2x or 4x the blur radius (we go with 2x)
-            outer.outset(SkIntToScalar(2*blurRad), SkIntToScalar(2*blurRad));
+            outer.outset(2*blurRad, 2*blurRad);
 
             SkPath p;
 
@@ -88,7 +88,7 @@ private:
 
         SkPaint* paint = looper->addLayer(info);
 
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(radius),
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(radius,
                                                     SkBlurMaskFilter::kNormal_BlurStyle,
                                                     SkBlurMaskFilter::kHighQuality_BlurFlag);
         paint->setMaskFilter(mf)->unref();
