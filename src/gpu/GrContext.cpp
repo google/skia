@@ -681,6 +681,7 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
+                             const GrRect& rect,
                              SkScalar strokeWidth,
                              const SkMatrix* matrix,
                              SkMatrix* combinedMatrix,
@@ -753,6 +754,10 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 #endif
     }
 
+    if (0 == rect.width() || 0 == rect.height()) {
+        return false;
+    }
+
     return true;
 }
 
@@ -769,7 +774,7 @@ void GrContext::drawRect(const GrPaint& paint,
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !this->getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, width, matrix,
+    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix,
                                            &combinedMatrix,
                                            &useVertexCoverage);
     if (doAA) {
