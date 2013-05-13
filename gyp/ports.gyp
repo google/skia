@@ -51,6 +51,7 @@
             ],
           },
           'sources': [
+            '../src/fonts/SkFontMgr_fontconfig.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',
