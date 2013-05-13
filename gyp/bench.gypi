@@ -46,6 +46,7 @@
     '../bench/PictureRecordBench.cpp',
     '../bench/ReadPixBench.cpp',
     '../bench/RectBench.cpp',
+    '../bench/RectoriBench.cpp',
     '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
     '../bench/RegionContainBench.cpp',
