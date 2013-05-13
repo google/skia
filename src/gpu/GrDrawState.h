@@ -451,7 +451,7 @@ public:
     /**
      * Checks whether any of the effects will read the dst pixel color.
      */
-    bool willEffectReadDst() const {
+    bool willEffectReadDstColor() const {
         for (int s = 0; s < kNumStages; ++s) {
             if (this->isStageEnabled(s) && (*this->getStage(s).getEffect())->willReadDstColor()) {
                 return true;

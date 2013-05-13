@@ -112,7 +112,8 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fSetupFragPosition(false)
     , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fDstCopyTopLeftUniform (GrGLUniformManager::kInvalidUniformHandle)
-    , fDstCopyScaleUniform (GrGLUniformManager::kInvalidUniformHandle) {
+    , fDstCopyScaleUniform (GrGLUniformManager::kInvalidUniformHandle)
+    , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.fFragPosKey) {
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
@@ -125,13 +126,13 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
         fLocalCoordsVar = fPositionVar;
     }
     // Emit code to read the dst copy textue if necessary.
-    if (kNoDstRead_DstReadKey != desc.fDstRead &&
+    if (kNoDstRead_DstReadKey != desc.fDstReadKey &&
         GrGLCaps::kNone_FBFetchType == ctxInfo.caps()->fbFetchType()) {
-        bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & desc.fDstRead);
+        bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & desc.fDstReadKey);
         const char* dstCopyTopLeftName;
         const char* dstCopyCoordScaleName;
         uint32_t configMask;
-        if (SkToBool(kUseAlphaConfig_DstReadKeyBit & desc.fDstRead)) {
+        if (SkToBool(kUseAlphaConfig_DstReadKeyBit & desc.fDstReadKey)) {
             configMask = kA_GrColorComponentFlag;
         } else {
             configMask = kRGBA_GrColorComponentFlags;
@@ -351,6 +352,16 @@ GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* 
     return static_cast<DstReadKey>(key);
 }
 
+GrGLShaderBuilder::FragPosKey GrGLShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst,
+                                                                        const GrGLCaps&) {
+    if (kTopLeft_GrSurfaceOrigin == dst->origin()) {
+        return kTopLeftFragPosRead_FragPosKey;
+    } else {
+        return kBottomLeftFragPosRead_FragPosKey;
+    }
+}
+
+
 const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {
     if (caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(config)) {
         if (caps.textureRedSupport()) {
@@ -473,8 +484,16 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             return "";
         }
     }
-#if 1
-    if (fCtxInfo.caps()->fragCoordConventionsSupport()) {
+    if (fTopLeftFragPosRead) {
+        if (!fSetupFragPosition) {
+            fFSInputs.push_back().set(kVec4f_GrSLType,
+                                      GrGLShaderVar::kIn_TypeModifier,
+                                      "gl_FragCoord",
+                                      GrGLShaderVar::kDefault_Precision);
+            fSetupFragPosition = true;
+        }
+        return "gl_FragCoord";
+    } else if (fCtxInfo.caps()->fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             SkAssertResult(this->enablePrivateFeature(kFragCoordConventions_GLSLPrivateFeature));
             fFSInputs.push_back().set(kVec4f_GrSLType,
@@ -506,18 +525,6 @@ const char* GrGLShaderBuilder::fragmentPosition() {
         GrAssert(GrGLUniformManager::kInvalidUniformHandle != fRTHeightUniform);
         return kCoordName;
     }
-#else
-    // This is the path we'll need to use once we have support for TopLeft
-    // render targets.
-    if (!fSetupFragPosition) {
-        fFSInputs.push_back().set(kVec4f_GrSLType,
-                                  GrGLShaderVar::kIn_TypeModifier,
-                                  "gl_FragCoord",
-                                  GrGLShaderVar::kDefault_Precision);
-        fSetupFragPosition = true;
-    }
-    return "gl_FragCoord";
-#endif
 }
 
 
