@@ -95,28 +95,7 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
 }
 
 void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
-    if (stencilBuffer == fStencilBuffer) {
-        return;
-    }
-
-    if (NULL != fStencilBuffer) {
-        fStencilBuffer->unref();
-
-        GrContext* context = this->getContext();
-        if (NULL != context) {
-            context->purgeCache();
-        }
-
-        if (NULL != context) {
-            context->purgeCache();
-        }
-    }
-
-    fStencilBuffer = stencilBuffer;
-
-    if (NULL != fStencilBuffer) {
-        fStencilBuffer->ref();
-    }
+    SkRefCnt_SafeAssign(fStencilBuffer, stencilBuffer);
 }
 
 void GrRenderTarget::onRelease() {
