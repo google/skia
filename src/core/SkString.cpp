@@ -239,9 +239,7 @@ SkString::SkString() : fRec(const_cast<Rec*>(&gEmptyRec)) {
 }
 
 SkString::SkString(size_t len) {
-    SkASSERT(SkToU16(len) == len);  // can't handle larger than 64K
-
-    fRec = AllocRec(NULL, (U16CPU)len);
+    fRec = AllocRec(NULL, len);
 #ifdef SK_DEBUG
     fStr = fRec->data();
 #endif
@@ -250,14 +248,14 @@ SkString::SkString(size_t len) {
 SkString::SkString(const char text[]) {
     size_t  len = text ? strlen(text) : 0;
 
-    fRec = AllocRec(text, (U16CPU)len);
+    fRec = AllocRec(text, len);
 #ifdef SK_DEBUG
     fStr = fRec->data();
 #endif
 }
 
 SkString::SkString(const char text[], size_t len) {
-    fRec = AllocRec(text, (U16CPU)len);
+    fRec = AllocRec(text, len);
 #ifdef SK_DEBUG
     fStr = fRec->data();
 #endif
