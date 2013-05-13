@@ -70,7 +70,7 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
     }
 
     if (dstRead) {
-        this->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstTexture, gpu->glCaps());
+        this->fDstReadKey = GrGLShaderBuilder::KeyForDstRead(dstTexture, gpu->glCaps());
     }
 
     CoverageOutput coverageOutput;

@@ -407,7 +407,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
-    if (this->caps()->dstReadInShaderSupport() || !this->getDrawState().willEffectReadDst()) {
+    if (this->caps()->dstReadInShaderSupport() || !this->getDrawState().willEffectReadDstColor()) {
         return true;
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
@@ -639,7 +639,7 @@ void GrDrawTarget::onDrawRect(const GrRect& rect,
         }
     }
     SkTLazy<SkRect> bounds;
-    if (this->getDrawState().willEffectReadDst()) {
+    if (this->getDrawState().willEffectReadDstColor()) {
         bounds.init();
         this->getDrawState().getViewMatrix().mapRect(bounds.get(), rect);
     }

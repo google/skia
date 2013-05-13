@@ -76,6 +76,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     bool readsDst = false;
+    bool readFragPosition = false;
     int lastEnabledStage = -1;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -90,6 +91,9 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
             if (effect->willReadDstColor()) {
                 readsDst = true;
             }
+            if (effect->willReadFragmentPosition()) {
+                readFragPosition = true;
+            }
         } else {
             desc->fEffectKeys[s] = 0;
         }
@@ -101,10 +105,17 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         if (NULL != dstCopy) {
             dstCopyTexture = dstCopy->texture();
         }
-        desc->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
-        GrAssert(0 != desc->fDstRead);
+        desc->fDstReadKey = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
+        GrAssert(0 != desc->fDstReadKey);
     } else {
-        desc->fDstRead = 0;
+        desc->fDstReadKey = 0;
+    }
+
+    if (readFragPosition) {
+        desc->fFragPosKey = GrGLShaderBuilder::KeyForFragmentPosition(drawState.getRenderTarget(),
+                                                                      gpu->glCaps());
+    } else {
+        desc->fFragPosKey = 0;
     }
 
     desc->fCoverageOutput = kModulate_CoverageOutput;

@@ -79,7 +79,7 @@ private:
         // (1 - colorRGB) as the secondary output. Only set if dual source blending is supported.
         kSecondaryCoverageISC_CoverageOutput,
         // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
-        // can only be set if fDstRead is set.
+        // can only be set if fDstReadKey is non-zero.
         kCombineWithDst_CoverageOutput,
 
         kCoverageOutputCnt
@@ -105,8 +105,11 @@ private:
     bool                     fExperimentalGS;
 #endif
 
-    GrGLShaderBuilder::DstReadKey fDstRead;             // set by GrGLShaderBuilder if there
+    GrGLShaderBuilder::DstReadKey fDstReadKey;          // set by GrGLShaderBuilder if there
                                                         // are effects that must read the dst.
+                                                        // Otherwise, 0.
+    GrGLShaderBuilder::FragPosKey fFragPosKey;          // set by GrGLShaderBuilder if there are
+                                                        // effects that read the fragment position.
                                                         // Otherwise, 0.
 
     // should the FS discard if the coverage is zero (to avoid stencil manipulation)
