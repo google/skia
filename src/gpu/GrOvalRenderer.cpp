@@ -287,8 +287,8 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 
 /**
  * The output of this effect is a modulation of the input color and coverage for an axis-aligned
- * ellipse, specified as an offset vector from center and outer and inner radii in both
- * x and y directions.
+ * ellipse, specified as an offset vector from center and reciprocals of outer and inner radii in 
+ * both x and y directions.
  *
  * This uses a slightly different algorithm than the EllipseEdgeEffect, above. Rather than
  * scaling an ellipse to be a circle, it attempts to find the distance from the offset point to the
@@ -357,24 +357,19 @@ public:
             builder->fsCodeAppend("\tfloat edgeAlpha;\n");
             // get length of offset
             builder->fsCodeAppendf("\tfloat len = length(%s.xy);\n", fsOffsetName);
-            builder->fsCodeAppend("\tvec2 offset;\n");
 
             // for outer curve
-            builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.yx;\n",
+            builder->fsCodeAppendf("\tvec2 offset = %s.xy*%s.xy;\n",
                                    fsOffsetName, fsRadiiName);
-            builder->fsCodeAppendf("\tfloat tOuter = "
-                                   "%s.x*%s.y*inversesqrt(dot(offset.xy, offset.xy));\n",
-                                   fsRadiiName, fsRadiiName);
-            builder->fsCodeAppend("\tedgeAlpha = clamp(len*tOuter - len, 0.0, 1.0);\n");
+            builder->fsCodeAppendf("\tfloat t = inversesqrt(dot(offset.xy, offset.xy));\n");
+            builder->fsCodeAppend("\tedgeAlpha = clamp(len*t - len, 0.0, 1.0);\n");
 
             // for inner curve
             if (rrectEffect.isStroked()) {
-                builder->fsCodeAppendf("\toffset.xy = %s.xy*%s.wz;\n",
+                builder->fsCodeAppendf("\toffset = %s.xy*%s.zw;\n",
                                        fsOffsetName, fsRadiiName);
-                builder->fsCodeAppendf("\tfloat tInner = "
-                                       "%s.z*%s.w*inversesqrt(dot(offset.xy, offset.xy));\n",
-                                       fsRadiiName, fsRadiiName);
-                builder->fsCodeAppend("\tedgeAlpha *= clamp(len - len*tInner, 0.0, 1.0);\n");
+                builder->fsCodeAppendf("\tt = inversesqrt(dot(offset.xy, offset.xy));\n");
+                builder->fsCodeAppend("\tedgeAlpha *= clamp(len - len*t, 0.0, 1.0);\n");
             }
 
             SkString modulate;
@@ -959,29 +954,34 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             yOuterRadius
         };
 
+        SkScalar recipOuterX = SK_Scalar1/xOuterRadius;
+        SkScalar recipOuterY = SK_Scalar1/yOuterRadius;
+        SkScalar recipInnerX = SK_Scalar1/xInnerRadius;
+        SkScalar recipInnerY = SK_Scalar1/yInnerRadius;
+        
         for (int i = 0; i < 4; ++i) {
             verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
             verts->fOffset = SkPoint::Make(-xOuterRadius, yOuterOffsets[i]);
-            verts->fOuterRadii = SkPoint::Make(xOuterRadius, yOuterRadius);
-            verts->fInnerRadii = SkPoint::Make(xInnerRadius, yInnerRadius);
+            verts->fOuterRadii = SkPoint::Make(recipOuterX, recipOuterY);
+            verts->fInnerRadii = SkPoint::Make(recipInnerX, recipInnerY);
             verts++;
 
             verts->fPos = SkPoint::Make(bounds.fLeft + xOuterRadius, yCoords[i]);
             verts->fOffset = SkPoint::Make(SK_ScalarNearlyZero, yOuterOffsets[i]);
-            verts->fOuterRadii = SkPoint::Make(xOuterRadius, yOuterRadius);
-            verts->fInnerRadii = SkPoint::Make(xInnerRadius, yInnerRadius);
+            verts->fOuterRadii = SkPoint::Make(recipOuterX, recipOuterY);
+            verts->fInnerRadii = SkPoint::Make(recipInnerX, recipInnerY);
             verts++;
 
             verts->fPos = SkPoint::Make(bounds.fRight - xOuterRadius, yCoords[i]);
             verts->fOffset = SkPoint::Make(SK_ScalarNearlyZero, yOuterOffsets[i]);
-            verts->fOuterRadii = SkPoint::Make(xOuterRadius, yOuterRadius);
-            verts->fInnerRadii = SkPoint::Make(xInnerRadius, yInnerRadius);
+            verts->fOuterRadii = SkPoint::Make(recipOuterX, recipOuterY);
+            verts->fInnerRadii = SkPoint::Make(recipInnerX, recipInnerY);
             verts++;
 
             verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
             verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
-            verts->fOuterRadii = SkPoint::Make(xOuterRadius, yOuterRadius);
-            verts->fInnerRadii = SkPoint::Make(xInnerRadius, yInnerRadius);
+            verts->fOuterRadii = SkPoint::Make(recipOuterX, recipOuterY);
+            verts->fInnerRadii = SkPoint::Make(recipInnerX, recipInnerY);
             verts++;
         }
 
