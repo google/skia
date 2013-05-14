@@ -75,7 +75,7 @@ private:
             { 29, 1,   29.0f, 21 }  // 0 pix wide
         };
 
-        for (int j = 0; j < SK_ARRAY_COUNT(vertRects); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(vertRects); ++j) {
             canvas->drawRect(vertRects[j], p);
         }
     }
@@ -91,7 +91,7 @@ private:
             { 1, 29, 21,   29.0f }  // 0 pix high
         };
 
-        for (int j = 0; j < SK_ARRAY_COUNT(horizRects); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(horizRects); ++j) {
             canvas->drawRect(horizRects[j], p);
         }
     }
@@ -107,7 +107,7 @@ private:
             { 29, 29,   29.0f,   29.0f }  // 0 pix
         };
 
-        for (int j = 0; j < SK_ARRAY_COUNT(squares); ++j) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(squares); ++j) {
             canvas->drawRect(squares[j], p);
         }
     }
