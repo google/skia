@@ -32,17 +32,24 @@ namespace skiagm {
         va_end(args);
     }
 
+    SkString SkPathJoin(const char *rootPath, const char *relativePath) {
+        SkString result(rootPath);
+        if (!result.endsWith(SkPATH_SEPARATOR)) {
+            result.appendUnichar(SkPATH_SEPARATOR);
+        }
+        result.append(relativePath);
+        return result;
+    }
+
     SkString make_filename(const char path[],
                            const char renderModeDescriptor[],
                            const char *name,
                            const char suffix[]) {
-        SkString filename(path);
-        if (filename.endsWith(SkPATH_SEPARATOR)) {
-            filename.remove(filename.size() - 1, 1);
-        }
-        filename.appendf("%c%s%s.%s", SkPATH_SEPARATOR,
-                         name, renderModeDescriptor, suffix);
-        return filename;
+        SkString filename(name);
+        filename.append(renderModeDescriptor);
+        filename.appendUnichar('.');
+        filename.append(suffix);
+        return SkPathJoin(path, filename.c_str());
     }
 
     // TODO(epoger): This currently assumes that the result SkHashDigest was
@@ -162,8 +169,7 @@ namespace skiagm {
     // IndividualImageExpectationsSource class...
 
     Expectations IndividualImageExpectationsSource::get(const char *testName) {
-        SkString path = make_filename(fRootDir.c_str(), "", testName,
-                                      "png");
+        SkString path = SkPathJoin(fRootDir.c_str(), testName);
         SkBitmap referenceBitmap;
         bool decodedReferenceBitmap =
             SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,

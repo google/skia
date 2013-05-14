@@ -121,6 +121,11 @@ private:
     const GMRegistry* fReg;
 };
 
+// TODO(epoger): Right now, various places in this code assume that all the
+// image files read/written by GM use this file extension.
+// Search for references to this constant to find these assumptions.
+const static char kPNG_FileExtension[] = "png";
+
 enum Backend {
     kRaster_Backend,
     kGPU_Backend,
@@ -607,7 +612,7 @@ public:
             (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF)) {
 
             path = make_filename(writePath, renderModeDescriptor, name.c_str(),
-                                 "png");
+                                 kPNG_FileExtension);
             success = write_bitmap(path, bitmap);
         }
         if (kPDF_Backend == gRec.fBackend) {
@@ -727,6 +732,8 @@ public:
         }
         SkString completeNameString = baseNameString;
         completeNameString.append(renderModeDescriptor);
+        completeNameString.append(".");
+        completeNameString.append(kPNG_FileExtension);
         const char* completeName = completeNameString.c_str();
 
         if (expectations.empty()) {
@@ -746,7 +753,7 @@ public:
             if (fMismatchPath) {
                 SkString path =
                     make_filename(fMismatchPath, renderModeDescriptor,
-                                  baseNameString.c_str(), "png");
+                                  baseNameString.c_str(), kPNG_FileExtension);
                 write_bitmap(path, actualBitmap);
             }
 
@@ -853,7 +860,10 @@ public:
              * force_all_opaque().
              * See comments above complete_bitmap() for more detail.
              */
-            Expectations expectations = expectationsSource->get(name.c_str());
+            SkString nameWithExtension(name);
+            nameWithExtension.append(".");
+            nameWithExtension.append(kPNG_FileExtension);
+            Expectations expectations = expectationsSource->get(nameWithExtension.c_str());
             errors.add(compare_to_expectations(expectations, actualBitmap,
                                                name, "", true));
         } else {
@@ -865,7 +875,10 @@ public:
             if (!SkBitmapHasher::ComputeDigest(actualBitmap, &actualBitmapHash)) {
                 actualBitmapHash = 0;
             }
-            add_actual_results_to_json_summary(name.c_str(), actualBitmapHash,
+            SkString nameWithExtension(name);
+            nameWithExtension.append(".");
+            nameWithExtension.append(kPNG_FileExtension);
+            add_actual_results_to_json_summary(nameWithExtension.c_str(), actualBitmapHash,
                                                ErrorCombination(kMissingExpectations_ErrorType),
                                                false);
             RecordTestResults(ErrorCombination(kMissingExpectations_ErrorType), name, "");
