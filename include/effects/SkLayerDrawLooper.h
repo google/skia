@@ -9,9 +9,9 @@
 #define SkLayerDrawLooper_DEFINED
 
 #include "SkDrawLooper.h"
+#include "SkPaint.h"
+#include "SkPoint.h"
 #include "SkXfermode.h"
-
-struct SkPoint;
 
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:

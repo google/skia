@@ -9,7 +9,6 @@
 #include "SkColor.h"
 #include "SkFlattenableBuffers.h"
 #include "SkLayerDrawLooper.h"
-#include "SkPaint.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkUnPreMultiply.h"
