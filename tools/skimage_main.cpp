@@ -202,9 +202,13 @@ static const char* SkBasename(const char* fullPath) {
  *  Compare against an expectation for this filename, if there is one.
  *  @param bitmap SkBitmap to compare to the expected value.
  *  @param filename String used to find the expected value.
- *  @return bool True if the bitmap matched the expectation, or if there was no expectation. False
- *      if there was an expecation that the bitmap did not match, or if an expectation could not be
- *      computed from an expectation.
+ *  @return bool True in any of these cases:
+ *                  - the bitmap matches the expectation.
+ *                  - there is no expectations file.
+ *               False in any of these cases:
+ *                  - there is an expectations file, but no expectation for this bitmap.
+ *                  - there is an expectation for this bitmap, but it did not match.
+ *                  - expectation could not be computed from the bitmap.
  */
 static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const char* filename,
                                                  SkTArray<SkString, false>* failureArray) {
@@ -214,7 +218,11 @@ static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const c
 
     skiagm::Expectations jsExpectation = gJsonExpectations->get(filename);
     if (jsExpectation.empty()) {
-        return true;
+        if (failureArray != NULL) {
+            failureArray->push_back().printf("decoded %s, but could not find expectation.",
+                                             filename);
+        }
+        return false;
     }
 
     SkHashDigest checksum;
