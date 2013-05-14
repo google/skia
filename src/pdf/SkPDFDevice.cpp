@@ -785,8 +785,11 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
     }
 }
 
-void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
+void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& rect,
                            const SkPaint& paint) {
+    SkRect r = rect;
+    r.sort();
+
     if (paint.getPathEffect()) {
         if (d.fClip->isEmpty()) {
             return;
