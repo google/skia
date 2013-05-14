@@ -120,11 +120,29 @@ protected:
                                         20 * SK_Scalar1, 40 * SK_Scalar1,
                                         SkPath::kCCW_Direction);
 
+        // large number of points
+        enum {
+            kLength = 100,
+            kPtsPerSide = (1 << 12),
+        };
+        fPaths.push_back().moveTo(0, 0);
+        for (int i = 1; i < kPtsPerSide; ++i) { // skip the first point due to moveTo.
+            fPaths.back().lineTo(kLength * SkIntToScalar(i) / kPtsPerSide, 0);
+        }
+        for (int i = 0; i < kPtsPerSide; ++i) {
+            fPaths.back().lineTo(kLength, kLength * SkIntToScalar(i) / kPtsPerSide);
+        }
+        for (int i = kPtsPerSide; i > 0; --i) {
+            fPaths.back().lineTo(kLength * SkIntToScalar(i) / kPtsPerSide, kLength);
+        }
+        for (int i = kPtsPerSide; i > 0; --i) {
+            fPaths.back().lineTo(0, kLength * SkIntToScalar(i) / kPtsPerSide);
+        }
+
         // shallow diagonals
         fPaths.push_back().lineTo(100 * SK_Scalar1, SK_Scalar1);
         fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
         fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
-
 
         //It turns out arcTos are not automatically marked as convex and they
         //may in fact be ever so slightly concave.
