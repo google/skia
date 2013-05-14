@@ -36,6 +36,8 @@ pairs = [
     'Test-Android-NexusS-SGX540-Arm7-Release'],
    ['base-android-xoom',
     'Test-Android-Xoom-Tegra2-Arm7-Release'],
+   ['base-android-nexus-10',
+    'Test-Android-Nexus10-MaliT604-Arm7-Release'],
 ]
 
 if len(sys.argv) < 2:
