@@ -364,6 +364,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
                                           GrDrawTarget* target,
                                           const GrRect& rect,
                                           const SkMatrix& combinedMatrix,
+                                          const GrRect& devRect,
                                           bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
 
@@ -389,8 +390,13 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
     if (combinedMatrix.rectStaysRect()) {
+        // Temporarily #if'ed out. We don't want to pass in the devRect but
+        // right now it is computed in GrContext::apply_aa_to_rect and we don't
+        // want to throw away the work
+#if 0
         SkRect devRect;
         combinedMatrix.mapRect(&devRect, rect);
+#endif
 
         set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
         set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
@@ -628,6 +634,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     GrDrawTarget* target,
                                     const GrRect& rect,
                                     const SkMatrix& combinedMatrix,
+                                    const GrRect& devRect,
                                     const GrVec& devStrokeSize,
                                     bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
@@ -637,8 +644,13 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
     const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
 
+    // Temporarily #if'ed out. We don't want to pass in the devRect but
+    // right now it is computed in GrContext::apply_aa_to_rect and we don't
+    // want to throw away the work
+#if 0
     SkRect devRect;
     combinedMatrix.mapRect(&devRect, rect);
+#endif
 
     SkScalar spare;
     {
@@ -648,8 +660,9 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     }
 
     if (spare <= 0) {
-        devRect.inset(-rx, -ry);
-        this->fillAARect(gpu, target, devRect, SkMatrix::I(), useVertexCoverage);
+        GrRect r(devRect);
+        r.outset(rx, ry);
+        this->fillAARect(gpu, target, r, SkMatrix::I(), r, useVertexCoverage);
         return;
     }
 
