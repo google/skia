@@ -44,6 +44,28 @@ function compare_directories {
   fi
 }
 
+# Run a command, and validate that it succeeds (returns 0).
+function assert_passes {
+  COMMAND="$1"
+  OUTPUT=$($COMMAND 2>&1)
+  if [ $? != 0 ]; then
+    echo "This command was supposed to pass, but failed: [$COMMAND]"
+    echo $OUTPUT
+    ENCOUNTERED_ANY_ERRORS=1
+  fi
+}
+
+# Run a command, and validate that it fails (returns nonzero).
+function assert_fails {
+  COMMAND="$1"
+  OUTPUT=$($COMMAND 2>&1)
+  if [ $? == 0 ]; then
+    echo "This command was supposed to fail, but passed: [$COMMAND]"
+    echo $OUTPUT
+    ENCOUNTERED_ANY_ERRORS=1
+  fi
+}
+
 # Run gm...
 # - with the arguments in $1
 # - writing stdout into $2/$OUTPUT_ACTUAL_SUBDIR/stdout
@@ -185,6 +207,16 @@ gm_test "--verbose --hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUT
 
 # Ignore some error types (including ExpectationsMismatch)
 gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignore-expectations-mismatch"
+
+# Exercise confirm_no_failures_in_json.py
+PASSING_CASES="compared-against-identical-bytes-json compared-against-identical-pixels-json"
+FAILING_CASES="compared-against-different-pixels-json"
+for CASE in $PASSING_CASES; do
+  assert_passes "python gm/confirm_no_failures_in_json.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
+done
+for CASE in $FAILING_CASES; do
+  assert_fails "python gm/confirm_no_failures_in_json.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
+done
 
 if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then
   echo "All tests passed."
