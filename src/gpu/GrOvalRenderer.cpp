@@ -287,7 +287,7 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 
 /**
  * The output of this effect is a modulation of the input color and coverage for an axis-aligned
- * ellipse, specified as an offset vector from center and reciprocals of outer and inner radii in 
+ * ellipse, specified as an offset vector from center and reciprocals of outer and inner radii in
  * both x and y directions.
  *
  * This uses a slightly different algorithm than the EllipseEdgeEffect, above. Rather than
@@ -958,7 +958,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
         SkScalar recipOuterY = SK_Scalar1/yOuterRadius;
         SkScalar recipInnerX = SK_Scalar1/xInnerRadius;
         SkScalar recipInnerY = SK_Scalar1/yInnerRadius;
-        
+
         for (int i = 0; i < 4; ++i) {
             verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
             verts->fOffset = SkPoint::Make(-xOuterRadius, yOuterOffsets[i]);

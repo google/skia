@@ -273,4 +273,3 @@ SkFontMgr* SkFontMgr::Factory() {
     SkFontConfigInterface* fci = RefFCI();
     return fci ? SkNEW_ARGS(SkFontMgr_fontconfig, (fci)) : NULL;
 }
-
