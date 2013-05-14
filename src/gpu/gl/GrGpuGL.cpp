@@ -478,10 +478,6 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     glDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     glDesc.fSampleCnt = desc.fSampleCnt;
     glDesc.fIsWrapped = true;
-    glDesc.fOrigin = desc.fOrigin;
-    if (glDesc.fRTFBOID == 0) {
-        GrAssert(desc.fOrigin == kBottomLeft_GrSurfaceOrigin);
-    }
 
     glDesc.fOrigin = resolve_origin(desc.fOrigin, true);
     GrGLIRect viewport;
