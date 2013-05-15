@@ -57,6 +57,9 @@
           '../third_party/lua/src/',
         ],
       },
+      'defines': [
+        "getlocaledecpoint()='.'"
+      ],
     },
   ],
 }
