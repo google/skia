@@ -49,6 +49,10 @@ public:
     */
     static Format GetStreamFormat(SkStream*);
 
+    /** Return a readable string of the Format provided.
+    */
+    static const char* GetFormatName(Format);
+
     /** Return a readable string of the value returned by getFormat().
     */
     const char* getFormatName() const;
