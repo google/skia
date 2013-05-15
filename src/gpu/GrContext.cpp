@@ -681,8 +681,8 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
 }
 
 static bool isIRect(const GrRect& r) {
-    return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&	  
-           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);	  
+    return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
+           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,

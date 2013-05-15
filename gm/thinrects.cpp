@@ -53,7 +53,7 @@ protected:
             canvas->restore();
 
             canvas->save();
-                canvas->translate(160.0f + i*0.125f, 
+                canvas->translate(160.0f + i*0.125f,
                                   i*40.0f + i*0.125f);
                 DrawSquares(canvas, white);
 
