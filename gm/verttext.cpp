@@ -30,6 +30,19 @@ public:
     VertTextGM()
         // : fFace(SkTypeface::CreateFromName("unifont", SkTypeface::kNormal))
         // : fFace(SkTypeface::CreateFromFile("MotoyaL04Mincho_3.ttf"))
+
+        // Bitmap fonts on OS X.
+        // : fFace(SkTypeface::CreateFromName("GB18030 Bitmap", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal))
+
+        // OTF CFF fonts on OS X.
+        // : fFace(SkTypeface::CreateFromName("Hiragino Mincho ProN", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("Hiragino Kaku Gothic Pro", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("Hiragino Sans GB", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("STIXGeneral", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("Yuppy SC", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromName("Yuppy TC", SkTypeface::kNormal))
+
     {
     }
 

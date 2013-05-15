@@ -1846,7 +1846,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             return true;
         case kUp_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
-                this->changeZoomLevel(1.f);
+                this->changeZoomLevel(1.f / 32.f);
             } else {
                 fNClip = !fNClip;
                 this->inval(NULL);
@@ -1855,7 +1855,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             return true;
         case kDown_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
-                this->changeZoomLevel(-1.f);
+                this->changeZoomLevel(-1.f / 32.f);
             } else {
                 this->setConfig(cycle_configs(this->getBitmap().config()));
                 this->updateTitle();
