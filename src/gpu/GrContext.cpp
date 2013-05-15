@@ -973,12 +973,14 @@ void GrContext::drawRRect(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+    bool useAA = paint.isAntiAlias() &&
+                 !this->getRenderTarget()->isMultisampled() &&
+                 !disable_coverage_aa_for_blend(target);
 
-    if (!fOvalRenderer->drawSimpleRRect(target, this, prAA, rect, stroke)) {
+    if (!fOvalRenderer->drawSimpleRRect(target, this, useAA, rect, stroke)) {
         SkPath path;
         path.addRRect(rect);
-        this->internalDrawPath(target, prAA, path, stroke);
+        this->internalDrawPath(target, useAA, path, stroke);
     }
 }
 
@@ -991,7 +993,9 @@ void GrContext::drawOval(const GrPaint& paint,
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+    bool useAA = paint.isAntiAlias() &&
+                 !this->getRenderTarget()->isMultisampled() &&
+                 !disable_coverage_aa_for_blend(target);
 
     if (!fOvalRenderer->drawOval(target, this, useAA, oval, stroke)) {
         SkPath path;

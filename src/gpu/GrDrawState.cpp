@@ -163,6 +163,16 @@ bool GrDrawState::validateVertexAttribs() const {
     return true;
 }
 
+bool GrDrawState::willEffectReadDstColor() const {
+    int startStage = this->isColorWriteDisabled() ? this->getFirstCoverageStage() : 0;
+    for (int s = startStage; s < kNumStages; ++s) {
+        if (this->isStageEnabled(s) && (*this->getStage(s).getEffect())->willReadDstColor()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawState::srcAlphaWillBeOne() const {
