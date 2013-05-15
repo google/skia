@@ -15,7 +15,7 @@
       'dependencies': [
         'bench_pictures',
         'filter',
-#        'lua_pictures',
+        'lua_pictures',
         'pinspect',
         'render_pdfs',
         'render_pictures',
@@ -258,6 +258,11 @@
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+        '../tools/picture_utils.h',
+        ],
+      },
     },
     {
       'target_name': 'pinspect',
