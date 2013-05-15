@@ -15,7 +15,7 @@
       'dependencies': [
         'bench_pictures',
         'filter',
-        'lua_pictures',
+#        'lua_pictures',
         'pinspect',
         'render_pdfs',
         'render_pictures',
