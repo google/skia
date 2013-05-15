@@ -54,7 +54,11 @@ SkImageDecoder::Format SkImageDecoder::getFormat() const {
 }
 
 const char* SkImageDecoder::getFormatName() const {
-    switch (this->getFormat()) {
+    return GetFormatName(this->getFormat());
+}
+
+const char* SkImageDecoder::GetFormatName(Format format) {
+    switch (format) {
         case kUnknown_Format:
             return "Unknown Format";
         case kBMP_Format:
@@ -319,7 +323,7 @@ bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
             return true;
         }
 
-        if (target->fRowBytes != (uint32_t) bm.rowBytes()) {
+        if (target->fRowBytes != SkToU32(bm.rowBytes())) {
             if (target->fRowBytes < SkImageMinRowBytes(*info)) {
                 SkASSERT(!"Desired row bytes is too small");
                 return false;
