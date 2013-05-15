@@ -178,8 +178,8 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
                 desc->fFirstCoverageStage = firstCoverageStage;
             }
         } else if (readsDst &&
-                   kOne_GrBlendCoeff == drawState.getSrcBlendCoeff() &&
-                   kZero_GrBlendCoeff == drawState.getDstBlendCoeff()) {
+                   kOne_GrBlendCoeff == srcCoeff &&
+                   kZero_GrBlendCoeff == dstCoeff) {
             desc->fCoverageOutput = kCombineWithDst_CoverageOutput;
             desc->fFirstCoverageStage = firstCoverageStage;
         }

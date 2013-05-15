@@ -371,6 +371,13 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
             return  kCoverageAsAlpha_BlendOptFlag;
         }
     }
+    if (kOne_GrBlendCoeff == *srcCoeff &&
+        kZero_GrBlendCoeff == *dstCoeff &&
+        this->willEffectReadDstColor()) {
+        // In this case the shader will fully resolve the color, coverage, and dst and we don't
+        // need blending.
+        return kDisableBlend_BlendOptFlag;
+    }
     return kNone_BlendOpt;
 }
 
