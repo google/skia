@@ -260,7 +260,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-        '../tools/picture_utils.h',
+        '../tools/',
         ],
       },
     },
