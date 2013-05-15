@@ -311,9 +311,11 @@
         'cflags': [
           '-Wall',
           '-fno-exceptions',
-          '-fno-rtti',
           '-fstrict-aliasing',
           '-fuse-ld=gold',
+        ],
+        'cflags_cc': [
+          '-fno-rtti',
         ],
         'conditions': [
           [ 'skia_warnings_as_errors', {
