@@ -22,10 +22,11 @@ public:
         kRotate_Type
     };
 
-    GameBench(void* param, Type type, bool partialClear)
+    GameBench(void* param, Type type, bool partialClear, bool aligned = false)
         : INHERITED(param)
         , fType(type)
         , fPartialClear(partialClear)
+        , fAligned(aligned)
         , fName("game")
         , fNumSaved(0)
         , fInitialized(false) {
@@ -41,6 +42,10 @@ public:
             fName.append("_rot");
             break;
         };
+
+        if (aligned) {
+            fName.append("_aligned");
+        }
 
         if (partialClear) {
             fName.append("_partial");
@@ -130,6 +135,11 @@ protected:
 
             fSaved[fNumSaved][0] = transRand.nextRangeScalar(0.0f, maxTransX);
             fSaved[fNumSaved][1] = transRand.nextRangeScalar(0.0f, maxTransY);
+            if (fAligned) {
+                // make the translations integer aligned
+                fSaved[fNumSaved][0] = SkScalarFloorToScalar(fSaved[fNumSaved][0]);
+                fSaved[fNumSaved][1] = SkScalarFloorToScalar(fSaved[fNumSaved][1]);
+            }
 
             mat.setTranslate(fSaved[fNumSaved][0], fSaved[fNumSaved][1]);
 
@@ -160,6 +170,7 @@ private:
 
     Type     fType;
     bool     fPartialClear;
+    bool     fAligned;
     SkString fName;
     int      fNumSaved; // num draws stored in 'fSaved'
     bool     fInitialized;
@@ -197,9 +208,11 @@ private:
 // Partial clear
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type, false)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, false)); )
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, false, true)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, false)); )
 
 // Full clear
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type, true)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, true)); )
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, true, true)); )
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, true)); )
