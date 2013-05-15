@@ -15,6 +15,7 @@
       'dependencies': [
         'bench_pictures',
         'filter',
+        'lua_pictures',
         'pinspect',
         'render_pdfs',
         'render_pictures',
@@ -90,6 +91,25 @@
         'images.gyp:images',
         'jsoncpp.gyp:jsoncpp',
         'utils.gyp:utils',
+      ],
+    },
+    {
+      'target_name': 'lua_pictures',
+      'type': 'executable',
+      'sources': [
+        '../tools/lua/lua_pictures.cpp',
+        '../src/utils/SkLuaCanvas.cpp',
+      ],
+      'dependencies': [
+        'skia_base_libs.gyp:skia_base_libs',
+        'effects.gyp:effects',
+        'utils.gyp:utils',
+        'images.gyp:images',
+        'tools.gyp:picture_renderer',
+        'tools.gyp:picture_utils',
+        'ports.gyp:ports',
+        'flags.gyp:flags',
+        'lua.gyp:lua',
       ],
     },
     {
