@@ -14,81 +14,124 @@
 namespace skiagm {
 
 /**
- * Renders overlapping circles with random SkXfermode::Modes against a checkerboard.
+ * Renders overlapping shapes with random SkXfermode::Modes against a checkerboard.
  */
 class MixedXfermodesGM : public GM {
 public:
     MixedXfermodesGM() {
-        static uint32_t kCheckerPixelData[] = { 0xFFFFFFFF, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFFFFFFF };
-        SkBitmap bitmap;
-        bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2, 2 * sizeof(uint32_t));
-        bitmap.allocPixels();
-        bitmap.lockPixels();
-        memcpy(bitmap.getPixels(), kCheckerPixelData, sizeof(kCheckerPixelData));
-        bitmap.unlockPixels();
-        fBG.reset(SkShader::CreateBitmapShader(bitmap,
-                                               SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode));
-        SkASSERT(NULL != fBG);
-        SkMatrix lm;
-        lm.setScale(SkIntToScalar(20), SkIntToScalar(20));
-        fBG->setLocalMatrix(lm);
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("mixed_xfermodes");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return make_isize(790, 640);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void drawShape(SkCanvas* canvas,
+                   const SkPaint& paint,
+                   SkMWCRandom* random) {
+        static const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(-50), SkIntToScalar(-50),
+                                                     SkIntToScalar(75), SkIntToScalar(105));
+        int shape = random->nextULessThan(5);
+        switch (shape) {
+        case 0:
+            canvas->drawCircle(0, 0, 50, paint);
+            break;
+        case 1:
+            canvas->drawRoundRect(kRect, SkIntToScalar(10), SkIntToScalar(20), paint);
+            break;
+        case 2:
+            canvas->drawRect(kRect, paint);
+            break;
+        case 3:
+            if (fConvexPath.isEmpty()) {
+                SkPoint points[4];
+                kRect.toQuad(points);
+                fConvexPath.moveTo(points[0]);
+                fConvexPath.quadTo(points[1], points[2]);
+                fConvexPath.quadTo(points[3], points[0]);
+                SkASSERT(fConvexPath.isConvex());
+            }
+            canvas->drawPath(fConvexPath, paint);
+            break;
+        case 4:
+            if (fConcavePath.isEmpty()) {
+                SkPoint points[5] = {{0, SkIntToScalar(-50)} };
+                SkMatrix rot;
+                rot.setRotate(SkIntToScalar(360) / 5);
+                for (int i = 1; i < 5; ++i) {
+                    rot.mapPoints(points + i, points + i - 1, 1);
+                }
+                fConcavePath.moveTo(points[0]);
+                for (int i = 0; i < 5; ++i) {
+                    fConcavePath.lineTo(points[(2 * i) % 5]);
+                }
+                fConcavePath.setFillType(SkPath::kEvenOdd_FillType);
+                SkASSERT(!fConcavePath.isConvex());
+            }
+            canvas->drawPath(fConcavePath, paint);
+            break;
+        }
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        if (NULL == fBG.get()) {
+            static uint32_t kCheckerPixelData[] = { 0xFFFFFFFF,
+                                                    0xFFCCCCCC,
+                                                    0xFFCCCCCC,
+                                                    0xFFFFFFFF };
+            SkBitmap bitmap;
+            bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2, 2 * sizeof(uint32_t));
+            bitmap.allocPixels();
+            bitmap.lockPixels();
+            memcpy(bitmap.getPixels(), kCheckerPixelData, sizeof(kCheckerPixelData));
+            bitmap.unlockPixels();
+            fBG.reset(SkShader::CreateBitmapShader(bitmap,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode));
+        }
+        SkMatrix lm;
+        lm.setScale(SkIntToScalar(20), SkIntToScalar(20));
+        fBG->setLocalMatrix(lm);
+
         SkPaint bgPaint;
         bgPaint.setShader(fBG.get());
         canvas->drawPaint(bgPaint);
         SkISize size = canvas->getDeviceSize();
-        SkScalar areaSqrt = SkScalarSqrt((SkIntToScalar(size.fWidth * size.fHeight)));
-        SkScalar minR = areaSqrt / 10;
-        SkScalar maxR = areaSqrt / 4;
+        SkScalar maxScale = SkScalarSqrt((SkIntToScalar(size.fWidth * size.fHeight))) / 300;
         SkMWCRandom random;
-        for (int i = 0; i < kNumCircles; ++i) {
-            SkScalar cx = random.nextRangeScalar(0, SkIntToScalar(size.fWidth));
-            SkScalar cy = random.nextRangeScalar(0, SkIntToScalar(size.fHeight));
-            SkScalar r = random.nextRangeScalar(minR, maxR);
+        for (int i = 0; i < kNumShapes; ++i) {
+            SkScalar s = random.nextRangeScalar(SK_Scalar1 / 8, SK_Scalar1) * maxScale;
+            SkScalar r = random.nextRangeScalar(0, SkIntToScalar(360));
+            SkScalar dx = random.nextRangeScalar(0, SkIntToScalar(size.fWidth));
+            SkScalar dy = random.nextRangeScalar(0, SkIntToScalar(size.fHeight));
             SkColor color = random.nextU();
-
             SkXfermode::Mode mode =
                 static_cast<SkXfermode::Mode>(random.nextULessThan(SkXfermode::kLastMode + 1));
-            // FIXME: Currently testing kDarken on GPU.
-            mode = SkXfermode::kDarken_Mode;
 
             SkPaint p;
             p.setAntiAlias(true);
             p.setColor(color);
             p.setXfermodeMode(mode);
-            canvas->drawCircle(cx, cy, r, p);
+            canvas->save();
+            canvas->translate(dx, dy);
+            canvas->scale(s, s);
+            canvas->rotate(r);
+            this->drawShape(canvas, p, &random);
+            canvas->restore();
         }
-
-        // FIXME: Remove text draw once this GM is finished.
-        SkPaint txtPaint;
-        txtPaint.setTextSize(areaSqrt / 20);
-        txtPaint.setAntiAlias(true);
-        static const char kTxt[] = "Work in progres... Do not baseline.";
-        canvas->drawText(kTxt, strlen(kTxt),
-                         areaSqrt/50,
-                         SkIntToScalar(size.fHeight / 2),
-                         txtPaint);
     }
 
 private:
     enum {
-        kMinR = 10,
-        kMaxR = 50,
-        kNumCircles = 50,
+        kNumShapes = 100,
     };
     SkAutoTUnref<SkShader> fBG;
+    SkPath                 fConcavePath;
+    SkPath                 fConvexPath;
     typedef GM INHERITED;
 };
 
