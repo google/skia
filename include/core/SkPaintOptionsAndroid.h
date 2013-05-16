@@ -61,16 +61,20 @@ class SkPaintOptionsAndroid {
 public:
     SkPaintOptionsAndroid() {
         fFontVariant = kDefault_Variant;
+        fUseFontFallbacks = false;
     }
 
     SkPaintOptionsAndroid& operator=(const SkPaintOptionsAndroid& b) {
         fLanguage = b.fLanguage;
         fFontVariant = b.fFontVariant;
+        fUseFontFallbacks = b.fUseFontFallbacks;
         return *this;
     }
 
     bool operator!=(const SkPaintOptionsAndroid& b) const {
-        return fLanguage != b.fLanguage || fFontVariant != b.fFontVariant;
+        return fLanguage != b.fLanguage ||
+               fFontVariant != b.fFontVariant ||
+               fUseFontFallbacks != b.fUseFontFallbacks;
     }
 
     void flatten(SkFlattenableWriteBuffer&) const;
@@ -108,9 +112,16 @@ public:
         fFontVariant = fontVariant;
     }
 
+    bool isUsingFontFallbacks() const { return fUseFontFallbacks; }
+
+    void setUseFontFallbacks(bool useFontFallbacks) {
+        fUseFontFallbacks = useFontFallbacks;
+    }
+
 private:
     SkLanguage fLanguage;
     FontVariant fFontVariant;
+    bool fUseFontFallbacks;
 };
 
 #endif // #ifdef SK_BUILD_FOR_ANDROID
