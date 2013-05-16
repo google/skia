@@ -28,9 +28,6 @@
             '../third_party/externals/libwebp/dec/vp8l.c',
             '../third_party/externals/libwebp/dec/webp.c',
           ],
-          'cflags!': [
-            '-fno-rtti', # supresses warnings about invalid option of non-C++ code
-          ],
         },
         {
           'target_name': 'libwebp_dsp',
@@ -48,9 +45,6 @@
             '../third_party/externals/libwebp/dsp/upsampling.c',
             '../third_party/externals/libwebp/dsp/upsampling_sse2.c',
             '../third_party/externals/libwebp/dsp/yuv.c',
-          ],
-          'cflags!': [
-            '-fno-rtti', # supresses warnings about invalid option of non-C++ code
           ],
           'conditions': [
             ['skia_os == "android"', {
@@ -74,7 +68,6 @@
               # behavior similar dsp_neon.c.neon in an Android.mk
               'cflags!': [
                 '-mfpu=vfpv3-d16',
-                '-fno-rtti', # supresses warnings about invalid option of non-C++ code
               ],
               'cflags': [ '-mfpu=neon' ],
             },{  # "armv7 != 1"
@@ -106,9 +99,6 @@
             '../third_party/externals/libwebp/enc/vp8l.c',
             '../third_party/externals/libwebp/enc/webpenc.c',
           ],
-          'cflags!': [
-            '-fno-rtti', # supresses warnings about invalid option of non-C++ code
-          ],
         },
         {
           'target_name': 'libwebp_utils',
@@ -127,9 +117,6 @@
             '../third_party/externals/libwebp/utils/rescaler.c',
             '../third_party/externals/libwebp/utils/thread.c',
             '../third_party/externals/libwebp/utils/utils.c',
-          ],
-          'cflags!': [
-            '-fno-rtti', # supresses warnings about invalid option of non-C++ code
           ],
         },
         {

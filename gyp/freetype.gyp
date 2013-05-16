@@ -73,9 +73,6 @@
             '-DFT2_BUILD_LIBRARY',
             '-O2',
           ],
-          'cflags!': [
-            '-fno-rtti', # supress warnings about invalid option of non-C++ code
-          ],
         }],
       ],
     },

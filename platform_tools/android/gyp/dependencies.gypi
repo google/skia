@@ -25,9 +25,6 @@
         '../third_party/cpufeatures/cpu-features.c',
         '../third_party/cpufeatures/cpu-features.h',
       ],
-      'cflags!': [
-        '-fno-rtti', # supresses warnings about invalid option of non-C++ code
-      ],
     },
     {
       'target_name': 'expat',
@@ -47,9 +44,6 @@
         '-Wstrict-prototypes',
         '-fexceptions',
         '-DHAVE_EXPAT_CONFIG_H',
-      ],
-      'cflags!': [
-        '-fno-rtti', # supresses warnings about invalid option of non-C++ code
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -73,7 +67,6 @@
         '-DHAVE_CONFIG_H',
       ],
       'cflags!': [
-        '-fno-rtti', # supresses warnings about invalid option of non-C++ code
         '-Wall',
       ],
       'direct_dependent_settings': {
@@ -111,7 +104,6 @@
         '-fvisibility=hidden',
       ],
       'cflags!': [
-        '-fno-rtti', # supresses warnings about invalid option of non-C++ code
         '-Wall',
       ],
       'link_settings': {
@@ -188,7 +180,6 @@
         '-DANDROID_TILE_BASED_DECODE',
       ],
       'cflags!': [
-        '-fno-rtti', # supresses warnings about invalid option of non-C++ code
         '-Wall',
       ],
       'direct_dependent_settings': {
