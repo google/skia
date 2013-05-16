@@ -60,4 +60,3 @@ protected:
 private:
     typedef SkTypeface_FreeType INHERITED;
 };
-

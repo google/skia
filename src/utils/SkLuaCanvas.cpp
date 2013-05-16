@@ -71,7 +71,7 @@ public:
             int t = lua_type(L, -1);
             SkDebugf("--- expected function %d\n", t);
         }
-        
+
         lua_newtable(L);
         setfield_string(L, "verb", verb);
     }

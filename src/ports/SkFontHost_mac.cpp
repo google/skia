@@ -675,7 +675,7 @@ protected:
 
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
-    
+
 #if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
     void getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) const;
 #else
@@ -688,7 +688,7 @@ private:
      *  For use with (and must be called before) generateBBoxes.
      */
     uint16_t getFBoundingBoxesGlyphOffset();
-    
+
     /** Initializes fFBoundingBoxes and returns true on success.
      *
      *  On Lion and Mountain Lion, CTFontGetBoundingRectsForGlyphs has a bug which causes it to
@@ -713,10 +713,10 @@ private:
      *  Used on Lion to correct CTFontGetBoundingRectsForGlyphs.
      */
     SkMatrix fFUnitMatrix;
-    
+
     Offscreen fOffscreen;
     AutoCFRelease<CTFontRef> fCTFont;
-    
+
     /** Vertical variant of fCTFont.
      *
      *  CT vertical metrics are pre-rotated (in em space, before transform) 90deg clock-wise.
@@ -725,7 +725,7 @@ private:
      *  Use fCTVerticalFont with kCTFontVerticalOrientation to get metrics in the same space.
      */
     AutoCFRelease<CTFontRef> fCTVerticalFont;
-    
+
     AutoCFRelease<CGFontRef> fCGFont;
     SkAutoTMalloc<GlyphRect> fFBoundingBoxes;
     uint16_t fFBoundingBoxesGlyphOffset;
@@ -760,7 +760,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
-    
+
 #if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
     // Get the state we need
     fRec.getSingleMatrix(&fMatrix);
@@ -906,7 +906,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         subX = SkFixedToFloat(glyph.getSubXFixed());
         subY = SkFixedToFloat(glyph.getSubYFixed());
     }
-    
+
     // CGContextShowGlyphsAtPoint always draws using the horizontal baseline origin.
     if (context.fVertical) {
 #if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
@@ -918,7 +918,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         subX += offset.fX;
         subY += offset.fY;
     }
-    
+
     CGContextShowGlyphsAtPoint(fCG, -glyph.fLeft + subX,
                                glyph.fTop + glyph.fHeight - subY,
                                &glyphID, 1);
@@ -961,7 +961,7 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkPoint* offset) co
         // From CG units (pixels, y up) to SkGlyph units (pixels, y down).
         skVertOffset.fY = -skVertOffset.fY;
     }
-    
+
     *offset = skVertOffset;
 }
 #endif
@@ -1142,7 +1142,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
     glyph->zeroMetrics();
-    
+
     // The following block produces cgAdvance in CG units (pixels, y up).
     CGSize cgAdvance;
     if (fVertical) {
@@ -1158,7 +1158,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // The following produces skBounds in SkGlyph units (pixels, y down),
     // or returns early if skBounds would be empty.
     SkRect skBounds;
-    
+
     // On Mountain Lion, CTFontGetBoundingRectsForGlyphs with kCTFontVerticalOrientation and
     // CTFontGetVerticalTranslationsForGlyphs do not agree when using OTF CFF fonts.
     // For TTF fonts these two do agree and we can use CTFontGetBoundingRectsForGlyphs to get
@@ -1172,10 +1172,10 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // It is not known which is correct (or if either is correct). However, we must always draw
     // from the horizontal origin and must use CTFontGetVerticalTranslationsForGlyphs to draw.
     // As a result, we do not call CTFontGetBoundingRectsForGlyphs for vertical glyphs.
-    
+
     // On Snow Leopard, CTFontGetBoundingRectsForGlyphs ignores kCTFontVerticalOrientation and
     // returns horizontal bounds.
-    
+
     // On Lion and Mountain Lion, CTFontGetBoundingRectsForGlyphs has a bug which causes it to
     // return a bad value in cgBounds.origin.x for SFNT fonts whose hhea::numberOfHMetrics is
     // less than its maxp::numGlyphs. When this is the case we try to read the bounds from the
@@ -1196,7 +1196,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         CGRect cgBounds;
         CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontHorizontalOrientation,
                                         &cgGlyph, &cgBounds, 1);
-    
+
         // BUG?
         // 0x200B (zero-advance space) seems to return a huge (garbage) bounds, when
         // it should be empty. So, if we see a zero-advance, we check if it has an
@@ -1225,14 +1225,14 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         getVerticalOffset(cgGlyph, &offset);
         skBounds.offset(offset);
     }
-    
+
     // Currently the bounds are based on being rendered at (0,0).
     // The top left must not move, since that is the base from which subpixel positioning is offset.
     if (fDoSubPosition) {
         skBounds.fRight += SkFixedToFloat(glyph->getSubXFixed());
         skBounds.fBottom += SkFixedToFloat(glyph->getSubYFixed());
     }
-    
+
     SkIRect skIBounds;
     skBounds.roundOut(&skIBounds);
     // Expand the bounds by 1 pixel, to give CG room for anti-aliasing.
@@ -1244,7 +1244,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fTop = SkToS16(skIBounds.fTop);
     glyph->fWidth = SkToU16(skIBounds.width());
     glyph->fHeight = SkToU16(skIBounds.height());
-    
+
 #ifdef HACK_COLORGLYPHS
     glyph->fMaskFormat = SkMask::kARGB32_Format;
 #endif
