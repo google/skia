@@ -660,6 +660,9 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     SkSTArray<kPreallocDrawCnt, Draw, true> draws;
     create_vertices(segments, fanPt, &draws, verts, idxs);
 
+    SkRect devBounds;
+    GetPathDevBounds(origPath, drawState->getRenderTarget(), adcd.getOriginalMatrix(), &devBounds);
+
     int vOffset = 0;
     for (int i = 0; i < draws.count(); ++i) {
         const Draw& draw = draws[i];
@@ -667,7 +670,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
                             vOffset,  // start vertex
                             0,        // start index
                             draw.fVertexCnt,
-                            draw.fIndexCnt);
+                            draw.fIndexCnt,
+                            &devBounds);
         vOffset += draw.fVertexCnt;
     }
 
