@@ -27,12 +27,49 @@ static void setfield_bool(lua_State* L, const char key[], bool value) {
     lua_setfield(L, -2, key);
 }
 
+// sets [1]...[count] in the table on the top of the stack
+static void setfield_arrayf(lua_State* L, const SkScalar array[], int count) {
+    for (int i = 0; i < count; ++i) {
+        lua_pushnumber(L, SkScalarToDouble(i + 1));     // key
+        lua_pushnumber(L, SkScalarToDouble(array[i]));  // value
+        lua_settable(L, -3);
+    }
+}
+
 static void setfield_rect(lua_State* L, const char key[], const SkRect& r) {
     lua_newtable(L);
     setfield_number(L, "left", r.fLeft);
     setfield_number(L, "top", r.fTop);
     setfield_number(L, "right", r.fRight);
     setfield_number(L, "bottom", r.fBottom);
+    lua_setfield(L, -2, key);
+}
+
+static const char* rrect_type(const SkRRect& rr) {
+    switch (rr.getType()) {
+        case SkRRect::kUnknown_Type: return "unknown";
+        case SkRRect::kEmpty_Type: return "empty";
+        case SkRRect::kRect_Type: return "rect";
+        case SkRRect::kOval_Type: return "oval";
+        case SkRRect::kSimple_Type: return "simple";
+        case SkRRect::kComplex_Type: return "complex";
+    }
+    SkASSERT(!"never get here");
+    return "";
+}
+
+static void setfield_rrect(lua_State* L, const char key[], const SkRRect& rr) {
+    lua_newtable(L);
+    setfield_rect(L, "rect", rr.getBounds());
+    setfield_string(L, "type", rrect_type(rr));
+
+    SkVector rad[4] = {
+        rr.radii(SkRRect::kUpperLeft_Corner),
+        rr.radii(SkRRect::kUpperRight_Corner),
+        rr.radii(SkRRect::kLowerRight_Corner),
+        rr.radii(SkRRect::kLowerLeft_Corner),
+    };
+    setfield_arrayf(L, &rad[0].fX, 8);
     lua_setfield(L, -2, key);
 }
 
@@ -172,6 +209,7 @@ bool SkLuaCanvas::clipRect(const SkRect& r, SkRegion::Op op, bool doAA) {
 
 bool SkLuaCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
     AUTO_LUA("clipRRect");
+    setfield_rrect(fL, "rrect", rrect);
     setfield_bool(fL, "aa", doAA);
     return this->INHERITED::clipRRect(rrect, op, doAA);
 }
@@ -200,7 +238,7 @@ void SkLuaCanvas::drawPoints(PointMode mode, size_t count,
 
 void SkLuaCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     AUTO_LUA("drawOval");
-    setfield_rect(fL, "rect", rect);
+    setfield_rect(fL, "oval", rect);
     setfield_paint(fL, paint);
 }
 
@@ -212,13 +250,15 @@ void SkLuaCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
 
 void SkLuaCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     AUTO_LUA("drawRRect");
-    setfield_rect(fL, "rect", rrect.getBounds());
+    setfield_rrect(fL, "rrect", rrect);
     setfield_paint(fL, paint);
 }
 
 void SkLuaCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AUTO_LUA("drawPath");
     setfield_rect(fL, "bounds", path.getBounds());
+    setfield_bool(fL, "isRect", path.isRect(NULL));
+    setfield_bool(fL, "isOval", path.isOval(NULL));
     setfield_paint(fL, paint);
 }
 
