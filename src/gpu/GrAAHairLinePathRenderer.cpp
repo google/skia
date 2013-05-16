@@ -816,9 +816,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     GrEffectRef* hairLineEffect = HairLineEdgeEffect::Create();
     GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
 
-    SkRect devBounds;
-    GetPathDevBounds(path, drawState->getRenderTarget(), adcd.getOriginalMatrix(), &devBounds);
-
     target->setIndexSourceToBuffer(fLinesIndexBuffer);
     int lines = 0;
     int nBufLines = fLinesIndexBuffer->maxQuads();
@@ -829,8 +826,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             kVertsPerLineSeg*lines,    // startV
                             0,                         // startI
                             kVertsPerLineSeg*n,        // vCount
-                            kIdxsPerLineSeg*n,
-                            &devBounds);        // iCount
+                            kIdxsPerLineSeg*n);        // iCount
         lines += n;
     }
 
@@ -843,8 +839,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             4 * lineCnt + kVertsPerQuad*quads, // startV
                             0,                                 // startI
                             kVertsPerQuad*n,                   // vCount
-                            kIdxsPerQuad*n,                    // iCount
-                            &devBounds);
+                            kIdxsPerQuad*n);                   // iCount
         quads += n;
     }
     target->resetIndexSource();
