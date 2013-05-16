@@ -30,6 +30,7 @@ SkLanguage SkLanguage::getParent() const {
 void SkPaintOptionsAndroid::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fFontVariant);
     buffer.writeString(fLanguage.getTag().c_str());
+    buffer.writeBool(fUseFontFallbacks);
 }
 
 void SkPaintOptionsAndroid::unflatten(SkFlattenableReadBuffer& buffer) {
@@ -37,6 +38,7 @@ void SkPaintOptionsAndroid::unflatten(SkFlattenableReadBuffer& buffer) {
     char* tag = buffer.readString();
     fLanguage = SkLanguage(tag);
     sk_free(tag);
+    fUseFontFallbacks = buffer.readBool();
 }
 
 #endif

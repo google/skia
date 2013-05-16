@@ -803,13 +803,14 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
                                          const SkPaintOptionsAndroid& options) {
-#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // Skia does not support font fallback for ndk applications in order to
-    // enable clients such as WebKit to customize their font selection.
-    // Clients can use GetFallbackFamilyNameForChar() to get the fallback
+    // Skia does not support font fallback by default for ndk applications. This
+    // enables clients such as WebKit to customize their font selection. In any
+    // case clients can use GetFallbackFamilyNameForChar() to get the fallback
     // font for individual characters.
-    return NULL;
-#endif
+    if (!options.isUsingFontFallbacks()) {
+        return NULL;
+    }
+
     SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
 
     load_system_fonts();
