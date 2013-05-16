@@ -22,20 +22,20 @@ public:
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;
-    
+
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
     virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-    
+
     virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipRRect(const SkRRect&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipPath(const SkPath&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& deviceRgn,
                             SkRegion::Op) SK_OVERRIDE;
-    
+
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
@@ -72,7 +72,7 @@ public:
 private:
     lua_State*  fL;
     SkString    fFunc;
-    
+
     void sendverb(const char verb[]);
 
     typedef SkCanvas INHERITED;

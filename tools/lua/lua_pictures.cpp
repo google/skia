@@ -70,11 +70,11 @@ public:
         }
         lua_close(fL);
     }
-    
+
     lua_State* get() const { return fL; }
     lua_State* operator*() const { return fL; }
     lua_State* operator->() const { return fL; }
-    
+
     bool load(const char code[]) {
         int err = luaL_loadstring(fL, code) || lua_pcall(fL, 0, 0, 0);
         if (err) {
@@ -130,7 +130,7 @@ int tool_main(int argc, char** argv) {
             SkString inputPath;
             SkString inputAsSkString(FLAGS_skpPath[i]);
             sk_tools::make_filepath(&inputPath, inputAsSkString, inputFilename);
-            
+
             const char* path = inputPath.c_str();
             SkAutoTUnref<SkPicture> pic(load_picture(path));
 
