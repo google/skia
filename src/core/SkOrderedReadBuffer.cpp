@@ -197,8 +197,23 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
             // A non-zero size means the SkBitmap was encoded.
             const void* data = this->skip(length);
             if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
-                SkASSERT(bitmap->width() == width && bitmap->height() == height);
-                return;
+                if (bitmap->width() == width && bitmap->height() == height) {
+                    return;
+                }
+
+                // This case can only be reached if extractSubset was called, so
+                // the recorded width and height must be smaller than (or equal to
+                // the encoded width and height.
+                SkASSERT(width <= bitmap->width() && height <= bitmap->height());
+
+                // FIXME: Once the writer is changed to record the (x,y) offset,
+                // they will be used to store the correct portion of the picture.
+                SkBitmap subsetBm;
+                SkIRect subset = SkIRect::MakeWH(width, height);
+                if (bitmap->extractSubset(&subsetBm, subset)) {
+                    bitmap->swap(subsetBm);
+                    return;
+                }
             }
             // This bitmap was encoded when written, but we are unable to decode, possibly due to
             // not having a decoder.
