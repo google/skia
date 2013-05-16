@@ -1,4 +1,4 @@
-  
+
 /*
  * Copyright 2011 Google Inc.
  *
@@ -171,22 +171,6 @@ protected:
         drawState->setStencil(kIncrementStencil);
         drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
         this->drawPath(path, stroke, target, false);
-    }
-
-    // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
-    // by devSize. Non-inverse path bounds will not necessarily be clipped to devSize.
-    static void GetPathDevBounds(const SkPath& path,
-                                 int devW,
-                                 int devH,
-                                 const SkMatrix& matrix,
-                                 SkRect* bounds);
-
-    // Helper version that gets the dev width and height from a GrSurface.
-    static void GetPathDevBounds(const SkPath& path,
-                                 const GrSurface* device,
-                                 const SkMatrix& matrix,
-                                 SkRect* bounds) {
-        GetPathDevBounds(path, device->width(), device->height(), matrix, bounds);
     }
 
 private:

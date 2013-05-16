@@ -445,9 +445,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
         }
     }
 
-    SkRect devBounds;
-    GetPathDevBounds(path, drawState->getRenderTarget(), viewM, &devBounds);
-
+    {
     for (int p = 0; p < passCount; ++p) {
         drawState->setDrawFace(drawFace[p]);
         if (NULL != passes[p]) {
@@ -462,8 +460,10 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             GrDrawState::AutoDeviceCoordDraw adcd;
             if (reverse) {
                 GrAssert(NULL != drawState->getRenderTarget());
-                // draw over the dev bounds (which will be the whole dst surface for inv fill).
-                bounds = devBounds;
+                // draw over the whole world.
+                bounds.setLTRB(0, 0,
+                               SkIntToScalar(drawState->getRenderTarget()->width()),
+                               SkIntToScalar(drawState->getRenderTarget()->height()));
                 SkMatrix vmi;
                 // mapRect through persp matrix may not be correct
                 if (!drawState->getViewMatrix().hasPerspective() &&
@@ -483,11 +483,12 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             }
             if (indexCnt) {
                 target->drawIndexed(primType, 0, 0,
-                                    vertexCnt, indexCnt, &devBounds);
+                                    vertexCnt, indexCnt);
             } else {
-                target->drawNonIndexed(primType, 0, vertexCnt, &devBounds);
+                target->drawNonIndexed(primType, 0, vertexCnt);
             }
         }
+    }
     }
     return true;
 }
