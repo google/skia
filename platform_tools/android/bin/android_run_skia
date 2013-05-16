@@ -35,13 +35,13 @@ done
 
 if [[ "$USE_INTENT" == "true" ]];
 then
-    $ADB logcat -c
+    $ADB $SERIAL logcat -c
     $ADB $SERIAL shell am broadcast -a com.skia.intent.action.LAUNCH_SKIA -n com.skia/.SkiaReceiver -e args "$APP_ARGS"
     trap "echo \"Interrupt.\"" INT
-    eval "($ADB logcat)"
+    eval "($ADB $SERIAL logcat)"
     trap - INT
     echo "Interrupt. Killing Skia process..."
-    $SCRIPT_DIR/android_kill_skia
+    $SCRIPT_DIR/android_kill_skia $SERIAL
     echo "Done."
 else
     $ADB $SERIAL shell skia_launcher $APP_ARGS
