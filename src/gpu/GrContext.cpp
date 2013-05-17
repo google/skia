@@ -792,17 +792,9 @@ void GrContext::drawRect(const GrPaint& paint,
             return;
         }
         if (width >= 0) {
-            GrVec strokeSize;
-            if (width > 0) {
-                strokeSize.set(width, width);
-                combinedMatrix.mapVectors(&strokeSize, 1);
-                strokeSize.setAbs(strokeSize);
-            } else {
-                strokeSize.set(SK_Scalar1, SK_Scalar1);
-            }
             fAARectRenderer->strokeAARect(this->getGpu(), target,
                                           rect, combinedMatrix, devRect,
-                                          strokeSize, useVertexCoverage);
+                                          width, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
@@ -1004,6 +996,52 @@ void GrContext::drawOval(const GrPaint& paint,
     }
 }
 
+namespace {
+
+// Can 'path' be drawn as a pair of filled nested rectangles?
+static bool is_nested_rects(GrDrawTarget* target,
+                            const SkPath& path,
+                            const SkStrokeRec& stroke,
+                            SkRect rects[2],
+                            bool* useVertexCoverage) {
+    SkASSERT(stroke.isFillStyle());
+
+    if (path.isInverseFillType()) {
+        return false;
+    }
+
+    const GrDrawState& drawState = target->getDrawState();
+
+    // TODO: this restriction could be lifted if we were willing to apply
+    // the matrix to all the points individually rather than just to the rect
+    if (!drawState.getViewMatrix().preservesAxisAlignment()) {
+        return false;
+    }
+
+    *useVertexCoverage = false;
+    if (!target->getDrawState().canTweakAlphaForCoverage()) {
+        if (disable_coverage_aa_for_blend(target)) {
+            return false;
+        } else {
+            *useVertexCoverage = true;
+        }
+    }
+
+    SkPath::Direction dirs[2];
+    if (!path.isNestedRects(rects, dirs)) {
+        return false;
+    }
+
+    if (SkPath::kWinding_FillType == path.getFillType()) {
+        // The two rects need to be wound opposite to each other
+        return dirs[0] != dirs[1];
+    } else {
+        return true;
+    }
+}
+
+};
+
 void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
 
     if (path.isEmpty()) {
@@ -1021,9 +1059,28 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
+    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+    if (useAA && stroke.getWidth() < 0 && !path.isConvex()) {
+        // Concave AA paths are expensive - try to avoid them for special cases
+        bool useVertexCoverage;
+        SkRect rects[2];
+
+        if (is_nested_rects(target, path, stroke, rects, &useVertexCoverage)) {
+            GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
+            if (!adcd.succeeded()) {
+                return;
+            }
+
+            fAARectRenderer->fillAANestedRects(this->getGpu(), target,
+                                               rects,
+                                               adcd.getOriginalMatrix(),
+                                               useVertexCoverage);
+            return;
+        }
+    }
+
     SkRect ovalRect;
     bool isOval = path.isOval(&ovalRect);
-    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
 
     if (!isOval || path.isInverseFillType()
         || !fOvalRenderer->drawOval(target, this, useAA, ovalRect, stroke)) {

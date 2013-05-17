@@ -64,8 +64,15 @@ public:
                       const GrRect& rect,
                       const SkMatrix& combinedMatrix,
                       const GrRect& devRect,
-                      const GrVec& devStrokeSize,
+                      SkScalar width,
                       bool useVertexCoverage);
+
+    // First rect is outer; second rect is inner
+    void fillAANestedRects(GrGpu* gpu,
+                           GrDrawTarget* target,
+                           const SkRect rects[2],
+                           const SkMatrix& combinedMatrix,
+                           bool useVertexCoverage);
 
 private:
     GrIndexBuffer*              fAAFillRectIndexBuffer;
@@ -94,6 +101,12 @@ private:
                                  GrDrawTarget* target,
                                  const GrRect& rect,
                                  const SkMatrix& combinedMatrix);
+
+    void geometryStrokeAARect(GrGpu* gpu,
+                              GrDrawTarget* target,
+                              const SkRect& devOutside,
+                              const SkRect& devInside,
+                              bool useVertexCoverage);
 
     typedef GrRefCnt INHERITED;
 };
