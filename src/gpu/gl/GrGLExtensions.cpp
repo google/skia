@@ -13,8 +13,8 @@
 #include "SkTSort.h"
 
 namespace {
-inline int extension_compare(const SkString* a, const SkString* b) {
-    return strcmp(a->c_str(), b->c_str());
+inline bool extension_compare(const SkString& a, const SkString& b) {
+    return strcmp(a.c_str(), b.c_str()) < 0;
 }
 }
 
@@ -67,7 +67,7 @@ bool GrGLExtensions::init(GrGLBinding binding,
         }
     }
     if (0 != fStrings.count()) {
-        SkTSearchCompareLTFunctor<SkString, extension_compare> cmp;
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
         SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     }
     return true;

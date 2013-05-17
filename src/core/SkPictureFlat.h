@@ -277,20 +277,25 @@ public:
      *  we see the checksum right away, so that most of the time it is enough
      *  to short-circuit our comparison.
      */
-    static int Compare(const SkFlatData* a, const SkFlatData* b) {
-        const uint32_t* stop = a->dataStop();
-        const uint32_t* a_ptr = a->dataToCompare() - 1;
-        const uint32_t* b_ptr = b->dataToCompare() - 1;
+    static int Compare(const SkFlatData& a, const SkFlatData& b) {
+        const uint32_t* stop = a.dataStop();
+        const uint32_t* a_ptr = a.dataToCompare() - 1;
+        const uint32_t* b_ptr = b.dataToCompare() - 1;
         // We use -1 above, so we can pre-increment our pointers in the loop
         while (*++a_ptr == *++b_ptr) {}
 
         if (a_ptr == stop) {    // sentinel
-            SkASSERT(b->dataStop() == b_ptr);
+            SkASSERT(b.dataStop() == b_ptr);
             return 0;
         }
-        SkASSERT(a_ptr < a->dataStop());
-        SkASSERT(b_ptr < b->dataStop());
+        SkASSERT(a_ptr < a.dataStop());
+        SkASSERT(b_ptr < b.dataStop());
         return (*a_ptr < *b_ptr) ? -1 : 1;
+    }
+
+    // Adapts Compare to be used with SkTSearch
+    static bool Less(const SkFlatData& a, const SkFlatData& b) {
+        return Compare(a, b) < 0;
     }
 
     int index() const { return fIndex; }
@@ -528,14 +533,14 @@ public:
 
         int hashIndex = ChecksumToHashIndex(flat->checksum());
         const SkFlatData* candidate = fHash[hashIndex];
-        if (candidate && !SkFlatData::Compare(flat, candidate)) {
+        if (candidate && !SkFlatData::Compare(*flat, *candidate)) {
             fController->unalloc(flat);
             return candidate;
         }
 
-        int index = SkTSearch<SkFlatData>((const SkFlatData**) fSortedData.begin(),
-                                          fSortedData.count(), flat, sizeof(flat),
-                                          &SkFlatData::Compare);
+        int index = SkTSearch<const SkFlatData,
+                              SkFlatData::Less>((const SkFlatData**) fSortedData.begin(),
+                                                fSortedData.count(), flat, sizeof(flat));
         if (index >= 0) {
             fController->unalloc(flat);
             fHash[hashIndex] = fSortedData[index];

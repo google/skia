@@ -47,7 +47,7 @@ static void testCreate(skiatest::Reporter* reporter, const void* obj,
     data1->setSentinelInCache();
     SkFlatData* data2 = SkFlatData::Create(&controller, obj, 1, flattenProc);
     data2->setSentinelAsCandidate();
-    REPORTER_ASSERT(reporter, SkFlatData::Compare(data1, data2) == 0);
+    REPORTER_ASSERT(reporter, SkFlatData::Compare(*data1, *data2) == 0);
 }
 
 static void Tests(skiatest::Reporter* reporter) {

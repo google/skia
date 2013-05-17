@@ -431,8 +431,8 @@ BCP47FromLanguageID[] = {
 };
 
 namespace {
-int BCP47FromLanguageIdCompare(const BCP47FromLanguageId* a, const BCP47FromLanguageId* b) {
-    return a->languageID - b->languageID;
+bool BCP47FromLanguageIdLess(const BCP47FromLanguageId& a, const BCP47FromLanguageId& b) {
+    return a.languageID < b.languageID;
 }
 }
 
@@ -509,7 +509,7 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
 
     // Handle format 0 languages, translating them into BCP 47.
     const BCP47FromLanguageId target = { languageID, "" };
-    int languageIndex = SkTSearch<BCP47FromLanguageId, BCP47FromLanguageIdCompare>(
+    int languageIndex = SkTSearch<BCP47FromLanguageId, BCP47FromLanguageIdLess>(
         BCP47FromLanguageID, SK_ARRAY_COUNT(BCP47FromLanguageID), target, sizeof(target));
     if (languageIndex >= 0) {
         record.language = BCP47FromLanguageID[languageIndex].bcp47;

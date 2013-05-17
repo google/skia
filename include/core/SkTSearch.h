@@ -30,41 +30,13 @@
  *  }
  */
 
-template <typename T>
-int SkTSearch(const T* base, int count, const T& target, size_t elemSize)
-{
-    SkASSERT(count >= 0);
-    if (count <= 0)
-        return ~0;
 
-    SkASSERT(base != NULL); // base may be NULL if count is zero
-
-    int lo = 0;
-    int hi = count - 1;
-
-    while (lo < hi)
-    {
-        int mid = (hi + lo) >> 1;
-        const T* elem = (const T*)((const char*)base + mid * elemSize);
-
-        if (*elem < target)
-            lo = mid + 1;
-        else
-            hi = mid;
-    }
-
-    const T* elem = (const T*)((const char*)base + hi * elemSize);
-    if (*elem != target)
-    {
-        if (*elem < target)
-            hi += 1;
-        hi = ~hi;
-    }
-    return hi;
-}
-
-template <typename T, int (COMPARE)(const T*, const T*)>
-int SkTSearch(const T* base, int count, const T& target, size_t elemSize)
+// The most general form of SkTSearch takes an array of T and a key of type K. A functor, less, is
+// used to perform comparisons. It has two function operators:
+//      bool operator() (const T& t, const K& k)
+//      bool operator() (const K& t, const T& k)
+template <typename T, typename K, typename LESS>
+int SkTSearch(const T base[], int count, const K& key, size_t elemSize, LESS& less)
 {
     SkASSERT(count >= 0);
     if (count <= 0) {
@@ -80,124 +52,59 @@ int SkTSearch(const T* base, int count, const T& target, size_t elemSize)
         int mid = (hi + lo) >> 1;
         const T* elem = (const T*)((const char*)base + mid * elemSize);
 
-        if (COMPARE(elem, &target) < 0)
+        if (less(*elem, key))
             lo = mid + 1;
         else
             hi = mid;
     }
 
     const T* elem = (const T*)((const char*)base + hi * elemSize);
-    int pred = COMPARE(elem, &target);
-    if (pred != 0) {
-        if (pred < 0)
-            hi += 1;
+    if (less(*elem, key)) {
+        hi += 1;
+        hi = ~hi;
+    } else if (less(key, *elem)) {
         hi = ~hi;
     }
     return hi;
 }
 
+// Adapts a less-than function to a functor.
+template <typename T, bool (LESS)(const T&, const T&)> struct SkTLessFunctionToFunctorAdaptor {
+    bool operator()(const T& a, const T& b) { return LESS(a, b); }
+};
+
+// Specialization for case when T==K and the caller wants to use a function rather than functor.
+template <typename T, bool (LESS)(const T&, const T&)>
+int SkTSearch(const T base[], int count, const T& target, size_t elemSize) {
+    static SkTLessFunctionToFunctorAdaptor<T, LESS> functor;
+    return SkTSearch(base, count, target, elemSize, functor);
+}
+
+// Adapts operator < to a functor.
+template <typename T> struct SkTLessFunctor {
+    bool operator()(const T& a, const T& b) { return a < b; }
+};
+
+// Specialization for T==K, compare using op <.
 template <typename T>
-int SkTSearch(const T* base, int count, const T& target, size_t elemSize,
-              int (*compare)(const T*, const T*))
-{
-    SkASSERT(count >= 0);
-    if (count <= 0) {
-        return ~0;
-    }
-
-    SkASSERT(base != NULL); // base may be NULL if count is zero
-
-    int lo = 0;
-    int hi = count - 1;
-
-    while (lo < hi) {
-        int mid = (hi + lo) >> 1;
-        const T* elem = (const T*)((const char*)base + mid * elemSize);
-
-        if ((*compare)(elem, &target) < 0)
-            lo = mid + 1;
-        else
-            hi = mid;
-    }
-
-    const T* elem = (const T*)((const char*)base + hi * elemSize);
-    int pred = (*compare)(elem, &target);
-    if (pred != 0) {
-        if (pred < 0)
-            hi += 1;
-        hi = ~hi;
-    }
-    return hi;
+int SkTSearch(const T base[], int count, const T& target, size_t elemSize) {
+    static SkTLessFunctor<T> functor;
+    return SkTSearch(base, count, target, elemSize, functor);
 }
 
-template <typename T>
-int SkTSearch(const T** base, int count, const T* target, size_t elemSize,
-    int (*compare)(const T*, const T*))
-{
-    SkASSERT(count >= 0);
-    if (count <= 0)
-        return ~0;
+// Similar to SkLessFunctionToFunctorAdaptor but makes the functor interface take T* rather than T.
+template <typename T, bool (LESS)(const T&, const T&)> struct SkTLessFunctionToPtrFunctorAdaptor {
+    bool operator() (const T* t, const T* k) { return LESS(*t, *k); }
+};
 
-    SkASSERT(base != NULL); // base may be NULL if count is zero
-
-    int lo = 0;
-    int hi = count - 1;
-
-    while (lo < hi)
-    {
-        int mid = (hi + lo) >> 1;
-        const T* elem = *(const T**)((const char*)base + mid * elemSize);
-
-        if ((*compare)(elem, target) < 0)
-            lo = mid + 1;
-        else
-            hi = mid;
-    }
-
-    const T* elem = *(const T**)((const char*)base + hi * elemSize);
-    int pred = (*compare)(elem, target);
-    if (pred != 0)
-    {
-        if (pred < 0)
-            hi += 1;
-        hi = ~hi;
-    }
-    return hi;
+// Specialization for case where domain is an array of T* and the key value is a T*, and you want
+// to compare the T objects, not the pointers.
+template <typename T, bool (LESS)(const T&, const T&)>
+int SkTSearch(T* base[], int count, T* target, size_t elemSize) {
+    static SkTLessFunctionToPtrFunctorAdaptor<T, LESS> functor;
+    return SkTSearch(base, count, target, elemSize, functor);
 }
 
-template <typename T,  int (COMPARE)(const T*, const T*)>
-int SkTSearch(const T** base, int count, const T* target, size_t elemSize)
-{
-    SkASSERT(count >= 0);
-    if (count <= 0)
-        return ~0;
-
-    SkASSERT(base != NULL); // base may be NULL if count is zero
-
-    int lo = 0;
-    int hi = count - 1;
-
-    while (lo < hi)
-    {
-        int mid = (hi + lo) >> 1;
-        const T* elem = *(const T**)((const char*)base + mid * elemSize);
-
-        if (COMPARE(elem, target) < 0)
-            lo = mid + 1;
-        else
-            hi = mid;
-    }
-
-    const T* elem = *(const T**)((const char*)base + hi * elemSize);
-    int pred = COMPARE(elem, target);
-    if (pred != 0)
-    {
-        if (pred < 0)
-            hi += 1;
-        hi = ~hi;
-    }
-    return hi;
-}
 int SkStrSearch(const char*const* base, int count, const char target[],
                 size_t target_len, size_t elemSize);
 int SkStrSearch(const char*const* base, int count, const char target[],
