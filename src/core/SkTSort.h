@@ -207,14 +207,4 @@ template <typename T> void SkTQSort(T** left, T** right) {
     SkTQSort(left, right, SkTPointerCompareLT<T>());
 }
 
-/** Adapts a tri-state SkTSearch comparison function to a bool less-than SkTSort functor */
-template <typename T, int (COMPARE)(const T*, const T*)>
-class SkTSearchCompareLTFunctor {
-public:
-    bool operator()(const T& a, const T& b) {
-        return COMPARE(&a, &b) < 0;
-    }
-};
-
-
 #endif

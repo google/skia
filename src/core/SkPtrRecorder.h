@@ -74,7 +74,7 @@ private:
     // is not related to its "index".
     SkTDArray<Pair>  fList;
 
-    static int Cmp(const Pair* a, const Pair* b);
+    static bool Less(const Pair& a, const Pair& b);
 
     typedef SkRefCnt INHERITED;
 };

@@ -120,8 +120,8 @@ private:
     /**
      * Compare two atlas rows by key, so we can sort/search by key
      */
-    static int compareKeys(const AtlasRow* lhs, const AtlasRow* rhs) {
-        return lhs->fKey - rhs->fKey;
+    static bool KeyLess(const AtlasRow& lhs, const AtlasRow& rhs) {
+        return lhs.fKey < rhs.fKey;
     }
 
 #ifdef SK_DEBUG

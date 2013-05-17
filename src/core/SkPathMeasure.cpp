@@ -389,8 +389,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
     const Segment*  seg = fSegments.begin();
     int             count = fSegments.count();
 
-    int index = SkTSearch<SkScalar>(&seg->fDistance, count, distance,
-                                    sizeof(Segment));
+    int index = SkTSearch<SkScalar>(&seg->fDistance, count, distance, sizeof(Segment));
     // don't care if we hit an exact match or not, so we xor index if it is negative
     index ^= (index >> 31);
     seg = &seg[index];

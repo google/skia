@@ -10,6 +10,7 @@
 
 #include "SkTDArray.h"
 #include "SkTSearch.h"
+#include "SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (NULL == this->fGetExtensionsString) {
@@ -83,21 +84,19 @@ struct PixelFormat {
     int fChoosePixelFormatRank;
 };
 
-int compare_pf(const PixelFormat* a, const PixelFormat* b) {
-    if (a->fCoverageSamples < b->fCoverageSamples) {
-        return -1;
-    } else if (b->fCoverageSamples < a->fCoverageSamples) {
-        return 1;
-    } else if (a->fColorSamples < b->fColorSamples) {
-        return -1;
-    } else if (b->fColorSamples < a->fColorSamples) {
-        return 1;
-    } else if (a->fChoosePixelFormatRank < b->fChoosePixelFormatRank) {
-        return -1;
-    } else if (b->fChoosePixelFormatRank < a->fChoosePixelFormatRank) {
-        return 1;
+bool pf_less(const PixelFormat& a, const PixelFormat& b) {
+    if (a.fCoverageSamples < b.fCoverageSamples) {
+        return true;
+    } else if (b.fCoverageSamples < a.fCoverageSamples) {
+        return false;
+    } else if (a.fColorSamples < b.fColorSamples) {
+        return true;
+    } else if (b.fColorSamples < a.fColorSamples) {
+        return false;
+    } else if (a.fChoosePixelFormatRank < b.fChoosePixelFormatRank) {
+        return true;
     }
-    return 0;
+    return false;
 }
 }
 
@@ -136,15 +135,13 @@ int SkWGLExtensions::selectFormat(const int formats[],
         rankedFormats[i].fColorSamples = answers[supportsCoverage ? 1 : 0];
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
-    qsort(rankedFormats.begin(),
-            rankedFormats.count(),
-            sizeof(PixelFormat),
-            SkCastForQSort(compare_pf));
-    int idx = SkTSearch<PixelFormat>(rankedFormats.begin(),
-                                     rankedFormats.count(),
-                                     desiredFormat,
-                                     sizeof(PixelFormat),
-                                     compare_pf);
+    SkTQSort(rankedFormats.begin(),
+             rankedFormats.begin() + rankedFormats.count() - 1,
+             SkTLessFunctionToFunctorAdaptor<PixelFormat, pf_less>());
+    int idx = SkTSearch<PixelFormat, pf_less>(rankedFormats.begin(),
+                                              rankedFormats.count(),
+                                              desiredFormat,
+                                              sizeof(PixelFormat));
     if (idx < 0) {
         idx = ~idx;
     }

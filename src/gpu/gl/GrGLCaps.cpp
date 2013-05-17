@@ -9,6 +9,7 @@
 #include "GrGLCaps.h"
 #include "GrGLContext.h"
 #include "SkTSearch.h"
+#include "SkTSort.h"
 
 SK_DEFINE_INST_COUNT(GrGLCaps)
 
@@ -335,18 +336,16 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
 }
 
 namespace {
-int coverage_mode_compare(const GrGLCaps::MSAACoverageMode* left,
-                          const GrGLCaps::MSAACoverageMode* right) {
-    if (left->fCoverageSampleCnt < right->fCoverageSampleCnt) {
-        return -1;
-    } else if (right->fCoverageSampleCnt < left->fCoverageSampleCnt) {
-        return 1;
-    } else if (left->fColorSampleCnt < right->fColorSampleCnt) {
-        return -1;
-    } else if (right->fColorSampleCnt < left->fColorSampleCnt) {
-        return 1;
+bool cov_mode_less(const GrGLCaps::MSAACoverageMode& left,
+                   const GrGLCaps::MSAACoverageMode& right) {
+    if (left.fCoverageSampleCnt < right.fCoverageSampleCnt) {
+        return true;
+    } else if (right.fCoverageSampleCnt < left.fCoverageSampleCnt) {
+        return false;
+    } else if (left.fColorSampleCnt < right.fColorSampleCnt) {
+        return true;
     }
-    return 0;
+    return false;
 }
 }
 
@@ -389,10 +388,11 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                               (int*)&fMSAACoverageModes[0]);
             // The NV driver seems to return the modes already sorted but the
             // spec doesn't require this. So we sort.
-            qsort(&fMSAACoverageModes[0],
-                    count,
-                    sizeof(MSAACoverageMode),
-                    SkCastForQSort(coverage_mode_compare));
+            typedef SkTLessFunctionToFunctorAdaptor<MSAACoverageMode, cov_mode_less> SortFunctor;
+            SortFunctor sortFunctor;
+            SkTQSort<MSAACoverageMode, SortFunctor>(fMSAACoverageModes.begin(),
+                                                    fMSAACoverageModes.end() - 1,
+                                                    sortFunctor);
         }
     }
 }
@@ -406,11 +406,10 @@ const GrGLCaps::MSAACoverageMode& GrGLCaps::getMSAACoverageMode(int desiredSampl
         int max = (fMSAACoverageModes.end() - 1)->fCoverageSampleCnt;
         desiredSampleCount = GrMin(desiredSampleCount, max);
         MSAACoverageMode desiredMode = {desiredSampleCount, 0};
-        int idx = SkTSearch<MSAACoverageMode>(&fMSAACoverageModes[0],
-                                              fMSAACoverageModes.count(),
-                                              desiredMode,
-                                              sizeof(MSAACoverageMode),
-                                              &coverage_mode_compare);
+        int idx = SkTSearch<const MSAACoverageMode, cov_mode_less>(&fMSAACoverageModes[0],
+                                                                   fMSAACoverageModes.count(),
+                                                                   desiredMode,
+                                                                   sizeof(MSAACoverageMode));
         if (idx < 0) {
             idx = ~idx;
         }

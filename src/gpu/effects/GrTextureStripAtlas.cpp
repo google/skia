@@ -273,11 +273,12 @@ void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
 int GrTextureStripAtlas::searchByKey(uint32_t key) {
     AtlasRow target;
     target.fKey = key;
-    return SkTSearch<AtlasRow, GrTextureStripAtlas::compareKeys>((const AtlasRow**)fKeyTable.begin(),
-                                                                 fKeyTable.count(),
-                                                                 &target,
-                                                                 sizeof(AtlasRow*));
-}
+    return SkTSearch<const AtlasRow,
+                     GrTextureStripAtlas::KeyLess>((const AtlasRow**)fKeyTable.begin(),
+                                                   fKeyTable.count(),
+                                                   &target,
+                                                   sizeof(AtlasRow*));
+} 
 
 #ifdef SK_DEBUG
 void GrTextureStripAtlas::validate() {
