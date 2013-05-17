@@ -155,9 +155,9 @@ GrEffectRef* CircleEdgeEffect::TestCreate(SkMWCRandom* random,
 
 /**
  * The output of this effect is a modulation of the input color and coverage for an axis-aligned
- * ellipse, specified as a 2D offset from center, and the reciprocals of the outer and inner radii, 
- * in both x and y directions. 
- * 
+ * ellipse, specified as a 2D offset from center, and the reciprocals of the outer and inner radii,
+ * in both x and y directions.
+ *
  * We are using an implicit function of x^2/a^2 + y^2/b^2 - 1 = 0.
  */
 
@@ -217,7 +217,7 @@ public:
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
             builder->vsCodeAppendf("\t%s = %s;\n", vsRadiiName, attr1Name->c_str());
 
-            // for outer curve 
+            // for outer curve
             builder->fsCodeAppendf("\tvec2 scaledOffset = %s*%s.xy;\n", fsOffsetName, fsRadiiName);
             builder->fsCodeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
             builder->fsCodeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
@@ -703,7 +703,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
         drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
-        
+
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
         // verts of the bounding box that is rendered and the outset ensures the box will cover all
@@ -772,7 +772,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             }
 
             // we only handle thick strokes for near-circular ellipses
-            if (scaledStroke.length() > SK_ScalarHalf && 
+            if (scaledStroke.length() > SK_ScalarHalf &&
                 (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
                 return false;
             }
