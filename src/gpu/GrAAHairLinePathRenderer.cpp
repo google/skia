@@ -791,6 +791,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
     GrDrawState* drawState = target->drawState();
+    const SkMatrix originalVM = drawState->getViewMatrix();
 
     GrDrawState::AutoDeviceCoordDraw adcd;
     // createGeom transforms the geometry to device space when the matrix does not have
@@ -817,7 +818,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
 
     SkRect devBounds;
-    GetPathDevBounds(path, drawState->getRenderTarget(), adcd.getOriginalMatrix(), &devBounds);
+    GetPathDevBounds(path, drawState->getRenderTarget(), originalVM, &devBounds);
 
     target->setIndexSourceToBuffer(fLinesIndexBuffer);
     int lines = 0;
