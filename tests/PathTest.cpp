@@ -1366,11 +1366,11 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
         f1, f2, f3, f4, f5, f6, f7, f8,
         c1, c2
     };
-    SkPath::Direction dirs[] = { 
-        SkPath::kCW_Direction, SkPath::kCW_Direction, SkPath::kCW_Direction, 
+    SkPath::Direction dirs[] = {
+        SkPath::kCW_Direction, SkPath::kCW_Direction, SkPath::kCW_Direction,
         SkPath::kCW_Direction, SkPath::kCCW_Direction, SkPath::kCCW_Direction,
-        SkPath::kCCW_Direction, SkPath::kCCW_Direction, SkPath::kCCW_Direction, 
-        SkPath::kCCW_Direction, SkPath::kCW_Direction, SkPath::kCW_Direction, 
+        SkPath::kCCW_Direction, SkPath::kCCW_Direction, SkPath::kCCW_Direction,
+        SkPath::kCCW_Direction, SkPath::kCW_Direction, SkPath::kCW_Direction,
         SkPath::kCCW_Direction, SkPath::kCW_Direction, SkPath::kUnknown_Direction,
         SkPath::kUnknown_Direction, SkPath::kUnknown_Direction, SkPath::kUnknown_Direction,
         SkPath::kUnknown_Direction, SkPath::kUnknown_Direction, SkPath::kUnknown_Direction,

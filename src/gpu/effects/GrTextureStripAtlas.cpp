@@ -278,7 +278,7 @@ int GrTextureStripAtlas::searchByKey(uint32_t key) {
                                                    fKeyTable.count(),
                                                    &target,
                                                    sizeof(AtlasRow*));
-} 
+}
 
 #ifdef SK_DEBUG
 void GrTextureStripAtlas::validate() {

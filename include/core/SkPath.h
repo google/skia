@@ -579,7 +579,7 @@ public:
     /** Returns true if the path specifies a pair of nested rectangles. If so, and if
         rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner
         rectangle. If so, and dirs is not null, set dirs[0] to the direction of
-        the outer rectangle and dirs[1] to the direction of the inner rectangle. If 
+        the outer rectangle and dirs[1] to the direction of the inner rectangle. If
         the path does not specify a pair of nested rectangles, return
         false and ignore rect and dirs.
 

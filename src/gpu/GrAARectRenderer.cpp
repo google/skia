@@ -670,7 +670,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     devOutside.outset(rx, ry);
 
     if (spare <= 0) {
-        this->fillAARect(gpu, target, devOutside, SkMatrix::I(), 
+        this->fillAARect(gpu, target, devOutside, SkMatrix::I(),
                          devOutside, useVertexCoverage);
         return;
     }
