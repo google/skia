@@ -1,3 +1,4 @@
+# GYP file for images project.
 {
   'targets': [
     {
