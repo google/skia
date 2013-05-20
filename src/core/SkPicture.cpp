@@ -253,10 +253,10 @@ void SkPicture::endRecording() {
     SkASSERT(NULL == fRecord);
 }
 
-void SkPicture::draw(SkCanvas* surface) {
+void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
     this->endRecording();
     if (fPlayback) {
-        fPlayback->draw(*surface);
+        fPlayback->draw(*surface, callback);
     }
 }
 

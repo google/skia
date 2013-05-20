@@ -656,7 +656,7 @@ static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
     return (DrawType) op;
 }
 
-void SkPicturePlayback::draw(SkCanvas& canvas) {
+void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
 #endif
@@ -706,12 +706,17 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas.getTotalMatrix();
+    int originalSaveCount = canvas.getSaveCount();
 
 #ifdef SK_BUILD_FOR_ANDROID
     fAbortCurrentPlayback = false;
 #endif
 
     while (!reader.eof()) {
+        if (callback && callback->abortDrawing()) {
+            canvas.restoreToCount(originalSaveCount);
+            return;
+        }
 #ifdef SK_BUILD_FOR_ANDROID
         if (fAbortCurrentPlayback) {
             return;
