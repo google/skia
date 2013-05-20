@@ -65,6 +65,7 @@
       'type': 'executable',
       'sources': [
         '../tools/skhello.cpp',
+        '../src/image/SkImage_Codec.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
