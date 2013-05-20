@@ -21,8 +21,6 @@ class GrTexture;
 // need for TileMode
 #include "SkShader.h"
 
-////// EXPERIMENTAL
-
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
@@ -83,6 +81,24 @@ public:
     SkShader*   newShader(SkShader::TileMode, SkShader::TileMode) const;
 
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
+
+    enum EncodeType {
+        kBMP_EncodeType,
+        kGIF_EncodeType,
+        kICO_EncodeType,
+        kJPEG_EncodeType,
+        kPNG_EncodeType,
+        kWBMP_EncodeType,
+        kWEBP_EncodeType,
+    };
+    /**
+     *  Encode the image's pixels and return the result as a new SkData, which
+     *  the caller must manage (i.e. call unref() when they are done).
+     *
+     *  If the image type cannot be encoded, or the requested encoder type is
+     *  not supported, this will return NULL.
+     */
+    SkData* encode(EncodeType t = kPNG_EncodeType, int quality = 80) const;
 
 protected:
     SkImage(int width, int height) :

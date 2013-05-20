@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 
 class SkBitmap;
+class SkData;
 class SkWStream;
 
 class SkImageEncoder {
@@ -35,25 +36,28 @@ public:
     };
 
     /**
+     *  Encode bitmap 'bm', returning the results in an SkData, at quality level
+     *  'quality' (which can be in range 0-100). If the bitmap cannot be
+     *  encoded, return null. On success, the caller is responsible for
+     *  calling unref() on the data when they are finished.
+     */
+    SkData* encodeData(const SkBitmap&, int quality);
+
+    /**
      * Encode bitmap 'bm' in the desired format, writing results to
      * file 'file', at quality level 'quality' (which can be in range
-     * 0-100).
-     *
-     * Calls the particular implementation's onEncode() method to
-     * actually do the encoding.
+     * 0-100). Returns false on failure.
      */
     bool encodeFile(const char file[], const SkBitmap& bm, int quality);
 
     /**
      * Encode bitmap 'bm' in the desired format, writing results to
      * stream 'stream', at quality level 'quality' (which can be in
-     * range 0-100).
-     *
-     * Calls the particular implementation's onEncode() method to
-     * actually do the encoding.
+     * range 0-100). Returns false on failure.
      */
     bool encodeStream(SkWStream* stream, const SkBitmap& bm, int quality);
 
+    static SkData* EncodeData(const SkBitmap&, Type, int quality);
     static bool EncodeFile(const char file[], const SkBitmap&, Type,
                            int quality);
     static bool EncodeStream(SkWStream*, const SkBitmap&, Type,
