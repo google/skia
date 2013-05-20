@@ -660,6 +660,24 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     SkSTArray<kPreallocDrawCnt, Draw, true> draws;
     create_vertices(segments, fanPt, &draws, verts, idxs);
 
+    // This is valid because all the computed verts are within 1 pixel of the path control points.
+    SkRect devBounds;
+    devBounds = origPath.getBounds();
+    adcd.getOriginalMatrix().mapRect(&devBounds);
+    devBounds.outset(SK_Scalar1, SK_Scalar1);
+
+    // Check devBounds
+#if GR_DEBUG
+    SkRect tolDevBounds = devBounds;
+    tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
+    SkRect actualBounds;
+    actualBounds.set(verts[0].fPos, verts[1].fPos);
+    for (int i = 2; i < vCount; ++i) {
+        actualBounds.growToInclude(verts[i].fPos.fX, verts[i].fPos.fY);
+    }
+    GrAssert(tolDevBounds.contains(actualBounds));
+#endif
+
     int vOffset = 0;
     for (int i = 0; i < draws.count(); ++i) {
         const Draw& draw = draws[i];
@@ -667,7 +685,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
                             vOffset,  // start vertex
                             0,        // start index
                             draw.fVertexCnt,
-                            draw.fIndexCnt);
+                            draw.fIndexCnt,
+                            &devBounds);
         vOffset += draw.fVertexCnt;
     }
 
