@@ -280,14 +280,26 @@ bool SkImageDecoder::DecodeMemory(const void* buffer, size_t size, SkBitmap* bm,
     return SkImageDecoder::DecodeStream(&stream, bm, pref, mode, format);
 }
 
-class TargetAllocator : public SkBitmap::Allocator {
+/**
+ *  Special allocator used by DecodeMemoryToTarget. Uses preallocated memory
+ *  provided if the bm is 8888. Otherwise, uses a heap allocator. The same
+ *  allocator will be used again for a copy to 8888, when the preallocated
+ *  memory will be used.
+ */
+class TargetAllocator : public SkBitmap::HeapAllocator {
 
 public:
     TargetAllocator(void* target)
         : fTarget(target) {}
 
     virtual bool allocPixelRef(SkBitmap* bm, SkColorTable* ct) SK_OVERRIDE {
-        // SkColorTable is not supported by Info/Target model.
+        // If the config is not 8888, allocate a pixelref using the heap.
+        // fTarget will be used to store the final pixels when copied to
+        // 8888.
+        if (bm->config() != SkBitmap::kARGB_8888_Config) {
+            return INHERITED::allocPixelRef(bm, ct);
+        }
+        // In kARGB_8888_Config, there is no colortable.
         SkASSERT(NULL == ct);
         bm->setPixels(fTarget);
         return true;
@@ -295,7 +307,81 @@ public:
 
 private:
     void* fTarget;
+    typedef SkBitmap::HeapAllocator INHERITED;
 };
+
+/**
+ *  Helper function for DecodeMemoryToTarget. DecodeMemoryToTarget wants
+ *  8888, so set the config to it. All parameters must not be null.
+ *  @param decoder Decoder appropriate for this stream.
+ *  @param stream Rewound stream to the encoded data.
+ *  @param bitmap On success, will have its bounds set to the bounds of the
+ *      encoded data, and its config set to 8888.
+ *  @return True if the bounds were decoded and the bitmap is 8888 or can be
+ *      copied to 8888.
+ */
+static bool decode_bounds_to_8888(SkImageDecoder* decoder, SkStream* stream,
+                                  SkBitmap* bitmap) {
+    SkASSERT(decoder != NULL);
+    SkASSERT(stream != NULL);
+    SkASSERT(bitmap != NULL);
+
+    if (!decoder->decode(stream, bitmap, SkImageDecoder::kDecodeBounds_Mode)) {
+        return false;
+    }
+
+    if (bitmap->config() == SkBitmap::kARGB_8888_Config) {
+        return true;
+    }
+
+    if (!bitmap->canCopyTo(SkBitmap::kARGB_8888_Config)) {
+        return false;
+    }
+
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, bitmap->width(), bitmap->height());
+    return true;
+}
+
+/**
+ *  Helper function for DecodeMemoryToTarget. Decodes the stream into bitmap, and if
+ *  the bitmap is not 8888, then it is copied to 8888. Either way, the end result has
+ *  its pixels stored in target. All parameters must not be null.
+ *  @param decoder Decoder appropriate for this stream.
+ *  @param stream Rewound stream to the encoded data.
+ *  @param bitmap On success, will contain the decoded image, with its pixels stored
+ *      at target.
+ *  @param target Preallocated memory for storing pixels.
+ *  @return bool Whether the decode (and copy, if necessary) succeeded.
+ */
+static bool decode_pixels_to_8888(SkImageDecoder* decoder, SkStream* stream,
+                                  SkBitmap* bitmap, void* target) {
+    SkASSERT(decoder != NULL);
+    SkASSERT(stream != NULL);
+    SkASSERT(bitmap != NULL);
+    SkASSERT(target != NULL);
+
+    TargetAllocator allocator(target);
+    decoder->setAllocator(&allocator);
+
+    bool success = decoder->decode(stream, bitmap, SkImageDecoder::kDecodePixels_Mode);
+    decoder->setAllocator(NULL);
+
+    if (!success) {
+        return false;
+    }
+
+    if (bitmap->config() == SkBitmap::kARGB_8888_Config) {
+        return true;
+    }
+
+    SkBitmap bm8888;
+    if (!bitmap->copyTo(&bm8888, SkBitmap::kARGB_8888_Config, &allocator)) {
+        return false;
+    }
+
+    bitmap->swap(bm8888);
+    return true;
+}
 
 bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
                                           SkImage::Info* info,
@@ -303,43 +389,42 @@ bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
     if (NULL == info) {
         return false;
     }
+
     // FIXME: Just to get this working, implement in terms of existing
     // ImageDecoder calls.
     SkBitmap bm;
     SkMemoryStream stream(buffer, size);
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
-    if (decoder.get() != NULL && decoder->decode(&stream, &bm, kDecodeBounds_Mode)) {
-        // Now set info properly
-        if (!SkBitmapToImageInfo(bm, info)) {
+    if (NULL == decoder.get()) {
+        return false;
+    }
+
+    if (!decode_bounds_to_8888(decoder.get(), &stream, &bm)) {
+        return false;
+    }
+
+    SkASSERT(bm.config() == SkBitmap::kARGB_8888_Config);
+
+    // Now set info properly.
+    // Since Config is SkBitmap::kARGB_8888_Config, SkBitmapToImageInfo
+    // will always succeed.
+    SkAssertResult(SkBitmapToImageInfo(bm, info));
+
+    if (NULL == target) {
+        return true;
+    }
+
+    if (target->fRowBytes != SkToU32(bm.rowBytes())) {
+        if (target->fRowBytes < SkImageMinRowBytes(*info)) {
+            SkASSERT(!"Desired row bytes is too small");
             return false;
         }
-
-        // SkBitmapToImageInfo will return false if Index8 is used. kIndex8
-        // is not supported by the Info/Target model, since kIndex8 requires
-        // an SkColorTable, which this model does not keep track of.
-        SkASSERT(bm.config() != SkBitmap::kIndex8_Config);
-
-        if (NULL == target) {
-            return true;
-        }
-
-        if (target->fRowBytes != SkToU32(bm.rowBytes())) {
-            if (target->fRowBytes < SkImageMinRowBytes(*info)) {
-                SkASSERT(!"Desired row bytes is too small");
-                return false;
-            }
-            bm.setConfig(bm.config(), bm.width(), bm.height(), target->fRowBytes);
-        }
-
-        TargetAllocator allocator(target->fAddr);
-        decoder->setAllocator(&allocator);
-        stream.rewind();
-        bool success = decoder->decode(&stream, &bm, kDecodePixels_Mode);
-        // Remove the allocator, since it's on the stack.
-        decoder->setAllocator(NULL);
-        return success;
+        bm.setConfig(bm.config(), bm.width(), bm.height(), target->fRowBytes);
     }
-    return false;
+
+    // SkMemoryStream.rewind() will always return true.
+    SkAssertResult(stream.rewind());
+    return decode_pixels_to_8888(decoder.get(), &stream, &bm, target->fAddr);
 }
 
 
