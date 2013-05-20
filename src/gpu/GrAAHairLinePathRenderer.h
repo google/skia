@@ -29,7 +29,6 @@ protected:
                             bool antiAlias) SK_OVERRIDE;
 
 private:
-
     GrAAHairLinePathRenderer(const GrContext* context,
                              const GrIndexBuffer* fLinesIndexBuffer,
                              const GrIndexBuffer* fQuadsIndexBuffer);
@@ -38,7 +37,8 @@ private:
                     GrDrawTarget* target,
                     int* lineCnt,
                     int* quadCnt,
-                    GrDrawTarget::AutoReleaseGeometry* arg);
+                    GrDrawTarget::AutoReleaseGeometry* arg,
+                    SkRect* devBounds   );
 
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;

@@ -360,7 +360,8 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
 }
 
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
-                const SkMatrix* toSrc, Vertex verts[kVertsPerQuad]) {
+                const SkMatrix* toSrc, Vertex verts[kVertsPerQuad],
+                SkRect* devBounds) {
     GrAssert(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
     SkPoint a = qpts[0];
@@ -427,7 +428,10 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     c1.fPos = c;
     c1.fPos -= cbN;
 
+    // This point may not be within 1 pixel of a control point. We update the bounding box to
+    // include it.
     intersect_lines(a0.fPos, abN, c0.fPos, cbN, &b0.fPos);
+    devBounds->growToInclude(b0.fPos.fX, b0.fPos.fY);
 
     if (toSrc) {
         toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
@@ -439,15 +443,16 @@ void add_quads(const SkPoint p[3],
                int subdiv,
                const SkMatrix* toDevice,
                const SkMatrix* toSrc,
-               Vertex** vert) {
+               Vertex** vert,
+               SkRect* devBounds) {
     GrAssert(subdiv >= 0);
     if (subdiv) {
         SkPoint newP[5];
         SkChopQuadAtHalf(p, newP);
-        add_quads(newP + 0, subdiv-1, toDevice, toSrc, vert);
-        add_quads(newP + 2, subdiv-1, toDevice, toSrc, vert);
+        add_quads(newP + 0, subdiv-1, toDevice, toSrc, vert, devBounds);
+        add_quads(newP + 2, subdiv-1, toDevice, toSrc, vert, devBounds);
     } else {
-        bloat_quad(p, toDevice, toSrc, *vert);
+        bloat_quad(p, toDevice, toSrc, *vert, devBounds);
         *vert += kVertsPerQuad;
     }
 }
@@ -704,7 +709,8 @@ bool GrAAHairLinePathRenderer::createGeom(
             GrDrawTarget* target,
             int* lineCnt,
             int* quadCnt,
-            GrDrawTarget::AutoReleaseGeometry* arg) {
+            GrDrawTarget::AutoReleaseGeometry* arg,
+            SkRect* devBounds) {
     GrDrawState* drawState = target->drawState();
     int rtHeight = drawState->getRenderTarget()->height();
 
@@ -713,6 +719,13 @@ bool GrAAHairLinePathRenderer::createGeom(
                                              &devClipBounds);
 
     SkMatrix viewM = drawState->getViewMatrix();
+
+    // All the vertices that we compute are within 1 of path control points with the exception of
+    // one of the bounding vertices for each quad. The add_quads() function will update the bounds
+    // for each quad added.
+    *devBounds = path.getBounds();
+    viewM.mapRect(devBounds);
+    devBounds->outset(SK_Scalar1, SK_Scalar1);
 
     PREALLOC_PTARRAY(128) lines;
     PREALLOC_PTARRAY(128) quads;
@@ -750,7 +763,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
         GrAssert(qSubdivs[i] >= 0);
-        add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts);
+        add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts, devBounds);
     }
 
     return true;
@@ -781,11 +794,14 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     int lineCnt;
     int quadCnt;
     GrDrawTarget::AutoReleaseGeometry arg;
+    SkRect devBounds;
+
     if (!this->createGeom(path,
                           target,
                           &lineCnt,
                           &quadCnt,
-                          &arg)) {
+                          &arg,
+                          &devBounds)) {
         return false;
     }
 
@@ -816,6 +832,33 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     GrEffectRef* hairLineEffect = HairLineEdgeEffect::Create();
     GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
 
+    // Check devBounds
+#if GR_DEBUG
+    SkRect tolDevBounds = devBounds;
+    tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
+    SkRect actualBounds;
+    Vertex* verts = reinterpret_cast<Vertex*>(arg.vertices());
+    int vCount = kVertsPerLineSeg * lineCnt + kVertsPerQuad * quadCnt;
+    bool first = true;
+    for (int i = 0; i < vCount; ++i) {
+        SkPoint pos = verts[i].fPos;
+        // This is a hack to workaround the fact that we move some degenerate segments offscreen.
+        if (SK_ScalarMax == pos.fX) {
+            continue;
+        }
+        drawState->getViewMatrix().mapPoints(&pos, 1);
+        if (first) {
+            actualBounds.set(pos.fX, pos.fY, pos.fX, pos.fY);
+            first = false;
+        } else {
+            actualBounds.growToInclude(pos.fX, pos.fY);
+        }
+    }
+    if (!first) {
+        GrAssert(tolDevBounds.contains(actualBounds));
+    }
+#endif
+
     target->setIndexSourceToBuffer(fLinesIndexBuffer);
     int lines = 0;
     int nBufLines = fLinesIndexBuffer->maxQuads();
@@ -826,7 +869,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             kVertsPerLineSeg*lines,    // startV
                             0,                         // startI
                             kVertsPerLineSeg*n,        // vCount
-                            kIdxsPerLineSeg*n);        // iCount
+                            kIdxsPerLineSeg*n,
+                            &devBounds);        // iCount
         lines += n;
     }
 
@@ -839,7 +883,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             4 * lineCnt + kVertsPerQuad*quads, // startV
                             0,                                 // startI
                             kVertsPerQuad*n,                   // vCount
-                            kIdxsPerQuad*n);                   // iCount
+                            kIdxsPerQuad*n,                    // iCount
+                            &devBounds);
         quads += n;
     }
     target->resetIndexSource();
