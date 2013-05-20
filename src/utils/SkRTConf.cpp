@@ -76,7 +76,7 @@ void SkRTConfRegistry::possiblyDumpFile() const {
 // declared a correponding configuration object somewhere.
 void SkRTConfRegistry::validate() const {
     for (int i = 0 ; i < fConfigFileKeys.count() ; i++) {
-        if (fConfs.find(fConfigFileKeys[i]->c_str())) {
+        if (!fConfs.find(fConfigFileKeys[i]->c_str())) {
             SkDebugf("WARNING: You have config value %s in your configuration file, but I've never heard of that.\n", fConfigFileKeys[i]->c_str());
         }
     }
