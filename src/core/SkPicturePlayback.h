@@ -66,7 +66,7 @@ public:
 
     virtual ~SkPicturePlayback();
 
-    void draw(SkCanvas& canvas);
+    void draw(SkCanvas& canvas, SkDrawPictureCallback*);
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
 

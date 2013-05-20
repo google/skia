@@ -15,6 +15,7 @@
 
 class SkBBoxHierarchy;
 class SkCanvas;
+class SkDrawPictureCallback;
 class SkPicturePlayback;
 class SkPictureRecord;
 class SkStream;
@@ -150,9 +151,9 @@ public:
 
     /** Replays the drawing commands on the specified canvas. This internally
         calls endRecording() if that has not already been called.
-        @param surface the canvas receiving the drawing commands.
+        @param canvas the canvas receiving the drawing commands.
     */
-    void draw(SkCanvas* surface);
+    void draw(SkCanvas* canvas, SkDrawPictureCallback* = NULL);
 
     /** Return the width of the picture's recording canvas. This
         value reflects what was passed to setSize(), and does not necessarily
@@ -246,5 +247,22 @@ private:
     SkCanvas*   fCanvas;
 };
 
+/**
+ *  Subclasses of this can be passed to canvas.drawPicture. During the drawing
+ *  of the picture, this callback will periodically be invoked. If its
+ *  abortDrawing() returns true, then picture playback will be interrupted.
+ *
+ *  The resulting drawing is undefined, as there is no guarantee how often the
+ *  callback will be invoked. If the abort happens inside some level of nested
+ *  calls to save(), restore will automatically be called to return the state
+ *  to the same level it was before the drawPicture call was made.
+ */
+class SkDrawPictureCallback {
+public:
+    SkDrawPictureCallback() {}
+    virtual ~SkDrawPictureCallback() {}
+    
+    virtual bool abortDrawing() = 0;
+};
 
 #endif
