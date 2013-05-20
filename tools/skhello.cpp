@@ -7,8 +7,11 @@
 
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkData.h"
 #include "SkGraphics.h"
-#include "SkImageEncoder.h"
+#include "SkSurface.h"
+#include "SkImage.h"
+#include "SkStream.h"
 #include "SkString.h"
 
 DEFINE_string2(outFile, o, "skhello.png", "The filename to write the image.");
@@ -33,29 +36,29 @@ int tool_main(int argc, char** argv) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(SkIntToScalar(30));
+    paint.setTextAlign(SkPaint::kCenter_Align);
+
     SkScalar width = paint.measureText(text.c_str(), text.size());
     SkScalar spacing = paint.getFontSpacing();
 
     int w = SkScalarRound(width) + 30;
     int h = SkScalarRound(spacing) + 30;
-    SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bitmap.allocPixels();
 
-    SkCanvas canvas(bitmap);
-    canvas.drawColor(SK_ColorWHITE);
+    SkImage::Info info = {
+        w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+    };
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    SkCanvas* canvas = surface->getCanvas();
 
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas.drawText(text.c_str(), text.size(),
-                    SkIntToScalar(w)/2, SkIntToScalar(h)*2/3,
-                    paint);
+    canvas->drawColor(SK_ColorWHITE);
+    canvas->drawText(text.c_str(), text.size(),
+                     SkIntToScalar(w)/2, SkIntToScalar(h)*2/3,
+                     paint);
 
-    bool success = SkImageEncoder::EncodeFile(path.c_str(), bitmap,
-                               SkImageEncoder::kPNG_Type, 100);
-    if (!success) {
-        SkDebugf("--- failed to write %s\n", path.c_str());
-    }
-    return !success;
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    SkAutoDataUnref data(image->encode());
+    SkFILEWStream stream(path.c_str());
+    return stream.write(data->data(), data->size());
 }
 
 #if !defined SK_BUILD_FOR_IOS

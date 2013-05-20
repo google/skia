@@ -16,6 +16,10 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) = 0;
     virtual GrTexture* onGetTexture() { return NULL; }
+    
+    // return a read-only copy of the pixels. We promise to not modify them,
+    // but only inspect them (or encode them).
+    virtual bool getROPixels(SkBitmap*) const { return false; }
 
 private:
     typedef SkImage INHERITED;

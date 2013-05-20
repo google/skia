@@ -22,6 +22,10 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) SK_OVERRIDE;
     virtual GrTexture* onGetTexture() SK_OVERRIDE;
+    virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE {
+        // TODO
+        return false;
+    }
 
     GrTexture* getTexture() { return fTexture; }
 
