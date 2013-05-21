@@ -49,6 +49,7 @@
     '../gm/hittestpath.cpp',
     '../gm/imageblur.cpp',
     '../gm/imagemagnifier.cpp',
+    '../gm/lerpmode.cpp',
     '../gm/lighting.cpp',
     '../src/image/SkImage_Codec.cpp',
     '../gm/image.cpp',
