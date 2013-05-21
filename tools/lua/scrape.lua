@@ -19,14 +19,36 @@ function tostr(t)
     return str
 end
 
-total = {}
+local total = {}    -- accumulate() stores its data in here
+local canvas        -- holds the current canvas (from startcanvas())
 
-function setcanvas(c)
+--[[
+    startcanvas() is called at the start of each picture file, passing the
+    canvas that we will be drawing into, and the name of the file.
+    
+    Following this call, there will be some number of calls to accumulate(t)
+    where t is a table of parameters that were passed to that draw-op.
+    
+        t.verb is a string holding the name of the draw-op (e.g. "drawRect")
+    
+    when a given picture is done, we call endcanvas(canvas, fileName)
+]]
+function sk_scrape_startcanvas(c, fileName)
     canvas = c
 end
 
--- called with the parameters to each canvas.draw call
-function accumulate(t)
+--[[
+    Called when the current canvas is done drawing.
+]]
+function sk_scrape_endcanvas(c, fileName)
+    canvas = nil
+end
+
+--[[
+    Called with the parameters to each canvas.draw call, where canvas is the
+    current canvas as set by startcanvas()
+]]
+function sk_scrape_accumulate(t)
     local n = total[t.verb] or 0
     total[t.verb] = n + 1
 
@@ -45,9 +67,11 @@ function accumulate(t)
     end
 end
 
--- lua_pictures will call this function after all of the files have been
--- "accumulated"
-function summarize()
-    io.write("\n", tostr(total), "\n")
+--[[
+    lua_pictures will call this function after all of the pictures have been
+    "accumulated".
+]]
+function sk_scrape_summarize()
+    io.write("\n{ ", tostr(total), " }\n")
 end
 
