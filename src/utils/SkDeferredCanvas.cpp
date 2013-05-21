@@ -475,12 +475,11 @@ SkDevice* DeferredDevice::onCreateCompatibleDevice(
     // Save layer usage not supported, and not required by SkDeferredCanvas.
     SkASSERT(usage != kSaveLayer_Usage);
     // Create a compatible non-deferred device.
-    SkAutoTUnref<SkDevice> compatibleDevice
-        (immediateDevice()->createCompatibleDevice(config, width, height,
-            isOpaque));
-    DeferredDevice* device = SkNEW_ARGS(DeferredDevice, (compatibleDevice));
-    device->setNotificationClient(fNotificationClient);
-    return device;
+    // We do not create a deferred device because we know the new device
+    // will not be used with a deferred canvas (there is no API for that).
+    // And connecting a DeferredDevice to non-deferred canvas can result
+    // in unpredictable behavior.
+    return immediateDevice()->createCompatibleDevice(config, width, height, isOpaque);
 }
 
 bool DeferredDevice::onReadPixels(
