@@ -16,6 +16,7 @@
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkDrawPictureCallback;
+class SkData;
 class SkPicturePlayback;
 class SkPictureRecord;
 class SkStream;
@@ -170,17 +171,21 @@ public:
     int height() const { return fHeight; }
 
     /**
-     *  Function to encode an SkBitmap to an SkWStream. A function with this
-     *  signature can be passed to serialize() and SkOrderedWriteBuffer. The
-     *  function should return true if it succeeds. Otherwise it should return
-     *  false so that SkOrderedWriteBuffer can switch to another method of
-     *  storing SkBitmaps.
+     *  Function to encode an SkBitmap to an SkData. A function with this
+     *  signature can be passed to serialize() and SkOrderedWriteBuffer.
+     *  Returning NULL will tell the SkOrderedWriteBuffer to use
+     *  SkBitmap::flatten() to store the bitmap.
+     *  @param pixelRefOffset Output parameter, telling the deserializer what
+     *      offset in the bm's pixelRef corresponds to the encoded data.
+     *  @return SkData If non-NULL, holds encoded data representing the passed
+     *      in bitmap. The caller is responsible for calling unref().
      */
-    typedef bool (*EncodeBitmap)(SkWStream*, const SkBitmap&);
+    typedef SkData* (*EncodeBitmap)(size_t* pixelRefOffset, const SkBitmap& bm);
 
     /**
      *  Serialize to a stream. If non NULL, encoder will be used to encode
      *  any bitmaps in the picture.
+     *  encoder will never be called with a NULL pixelRefOffset.
      */
     void serialize(SkWStream*, EncodeBitmap encoder = NULL) const;
 

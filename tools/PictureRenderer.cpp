@@ -9,6 +9,7 @@
 #include "picture_utils.h"
 #include "SamplePipeControllers.h"
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkDevice.h"
 #include "SkGPipe.h"
 #if SK_SUPPORT_GPU
@@ -20,6 +21,8 @@
 #include "SkMaskFilter.h"
 #include "SkMatrix.h"
 #include "SkPicture.h"
+#include "SkPictureUtils.h"
+#include "SkPixelRef.h"
 #include "SkRTree.h"
 #include "SkScalar.h"
 #include "SkStream.h"
@@ -29,8 +32,6 @@
 #include "SkTDArray.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
-#include "SkData.h"
-#include "SkPictureUtils.h"
 
 namespace sk_tools {
 
@@ -257,8 +258,17 @@ SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
     return NULL;
 }
 
-static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
-    return SkImageEncoder::EncodeStream(wStream, bm, SkImageEncoder::kPNG_Type, 100);
+static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
+    SkPixelRef* pr = bm.pixelRef();
+    if (pr != NULL) {
+        SkData* data = pr->refEncodedData();
+        if (data != NULL) {
+            *offset = bm.pixelRefOffset();
+            return data;
+        }
+    }
+    *offset = 0;
+    return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
 }
 
 bool RecordPictureRenderer::render(const SkString* path, SkBitmap** out) {
@@ -274,7 +284,7 @@ bool RecordPictureRenderer::render(const SkString* path, SkBitmap** out) {
         // ".skp" was removed from 'path' before being passed in here.
         skpPath.append(".skp");
         SkFILEWStream stream(skpPath.c_str());
-        replayer->serialize(&stream, &PNGEncodeBitmapToStream);
+        replayer->serialize(&stream, &encode_bitmap_to_data);
         return true;
     }
     return false;
