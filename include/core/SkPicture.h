@@ -261,7 +261,7 @@ class SkDrawPictureCallback {
 public:
     SkDrawPictureCallback() {}
     virtual ~SkDrawPictureCallback() {}
-    
+
     virtual bool abortDrawing() = 0;
 };
 

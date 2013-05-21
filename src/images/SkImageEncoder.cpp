@@ -50,4 +50,3 @@ SkData* SkImageEncoder::EncodeData(const SkBitmap& bm, Type t, int quality) {
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() ? enc.get()->encodeData(bm, quality) : NULL;
 }
-
