@@ -105,12 +105,14 @@ function gm_test {
   # 1. Image file encoding may vary by platform
   # 2. https://code.google.com/p/chromium/issues/detail?id=169600
   #    ('gcl/upload.py fail to upload binary files to rietveld')
-  for IMAGEFILE in $(ls $ACTUAL_OUTPUT_DIR/*/*/*.png); do
+  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.png); do
     echo "[contents of $IMAGEFILE]" >$IMAGEFILE
   done
-  for MISMATCHDIR in $(ls -d $ACTUAL_OUTPUT_DIR/mismatchPath/*); do
-    echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$MISMATCHDIR/bogusfile
-  done
+  if [ -d $ACTUAL_OUTPUT_DIR/mismatchPath ]; then
+    for MISMATCHDIR in $(find $ACTUAL_OUTPUT_DIR/mismatchPath -mindepth 1 -type d); do
+      echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$MISMATCHDIR/bogusfile
+    done
+  fi
 
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
@@ -118,7 +120,7 @@ function gm_test {
 # Create input dir (at path $1) with expectations (both image and json)
 # that gm will match or mismatch as appropriate.
 #
-# We used to check these files into SVN, but then we needed to rebasline them
+# We used to check these files into SVN, but then we needed to rebaseline them
 # when our drawing changed at all... so, as proposed in
 # http://code.google.com/p/skia/issues/detail?id=1068 , we generate them
 # new each time.
@@ -132,36 +134,39 @@ function create_inputs_dir {
   JSON_DIR=$INPUTS_DIR/json
   mkdir -p $IMAGES_DIR $JSON_DIR
 
-  mkdir -p $IMAGES_DIR/identical-bytes
+  THIS_IMAGE_DIR=$IMAGES_DIR/identical-bytes
+  mkdir -p $THIS_IMAGE_DIR
   # Run GM to write out the images actually generated.
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
-    -w $IMAGES_DIR/identical-bytes
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -w $THIS_IMAGE_DIR
   # Run GM again to read in those images and write them out as a JSON summary.
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
-    -r $IMAGES_DIR/identical-bytes \
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
     --writeJsonSummaryPath $JSON_DIR/identical-bytes.json
 
-  mkdir -p $IMAGES_DIR/identical-pixels
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
-    -w $IMAGES_DIR/identical-pixels
+  THIS_IMAGE_DIR=$IMAGES_DIR/identical-pixels
+  mkdir -p $THIS_IMAGE_DIR
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -w $THIS_IMAGE_DIR
   echo "more bytes that do not change the image pixels" \
-    >> $IMAGES_DIR/identical-pixels/8888/selftest1.png
+    >> $THIS_IMAGE_DIR/8888/selftest1.png
   echo "more bytes that do not change the image pixels" \
-    >> $IMAGES_DIR/identical-pixels/565/selftest1.png
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
-    -r $IMAGES_DIR/identical-pixels \
+    >> $THIS_IMAGE_DIR/565/selftest1.png
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
     --writeJsonSummaryPath $JSON_DIR/identical-pixels.json
 
-  mkdir -p $IMAGES_DIR/different-pixels
-  $GM_BINARY --hierarchy --match selftest2 $CONFIGS \
-    -w $IMAGES_DIR/different-pixels
-  mv $IMAGES_DIR/different-pixels/8888/selftest2.png \
-    $IMAGES_DIR/different-pixels/8888/selftest1.png
-  mv $IMAGES_DIR/different-pixels/565/selftest2.png \
-    $IMAGES_DIR/different-pixels/565/selftest1.png
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
-    -r $IMAGES_DIR/different-pixels \
+  THIS_IMAGE_DIR=$IMAGES_DIR/different-pixels
+  mkdir -p $THIS_IMAGE_DIR
+  $GM_BINARY --hierarchy --match selftest2 $CONFIGS -w $THIS_IMAGE_DIR
+  mv $THIS_IMAGE_DIR/8888/selftest2.png $THIS_IMAGE_DIR/8888/selftest1.png
+  mv $THIS_IMAGE_DIR/565/selftest2.png  $THIS_IMAGE_DIR/565/selftest1.png
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
     --writeJsonSummaryPath $JSON_DIR/different-pixels.json
+
+  THIS_IMAGE_DIR=$IMAGES_DIR/different-pixels-no-hierarchy
+  mkdir -p $THIS_IMAGE_DIR
+  $GM_BINARY --match selftest2 $CONFIGS -w $THIS_IMAGE_DIR
+  mv $THIS_IMAGE_DIR/selftest2_8888.png $THIS_IMAGE_DIR/selftest1_8888.png
+  mv $THIS_IMAGE_DIR/selftest2_565.png  $THIS_IMAGE_DIR/selftest1_565.png
+  $GM_BINARY --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
+    --writeJsonSummaryPath $JSON_DIR/different-pixels-no-hierarchy.json
 
   mkdir -p $IMAGES_DIR/empty-dir
 }
@@ -207,6 +212,9 @@ gm_test "--verbose --hierarchy --match selftest1 selftest2 $CONFIGS" "$GM_OUTPUT
 
 # Ignore some error types (including ExpectationsMismatch)
 gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignore-expectations-mismatch"
+
+# Test non-hierarchical mode.
+gm_test "--verbose --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-no-hierarchy.json" "$GM_OUTPUTS/no-hierarchy"
 
 # Exercise confirm_no_failures_in_json.py
 PASSING_CASES="compared-against-identical-bytes-json compared-against-identical-pixels-json"
