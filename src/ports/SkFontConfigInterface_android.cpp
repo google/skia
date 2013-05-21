@@ -382,7 +382,8 @@ bool SkFontConfigInterfaceAndroid::matchFamilyName(const char familyName[],
 
     FamilyRecID familyRecID = INVALID_FAMILY_REC_ID;
     if (NULL != familyName) {
-        if (fFamilyNameDict.find(familyName, &familyRecID)) {
+        SkAutoAsciiToLC tolc(familyName);
+        if (fFamilyNameDict.find(tolc.lc(), &familyRecID)) {
             exactNameMatch = true;
         }
     } else {
