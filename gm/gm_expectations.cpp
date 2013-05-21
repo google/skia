@@ -12,7 +12,7 @@
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
 
 // These constants must be kept in sync with the JSONKEY_ constants in
-// confirm_no_failures_in_json.py !
+// display_json_results.py !
 const static char kJsonKey_ActualResults[]   = "actual-results";
 const static char kJsonKey_ActualResults_Failed[]        = "failed";
 const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
