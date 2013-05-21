@@ -412,8 +412,8 @@ bool SkFontConfigInterfaceAndroid::matchFamilyName(const char familyName[],
         } else {
             // find familyName from list of names
             const char* familyName = NULL;
-            bool found = fFamilyNameDict.findKey(familyRecID, &familyName);
-            SkASSERT(found && familyName);
+            SkAssertResult(fFamilyNameDict.findKey(familyRecID, &familyName));
+            SkASSERT(familyName);
             outFamilyName->set(familyName);
         }
     }
@@ -542,13 +542,11 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
         return NULL;
     }
 
-    const SkTypeface* origTypeface = SkTypefaceCache::FindByID(origFontID);
     const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
 
     FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
     SkASSERT(currentFallbackList);
 
-    SkASSERT(origTypeface != 0);
     SkASSERT(currTypeface != 0);
 
     // we must convert currTypeface into a FontRecID
