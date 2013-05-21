@@ -867,6 +867,8 @@ static size_t get_sub_offset(const SkBitmap& bm, int x, int y) {
  *  x and y must be non-NULL.
  */
 bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
+                                   int32_t* x, int32_t* y);
+bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
                                    int32_t* x, int32_t* y) {
     SkASSERT(x != NULL && y != NULL);
     if (0 == offset) {
