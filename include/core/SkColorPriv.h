@@ -273,16 +273,16 @@ static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
  * architectures than an equivalent 64b version and 30% faster than
  * SkFourByteInterp(). Third parameter controls blending of the first two:
  *   (src, dst, 0) returns dst
- *   (src, dst, 0xFF) returns src
- * ** Does not match the results of SkFourByteInterp() because we use
+ *   (src, dst, 256) returns src
+ * ** Does not match the results of SkFourByteInterp256() because we use
  * a more accurate scale computation!
  * TODO: migrate Skia function to using an accurate 255->266 alpha
  * conversion.
  */
-static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
-                                             SkPMColor dst,
-                                             U8CPU srcWeight) {
-    SkASSERT(srcWeight < 256);
+static inline SkPMColor SkFastFourByteInterp256(SkPMColor src,
+                                                SkPMColor dst,
+                                                unsigned scale) {
+    SkASSERT(scale <= 256);
 
     // Reorders ARGB to AG-RB in order to reduce the number of operations.
     const uint32_t mask = 0xFF00FF;
@@ -291,14 +291,19 @@ static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
     uint32_t dst_rb = dst & mask;
     uint32_t dst_ag = (dst >> 8) & mask;
 
-    // scale = srcWeight + (srcWeight >> 7) is more accurate than
-    // scale = srcWeight + 1, but 7% slower
-    int scale = srcWeight + (srcWeight >> 7);
-
     uint32_t ret_rb = src_rb * scale + (256 - scale) * dst_rb;
     uint32_t ret_ag = src_ag * scale + (256 - scale) * dst_ag;
 
     return (ret_ag & ~mask) | ((ret_rb & ~mask) >> 8);
+}
+
+static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
+                                             SkPMColor dst,
+                                             U8CPU srcWeight) {
+    SkASSERT(srcWeight <= 255);
+    // scale = srcWeight + (srcWeight >> 7) is more accurate than
+    // scale = srcWeight + 1, but 7% slower
+    return SkFastFourByteInterp256(src, dst, srcWeight + (srcWeight >> 7));
 }
 
 /**
