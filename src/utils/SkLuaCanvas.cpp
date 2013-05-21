@@ -10,6 +10,7 @@
 
 extern "C" {
     #include "lua.h"
+    #include "lauxlib.h"
 }
 
 static void setfield_string(lua_State* L, const char key[], const char value[]) {
@@ -73,6 +74,15 @@ static void setfield_rrect(lua_State* L, const char key[], const SkRRect& rr) {
     lua_setfield(L, -2, key);
 }
 
+static void push_matrix(lua_State* L, const SkMatrix& mat) {
+    SkScalar m[9];
+    for (int i = 0; i < 9; ++i) {
+        m[i] = mat[i];
+    }
+    lua_newtable(L);
+    setfield_arrayf(L, m, 9);
+}
+
 enum PaintUsage {
     kText_PaintUsage,
     kImage_PaintUsage,
@@ -125,6 +135,62 @@ private:
 };
 
 #define AUTO_LUA(verb)  AutoCallLua acl(fL, fFunc.c_str(), verb)
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char gCanvasMetaTableName[] = "SkCanvas_MetaTable";
+
+static int lcanvas_getSaveCount(lua_State* L) {
+    SkCanvas* c = *(SkCanvas**)luaL_checkudata(L, 1, gCanvasMetaTableName);
+    lua_pushnumber(L, (double)c->getSaveCount());
+    return 1;
+}
+
+static int lcanvas_getTotalMatrix(lua_State* L) {
+    SkCanvas* c = *(SkCanvas**)luaL_checkudata(L, 1, gCanvasMetaTableName);
+    push_matrix(L, c->getTotalMatrix());
+    return 1;
+}
+
+static int lcanvas_gc(lua_State* L) {
+    SkCanvas** cptr = (SkCanvas**)luaL_checkudata(L, 1, gCanvasMetaTableName);
+    SkSafeUnref(*cptr);
+    *cptr = NULL;
+    return 0;
+}
+
+static const struct luaL_Reg gLuaCanvasMethods[] = {
+    { "getSaveCount", lcanvas_getSaveCount },
+    { "getTotalMatrix", lcanvas_getTotalMatrix },
+    { "__gc", lcanvas_gc },
+    { NULL, NULL }
+};
+
+static void ensure_canvas_metatable(lua_State* L) {
+    static bool gOnce;
+    if (gOnce) {
+        return;
+    }
+    gOnce = true;
+
+    luaL_newmetatable(L, gCanvasMetaTableName);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+
+    luaL_setfuncs(L, gLuaCanvasMethods, 0);
+    lua_settop(L, -2);  // pop off the meta-table
+}
+
+void SkLuaCanvas::pushThis() {
+    ensure_canvas_metatable(fL);
+
+    SkCanvas** canvasPtr = (SkCanvas**)lua_newuserdata(fL, sizeof(SkCanvas*));
+    luaL_getmetatable(fL, gCanvasMetaTableName);
+    lua_setmetatable(fL, -2);
+
+    this->ref();
+    *canvasPtr = this;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

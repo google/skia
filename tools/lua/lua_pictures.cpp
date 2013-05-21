@@ -99,6 +99,20 @@ private:
     SkString   fTermCode;
 };
 
+static void call_setcanvas(lua_State* L, SkLuaCanvas* canvas) {
+    lua_getglobal(L, "setcanvas");
+    if (!lua_isfunction(L, -1)) {
+        int t = lua_type(L, -1);
+        SkDebugf("--- expected setcanvas function %d\n", t);
+        lua_settop(L, -2);
+    } else {
+        canvas->pushThis();
+        if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+            SkDebugf("lua err: %s\n", lua_tostring(L, -1));
+        }
+    }
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("apply lua script to .skp files.");
@@ -139,8 +153,11 @@ int tool_main(int argc, char** argv) {
 
             SkAutoTUnref<SkPicture> pic(load_picture(path));
             if (pic.get()) {
-                SkLuaCanvas canvas(pic->width(), pic->height(), L.get(), "accumulate");
-                canvas.drawPicture(*pic);
+                SkAutoTUnref<SkLuaCanvas> canvas(new SkLuaCanvas(pic->width(), pic->height(), L.get(), "accumulate"));
+
+                call_setcanvas(L.get(), canvas.get());
+
+                canvas->drawPicture(*pic);
             } else {
                 SkDebugf("failed to load\n");
             }

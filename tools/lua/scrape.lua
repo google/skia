@@ -19,14 +19,21 @@ function tostr(t)
     return str
 end
 
-canvas = {}
-total = 0
+total = {}
+
+function setcanvas(c)
+    canvas = c
+end
 
 -- called with the parameters to each canvas.draw call
 function accumulate(t)
-    total = total + 1
-    local n = canvas[t.verb] or 0
-    canvas[t.verb] = n + 1
+    local n = total[t.verb] or 0
+    total[t.verb] = n + 1
+
+    if t.verb == "drawRect" then
+        local m = canvas:getTotalMatrix()
+        print("... ", tostr(m), "\n")
+    end
 
     -- enable to dump all of the parameters we were sent
     if false then
@@ -41,6 +48,6 @@ end
 -- lua_pictures will call this function after all of the files have been
 -- "accumulated"
 function summarize()
-    io.write("total ", total, "\n", tostr(canvas), "\n")
+    io.write("\n", tostr(total), "\n")
 end
 
