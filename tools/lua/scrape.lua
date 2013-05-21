@@ -30,7 +30,7 @@ function accumulate(t)
     local n = total[t.verb] or 0
     total[t.verb] = n + 1
 
-    if t.verb == "drawRect" then
+    if false and t.verb == "drawRect" then
         local m = canvas:getTotalMatrix()
         print("... ", tostr(m), "\n")
     end
