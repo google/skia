@@ -15,6 +15,8 @@ struct lua_State;
 
 class SkLuaCanvas : public SkCanvas {
 public:
+    void pushThis();
+
     SkLuaCanvas(int width, int height, lua_State*, const char function[]);
     virtual ~SkLuaCanvas();
 
