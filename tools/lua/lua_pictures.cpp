@@ -21,6 +21,11 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+static const char gStartCanvasFunc[] = "sk_scrape_startcanvas";
+static const char gEndCanvasFunc[] = "sk_scrape_endcanvas";
+static const char gAccumulateFunc[] = "sk_scrape_accumulate";
+static const char gSummarizeFunc[] = "sk_scrape_summarize";
+
 // PictureRenderingFlags.cpp
 extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap*);
 
@@ -99,15 +104,17 @@ private:
     SkString   fTermCode;
 };
 
-static void call_setcanvas(lua_State* L, SkLuaCanvas* canvas) {
-    lua_getglobal(L, "setcanvas");
+static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
+                        const char pictureFile[], const char funcName[]) {
+    lua_getglobal(L, funcName);
     if (!lua_isfunction(L, -1)) {
         int t = lua_type(L, -1);
-        SkDebugf("--- expected setcanvas function %d\n", t);
+        SkDebugf("--- expected %s function %d, ignoring.\n", funcName, t);
         lua_settop(L, -2);
     } else {
         canvas->pushThis();
-        if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+        lua_pushstring(L, pictureFile);
+        if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
             SkDebugf("lua err: %s\n", lua_tostring(L, -1));
         }
     }
@@ -128,7 +135,7 @@ int tool_main(int argc, char** argv) {
     }
 
     SkAutoGraphics ag;
-    SkAutoLua L("summarize");
+    SkAutoLua L(gSummarizeFunc);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
         SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
@@ -153,11 +160,14 @@ int tool_main(int argc, char** argv) {
 
             SkAutoTUnref<SkPicture> pic(load_picture(path));
             if (pic.get()) {
-                SkAutoTUnref<SkLuaCanvas> canvas(new SkLuaCanvas(pic->width(), pic->height(), L.get(), "accumulate"));
+                SkAutoTUnref<SkLuaCanvas> canvas(
+                                    new SkLuaCanvas(pic->width(), pic->height(),
+                                                    L.get(), gAccumulateFunc));
 
-                call_setcanvas(L.get(), canvas.get());
-
+                call_canvas(L.get(), canvas.get(), inputFilename.c_str(), gStartCanvasFunc);
                 canvas->drawPicture(*pic);
+                call_canvas(L.get(), canvas.get(), inputFilename.c_str(), gEndCanvasFunc);
+
             } else {
                 SkDebugf("failed to load\n");
             }
