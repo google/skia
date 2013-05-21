@@ -207,7 +207,13 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
                 // FIXME: Once the writer is changed to record the (x,y) offset,
                 // they will be used to store the correct portion of the picture.
                 SkBitmap subsetBm;
+#ifdef BUMP_PICTURE_VERSION
+                int32_t x = fReader.readS32();
+                int32_t y = fReader.readS32();
+                SkIRect subset = SkIRect::MakeXYWH(x, y, width, height);
+#else
                 SkIRect subset = SkIRect::MakeWH(width, height);
+#endif
                 if (bitmap->extractSubset(&subsetBm, subset)) {
                     bitmap->swap(subsetBm);
                     return;

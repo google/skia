@@ -359,8 +359,9 @@ private:
 
 #include "SkImageEncoder.h"
 
-static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
-    return SkImageEncoder::EncodeStream(wStream, bm, SkImageEncoder::kPNG_Type, 100);
+static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
+    *offset = 0;
+    return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
 }
 
 static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
@@ -368,7 +369,7 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkCanvas* canvas = picture.beginRecording(bitmap.width(), bitmap.height());
     canvas->drawBitmap(bitmap, 0, 0);
     SkDynamicMemoryWStream wStream;
-    picture.serialize(&wStream, &PNGEncodeBitmapToStream);
+    picture.serialize(&wStream, &encode_bitmap_to_data);
     return wStream.copyToData();
 }
 

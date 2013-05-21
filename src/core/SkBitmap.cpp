@@ -837,7 +837,7 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
  *  Also note that (x, y) may be outside the range of (0 - width(), 0 - height()), so long as it is
  *  within the bounds of the SkPixelRef being used.
  */
-static size_t getSubOffset(const SkBitmap& bm, int x, int y) {
+static size_t get_sub_offset(const SkBitmap& bm, int x, int y) {
     switch (bm.getConfig()) {
         case SkBitmap::kA8_Config:
         case SkBitmap:: kIndex8_Config:
@@ -866,18 +866,18 @@ static size_t getSubOffset(const SkBitmap& bm, int x, int y) {
  *  upper left corner of bm relative to its SkPixelRef.
  *  x and y must be non-NULL.
  */
-static bool getUpperLeftFromOffset(const SkBitmap& bm, int32_t* x, int32_t* y) {
+bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
+                                   int32_t* x, int32_t* y) {
     SkASSERT(x != NULL && y != NULL);
-    const size_t offset = bm.pixelRefOffset();
     if (0 == offset) {
         *x = *y = 0;
         return true;
     }
     // Use integer division to find the correct y position.
-    *y = SkToS32(offset / bm.rowBytes());
-    // The remainder will be the x position, after we reverse getSubOffset.
-    *x = SkToS32(offset % bm.rowBytes());
-    switch (bm.getConfig()) {
+    *y = SkToS32(offset / rowBytes);
+    // The remainder will be the x position, after we reverse get_sub_offset.
+    *x = SkToS32(offset % rowBytes);
+    switch (config) {
         case SkBitmap::kA8_Config:
             // Fall through.
         case SkBitmap::kIndex8_Config:
@@ -902,6 +902,10 @@ static bool getUpperLeftFromOffset(const SkBitmap& bm, int32_t* x, int32_t* y) {
             return false;
     }
     return true;
+}
+
+static bool get_upper_left_from_offset(const SkBitmap& bm, int32_t* x, int32_t* y) {
+    return get_upper_left_from_offset(bm.config(), bm.pixelRefOffset(), bm.rowBytes(), x, y);
 }
 
 bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
@@ -965,7 +969,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
-    size_t offset = getSubOffset(*this, r.fLeft, r.fTop);
+    size_t offset = get_sub_offset(*this, r.fLeft, r.fTop);
     if (SUB_OFFSET_FAILURE == offset) {
         return false;   // config not supported
     }
@@ -1032,7 +1036,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 
     if (fPixelRef) {
         SkIRect subset;
-        if (getUpperLeftFromOffset(*this, &subset.fLeft, &subset.fTop)) {
+        if (get_upper_left_from_offset(*this, &subset.fLeft, &subset.fTop)) {
             subset.fRight = subset.fLeft + fWidth;
             subset.fBottom = subset.fTop + fHeight;
             if (fPixelRef->readPixels(&tmpSrc, &subset)) {
@@ -1144,10 +1148,10 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
                 // Find the correct offset in the new config. This needs to be done after calling
                 // setConfig so dst's fConfig and fRowBytes have been set properly.
                 int32_t x, y;
-                if (!getUpperLeftFromOffset(*this, &x, &y)) {
+                if (!get_upper_left_from_offset(*this, &x, &y)) {
                     return false;
                 }
-                pixelRefOffset = getSubOffset(*dst, x, y);
+                pixelRefOffset = get_sub_offset(*dst, x, y);
                 if (SUB_OFFSET_FAILURE == pixelRefOffset) {
                     return false;
                 }

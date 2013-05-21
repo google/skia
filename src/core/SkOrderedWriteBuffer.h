@@ -84,14 +84,15 @@ public:
     void setBitmapHeap(SkBitmapHeap*);
 
     /**
-     * Provide a function to encode an SkBitmap to an SkStream. writeBitmap will attempt to use
+     * Provide a function to encode an SkBitmap to an SkData. writeBitmap will attempt to use
      * bitmapEncoder to store the SkBitmap. If the reader does not provide a function to decode, it
      * will not be able to restore SkBitmaps, but will still be able to read the rest of the stream.
+     * bitmapEncoder will never be called with a NULL pixelRefOffset.
      *
      * Incompatible with the SkBitmapHeap. If an encoder is set fBitmapHeap will be set to NULL in
      * release and crash in debug.
      */
-    void setBitmapEncoder(SkPicture::EncodeBitmap);
+    void setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder);
 
 private:
     SkFactorySet* fFactorySet;
