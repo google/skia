@@ -43,17 +43,6 @@ namespace skiagm {
         return result;
     }
 
-    SkString make_filename(const char path[],
-                           const char renderModeDescriptor[],
-                           const char *name,
-                           const char suffix[]) {
-        SkString filename(name);
-        filename.append(renderModeDescriptor);
-        filename.appendUnichar('.');
-        filename.append(suffix);
-        return SkPathJoin(path, filename.c_str());
-    }
-
     // TODO(epoger): This currently assumes that the result SkHashDigest was
     // generated as an SkHashDigest of an SkBitmap.  We'll need to allow for other
     // hash types to cover non-bitmaps.

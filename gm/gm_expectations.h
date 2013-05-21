@@ -51,11 +51,6 @@ namespace skiagm {
      */
     SkString SkPathJoin(const char *rootPath, const char *relativePath);
 
-    SkString make_filename(const char path[],
-                           const char renderModeDescriptor[],
-                           const char *name,
-                           const char suffix[]);
-
     Json::Value ActualResultAsJsonValue(const SkHashDigest& result);
 
     Json::Value CreateJsonTree(Json::Value expectedResults,
