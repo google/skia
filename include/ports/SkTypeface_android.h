@@ -13,9 +13,11 @@
 
 #include "SkTypeface.h"
 
+class SkPaintOptionsAndroid;
+
 /**
  *  Get the family name of the font in the fallback font list containing
- *  the specified chararacter. if no font is found, returns false.
+ *  the specified character. if no font is found, returns false.
  */
 SK_API bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name);
 

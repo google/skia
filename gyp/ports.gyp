@@ -162,12 +162,13 @@
             '../src/ports/SkPurgeableMemoryBlock_none.cpp',
           ],
           'sources': [
-            '../src/ports/FontHostConfiguration_android.cpp',
             '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkFontHost_android.cpp',
+            '../src/ports/SkFontConfigInterface_android.cpp',
+            '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
+            '../src/ports/SkFontHost_fontconfig.cpp',
             '../src/ports/SkPurgeableMemoryBlock_android.cpp',
           ],
           'dependencies': [
