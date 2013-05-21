@@ -237,7 +237,6 @@ static int lpath_isNestedRects(lua_State* L) {
         ret_count += 4;
     }
     return ret_count;
-    return 1;
 }
 
 static int lpath_gc(lua_State* L) {
