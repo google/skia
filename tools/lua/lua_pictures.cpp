@@ -132,14 +132,14 @@ int tool_main(int argc, char** argv) {
             sk_tools::make_filepath(&inputPath, inputAsSkString, inputFilename);
 
             const char* path = inputPath.c_str();
-            SkAutoTUnref<SkPicture> pic(load_picture(path));
+            SkDebugf("scraping %s\n", path);
 
+            SkAutoTUnref<SkPicture> pic(load_picture(path));
             if (pic.get()) {
-                SkDebugf("scraping %s\n", path);
                 SkLuaCanvas canvas(pic->width(), pic->height(), L.get(), "accumulate");
                 canvas.drawPicture(*pic);
             } else {
-                SkDebugf("failed to load %s\n", path);
+                SkDebugf("failed to load\n");
             }
         }
     }
