@@ -1261,7 +1261,7 @@ tabl_cuteoverload.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,
 tabl_cuteoverload.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,79.090,61.181,96.999
 tabl_cuteoverload.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,79.370,61.433,97.307
 tabl_cuteoverload.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1452.200,1246.980,1607.420
-tabl_cuteoverload.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,60.970,44.873,77.067
+tabl_cuteoverload.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,60.970,44.873,87.067
 tabl_cuteoverload.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,64.940,48.446,81.434
 tabl_cuteoverload.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1158.370,1032.533,1284.207
 tabl_cuteoverload.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,150.360,125.324,175.396
