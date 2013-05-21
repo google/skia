@@ -57,6 +57,17 @@ function sk_scrape_accumulate(t)
         print("... ", tostr(m), "\n")
     end
 
+    if false and t.verb == "drawPath" then
+        local pred, r1, r2, d1, d2 = t.path:isNestedRects()
+        
+        if pred then
+            print("drawRect_Nested", tostr(r1), tostr(r2), d1, d2)
+        else
+            print("drawPath", "isEmpty", tostring(t.path:isEmpty()),
+                    "isRect", tostring(t.path:isRect()), tostr(t.path:getBounds()))
+        end
+    end
+
     -- enable to dump all of the parameters we were sent
     if false then
         -- dump the params in t, specifically showing the verb first, which we

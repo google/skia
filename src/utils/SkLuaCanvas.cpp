@@ -37,12 +37,16 @@ static void setfield_arrayf(lua_State* L, const SkScalar array[], int count) {
     }
 }
 
-static void setfield_rect(lua_State* L, const char key[], const SkRect& r) {
+static void push_rect(lua_State* L, const SkRect& r) {
     lua_newtable(L);
     setfield_number(L, "left", r.fLeft);
     setfield_number(L, "top", r.fTop);
     setfield_number(L, "right", r.fRight);
     setfield_number(L, "bottom", r.fBottom);
+}
+
+static void setfield_rect(lua_State* L, const char key[], const SkRect& r) {
+    push_rect(L, r);
     lua_setfield(L, -2, key);
 }
 
@@ -172,14 +176,116 @@ static void ensure_canvas_metatable(lua_State* L) {
         return;
     }
     gOnce = true;
-
+    
     luaL_newmetatable(L, gCanvasMetaTableName);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-
+    
     luaL_setfuncs(L, gLuaCanvasMethods, 0);
     lua_settop(L, -2);  // pop off the meta-table
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char gPathMetaTableName[] = "SkPath_MetaTable";
+
+static int lpath_getBounds(lua_State* L) {
+    SkPath* p = (SkPath*)luaL_checkudata(L, 1, gPathMetaTableName);
+    push_rect(L, p->getBounds());
+    return 1;
+}
+
+static int lpath_isEmpty(lua_State* L) {
+    SkPath* p = (SkPath*)luaL_checkudata(L, 1, gPathMetaTableName);
+    lua_pushboolean(L, p->isEmpty());
+    return 1;
+}
+
+static int lpath_isRect(lua_State* L) {
+    SkPath* p = (SkPath*)luaL_checkudata(L, 1, gPathMetaTableName);
+    SkRect r;
+    bool pred = p->isRect(&r);
+    int ret_count = 1;
+    lua_pushboolean(L, pred);
+    if (pred) {
+        push_rect(L, r);
+        ret_count += 1;
+    }
+    return ret_count;
+}
+
+static const char* dir2string(SkPath::Direction dir) {
+    static const char* gStr[] = {
+        "unknown", "cw", "ccw"
+    };
+    SkASSERT((unsigned)dir < SK_ARRAY_COUNT(gStr));
+    return gStr[dir];
+}
+
+static int lpath_isNestedRects(lua_State* L) {
+    SkPath* p = (SkPath*)luaL_checkudata(L, 1, gPathMetaTableName);
+    SkRect rects[2];
+    SkPath::Direction dirs[2];
+    bool pred = p->isNestedRects(rects, dirs);
+    int ret_count = 1;
+    lua_pushboolean(L, pred);
+    if (pred) {
+        push_rect(L, rects[0]);
+        push_rect(L, rects[1]);
+        lua_pushstring(L, dir2string(dirs[0]));
+        lua_pushstring(L, dir2string(dirs[0]));
+        ret_count += 4;
+    }
+    return ret_count;
+    return 1;
+}
+
+static int lpath_gc(lua_State* L) {
+    SkPath* p = (SkPath*)luaL_checkudata(L, 1, gPathMetaTableName);
+    p->~SkPath();
+    return 0;
+}
+
+static const struct luaL_Reg gLuaPathMethods[] = {
+    { "getBounds", lpath_getBounds },
+    { "isEmpty", lpath_isEmpty },
+    { "isRect", lpath_isRect },
+    { "isNestedRects", lpath_isNestedRects },
+    { "__gc", lpath_gc },
+    { NULL, NULL }
+};
+
+static void ensure_path_metatable(lua_State* L) {
+    static bool gOnce;
+    if (gOnce) {
+        return;
+    }
+    gOnce = true;
+    
+    luaL_newmetatable(L, gPathMetaTableName);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    
+    luaL_setfuncs(L, gLuaPathMethods, 0);
+    lua_settop(L, -2);  // pop off the meta-table
+}
+
+static void push_path(lua_State* L, const SkPath& src) {
+    ensure_path_metatable(L);
+    
+    SkPath* path = (SkPath*)lua_newuserdata(L, sizeof(SkPath));
+    new (path) SkPath(src);
+
+    luaL_getmetatable(L, gPathMetaTableName);
+    lua_setmetatable(L, -2);
+}
+
+static void setfield_path(lua_State* L, const char key[], const SkPath& path) {
+    push_path(L, path);
+    lua_setfield(L, -2, key);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SkLuaCanvas::pushThis() {
     ensure_canvas_metatable(fL);
@@ -282,6 +388,7 @@ bool SkLuaCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
 
 bool SkLuaCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     AUTO_LUA("clipPath");
+    setfield_path(fL, "path", path);
     setfield_bool(fL, "aa", doAA);
     return this->INHERITED::clipPath(path, op, doAA);
 }
@@ -322,9 +429,7 @@ void SkLuaCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
 void SkLuaCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AUTO_LUA("drawPath");
-    setfield_rect(fL, "bounds", path.getBounds());
-    setfield_bool(fL, "isRect", path.isRect(NULL));
-    setfield_bool(fL, "isOval", path.isOval(NULL));
+    setfield_path(fL, "path", path);
     setfield_paint(fL, paint);
 }
 
@@ -383,6 +488,7 @@ void SkLuaCanvas::drawTextOnPath(const void* text, size_t byteLength,
                                    const SkPath& path, const SkMatrix* matrix,
                                    const SkPaint& paint) {
     AUTO_LUA("drawTextOnPath");
+    setfield_path(fL, "path", path);
     setfield_paint(fL, paint, kText_PaintUsage);
 }
 
