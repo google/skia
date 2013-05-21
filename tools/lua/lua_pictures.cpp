@@ -109,17 +109,20 @@ int tool_main(int argc, char** argv) {
         exit(-1);
     }
     if (FLAGS_luaFile.isEmpty()) {
-        SkDebugf("missing luaFile\n");
+        SkDebugf("missing luaFile(s)\n");
         exit(-1);
     }
 
-    SkAutoDataUnref data(read_into_data(FLAGS_luaFile[0]));
-
     SkAutoGraphics ag;
     SkAutoLua L("summarize");
-    if (!L.load(data->data(), data->size())) {
-        SkDebugf("failed to load luaFile %s\n", FLAGS_luaFile[0]);
-        exit(-1);
+
+    for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
+        SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
+        SkDebugf("loading %s...\n", FLAGS_luaFile[i]);
+        if (!L.load(data->data(), data->size())) {
+            SkDebugf("failed to load luaFile %s\n", FLAGS_luaFile[i]);
+            exit(-1);
+        }
     }
 
     for (int i = 0; i < FLAGS_skpPath.count(); i ++) {
