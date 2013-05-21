@@ -35,9 +35,9 @@ void SkPaintOptionsAndroid::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 void SkPaintOptionsAndroid::unflatten(SkFlattenableReadBuffer& buffer) {
     fFontVariant = (FontVariant)buffer.readUInt();
-    char* tag = buffer.readString();
+    SkString tag;
+    buffer.readString(&tag);
     fLanguage = SkLanguage(tag);
-    sk_free(tag);
     fUseFontFallbacks = buffer.readBool();
 }
 

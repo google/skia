@@ -88,12 +88,10 @@ int32_t SkOrderedReadBuffer::read32() {
     return fReader.readInt();
 }
 
-char* SkOrderedReadBuffer::readString() {
-    const char* string = fReader.readString();
-    const size_t length = strlen(string);
-    char* value = (char*)sk_malloc_throw(length + 1);
-    strcpy(value, string);
-    return value;
+void SkOrderedReadBuffer::readString(SkString* string) {
+    size_t len;
+    const char* strContents = fReader.readString(&len);
+    string->set(strContents, len);
 }
 
 void* SkOrderedReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {

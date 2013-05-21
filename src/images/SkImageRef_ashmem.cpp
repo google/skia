@@ -223,9 +223,8 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
     fRec.fSize = 0;
     fRec.fPinned = false;
     fCT = NULL;
-    char* uri = buffer.readString();
-    if (uri) {
-        setURI(uri);
-        sk_free(uri);
-    }
+
+    SkString uri;
+    buffer.readString(&uri);
+    this->setURI(uri);
 }
