@@ -216,14 +216,14 @@ gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierar
 # Test non-hierarchical mode.
 gm_test "--verbose --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-no-hierarchy.json" "$GM_OUTPUTS/no-hierarchy"
 
-# Exercise confirm_no_failures_in_json.py
+# Exercise display_json_results.py
 PASSING_CASES="compared-against-identical-bytes-json compared-against-identical-pixels-json"
 FAILING_CASES="compared-against-different-pixels-json"
 for CASE in $PASSING_CASES; do
-  assert_passes "python gm/confirm_no_failures_in_json.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
+  assert_passes "python gm/display_json_results.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
 done
 for CASE in $FAILING_CASES; do
-  assert_fails "python gm/confirm_no_failures_in_json.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
+  assert_fails "python gm/display_json_results.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
 done
 
 if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then
