@@ -44,7 +44,7 @@ public:
     virtual int32_t read32() SK_OVERRIDE;
 
     // strings -- the caller is responsible for freeing the string contents
-    virtual char* readString() SK_OVERRIDE;
+    virtual void readString(SkString* string) SK_OVERRIDE;
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) SK_OVERRIDE;
 
     // common data structures

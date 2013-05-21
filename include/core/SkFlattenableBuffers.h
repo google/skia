@@ -60,7 +60,7 @@ public:
     virtual int32_t read32() = 0;
 
     // strings -- the caller is responsible for freeing the string contents
-    virtual char* readString() = 0;
+    virtual void readString(SkString* string) = 0;
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) = 0;
 
     // common data structures

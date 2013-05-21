@@ -27,6 +27,7 @@ class SkFlattenableWriteBuffer;
 class SkLanguage {
 public:
     SkLanguage() { }
+    SkLanguage(const SkString& tag) : fTag(tag) { }
     SkLanguage(const char* tag) : fTag(tag) { }
     SkLanguage(const char* tag, size_t len) : fTag(tag, len) { }
     SkLanguage(const SkLanguage& b) : fTag(b.fTag) { }
