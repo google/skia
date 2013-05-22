@@ -11,6 +11,20 @@
 #include "SkLayerDrawLooper.h"
 #include "SkBlurMaskFilter.h"
 
+// temparary api for bicubic, just be sure we can set/clear it
+static void test_bicubic(skiatest::Reporter* reporter) {
+    SkPaint p0;
+    REPORTER_ASSERT(reporter, 0 == (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
+    p0.setFlags(p0.getFlags() | SkPaint::kBicubicFilterBitmap_Flag);
+    REPORTER_ASSERT(reporter, 0 != (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
+    SkPaint p1(p0);
+    REPORTER_ASSERT(reporter, 0 != (p1.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
+    p0.reset();
+    REPORTER_ASSERT(reporter, 0 == (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
+    p0 = p1;
+    p0.setFlags(p0.getFlags() | SkPaint::kBicubicFilterBitmap_Flag);
+}
+
 static void test_copy(skiatest::Reporter* reporter) {
     SkPaint paint;
     // set a few member variables
@@ -118,6 +132,8 @@ static void TestPaint(skiatest::Reporter* reporter) {
     // regression tests
     regression_cubic(reporter);
     regression_measureText(reporter);
+
+    test_bicubic(reporter);
 }
 
 #include "TestClassDef.h"
