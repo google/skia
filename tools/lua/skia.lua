@@ -1,3 +1,5 @@
+-- Experimental helpers for skia --
+
 Sk = {}
 
 function Sk.isFinite(x)
@@ -78,4 +80,3 @@ function Sk.Rect:inset(dx, dy)
 end
 
 -------------------------------------------------------------------------------
-

@@ -100,6 +100,7 @@
       'sources': [
         '../tools/lua/lua_pictures.cpp',
         '../src/utils/SkLuaCanvas.cpp',
+        '../src/utils/SkLua.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
