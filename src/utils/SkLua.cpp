@@ -14,42 +14,44 @@
 #include "SkString.h"
 
 extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
+    #include "lua.h"
+    #include "lualib.h"
+    #include "lauxlib.h"
 }
 
-static const char gSkCanvas_MTName[] = "SkCanvas_LuaMetaTableName";
-static const char gSkMatrix_MTName[] = "SkMatrix_LuaMetaTableName";
-static const char gSkRRect_MTName[] = "SkSkRRect_LuaMetaTableName";
-static const char gSkPath_MTName[] = "SkPath_LuaMetaTableName";
-static const char gSkPaint_MTName[] = "SkPaint_LuaMetaTableName";
+template <typename T> const char* get_mtname();
+template <> const char* get_mtname<SkCanvas>() { return "SkCanvas_LuaMetaTableName"; }
+template <> const char* get_mtname<SkMatrix>() { return "SkMatrix_LuaMetaTableName"; }
+template <> const char* get_mtname<SkRRect>() { return "SkSkRRect_LuaMetaTableName"; }
+template <> const char* get_mtname<SkPath>() { return "SkPath_LuaMetaTableName"; }
+template <> const char* get_mtname<SkPaint>() { return "SkPaint_LuaMetaTableName"; }
 
-static const char* get_mtname(const SkCanvas&) { return gSkCanvas_MTName; }
-static const char* get_mtname(const SkMatrix&) { return gSkMatrix_MTName; }
-static const char* get_mtname(const SkRRect&) { return gSkRRect_MTName; }
-static const char* get_mtname(const SkPath&) { return gSkPath_MTName; }
-static const char* get_mtname(const SkPaint&) { return gSkPaint_MTName; }
+template <typename T> T* push_new(lua_State* L) {
+    T* addr = (T*)lua_newuserdata(L, sizeof(T));
+    new (addr) T;
+    luaL_getmetatable(L, get_mtname<T>());
+    lua_setmetatable(L, -2);
+    return addr;
+}
 
 template <typename T> void push_obj(lua_State* L, const T& obj) {
     new (lua_newuserdata(L, sizeof(T))) T(obj);
-    luaL_getmetatable(L, get_mtname(obj));
+    luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
 }
 
 template <typename T> void push_ref(lua_State* L, T* ref) {
     *(T**)lua_newuserdata(L, sizeof(T*)) = SkRef(ref);
-    luaL_getmetatable(L, get_mtname(*ref));
+    luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
 }
 
 template <typename T> T* get_ref(lua_State* L, int index) {
-    const T* ref = NULL;
-    return *(T**)luaL_checkudata(L, index, get_mtname(*ref));
+    return *(T**)luaL_checkudata(L, index, get_mtname<T>());
 }
 
 template <typename T> T* get_obj(lua_State* L, int index) {
-    const T* obj = NULL;
-    return (T*)luaL_checkudata(L, index, get_mtname(*obj));
+    return (T*)luaL_checkudata(L, index, get_mtname<T>());
 }
 
 static bool lua2bool(lua_State* L, int index) {
@@ -57,6 +59,44 @@ static bool lua2bool(lua_State* L, int index) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkLua::SkLua(const char termCode[]) : fTermCode(termCode), fWeOwnL(true) {
+    fL = luaL_newstate();
+    luaL_openlibs(fL);
+    SkLua::Load(fL);
+}
+
+SkLua::SkLua(lua_State* L) : fL(L), fWeOwnL(false) {}
+
+SkLua::~SkLua() {
+    if (fWeOwnL) {
+        if (fTermCode.size() > 0) {
+            lua_getglobal(fL, fTermCode.c_str());
+            if (lua_pcall(fL, 0, 0, 0) != LUA_OK) {
+                SkDebugf("lua err: %s\n", lua_tostring(fL, -1));
+            }
+        }
+        lua_close(fL);
+    }
+}
+
+bool SkLua::runCode(const char code[]) {
+    int err = luaL_loadstring(fL, code) || lua_pcall(fL, 0, 0, 0);
+    if (err) {
+        SkDebugf("--- lua failed\n");
+        return false;
+    }
+    return true;
+}
+
+bool SkLua::runCode(const void* code, size_t size) {
+    SkString str((const char*)code, size);
+    return this->runCode(str.c_str());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define CHECK_SETFIELD(key) do if (key) lua_setfield(fL, -2, key); while (0)
 
 static void setfield_string(lua_State* L, const char key[], const char value[]) {
     lua_pushstring(L, value);
@@ -68,18 +108,11 @@ static void setfield_number(lua_State* L, const char key[], double value) {
     lua_setfield(L, -2, key);
 }
 
-SkLua::SkLua(lua_State* L) : fL(L) {
-    static bool gOnce;
-    if (!gOnce) {
-        SkLua::Load(L);
-        gOnce = true;
-    }
+static void setfield_function(lua_State* L,
+                              const char key[], lua_CFunction value) {
+    lua_pushcfunction(L, value);
+    lua_setfield(L, -2, key);
 }
-
-SkLua::~SkLua() {
-}
-
-#define CHECK_SETFIELD(key) do if (key) lua_setfield(fL, -2, key); while (0)
 
 void SkLua::pushBool(bool value, const char key[]) {
     lua_pushboolean(fL, value);
@@ -224,6 +257,11 @@ static int lcanvas_getTotalMatrix(lua_State* L) {
     return 1;
 }
 
+static int lcanvas_translate(lua_State* L) {
+    get_ref<SkCanvas>(L, 1)->translate(lua2scalar(L, 2), lua2scalar(L, 3));
+    return 0;
+}
+
 static int lcanvas_gc(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->unref();
     return 0;
@@ -236,6 +274,7 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawCircle", lcanvas_drawCircle },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
+    { "translate", lcanvas_translate },
     { "__gc", lcanvas_gc },
     { NULL, NULL }
 };
@@ -460,9 +499,44 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lsk_newPaint(lua_State* L) {
+    push_new<SkPaint>(L);
+    return 1;
+}
+
+static int lsk_newPath(lua_State* L) {
+    push_new<SkPath>(L);
+    return 1;
+}
+
+static int lsk_newRRect(lua_State* L) {
+    SkRRect* rr = push_new<SkRRect>(L);
+    rr->setEmpty();
+    return 1;
+}
+
+static const struct luaL_Reg gSk_Functions[] = {
+    { "newPaint", lsk_newPaint },
+    { "newPath", lsk_newPath },
+    { "newRRect", lsk_newRRect },
+    { NULL, NULL }
+};
+
+static void register_Sk(lua_State* L) {
+    lua_newtable(L);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "Sk");
+    // the Sk table is still on top
+
+    setfield_function(L, "newPaint", lsk_newPaint);
+    setfield_function(L, "newPath", lsk_newPath);
+    setfield_function(L, "newRRect", lsk_newRRect);
+    lua_pop(L, 1);  // pop off the Sk table
+}
+
 #define REG_CLASS(L, C)                             \
     do {                                            \
-        luaL_newmetatable(L, g##C##_MTName);        \
+        luaL_newmetatable(L, get_mtname<C>());      \
         lua_pushvalue(L, -1);                       \
         lua_setfield(L, -2, "__index");             \
         luaL_setfuncs(L, g##C##_Methods, 0);        \
@@ -470,6 +544,7 @@ private:
     } while (0)
 
 void SkLua::Load(lua_State* L) {
+    register_Sk(L);
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPaint);

@@ -10,6 +10,7 @@
 
 #include "SkColor.h"
 #include "SkScalar.h"
+#include "SkString.h"
 
 struct lua_State;
 
@@ -19,7 +20,6 @@ class SkPaint;
 class SkPath;
 struct SkRect;
 class SkRRect;
-class SkString;
 
 #define SkScalarToLua(x)    SkScalarToDouble(x)
 #define SkLuaToScalar(x)    SkDoubleToScalar(x)
@@ -28,11 +28,17 @@ class SkLua {
 public:
     static void Load(lua_State*);
 
-    SkLua(lua_State*);
+    SkLua(const char termCode[] = NULL);    // creates a new L, will close it
+    SkLua(lua_State*);                      // uses L, will not close it
     ~SkLua();
 
-    lua_State* getL() const { return fL; }
-
+    lua_State* get() const { return fL; }
+    lua_State* operator*() const { return fL; }
+    lua_State* operator->() const { return fL; }
+    
+    bool runCode(const char code[]);
+    bool runCode(const void* code, size_t size);
+    
     void pushBool(bool, const char tableKey[] = NULL);
     void pushString(const char[], const char tableKey[] = NULL);
     void pushString(const SkString&, const char tableKey[] = NULL);
@@ -46,7 +52,9 @@ public:
     void pushCanvas(SkCanvas*, const char tableKey[] = NULL);
 
 private:
-    lua_State* fL;
+    lua_State*  fL;
+    SkString    fTermCode;
+    bool        fWeOwnL;
 };
 
 #endif

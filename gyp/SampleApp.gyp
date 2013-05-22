@@ -76,6 +76,7 @@
         '../samplecode/SampleLayers.cpp',
         '../samplecode/SampleLCD.cpp',
         '../samplecode/SampleLines.cpp',
+        '../samplecode/SampleLua.cpp',
         '../samplecode/SampleManyRects.cpp',
         '../samplecode/SampleMeasure.cpp',
         '../samplecode/SampleMipMap.cpp',
@@ -129,6 +130,10 @@
         # TiledPipeController
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
+
+        # Lua
+        '../src/utils/SkLuaCanvas.cpp',
+        '../src/utils/SkLua.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
@@ -146,6 +151,7 @@
         'experimental.gyp:experimental',
         'pdf.gyp:pdf',
         'views_animated.gyp:views_animated',
+        'lua.gyp:lua',
       ],
       'conditions' : [
        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
