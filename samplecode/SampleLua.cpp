@@ -19,6 +19,8 @@ extern "C" {
 static const char gDrawName[] = "onDrawContent";
 
 static const char gCode[] = ""
+    "require \"math\" "
+    ""
     "local r = { left = 10, top = 10, right = 100, bottom = 80 } "
     "local x = 0;"
     ""
@@ -27,7 +29,30 @@ static const char gCode[] = ""
     ""
     "local color = {a = 1, r = 1, g = 0, b = 0};"
     ""
+    "function rnd(range) "
+    "   return math.random() * range;"
+    "end "
+    ""
+    "rndX = function () return rnd(640) end "
+    "rndY = function () return rnd(480) end "
+    ""
+    "function draw_rand_path(canvas);"
+    "   if not path_paint then "
+    "       path_paint = Sk.newPaint();"
+    "       path_paint:setAntiAlias(true);"
+    "   end "
+    "   path_paint:setColor({a = 1, r = math.random(), g = math.random(), b = math.random() });"
+    ""
+    "   local path = Sk.newPath();"
+    "   path:moveTo(rndX(), rndY());"
+    "   for i = 0, 50 do "
+    "       path:quadTo(rndX(), rndY(), rndX(), rndY());"
+    "   end "
+    "   canvas:drawPath(path, path_paint);"
+    "end "
+    ""
     "function onDrawContent(canvas) "
+    "   draw_rand_path(canvas);"
     "   color.g = x / 100;"
     "   paint:setColor(color) "
     "   canvas:translate(x, 0);"
@@ -60,10 +85,6 @@ protected:
         }
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
-            switch (uni) {
-                default:
-                    break;
-            }
         }
         return this->INHERITED::onQuery(evt);
     }
