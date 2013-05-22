@@ -1,4 +1,3 @@
--- just a helper function to dump the parameters, for debugging
 function tostr(t)
     local str = ""
     for k, v in next, t do
@@ -52,9 +51,11 @@ function sk_scrape_accumulate(t)
     local n = total[t.verb] or 0
     total[t.verb] = n + 1
 
-    if false and t.verb == "drawRect" then
-        local m = canvas:getTotalMatrix()
-        print("... ", tostr(m), "\n")
+    if false and t.verb == "drawRect" and t.paint:isAntiAlias() then
+        local r = t.rect;
+        local p = t.paint;
+        local c = p:getColor();
+        print("drawRect ", tostr(r), tostr(c), "\n")
     end
 
     if false and t.verb == "drawPath" then
@@ -66,15 +67,6 @@ function sk_scrape_accumulate(t)
             print("drawPath", "isEmpty", tostring(t.path:isEmpty()),
                     "isRect", tostring(t.path:isRect()), tostr(t.path:getBounds()))
         end
-    end
-
-    -- enable to dump all of the parameters we were sent
-    if false then
-        -- dump the params in t, specifically showing the verb first, which we
-        -- then nil out so it doesn't appear in tostr()
-        io.write(t.verb, " ")
-        t.verb = nil
-        io.write(tostr(t), "\n")
     end
 end
 
