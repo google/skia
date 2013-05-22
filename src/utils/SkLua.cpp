@@ -19,12 +19,18 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+// return the metatable name for a given class
 template <typename T> const char* get_mtname();
-template <> const char* get_mtname<SkCanvas>() { return "SkCanvas_LuaMetaTableName"; }
-template <> const char* get_mtname<SkMatrix>() { return "SkMatrix_LuaMetaTableName"; }
-template <> const char* get_mtname<SkRRect>() { return "SkSkRRect_LuaMetaTableName"; }
-template <> const char* get_mtname<SkPath>() { return "SkPath_LuaMetaTableName"; }
-template <> const char* get_mtname<SkPaint>() { return "SkPaint_LuaMetaTableName"; }
+#define DEF_MTNAME(T)                           \
+    template <> const char* get_mtname<T>() {   \
+        return #T "_LuaMetaTableName";          \
+    }
+
+DEF_MTNAME(SkCanvas)
+DEF_MTNAME(SkMatrix)
+DEF_MTNAME(SkRRect)
+DEF_MTNAME(SkPath)
+DEF_MTNAME(SkPaint)
 
 template <typename T> T* push_new(lua_State* L) {
     T* addr = (T*)lua_newuserdata(L, sizeof(T));
@@ -247,6 +253,12 @@ static int lcanvas_drawCircle(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_drawPath(lua_State* L) {
+    get_ref<SkCanvas>(L, 1)->drawPath(*get_obj<SkPath>(L, 2),
+                                      *get_obj<SkPaint>(L, 3));
+    return 0;
+}
+
 static int lcanvas_getSaveCount(lua_State* L) {
     lua_pushnumber(L, get_ref<SkCanvas>(L, 1)->getSaveCount());
     return 1;
@@ -272,6 +284,7 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawRect", lcanvas_drawRect },
     { "drawOval", lcanvas_drawOval },
     { "drawCircle", lcanvas_drawCircle },
+    { "drawPath", lcanvas_drawPath },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
     { "translate", lcanvas_translate },
