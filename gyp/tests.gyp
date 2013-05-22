@@ -68,6 +68,7 @@
         '../tests/HashCacheTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/LListTest.cpp',
+        '../tests/LayerDrawLooperTest.cpp',
         '../tests/MD5Test.cpp',
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',
