@@ -137,11 +137,7 @@ static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lo
 bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
                                       const SkBitmap& source, const SkMatrix& ctm,
                                       SkBitmap* dst, SkIPoint* offset) {
-    SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, offset)) {
-        return false;
-    }
-
+    SkBitmap src = this->getInputResult(0, proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
