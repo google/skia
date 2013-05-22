@@ -69,20 +69,6 @@ void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkBitmap SkImageFilter::getInputResult(int index, Proxy* proxy,
-                                       const SkBitmap& src, const SkMatrix& ctm,
-                                       SkIPoint* loc) {
-    SkASSERT(index < fInputCount);
-    SkImageFilter* input = getInput(index);
-    SkBitmap result;
-    if (input && input->filterImage(proxy, src, ctm, &result, loc)) {
-        return result;
-    } else {
-        return src;
-    }
-}
-
-
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,
                                 SkBitmap* result, SkIPoint* loc) {
