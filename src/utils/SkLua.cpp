@@ -52,6 +52,10 @@ template <typename T> T* get_obj(lua_State* L, int index) {
     return (T*)luaL_checkudata(L, index, get_mtname(*obj));
 }
 
+static bool lua2bool(lua_State* L, int index) {
+    return !!lua_toboolean(L, index);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void setfield_string(lua_State* L, const char key[], const char value[]) {
@@ -244,7 +248,7 @@ static int lpaint_isAntiAlias(lua_State* L) {
 }
 
 static int lpaint_setAntiAlias(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setAntiAlias(lua_toboolean(L, 2));
+    get_obj<SkPaint>(L, 1)->setAntiAlias(lua2bool(L, 2));
     return 0;
 }
 
