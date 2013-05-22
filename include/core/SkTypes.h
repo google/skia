@@ -484,14 +484,20 @@ public:
     /**
      *  Reallocates the block to a new size. The ptr may or may not change.
      */
-    void* reset(size_t size, OnShrink shrink = kAlloc_OnShrink) {
+    void* reset(size_t size, OnShrink shrink = kAlloc_OnShrink,  bool* didChangeAlloc = NULL) {
         if (size == fSize || (kReuse_OnShrink == shrink && size < fSize)) {
+            if (NULL != didChangeAlloc) {
+                *didChangeAlloc = false;
+            }
             return fPtr;
         }
 
         sk_free(fPtr);
         fPtr = size ? sk_malloc_throw(size) : NULL;
         fSize = size;
+        if (NULL != didChangeAlloc) {
+            *didChangeAlloc = true;
+        }
 
         return fPtr;
     }
@@ -540,7 +546,7 @@ public:
      */
     SkAutoSMalloc() {
         fPtr = fStorage;
-        fSize = 0;
+        fSize = kSize;
     }
 
     /**
@@ -550,7 +556,7 @@ public:
      */
     explicit SkAutoSMalloc(size_t size) {
         fPtr = fStorage;
-        fSize = 0;
+        fSize = kSize;
         this->reset(size);
     }
 
@@ -579,21 +585,29 @@ public:
      *  heap.
      */
     void* reset(size_t size,
-                SkAutoMalloc::OnShrink shrink = SkAutoMalloc::kAlloc_OnShrink) {
-        if (size == fSize || (SkAutoMalloc::kReuse_OnShrink == shrink &&
-                              size < fSize)) {
-            return fPtr;
+                SkAutoMalloc::OnShrink shrink = SkAutoMalloc::kAlloc_OnShrink,
+                bool* didChangeAlloc = NULL) {
+        size = (size < kSize) ? kSize : size;
+        bool alloc = size != fSize && (SkAutoMalloc::kAlloc_OnShrink == shrink || size < fSize);
+        if (NULL != didChangeAlloc) {
+            *didChangeAlloc = alloc;
         }
+        if (alloc) {
+            if (fPtr != (void*)fStorage) {
+                sk_free(fPtr);
+            }
 
-        if (fPtr != (void*)fStorage) {
-            sk_free(fPtr);
-        }
+            if (size == kSize) {
+                SkASSERT(fPtr != fStorage); // otherwise we lied when setting didChangeAlloc.
+                fPtr = fStorage;
+            } else {
+                fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            }
 
-        if (size <= kSize) {
-            fPtr = fStorage;
-        } else {
-            fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            fSize = size;
         }
+        SkASSERT(fSize >= size && fSize >= kSize);
+        SkASSERT((fPtr == fStorage) || fSize > kSize);
         return fPtr;
     }
 
