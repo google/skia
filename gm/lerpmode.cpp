@@ -19,18 +19,18 @@ static void show_circlelayers(SkCanvas* canvas, SkXfermode* mode) {
     canvas->drawRect(r, paint);
 
     canvas->saveLayer(&bounds, NULL);
-    
+
     paint.setColor(0x80FF0000);
     r = bounds;
     r.inset(20, 0);
     canvas->drawOval(r, paint);
-    
+
     paint.setColor(0x800000FF);
     r = bounds;
     r.inset(0, 20);
     paint.setXfermode(mode);
     canvas->drawOval(r, paint);
-    
+
     canvas->restore();
 }
 
@@ -61,4 +61,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(LerpXfermodeGM); )
-

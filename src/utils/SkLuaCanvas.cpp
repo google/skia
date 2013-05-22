@@ -176,11 +176,11 @@ static void ensure_canvas_metatable(lua_State* L) {
         return;
     }
     gOnce = true;
-    
+
     luaL_newmetatable(L, gCanvasMetaTableName);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    
+
     luaL_setfuncs(L, gLuaCanvasMethods, 0);
     lua_settop(L, -2);  // pop off the meta-table
 }
@@ -260,18 +260,18 @@ static void ensure_path_metatable(lua_State* L) {
         return;
     }
     gOnce = true;
-    
+
     luaL_newmetatable(L, gPathMetaTableName);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    
+
     luaL_setfuncs(L, gLuaPathMethods, 0);
     lua_settop(L, -2);  // pop off the meta-table
 }
 
 static void push_path(lua_State* L, const SkPath& src) {
     ensure_path_metatable(L);
-    
+
     SkPath* path = (SkPath*)lua_newuserdata(L, sizeof(SkPath));
     new (path) SkPath(src);
 
