@@ -98,11 +98,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
                                              const SkMatrix& matrix,
                                              SkBitmap* result,
                                              SkIPoint* loc) {
-    SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc)) {
-        return false;
-    }
-
+    SkBitmap src = this->getInputResult(0, proxy, source, matrix, loc);
     SkAutoTUnref<SkDevice> device(proxy->createDevice(src.width(), src.height()));
     SkCanvas canvas(device.get());
     SkPaint paint;

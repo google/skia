@@ -159,6 +159,11 @@ protected:
     // Default impl copies src into dst and returns true
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);
 
+    // Return the result of processing the given input, or the source bitmap
+    // if we have no connected input at that index.
+    SkBitmap getInputResult(int index, Proxy*, const SkBitmap& src, const SkMatrix&,
+                            SkIPoint*);
+
 private:
     typedef SkFlattenable INHERITED;
     int fInputCount;

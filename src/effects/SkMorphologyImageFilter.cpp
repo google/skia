@@ -136,11 +136,7 @@ static void dilateY(const SkBitmap& src, SkBitmap* dst, int radiusY)
 bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
                                        const SkBitmap& source, const SkMatrix& ctm,
                                        SkBitmap* dst, SkIPoint* offset) {
-    SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, offset)) {
-        return false;
-    }
-
+    SkBitmap src = this->getInputResult(0, proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
@@ -185,10 +181,7 @@ bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
 bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
                                         const SkBitmap& source, const SkMatrix& ctm,
                                         SkBitmap* dst, SkIPoint* offset) {
-    SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, offset)) {
-        return false;
-    }
+    SkBitmap src = this->getInputResult(0, proxy, source, ctm, offset);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
