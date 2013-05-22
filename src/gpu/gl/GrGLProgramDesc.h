@@ -25,26 +25,37 @@ class GrGpuGL;
     to be API-neutral then so could this class. */
 class GrGLProgramDesc {
 public:
-    GrGLProgramDesc() {
-        // since we use this as part of a key we can't have any uninitialized padding
-        memset(this, 0, sizeof(GrGLProgramDesc));
+    GrGLProgramDesc() : fInitialized(false) {}
+    GrGLProgramDesc(const GrGLProgramDesc& desc) { *this = desc; }
+
+    // Returns this as a uint32_t array to be used as a key in the program cache. 
+    const uint32_t* asKey() const {
+        GrAssert(fInitialized);
+        return reinterpret_cast<const uint32_t*>(fKey.get());
     }
 
-    // Returns this as a uint32_t array to be used as a key in the program cache
-    const uint32_t* asKey() const {
-        return reinterpret_cast<const uint32_t*>(this);
-    }
+    // Gets the number of bytes in asKey(). It will be a 4-byte aligned value. When comparing two
+    // keys the size of either key can be used with memcmp() since the lengths themselves begin the
+    // keys and thus the memcmp will exit early if the keys are of different lengths.
+    uint32_t keyLength() const { return *this->atOffset<uint32_t, kLengthOffset>(); }
+
+    // Gets the a checksum of the key. Can be used as a hash value for a fast lookup in a cache.
+    uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
 
     // For unit testing.
     void setRandom(SkMWCRandom*,
                    const GrGpuGL* gpu,
-                   const GrTexture* dummyDstTexture,
-                   const GrEffectStage* stages[GrDrawState::kNumStages],
+                   const GrRenderTarget* dummyDstRenderTarget,
+                   const GrTexture* dummyDstCopyTexture,
+                   const GrEffectStage* stages[],
+                   int numColorStages,
+                   int numCoverageStages,
                    int currAttribIndex);
 
     /**
      * Builds a program descriptor from a GrDrawState. Whether the primitive type is points, the
-     * output of GrDrawState::getBlendOpts, and the caps of the GrGpuGL are also inputs.
+     * output of GrDrawState::getBlendOpts, and the caps of the GrGpuGL are also inputs. It also
+     * writes a tightly packed array of GrEffectStage* from the drawState.
      */
     static void Build(const GrDrawState&,
                       bool isPoints,
@@ -53,7 +64,36 @@ public:
                       GrBlendCoeff dstCoeff,
                       const GrGpuGL* gpu,
                       const GrDeviceCoordTexture* dstCopy,
+                      const GrEffectStage* outStages[GrDrawState::kNumStages],
                       GrGLProgramDesc* outDesc);
+
+    int numColorEffects() const {
+        GrAssert(fInitialized);
+        return this->getHeader().fColorEffectCnt;
+    }
+
+    int numCoverageEffects() const {
+        GrAssert(fInitialized);
+        return this->getHeader().fCoverageEffectCnt;
+    }
+
+    int numTotalEffects() const { return this->numColorEffects() + this->numCoverageEffects(); }
+
+    GrGLProgramDesc& operator= (const GrGLProgramDesc& other);
+
+    bool operator== (const GrGLProgramDesc& other) const {
+        GrAssert(fInitialized && other.fInitialized);
+        // The length is masked as a hint to the compiler that the address will be 4 byte aligned.
+        return 0 == memcmp(this->asKey(), other.asKey(), this->keyLength() & ~0x3);
+    }
+
+    bool operator!= (const GrGLProgramDesc& other) const {
+        return !(*this == other);
+    }
+
+    static bool Less(const GrGLProgramDesc& a, const GrGLProgramDesc& b) {
+        return memcmp(a.asKey(), b.asKey(), a.keyLength() & ~0x3) < 0;
+    }
 
 private:
     // Specifies where the initial color comes from before the stages are applied.
@@ -96,37 +136,78 @@ private:
         }
     }
 
-    /** Non-zero if this stage has an effect */
-    GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
-
-    // To enable experimental geometry shader code (not for use in
-    // production)
-#if GR_GL_EXPERIMENTAL_GS
-    bool                     fExperimentalGS;
-#endif
-
-    GrGLShaderBuilder::DstReadKey fDstReadKey;          // set by GrGLShaderBuilder if there
+    struct KeyHeader {
+        GrGLShaderBuilder::DstReadKey fDstReadKey;      // set by GrGLShaderBuilder if there
                                                         // are effects that must read the dst.
                                                         // Otherwise, 0.
-    GrGLShaderBuilder::FragPosKey fFragPosKey;          // set by GrGLShaderBuilder if there are
+        GrGLShaderBuilder::FragPosKey fFragPosKey;      // set by GrGLShaderBuilder if there are
                                                         // effects that read the fragment position.
                                                         // Otherwise, 0.
 
-    // should the FS discard if the coverage is zero (to avoid stencil manipulation)
-    SkBool8                     fDiscardIfZeroCoverage;
+        // should the FS discard if the coverage is zero (to avoid stencil manipulation)
+        SkBool8                     fDiscardIfZeroCoverage;
 
-    uint8_t                     fColorInput;            // casts to enum ColorInput
-    uint8_t                     fCoverageInput;         // casts to enum ColorInput
-    uint8_t                     fCoverageOutput;        // casts to enum CoverageOutput
+        uint8_t                     fColorInput;            // casts to enum ColorInput
+        uint8_t                     fCoverageInput;         // casts to enum ColorInput
+        uint8_t                     fCoverageOutput;        // casts to enum CoverageOutput
 
-    int8_t                      fFirstCoverageStage;
-    SkBool8                     fEmitsPointSize;
-    uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
+        SkBool8                     fEmitsPointSize;
+        uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
 
-    int8_t                      fPositionAttributeIndex;
-    int8_t                      fLocalCoordAttributeIndex;
-    int8_t                      fColorAttributeIndex;
-    int8_t                      fCoverageAttributeIndex;
+        // To enable experimental geometry shader code (not for use in
+        // production)
+#if GR_GL_EXPERIMENTAL_GS
+        SkBool8                     fExperimentalGS;
+#endif
+
+        int8_t                      fPositionAttributeIndex;
+        int8_t                      fLocalCoordAttributeIndex;
+        int8_t                      fColorAttributeIndex;
+        int8_t                      fCoverageAttributeIndex;
+        
+        int8_t                      fColorEffectCnt;
+        int8_t                      fCoverageEffectCnt;
+    };
+
+    // The key is 1 uint32_t for the length, followed another for the checksum, the header, and then
+    // the effect keys. Everything is fixed length except the effect key array.
+    enum {
+        kLengthOffset = 0,
+        kChecksumOffset = kLengthOffset + sizeof(uint32_t),
+        kHeaderOffset = kChecksumOffset + sizeof(uint32_t),
+        kHeaderSize = SkAlign4(sizeof(KeyHeader)),
+        kEffectKeyOffset = kHeaderOffset + kHeaderSize,
+    };
+
+    template<typename T, size_t OFFSET> T* atOffset() {
+        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.get()) + OFFSET);
+    }
+
+    template<typename T, size_t OFFSET> const T* atOffset() const {
+        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.get()) + OFFSET);
+    }
+
+    typedef GrGLEffect::EffectKey EffectKey;
+
+    uint32_t* checksum() { return this->atOffset<uint32_t, kChecksumOffset>(); }
+    KeyHeader* header() { return this->atOffset<KeyHeader, kHeaderOffset>(); }
+    EffectKey* effectKeys() { return this->atOffset<EffectKey, kEffectKeyOffset>(); }
+
+    const KeyHeader& getHeader() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
+    const EffectKey* getEffectKeys() const { return this->atOffset<EffectKey, kEffectKeyOffset>(); }
+
+    static size_t KeyLength(int effectCnt) {
+        GR_STATIC_ASSERT(!(sizeof(EffectKey) & 0x3));
+        return kEffectKeyOffset + effectCnt * sizeof(EffectKey);
+    }
+
+    enum {
+        kMaxPreallocEffects = 16,
+        kPreAllocSize = kEffectKeyOffset +  kMaxPreallocEffects * sizeof(EffectKey),
+    };
+
+    SkAutoSMalloc<kPreAllocSize> fKey;
+    bool fInitialized;
 
     // GrGLProgram and GrGLShaderBuilder read the private fields to generate code. TODO: Move all
     // code generation to GrGLShaderBuilder (and maybe add getters rather than friending).
