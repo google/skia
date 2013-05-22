@@ -48,7 +48,7 @@ public:
     void abandon();
 
     /**
-     * The shader may modify the blend coefficients. Params are in/out
+     * The shader may modify the blend coefficients. Params are in/out.
      */
     void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
 
@@ -104,12 +104,10 @@ public:
      * This function uploads uniforms and calls each GrGLEffect's setData. It is called before a
      * draw occurs using the program after the program has already been bound. It also uses the
      * GrGpuGL object to bind the textures required by the GrGLEffects.
-     *
-     * The color and coverage params override the GrDrawState's getColor() and getCoverage() values.
      */
     void setData(GrGpuGL*,
-                 GrColor color,
-                 GrColor coverage,
+                 GrDrawState::BlendOptFlags,
+                 const GrEffectStage* stages[],       // output of GrGLProgramDesc:Build()
                  const GrDeviceCoordTexture* dstCopy, // can be NULL
                  SharedGLState*);
 
@@ -121,7 +119,9 @@ private:
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
-     *  This is the heavy initialization routine for building a GLProgram.
+     * This is the heavy initialization routine for building a GLProgram. stages is all the enabled
+     * color stages followed by all the enabled coverage stages as output by
+     * GrGLProgramDesc::Build()
      */
     bool genProgram(const GrEffectStage* stages[]);
 

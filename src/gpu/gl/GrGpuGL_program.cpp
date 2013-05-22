@@ -9,12 +9,32 @@
 
 #include "GrEffect.h"
 #include "GrGLEffect.h"
+#include "SkTSearch.h"
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
-#define SKIP_CACHE_CHECK    true
-#define GR_UINT32_MAX   static_cast<uint32_t>(-1)
+struct GrGpuGL::ProgramCache::Entry {
+    SK_DECLARE_INST_COUNT_ROOT(Entry);
+    Entry() : fProgram(NULL), fLRUStamp(0) {}
+
+    SkAutoTUnref<GrGLProgram>   fProgram;
+    unsigned int                fLRUStamp;
+};
+
+SK_DEFINE_INST_COUNT(GrGpuGL::ProgramCache::Entry);
+
+struct GrGpuGL::ProgramCache::ProgDescLess {
+    bool operator() (const GrGLProgramDesc& desc, const Entry* entry) {
+        GrAssert(NULL != entry->fProgram.get());
+        return GrGLProgramDesc::Less(desc, entry->fProgram->getDesc());
+    }
+
+    bool operator() (const Entry* entry, const GrGLProgramDesc& desc) {
+        GrAssert(NULL != entry->fProgram.get());
+        return GrGLProgramDesc::Less(entry->fProgram->getDesc(), desc);
+    }
+};
 
 GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
     : fCount(0)
@@ -23,70 +43,147 @@ GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
 #ifdef PROGRAM_CACHE_STATS
     , fTotalRequests(0)
     , fCacheMisses(0)
+    , fHashMisses(0)
 #endif
 {
+    for (int i = 0; i < 1 << kHashBits; ++i) {
+        fHashTable[i] = NULL;
+    }
 }
 
 GrGpuGL::ProgramCache::~ProgramCache() {
+    for (int i = 0; i < fCount; ++i){
+        SkDELETE(fEntries[i]);
+    }
     // dump stats
 #ifdef PROGRAM_CACHE_STATS
     SkDebugf("--- Program Cache ---\n");
     SkDebugf("Total requests: %d\n", fTotalRequests);
     SkDebugf("Cache misses: %d\n", fCacheMisses);
-    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0)
-                                    ? (float)fCacheMisses/(float)fTotalRequests : 0.0f);
+    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
+                                        100.f * fCacheMisses / fTotalRequests :
+                                        0.f);
+    int cacheHits = fTotalRequests - fCacheMisses;
+    SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
     SkDebugf("---------------------\n");
 #endif
 }
 
 void GrGpuGL::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
-        GrAssert(NULL != fEntries[i].fProgram.get());
-        fEntries[i].fProgram->abandon();
-        fEntries[i].fProgram.reset(NULL);
+        GrAssert(NULL != fEntries[i]->fProgram.get());
+        fEntries[i]->fProgram->abandon();
+        fEntries[i]->fProgram.reset(NULL);
     }
     fCount = 0;
 }
 
+int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
+    ProgDescLess less;
+    return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
+}
+
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
                                                const GrEffectStage* stages[]) {
-    Entry newEntry;
-    newEntry.fKey.setKeyData(desc.asKey());
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
 
-    Entry* entry = fHashCache.find(newEntry.fKey);
+    Entry* entry = NULL;
+
+    uint32_t hashIdx = desc.getChecksum();
+    hashIdx ^= hashIdx >> 16;
+    if (kHashBits <= 8) {
+        hashIdx ^= hashIdx >> 8;
+    }
+    hashIdx &=((1 << kHashBits) - 1);
+    Entry* hashedEntry = fHashTable[hashIdx];
+    if (NULL != hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
+        GrAssert(NULL != hashedEntry->fProgram);
+        entry = hashedEntry;
+    }
+
+    int entryIdx;
     if (NULL == entry) {
+        entryIdx = this->search(desc);
+        if (entryIdx >= 0) {
+            entry = fEntries[entryIdx];
+#ifdef PROGRAM_CACHE_STATS
+            ++fHashMisses;
+#endif
+        }
+    }
+
+    if (NULL == entry) {
+        // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        newEntry.fProgram.reset(GrGLProgram::Create(fGL, desc, stages));
-        if (NULL == newEntry.fProgram.get()) {
+        GrGLProgram* program = GrGLProgram::Create(fGL, desc, stages);
+        if (NULL == program) {
             return NULL;
         }
+        int purgeIdx = 0;
         if (fCount < kMaxEntries) {
-            entry = fEntries + fCount;
-            ++fCount;
+            entry = SkNEW(Entry);
+            purgeIdx = fCount++;
+            fEntries[purgeIdx] = entry;
         } else {
-            GrAssert(kMaxEntries == fCount);
-            entry = fEntries;
+            GrAssert(fCount == kMaxEntries);
+            purgeIdx = 0;
             for (int i = 1; i < kMaxEntries; ++i) {
-                if (fEntries[i].fLRUStamp < entry->fLRUStamp) {
-                    entry = fEntries + i;
+                if (fEntries[i]->fLRUStamp < fEntries[purgeIdx]->fLRUStamp) {
+                    purgeIdx = i;
                 }
             }
-            fHashCache.remove(entry->fKey, entry);
+            entry = fEntries[purgeIdx];
+            int purgedHashIdx = entry->fProgram->getDesc().getChecksum() & ((1 << kHashBits) - 1);
+            if (fHashTable[purgedHashIdx] == entry) {
+                fHashTable[purgedHashIdx] = NULL;
+            }
         }
-        *entry = newEntry;
-        fHashCache.insert(entry->fKey, entry);
+        GrAssert(fEntries[purgeIdx] == entry);
+        entry->fProgram.reset(program);
+        // We need to shift fEntries around so that the entry currently at purgeIdx is placed 
+        // just before the entry at ~entryIdx (in order to keep fEntries sorted by descriptor).
+        entryIdx = ~entryIdx;
+        if (entryIdx < purgeIdx) {
+            //  Let E and P be the entries at index entryIdx and purgeIdx, respectively.
+            //  If the entries array looks like this:
+            //       aaaaEbbbbbPccccc
+            //  we rearrange it to look like this:
+            //       aaaaPEbbbbbccccc
+            size_t copySize = (purgeIdx - entryIdx) * sizeof(Entry*);
+            memmove(fEntries + entryIdx + 1, fEntries + entryIdx, copySize);
+            fEntries[entryIdx] = entry;
+        } else if (purgeIdx < entryIdx) {
+            //  If the entries array looks like this:
+            //       aaaaPbbbbbEccccc
+            //  we rearrange it to look like this:
+            //       aaaabbbbbPEccccc
+            size_t copySize = (entryIdx - purgeIdx - 1) * sizeof(Entry*);
+            memmove(fEntries + purgeIdx, fEntries + purgeIdx + 1, copySize);
+            fEntries[entryIdx - 1] = entry;
+        }
+#if GR_DEBUG
+        GrAssert(NULL != fEntries[0]->fProgram.get());
+        for (int i = 0; i < fCount - 1; ++i) {
+            GrAssert(NULL != fEntries[i + 1]->fProgram.get());
+            const GrGLProgramDesc& a = fEntries[i]->fProgram->getDesc();
+            const GrGLProgramDesc& b = fEntries[i + 1]->fProgram->getDesc();
+            GrAssert(GrGLProgramDesc::Less(a, b));
+            GrAssert(!GrGLProgramDesc::Less(b, a));
+        }
+#endif
     }
 
+    fHashTable[hashIdx] = entry;
     entry->fLRUStamp = fCurrLRUStamp;
-    if (GR_UINT32_MAX == fCurrLRUStamp) {
+
+    if (SK_MaxU32 == fCurrLRUStamp) {
         // wrap around! just trash our LRU, one time hit.
         for (int i = 0; i < fCount; ++i) {
-            fEntries[i].fLRUStamp = 0;
+            fEntries[i]->fLRUStamp = 0;
         }
     }
     ++fCurrLRUStamp;
@@ -177,9 +274,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         }
 
         const GrEffectStage* stages[GrDrawState::kNumStages];
-        for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-            stages[i] = drawState.isStageEnabled(i) ? &drawState.getStage(i) : NULL;
-        }
         GrGLProgramDesc desc;
         GrGLProgramDesc::Build(this->getDrawState(),
                                kDrawPoints_DrawType == type,
@@ -188,6 +282,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
                                dstCoeff,
                                this,
                                dstCopy,
+                               stages,
                                &desc);
 
         fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
@@ -206,19 +301,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        GrColor color;
-        GrColor coverage;
-        if (blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag) {
-            color = 0;
-            coverage = 0;
-        } else if (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) {
-            color = 0xffffffff;
-            coverage = drawState.getCoverage();
-        } else {
-            color = drawState.getColor();
-            coverage = drawState.getCoverage();
-        }
-        fCurrentProgram->setData(this, color, coverage, dstCopy, &fSharedGLProgramState);
+        fCurrentProgram->setData(this, blendOpts, stages, dstCopy, &fSharedGLProgramState);
     }
     this->flushStencil(type);
     this->flushScissor();

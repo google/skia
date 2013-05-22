@@ -105,7 +105,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fUniformManager(uniformManager)
     , fFSFeaturesAddedMask(0)
 #if GR_GL_EXPERIMENTAL_GS
-    , fUsesGS(desc.fExperimentalGS)
+    , fUsesGS(SkToBool(desc.getHeader().fExperimentalGS))
 #else
     , fUsesGS(false)
 #endif
@@ -113,11 +113,13 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fDstCopyTopLeftUniform (GrGLUniformManager::kInvalidUniformHandle)
     , fDstCopyScaleUniform (GrGLUniformManager::kInvalidUniformHandle)
-    , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.fFragPosKey) {
+    , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey) {
+
+    const GrGLProgramDesc::KeyHeader& header = desc.getHeader();
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-    if (-1 != desc.fLocalCoordAttributeIndex) {
+    if (-1 != header.fLocalCoordAttributeIndex) {
         fLocalCoordsVar = &fVSAttrs.push_back();
         fLocalCoordsVar->set(kVec2f_GrSLType,
                              GrGLShaderVar::kAttribute_TypeModifier,
@@ -126,13 +128,13 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
         fLocalCoordsVar = fPositionVar;
     }
     // Emit code to read the dst copy textue if necessary.
-    if (kNoDstRead_DstReadKey != desc.fDstReadKey &&
+    if (kNoDstRead_DstReadKey != header.fDstReadKey &&
         GrGLCaps::kNone_FBFetchType == ctxInfo.caps()->fbFetchType()) {
-        bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & desc.fDstReadKey);
+        bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & header.fDstReadKey);
         const char* dstCopyTopLeftName;
         const char* dstCopyCoordScaleName;
         uint32_t configMask;
-        if (SkToBool(kUseAlphaConfig_DstReadKeyBit & desc.fDstReadKey)) {
+        if (SkToBool(kUseAlphaConfig_DstReadKeyBit & header.fDstReadKey)) {
             configMask = kA_GrColorComponentFlag;
         } else {
             configMask = kRGBA_GrColorComponentFlags;
@@ -656,11 +658,7 @@ void GrGLShaderBuilder::emitEffects(
     SkString outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
-        if (NULL == effectStages[e] || GrGLEffect::kNoEffectKey == effectKeys[e]) {
-            continue;
-        }
-
-        GrAssert(NULL != effectStages[e]->getEffect());
+        GrAssert(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
         const GrEffectStage& stage = *effectStages[e];
         const GrEffectRef& effect = *stage.getEffect();
 
