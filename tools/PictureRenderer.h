@@ -59,10 +59,10 @@ public:
     // this uses SkPaint::Flags as a base and adds additional flags
     enum DrawFilterFlags {
         kNone_DrawFilterFlag = 0,
-        kBlur_DrawFilterFlag = 0x4000, // toggles between blur and no blur
-        kHinting_DrawFilterFlag = 0x8000, // toggles between no hinting and normal hinting
-        kSlightHinting_DrawFilterFlag = 0x10000, // toggles between slight and normal hinting
-        kAAClip_DrawFilterFlag = 0x20000, // toggles between soft and hard clip
+        kBlur_DrawFilterFlag = 0x8000, // toggles between blur and no blur
+        kHinting_DrawFilterFlag = 0x10000, // toggles between no hinting and normal hinting
+        kSlightHinting_DrawFilterFlag = 0x20000, // toggles between slight and normal hinting
+        kAAClip_DrawFilterFlag = 0x40000, // toggles between soft and hard clip
     };
 
     SK_COMPILE_ASSERT(!(kBlur_DrawFilterFlag & SkPaint::kAllFlags), blur_flag_must_be_greater);
