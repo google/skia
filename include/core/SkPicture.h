@@ -277,7 +277,7 @@ private:
  *  calls to save(), restore will automatically be called to return the state
  *  to the same level it was before the drawPicture call was made.
  */
-class SkDrawPictureCallback {
+class SK_API SkDrawPictureCallback {
 public:
     SkDrawPictureCallback() {}
     virtual ~SkDrawPictureCallback() {}
