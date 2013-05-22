@@ -374,7 +374,7 @@ bool SkFontConfigInterfaceAndroid::matchFamilyName(const char familyName[],
                                                    SkTypeface::Style style,
                                                    FontIdentity* outFontIdentifier,
                                                    SkString* outFamilyName,
-                                                   SkTypeface::Style* outStyle) SK_OVERRIDE {
+                                                   SkTypeface::Style* outStyle) {
     // clip to legal style bits
     style = (SkTypeface::Style)(style & SkTypeface::kBoldItalic);
 
@@ -426,11 +426,11 @@ bool SkFontConfigInterfaceAndroid::matchFamilyName(const char familyName[],
     return true;
 }
 
-SkStream* SkFontConfigInterfaceAndroid::openStream(const FontIdentity& identity) SK_OVERRIDE {
+SkStream* SkFontConfigInterfaceAndroid::openStream(const FontIdentity& identity) {
     return SkStream::NewFromFile(identity.fString.c_str());
 }
 
-SkDataTable* SkFontConfigInterfaceAndroid::getFamilyNames() SK_OVERRIDE {
+SkDataTable* SkFontConfigInterfaceAndroid::getFamilyNames() {
     SkTDArray<const char*> names;
     SkTDArray<size_t> sizes;
 
@@ -450,7 +450,7 @@ SkDataTable* SkFontConfigInterfaceAndroid::getFamilyNames() SK_OVERRIDE {
 
 bool SkFontConfigInterfaceAndroid::matchFamilySet(const char inFamilyName[],
                                                   SkString* outFamilyName,
-                                                  SkTArray<FontIdentity>*) SK_OVERRIDE {
+                                                  SkTArray<FontIdentity>*) {
     return false;
 }
 
