@@ -99,6 +99,9 @@ public:
      */
     void addLayer() { this->addLayer(0, 0); }
 
+    /// Similar to addLayer, but adds a layer to the top.
+    SkPaint* addLayerOnTop(const LayerInfo&);
+
     // overrides from SkDrawLooper
     virtual void init(SkCanvas*);
     virtual bool next(SkCanvas*, SkPaint* paint);
@@ -115,10 +118,9 @@ private:
         Rec*    fNext;
         SkPaint fPaint;
         LayerInfo fInfo;
-
-        static Rec* Reverse(Rec*);
     };
     Rec*    fRecs;
+    Rec*    fTopRec;
     int     fCount;
 
     // state-machine during the init/next cycle

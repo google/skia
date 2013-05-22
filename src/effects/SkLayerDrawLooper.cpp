@@ -25,6 +25,7 @@ SkLayerDrawLooper::LayerInfo::LayerInfo() {
 
 SkLayerDrawLooper::SkLayerDrawLooper()
         : fRecs(NULL),
+          fTopRec(NULL),
           fCount(0),
           fCurrRec(NULL) {
 }
@@ -45,6 +46,9 @@ SkPaint* SkLayerDrawLooper::addLayer(const LayerInfo& info) {
     rec->fNext = fRecs;
     rec->fInfo = info;
     fRecs = rec;
+    if (NULL == fTopRec) {
+        fTopRec = rec;
+    }
 
     return &rec->fPaint;
 }
@@ -54,6 +58,23 @@ void SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
 
     info.fOffset.set(dx, dy);
     (void)this->addLayer(info);
+}
+
+SkPaint* SkLayerDrawLooper::addLayerOnTop(const LayerInfo& info) {
+    fCount += 1;
+
+    Rec* rec = SkNEW(Rec);
+    rec->fNext = NULL;
+    rec->fInfo = info;
+    if (NULL == fRecs) {
+        fRecs = rec;
+    } else {
+        SkASSERT(NULL != fTopRec);
+        fTopRec->fNext = rec;
+    }
+    fTopRec = rec;
+
+    return &rec->fPaint;
 }
 
 void SkLayerDrawLooper::init(SkCanvas* canvas) {
@@ -170,18 +191,6 @@ bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
     return true;
 }
 
-SkLayerDrawLooper::Rec* SkLayerDrawLooper::Rec::Reverse(Rec* head) {
-    Rec* rec = head;
-    Rec* prev = NULL;
-    while (rec) {
-        Rec* next = rec->fNext;
-        rec->fNext = prev;
-        prev = rec;
-        rec = next;
-    }
-    return prev;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -216,6 +225,7 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
 SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer),
           fRecs(NULL),
+          fTopRec(NULL),
           fCount(0),
           fCurrRec(NULL) {
     int count = buffer.readInt();
@@ -227,12 +237,9 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
         info.fColorMode = (SkXfermode::Mode)buffer.readInt();
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
-        buffer.readPaint(this->addLayer(info));
+        buffer.readPaint(this->addLayerOnTop(info));
     }
     SkASSERT(count == fCount);
-
-    // we're in reverse order, so fix it now
-    fRecs = Rec::Reverse(fRecs);
 
 #ifdef SK_DEBUG
     {
