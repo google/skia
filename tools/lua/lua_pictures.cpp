@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkLua.h"
 #include "SkLuaCanvas.h"
 #include "SkPicture.h"
 #include "SkCommandLineFlags.h"
@@ -60,50 +61,6 @@ static SkData* read_into_data(const char file[]) {
     return SkData::NewFromMalloc(buffer, len);
 }
 
-class SkAutoLua {
-public:
-    SkAutoLua(const char termCode[] = NULL) : fTermCode(termCode) {
-        fL = luaL_newstate();
-        luaL_openlibs(fL);
-    }
-    ~SkAutoLua() {
-        if (fTermCode.size() > 0) {
-            lua_getglobal(fL, fTermCode.c_str());
-            if (lua_pcall(fL, 0, 0, 0) != LUA_OK) {
-                SkDebugf("lua err: %s\n", lua_tostring(fL, -1));
-            }
-        }
-        lua_close(fL);
-    }
-
-    lua_State* get() const { return fL; }
-    lua_State* operator*() const { return fL; }
-    lua_State* operator->() const { return fL; }
-
-    bool load(const char code[]) {
-        int err = luaL_loadstring(fL, code) || lua_pcall(fL, 0, 0, 0);
-        if (err) {
-            SkDebugf("--- lua failed\n");
-            return false;
-        }
-        return true;
-    }
-    bool load(const void* code, size_t size) {
-        SkString str((const char*)code, size);
-        return load(str.c_str());
-        int err = luaL_loadbufferx(fL, (const char*)code, size, NULL, NULL)
-               || lua_pcall(fL, 0, 0, 0);
-        if (err) {
-            SkDebugf("--- lua failed\n");
-            return false;
-        }
-        return true;
-    }
-private:
-    lua_State* fL;
-    SkString   fTermCode;
-};
-
 static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
                         const char pictureFile[], const char funcName[]) {
     lua_getglobal(L, funcName);
@@ -135,12 +92,12 @@ int tool_main(int argc, char** argv) {
     }
 
     SkAutoGraphics ag;
-    SkAutoLua L(gSummarizeFunc);
+    SkLua L(gSummarizeFunc);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
         SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
         SkDebugf("loading %s...\n", FLAGS_luaFile[i]);
-        if (!L.load(data->data(), data->size())) {
+        if (!L.runCode(data->data(), data->size())) {
             SkDebugf("failed to load luaFile %s\n", FLAGS_luaFile[i]);
             exit(-1);
         }

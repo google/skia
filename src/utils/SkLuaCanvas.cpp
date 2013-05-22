@@ -27,7 +27,7 @@ public:
     }
 
     ~AutoCallLua() {
-        lua_State* L = this->getL();
+        lua_State* L = this->get();
         if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
             SkDebugf("lua err: %s\n", lua_tostring(L, -1));
         }
