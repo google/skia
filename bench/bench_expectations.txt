@@ -1623,7 +1623,7 @@ tabl_hsfi.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,53.810,38
 tabl_hsfi.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,744.750,660.275,829.225
 tabl_hsfi.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,46.540,31.886,61.194
 tabl_hsfi.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,47.200,32.480,61.920
-tabl_hsfi.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1099.660,979.694,1279.626
+tabl_hsfi.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1270.000,1250.000,1305.000
 tabl_hsfi.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,101.100,80.990,121.210
 tabl_hsfi.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,85.020,66.518,103.522
 tabl_hsfi.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,34.540,21.086,547.994
