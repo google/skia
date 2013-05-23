@@ -35,10 +35,10 @@ public:
     lua_State* get() const { return fL; }
     lua_State* operator*() const { return fL; }
     lua_State* operator->() const { return fL; }
-    
+
     bool runCode(const char code[]);
     bool runCode(const void* code, size_t size);
-    
+
     void pushBool(bool, const char tableKey[] = NULL);
     void pushString(const char[], const char tableKey[] = NULL);
     void pushString(const SkString&, const char tableKey[] = NULL);

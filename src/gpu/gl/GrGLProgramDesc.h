@@ -28,7 +28,7 @@ public:
     GrGLProgramDesc() : fInitialized(false) {}
     GrGLProgramDesc(const GrGLProgramDesc& desc) { *this = desc; }
 
-    // Returns this as a uint32_t array to be used as a key in the program cache. 
+    // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
         GrAssert(fInitialized);
         return reinterpret_cast<const uint32_t*>(fKey.get());
@@ -164,7 +164,7 @@ private:
         int8_t                      fLocalCoordAttributeIndex;
         int8_t                      fColorAttributeIndex;
         int8_t                      fCoverageAttributeIndex;
-        
+
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
     };

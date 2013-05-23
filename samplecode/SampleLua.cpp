@@ -64,7 +64,7 @@ static const char gCode[] = ""
 class LuaView : public SampleView {
 public:
     LuaView() : fLua(NULL) {}
-    
+
     virtual ~LuaView() {
         SkDELETE(fLua);
     }

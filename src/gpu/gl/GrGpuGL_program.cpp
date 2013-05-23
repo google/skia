@@ -144,7 +144,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
         }
         GrAssert(fEntries[purgeIdx] == entry);
         entry->fProgram.reset(program);
-        // We need to shift fEntries around so that the entry currently at purgeIdx is placed 
+        // We need to shift fEntries around so that the entry currently at purgeIdx is placed
         // just before the entry at ~entryIdx (in order to keep fEntries sorted by descriptor).
         entryIdx = ~entryIdx;
         if (entryIdx < purgeIdx) {
