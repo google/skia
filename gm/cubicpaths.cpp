@@ -30,9 +30,9 @@ protected:
         SkPaint paint;
         SkRect bounds = path.getBounds();
         
-        for (int dy = -1; dy <= 1; ++dy) {
+        for (SkScalar dy = -1; dy <= 1; dy += 1) {
             canvas->save();
-            for (int dx = -1; dx <= 1; ++dx) {
+            for (SkScalar dx = -1; dx <= 1; dx += 1) {
                 canvas->save();
                 canvas->clipRect(bounds);
                 canvas->translate(dx, dy);
