@@ -30,6 +30,8 @@ public:
         int     fShift;
     };
 
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorMatrixFilter)
 
 protected:

@@ -12,6 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkUtils.h"
+#include "SkString.h"
 
 #define ILLEGAL_XFERMODE_MODE   ((SkXfermode::Mode)-1)
 
@@ -74,6 +75,15 @@ public:
             result[i] = proc16(color, shader[i]);
         }
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkModeColorFilter: color: 0x");
+        str->appendHex(fColor);
+        str->append(" mode: ");
+        str->append(SkXfermode::ModeName(fMode));
+    }
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
@@ -260,6 +270,15 @@ public:
         }
     }
 
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkLightingColorFilter: mul: 0x");
+        str->appendHex(fMul);
+        str->append(" add: 0x");
+        str->appendHex(fAdd);
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter)
 
 protected:
@@ -305,6 +324,13 @@ public:
         }
     }
 
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkLightingColorFilter_JustAdd: add: 0x");
+        str->appendHex(fAdd);
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_JustAdd)
 
 protected:
@@ -338,6 +364,13 @@ public:
             result[i] = c;
         }
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkLightingColorFilter_JustMul: mul: 0x");
+        str->appendHex(fMul);
+    }
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_JustMul)
 
@@ -375,6 +408,13 @@ public:
             } while (--count > 0);
         }
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkLightingColorFilter_SingleMul: mul: 0x");
+        str->appendHex(fMul);
+    }
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_SingleMul)
 
@@ -415,6 +455,15 @@ public:
         }
     }
 
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkLightingColorFilter_NoPin: mul: 0x");
+        str->appendHex(fMul);
+        str->append(" add: 0x");
+        str->appendHex(fAdd);
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingColorFilter_NoPin)
 
 protected:
@@ -432,6 +481,12 @@ public:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW(SkSimpleColorFilter);
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("SkSimpleColorFilter");
+    }
+#endif
 
 protected:
     void filterSpan(const SkPMColor src[], int count, SkPMColor

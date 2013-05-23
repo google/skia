@@ -2308,27 +2308,28 @@ void SkPaint::toString(SkString* str) const {
     SkShader* shader = this->getShader();
     if (NULL != shader) {
         str->append("<dt>Shader:</dt><dd>");
-        SkDEVCODE(shader->toString(str);)
+        shader->toString(str);
         str->append("</dd>");
     }
 
     SkXfermode* xfer = this->getXfermode();
     if (NULL != xfer) {
         str->append("<dt>Xfermode:</dt><dd>");
-        SkDEVCODE(xfer->toString(str);)
+        xfer->toString(str);
         str->append("</dd>");
     }
 
     SkMaskFilter* maskFilter = this->getMaskFilter();
     if (NULL != maskFilter) {
         str->append("<dt>MaskFilter:</dt><dd>");
-        SkDEVCODE(maskFilter->toString(str);)
+        maskFilter->toString(str);
         str->append("</dd>");
     }
 
     SkColorFilter* colorFilter = this->getColorFilter();
     if (NULL != colorFilter) {
         str->append("<dt>ColorFilter:</dt><dd>");
+        colorFilter->toString(str);
         str->append("</dd>");
     }
 
@@ -2341,7 +2342,7 @@ void SkPaint::toString(SkString* str) const {
     SkDrawLooper* looper = this->getLooper();
     if (NULL != looper) {
         str->append("<dt>DrawLooper:</dt><dd>");
-        SkDEVCODE(looper->toString(str);)
+        looper->toString(str);
         str->append("</dd>");
     }
 

@@ -477,3 +477,18 @@ GrEffectRef* SkColorMatrixFilter::asNewEffect(GrContext*) const {
 }
 
 #endif
+
+#ifdef SK_DEVELOPER
+void SkColorMatrixFilter::toString(SkString* str) const {
+    str->append("SkColorMatrixFilter: ");
+
+    str->append("matrix: (");
+    for (int i = 0; i < 20; ++i) {
+        str->appendScalar(fMatrix.fMat[i]);
+        if (i < 19) {
+            str->append(", ");
+        }
+    }
+    str->append(")");
+}
+#endif

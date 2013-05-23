@@ -4,6 +4,7 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkUnPreMultiply.h"
+#include "SkString.h"
 
 class SkTable_ColorFilter : public SkColorFilter {
 public:
@@ -46,6 +47,8 @@ public:
 
     virtual void filterSpan(const SkPMColor src[], int count,
                             SkPMColor dst[]) const SK_OVERRIDE;
+
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
@@ -147,6 +150,12 @@ void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count,
                                          tableG[g], tableB[b]);
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkTable_ColorFilter::toString(SkString* str) const {
+    str->append("SkTable_ColorFilter");
+}
+#endif
 
 static const uint8_t gCountNibBits[] = {
     0, 1, 1, 2,
