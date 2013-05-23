@@ -27,6 +27,7 @@
         '<(skia_src_path)/core/SkBitmapProcShader.h',
         '<(skia_src_path)/core/SkBitmapProcState.cpp',
         '<(skia_src_path)/core/SkBitmapProcState.h',
+        '<(skia_src_path)/core/SkBitmapProcBicubic.cpp',
         '<(skia_src_path)/core/SkBitmapProcState_matrix.h',
         '<(skia_src_path)/core/SkBitmapProcState_matrixProcs.cpp',
         '<(skia_src_path)/core/SkBitmapProcState_sample.h',
