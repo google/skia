@@ -625,11 +625,11 @@ struct SkipClipRec {
 #endif
 
 #ifdef SK_DEVELOPER
-size_t SkPicturePlayback::preDraw(size_t offset, int type) {
-    return 0;
+bool SkPicturePlayback::preDraw(int opIndex, int type) {
+    return false;
 }
 
-void SkPicturePlayback::postDraw(size_t offset) {
+void SkPicturePlayback::postDraw(int opIndex) {
 }
 #endif
 
@@ -712,6 +712,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
     fAbortCurrentPlayback = false;
 #endif
 
+#ifdef SK_DEVELOPER
+    int opIndex = -1;
+#endif
+
     while (!reader.eof()) {
         if (callback && callback->abortDrawing()) {
             canvas.restoreToCount(originalSaveCount);
@@ -727,14 +731,16 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
         uint32_t size;
         DrawType op = read_op_and_size(&reader, &size);
         size_t skipTo = 0;
-#ifdef SK_DEVELOPER
-        // TODO: once chunk sizes are in all .skps just use
-        // "curOffset + size"
-        skipTo = this->preDraw(curOffset, op);
-#endif
-        if (0 == skipTo && NOOP == op) {
+        if (NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further
             skipTo = curOffset + size;
+#ifdef SK_DEVELOPER
+        } else {
+            opIndex++;
+            if (this->preDraw(opIndex, op)) {
+                skipTo = curOffset + size;
+            }
+#endif
         }
 
         if (0 != skipTo) {
@@ -1023,7 +1029,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
         }
 
 #ifdef SK_DEVELOPER
-        this->postDraw(curOffset);
+        this->postDraw(opIndex);
 #endif
 
         if (it.isValid()) {

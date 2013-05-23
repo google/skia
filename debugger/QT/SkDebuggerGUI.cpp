@@ -144,20 +144,19 @@ void SkDebuggerGUI::showDeletes() {
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                           SkPicture::InstallPixelRefProc proc, const SkTDArray<size_t>& offsets,
+                           SkPicture::InstallPixelRefProc proc, 
                            const SkTDArray<bool>& deletedCommands)
         : INHERITED(stream, info, proc)
-        , fOffsets(offsets)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
         , fCurCommand(0) {
-        fTimes.setCount(fOffsets.count());
+        fTimes.setCount(deletedCommands.count());
         fTypeTimes.setCount(LAST_DRAWTYPE_ENUM+1);
         this->resetTimes();
     }
 
     void resetTimes() {
-        for (int i = 0; i < fOffsets.count(); ++i) {
+        for (int i = 0; i < fTimes.count(); ++i) {
             fTimes[i] = 0.0;
         }
         for (int i = 0; i < fTypeTimes.count(); ++i) {
@@ -176,37 +175,21 @@ public:
 
 protected:
     BenchSysTimer fTimer;
-    SkTDArray<size_t> fOffsets; // offset in the SkPicture for each command
     SkTDArray<bool> fSkipCommands; // has the command been deleted in the GUI?
     SkTDArray<double> fTimes;   // sum of time consumed for each command
     SkTDArray<double> fTypeTimes; // sum of time consumed for each type of command (e.g., drawPath)
     double fTot;                // total of all times in 'fTimes'
-    size_t fCurOffset;
     int fCurType;
     int fCurCommand;            // the current command being executed/timed
 
-    virtual size_t preDraw(size_t offset, int type) {
-        // This search isn't as bad as it seems. In normal playback mode, the
-        // base class steps through the commands in order and can only skip ahead
-        // a bit on a clip. This class is only used during profiling so we
-        // don't have to worry about forward/backward scrubbing through commands.
-        for (int i = 0; offset != fOffsets[fCurCommand]; ++i) {
-            fCurCommand = (fCurCommand+1) % fOffsets.count();
-            SkASSERT(i <= fOffsets.count()); // should always find the offset in the list
-        }
+#ifdef SK_DEVELOPER
+    virtual bool preDraw(int opIndex, int type) SK_OVERRIDE {
+        fCurCommand = opIndex;
 
         if (fSkipCommands[fCurCommand]) {
-            while (fCurCommand < fSkipCommands.count() && fSkipCommands[fCurCommand]) {
-                ++fCurCommand;
-            }
-            if (fCurCommand == fSkipCommands.count()) {
-                // Signal SkPicturePlayback to stop playing back
-                return SK_MaxU32;
-            }
-            return fOffsets[fCurCommand];
+            return true;
         }
 
-        fCurOffset = offset;
         fCurType = type;
         // The SkDebugCanvas doesn't recognize these types. This class needs to
         // convert or else we'll wind up with a mismatch between the type counts
@@ -224,10 +207,10 @@ protected:
         fTimer.startCpu();
 #endif
 
-        return 0;
+        return false;
     }
 
-    virtual void postDraw(size_t offset) {
+    virtual void postDraw(int opIndex) SK_OVERRIDE {
 #if defined(SK_BUILD_FOR_WIN32)
         // CPU timer doesn't work well on Windows
         double time = fTimer.endWall();
@@ -235,13 +218,14 @@ protected:
         double time = fTimer.endCpu();
 #endif
 
-        SkASSERT(offset == fCurOffset);
+        SkASSERT(opIndex == fCurCommand);
         SkASSERT(fCurType <= LAST_DRAWTYPE_ENUM);
 
         fTimes[fCurCommand] += time;
         fTypeTimes[fCurType] += time;
         fTot += time;
     }
+#endif
 
 private:
     typedef SkPicturePlayback INHERITED;
@@ -251,7 +235,6 @@ private:
 class SkTimedPicture : public SkPicture {
 public:
     explicit SkTimedPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc proc,
-                            const SkTDArray<size_t>& offsets,
                             const SkTDArray<bool>& deletedCommands) {
         if (success) {
             *success = false;
@@ -271,7 +254,7 @@ public:
 
         if (stream->readBool()) {
             fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                   (stream, info, proc, offsets, deletedCommands));
+                                   (stream, info, proc, deletedCommands));
         }
 
         // do this at the end, so that they will be zero if we hit an error.
@@ -354,7 +337,7 @@ void SkDebuggerGUI::actionProfile() {
 
     bool success = false;
     SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeMemory,
-                           fOffsets, fSkipCommands);
+                           fSkipCommands);
     if (!success) {
         return;
     }
@@ -914,76 +897,6 @@ void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
     }
 }
 
-// SkOffsetPicturePlayback records the offset of each command in the picture.
-// These are needed by the profiling system.
-class SkOffsetPicturePlayback : public SkPicturePlayback {
-public:
-    SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                            SkPicture::InstallPixelRefProc proc)
-        : INHERITED(stream, info, proc) {
-    }
-
-    const SkTDArray<size_t>& offsets() const { return fOffsets; }
-
-protected:
-    SkTDArray<size_t> fOffsets;
-
-    virtual size_t preDraw(size_t offset, int type) {
-        *fOffsets.append() = offset;
-        return 0;
-    }
-
-private:
-    typedef SkPicturePlayback INHERITED;
-};
-
-// Picture to wrap an SkOffsetPicturePlayback.
-class SkOffsetPicture : public SkPicture {
-public:
-    SkOffsetPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc proc) {
-        if (success) {
-            *success = false;
-        }
-        fRecord = NULL;
-        fPlayback = NULL;
-        fWidth = fHeight = 0;
-
-        SkPictInfo info;
-
-        if (!stream->read(&info, sizeof(info))) {
-            return;
-        }
-        if (PICTURE_VERSION != info.fVersion) {
-            return;
-        }
-
-        if (stream->readBool()) {
-            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, proc));
-        }
-
-        // do this at the end, so that they will be zero if we hit an error.
-        fWidth = info.fWidth;
-        fHeight = info.fHeight;
-        if (success) {
-            *success = true;
-        }
-    }
-
-    const SkTDArray<size_t>& offsets() const {
-        return ((SkOffsetPicturePlayback*) fPlayback)->offsets();
-    }
-
-private:
-    // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr
-    SkOffsetPicture();
-    // disallow the copy ctor - enabling would require copying code from SkPicture
-    SkOffsetPicture(const SkOffsetPicture& src);
-
-    typedef SkPicture INHERITED;
-};
-
-
-
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
@@ -991,8 +904,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     bool success = false;
 
-    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture,
-                                          (stream, &success, &SkImageDecoder::DecodeMemory));
+    SkPicture* picture = SkNEW_ARGS(SkPicture,
+                                    (stream, &success, &SkImageDecoder::DecodeMemory));
 
     if (!success) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
@@ -1003,10 +916,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
 
-    fOffsets = picture->offsets();
-
-    fSkipCommands.setCount(fOffsets.count());
-    for (int i = 0; i < fOffsets.count(); ++i) {
+    fSkipCommands.setCount(fDebugger.getSize());
+    for (int i = 0; i < fSkipCommands.count(); ++i) {
         fSkipCommands[i] = false;
     }
 
@@ -1016,12 +927,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     // Will this automatically clear out due to nature of refcnt?
     SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
 
-    // If SkPicturePlayback is compiled w/o SK_PICTURE_PROFILING_STUBS
-    // the offset count will always be zero
-    SkASSERT(0 == fOffsets.count() || commands->count() == fOffsets.count());
-    if (commands->count() == fOffsets.count()) {
-        fActionProfile.setDisabled(false);
-    }
+    fActionProfile.setDisabled(false);
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter.
