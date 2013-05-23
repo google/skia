@@ -97,6 +97,7 @@ struct SkBitmapProcState {
      */
     void platformProcs();
 
+
     /** Given the byte size of the index buffer to be passed to the matrix proc,
         return the maximum number of resulting pixels that can be computed
         (i.e. the number of SkPMColor values to be written by the sample proc).
@@ -139,6 +140,12 @@ private:
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
 
+
+    /** test method for choosing a bicubic shading filter
+      */
+      
+    ShaderProc32 chooseBicubicFilterProc(const SkPaint &paint);
+    
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
 
