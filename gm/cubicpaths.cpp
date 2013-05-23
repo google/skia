@@ -17,7 +17,7 @@ public:
     
 protected:
     SkString onShortName() {
-        return SkString("cubicpath");
+        return SkString("clippedcubic");
     }
     
     SkISize onISize() { return SkISize::Make(1240, 390); }

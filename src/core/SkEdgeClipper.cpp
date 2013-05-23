@@ -283,12 +283,12 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
             SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
 
-            // tmp[3, 4, 5].fY should all be to the below clip.fTop, and
-            // still be monotonic in Y. Since we can't trust the numerics of
+            // tmp[3, 4, 5].fY should all be to the below clip.fTop.
+            // Since we can't trust the numerics of
             // the chopper, we force those conditions now
             tmp[3].fY = clip.fTop;
             clamp_ge(tmp[4].fY, clip.fTop);
-            clamp_ge(tmp[5].fY, tmp[4].fY);
+            clamp_ge(tmp[5].fY, clip.fTop);
 
             pts[0] = tmp[3];
             pts[1] = tmp[4];
@@ -362,12 +362,12 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
             SkChopCubicAt(pts, tmp, t);
             this->appendVLine(clip.fLeft, tmp[0].fY, tmp[3].fY, reverse);
 
-            // tmp[3, 4, 5].fX should all be to the right of clip.fLeft, and
-            // still be monotonic in X. Since we can't trust the numerics of
+            // tmp[3, 4, 5].fX should all be to the right of clip.fLeft.
+            // Since we can't trust the numerics of
             // the chopper, we force those conditions now
             tmp[3].fX = clip.fLeft;
             clamp_ge(tmp[4].fX, clip.fLeft);
-            clamp_ge(tmp[5].fX, tmp[4].fX);
+            clamp_ge(tmp[5].fX, clip.fLeft);
 
             pts[0] = tmp[3];
             pts[1] = tmp[4];
@@ -388,7 +388,7 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
             SkChopCubicAt(pts, tmp, t);
             tmp[3].fX = clip.fRight;
             clamp_le(tmp[2].fX, clip.fRight);
-            clamp_le(tmp[1].fX, tmp[2].fX);
+            clamp_le(tmp[1].fX, clip.fRight);
 
             this->appendCubic(tmp, reverse);
             this->appendVLine(clip.fRight, tmp[3].fY, tmp[6].fY, reverse);
@@ -413,12 +413,9 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
         SkPoint monoY[10];
         int countY = SkChopCubicAtYExtrema(srcPts, monoY);
         for (int y = 0; y <= countY; y++) {
-        //    sk_assert_monotonic_y(&monoY[y * 3], 4);
             SkPoint monoX[10];
             int countX = SkChopCubicAtXExtrema(&monoY[y * 3], monoX);
             for (int x = 0; x <= countX; x++) {
-            //    sk_assert_monotonic_y(&monoX[x * 3], 4);
-            //    sk_assert_monotonic_x(&monoX[x * 3], 4);
                 this->clipMonoCubic(&monoX[x * 3], clip);
                 SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);
                 SkASSERT(fCurrPoint - fPoints <= kMaxPoints);
