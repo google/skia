@@ -148,8 +148,6 @@ static void test_mask() {
     }
 }
 
-namespace skiagm {
-
 /** Draw a 2px border around the target, then red behind the target;
     set the clip to match the target, then draw >> the target in blue.
 */
@@ -205,19 +203,19 @@ static void draw_rect_tests (SkCanvas* canvas) {
    border, with no red.
 */
 
-class AAClipGM : public GM {
+class AAClipGM : public skiagm::GM {
 public:
     AAClipGM() {
 
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("aaclip");
     }
 
-    virtual SkISize onISize() {
-        return make_isize(640, 480);
+    virtual SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(640, 480);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -260,12 +258,7 @@ protected:
     virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new AAClipGM; }
-static GMRegistry reg(MyFactory);
-
-}
+DEF_GM( return SkNEW(AAClipGM); )
