@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcBicubic.h"
+#include "SkBitmapProcState.h"
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
