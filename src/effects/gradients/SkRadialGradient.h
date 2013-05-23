@@ -13,9 +13,7 @@
 
 class SkRadialGradient : public SkGradientShaderBase {
 public:
-    SkRadialGradient(const SkPoint& center, SkScalar radius,
-                    const SkColor colors[], const SkScalar pos[], int colorCount,
-                    SkShader::TileMode mode, SkUnitMapper* mapper);
+    SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
     virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count)
         SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t* dstCParam,

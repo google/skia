@@ -13,8 +13,7 @@
 
 class SkSweepGradient : public SkGradientShaderBase {
 public:
-    SkSweepGradient(SkScalar cx, SkScalar cy, const SkColor colors[],
-                   const SkScalar pos[], int count, SkUnitMapper* mapper);
+    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
 

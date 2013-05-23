@@ -153,9 +153,8 @@ void shadeSpan16_radial_repeat(SkScalar sfx, SkScalar sdx,
 /////////////////////////////////////////////////////////////////////
 
 SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius,
-                const SkColor colors[], const SkScalar pos[], int colorCount,
-                SkShader::TileMode mode, SkUnitMapper* mapper)
-    : SkGradientShaderBase(colors, pos, colorCount, mode, mapper),
+                                   const Descriptor& desc)
+    : SkGradientShaderBase(desc),
       fCenter(center),
       fRadius(radius)
 {

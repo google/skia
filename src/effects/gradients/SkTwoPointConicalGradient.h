@@ -47,9 +47,7 @@ class SkTwoPointConicalGradient : public SkGradientShaderBase {
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
-                              const SkColor colors[], const SkScalar pos[],
-                              int colorCount, SkShader::TileMode mode,
-                              SkUnitMapper* mapper);
+                              const Descriptor&);
 
     virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
                            int count) SK_OVERRIDE;
