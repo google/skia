@@ -80,8 +80,8 @@ public:
 
 protected:
 #ifdef SK_DEVELOPER
-    virtual size_t preDraw(size_t offset, int type);
-    virtual void postDraw(size_t offset);
+    virtual bool preDraw(int opIndex, int type);
+    virtual void postDraw(int opIndex);
 #endif
 
 private:
