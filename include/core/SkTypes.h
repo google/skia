@@ -588,7 +588,7 @@ public:
                 SkAutoMalloc::OnShrink shrink = SkAutoMalloc::kAlloc_OnShrink,
                 bool* didChangeAlloc = NULL) {
         size = (size < kSize) ? kSize : size;
-        bool alloc = size != fSize && (SkAutoMalloc::kAlloc_OnShrink == shrink || size < fSize);
+        bool alloc = size != fSize && (SkAutoMalloc::kAlloc_OnShrink == shrink || size > fSize);
         if (NULL != didChangeAlloc) {
             *didChangeAlloc = alloc;
         }
