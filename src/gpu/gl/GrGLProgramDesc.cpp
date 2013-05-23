@@ -159,7 +159,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     // Record attribute indices
     header->fPositionAttributeIndex = drawState.positionAttributeIndex();
     header->fLocalCoordAttributeIndex = drawState.localCoordAttributeIndex();
-    
+
     // For constant color and coverage we need an attribute with an index beyond those already set
     int availableAttributeIndex = drawState.getVertexAttribCount();
     if (requiresColorAttrib) {
@@ -171,7 +171,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     } else {
         header->fColorAttributeIndex = -1;
     }
-    
+
     if (requiresCoverageAttrib) {
         header->fCoverageAttributeIndex = drawState.coverageVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
@@ -182,7 +182,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     // Here we deal with whether/how we handle color and coverage separately.
-    
+
     // Set these defaults and then possibly change our mind if there is coverage.
     header->fDiscardIfZeroCoverage = false;
     header->fCoverageOutput = kModulate_CoverageOutput;
@@ -247,4 +247,3 @@ GrGLProgramDesc& GrGLProgramDesc::operator= (const GrGLProgramDesc& other) {
     }
     return *this;
 }
-

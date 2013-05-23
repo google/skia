@@ -195,7 +195,7 @@ static SkScalar getfield_scalar(lua_State* L, int index, const char key[]) {
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
     lua_gettable(L, index);
-    
+
     SkScalar value = lua2scalar(L, -1);
     lua_pop(L, 1);
     return value;
@@ -492,18 +492,18 @@ public:
             int t = lua_type(L, -1);
             SkDebugf("--- expected function %d\n", t);
         }
-        
+
         lua_newtable(L);
         setfield_string(L, "verb", verb);
     }
-    
+
     ~AutoCallLua() {
         if (lua_pcall(fL, 1, 0, 0) != LUA_OK) {
             SkDebugf("lua err: %s\n", lua_tostring(fL, -1));
         }
         lua_settop(fL, -1);
     }
-    
+
 private:
     lua_State* fL;
 };
@@ -563,4 +563,3 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkRRect);
 }
-
