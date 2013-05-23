@@ -82,8 +82,21 @@ static const TileProc gTileProcs[] = {
 
 class SkGradientShaderBase : public SkShader {
 public:
-    SkGradientShaderBase(const SkColor colors[], const SkScalar pos[],
-                int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper);
+    struct Descriptor {
+        Descriptor() {
+            sk_bzero(this, sizeof(*this));
+            fTileMode = SkShader::kClamp_TileMode;
+        }
+        
+        const SkColor*      fColors;
+        const SkScalar*     fPos;
+        int                 fCount;
+        SkShader::TileMode  fTileMode;
+        SkUnitMapper*       fMapper;
+    };
+
+public:
+    SkGradientShaderBase(const Descriptor& desc);
     virtual ~SkGradientShaderBase();
 
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;

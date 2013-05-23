@@ -62,13 +62,8 @@ static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkLinearGradient::SkLinearGradient(const SkPoint pts[2],
-                                   const SkColor colors[],
-                                   const SkScalar pos[],
-                                   int colorCount,
-                                   SkShader::TileMode mode,
-                                   SkUnitMapper* mapper)
-    : SkGradientShaderBase(colors, pos, colorCount, mode, mapper)
+SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
+    : SkGradientShaderBase(desc)
     , fStart(pts[0])
     , fEnd(pts[1]) {
     pts_to_unit_matrix(pts, &fPtsToUnit);

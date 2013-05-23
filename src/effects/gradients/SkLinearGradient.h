@@ -13,9 +13,7 @@
 
 class SkLinearGradient : public SkGradientShaderBase {
 public:
-    SkLinearGradient(const SkPoint pts[2],
-                     const SkColor colors[], const SkScalar pos[], int colorCount,
-                     SkShader::TileMode mode, SkUnitMapper* mapper);
+    SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;

@@ -12,19 +12,18 @@
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
 
-SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScalar pos[],
-             int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper) {
-    SkASSERT(colorCount > 1);
+SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc) {
+    SkASSERT(desc.fCount > 1);
 
     fCacheAlpha = 256;  // init to a value that paint.getAlpha() can't return
 
-    fMapper = mapper;
-    SkSafeRef(mapper);
+    fMapper = desc.fMapper;
+    SkSafeRef(fMapper);
 
-    SkASSERT((unsigned)mode < SkShader::kTileModeCount);
+    SkASSERT((unsigned)desc.fTileMode < SkShader::kTileModeCount);
     SkASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gTileProcs));
-    fTileMode = mode;
-    fTileProc = gTileProcs[mode];
+    fTileMode = desc.fTileMode;
+    fTileProc = gTileProcs[desc.fTileMode];
 
     fCache16 = fCache16Storage = NULL;
     fCache32 = NULL;
@@ -41,13 +40,13 @@ SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScala
             colorCount = 2
             fColorCount = 4
      */
-    fColorCount = colorCount;
+    fColorCount = desc.fCount;
     // check if we need to add in dummy start and/or end position/colors
     bool dummyFirst = false;
     bool dummyLast = false;
-    if (pos) {
-        dummyFirst = pos[0] != 0;
-        dummyLast = pos[colorCount - 1] != SK_Scalar1;
+    if (desc.fPos) {
+        dummyFirst = desc.fPos[0] != 0;
+        dummyLast = desc.fPos[desc.fCount - 1] != SK_Scalar1;
         fColorCount += dummyFirst + dummyLast;
     }
 
@@ -64,12 +63,12 @@ SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScala
     {
         SkColor* origColors = fOrigColors;
         if (dummyFirst) {
-            *origColors++ = colors[0];
+            *origColors++ = desc.fColors[0];
         }
-        memcpy(origColors, colors, colorCount * sizeof(SkColor));
+        memcpy(origColors, desc.fColors, desc.fCount * sizeof(SkColor));
         if (dummyLast) {
-            origColors += colorCount;
-            *origColors = colors[colorCount - 1];
+            origColors += desc.fCount;
+            *origColors = desc.fColors[desc.fCount - 1];
         }
     }
 
@@ -79,7 +78,7 @@ SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScala
         recs->fPos = 0;
         //  recs->fScale = 0; // unused;
         recs += 1;
-        if (pos) {
+        if (desc.fPos) {
             /*  We need to convert the user's array of relative positions into
                 fixed-point positions and scale factors. We need these results
                 to be strictly monotonic (no two values equal or out of order).
@@ -89,14 +88,14 @@ SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScala
             */
             SkFixed prev = 0;
             int startIndex = dummyFirst ? 0 : 1;
-            int count = colorCount + dummyLast;
+            int count = desc.fCount + dummyLast;
             for (int i = startIndex; i < count; i++) {
                 // force the last value to be 1.0
                 SkFixed curr;
-                if (i == colorCount) {  // we're really at the dummyLast
+                if (i == desc.fCount) {  // we're really at the dummyLast
                     curr = SK_Fixed1;
                 } else {
-                    curr = SkScalarToFixed(pos[i]);
+                    curr = SkScalarToFixed(desc.fPos[i]);
                 }
                 // pin curr withing range
                 if (curr < 0) {
@@ -115,10 +114,10 @@ SkGradientShaderBase::SkGradientShaderBase(const SkColor colors[], const SkScala
                 recs += 1;
             }
         } else {    // assume even distribution
-            SkFixed dp = SK_Fixed1 / (colorCount - 1);
+            SkFixed dp = SK_Fixed1 / (desc.fCount - 1);
             SkFixed p = dp;
-            SkFixed scale = (colorCount - 1) << 8;  // (1 << 24) / dp
-            for (int i = 1; i < colorCount; i++) {
+            SkFixed scale = (desc.fCount - 1) << 8;  // (1 << 24) / dp
+            for (int i = 1; i < desc.fCount; i++) {
                 recs->fPos   = p;
                 recs->fScale = scale;
                 recs += 1;
@@ -640,6 +639,18 @@ void SkGradientShaderBase::toString(SkString* str) const {
         }                                   \
     } while (0)
 
+static void desc_init(SkGradientShaderBase::Descriptor* desc,
+                      const SkColor colors[],
+                      const SkScalar pos[], int colorCount,
+                      SkShader::TileMode mode,
+                      SkUnitMapper* mapper) {
+    desc->fColors   = colors;
+    desc->fPos      = pos;
+    desc->fCount    = colorCount;
+    desc->fTileMode = mode;
+    desc->fMapper   = mapper;
+}
+
 SkShader* SkGradientShader::CreateLinear(const SkPoint pts[2],
                                          const SkColor colors[],
                                          const SkScalar pos[], int colorCount,
@@ -650,8 +661,9 @@ SkShader* SkGradientShader::CreateLinear(const SkPoint pts[2],
     }
     EXPAND_1_COLOR(colorCount);
 
-    return SkNEW_ARGS(SkLinearGradient,
-                      (pts, colors, pos, colorCount, mode, mapper));
+    SkGradientShaderBase::Descriptor desc;
+    desc_init(&desc, colors, pos, colorCount, mode, mapper);
+    return SkNEW_ARGS(SkLinearGradient, (pts, desc));
 }
 
 SkShader* SkGradientShader::CreateRadial(const SkPoint& center, SkScalar radius,
@@ -664,8 +676,9 @@ SkShader* SkGradientShader::CreateRadial(const SkPoint& center, SkScalar radius,
     }
     EXPAND_1_COLOR(colorCount);
 
-    return SkNEW_ARGS(SkRadialGradient,
-                      (center, radius, colors, pos, colorCount, mode, mapper));
+    SkGradientShaderBase::Descriptor desc;
+    desc_init(&desc, colors, pos, colorCount, mode, mapper);
+    return SkNEW_ARGS(SkRadialGradient, (center, radius, desc));
 }
 
 SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
@@ -682,9 +695,10 @@ SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
     }
     EXPAND_1_COLOR(colorCount);
 
+    SkGradientShaderBase::Descriptor desc;
+    desc_init(&desc, colors, pos, colorCount, mode, mapper);
     return SkNEW_ARGS(SkTwoPointRadialGradient,
-                      (start, startRadius, end, endRadius, colors, pos,
-                       colorCount, mode, mapper));
+                      (start, startRadius, end, endRadius, desc));
 }
 
 SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
@@ -704,21 +718,24 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
     }
     EXPAND_1_COLOR(colorCount);
 
+    SkGradientShaderBase::Descriptor desc;
+    desc_init(&desc, colors, pos, colorCount, mode, mapper);
     return SkNEW_ARGS(SkTwoPointConicalGradient,
-                      (start, startRadius, end, endRadius, colors, pos,
-                       colorCount, mode, mapper));
+                      (start, startRadius, end, endRadius, desc));
 }
 
 SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
                                         const SkColor colors[],
                                         const SkScalar pos[],
-                                        int count, SkUnitMapper* mapper) {
-    if (NULL == colors || count < 1) {
+                                        int colorCount, SkUnitMapper* mapper) {
+    if (NULL == colors || colorCount < 1) {
         return NULL;
     }
-    EXPAND_1_COLOR(count);
+    EXPAND_1_COLOR(colorCount);
 
-    return SkNEW_ARGS(SkSweepGradient, (cx, cy, colors, pos, count, mapper));
+    SkGradientShaderBase::Descriptor desc;
+    desc_init(&desc, colors, pos, colorCount, SkShader::kClamp_TileMode, mapper);
+    return SkNEW_ARGS(SkSweepGradient, (cx, cy, desc));
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkGradientShader)

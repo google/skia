@@ -15,9 +15,7 @@ class SkTwoPointRadialGradient : public SkGradientShaderBase {
 public:
     SkTwoPointRadialGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
-                              const SkColor colors[], const SkScalar pos[],
-                              int colorCount, SkShader::TileMode mode,
-                              SkUnitMapper* mapper);
+                              const Descriptor&);
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
