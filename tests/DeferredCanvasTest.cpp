@@ -548,6 +548,51 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     REPORTER_ASSERT(reporter, pixels4 == pixels5);
 }
 
+static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    SkImage::Info imageSpec = {
+        10,  // width
+        10,  // height
+        SkImage::kPMColor_ColorType,
+        SkImage::kPremul_AlphaType
+    };
+    SkSurface* surface;
+    SkSurface* alternateSurface;
+    bool useGpu = NULL != factory;
+#if SK_SUPPORT_GPU
+    if (useGpu) {
+        GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        surface = SkSurface::NewRenderTarget(context, imageSpec);
+        alternateSurface = SkSurface::NewRenderTarget(context, imageSpec);
+    } else {
+        surface = SkSurface::NewRaster(imageSpec);
+        alternateSurface = SkSurface::NewRaster(imageSpec);
+    }
+#else
+    SkASSERT(!useGpu);
+    surface = SkSurface::NewRaster(imageSpec);
+    alternateSurface = SkSurface::NewRaster(imageSpec);
+#endif
+    SkASSERT(NULL != surface);
+    SkASSERT(NULL != alternateSurface);
+    SkAutoTUnref<SkSurface> aur1(surface);
+    SkAutoTUnref<SkSurface> aur2(alternateSurface);
+    PixelPtr pixels1 = getSurfacePixelPtr(surface, useGpu);
+    PixelPtr pixels2 = getSurfacePixelPtr(alternateSurface, useGpu);
+    SkDeferredCanvas canvas(surface);
+    SkAutoTUnref<SkImage> image1(canvas.newImageSnapshot());
+    canvas.setSurface(alternateSurface);
+    SkAutoTUnref<SkImage> image2(canvas.newImageSnapshot());
+    REPORTER_ASSERT(reporter, image1->uniqueID() != image2->uniqueID());
+    // Verify that none of the above operations triggered a surface copy on write.
+    REPORTER_ASSERT(reporter, getSurfacePixelPtr(surface, useGpu) == pixels1);
+    REPORTER_ASSERT(reporter, getSurfacePixelPtr(alternateSurface, useGpu) == pixels2);
+    // Verify that a flushed draw command will trigger a copy on write on alternateSurface.
+    canvas.clear(SK_ColorWHITE);
+    canvas.flush();
+    REPORTER_ASSERT(reporter, getSurfacePixelPtr(surface, useGpu) == pixels1);
+    REPORTER_ASSERT(reporter, getSurfacePixelPtr(alternateSurface, useGpu) != pixels2);
+}
+
 static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporter) {
     SkBitmap store;
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
@@ -581,8 +626,10 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* f
     TestDeferredCanvasBitmapSizeThreshold(reporter);
     TestDeferredCanvasCreateCompatibleDevice(reporter);
     TestDeferredCanvasSurface(reporter, NULL);
+    TestDeferredCanvasSetSurface(reporter, NULL);
     if (NULL != factory) {
         TestDeferredCanvasSurface(reporter, factory);
+        TestDeferredCanvasSetSurface(reporter, factory);
     }
 }
 
