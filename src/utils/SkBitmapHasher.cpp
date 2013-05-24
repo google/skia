@@ -30,8 +30,7 @@ static inline uint64_t first_8_bytes_as_uint64(const uint8_t *bytearray) {
     return SkEndian_SwapLE64(*(reinterpret_cast<const uint64_t *>(bytearray)));
 }
 
-/*static*/ bool SkBitmapHasher::ComputeDigestInternal(const SkBitmap& bitmap,
-                                                      SkHashDigest *result) {
+/*static*/ bool SkBitmapHasher::ComputeDigestInternal(const SkBitmap& bitmap, uint64_t *result) {
     SkMD5 out;
 
     // start with the x/y dimensions
@@ -50,7 +49,7 @@ static inline uint64_t first_8_bytes_as_uint64(const uint8_t *bytearray) {
     return true;
 }
 
-/*static*/ bool SkBitmapHasher::ComputeDigest(const SkBitmap& bitmap, SkHashDigest *result) {
+/*static*/ bool SkBitmapHasher::ComputeDigest(const SkBitmap& bitmap, uint64_t *result) {
     if (ComputeDigestInternal(bitmap, result)) {
         return true;
     }

@@ -38,7 +38,7 @@ namespace skiatest {
         void RunTest() {
             // Test SkBitmapHasher
             SkBitmap bitmap;
-            SkHashDigest digest;
+            uint64_t digest;
             // initial test case
             CreateTestBitmap(bitmap, SkBitmap::kARGB_8888_Config, 333, 555, SK_ColorBLUE);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));

@@ -11,12 +11,8 @@
 
 #include "SkBitmap.h"
 
-// TODO(epoger): Soon, SkHashDigest will become a real class of its own,
-// and callers won't be able to assume it converts to/from a uint64_t.
-typedef uint64_t SkHashDigest;
-
 /**
- * Static class that can generate an SkHashDigest from an SkBitmap.
+ * Static class that generates a uint64 hash digest from an SkBitmap.
  */
 class SkBitmapHasher {
 public:
@@ -30,10 +26,10 @@ public:
      * intermediate SkBitmap and copy the pixels over to it... so in some
      * cases, performance and memory usage can suffer.
      */
-    static bool ComputeDigest(const SkBitmap& bitmap, SkHashDigest *result);
+    static bool ComputeDigest(const SkBitmap& bitmap, uint64_t *result);
 
 private:
-    static bool ComputeDigestInternal(const SkBitmap& bitmap, SkHashDigest *result);
+    static bool ComputeDigestInternal(const SkBitmap& bitmap, uint64_t *result);
 };
 
 #endif
