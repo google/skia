@@ -7,7 +7,6 @@
 
 #include "gm_expectations.h"
 #include "SkBitmap.h"
-#include "SkBitmapHasher.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -180,7 +179,7 @@ static SkIRect generate_random_rect(SkRandom* rand, int32_t maxX, int32_t maxY) 
 static Json::Value gExpectationsToWrite;
 
 /**
- *  If expectations are to be recorded, record the expected checksum of bitmap into global
+ *  If expectations are to be recorded, record the bitmap expectations into global
  *  expectations array.
  */
 static void write_expectations(const SkBitmap& bitmap, const char* filename) {
@@ -219,16 +218,16 @@ static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const c
         return false;
     }
 
-    SkHashDigest checksum;
-    if (!SkBitmapHasher::ComputeDigest(bitmap, &checksum)) {
+    skiagm::GmResultDigest resultDigest(bitmap);
+    if (!resultDigest.isValid()) {
         if (failureArray != NULL) {
-            failureArray->push_back().printf("decoded %s, but could not create a checksum.",
+            failureArray->push_back().printf("decoded %s, but could not create a GmResultDigest.",
                                              filename);
         }
         return false;
     }
 
-    if (jsExpectation.match(checksum)) {
+    if (jsExpectation.match(resultDigest)) {
         return true;
     }
 

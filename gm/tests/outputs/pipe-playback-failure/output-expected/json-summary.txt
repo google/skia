@@ -1,32 +1,32 @@
 {
    "actual-results" : {
       "failed" : {
-         "comparison/selftest1-pipe.png" : {
-            "bitmap-64bitMD5" : 6140979239232854774
-         }
+         "comparison/selftest1-pipe.png" : [ "bitmap-64bitMD5", 6140979239232854774 ]
       },
       "failure-ignored" : null,
       "no-comparison" : null,
       "succeeded" : {
-         "565/selftest1.png" : {
-            "bitmap-64bitMD5" : 12927999507540085554
-         },
-         "8888/selftest1.png" : {
-            "bitmap-64bitMD5" : 1209453360120438698
-         }
+         "565/selftest1.png" : [ "bitmap-64bitMD5", 12927999507540085554 ],
+         "8888/selftest1.png" : [ "bitmap-64bitMD5", 1209453360120438698 ]
       }
    },
    "expected-results" : {
       "565/selftest1.png" : {
-         "allowed-bitmap-64bitMD5s" : [ 12927999507540085554 ],
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 12927999507540085554 ]
+         ],
          "ignore-failure" : false
       },
       "8888/selftest1.png" : {
-         "allowed-bitmap-64bitMD5s" : [ 1209453360120438698 ],
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 1209453360120438698 ]
+         ],
          "ignore-failure" : false
       },
       "comparison/selftest1-pipe.png" : {
-         "allowed-bitmap-64bitMD5s" : [ 1209453360120438698 ],
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 1209453360120438698 ]
+         ],
          "ignore-failure" : false
       }
    }

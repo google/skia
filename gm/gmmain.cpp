@@ -18,7 +18,6 @@
 #include "gm_expectations.h"
 #include "system_preferences.h"
 #include "SkBitmap.h"
-#include "SkBitmapHasher.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -750,12 +749,7 @@ public:
                                              const char *renderModeDescriptor,
                                              bool addToJsonSummary) {
         ErrorCombination errors;
-        SkHashDigest actualBitmapHash;
-        // TODO(epoger): Better handling for error returned by ComputeDigest()?
-        // For now, we just report a digest of 0 in error cases, like before.
-        if (!SkBitmapHasher::ComputeDigest(actualBitmap, &actualBitmapHash)) {
-            actualBitmapHash = 0;
-        }
+        GmResultDigest actualResultDigest(actualBitmap);
         SkString shortNamePlusConfig = make_shortname_plus_config(shortName, configName);
         SkString completeNameString(shortNamePlusConfig);
         completeNameString.append(renderModeDescriptor);
@@ -765,7 +759,7 @@ public:
 
         if (expectations.empty()) {
             errors.add(kMissingExpectations_ErrorType);
-        } else if (!expectations.match(actualBitmapHash)) {
+        } else if (!expectations.match(actualResultDigest)) {
             addToJsonSummary = true;
             // The error mode we record depends on whether this was running
             // in a non-standard renderMode.
@@ -794,7 +788,7 @@ public:
         RecordTestResults(errors, shortNamePlusConfig, renderModeDescriptor);
 
         if (addToJsonSummary) {
-            add_actual_results_to_json_summary(completeName, actualBitmapHash, errors,
+            add_actual_results_to_json_summary(completeName, actualResultDigest, errors,
                                                expectations.ignoreFailure());
             add_expected_results_to_json_summary(completeName, expectations);
         }
@@ -807,10 +801,10 @@ public:
      * depending on errors encountered.
      */
     void add_actual_results_to_json_summary(const char testName[],
-                                            const SkHashDigest& actualResult,
+                                            const GmResultDigest &actualResultDigest,
                                             ErrorCombination errors,
                                             bool ignoreFailure) {
-        Json::Value jsonActualResults = ActualResultAsJsonValue(actualResult);
+        Json::Value jsonActualResults = actualResultDigest.asJsonTypeValuePair();
         if (errors.isEmpty()) {
             this->fJsonActualResults_Succeeded[testName] = jsonActualResults;
         } else {
@@ -896,13 +890,8 @@ public:
         } else {
             // If we are running without expectations, we still want to
             // record the actual results.
-            SkHashDigest actualBitmapHash;
-            // TODO(epoger): Better handling for error returned by ComputeDigest()?
-            // For now, we just report a digest of 0 in error cases, like before.
-            if (!SkBitmapHasher::ComputeDigest(actualBitmap, &actualBitmapHash)) {
-                actualBitmapHash = 0;
-            }
-            add_actual_results_to_json_summary(nameWithExtension.c_str(), actualBitmapHash,
+            GmResultDigest actualResultDigest(actualBitmap);
+            add_actual_results_to_json_summary(nameWithExtension.c_str(), actualResultDigest,
                                                ErrorCombination(kMissingExpectations_ErrorType),
                                                false);
             RecordTestResults(ErrorCombination(kMissingExpectations_ErrorType),

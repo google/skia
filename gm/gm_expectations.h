@@ -30,15 +30,6 @@
 
 namespace skiagm {
 
-    // The actual type we use to represent a checksum is hidden in here.
-    typedef Json::UInt64 Checksum;
-    static inline Json::Value asJsonValue(Checksum checksum) {
-        return checksum;
-    }
-    static inline Checksum asChecksum(Json::Value jsonValue) {
-        return jsonValue.asUInt64();
-    }
-
     void gm_fprintf(FILE *stream, const char format[], ...);
 
     /**
@@ -51,8 +42,6 @@ namespace skiagm {
      */
     SkString SkPathJoin(const char *rootPath, const char *relativePath);
 
-    Json::Value ActualResultAsJsonValue(const SkHashDigest& result);
-
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,
@@ -60,7 +49,50 @@ namespace skiagm {
                                Json::Value actualResultsSucceeded);
 
     /**
-     * Test expectations (allowed image checksums, etc.)
+     * The digest of a GM test result.
+     *
+     * Currently, this is always a uint64_t hash digest of an SkBitmap...
+     * but we will add other flavors soon.
+     */
+    class GmResultDigest {
+    public:
+        /**
+         * Create a ResultDigest representing an actual image result.
+         */
+        GmResultDigest(const SkBitmap &bitmap);
+
+        /**
+         * Create a ResultDigest representing an allowed result
+         * checksum within JSON expectations file, in the form
+         * ["bitmap-64bitMD5", 12345].
+         */
+        GmResultDigest(const Json::Value &jsonTypeValuePair);
+
+        /**
+         * Returns true if this GmResultDigest was fully and successfully
+         * created.
+         */
+        bool isValid() const;
+
+        /**
+         * Returns true if this and other GmResultDigest could
+         * represent identical results.
+         */
+        bool equals(const GmResultDigest &other) const;
+
+        /**
+         * Returns a JSON type/value pair representing this result,
+         * such as ["bitmap-64bitMD5", 12345].
+         */
+        Json::Value asJsonTypeValuePair() const;
+
+    private:
+        bool fIsValid; // always check this first--if it's false, other fields are meaningless
+        uint64_t fHashDigest;
+    };
+
+    /**
+     * Test expectations (allowed image results, etc.)
      */
     class Expectations {
     public:
@@ -90,16 +122,16 @@ namespace skiagm {
         bool ignoreFailure() const { return this->fIgnoreFailure; }
 
         /**
-         * Returns true iff there are no allowed checksums.
+         * Returns true iff there are no allowed results.
          */
-        bool empty() const { return this->fAllowedBitmapChecksums.empty(); }
+        bool empty() const { return this->fAllowedResultDigests.empty(); }
 
         /**
-         * Returns true iff actualChecksum matches any allowedChecksum,
+         * Returns true iff resultDigest matches any allowed result,
          * regardless of fIgnoreFailure.  (The caller can check
          * that separately.)
          */
-        bool match(Checksum actualChecksum) const;
+        bool match(GmResultDigest resultDigest) const;
 
         /**
          * If this Expectation is based on a single SkBitmap, return a
@@ -119,7 +151,7 @@ namespace skiagm {
     private:
         const static bool kDefaultIgnoreFailure = false;
 
-        SkTArray<Checksum> fAllowedBitmapChecksums;
+        SkTArray<GmResultDigest> fAllowedResultDigests;
         bool fIgnoreFailure;
         SkBitmap fBitmap;
     };
