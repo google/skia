@@ -87,7 +87,7 @@ public:
             sk_bzero(this, sizeof(*this));
             fTileMode = SkShader::kClamp_TileMode;
         }
-        
+
         const SkColor*      fColors;
         const SkScalar*     fPos;
         int                 fCount;

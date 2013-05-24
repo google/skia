@@ -143,9 +143,9 @@ private:
 
     /** test method for choosing a bicubic shading filter
       */
-      
+
     ShaderProc32 chooseBicubicFilterProc(const SkPaint &paint);
-    
+
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
 
