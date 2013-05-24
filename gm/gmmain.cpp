@@ -222,7 +222,7 @@ public:
         filename.append(renderModeDescriptor);
         filename.appendUnichar('.');
         filename.append(suffix);
-        return SkOSPath::SkPathJoin(path, filename.c_str());
+        return SkPathJoin(path, filename.c_str());
     }
 
     /* since PNG insists on unpremultiplying our alpha, we take no

@@ -32,6 +32,16 @@ namespace skiagm {
 
     void gm_fprintf(FILE *stream, const char format[], ...);
 
+    /**
+     * Assembles rootPath and relativePath into a single path, like this:
+     * rootPath/relativePath
+     *
+     * Uses SkPATH_SEPARATOR, to work on all platforms.
+     *
+     * TODO(epoger): This should probably move into SkOSFile.h
+     */
+    SkString SkPathJoin(const char *rootPath, const char *relativePath);
+
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,

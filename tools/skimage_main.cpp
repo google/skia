@@ -69,10 +69,27 @@ static SkImageDecoder::Format guess_format_from_suffix(const char suffix[]) {
     return SkImageDecoder::kUnknown_Format;
 }
 
+/**
+ *  Return the name of the file, ignoring the directory structure.
+ *  Does not create a new string.
+ *  @param fullPath Full path to the file.
+ *  @return string The basename of the file - anything beyond the final slash, or the full name
+ *      if there is no slash.
+ *  TODO: Might this be useful as a utility function in SkOSFile? Would it be more appropriate to
+ *  create a new string?
+ */
+static const char* SkBasename(const char* fullPath) {
+    const char* filename = strrchr(fullPath, SkPATH_SEPARATOR);
+    if (NULL == filename || *++filename == '\0') {
+        filename = fullPath;
+    }
+    return filename;
+}
+
 static void make_outname(SkString* dst, const char outDir[], const char src[],
                          const char suffix[]) {
-    SkString basename = SkOSPath::SkBasename(src);
-    dst->set(SkOSPath::SkPathJoin(outDir, basename.c_str()));
+    const char* basename = SkBasename(src);
+    dst->set(skiagm::SkPathJoin(outDir, basename));
     if (!dst->endsWith(suffix)) {
         const char* cstyleDst = dst->c_str();
         const char* dot = strrchr(cstyleDst, '.');
@@ -255,7 +272,8 @@ static bool write_subset(const char* writePath, const char* filename, const char
     SkASSERT(bitmapFromDecodeSubset != NULL);
 
     // Create a subdirectory to hold the results of decodeSubset.
-    SkString dir = SkOSPath::SkPathJoin(writePath, "subsets");
+    // TODO: Move SkPathJoin into SkOSFile.h
+    SkString dir = skiagm::SkPathJoin(writePath, "subsets");
     if (!sk_mkdir(dir.c_str())) {
         gFailedSubsetDecodes.push_back().printf("Successfully decoded %s from %s, but failed to "
                                                 "create a directory to write to.", subsetDim,
@@ -280,7 +298,7 @@ static bool write_subset(const char* writePath, const char* filename, const char
         return false;
     }
 
-    SkString dirExtracted = SkOSPath::SkPathJoin(writePath, "extracted");
+    SkString dirExtracted = skiagm::SkPathJoin(writePath, "extracted");
     if (!sk_mkdir(dirExtracted.c_str())) {
         gFailedSubsetDecodes.push_back().printf("Successfully decoded %s from %s, but failed to "
                                                 "create a directory for extractSubset comparison.",
@@ -317,8 +335,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     }
 
     // Create a string representing just the filename itself, for use in json expectations.
-    SkString basename = SkOSPath::SkBasename(srcPath);
-    const char* filename = basename.c_str();
+    const char* filename = SkBasename(srcPath);
 
     if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),

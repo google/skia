@@ -11,7 +11,6 @@
 #include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkLruImageCache.h"
-#include "SkOSFile.h"
 #include "SkStream.h"
 
 namespace skiagm {
@@ -25,9 +24,13 @@ public:
 
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        SkString filename(INHERITED::gResourcePath);
+        if (!filename.endsWith("/") && !filename.endsWith("\\")) {
+            filename.append("/");
+        }
+
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
-        SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath.c_str(),
-                                                 "plane.png");
+        filename.append("plane.png");
 
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
         if (NULL != stream.get()) {
