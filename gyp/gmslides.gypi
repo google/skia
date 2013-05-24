@@ -46,6 +46,7 @@
     '../gm/giantbitmap.cpp',
     '../gm/gradients.cpp',
     '../gm/gradtext.cpp',
+    '../gm/hairlines.cpp',
     '../gm/hairmodes.cpp',
     '../gm/hittestpath.cpp',
     '../gm/imageblur.cpp',
