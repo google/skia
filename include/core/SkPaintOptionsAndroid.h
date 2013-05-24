@@ -10,10 +10,10 @@
 #ifndef SkPaintOptionsAndroid_DEFINED
 #define SkPaintOptionsAndroid_DEFINED
 
-#ifdef SK_BUILD_FOR_ANDROID
-
-#include "SkString.h"
 #include "SkTypes.h"
+#include "SkString.h"
+
+#ifdef SK_BUILD_FOR_ANDROID
 
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
