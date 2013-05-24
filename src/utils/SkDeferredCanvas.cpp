@@ -148,6 +148,7 @@ public:
     SkCanvas* immediateCanvas() const {return fImmediateCanvas;}
     SkDevice* immediateDevice() const {return fImmediateCanvas->getTopDevice();}
     SkImage* newImageSnapshot();
+    void setSurface(SkSurface* surface);
     bool isFreshFrame();
     bool hasPendingCommands();
     size_t storageAllocatedForRecording() const;
@@ -261,6 +262,7 @@ DeferredDevice::DeferredDevice(SkDevice* immediateDevice)
                immediateDevice->getDeviceProperties()) {
     fSurface = NULL;
     fImmediateCanvas = SkNEW_ARGS(SkCanvas, (immediateDevice));
+    fPipeController.setPlaybackCanvas(fImmediateCanvas);
     this->init();
 }
 
@@ -272,11 +274,16 @@ DeferredDevice::DeferredDevice(SkSurface* surface)
                surface->getCanvas()->getDevice()->getDeviceProperties()) {
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = NULL;
-    fImmediateCanvas = surface->getCanvas();
-    SkSafeRef(fImmediateCanvas);
-    fSurface = surface;
-    SkSafeRef(fSurface);
+    fImmediateCanvas = NULL;
+    fSurface = NULL;
+    this->setSurface(surface);
     this->init();
+}
+
+void DeferredDevice::setSurface(SkSurface* surface) {
+    SkRefCnt_SafeAssign(fImmediateCanvas, surface->getCanvas());
+    SkRefCnt_SafeAssign(fSurface, surface);
+    fPipeController.setPlaybackCanvas(fImmediateCanvas);
 }
 
 void DeferredDevice::init() {
@@ -287,7 +294,6 @@ void DeferredDevice::init() {
     fBitmapSizeThreshold = kDeferredCanvasBitmapSizeThreshold;
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = NULL;
-    fPipeController.setPlaybackCanvas(fImmediateCanvas);
     this->beginRecording();
 }
 
@@ -618,6 +624,19 @@ SkDeferredCanvas::~SkDeferredCanvas() {
 SkDevice* SkDeferredCanvas::setDevice(SkDevice* device) {
     this->INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (device)))->unref();
     return device;
+}
+
+SkSurface* SkDeferredCanvas::setSurface(SkSurface* surface) {
+    DeferredDevice* deferredDevice = this->getDeferredDevice();
+    if (NULL != deferredDevice) {
+        // By swapping the surface into the existing device, we preserve
+        // all pending commands, which can help to seamlessly recover from
+        // a lost accelerated graphics context.
+        deferredDevice->setSurface(surface);
+    } else {
+        this->INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (surface)))->unref();
+    }
+    return surface;
 }
 
 SkDeferredCanvas::NotificationClient* SkDeferredCanvas::setNotificationClient(

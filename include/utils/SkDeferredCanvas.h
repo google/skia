@@ -54,6 +54,16 @@ public:
     virtual SkDevice* setDevice(SkDevice* device);
 
     /**
+     *  Specify the surface to be used by this canvas. Calling setSurface will
+     *  release the previously set surface or device. Takes a reference on the
+     *  surface.
+     *
+     *  @param surface The surface that the canvas will raw into
+     *  @return The surface argument, for convenience.
+     */
+    SkSurface* setSurface(SkSurface* surface);
+
+    /**
      *  Specify a NotificationClient to be used by this canvas. Calling
      *  setNotificationClient will release the previously set
      *  NotificationClient, if any. SkDeferredCanvas does not take ownership
