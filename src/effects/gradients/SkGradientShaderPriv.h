@@ -93,6 +93,7 @@ public:
         int                 fCount;
         SkShader::TileMode  fTileMode;
         SkUnitMapper*       fMapper;
+        uint32_t            fFlags;
     };
 
 public:
@@ -141,6 +142,7 @@ protected:
     int         fColorCount;
     uint8_t     fDstToIndexClass;
     uint8_t     fFlags;
+    uint8_t     fGradFlags;
 
     struct Rec {
         SkFixed     fPos;   // 0...1
@@ -172,7 +174,7 @@ private:
 
     static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
     static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
-                                U8CPU alpha);
+                                U8CPU alpha, uint32_t gradFlags);
     void setCacheAlpha(U8CPU alpha) const;
     void initCommon();
 
