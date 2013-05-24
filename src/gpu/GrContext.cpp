@@ -1280,7 +1280,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     // dstConfig.
     GrPixelConfig readConfig = dstConfig;
     bool swapRAndB = false;
-    if (GrPixelConfigSwapRAndB(dstConfig) == fGpu->preferredReadPixelsConfig(dstConfig)) {
+    if (GrPixelConfigSwapRAndB(dstConfig) ==
+        fGpu->preferredReadPixelsConfig(dstConfig, target->config())) {
         readConfig = GrPixelConfigSwapRAndB(readConfig);
         swapRAndB = true;
     }
@@ -1478,7 +1479,8 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     // when drawing the scratch to the dst using a conversion effect.
     bool swapRAndB = false;
     GrPixelConfig writeConfig = srcConfig;
-    if (fGpu->preferredWritePixelsConfig(srcConfig) == GrPixelConfigSwapRAndB(srcConfig)) {
+    if (GrPixelConfigSwapRAndB(srcConfig) ==
+        fGpu->preferredWritePixelsConfig(srcConfig, target->config())) {
         writeConfig = GrPixelConfigSwapRAndB(srcConfig);
         swapRAndB = true;
     }
