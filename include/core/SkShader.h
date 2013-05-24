@@ -312,6 +312,7 @@ public:
         SkPoint     fPoint[2];      //!< Type specific, see above.
         SkScalar    fRadius[2];     //!< Type specific, see above.
         TileMode    fTileMode;      //!< The tile mode used.
+        uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
     };
 
     virtual GradientType asAGradient(GradientInfo* info) const;

@@ -175,9 +175,9 @@ void SkTwoPointConicalGradient::init() {
 /////////////////////////////////////////////////////////////////////
 
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
-    const SkPoint& start, SkScalar startRadius,
-    const SkPoint& end, SkScalar endRadius,
-    const Descriptor& desc)
+        const SkPoint& start, SkScalar startRadius,
+        const SkPoint& end, SkScalar endRadius,
+        const Descriptor& desc)
     : SkGradientShaderBase(desc),
     fCenter1(start),
     fCenter2(end),

@@ -10,8 +10,8 @@
 
 SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy,
                                  const Descriptor& desc)
-: SkGradientShaderBase(desc),
-  fCenter(SkPoint::Make(cx, cy))
+    : SkGradientShaderBase(desc)
+    , fCenter(SkPoint::Make(cx, cy))
 {
     fPtsToUnit.setTranslate(-cx, -cy);
 
