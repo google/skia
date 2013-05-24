@@ -144,7 +144,7 @@ void SkDebuggerGUI::showDeletes() {
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                           SkPicture::InstallPixelRefProc proc, 
+                           SkPicture::InstallPixelRefProc proc,
                            const SkTDArray<bool>& deletedCommands)
         : INHERITED(stream, info, proc)
         , fSkipCommands(deletedCommands)

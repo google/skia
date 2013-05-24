@@ -14,22 +14,22 @@
 class ClippedCubicGM : public skiagm::GM {
 public:
     ClippedCubicGM() {}
-    
+
 protected:
     SkString onShortName() {
         return SkString("clippedcubic");
     }
-    
+
     SkISize onISize() { return SkISize::Make(1240, 390); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(0, 0);
         path.cubicTo(140, 150, 40, 10, 170, 150);
-        
+
         SkPaint paint;
         SkRect bounds = path.getBounds();
-        
+
         for (SkScalar dy = -1; dy <= 1; dy += 1) {
             canvas->save();
             for (SkScalar dx = -1; dx <= 1; dx += 1) {
@@ -38,14 +38,14 @@ protected:
                 canvas->translate(dx, dy);
                 canvas->drawPath(path, paint);
                 canvas->restore();
-                
+
                 canvas->translate(bounds.width(), 0);
             }
             canvas->restore();
             canvas->translate(0, bounds.height());
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

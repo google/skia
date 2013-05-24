@@ -100,7 +100,7 @@ SkBitmapProcState::chooseBicubicFilterProc(const SkPaint& paint) {
     if (fBitmap->config() != SkBitmap::kARGB_8888_Config) {
         return NULL;
     }
-    
+
     // TODO: consider supporting repeat and mirror
     if (SkShader::kClamp_TileMode != fTileModeX || SkShader::kClamp_TileMode != fTileModeY) {
         return NULL;
