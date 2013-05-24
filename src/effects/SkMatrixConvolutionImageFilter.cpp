@@ -203,7 +203,11 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkMatrix& matrix,
                                                    SkBitmap* result,
                                                    SkIPoint* loc) {
-    SkBitmap src = this->getInputResult(0, proxy, source, matrix, loc);
+    SkBitmap src = source;
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc)) {
+        return false;
+    }
+
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
