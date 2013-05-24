@@ -37,6 +37,15 @@ namespace skiagm {
         va_end(args);
     }
 
+    SkString SkPathJoin(const char *rootPath, const char *relativePath) {
+        SkString result(rootPath);
+        if (!result.endsWith(SkPATH_SEPARATOR)) {
+            result.appendUnichar(SkPATH_SEPARATOR);
+        }
+        result.append(relativePath);
+        return result;
+    }
+
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,
@@ -185,7 +194,7 @@ namespace skiagm {
     // IndividualImageExpectationsSource class...
 
     Expectations IndividualImageExpectationsSource::get(const char *testName) {
-        SkString path = SkOSPath::SkPathJoin(fRootDir.c_str(), testName);
+        SkString path = SkPathJoin(fRootDir.c_str(), testName);
         SkBitmap referenceBitmap;
         bool decodedReferenceBitmap =
             SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,

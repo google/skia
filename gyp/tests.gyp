@@ -75,7 +75,6 @@
         '../tests/Matrix44Test.cpp',
         '../tests/MemsetTest.cpp',
         '../tests/MetaDataTest.cpp',
-        '../tests/OSPathTest.cpp',
         '../tests/PackBitsTest.cpp',
         '../tests/PaintTest.cpp',
         '../tests/ParsePathTest.cpp',
