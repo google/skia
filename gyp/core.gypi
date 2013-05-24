@@ -70,6 +70,7 @@
         '<(skia_src_path)/core/SkDeviceProfile.cpp',
         '<(skia_src_path)/core/SkDither.cpp',
         '<(skia_src_path)/core/SkDraw.cpp',
+        '<(skia_src_path)/core/SkDrawLooper.cpp',
         '<(skia_src_path)/core/SkDrawProcs.h',
         '<(skia_src_path)/core/SkEdgeBuilder.cpp',
         '<(skia_src_path)/core/SkEdgeClipper.cpp',
