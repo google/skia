@@ -217,14 +217,14 @@ int generate_lines_and_quads(const SkPath& path,
     bool persp = m.hasPerspective();
 
     for (;;) {
-        GrPoint pts[4];
+        GrPoint pathPts[4];
         GrPoint devPts[4];
-        SkPath::Verb verb = iter.next(pts);
+        SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
             case SkPath::kMove_Verb:
                 break;
             case SkPath::kLine_Verb:
-                m.mapPoints(devPts, pts, 2);
+                m.mapPoints(devPts, pathPts, 2);
                 bounds.setBounds(devPts, 2);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
@@ -234,34 +234,46 @@ int generate_lines_and_quads(const SkPath& path,
                     pts[1] = devPts[1];
                 }
                 break;
-            case SkPath::kQuad_Verb:
-                m.mapPoints(devPts, pts, 3);
-                bounds.setBounds(devPts, 3);
-                bounds.outset(SK_Scalar1, SK_Scalar1);
-                bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(devClipBounds, ibounds)) {
-                    int subdiv = num_quad_subdivs(devPts);
-                    GrAssert(subdiv >= -1);
-                    if (-1 == subdiv) {
-                        SkPoint* pts = lines->push_back_n(4);
-                        pts[0] = devPts[0];
-                        pts[1] = devPts[1];
-                        pts[2] = devPts[1];
-                        pts[3] = devPts[2];
-                    } else {
-                        // when in perspective keep quads in src space
-                        SkPoint* qPts = persp ? pts : devPts;
-                        SkPoint* pts = quads->push_back_n(3);
-                        pts[0] = qPts[0];
-                        pts[1] = qPts[1];
-                        pts[2] = qPts[2];
-                        quadSubdivCnts->push_back() = subdiv;
-                        totalQuadCount += 1 << subdiv;
+            case SkPath::kQuad_Verb: {
+                SkPoint choppedPts[5];
+                // Chopping the quad helps when the quad is either degenerate or nearly degenerate.
+                // When it is degenerate it allows the approximation with lines to work since the
+                // chop point (if there is one) will be at the parabola's vertex. In the nearly
+                // degenerate the QuadUVMatrix computed for the points is almost singular which
+                // can cause rendering artifacts.
+                int n = SkChopQuadAtMaxCurvature(pathPts, choppedPts);
+                for (int i = 0; i < n; ++i) {
+                    SkPoint* quadPts = choppedPts + i * 2;
+                    m.mapPoints(devPts, quadPts, 3);
+                    bounds.setBounds(devPts, 3);
+                    bounds.outset(SK_Scalar1, SK_Scalar1);
+                    bounds.roundOut(&ibounds);
+
+                    if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                        int subdiv = num_quad_subdivs(devPts);
+                        GrAssert(subdiv >= -1);
+                        if (-1 == subdiv) {
+                            SkPoint* pts = lines->push_back_n(4);
+                            pts[0] = devPts[0];
+                            pts[1] = devPts[1];
+                            pts[2] = devPts[1];
+                            pts[3] = devPts[2];
+                        } else {
+                            // when in perspective keep quads in src space
+                            SkPoint* qPts = persp ? quadPts : devPts;
+                            SkPoint* pts = quads->push_back_n(3);
+                            pts[0] = qPts[0];
+                            pts[1] = qPts[1];
+                            pts[2] = qPts[2];
+                            quadSubdivCnts->push_back() = subdiv;
+                            totalQuadCount += 1 << subdiv;
+                        }
                     }
                 }
                 break;
+            }
             case SkPath::kCubic_Verb:
-                m.mapPoints(devPts, pts, 4);
+                m.mapPoints(devPts, pathPts, 4);
                 bounds.setBounds(devPts, 4);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
@@ -275,7 +287,7 @@ int generate_lines_and_quads(const SkPath& path,
                         SkScalar tolScale =
                             GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
                                                              path.getBounds());
-                        GrPathUtils::convertCubicToQuads(pts, tolScale, false, kDummyDir, &q);
+                        GrPathUtils::convertCubicToQuads(pathPts, tolScale, false, kDummyDir, &q);
                     } else {
                         GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, false, kDummyDir, &q);
                     }
@@ -715,8 +727,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     int rtHeight = drawState->getRenderTarget()->height();
 
     GrIRect devClipBounds;
-    target->getClip()->getConservativeBounds(drawState->getRenderTarget(),
-                                             &devClipBounds);
+    target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
 
     SkMatrix viewM = drawState->getViewMatrix();
 
