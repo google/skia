@@ -6,13 +6,13 @@
  * found in the LICENSE file.
  */
 
-#ifdef SK_BUILD_FOR_ANDROID
-
 #include "SkPaintOptionsAndroid.h"
 #include "SkFlattenableBuffers.h"
 #include "SkTDict.h"
 #include "SkThread.h"
 #include <cstring>
+
+#ifdef SK_BUILD_FOR_ANDROID
 
 SkLanguage SkLanguage::getParent() const {
     SkASSERT(!fTag.isEmpty());

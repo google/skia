@@ -14,7 +14,6 @@
 #include "SkFontMgr.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
-#include "SkPaintOptionsAndroid.h"
 #include "SkString.h"
 #include "SkStream.h"
 #include "SkThread.h"
@@ -45,6 +44,12 @@ static const char* gTestFontFilePrefix = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef int32_t FontRecID;
+#define INVALID_FONT_REC_ID -1
+
+typedef int32_t FamilyRecID;
+#define INVALID_FAMILY_REC_ID -1
+
 // used to record our notion of the pre-existing fonts
 struct FontRec {
     SkRefPtr<SkTypeface> fTypeface;
@@ -53,10 +58,8 @@ struct FontRec {
     SkPaintOptionsAndroid fPaintOptions;
     bool fIsFallbackFont;
     bool fIsValid;
+    FamilyRecID fFamilyRecID;
 };
-
-typedef int32_t FontRecID;
-#define INVALID_FONT_REC_ID -1
 
 struct FamilyRec {
     FamilyRec() {
@@ -67,8 +70,6 @@ struct FamilyRec {
     FontRecID fFontRecID[FONT_STYLE_COUNT];
 };
 
-typedef int32_t FamilyRecID;
-#define INVALID_FAMILY_REC_ID -1
 
 typedef SkTDArray<FontRecID> FallbackFontList;
 
@@ -105,7 +106,8 @@ public:
 
 private:
     void addFallbackFont(FontRecID fontRecID);
-    FallbackFontList* findFallbackFontList(const SkLanguage& lang);
+    SkTypeface* getTypefaceForFontRec(FontRecID fontRecID);
+    FallbackFontList* findFallbackFontList(const SkLanguage& lang, bool isOriginal = true);
 
     SkTArray<FontRec> fFonts;
     SkTArray<FamilyRec> fFontFamilies;
@@ -114,6 +116,7 @@ private:
 
     // (SkLanguage)<->(fallback chain index) translation
     SkTDict<FallbackFontList*> fFallbackFontDict;
+    SkTDict<FallbackFontList*> fFallbackFontAliasDict;
     FallbackFontList fDefaultFallbackList;
 };
 
@@ -189,7 +192,8 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
         fFontFamilies(fontFamilies.count() / FamilyRec::FONT_STYLE_COUNT),
         fFamilyNameDict(1024),
         fDefaultFamilyRecID(INVALID_FAMILY_REC_ID),
-        fFallbackFontDict(128) {
+        fFallbackFontDict(128),
+        fFallbackFontAliasDict(128) {
 
     for (int i = 0; i < fontFamilies.count(); ++i) {
         FontFamily* family = fontFamilies[i];
@@ -215,6 +219,7 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
             fontRec.fPaintOptions = family->fFontFiles[j]->fPaintOptions;
             fontRec.fIsFallbackFont = family->fIsFallbackFont;
             fontRec.fIsValid = false;
+            fontRec.fFamilyRecID = familyRecID;
 
             const FontRecID fontRecID = fFonts.count() - 1;
 
@@ -244,6 +249,7 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
             if (familyRec == NULL) {
                 familyRec = &fFontFamilies.push_back();
                 familyRecID = fFontFamilies.count() - 1;
+                fontRec.fFamilyRecID = familyRecID;
             }
 
             // add this font to the current familyRec
@@ -454,13 +460,26 @@ bool SkFontConfigInterfaceAndroid::matchFamilySet(const char inFamilyName[],
     return false;
 }
 
-static SkTypeface* get_typeface_for_rec(FontRec& fontRec) {
+static bool find_proc(SkTypeface* face, SkTypeface::Style style, void* ctx) {
+    const FontRecID* fontRecID = (const FontRecID*)ctx;
+    FontRecID currFontRecID = ((FontConfigTypeface*)face)->getIdentity().fID;
+    return currFontRecID == *fontRecID;
+}
+
+SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForFontRec(FontRecID fontRecID) {
+    FontRec& fontRec = fFonts[fontRecID];
     SkTypeface* face = fontRec.fTypeface.get();
     if (!face) {
-        // TODO look for it in the typeface cache
+        // look for it in the typeface cache
+        face = SkTypefaceCache::FindByProcAndRef(find_proc, &fontRecID);
 
         // if it is not in the cache then create it
-        face = SkTypeface::CreateFromFile(fontRec.fFileName.c_str());
+        if (!face) {
+            const char* familyName = NULL;
+            SkAssertResult(fFamilyNameDict.findKey(fontRec.fFamilyRecID, &familyName));
+            SkASSERT(familyName);
+            face = SkTypeface::CreateFromName(familyName, fontRec.fStyle);
+        }
 
         // store the result for subsequent lookups
         fontRec.fTypeface = face;
@@ -472,7 +491,7 @@ static SkTypeface* get_typeface_for_rec(FontRec& fontRec) {
 bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
     for (int i = 0; i < fDefaultFallbackList.count(); i++) {
         FontRecID fontRecID = fDefaultFallbackList[i];
-        SkTypeface* face = get_typeface_for_rec(fFonts[fontRecID]);
+        SkTypeface* face = this->getTypefaceForFontRec(fontRecID);
 
         SkPaint paint;
         paint.setTypeface(face);
@@ -492,7 +511,7 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForChar(SkUnichar uni,
                                                              SkTypeface::Style style,
                                                              SkPaintOptionsAndroid::FontVariant fontVariant) {
     FontRecID fontRecID = find_best_style(fFontFamilies[fDefaultFamilyRecID], style);
-    SkTypeface* face = get_typeface_for_rec(fFonts[fontRecID]);
+    SkTypeface* face = this->getTypefaceForFontRec(fontRecID);
 
     SkPaintOptionsAndroid paintOptions;
     paintOptions.setFontVariant(fontVariant);
@@ -514,22 +533,29 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForChar(SkUnichar uni,
     return NULL;
 }
 
-FallbackFontList* SkFontConfigInterfaceAndroid::findFallbackFontList(const SkLanguage& lang) {
+FallbackFontList* SkFontConfigInterfaceAndroid::findFallbackFontList(const SkLanguage& lang,
+                                                                     bool isOriginal) {
     const SkString& langTag = lang.getTag();
     if (langTag.isEmpty()) {
         return &fDefaultFallbackList;
     }
 
     FallbackFontList* fallbackFontList;
-    if (fFallbackFontDict.find(langTag.c_str(), langTag.size(), &fallbackFontList)) {
+    if (fFallbackFontDict.find(langTag.c_str(), langTag.size(), &fallbackFontList) ||
+        fFallbackFontAliasDict.find(langTag.c_str(), langTag.size(), &fallbackFontList)) {
         return fallbackFontList;
     }
 
     // attempt a recursive fuzzy match
-    // TODO we could cache the intermediate parent so that we don't have to do
-    //      the recursion again.
     SkLanguage parent = lang.getParent();
-    return findFallbackFontList(parent);
+    fallbackFontList = findFallbackFontList(parent, false);
+
+    // cache the original lang so we don't have to do the recursion again.
+    if (isOriginal) {
+        DEBUG_FONT(("----  Created fallback list alias for \"%s\"", langTag.c_str()));
+        fFallbackFontAliasDict.set(langTag.c_str(), fallbackFontList);
+    }
+    return fallbackFontList;
 }
 
 SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontID,
@@ -544,21 +570,20 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
     }
 
     const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
+    SkASSERT(currTypeface != 0);
 
     FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
     SkASSERT(currentFallbackList);
 
-    SkASSERT(currTypeface != 0);
-
     // we must convert currTypeface into a FontRecID
     FontRecID currFontRecID = ((FontConfigTypeface*)currTypeface)->getIdentity().fID;
+    SkASSERT(INVALID_FONT_REC_ID != currFontRecID);
 
     // TODO lookup the index next font in the chain
     int currFallbackFontIndex = currentFallbackList->find(currFontRecID);
     int nextFallbackFontIndex = currFallbackFontIndex + 1;
-    SkASSERT(-1 == nextFallbackFontIndex);
 
-    if(nextFallbackFontIndex >= currentFallbackList->count() && -1 == currFallbackFontIndex) {
+    if(nextFallbackFontIndex >= currentFallbackList->count()) {
         return NULL;
     }
 
@@ -574,17 +599,17 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
     SkTypeface* nextLogicalTypeface = 0;
     while (nextFallbackFontIndex < currentFallbackList->count()) {
         FontRecID fontRecID = currentFallbackList->getAt(nextFallbackFontIndex);
-        if (fFonts[fontRecID].fPaintOptions.getFontVariant() & acceptedVariants) {
-            nextLogicalTypeface = get_typeface_for_rec(fFonts[fontRecID]);
+        if ((fFonts[fontRecID].fPaintOptions.getFontVariant() & acceptedVariants) != 0) {
+            nextLogicalTypeface = this->getTypefaceForFontRec(fontRecID);
             break;
         }
         nextFallbackFontIndex++;
     }
 
     DEBUG_FONT(("---- nextLogicalFont: currFontID=%d, origFontID=%d, currRecID=%d, "
-                "lang=%s, variant=%d, nextFallbackIndex=%d => nextLogicalTypeface=%d",
+                "lang=%s, variant=%d, nextFallbackIndex[%d,%d] => nextLogicalTypeface=%d",
                 currFontID, origFontID, currFontRecID, opts.getLanguage().getTag().c_str(),
-                variant, nextFallbackFontIndex,
+                variant, nextFallbackFontIndex, currentFallbackList->getAt(nextFallbackFontIndex),
                 (nextLogicalTypeface) ? nextLogicalTypeface->uniqueID() : 0));
     return SkSafeRef(nextLogicalTypeface);
 }
@@ -614,6 +639,157 @@ SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontI
     return fontConfig->nextLogicalTypeface(currFontID, origFontID, options);
 
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+struct HB_UnicodeMapping {
+    // TODO: when the WebView no longer needs harfbuzz_old, remove
+    HB_Script script_old;
+    hb_script_t script;
+    const SkUnichar unicode;
+};
+
+/*
+ * The following scripts are not complex fonts and we do not expect them to be parsed by this table
+ * HB_SCRIPT_COMMON,
+ * HB_SCRIPT_GREEK,
+ * HB_SCRIPT_CYRILLIC,
+ * HB_SCRIPT_HANGUL
+ * HB_SCRIPT_INHERITED
+ */
+
+/* Harfbuzz (old) is missing a number of scripts in its table. For these,
+ * we include a value which can never happen. We won't get complex script
+ * shaping in these cases, but the library wouldn't know how to shape
+ * them anyway. */
+#define HB_Script_Unknown HB_ScriptCount
+
+static HB_UnicodeMapping HB_UnicodeMappingArray[] = {
+    {HB_Script_Armenian,   HB_SCRIPT_ARMENIAN,    0x0531},
+    {HB_Script_Hebrew,     HB_SCRIPT_HEBREW,      0x0591},
+    {HB_Script_Arabic,     HB_SCRIPT_ARABIC,      0x0600},
+    {HB_Script_Syriac,     HB_SCRIPT_SYRIAC,      0x0710},
+    {HB_Script_Thaana,     HB_SCRIPT_THAANA,      0x0780},
+    {HB_Script_Nko,        HB_SCRIPT_NKO,         0x07C0},
+    {HB_Script_Devanagari, HB_SCRIPT_DEVANAGARI,  0x0901},
+    {HB_Script_Bengali,    HB_SCRIPT_BENGALI,     0x0981},
+    {HB_Script_Gurmukhi,   HB_SCRIPT_GURMUKHI,    0x0A10},
+    {HB_Script_Gujarati,   HB_SCRIPT_GUJARATI,    0x0A90},
+    {HB_Script_Oriya,      HB_SCRIPT_ORIYA,       0x0B10},
+    {HB_Script_Tamil,      HB_SCRIPT_TAMIL,       0x0B82},
+    {HB_Script_Telugu,     HB_SCRIPT_TELUGU,      0x0C10},
+    {HB_Script_Kannada,    HB_SCRIPT_KANNADA,     0x0C90},
+    {HB_Script_Malayalam,  HB_SCRIPT_MALAYALAM,   0x0D10},
+    {HB_Script_Sinhala,    HB_SCRIPT_SINHALA,     0x0D90},
+    {HB_Script_Thai,       HB_SCRIPT_THAI,        0x0E01},
+    {HB_Script_Lao,        HB_SCRIPT_LAO,         0x0E81},
+    {HB_Script_Tibetan,    HB_SCRIPT_TIBETAN,     0x0F00},
+    {HB_Script_Myanmar,    HB_SCRIPT_MYANMAR,     0x1000},
+    {HB_Script_Georgian,   HB_SCRIPT_GEORGIAN,    0x10A0},
+    {HB_Script_Unknown,    HB_SCRIPT_ETHIOPIC,    0x1200},
+    {HB_Script_Unknown,    HB_SCRIPT_CHEROKEE,    0x13A0},
+    {HB_Script_Ogham,      HB_SCRIPT_OGHAM,       0x1680},
+    {HB_Script_Runic,      HB_SCRIPT_RUNIC,       0x16A0},
+    {HB_Script_Khmer,      HB_SCRIPT_KHMER,       0x1780},
+    {HB_Script_Unknown,    HB_SCRIPT_TAI_LE,      0x1950},
+    {HB_Script_Unknown,    HB_SCRIPT_NEW_TAI_LUE, 0x1980},
+    {HB_Script_Unknown,    HB_SCRIPT_TAI_THAM,    0x1A20},
+    {HB_Script_Unknown,    HB_SCRIPT_CHAM,        0xAA00},
+};
+
+static hb_script_t getHBScriptFromHBScriptOld(HB_Script script_old) {
+    hb_script_t script = HB_SCRIPT_INVALID;
+    int numSupportedFonts = sizeof(HB_UnicodeMappingArray) / sizeof(HB_UnicodeMapping);
+    for (int i = 0; i < numSupportedFonts; i++) {
+        if (script_old == HB_UnicodeMappingArray[i].script_old) {
+            script = HB_UnicodeMappingArray[i].script;
+            break;
+        }
+    }
+    return script;
+}
+
+// returns 0 for "Not Found"
+static SkUnichar getUnicodeFromHBScript(hb_script_t script) {
+    SkUnichar unichar = 0;
+    int numSupportedFonts = sizeof(HB_UnicodeMappingArray) / sizeof(HB_UnicodeMapping);
+    for (int i = 0; i < numSupportedFonts; i++) {
+        if (script == HB_UnicodeMappingArray[i].script) {
+            unichar = HB_UnicodeMappingArray[i].unicode;
+            break;
+        }
+    }
+    return unichar;
+}
+
+struct TypefaceLookupStruct {
+    hb_script_t script;
+    SkTypeface::Style style;
+    SkPaintOptionsAndroid::FontVariant fontVariant;
+    SkTypeface* typeface;
+};
+
+SK_DECLARE_STATIC_MUTEX(gTypefaceTableMutex);  // This is the mutex for gTypefaceTable
+static SkTDArray<TypefaceLookupStruct> gTypefaceTable;  // This is protected by gTypefaceTableMutex
+
+static int typefaceLookupCompare(const TypefaceLookupStruct& first,
+                                 const TypefaceLookupStruct& second) {
+    if (first.script != second.script) {
+        return (first.script > second.script) ? 1 : -1;
+    }
+    if (first.style != second.style) {
+        return (first.style > second.style) ? 1 : -1;
+    }
+    if (first.fontVariant != second.fontVariant) {
+        return (first.fontVariant > second.fontVariant) ? 1 : -1;
+    }
+    return 0;
+}
+
+SkTypeface* SkCreateTypefaceForScriptNG(hb_script_t script, SkTypeface::Style style,
+                                        SkPaintOptionsAndroid::FontVariant fontVariant) {
+    SkAutoMutexAcquire ac(gTypefaceTableMutex);
+
+    TypefaceLookupStruct key;
+    key.script = script;
+    key.style = style;
+    key.fontVariant = fontVariant;
+
+    int index = SkTSearch<TypefaceLookupStruct>(
+            (const TypefaceLookupStruct*) gTypefaceTable.begin(),
+            gTypefaceTable.count(), key, sizeof(TypefaceLookupStruct),
+            typefaceLookupCompare);
+
+    SkTypeface* retTypeface = NULL;
+    if (index >= 0) {
+        retTypeface = gTypefaceTable[index].typeface;
+    }
+    else {
+        SkUnichar unichar = getUnicodeFromHBScript(script);
+        if (!unichar) {
+            return NULL;
+        }
+
+        SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
+        retTypeface = fontConfig->getTypefaceForChar(unichar, style, fontVariant);
+
+        // add to the lookup table
+        key.typeface = retTypeface;
+        *gTypefaceTable.insert(~index) = key;
+    }
+
+    // we ref(), the caller is expected to unref when they are done
+    return SkSafeRef(retTypeface);
+}
+
+SkTypeface* SkCreateTypefaceForScript(HB_Script script, SkTypeface::Style style,
+                                      SkPaintOptionsAndroid::FontVariant fontVariant) {
+    return SkCreateTypefaceForScriptNG(getHBScriptFromHBScriptOld(script), style, fontVariant);
+}
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
