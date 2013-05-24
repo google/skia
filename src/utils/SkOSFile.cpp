@@ -226,4 +226,25 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir)
     return false;
 }
 
+SkString SkOSPath::SkPathJoin(const char *rootPath, const char *relativePath) {
+    SkString result(rootPath);
+    if (!result.endsWith(SkPATH_SEPARATOR)) {
+        result.appendUnichar(SkPATH_SEPARATOR);
+    }
+    result.append(relativePath);
+    return result;
+}
+
+SkString SkOSPath::SkBasename(const char* fullPath) {
+    if (!fullPath) {
+        return SkString();
+    }
+    const char* filename = strrchr(fullPath, SkPATH_SEPARATOR);
+    if (NULL == filename) {
+        filename = fullPath;
+    } else {
+        ++filename;
+    }
+    return SkString(filename);
+}
 #endif
