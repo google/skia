@@ -33,7 +33,7 @@ protected:
                                                      NULL, flags);
         paint.setShader(s)->unref();
         canvas->drawRect(r, paint);
-        
+
         paint.setShader(NULL);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(r, paint);
@@ -57,9 +57,9 @@ protected:
             { 0xFF0000FF, 0x00FFFF00 },
             { 0xFF0000FF, 0x00FFFFFF },
         };
-    
+
         SkRect r = SkRect::MakeWH(300, 30);
-        
+
         canvas->translate(10, 10);
 
         for (int doPreMul = 0; doPreMul <= 1; ++doPreMul) {
