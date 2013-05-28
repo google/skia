@@ -10,6 +10,7 @@
 #include "GrGpu.h"
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
+#include "SkColorPriv.h"
 
 SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
@@ -389,6 +390,9 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
+    SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
+    inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
+
     if (combinedMatrix.rectStaysRect()) {
         // Temporarily #if'ed out. We don't want to pass in the devRect but
         // right now it is computed in GrContext::apply_aa_to_rect and we don't
@@ -399,7 +403,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
 #endif
 
         set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-        set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
+        set_inset_fan(fan1Pos, vsize, devRect, inset,  inset);
     } else {
         // compute transformed (1, 0) and (0, 1) vectors
         SkVector vec[2] = {
@@ -443,11 +447,23 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
+    int scale;
+    if (inset < SK_ScalarHalf) {
+        scale = SkScalarFloorToInt(512.0f * inset / (inset + SK_ScalarHalf));
+        SkASSERT(scale >= 0 && scale <= 255);
+    } else {
+        scale = 0xff;
+    }
+
     GrColor innerColor;
     if (useVertexCoverage) {
-        innerColor = 0xffffffff;
+        innerColor = scale | (scale << 8) | (scale << 16) | (scale << 24);
     } else {
-        innerColor = target->getDrawState().getColor();
+        if (0xff == scale) {
+            innerColor = target->getDrawState().getColor();
+        } else {
+            innerColor = SkAlphaMulQ(target->getDrawState().getColor(), scale);
+        }
     }
 
     verts += 4 * vsize;
