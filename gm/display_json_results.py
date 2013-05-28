@@ -18,17 +18,11 @@ TODO(epoger): We may want to add flags to set the following:
 __author__ = 'Elliot Poger'
 
 
-import json
+# system-level imports
 import sys
 
-
-# These constants must be kept in sync with the kJsonKey_ constants in
-# gm_expectations.cpp !
-JSONKEY_ACTUALRESULTS = 'actual-results'
-JSONKEY_ACTUALRESULTS_FAILED = 'failed'
-JSONKEY_ACTUALRESULTS_FAILUREIGNORED = 'failure-ignored'
-JSONKEY_ACTUALRESULTS_NOCOMPARISON = 'no-comparison'
-JSONKEY_ACTUALRESULTS_SUCCEEDED = 'succeeded'
+# local imports
+import gm_json
 
 
 class ResultAccumulator(object):
@@ -85,23 +79,23 @@ def Display(filepath):
 
   # Map labels within the JSON file to the ResultAccumulator for each label.
   results_map = {
-    JSONKEY_ACTUALRESULTS_FAILED:
+    gm_json.JSONKEY_ACTUALRESULTS_FAILED:
         ResultAccumulator(name='ExpectationsMismatch',
                           do_list=True, do_fail=True),
-    JSONKEY_ACTUALRESULTS_FAILUREIGNORED:
+    gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED:
         ResultAccumulator(name='IgnoredExpectationsMismatch',
                           do_list=True, do_fail=False),
-    JSONKEY_ACTUALRESULTS_NOCOMPARISON:
+    gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
         ResultAccumulator(name='MissingExpectations',
                           do_list=False, do_fail=False),
-    JSONKEY_ACTUALRESULTS_SUCCEEDED:
+    gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
         ResultAccumulator(name='Passed',
                           do_list=False, do_fail=False),
   }
 
   success = True
-  json_dict = json.load(open(filepath))
-  actual_results = json_dict[JSONKEY_ACTUALRESULTS]
+  json_dict = gm_json.Load(filepath)
+  actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
   for label, accumulator in results_map.iteritems():
     results = actual_results[label]
     if results:
