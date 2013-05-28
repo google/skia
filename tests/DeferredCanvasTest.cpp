@@ -33,13 +33,18 @@ static void TestDeferredCanvasBitmapAccess(skiatest::Reporter* reporter) {
 
     create(&store, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
     SkDevice device(store);
-    SkDeferredCanvas canvas(&device);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
 
-    canvas.clear(0x00000000);
+    canvas->clear(0x00000000);
 
     SkAutoLockPixels alp(store);
     REPORTER_ASSERT(reporter, store.getColor(0,0) == 0xFFFFFFFF); //verify that clear was deferred
-    SkBitmap accessed = canvas.getDevice()->accessBitmap(false);
+    SkBitmap accessed = canvas->getDevice()->accessBitmap(false);
     REPORTER_ASSERT(reporter, store.getColor(0,0) == 0x00000000); //verify that clear was executed
     REPORTER_ASSERT(reporter, accessed.pixelRef() == store.pixelRef());
 }
@@ -49,13 +54,18 @@ static void TestDeferredCanvasFlush(skiatest::Reporter* reporter) {
 
     create(&store, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
     SkDevice device(store);
-    SkDeferredCanvas canvas(&device);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
 
-    canvas.clear(0x00000000);
+    canvas->clear(0x00000000);
 
     SkAutoLockPixels alp(store);
     REPORTER_ASSERT(reporter, store.getColor(0,0) == 0xFFFFFFFF); //verify that clear was deferred
-    canvas.flush();
+    canvas->flush();
     REPORTER_ASSERT(reporter, store.getColor(0,0) == 0x00000000); //verify that clear was executed
 }
 
@@ -69,36 +79,41 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkIntToScalar(1), SkIntToScalar(1));
     create(&store, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
     SkDevice device(store);
-    SkDeferredCanvas canvas(&device);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
 
     // verify that frame is intially fresh
-    REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+    REPORTER_ASSERT(reporter, canvas->isFreshFrame());
     // no clearing op since last call to isFreshFrame -> not fresh
-    REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+    REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
 
     // Verify that clear triggers a fresh frame
-    canvas.clear(0x00000000);
-    REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+    canvas->clear(0x00000000);
+    REPORTER_ASSERT(reporter, canvas->isFreshFrame());
 
     // Verify that clear with saved state triggers a fresh frame
-    canvas.save(SkCanvas::kMatrixClip_SaveFlag);
-    canvas.clear(0x00000000);
-    canvas.restore();
-    REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+    canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+    canvas->clear(0x00000000);
+    canvas->restore();
+    REPORTER_ASSERT(reporter, canvas->isFreshFrame());
 
     // Verify that clear within a layer does NOT trigger a fresh frame
-    canvas.saveLayer(NULL, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
-    canvas.clear(0x00000000);
-    canvas.restore();
-    REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+    canvas->saveLayer(NULL, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+    canvas->clear(0x00000000);
+    canvas->restore();
+    REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
 
     // Verify that a clear with clipping triggers a fresh frame
     // (clear is not affected by clipping)
-    canvas.save(SkCanvas::kMatrixClip_SaveFlag);
-    canvas.clipRect(partialRect, SkRegion::kIntersect_Op, false);
-    canvas.clear(0x00000000);
-    canvas.restore();
-    REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+    canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+    canvas->clipRect(partialRect, SkRegion::kIntersect_Op, false);
+    canvas->clear(0x00000000);
+    canvas->restore();
+    REPORTER_ASSERT(reporter, canvas->isFreshFrame());
 
     // Verify that full frame rects with different forms of opaque paint
     // trigger frames to be marked as fresh
@@ -106,16 +121,16 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, canvas->isFreshFrame());
     }
     {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
         paint.setXfermodeMode(SkXfermode::kSrcIn_Mode);
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
     {
         SkPaint paint;
@@ -126,8 +141,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, canvas->isFreshFrame());
     }
 
     // Verify that full frame rects with different forms of non-opaque paint
@@ -136,8 +151,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(254);
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
     {
         SkPaint paint;
@@ -152,8 +167,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkShader* shader = SkGradientShader::CreateTwoPointConical(
             pt1, r1, pt2, r2, colors, pos, 2, SkShader::kClamp_TileMode, NULL);
         paint.setShader(shader)->unref();
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
     {
         SkPaint paint;
@@ -164,8 +179,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
 
     // Verify that incomplete coverage does not trigger a fresh frame
@@ -173,33 +188,33 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
-        canvas.drawRect(partialRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(partialRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
 
     // Verify that incomplete coverage due to clipping does not trigger a fresh
     // frame
     {
-        canvas.save(SkCanvas::kMatrixClip_SaveFlag);
-        canvas.clipRect(partialRect, SkRegion::kIntersect_Op, false);
+        canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+        canvas->clipRect(partialRect, SkRegion::kIntersect_Op, false);
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
-        canvas.drawRect(fullRect, paint);
-        canvas.restore();
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        canvas->restore();
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
     {
-        canvas.save(SkCanvas::kMatrixClip_SaveFlag);
+        canvas->save(SkCanvas::kMatrixClip_SaveFlag);
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
         SkPath path;
         path.addCircle(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(2));
-        canvas.clipPath(path, SkRegion::kIntersect_Op, false);
-        canvas.drawRect(fullRect, paint);
-        canvas.restore();
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->clipPath(path, SkRegion::kIntersect_Op, false);
+        canvas->drawRect(fullRect, paint);
+        canvas->restore();
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
 
     // Verify that stroked rect does not trigger a fresh frame
@@ -207,8 +222,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setAlpha(255);
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
 
     // Verify kSrcMode triggers a fresh frame even with transparent color
@@ -217,8 +232,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(100);
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, canvas.isFreshFrame());
+        canvas->drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, canvas->isFreshFrame());
     }
 }
 
@@ -243,8 +258,13 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     store.allocPixels();
     MockDevice mockDevice(store);
-    SkDeferredCanvas canvas(&mockDevice);
-    canvas.setMaxRecordingStorage(160000);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&mockDevice));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&mockDevice)));
+#endif
+    canvas->setMaxRecordingStorage(160000);
 
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
@@ -253,7 +273,7 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 5; i++) {
         sourceImage.notifyPixelsChanged(); // to force re-serialization
-        canvas.drawBitmap(sourceImage, 0, 0, NULL);
+        canvas->drawBitmap(sourceImage, 0, 0, NULL);
     }
 
     REPORTER_ASSERT(reporter, mockDevice.fDrawBitmapCallCount == 4);
@@ -294,8 +314,13 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     store.allocPixels();
     SkDevice device(store);
     NotificationCounter notificationCounter;
-    SkDeferredCanvas canvas(&device);
-    canvas.setNotificationClient(&notificationCounter);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+    canvas->setNotificationClient(&notificationCounter);
 
     const int imageCount = 2;
     SkBitmap sourceImages[imageCount];
@@ -307,65 +332,65 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
 
     size_t bitmapSize = sourceImages[0].getSize();
 
-    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fStorageAllocatedChangedCount);
     // stored bitmap + drawBitmap command
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > bitmapSize);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() > bitmapSize);
 
     // verify that nothing can be freed at this point
-    REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0U));
+    REPORTER_ASSERT(reporter, 0 == canvas->freeMemoryIfPossible(~0U));
 
     // verify that flush leaves image in cache
     REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter, 0 == notificationCounter.fPrepareForDrawCount);
-    canvas.flush();
+    canvas->flush();
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fPrepareForDrawCount);
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() >= bitmapSize);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() >= bitmapSize);
 
     // verify that after a flush, cached image can be freed
-    REPORTER_ASSERT(reporter, canvas.freeMemoryIfPossible(~0U) >= bitmapSize);
+    REPORTER_ASSERT(reporter, canvas->freeMemoryIfPossible(~0U) >= bitmapSize);
 
     // Verify that caching works for avoiding multiple copies of the same bitmap
-    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
-    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < 2 * bitmapSize);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() < 2 * bitmapSize);
 
     // Verify partial eviction based on bytesToFree
-    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    canvas->drawBitmap(sourceImages[1], 0, 0, NULL);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
-    canvas.flush();
+    canvas->flush();
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2 * bitmapSize);
-    size_t bytesFreed = canvas.freeMemoryIfPossible(1);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() > 2 * bitmapSize);
+    size_t bytesFreed = canvas->freeMemoryIfPossible(1);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
     REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
 
     // Verifiy that partial purge works, image zero is in cache but not reffed by
     // a pending draw, while image 1 is locked-in.
-    canvas.freeMemoryIfPossible(~0U);
+    canvas->freeMemoryIfPossible(~0U);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
-    canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
-    canvas.flush();
-    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
-    bytesFreed = canvas.freeMemoryIfPossible(~0U);
+    canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
+    canvas->flush();
+    canvas->drawBitmap(sourceImages[1], 0, 0, NULL);
+    bytesFreed = canvas->freeMemoryIfPossible(~0U);
     // only one bitmap should have been freed.
     REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
     REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
     // Clear for next test
-    canvas.flush();
-    canvas.freeMemoryIfPossible(~0U);
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < bitmapSize);
+    canvas->flush();
+    canvas->freeMemoryIfPossible(~0U);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() < bitmapSize);
 
     // Verify the image cache is sensitive to genID bumps
-    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
+    canvas->drawBitmap(sourceImages[1], 0, 0, NULL);
     sourceImages[1].notifyPixelsChanged();
-    canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
-    REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2*bitmapSize);
+    canvas->drawBitmap(sourceImages[1], 0, 0, NULL);
+    REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() > 2*bitmapSize);
 
     // Verify that nothing in this test caused commands to be skipped
     REPORTER_ASSERT(reporter, 0 == notificationCounter.fSkippedPendingDrawCommandsCount);
@@ -377,12 +402,17 @@ static void TestDeferredCanvasSkip(skiatest::Reporter* reporter) {
     store.allocPixels();
     SkDevice device(store);
     NotificationCounter notificationCounter;
-    SkDeferredCanvas canvas(&device);
-    canvas.setNotificationClient(&notificationCounter);
-    canvas.clear(0x0);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+    canvas->setNotificationClient(&notificationCounter);
+    canvas->clear(0x0);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fSkippedPendingDrawCommandsCount);
     REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
-    canvas.flush();
+    canvas->flush();
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fSkippedPendingDrawCommandsCount);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
 
@@ -397,7 +427,12 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     store.allocPixels();
     SkDevice device(store);
-    SkDeferredCanvas canvas(&device);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
     // test will fail if nbIterations is not in sync with
     // BITMAPS_TO_KEEP in SkGPipeWrite.cpp
     const int nbIterations = 5;
@@ -410,13 +445,13 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
             paintPattern.allocPixels();
             paint.setShader(SkNEW_ARGS(SkBitmapProcShader,
                 (paintPattern, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)))->unref();
-            canvas.drawPaint(paint);
-            canvas.flush();
+            canvas->drawPaint(paint);
+            canvas->flush();
 
             // In the first pass, memory allocation should be monotonically increasing as
             // the bitmap heap slots fill up.  In the second pass memory allocation should be
             // stable as bitmap heap slots get recycled.
-            size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+            size_t newBytesAllocated = canvas->storageAllocatedForRecording();
             if (pass == 0) {
                 REPORTER_ASSERT(reporter, newBytesAllocated > bytesAllocated);
                 bytesAllocated = newBytesAllocated;
@@ -426,8 +461,8 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
         }
     }
     // All cached resources should be evictable since last canvas call was flush()
-    canvas.freeMemoryIfPossible(~0U);
-    REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording());
+    canvas->freeMemoryIfPossible(~0U);
+    REPORTER_ASSERT(reporter, 0 == canvas->storageAllocatedForRecording());
 }
 
 static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) {
@@ -443,30 +478,45 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
     // 1 under : should not store the image
     {
         SkDevice device(store);
-        SkDeferredCanvas canvas(&device);
-        canvas.setBitmapSizeThreshold(39999);
-        canvas.drawBitmap(sourceImage, 0, 0, NULL);
-        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+            SkDeferredCanvas::Create(&device));
+#else
+            SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+        canvas->setBitmapSizeThreshold(39999);
+        canvas->drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas->storageAllocatedForRecording();
         REPORTER_ASSERT(reporter, newBytesAllocated == 0);
     }
 
     // exact value : should store the image
     {
         SkDevice device(store);
-        SkDeferredCanvas canvas(&device);
-        canvas.setBitmapSizeThreshold(40000);
-        canvas.drawBitmap(sourceImage, 0, 0, NULL);
-        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+            SkDeferredCanvas::Create(&device));
+#else
+            SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+        canvas->setBitmapSizeThreshold(40000);
+        canvas->drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas->storageAllocatedForRecording();
         REPORTER_ASSERT(reporter, newBytesAllocated > 0);
     }
 
     // 1 over : should still store the image
     {
         SkDevice device(store);
-        SkDeferredCanvas canvas(&device);
-        canvas.setBitmapSizeThreshold(40001);
-        canvas.drawBitmap(sourceImage, 0, 0, NULL);
-        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+            SkDeferredCanvas::Create(&device));
+#else
+            SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+        canvas->setBitmapSizeThreshold(40001);
+        canvas->drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas->storageAllocatedForRecording();
         REPORTER_ASSERT(reporter, newBytesAllocated > 0);
     }
 }
@@ -503,14 +553,19 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
 #endif
     SkASSERT(NULL != surface);
     SkAutoTUnref<SkSurface> aur(surface);
-    SkDeferredCanvas canvas(surface);
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(surface));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (surface)));
+#endif
 
-    SkImage* image1 = canvas.newImageSnapshot();
+    SkImage* image1 = canvas->newImageSnapshot();
     SkAutoTUnref<SkImage> aur_i1(image1);
     PixelPtr pixels1 = getSurfacePixelPtr(surface, useGpu);
     // The following clear would normally trigger a copy on write, but
     // it won't because rendering is deferred.
-    canvas.clear(SK_ColorBLACK);
+    canvas->clear(SK_ColorBLACK);
     // Obtaining a snapshot directly from the surface (as opposed to the
     // SkDeferredCanvas) will not trigger a flush of deferred draw operations
     // and will therefore return the same image as the previous snapshot.
@@ -520,7 +575,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     REPORTER_ASSERT(reporter, image1->uniqueID() == image2->uniqueID());
     // Now we obtain a snpshot via the deferred canvas, which triggers a flush.
     // Because there is a pending clear, this will generate a different image.
-    SkImage* image3 = canvas.newImageSnapshot();
+    SkImage* image3 = canvas->newImageSnapshot();
     SkAutoTUnref<SkImage> aur_i3(image3);
     REPORTER_ASSERT(reporter, image1->uniqueID() != image3->uniqueID());
     // Verify that backing store is now a different buffer because of copy on
@@ -530,8 +585,8 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     // Verify copy-on write with a draw operation that gets deferred by
     // the in order draw buffer.
     SkPaint paint;
-    canvas.drawPaint(paint);
-    SkImage* image4 = canvas.newImageSnapshot();  // implicit flush
+    canvas->drawPaint(paint);
+    SkImage* image4 = canvas->newImageSnapshot();  // implicit flush
     SkAutoTUnref<SkImage> aur_i4(image4);
     REPORTER_ASSERT(reporter, image4->uniqueID() != image3->uniqueID());
     PixelPtr pixels3 = getSurfacePixelPtr(surface, useGpu);
@@ -539,11 +594,11 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
     // Verify that a direct canvas flush with a pending draw does not trigger
     // a copy on write when the surface is not sharing its buffer with an
     // SkImage.
-    canvas.clear(SK_ColorWHITE);
-    canvas.flush();
+    canvas->clear(SK_ColorWHITE);
+    canvas->flush();
     PixelPtr pixels4 = getSurfacePixelPtr(surface, useGpu);
-    canvas.drawPaint(paint);
-    canvas.flush();
+    canvas->drawPaint(paint);
+    canvas->flush();
     PixelPtr pixels5 = getSurfacePixelPtr(surface, useGpu);
     REPORTER_ASSERT(reporter, pixels4 == pixels5);
 }
@@ -578,17 +633,22 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
     SkAutoTUnref<SkSurface> aur2(alternateSurface);
     PixelPtr pixels1 = getSurfacePixelPtr(surface, useGpu);
     PixelPtr pixels2 = getSurfacePixelPtr(alternateSurface, useGpu);
-    SkDeferredCanvas canvas(surface);
-    SkAutoTUnref<SkImage> image1(canvas.newImageSnapshot());
-    canvas.setSurface(alternateSurface);
-    SkAutoTUnref<SkImage> image2(canvas.newImageSnapshot());
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(surface));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (surface)));
+#endif
+    SkAutoTUnref<SkImage> image1(canvas->newImageSnapshot());
+    canvas->setSurface(alternateSurface);
+    SkAutoTUnref<SkImage> image2(canvas->newImageSnapshot());
     REPORTER_ASSERT(reporter, image1->uniqueID() != image2->uniqueID());
     // Verify that none of the above operations triggered a surface copy on write.
     REPORTER_ASSERT(reporter, getSurfacePixelPtr(surface, useGpu) == pixels1);
     REPORTER_ASSERT(reporter, getSurfacePixelPtr(alternateSurface, useGpu) == pixels2);
     // Verify that a flushed draw command will trigger a copy on write on alternateSurface.
-    canvas.clear(SK_ColorWHITE);
-    canvas.flush();
+    canvas->clear(SK_ColorWHITE);
+    canvas->flush();
     REPORTER_ASSERT(reporter, getSurfacePixelPtr(surface, useGpu) == pixels1);
     REPORTER_ASSERT(reporter, getSurfacePixelPtr(alternateSurface, useGpu) != pixels2);
 }
@@ -599,9 +659,14 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     store.allocPixels();
     SkDevice device(store);
     NotificationCounter notificationCounter;
-    SkDeferredCanvas canvas(&device);
-    canvas.setNotificationClient(&notificationCounter);
-    SkAutoTUnref<SkDevice> secondaryDevice(canvas.createCompatibleDevice(
+    SkAutoTUnref<SkDeferredCanvas> canvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+        SkDeferredCanvas::Create(&device));
+#else
+        SkNEW_ARGS(SkDeferredCanvas, (&device)));
+#endif
+    canvas->setNotificationClient(&notificationCounter);
+    SkAutoTUnref<SkDevice> secondaryDevice(canvas->createCompatibleDevice(
         SkBitmap::kARGB_8888_Config, 10, 10, device.isOpaque()));
     SkCanvas secondaryCanvas(secondaryDevice.get());
     SkRect rect = SkRect::MakeWH(5, 5);
@@ -611,7 +676,7 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     secondaryCanvas.drawRect(rect, paint);
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 0);
     // 2) Verify that original canvas is usable and still reports to the notification client.
-    canvas.drawRect(rect, paint);
+    canvas->drawRect(rect, paint);
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 1);
 }
 

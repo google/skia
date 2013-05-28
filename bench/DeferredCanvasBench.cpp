@@ -29,8 +29,12 @@ protected:
         SkDevice *device = canvas->getDevice()->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, CANVAS_WIDTH, CANVAS_HEIGHT, false);
 
-        SkDeferredCanvas deferredCanvas(device);
-
+        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+            SkDeferredCanvas::Create(device));
+#else
+            SkNEW_ARGS(SkDeferredCanvas, (device)));
+#endif
         device->unref();
 
         initDeferredCanvas(deferredCanvas);
@@ -40,12 +44,12 @@ protected:
         }
 
         finalizeDeferredCanvas(deferredCanvas);
-        deferredCanvas.flush();
+        deferredCanvas->flush();
     }
 
-    virtual void initDeferredCanvas(SkDeferredCanvas& canvas) = 0;
-    virtual void drawInDeferredCanvas(SkDeferredCanvas& canvas) = 0;
-    virtual void finalizeDeferredCanvas(SkDeferredCanvas& canvas) = 0;
+    virtual void initDeferredCanvas(SkDeferredCanvas* canvas) = 0;
+    virtual void drawInDeferredCanvas(SkDeferredCanvas* canvas) = 0;
+    virtual void finalizeDeferredCanvas(SkDeferredCanvas* canvas) = 0;
 
     SkString fName;
 
@@ -81,25 +85,25 @@ public:
     };
 protected:
 
-    virtual void initDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
-        canvas.setNotificationClient(&fNotificationClient);
+    virtual void initDeferredCanvas(SkDeferredCanvas* canvas) SK_OVERRIDE {
+        canvas->setNotificationClient(&fNotificationClient);
     }
 
-    virtual void drawInDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
+    virtual void drawInDeferredCanvas(SkDeferredCanvas* canvas) SK_OVERRIDE {
         SkRect rect;
         rect.setXYWH(0, 0, 10, 10);
         SkPaint paint;
         for (int i = 0; i < M; i++) {
-            canvas.save(SkCanvas::kMatrixClip_SaveFlag);
-            canvas.translate(SkIntToScalar(i * 27 % CANVAS_WIDTH), SkIntToScalar(i * 13 % CANVAS_HEIGHT));
-            canvas.drawRect(rect, paint);
-            canvas.restore();
+            canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+            canvas->translate(SkIntToScalar(i * 27 % CANVAS_WIDTH), SkIntToScalar(i * 13 % CANVAS_HEIGHT));
+            canvas->drawRect(rect, paint);
+            canvas->restore();
         }
     }
 
-    virtual void finalizeDeferredCanvas(SkDeferredCanvas& canvas) SK_OVERRIDE {
-        canvas.clear(0x0);
-        canvas.setNotificationClient(NULL);
+    virtual void finalizeDeferredCanvas(SkDeferredCanvas* canvas) SK_OVERRIDE {
+        canvas->clear(0x0);
+        canvas->setNotificationClient(NULL);
     }
 
 private:
