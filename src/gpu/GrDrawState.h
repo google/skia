@@ -95,12 +95,12 @@ public:
     }
 
     /**
-     * Initializes the GrDrawState based on a GrPaint. Note that GrDrawState
-     * encompasses more than GrPaint. Aspects of GrDrawState that have no
-     * GrPaint equivalents are not modified. GrPaint has fewer stages than
-     * GrDrawState. The extra GrDrawState stages are disabled.
+     * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
+     * GrDrawState encompasses more than GrPaint. Aspects of GrDrawState that have no GrPaint
+     * equivalents are set to default values. GrPaint has fewer stages than GrDrawState. The extra
+     * GrDrawState stages are disabled.
      */
-    void setFromPaint(const GrPaint& paint);
+    void setFromPaint(const GrPaint& , const SkMatrix& viewMatrix, GrRenderTarget*);
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Vertex Attributes

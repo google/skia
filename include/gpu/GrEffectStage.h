@@ -53,9 +53,9 @@ public:
         return fCoordChangeMatrix == other.fCoordChangeMatrix;
     }
 
-    bool operator !=(const GrEffectStage& s) const { return !(*this == s); }
+    bool operator!= (const GrEffectStage& s) const { return !(*this == s); }
 
-    GrEffectStage& operator =(const GrEffectStage& other) {
+    GrEffectStage& operator= (const GrEffectStage& other) {
         GrSafeAssign(fEffectRef, other.fEffectRef);
         fCoordChangeMatrixSet = other.fCoordChangeMatrixSet;
         if (NULL != fEffectRef && fCoordChangeMatrixSet) {

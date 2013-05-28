@@ -8,7 +8,7 @@
 #include "GrDrawState.h"
 #include "GrPaint.h"
 
-void GrDrawState::setFromPaint(const GrPaint& paint) {
+void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
     for (int i = 0; i < GrPaint::kMaxColorStages; ++i) {
         int s = i + GrPaint::kFirstColorStage;
         if (paint.isColorStageEnabled(i)) {
@@ -34,8 +34,18 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
         this->disableStage(s);
     }
 
-    this->setColor(paint.getColor());
+    this->setRenderTarget(rt);
 
+    fCommon.fViewMatrix = vm;
+
+    // These have no equivalent in GrPaint, set them to defaults
+    fCommon.fBlendConstant = 0x0;
+    fCommon.fCoverage = 0xffffffff;
+    fCommon.fDrawFace = kBoth_DrawFace;
+    fCommon.fStencilSettings.setDisabled();
+    this->resetStateFlags();
+
+    this->setColor(paint.getColor());
     this->setState(GrDrawState::kDither_StateBit, paint.isDither());
     this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
 
