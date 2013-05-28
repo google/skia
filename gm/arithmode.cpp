@@ -29,8 +29,8 @@ static SkBitmap make_src() {
     SkPaint paint;
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(WW), SkIntToScalar(HH)} };
     SkColor colors[] = {
-        SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
-        SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE
+        SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
+        SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode);

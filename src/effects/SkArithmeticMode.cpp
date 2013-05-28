@@ -73,12 +73,12 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
             int da = SkGetPackedA32(dc);
 
             int srcNeedsUnpremul = needsUnpremul(sa);
-            int dstNeedsUnpremul = needsUnpremul(sa);
+            int dstNeedsUnpremul = needsUnpremul(da);
 
             int a, r, g, b;
 
             if (!srcNeedsUnpremul && !dstNeedsUnpremul) {
-                a = arith(k1, k2, k3, k4, sa, sa);
+                a = arith(k1, k2, k3, k4, sa, da);
                 r = arith(k1, k2, k3, k4, SkGetPackedR32(sc), SkGetPackedR32(dc));
                 g = arith(k1, k2, k3, k4, SkGetPackedG32(sc), SkGetPackedG32(dc));
                 b = arith(k1, k2, k3, k4, SkGetPackedB32(sc), SkGetPackedB32(dc));
@@ -103,7 +103,7 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
                     db = SkUnPreMultiply::ApplyScale(scale, db);
                 }
 
-                a = arith(k1, k2, k3, k4, sa, sa);
+                a = arith(k1, k2, k3, k4, sa, da);
                 r = arith(k1, k2, k3, k4, sr, dr);
                 g = arith(k1, k2, k3, k4, sg, dg);
                 b = arith(k1, k2, k3, k4, sb, db);
