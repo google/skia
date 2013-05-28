@@ -39,6 +39,7 @@
     '../gm/factory.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
+    '../gm/filterbitmap.cpp',
     '../gm/fontmgr.cpp',
     '../gm/fontscaler.cpp',
     '../gm/gammatext.cpp',
