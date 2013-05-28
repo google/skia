@@ -139,9 +139,7 @@ void DeferredPipeController::playback(bool silent) {
 //-----------------------------------------------------------------------------
 class DeferredDevice : public SkDevice {
 public:
-#ifdef SK_DEVELOPER
     explicit DeferredDevice(SkDevice* immediateDevice);
-#endif
     explicit DeferredDevice(SkSurface* surface);
     ~DeferredDevice();
 
@@ -257,7 +255,6 @@ private:
     size_t fBitmapSizeThreshold;
 };
 
-#ifdef SK_DEVELOPER
 DeferredDevice::DeferredDevice(SkDevice* immediateDevice)
     : SkDevice(SkBitmap::kNo_Config,
                immediateDevice->width(), immediateDevice->height(),
@@ -268,7 +265,6 @@ DeferredDevice::DeferredDevice(SkDevice* immediateDevice)
     fPipeController.setPlaybackCanvas(fImmediateCanvas);
     this->init();
 }
-#endif
 
 DeferredDevice::DeferredDevice(SkSurface* surface)
     : SkDevice(SkBitmap::kNo_Config,
