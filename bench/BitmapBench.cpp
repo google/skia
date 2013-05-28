@@ -342,55 +342,31 @@ protected:
 private:
     typedef BitmapBench INHERITED;
 };
-static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact3(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact4(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact5(void* p) { return new BitmapBench(p, false, SkBitmap::kIndex8_Config); }
-static SkBenchmark* Fact6(void* p) { return new BitmapBench(p, true, SkBitmap::kIndex8_Config); }
-static SkBenchmark* Fact7(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); }
-static SkBenchmark* Fact8(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); }
+
+DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); )
+DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kARGB_4444_Config); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_4444_Config); )
+DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kIndex8_Config); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kIndex8_Config); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); )
+DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); )
 
 // scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2
-static SkBenchmark* Fact9(void* p) { return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
-static SkBenchmark* Fact10(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); }
-static SkBenchmark* Fact11(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, false, true); }
-static SkBenchmark* Fact12(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, false, true); }
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, false, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, false, true); )
 
 // scale rotate filter -> S32_opaque_D32_filter_DXDY_{SSE2,SSSE3}
-static SkBenchmark* Fact13(void* p) { return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); }
-static SkBenchmark* Fact14(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); }
-static SkBenchmark* Fact15(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, true, true); }
-static SkBenchmark* Fact16(void* p) { return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, true, true); }
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, true, true); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, true, true); )
 
 // source alpha tests -> S32A_Opaque_BlitRow32_{arm,neon}
-static SkBenchmark* Fact17(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact18(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTransparent_SourceAlpha, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact19(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTwoStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact20(void* p) { return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kThreeStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg3(Fact3);
-static BenchRegistry gReg4(Fact4);
-static BenchRegistry gReg5(Fact5);
-static BenchRegistry gReg6(Fact6);
-static BenchRegistry gReg7(Fact7);
-static BenchRegistry gReg8(Fact8);
-
-static BenchRegistry gReg9(Fact9);
-static BenchRegistry gReg10(Fact10);
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg12(Fact12);
-
-static BenchRegistry gReg13(Fact13);
-static BenchRegistry gReg14(Fact14);
-static BenchRegistry gReg15(Fact15);
-static BenchRegistry gReg16(Fact16);
-
-static BenchRegistry gReg17(Fact17);
-static BenchRegistry gReg18(Fact18);
-static BenchRegistry gReg19(Fact19);
-static BenchRegistry gReg20(Fact20);
+DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTransparent_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTwoStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kThreeStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )
