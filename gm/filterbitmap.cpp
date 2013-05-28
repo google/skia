@@ -10,6 +10,11 @@
 
 #include "SkTypeface.h"
 #include "SkImageDecoder.h"
+
+static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
+    SkSafeUnref(paint->setTypeface(SkTypeface::CreateFromName(name, style)));
+}
+
 static void load_bm(SkBitmap* bm) {
 //    SkImageDecoder::DecodeFile("/skia/trunk/books.jpg", bm);
 
@@ -23,13 +28,13 @@ static void load_bm(SkBitmap* bm) {
     paint.setSubpixelText(true);
     paint.setTextSize(17);
 
-    paint.setTypeface(SkTypeface::CreateFromName("Times", SkTypeface::kNormal))->unref();
+    setTypeface(&paint, "Times", SkTypeface::kNormal);
     canvas.drawText("Hamburgefons", 12, 10, 25, paint);
-    paint.setTypeface(SkTypeface::CreateFromName("Times", SkTypeface::kItalic))->unref();
+    setTypeface(&paint, "Times", SkTypeface::kBold);
     canvas.drawText("Hamburgefons", 12, 10, 50, paint);
-    paint.setTypeface(SkTypeface::CreateFromName("Times", SkTypeface::kBold))->unref();
+    setTypeface(&paint, "Times", SkTypeface::kItalic);
     canvas.drawText("Hamburgefons", 12, 10, 75, paint);
-    paint.setTypeface(SkTypeface::CreateFromName("Times", SkTypeface::kBoldItalic))->unref();
+    setTypeface(&paint, "Times", SkTypeface::kBoldItalic);
     canvas.drawText("Hamburgefons", 12, 10, 100, paint);
 }
 
