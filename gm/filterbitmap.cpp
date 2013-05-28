@@ -36,7 +36,8 @@ static void load_bm(SkBitmap* bm) {
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
     SkRect bounds = { 0, 0, bm.width(), bm.height() };
     mat.mapRect(&bounds);
-    return SkSize::Make(bounds.width(), bounds.height());
+    return SkSize::Make(SkIntToScalar(bounds.width()),
+                        SkIntToScalar(bounds.height()));
 }
 
 static void draw_col(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat,
