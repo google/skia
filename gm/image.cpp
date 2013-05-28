@@ -31,6 +31,9 @@ static SkData* fileToData(const char path[]) {
 }
 
 static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
+    // TODO: Make this draw a file that is checked in, so it can
+    // be exercised on machines other than mike's. Will require a
+    // rebaseline.
     SkAutoDataUnref data(fileToData("/Users/mike/Downloads/skia.google.jpeg"));
     SkImage* image = SkImage::NewEncodedData(data);
     if (image) {

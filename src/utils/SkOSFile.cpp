@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,6 +5,28 @@
  * found in the LICENSE file.
  */
 #include "SkOSFile.h"
+
+SkString SkOSPath::SkPathJoin(const char *rootPath, const char *relativePath) {
+    SkString result(rootPath);
+    if (!result.endsWith(SkPATH_SEPARATOR)) {
+        result.appendUnichar(SkPATH_SEPARATOR);
+    }
+    result.append(relativePath);
+    return result;
+}
+
+SkString SkOSPath::SkBasename(const char* fullPath) {
+    if (!fullPath) {
+        return SkString();
+    }
+    const char* filename = strrchr(fullPath, SkPATH_SEPARATOR);
+    if (NULL == filename) {
+        filename = fullPath;
+    } else {
+        ++filename;
+    }
+    return SkString(filename);
+}
 
 #ifdef SK_BUILD_FOR_WIN
 
@@ -225,5 +246,4 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir)
     }
     return false;
 }
-
-#endif
+#endif // if one of:SK_BUILD_FOR_MAC, SK_BUILD_FOR_UNIX, SK_BUILD_FOR_ANDROID,SK_BUILD_FOR_IOS

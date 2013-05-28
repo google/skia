@@ -105,4 +105,27 @@ private:
     uint16_t*   fStr;
 };
 
+/**
+ *  Functions for modifying SkStrings which represent paths on the filesystem.
+ */
+class SkOSPath {
+public:
+    /**
+     * Assembles rootPath and relativePath into a single path, like this:
+     * rootPath/relativePath
+     *
+     * Uses SkPATH_SEPARATOR, to work on all platforms.
+     */
+    static SkString SkPathJoin(const char *rootPath, const char *relativePath);
+
+    /**
+     *  Return the name of the file, ignoring the directory structure.
+     *  Behaves like python's os.path.basename. If the fullPath is
+     *  /dir/subdir/, an empty string is returned.
+     *  @param fullPath Full path to the file.
+     *  @return SkString The basename of the file - anything beyond the
+     *      final slash, or the full name if there is no slash.
+     */
+    static SkString SkBasename(const char* fullPath);
+};
 #endif
