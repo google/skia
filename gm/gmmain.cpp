@@ -490,11 +490,15 @@ public:
         SkAutoTUnref<SkCanvas> canvas;
 
         if (gRec.fBackend == kRaster_Backend) {
-            SkAutoTUnref<SkDevice> device(new SkDevice(*bitmap));
+            SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (*bitmap)));
             if (deferred) {
-                canvas.reset(new SkDeferredCanvas(device));
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+                canvas.reset(SkDeferredCanvas::Create(device));
+#else
+                canvas.reset(SkNEW_ARGS(SkDeferredCanvas, (device)));
+#endif
             } else {
-                canvas.reset(new SkCanvas(device));
+                canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
             }
             invokeGM(gm, canvas, false, deferred);
             canvas->flush();
@@ -503,9 +507,13 @@ public:
         else {  // GPU
             SkAutoTUnref<SkDevice> device(SkGpuDevice::Create(gpuTarget));
             if (deferred) {
-                canvas.reset(new SkDeferredCanvas(device));
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+                canvas.reset(SkDeferredCanvas::Create(device));
+#else
+                canvas.reset(SkNEW_ARGS(SkDeferredCanvas, (device)));
+#endif
             } else {
-                canvas.reset(new SkCanvas(device));
+                canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
             }
             invokeGM(gm, canvas, false, deferred);
             // the device is as large as the current rendertarget, so

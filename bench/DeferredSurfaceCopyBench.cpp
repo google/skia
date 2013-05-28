@@ -53,21 +53,26 @@ protected:
         {
             surface = SkSurface::NewRaster(info);
         }
-        SkDeferredCanvas drawingCanvas(surface);
+        SkAutoTUnref<SkDeferredCanvas> drawingCanvas(
+#if SK_DEFERRED_CANVAS_USES_FACTORIES
+            SkDeferredCanvas::Create(surface));
+#else
+            SkNEW_ARGS(SkDeferredCanvas, (surface)));
+#endif
         surface->unref();
 
         for (int iteration = 0; iteration < N; iteration++) {
-            drawingCanvas.clear(0);
-            SkAutoTUnref<SkImage> image(drawingCanvas.newImageSnapshot());
+            drawingCanvas->clear(0);
+            SkAutoTUnref<SkImage> image(drawingCanvas->newImageSnapshot());
             SkPaint paint;
             if (!fDiscardableContents) {
                 // If paint is not opaque, prior canvas contents are
                 // not discardable because they are needed for compositing.
                 paint.setAlpha(127);
             }
-            drawingCanvas.drawRect(fullCanvasRect, paint);
+            drawingCanvas->drawRect(fullCanvasRect, paint);
             // Trigger copy on write, which should be faster in the discardable case.
-            drawingCanvas.flush();
+            drawingCanvas->flush();
         }
     }
 
