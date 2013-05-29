@@ -54,18 +54,6 @@ static SkBitmap make_dst() {
     return bm;
 }
 
-static SkBitmap make_arith(const SkBitmap& src, const SkBitmap& dst,
-                           const SkScalar k[]) {
-    SkBitmap bm = make_bm();
-    SkCanvas canvas(bm);
-    SkPaint paint;
-    canvas.drawBitmap(dst, 0, 0, NULL);
-    SkXfermode* xfer = SkArithmeticMode::Create(k[0], k[1], k[2], k[3]);
-    paint.setXfermode(xfer)->unref();
-    canvas.drawBitmap(src, 0, 0, &paint);
-    return bm;
-}
-
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
     SkPaint paint;
     paint.setTextSize(SkIntToScalar(24));
@@ -116,12 +104,18 @@ protected:
         SkScalar gap = SkIntToScalar(src.width() + 20);
         while (k < stop) {
             SkScalar x = 0;
-            SkBitmap res = make_arith(src, dst, k);
             canvas->drawBitmap(src, x, y, NULL);
             x += gap;
             canvas->drawBitmap(dst, x, y, NULL);
             x += gap;
-            canvas->drawBitmap(res, x, y, NULL);
+            SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
+            canvas->saveLayer(&rect, NULL);
+            canvas->drawBitmap(dst, x, y, NULL);
+            SkXfermode* xfer = SkArithmeticMode::Create(k[0], k[1], k[2], k[3]);
+            SkPaint paint;
+            paint.setXfermode(xfer)->unref();
+            canvas->drawBitmap(src, x, y, &paint);
+            canvas->restore();
             x += gap;
             show_k_text(canvas, x, y, k);
             k += 4;
