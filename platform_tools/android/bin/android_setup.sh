@@ -65,12 +65,6 @@ exportVar ANDROID_TOOLCHAIN ${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin
 
 # if the toolchain doesn't exist on your machine then we need to fetch it
 if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
-  # gsutil must be installed on your system and in your PATH
-  gsutil version &> /dev/null
-  if [[ "$?" != "0" ]]; then
-    echo "ERROR: Unable to find gsutil. Please install it before proceeding."
-    exit 1
-  fi
   # create the toolchain directory if needed
   if [ ! -d "$TOOLCHAIN_DIR" ]; then
     mkdir $TOOLCHAIN_DIR
@@ -78,7 +72,14 @@ if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
   # enter the toolchain directory then download, unpack, and remove the tarball 
   pushd $TOOLCHAIN_DIR
   TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
-  gsutil cp gs://chromium-skia-gm/android-toolchains/$TARBALL $TARBALL
+  
+  echo "Downloading $TARBALL ..."
+  ${SCRIPT_DIR}/download_toolchains.py http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL $TOOLCHAIN_DIR/$TARBALL
+  if [[ "$?" != "0" ]]; then
+    echo "ERROR: Unable to download toolchain $TARBALL."
+    exit 1
+  fi
+
   echo "Untarring $TOOLCHAIN_TYPE from $TARBALL."
   tar -xzf $TARBALL $TOOLCHAIN_TYPE
   echo "Removing $TARBALL"
