@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkOSFile.h"
 
@@ -21,74 +19,65 @@
 #include <unistd.h>
 #endif
 
-SkFILE* sk_fopen(const char path[], SkFILE_Flags flags)
-{
+SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     char    perm[4];
     char*   p = perm;
 
-    if (flags & kRead_SkFILE_Flag)
+    if (flags & kRead_SkFILE_Flag) {
         *p++ = 'r';
-    if (flags & kWrite_SkFILE_Flag)
+    }
+    if (flags & kWrite_SkFILE_Flag) {
         *p++ = 'w';
+    }
     *p++ = 'b';
     *p = 0;
 
     //TODO: on Windows fopen is just ASCII or the current code page,
     //convert to utf16 and use _wfopen
-    SkFILE* f = (SkFILE*)::fopen(path, perm);
-#if 0
-    if (NULL == f)
-        SkDebugf("sk_fopen failed for %s (%s), errno=%s\n", path, perm, strerror(errno));
-#endif
-    return f;
+    return (SkFILE*)::fopen(path, perm);
 }
 
 char* sk_fgets(char* str, int size, SkFILE* f) {
     return ::fgets(str, size, (FILE *)f);
 }
 
-
 int sk_feof(SkFILE *f) {
     // no :: namespace qualifier because it breaks android
     return feof((FILE *)f);
 }
 
-size_t sk_fgetsize(SkFILE* f)
-{
+size_t sk_fgetsize(SkFILE* f) {
     SkASSERT(f);
 
-    long curr = ::ftell((FILE*)f);       // remember where we are
+    long curr = ::ftell((FILE*)f); // remember where we are
     if (curr < 0) {
         return 0;
     }
-    ::fseek((FILE*)f, 0, SEEK_END);         // go to the end
-    long size = ::ftell((FILE*)f);        // record the size
+
+    ::fseek((FILE*)f, 0, SEEK_END); // go to the end
+    long size = ::ftell((FILE*)f); // record the size
     if (size < 0) {
         size = 0;
     }
-    ::fseek((FILE*)f, curr, SEEK_SET);        // go back to our prev loc
+
+    ::fseek((FILE*)f, curr, SEEK_SET); // go back to our prev location
     return size;
 }
 
-bool sk_frewind(SkFILE* f)
-{
+bool sk_frewind(SkFILE* f) {
     SkASSERT(f);
     ::rewind((FILE*)f);
-//  ::fseek((FILE*)f, 0, SEEK_SET);
     return true;
 }
 
-size_t sk_fread(void* buffer, size_t byteCount, SkFILE* f)
-{
+size_t sk_fread(void* buffer, size_t byteCount, SkFILE* f) {
     SkASSERT(f);
-    if (buffer == NULL)
-    {
+    if (buffer == NULL) {
         size_t curr = ::ftell((FILE*)f);
         if ((long)curr == -1) {
             SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof((FILE*)f), ferror((FILE*)f)));
             return 0;
         }
-    //  ::fseek((FILE*)f, (long)(curr + byteCount), SEEK_SET);
         int err = ::fseek((FILE*)f, (long)byteCount, SEEK_CUR);
         if (err != 0) {
             SkDEBUGF(("sk_fread: fseek(%d) tell:%d failed with feof:%d ferror:%d returned:%d\n",
@@ -101,26 +90,40 @@ size_t sk_fread(void* buffer, size_t byteCount, SkFILE* f)
         return ::fread(buffer, 1, byteCount, (FILE*)f);
 }
 
-size_t sk_fwrite(const void* buffer, size_t byteCount, SkFILE* f)
-{
+size_t sk_fwrite(const void* buffer, size_t byteCount, SkFILE* f) {
     SkASSERT(f);
     return ::fwrite(buffer, 1, byteCount, (FILE*)f);
 }
 
-void sk_fflush(SkFILE* f)
-{
+void sk_fflush(SkFILE* f) {
     SkASSERT(f);
     ::fflush((FILE*)f);
 }
 
-void sk_fclose(SkFILE* f)
-{
+bool sk_fseek(SkFILE* f, size_t byteCount) {
+    int err = ::fseek((FILE*)f, (long)byteCount, SEEK_SET);
+    return err == 0;
+}
+
+bool sk_fmove(SkFILE* f, long byteCount) {
+    int err = ::fseek((FILE*)f, byteCount, SEEK_CUR);
+    return err == 0;
+}
+
+size_t sk_ftell(SkFILE* f) {
+    long curr = ::ftell((FILE*)f);
+    if (curr < 0) {
+        return 0;
+    }
+    return curr;
+}
+
+void sk_fclose(SkFILE* f) {
     SkASSERT(f);
     ::fclose((FILE*)f);
 }
 
-bool sk_exists(const char *path)
-{
+bool sk_exists(const char *path) {
 #ifdef _WIN32
     return (0 == _access(path, 0));
 #else
@@ -128,8 +131,7 @@ bool sk_exists(const char *path)
 #endif
 }
 
-bool sk_isdir(const char *path)
-{
+bool sk_isdir(const char *path) {
     struct stat status;
     if (0 != stat(path, &status)) {
         return false;
@@ -137,8 +139,7 @@ bool sk_isdir(const char *path)
     return SkToBool(status.st_mode & S_IFDIR);
 }
 
-bool sk_mkdir(const char* path)
-{
+bool sk_mkdir(const char* path) {
     if (sk_isdir(path)) {
         return true;
     }

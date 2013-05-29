@@ -16,9 +16,7 @@
 SK_DEFINE_INST_COUNT(SkStream)
 SK_DEFINE_INST_COUNT(SkWStream)
 SK_DEFINE_INST_COUNT(SkFILEStream)
-SK_DEFINE_INST_COUNT(SkFDStream)
 SK_DEFINE_INST_COUNT(SkMemoryStream)
-SK_DEFINE_INST_COUNT(SkBufferStream)
 SK_DEFINE_INST_COUNT(SkFILEWStream)
 SK_DEFINE_INST_COUNT(SkMemoryWStream)
 SK_DEFINE_INST_COUNT(SkDynamicMemoryWStream)
@@ -26,26 +24,6 @@ SK_DEFINE_INST_COUNT(SkDebugWStream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* SkStream::getFileName()
-{
-    // override in subclass if you represent a file
-    return NULL;
-}
-
-const void* SkStream::getMemoryBase()
-{
-    // override in subclass if you represent a memory block
-    return NULL;
-}
-
-size_t SkStream::skip(size_t size)
-{
-    /*  Check for size == 0, and just return 0. If we passed that
-        to read(), it would interpret it as a request for the entire
-        size of the stream.
-    */
-    return size ? this->read(NULL, size) : 0;
-}
 
 int8_t SkStream::readS8() {
     int8_t value;
@@ -221,12 +199,17 @@ bool SkWStream::writeData(const SkData* data) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFILEStream::SkFILEStream(const char file[]) : fName(file) {
+SkFILEStream::SkFILEStream(const char file[]) : fName(file), fOwnership(kCallerPasses_Ownership) {
     fFILE = file ? sk_fopen(fName.c_str(), kRead_SkFILE_Flag) : NULL;
 }
 
+SkFILEStream::SkFILEStream(FILE* file, Ownership ownership)
+    : fFILE((SkFILE*)file)
+    , fOwnership(ownership) {
+}
+
 SkFILEStream::~SkFILEStream() {
-    if (fFILE) {
+    if (fFILE && fOwnership != kCallerRetains_Ownership) {
         sk_fclose(fFILE);
     }
 }
@@ -242,8 +225,15 @@ void SkFILEStream::setPath(const char path[]) {
     }
 }
 
-const char* SkFILEStream::getFileName() {
-    return fName.c_str();
+size_t SkFILEStream::read(void* buffer, size_t size) {
+    if (fFILE) {
+        return sk_fread(buffer, size, fFILE);
+    }
+    return 0;
+}
+
+bool SkFILEStream::isAtEnd() const {
+    return sk_feof(fFILE);
 }
 
 bool SkFILEStream::rewind() {
@@ -258,15 +248,56 @@ bool SkFILEStream::rewind() {
     return false;
 }
 
-size_t SkFILEStream::read(void* buffer, size_t size) {
-    if (fFILE) {
-        if (buffer == NULL && size == 0) {  // special signature, they want the total size
-            return sk_fgetsize(fFILE);
-        } else {
-            return sk_fread(buffer, size, fFILE);
+SkStreamAsset* SkFILEStream::duplicate() const {
+    if (NULL == fFILE) {
+        return new SkMemoryStream();
+    }
+
+    if (NULL != fData.get()) {
+        return new SkMemoryStream(fData);
+    }
+
+    if (!fName.isEmpty()) {
+        SkAutoTUnref<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+        if (sk_fidentical(that->fFILE, this->fFILE)) {
+            return that.detach();
         }
     }
-    return 0;
+
+    fData.reset(SkData::NewFromFILE(fFILE));
+    if (NULL == fData.get()) {
+        return NULL;
+    }
+    return new SkMemoryStream(fData);
+}
+
+size_t SkFILEStream::getPosition() const {
+    return sk_ftell(fFILE);
+}
+
+bool SkFILEStream::seek(size_t position) {
+    return sk_fseek(fFILE, position);
+}
+
+bool SkFILEStream::move(long offset) {
+    return sk_fmove(fFILE, offset);
+}
+
+SkStreamAsset* SkFILEStream::fork() const {
+    SkAutoTUnref<SkStreamAsset> that(this->duplicate());
+    that->seek(this->getPosition());
+    return that.detach();
+}
+
+size_t SkFILEStream::getLength() const {
+    return sk_fgetsize(fFILE);
+}
+
+const void* SkFILEStream::getMemoryBase() {
+    if (NULL == fData.get()) {
+        return NULL;
+    }
+    return fData->data();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -341,22 +372,9 @@ void SkMemoryStream::skipToAlign4() {
     fOffset += -(int)fOffset & 0x03;
 }
 
-bool SkMemoryStream::rewind() {
-    fOffset = 0;
-    return true;
-}
-
 size_t SkMemoryStream::read(void* buffer, size_t size) {
     size_t dataSize = fData->size();
 
-    if (buffer == NULL && size == 0)    // special signature, they want the total size
-        return dataSize;
-
-    // if buffer is NULL, seek ahead by size
-
-    if (size == 0) {
-        return 0;
-    }
     if (size > dataSize - fOffset) {
         size = dataSize - fOffset;
     }
@@ -367,171 +385,50 @@ size_t SkMemoryStream::read(void* buffer, size_t size) {
     return size;
 }
 
+bool SkMemoryStream::isAtEnd() const {
+    return fOffset == fData->size();
+}
+
+bool SkMemoryStream::rewind() {
+    fOffset = 0;
+    return true;
+}
+
+SkMemoryStream* SkMemoryStream::duplicate() const {
+    return SkNEW_ARGS(SkMemoryStream, (fData));
+}
+
+size_t SkMemoryStream::getPosition() const {
+    return fOffset;
+}
+
+bool SkMemoryStream::seek(size_t position) {
+    fOffset = position > fData->size()
+            ? fData->size()
+            : position;
+    return true;
+}
+
+bool SkMemoryStream::move(long offset) {
+    return this->seek(fOffset + offset);
+}
+
+SkMemoryStream* SkMemoryStream::fork() const {
+    SkAutoTUnref<SkMemoryStream> that(this->duplicate());
+    that->seek(fOffset);
+    return that.detach();
+}
+
+size_t SkMemoryStream::getLength() const {
+    return fData->size();
+}
+
 const void* SkMemoryStream::getMemoryBase() {
     return fData->data();
 }
 
 const void* SkMemoryStream::getAtPos() {
     return fData->bytes() + fOffset;
-}
-
-size_t SkMemoryStream::seek(size_t offset) {
-    if (offset > fData->size()) {
-        offset = fData->size();
-    }
-    fOffset = offset;
-    return offset;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkBufferStream::SkBufferStream(SkStream* proxy, size_t bufferSize)
-    : fProxy(proxy)
-{
-    SkASSERT(proxy != NULL);
-    proxy->ref();
-    this->init(NULL, bufferSize);
-}
-
-SkBufferStream::SkBufferStream(SkStream* proxy, void* buffer, size_t bufferSize)
-    : fProxy(proxy)
-{
-    SkASSERT(proxy != NULL);
-    SkASSERT(buffer == NULL || bufferSize != 0);    // init(addr, 0) makes no sense, we must know how big their buffer is
-    proxy->ref();
-    this->init(buffer, bufferSize);
-}
-
-void SkBufferStream::init(void* buffer, size_t bufferSize)
-{
-    if (bufferSize == 0)
-        bufferSize = kDefaultBufferSize;
-
-    fOrigBufferSize = bufferSize;
-    fBufferSize = bufferSize;
-    fBufferOffset = bufferSize; // to trigger a reload on the first read()
-
-    if (buffer == NULL)
-    {
-        fBuffer = (char*)sk_malloc_throw(fBufferSize);
-        fWeOwnTheBuffer = true;
-    }
-    else
-    {
-        fBuffer = (char*)buffer;
-        fWeOwnTheBuffer = false;
-    }
-}
-
-SkBufferStream::~SkBufferStream()
-{
-    fProxy->unref();
-    if (fWeOwnTheBuffer)
-        sk_free(fBuffer);
-}
-
-bool SkBufferStream::rewind()
-{
-    fBufferOffset = fBufferSize = fOrigBufferSize;
-    return fProxy->rewind();
-}
-
-const char* SkBufferStream::getFileName()
-{
-    return fProxy->getFileName();
-}
-
-#ifdef SK_DEBUG
-//  #define SK_TRACE_BUFFERSTREAM
-#endif
-
-size_t SkBufferStream::read(void* buffer, size_t size) {
-#ifdef SK_TRACE_BUFFERSTREAM
-    SkDebugf("Request %d", size);
-#endif
-
-    if (buffer == NULL && size == 0) {
-        return fProxy->read(buffer, size);    // requesting total size
-    }
-
-    if (0 == size) {
-        return 0;
-    }
-
-    // skip size bytes
-    if (NULL == buffer) {
-        size_t remaining = fBufferSize - fBufferOffset;
-        if (remaining >= size) {
-            fBufferOffset += size;
-            return size;
-        }
-        // if we get here, we are being asked to skip beyond our current buffer
-        // so reset our offset to force a read next time, and skip the diff
-        // in our proxy
-        fBufferOffset = fOrigBufferSize;
-        return remaining + fProxy->read(NULL, size - remaining);
-    }
-
-    size_t s = size;
-    size_t actuallyRead = 0;
-
-    // flush what we can from our fBuffer
-    if (fBufferOffset < fBufferSize)
-    {
-        if (s > fBufferSize - fBufferOffset)
-            s = fBufferSize - fBufferOffset;
-        memcpy(buffer, fBuffer + fBufferOffset, s);
-#ifdef SK_TRACE_BUFFERSTREAM
-        SkDebugf(" flush %d", s);
-#endif
-        size -= s;
-        fBufferOffset += s;
-        buffer = (char*)buffer + s;
-        actuallyRead = s;
-    }
-
-    // check if there is more to read
-    if (size)
-    {
-        SkASSERT(fBufferOffset >= fBufferSize); // need to refill our fBuffer
-
-        if (size < fBufferSize) // lets try to read more than the request
-        {
-            s = fProxy->read(fBuffer, fBufferSize);
-#ifdef SK_TRACE_BUFFERSTREAM
-            SkDebugf(" read %d into fBuffer", s);
-#endif
-            if (size > s)   // they asked for too much
-                size = s;
-            if (size)
-            {
-                memcpy(buffer, fBuffer, size);
-                actuallyRead += size;
-#ifdef SK_TRACE_BUFFERSTREAM
-                SkDebugf(" memcpy %d into dst", size);
-#endif
-            }
-
-            fBufferOffset = size;
-            fBufferSize = s;        // record the (possibly smaller) size for the buffer
-        }
-        else    // just do a direct read
-        {
-            actuallyRead += fProxy->read(buffer, size);
-#ifdef SK_TRACE_BUFFERSTREAM
-            SkDebugf(" direct read %d", size);
-#endif
-        }
-    }
-#ifdef SK_TRACE_BUFFERSTREAM
-    SkDebugf("\n");
-#endif
-    return actuallyRead;
-}
-
-const void* SkBufferStream::getMemoryBase()
-{
-    return fProxy->getMemoryBase();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -800,7 +697,7 @@ static SkData* mmap_filename(const char path[]) {
     return data;
 }
 
-SkStream* SkStream::NewFromFile(const char path[]) {
+SkStreamAsset* SkStream::NewFromFile(const char path[]) {
     SkAutoTUnref<SkData> data(mmap_filename(path));
     if (data.get()) {
         return SkNEW_ARGS(SkMemoryStream, (data.get()));
