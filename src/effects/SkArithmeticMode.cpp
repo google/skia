@@ -328,19 +328,18 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
                                 kVec4f_GrSLType, "k");
     const char* kUni = builder->getUniformCStr(fKUni);
 
-    const char* srcColor = "srcColor";
-
     // We don't try to optimize for this case at all
     if (NULL == inputColor) {
-        builder->fsCodeAppendf("\t\tconst vec4 srcColor = %s;\n", GrGLSLOnesVecf(4));
+        builder->fsCodeAppendf("\t\tconst vec4 src = %s;\n", GrGLSLOnesVecf(4));
     } else {
-        builder->fsCodeAppendf("\t\tvec4 srcColor = %s;\n", inputColor);
-        builder->fsCodeAppendf("\t\tsrcColor.rgb = clamp(srcColor.rgb / srcColor.a, 0.0, 1.0);\n");
+        builder->fsCodeAppendf("\t\tvec4 src = %s;\n", inputColor);
+        builder->fsCodeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
     }
 
-    builder->fsCodeAppendf("\t\t%s.rgb = clamp(%s.rgb / %s.a, 0.0, 1.0);\n", dstColor, dstColor, dstColor);
+    builder->fsCodeAppendf("\t\tvec4 dst = %s;\n", dstColor);
+    builder->fsCodeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
 
-    builder->fsCodeAppendf("\t\t%s = %s.x * %s * %s + %s.y * %s + %s.z * %s + %s.w;\n", outputColor, kUni, srcColor, dstColor, kUni, srcColor, kUni, dstColor, kUni);
+    builder->fsCodeAppendf("\t\t%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;\n", outputColor, kUni, kUni, kUni, kUni);
     builder->fsCodeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
     builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
