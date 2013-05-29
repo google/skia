@@ -171,7 +171,7 @@ protected:
         return 1;
 #else
         return (paint.getFlags() & SkPaint::kBicubicFilterBitmap_Flag) ?
-                BICUBIC_DUR_SCALE : 1;
+                (float)BICUBIC_DUR_SCALE : 1;
 #endif
     }
 
