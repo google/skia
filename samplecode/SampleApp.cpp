@@ -74,7 +74,7 @@ SkTCPServer gServer;
 #endif
 
 #define ANIMATING_EVENTTYPE "nextSample"
-#define ANIMATING_DELAY     750
+#define ANIMATING_DELAY     250
 
 #ifdef SK_DEBUG
     #define FPS_REPEAT_MULTIPLIER   1
