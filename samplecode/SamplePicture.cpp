@@ -33,14 +33,16 @@
 #include "SkImageRef_GlobalPool.h"
 
 static SkBitmap load_bitmap() {
-    SkStream* stream = new SkFILEStream("/skimages/sesame_street_ensemble-hp.jpg");
-    SkAutoUnref aur(stream);
-
     SkBitmap bm;
-    if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
-                                     SkImageDecoder::kDecodeBounds_Mode)) {
-        SkPixelRef* pr = new SkImageRef_GlobalPool(stream, bm.config(), 1);
-        bm.setPixelRef(pr)->unref();
+    SkStream* stream = SkStream::NewFromFile("/skimages/sesame_street_ensemble-hp.jpg");
+    if (stream) {
+        SkAutoUnref aur(stream);
+
+        if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
+                                         SkImageDecoder::kDecodeBounds_Mode)) {
+            SkPixelRef* pr = new SkImageRef_GlobalPool(stream, bm.config(), 1);
+            bm.setPixelRef(pr)->unref();
+        }
     }
     return bm;
 }
