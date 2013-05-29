@@ -106,6 +106,22 @@ public:
     bool findDefine32(const char* key, int32_t* value) const;
     bool findDefineScalar(const char* key, SkScalar* value) const;
 
+    /** Assign masks for paint-flags. These will be applied when setupPaint()
+     *  is called.
+     *
+     *  Performs the following on the paint:
+     *      uint32_t flags = paint.getFlags();
+     *      flags &= ~clearMask;
+     *      flags |= orMask;
+     *      paint.setFlags(flags);
+     */
+    void setPaintMasks(uint32_t orMask, uint32_t clearMask) {
+        fOrMask = orMask;
+        fClearMask = clearMask;
+    }
+
+    float getDurationScale() { return this->onGetDurationScale(); }
+
 protected:
     virtual void setupPaint(SkPaint* paint);
 
@@ -113,6 +129,13 @@ protected:
     virtual void onPreDraw() {}
     virtual void onDraw(SkCanvas*) = 0;
     virtual void onPostDraw() {}
+    // the caller will scale the computed duration by this value. It allows a
+    // slow bench to run fewer inner loops, but return the corresponding scale
+    // so that its reported duration can be compared against other benches.
+    // e.g.
+    //      if I run 10x slower, I can run 1/10 the number of inner-loops, but
+    //      return 10.0 for my durationScale, so I "report" the honest duration.
+    virtual float onGetDurationScale() { return 1; }
 
     virtual SkIPoint onGetSize();
     /// Defaults to true.
@@ -126,6 +149,7 @@ private:
     SkTriState::State  fDither;
     bool    fHasStrokeWidth;
     SkScalar strokeWidth;
+    uint32_t    fOrMask, fClearMask;
 
     typedef SkRefCnt INHERITED;
 };

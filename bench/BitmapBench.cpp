@@ -13,10 +13,6 @@
 #include "SkRandom.h"
 #include "SkString.h"
 
-static const char* gTileName[] = {
-    "clamp", "repeat", "mirror"
-};
-
 static const char* gConfigName[] = {
     "ERROR", "a1", "a8", "index8", "565", "4444", "8888"
 };
@@ -82,22 +78,19 @@ class BitmapBench : public SkBenchmark {
     SkPaint     fPaint;
     bool        fIsOpaque;
     bool        fForceUpdate; //bitmap marked as dirty before each draw. forces bitmap to be updated on device cache
-    int         fTileX, fTileY; // -1 means don't use shader
     bool        fIsVolatile;
     SkBitmap::Config fConfig;
     SkString    fName;
-    enum { N = SkBENCHLOOP(300) };
+    enum { BICUBIC_DUR_SCALE = 20 };
+    enum { N = SkBENCHLOOP(15 * BICUBIC_DUR_SCALE) };
     enum { W = 128 };
     enum { H = 128 };
 public:
     BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
-                bool forceUpdate = false, bool bitmapVolatile = false,
-                int tx = -1, int ty = -1)
+                bool forceUpdate = false, bool bitmapVolatile = false)
         : INHERITED(param)
         , fIsOpaque(isOpaque)
         , fForceUpdate(forceUpdate)
-        , fTileX(tx)
-        , fTileY(ty)
         , fIsVolatile(bitmapVolatile)
         , fConfig(c) {
     }
@@ -105,12 +98,6 @@ public:
 protected:
     virtual const char* onGetName() {
         fName.set("bitmap");
-        if (fTileX >= 0) {
-            fName.appendf("_%s", gTileName[fTileX]);
-            if (fTileY != fTileX) {
-                fName.appendf("_%s", gTileName[fTileY]);
-            }
-        }
         fName.appendf("_%s%s", gConfigName[fConfig],
                       fIsOpaque ? "" : "_A");
         if (fForceUpdate)
@@ -159,7 +146,14 @@ protected:
         const SkScalar x0 = SkIntToScalar(-bitmap.width() / 2);
         const SkScalar y0 = SkIntToScalar(-bitmap.height() / 2);
 
-        for (int i = 0; i < N; i++) {
+        int count = N;
+#ifdef SK_RELEASE
+        // in DEBUG, N is always 1
+        if (paint.getFlags() & SkPaint::kBicubicFilterBitmap_Flag) {
+            count /= BICUBIC_DUR_SCALE;
+        }
+#endif
+        for (int i = 0; i < count; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
 
@@ -168,6 +162,17 @@ protected:
 
             canvas->drawBitmap(bitmap, x, y, &paint);
         }
+    }
+
+    virtual float onGetDurationScale() SK_OVERRIDE {
+        SkPaint paint;
+        this->setupPaint(&paint);
+#ifdef SK_DEBUG
+        return 1;
+#else
+        return (paint.getFlags() & SkPaint::kBicubicFilterBitmap_Flag) ?
+                BICUBIC_DUR_SCALE : 1;
+#endif
     }
 
     virtual void onDrawIntoBitmap(const SkBitmap& bm) {
@@ -196,38 +201,53 @@ private:
 /** Explicitly invoke some filter types to improve coverage of acceleration
     procs. */
 
+enum Flags {
+    kScale_Flag             = 1 << 0,
+    kRotate_Flag            = 1 << 1,
+    kBilerp_Flag            = 1 << 2,
+    kBicubic_Flag           = 1 << 3,
+};
+
+static bool isBilerp(uint32_t flags) {
+    return (flags & (kBilerp_Flag | kBicubic_Flag)) == (kBilerp_Flag);
+}
+
+static bool isBicubic(uint32_t flags) {
+    return (flags & (kBilerp_Flag | kBicubic_Flag)) == (kBilerp_Flag | kBicubic_Flag);
+}
+
 class FilterBitmapBench : public BitmapBench {
-    bool        fScale;
-    bool        fRotate;
-    bool        fFilter;
+    uint32_t    fFlags;
     SkString    fFullName;
     enum { N = SkBENCHLOOP(300) };
 public:
     FilterBitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
-                bool forceUpdate = false, bool bitmapVolatile = false,
-                int tx = -1, int ty = -1, bool addScale = false,
-                bool addRotate = false, bool addFilter = false)
-        : INHERITED(param, isOpaque, c, forceUpdate, bitmapVolatile, tx, ty)
-        , fScale(addScale), fRotate(addRotate), fFilter(addFilter) {
-
+                      bool forceUpdate, bool isVolitile, uint32_t flags)
+        : INHERITED(param, isOpaque, c, forceUpdate, isVolitile)
+        , fFlags(flags) {
     }
 
 protected:
     virtual const char* onGetName() {
         fFullName.set(INHERITED::onGetName());
-        if (fScale)
+        if (fFlags & kScale_Flag) {
             fFullName.append("_scale");
-        if (fRotate)
+        }
+        if (fFlags & kRotate_Flag) {
             fFullName.append("_rotate");
-        if (fFilter)
-            fFullName.append("_filter");
+        }
+        if (isBilerp(fFlags)) {
+            fFullName.append("_bilerp");
+        } else if (isBicubic(fFlags)) {
+            fFullName.append("_bicubic");
+        }
 
         return fFullName.c_str();
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkISize dim = canvas->getDeviceSize();
-        if (fScale) {
+        if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
             const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
 
@@ -236,7 +256,7 @@ protected:
             canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
             canvas->translate(-x, -y);
         }
-        if (fRotate) {
+        if (fFlags & kRotate_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
             const SkScalar y = SkIntToScalar(dim.fHeight) / 2;
 
@@ -245,7 +265,16 @@ protected:
             canvas->translate(-x, -y);
         }
 
-        this->setForceFilter(fFilter);
+        uint32_t orMask = 0;
+        uint32_t clearMask = SkPaint::kFilterBitmap_Flag | SkPaint::kBicubicFilterBitmap_Flag;
+        if (fFlags & kBilerp_Flag) {
+            orMask |= SkPaint::kFilterBitmap_Flag;
+        }
+        if (fFlags & kBicubic_Flag) {
+            orMask |= SkPaint::kBicubicFilterBitmap_Flag;
+        }
+        this->setPaintMasks(orMask, clearMask);
+
         INHERITED::onDraw(canvas);
     }
 
@@ -264,9 +293,8 @@ private:
     SourceAlpha fSourceAlpha;
 public:
     SourceAlphaBitmapBench(void* param, SourceAlpha alpha, SkBitmap::Config c,
-                bool forceUpdate = false, bool bitmapVolatile = false,
-                int tx = -1, int ty = -1)
-        : INHERITED(param, false, c, forceUpdate, bitmapVolatile, tx, ty)
+                bool forceUpdate = false, bool bitmapVolatile = false)
+        : INHERITED(param, false, c, forceUpdate, bitmapVolatile)
         , fSourceAlpha(alpha) {
     }
 
@@ -354,16 +382,19 @@ DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, tr
 DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); )
 
 // scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, false, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, false, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, false, true); )
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kBilerp_Flag); )
 
 // scale rotate filter -> S32_opaque_D32_filter_DXDY_{SSE2,SSSE3}
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, -1, -1, true, true, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, -1, -1, true, true, true); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, -1, -1, true, true, true); )
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag | kBicubic_Flag); )
+DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag | kBicubic_Flag); )
 
 // source alpha tests -> S32A_Opaque_BlitRow32_{arm,neon}
 DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); )

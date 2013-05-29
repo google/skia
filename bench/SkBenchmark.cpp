@@ -20,6 +20,7 @@ SkBenchmark::SkBenchmark(void* defineDict) {
     fDither = SkTriState::kDefault;
     fHasStrokeWidth = false;
     fIsRendering = true;
+    fOrMask = fClearMask = 0;
 }
 
 const char* SkBenchmark::getName() {
@@ -46,6 +47,8 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);
     paint->setFilterBitmap(fForceFilter);
+
+    paint->setFlags((paint->getFlags() & ~fClearMask) | fOrMask);
 
     if (SkTriState::kDefault != fDither) {
         paint->setDither(SkTriState::kTrue == fDither);
