@@ -820,7 +820,7 @@ int tool_main(int argc, char** argv) {
                 switch(benchMode) {
                     case kDeferredSilent_benchModes:
                     case kDeferred_benchModes:
-                        canvas = 
+                        canvas =
 #if SK_DEFERRED_CANVAS_USES_FACTORIES
                             SkDeferredCanvas::Create(device);
 #else
