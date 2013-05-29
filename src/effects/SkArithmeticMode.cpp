@@ -7,8 +7,15 @@
 
 #include "SkArithmeticMode.h"
 #include "SkColorPriv.h"
+#include "SkFlattenableBuffers.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "gl/GrGLEffect.h"
+#include "GrTBackendEffectFactory.h"
+#include "SkImageFilterUtils.h"
+#endif
 
 class SkArithmeticMode_scalar : public SkXfermode {
 public:
@@ -23,9 +30,27 @@ public:
                         const SkAlpha aa[]) const SK_OVERRIDE;
 
     SK_DEVELOPER_TO_STRING()
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
+
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffectOrCoeff(GrContext*, GrEffectRef** effect, Coeff*, Coeff*) const SK_OVERRIDE;
+#endif
 
 private:
+    SkArithmeticMode_scalar(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+        fK[0] = buffer.readScalar();
+        fK[1] = buffer.readScalar();
+        fK[2] = buffer.readScalar();
+        fK[3] = buffer.readScalar();
+    }
+
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        INHERITED::flatten(buffer);
+        buffer.writeScalar(fK[0]);
+        buffer.writeScalar(fK[1]);
+        buffer.writeScalar(fK[2]);
+        buffer.writeScalar(fK[3]);
+    }
     SkScalar fK[4];
 
     typedef SkXfermode INHERITED;
@@ -191,3 +216,171 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
     }
     return SkNEW_ARGS(SkArithmeticMode_scalar, (k1, k2, k3, k4));
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+class GrGLArithmeticEffect : public GrGLEffect {
+public:
+    GrGLArithmeticEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    virtual ~GrGLArithmeticEffect();
+
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrDrawEffect&,
+                          EffectKey,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
+
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+
+private:
+    static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
+
+    GrGLUniformManager::UniformHandle fKUni;
+
+    typedef GrGLEffect INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GrArithmeticEffect : public GrEffect {
+public:
+    static GrEffectRef* Create(float k1, float k2, float k3, float k4) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4)));
+        return CreateEffectRef(effect);
+    }
+
+    virtual ~GrArithmeticEffect();
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+
+    typedef GrGLArithmeticEffect GLEffect;
+    static const char* Name() { return "Arithmetic"; }
+
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
+    float k1() const { return fK1; }
+    float k2() const { return fK2; }
+    float k3() const { return fK3; }
+    float k4() const { return fK4; }
+
+private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
+    GrArithmeticEffect(float k1, float k2, float k3, float k4);
+    float                       fK1, fK2, fK3, fK4;
+
+    GR_DECLARE_EFFECT_TEST;
+    typedef GrEffect INHERITED;
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4)
+  : fK1(k1), fK2(k2), fK3(k3), fK4(k4) {
+    this->setWillReadDstColor();
+}
+
+GrArithmeticEffect::~GrArithmeticEffect() {
+}
+
+bool GrArithmeticEffect::onIsEqual(const GrEffect& sBase) const {
+    const GrArithmeticEffect& s = CastEffect<GrArithmeticEffect>(sBase);
+    return fK1 == s.fK1 &&
+           fK2 == s.fK2 &&
+           fK3 == s.fK3 &&
+           fK4 == s.fK4;
+}
+
+const GrBackendEffectFactory& GrArithmeticEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrArithmeticEffect>::getInstance();
+}
+
+void GrArithmeticEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    // TODO: optimize this
+    *validFlags = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendEffectFactory& factory,
+                                           const GrDrawEffect& drawEffect) : INHERITED(factory) {
+}
+
+GrGLArithmeticEffect::~GrGLArithmeticEffect() {
+}
+
+void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
+                                    const GrDrawEffect&,
+                                    EffectKey key,
+                                    const char* outputColor,
+                                    const char* inputColor,
+                                    const TextureSamplerArray& samplers) {
+    const char* dstColor = builder->dstColor();
+    GrAssert(NULL != dstColor);
+
+    // We don't try to optimize for this case at all
+    if (NULL == inputColor) {
+        builder->fsCodeAppendf("\t\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
+        inputColor = "ones";
+    }
+    fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                kVec4f_GrSLType, "k");
+    const char* kUni = builder->getUniformCStr(fKUni);
+
+    builder->fsCodeAppendf("\t\t%s.rgb = clamp(%s.rgb / %s.a, 0.0, 1.0);\n", inputColor, inputColor, inputColor);
+    builder->fsCodeAppendf("\t\t%s.rgb = clamp(%s.rgb / %s.a, 0.0, 1.0);\n", dstColor, dstColor, dstColor);
+
+    builder->fsCodeAppendf("\t\t%s = %s.x * %s * %s + %s.y * %s + %s.z * %s + %s.w;\n", outputColor, kUni, inputColor, dstColor, kUni, inputColor, kUni, dstColor, kUni);
+    builder->fsCodeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
+    builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+}
+
+void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+    const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
+    uman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
+}
+
+GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+    return 0;
+}
+
+GrEffectRef* GrArithmeticEffect::TestCreate(SkMWCRandom* rand,
+                                            GrContext*,
+                                            const GrDrawTargetCaps&,
+                                            GrTexture*[]) {
+    float k1 = rand->nextF();
+    float k2 = rand->nextF();
+    float k3 = rand->nextF();
+    float k4 = rand->nextF();
+
+    static AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4)));
+    return CreateEffectRef(gEffect);
+}
+
+GR_DEFINE_EFFECT_TEST(GrArithmeticEffect);
+
+bool SkArithmeticMode_scalar::asNewEffectOrCoeff(GrContext*,
+                                                 GrEffectRef** effect,
+                                                 Coeff*,
+                                                 Coeff*) const {
+    if (effect) {
+        *effect = GrArithmeticEffect::Create(SkScalarToFloat(fK[0]),
+                                             SkScalarToFloat(fK[1]),
+                                             SkScalarToFloat(fK[2]),
+                                             SkScalarToFloat(fK[3]));
+    }
+    return true;
+}
+
+#endif
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkArithmeticMode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArithmeticMode_scalar)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

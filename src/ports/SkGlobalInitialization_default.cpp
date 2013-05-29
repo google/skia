@@ -16,6 +16,7 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAnnotation.h"
+#include "SkArithmeticMode.h"
 #include "SkAvoidXfermode.h"
 #include "SkBicubicImageFilter.h"
 #include "SkBitmapSource.h"
@@ -101,6 +102,7 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMallocPixelRef)
 
+    SkArithmeticMode::InitializeFlattenables();
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
