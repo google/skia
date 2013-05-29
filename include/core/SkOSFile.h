@@ -48,8 +48,22 @@ char*   sk_fgets(char* str, int size, SkFILE* f);
 
 void    sk_fflush(SkFILE*);
 
-int     sk_fseek(SkFILE*, size_t, int);
+bool    sk_fseek(SkFILE*, size_t);
+bool    sk_fmove(SkFILE*, long);
 size_t  sk_ftell(SkFILE*);
+
+/** Maps a file into memory. Returns the address and length on success, NULL otherwise.
+ *  The mapping is read only.
+ */
+void*   sk_fmmap(SkFILE* f, size_t* length);
+
+/** Unmaps a file previously mapped by sk_fmmap.
+ *  The length parameter must be the same as returned from sk_fmmap.
+ */
+void    sk_fmunmap(const void* addr, size_t length);
+
+/** Returns true if the two point at the exact same filesystem object. */
+bool    sk_fidentical(SkFILE* a, SkFILE* b);
 
 // Returns true if something (file, directory, ???) exists at this path.
 bool    sk_exists(const char *path);

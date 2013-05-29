@@ -8,6 +8,7 @@
 #include "SkTypes.h"
 #include "SkDWriteFontFileStream.h"
 #include "SkHRESULT.h"
+#include "SkTScopedComPtr.h"
 
 #include <dwrite.h>
 #include <limits>
@@ -16,11 +17,10 @@
 //  SkIDWriteFontFileStream
 
 SkDWriteFontFileStream::SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream)
-    : fFontFileStream(fontFileStream)
+    : fFontFileStream(SkRefComPtr(fontFileStream))
     , fPos(0)
     , fLockedMemory(NULL)
     , fFragmentLock(NULL) {
-    fontFileStream->AddRef();
 }
 
 SkDWriteFontFileStream::~SkDWriteFontFileStream() {
@@ -29,44 +29,19 @@ SkDWriteFontFileStream::~SkDWriteFontFileStream() {
     }
 }
 
-const void* SkDWriteFontFileStream::getMemoryBase() {
-    if (fLockedMemory) {
-        return fLockedMemory;
-    }
-
-    UINT64 fileSize;
-    HRNM(fFontFileStream->GetFileSize(&fileSize), "Could not get file size");
-    HRNM(fFontFileStream->ReadFileFragment(&fLockedMemory, 0, fileSize, &fFragmentLock),
-         "Could not lock file fragment.");
-    return fLockedMemory;
-}
-
-bool SkDWriteFontFileStream::rewind() {
-    fPos = 0;
-    return true;
-}
-
 size_t SkDWriteFontFileStream::read(void* buffer, size_t size) {
     HRESULT hr = S_OK;
 
     if (NULL == buffer) {
-        UINT64 realFileSize = 0;
-        hr = fFontFileStream->GetFileSize(&realFileSize);
-        if (realFileSize > (std::numeric_limits<size_t>::max)()) {
-            return 0;
-        }
-        size_t fileSize = static_cast<size_t>(realFileSize);
-        if (size == 0) {
-            return fileSize;
+        size_t fileSize = this->getLength();
+
+        if (fPos + size > fileSize) {
+            size_t skipped = fileSize - fPos;
+            fPos = fileSize;
+            return skipped;
         } else {
-            if (fPos + size > fileSize) {
-                size_t skipped = fileSize - fPos;
-                fPos = fileSize;
-                return skipped;
-            } else {
-                fPos += size;
-                return size;
-            }
+            fPos += size;
+            return size;
         }
     }
 
@@ -81,28 +56,78 @@ size_t SkDWriteFontFileStream::read(void* buffer, size_t size) {
     }
 
     //The read may have failed because we asked for too much data.
+    size_t fileSize = this->getLength();
+    if (fPos + size <= fileSize) {
+        //This means we were within bounds, but failed for some other reason.
+        return 0;
+    }
+
+    size_t read = fileSize - fPos;
+    hr = fFontFileStream->ReadFileFragment(&start, fPos, read, &fragmentLock);
+    if (SUCCEEDED(hr)) {
+        memcpy(buffer, start, read);
+        fFontFileStream->ReleaseFileFragment(fragmentLock);
+        fPos = fileSize;
+        return read;
+    }
+
+    return 0;
+}
+
+bool SkDWriteFontFileStream::isAtEnd() const {
+    return fPos == this->getLength();
+}
+
+bool SkDWriteFontFileStream::rewind() {
+    fPos = 0;
+    return true;
+}
+
+SkDWriteFontFileStream* SkDWriteFontFileStream::duplicate() const {
+    return SkNEW_ARGS(SkDWriteFontFileStream, (fFontFileStream.get()));
+}
+
+size_t SkDWriteFontFileStream::getPosition() const {
+    return fPos;
+}
+
+bool SkDWriteFontFileStream::seek(size_t position) {
+    size_t length = this->getLength();
+    fPos = (position > length) ? length : position;
+    return true;
+}
+
+bool SkDWriteFontFileStream::move(long offset) {
+    return seek(fPos + offset);
+}
+
+SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
+    SkAutoTUnref<SkDWriteFontFileStream> that(this->duplicate());
+    that->seek(fPos);
+    return that.detach();
+}
+
+size_t SkDWriteFontFileStream::getLength() const {
+    HRESULT hr = S_OK;
     UINT64 realFileSize = 0;
     hr = fFontFileStream->GetFileSize(&realFileSize);
     if (realFileSize > (std::numeric_limits<size_t>::max)()) {
         return 0;
     }
-    size_t fileSize = static_cast<size_t>(realFileSize);
-    if (fPos + size > fileSize) {
-        size_t read = fileSize - fPos;
-        hr = fFontFileStream->ReadFileFragment(&start, fPos, read, &fragmentLock);
-        if (SUCCEEDED(hr)) {
-            memcpy(buffer, start, read);
-            fFontFileStream->ReleaseFileFragment(fragmentLock);
-            fPos = fileSize;
-            return read;
-        }
-        return 0;
-    } else {
-        //This means we were within bounds, but failed for some other reason.
-        return 0;
-    }
+    return static_cast<size_t>(realFileSize);
 }
 
+const void* SkDWriteFontFileStream::getMemoryBase() {
+    if (fLockedMemory) {
+        return fLockedMemory;
+    }
+
+    UINT64 fileSize;
+    HRNM(fFontFileStream->GetFileSize(&fileSize), "Could not get file size");
+    HRNM(fFontFileStream->ReadFileFragment(&fLockedMemory, 0, fileSize, &fFragmentLock),
+         "Could not lock file fragment.");
+    return fLockedMemory;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SkIDWriteFontFileStreamWrapper
@@ -116,8 +141,7 @@ HRESULT SkDWriteFontFileStreamWrapper::Create(SkStream* stream, SkDWriteFontFile
 }
 
 SkDWriteFontFileStreamWrapper::SkDWriteFontFileStreamWrapper(SkStream* stream)
-    : fRefCount(1), fStream(stream) {
-    stream->ref();
+    : fRefCount(1), fStream(SkRef(stream)) {
 }
 
 HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::QueryInterface(REFIID iid, void** ppvObject) {
@@ -180,7 +204,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
         if (fStream->skip(static_cast<size_t>(fileOffset)) != fileOffset) {
             return E_FAIL;
         }
-        SkAutoTDeleteArray<uint8_t> streamData(new uint8_t[static_cast<size_t>(fragmentSize)]);
+        SkAutoTMalloc<uint8_t> streamData(static_cast<size_t>(fragmentSize));
         if (fStream->read(streamData.get(), static_cast<size_t>(fragmentSize)) != fragmentSize) {
             return E_FAIL;
         }
@@ -192,10 +216,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
 }
 
 void STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReleaseFileFragment(void* fragmentContext) {
-    if (NULL == fragmentContext) {
-        return;
-    }
-    delete [] fragmentContext;
+    sk_free(fragmentContext);
 }
 
 HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::GetFileSize(UINT64* fileSize) {

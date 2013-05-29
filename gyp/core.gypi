@@ -78,7 +78,6 @@
         '<(skia_src_path)/core/SkEdge.h',
         '<(skia_src_path)/core/SkError.cpp',
         '<(skia_src_path)/core/SkErrorInternals.h',
-        '<(skia_src_path)/core/SkFDStream.cpp',
         '<(skia_src_path)/core/SkFP.h',
         '<(skia_src_path)/core/SkFilterProc.cpp',
         '<(skia_src_path)/core/SkFilterProc.h',
