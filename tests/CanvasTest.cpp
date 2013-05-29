@@ -339,6 +339,9 @@ SIMPLE_TEST_STEP(DrawTextOnPath, drawTextOnPath(kTestText.c_str(),
 SIMPLE_TEST_STEP(DrawTextOnPathMatrix, drawTextOnPath(kTestText.c_str(),
     kTestText.size(), kTestPath, &kTestMatrix, kTestPaint));
 SIMPLE_TEST_STEP(DrawData, drawData(kTestText.c_str(), kTestText.size()));
+SIMPLE_TEST_STEP(BeginGroup, beginCommentGroup(kTestText.c_str()));
+SIMPLE_TEST_STEP(AddComment, addComment(kTestText.c_str(), kTestText.c_str()));
+SIMPLE_TEST_STEP(EndGroup, endCommentGroup());
 
 ///////////////////////////////////////////////////////////////////////////////
 // Complex test steps

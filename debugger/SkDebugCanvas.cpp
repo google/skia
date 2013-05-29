@@ -389,6 +389,18 @@ void SkDebugCanvas::drawData(const void* data, size_t length) {
     addDrawCommand(new DrawData(data, length));
 }
 
+void SkDebugCanvas::beginCommentGroup(const char* description) {
+    addDrawCommand(new BeginCommentGroup(description));
+}
+
+void SkDebugCanvas::addComment(const char* kywd, const char* value) {
+    addDrawCommand(new Comment(kywd, value));
+}
+
+void SkDebugCanvas::endCommentGroup() {
+    addDrawCommand(new EndCommentGroup());
+}
+
 void SkDebugCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
     addDrawCommand(new DrawOval(oval, paint));
 }

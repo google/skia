@@ -62,8 +62,11 @@ enum DrawType {
     SKEW,
     TRANSLATE,
     NOOP,
+    BEGIN_COMMENT_GROUP,
+    COMMENT,
+    END_COMMENT_GROUP,
 
-    LAST_DRAWTYPE_ENUM = NOOP
+    LAST_DRAWTYPE_ENUM = END_COMMENT_GROUP
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

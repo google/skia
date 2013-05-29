@@ -11,10 +11,12 @@
 
 #include "SkPictureFlat.h"
 #include "SkCanvas.h"
+#include "SkString.h"
 
 class SkDrawCommand {
 public:
     /* TODO(chudy): Remove subclasses. */
+    SkDrawCommand(DrawType drawType);
     SkDrawCommand();
 
     virtual ~SkDrawCommand();
@@ -237,6 +239,41 @@ private:
     char*  fData;
     size_t fLength;
 
+    typedef SkDrawCommand INHERITED;
+};
+
+class BeginCommentGroup : public SkDrawCommand {
+public:
+    BeginCommentGroup(const char* description);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->beginCommentGroup(fDescription.c_str());
+    };
+private:
+    SkString fDescription;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class Comment : public SkDrawCommand {
+public:
+    Comment(const char* kywd, const char* value);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->addComment(fKywd.c_str(), fValue.c_str());
+    };
+private:
+    SkString fKywd;
+    SkString fValue;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class EndCommentGroup : public SkDrawCommand {
+public:
+    EndCommentGroup();
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->endCommentGroup();
+    };
+private:
     typedef SkDrawCommand INHERITED;
 };
 

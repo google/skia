@@ -959,14 +959,16 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
         item->setData(Qt::DisplayRole, (*command)[i].c_str());
         item->setData(Qt::UserRole + 1, counter++);
 
-        if (0 == strcmp("Restore", (*command)[i].c_str())) {
+        if (0 == strcmp("Restore", (*command)[i].c_str()) ||
+            0 == strcmp("EndCommentGroup", (*command)[i].c_str())) {
             indent -= 10;
         }
 
         item->setData(Qt::UserRole + 3, indent);
 
         if (0 == strcmp("Save", (*command)[i].c_str()) ||
-            0 == strcmp("Save Layer", (*command)[i].c_str())) {
+            0 == strcmp("Save Layer", (*command)[i].c_str()) ||
+            0 == strcmp("BeginCommentGroup", (*command)[i].c_str())) {
             indent += 10;
         }
 

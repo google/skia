@@ -77,6 +77,10 @@ public:
                               const SkPaint& paint) SK_OVERRIDE;
     virtual void drawData(const void* data, size_t length) SK_OVERRIDE;
 
+    virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
+    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
+    virtual void endCommentGroup() SK_OVERRIDE;
+
     virtual SkBounder* setBounder(SkBounder* bounder) SK_OVERRIDE;
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 

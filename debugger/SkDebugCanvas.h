@@ -171,6 +171,12 @@ public:
 
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
 
+    virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
+
+    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
+
+    virtual void endCommentGroup() SK_OVERRIDE;
+
     virtual void drawOval(const SkRect& oval, const SkPaint&) SK_OVERRIDE;
 
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
