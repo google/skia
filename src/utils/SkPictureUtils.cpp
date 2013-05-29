@@ -180,11 +180,11 @@ public:
     // false positives and negatives.
     virtual bool clipPath(const SkPath& path, SkRegion::Op op,
                           bool doAA) SK_OVERRIDE {
-        return this->INHERITED::clipRect(path.getBounds(), op, false);
+        return this->updateClipConservativelyUsingBounds(path.getBounds(), op, path.isInverseFillType());
     }
     virtual bool clipRRect(const SkRRect& rrect, SkRegion::Op op,
                            bool doAA) SK_OVERRIDE {
-        return this->INHERITED::clipRect(rrect.getBounds(), op, false);
+        return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
     }
 
 private:

@@ -1011,6 +1011,11 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
                         SkIRect* intersection);
 
+    // Called by child classes that override clipPath and clipRRect to only
+    // track fast conservative clip bounds, rather than exact clips.
+    bool updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
+                                             bool inverseFilled);
+
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
