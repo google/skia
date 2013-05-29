@@ -46,7 +46,9 @@ BenchTimer::~BenchTimer() {
 #endif
 }
 
-void BenchTimer::start() {
+void BenchTimer::start(double durationScale) {
+    fDurationScale = durationScale;
+
     fSysTimer->startWall();
     fTruncatedSysTimer->startWall();
 #if SK_SUPPORT_GPU
@@ -59,18 +61,18 @@ void BenchTimer::start() {
 }
 
 void BenchTimer::end() {
-    fCpu = fSysTimer->endCpu();
+    fCpu = fSysTimer->endCpu() * fDurationScale;
 #if SK_SUPPORT_GPU
     //It is important to stop the cpu clocks first,
     //as the following will cpu wait for the gpu to finish.
     if (fGpuTimer) {
-        fGpu = fGpuTimer->endGpu();
+        fGpu = fGpuTimer->endGpu() * fDurationScale;
     }
 #endif
-    fWall = fSysTimer->endWall();
+    fWall = fSysTimer->endWall() * fDurationScale;
 }
 
 void BenchTimer::truncatedEnd() {
-    fTruncatedCpu = fTruncatedSysTimer->endCpu();
-    fTruncatedWall = fTruncatedSysTimer->endWall();
+    fTruncatedCpu = fTruncatedSysTimer->endCpu() * fDurationScale;
+    fTruncatedWall = fTruncatedSysTimer->endWall() * fDurationScale;
 }

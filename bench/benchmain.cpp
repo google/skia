@@ -915,7 +915,7 @@ int tool_main(int argc, char** argv) {
                         SkPicture::kUsePathBoundsForClip_RecordingFlag);
                 }
 
-                timer->start();
+                timer->start(bench->getDurationScale());
                 if (NULL != canvas) {
                     canvas->save();
                 }
