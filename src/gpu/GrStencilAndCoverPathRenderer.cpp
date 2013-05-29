@@ -79,7 +79,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
     // fill the path, zero out the stencil
     GrRect bounds = p->getBounds();
     SkScalar bloat = drawState->getViewMatrix().getMaxStretch() * SK_ScalarHalf;
-    GrDrawState::AutoDeviceCoordDraw adcd;
+    GrDrawState::AutoViewMatrixRestore avmr;
 
     if (nonInvertedFill == path.getFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
@@ -111,7 +111,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
         } else {
-            adcd.set(drawState);
+            avmr.setIdentity(drawState);
             bloat = 0;
         }
         *drawState->stencil() = kInvertedStencilPass;

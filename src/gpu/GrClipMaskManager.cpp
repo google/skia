@@ -347,9 +347,9 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
                                   SkRegion::Op op,
                                   const GrIRect& dstBound,
                                   const GrIRect& srcBound) {
+    GrDrawState::AutoViewMatrixRestore avmr;
     GrDrawState* drawState = fGpu->drawState();
-    SkMatrix oldMatrix = drawState->getViewMatrix();
-    drawState->viewMatrix()->reset();
+    SkAssertResult(avmr.setIdentity(drawState));
 
     drawState->setRenderTarget(dstMask->asRenderTarget());
 
@@ -366,7 +366,6 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
     fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
 
     drawState->disableStage(0);
-    drawState->setViewMatrix(oldMatrix);
 }
 
 // get a texture to act as a temporary buffer for AA clip boolean operations
@@ -437,9 +436,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
         return NULL;
     }
 
-    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = fGpu->drawState();
-
     // The top-left of the mask corresponds to the top-left corner of the bounds.
     SkVector clipToMaskOffset = {
         SkIntToScalar(-clipSpaceIBounds.fLeft),
@@ -449,11 +445,15 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
     // we populate with a rasterization of the clip.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(clipSpaceIBounds.width(), clipSpaceIBounds.height());
 
+    // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
+    SkMatrix translate;
+    translate.setTranslate(clipToMaskOffset);
+    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &translate);
+
+    GrDrawState* drawState = fGpu->drawState();
+
     // We're drawing a coverage mask and want coverage to be run through the blend function.
     drawState->enableState(GrDrawState::kCoverageDrawing_StateBit);
-
-    // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
-    drawState->viewMatrix()->setTranslate(clipToMaskOffset);
 
     // The scratch texture that we are drawing into can be substantially larger than the mask. Only
     // clear the part that we care about.
@@ -589,8 +589,16 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
 
         stencilBuffer->setLastClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset);
 
-        GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
+        // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
+        SkVector translate = {
+            SkIntToScalar(clipSpaceToStencilOffset.fX),
+            SkIntToScalar(clipSpaceToStencilOffset.fY)
+        };
+        SkMatrix matrix;
+        matrix.setTranslate(translate);
+        GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);
         drawState = fGpu->drawState();
+
         drawState->setRenderTarget(rt);
 
         // We set the current clip to the bounds so that our recursive draws are scissored to them.
@@ -598,13 +606,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
         stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
         GrDrawTarget::AutoClipRestore acr(fGpu, stencilSpaceIBounds);
         drawState->enableState(GrDrawState::kClip_StateBit);
-
-        // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
-        SkVector translate = {
-            SkIntToScalar(clipSpaceToStencilOffset.fX),
-            SkIntToScalar(clipSpaceToStencilOffset.fY)
-        };
-        drawState->viewMatrix()->setTranslate(translate);
 
 #if !VISUALIZE_COMPLEX_CLIP
         drawState->enableState(GrDrawState::kNoColorWrites_StateBit);

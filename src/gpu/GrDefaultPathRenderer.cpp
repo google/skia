@@ -459,7 +459,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 drawState->disableState(GrDrawState::kNoColorWrites_StateBit);
             }
             GrRect bounds;
-            GrDrawState::AutoDeviceCoordDraw adcd;
+            GrDrawState::AutoViewMatrixRestore avmr;
             if (reverse) {
                 GrAssert(NULL != drawState->getRenderTarget());
                 // draw over the dev bounds (which will be the whole dst surface for inv fill).
@@ -470,7 +470,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                     drawState->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
                 } else {
-                    adcd.set(drawState);
+                    avmr.setIdentity(drawState);
                 }
             } else {
                 bounds = path.getBounds();

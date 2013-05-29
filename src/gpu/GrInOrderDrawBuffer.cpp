@@ -158,8 +158,8 @@ void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return;
     }
 

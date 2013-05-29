@@ -602,23 +602,21 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return true;
     }
 
-    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
-    GrDrawState* drawState = target->drawState();
-
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    SkMatrix viewMatrix = target->getDrawState().getViewMatrix();
+    GrDrawTarget::AutoStateRestore asr;
+    if (!asr.setIdentity(target, GrDrawTarget::kPreserve_ASRInit)) {
         return false;
     }
-    const SkMatrix* vm = &adcd.getOriginalMatrix();
+    GrDrawState* drawState = target->drawState();
 
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the
     // segment representation.
     SkPath tmpPath;
-    if (vm->hasPerspective()) {
-        origPath.transform(*vm, &tmpPath);
+    if (viewMatrix.hasPerspective()) {
+        origPath.transform(viewMatrix, &tmpPath);
         path = &tmpPath;
-        vm = &SkMatrix::I();
+        viewMatrix = SkMatrix::I();
     }
 
     QuadVertex *verts;
@@ -633,7 +631,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
     SkPoint fanPt;
 
-    if (!get_segments(*path, *vm, &segments, &fanPt, &vCount, &iCount)) {
+    if (!get_segments(*path, viewMatrix, &segments, &fanPt, &vCount, &iCount)) {
         return false;
     }
 
@@ -662,8 +660,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     // This is valid because all the computed verts are within 1 pixel of the path control points.
     SkRect devBounds;
-    devBounds = origPath.getBounds();
-    adcd.getOriginalMatrix().mapRect(&devBounds);
+    devBounds = path->getBounds();
+    viewMatrix.mapRect(&devBounds);
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
     // Check devBounds
