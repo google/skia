@@ -187,8 +187,8 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               const GrIRect& rect) {
     GrDrawState* drawState = target->drawState();
 
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return;
     }
     enum {

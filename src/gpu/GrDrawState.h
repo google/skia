@@ -56,43 +56,39 @@ public:
         kNumStages = GrPaint::kTotalStages + 2,
     };
 
-    GrDrawState() {
-        this->reset();
-    }
+    GrDrawState() { this->reset(); }
 
+    GrDrawState(const SkMatrix& initialViewMatrix) { this->reset(initialViewMatrix); }
+
+    /**
+     * Copies another draw state.
+     **/
     GrDrawState(const GrDrawState& state) {
         *this = state;
     }
 
-    virtual ~GrDrawState() {
-        this->disableStages();
+    /**
+     * Copies another draw state with a preconcat to the view matrix.
+     **/
+    GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix) {
+        *this = state;
+        if (!preConcatMatrix.isIdentity()) {
+            for (int i = 0; i < kNumStages; ++i) {
+                if (this->isStageEnabled(i)) {
+                    fStages[i].localCoordChange(preConcatMatrix);
+                }
+            }
+        }
     }
+
+    virtual ~GrDrawState() { this->disableStages(); }
 
     /**
-     * Resets to the default state.
-     * GrEffects will be removed from all stages.
+     * Resets to the default state. GrEffects will be removed from all stages.
      */
-    void reset() {
+    void reset() { this->onReset(NULL); }
 
-        this->disableStages();
-
-        fRenderTarget.reset(NULL);
-
-        this->setDefaultVertexAttribs();
-
-        fCommon.fColor = 0xffffffff;
-        fCommon.fViewMatrix.reset();
-        fCommon.fSrcBlend = kOne_GrBlendCoeff;
-        fCommon.fDstBlend = kZero_GrBlendCoeff;
-        fCommon.fBlendConstant = 0x0;
-        fCommon.fFlagBits = 0x0;
-        fCommon.fStencilSettings.setDisabled();
-        fCommon.fFirstCoverageStage = kNumStages;
-        fCommon.fCoverage = 0xffffffff;
-        fCommon.fColorFilterMode = SkXfermode::kDst_Mode;
-        fCommon.fColorFilterColor = 0x0;
-        fCommon.fDrawFace = kBoth_DrawFace;
-    }
+    void reset(const SkMatrix& initialViewMatrix) { this->onReset(&initialViewMatrix); }
 
     /**
      * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
@@ -616,42 +612,10 @@ public:
     ////
 
     /**
-     * Sets the matrix applied to vertex positions.
-     *
-     * In the post-view-matrix space the rectangle [0,w]x[0,h]
-     * fully covers the render target. (w and h are the width and height of the
-     * the render-target.)
+     * Sets the view matrix to identity and updates any installed effects to compensate for the
+     * coord system change.
      */
-    void setViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix = m; }
-
-    /**
-     * Gets a writable pointer to the view matrix.
-     */
-    SkMatrix* viewMatrix() { return &fCommon.fViewMatrix; }
-
-    /**
-     *  Multiplies the current view matrix by a matrix
-     *
-     *  After this call V' = V*m where V is the old view matrix,
-     *  m is the parameter to this function, and V' is the new view matrix.
-     *  (We consider positions to be column vectors so position vector p is
-     *  transformed by matrix X as p' = X*p.)
-     *
-     *  @param m the matrix used to modify the view matrix.
-     */
-    void preConcatViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix.preConcat(m); }
-
-    /**
-     *  Multiplies the current view matrix by a matrix
-     *
-     *  After this call V' = m*V where V is the old view matrix,
-     *  m is the parameter to this function, and V' is the new view matrix.
-     *  (We consider positions to be column vectors so position vector p is
-     *  transformed by matrix X as p' = X*p.)
-     *
-     *  @param m the matrix used to modify the view matrix.
-     */
-    void postConcatViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix.postConcat(m); }
+    bool setIdentityViewMatrix();
 
     /**
      * Retrieves the current view matrix
@@ -685,7 +649,7 @@ public:
 
     /**
      * Preconcats the current view matrix and restores the previous view matrix in the destructor.
-     * Effect matrices are automatically adjusted to compensate.
+     * Effect matrices are automatically adjusted to compensate and adjusted back in the destructor.
      */
     class AutoViewMatrixRestore : public ::GrNoncopyable {
     public:
@@ -705,60 +669,9 @@ public:
 
         void set(GrDrawState* drawState, const SkMatrix& preconcatMatrix);
 
-        bool isSet() const { return NULL != fDrawState; }
-
-    private:
-        GrDrawState*                        fDrawState;
-        SkMatrix                            fViewMatrix;
-        GrEffectStage::SavedCoordChange     fSavedCoordChanges[GrDrawState::kNumStages];
-        uint32_t                            fRestoreMask;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * This sets the view matrix to identity and adjusts stage matrices to compensate. The
-     * destructor undoes the changes, restoring the view matrix that was set before the
-     * constructor. It is similar to passing the inverse of the current view matrix to
-     * AutoViewMatrixRestore, but lazily computes the inverse only if necessary.
-     */
-    class AutoDeviceCoordDraw : ::GrNoncopyable {
-    public:
-        AutoDeviceCoordDraw() : fDrawState(NULL) {}
-        /**
-         * If a stage's texture matrix is applied to explicit per-vertex coords, rather than to
-         * positions, then we don't want to modify its matrix. The explicitCoordStageMask is used
-         * to specify such stages.
-         */
-        AutoDeviceCoordDraw(GrDrawState* drawState) {
-            fDrawState = NULL;
-            this->set(drawState);
-        }
-
-        ~AutoDeviceCoordDraw() { this->restore(); }
-
-        bool set(GrDrawState* drawState);
-
-        /**
-         * Returns true if this object was successfully initialized on to a GrDrawState. It may
-         * return false because a non-default constructor or set() were never called or because
-         * the view matrix was not invertible.
-         */
-        bool succeeded() const { return NULL != fDrawState; }
-
-        /**
-         * Returns the matrix that was set previously set on the drawState. This is only valid
-         * if succeeded returns true.
-         */
-        const SkMatrix& getOriginalMatrix() const {
-            GrAssert(this->succeeded());
-            return fViewMatrix;
-        }
-
-        /**
-         * Can be called prior to destructor to restore the original matrix.
-         */
-        void restore();
+        /** Sets the draw state's matrix to identity. This can fail because the current view matrix
+            is not invertible. */
+        bool setIdentity(GrDrawState* drawState);
 
     private:
         GrDrawState*                        fDrawState;
@@ -1026,6 +939,32 @@ public:
     }
 
 private:
+
+    void onReset(const SkMatrix* initialViewMatrix) {
+
+        this->disableStages();
+
+        fRenderTarget.reset(NULL);
+
+        this->setDefaultVertexAttribs();
+
+        fCommon.fColor = 0xffffffff;
+        if (NULL == initialViewMatrix) {
+            fCommon.fViewMatrix.reset();
+        } else {
+            fCommon.fViewMatrix = *initialViewMatrix;
+        }
+        fCommon.fSrcBlend = kOne_GrBlendCoeff;
+        fCommon.fDstBlend = kZero_GrBlendCoeff;
+        fCommon.fBlendConstant = 0x0;
+        fCommon.fFlagBits = 0x0;
+        fCommon.fStencilSettings.setDisabled();
+        fCommon.fFirstCoverageStage = kNumStages;
+        fCommon.fCoverage = 0xffffffff;
+        fCommon.fColorFilterMode = SkXfermode::kDst_Mode;
+        fCommon.fColorFilterColor = 0x0;
+        fCommon.fDrawFace = kBoth_DrawFace;
+    }
 
     /** Fields that are identical in GrDrawState and GrDrawState::DeferredState. */
     struct CommonState {

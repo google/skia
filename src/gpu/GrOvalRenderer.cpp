@@ -331,8 +331,8 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     SkScalar radius = vm.mapRadius(SkScalarHalf(circle.width()));
     SkScalar strokeWidth = vm.mapRadius(stroke.getWidth());
 
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return;
     }
 
@@ -493,8 +493,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         yRadius += scaledStroke.fY;
     }
 
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return false;
     }
 
@@ -650,8 +650,8 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 
     // reset to device coordinates
     GrDrawState* drawState = target->drawState();
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return false;
     }
 

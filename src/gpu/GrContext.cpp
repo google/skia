@@ -777,8 +777,8 @@ void GrContext::drawRect(const GrPaint& paint,
                                            &combinedMatrix, &devRect,
                                            &useVertexCoverage);
     if (doAA) {
-        GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
-        if (!adcd.succeeded()) {
+        GrDrawState::AutoViewMatrixRestore avmr;
+        if (!avmr.setIdentity(target->drawState())) {
             return;
         }
         if (width >= 0) {
@@ -846,7 +846,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const SkMatrix* dstMatrix,
                                const SkMatrix* localMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
-
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
@@ -1049,21 +1048,22 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    bool useAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
+    bool useAA = paint.isAntiAlias() && !target->getDrawState().getRenderTarget()->isMultisampled();
     if (useAA && stroke.getWidth() < 0 && !path.isConvex()) {
         // Concave AA paths are expensive - try to avoid them for special cases
         bool useVertexCoverage;
         SkRect rects[2];
 
         if (is_nested_rects(target, path, stroke, rects, &useVertexCoverage)) {
-            GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
-            if (!adcd.succeeded()) {
+            SkMatrix origViewMatrix = target->getDrawState().getViewMatrix();
+            GrDrawState::AutoViewMatrixRestore avmr;
+            if (!avmr.setIdentity(target->drawState())) {
                 return;
             }
 
             fAARectRenderer->fillAANestedRects(this->getGpu(), target,
                                                rects,
-                                               adcd.getOriginalMatrix(),
+                                               origViewMatrix,
                                                useVertexCoverage);
             return;
         }
@@ -1534,14 +1534,13 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     // writeRenderTargetPixels can be called in the midst of drawing another
     // object (e.g., when uploading a SW path rendering to the gpu while
     // drawing a rect) so preserve the current geometry.
-    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
+    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(effect);
     drawState->setEffect(0, effect);
 
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-    drawState->setViewMatrix(matrix);
     drawState->setRenderTarget(target);
 
     fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
@@ -1565,8 +1564,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffer
         }
 #endif
     } else {
-        fDrawState->reset();
-        *fDrawState->viewMatrix() = fViewMatrix;
+        fDrawState->reset(fViewMatrix);
         fDrawState->setRenderTarget(fRenderTarget.get());
     }
     GrDrawTarget* target;

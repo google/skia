@@ -8,6 +8,25 @@
 #include "GrDrawState.h"
 #include "GrPaint.h"
 
+bool GrDrawState::setIdentityViewMatrix()  {
+    SkMatrix invVM;
+    bool inverted = false;
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (this->isStageEnabled(s)) {
+            if (!inverted) {
+                if (!fCommon.fViewMatrix.invert(&invVM)) {
+                    // sad trombone sound
+                    return false;
+                }
+                inverted = true;
+            }
+            fStages[s].localCoordChange(invVM);
+        }
+    }
+    fCommon.fViewMatrix.reset();
+    return true;
+}
+
 void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
     for (int i = 0; i < GrPaint::kMaxColorStages; ++i) {
         int s = i + GrPaint::kFirstColorStage;
@@ -395,81 +414,59 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
 
 void GrDrawState::AutoViewMatrixRestore::restore() {
     if (NULL != fDrawState) {
-        fDrawState->setViewMatrix(fViewMatrix);
+        fDrawState->fCommon.fViewMatrix = fViewMatrix;
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (fRestoreMask & (1 << s)) {
                 fDrawState->fStages[s].restoreCoordChange(fSavedCoordChanges[s]);
             }
         }
+        fDrawState = NULL;
     }
-    fDrawState = NULL;
 }
 
 void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
                                              const SkMatrix& preconcatMatrix) {
     this->restore();
 
-    fDrawState = drawState;
-    if (NULL == drawState) {
+    if (NULL == drawState || preconcatMatrix.isIdentity()) {
         return;
     }
+    fDrawState = drawState;
 
     fRestoreMask = 0;
     fViewMatrix = drawState->getViewMatrix();
-    drawState->preConcatViewMatrix(preconcatMatrix);
+    drawState->fCommon.fViewMatrix.preConcat(preconcatMatrix);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState->isStageEnabled(s)) {
             fRestoreMask |= (1 << s);
-            fDrawState->fStages[s].saveCoordChange(&fSavedCoordChanges[s]);
+            drawState->fStages[s].saveCoordChange(&fSavedCoordChanges[s]);
             drawState->fStages[s].localCoordChange(preconcatMatrix);
         }
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void GrDrawState::AutoDeviceCoordDraw::restore() {
-    if (NULL != fDrawState) {
-        fDrawState->setViewMatrix(fViewMatrix);
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            if (fRestoreMask & (1 << s)) {
-                fDrawState->fStages[s].restoreCoordChange(fSavedCoordChanges[s]);
-            }
-        }
-    }
-    fDrawState = NULL;
-}
-
-bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState) {
-    GrAssert(NULL != drawState);
-
+bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
     this->restore();
 
-    fDrawState = drawState;
-    if (NULL == fDrawState) {
+    if (NULL == drawState) {
         return false;
+    }
+
+    if (drawState->getViewMatrix().isIdentity()) {
+        return true;
     }
 
     fViewMatrix = drawState->getViewMatrix();
     fRestoreMask = 0;
-    SkMatrix invVM;
-    bool inverted = false;
-
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState->isStageEnabled(s)) {
-            if (!inverted && !fViewMatrix.invert(&invVM)) {
-                // sad trombone sound
-                fDrawState = NULL;
-                return false;
-            } else {
-                inverted = true;
-            }
             fRestoreMask |= (1 << s);
-            GrEffectStage* stage = drawState->fStages + s;
-            stage->saveCoordChange(&fSavedCoordChanges[s]);
-            stage->localCoordChange(invVM);
+            drawState->fStages[s].saveCoordChange(&fSavedCoordChanges[s]);
         }
     }
-    drawState->viewMatrix()->reset();
+    if (!drawState->setIdentityViewMatrix()) {
+        return false;
+    }
+    fDrawState = drawState;
     return true;
 }
