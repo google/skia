@@ -34,6 +34,11 @@ protected:
         filename.append("CMYK.jpg");
 
         SkFILEStream stream(filename.c_str());
+        if (!stream.isValid()) {
+            SkDebugf("Could not find CMYK.jpg, please set --resourcePath correctly.\n");
+            return;
+        }
+        
         SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
         if (codec) {
             stream.rewind();
