@@ -255,6 +255,9 @@ public:
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
+    virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
+    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
+    virtual void endCommentGroup() SK_OVERRIDE;
 
     /**
      * Flatten an SkBitmap to send to the reader, where it will be referenced
@@ -968,6 +971,18 @@ void SkGPipeCanvas::drawData(const void* ptr, size_t size) {
             fWriter.writePad(ptr, size);
         }
     }
+}
+
+void SkGPipeCanvas::beginCommentGroup(const char* description) {
+    // ignore for now
+}
+
+void SkGPipeCanvas::addComment(const char* kywd, const char* value) {
+    // ignore for now
+}
+
+void SkGPipeCanvas::endCommentGroup() {
+    // ignore for now
 }
 
 void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {

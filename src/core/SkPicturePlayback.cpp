@@ -858,6 +858,18 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.drawData(reader.skip(length), length);
                 // skip handles padding the read out to a multiple of 4
             } break;
+            case BEGIN_COMMENT_GROUP: {
+                const char* desc = reader.readString();
+                canvas.beginCommentGroup(desc);
+            } break;
+            case COMMENT: {
+                const char* kywd = reader.readString();
+                const char* value = reader.readString();
+                canvas.addComment(kywd, value);
+            } break;
+            case END_COMMENT_GROUP: {
+                canvas.endCommentGroup();
+            } break;
             case DRAW_OVAL: {
                 const SkPaint& paint = *getPaint(reader);
                 canvas.drawOval(reader.skipT<SkRect>(), paint);

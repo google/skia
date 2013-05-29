@@ -82,6 +82,9 @@ public:
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
+    virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
+    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
+    virtual void endCommentGroup() SK_OVERRIDE;
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
     void addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData&,

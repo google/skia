@@ -12,6 +12,11 @@
 
 // TODO(chudy): Refactor into non subclass model.
 
+SkDrawCommand::SkDrawCommand(DrawType type) 
+    : fDrawType(type)
+    , fVisible(true) {
+}
+
 SkDrawCommand::SkDrawCommand() {
     fVisible = true;
 }
@@ -56,6 +61,9 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case SKEW: return "Skew";
         case TRANSLATE: return "Translate";
         case NOOP: return "NoOp";
+        case BEGIN_COMMENT_GROUP: return "BeginCommentGroup";
+        case COMMENT: return "Comment";
+        case END_COMMENT_GROUP: return "EndCommentGroup";
         default:
             SkDebugf("DrawType error 0x%08x\n", type);
             SkASSERT(0);
@@ -296,6 +304,26 @@ DrawData::DrawData(const void* data, size_t length) {
 
 void DrawData::execute(SkCanvas* canvas) {
     canvas->drawData(fData, fLength);
+}
+
+BeginCommentGroup::BeginCommentGroup(const char* description) 
+    : INHERITED(BEGIN_COMMENT_GROUP)
+    , fDescription(description) {
+    SkString* temp = new SkString;
+    temp->appendf("Description: %s", description);
+    fInfo.push(temp);
+}
+
+Comment::Comment(const char* kywd, const char* value)
+    : INHERITED(COMMENT)
+    , fKywd(kywd)
+    , fValue(value) {
+    SkString* temp = new SkString;
+    temp->appendf("%s: %s", kywd, value);
+    fInfo.push(temp);
+}
+
+EndCommentGroup::EndCommentGroup() : INHERITED(END_COMMENT_GROUP) {
 }
 
 DrawOval::DrawOval(const SkRect& oval, const SkPaint& paint) {

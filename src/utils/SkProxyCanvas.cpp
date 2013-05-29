@@ -158,6 +158,18 @@ void SkProxyCanvas::drawData(const void* data, size_t length) {
     fProxy->drawData(data, length);
 }
 
+void SkProxyCanvas::beginCommentGroup(const char* description) {
+    fProxy->beginCommentGroup(description);
+}
+
+void SkProxyCanvas::addComment(const char* kywd, const char* value) {
+    fProxy->addComment(kywd, value);
+}
+
+void SkProxyCanvas::endCommentGroup() {
+    fProxy->endCommentGroup();
+}
+
 SkBounder* SkProxyCanvas::setBounder(SkBounder* bounder) {
     return fProxy->setBounder(bounder);
 }

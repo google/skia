@@ -106,6 +106,9 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
         0,  // SKEW - no paint
         0,  // TRANSLATE - no paint
         0,  // NOOP - no paint
+        0,  // BEGIN_GROUP - no paint
+        0,  // COMMENT - no paint
+        0,  // END_GROUP - no paint
     };
 
     SkASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1);
@@ -1273,6 +1276,33 @@ void SkPictureRecord::drawData(const void* data, size_t length) {
     uint32_t initialOffset = this->addDraw(DRAW_DATA, &size);
     addInt(length);
     fWriter.writePad(data, length);
+    validate(initialOffset, size);
+}
+
+void SkPictureRecord::beginCommentGroup(const char* description) {
+    // op/size + length of string + \0 terminated chars
+    int length = strlen(description);
+    uint32_t size = 2 * kUInt32Size + SkAlign4(length + 1);
+    uint32_t initialOffset = this->addDraw(BEGIN_COMMENT_GROUP, &size);
+    fWriter.writeString(description, length);
+    validate(initialOffset, size);
+}
+
+void SkPictureRecord::addComment(const char* kywd, const char* value) {
+    // op/size + 2x length of string + 2x \0 terminated chars
+    int kywdLen = strlen(kywd);
+    int valueLen = strlen(value);
+    uint32_t size = 3 * kUInt32Size + SkAlign4(kywdLen + 1) + SkAlign4(valueLen + 1);
+    uint32_t initialOffset = this->addDraw(COMMENT, &size);
+    fWriter.writeString(kywd, kywdLen);
+    fWriter.writeString(value, valueLen);
+    validate(initialOffset, size);
+}
+
+void SkPictureRecord::endCommentGroup() {
+    // op/size
+    uint32_t size = 1 * kUInt32Size;
+    uint32_t initialOffset = this->addDraw(END_COMMENT_GROUP, &size);
     validate(initialOffset, size);
 }
 

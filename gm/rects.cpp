@@ -207,9 +207,13 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkAutoCommentBlock acb(canvas, "onDraw");
+
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
 
         int testCount = 0;
+
+        canvas->addComment("Test", "Various Paints");
 
         for (int i = 0; i < fPaints.count(); ++i) {
             for (int j = 0; j < fRects.count(); ++j, ++testCount) {
@@ -219,6 +223,8 @@ protected:
                 canvas->restore();
             }
         }
+
+        canvas->addComment("Test", "Matrices");
 
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);
