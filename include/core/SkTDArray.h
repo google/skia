@@ -69,6 +69,9 @@ public:
                 (a.fCount == 0 ||
                  !memcmp(a.fArray, b.fArray, a.fCount * sizeof(T)));
     }
+    friend bool operator!=(const SkTDArray<T>& a, const SkTDArray<T>& b) {
+        return !(a == b);
+    }
 
     void swap(SkTDArray<T>& other) {
         SkTSwap(fArray, other.fArray);
