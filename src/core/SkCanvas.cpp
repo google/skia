@@ -1296,7 +1296,7 @@ bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
     // don't have to worry about getting caught in a loop. Thus anywhere
     // we call a virtual method, we explicitly prefix it with
     // SkCanvas:: to be sure to call the base-class.
-                                                   
+
     if (inverseFilled) {
         switch (op) {
             case SkRegion::kIntersect_Op:

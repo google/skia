@@ -38,7 +38,7 @@ protected:
             SkDebugf("Could not find CMYK.jpg, please set --resourcePath correctly.\n");
             return;
         }
-        
+
         SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
         if (codec) {
             stream.rewind();
