@@ -20,6 +20,7 @@ public:
         fName.printf("picture_record_%s", name);
         fPictureWidth = SkIntToScalar(PICTURE_WIDTH);
         fPictureHeight = SkIntToScalar(PICTURE_HEIGHT);
+        fIsRendering = false;
     }
 
     enum {
