@@ -221,7 +221,10 @@ int generate_lines_and_quads(const SkPath& path,
         GrPoint devPts[4];
         SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
-            case SkPath::kMove_Verb:
+             case SkPath::kConic_Verb:
+                SkASSERT(0);
+                break;
+           case SkPath::kMove_Verb:
                 break;
             case SkPath::kLine_Verb:
                 m.mapPoints(devPts, pathPts, 2);

@@ -111,6 +111,9 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
                     }
                 dst->close();
                 break;
+            case SkPath::kConic_Verb:
+                SkASSERT(0);
+                break;
             case SkPath::kDone_Verb:
                 goto DONE;
         }
