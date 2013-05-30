@@ -437,7 +437,7 @@ SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkTDArray<SkPoint>* reduceP
             pt->fY = SkDoubleToScalar(reducer.fLine[index].fY);
         }
     }
-    return (SkPath::Verb) (order - 1);
+    return SkPathOpsPointsToVerb(order - 1);
 }
 
 SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkTDArray<SkPoint>* reducePts) {
@@ -452,5 +452,5 @@ SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkTDArray<SkPoint>* reduce
             pt->fY = SkDoubleToScalar(reducer.fQuad[index].fY);
         }
     }
-    return (SkPath::Verb) (order - 1);
+    return SkPathOpsPointsToVerb(order - 1);
 }

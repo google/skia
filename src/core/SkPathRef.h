@@ -12,12 +12,6 @@
 #include "SkRefCnt.h"
 #include <stddef.h> // ptrdiff_t
 
-// When we're ready to break the picture format. Changes:
-// * Write genID.
-// * SkPathRef read/write counts (which will change the field order)
-// * SkPathRef reads/writes verbs backwards.
-#define NEW_PICTURE_FORMAT 0
-
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
@@ -109,6 +103,13 @@ public:
             return fPathRef->growForVerb(verb);
         }
 
+        SkPoint* growForConic(SkScalar w) {
+            fPathRef->validate();
+            SkPoint* pts = fPathRef->growForVerb(SkPath::kConic_Verb);
+            *fPathRef->fConicWeights.append() = w;
+            return pts;
+        }
+
         /**
          * Allocates space for additional verbs and points and returns pointers to the new verbs and
          * points. verbs will point one beyond the first new verb (index it using [~<i>]). pts points
@@ -131,8 +132,8 @@ public:
          * Resets the path ref to a new verb and point count. The new verbs and points are
          * uninitialized.
          */
-        void resetToSize(int newVerbCnt, int newPointCnt) {
-            fPathRef->resetToSize(newVerbCnt, newPointCnt);
+        void resetToSize(int newVerbCnt, int newPointCnt, int newConicCount) {
+            fPathRef->resetToSize(newVerbCnt, newPointCnt, newConicCount);
         }
         /**
          * Gets the path ref that is wrapped in the Editor.
@@ -202,40 +203,29 @@ public:
         } else if (rcnt > 1) {
             dst->reset(SkNEW(SkPathRef));
         }
-        (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt);
+        (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
         memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
         matrix.mapPoints((*dst)->fPoints, src.points(), src.fPointCnt);
+        (*dst)->fConicWeights = src.fConicWeights;
         (*dst)->validate();
     }
 
-#if NEW_PICTURE_FORMAT
     static SkPathRef* CreateFromBuffer(SkRBuffer* buffer) {
         SkPathRef* ref = SkNEW(SkPathRef);
         ref->fGenerationID = buffer->readU32();
         int32_t verbCount = buffer->readS32();
         int32_t pointCount = buffer->readS32();
-        ref->resetToSize(verbCount, pointCount);
+        int32_t conicCount = buffer->readS32();
+        ref->resetToSize(verbCount, pointCount, conicCount);
 
         SkASSERT(verbCount == ref->countVerbs());
         SkASSERT(pointCount == ref->countPoints());
+        SkASSERT(conicCount == ref->fConicWeights.count());
         buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t));
         buffer->read(ref->fPoints, pointCount * sizeof(SkPoint));
+        buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar));
         return ref;
     }
-#else
-    static SkPathRef* CreateFromBuffer(int verbCount, int pointCount, SkRBuffer* buffer) {
-        SkPathRef* ref = SkNEW(SkPathRef);
-
-        ref->resetToSize(verbCount, pointCount);
-        SkASSERT(verbCount == ref->countVerbs());
-        SkASSERT(pointCount == ref->countPoints());
-        buffer->read(ref->fPoints, pointCount * sizeof(SkPoint));
-        for (int i = 0; i < verbCount; ++i) {
-            ref->fVerbs[~i] = buffer->readU8();
-        }
-        return ref;
-    }
-#endif
 
     /**
      * Rollsback a path ref to zero verbs and points with the assumption that the path ref will be
@@ -249,12 +239,13 @@ public:
             (*pathRef)->fPointCnt = 0;
             (*pathRef)->fFreeSpace = (*pathRef)->currSize();
             (*pathRef)->fGenerationID = 0;
+            (*pathRef)->fConicWeights.rewind();
             (*pathRef)->validate();
         } else {
             int oldVCnt = (*pathRef)->countVerbs();
             int oldPCnt = (*pathRef)->countPoints();
             pathRef->reset(SkNEW(SkPathRef));
-            (*pathRef)->resetToSize(0, 0, oldVCnt, oldPCnt);
+            (*pathRef)->resetToSize(0, 0, 0, oldVCnt, oldPCnt);
         }
     }
 
@@ -299,6 +290,9 @@ public:
      */
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
+    const SkScalar* conicWeights() const { this->validate(); return fConicWeights.begin(); }
+    const SkScalar* conicWeightsEnd() const { this->validate(); return fConicWeights.end(); }
+
     /**
      * Convenience methods for getting to a verb or point by index.
      */
@@ -337,6 +331,10 @@ public:
             SkASSERT(!genIDMatch);
             return false;
         }
+        if (fConicWeights != ref.fConicWeights) {
+            SkASSERT(!genIDMatch);
+            return false;
+        }
         // We've done the work to determine that these are equal. If either has a zero genID, copy
         // the other's. If both are 0 then genID() will compute the next ID.
         if (0 == fGenerationID) {
@@ -350,7 +348,6 @@ public:
     /**
      * Writes the path points and verbs to a buffer.
      */
-#if NEW_PICTURE_FORMAT
     void writeToBuffer(SkWBuffer* buffer) {
         this->validate();
         SkDEBUGCODE_X(size_t beforePos = buffer->pos();)
@@ -358,10 +355,12 @@ public:
         // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
         // SkWBuffer. Until this is fixed we write 0.
         buffer->write32(0);
-        buffer->write32(this->fVerbCnt);
-        buffer->write32(this->fPointCnt);
-        buffer->write(this->verbsMemBegin(), fVerbCnt * sizeof(uint8_t));
+        buffer->write32(fVerbCnt);
+        buffer->write32(fPointCnt);
+        buffer->write32(fConicWeights.count());
+        buffer->write(verbsMemBegin(), fVerbCnt * sizeof(uint8_t));
         buffer->write(fPoints, fPointCnt * sizeof(SkPoint));
+        buffer->write(fConicWeights.begin(), fConicWeights.bytes());
 
         SkASSERT(buffer->pos() - beforePos == (size_t) this->writeSize());
     }
@@ -370,17 +369,11 @@ public:
      * Gets the number of bytes that would be written in writeBuffer()
      */
     uint32_t writeSize() {
-        return 3 * sizeof(uint32_t) + fVerbCnt * sizeof(uint8_t) + fPointCnt * sizeof(SkPoint);
+        return 4 * sizeof(uint32_t) +
+               fVerbCnt * sizeof(uint8_t) +
+               fPointCnt * sizeof(SkPoint) +
+               fConicWeights.bytes();
     }
-#else
-    void writeToBuffer(SkWBuffer* buffer) {
-        this->validate();
-        buffer->write(fPoints, fPointCnt * sizeof(SkPoint));
-        for (int i = 0; i < fVerbCnt; ++i) {
-            buffer->write8(fVerbs[~i]);
-        }
-    }
-#endif
 
 private:
     SkPathRef() {
@@ -396,10 +389,11 @@ private:
 
     void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints) {
         this->validate();
-        this->resetToSize(ref.fVerbCnt, ref.fPointCnt,
+        this->resetToSize(ref.fVerbCnt, ref.fPointCnt, ref.fConicWeights.count(),
                           additionalReserveVerbs, additionalReservePoints);
         memcpy(this->verbsMemWritable(), ref.verbsMemBegin(), ref.fVerbCnt * sizeof(uint8_t));
         memcpy(this->fPoints, ref.fPoints, ref.fPointCnt * sizeof(SkPoint));
+        fConicWeights = ref.fConicWeights;
         // We could call genID() here to force a real ID (instead of 0). However, if we're making
         // a copy then presumably we intend to make a modification immediately afterwards.
         fGenerationID = ref.fGenerationID;
@@ -416,7 +410,8 @@ private:
 
     /** Resets the path ref with verbCount verbs and pointCount points, all unitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
-    void resetToSize(int verbCount, int pointCount, int reserveVerbs = 0, int reservePoints = 0) {
+    void resetToSize(int verbCount, int pointCount, int conicCount,
+                     int reserveVerbs = 0, int reservePoints = 0) {
         this->validate();
         fGenerationID = 0;
 
@@ -442,6 +437,7 @@ private:
             fVerbCnt = verbCount;
             fFreeSpace = this->currSize() - minSize;
         }
+        fConicWeights.setCount(conicCount);
         this->validate();
     }
 
@@ -474,13 +470,17 @@ private:
             case SkPath::kLine_Verb:
                 pCnt = 1;
                 break;
+            case SkPath::kConic_Verb:
             case SkPath::kQuad_Verb:
                 pCnt = 2;
                 break;
             case SkPath::kCubic_Verb:
                 pCnt = 3;
                 break;
-            default:
+            case SkPath::kDone_Verb:
+                SkASSERT(!"growForVerb called for kDone");
+                // fall through
+            case SkPath::kClose_Verb:
                 pCnt = 0;
         }
         size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
@@ -588,6 +588,8 @@ private:
     int                 fVerbCnt;
     int                 fPointCnt;
     size_t              fFreeSpace; // redundant but saves computation
+    SkTDArray<SkScalar> fConicWeights;
+
     enum {
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
     };

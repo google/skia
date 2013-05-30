@@ -7,10 +7,13 @@
 #ifndef SkPathOpsTypes_DEFINED
 #define SkPathOpsTypes_DEFINED
 
+#define SK_CONIC_SUPPORT_ENABLED 1
+
 #include <float.h>  // for FLT_EPSILON
 #include <math.h>   // for fabs, sqrt
 
 #include "SkFloatingPoint.h"
+#include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPathOpsDebug.h"
 #include "SkScalar.h"
@@ -188,6 +191,47 @@ struct SkDQuad;
 struct SkDTriangle;
 struct SkDCubic;
 struct SkDRect;
+
+#if SK_CONIC_SUPPORT_ENABLED
+
+inline SkPath::Verb SkPathOpsPointsToVerb(int points) {
+    int verb = (1 << points) >> 1;
+#ifdef SK_DEBUG
+    switch (points) {
+        case 0: SkASSERT(SkPath::kMove_Verb == verb); break;
+        case 1: SkASSERT(SkPath::kLine_Verb == verb); break;
+        case 2: SkASSERT(SkPath::kQuad_Verb == verb); break;
+        case 3: SkASSERT(SkPath::kCubic_Verb == verb); break;
+        default: SkASSERT(!"should not be here");
+    }
+#endif
+    return (SkPath::Verb)verb;
+}
+
+inline int SkPathOpsVerbToPoints(SkPath::Verb verb) {
+    int points = (int) verb - ((int) verb >> 2);
+#ifdef SK_DEBUG
+    switch (verb) {
+        case SkPath::kLine_Verb: SkASSERT(1 == points); break;
+        case SkPath::kQuad_Verb: SkASSERT(2 == points); break;
+        case SkPath::kCubic_Verb: SkASSERT(3 == points); break;
+        default: SkASSERT(!"should not get here");
+    }
+#endif
+    return points;
+}
+
+#else
+
+inline SkPath::Verb SkOpPointsToVerb(int points) {
+    return (SkPath::Verb) (points);
+}
+
+inline SkPath::Verb SkOpVerbToPoints(SkPath::Verb verb) {
+    return (int) verb ;
+}
+
+#endif
 
 inline double SkDInterp(double A, double B, double t) {
     return A + (B - A) * t;

@@ -230,7 +230,16 @@ struct SkConic {
     void computeAsQuadError(SkVector* err) const;
     bool asQuadTol(SkScalar tol) const;
 
+    /**
+     *  return the power-of-2 number of quads needed to approximate this conic
+     *  with a sequence of quads. Will be >= 0.
+     */
     int computeQuadPOW2(SkScalar tol) const;
+
+    /**
+     *  Chop this conic into N quads, stored continguously in pts[], where
+     *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
+     */
     int chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
     bool findXExtrema(SkScalar* t) const;
