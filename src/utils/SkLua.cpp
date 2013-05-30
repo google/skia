@@ -12,6 +12,7 @@
 #include "SkMatrix.h"
 #include "SkRRect.h"
 #include "SkString.h"
+#include "SkTypeface.h"
 
 extern "C" {
     #include "lua.h"
@@ -120,6 +121,11 @@ static void setfield_function(lua_State* L,
     lua_setfield(L, -2, key);
 }
 
+static void setarray_number(lua_State* L, int index, double value) {
+    lua_pushnumber(L, value);
+    lua_rawseti(L, -2, index);
+}
+
 void SkLua::pushBool(bool value, const char key[]) {
     lua_pushboolean(fL, value);
     CHECK_SETFIELD(key);
@@ -127,6 +133,13 @@ void SkLua::pushBool(bool value, const char key[]) {
 
 void SkLua::pushString(const char str[], const char key[]) {
     lua_pushstring(fL, str);
+    CHECK_SETFIELD(key);
+}
+
+void SkLua::pushString(const char str[], size_t length, const char key[]) {
+    // TODO: how to do this w/o making a copy?
+    SkString s(str, length);
+    lua_pushstring(fL, s.c_str());
     CHECK_SETFIELD(key);
 }
 
@@ -144,8 +157,22 @@ void SkLua::pushColor(SkColor color, const char key[]) {
     CHECK_SETFIELD(key);
 }
 
+void SkLua::pushU32(uint32_t value, const char key[]) {
+    lua_pushnumber(fL, (double)value);
+    CHECK_SETFIELD(key);
+}
+
 void SkLua::pushScalar(SkScalar value, const char key[]) {
     lua_pushnumber(fL, SkScalarToLua(value));
+    CHECK_SETFIELD(key);
+}
+
+void SkLua::pushArrayU16(const uint16_t array[], int count, const char key[]) {
+    lua_newtable(fL);
+    for (int i = 0; i < count; ++i) {
+        // make it base-1 to match lua convention
+        setarray_number(fL, i + 1, (double)array[i]);
+    }
     CHECK_SETFIELD(key);
 }
 
@@ -314,6 +341,22 @@ static int lpaint_setColor(lua_State* L) {
     return 0;
 }
 
+static int lpaint_getTextSize(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextSize());
+    return 1;
+}
+
+static int lpaint_setTextSize(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setTextSize(lua2scalar(L, 2));
+    return 0;
+}
+
+static int lpaint_getFontID(lua_State* L) {
+    SkTypeface* face = get_obj<SkPaint>(L, 1)->getTypeface();
+    SkLua(L).pushU32(SkTypeface::UniqueID(face));
+    return 1;
+}
+
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -324,6 +367,9 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setAntiAlias", lpaint_setAntiAlias },
     { "getColor", lpaint_getColor },
     { "setColor", lpaint_setColor },
+    { "getTextSize", lpaint_getTextSize },
+    { "setTextSize", lpaint_setTextSize },
+    { "getFontID", lpaint_getFontID },
     { "__gc", lpaint_gc },
     { NULL, NULL }
 };

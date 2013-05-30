@@ -41,8 +41,11 @@ public:
 
     void pushBool(bool, const char tableKey[] = NULL);
     void pushString(const char[], const char tableKey[] = NULL);
+    void pushString(const char[], size_t len, const char tableKey[] = NULL);
     void pushString(const SkString&, const char tableKey[] = NULL);
+    void pushArrayU16(const uint16_t[], int count, const char tableKey[] = NULL);
     void pushColor(SkColor, const char tableKey[] = NULL);
+    void pushU32(uint32_t, const char tableKey[] = NULL);
     void pushScalar(SkScalar, const char tableKey[] = NULL);
     void pushRect(const SkRect&, const char tableKey[] = NULL);
     void pushRRect(const SkRRect&, const char tableKey[] = NULL);
