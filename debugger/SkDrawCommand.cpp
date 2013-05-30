@@ -12,7 +12,7 @@
 
 // TODO(chudy): Refactor into non subclass model.
 
-SkDrawCommand::SkDrawCommand(DrawType type) 
+SkDrawCommand::SkDrawCommand(DrawType type)
     : fDrawType(type)
     , fVisible(true) {
 }
@@ -306,7 +306,7 @@ void DrawData::execute(SkCanvas* canvas) {
     canvas->drawData(fData, fLength);
 }
 
-BeginCommentGroup::BeginCommentGroup(const char* description) 
+BeginCommentGroup::BeginCommentGroup(const char* description)
     : INHERITED(BEGIN_COMMENT_GROUP)
     , fDescription(description) {
     SkString* temp = new SkString;

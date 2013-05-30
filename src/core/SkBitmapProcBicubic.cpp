@@ -27,7 +27,7 @@ static inline SkPMColor cubicBlend(const SkFixed cc[4], SkPMColor c0, SkPMColor 
     int r = SkClampMax(SkFixedRoundToInt(fr), a);
     int g = SkClampMax(SkFixedRoundToInt(fg), a);
     int b = SkClampMax(SkFixedRoundToInt(fb), a);
-    
+
     return SkPackARGB32(a, r, g, b);
 }
 
@@ -54,7 +54,7 @@ static void bicubicFilter(const SkBitmapProcState& s, int x, int y,
 
     const int maxX = s.fBitmap->width() - 1;
     const int maxY = s.fBitmap->height() - 1;
-    
+
     while (count-- > 0) {
         SkPoint srcPt;
         s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
@@ -63,14 +63,14 @@ static void bicubicFilter(const SkBitmapProcState& s, int x, int y,
         srcPt.fY -= SK_ScalarHalf;
         SkScalar fractx = srcPt.fX - SkScalarFloorToScalar(srcPt.fX);
         SkScalar fracty = srcPt.fY - SkScalarFloorToScalar(srcPt.fY);
-        
+
         SkFixed coeffX[4], coeffY[4];
         build_coeff4(coeffX, coefficients, fractx);
         build_coeff4(coeffY, coefficients, fracty);
-        
+
         int sx = SkScalarFloorToInt(srcPt.fX);
         int sy = SkScalarFloorToInt(srcPt.fY);
-        
+
         // Here is where we can support other tile modes (e.g. repeat or mirror)
         int x0 = SkClampMax(sx - 1, maxX);
         int x1 = SkClampMax(sx    , maxX);

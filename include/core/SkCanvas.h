@@ -856,8 +856,8 @@ public:
         // do nothing. Subclasses may do something with the data
     }
 
-    /** Add comments. beginCommentGroup/endCommentGroup open/close a new group. 
-        Each comment added via addComment is notionally attached to its 
+    /** Add comments. beginCommentGroup/endCommentGroup open/close a new group.
+        Each comment added via addComment is notionally attached to its
         enclosing group. Top-level comments simply belong to no group.
      */
     virtual void beginCommentGroup(const char* description) {
