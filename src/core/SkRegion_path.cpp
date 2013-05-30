@@ -216,36 +216,25 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
     *runs = SkRegion::kRunTypeSentinel;
 }
 
-static unsigned verb_to_initial_last_index(unsigned verb) {
+static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     static const uint8_t gPathVerbToInitialLastIndex[] = {
         0,  //  kMove_Verb
         1,  //  kLine_Verb
         2,  //  kQuad_Verb
-        2,  //  kConic_Verb
         3,  //  kCubic_Verb
         0,  //  kClose_Verb
         0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < SK_ARRAY_COUNT(gPathVerbToInitialLastIndex));
-    return gPathVerbToInitialLastIndex[verb];
-}
 
-static unsigned verb_to_max_edges(unsigned verb) {
     static const uint8_t gPathVerbToMaxEdges[] = {
         0,  //  kMove_Verb
         1,  //  kLine_Verb
         2,  //  kQuad_VerbB
-        2,  //  kConic_VerbB
         3,  //  kCubic_Verb
         0,  //  kClose_Verb
         0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < SK_ARRAY_COUNT(gPathVerbToMaxEdges));
-    return gPathVerbToMaxEdges[verb];
-}
 
-
-static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
@@ -255,9 +244,9 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     SkScalar    bot = SkIntToScalar(SK_MinS16);
 
     while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
-        maxEdges += verb_to_max_edges(verb);
+        maxEdges += gPathVerbToMaxEdges[verb];
 
-        int lastIndex = verb_to_initial_last_index(verb);
+        int lastIndex = gPathVerbToInitialLastIndex[verb];
         if (lastIndex > 0) {
             for (int i = 1; i <= lastIndex; i++) {
                 if (top > pts[i].fY) {

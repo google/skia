@@ -275,12 +275,6 @@ protected:
                                  fPoints[(fCurrPoint + 1) & (kNumPoints - 1)]);
                     fCurrPoint += 2;
                     break;
-                case SkPath::kConic_Verb:
-                    path->conicTo(fPoints[(fCurrPoint + 0) & (kNumPoints - 1)],
-                                  fPoints[(fCurrPoint + 1) & (kNumPoints - 1)],
-                                  SK_ScalarHalf);
-                    fCurrPoint += 2;
-                    break;
                 case SkPath::kCubic_Verb:
                     path->cubicTo(fPoints[(fCurrPoint + 0) & (kNumPoints - 1)],
                                   fPoints[(fCurrPoint + 1) & (kNumPoints - 1)],

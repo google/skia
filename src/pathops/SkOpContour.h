@@ -114,7 +114,7 @@ public:
 
     const SkPoint& end() const {
         const SkOpSegment& segment = fSegments.back();
-        return segment.pts()[SkPathOpsVerbToPoints(segment.verb())];
+        return segment.pts()[segment.verb()];
     }
 
     void findTooCloseToCall() {
@@ -195,7 +195,7 @@ public:
     int updateSegment(int index, const SkPoint* pts) {
         SkOpSegment& segment = fSegments[index];
         segment.updatePts(pts);
-        return SkPathOpsVerbToPoints(segment.verb()) + 1;
+        return segment.verb() + 1;
     }
 
 #if DEBUG_TEST

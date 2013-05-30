@@ -153,22 +153,12 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
     return edgePtr - fEdgeList;
 }
 
-static void handle_quad(SkEdgeBuilder* builder, const SkPoint pts[3]) {
-    SkPoint monoX[5];
-    int n = SkChopQuadAtYExtrema(pts, monoX);
-    for (int i = 0; i <= n; i++) {
-        builder->addQuad(&monoX[i * 2]);
-    }
-}
-
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                          int shiftUp) {
     fAlloc.reset();
     fList.reset();
     fShiftUp = shiftUp;
 
-    SkScalar conicTol = SK_ScalarHalf * (1 << shiftUp);
-    
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
         return this->buildPoly(path, iclip, shiftUp);
     }
@@ -202,24 +192,6 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                         this->addClipper(&clipper);
                     }
                     break;
-                case SkPath::kConic_Verb: {
-                    const int MAX_POW2 = 4;
-                    const int MAX_QUADS = 1 << MAX_POW2;
-                    const int MAX_QUAD_PTS = 1 + 2 * MAX_QUADS;
-                    SkPoint storage[MAX_QUAD_PTS];
-
-                    SkConic conic;
-                    conic.set(pts, iter.conicWeight());
-                    int pow2 = conic.computeQuadPOW2(conicTol);
-                    pow2 = SkMin32(pow2, MAX_POW2);
-                    int quadCount = conic.chopIntoQuadsPOW2(storage, pow2);
-                    SkASSERT(quadCount <= MAX_QUADS);
-                    for (int i = 0; i < quadCount; ++i) {
-                        if (clipper.clipQuad(&storage[i * 2], clip)) {
-                            this->addClipper(&clipper);
-                        }
-                    }
-                } break;
                 case SkPath::kCubic_Verb:
                     if (clipper.clipCubic(pts, clip)) {
                         this->addClipper(&clipper);
@@ -242,26 +214,13 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     this->addLine(pts);
                     break;
                 case SkPath::kQuad_Verb: {
-                    handle_quad(this, pts);
+                    SkPoint monoX[5];
+                    int n = SkChopQuadAtYExtrema(pts, monoX);
+                    for (int i = 0; i <= n; i++) {
+                        this->addQuad(&monoX[i * 2]);
+                    }
                     break;
                 }
-                case SkPath::kConic_Verb: {
-                    const int MAX_POW2 = 4;
-                    const int MAX_QUADS = 1 << MAX_POW2;
-                    const int MAX_QUAD_PTS = 1 + 2 * MAX_QUADS;
-                    SkPoint storage[MAX_QUAD_PTS];
-                    
-                    SkConic conic;
-                    conic.set(pts, iter.conicWeight());
-                    int pow2 = conic.computeQuadPOW2(conicTol);
-                    pow2 = SkMin32(pow2, MAX_POW2);
-                    int quadCount = conic.chopIntoQuadsPOW2(storage, pow2);
-                    SkASSERT(quadCount <= MAX_QUADS);
-                    SkDebugf("--- quadCount = %d\n", quadCount);
-                    for (int i = 0; i < quadCount; ++i) {
-                        handle_quad(this, &storage[i * 2]);
-                    }
-                } break;
                 case SkPath::kCubic_Verb: {
                     SkPoint monoY[10];
                     int n = SkChopCubicAtYExtrema(pts, monoY);

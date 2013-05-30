@@ -113,11 +113,11 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
         SkPath::Verb partVerb = useThis ? fVerb : rh.fVerb;
         ray[0] = partVerb == SkPath::kCubic_Verb && part[0].approximatelyEqual(part[1]) ?
             part[2] : part[1];
-        ray[1].fX = (part[0].fX + part[SkPathOpsVerbToPoints(partVerb)].fX) / 2;
-        ray[1].fY = (part[0].fY + part[SkPathOpsVerbToPoints(partVerb)].fY) / 2;
+        ray[1].fX = (part[0].fX + part[partVerb].fX) / 2;
+        ray[1].fY = (part[0].fY + part[partVerb].fY) / 2;
         SkASSERT(ray[0] != ray[1]);
-        roots = (i.*CurveRay[SkPathOpsVerbToPoints(fVerb)])(fPts, ray);
-        rroots = (ri.*CurveRay[SkPathOpsVerbToPoints(rh.fVerb)])(rh.fPts, ray);
+        roots = (i.*CurveRay[fVerb])(fPts, ray);
+        rroots = (ri.*CurveRay[rh.fVerb])(rh.fPts, ray);
     } while ((roots == 0 || rroots == 0) && (flip ^= true));
     if (roots == 0 || rroots == 0) {
         // FIXME: we don't have a solution in this case. The interim solution
@@ -314,8 +314,8 @@ void SkOpAngle::setSpans() {
         fUnsortable = step > 0 ? thisSpan.fUnsortableStart : nextSpan.fUnsortableEnd;
 #if DEBUG_UNSORTABLE
         if (fUnsortable) {
-            SkPoint iPt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, thisSpan.fT);
-            SkPoint ePt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, nextSpan.fT);
+            SkPoint iPt = (*CurvePointAtT[fVerb])(fPts, thisSpan.fT);
+            SkPoint ePt = (*CurvePointAtT[fVerb])(fPts, nextSpan.fT);
             SkDebugf("%s unsortable [%d] (%1.9g,%1.9g) [%d] (%1.9g,%1.9g)\n", __FUNCTION__,
                     index, iPt.fX, iPt.fY, fEnd, ePt.fX, ePt.fY);
         }
@@ -330,8 +330,8 @@ void SkOpAngle::setSpans() {
     }
 #if 1
 #if DEBUG_UNSORTABLE
-    SkPoint iPt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, startT);
-    SkPoint ePt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, endT);
+    SkPoint iPt = (*CurvePointAtT[fVerb])(fPts, startT);
+    SkPoint ePt = (*CurvePointAtT[fVerb])(fPts, endT);
     SkDebugf("%s all tiny unsortable [%d] (%1.9g,%1.9g) [%d] (%1.9g,%1.9g)\n", __FUNCTION__,
         fStart, iPt.fX, iPt.fY, fEnd, ePt.fX, ePt.fY);
 #endif
