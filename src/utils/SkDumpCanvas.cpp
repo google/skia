@@ -84,6 +84,9 @@ static void dumpVerbs(const SkPath& path, SkString* str) {
                 break;
             case SkPath::kDone_Verb:
                 return;
+            case SkPath::kConic_Verb:
+                SkASSERT(0);
+                break;
         }
     }
 }

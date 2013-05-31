@@ -3772,7 +3772,7 @@ static void testQuad7(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = 0;
+static void (*firstTest)(skiatest::Reporter* ) = testQuadratic85;
 
 static TestDesc tests[] = {
     TEST(testQuad7),

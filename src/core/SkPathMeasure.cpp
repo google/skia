@@ -152,6 +152,9 @@ void SkPathMeasure::buildSegments() {
     bool done = false;
     do {
         switch (fIter.next(pts)) {
+            case SkPath::kConic_Verb:
+                SkASSERT(0);
+                break;
             case SkPath::kMove_Verb:
                 ptIndex += 1;
                 fPts.append(1, pts);

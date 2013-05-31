@@ -40,6 +40,7 @@ private:
 
     int                 fShiftUp;
 
+public:
     void addLine(const SkPoint pts[]);
     void addQuad(const SkPoint pts[]);
     void addCubic(const SkPoint pts[]);
