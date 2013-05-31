@@ -9,8 +9,8 @@
   'sources': [
     '<(skia_src_path)/effects/Sk1DPathEffect.cpp',
     '<(skia_src_path)/effects/Sk2DPathEffect.cpp',
-    '<(skia_src_path)/effects/SkAvoidXfermode.cpp',
     '<(skia_src_path)/effects/SkArithmeticMode.cpp',
+    '<(skia_src_path)/effects/SkAvoidXfermode.cpp',
     '<(skia_src_path)/effects/SkBicubicImageFilter.cpp',
     '<(skia_src_path)/effects/SkBitmapSource.cpp',
     '<(skia_src_path)/effects/SkBlendImageFilter.cpp',
@@ -36,6 +36,7 @@
     '<(skia_src_path)/effects/SkLayerRasterizer.cpp',
     '<(skia_src_path)/effects/SkLerpXfermode.cpp',
     '<(skia_src_path)/effects/SkLightingImageFilter.cpp',
+    '<(skia_src_path)/effects/SkMagnifierImageFilter.cpp',
     '<(skia_src_path)/effects/SkMatrixConvolutionImageFilter.cpp',
     '<(skia_src_path)/effects/SkMergeImageFilter.cpp',
     '<(skia_src_path)/effects/SkMorphologyImageFilter.cpp',
@@ -50,7 +51,7 @@
     '<(skia_src_path)/effects/SkTableMaskFilter.cpp',
     '<(skia_src_path)/effects/SkTestImageFilters.cpp',
     '<(skia_src_path)/effects/SkTransparentShader.cpp',
-    '<(skia_src_path)/effects/SkMagnifierImageFilter.cpp',
+    '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
     '<(skia_src_path)/effects/gradients/SkBitmapCache.cpp',
     '<(skia_src_path)/effects/gradients/SkBitmapCache.h',
@@ -72,8 +73,9 @@
 
     '<(skia_include_path)/effects/Sk1DPathEffect.h',
     '<(skia_include_path)/effects/Sk2DPathEffect.h',
-    '<(skia_include_path)/effects/SkAvoidXfermode.h',
+    '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
     '<(skia_include_path)/effects/SkArithmeticMode.h',
+    '<(skia_include_path)/effects/SkAvoidXfermode.h',
     '<(skia_include_path)/effects/SkBitmapSource.h',
     '<(skia_include_path)/effects/SkBlendImageFilter.h',
     '<(skia_include_path)/effects/SkBlurDrawLooper.h',
