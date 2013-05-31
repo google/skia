@@ -125,7 +125,8 @@ void SkGScalerContext::generateImage(const SkGlyph& glyph) {
         bm.eraseColor(0);
         
         SkCanvas canvas(bm);
-        canvas.translate(-glyph.fLeft, -glyph.fTop);
+        canvas.translate(-SkIntToScalar(glyph.fLeft),
+                         -SkIntToScalar(glyph.fTop));
         canvas.concat(fMatrix);
         canvas.drawPath(path, fFace->paint());
     } else {
