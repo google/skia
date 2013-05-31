@@ -30,7 +30,7 @@ class SkPDFGraphicState;
 class SkPDFObject;
 class SkPDFShader;
 class SkPDFStream;
-template <typename T> class SK_API SkTSet;
+template <typename T> class SkTSet;
 
 // Private classes.
 struct ContentEntry;

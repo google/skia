@@ -21,7 +21,7 @@
 
 // TODO: Add remove, intersect and difference operations.
 // TODO: Add bench tests.
-template <typename T> class SK_API SkTSet {
+template <typename T> class SkTSet {
 public:
     SkTSet() {
         fArray = SkNEW(SkTDArray<T>);

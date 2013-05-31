@@ -21,7 +21,7 @@ class SkPDFDict;
 class SkPDFPage;
 class SkPDFObject;
 class SkWStream;
-template <typename T> class SK_API SkTSet;
+template <typename T> class SkTSet;
 
 /** \class SkPDFDocument
 
