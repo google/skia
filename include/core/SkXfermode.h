@@ -15,6 +15,7 @@
 
 class GrContext;
 class GrEffectRef;
+class GrTexture;
 class SkString;
 
 /** \class SkXfermode
@@ -197,12 +198,16 @@ public:
         it and own a ref to it. Since the xfermode may or may not assign *effect, the caller should
         set *effect to NULL beforehand. If the function returns true and *effect is NULL then the
         src and dst coeffs will be applied to the draw. When *effect is non-NULL the coeffs are
-        ignored.
+        ignored. background specifies the texture to use as the background for compositing, and
+        should be accessed in the effect's fragment shader. If NULL, the effect should request
+        access to destination color (setWillReadDstColor()), and use that in the fragment shader
+        (builder->dstColor()).
      */
     virtual bool asNewEffectOrCoeff(GrContext*,
                                     GrEffectRef** effect,
                                     Coeff* src,
-                                    Coeff* dst) const;
+                                    Coeff* dst,
+                                    GrTexture* background = NULL) const;
 
     /**
      *  The same as calling xfermode->asNewEffect(...), except that this also checks if the xfermode
@@ -212,7 +217,8 @@ public:
                                    GrContext*,
                                    GrEffectRef** effect,
                                    Coeff* src,
-                                   Coeff* dst);
+                                   Coeff* dst,
+                                   GrTexture* background = NULL);
 
     SkDEVCODE(virtual void toString(SkString* str) const = 0;)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

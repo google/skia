@@ -680,7 +680,7 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asNewEffectOrCoeff(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst) const {
+bool SkXfermode::asNewEffectOrCoeff(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst, GrTexture*) const {
     return this->asCoeff(src, dst);
 }
 
@@ -688,11 +688,12 @@ bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
                                     GrContext* context,
                                     GrEffectRef** effect,
                                     Coeff* src,
-                                    Coeff* dst) {
+                                    Coeff* dst,
+                                    GrTexture* background) {
     if (NULL == xfermode) {
         return ModeAsCoeff(kSrcOver_Mode, src, dst);
     } else {
-        return xfermode->asNewEffectOrCoeff(context, effect, src, dst);
+        return xfermode->asNewEffectOrCoeff(context, effect, src, dst, background);
     }
 }
 
@@ -948,6 +949,7 @@ void SkProcXfermode::toString(SkString* str) const {
 #include "GrEffectUnitTest.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
 
 /**
  * GrEffect that implements the all the separable xfer modes that cannot be expressed as Coeffs.
@@ -958,11 +960,11 @@ public:
         return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;
     }
 
-    static GrEffectRef* Create(SkXfermode::Mode mode) {
+    static GrEffectRef* Create(SkXfermode::Mode mode, GrTexture* background) {
         if (!IsSupportedMode(mode)) {
             return NULL;
         } else {
-            AutoEffectUnref effect(SkNEW_ARGS(XferEffect, (mode)));
+            AutoEffectUnref effect(SkNEW_ARGS(XferEffect, (mode, background)));
             return CreateEffectRef(effect);
         }
     }
@@ -979,11 +981,13 @@ public:
     static const char* Name() { return "XferEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
+    const GrTextureAccess&  backgroundAccess() const { return fBackgroundAccess; }
 
     class GLEffect : public GrGLEffect {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
-            : GrGLEffect(factory ) {
+            : GrGLEffect(factory )
+            , fBackgroundEffectMatrix(kCoordsType) {
         }
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
@@ -991,7 +995,22 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const char* dstColor = builder->dstColor();
+            SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
+            const GrTexture* backgroundTex = drawEffect.castEffect<XferEffect>().backgroundAccess().getTexture();
+            const char* dstColor;
+            if (backgroundTex) {
+                const char* bgCoords;
+                GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
+                dstColor = "bgColor";
+                builder->fsCodeAppendf("\t\tvec4 %s = ", dstColor);
+                builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
+                                             samplers[0],
+                                             bgCoords,
+                                             bgCoordsType);
+                builder->fsCodeAppendf(";\n");
+            } else {
+                dstColor = builder->dstColor();
+            }
             GrAssert(NULL != dstColor);
 
             // We don't try to optimize for this case at all
@@ -999,8 +1018,6 @@ public:
                 builder->fsCodeAppendf("\t\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
                 inputColor = "ones";
             }
-
-            SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
             builder->fsCodeAppendf("\t\t// SkXfermode::Mode: %s\n", SkXfermode::ModeName(mode));
 
             // These all perform src-over on the alpha channel.
@@ -1125,10 +1142,29 @@ public:
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            return drawEffect.castEffect<XferEffect>().mode();
+            const XferEffect& xfer = drawEffect.castEffect<XferEffect>();
+            GrTexture* bgTex = xfer.backgroundAccess().getTexture();
+            EffectKey bgKey = 0;
+            if (bgTex) {
+                bgKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(bgTex),
+                                                 drawEffect,
+                                                 GLEffect::kCoordsType,
+                                                 bgTex);
+            }
+            EffectKey modeKey = xfer.mode() << GrGLEffectMatrix::kKeyBits;
+            return modeKey | bgKey;
         }
 
-        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+        virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) SK_OVERRIDE {
+            const XferEffect& xfer = drawEffect.castEffect<XferEffect>();
+            GrTexture* bgTex = xfer.backgroundAccess().getTexture();
+            if (bgTex) {
+                fBackgroundEffectMatrix.setData(uman,
+                                                GrEffect::MakeDivByTextureWHMatrix(bgTex),
+                                                drawEffect,
+                                                bgTex);
+            }
+        }
 
     private:
         static void HardLight(GrGLShaderBuilder* builder,
@@ -1352,16 +1388,31 @@ public:
 
         }
 
+        static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
+        GrGLEffectMatrix   fBackgroundEffectMatrix;
         typedef GrGLEffect INHERITED;
     };
 
     GR_DECLARE_EFFECT_TEST;
 
 private:
-    XferEffect(SkXfermode::Mode mode) : fMode(mode) { this->setWillReadDstColor(); }
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE { return true; }
+    XferEffect(SkXfermode::Mode mode, GrTexture* background)
+        : fMode(mode) {
+        if (background) {
+            fBackgroundAccess.reset(background);
+            this->addTextureAccess(&fBackgroundAccess);
+        } else {
+            this->setWillReadDstColor();
+        }
+    }
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        const XferEffect& s = CastEffect<XferEffect>(other);
+        return fMode == s.fMode &&
+               fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture();
+    }
 
     SkXfermode::Mode fMode;
+    GrTextureAccess  fBackgroundAccess;
 
     typedef GrEffect INHERITED;
 };
@@ -1373,7 +1424,7 @@ GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
                                     GrTexture*[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
-    static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode))));
+    static AutoEffectUnref gEffect(SkNEW_ARGS(XferEffect, (static_cast<SkXfermode::Mode>(mode), NULL)));
     return CreateEffectRef(gEffect);
 }
 
@@ -1417,13 +1468,14 @@ public:
     virtual bool asNewEffectOrCoeff(GrContext*,
                                     GrEffectRef** effect,
                                     Coeff* src,
-                                    Coeff* dst) const SK_OVERRIDE {
+                                    Coeff* dst,
+                                    GrTexture* background) const SK_OVERRIDE {
         if (this->asCoeff(src, dst)) {
             return true;
         }
         if (XferEffect::IsSupportedMode(fMode)) {
             if (NULL != effect) {
-                *effect = XferEffect::Create(fMode);
+                *effect = XferEffect::Create(fMode, background);
                 SkASSERT(NULL != *effect);
             }
             return true;

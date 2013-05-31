@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkImageFilterUtils.h"
 #endif
@@ -33,7 +34,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffectOrCoeff(GrContext*, GrEffectRef** effect, Coeff*, Coeff*) const SK_OVERRIDE;
+    virtual bool asNewEffectOrCoeff(GrContext*, GrEffectRef** effect, Coeff*, Coeff*, GrTexture* background) const SK_OVERRIDE;
 #endif
 
 private:
@@ -240,7 +241,7 @@ public:
 
 private:
     static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
-
+    GrGLEffectMatrix fBackgroundEffectMatrix;
     GrGLUniformManager::UniformHandle fKUni;
 
     typedef GrGLEffect INHERITED;
@@ -250,8 +251,8 @@ private:
 
 class GrArithmeticEffect : public GrEffect {
 public:
-    static GrEffectRef* Create(float k1, float k2, float k3, float k4) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4)));
+    static GrEffectRef* Create(float k1, float k2, float k3, float k4, GrTexture* background) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, background)));
         return CreateEffectRef(effect);
     }
 
@@ -261,6 +262,7 @@ public:
 
     typedef GrGLArithmeticEffect GLEffect;
     static const char* Name() { return "Arithmetic"; }
+    GrTexture* backgroundTexture() const { return fBackgroundAccess.getTexture(); }
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
@@ -272,8 +274,9 @@ public:
 private:
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
-    GrArithmeticEffect(float k1, float k2, float k3, float k4);
+    GrArithmeticEffect(float k1, float k2, float k3, float k4, GrTexture* background);
     float                       fK1, fK2, fK3, fK4;
+    GrTextureAccess             fBackgroundAccess;
 
     GR_DECLARE_EFFECT_TEST;
     typedef GrEffect INHERITED;
@@ -282,9 +285,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4)
+GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
+                                       GrTexture* background)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4) {
-    this->setWillReadDstColor();
+    if (background) {
+        fBackgroundAccess.reset(background);
+        this->addTextureAccess(&fBackgroundAccess);
+    } else {
+        this->setWillReadDstColor();
+    }
 }
 
 GrArithmeticEffect::~GrArithmeticEffect() {
@@ -295,7 +304,8 @@ bool GrArithmeticEffect::onIsEqual(const GrEffect& sBase) const {
     return fK1 == s.fK1 &&
            fK2 == s.fK2 &&
            fK3 == s.fK3 &&
-           fK4 == s.fK4;
+           fK4 == s.fK4 &&
+           backgroundTexture() == s.backgroundTexture();
 }
 
 const GrBackendEffectFactory& GrArithmeticEffect::getFactory() const {
@@ -310,19 +320,37 @@ void GrArithmeticEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendEffectFactory& factory,
-                                           const GrDrawEffect& drawEffect) : INHERITED(factory) {
+                                           const GrDrawEffect& drawEffect)
+   : INHERITED(factory)
+   , fBackgroundEffectMatrix(kCoordsType) {
 }
 
 GrGLArithmeticEffect::~GrGLArithmeticEffect() {
 }
 
 void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
-                                    const GrDrawEffect&,
+                                    const GrDrawEffect& drawEffect,
                                     EffectKey key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TextureSamplerArray& samplers) {
-    const char* dstColor = builder->dstColor();
+
+    GrTexture* backgroundTex = drawEffect.castEffect<GrArithmeticEffect>().backgroundTexture();
+    const char* dstColor;
+    if (backgroundTex) {
+        const char* bgCoords;
+        GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
+        builder->fsCodeAppend("\t\tvec4 bgColor = ");
+        builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
+                                     samplers[0],
+                                     bgCoords,
+                                     bgCoordsType);
+        builder->fsCodeAppendf(";\n");
+        dstColor = "bgColor";
+    } else {
+        dstColor = builder->dstColor();
+    }
+
     GrAssert(NULL != dstColor);
     fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                 kVec4f_GrSLType, "k");
@@ -347,10 +375,26 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
 void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
     const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
     uman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
+    GrTexture* bgTex = arith.backgroundTexture();
+    if (bgTex) {
+        fBackgroundEffectMatrix.setData(uman,
+                                        GrEffect::MakeDivByTextureWHMatrix(bgTex),
+                                        drawEffect,
+                                        bgTex);
+    }
 }
 
 GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-    return 0;
+    const GrArithmeticEffect& effect = drawEffect.castEffect<GrArithmeticEffect>();
+    GrTexture* bgTex = effect.backgroundTexture();
+    EffectKey bgKey = 0;
+    if (bgTex) {
+        bgKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(bgTex),
+                                         drawEffect,
+                                         GrGLArithmeticEffect::kCoordsType,
+                                         bgTex);
+    }
+    return bgKey;
 }
 
 GrEffectRef* GrArithmeticEffect::TestCreate(SkMWCRandom* rand,
@@ -362,7 +406,7 @@ GrEffectRef* GrArithmeticEffect::TestCreate(SkMWCRandom* rand,
     float k3 = rand->nextF();
     float k4 = rand->nextF();
 
-    static AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4)));
+    static AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, NULL)));
     return CreateEffectRef(gEffect);
 }
 
@@ -371,12 +415,14 @@ GR_DEFINE_EFFECT_TEST(GrArithmeticEffect);
 bool SkArithmeticMode_scalar::asNewEffectOrCoeff(GrContext*,
                                                  GrEffectRef** effect,
                                                  Coeff*,
-                                                 Coeff*) const {
+                                                 Coeff*,
+                                                 GrTexture* background) const {
     if (effect) {
         *effect = GrArithmeticEffect::Create(SkScalarToFloat(fK[0]),
                                              SkScalarToFloat(fK[1]),
                                              SkScalarToFloat(fK[2]),
-                                             SkScalarToFloat(fK[3]));
+                                             SkScalarToFloat(fK[3]),
+                                             background);
     }
     return true;
 }
