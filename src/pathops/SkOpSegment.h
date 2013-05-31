@@ -54,7 +54,7 @@ public:
     }
 
     SkVector dxdy(int index) const {
-        return (*CurveSlopeAtT[fVerb])(fPts, fTs[index].fT);
+        return (*CurveSlopeAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, fTs[index].fT);
     }
 
     SkScalar dy(int index) const {
@@ -82,7 +82,7 @@ public:
     }
 
     bool isVertical(int start, int end) const {
-        return (*CurveIsVertical[fVerb])(fPts, start, end);
+        return (*CurveIsVertical[SkPathOpsVerbToPoints(fVerb)])(fPts, start, end);
     }
 
     bool operand() const {
@@ -206,7 +206,7 @@ public:
 
     // used only by right angle winding finding
     SkPoint xyAtT(double mid) const {
-        return (*CurvePointAtT[fVerb])(fPts, mid);
+        return (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
     }
 
     const SkPoint& xyAtT(int index) const {

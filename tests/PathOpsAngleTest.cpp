@@ -8,16 +8,38 @@
 #include "Test.h"
 
 static const SkPoint cubics[][4] = {
-    {{0, 1}, {2, 6}, {4, 2}, {5, 3}},
-    {{10, 234}, {10, 229.581726f}, {13.5817204f, 226}, {18, 226}},
+/* 0 */    {{0, 1}, {2, 6}, {4, 2}, {5, 3}},
+/* 1 */    {{10, 234}, {10, 229.581726f}, {13.5817204f, 226}, {18, 226}},
+/* 2 */    {{132, 11419}, {130.89543151855469f, 11419}, {130, 11418.1044921875f}, {130, 11417}},
+/* 3 */    {{130.04275512695312f, 11417.4130859375f}, {130.23307800292969f, 11418.3193359375f},
+                    {131.03709411621094f, 11419}, {132, 11419}},
+/* 4 */    {{0,1}, {0,5}, {4,1}, {6,4}},
+/* 5 */    {{1,5}, {4,6}, {1,0}, {4,0}},
+/* 6 */    {{0,1}, {0,4}, {5,1}, {6,4}},
+/* 7 */    {{0,1}, {1,2}, {1,0}, {6,1}},
+/* 8 */    {{0,3}, {0,1}, {2,0}, {1,0}},
+/* 9 */    {{189,7}, {189,5.3431458473205566f}, {190.3431396484375f,4}, {192,4}},
+/* 10 */   {{0,1}, {1,3}, {1,0}, {6,4}},
+/* 11 */   {{0,1}, {2,3}, {2,1}, {4,3}},
+/* 12 */   {{1,2}, {3,4}, {1,0}, {3,2}},
 };
 
 static const SkPoint quads[][3] = {
-    {{12.3423996f, 228.342407f}, {10, 230.686295f}, {10, 234}},
+/* 0 */    {{12.3423996f, 228.342407f}, {10, 230.686295f}, {10, 234}},
+/* 1 */    {{304.24319458007812f,591.75677490234375f}, {306,593.51470947265625f}, {306,596}},
 };
 
 static const SkPoint lines[][2] = {
-    {{6, 2}, {2, 4}},
+/* 0 */    {{6, 2}, {2, 4}},
+/* 1 */    {{306,617}, {306,590}},
+/* 2 */    {{306,596}, {306,617}},
+/* 3 */    {{6,4}, {0,1}},
+/* 4 */    {{6,1}, {0,1}},
+/* 5 */    {{1,0}, {0,3}},
+/* 6 */    {{246,4}, {189,4}},
+/* 7 */    {{192,4}, {243,4}},
+/* 8 */    {{4,3}, {0,1}},
+/* 9 */    {{3,2}, {1,2}},
 };
 
 struct SortSet {
@@ -46,14 +68,86 @@ static const SortSet set3[] = {
     {quads[0], 3, 1, 0},
 };
 
+static const SortSet set4[] = {
+    {cubics[2], 4, 0.812114222, 1},
+    {cubics[3], 4, 0.0684734759, 0},
+};
+
+static const SortSet set5[] = {
+    {lines[1], 2, 0.777777778, 1},
+    {quads[1], 3, 1, 4.34137342e-06},
+    {lines[2], 2, 0, 1},
+};
+
+static const SortSet set6[] = {
+    {lines[3], 2, 0.407407407, 0.554627832},
+    {cubics[4], 4, 0.666666667, 0.548022446},
+    {lines[3], 2, 0.407407407, 0},
+    {cubics[4], 4, 0.666666667, 1},
+};
+
+static const SortSet set7[] = {
+    {cubics[5], 4, 0.545233342, 0.545454545},
+    {cubics[6], 4, 0.484938134, 0.484805744},
+    {cubics[5], 4, 0.545233342, 0},
+    {cubics[6], 4, 0.484938134, 0.545454545},
+};
+
+static const SortSet set8[] = {
+    {cubics[7], 4, 0.5, 0.522986744 },
+    {lines[4], 2, 0.75, 1},
+    {cubics[7], 4, 0.5, 0},
+    {lines[4], 2, 0.75, 0.737654321},
+};
+
+static const SortSet set9[] = {
+    {cubics[8], 4, 0.4, 1},
+    {lines[5], 2, 0.36, 0},
+    {cubics[8], 4, 0.4, 0.394675838},
+    {lines[5], 2, 0.36, 0.363999782},
+};
+
+static const SortSet set10[] = {
+    {lines[6], 2, 0.947368421, 1},
+    {cubics[9], 4, 1, 0.500000357},
+    {lines[7], 2, 0, 1},
+};
+
+static const SortSet set11[] = {
+    {lines[3], 2, 0.75, 1},
+    {cubics[10], 4, 0.5, 0.228744269},
+    {lines[3], 2, 0.75, 0.627112191},
+    {cubics[10], 4, 0.5, 0.6339746},
+};
+
+static const SortSet set12[] = {
+    {cubics[12], 4, 0.5, 1},
+    {lines[8], 2, 0.5, 1},
+    {cubics[11], 4, 0.5, 0},
+    {lines[9], 2, 0.5, 1},
+    {cubics[12], 4, 0.5, 0},
+    {lines[8], 2, 0.5, 0},
+    {cubics[11], 4, 0.5, 1},
+    {lines[9], 2, 0.5, 0},
+};
+
 struct SortSetTests {
     const SortSet* set;
     size_t count;
 };
 
 static const SortSetTests tests[] = {
-    { set3, SK_ARRAY_COUNT(set3) },
+    { set12, SK_ARRAY_COUNT(set12) },
+    { set11, SK_ARRAY_COUNT(set11) },
+    { set10, SK_ARRAY_COUNT(set10) },
+    { set9, SK_ARRAY_COUNT(set9) },
+    { set8, SK_ARRAY_COUNT(set8) },
+    { set7, SK_ARRAY_COUNT(set7) },
+    { set6, SK_ARRAY_COUNT(set6) },
     { set2, SK_ARRAY_COUNT(set2) },
+    { set5, SK_ARRAY_COUNT(set5) },
+    { set4, SK_ARRAY_COUNT(set4) },
+    { set3, SK_ARRAY_COUNT(set3) },
     { set1, SK_ARRAY_COUNT(set1) },
 };
 
@@ -122,16 +216,18 @@ static void PathOpsAngleTest(skiatest::Reporter* reporter) {
             size_t idxG = idxL + 1;
             setup(set, idxG, &greaterData, &greater, greaterTs);
             SkOpAngle first, second;
-            first.set(lesserData, (SkPath::Verb) (set[idxL].ptCount - 1), &lesser,
+            first.set(lesserData, SkPathOpsPointsToVerb(set[idxL].ptCount - 1), &lesser,
                     lesserTs[0], lesserTs[1], lesser.spans());
-            second.set(greaterData, (SkPath::Verb) (set[idxG].ptCount - 1), &greater,
+            second.set(greaterData, SkPathOpsPointsToVerb(set[idxG].ptCount - 1), &greater,
                     greaterTs[0], greaterTs[1], greater.spans());
             bool compare = first < second;
             if (!compare) {
                 SkDebugf("%s test[%d]:  lesser[%d] > greater[%d]\n", __FUNCTION__,
                         index, idxL,  idxG);
+                compare = first < second;
             }
             REPORTER_ASSERT(reporter, compare);
+            reporter->bumpTestCount();
         }
     }
 }

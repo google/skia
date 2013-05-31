@@ -210,7 +210,8 @@ protected:
     //      SK_SUPPORT_HINTING_SCALE_FACTOR
     // V10: add drawRRect, drawOval, clipRRect
     // V11: modify how readBitmap and writeBitmap store their info.
-    static const uint32_t PICTURE_VERSION = 11;
+    // V12: add conics to SkPath, use new SkPathRef flattening
+    static const uint32_t PICTURE_VERSION = 12;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

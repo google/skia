@@ -470,6 +470,9 @@ static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
             case SkPath::kQuad_Verb:
                 REPORTER_ASSERT(reporter, !"unexpected quad verb");
                 break;
+            case SkPath::kConic_Verb:
+                REPORTER_ASSERT(reporter, !"unexpected conic verb");
+                break;
             case SkPath::kCubic_Verb:
                 REPORTER_ASSERT(reporter, !"unexpected cubic verb");
                 break;
@@ -1969,6 +1972,19 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     numPoints += 2;
                     lastWasClose = false;
                     break;
+                case SkPath::kConic_Verb:
+                    if (!haveMoveTo) {
+                        expectedPts[numPoints++] = lastMoveToPt;
+                        expectedVerbs[numIterVerbs++] = SkPath::kMove_Verb;
+                        haveMoveTo = true;
+                    }
+                    expectedPts[numPoints] = randomPts[(rand.nextU() >> 16) % 25];
+                    expectedPts[numPoints + 1] = randomPts[(rand.nextU() >> 16) % 25];
+                    p.conicTo(expectedPts[numPoints], expectedPts[numPoints + 1],
+                              rand.nextUScalar1() * 4);
+                    numPoints += 2;
+                    lastWasClose = false;
+                    break;
                 case SkPath::kCubic_Verb:
                     if (!haveMoveTo) {
                         expectedPts[numPoints++] = lastMoveToPt;
@@ -1988,7 +2004,8 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     haveMoveTo = false;
                     lastWasClose = true;
                     break;
-                default:;
+                default:
+                    SkASSERT(!"unexpected verb");
             }
             expectedVerbs[numIterVerbs++] = nextVerb;
         }
@@ -2019,6 +2036,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     numIterPts += 1;
                     break;
                 case SkPath::kQuad_Verb:
+                case SkPath::kConic_Verb:
                     REPORTER_ASSERT(reporter, numIterPts < numPoints + 2);
                     REPORTER_ASSERT(reporter, pts[0] == lastPt);
                     REPORTER_ASSERT(reporter, pts[1] == expectedPts[numIterPts]);
@@ -2039,7 +2057,8 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     REPORTER_ASSERT(reporter, pts[0] == lastMoveTo);
                     lastPt = lastMoveTo;
                     break;
-                default:;
+                default:
+                    SkASSERT(!"unexpected verb");
             }
         }
         REPORTER_ASSERT(reporter, numIterPts == numPoints);

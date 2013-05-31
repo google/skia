@@ -255,6 +255,9 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     for (;;) {
         SkPath::Verb verb = iter.next(pts);
         switch (verb) {
+            case SkPath::kConic_Verb:
+                SkASSERT(0);
+                break;
             case SkPath::kMove_Verb:
                 if (!first) {
                     uint16_t currIdx = (uint16_t) (vert - base);

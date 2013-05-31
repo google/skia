@@ -20,14 +20,15 @@ inline GrGLubyte verb_to_gl_path_cmd(const SkPath::Verb verb) {
         GR_GL_MOVE_TO,
         GR_GL_LINE_TO,
         GR_GL_QUADRATIC_CURVE_TO,
+        0xFF, // conic
         GR_GL_CUBIC_CURVE_TO,
         GR_GL_CLOSE_PATH,
     };
     GR_STATIC_ASSERT(0 == SkPath::kMove_Verb);
     GR_STATIC_ASSERT(1 == SkPath::kLine_Verb);
     GR_STATIC_ASSERT(2 == SkPath::kQuad_Verb);
-    GR_STATIC_ASSERT(3 == SkPath::kCubic_Verb);
-    GR_STATIC_ASSERT(4 == SkPath::kClose_Verb);
+    GR_STATIC_ASSERT(4 == SkPath::kCubic_Verb);
+    GR_STATIC_ASSERT(5 == SkPath::kClose_Verb);
 
     GrAssert(verb >= 0 && (size_t)verb < GR_ARRAY_COUNT(gTable));
     return gTable[verb];
@@ -39,14 +40,15 @@ inline int num_pts(const SkPath::Verb verb) {
         1, // move
         1, // line
         2, // quad
+        2, // conic
         3, // cubic
         0, // close
     };
     GR_STATIC_ASSERT(0 == SkPath::kMove_Verb);
     GR_STATIC_ASSERT(1 == SkPath::kLine_Verb);
     GR_STATIC_ASSERT(2 == SkPath::kQuad_Verb);
-    GR_STATIC_ASSERT(3 == SkPath::kCubic_Verb);
-    GR_STATIC_ASSERT(4 == SkPath::kClose_Verb);
+    GR_STATIC_ASSERT(4 == SkPath::kCubic_Verb);
+    GR_STATIC_ASSERT(5 == SkPath::kClose_Verb);
 
     GrAssert(verb >= 0 && (size_t)verb < GR_ARRAY_COUNT(gTable));
     return gTable[verb];
