@@ -181,16 +181,13 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     }
     if (fBitmapEncoder != NULL) {
         SkASSERT(NULL == fBitmapHeap);
-        size_t offset;
+        size_t offset = 0;
         SkAutoDataUnref data(fBitmapEncoder(&offset, bitmap));
         if (data.get() != NULL) {
             // Write the length to indicate that the bitmap was encoded successfully, followed
             // by the actual data.
             this->writeUInt(SkToU32(data->size()));
             fWriter.writePad(data->data(), data->size());
-#ifdef BUMP_PICTURE_VERSION
-            // Recording this fixes https://code.google.com/p/skia/issues/detail?id=1301, but
-            // also requires bumping PICTURE_VERSION, so leaving out for now.
             // Store the coordinate of the offset, rather than fPixelRefOffset, which may be
             // different depending on the decoder.
             int32_t x, y;
@@ -200,7 +197,6 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
             }
             this->write32(x);
             this->write32(y);
-#endif
             return;
         }
     }
