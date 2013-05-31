@@ -52,6 +52,15 @@ function round(x, mul)
     return math.floor(x * mul + 0.5) / mul
 end
 
+dump_glyph_array_p = false
+
+function dump_array_as_C(array)
+    for k, v in next, array do
+        io.write(tostring(v), ", ");
+    end
+    io.write("-1,\n")
+end
+
 local strikes = {}  -- [fontID_pointsize] = [] unique glyphs
 
 function make_strike_key(paint)
@@ -64,6 +73,16 @@ function array_union(array, other)
     for k, v in next, other do
         array[v] = true;
     end
+end
+
+-- take a table of bools, indexed by values, and return a sorted table of values
+function bools_to_values(t)
+    local array = {}
+    for k, v in next, t do
+        array[#array + 1] = k
+    end
+    table.sort(array)
+    return array
 end
 
 function array_count(array)
@@ -81,6 +100,10 @@ function sk_scrape_accumulate(t)
             local key = make_strike_key(t.paint)
             strikes[key] = strikes[key] or {}
             array_union(strikes[key], t.glyphs)
+            
+            if dump_glyph_array_p then
+                dump_array_as_C(t.glyphs)
+            end
         end
     end
 end
@@ -94,20 +117,41 @@ function sk_scrape_summarize()
     local strikeCount = 0
     local min, max = 0, 0
 
+    local histogram = {}
+
     for k, v in next, strikes do
         local fontID = round(k / 1000)
         local size = k - fontID * 1000
         local count = array_count(v)
 
-        io.write("fontID = ", fontID, ", size = ", size, ", entries = ", count, "\n");
+--        io.write("fontID,", fontID, ", size,", size, ", entries,", count, "\n");
         
         min = math.min(min, count)
         max = math.max(max, count)
         totalCount = totalCount + count
         strikeCount = strikeCount + 1
+        
+        histogram[count] = (histogram[count] or 0) + 1
     end
     local ave = round(totalCount / strikeCount)
 
     io.write("\n", "unique glyphs: min = ", min, ", max = ", max, ", ave = ", ave, "\n");
+    
+    for k, v in next, histogram do
+        io.write("glyph_count,", k, ",frequency,", v, "\n")
+    end
+end
+
+function test_summary()
+    io.write("just testing test_summary\n")
+end
+
+function summarize_unique_glyphIDs()
+    io.write("/* runs of unique glyph IDs, with a -1 sentinel between different runs */\n")
+    io.write("static const int gUniqueGlyphIDs[] = {\n");
+    for k, v in next, strikes do
+        dump_array_as_C(bools_to_values(v))
+    end
+    io.write("-1 };\n")
 end
 
