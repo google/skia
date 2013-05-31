@@ -94,12 +94,17 @@
         '../debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'skia_base_libs.gyp:skia_base_libs',
+        'images.gyp:images',
+        'effects.gyp:effects',
         'bench.gyp:bench_timer',
         'tools.gyp:picture_renderer',
       ],
       'conditions': [
         [ 'skia_os == "nacl"', {
+          'dependencies': [
+            'utils.gyp:utils', # For SkBase64.h
+          ],
           'include_dirs': [
             '../src/utils',
           ],

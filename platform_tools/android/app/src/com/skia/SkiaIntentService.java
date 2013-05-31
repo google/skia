@@ -16,7 +16,7 @@ public class SkiaIntentService extends IntentService {
   public SkiaIntentService() {
       super("SkiaIntentService");
   }
-
+  
   @Override
   public IBinder onBind(Intent arg0) {
       return null;
@@ -25,12 +25,12 @@ public class SkiaIntentService extends IntentService {
   public void onCreate() {
       super.onCreate();
   }
-
+  
   @Override
   public void onDestroy() {
       super.onDestroy();
   }
-
+  
   @Override
   public void onHandleIntent(Intent intent) {
 
@@ -51,11 +51,10 @@ public class SkiaIntentService extends IntentService {
       String cmd = bundle.getString("args").trim();
       String[] args = cmd.split("\\s+");
       Log.d("skia", "Executing Command: " + cmd);
-
+          
       // Load the requested library
       String lib = args[0];
       try {
-          System.loadLibrary("skia_android");
           System.loadLibrary(lib);
       } catch (UnsatisfiedLinkError e) {
           Log.e("skia", "Library " + lib +
@@ -63,7 +62,7 @@ public class SkiaIntentService extends IntentService {
           SkiaReturn(-1, returnRepeats);
           throw e;
       }
-
+      
       // JNI call to run the program
       int retval = run(args);
       SkiaReturn(retval, returnRepeats);

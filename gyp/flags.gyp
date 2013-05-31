@@ -10,7 +10,8 @@
         '../tools/flags/SkCommandLineFlags.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'skia_base_libs.gyp:skia_base_libs',
+        'core.gyp:core',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

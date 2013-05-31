@@ -15,14 +15,22 @@
         '../experimental/Intersection/AddTestOutput/main.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'core.gyp:core',
+        'effects.gyp:effects',
         'experimental.gyp:experimental',
+        'images.gyp:images',
+        'ports.gyp:ports',
         'pdf.gyp:pdf',
+        'utils.gyp:utils',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu',
+          ],
+          'dependencies': [
+            'gpu.gyp:gr',
+            'gpu.gyp:skgr',
           ],
         }],
       ],

@@ -142,7 +142,9 @@
         '../samplecode/SampleFontCache.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'skia_base_libs.gyp:skia_base_libs',
+        'effects.gyp:effects',
+        'images.gyp:images',
         'views.gyp:views',
         'animator.gyp:animator',
         'xml.gyp:xml',

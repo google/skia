@@ -90,7 +90,6 @@
       'skia_osx_sdkroot%': '',
       'skia_profile_enabled%': 0,
       'skia_win_debuggers_path%': '',
-      'skia_shared_lib%': 0,
     },
 
     'conditions': [
@@ -122,7 +121,6 @@
     'skia_gpu%': '<(skia_gpu)',
     'skia_osx_sdkroot%': '<(skia_osx_sdkroot)',
     'skia_profile_enabled%': '<(skia_profile_enabled)',
-    'skia_shared_lib%': '<(skia_shared_lib)',
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',

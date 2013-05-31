@@ -4,7 +4,6 @@
       'target_name': 'CopySkiaAppDeps',
       'type': 'none',
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
         'SampleApp.gyp:SampleApp',
         'bench.gyp:bench',
         'gm.gyp:gm',
@@ -57,7 +56,6 @@
             '<(PRODUCT_DIR)/lib.target/libtests.so',
             '<(PRODUCT_DIR)/lib.target/libpathops_unittest.so',
             '<(PRODUCT_DIR)/lib.target/gdbserver',
-            '<(PRODUCT_DIR)/lib.target/libskia_android.so',
           ],
         },
       ],

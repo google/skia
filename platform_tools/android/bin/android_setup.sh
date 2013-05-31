@@ -126,7 +126,6 @@ setup_device() {
   DEFINES="${DEFINES} skia_os=android"
   DEFINES="${DEFINES} android_base=${SCRIPT_DIR}/.."
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
-  DEFINES="${DEFINES} skia_shared_lib=1"
 
   # Setup the build variation depending on the target device
   TARGET_DEVICE="$1"

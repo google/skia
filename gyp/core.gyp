@@ -76,11 +76,6 @@
             'config/win',
           ],
         }],
-        [ 'skia_os == "android"', {
-          'sources': [
-            '../src/core/SkPaintOptionsAndroid.cpp',
-          ],
-        }],
         [ 'skia_os == "android" and skia_arch_type == "arm" and armv7 == 1', {
           # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
           'sources': [
@@ -125,6 +120,9 @@
           }],
         ],
       },
+      'dependencies': [
+        'opts.gyp:opts'
+      ],
     },
   ],
 }
