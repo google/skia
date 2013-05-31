@@ -17,9 +17,7 @@
         'bench.gypi'
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
-        'effects.gyp:effects',
-        'images.gyp:images',
+        'skia_lib.gyp:skia_lib',
         'bench_timer',
       ],
       'conditions': [
@@ -50,7 +48,7 @@
         '../src/gpu',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
+        'skia_lib.gyp:skia_lib',
       ],
       'conditions': [
         [ 'skia_os not in ["mac", "ios"]', {

@@ -6,7 +6,7 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
+        'skia_lib.gyp:skia_lib',
         'zlib.gyp:zlib',
       ],
       'include_dirs': [

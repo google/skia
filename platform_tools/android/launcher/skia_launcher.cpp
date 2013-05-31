@@ -28,6 +28,29 @@ int launch_app(int (*app_main)(int, const char**), int argc,
     return (*app_main)(argc, argv);
 }
 
+void* load_library(const char** argv, const char* libraryName)
+{
+     // attempt to lookup the location of the shared libraries
+    char libraryLocation[100];
+    sprintf(libraryLocation, "%s/lib/lib%s.so", argv[0], libraryName);
+    if (!file_exists(libraryLocation)) {
+        printf("ERROR: Unable to find the appropriate library in the Skia App.\n");
+        printf("ERROR: Did you provide the correct program_name?\n");
+        usage(argv[0]);
+        return NULL;
+    }
+
+    // load the appropriate library
+    void* appLibrary = dlopen(libraryLocation, RTLD_LOCAL | RTLD_LAZY);
+    if (!appLibrary) {
+        printf("ERROR: Unable to open the shared library.\n");
+        printf("ERROR: %s", dlerror());
+        return NULL;
+    }
+
+    return appLibrary;
+}
+
 int main(int argc, const char** argv) {
 
     // check that the program name was specified
@@ -44,21 +67,16 @@ int main(int argc, const char** argv) {
         return -1;
     }
 
-    // attempt to lookup the location of the shared libraries
-    char libraryLocation[100];
-    sprintf(libraryLocation, "%s/lib/lib%s.so", appLocation, argv[1]);
-    if (!file_exists(libraryLocation)) {
-        printf("ERROR: Unable to find the appropriate library in the Skia App.\n");
-        printf("ERROR: Did you provide the correct program_name?\n");
-        usage(argv[0]);
+    // load the local skia shared library
+    void* skiaLibrary = load_library(argv, "libskia_android.so");
+    if (NULL == skiaLibrary)
+    {
         return -1;
     }
 
     // load the appropriate library
-    void* appLibrary = dlopen(libraryLocation, RTLD_LOCAL | RTLD_LAZY);
-    if (!appLibrary) {
-        printf("ERROR: Unable to open the shared library.\n");
-        printf("ERROR: %s", dlerror());
+    void* appLibrary = load_library(argv, argv[1]);
+    if (NULL == appLibrary) {
         return -1;
     }
 

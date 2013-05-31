@@ -25,7 +25,7 @@
 
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
+        'skia_lib.gyp:skia_lib',
         'views.gyp:views',
         'xml.gyp:xml',
       ],
