@@ -57,6 +57,9 @@ int tool_main(int argc, char** argv) {
 
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     SkAutoDataUnref data(image->encode());
+    if (NULL == data.get()) {
+        return -1;
+    }
     SkFILEWStream stream(path.c_str());
     return stream.write(data->data(), data->size());
 }

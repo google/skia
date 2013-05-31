@@ -6,12 +6,15 @@
  */
 
 #include "SkDebuggerGUI.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include <QListWidgetItem>
 #include "PictureRenderer.h"
 #include "SkPictureRecord.h"
 #include "SkPicturePlayback.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include "BenchSysTimer_windows.h"

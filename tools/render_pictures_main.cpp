@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkCommandLineFlags.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -20,6 +21,9 @@
 #include "PictureRenderer.h"
 #include "PictureRenderingFlags.h"
 #include "picture_utils.h"
+
+// Required to ensure that image decoders get linked correctly.
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 // Flags used by this file, alphabetically:
 DEFINE_int32(clone, 0, "Clone the picture n times before rendering.");

@@ -5,15 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Base.h"
-#include "SkImagePriv.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkImagePriv.h"
+#include "SkImage_Base.h"
 
 SK_DEFINE_INST_COUNT(SkImage)
 
-static SkImage_Base* asIB(SkImage* image) {
+static SkImage_Base* as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
+}
+
+static const SkImage_Base* as_IB(const SkImage* image) {
+    return static_cast<const SkImage_Base*>(image);
 }
 
 uint32_t SkImage::NextUniqueID() {
@@ -29,9 +33,17 @@ uint32_t SkImage::NextUniqueID() {
 
 void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
                    const SkPaint* paint) {
-    asIB(this)->onDraw(canvas, x, y, paint);
+    as_IB(this)->onDraw(canvas, x, y, paint);
 }
 
 GrTexture* SkImage::getTexture() {
-    return asIB(this)->onGetTexture();
+    return as_IB(this)->onGetTexture();
+}
+
+SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
+    SkBitmap bm;
+    if (as_IB(this)->getROPixels(&bm)) {
+        return SkImageEncoder::EncodeData(bm, type, quality);
+    }
+    return NULL;
 }

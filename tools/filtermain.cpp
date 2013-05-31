@@ -7,6 +7,7 @@
 
 #include "SkDebugCanvas.h"
 #include "SkDevice.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -17,6 +18,8 @@
 #include "SkStream.h"
 #include "picture_utils.h"
 #include "path_utils.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 static void usage() {
     SkDebugf("Usage: filter -i inFile [-o outFile] [--input-dir path] [--output-dir path]\n");

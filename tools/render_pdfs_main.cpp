@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -16,6 +17,8 @@
 #include "SkTArray.h"
 #include "PdfRenderer.h"
 #include "picture_utils.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #ifdef SK_USE_CDB
 #include "win_dbghelp.h"
