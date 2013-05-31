@@ -28,7 +28,9 @@
         '../experimental/SimpleiOSApp/SimpleiOSApp-Info.plist',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'skia_base_libs.gyp:skia_base_libs',
+        'effects.gyp:effects',
+        'images.gyp:images',
         'views.gyp:views',
         'xml.gyp:xml',
       ],

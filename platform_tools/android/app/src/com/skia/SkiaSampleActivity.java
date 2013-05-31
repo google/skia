@@ -42,7 +42,6 @@ public class SkiaSampleActivity extends Activity
         mSlideList = new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1);
 
         try {
-            System.loadLibrary("skia_android");
             System.loadLibrary("SampleApp");
 
             LinearLayout holder = (LinearLayout) findViewById(R.id.holder);

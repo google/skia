@@ -128,11 +128,15 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
-        'skia_lib.gyp:skia_lib',
+        'skia_base_libs.gyp:skia_base_libs',
+        'effects.gyp:effects',
         'flags.gyp:flags',
         'experimental.gyp:experimental',
+        'images.gyp:images',
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
+        'utils.gyp:utils',
+        'sfnt.gyp:sfnt',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
