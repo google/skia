@@ -30,10 +30,10 @@ static const char gSummarizeFunc[] = "sk_scrape_summarize";
 // PictureRenderingFlags.cpp
 extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap*);
 
-
-// Flags used by this file, alphabetically:
 DEFINE_string2(skpPath, r, "", "Read .skp files from this dir");
 DEFINE_string2(luaFile, l, "", "File containing lua script to run");
+DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
+DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 
 static SkPicture* load_picture(const char path[]) {
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
@@ -91,8 +91,13 @@ int tool_main(int argc, char** argv) {
         exit(-1);
     }
 
+    const char* summary = gSummarizeFunc;
+    if (!FLAGS_tailFunc.isEmpty()) {
+        summary = FLAGS_tailFunc[0];
+    }
+
     SkAutoGraphics ag;
-    SkLua L(gSummarizeFunc);
+    SkLua L(summary);
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
         SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
@@ -103,6 +108,10 @@ int tool_main(int argc, char** argv) {
         }
     }
 
+    if (!FLAGS_headCode.isEmpty()) {
+        L.runCode(FLAGS_headCode[0]);
+    }
+    
     for (int i = 0; i < FLAGS_skpPath.count(); i ++) {
         SkOSFile::Iter iter(FLAGS_skpPath[i], "skp");
         SkString inputFilename;
