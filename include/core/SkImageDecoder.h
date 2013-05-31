@@ -15,6 +15,7 @@
 #include "SkImage.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkTypes.h"
 
 class SkStream;
 
@@ -22,7 +23,7 @@ class SkStream;
 
     Base class for decoding compressed images into a SkBitmap
 */
-class SkImageDecoder {
+class SkImageDecoder : public SkNoncopyable {
 public:
     virtual ~SkImageDecoder();
 
@@ -432,10 +433,6 @@ private:
     bool                    fUsePrefTable;
     mutable bool            fShouldCancelDecode;
     bool                    fPreferQualityOverSpeed;
-
-    // illegal
-    SkImageDecoder(const SkImageDecoder&);
-    SkImageDecoder& operator=(const SkImageDecoder&);
 };
 
 /** Calling newDecoder with a stream returns a new matching imagedecoder

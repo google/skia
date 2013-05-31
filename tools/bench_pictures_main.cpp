@@ -11,6 +11,7 @@
 #include "PictureRenderingFlags.h"
 #include "SkBenchLogger.h"
 #include "SkCommandLineFlags.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #if LAZY_CACHE_STATS
@@ -23,6 +24,7 @@
 #include "SkStream.h"
 #include "picture_utils.h"
 
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 SkBenchLogger gLogger;
 

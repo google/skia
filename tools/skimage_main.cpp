@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -18,6 +19,8 @@
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(createExpectationsPath, "", "Path to write JSON expectations.");
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
