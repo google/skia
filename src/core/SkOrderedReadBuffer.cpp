@@ -192,10 +192,15 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
         // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
         const size_t length = this->readUInt();
         if (length > 0) {
-            // A non-zero size means the SkBitmap was encoded.
+            // A non-zero size means the SkBitmap was encoded. Read the data and pixel
+            // offset.
             const void* data = this->skip(length);
+            const int32_t xOffset = fReader.readS32();
+            const int32_t yOffset = fReader.readS32();
             if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
                 if (bitmap->width() == width && bitmap->height() == height) {
+                    // If the width and height match, there should be no offset.
+                    SkASSERT(0 == xOffset && 0 == yOffset);
                     return;
                 }
 
@@ -204,16 +209,8 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
                 // the encoded width and height.
                 SkASSERT(width <= bitmap->width() && height <= bitmap->height());
 
-                // FIXME: Once the writer is changed to record the (x,y) offset,
-                // they will be used to store the correct portion of the picture.
                 SkBitmap subsetBm;
-#ifdef BUMP_PICTURE_VERSION
-                int32_t x = fReader.readS32();
-                int32_t y = fReader.readS32();
-                SkIRect subset = SkIRect::MakeXYWH(x, y, width, height);
-#else
-                SkIRect subset = SkIRect::MakeWH(width, height);
-#endif
+                SkIRect subset = SkIRect::MakeXYWH(xOffset, yOffset, width, height);
                 if (bitmap->extractSubset(&subsetBm, subset)) {
                     bitmap->swap(subsetBm);
                     return;
