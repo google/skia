@@ -115,7 +115,7 @@ class FilterBitmapTextGM: public FilterBitmapGM {
       }
       
       void make_bitmap() SK_OVERRIDE {
-          fBM.setConfig(SkBitmap::kARGB_8888_Config, fTextSize * 8, fTextSize * 6);
+          fBM.setConfig(SkBitmap::kARGB_8888_Config, int(fTextSize * 8), int(fTextSize * 6));
           fBM.allocPixels();
           SkCanvas canvas(fBM);
           canvas.drawColor(SK_ColorWHITE);
@@ -126,13 +126,13 @@ class FilterBitmapTextGM: public FilterBitmapGM {
           paint.setTextSize(fTextSize);
 
           setTypeface(&paint, "Times", SkTypeface::kNormal);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2*fTextSize, paint);
+          canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
           setTypeface(&paint, "Times", SkTypeface::kBold);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4*fTextSize, paint);
+          canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
           setTypeface(&paint, "Times", SkTypeface::kItalic);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6*fTextSize, paint);
+          canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
           setTypeface(&paint, "Times", SkTypeface::kBoldItalic);
-          canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8*fTextSize, paint);
+          canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:     
       typedef FilterBitmapGM INHERITED;
