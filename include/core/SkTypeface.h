@@ -203,6 +203,15 @@ public:
     SkStream* openStream(int* ttcIndex) const;
     SkScalerContext* createScalerContext(const SkDescriptor*) const;
 
+    // PRIVATE / EXPERIMENTAL -- do not call
+    void filterRec(SkScalerContextRec* rec) const {
+        this->onFilterRec(rec);
+    }
+    // PRIVATE / EXPERIMENTAL -- do not call
+    void getFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
+        this->onGetFontDescriptor(desc, isLocal);
+    }
+
 protected:
     /** uniqueID must be unique and non-zero
     */
