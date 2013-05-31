@@ -50,7 +50,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setTypeface(fColorType);
         
-        for (int size = 10; size <= 100; size += 10) {
+        for (SkScalar size = 10; size <= 100; size += 10) {
             paint.setTextSize(size);
             canvas->translate(0, paint.getFontMetrics(NULL));
             canvas->drawText("Hamburgefons", 12, 10, 10, paint);
