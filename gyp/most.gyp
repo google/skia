@@ -10,7 +10,7 @@
       'type': 'none',
       'dependencies': [
         # The minimal set of static libraries for basic Skia functionality.
-        'skia_base_libs.gyp:skia_base_libs',
+        'skia_lib.gyp:skia_lib',
 
         'bench.gyp:bench',
         'gm.gyp:gm',

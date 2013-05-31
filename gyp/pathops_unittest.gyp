@@ -27,11 +27,8 @@
         '../tests/Test.h',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
-        'effects.gyp:effects',
+        'skia_lib.gyp:skia_lib',
         'flags.gyp:flags',
-        'images.gyp:images',
-        'utils.gyp:utils',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {

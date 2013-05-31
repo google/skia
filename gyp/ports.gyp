@@ -6,18 +6,17 @@
       'product_name': 'skia_ports',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'core.gyp:core',
-        'sfnt.gyp:sfnt',
-        'utils.gyp:utils',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/effects',
         '../include/images',
         '../include/ports',
+        '../include/utils',
         '../include/xml',
         '../src/core',
         '../src/lazy',
+        '../src/sfnt',
         '../src/utils',
       ],
       'sources': [

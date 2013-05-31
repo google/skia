@@ -115,9 +115,7 @@
         '../experimental/Intersection/thingsToDo.txt',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
-        'effects.gyp:effects',
-        'images.gyp:images',
+        'skia_lib.gyp:skia_lib',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
