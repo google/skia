@@ -22,16 +22,16 @@ public:
         SkMatrix local;
         local.setRotate(180);
         s->setLocalMatrix(local);
-        
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setShader(s)->unref();
-        
+
         SkAutoTUnref<SkTypeface> orig(SkTypeface::CreateFromName("Times",
                                                          SkTypeface::kBold));
         fColorType = SkNEW_ARGS(SkGTypeface, (orig, paint));
     }
-    
+
     virtual ~ColorTypeGM() {
         fColorType->unref();
     }
@@ -49,7 +49,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTypeface(fColorType);
-        
+
         for (SkScalar size = 10; size <= 100; size += 10) {
             paint.setTextSize(size);
             canvas->translate(0, paint.getFontMetrics(NULL));

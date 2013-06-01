@@ -168,7 +168,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
     fShiftUp = shiftUp;
 
     SkScalar conicTol = SK_ScalarHalf * (1 << shiftUp);
-    
+
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
         return this->buildPoly(path, iclip, shiftUp);
     }
@@ -250,7 +250,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     const int MAX_QUADS = 1 << MAX_POW2;
                     const int MAX_QUAD_PTS = 1 + 2 * MAX_QUADS;
                     SkPoint storage[MAX_QUAD_PTS];
-                    
+
                     SkConic conic;
                     conic.set(pts, iter.conicWeight());
                     int pow2 = conic.computeQuadPOW2(conicTol);

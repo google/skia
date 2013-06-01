@@ -420,7 +420,7 @@ public:
     }
     void rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
                   SkScalar w);
-    
+
     /** Add a cubic bezier from the last point, approaching control points
         (x1,y1) and (x2,y2), and ending at (x3,y3). If no moveTo() call has been
         made for this contour, the first point is automatically set to (0,0).

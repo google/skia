@@ -42,7 +42,7 @@ static void build_coeff4(SkFixed dst[4], float t) {
         DS( 1.0 / 18.0), DS( 9.0 / 18.0), DS( 27.0 / 18.0), DS(-21.0 / 18.0),
         DS( 0.0 / 18.0), DS( 0.0 / 18.0), DS( -6.0 / 18.0), DS(  7.0 / 18.0),
     };
-    
+
     dst[0] = SkFloatToFixed(poly_eval(&coefficients[ 0], t));
     dst[1] = SkFloatToFixed(poly_eval(&coefficients[ 4], t));
     dst[2] = SkFloatToFixed(poly_eval(&coefficients[ 8], t));
@@ -107,7 +107,7 @@ static void bicubicFilter(const SkBitmapProcState& s, int x, int y,
         int y1 = SkClampMax(sy    , maxY);
         int y2 = SkClampMax(sy + 1, maxY);
         int y3 = SkClampMax(sy + 2, maxY);
-        
+
         *colors++ = doBicubicFilter( s.fBitmap, coeffX, coeffY, x0, x1, x2, x3, y0, y1, y2, y3 );
 
         x++;
@@ -176,7 +176,7 @@ SkBitmapProcState::chooseBicubicFilterProc(const SkPaint& paint) {
     if (0xFF != paint.getAlpha()) {
         return NULL;
     }
-    
+
     if (fInvType & SkMatrix::kAffine_Mask) {
         return bicubicFilter;
     } else if (fInvType & SkMatrix::kScale_Mask) {
