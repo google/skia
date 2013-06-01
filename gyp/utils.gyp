@@ -111,7 +111,7 @@
         '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
         '../src/utils/win/SkWGL_win.cpp',
-        
+
         #testing
         '../src/fonts/SkGScalerContext.cpp',
         '../src/fonts/SkGScalerContext.h',

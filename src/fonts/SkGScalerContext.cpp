@@ -14,7 +14,7 @@ class SkGScalerContext : public SkScalerContext {
 public:
     SkGScalerContext(SkGTypeface*, const SkDescriptor*);
     virtual ~SkGScalerContext();
-    
+
 protected:
     virtual unsigned generateGlyphCount() SK_OVERRIDE;
     virtual uint16_t generateCharToGlyph(SkUnichar) SK_OVERRIDE;
@@ -24,7 +24,7 @@ protected:
     virtual void generatePath(const SkGlyph&, SkPath*) SK_OVERRIDE;
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
                                      SkPaint::FontMetrics* mY) SK_OVERRIDE;
-    
+
 private:
     SkGTypeface*     fFace;
     SkScalerContext* fProxy;
@@ -78,7 +78,7 @@ uint16_t SkGScalerContext::generateCharToGlyph(SkUnichar uni) {
 
 void SkGScalerContext::generateAdvance(SkGlyph* glyph) {
     fProxy->getAdvance(glyph);
-    
+
     SkVector advance;
     fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
                   SkFixedToScalar(glyph->fAdvanceY), &advance);
@@ -117,13 +117,13 @@ void SkGScalerContext::generateImage(const SkGlyph& glyph) {
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         SkPath path;
         fProxy->getPath(glyph, &path);
-        
+
         SkBitmap bm;
         bm.setConfig(SkBitmap::kARGB_8888_Config, glyph.fWidth, glyph.fHeight,
                      glyph.rowBytes());
         bm.setPixels(glyph.fImage);
         bm.eraseColor(0);
-        
+
         SkCanvas canvas(bm);
         canvas.translate(-SkIntToScalar(glyph.fLeft),
                          -SkIntToScalar(glyph.fTop));
@@ -215,21 +215,21 @@ size_t SkGTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 class SkGFont : public SkRefCnt {
 public:
     virtual ~SkGFont();
-    
+
     int unicharToGlyph(SkUnichar) const;
-    
+
     int countGlyphs() const { return fCount; }
-    
+
     float getAdvance(int index) const {
         SkASSERT((unsigned)index < (unsigned)fCount);
         return fGlyphs[index].fAdvance;
     }
-    
+
     const SkPath& getPath(int index) const {
         SkASSERT((unsigned)index < (unsigned)fCount);
         return fGlyphs[index].fPath;
     }
-    
+
 private:
     struct Glyph {
         SkUnichar   fUni;
@@ -238,13 +238,13 @@ private:
     };
     int fCount;
     Glyph* fGlyphs;
-    
+
     friend class SkGFontBuilder;
     SkGFont(int count, Glyph* array);
 };
 
 class SkGFontBuilder {
 public:
-    
+
 };
 #endif

@@ -111,7 +111,7 @@ int tool_main(int argc, char** argv) {
     if (!FLAGS_headCode.isEmpty()) {
         L.runCode(FLAGS_headCode[0]);
     }
-    
+
     for (int i = 0; i < FLAGS_skpPath.count(); i ++) {
         SkOSFile::Iter iter(FLAGS_skpPath[i], "skp");
         SkString inputFilename;

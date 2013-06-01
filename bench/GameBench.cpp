@@ -26,7 +26,7 @@ public:
         kPartial_Clear
     };
 
-    GameBench(void* param, Type type, Clear clear, 
+    GameBench(void* param, Type type, Clear clear,
                bool aligned = false, bool useAtlas = false)
         : INHERITED(param)
         , fType(type)
@@ -171,7 +171,7 @@ protected:
             }
 
             canvas->concat(mat);
-            if (fUseAtlas) { 
+            if (fUseAtlas) {
                 static int curCell = 0;
                 src = fAtlasRects[curCell % (kNumAtlasedX)][curCell / (kNumAtlasedX)];
                 curCell = (curCell + 1) % (kNumAtlasedX*kNumAtlasedY);
@@ -288,25 +288,25 @@ private:
 };
 
 // Partial clear
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type,
                                             GameBench::kPartial_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kPartial_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kPartial_Clear, true)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type,
                                             GameBench::kPartial_Clear)); )
 
 // Full clear
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kScale_Type,
                                             GameBench::kFull_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kFull_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kFull_Clear, true)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type,
                                             GameBench::kFull_Clear)); )
 
 // Atlased
-DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type, 
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kFull_Clear, false, true)); )

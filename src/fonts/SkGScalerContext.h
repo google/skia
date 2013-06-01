@@ -15,7 +15,7 @@ class SkGTypeface : public SkTypeface {
 public:
     SkGTypeface(SkTypeface* proxy, const SkPaint&);
     virtual ~SkGTypeface();
-    
+
     SkTypeface* proxy() const { return fProxy; }
     const SkPaint& paint() const { return fPaint; }
 
@@ -28,13 +28,13 @@ protected:
                                     uint32_t glyphIDsCount) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const SK_OVERRIDE;
-    
+
     virtual int onGetUPEM() const SK_OVERRIDE;
-    
+
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
-    
+
 private:
     SkTypeface* fProxy;
     SkPaint     fPaint;

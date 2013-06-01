@@ -810,15 +810,15 @@ void SkPath::rLineTo(SkScalar x, SkScalar y) {
 
 void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     SkDEBUGCODE(this->validate();)
-    
+
     this->injectMoveToIfNeeded();
-    
+
     SkPathRef::Editor ed(&fPathRef);
     SkPoint* pts = ed.growForVerb(kQuad_Verb);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
     fSegmentMask |= kQuad_SegmentMask;
-    
+
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
 }
@@ -841,15 +841,15 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         this->quadTo(x1, y1, x2, y2);
     } else {
         SkDEBUGCODE(this->validate();)
-        
+
         this->injectMoveToIfNeeded();
-        
+
         SkPathRef::Editor ed(&fPathRef);
         SkPoint* pts = ed.growForConic(w);
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
         fSegmentMask |= kConic_SegmentMask;
-        
+
         GEN_ID_INC;
         DIRTY_AFTER_EDIT;
     }
