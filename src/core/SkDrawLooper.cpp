@@ -35,6 +35,7 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
                                      SkRect* dst) {
     SkCanvas canvas;
 
+    *dst = src;
     this->init(&canvas);
     for (bool firstTime = true;; firstTime = false) {
         SkPaint p(paint);
