@@ -19,7 +19,7 @@
     '../gm/circles.cpp',
     '../gm/colorfilterimagefilter.cpp',
     '../gm/colormatrix.cpp',
-    '../gm/colortype.cpp',
+#    '../gm/colortype.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
     '../gm/composeshader.cpp',
