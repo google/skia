@@ -183,7 +183,6 @@ private:
     bool fRotate;
     bool fPerspAnim;
     SkScalar fPerspAnimTime;
-    bool fScale;
     bool fRequestGrabImage;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
@@ -208,7 +207,8 @@ private:
     SkOSMenu::TriState fLCDState;
     SkOSMenu::TriState fAAState;
     SkOSMenu::TriState fFilterState;
-    SkOSMenu::TriState fHintingState;
+    SkOSMenu::TriState fSubpixelState;
+    int fHintingState;
     SkOSMenu::TriState fTilingState;
     unsigned   fFlipAxis;
 
