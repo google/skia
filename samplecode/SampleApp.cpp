@@ -463,11 +463,25 @@ enum FlipAxisEnum {
 
 #include "SkDrawFilter.h"
 
+struct HintingState {
+    SkPaint::Hinting hinting;
+    const char* name;
+    const char* label;
+};
+static HintingState gHintingStates[] = {
+    {SkPaint::kNo_Hinting, "Mixed", NULL },
+    {SkPaint::kNo_Hinting, "None", "H0 " },
+    {SkPaint::kSlight_Hinting, "Slight", "Hs " },
+    {SkPaint::kNormal_Hinting, "Normal", "Hn " },
+    {SkPaint::kFull_Hinting, "Full", "Hf " },
+};
+
 class FlagsDrawFilter : public SkDrawFilter {
 public:
     FlagsDrawFilter(SkOSMenu::TriState lcd, SkOSMenu::TriState aa, SkOSMenu::TriState filter,
-                    SkOSMenu::TriState hinting) :
-        fLCDState(lcd), fAAState(aa), fFilterState(filter), fHintingState(hinting) {}
+                    SkOSMenu::TriState subpixel, int hinting)
+        : fLCDState(lcd), fAAState(aa), fFilterState(filter), fSubpixelState(subpixel)
+        , fHintingState(hinting) {}
 
     virtual bool filter(SkPaint* paint, Type t) {
         if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
@@ -479,10 +493,11 @@ public:
         if (SkOSMenu::kMixedState != fFilterState) {
             paint->setFilterBitmap(SkOSMenu::kOnState == fFilterState);
         }
-        if (SkOSMenu::kMixedState != fHintingState) {
-            paint->setHinting(SkOSMenu::kOnState == fHintingState ?
-                              SkPaint::kNormal_Hinting :
-                              SkPaint::kSlight_Hinting);
+        if (SkOSMenu::kMixedState != fSubpixelState) {
+            paint->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
+        }
+        if (0 != fHintingState && fHintingState < SK_ARRAY_COUNT(gHintingStates)) {
+            paint->setHinting(gHintingStates[fHintingState].hinting);
         }
         return true;
     }
@@ -491,7 +506,8 @@ private:
     SkOSMenu::TriState  fLCDState;
     SkOSMenu::TriState  fAAState;
     SkOSMenu::TriState  fFilterState;
-    SkOSMenu::TriState  fHintingState;
+    SkOSMenu::TriState  fSubpixelState;
+    int fHintingState;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -767,7 +783,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRotate = false;
     fPerspAnim = false;
     fPerspAnimTime = 0;
-    fScale = false;
     fRequestGrabImage = false;
     fPipeState = SkOSMenu::kOffState;
     fTilingState = SkOSMenu::kOffState;
@@ -776,7 +791,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
     fFilterState = SkOSMenu::kMixedState;
-    fHintingState = SkOSMenu::kMixedState;
+    fSubpixelState = SkOSMenu::kMixedState;
+    fHintingState = 0;
     fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
@@ -814,7 +830,14 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'l');
     itemID = fAppMenu->appendTriState("Filter", "Filter", sinkID, fFilterState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
-    itemID = fAppMenu->appendTriState("Hinting", "Hinting", sinkID, fHintingState);
+    itemID = fAppMenu->appendTriState("Subpixel", "Subpixel", sinkID, fSubpixelState);
+    fAppMenu->assignKeyEquivalentToItem(itemID, 's');
+    itemID = fAppMenu->appendList("Hinting", "Hinting", sinkID, fHintingState,
+                                  gHintingStates[0].name,
+                                  gHintingStates[1].name,
+                                  gHintingStates[2].name,
+                                  gHintingStates[3].name,
+                                  gHintingStates[4].name);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
 
     fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
@@ -1382,14 +1405,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 }
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
-    if (fScale) {
-        SkScalar scale = SK_Scalar1 * 7 / 10;
-        SkScalar cx = this->width() / 2;
-        SkScalar cy = this->height() / 2;
-        canvas->translate(cx, cy);
-        canvas->scale(scale, scale);
-        canvas->translate(-cx, -cy);
-    }
     if (fRotate) {
         SkScalar cx = this->width() / 2;
         SkScalar cy = this->height() / 2;
@@ -1534,8 +1549,8 @@ void SampleWindow::showOverview() {
 }
 
 void SampleWindow::installDrawFilter(SkCanvas* canvas) {
-    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState,
-                                              fFilterState, fHintingState))->unref();
+    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fFilterState, fSubpixelState,
+                                              fHintingState))->unref();
 }
 
 void SampleWindow::postAnimatingEvent() {
@@ -1601,7 +1616,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     if (SkOSMenu::FindTriState(evt, "AA", &fAAState) ||
         SkOSMenu::FindTriState(evt, "LCD", &fLCDState) ||
         SkOSMenu::FindTriState(evt, "Filter", &fFilterState) ||
-        SkOSMenu::FindTriState(evt, "Hinting", &fHintingState) ||
+        SkOSMenu::FindTriState(evt, "Subpixel", &fSubpixelState) ||
+        SkOSMenu::FindListIndex(evt, "Hinting", &fHintingState) ||
         SkOSMenu::FindSwitchState(evt, "Clip", &fUseClip) ||
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
         SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
@@ -1771,11 +1787,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             return true;
 #endif
-        case 's':
-            fScale = !fScale;
-            this->inval(NULL);
-            this->updateTitle();
-            return true;
         default:
             break;
     }
@@ -2030,9 +2041,6 @@ void SampleWindow::updateTitle() {
     if (fAnimating) {
         title.prepend("<A> ");
     }
-    if (fScale) {
-        title.prepend("<S> ");
-    }
     if (fRotate) {
         title.prepend("<R> ");
     }
@@ -2045,9 +2053,11 @@ void SampleWindow::updateTitle() {
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
-    title.prepend(trystate_str(fFilterState, "H ", "h "));
+    title.prepend(trystate_str(fFilterState, "N ", "n "));
+    title.prepend(trystate_str(fSubpixelState, "S ", "s "));
     title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
+    title.prepend(gHintingStates[fHintingState].label);
 
     if (fZoomLevel) {
         title.prependf("{%.2f} ", SkScalarToFloat(fZoomLevel));
