@@ -8,8 +8,8 @@
 #include <dlfcn.h>
 #include <stdio.h>
 
-void usage(const char* argv0) {
-    printf("[USAGE] %s program_name [options]\n", argv0);
+void usage() {
+    printf("[USAGE] skia_launcher program_name [options]\n");
     printf("  program_name: the skia program you want to launch (e.g. tests, bench)\n");
     printf("  options: options specific to the program you are launching\n");
 }
@@ -28,15 +28,15 @@ int launch_app(int (*app_main)(int, const char**), int argc,
     return (*app_main)(argc, argv);
 }
 
-void* load_library(const char** argv, const char* libraryName)
+void* load_library(const char* appLocation, const char* libraryName)
 {
      // attempt to lookup the location of the shared libraries
     char libraryLocation[100];
-    sprintf(libraryLocation, "%s/lib/lib%s.so", argv[0], libraryName);
+    sprintf(libraryLocation, "%s/lib/lib%s.so", appLocation, libraryName);
     if (!file_exists(libraryLocation)) {
         printf("ERROR: Unable to find the appropriate library in the Skia App.\n");
         printf("ERROR: Did you provide the correct program_name?\n");
-        usage(argv[0]);
+        usage();
         return NULL;
     }
 
@@ -56,7 +56,7 @@ int main(int argc, const char** argv) {
     // check that the program name was specified
     if (argc < 2) {
         printf("ERROR: No program_name was specified\n");
-        usage(argv[0]);
+        usage();
         return -1;
     }
 
@@ -68,14 +68,14 @@ int main(int argc, const char** argv) {
     }
 
     // load the local skia shared library
-    void* skiaLibrary = load_library(argv, "libskia_android.so");
+    void* skiaLibrary = load_library(appLocation, "libskia_android.so");
     if (NULL == skiaLibrary)
     {
         return -1;
     }
 
     // load the appropriate library
-    void* appLibrary = load_library(argv, argv[1]);
+    void* appLibrary = load_library(appLocation, argv[1]);
     if (NULL == appLibrary) {
         return -1;
     }
