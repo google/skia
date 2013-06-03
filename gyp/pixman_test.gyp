@@ -118,10 +118,8 @@
         '../../../pixman/pixman/pixman.h',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
-        'effects.gyp:effects',
+        'skia_lib.gyp:skia_lib',
         'experimental.gyp:experimental',
-        'images.gyp:images',
         'pdf.gyp:pdf',
         'views.gyp:views',
         'xml.gyp:xml',

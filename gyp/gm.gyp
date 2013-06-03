@@ -16,7 +16,7 @@
         '../gm/gm_expectations.cpp',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
+        'skia_lib.gyp:skia_lib',
         'core.gyp:core',
         'images.gyp:images',
         'jsoncpp.gyp:jsoncpp',
@@ -57,14 +57,11 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
-        'skia_base_libs.gyp:skia_base_libs',
-        'effects.gyp:effects',
+        'skia_lib.gyp:skia_lib',
         'flags.gyp:flags',
         'gm.gyp:gm_expectations',
-        'images.gyp:images',
         'jsoncpp.gyp:jsoncpp',
         'pdf.gyp:pdf',
-        'utils.gyp:utils',
       ],
       'conditions': [
         ['skia_os == "mac"', {

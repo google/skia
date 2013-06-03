@@ -326,6 +326,17 @@
           [ 'skia_profile_enabled == 1', {
             'cflags': ['-g', '-fno-omit-frame-pointer', '-marm', '-mapcs'],
           }],
+          [ 'skia_shared_lib', {
+            'cflags': [
+              '-fPIC',
+            ],
+            'defines': [
+              'GR_DLL=1',
+              'GR_IMPLEMENTATION=1',
+              'SKIA_DLL',
+              'SKIA_IMPLEMENTATION=1',
+            ],
+          }],
           [ 'skia_arch_type == "arm" and arm_thumb == 1', {
             'cflags': [
               '-mthumb',

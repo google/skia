@@ -1,10 +1,14 @@
 # The minimal set of static libraries for basic Skia functionality.
+
 {
   'variables': {
     'component_libs': [
       'core.gyp:core',
+      'effects.gyp:effects',
+      'images.gyp:images',
       'opts.gyp:opts',
       'ports.gyp:ports',
+      'sfnt.gyp:sfnt',
       'utils.gyp:utils',
     ],
     'conditions': [
@@ -33,8 +37,24 @@
   },
   'targets': [
     {
-      'target_name': 'skia_base_libs',
-      'type': 'none',
+      'target_name': 'skia_lib',
+      'conditions': [
+        [ 'skia_shared_lib', {
+          'conditions': [
+            [ 'skia_os == "android"', {
+              # The name skia will confuse the linker on android into using the system's libskia.so
+              # instead of the one packaged with the apk. We simply choose a different name to fix
+              # this.
+              'product_name': 'skia_android',
+            }, {
+              'product_name': 'skia',
+            }],
+          ],
+          'type': 'shared_library',
+        }, {
+          'type': 'none',
+        }],
+      ],
       'dependencies': [
         '<@(component_libs)',
       ],

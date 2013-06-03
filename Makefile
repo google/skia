@@ -45,7 +45,7 @@ VALID_TARGETS := \
                  pathops_unittest \
                  SampleApp \
                  SkiaAndroidApp \
-                 skia_base_libs \
+                 skia_lib \
                  tests \
                  tools
 
