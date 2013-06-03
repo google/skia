@@ -496,7 +496,7 @@ public:
         if (SkOSMenu::kMixedState != fSubpixelState) {
             paint->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
         }
-        if (0 != fHintingState && fHintingState < SK_ARRAY_COUNT(gHintingStates)) {
+        if (0 != fHintingState && fHintingState < (int)SK_ARRAY_COUNT(gHintingStates)) {
             paint->setHinting(gHintingStates[fHintingState].hinting);
         }
         return true;
