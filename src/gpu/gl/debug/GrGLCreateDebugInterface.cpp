@@ -368,7 +368,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
          // bound frame buffer
          GrAlwaysAssert(!buffer->getColorBound());
          GrAlwaysAssert(!buffer->getDepthBound());
-         GrAlwaysAssert(!buffer->getStencilBound());
+         // However, at GrContext destroy time we release all GrRsources and so stencil buffers
+         // may get deleted before FBOs that refer to them.
+         //GrAlwaysAssert(!buffer->getStencilBound());
 
          GrAlwaysAssert(!buffer->getDeleted());
          buffer->deleteAction();
