@@ -62,7 +62,7 @@ public:
         : INHERITED(param, MEMSET32, minSize, maxSize) {}
 
 protected:
-    virtual inline void performTest() SK_OVERRIDE {
+    virtual void performTest() SK_OVERRIDE {
         for(size_t j = fMinSize; j < fMaxSize; ++j){
             sk_memset32(kBuffer, VALUE32, j);
             sk_memset32(kBuffer + 1, VALUE32, j);
@@ -81,7 +81,7 @@ public:
         : INHERITED(param, MEMSET16, minSize, maxSize) {}
 
 protected:
-    virtual inline void performTest() SK_OVERRIDE {
+    virtual void performTest() SK_OVERRIDE {
         for(size_t j = fMinSize; j < fMaxSize; ++j){
             sk_memset16(kBuffer, VALUE16, j);
             sk_memset16(kBuffer + 1, VALUE16, j);
