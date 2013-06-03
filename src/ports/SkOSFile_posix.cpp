@@ -7,6 +7,8 @@
 
 #include "SkOSFile.h"
 
+#include "SkTemplates.h"
+
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -42,16 +44,18 @@ void sk_fmunmap(const void* addr, size_t length) {
     munmap(const_cast<void*>(addr), length);
 }
 
-void* sk_fmmap(SkFILE* f, size_t* size) {
-    size_t fileSize = sk_fgetsize(f);
-    if (0 == fileSize) {
+void* sk_fdmmap(int fd, size_t* size) {
+    struct stat status;
+    if (0 != fstat(fd, &status)) {
         return NULL;
     }
-
-    int fd = fileno((FILE*)f);
-    if (fd < 0) {
+    if (!S_ISREG(status.st_mode)) {
         return NULL;
     }
+    if (!SkTFitsIn<size_t>(status.st_size)) {
+        return NULL;
+    }
+    size_t fileSize = static_cast<size_t>(status.st_size);
 
     void* addr = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE, fd, 0);
     if (MAP_FAILED == addr) {
@@ -60,4 +64,17 @@ void* sk_fmmap(SkFILE* f, size_t* size) {
 
     *size = fileSize;
     return addr;
+}
+
+int sk_fileno(SkFILE* f) {
+    return fileno((FILE*)f);
+}
+
+void* sk_fmmap(SkFILE* f, size_t* size) {
+    int fd = sk_fileno(f);
+    if (fd < 0) {
+        return NULL;
+    }
+    
+    return sk_fdmmap(fd, size);
 }

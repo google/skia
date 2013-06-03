@@ -7,6 +7,8 @@
 
 #include "SkOSFile.h"
 
+#include "SkTemplates.h"
+
 #include <io.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -65,19 +67,18 @@ void sk_fmunmap(const void* addr, size_t) {
     UnmapViewOfFile(addr);
 }
 
-void* sk_fmmap(SkFILE* f, size_t* length) {
-    size_t fileSize = sk_fgetsize(f);
-    if (0 == fileSize) {
-        return NULL;
-    }
-
-    int fileno = _fileno((FILE*)f);
-    if (fileno < 0) {
-        return NULL;
-    }
-
+void* sk_fdmmap(int fileno, size_t* length) {
     HANDLE file = (HANDLE)_get_osfhandle(fileno);
     if (INVALID_HANDLE_VALUE == file) {
+        return NULL;
+    }
+
+    LARGE_INTEGER fileSize;
+    if (0 == GetFileSizeEx(file, &fileSize)) {
+        //TODO: use SK_TRACEHR(GetLastError(), "Could not get file size.") to report.
+        return NULL;
+    }
+    if (!SkTFitsIn<size_t>(fileSize.QuadPart)) {
         return NULL;
     }
 
@@ -94,6 +95,19 @@ void* sk_fmmap(SkFILE* f, size_t* length) {
         return NULL;
     }
 
-    *length = fileSize;
+    *length = static_cast<size_t>(fileSize.QuadPart);
     return addr;
+}
+
+int sk_fileno(SkFILE* f) {
+    return _fileno((FILE*)f);
+}
+
+void* sk_fmmap(SkFILE* f, size_t* length) {
+    int fileno = sk_fileno(f);
+    if (fileno < 0) {
+        return NULL;
+    }
+
+    return sk_fdmmap(fileno, length);
 }

@@ -9,21 +9,10 @@
 #include "SkData.h"
 #include "SkDataSet.h"
 #include "SkDataTable.h"
-#include "SkStream.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
-
-template <typename T> class SkTUnref {
-public:
-    SkTUnref(T* ref) : fRef(ref) {}
-    ~SkTUnref() { fRef->unref(); }
-
-    operator T*() { return fRef; }
-    operator const T*() { return fRef; }
-
-private:
-    T*  fRef;
-};
+#include "SkOSFile.h"
+#include "SkStream.h"
 
 static void test_is_equal(skiatest::Reporter* reporter,
                           const SkDataTable* a, const SkDataTable* b) {
@@ -223,7 +212,7 @@ static void test_dataset(skiatest::Reporter* reporter, const SkDataSet& ds,
 
 static void test_dataset(skiatest::Reporter* reporter) {
     SkDataSet set0(NULL, 0);
-    SkDataSet set1("hello", SkTUnref<SkData>(SkData::NewWithCString("world")));
+    SkDataSet set1("hello", SkAutoTUnref<SkData>(SkData::NewWithCString("world")));
 
     const SkDataSet::Pair pairs[] = {
         { "one", SkData::NewWithCString("1") },
@@ -270,6 +259,40 @@ static void test_cstring(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == *r2->bytes());
 }
 
+static void test_files(skiatest::Reporter* reporter) {
+    if (skiatest::Test::GetTmpDir().isEmpty()) {
+        return;
+    }
+    
+    const char* tmpDir = skiatest::Test::GetTmpDir().c_str();
+    SkString path;
+    path.printf("%s%s", tmpDir, "data_test");
+    
+    const char s[] = "abcdefghijklmnopqrstuvwxyz";
+    {
+        SkFILEWStream writer(path.c_str());
+        if (!writer.isValid()) {
+            SkString msg;
+            msg.printf("Failed to create tmp file %s\n", path.c_str());
+            reporter->reportFailed(msg.c_str());
+            return;
+        }
+        writer.write(s, 26);
+    }
+
+    SkFILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
+    SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
+    REPORTER_ASSERT(reporter, r1.get() != NULL);
+    REPORTER_ASSERT(reporter, r1->size() == 26);
+    REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
+    
+    int fd = sk_fileno(file);
+    SkAutoTUnref<SkData> r2(SkData::NewFromFD(fd));
+    REPORTER_ASSERT(reporter, r2.get() != NULL);
+    REPORTER_ASSERT(reporter, r2->size() == 26);
+    REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
+}
+
 static void TestData(skiatest::Reporter* reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
@@ -297,6 +320,7 @@ static void TestData(skiatest::Reporter* reporter) {
 
     test_cstring(reporter);
     test_dataset(reporter);
+    test_files(reporter);
 }
 
 #include "TestClassDef.h"

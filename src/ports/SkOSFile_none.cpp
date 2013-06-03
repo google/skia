@@ -13,6 +13,10 @@ bool sk_fidentical(SkFILE* a, SkFILE* b) {
 
 void sk_fmunmap(const void* addr, size_t length) { }
 
+void* sk_fdmmap(int fd, size_t* size) {
+    return NULL;
+}
+
 void* sk_fmmap(SkFILE* f, size_t* size) {
     return NULL;
 }

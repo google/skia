@@ -97,6 +97,16 @@ SkData* SkData::NewFromFILE(SkFILE* f) {
     return SkData::NewWithProc(addr, size, sk_mmap_releaseproc, NULL);
 }
 
+SkData* SkData::NewFromFD(int fd) {
+    size_t size;
+    void* addr = sk_fdmmap(fd, &size);
+    if (NULL == addr) {
+        return NULL;
+    }
+
+    return SkData::NewWithProc(addr, size, sk_mmap_releaseproc, NULL);
+}
+
 // assumes context is a SkData
 static void sk_dataref_releaseproc(const void*, size_t, void* context) {
     SkData* src = reinterpret_cast<SkData*>(context);
