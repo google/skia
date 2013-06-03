@@ -93,11 +93,21 @@ public:
     /**
      *  Create a new dataref from a SkFILE.
      *  This does not take ownership of the SkFILE, nor close it.
+     *  The caller is free to close the SkFILE at its convenience.
      *  The SkFILE must be open for reading only.
      *  Returns NULL on failure.
      */
     static SkData* NewFromFILE(SkFILE* f);
 
+    /**
+     *  Create a new dataref from a file descriptor.
+     *  This does not take ownership of the file descriptor, nor close it.
+     *  The caller is free to close the file descriptor at its convenience.
+     *  The file descriptor must be open for reading only.
+     *  Returns NULL on failure.
+     */
+    static SkData* NewFromFD(int fd);
+    
     /**
      *  Create a new dataref using a subset of the data in the specified
      *  src dataref.

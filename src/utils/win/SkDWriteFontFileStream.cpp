@@ -8,6 +8,7 @@
 #include "SkTypes.h"
 #include "SkDWriteFontFileStream.h"
 #include "SkHRESULT.h"
+#include "SkTemplates.h"
 #include "SkTScopedComPtr.h"
 
 #include <dwrite.h>
@@ -111,7 +112,7 @@ size_t SkDWriteFontFileStream::getLength() const {
     HRESULT hr = S_OK;
     UINT64 realFileSize = 0;
     hr = fFontFileStream->GetFileSize(&realFileSize);
-    if (realFileSize > (std::numeric_limits<size_t>::max)()) {
+    if (!SkTFitsIn<size_t>(realFileSize)) {
         return 0;
     }
     return static_cast<size_t>(realFileSize);
