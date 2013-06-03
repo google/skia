@@ -36,6 +36,7 @@
     '../bench/MatrixBench.cpp',
     '../bench/MatrixConvolutionBench.cpp',
     '../bench/MemoryBench.cpp',
+    '../bench/MemsetBench.cpp',
     '../bench/MergeBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
