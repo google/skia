@@ -62,6 +62,7 @@
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
     '../gm/matrixconvolution.cpp',
+    '../gm/megalooper.cpp',
     '../gm/mixedxfermodes.cpp',
     '../gm/modecolorfilters.cpp',
     '../gm/morphology.cpp',
