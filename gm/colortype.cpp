@@ -27,9 +27,13 @@ public:
         paint.setAntiAlias(true);
         paint.setShader(s)->unref();
 
-        SkAutoTUnref<SkTypeface> orig(SkTypeface::CreateFromName("Times",
-                                                         SkTypeface::kBold));
+        SkTypeface* orig = SkTypeface::CreateFromName("Times",
+                                                      SkTypeface::kBold);
+        if (NULL == orig) {
+            orig = SkTypeface::RefDefault();
+        }
         fColorType = SkNEW_ARGS(SkGTypeface, (orig, paint));
+        orig->unref();
     }
 
     virtual ~ColorTypeGM() {
