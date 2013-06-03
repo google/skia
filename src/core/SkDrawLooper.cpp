@@ -35,7 +35,7 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
                                      SkRect* dst) {
     SkCanvas canvas;
 
-    *dst = src;
+    *dst = src;   // catch case where there are no loops
     this->init(&canvas);
     for (bool firstTime = true;; firstTime = false) {
         SkPaint p(paint);
