@@ -22,6 +22,7 @@ mkdir $GDB_TMP_DIR
 echo "Copying symbol files"
 $ADB pull /system/bin/skia_launcher $GDB_TMP_DIR
 $ADB pull /system/lib/libc.so $GDB_TMP_DIR
+$ADB pull /data/data/com.skia/lib/libskia_android.so $GDB_TMP_DIR
 $ADB pull /data/data/com.skia/lib/lib$APP_NAME.so $GDB_TMP_DIR
 
 echo "Checking for skia_launcher app..."
