@@ -13,6 +13,7 @@
         '../include/images',
         '../include/ports',
         '../include/utils',
+        '../include/utils/win',
         '../include/xml',
         '../src/core',
         '../src/lazy',
