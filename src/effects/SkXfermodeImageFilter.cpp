@@ -102,7 +102,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, Sk
     if (NULL != xferEffect) {
         paint.colorStage(0)->setEffect(
             GrSimpleTextureEffect::Create(foregroundTex, GrEffect::MakeDivByTextureWHMatrix(foregroundTex)))->unref();
-        paint.colorStage(1)->setEffect(xferEffect);
+        paint.colorStage(1)->setEffect(xferEffect)->unref();
         context->drawRect(paint, srcRect);
     } else {
         paint.colorStage(0)->setEffect(
