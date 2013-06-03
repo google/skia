@@ -34,7 +34,7 @@ void* load_library(const char* appLocation, const char* libraryName)
     char libraryLocation[100];
     sprintf(libraryLocation, "%s/lib/lib%s.so", appLocation, libraryName);
     if (!file_exists(libraryLocation)) {
-        printf("ERROR: Unable to find the appropriate library in the Skia App.\n");
+        printf("ERROR: Unable to find the '%s' library in the Skia App.\n", libraryName);
         printf("ERROR: Did you provide the correct program_name?\n");
         usage();
         return NULL;
@@ -68,7 +68,7 @@ int main(int argc, const char** argv) {
     }
 
     // load the local skia shared library
-    void* skiaLibrary = load_library(appLocation, "libskia_android.so");
+    void* skiaLibrary = load_library(appLocation, "skia_android");
     if (NULL == skiaLibrary)
     {
         return -1;
@@ -92,7 +92,7 @@ int main(int argc, const char** argv) {
 
     // find the address of the SkPrintToConsole function
     void (*app_SkDebugToStdOut)(bool);
-    *(void **) (&app_SkDebugToStdOut) = dlsym(appLibrary, "AndroidSkDebugToStdOut");
+    *(void **) (&app_SkDebugToStdOut) = dlsym(skiaLibrary, "AndroidSkDebugToStdOut");
 
     if (app_SkDebugToStdOut) {
         (*app_SkDebugToStdOut)(true);
