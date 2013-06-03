@@ -17,10 +17,7 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'core.gyp:core',
-        'images.gyp:images',
         'jsoncpp.gyp:jsoncpp',
-        'utils.gyp:utils',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
