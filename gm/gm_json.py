@@ -23,12 +23,19 @@ JSONKEY_ACTUALRESULTS_FAILUREIGNORED = 'failure-ignored'
 JSONKEY_ACTUALRESULTS_NOCOMPARISON = 'no-comparison'
 JSONKEY_ACTUALRESULTS_SUCCEEDED = 'succeeded'
 
-def Load(filepath):
+def LoadFromString(file_contents):
   """Loads the JSON summary written out by the GM tool.
      Returns a dictionary keyed by the values listed as JSONKEY_ constants
      above."""
-  # In the future, we should add a version number to the JSON file to ensure
+  # TODO(epoger): we should add a version number to the JSON file to ensure
   # that the writer and reader agree on the schema (raising an exception
   # otherwise).
-  json_dict = json.load(open(filepath))
+  json_dict = json.loads(file_contents)
   return json_dict
+
+def LoadFromFile(file_path):
+  """Loads the JSON summary written out by the GM tool.
+     Returns a dictionary keyed by the values listed as JSONKEY_ constants
+     above."""
+  file_contents = open(file_path, 'r').read()
+  return LoadFromString(file_contents)
