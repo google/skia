@@ -107,7 +107,7 @@ public:
      *  Returns NULL on failure.
      */
     static SkData* NewFromFD(int fd);
-    
+
     /**
      *  Create a new dataref using a subset of the data in the specified
      *  src dataref.
