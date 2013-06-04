@@ -6,95 +6,169 @@
  */
 #include "SkIntersections.h"
 #include "SkOpAngle.h"
+#include "SkOpSegment.h"
 #include "SkPathOpsCurve.h"
 #include "SkTSort.h"
 
-#if DEBUG_SORT || DEBUG_SORT_SINGLE
-#include "SkOpSegment.h"
+#if DEBUG_ANGLE
+#include "SkString.h"
+
+static const char funcName[] = "SkOpSegment::operator<";
+static const int bugChar = strlen(funcName) + 1;
 #endif
 
-// FIXME: this is bogus for quads and cubics
-// if the quads and cubics' line from end pt to ctrl pt are coincident,
-// there's no obvious way to determine the curve ordering from the
-// derivatives alone. In particular, if one quadratic's coincident tangent
-// is longer than the other curve, the final control point can place the
-// longer curve on either side of the shorter one.
-// Using Bezier curve focus http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf
-// may provide some help, but nothing has been figured out yet.
+/* Angles are sorted counterclockwise. The smallest angle has a positive x and the smallest
+   positive y. The largest angle has a positive x and a zero y. */
 
-/*(
+#if DEBUG_ANGLE
+    static bool CompareResult(SkString* bugOut, const char* append, bool compare) {
+        bugOut->appendf(append);
+        bugOut->writable_str()[bugChar] = "><"[compare];
+        SkDebugf("%s\n", bugOut->c_str());
+        return compare;
+    }
+
+    #define COMPARE_RESULT(append, compare) CompareResult(&bugOut, append, compare)
+#else
+    #define COMPARE_RESULT(append, compare) compare   
+#endif
+
+bool SkOpAngle::calcSlop(double x, double y, double rx, double ry, bool* result) const{
+    double absX = fabs(x);
+    double absY = fabs(y);
+    double length = absX < absY ? absX / 2 + absY : absX + absY / 2;
+    int exponent;
+    (void) frexp(length, &exponent);
+    double epsilon = ldexp(FLT_EPSILON, exponent);
+    SkPath::Verb verb = fSegment->verb();
+    SkASSERT(verb == SkPath::kQuad_Verb || verb == SkPath::kCubic_Verb);
+    // FIXME: the quad and cubic factors are made up ; determine actual values
+    double slop = verb == SkPath::kQuad_Verb ? 4 * epsilon : 512 * epsilon;
+    double xSlop = slop;
+    double ySlop = x * y < 0 ? -xSlop : xSlop; // OPTIMIZATION: use copysign / _copysign ?
+    double x1 = x - xSlop;
+    double y1 = y + ySlop;
+    double x_ry1 = x1 * ry;
+    double rx_y1 = rx * y1;
+    *result = x_ry1 < rx_y1;
+    double x2 = x + xSlop;
+    double y2 = y - ySlop;
+    double x_ry2 = x2 * ry;
+    double rx_y2 = rx * y2;
+    bool less2 = x_ry2 < rx_y2;
+    return *result == less2;
+}
+
+/*
 for quads and cubics, set up a parameterized line (e.g. LineParameters )
 for points [0] to [1]. See if point [2] is on that line, or on one side
 or the other. If it both quads' end points are on the same side, choose
 the shorter tangent. If the tangents are equal, choose the better second
 tangent angle
 
-maybe I could set up LineParameters lazily
+FIXME: maybe I could set up LineParameters lazily
 */
-static int simple_compare(double x, double y, double rx, double ry) {
-    if ((y < 0) ^ (ry < 0)) {  // OPTIMIZATION: better to use y * ry < 0 ?
-        return y < 0;
-    }
-    if (y == 0 && ry == 0 && x * rx < 0) {
-        return x < rx;
-    }
-    double x_ry = x * ry;
-    double rx_y = rx * y;
-    double cmp = x_ry - rx_y;
-    if (!approximately_zero(cmp)) {
-        return cmp < 0;
-    }
-    if (approximately_zero(x_ry) && approximately_zero(rx_y)
-            && !approximately_zero_squared(cmp)) {
-        return cmp < 0;
-    }
-    return -1;
-}
-
-bool SkOpAngle::operator<(const SkOpAngle& rh) const {
-    double x = dx();
+bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; rh: right-hand
     double y = dy();
-    double rx = rh.dx();
     double ry = rh.dy();
-    int simple = simple_compare(x, y, rx, ry);
-    if (simple >= 0) {
-        return simple;
+#if DEBUG_ANGLE
+    SkString bugOut;
+    bugOut.printf("%s _ id=%d segId=%d tStart=%1.9g tEnd=%1.9g"
+        " | id=%d segId=%d tStart=%1.9g tEnd=%1.9g ", funcName,
+        fID, fSegment->debugID(), fSegment->t(fStart), fSegment->t(fEnd),
+        rh.fID, rh.fSegment->debugID(), rh.fSegment->t(rh.fStart), rh.fSegment->t(rh.fEnd));
+#endif
+    double y_ry = y * ry;
+    if (y_ry < 0) {  // if y's are opposite signs, we can do a quick return
+        return COMPARE_RESULT("1 y * ry < 0", y < 0);
     }
-    // at this point, the initial tangent line is coincident
-    // see if edges curl away from each other
-    if (fSide * rh.fSide <= 0 && (!approximately_zero(fSide)
-            || !approximately_zero(rh.fSide))) {
-        // FIXME: running demo will trigger this assertion
-        // (don't know if commenting out will trigger further assertion or not)
-        // commenting it out allows demo to run in release, though
-        return fSide < rh.fSide;
+    // at this point, both y's must be the same sign, or one (or both) is zero
+    double x = dx();
+    double rx = rh.dx();
+    if (x * rx < 0) {  // if x's are opposite signs, use y to determine first or second half
+        if (y < 0 && ry < 0) {  // if y's are negative, lh x is smaller if positive
+            return COMPARE_RESULT("2 x_rx < 0 && y < 0 ...", x > 0);
+        }
+        if (y >= 0 && ry >= 0) {  // if y's are zero or positive, lh x is smaller if negative
+            return COMPARE_RESULT("3 x_rx < 0 && y >= 0 ...", x < 0);
+        }
+        SkASSERT((y == 0) ^ (ry == 0));  // if one y is zero and one is negative, neg y is smaller
+        return COMPARE_RESULT("4 x_rx < 0 && y == 0 ...", y < 0);
     }
-    // see if either curve can be lengthened and try the tangent compare again
-    if (/* cmp && */ (*fSpans)[fEnd].fOther != rh.fSegment  // tangents not absolutely identical
-            && (*rh.fSpans)[rh.fEnd].fOther != fSegment) {  // and not intersecting
+    // at this point, both x's must be the same sign, or one (or both) is zero
+    if (y_ry == 0) { // if either y is zero
+        if (y + ry < 0) { // if the other y is less than zero, it must be smaller
+            return COMPARE_RESULT("5 y_ry == 0 && y + ry < 0", y < 0);
+        }
+        if (y + ry > 0) { // if a y is greater than zero and an x is positive,  non zero is smaller
+            return COMPARE_RESULT("6 y_ry == 0 && y + ry > 0", (x + rx > 0) ^ (y == 0));
+        }
+        // at this point, both y's are zero, so lines are coincident or one is degenerate
+        SkASSERT(x * rx != 0);  // and a degenerate line should haven't gotten this far
+    } 
+    // see if either curve can be lengthened before trying the tangent
+    if (fSegment->other(fEnd) != rh.fSegment  // tangents not absolutely identical
+            && rh.fSegment->other(rh.fEnd) != fSegment) {  // and not intersecting
         SkOpAngle longer = *this;
         SkOpAngle rhLonger = rh;
-        if (longer.lengthen() | rhLonger.lengthen()) {
-            return longer < rhLonger;
+        if ((longer.lengthen(rh) | rhLonger.lengthen(*this))  // lengthen both
+                && (fUnorderable || !longer.fUnorderable)
+                && (rh.fUnorderable || !rhLonger.fUnorderable)) {
+#if DEBUG_ANGLE
+            bugOut.prepend("  ");
+#endif
+            return COMPARE_RESULT("10 longer.lengthen(rh) ...", longer < rhLonger);
         }
     }
-    if ((fVerb == SkPath::kLine_Verb && approximately_zero(x) && approximately_zero(y))
-            || (rh.fVerb == SkPath::kLine_Verb
-            && approximately_zero(rx) && approximately_zero(ry))) {
+    if (y_ry != 0) { // if they aren't coincident, look for a stable cross product
+        // at this point, y's are the same sign, neither is zero
+        //   and x's are the same sign, or one (or both) is zero
+        double x_ry = x * ry;
+        double rx_y = rx * y;
+        if (!fComputed && !rh.fComputed) {
+            if (!AlmostEqualUlps(x_ry, rx_y)) {
+                return COMPARE_RESULT("7 !fComputed && !rh.fComputed", x_ry < rx_y);
+            }
+        } else {
+            // if the vector was a result of subdividing a curve, see if it is stable
+            bool sloppy1 = x_ry < rx_y;
+            bool sloppy2 = !sloppy1;
+            if ((!fComputed || calcSlop(x, y, rx, ry, &sloppy1)) 
+                    && (!rh.fComputed || rh.calcSlop(rx, ry, x, y, &sloppy2))
+                    && sloppy1 != sloppy2) {
+                return COMPARE_RESULT("8 CalcSlop(x, y ...", sloppy1);
+            }
+        }
+    }
+    if (fSide * rh.fSide == 0) {
+        SkASSERT(fSide + rh.fSide != 0);
+        return COMPARE_RESULT("9 fSide * rh.fSide == 0 ...", fSide < rh.fSide);
+    }
+    // at this point, the initial tangent line is nearly coincident
+    // see if edges curl away from each other
+    if (fSide * rh.fSide < 0 && (!approximately_zero(fSide) || !approximately_zero(rh.fSide))) {
+        return COMPARE_RESULT("9b fSide * rh.fSide < 0 ...", fSide < rh.fSide);
+    }
+    if (fUnsortable || rh.fUnsortable) {
+        // even with no solution, return a stable sort
+        return COMPARE_RESULT("11 fUnsortable || rh.fUnsortable", this < &rh);
+    }
+    SkPath::Verb verb = fSegment->verb();
+    SkPath::Verb rVerb = rh.fSegment->verb();
+    if ((verb == SkPath::kLine_Verb && approximately_zero(y) && approximately_zero(x))
+            || (rVerb == SkPath::kLine_Verb
+            && approximately_zero(ry) && approximately_zero(rx))) {
         // See general unsortable comment below. This case can happen when
         // one line has a non-zero change in t but no change in x and y.
         fUnsortable = true;
-        rh.fUnsortable = true;
-        return this < &rh;  // even with no solution, return a stable sort
+        return COMPARE_RESULT("12 verb == SkPath::kLine_Verb ...", this < &rh);
     }
-    if ((*rh.fSpans)[SkMin32(rh.fStart, rh.fEnd)].fTiny
-            || (*fSpans)[SkMin32(fStart, fEnd)].fTiny) {
+    if (fSegment->isTiny(this) || rh.fSegment->isTiny(&rh)) {
         fUnsortable = true;
-        rh.fUnsortable = true;
-        return this < &rh;  // even with no solution, return a stable sort
+        return COMPARE_RESULT("13 verb == fSegment->isTiny(this) ...", this < &rh);
     }
-    SkASSERT(fVerb >= SkPath::kQuad_Verb);
-    SkASSERT(rh.fVerb >= SkPath::kQuad_Verb);
+    SkASSERT(verb >= SkPath::kQuad_Verb);
+    SkASSERT(rVerb >= SkPath::kQuad_Verb);
     // FIXME: until I can think of something better, project a ray from the
     // end of the shorter tangent to midway between the end points
     // through both curves and use the resulting angle to sort
@@ -110,22 +184,20 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
     do {
         useThis = (len < rlen) ^ flip;
         const SkDCubic& part = useThis ? fCurvePart : rh.fCurvePart;
-        SkPath::Verb partVerb = useThis ? fVerb : rh.fVerb;
+        SkPath::Verb partVerb = useThis ? verb : rVerb;
         ray[0] = partVerb == SkPath::kCubic_Verb && part[0].approximatelyEqual(part[1]) ?
             part[2] : part[1];
-        ray[1].fX = (part[0].fX + part[SkPathOpsVerbToPoints(partVerb)].fX) / 2;
-        ray[1].fY = (part[0].fY + part[SkPathOpsVerbToPoints(partVerb)].fY) / 2;
+        ray[1] = SkDPoint::Mid(part[0], part[SkPathOpsVerbToPoints(partVerb)]);
         SkASSERT(ray[0] != ray[1]);
-        roots = (i.*CurveRay[SkPathOpsVerbToPoints(fVerb)])(fPts, ray);
-        rroots = (ri.*CurveRay[SkPathOpsVerbToPoints(rh.fVerb)])(rh.fPts, ray);
+        roots = (i.*CurveRay[SkPathOpsVerbToPoints(verb)])(fSegment->pts(), ray);
+        rroots = (ri.*CurveRay[SkPathOpsVerbToPoints(rVerb)])(rh.fSegment->pts(), ray);
     } while ((roots == 0 || rroots == 0) && (flip ^= true));
     if (roots == 0 || rroots == 0) {
         // FIXME: we don't have a solution in this case. The interim solution
         // is to mark the edges as unsortable, exclude them from this and
         // future computations, and allow the returned path to be fragmented
         fUnsortable = true;
-        rh.fUnsortable = true;
-        return this < &rh;  // even with no solution, return a stable sort
+        return COMPARE_RESULT("roots == 0 || rroots == 0", this < &rh);
     }
     SkASSERT(fSide != 0 && rh.fSide != 0);
     SkASSERT(fSide * rh.fSide > 0); // both are the same sign
@@ -164,105 +236,96 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {
             break;
         }
     }
- #if 0
-    SkDVector lRay = lLoc - fCurvePart[0];
-    SkDVector rRay = rLoc - fCurvePart[0];
-    int rayDir = simple_compare(lRay.fX, lRay.fY, rRay.fX, rRay.fY);
-    SkASSERT(rayDir >= 0);
-    if (rayDir < 0) {
-        fUnsortable = true;
-        rh.fUnsortable = true;
-        return this < &rh;  // even with no solution, return a stable sort
-    }
-#endif
-   if (flip) {
+    if (flip) {
         leftLessThanRight = !leftLessThanRight;
-  //      rayDir = !rayDir;
     }
-#if 0 && (DEBUG_SORT || DEBUG_SORT_SINGLE)
-    SkDebugf("%d %c %d (fSide %c 0) loc={{%1.9g,%1.9g}, {%1.9g,%1.9g}} flip=%d rayDir=%d\n",
-                fSegment->debugID(), "><"[leftLessThanRight], rh.fSegment->debugID(),
-                "<>"[fSide > 0], lLoc.fX, lLoc.fY, rLoc.fX, rLoc.fY, flip, rayDir);
-#endif
-//    SkASSERT(leftLessThanRight == (bool) rayDir);
-    return leftLessThanRight;
+    return COMPARE_RESULT("14 leftLessThanRight", leftLessThanRight);
 }
 
-bool SkOpAngle::lengthen() {
-    int newEnd = fEnd;
-    if (fStart < fEnd ? ++newEnd < fSpans->count() : --newEnd >= 0) {
-        fEnd = newEnd;
-        setSpans();
-        return true;
-    }
-    return false;
+bool SkOpAngle::isHorizontal() const {
+    return dy() == 0 && fSegment->verb() == SkPath::kLine_Verb;
 }
 
-bool SkOpAngle::reverseLengthen() {
-    if (fReversed) {
+// lengthen cannot cross opposite angle
+bool SkOpAngle::lengthen(const SkOpAngle& opp) {
+    if (fSegment->other(fEnd) == opp.fSegment) {
         return false;
     }
-    int newEnd = fStart;
-    if (fStart > fEnd ? ++newEnd < fSpans->count() : --newEnd >= 0) {
+    // FIXME: make this a while loop instead and make it as large as possible?
+    int newEnd = fEnd;
+    if (fStart < fEnd ? ++newEnd < fSegment->count() : --newEnd >= 0) {
         fEnd = newEnd;
-        fReversed = true;
         setSpans();
         return true;
     }
     return false;
 }
 
-void SkOpAngle::set(const SkPoint* orig, SkPath::Verb verb, const SkOpSegment* segment,
-        int start, int end, const SkTDArray<SkOpSpan>& spans) {
+void SkOpAngle::set(const SkOpSegment* segment, int start, int end) {
     fSegment = segment;
     fStart = start;
     fEnd = end;
-    fPts = orig;
-    fVerb = verb;
-    fSpans = &spans;
-    fReversed = false;
-    fUnsortable = false;
     setSpans();
 }
 
-
 void SkOpAngle::setSpans() {
-    double startT = (*fSpans)[fStart].fT;
-    double endT = (*fSpans)[fEnd].fT;
-    switch (fVerb) {
+    fUnorderable = false;
+    if (fSegment->verb() == SkPath::kLine_Verb) {
+        fUnsortable = false;
+    } else {
+        // if start-1 exists and is tiny, then start pt may have moved
+        int smaller = SkMin32(fStart, fEnd);
+        int tinyCheck = smaller;
+        while (tinyCheck > 0 && fSegment->isTiny(tinyCheck - 1)) {
+            --tinyCheck;
+        }
+        if ((fUnsortable = smaller > 0 && tinyCheck == 0)) {
+            return;
+        }
+        int larger = SkMax32(fStart, fEnd);
+        tinyCheck = larger;
+        int max = fSegment->count() - 1;
+        while (tinyCheck < max && fSegment->isTiny(tinyCheck + 1)) {
+            ++tinyCheck;
+        }
+        if ((fUnsortable = larger < max && tinyCheck == max)) {
+            return;
+        }
+    }
+    fComputed = fSegment->subDivide(fStart, fEnd, &fCurvePart);
+    // FIXME: slight errors in subdivision cause sort trouble later on. As an experiment, try
+    // rounding the curve part to float precision here
+    // fCurvePart.round(fSegment->verb());
+    switch (fSegment->verb()) {
     case SkPath::kLine_Verb: {
-        SkDLine l = SkDLine::SubDivide(fPts, startT, endT);
         // OPTIMIZATION: for pure line compares, we never need fTangent1.c
-        fTangent1.lineEndPoints(l);
+        fTangent1.lineEndPoints(*SkTCast<SkDLine*>(&fCurvePart));
         fSide = 0;
         } break;
     case SkPath::kQuad_Verb: {
         SkDQuad& quad = *SkTCast<SkDQuad*>(&fCurvePart);
-        quad = SkDQuad::SubDivide(fPts, startT, endT);
-        fTangent1.quadEndPoints(quad, 0, 1);
-        if (dx() == 0 && dy() == 0) {
-            fTangent1.quadEndPoints(quad);
-        }
+        fTangent1.quadEndPoints(quad);
         fSide = -fTangent1.pointDistance(fCurvePart[2]);  // not normalized -- compare sign only
-        } break;
-    case SkPath::kCubic_Verb: {
- //     int nextC = 2;
-        fCurvePart = SkDCubic::SubDivide(fPts, startT, endT);
-        fTangent1.cubicEndPoints(fCurvePart, 0, 1);
-        if (dx() == 0 && dy() == 0) {
-            fTangent1.cubicEndPoints(fCurvePart, 0, 2);
- //         nextC = 3;
-            if (dx() == 0 && dy() == 0) {
-                fTangent1.cubicEndPoints(fCurvePart, 0, 3);
+        if (fComputed && dx() > 0 && approximately_zero(dy())) {
+            SkDCubic origCurve; // can't use segment's curve in place since it may be flipped
+            int last = fSegment->count() - 1;
+            fSegment->subDivide(fStart < fEnd ? 0 : last, fStart < fEnd ? last : 0, &origCurve);
+            SkLineParameters origTan;
+            origTan.quadEndPoints(*SkTCast<SkDQuad*>(&origCurve));
+            if ((fUnorderable = origTan.dx() <= 0
+                    || (dy() != origTan.dy() && dy() * origTan.dy() <= 0))) { // signs match?
+                return;
             }
         }
- //     fSide = -fTangent1.pointDistance(fCurvePart[nextC]);  // compare sign only
- //     if (nextC == 2 && approximately_zero(fSide)) {
- //         fSide = -fTangent1.pointDistance(fCurvePart[3]);
- //     }
+        } break;
+    case SkPath::kCubic_Verb: {
+        fTangent1.cubicEndPoints(fCurvePart);
         double testTs[4];
         // OPTIMIZATION: keep inflections precomputed with cubic segment?
-        int testCount = SkDCubic::FindInflections(fPts, testTs);
+        const SkPoint* pts = fSegment->pts();
+        int testCount = SkDCubic::FindInflections(pts, testTs);
+        double startT = fSegment->t(fStart);
+        double endT = fSegment->t(fEnd);
         double limitT = endT;
         int index;
         for (index = 0; index < testCount; ++index) {
@@ -287,35 +350,62 @@ void SkOpAngle::setSpans() {
                 testT = (testT + testTs[testIndex + 1]) / 2;
             }
             // OPTIMIZE: could avoid call for t == startT, endT
-            SkDPoint pt = dcubic_xy_at_t(fPts, testT);
+            SkDPoint pt = dcubic_xy_at_t(pts, testT);
             double testSide = fTangent1.pointDistance(pt);
             if (fabs(bestSide) < fabs(testSide)) {
                 bestSide = testSide;
             }
         }
         fSide = -bestSide;  // compare sign only
+        if (fComputed && dx() > 0 && approximately_zero(dy())) {
+            SkDCubic origCurve; // can't use segment's curve in place since it may be flipped
+            int last = fSegment->count() - 1;
+            fSegment->subDivide(fStart < fEnd ? 0 : last, fStart < fEnd ? last : 0, &origCurve);
+            SkLineParameters origTan;
+            origTan.cubicEndPoints(origCurve);
+            if ((fUnorderable = origTan.dx() <= 0)) {
+                fUnsortable = fSegment->isTiny(this);
+                return;
+            }
+            // if one is < 0 and the other is >= 0
+            if ((fUnorderable = (dy() < 0) ^ (origTan.dy() < 0))) {
+                fUnsortable = fSegment->isTiny(this);
+                return;
+            }
+            SkDCubicPair split = origCurve.chopAt(startT);
+            SkLineParameters splitTan;
+            splitTan.cubicEndPoints(fStart < fEnd ? split.second() : split.first());
+            if ((fUnorderable = splitTan.dx() <= 0)) {
+                fUnsortable = fSegment->isTiny(this);
+                return;
+            }
+            // if one is < 0 and the other is >= 0
+            if ((fUnorderable = (dy() < 0) ^ (splitTan.dy() < 0))) {
+                fUnsortable = fSegment->isTiny(this);
+                return;
+            }
+        } 
         } break;
     default:
         SkASSERT(0);
     }
-    fUnsortable = dx() == 0 && dy() == 0;
-    if (fUnsortable) {
+    if ((fUnsortable = approximately_zero(dx()) && approximately_zero(dy()))) {
         return;
     }
     SkASSERT(fStart != fEnd);
     int step = fStart < fEnd ? 1 : -1;  // OPTIMIZE: worth fStart - fEnd >> 31 type macro?
     for (int index = fStart; index != fEnd; index += step) {
 #if 1
-        const SkOpSpan& thisSpan = (*fSpans)[index];
-        const SkOpSpan& nextSpan = (*fSpans)[index + step];
+        const SkOpSpan& thisSpan = fSegment->span(index);
+        const SkOpSpan& nextSpan = fSegment->span(index + step);
         if (thisSpan.fTiny || precisely_equal(thisSpan.fT, nextSpan.fT)) {
             continue;
         }
         fUnsortable = step > 0 ? thisSpan.fUnsortableStart : nextSpan.fUnsortableEnd;
 #if DEBUG_UNSORTABLE
         if (fUnsortable) {
-            SkPoint iPt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, thisSpan.fT);
-            SkPoint ePt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, nextSpan.fT);
+            SkPoint iPt = fSegment->xyAtT(index);
+            SkPoint ePt = fSegment->xyAtT(index + step);
             SkDebugf("%s unsortable [%d] (%1.9g,%1.9g) [%d] (%1.9g,%1.9g)\n", __FUNCTION__,
                     index, iPt.fX, iPt.fY, fEnd, ePt.fX, ePt.fY);
         }
@@ -330,8 +420,8 @@ void SkOpAngle::setSpans() {
     }
 #if 1
 #if DEBUG_UNSORTABLE
-    SkPoint iPt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, startT);
-    SkPoint ePt = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, endT);
+    SkPoint iPt = fSegment->xyAtT(fStart);
+    SkPoint ePt = fSegment->xyAtT(fEnd);
     SkDebugf("%s all tiny unsortable [%d] (%1.9g,%1.9g) [%d] (%1.9g,%1.9g)\n", __FUNCTION__,
         fStart, iPt.fX, iPt.fY, fEnd, ePt.fX, ePt.fY);
 #endif

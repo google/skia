@@ -40,7 +40,7 @@ static void PathOpsLineParametersTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         SkLineParameters lineParameters;
         const SkDCubic& cubic = tests[index];
-        lineParameters.cubicEndPoints(cubic);
+        lineParameters.cubicEndPoints(cubic, 0, 3);
         double denormalizedDistance[2];
         denormalizedDistance[0] = lineParameters.controlPtDistance(cubic, 1);
         denormalizedDistance[1] = lineParameters.controlPtDistance(cubic, 2);

@@ -37,7 +37,8 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int& nextStart, int
             continue;
         }
         SkTDArray<SkOpAngle*> sorted;
-        bool sortable = SkOpSegment::SortAngles(angles, &sorted);
+        bool sortable = SkOpSegment::SortAngles(angles, &sorted,
+                SkOpSegment::kMayBeUnordered_SortAngleKind);
         int angleCount = sorted.count();
 #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0);
@@ -232,6 +233,7 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
 #if DEBUG_SHOW_PATH
+    ShowFunctionHeader();
     ShowPath(one, "path");
     ShowPath(two, "pathB");
     ShowOp(op, "path", "pathB");

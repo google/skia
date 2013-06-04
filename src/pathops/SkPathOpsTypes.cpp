@@ -4,36 +4,31 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkFloatBits.h"
 #include "SkPathOpsTypes.h"
 
 const int UlpsEpsilon = 16;
 
 // from http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-union SkPathOpsUlpsFloat {
-    int32_t fInt;
-    float fFloat;
-
-    SkPathOpsUlpsFloat(float num = 0.0f) : fFloat(num) {}
-    bool negative() const { return fInt < 0; }
-};
-
+// FIXME: move to SkFloatBits.h
 bool AlmostEqualUlps(float A, float B) {
-    SkPathOpsUlpsFloat uA(A);
-    SkPathOpsUlpsFloat uB(B);
+    SkFloatIntUnion floatIntA, floatIntB;
+    floatIntA.fFloat = A;
+    floatIntB.fFloat = B;
     // Different signs means they do not match.
-    if (uA.negative() != uB.negative())
+    if ((floatIntA.fSignBitInt < 0) != (floatIntB.fSignBitInt < 0))
     {
         // Check for equality to make sure +0 == -0
         return A == B;
     }
     // Find the difference in ULPs.
-    int ulpsDiff = abs(uA.fInt - uB.fInt);
+    int ulpsDiff = abs(floatIntA.fSignBitInt - floatIntB.fSignBitInt);
     return ulpsDiff <= UlpsEpsilon;
 }
 
 // cube root approximation using bit hack for 64-bit float
 // adapted from Kahan's cbrt
-static  double cbrt_5d(double d) {
+static double cbrt_5d(double d) {
     const unsigned int B1 = 715094163;
     double t = 0.0;
     unsigned int* pt = (unsigned int*) &t;
@@ -43,7 +38,7 @@ static  double cbrt_5d(double d) {
 }
 
 // iterative cube root approximation using Halley's method (double)
-static  double cbrta_halleyd(const double a, const double R) {
+static double cbrta_halleyd(const double a, const double R) {
     const double a3 = a * a * a;
     const double b = a * (a3 + R + R) / (a3 + a3 + R);
     return b;

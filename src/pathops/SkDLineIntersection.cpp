@@ -34,6 +34,47 @@ int SkIntersections::computePoints(const SkDLine& line, int used) {
     return fUsed;
 }
 
+int SkIntersections::intersectRay(const SkDLine& a, const SkDLine& b) {
+    double axLen = a[1].fX - a[0].fX;
+    double ayLen = a[1].fY - a[0].fY;
+    double bxLen = b[1].fX - b[0].fX;
+    double byLen = b[1].fY - b[0].fY;
+    /* Slopes match when denom goes to zero:
+                      axLen / ayLen ==                   bxLen / byLen
+    (ayLen * byLen) * axLen / ayLen == (ayLen * byLen) * bxLen / byLen
+             byLen  * axLen         ==  ayLen          * bxLen
+             byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
+     */
+    double denom = byLen * axLen - ayLen * bxLen;
+    double ab0y = a[0].fY - b[0].fY;
+    double ab0x = a[0].fX - b[0].fX;
+    double numerA = ab0y * bxLen - byLen * ab0x;
+    double numerB = ab0y * axLen - ayLen * ab0x;
+    numerA /= denom;
+    numerB /= denom;
+    int used;
+    if (!approximately_zero(denom)) {
+        fT[0][0] = numerA;
+        fT[1][0] = numerB;
+        used = 1;
+    } else {
+       /* See if the axis intercepts match:
+                  ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen
+         axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
+         axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
+        */
+        if (!AlmostEqualUlps(axLen * a[0].fY - ayLen * a[0].fX,
+                axLen * b[0].fY - ayLen * b[0].fX)) {
+            return fUsed = 0;
+        }
+        // there's no great answer for intersection points for coincident rays, but return something
+        fT[0][0] = fT[1][0] = 0;
+        fT[1][0] = fT[1][1] = 1;
+        used = 2;
+    }
+    return computePoints(a, used);
+}
+
 /*
    Determine the intersection point of two line segments
    Return FALSE if the lines don't intersect

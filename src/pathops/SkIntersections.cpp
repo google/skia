@@ -23,7 +23,7 @@ int (SkIntersections::*CurveRay[])(const SkPoint[], const SkDLine&) = {
 
 int SkIntersections::coincidentUsed() const {
     if (!fIsCoincident[0]) {
-        SkASSERT(!fIsCoincident[0]);
+        SkASSERT(!fIsCoincident[1]);
         return 0;
     }
     int count = 0;

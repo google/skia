@@ -1,6 +1,7 @@
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkCanvas.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkOSFile.h"
@@ -18,14 +19,14 @@ static void make_filepath(SkString* path, const char* dir, const SkString& name)
 }
 
 static void PathOpsSkpClipTest(skiatest::Reporter* reporter) {
-const char pictDir[] = "C:\\Users\\caryclark\\skp";
-    const char outSkpClipDir[] = "C:\\Users\\caryclark\\skpClip";
-    const char outOldClipDir[] = "C:\\Users\\caryclark\\oldClip";
+    const char pictDir[] = "D:\\skp";
+    const char outSkpClipDir[] = "D:\\skpClip";
+    const char outOldClipDir[] = "D:\\oldClip";
     SkOSFile::Iter iter(pictDir, "skp");
     SkString filename;
     while (iter.next(&filename)) {
-#if 0
-        if (strcmp(filename.c_str(), "tabl_androidpolice.skp")) {
+#if 01
+        if (strcmp(filename.c_str(), "desk_15min-lt.skp")) {
             continue;
         }
 #endif
@@ -35,7 +36,11 @@ const char pictDir[] = "C:\\Users\\caryclark\\skp";
         if (!stream.isValid()) {
             continue;
         }
-        SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream));
+        bool success;
+        SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream, &success, &SkImageDecoder::DecodeMemory));
+        if (!success) {
+            continue;
+        }
         int width = pic->width();
         int height = pic->height();
         SkBitmap bitmap;

@@ -3772,9 +3772,51 @@ static void testQuad7(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = testQuadratic85;
+static void testQuadLineIntersect1(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(3, 1, 0, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 1, 0, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuadLineIntersect2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(3, 1, 0, 3);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 1, 0, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuadLineIntersect3(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(3, 1, 0, 3);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 1, 0, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuadLineIntersect1),
+    TEST(testQuadLineIntersect2),
+    TEST(testQuadLineIntersect3),
     TEST(testQuad7),
     TEST(testQuad6),
     TEST(testQuad5),

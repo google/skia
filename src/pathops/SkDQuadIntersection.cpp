@@ -19,12 +19,14 @@
  * 0 = A(at^2+bt+c)(at^2+bt+c)+B(at^2+bt+c)(dt^2+et+f)+C(dt^2+et+f)(dt^2+et+f)+D(at^2+bt+c)+E(dt^2+et+f)+F
  */
 
-static int findRoots(const SkDQuadImplicit& i, const SkDQuad& q2, double roots[4],
-        bool oneHint, int firstCubicRoot) {
+static int findRoots(const SkDQuadImplicit& i, const SkDQuad& quad, double roots[4],
+        bool oneHint, bool flip, int firstCubicRoot) {
+    SkDQuad flipped;
+    const SkDQuad& q = flip ? (flipped = quad.flip()) : quad;
     double a, b, c;
-    SkDQuad::SetABC(&q2[0].fX, &a, &b, &c);
+    SkDQuad::SetABC(&q[0].fX, &a, &b, &c);
     double d, e, f;
-    SkDQuad::SetABC(&q2[0].fY, &d, &e, &f);
+    SkDQuad::SetABC(&q[0].fY, &d, &e, &f);
     const double t4 =     i.x2() *  a * a
                     +     i.xy() *  a * d
                     +     i.y2() *  d * d;
@@ -48,10 +50,15 @@ static int findRoots(const SkDQuadImplicit& i, const SkDQuad& q2, double roots[4
                     +     i.y()  *  f
                     +     i.c();
     int rootCount = SkReducedQuarticRoots(t4, t3, t2, t1, t0, oneHint, roots);
-    if (rootCount >= 0) {
-        return rootCount;
+    if (rootCount < 0) {
+        rootCount = SkQuarticRootsReal(firstCubicRoot, t4, t3, t2, t1, t0, roots);
     }
-    return SkQuarticRootsReal(firstCubicRoot, t4, t3, t2, t1, t0, roots);
+    if (flip) {
+        for (int index = 0; index < rootCount; ++index) {
+            roots[index] = 1 - roots[index];
+        }
+    }
+    return rootCount;
 }
 
 static int addValidRoots(const double roots[4], const int count, double valid[4]) {
@@ -403,9 +410,11 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         return fUsed;
     }
     int index;
-    bool useCubic = q1[0] == q2[0] || q1[0] == q2[2] || q1[2] == q2[0];
+    bool flip1 = q1[2] == q2[0];
+    bool flip2 = q1[0] == q2[2];
+    bool useCubic = q1[0] == q2[0];
     double roots1[4];
-    int rootCount = findRoots(i2, q1, roots1, useCubic, 0);
+    int rootCount = findRoots(i2, q1, roots1, useCubic, flip1, 0);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
     double roots1Copy[4];
     int r1Count = addValidRoots(roots1, rootCount, roots1Copy);
@@ -414,7 +423,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         pts1[index] = q1.xyAtT(roots1Copy[index]);
     }
     double roots2[4];
-    int rootCount2 = findRoots(i1, q2, roots2, useCubic, 0);
+    int rootCount2 = findRoots(i1, q2, roots2, useCubic, flip2, 0);
     double roots2Copy[4];
     int r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
     SkDPoint pts2[4];
@@ -427,9 +436,9 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
                 insert(roots1Copy[0], roots2Copy[0], pts1[0]);
             } else if (pts1[0].moreRoughlyEqual(pts2[0])) {
                 // experiment: try to find intersection by chasing t
-                rootCount = findRoots(i2, q1, roots1, useCubic, 0);
+                rootCount = findRoots(i2, q1, roots1, useCubic, flip1, 0);
                 (void) addValidRoots(roots1, rootCount, roots1Copy);
-                rootCount2 = findRoots(i1, q2, roots2, useCubic, 0);
+                rootCount2 = findRoots(i1, q2, roots2, useCubic, flip2, 0);
                 (void) addValidRoots(roots2, rootCount2, roots2Copy);
                 if (binary_search(q1, q2, roots1Copy, roots2Copy, pts1)) {
                     insert(roots1Copy[0], roots2Copy[0], pts1[0]);
