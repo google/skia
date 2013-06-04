@@ -94,7 +94,7 @@ def Display(filepath):
   }
 
   success = True
-  json_dict = gm_json.Load(filepath)
+  json_dict = gm_json.LoadFromFile(filepath)
   actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
   for label, accumulator in results_map.iteritems():
     results = actual_results[label]
