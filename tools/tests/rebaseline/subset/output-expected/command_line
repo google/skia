@@ -1,0 +1,1 @@
+python tools/rebaseline.py --dry_run --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float

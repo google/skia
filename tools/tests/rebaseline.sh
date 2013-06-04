@@ -61,20 +61,18 @@ cd $(dirname $0)
 
 ./run.sh
 SELFTEST_RESULT=$?
+TOOLS="skdiff benchgraphs rebaseline"
 echo
 if [ "$SELFTEST_RESULT" != "0" ]; then
-  WHICHTOOL=skdiff
-  replace_expected_with_actual
-  WHICHTOOL=benchgraphs
-  replace_expected_with_actual
+  for WHICHTOOL in $TOOLS; do
+    replace_expected_with_actual
+  done
   echo "Self-tests still failing, you should probably run this again..."
 else
-  WHICHTOOL=skdiff
-  svn_add_new_files
-  svn_delete_old_files
-  WHICHTOOL=benchgraphs
-  svn_add_new_files
-  svn_delete_old_files
+  for WHICHTOOL in $TOOLS; do
+    svn_add_new_files
+    svn_delete_old_files
+  done
   echo "Self-tests succeeded this time, you should be done!"
 fi
 exit $SELFTEST_RESULT
