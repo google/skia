@@ -1,0 +1,39 @@
+HelloSkia
+=========
+
+Intro
+-----
+
+This is a minimal Android app that uses JNI and Skia to do rendering.
+
+Setup
+-----
+
+These instructions need to be followed only once to setup your copy of HelloSkia. Path parts that
+are surrounded with curly braces should be replaced with the paths that are described.
+
+1. Follow the quick start guide on building Skia for Android.
+
+2. Copy {Skia root directory}/trunk/out/config/android-{your architecture}/{Relase or
+Debug}/lib.target/libskia_android.so into {HellSkia root directory}/jni/skia/libskia_android.so
+
+3. Copy {Skia root directory}/trunk/include into {HellSkia root directory}/jni/skia. This should be
+done so that the path {HellSkia root directory}/jni/skia/include is a folder that contains, to name
+just a few, the folders config and core.
+
+
+Building
+--------
+
+The following assumes that the platform-tools directory of the Android SDK and the Android NDK
+directory are both on the system path. This also assumes that adb is working and connected with some
+device or virtual device.
+
+1. Open a terminal to the HelloSkia root directory and enter these commands:
+
+$ ndk-build # Builds the modules inside of jni/
+$ ant debug # Builds the Activity and packages it with all resources and modules of jni/
+$ adb install -r bin/HelloSkia-debug.apk # Installs the app onto a device
+
+2. To run the app, open your Android device's launcher and start the application labeled
+HelloSkiaActivity.
