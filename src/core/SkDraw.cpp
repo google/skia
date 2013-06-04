@@ -31,6 +31,22 @@
 #include "SkDrawProcs.h"
 #include "SkMatrixUtils.h"
 
+bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
+    // we don't cache hairlines in the cache
+    if (SkPaint::kStroke_Style == paint.getStyle() &&
+            0 == paint.getStrokeWidth()) {
+        return true;
+    }
+    
+    // we don't cache perspective
+    if (ctm.hasPerspective()) {
+        return true;
+    }
+
+    SkMatrix textM;
+    return SkPaint::TooBigToUseCache(ctm, *paint.setTextMatrix(&textM));
+}
+
 //#define TRACE_BITMAP_DRAWS
 
 #define kBlitterStorageLongCount    (sizeof(SkBitmapProcShader) >> 2)
@@ -1663,9 +1679,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     // SkScalarRec doesn't currently have a way of representing hairline stroke and
     // will fill if its frame-width is 0.
-    if (/*paint.isLinearText() ||*/
-        (fMatrix->hasPerspective()) ||
-        (0 == paint.getStrokeWidth() && SkPaint::kStroke_Style == paint.getStyle())) {
+    if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
         this->drawText_asPaths(text, byteLength, x, y, paint);
         return;
     }
@@ -1839,6 +1853,50 @@ TextMapState::Proc TextMapState::pickProc(int scalarsPerPosition) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
+                                 const SkScalar pos[], SkScalar constY,
+                                 int scalarsPerPosition,
+                                 const SkPaint& origPaint) const {
+    // setup our std paint, in hopes of getting hits in the cache
+    SkPaint paint(origPaint);
+    SkScalar matrixScale = paint.setupForAsPaths();
+
+    SkDraw draw(*this);
+
+    // Now modify our matrix to account for the canonical text size
+    SkMatrix matrix = *fMatrix;
+    matrix.preScale(matrixScale, matrixScale);
+    const SkScalar posScale = SkScalarInvert(matrixScale);
+    
+    SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
+    SkAutoGlyphCache    autoCache(paint, NULL, NULL);
+    SkGlyphCache*       cache = autoCache.getCache();
+
+    const char*        stop = text + byteLength;
+    AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
+    TextMapState       tms(SkMatrix::I(), constY);
+    TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+    
+    while (text < stop) {
+        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
+        if (glyph.fWidth) {
+            const SkPath* path = cache->findPath(glyph);
+            if (path) {
+                tmsProc(tms, pos);
+                SkIPoint fixedLoc;
+                alignProc(tms.fLoc, glyph, &fixedLoc);
+                
+                SkMatrix localMatrix = matrix;
+                localMatrix.preTranslate(SkFixedToScalar(fixedLoc.fX) * posScale,
+                                         SkFixedToScalar(fixedLoc.fY) * posScale);
+                draw.fMatrix = &localMatrix;
+                draw.drawPath(*path, paint);
+            }
+        }
+        pos += scalarsPerPosition;
+    }
+}
+
 void SkDraw::drawPosText(const char text[], size_t byteLength,
                          const SkScalar pos[], SkScalar constY,
                          int scalarsPerPosition, const SkPaint& paint) const {
@@ -1852,10 +1910,9 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         return;
     }
 
-    if (/*paint.isLinearText() ||*/
-        (fMatrix->hasPerspective())) {
-        // TODO !!!!
-//      this->drawText_asPaths(text, byteLength, x, y, paint);
+    if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
+        this->drawPosText_asPaths(text, byteLength, pos, constY,
+                                  scalarsPerPosition, paint);
         return;
     }
 

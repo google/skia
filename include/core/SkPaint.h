@@ -13,6 +13,7 @@
 
 #include "SkColor.h"
 #include "SkDrawLooper.h"
+#include "SkMatrix.h"
 #include "SkXfermode.h"
 #ifdef SK_BUILD_FOR_ANDROID
 #include "SkPaintOptionsAndroid.h"
@@ -30,7 +31,6 @@ struct SkRect;
 class SkGlyphCache;
 class SkImageFilter;
 class SkMaskFilter;
-class SkMatrix;
 class SkPath;
 class SkPathEffect;
 struct SkPoint;
@@ -935,6 +935,22 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style) const;
 
+    /**
+     *  Return a matrix that applies the paint's text values: size, scale, skew
+     */
+    static SkMatrix* SetTextMatrix(SkMatrix* matrix, SkScalar size,
+                                   SkScalar scaleX, SkScalar skewX) {
+        matrix->setScale(size * scaleX, size);
+        if (skewX) {
+            matrix->postSkew(skewX, 0);
+        }
+        return matrix;
+    }
+    
+    SkMatrix* setTextMatrix(SkMatrix* matrix) const {
+        return SetTextMatrix(matrix, fTextSize, fTextScaleX, fTextSkewX);
+    }
+    
     SkDEVCODE(void toString(SkString*) const;)
 
 private:
@@ -989,14 +1005,53 @@ private:
     static void Term();
 
     enum {
-        kCanonicalTextSizeForPaths = 64
+        /*  This is the size we use when we ask for a glyph's path. We then
+         *  post-transform it as we draw to match the request.
+         *  This is done to try to re-use cache entries for the path.
+         *
+         *  This value is somewhat arbitrary. In theory, it could be 1, since
+         *  we store paths as floats. However, we get the path from the font
+         *  scaler, and it may represent its paths as fixed-point (or 26.6),
+         *  so we shouldn't ask for something too big (might overflow 16.16)
+         *  or too small (underflow 26.6).
+         *
+         *  This value could track kMaxSizeForGlyphCache, assuming the above
+         *  constraints, but since we ask for unhinted paths, the two values
+         *  need not match per-se.
+         */
+        kCanonicalTextSizeForPaths  = 64,
+
+        /*
+         *  Above this size (taking into account CTM and textSize), we never use
+         *  the cache for bits or metrics (we might overflow), so we just ask
+         *  for a caononical size and post-transform that.
+         */
+        kMaxSizeForGlyphCache       = 256,
     };
+
+    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM);
+
+    bool tooBigToUseCache() const;
+    bool tooBigToUseCache(const SkMatrix& ctm) const;
+    
+    // Set flags/hinting/textSize up to use for drawing text as paths.
+    // Returns scale factor to restore the original textSize, since will will
+    // have change it to kCanonicalTextSizeForPaths.
+    SkScalar setupForAsPaths();
+
+    static SkScalar MaxCacheSize2() {
+        static const SkScalar kMaxSize = SkIntToScalar(kMaxSizeForGlyphCache);
+        static const SkScalar kMag2Max = kMaxSize * kMaxSize;
+        return kMag2Max;
+    }
+
     friend class SkAutoGlyphCache;
     friend class SkCanvas;
     friend class SkDraw;
     friend class SkGraphics; // So Term() can be called.
     friend class SkPDFDevice;
     friend class SkTextToPathIter;
+    friend class SkCanonicalizePaint;
 
 #ifdef SK_BUILD_FOR_ANDROID
     SkPaintOptionsAndroid fPaintOptionsAndroid;
