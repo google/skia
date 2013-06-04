@@ -189,15 +189,36 @@ const SkString::Rec SkString::gEmptyRec = { 0, 0, 0 };
 
 #define SizeOfRec()     (gEmptyRec.data() - (const char*)&gEmptyRec)
 
+static uint32_t trim_size_t_to_u32(size_t value) {
+    if (sizeof(size_t) > sizeof(uint32_t)) {
+        if (value > SK_MaxU32) {
+            value = SK_MaxU32;
+        }
+    }
+    return (uint32_t)value;
+}
+
+static size_t check_add32(size_t base, size_t extra) {
+    SkASSERT(base <= SK_MaxU32);
+    if (sizeof(size_t) > sizeof(uint32_t)) {
+        if (base + extra > SK_MaxU32) {
+            extra = SK_MaxU32 - base;
+        }
+    }
+    return extra;
+}
+
 SkString::Rec* SkString::AllocRec(const char text[], size_t len) {
     Rec* rec;
 
     if (0 == len) {
         rec = const_cast<Rec*>(&gEmptyRec);
     } else {
+        len = trim_size_t_to_u32(len);
+
         // add 1 for terminating 0, then align4 so we can have some slop when growing the string
         rec = (Rec*)sk_malloc_throw(SizeOfRec() + SkAlign4(len + 1));
-        rec->fLength = len;
+        rec->fLength = SkToU32(len);
         rec->fRefCnt = 1;
         if (text) {
             memcpy(rec->data(), text, len);
@@ -356,6 +377,8 @@ void SkString::set(const char text[]) {
 }
 
 void SkString::set(const char text[], size_t len) {
+    len = trim_size_t_to_u32(len);
+
     if (0 == len) {
         this->reset();
     } else if (1 == fRec->fRefCnt && len <= fRec->fLength) {
@@ -366,7 +389,7 @@ void SkString::set(const char text[], size_t len) {
             memcpy(p, text, len);
         }
         p[len] = 0;
-        fRec->fLength = len;
+        fRec->fLength = SkToU32(len);
     } else if (1 == fRec->fRefCnt && (fRec->fLength >> 2) == (len >> 2)) {
         // we have spare room in the current allocation, so don't alloc a larger one
         char* p = this->writable_str();
@@ -374,7 +397,7 @@ void SkString::set(const char text[], size_t len) {
             memcpy(p, text, len);
         }
         p[len] = 0;
-        fRec->fLength = len;
+        fRec->fLength = SkToU32(len);
     } else {
         SkString tmp(text, len);
         this->swap(tmp);
@@ -387,10 +410,12 @@ void SkString::setUTF16(const uint16_t src[]) {
     while (src[count]) {
         count += 1;
     }
-    setUTF16(src, count);
+    this->setUTF16(src, count);
 }
 
 void SkString::setUTF16(const uint16_t src[], size_t count) {
+    count = trim_size_t_to_u32(count);
+
     if (0 == count) {
         this->reset();
     } else if (count <= fRec->fLength) {
@@ -424,6 +449,12 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
         if (offset > length) {
             offset = length;
         }
+        
+        // Check if length + len exceeds 32bits, we trim len
+        len = check_add32(length, len);
+        if (0 == len) {
+            return;
+        }
 
         /*  If we're the only owner, and we have room in our allocation for the insert,
             do it in place, rather than allocating a new buffer.
@@ -444,7 +475,7 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
             memcpy(dst + offset, text, len);
 
             dst[length + len] = 0;
-            fRec->fLength = length + len;
+            fRec->fLength = SkToU32(length + len);
         } else {
             /*  Seems we should use realloc here, since that is safe if it fails
                 (we have the original data), and might be faster than alloc/copy/free.

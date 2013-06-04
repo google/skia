@@ -205,7 +205,7 @@ public:
 private:
     struct Rec {
     public:
-        size_t      fLength;
+        uint32_t    fLength; // logically size_t, but we want it to stay 32bits
         int32_t     fRefCnt;
         char        fBeginningOfData;
 
