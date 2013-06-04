@@ -791,10 +791,7 @@ void SkScalerContextRec::getMatrixFrom2x2(SkMatrix* dst) const {
 }
 
 void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {
-    m->setScale(SkScalarMul(fTextSize, fPreScaleX), fTextSize);
-    if (fPreSkewX) {
-        m->postSkew(fPreSkewX, 0);
-    }
+    SkPaint::SetTextMatrix(m, fTextSize, fPreScaleX, fPreSkewX);
 }
 
 void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
