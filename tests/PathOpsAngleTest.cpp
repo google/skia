@@ -279,6 +279,8 @@ static void setup(const SortSet* set, const size_t idx,
         seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], 1);
     }
     int tIndex = 0;
+    ts[0] = 0;
+    ts[1] = 1;
     do {
         if (seg->t(tIndex) == set[idx].tStart) {
             ts[0] = tIndex;
