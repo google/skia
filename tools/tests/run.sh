@@ -68,26 +68,6 @@ function skdiff_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-SKDIFF_TESTDIR=tools/tests/skdiff
-
-# Run skdiff over a variety of file pair types: identical bits, identical pixels, missing from
-# baseDir, etc.
-skdiff_test "$SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test1"
-
-# Run skdiff over the same set of files, but with arguments as used by our buildbots:
-# - return the number of mismatching file pairs (but ignore any files missing from either
-#   baseDir or comparisonDir)
-# - list filenames with each result type to stdout
-# - don't generate HTML output files
-skdiff_test "--failonresult DifferentPixels --failonresult DifferentSizes --failonresult Unknown --failonstatus CouldNotDecode,CouldNotRead any --failonstatus any CouldNotDecode,CouldNotRead --listfilenames --nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
-
-# Run skdiff over just the files that have identical bits.
-skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits"
-
-# Run skdiff over just the files that have identical bits or identical pixels.
-skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
-
-
 # Download a subset of the raw bench data for platform $1 at revision $2.
 # (For the subset, download all files matching any of the suffixes in
 # whitespace-separated list $3.)
@@ -149,6 +129,56 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
+# Run rebaseline.py with arguments in $1, recording its dry_run output.
+# Then compare that dry_run output to the content of $2/output-expected.
+function rebaseline_test {
+  if [ $# != 2 ]; then
+    echo "rebaseline_test requires exactly 2 parameters, got $#"
+    exit 1
+  fi
+  ARGS="$1"
+  ACTUAL_OUTPUT_DIR="$2/output-actual"
+  EXPECTED_OUTPUT_DIR="$2/output-expected"
+
+  rm -rf $ACTUAL_OUTPUT_DIR
+  mkdir -p $ACTUAL_OUTPUT_DIR
+  COMMAND="python tools/rebaseline.py --dry_run $ARGS"
+  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
+  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  echo $? >$ACTUAL_OUTPUT_DIR/return_value
+
+  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+}
+
+
+
+#
+# Run skdiff tests...
+#
+
+SKDIFF_TESTDIR=tools/tests/skdiff
+
+# Run skdiff over a variety of file pair types: identical bits, identical pixels, missing from
+# baseDir, etc.
+skdiff_test "$SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test1"
+
+# Run skdiff over the same set of files, but with arguments as used by our buildbots:
+# - return the number of mismatching file pairs (but ignore any files missing from either
+#   baseDir or comparisonDir)
+# - list filenames with each result type to stdout
+# - don't generate HTML output files
+skdiff_test "--failonresult DifferentPixels --failonresult DifferentSizes --failonresult Unknown --failonstatus CouldNotDecode,CouldNotRead any --failonstatus any CouldNotDecode,CouldNotRead --listfilenames --nodiffs $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/test2"
+
+# Run skdiff over just the files that have identical bits.
+skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits"
+
+# Run skdiff over just the files that have identical bits or identical pixels.
+skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
+
+#
+# Run benchgraph tests...
+#
+
 # Parse a collection of bench data leading up to
 # http://70.32.156.53:10117/builders/Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32/builds/878/steps/GenerateWebpagePictureBenchGraphs/logs/stdio
 # (this was during the period when the bench data included a ton of per-tile,
@@ -159,5 +189,14 @@ benchgraph_download_rawdata $PLATFORM 7671 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVID
 benchgraph_download_rawdata $PLATFORM 7679 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchgraph_download_rawdata $PLATFORM 7686 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchgraph_test $PLATFORM
+
+#
+# Test rebaseline.py ...
+#
+
+REBASELINE_TESTDIR=tools/tests/rebaseline
+rebaseline_test "--tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_TESTDIR/subset"
+rebaseline_test "--tests test1 test2" "$REBASELINE_TESTDIR/all"
+
 
 echo "All tests passed."
