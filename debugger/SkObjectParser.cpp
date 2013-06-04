@@ -138,11 +138,11 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
     mPath->append("P): ");
 
     static const char* gVerbStrings[] = {
-        "Move", "Line", "Quad", "Cubic", "Close", "Done"
+        "Move", "Line", "Quad", "Conic", "Cubic", "Close", "Done"
     };
-    static const int gPtsPerVerb[] = { 1, 1, 2, 3, 0, 0 };
-    static const int gPtOffsetPerVerb[] = { 0, 1, 1, 1, 0, 0 };
-    SkASSERT(SkPath::kDone_Verb == 5);
+    static const int gPtsPerVerb[] = { 1, 1, 2, 2, 3, 0, 0 };
+    static const int gPtOffsetPerVerb[] = { 0, 1, 1, 1, 1, 0, 0 };
+    SkASSERT(SkPath::kDone_Verb == 6);
 
     SkPath::Iter iter(const_cast<SkPath&>(path), false);
     SkPath::Verb verb;
@@ -160,8 +160,16 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
             mPath->appendScalar(points[gPtOffsetPerVerb[verb]+i].fX);
             mPath->append(", ");
             mPath->appendScalar(points[gPtOffsetPerVerb[verb]+i].fY);
-            mPath->append(") ");
+            mPath->append(")");
         }
+
+        if (SkPath::kConic_Verb == verb) {
+            mPath->append("(");
+            mPath->appendScalar(iter.conicWeight());
+            mPath->append(")");
+        }
+
+        mPath->append(" ");
     }
 
     SkString* boundStr = SkObjectParser::RectToString(path.getBounds(), "    Bound: ");
