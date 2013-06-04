@@ -837,7 +837,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gHintingStates[1].name,
                                   gHintingStates[2].name,
                                   gHintingStates[3].name,
-                                  gHintingStates[4].name);
+                                  gHintingStates[4].name,
+                                  NULL);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
 
     fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
