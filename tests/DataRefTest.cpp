@@ -263,11 +263,11 @@ static void test_files(skiatest::Reporter* reporter) {
     if (skiatest::Test::GetTmpDir().isEmpty()) {
         return;
     }
-    
+
     const char* tmpDir = skiatest::Test::GetTmpDir().c_str();
     SkString path;
     path.printf("%s%s", tmpDir, "data_test");
-    
+
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
     {
         SkFILEWStream writer(path.c_str());
@@ -285,7 +285,7 @@ static void test_files(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, r1.get() != NULL);
     REPORTER_ASSERT(reporter, r1->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
-    
+
     int fd = sk_fileno(file);
     SkAutoTUnref<SkData> r2(SkData::NewFromFD(fd));
     REPORTER_ASSERT(reporter, r2.get() != NULL);

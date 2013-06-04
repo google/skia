@@ -75,6 +75,6 @@ void* sk_fmmap(SkFILE* f, size_t* size) {
     if (fd < 0) {
         return NULL;
     }
-    
+
     return sk_fdmmap(fd, size);
 }
