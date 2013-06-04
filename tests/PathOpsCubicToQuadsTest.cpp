@@ -20,7 +20,7 @@ static void test(skiatest::Reporter* reporter, const SkDCubic* cubics, const cha
         double precision = cubic.calcPrecision();
         SkTDArray<SkDQuad> quads;
         CubicToQuads(cubic, precision, quads);
-        if (quads.count() != 1) {
+        if (quads.count() != 1 && quads.count() != 2) {
             SkDebugf("%s [%d] cubic to quadratics failed count=%d\n", name, static_cast<int>(index),
                     quads.count());
         }
@@ -36,11 +36,11 @@ static void test(skiatest::Reporter* reporter, const SkDQuad* quadTests, const c
         double precision = cubic.calcPrecision();
         SkTDArray<SkDQuad> quads;
         CubicToQuads(cubic, precision, quads);
-        if (quads.count() != 1) {
+        if (quads.count() != 1 && quads.count() != 2) {
             SkDebugf("%s [%d] cubic to quadratics failed count=%d\n", name, static_cast<int>(index),
                     quads.count());
         }
-        REPORTER_ASSERT(reporter, quads.count() == 1);
+        REPORTER_ASSERT(reporter, quads.count() <= 2);
     }
 }
 

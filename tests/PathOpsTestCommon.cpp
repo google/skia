@@ -10,7 +10,7 @@
 void CubicToQuads(const SkDCubic& cubic, double precision, SkTDArray<SkDQuad>& quads) {
     SkTDArray<double> ts;
     cubic.toQuadraticTs(precision, &ts);
-    if (ts.count() <= 1) {
+    if (ts.count() <= 0) {
         SkDQuad quad = cubic.toQuad();
         *quads.append() = quad;
         return;

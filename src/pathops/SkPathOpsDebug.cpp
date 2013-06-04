@@ -68,21 +68,21 @@ static void showPathContours(SkPath::Iter& iter, const char* pathName) {
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkDebugf("%s.moveTo(%#1.9gf, %#1.9gf);\n", pathName, pts[0].fX, pts[0].fY);
+                SkDebugf("    %s.moveTo(%#1.9gf, %#1.9gf);\n", pathName, pts[0].fX, pts[0].fY);
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("%s.lineTo(%#1.9gf, %#1.9gf);\n", pathName, pts[1].fX, pts[1].fY);
+                SkDebugf("    %s.lineTo(%#1.9gf, %#1.9gf);\n", pathName, pts[1].fX, pts[1].fY);
                 break;
             case SkPath::kQuad_Verb:
-                SkDebugf("%s.quadTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n", pathName,
+                SkDebugf("    %s.quadTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n", pathName,
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPath::kCubic_Verb:
-                SkDebugf("%s.cubicTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n",
+                SkDebugf("    %s.cubicTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n",
                     pathName, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
                 break;
             case SkPath::kClose_Verb:
-                SkDebugf("%s.close();\n", pathName);
+                SkDebugf("    %s.close();\n", pathName);
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
@@ -98,12 +98,17 @@ static const char* gFillTypeStr[] = {
     "kInverseEvenOdd_FillType"
 };
 
+
+void ShowFunctionHeader() {
+    SkDebugf("\nstatic void test#(skiatest::Reporter* reporter) {\n");
+}
+
 void ShowPath(const SkPath& path, const char* pathName) {
     SkPath::Iter iter(path, true);
     SkPath::FillType fillType = path.getFillType();
     SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
-    SkDebugf("SkPath %s;\n", pathName);
-    SkDebugf("%s.setFillType(SkPath::%s);\n", pathName, gFillTypeStr[fillType]);
+    SkDebugf("    SkPath %s;\n", pathName);
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", pathName, gFillTypeStr[fillType]);
     iter.setPath(path, true);
     showPathContours(iter, pathName);
 }
@@ -117,8 +122,7 @@ static const char* gOpStrs[] = {
 };
 
 void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo) {
-    SkDebugf("SkPath result;\n");
-    SkDebugf("bool success = Op(%s, %s, %s, &result);\n", pathOne, pathTwo, gOpStrs[op]);
-    SkDebugf("SkASSERT(success);\n");
+    SkDebugf("    testPathOp(reporter, %s, %s, %s);\n", pathOne, pathTwo, gOpStrs[op]);
+    SkDebugf("}\n");
 }
 #endif

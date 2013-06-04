@@ -61,6 +61,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SHOW_TEST_PROGRESS 0
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
+#define DEBUG_SORT_COMPACT 0
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 0
 #define DEBUG_UNSORTABLE 0
@@ -73,7 +74,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_ACTIVE_OP 1
 #define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ACTIVE_SPANS_FIRST_ONLY 0
-#define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
+#define DEBUG_ACTIVE_SPANS_SHORT_FORM 1
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
@@ -90,6 +91,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SHOW_TEST_PROGRESS 1
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
+#define DEBUG_SORT_COMPACT 0
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
@@ -144,6 +146,7 @@ extern const char* kPathOpStr[];
 #endif
 
 #if DEBUG_SHOW_PATH
+void ShowFunctionHeader();
 void ShowPath(const SkPath& path, const char* pathName);
 void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo);
 #endif

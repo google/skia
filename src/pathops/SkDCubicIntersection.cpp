@@ -426,6 +426,35 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
             && pt[0].approximatelyEqual(pt[1])) {
         removeOne(used() - 2);
     }
+    // vet the pairs of t values to see if the mid value is also on the curve. If so, mark
+    // the span as coincident
+    if (fUsed >= 2 && !coincidentUsed()) {
+        int last = fUsed - 1;
+        int match = 0;
+        for (int index = 0; index < last; ++index) {
+            double mid1 = (fT[0][index] + fT[0][index + 1]) / 2;
+            double mid2 = (fT[1][index] + fT[1][index + 1]) / 2;
+            pt[0] = c1.xyAtT(mid1);
+            pt[1] = c2.xyAtT(mid2);
+            if (pt[0].approximatelyEqual(pt[1])) {
+                match |= 1 << index;
+            }
+        }
+        if (match) {
+            if (((match + 1) & match) != 0) {
+                SkDebugf("%s coincident hole\n", __FUNCTION__);
+            }
+            // for now, assume that everything from start to finish is coincident
+            if (fUsed > 2) {
+                  fPt[1] = fPt[last];
+                  fT[0][1] = fT[0][last];
+                  fT[1][1] = fT[1][last];
+                  fIsCoincident[0] = 0x03;
+                  fIsCoincident[1] = 0x03;
+                  fUsed = 2;
+            }
+        }
+    }
     return fUsed;
 }
 

@@ -207,9 +207,10 @@ public:
     int intersect(const SkDCubic&, const SkDLine&);
     int intersect(const SkDCubic&, const SkDQuad&);
     int intersect(const SkDCubic&, const SkDCubic&);
-    int intersectRay(const SkDCubic& , const SkDLine&);
-    int intersectRay(const SkDQuad& , const SkDLine&);
-    static SkDPoint Line(const SkDLine& , const SkDLine&);
+    int intersectRay(const SkDLine&, const SkDLine&);
+    int intersectRay(const SkDQuad&, const SkDLine&);
+    int intersectRay(const SkDCubic&, const SkDLine&);
+    static SkDPoint Line(const SkDLine&, const SkDLine&);
     void offset(int base, double start, double end);
     void quickRemoveOne(int index, int replace);
     static bool Test(const SkDLine& , const SkDLine&);

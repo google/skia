@@ -24,28 +24,37 @@
 class SkLineParameters {
 public:
     void cubicEndPoints(const SkDCubic& pts) {
-        cubicEndPoints(pts, 0, 3);
+        cubicEndPoints(pts, 0, 1);
+        if (dx() == 0 && dy() == 0) {
+            cubicEndPoints(pts, 0, 2);
+            if (dx() == 0 && dy() == 0) {
+                cubicEndPoints(pts, 0, 3);
+            }
+        }
     }
 
     void cubicEndPoints(const SkDCubic& pts, int s, int e) {
-        a = approximately_pin(pts[s].fY - pts[e].fY);
-        b = approximately_pin(pts[e].fX - pts[s].fX);
+        a = pts[s].fY - pts[e].fY;
+        b = pts[e].fX - pts[s].fX;
         c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
     }
 
     void lineEndPoints(const SkDLine& pts) {
-        a = approximately_pin(pts[0].fY - pts[1].fY);
-        b = approximately_pin(pts[1].fX - pts[0].fX);
+        a = pts[0].fY - pts[1].fY;
+        b = pts[1].fX - pts[0].fX;
         c = pts[0].fX * pts[1].fY - pts[1].fX * pts[0].fY;
     }
 
     void quadEndPoints(const SkDQuad& pts) {
-        quadEndPoints(pts, 0, 2);
+        quadEndPoints(pts, 0, 1);
+        if (dx() == 0 && dy() == 0) {
+            quadEndPoints(pts, 0, 2);
+        }
     }
 
     void quadEndPoints(const SkDQuad& pts, int s, int e) {
-        a = approximately_pin(pts[s].fY - pts[e].fY);
-        b = approximately_pin(pts[e].fX - pts[s].fX);
+        a = pts[s].fY - pts[e].fY;
+        b = pts[e].fX - pts[s].fX;
         c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
     }
 

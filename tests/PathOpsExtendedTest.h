@@ -26,9 +26,6 @@ struct TestDesc {
 extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
 extern void showOp(const SkPathOp op);
-extern void showPath(const SkPath& path, const char* str);
-extern void showPath(const SkPath& path);
-extern void showPathData(const SkPath& path);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                         const SkPathOp );
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,

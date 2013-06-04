@@ -134,7 +134,8 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
             continue;
         }
         SkTDArray<SkOpAngle*> sorted;
-        bool sortable = SkOpSegment::SortAngles(angles, &sorted);
+        bool sortable = SkOpSegment::SortAngles(angles, &sorted,
+                SkOpSegment::kMayBeUnordered_SortAngleKind);
         int angleCount = sorted.count();
 #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0);

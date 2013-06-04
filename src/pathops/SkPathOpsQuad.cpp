@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkIntersections.h"
 #include "SkLineParameters.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsQuad.h"
@@ -220,12 +221,53 @@ SkDQuad SkDQuad::subDivide(double t1, double t2) const {
     return dst;
 }
 
+void SkDQuad::align(int endIndex, SkDPoint* dstPt) const {  
+    if (fPts[endIndex].fX == fPts[1].fX) {
+        dstPt->fX = fPts[endIndex].fX;
+    }
+    if (fPts[endIndex].fY == fPts[1].fY) {
+        dstPt->fY = fPts[endIndex].fY;
+    }
+}
+
 SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, double t2) const {
+    SkASSERT(t1 != t2);
     SkDPoint b;
+#if 0
+    // this approach assumes that the control point computed directly is accurate enough
     double dx = interp_quad_coords(&fPts[0].fX, (t1 + t2) / 2);
     double dy = interp_quad_coords(&fPts[0].fY, (t1 + t2) / 2);
     b.fX = 2 * dx - (a.fX + c.fX) / 2;
     b.fY = 2 * dy - (a.fY + c.fY) / 2;
+#else
+    SkDQuad sub = subDivide(t1, t2);
+    SkDLine b0 = {{a, sub[1] + (a - sub[0])}};
+    SkDLine b1 = {{c, sub[1] + (c - sub[2])}};
+    SkIntersections i;
+    i.intersectRay(b0, b1);
+    if (i.used() == 1) {
+        b = i.pt(0);
+    } else {
+        SkASSERT(i.used() == 2 || i.used() == 0);
+        b = SkDPoint::Mid(b0[1], b1[1]);
+    }
+#endif
+    if (t1 == 0 || t2 == 0) {
+        align(0, &b);
+    }
+    if (t1 == 1 || t2 == 1) {
+        align(2, &b);
+    }
+    if (precisely_subdivide_equal(b.fX, a.fX)) {
+        b.fX = a.fX;
+    } else if (precisely_subdivide_equal(b.fX, c.fX)) {
+        b.fX = c.fX;
+    }
+    if (precisely_subdivide_equal(b.fY, a.fY)) {
+        b.fY = a.fY;
+    } else if (precisely_subdivide_equal(b.fY, c.fY)) {
+        b.fY = c.fY;
+    }
     return b;
 }
 
