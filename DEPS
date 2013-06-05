@@ -10,7 +10,7 @@ use_relative_paths = True
 deps = {
   "third_party/externals/angle" : "http://angleproject.googlecode.com/svn/trunk@1268",
   "third_party/externals/freetype" : "https://android.googlesource.com/platform/external/freetype.git",
-  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@1563",
+  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@1643",
   "third_party/externals/libjpeg" : "http://src.chromium.org/svn/trunk/src/third_party/libjpeg@125399",
   "third_party/externals/jsoncpp" : "http://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp/trunk/jsoncpp@248",
   "third_party/externals/jsoncpp-chromium" : "http://src.chromium.org/svn/trunk/src/third_party/jsoncpp@125399",
