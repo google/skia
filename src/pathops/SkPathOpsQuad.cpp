@@ -221,7 +221,7 @@ SkDQuad SkDQuad::subDivide(double t1, double t2) const {
     return dst;
 }
 
-void SkDQuad::align(int endIndex, SkDPoint* dstPt) const {  
+void SkDQuad::align(int endIndex, SkDPoint* dstPt) const {
     if (fPts[endIndex].fX == fPts[1].fX) {
         dstPt->fX = fPts[endIndex].fX;
     }

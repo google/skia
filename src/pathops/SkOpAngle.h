@@ -81,7 +81,7 @@ private:
     // if subdividing a quad or cubic causes the tangent to go from the maximum angle to the
     // minimum, mark it unorderable. It still can be sorted, which is good enough for find-top
     // but can't be ordered, and therefore can't be used to compute winding
-    bool fUnorderable; 
+    bool fUnorderable;
     mutable bool fUnsortable;  // this alone is editable by the less than operator
 #if DEBUG_ANGLE
     int fID;

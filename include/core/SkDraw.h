@@ -106,7 +106,7 @@ private:
     void    drawPosText_asPaths(const char text[], size_t byteLength,
                                 const SkScalar pos[], SkScalar constY,
                                 int scalarsPerPosition, const SkPaint&) const;
-    
+
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then

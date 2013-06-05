@@ -37,7 +37,7 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
             0 == paint.getStrokeWidth()) {
         return true;
     }
-    
+
     // we don't cache perspective
     if (ctm.hasPerspective()) {
         return true;
@@ -1867,7 +1867,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkMatrix matrix = *fMatrix;
     matrix.preScale(matrixScale, matrixScale);
     const SkScalar posScale = SkScalarInvert(matrixScale);
-    
+
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, NULL, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
@@ -1876,7 +1876,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
     TextMapState       tms(SkMatrix::I(), constY);
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
-    
+
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
         if (glyph.fWidth) {
@@ -1885,7 +1885,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
                 tmsProc(tms, pos);
                 SkIPoint fixedLoc;
                 alignProc(tms.fLoc, glyph, &fixedLoc);
-                
+
                 SkMatrix localMatrix = matrix;
                 localMatrix.preTranslate(SkFixedToScalar(fixedLoc.fX) * posScale,
                                          SkFixedToScalar(fixedLoc.fY) * posScale);

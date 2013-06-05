@@ -30,7 +30,7 @@ static const int bugChar = strlen(funcName) + 1;
 
     #define COMPARE_RESULT(append, compare) CompareResult(&bugOut, append, compare)
 #else
-    #define COMPARE_RESULT(append, compare) compare   
+    #define COMPARE_RESULT(append, compare) compare
 #endif
 
 bool SkOpAngle::calcSlop(double x, double y, double rx, double ry, bool* result) const{
@@ -105,7 +105,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
         }
         // at this point, both y's are zero, so lines are coincident or one is degenerate
         SkASSERT(x * rx != 0);  // and a degenerate line should haven't gotten this far
-    } 
+    }
     // see if either curve can be lengthened before trying the tangent
     if (fSegment->other(fEnd) != rh.fSegment  // tangents not absolutely identical
             && rh.fSegment->other(rh.fEnd) != fSegment) {  // and not intersecting
@@ -133,7 +133,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
             // if the vector was a result of subdividing a curve, see if it is stable
             bool sloppy1 = x_ry < rx_y;
             bool sloppy2 = !sloppy1;
-            if ((!fComputed || calcSlop(x, y, rx, ry, &sloppy1)) 
+            if ((!fComputed || calcSlop(x, y, rx, ry, &sloppy1))
                     && (!rh.fComputed || rh.calcSlop(rx, ry, x, y, &sloppy2))
                     && sloppy1 != sloppy2) {
                 return COMPARE_RESULT("8 CalcSlop(x, y ...", sloppy1);
@@ -384,7 +384,7 @@ void SkOpAngle::setSpans() {
                 fUnsortable = fSegment->isTiny(this);
                 return;
             }
-        } 
+        }
         } break;
     default:
         SkASSERT(0);

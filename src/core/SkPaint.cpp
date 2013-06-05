@@ -961,10 +961,10 @@ SkScalar SkPaint::setupForAsPaths() {
     flags &= ~TEXT_AS_PATHS_PAINT_FLAGS_TO_IGNORE;
     // set the flags we do care about
     flags |= SkPaint::kSubpixelText_Flag;
-    
+
     this->setFlags(flags);
     this->setHinting(SkPaint::kNo_Hinting);
-    
+
     SkScalar textSize = fTextSize;
     this->setTextSize(kCanonicalTextSizeForPaths);
     return textSize / kCanonicalTextSizeForPaths;
@@ -981,7 +981,7 @@ public:
     }
 
     const SkPaint& getPaint() const { return *fPaint; }
-    
+
     /**
      *  Returns 0 if the paint was unmodified, or the scale factor need to
      *  the original textSize
@@ -1274,7 +1274,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
-    
+
     SkMatrix zoomMatrix, *zoomPtr = NULL;
     if (zoom) {
         zoomMatrix.setScale(zoom, zoom);
