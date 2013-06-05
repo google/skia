@@ -449,7 +449,7 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
         if (offset > length) {
             offset = length;
         }
-        
+
         // Check if length + len exceeds 32bits, we trim len
         len = check_add32(length, len);
         if (0 == len) {

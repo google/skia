@@ -33,7 +33,7 @@ struct SkDCubic {
     const SkDPoint& operator[](int n) const { SkASSERT(n >= 0 && n < 4); return fPts[n]; }
     SkDPoint& operator[](int n) { SkASSERT(n >= 0 && n < 4); return fPts[n]; }
 
-    void align(int endIndex, int ctrlIndex, SkDPoint* dstPt) const; 
+    void align(int endIndex, int ctrlIndex, SkDPoint* dstPt) const;
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
     bool clockwise() const;

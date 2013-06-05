@@ -412,9 +412,9 @@ static int find_slop(double x, double y, double rx, double ry) {
 static double diamond_angle(double y, double x)
 {
     if (y >= 0)
-        return (x >= 0 ? y/(x+y) : 1-x/(-x+y)); 
+        return (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
-        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y)); 
+        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
 }
 
 static const double slopTests[][4] = {
@@ -431,8 +431,8 @@ static void PathOpsAngleFindSlop(skiatest::Reporter* reporter) {
         double y = slopTest[1];
         double rx = slopTest[2];
         double ry = slopTest[3];
-        SkDebugf("%s  xy %d=%d\n", __FUNCTION__, (int) index, find_slop(x, y, rx, ry)); 
-        SkDebugf("%s rxy %d=%d\n", __FUNCTION__, (int) index, find_slop(rx, ry, x, y)); 
+        SkDebugf("%s  xy %d=%d\n", __FUNCTION__, (int) index, find_slop(x, y, rx, ry));
+        SkDebugf("%s rxy %d=%d\n", __FUNCTION__, (int) index, find_slop(rx, ry, x, y));
         double angle = diamond_angle(y, x);
         double rAngle = diamond_angle(ry, rx);
         double diff = fabs(angle - rAngle);

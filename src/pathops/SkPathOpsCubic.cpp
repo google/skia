@@ -407,7 +407,7 @@ SkDCubic SkDCubic::subDivide(double t1, double t2) const {
     return dst;
 }
 
-void SkDCubic::align(int endIndex, int ctrlIndex, SkDPoint* dstPt) const {  
+void SkDCubic::align(int endIndex, int ctrlIndex, SkDPoint* dstPt) const {
     if (fPts[endIndex].fX == fPts[ctrlIndex].fX) {
         dstPt->fX = fPts[endIndex].fX;
     }
