@@ -37,21 +37,26 @@ SkTypeface::~SkTypeface() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkTypeface::GetDefaultTypeface() {
+SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     // we keep a reference to this guy for all time, since if we return its
     // fontID, the font cache may later on ask to resolve that back into a
     // typeface object.
-    static SkTypeface* gDefaultTypeface;
+    static const uint32_t FONT_STYLE_COUNT = 4;
+    static SkTypeface* gDefaultTypefaces[FONT_STYLE_COUNT];
+    SkASSERT((unsigned)style < FONT_STYLE_COUNT);
 
-    if (NULL == gDefaultTypeface) {
-        gDefaultTypeface =
-        SkFontHost::CreateTypeface(NULL, NULL, SkTypeface::kNormal);
+    // mask off any other bits to avoid a crash in SK_RELEASE
+    style = (Style)(style & 0x03);
+
+    if (NULL == gDefaultTypefaces[style]) {
+        gDefaultTypefaces[style] =
+        SkFontHost::CreateTypeface(NULL, NULL, style);
     }
-    return gDefaultTypeface;
+    return gDefaultTypefaces[style];
 }
 
-SkTypeface* SkTypeface::RefDefault() {
-    return SkRef(GetDefaultTypeface());
+SkTypeface* SkTypeface::RefDefault(Style style) {
+    return SkRef(GetDefaultTypeface(style));
 }
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
@@ -68,6 +73,9 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
+    if (NULL == name) {
+        return RefDefault(style);
+    }
     return SkFontHost::CreateTypeface(NULL, name, style);
 }
 
