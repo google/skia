@@ -13,10 +13,23 @@ Must be run from the gm-expected directory.  If run from a git or SVN
 checkout, the files will be added to the staging area for commit.
 '''
 
+# System-level imports
 import argparse
 import os
 import subprocess
 import sys
+import urllib2
+
+# Imports from within Skia
+#
+# Make sure that they are in the PYTHONPATH, but add them at the *end*
+# so any that are already in the PYTHONPATH will be preferred.
+GM_DIRECTORY = os.path.realpath(
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
+if GM_DIRECTORY not in sys.path:
+    sys.path.append(GM_DIRECTORY)
+import gm_json
+
 
 # Mapping of gm-expectations subdir (under
 # https://skia.googlecode.com/svn/gm-expected/ )
@@ -53,22 +66,32 @@ class CommandFailedException(Exception):
 class Rebaseliner(object):
 
     # params:
-    #  tests: list of tests to rebaseline
-    #  configs: which configs to run for each test
-    #  subdirs: which platform subdirectories to rebaseline; if an empty list,
+    #  json_base_url: base URL from which to read json_filename
+    #  json_filename: filename (under json_base_url) from which to read a
+    #                 summary of results; typically "actual-results.json"
+    #  subdirs: which platform subdirectories to rebaseline; if not specified,
     #           rebaseline all platform subdirectories
+    #  tests: list of tests to rebaseline, or None if we should rebaseline
+    #         whatever files the JSON results summary file tells us to
+    #  configs: which configs to run for each test; this should only be
+    #           specified if the list of tests was also specified (otherwise,
+    #           the JSON file will give us test names and configs)
     #  dry_run: if True, instead of actually downloading files or adding
     #           files to checkout, display a list of operations that
     #           we would normally perform
-    def __init__(self, tests, configs=[], subdirs=[], dry_run=False):
-        if not tests:
-            raise Exception('at least one test must be specified')
+    def __init__(self, json_base_url, json_filename,
+                 subdirs=None, tests=None, configs=None, dry_run=False):
+        if configs and not tests:
+            raise ValueError('configs should only be specified if tests ' +
+                             'were specified also')
         self._tests = tests
         self._configs = configs
         if not subdirs:
             self._subdirs = sorted(SUBDIR_MAPPING.keys())
         else:
             self._subdirs = subdirs
+        self._json_base_url = json_base_url
+        self._json_filename = json_filename
         self._dry_run = dry_run
         self._is_svn_checkout = (
             os.path.exists('.svn') or
@@ -101,9 +124,51 @@ class Rebaseliner(object):
                      '--output', temp_filename ])
         self._Call([ 'mv', temp_filename, dest_filename ])
 
+    # Returns the full contents of a URL, as a single string.
+    #
+    # Unlike standard URL handling, we allow relative "file:" URLs;
+    # for example, "file:one/two" resolves to the file ./one/two
+    # (relative to current working dir)
+    def _GetContentsOfUrl(self, url):
+        file_prefix = 'file:'
+        if url.startswith(file_prefix):
+            filename = url[len(file_prefix):]
+            return open(filename, 'r').read()
+        else:
+            return urllib2.urlopen(url).read()
+
+    # Returns a list of files that require rebaselining.
+    #
+    # Note that this returns a list of FILES, like this:
+    #  ['imageblur_565.png', 'xfermodes_pdf.png']
+    # rather than a list of TESTS, like this:
+    #  ['imageblur', 'xfermodes']
+    #
+    # params:
+    #  json_url: URL pointing to a JSON actual result summary file
+    #
+    # TODO(epoger): add a parameter indicating whether "no-comparison"
+    # results (those for which we don't have any expectations yet)
+    # should be rebaselined.  For now, we only return failed expectations.
+    def _GetFilesToRebaseline(self, json_url):
+        print ('# Getting files to rebaseline from JSON summary URL %s ...'
+               % json_url)
+        json_contents = self._GetContentsOfUrl(json_url)
+        json_dict = gm_json.LoadFromString(json_contents)
+        actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
+
+        files_to_rebaseline = []
+        failed_results = actual_results[gm_json.JSONKEY_ACTUALRESULTS_FAILED]
+        if failed_results:
+            files_to_rebaseline.extend(failed_results.keys())
+
+        print '# ... found files_to_rebaseline %s' % files_to_rebaseline
+        return files_to_rebaseline
+
     # Rebaseline a single file.
     def _RebaselineOneFile(self, expectations_subdir, builder_name,
                            infilename, outfilename):
+        print '# ' + infilename
         url = ('http://skia-autogen.googlecode.com/svn/gm-actual/' +
                expectations_subdir + '/' + builder_name + '/' +
                expectations_subdir + '/' + infilename)
@@ -155,7 +220,6 @@ class Rebaseliner(object):
         print '# ' + expectations_subdir + ':'
         for config in configs:
             infilename = test + '_' + config + '.png'
-            print '# ' + infilename
             outfilename = os.path.join(expectations_subdir, infilename);
             self._RebaselineOneFile(expectations_subdir=expectations_subdir,
                                     builder_name=builder_name,
@@ -164,17 +228,28 @@ class Rebaseliner(object):
 
     # Rebaseline all platforms/tests/types we specified in the constructor.
     def RebaselineAll(self):
-        for test in self._tests:
-            for subdir in self._subdirs:
-                if not subdir in SUBDIR_MAPPING.keys():
-                    raise Exception(('unrecognized platform subdir "%s"; ' +
-                                     'should be one of %s') % (
-                                         subdir, SUBDIR_MAPPING.keys()))
-                builder_name = SUBDIR_MAPPING[subdir]
-                self._RebaselineOneTest(expectations_subdir=subdir,
-                                        builder_name=builder_name,
-                                        test=test)
-
+        for subdir in self._subdirs:
+            if not subdir in SUBDIR_MAPPING.keys():
+                raise Exception(('unrecognized platform subdir "%s"; ' +
+                                 'should be one of %s') % (
+                                     subdir, SUBDIR_MAPPING.keys()))
+            builder_name = SUBDIR_MAPPING[subdir]
+            if self._tests:
+                for test in self._tests:
+                    self._RebaselineOneTest(expectations_subdir=subdir,
+                                            builder_name=builder_name,
+                                            test=test)
+            else:  # get the raw list of files that need rebaselining from JSON
+                json_url = '/'.join([self._json_base_url,
+                                     subdir, builder_name, subdir,
+                                     self._json_filename])
+                filenames = self._GetFilesToRebaseline(json_url=json_url)
+                for filename in filenames:
+                    outfilename = os.path.join(subdir, filename);
+                    self._RebaselineOneFile(expectations_subdir=subdir,
+                                            builder_name=builder_name,
+                                            infilename=filename,
+                                            outfilename=outfilename)
 
 # main...
 
@@ -182,19 +257,32 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help='which configurations to rebaseline, e.g. ' +
                     '"--configs 565 8888"; if unspecified, run a default ' +
-                    'set of configs')
+                    'set of configs. This should ONLY be specified if ' +
+                    '--tests has also been specified.')
 parser.add_argument('--dry_run', action='store_true',
                     help='instead of actually downloading files or adding ' +
                     'files to checkout, display a list of operations that ' +
                     'we would normally perform')
+parser.add_argument('--json_base_url',
+                    help='base URL from which to read JSON_FILENAME ' +
+                    'files; defaults to %(default)s',
+                    default='http://skia-autogen.googlecode.com/svn/gm-actual')
+parser.add_argument('--json_filename',
+                    help='filename (under JSON_BASE_URL) to read a summary ' +
+                    'of results from; defaults to %(default)s',
+                    default='actual-results.json')
 parser.add_argument('--subdirs', metavar='SUBDIR', nargs='+',
                     help='which platform subdirectories to rebaseline; ' +
                     'if unspecified, rebaseline all subdirs, same as ' +
                     '"--subdirs %s"' % ' '.join(sorted(SUBDIR_MAPPING.keys())))
-parser.add_argument('--tests', metavar='TEST', nargs='+', required=True,
+parser.add_argument('--tests', metavar='TEST', nargs='+',
                     help='which tests to rebaseline, e.g. ' +
-                    '"--tests aaclip bigmatrix"')
+                    '"--tests aaclip bigmatrix"; if unspecified, then all ' +
+                    'failing tests (according to the actual-results.json ' +
+                    'file) will be rebaselined.')
 args = parser.parse_args()
 rebaseliner = Rebaseliner(tests=args.tests, configs=args.configs,
-                          subdirs=args.subdirs, dry_run=args.dry_run)
+                          subdirs=args.subdirs, dry_run=args.dry_run,
+                          json_base_url=args.json_base_url,
+                          json_filename=args.json_filename)
 rebaseliner.RebaselineAll()

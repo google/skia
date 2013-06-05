@@ -1,0 +1,69 @@
+{
+   "actual-results" : {
+      "failed" : null,
+      "failure-ignored" : null,
+      "no-comparison" : {
+         "3x3bitmaprect_565.png" : [ "bitmap-64bitMD5", 16998423976396106083 ],
+         "3x3bitmaprect_8888.png" : [ "bitmap-64bitMD5", 2054956815327187963 ],
+         "xfermodeimagefilter_pdf.png" : [ "bitmap-64bitMD5", 16502178848783208088 ]
+      },
+      "succeeded" : {
+         "aaclip_gpu.png" : [ "bitmap-64bitMD5", 11899819492385205974 ],
+         "aarectmodes_565.png" : [ "bitmap-64bitMD5", 14760033689012826769 ],
+         "imageblur_565.png" : [ "bitmap-64bitMD5", 3359963596899141322 ],
+         "imageblur_8888.png" : [ "bitmap-64bitMD5", 4217923806027861152 ],
+         "shadertext3_8888.png" : [ "bitmap-64bitMD5", 3713708307125704716 ],
+         "xfermodes_pdf.png" : [ "bitmap-64bitMD5", 9151974350149210736 ]
+      }
+   },
+   "expected-results" : {
+      "3x3bitmaprect_565.png" : {
+         "allowed-digests" : null,
+         "ignore-failure" : false
+      },
+      "3x3bitmaprect_8888.png" : {
+         "allowed-digests" : null,
+         "ignore-failure" : false
+      },
+      "aaclip_gpu.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 11899819492385205974 ]
+         ],
+         "ignore-failure" : false
+      },
+      "aarectmodes_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 14760033689012826769 ]
+         ],
+         "ignore-failure" : false
+      },
+      "imageblur_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 3359963596899141322 ]
+         ],
+         "ignore-failure" : false
+      },
+      "imageblur_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 4217923806027861152 ]
+         ],
+         "ignore-failure" : false
+      },
+      "shadertext3_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 3713708307125704716 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_pdf.png" : {
+         "allowed-digests" : null,
+         "ignore-failure" : false
+      },
+      "xfermodes_pdf.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 9151974350149210736 ]
+         ],
+         "ignore-failure" : false
+      }
+   }
+}
