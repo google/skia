@@ -122,7 +122,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     // TODO should the caller give us the style?
     SkTypeface::Style style = SkTypeface::kNormal;
     SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, stream));
-    SkTypefaceCache::Add(face, style);
     return face;
 }
 
