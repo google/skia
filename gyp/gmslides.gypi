@@ -7,6 +7,7 @@
     '../gm/arithmode.cpp',
     '../gm/bicubicfilter.cpp',
     '../gm/bigmatrix.cpp',
+    '../gm/bigtext.cpp',
     '../gm/bitmapcopy.cpp',
     '../gm/bitmapmatrix.cpp',
     '../gm/bitmapfilters.cpp',
