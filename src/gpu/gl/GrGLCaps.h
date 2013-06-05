@@ -215,8 +215,11 @@ public:
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
 
-    // maximum number of attribute values per vertex
+    /// maximum number of attribute values per vertex
     int maxVertexAttributes() const { return fMaxVertexAttributes; }
+
+    /// maximum number of texture units accessible in the fragment shader.
+    int maxFragmentTextureUnits() const { return fMaxFragmentTextureUnits; }
 
     /// ES requires an extension to support RGBA8 in RenderBufferStorage
     bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
@@ -332,6 +335,7 @@ private:
 
     int fMaxFragmentUniformVectors;
     int fMaxVertexAttributes;
+    int fMaxFragmentTextureUnits;
 
     MSFBOType fMSFBOType;
     CoverageAAType fCoverageAAType;

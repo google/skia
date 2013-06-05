@@ -20,9 +20,6 @@ static const GrGLint  GR_INVAL_GLINT = ~0;
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
 
-// we use a spare texture unit to avoid
-// mucking with the state of any of the stages.
-static const int SPARE_TEX_UNIT = GrDrawState::kNumStages;
 
 #define SKIP_CACHE_CHECK    true
 
@@ -118,35 +115,6 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 static bool gPrintStartupSpew;
 
-static bool fbo_test(const GrGLInterface* gl, int w, int h) {
-
-    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
-
-    GrGLuint testFBO;
-    GR_GL_CALL(gl, GenFramebuffers(1, &testFBO));
-    GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, testFBO));
-    GrGLuint testRTTex;
-    GR_GL_CALL(gl, GenTextures(1, &testRTTex));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, testRTTex));
-    // some implementations require texture to be mip-map complete before
-    // FBO with level 0 bound as color attachment will be framebuffer complete.
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D,
-                                 GR_GL_TEXTURE_MIN_FILTER,
-                                 GR_GL_NEAREST));
-    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, w, h,
-                              0, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE, NULL));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, 0));
-    GR_GL_CALL(gl, FramebufferTexture2D(GR_GL_FRAMEBUFFER,
-                                        GR_GL_COLOR_ATTACHMENT0,
-                                        GR_GL_TEXTURE_2D, testRTTex, 0));
-    GrGLenum status;
-    GR_GL_CALL_RET(gl, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-    GR_GL_CALL(gl, DeleteFramebuffers(1, &testFBO));
-    GR_GL_CALL(gl, DeleteTextures(1, &testRTTex));
-
-    return status == GR_GL_FRAMEBUFFER_COMPLETE;
-}
-
 GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     : GrGpu(context)
     , fGLContext(ctx) {
@@ -154,6 +122,8 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     GrAssert(ctx.isInitialized());
 
     fCaps.reset(SkRef(ctx.info().caps()));
+
+    fHWBoundTextures.reset(ctx.info().caps()->maxFragmentTextureUnits());
 
     fillInConfigRenderableTable();
 
@@ -183,9 +153,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     GrAssert(this->glCaps().maxVertexAttributes() >= GrDrawState::kMaxVertexAttribCnt);
 
     fLastSuccessfulStencilFmtIdx = 0;
-    if (false) { // avoid bit rot, suppress warning
-        fbo_test(this->glInterface(), 0, 0);
-    }
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -361,7 +328,7 @@ void GrGpuGL::onResetContext() {
 
     fHWBlendState.invalidate();
 
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+    for (int s = 0; s < fHWBoundTextures.count(); ++s) {
         fHWBoundTextures[s] = NULL;
     }
 
@@ -473,7 +440,6 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         return NULL;
     }
 
-    this->setSpareTextureUnit();
     return texture;
 }
 
@@ -527,7 +493,7 @@ bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     }
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
-    this->setSpareTextureUnit();
+    this->setScratchTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
     GrGLTexture::Desc desc;
     desc.fFlags = glTex->desc().fFlags;
@@ -952,7 +918,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         return return_null_texture();
     }
 
-    this->setSpareTextureUnit();
+    this->setScratchTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
 
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
@@ -2102,7 +2068,7 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
 }
 
 void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+    for (int s = 0; s < fHWBoundTextures.count(); ++s) {
         if (fHWBoundTextures[s] == texture) {
             // deleting bound texture does implied bind to 0
             fHWBoundTextures[s] = NULL;
@@ -2222,18 +2188,23 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
 }
 
 void GrGpuGL::setTextureUnit(int unit) {
-    GrAssert(unit >= 0 && unit < GrDrawState::kNumStages);
-    if (fHWActiveTextureUnitIdx != unit) {
+    GrAssert(unit >= 0 && unit < fHWBoundTextures.count());
+    if (unit != fHWActiveTextureUnitIdx) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + unit));
         fHWActiveTextureUnitIdx = unit;
     }
 }
 
-void GrGpuGL::setSpareTextureUnit() {
-    if (fHWActiveTextureUnitIdx != (GR_GL_TEXTURE0 + SPARE_TEX_UNIT)) {
-        GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
-        fHWActiveTextureUnitIdx = SPARE_TEX_UNIT;
+void GrGpuGL::setScratchTextureUnit() {
+    // Bind the last texture unit since it is the least likely to be used by GrGLProgram.
+    int lastUnitIdx = fHWBoundTextures.count() - 1;
+    if (lastUnitIdx != fHWActiveTextureUnitIdx) {
+        GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + lastUnitIdx));
+        fHWActiveTextureUnitIdx = lastUnitIdx;
     }
+    // clear out the this field so that if a program does use this unit it will rebind the correct
+    // texture.
+    fHWBoundTextures[lastUnitIdx] = NULL;
 }
 
 namespace {
@@ -2370,7 +2341,7 @@ bool GrGpuGL::onCopySurface(GrSurface* dst,
                                 srcRect.height(),
                                 src->origin());
 
-        this->setSpareTextureUnit();
+        this->setScratchTextureUnit();
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, dstTex->textureID()));
         GrGLint dstY;
         if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
