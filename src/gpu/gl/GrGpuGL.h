@@ -227,7 +227,9 @@ private:
     // determines valid stencil formats
     void initStencilFormats();
 
-    void setSpareTextureUnit();
+    // sets a texture unit to use for texture operations other than binding a texture to a program.
+    // ensures that such operations don't negatively interact with tracking bound textures.
+    void setScratchTextureUnit();
 
     // bound is region that may be modified and therefore has to be resolved.
     // NULL means whole target. Can be an empty rect.
@@ -425,7 +427,7 @@ private:
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
     GrRenderTarget*             fHWBoundRenderTarget;
-    GrTexture*                  fHWBoundTextures[GrDrawState::kNumStages];
+    SkTArray<GrTexture*, true>  fHWBoundTextures;
     ///@}
 
     // we record what stencil format worked last time to hopefully exit early

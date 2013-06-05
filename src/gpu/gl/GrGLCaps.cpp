@@ -28,6 +28,7 @@ void GrGLCaps::reset() {
     fFBFetchType = kNone_FBFetchType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
+    fMaxFragmentTextureUnits = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAFormatSupport = false;
     fBGRAIsInternalFormat = false;
@@ -59,6 +60,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
+    fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
     fMSFBOType = caps.fMSFBOType;
     fCoverageAAType = caps.fCoverageAAType;
     fMSAACoverageModes = caps.fMSAACoverageModes;
@@ -109,6 +111,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fMaxFragmentUniformVectors = max / 4;
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &fMaxFragmentTextureUnits);
 
     if (kDesktop_GrGLBinding == binding) {
         fRGBA8RenderbufferSupport = true;
@@ -222,12 +225,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     /**************************************************************************
      * GrDrawTargetCaps fields
      **************************************************************************/
-    GrGLint maxTextureUnits;
-    // check FS and fixed-function texture unit limits
-    // we only use textures in the fragment stage currently.
-    // checks are > to make sure we have a spare unit.
-    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-
     GrGLint numFormats;
     GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
     if (numFormats) {
