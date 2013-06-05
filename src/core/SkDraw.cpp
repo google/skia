@@ -1861,12 +1861,8 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkPaint paint(origPaint);
     SkScalar matrixScale = paint.setupForAsPaths();
 
-    SkDraw draw(*this);
-
-    // Now modify our matrix to account for the canonical text size
-    SkMatrix matrix = *fMatrix;
-    matrix.preScale(matrixScale, matrixScale);
-    const SkScalar posScale = SkScalarInvert(matrixScale);
+    SkMatrix matrix;
+    matrix.setScale(matrixScale, matrixScale);
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, NULL, NULL);
@@ -1886,11 +1882,13 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
                 SkIPoint fixedLoc;
                 alignProc(tms.fLoc, glyph, &fixedLoc);
 
-                SkMatrix localMatrix = matrix;
-                localMatrix.preTranslate(SkFixedToScalar(fixedLoc.fX) * posScale,
-                                         SkFixedToScalar(fixedLoc.fY) * posScale);
-                draw.fMatrix = &localMatrix;
-                draw.drawPath(*path, paint);
+                matrix[SkMatrix::kMTransX] = SkFixedToScalar(fixedLoc.fX);
+                matrix[SkMatrix::kMTransY] = SkFixedToScalar(fixedLoc.fY);
+                if (fDevice) {
+                    fDevice->drawPath(*this, *path, paint, &matrix, false);
+                } else {
+                    this->drawPath(*path, paint, &matrix, false);
+                }
             }
         }
         pos += scalarsPerPosition;
