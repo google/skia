@@ -13,16 +13,22 @@
 # See https://code.google.com/p/skia/issues/detail?id=677
 # ('make tools/tests/run.sh work cross-platform')
 
+# Replace expected output with actual output, within subdir $1.
 function replace_expected_with_actual {
+  if [ $# != 1 ]; then
+    echo "replace_expected_with_actual requires exactly 1 parameter, got $#"
+    exit 1
+  fi
+
   # Delete all the expected output files
-  EXPECTED_FILES=$(find $WHICHTOOL/*/output-expected -type f | grep -v /\.svn/)
+  EXPECTED_FILES=$(find $1/*/output-expected -type f | grep -v /\.svn/)
   for EXPECTED_FILE in $EXPECTED_FILES; do
     rm $EXPECTED_FILE
   done
 
   # Copy all the actual output files into the "expected" directories,
   # creating new subdirs as we go.
-  ACTUAL_FILES=$(find $WHICHTOOL/*/output-actual -type f | grep -v /\.svn/)
+  ACTUAL_FILES=$(find $1/*/output-actual -type f | grep -v /\.svn/)
   for ACTUAL_FILE in $ACTUAL_FILES; do
     EXPECTED_FILE=${ACTUAL_FILE//actual/expected}
     mkdir -p $(dirname $EXPECTED_FILE)
@@ -30,26 +36,39 @@ function replace_expected_with_actual {
   done
 }
 
+# Add all new files to SVN control, within subdir $1.
 function svn_add_new_files {
+  if [ $# != 1 ]; then
+    echo "svn_add_new_files requires exactly 1 parameter, got $#"
+    exit 1
+  fi
+
   # Delete all the "actual" directories, so we can svn-add any new "expected"
   # directories without adding the "actual" ones.
-  rm -rf $WHICHTOOL/*/output-actual $WHICHTOOL/*/raw-bench-data
-  FILES=$(svn stat $WHICHTOOL/* | grep ^\? | awk '{print $2}')
+  rm -rf $1/*/output-actual $1/*/raw-bench-data
+  FILES=$(svn stat $1/* | grep ^\? | awk '{print $2}')
   for FILE in $FILES; do
     svn add $FILE
   done
-  FILES=$(svn stat $WHICHTOOL/*/output-expected | grep ^\? | awk '{print $2}')
+  FILES=$(svn stat $1/*/output-expected | grep ^\? | awk '{print $2}')
   for FILE in $FILES; do
     svn add $FILE
   done
 }
 
+# For any files that have been removed from subdir $1, remove them from
+# SVN control.
 function svn_delete_old_files {
-  FILES=$(svn stat $WHICHTOOL/*/output-expected | grep ^\! | awk '{print $2}')
+  if [ $# != 1 ]; then
+    echo "svn_delete_old_files requires exactly 1 parameter, got $#"
+    exit 1
+  fi
+
+  FILES=$(svn stat $1/*/output-expected | grep ^\! | awk '{print $2}')
   for FILE in $FILES; do
     svn rm $FILE
   done
-  FILES=$(svn stat $WHICHTOOL/* | grep ^\! | awk '{print $2}')
+  FILES=$(svn stat $1/* | grep ^\! | awk '{print $2}')
   for FILE in $FILES; do
     svn rm $FILE
   done
@@ -61,17 +80,17 @@ cd $(dirname $0)
 
 ./run.sh
 SELFTEST_RESULT=$?
-TOOLS="skdiff benchgraphs rebaseline"
+SUBDIRS="skdiff benchgraphs rebaseline/output"
 echo
 if [ "$SELFTEST_RESULT" != "0" ]; then
-  for WHICHTOOL in $TOOLS; do
-    replace_expected_with_actual
+  for SUBDIR in $SUBDIRS; do
+    replace_expected_with_actual $SUBDIR
   done
   echo "Self-tests still failing, you should probably run this again..."
 else
-  for WHICHTOOL in $TOOLS; do
-    svn_add_new_files
-    svn_delete_old_files
+  for SUBDIR in $SUBDIRS; do
+    svn_add_new_files $SUBDIR
+    svn_delete_old_files $SUBDIR
   done
   echo "Self-tests succeeded this time, you should be done!"
 fi

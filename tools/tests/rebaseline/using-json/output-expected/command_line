@@ -1,1 +1,0 @@
-python tools/rebaseline.py --dry_run --json_base_url file:tools/tests/rebaseline/using-json --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float
