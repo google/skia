@@ -11,6 +11,7 @@
 
 #include <QWidget>
 
+#include "SkSurface.h"
 class SkDebugger;
 
 class  SkImageWidget : public QWidget {
@@ -18,6 +19,10 @@ class  SkImageWidget : public QWidget {
 
 public:
     SkImageWidget(SkDebugger* debugger);
+    
+    virtual ~SkImageWidget() {
+        fSurface->unref();
+    }
 
     void draw() {
         this->update();
@@ -33,7 +38,9 @@ protected:
     void paintEvent(QPaintEvent* event);
 
 private:
-    SkDebugger *fDebugger;
+    SkDebugger* fDebugger;
+    char        fPixels[kImageWidgetHeight * 4 * kImageWidgetWidth];
+    SkSurface*  fSurface;
 };
 
 #endif /* SKIMAGEWIDGET_H_ */
