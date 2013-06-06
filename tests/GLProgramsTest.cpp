@@ -190,7 +190,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContext(),
                                                               pdesc,
-                                                              stages.get()));
+                                                              stages,
+                                                              stages + numColorStages));
         for (int s = 0; s < numStages; ++s) {
             SkDELETE(stages[s]);
         }

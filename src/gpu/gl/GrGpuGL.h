@@ -178,7 +178,9 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrGLProgramDesc& desc, const GrEffectStage* stages[]);
+        GrGLProgram* getProgram(const GrGLProgramDesc& desc,
+                                const GrEffectStage* colorStages[],
+                                const GrEffectStage* coverageStages[]);
 
     private:
         enum {

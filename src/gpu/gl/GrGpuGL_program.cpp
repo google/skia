@@ -84,7 +84,8 @@ int GrGpuGL::ProgramCache::search(const GrGLProgramDesc& desc) const {
 }
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
-                                               const GrEffectStage* stages[]) {
+                                               const GrEffectStage* colorStages[],
+                                               const GrEffectStage* coverageStages[]) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -119,7 +120,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgram::Create(fGL, desc, stages);
+        GrGLProgram* program = GrGLProgram::Create(fGL, desc, colorStages, coverageStages);
         if (NULL == program) {
             return NULL;
         }
@@ -273,7 +274,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        const GrEffectStage* stages[GrDrawState::kNumStages];
+        SkSTArray<8, const GrEffectStage*, true> colorStages;
+        SkSTArray<8, const GrEffectStage*, true> coverageStages;
         GrGLProgramDesc desc;
         GrGLProgramDesc::Build(this->getDrawState(),
                                kDrawPoints_DrawType == type,
@@ -282,10 +284,13 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
                                dstCoeff,
                                this,
                                dstCopy,
-                               stages,
+                               &colorStages,
+                               &coverageStages,
                                &desc);
 
-        fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
+        fCurrentProgram.reset(fProgramCache->getProgram(desc,
+                                                        colorStages.begin(),
+                                                        coverageStages.begin()));
         if (NULL == fCurrentProgram.get()) {
             GrAssert(!"Failed to create program!");
             return false;
@@ -301,7 +306,12 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(this, blendOpts, stages, dstCopy, &fSharedGLProgramState);
+        fCurrentProgram->setData(this,
+                                 blendOpts,
+                                 colorStages.begin(),
+                                 coverageStages.begin(),
+                                 dstCopy,
+                                 &fSharedGLProgramState);
     }
     this->flushStencil(type);
     this->flushScissor();
