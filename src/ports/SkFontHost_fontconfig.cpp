@@ -154,7 +154,9 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
         SkAutoTMalloc<uint8_t> allocMemory(length);
         stream->rewind();
         if (length == stream->read(allocMemory.get(), length)) {
-            return new SkMemoryStream(allocMemory.detach(), length);
+            SkAutoTUnref<SkMemoryStream> copyStream(new SkMemoryStream());
+            copyStream->setMemoryOwned(allocMemory.detach(), length);
+            return copyStream.detach();
         }
 
         stream->rewind();
