@@ -138,7 +138,9 @@ class SkOSPath {
 public:
     /**
      * Assembles rootPath and relativePath into a single path, like this:
-     * rootPath/relativePath
+     * rootPath/relativePath.
+     * It is okay to call with a NULL rootPath and/or relativePath. A path
+     * separator will still be inserted.
      *
      * Uses SkPATH_SEPARATOR, to work on all platforms.
      */

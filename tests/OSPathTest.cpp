@@ -59,6 +59,12 @@ static void test_os_path_utils_tests(skiatest::Reporter* reporter) {
     dir.appendUnichar(SkPATH_SEPARATOR);
     test_dir_with_file(reporter, dir, filename);
 
+    // Test using no filename.
+    test_dir_with_file(reporter, dir, SkString());
+
+    // Testing using no directory.
+    test_dir_with_file(reporter, SkString(), filename);
+
     // Test with a sub directory.
     dir.append("subDir");
     test_dir_with_file(reporter, dir, filename);
@@ -71,6 +77,11 @@ static void test_os_path_utils_tests(skiatest::Reporter* reporter) {
     // Basename of NULL is an empty string.
     SkString empty = SkOSPath::SkBasename(NULL);
     REPORTER_ASSERT(reporter, empty.size() == 0);
+
+    // Test that NULL can be used for the directory and filename.
+    SkString emptyPath = SkOSPath::SkPathJoin(NULL, NULL);
+    REPORTER_ASSERT(reporter, emptyPath.size() == 1);
+    REPORTER_ASSERT(reporter, emptyPath.contains(SkPATH_SEPARATOR));
 }
 
 #include "TestClassDef.h"
