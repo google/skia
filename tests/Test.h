@@ -75,9 +75,9 @@ namespace skiatest {
         bool passed() const { return fPassed; }
         SkMSec elapsedMs() const { return fElapsed; }
 
-        static const SkString& GetTmpDir();
+        static SkString GetTmpDir();
 
-        static const SkString& GetResourcePath();
+        static SkString GetResourcePath();
 
         virtual bool isThreadsafe() const { return true; }
 

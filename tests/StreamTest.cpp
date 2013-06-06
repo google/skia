@@ -35,8 +35,7 @@ static void test_loop_stream(skiatest::Reporter* reporter, SkStream* stream,
 }
 
 static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
-    SkString path;
-    path.printf("%s%s", tmpDir, "wstream_test");
+    SkString path = SkOSPath::SkPathJoin(tmpDir, "wstream_test");
 
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
 
@@ -98,8 +97,9 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
     delete[] dst;
 
-    if (!skiatest::Test::GetTmpDir().isEmpty()) {
-        test_filestreams(reporter, skiatest::Test::GetTmpDir().c_str());
+    SkString tmpDir = skiatest::Test::GetTmpDir();
+    if (!tmpDir.isEmpty()) {
+        test_filestreams(reporter, tmpDir.c_str());
     }
 }
 
