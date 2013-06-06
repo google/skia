@@ -569,18 +569,24 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
         return NULL;
     }
 
-    const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
-    SkASSERT(currTypeface != 0);
-
     FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
     SkASSERT(currentFallbackList);
 
     // we must convert currTypeface into a FontRecID
-    FontRecID currFontRecID = ((FontConfigTypeface*)currTypeface)->getIdentity().fID;
-    SkASSERT(INVALID_FONT_REC_ID != currFontRecID);
+    FontRecID currFontRecID = INVALID_FONT_REC_ID;
+    const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
+    // non-system fonts are not in the font cache so if we are asked to fallback
+    // for a non-system font we will start at the front of the chain.
+    if (NULL != currTypeface && currFontID == origFontID) {
+        currFontRecID = ((FontConfigTypeface*)currTypeface)->getIdentity().fID;
+        SkASSERT(INVALID_FONT_REC_ID != currFontRecID);
+    }
 
-    // TODO lookup the index next font in the chain
+    // lookup the index next font in the chain
     int currFallbackFontIndex = currentFallbackList->find(currFontRecID);
+    // We add 1 to the returned index for 2 reasons: (1) if find succeeds it moves
+    // our index to the next entry in the list; (2) if find() fails it returns
+    // -1 and incrementing it will set our starting index to 0 (the head of the list)
     int nextFallbackFontIndex = currFallbackFontIndex + 1;
 
     if(nextFallbackFontIndex >= currentFallbackList->count()) {
