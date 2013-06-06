@@ -156,8 +156,7 @@ private:
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setMatrixAndRenderTargetHeight(const GrDrawState&);
 
-    typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
-
+    // handles for uniforms (aside from per-effect samplers)
     struct UniformHandles {
         UniformHandle       fViewMatrixUni;
         UniformHandle       fColorUni;
@@ -173,9 +172,6 @@ private:
         UniformHandle       fDstCopyScaleUni;
         UniformHandle       fDstCopySamplerUni;
 
-        // An array of sampler uniform handles for each effect.
-        SamplerUniSArray    fEffectSamplerUnis[GrDrawState::kNumStages];
-
         UniformHandles() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorUni = GrGLUniformManager::kInvalidUniformHandle;
@@ -186,6 +182,17 @@ private:
             fDstCopyScaleUni = GrGLUniformManager::kInvalidUniformHandle;
             fDstCopySamplerUni = GrGLUniformManager::kInvalidUniformHandle;
         }
+    };
+
+    typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
+    typedef SkSTArray<4, int, true> TextureUnitSArray;
+
+    struct EffectAndSamplers {
+        EffectAndSamplers() : fGLEffect(NULL) {}
+        ~EffectAndSamplers() { delete fGLEffect; }
+        GrGLEffect*         fGLEffect;
+        SamplerUniSArray    fSamplerUnis;  // sampler uni handles for effect's GrTextureAccess
+        TextureUnitSArray   fTextureUnits; // texture unit used for each entry of fSamplerUnis
     };
 
     // GL IDs
@@ -199,8 +206,9 @@ private:
     GrColor                     fColor;
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
+    int                         fDstCopyTexUnit;
 
-    GrGLEffect*                 fEffects[GrDrawState::kNumStages];
+    SkTArray<EffectAndSamplers> fEffectStates;
 
     GrGLProgramDesc             fDesc;
     const GrGLContext&          fContext;
