@@ -702,6 +702,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     : INHERITED(hwnd)
     , fDevManager(NULL) {
 
+    fCurrIndex = -1;
+
     this->registerPictFileSamples(argv, argc);
     this->registerPictFileSample(argv, argc);
     SkGMRegistyToSampleRegistry();
@@ -714,7 +716,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     }
 
     const char* resourcePath = NULL;
-    fCurrIndex = -1;
     fMSAASampleCount = 0;
 
     const char* const commandName = argv[0];
@@ -940,6 +941,7 @@ void SampleWindow::registerPictFileSample(char** argv, int argc) {
     }
     if (pict) {
         SkString path(pict);
+        fCurrIndex = fSamples.count();
         *fSamples.append() = new PictFileFactory(path);
     }
 }
