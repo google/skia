@@ -87,12 +87,97 @@ void Clear::execute(SkCanvas* canvas) {
     canvas->clear(fColor);
 }
 
-ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA, SkBitmap& bitmap) {
+namespace {
+
+void xlate_and_scale_to_bounds(SkCanvas* canvas, const SkRect& bounds) {
+    const SkISize& size = canvas->getDeviceSize();
+
+    static const SkScalar kInsetFrac = 0.9f; // Leave a border around object
+
+    canvas->translate(size.fWidth/2.0f, size.fHeight/2.0f);
+    if (bounds.width() > bounds.height()) {
+        canvas->scale(SkDoubleToScalar((kInsetFrac*size.fWidth)/bounds.width()),
+                      SkDoubleToScalar((kInsetFrac*size.fHeight)/bounds.width()));
+    } else {
+        canvas->scale(SkDoubleToScalar((kInsetFrac*size.fWidth)/bounds.height()),
+                      SkDoubleToScalar((kInsetFrac*size.fHeight)/bounds.height()));
+    }
+    canvas->translate(-bounds.centerX(), -bounds.centerY());
+}
+    
+
+void render_path(SkCanvas* canvas, const SkPath& path) {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    const SkRect& bounds = path.getBounds();
+
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawPath(path, p);
+    canvas->restore();
+}
+
+void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRect = NULL) {
+    const SkISize& size = canvas->getDeviceSize();
+
+    SkScalar xScale = SkIntToScalar(size.fWidth-2) / input.width();
+    SkScalar yScale = SkIntToScalar(size.fHeight-2) / input.height();
+
+    if (input.width() > input.height()) {
+        yScale *= input.height() / (float) input.width();
+    } else {
+        xScale *= input.width() / (float) input.height();
+    }
+
+    SkRect dst = SkRect::MakeXYWH(SK_Scalar1, SK_Scalar1,
+                                  xScale * input.width(),
+                                  yScale * input.height());
+    
+    canvas->clear(0xFFFFFFFF);
+    canvas->drawBitmapRect(input, NULL, dst);
+
+    if (NULL != srcRect) {
+        SkRect r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,
+                                    srcRect->fTop * yScale + SK_Scalar1,
+                                    srcRect->fRight * xScale + SK_Scalar1,
+                                    srcRect->fBottom * yScale + SK_Scalar1);
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        p.setStyle(SkPaint::kStroke_Style);
+
+        canvas->drawRect(r, p);
+    }
+}
+
+void render_rrect(SkCanvas* canvas, const SkRRect& rrect) {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    const SkRect& bounds = rrect.getBounds();
+
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawRRect(rrect, p);
+    canvas->restore();
+}
+    
+};
+
+
+ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     fPath = path;
     fOp = op;
     fDoAA = doAA;
     fDrawType = CLIP_PATH;
-    fBitmap = bitmap;
 
     fInfo.push(SkObjectParser::PathToString(path));
     fInfo.push(SkObjectParser::RegionOpToString(op));
@@ -103,8 +188,9 @@ void ClipPath::execute(SkCanvas* canvas) {
     canvas->clipPath(fPath, fOp, fDoAA);
 }
 
-const SkBitmap* ClipPath::getBitmap() const {
-    return &fBitmap;
+bool ClipPath::render(SkCanvas* canvas) const {
+    render_path(canvas, fPath);
+    return true;
 }
 
 ClipRegion::ClipRegion(const SkRegion& region, SkRegion::Op op) {
@@ -150,6 +236,11 @@ void ClipRRect::execute(SkCanvas* canvas) {
     canvas->clipRRect(fRRect, fOp, fDoAA);
 }
 
+bool ClipRRect::render(SkCanvas* canvas) const {
+    render_rrect(canvas, fRRect);
+    return true;
+}
+
 Concat::Concat(const SkMatrix& matrix) {
     fMatrix = matrix;
     fDrawType = CONCAT;
@@ -162,7 +253,7 @@ void Concat::execute(SkCanvas* canvas) {
 }
 
 DrawBitmap::DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                       const SkPaint* paint, SkBitmap& resizedBitmap) {
+                       const SkPaint* paint) {
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
@@ -173,7 +264,6 @@ DrawBitmap::DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
         fPaintPtr = NULL;
     }
     fDrawType = DRAW_BITMAP;
-    fResizedBitmap = resizedBitmap;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::ScalarToString(left, "SkScalar left: "));
@@ -187,14 +277,14 @@ void DrawBitmap::execute(SkCanvas* canvas) {
     canvas->drawBitmap(fBitmap, fLeft, fTop, fPaintPtr);
 }
 
-const SkBitmap* DrawBitmap::getBitmap() const {
-    return &fResizedBitmap;
+bool DrawBitmap::render(SkCanvas* canvas) const {
+    render_bitmap(canvas, fBitmap);
+    return true;
 }
 
 DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
                                    const SkMatrix& matrix,
-                                   const SkPaint* paint,
-                                   SkBitmap& resizedBitmap) {
+                                   const SkPaint* paint) {
     fBitmap = bitmap;
     fMatrix = matrix;
     if (NULL != paint) {
@@ -204,7 +294,6 @@ DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
         fPaintPtr = NULL;
     }
     fDrawType = DRAW_BITMAP_MATRIX;
-    fResizedBitmap = resizedBitmap;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::MatrixToString(matrix));
@@ -217,13 +306,13 @@ void DrawBitmapMatrix::execute(SkCanvas* canvas) {
     canvas->drawBitmapMatrix(fBitmap, fMatrix, fPaintPtr);
 }
 
-const SkBitmap* DrawBitmapMatrix::getBitmap() const {
-    return &fResizedBitmap;
+bool DrawBitmapMatrix::render(SkCanvas* canvas) const {
+    render_bitmap(canvas, fBitmap);
+    return true;
 }
 
 DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                               const SkRect& dst, const SkPaint* paint,
-                               SkBitmap& resizedBitmap) {
+                               const SkRect& dst, const SkPaint* paint) {
     fBitmap = bitmap;
     fCenter = center;
     fDst = dst;
@@ -234,7 +323,6 @@ DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
         fPaintPtr = NULL;
     }
     fDrawType = DRAW_BITMAP_NINE;
-    fResizedBitmap = resizedBitmap;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::IRectToString(center));
@@ -248,13 +336,13 @@ void DrawBitmapNine::execute(SkCanvas* canvas) {
     canvas->drawBitmapNine(fBitmap, fCenter, fDst, fPaintPtr);
 }
 
-const SkBitmap* DrawBitmapNine::getBitmap() const {
-    return &fResizedBitmap;
+bool DrawBitmapNine::render(SkCanvas* canvas) const {
+    render_bitmap(canvas, fBitmap);
+    return true;
 }
 
 DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                               const SkRect& dst, const SkPaint* paint,
-                               SkBitmap& resizedBitmap) {
+                               const SkRect& dst, const SkPaint* paint) {
     fBitmap = bitmap;
     if (NULL != src) {
         fSrc = *src;
@@ -270,7 +358,6 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         fPaintPtr = NULL;
     }
     fDrawType = DRAW_BITMAP_RECT_TO_RECT;
-    fResizedBitmap = resizedBitmap;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     if (NULL != src) {
@@ -286,8 +373,9 @@ void DrawBitmapRect::execute(SkCanvas* canvas) {
     canvas->drawBitmapRectToRect(fBitmap, this->srcRect(), fDst, fPaintPtr);
 }
 
-const SkBitmap* DrawBitmapRect::getBitmap() const {
-    return &fResizedBitmap;
+bool DrawBitmapRect::render(SkCanvas* canvas) const {
+    render_bitmap(canvas, fBitmap, this->srcRect());
+    return true;
 }
 
 DrawData::DrawData(const void* data, size_t length) {
@@ -339,6 +427,22 @@ void DrawOval::execute(SkCanvas* canvas) {
     canvas->drawOval(fOval, fPaint);
 }
 
+bool DrawOval::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    xlate_and_scale_to_bounds(canvas, fOval);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawOval(fOval, p);
+    canvas->restore();
+
+    return true;
+}
+
 DrawPaint::DrawPaint(const SkPaint& paint) {
     fPaint = paint;
     fDrawType = DRAW_PAINT;
@@ -350,10 +454,15 @@ void DrawPaint::execute(SkCanvas* canvas) {
     canvas->drawPaint(fPaint);
 }
 
-DrawPath::DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap) {
+bool DrawPaint::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    canvas->drawPaint(fPaint);
+    return true;
+}
+
+DrawPath::DrawPath(const SkPath& path, const SkPaint& paint) {
     fPath = path;
     fPaint = paint;
-    fBitmap = bitmap;
     fDrawType = DRAW_PATH;
 
     fInfo.push(SkObjectParser::PathToString(path));
@@ -364,8 +473,9 @@ void DrawPath::execute(SkCanvas* canvas) {
     canvas->drawPath(fPath, fPaint);
 }
 
-const SkBitmap* DrawPath::getBitmap() const {
-    return &fBitmap;
+bool DrawPath::render(SkCanvas* canvas) const {
+    render_path(canvas, fPath);
+    return true;
 }
 
 DrawPicture::DrawPicture(SkPicture& picture) :
@@ -396,6 +506,29 @@ DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
 
 void DrawPoints::execute(SkCanvas* canvas) {
     canvas->drawPoints(fMode, fCount, fPts, fPaint);
+}
+
+bool DrawPoints::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    SkRect bounds;
+
+    bounds.setEmpty();
+    for (unsigned int i = 0; i < fCount; ++i) {
+        bounds.growToInclude(fPts[i].fX, fPts[i].fY);
+    }
+    
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawPoints(fMode, fCount, fPts, p);
+    canvas->restore();
+
+    return true;
 }
 
 DrawPosText::DrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
@@ -475,8 +608,13 @@ void DrawRRect::execute(SkCanvas* canvas) {
     canvas->drawRRect(fRRect, fPaint);
 }
 
+bool DrawRRect::render(SkCanvas* canvas) const {
+    render_rrect(canvas, fRRect);
+    return true;
+}
+
 DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
-                       const SkPaint* paint, SkBitmap& resizedBitmap) {
+                       const SkPaint* paint) {
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
@@ -487,7 +625,6 @@ DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
         fPaintPtr = NULL;
     }
     fDrawType = DRAW_SPRITE;
-    fResizedBitmap = resizedBitmap;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     fInfo.push(SkObjectParser::IntToString(left, "Left: "));
@@ -501,8 +638,9 @@ void DrawSprite::execute(SkCanvas* canvas) {
     canvas->drawSprite(fBitmap, fLeft, fTop, fPaintPtr);
 }
 
-const SkBitmap* DrawSprite::getBitmap() const {
-    return &fResizedBitmap;
+bool DrawSprite::render(SkCanvas* canvas) const {
+    render_bitmap(canvas, fBitmap);
+    return true;
 }
 
 DrawTextC::DrawTextC(const void* text, size_t byteLength, SkScalar x, SkScalar y,

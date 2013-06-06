@@ -15,6 +15,14 @@ SkImageWidget::SkImageWidget(SkDebugger *debugger)
     : QWidget()
     , fDebugger(debugger) {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
+
+    SkImage::Info info;
+    info.fWidth = kImageWidgetWidth;
+    info.fHeight = kImageWidgetHeight;
+    info.fColorType = SkImage::kPMColor_ColorType;
+    info.fAlphaType = SkImage::kPremul_AlphaType;
+
+    fSurface = SkSurface::NewRasterDirect(info, fPixels, 4 * kImageWidgetWidth);
 }
 
 void SkImageWidget::paintEvent(QPaintEvent* event) {
@@ -32,18 +40,14 @@ void SkImageWidget::paintEvent(QPaintEvent* event) {
     if (0 != commands.count()) {
         SkDrawCommand* command = commands[fDebugger->index()];
 
-        const SkBitmap* bitmap = command->getBitmap();
-
-        if (NULL != bitmap) {
-            bitmap->lockPixels();
-
+        if (command->render(fSurface->getCanvas())) {
             QPoint origin(0,0);
-            QImage image((uchar *)bitmap->getPixels(), bitmap->width(),
-                    bitmap->height(), QImage::Format_ARGB32_Premultiplied);
+            QImage image((uchar*) fPixels, 
+                         kImageWidgetWidth,
+                         kImageWidgetHeight, 
+                         QImage::Format_ARGB32_Premultiplied);
 
             painter.drawImage(origin, image);
-
-            bitmap->unlockPixels();
         } else {
             painter.drawRect(0, 0, kImageWidgetWidth, kImageWidgetHeight);
         }
