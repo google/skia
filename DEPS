@@ -15,6 +15,7 @@ deps = {
   "third_party/externals/jsoncpp" : "http://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp/trunk/jsoncpp@248",
   "third_party/externals/jsoncpp-chromium" : "http://src.chromium.org/svn/trunk/src/third_party/jsoncpp@125399",
   "third_party/externals/libwebp" : "http://src.chromium.org/svn/trunk/src/third_party/libwebp@186718",
+  "third_party/externals/podofo" : "https://skia.googlesource.com/third_party/podofo.git@skia_ext",
 }
 
 deps_os = {
