@@ -38,8 +38,9 @@ inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContext& gl,
                                  const GrGLProgramDesc& desc,
-                                 const GrEffectStage* stages[]) {
-    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, stages));
+                                 const GrEffectStage* colorStages[],
+                                 const GrEffectStage* coverageStages[]) {
+    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, colorStages, coverageStages));
     if (!program->succeeded()) {
         delete program;
         program = NULL;
@@ -49,7 +50,8 @@ GrGLProgram* GrGLProgram::Create(const GrGLContext& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContext& gl,
                          const GrGLProgramDesc& desc,
-                         const GrEffectStage* stages[])
+                         const GrEffectStage* colorStages[],
+                         const GrEffectStage* coverageStages[])
 : fContext(gl)
 , fUniformManager(gl) {
     fDesc = desc;
@@ -63,9 +65,10 @@ GrGLProgram::GrGLProgram(const GrGLContext& gl,
     fColor = GrColor_ILLEGAL;
     fColorFilterColor = GrColor_ILLEGAL;
 
-    fEffectStates.reset(desc.numTotalEffects());
+    fColorEffects.reset(desc.numColorEffects());
+    fCoverageEffects.reset(desc.numCoverageEffects());
 
-    this->genProgram(stages);
+    this->genProgram(colorStages, coverageStages);
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -432,7 +435,8 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
+bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
+                             const GrEffectStage* coverageStages[]) {
     GrAssert(0 == fProgramID);
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
@@ -491,10 +495,10 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     if (needColor) {
         for (int e = 0; e < fDesc.numColorEffects(); ++e) {
-            effectUniformArrays[e] = &fEffectStates[e].fSamplerUnis;
+            effectUniformArrays[e] = &fColorEffects[e].fSamplerUnis;
         }
 
-        builder.emitEffects(stages,
+        builder.emitEffects(colorStages,
                             fDesc.effectKeys(),
                             fDesc.numColorEffects(),
                             &inColor,
@@ -503,7 +507,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                             glEffects.get());
 
         for (int e = 0; e < fDesc.numColorEffects(); ++e) {
-            fEffectStates[e].fGLEffect = glEffects[e];
+            fColorEffects[e].fGLEffect = glEffects[e];
         }
     }
 
@@ -535,10 +539,10 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     GrSLConstantVec knownCoverageValue = this->genInputCoverage(&builder, &inCoverage);
 
     for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
-        effectUniformArrays[e] = &fEffectStates[e + fDesc.numColorEffects()].fSamplerUnis;
+        effectUniformArrays[e] = &fCoverageEffects[e].fSamplerUnis;
     }
 
-    builder.emitEffects(stages + fDesc.numColorEffects(),
+    builder.emitEffects(coverageStages,
                         fDesc.getEffectKeys() + fDesc.numColorEffects(),
                         fDesc.numCoverageEffects(),
                         &inCoverage,
@@ -546,7 +550,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                         effectUniformArrays.get(),
                         glEffects.get());
     for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
-        fEffectStates[e + fDesc.numColorEffects()].fGLEffect = glEffects[e];
+        fCoverageEffects[e].fGLEffect = glEffects[e];
     }
 
     // discard if coverage is zero
@@ -754,24 +758,56 @@ void GrGLProgram::initSamplerUniforms() {
         fDstCopyTexUnit = texUnitIdx++;
     }
 
-    for (int e = 0; e < fEffectStates.count(); ++e) {
-        int numSamplers = fEffectStates[e].fSamplerUnis.count();
-        fEffectStates[e].fTextureUnits.reset(numSamplers);
-        for (int s = 0; s < numSamplers; ++s) {
-            UniformHandle handle = fEffectStates[e].fSamplerUnis[s];
-            if (GrGLUniformManager::kInvalidUniformHandle != handle) {
-                fUniformManager.setSampler(handle, texUnitIdx);
-                fEffectStates[e].fTextureUnits[s] = texUnitIdx++;
-            }
+    for (int e = 0; e < fColorEffects.count(); ++e) {
+        this->initEffectSamplerUniforms(&fColorEffects[e], &texUnitIdx);
+    }
+
+    for (int e = 0; e < fCoverageEffects.count(); ++e) {
+        this->initEffectSamplerUniforms(&fCoverageEffects[e], &texUnitIdx);
+    }
+}
+
+void GrGLProgram::initEffectSamplerUniforms(EffectAndSamplers* effect, int* texUnitIdx) {
+    int numSamplers = effect->fSamplerUnis.count();
+    effect->fTextureUnits.reset(numSamplers);
+    for (int s = 0; s < numSamplers; ++s) {
+        UniformHandle handle = effect->fSamplerUnis[s];
+        if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+            fUniformManager.setSampler(handle, *texUnitIdx);
+            effect->fTextureUnits[s] = (*texUnitIdx)++;
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrGLProgram::setEffectData(GrGpuGL* gpu,
+                                const GrEffectStage& stage,
+                                const EffectAndSamplers& effect) {
+
+    // Let the GrGLEffect set its data.
+    bool explicitLocalCoords = -1 != fDesc.getHeader().fLocalCoordAttributeIndex;
+    GrDrawEffect drawEffect(stage, explicitLocalCoords);
+    effect.fGLEffect->setData(fUniformManager, drawEffect);
+
+    // Bind the texures for the effect.
+    int numSamplers = effect.fSamplerUnis.count();
+    GrAssert((*stage.getEffect())->numTextures() == numSamplers);
+    for (int s = 0; s < numSamplers; ++s) {
+        UniformHandle handle = effect.fSamplerUnis[s];
+        if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+            const GrTextureAccess& access = (*stage.getEffect())->textureAccess(s);
+            GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
+            int unit = effect.fTextureUnits[s];
+            gpu->bindTexture(unit, access.getParams(), texture);
+        }
+    }
+}
+
 void GrGLProgram::setData(GrGpuGL* gpu,
                           GrDrawState::BlendOptFlags blendOpts,
-                          const GrEffectStage* stages[],
+                          const GrEffectStage* colorStages[],
+                          const GrEffectStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
                           SharedGLState* sharedState) {
     const GrDrawState& drawState = gpu->getDrawState();
@@ -828,26 +864,17 @@ void GrGLProgram::setData(GrGpuGL* gpu,
         GrAssert(GrGLUniformManager::kInvalidUniformHandle == fUniformHandles.fDstCopySamplerUni);
     }
 
-    int numEffects = fDesc.numTotalEffects();
-    for (int e = 0; e < numEffects; ++e) {
-        GrAssert(NULL != stages[e]);
+    for (int e = 0; e < fColorEffects.count(); ++e) {
         // We may have omitted the GrGLEffect because of the color filter logic in genProgram.
         // This can be removed when the color filter is an effect.
-        if (NULL != fEffectStates[e].fGLEffect) {
-            bool explicitLocalCoords = -1 != fDesc.getHeader().fLocalCoordAttributeIndex;
-            GrDrawEffect drawEffect(*stages[e], explicitLocalCoords);
-            fEffectStates[e].fGLEffect->setData(fUniformManager, drawEffect);
-            int numSamplers = fEffectStates[e].fSamplerUnis.count();
-            GrAssert((*stages[e]->getEffect())->numTextures() == numSamplers);
-            for (int s = 0; s < numSamplers; ++s) {
-                UniformHandle handle = fEffectStates[e].fSamplerUnis[s];
-                if (GrGLUniformManager::kInvalidUniformHandle != handle) {
-                    const GrTextureAccess& access = (*stages[e]->getEffect())->textureAccess(s);
-                    GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
-                    int unit = fEffectStates[e].fTextureUnits[s];
-                    gpu->bindTexture(unit, access.getParams(), texture);
-                }
-            }
+        if (NULL != fColorEffects[e].fGLEffect) {
+            this->setEffectData(gpu, *colorStages[e], fColorEffects[e]);
+        }
+    }
+
+    for (int e = 0; e < fCoverageEffects.count(); ++e) {
+        if (NULL != fCoverageEffects[e].fGLEffect) {
+            this->setEffectData(gpu, *coverageStages[e], fCoverageEffects[e]);
         }
     }
 }

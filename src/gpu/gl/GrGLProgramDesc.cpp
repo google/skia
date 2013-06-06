@@ -21,8 +21,12 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
                             GrBlendCoeff dstCoeff,
                             const GrGpuGL* gpu,
                             const GrDeviceCoordTexture* dstCopy,
-                            const GrEffectStage* stages[],
+                            SkTArray<const GrEffectStage*, true>* colorStages,
+                            SkTArray<const GrEffectStage*, true>* coverageStages,
                             GrGLProgramDesc* desc) {
+    colorStages->reset();
+    coverageStages->reset();
+
     // This should already have been caught
     GrAssert(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
 
@@ -51,26 +55,22 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     // effects as color in desc. Two things will allow simplication of this mess: GrDrawState will
     // have tight lists of color and coverage stages rather than a fixed size array with NULLS and
     // the xfermode-color filter will be removed.
-    int colorEffectCnt = 0;
-    int coverageEffectCnt = 0;
     if (!skipColor) {
         for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
             if (drawState.isStageEnabled(s)) {
-                stages[colorEffectCnt] = &drawState.getStage(s);
-                ++colorEffectCnt;
+                colorStages->push_back(&drawState.getStage(s));
             }
         }
     }
     if (!skipCoverage) {
         for (int s = drawState.getFirstCoverageStage(); s < GrDrawState::kNumStages; ++s) {
             if (drawState.isStageEnabled(s)) {
-                stages[colorEffectCnt + coverageEffectCnt] = &drawState.getStage(s);
-                ++coverageEffectCnt;
+                coverageStages->push_back(&drawState.getStage(s));
             }
         }
     }
 
-    size_t newKeyLength = KeyLength(colorEffectCnt + coverageEffectCnt);
+    size_t newKeyLength = KeyLength(colorStages->count() + coverageStages->count());
     bool allocChanged;
     desc->fKey.reset(newKeyLength, SkAutoMalloc::kAlloc_OnShrink, &allocChanged);
     if (allocChanged || !desc->fInitialized) {
@@ -189,7 +189,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     // If we do have coverage determine whether it matters.
     bool separateCoverageFromColor = false;
-    if (!drawState.isCoverageDrawing() && (coverageEffectCnt > 0 || requiresCoverageAttrib)) {
+    if (!drawState.isCoverageDrawing() && (coverageStages->count() > 0 || requiresCoverageAttrib)) {
         // color filter is applied between color/coverage computation
         if (SkXfermode::kDst_Mode != header->fColorFilterXfermode) {
             separateCoverageFromColor = true;
@@ -225,11 +225,13 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         }
     }
     if (separateCoverageFromColor) {
-        header->fColorEffectCnt = colorEffectCnt;
-        header->fCoverageEffectCnt = coverageEffectCnt;
+        header->fColorEffectCnt = colorStages->count();
+        header->fCoverageEffectCnt = coverageStages->count();
     } else {
-        header->fColorEffectCnt = colorEffectCnt + coverageEffectCnt;
+        header->fColorEffectCnt = colorStages->count() + coverageStages->count();
         header->fCoverageEffectCnt = 0;
+        colorStages->push_back_n(coverageStages->count(), coverageStages->begin());
+        coverageStages->reset();
     }
 
     *desc->checksum() = 0;

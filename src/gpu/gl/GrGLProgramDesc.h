@@ -55,7 +55,9 @@ public:
     /**
      * Builds a program descriptor from a GrDrawState. Whether the primitive type is points, the
      * output of GrDrawState::getBlendOpts, and the caps of the GrGpuGL are also inputs. It also
-     * writes a tightly packed array of GrEffectStage* from the drawState.
+     * outputs the color and coverage stages referenced by the generated descriptor. This may
+     * not contain all stages from the draw state and coverage stages from the drawState may
+     * be treated as color stages in the output.
      */
     static void Build(const GrDrawState&,
                       bool isPoints,
@@ -64,7 +66,8 @@ public:
                       GrBlendCoeff dstCoeff,
                       const GrGpuGL* gpu,
                       const GrDeviceCoordTexture* dstCopy,
-                      const GrEffectStage* outStages[GrDrawState::kNumStages],
+                      SkTArray<const GrEffectStage*, true>* outColorStages,
+                      SkTArray<const GrEffectStage*, true>* outCoverageStages,
                       GrGLProgramDesc* outDesc);
 
     int numColorEffects() const {
