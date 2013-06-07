@@ -19,7 +19,7 @@ class  SkImageWidget : public QWidget {
 
 public:
     SkImageWidget(SkDebugger* debugger);
-    
+
     virtual ~SkImageWidget() {
         fSurface->unref();
     }

@@ -42,9 +42,9 @@ void SkImageWidget::paintEvent(QPaintEvent* event) {
 
         if (command->render(fSurface->getCanvas())) {
             QPoint origin(0,0);
-            QImage image((uchar*) fPixels, 
+            QImage image((uchar*) fPixels,
                          kImageWidgetWidth,
-                         kImageWidgetHeight, 
+                         kImageWidgetHeight,
                          QImage::Format_ARGB32_Premultiplied);
 
             painter.drawImage(origin, image);
