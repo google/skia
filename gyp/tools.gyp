@@ -64,6 +64,7 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
+        'pdf.gyp:pdf',
         'flags.gyp:flags',
       ],
     },

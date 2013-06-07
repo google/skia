@@ -186,6 +186,8 @@
         '<(skia_src_path)/core/SkWriter32.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
 
+        '<(skia_src_path)/doc/SkDocument.cpp',
+
         '<(skia_src_path)/image/SkDataPixelRef.cpp',
         '<(skia_src_path)/image/SkImage.cpp',
         '<(skia_src_path)/image/SkImagePriv.cpp',
