@@ -49,13 +49,12 @@ def main():
     cmd_line.extend(["-r", resources_dir])
 
     # Create the expectations file
-    results_dir = os.path.join(file_dir, "skimage")
+    results_file = os.path.join(file_dir, "skimage", "self_test_results.json")
     create_expectations_cmd = cmd_line + ["--createExpectationsPath",
-                                          results_dir]
+                                          results_file]
     subprocess.check_call(create_expectations_cmd)
 
     # Now read from the expectations file
-    results_file = os.path.join(results_dir, "results.json")
     check_expectations_cmd = cmd_line + ["--readExpectationsPath",
                                          results_file]
     subprocess.check_call(check_expectations_cmd)
