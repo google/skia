@@ -260,13 +260,12 @@ static void test_cstring(skiatest::Reporter* reporter) {
 }
 
 static void test_files(skiatest::Reporter* reporter) {
-    if (skiatest::Test::GetTmpDir().isEmpty()) {
+    SkString tmpDir = skiatest::Test::GetTmpDir();
+    if (tmpDir.isEmpty()) {
         return;
     }
 
-    const char* tmpDir = skiatest::Test::GetTmpDir().c_str();
-    SkString path;
-    path.printf("%s%s", tmpDir, "data_test");
+    SkString path = SkOSPath::SkPathJoin(tmpDir.c_str(), "data_test");
 
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
     {
