@@ -23,11 +23,12 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(createExpectationsPath, "", "Path to write JSON expectations.");
+DEFINE_string(mismatchPath, "", "Folder to write mismatched images to.");
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
 DEFINE_string(readExpectationsPath, "", "Path to read JSON expectations from.");
-DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
 DEFINE_bool(reencode, true, "Reencode the images to test encoding.");
 DEFINE_bool(testSubsetDecoding, true, "Test decoding subsets of images.");
+DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
 
 struct Format {
     SkImageEncoder::Type    fType;
@@ -101,23 +102,8 @@ static SkTArray<SkString, false> gFailedSubsetDecodes;
 // previously written using createExpectationsPath.
 SkAutoTUnref<skiagm::JsonExpectationsSource> gJsonExpectations;
 
-static bool write_bitmap(const char outName[], SkBitmap* bm) {
-    SkBitmap bitmap8888;
-    if (SkBitmap::kARGB_8888_Config != bm->config()) {
-        if (!bm->copyTo(&bitmap8888, SkBitmap::kARGB_8888_Config)) {
-            return false;
-        }
-        bm = &bitmap8888;
-    }
-    // FIXME: This forces all pixels to be opaque, like the many implementations
-    // of force_all_opaque. These should be unified if they cannot be eliminated.
-    SkAutoLockPixels lock(*bm);
-    for (int y = 0; y < bm->height(); y++) {
-        for (int x = 0; x < bm->width(); x++) {
-            *bm->getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
-        }
-    }
-    return SkImageEncoder::EncodeFile(outName, *bm, SkImageEncoder::kPNG_Type, 100);
+static bool write_bitmap(const char outName[], const SkBitmap& bm) {
+    return SkImageEncoder::EncodeFile(outName, bm, SkImageEncoder::kPNG_Type, 100);
 }
 
 /**
@@ -183,31 +169,31 @@ static void write_expectations(const SkBitmap& bitmap, const char* filename) {
  *  @param filename String used to find the expected value.
  *  @return bool True in any of these cases:
  *                  - the bitmap matches the expectation.
- *                  - there is no expectations file.
  *               False in any of these cases:
+ *                  - there is no expectations file.
  *                  - there is an expectations file, but no expectation for this bitmap.
  *                  - there is an expectation for this bitmap, but it did not match.
  *                  - expectation could not be computed from the bitmap.
  */
 static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const char* filename,
                                                  SkTArray<SkString, false>* failureArray) {
+    skiagm::GmResultDigest resultDigest(bitmap);
+    if (!resultDigest.isValid()) {
+        if (failureArray != NULL) {
+            failureArray->push_back().printf("decoded %s, but could not create a GmResultDigest.",
+                                             filename);
+        }
+        return false;
+    }
+
     if (NULL == gJsonExpectations.get()) {
-        return true;
+        return false;
     }
 
     skiagm::Expectations jsExpectation = gJsonExpectations->get(filename);
     if (jsExpectation.empty()) {
         if (failureArray != NULL) {
             failureArray->push_back().printf("decoded %s, but could not find expectation.",
-                                             filename);
-        }
-        return false;
-    }
-
-    skiagm::GmResultDigest resultDigest(bitmap);
-    if (!resultDigest.isValid()) {
-        if (failureArray != NULL) {
-            failureArray->push_back().printf("decoded %s, but could not create a GmResultDigest.",
                                              filename);
         }
         return false;
@@ -270,7 +256,7 @@ static bool write_subset(const char* writePath, const char* filename, const char
     SkString suffix = SkStringPrintf("_%s.png", subsetDim);
     SkString outPath;
     make_outname(&outPath, dir.c_str(), filename, suffix.c_str());
-    SkAssertResult(write_bitmap(outPath.c_str(), bitmapFromDecodeSubset));
+    SkAssertResult(write_bitmap(outPath.c_str(), *bitmapFromDecodeSubset));
     gSuccessfulSubsetDecodes.push_back().printf("\twrote %s", outPath.c_str());
 
     // Also use extractSubset from the original for visual comparison.
@@ -292,7 +278,7 @@ static bool write_subset(const char* writePath, const char* filename, const char
     }
 
     make_outname(&outPath, dirExtracted.c_str(), filename, suffix.c_str());
-    SkAssertResult(write_bitmap(outPath.c_str(), &extractedSubset));
+    SkAssertResult(write_bitmap(outPath.c_str(), extractedSubset));
     return true;
 }
 
@@ -326,6 +312,24 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
                                               bitmap.height());
+    } else if (!FLAGS_mismatchPath.isEmpty()) {
+        SkString outPath;
+        make_outname(&outPath, FLAGS_mismatchPath[0], srcPath, ".png");
+        if (write_bitmap(outPath.c_str(), bitmap)) {
+            gSuccessfulDecodes.push_back().appendf("\twrote %s", outPath.c_str());
+        } else {
+            gEncodeFailures.push_back().set(outPath);
+        }
+    }
+
+    if (writePath != NULL) {
+        SkString outPath;
+        make_outname(&outPath, writePath->c_str(), srcPath, ".png");
+        if (write_bitmap(outPath.c_str(), bitmap)) {
+            gSuccessfulDecodes.push_back().appendf("\twrote %s", outPath.c_str());
+        } else {
+            gEncodeFailures.push_back().set(outPath);
+        }
     }
 
     write_expectations(bitmap, filename);
@@ -353,6 +357,9 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                                                              &gFailedSubsetDecodes)) {
                         gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
                                                               subsetDim.c_str(), srcPath);
+                    } else if (!FLAGS_mismatchPath.isEmpty()) {
+                        write_subset(FLAGS_mismatchPath[0], filename, subsetDim.c_str(),
+                                     &bitmapFromDecodeSubset, rect, bitmap);
                     }
 
                     write_expectations(bitmapFromDecodeSubset, subsetName.c_str());
@@ -411,8 +418,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
 
         SkAutoTUnref<SkData> data(wStream.copyToData());
         if (writePath != NULL && type != SkImageEncoder::kPNG_Type) {
-            // Write the encoded data to a file. Do not write to PNG, which will be written later,
-            // regardless of the input format.
+            // Write the encoded data to a file. Do not write to PNG, which was already written.
             SkString outPath;
             make_outname(&outPath, writePath->c_str(), srcPath, suffix_for_type(type));
             SkFILEWStream file(outPath.c_str());
@@ -433,16 +439,6 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         } else {
             gDecodeFailures.push_back().printf("Failed to redecode %s after reencoding to '%s'",
                                                srcPath, suffix_for_type(type));
-        }
-    }
-
-    if (writePath != NULL) {
-        SkString outPath;
-        make_outname(&outPath, writePath->c_str(), srcPath, ".png");
-        if (write_bitmap(outPath.c_str(), &bitmap)) {
-            gSuccessfulDecodes.push_back().appendf("\twrote %s", outPath.c_str());
-        } else {
-            gEncodeFailures.push_back().set(outPath);
         }
     }
 }
@@ -530,9 +526,7 @@ int tool_main(int argc, char** argv) {
         Json::Value root = skiagm::CreateJsonTree(gExpectationsToWrite, nullValue, nullValue,
                                                   nullValue, nullValue);
         std::string jsonStdString = root.toStyledString();
-        SkString path = SkStringPrintf("%s%cresults.json", FLAGS_createExpectationsPath[0],
-                                       SkPATH_SEPARATOR);
-        SkFILEWStream stream(path.c_str());
+        SkFILEWStream stream(FLAGS_createExpectationsPath[0]);
         stream.write(jsonStdString.c_str(), jsonStdString.length());
     }
     // Add some space, since codecs may print warnings without newline.
