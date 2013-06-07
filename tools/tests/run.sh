@@ -191,6 +191,19 @@ benchgraph_download_rawdata $PLATFORM 7686 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVID
 benchgraph_test $PLATFORM
 
 #
+# Run self test for skimage ...
+#
+
+COMMAND="python tools/tests/skimage_self_test.py"
+echo "$COMMAND"
+$COMMAND
+ret=$?
+if [ $ret -ne 0 ]; then
+    echo "skimage self tests failed."
+    exit 1
+fi
+
+#
 # Test rebaseline.py ...
 #
 
@@ -199,6 +212,5 @@ REBASELINE_OUTPUT=tools/tests/rebaseline/output
 rebaseline_test "--tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
 rebaseline_test "--tests test1 test2" "$REBASELINE_OUTPUT/all"
 rebaseline_test "--json_base_url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
-
 
 echo "All tests passed."
