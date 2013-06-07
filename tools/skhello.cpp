@@ -8,14 +8,54 @@
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkDocument.h"
 #include "SkGraphics.h"
 #include "SkSurface.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkString.h"
 
-DEFINE_string2(outFile, o, "skhello.png", "The filename to write the image.");
+DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 DEFINE_string2(text, t, "Hello", "The string to write.");
+
+static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
+    SkRect bounds;
+    canvas->getClipBounds(&bounds);
+
+    canvas->drawColor(SK_ColorWHITE);
+    canvas->drawText(text, strlen(text),
+                     bounds.centerX(), bounds.centerY(),
+                     paint);
+}
+
+static bool do_surface(int w, int h, const char path[], const char text[],
+                       const SkPaint& paint) {
+    SkImage::Info info = {
+        w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+    };
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    doDraw(surface->getCanvas(), paint, text);
+    
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    SkAutoDataUnref data(image->encode());
+    if (NULL == data.get()) {
+        return false;
+    }
+    SkFILEWStream stream(path);
+    return stream.write(data->data(), data->size());
+}
+
+static bool do_document(int w, int h, const char path[], const char text[],
+                        const SkPaint& paint) {
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(path));
+    if (doc.get()) {
+        SkScalar width = SkIntToScalar(w);
+        SkScalar height = SkIntToScalar(h);
+        doDraw(doc->beginPage(width, height, NULL), paint, text);
+        return true;
+    }
+    return false;
+}
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -23,7 +63,7 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     SkAutoGraphics ag;
-    SkString path("skhello.png");
+    SkString path("skhello");
     SkString text("Hello");
 
     if (!FLAGS_outFile.isEmpty()) {
@@ -44,24 +84,23 @@ int tool_main(int argc, char** argv) {
     int w = SkScalarRound(width) + 30;
     int h = SkScalarRound(spacing) + 30;
 
-    SkImage::Info info = {
-        w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+    static const struct {
+        bool (*fProc)(int w, int h, const char path[], const char text[],
+                      const SkPaint&);
+        const char* fSuffix;
+    } gRec[] = {
+        { do_surface, ".png" },
+        { do_document, ".pdf" },
     };
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
-    SkCanvas* canvas = surface->getCanvas();
-
-    canvas->drawColor(SK_ColorWHITE);
-    canvas->drawText(text.c_str(), text.size(),
-                     SkIntToScalar(w)/2, SkIntToScalar(h)*2/3,
-                     paint);
-
-    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    SkAutoDataUnref data(image->encode());
-    if (NULL == data.get()) {
-        return -1;
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        SkString file;
+        file.printf("%s%s", path.c_str(), gRec[i].fSuffix);
+        if (!gRec[i].fProc(w, h, file.c_str(), text.c_str(), paint)) {
+            return -1;
+        }
     }
-    SkFILEWStream stream(path.c_str());
-    return stream.write(data->data(), data->size());
+    return 0;
 }
 
 #if !defined SK_BUILD_FOR_IOS
