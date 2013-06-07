@@ -104,7 +104,7 @@ void xlate_and_scale_to_bounds(SkCanvas* canvas, const SkRect& bounds) {
     }
     canvas->translate(-bounds.centerX(), -bounds.centerY());
 }
-    
+
 
 void render_path(SkCanvas* canvas, const SkPath& path) {
     canvas->clear(0xFFFFFFFF);
@@ -137,7 +137,7 @@ void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRec
     SkRect dst = SkRect::MakeXYWH(SK_Scalar1, SK_Scalar1,
                                   xScale * input.width(),
                                   yScale * input.height());
-    
+
     canvas->clear(0xFFFFFFFF);
     canvas->drawBitmapRect(input, NULL, dst);
 
@@ -169,7 +169,7 @@ void render_rrect(SkCanvas* canvas, const SkRRect& rrect) {
     canvas->drawRRect(rrect, p);
     canvas->restore();
 }
-    
+
 };
 
 
@@ -518,7 +518,7 @@ bool DrawPoints::render(SkCanvas* canvas) const {
     for (unsigned int i = 0; i < fCount; ++i) {
         bounds.growToInclude(fPts[i].fX, fPts[i].fY);
     }
-    
+
     xlate_and_scale_to_bounds(canvas, bounds);
 
     SkPaint p;
