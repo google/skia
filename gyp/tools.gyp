@@ -101,6 +101,7 @@
         'images.gyp:images',
         'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
+        'pdf.gyp:pdf',
         'ports.gyp:ports',
         'flags.gyp:flags',
         'lua.gyp:lua',
