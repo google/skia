@@ -618,7 +618,7 @@ static int lsk_newRRect(lua_State* L) {
 static int lsk_newTypeface(lua_State* L) {
     const char* name = NULL;
     int style = SkTypeface::kNormal;
-    
+
     int count = lua_gettop(L);
     if (count > 0 && lua_isstring(L, 1)) {
         name = lua_tolstring(L, 1, NULL);

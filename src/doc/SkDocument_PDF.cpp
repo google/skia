@@ -17,7 +17,7 @@ public:
         fCanvas = NULL;
         fDevice = NULL;
     }
-    
+
     virtual ~SkDocument_PDF() {
         // subclasses must call close() in their destructors
         this->close();
@@ -89,4 +89,3 @@ SkDocument* SkDocument::CreatePDF(const char path[]) {
     }
     return SkNEW_ARGS(SkDocument_PDF, (stream, delete_wstream));
 }
-

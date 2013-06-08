@@ -88,7 +88,7 @@ protected:
 private:
     SkWStream* fStream;
     void       (*fDoneProc)(SkWStream*);
-    State      fState;    
+    State      fState;
 };
 
 #endif

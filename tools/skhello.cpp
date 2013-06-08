@@ -35,7 +35,7 @@ static bool do_surface(int w, int h, const char path[], const char text[],
     };
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     doDraw(surface->getCanvas(), paint, text);
-    
+
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     SkAutoDataUnref data(image->encode());
     if (NULL == data.get()) {
@@ -92,7 +92,7 @@ int tool_main(int argc, char** argv) {
         { do_surface, ".png" },
         { do_document, ".pdf" },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkString file;
         file.printf("%s%s", path.c_str(), gRec[i].fSuffix);
