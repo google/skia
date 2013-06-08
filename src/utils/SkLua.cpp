@@ -7,7 +7,6 @@
 
 #include "SkLua.h"
 #include "SkCanvas.h"
-#include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkMatrix.h"
@@ -29,7 +28,6 @@ template <typename T> const char* get_mtname();
     }
 
 DEF_MTNAME(SkCanvas)
-DEF_MTNAME(SkDocument)
 DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
@@ -314,16 +312,6 @@ static int lcanvas_getTotalMatrix(lua_State* L) {
     return 1;
 }
 
-static int lcanvas_save(lua_State* L) {
-    lua_pushinteger(L, get_ref<SkCanvas>(L, 1)->save());
-    return 1;
-}
-
-static int lcanvas_restore(lua_State* L) {
-    get_ref<SkCanvas>(L, 1)->restore();
-    return 0;
-}
-
 static int lcanvas_translate(lua_State* L) {
     get_ref<SkCanvas>(L, 1)->translate(lua2scalar(L, 2), lua2scalar(L, 3));
     return 0;
@@ -343,43 +331,8 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawText", lcanvas_drawText },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
-    { "save", lcanvas_save },
-    { "restore", lcanvas_restore },
     { "translate", lcanvas_translate },
     { "__gc", lcanvas_gc },
-    { NULL, NULL }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-static int ldocument_beginPage(lua_State* L) {
-    const SkRect* contentPtr = NULL;
-    push_ref(L, get_ref<SkDocument>(L, 1)->beginPage(lua2scalar(L, 2),
-                                                     lua2scalar(L, 3),
-                                                     contentPtr));
-    return 1;
-}
-
-static int ldocument_endPage(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->endPage();
-    return 0;
-}
-
-static int ldocument_close(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->close();
-    return 0;
-}
-
-static int ldocument_gc(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->unref();
-    return 0;
-}
-
-static const struct luaL_Reg gSkDocument_Methods[] = {
-    { "beginPage", ldocument_beginPage },
-    { "endPage", ldocument_endPage },
-    { "close", ldocument_close },
-    { "__gc", ldocument_gc },
     { NULL, NULL }
 };
 
@@ -431,41 +384,6 @@ static int lpaint_getFontID(lua_State* L) {
     return 1;
 }
 
-static const struct {
-    const char*     fLabel;
-    SkPaint::Align  fAlign;
-} gAlignRec[] = {
-    { "left",   SkPaint::kLeft_Align },
-    { "center", SkPaint::kCenter_Align },
-    { "right",  SkPaint::kRight_Align },
-};
-
-static int lpaint_getTextAlign(lua_State* L) {
-    SkPaint::Align align = get_obj<SkPaint>(L, 1)->getTextAlign();
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-        if (gAlignRec[i].fAlign == align) {
-            lua_pushstring(L, gAlignRec[i].fLabel);
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static int lpaint_setTextAlign(lua_State* L) {
-    if (lua_isstring(L, 2)) {
-        size_t len;
-        const char* label = lua_tolstring(L, 2, &len);
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-            if (!strcmp(gAlignRec[i].fLabel, label)) {
-                get_obj<SkPaint>(L, 1)->setTextAlign(gAlignRec[i].fAlign);
-                break;
-            }
-        }
-    }
-    return 0;
-}
-
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -481,8 +399,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getTypeface", lpaint_getTypeface },
     { "setTypeface", lpaint_setTypeface },
     { "getFontID", lpaint_getFontID },
-    { "getTextAlign", lpaint_getTextAlign },
-    { "setTextAlign", lpaint_setTextAlign },
     { "__gc", lpaint_gc },
     { NULL, NULL }
 };
@@ -683,23 +599,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int lsk_newDocumentPDF(lua_State* L) {
-    const char* file = NULL;
-    if (lua_gettop(L) > 0 && lua_isstring(L, 1)) {
-        file = lua_tolstring(L, 1, NULL);
-    }
-
-    SkDocument* doc = SkDocument::CreatePDF(file);
-    if (NULL == doc) {
-        // do I need to push a nil on the stack and return 1?
-        return 0;
-    } else {
-        push_ref(L, doc);
-        doc->unref();
-        return 1;
-    }
-}
-
 static int lsk_newPaint(lua_State* L) {
     push_new<SkPaint>(L);
     return 1;
@@ -745,7 +644,6 @@ static void register_Sk(lua_State* L) {
     lua_setglobal(L, "Sk");
     // the Sk table is still on top
 
-    setfield_function(L, "newDocumentPDF", lsk_newDocumentPDF);
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
     setfield_function(L, "newRRect", lsk_newRRect);
@@ -765,7 +663,6 @@ static void register_Sk(lua_State* L) {
 void SkLua::Load(lua_State* L) {
     register_Sk(L);
     REG_CLASS(L, SkCanvas);
-    REG_CLASS(L, SkDocument);
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkRRect);
