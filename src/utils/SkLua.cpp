@@ -32,6 +32,7 @@ DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
+DEF_MTNAME(SkTypeface)
 
 template <typename T> T* push_new(lua_State* L) {
     T* addr = (T*)lua_newuserdata(L, sizeof(T));
@@ -286,6 +287,21 @@ static int lcanvas_drawPath(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_drawText(lua_State* L) {
+    if (lua_gettop(L) < 5) {
+        return 0;
+    }
+
+    if (lua_isstring(L, 2) && lua_isnumber(L, 3) && lua_isnumber(L, 4)) {
+        size_t len;
+        const char* text = lua_tolstring(L, 2, &len);
+        get_ref<SkCanvas>(L, 1)->drawText(text, len,
+                                          lua2scalar(L, 3), lua2scalar(L, 4),
+                                          *get_obj<SkPaint>(L, 5));
+    }
+    return 0;
+}
+
 static int lcanvas_getSaveCount(lua_State* L) {
     lua_pushnumber(L, get_ref<SkCanvas>(L, 1)->getSaveCount());
     return 1;
@@ -312,6 +328,7 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawOval", lcanvas_drawOval },
     { "drawCircle", lcanvas_drawCircle },
     { "drawPath", lcanvas_drawPath },
+    { "drawText", lcanvas_drawText },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
     { "translate", lcanvas_translate },
@@ -351,6 +368,16 @@ static int lpaint_setTextSize(lua_State* L) {
     return 0;
 }
 
+static int lpaint_getTypeface(lua_State* L) {
+    push_ref(L, get_obj<SkPaint>(L, 1)->getTypeface());
+    return 1;
+}
+
+static int lpaint_setTypeface(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setTypeface(get_ref<SkTypeface>(L, 2));
+    return 0;
+}
+
 static int lpaint_getFontID(lua_State* L) {
     SkTypeface* face = get_obj<SkPaint>(L, 1)->getTypeface();
     SkLua(L).pushU32(SkTypeface::UniqueID(face));
@@ -369,6 +396,8 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setColor", lpaint_setColor },
     { "getTextSize", lpaint_getTextSize },
     { "setTextSize", lpaint_setTextSize },
+    { "getTypeface", lpaint_getTypeface },
+    { "setTypeface", lpaint_setTypeface },
     { "getFontID", lpaint_getFontID },
     { "__gc", lpaint_gc },
     { NULL, NULL }
@@ -530,6 +559,18 @@ static const struct luaL_Reg gSkRRect_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int ltypeface_gc(lua_State* L) {
+    get_ref<SkTypeface>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkTypeface_Methods[] = {
+    { "__gc", ltypeface_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class AutoCallLua {
 public:
     AutoCallLua(lua_State* L, const char func[], const char verb[]) : fL(L) {
@@ -574,12 +615,28 @@ static int lsk_newRRect(lua_State* L) {
     return 1;
 }
 
-static const struct luaL_Reg gSk_Functions[] = {
-    { "newPaint", lsk_newPaint },
-    { "newPath", lsk_newPath },
-    { "newRRect", lsk_newRRect },
-    { NULL, NULL }
-};
+static int lsk_newTypeface(lua_State* L) {
+    const char* name = NULL;
+    int style = SkTypeface::kNormal;
+    
+    int count = lua_gettop(L);
+    if (count > 0 && lua_isstring(L, 1)) {
+        name = lua_tolstring(L, 1, NULL);
+        if (count > 1 && lua_isnumber(L, 2)) {
+            style = lua_tointegerx(L, 2, NULL) & SkTypeface::kBoldItalic;
+        }
+    }
+
+    SkTypeface* face = SkTypeface::CreateFromName(name,
+                                                  (SkTypeface::Style)style);
+//    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
+    if (NULL == face) {
+        face = SkTypeface::RefDefault();
+    }
+    push_ref(L, face);
+    face->unref();
+    return 1;
+}
 
 static void register_Sk(lua_State* L) {
     lua_newtable(L);
@@ -590,6 +647,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newPaint", lsk_newPaint);
     setfield_function(L, "newPath", lsk_newPath);
     setfield_function(L, "newRRect", lsk_newRRect);
+    setfield_function(L, "newTypeface", lsk_newTypeface);
     lua_pop(L, 1);  // pop off the Sk table
 }
 
@@ -608,4 +666,5 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkRRect);
+    REG_CLASS(L, SkTypeface);
 }
