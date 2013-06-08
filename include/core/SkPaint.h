@@ -628,8 +628,9 @@ public:
         kLeft_Align,
         kCenter_Align,
         kRight_Align,
-
-        kAlignCount
+    };
+    enum {
+        kAlignCount = 3
     };
 
     /** Return the paint's Align value for drawing text.
