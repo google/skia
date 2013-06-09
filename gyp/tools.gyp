@@ -16,6 +16,7 @@
         'bench_pictures',
         'filter',
         'lua_pictures',
+        'lua_app',
         'pinspect',
         'render_pdfs',
         'render_pictures',
@@ -84,6 +85,23 @@
         'gm.gyp:gm_expectations',
         'jsoncpp.gyp:jsoncpp',
         'utils.gyp:utils',
+      ],
+    },
+    {
+      'target_name': 'lua_app',
+      'type': 'executable',
+      'sources': [
+        '../tools/lua/lua_app.cpp',
+        '../src/utils/SkLua.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'effects.gyp:effects',
+        'utils.gyp:utils',
+        'images.gyp:images',
+        'pdf.gyp:pdf',
+        'ports.gyp:ports',
+        'lua.gyp:lua',
       ],
     },
     {
