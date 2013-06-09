@@ -229,7 +229,7 @@ static SkScalar getfield_scalar(lua_State* L, int index, const char key[]) {
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
     lua_gettable(L, index);
-    
+
     SkScalar value = lua2scalar(L, -1);
     lua_pop(L, 1);
     return value;
@@ -239,7 +239,7 @@ static SkScalar getfield_scalar_default(lua_State* L, int index, const char key[
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
     lua_gettable(L, index);
-    
+
     SkScalar value;
     if (lua_isnil(L, -1)) {
         value = def;
@@ -474,7 +474,7 @@ static int lpaint_setTextAlign(lua_State* L) {
     if (lua_isstring(L, 2)) {
         size_t len;
         const char* label = lua_tolstring(L, 2, &len);
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
             if (!strcmp(gAlignRec[i].fLabel, label)) {
                 get_obj<SkPaint>(L, 1)->setTextAlign(gAlignRec[i].fAlign);
@@ -492,7 +492,7 @@ static int lpaint_getStroke(lua_State* L) {
 
 static int lpaint_setStroke(lua_State* L) {
     SkPaint::Style style;
-    
+
     if (lua_toboolean(L, 2)) {
         style = SkPaint::kStroke_Style;
     } else {
@@ -537,7 +537,7 @@ struct FontMetrics {
 static int lpaint_getFontMetrics(lua_State* L) {
     SkPaint::FontMetrics fm;
     SkScalar height = get_obj<SkPaint>(L, 1)->getFontMetrics(&fm);
-    
+
     lua_newtable(L);
     setfield_scalar(L, "top", fm.fTop);
     setfield_scalar(L, "ascent", fm.fAscent);
