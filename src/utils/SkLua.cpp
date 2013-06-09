@@ -93,7 +93,7 @@ SkLua::~SkLua() {
 bool SkLua::runCode(const char code[]) {
     int err = luaL_loadstring(fL, code) || lua_pcall(fL, 0, 0, 0);
     if (err) {
-        SkDebugf("--- lua failed\n");
+        SkDebugf("--- lua failed: %s\n", lua_tostring(fL, -1));
         return false;
     }
     return true;
@@ -116,6 +116,10 @@ static void setfield_string(lua_State* L, const char key[], const char value[]) 
 static void setfield_number(lua_State* L, const char key[], double value) {
     lua_pushnumber(L, value);
     lua_setfield(L, -2, key);
+}
+
+static void setfield_scalar(lua_State* L, const char key[], SkScalar value) {
+    setfield_number(L, key, SkScalarToLua(value));
 }
 
 static void setfield_function(lua_State* L,
@@ -181,10 +185,10 @@ void SkLua::pushArrayU16(const uint16_t array[], int count, const char key[]) {
 
 void SkLua::pushRect(const SkRect& r, const char key[]) {
     lua_newtable(fL);
-    setfield_number(fL, "left", SkScalarToLua(r.fLeft));
-    setfield_number(fL, "top", SkScalarToLua(r.fTop));
-    setfield_number(fL, "right", SkScalarToLua(r.fRight));
-    setfield_number(fL, "bottom", SkScalarToLua(r.fBottom));
+    setfield_scalar(fL, "left", r.fLeft);
+    setfield_scalar(fL, "top", r.fTop);
+    setfield_scalar(fL, "right", r.fRight);
+    setfield_scalar(fL, "bottom", r.fBottom);
     CHECK_SETFIELD(key);
 }
 
@@ -225,8 +229,23 @@ static SkScalar getfield_scalar(lua_State* L, int index, const char key[]) {
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
     lua_gettable(L, index);
-
+    
     SkScalar value = lua2scalar(L, -1);
+    lua_pop(L, 1);
+    return value;
+}
+
+static SkScalar getfield_scalar_default(lua_State* L, int index, const char key[], SkScalar def) {
+    SkASSERT(lua_istable(L, index));
+    lua_pushstring(L, key);
+    lua_gettable(L, index);
+    
+    SkScalar value;
+    if (lua_isnil(L, -1)) {
+        value = def;
+    } else {
+        value = lua2scalar(L, -1);
+    }
     lua_pop(L, 1);
     return value;
 }
@@ -249,8 +268,8 @@ static SkColor lua2color(lua_State* L, int index) {
 }
 
 static SkRect* lua2rect(lua_State* L, int index, SkRect* rect) {
-    rect->set(getfield_scalar(L, index, "left"),
-              getfield_scalar(L, index, "top"),
+    rect->set(getfield_scalar_default(L, index, "left", 0),
+              getfield_scalar_default(L, index, "top", 0),
               getfield_scalar(L, index, "right"),
               getfield_scalar(L, index, "bottom"));
     return rect;
@@ -455,7 +474,7 @@ static int lpaint_setTextAlign(lua_State* L) {
     if (lua_isstring(L, 2)) {
         size_t len;
         const char* label = lua_tolstring(L, 2, &len);
-
+        
         for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
             if (!strcmp(gAlignRec[i].fLabel, label)) {
                 get_obj<SkPaint>(L, 1)->setTextAlign(gAlignRec[i].fAlign);
@@ -464,6 +483,69 @@ static int lpaint_setTextAlign(lua_State* L) {
         }
     }
     return 0;
+}
+
+static int lpaint_getStroke(lua_State* L) {
+    lua_pushboolean(L, SkPaint::kStroke_Style == get_obj<SkPaint>(L, 1)->getStyle());
+    return 1;
+}
+
+static int lpaint_setStroke(lua_State* L) {
+    SkPaint::Style style;
+    
+    if (lua_toboolean(L, 2)) {
+        style = SkPaint::kStroke_Style;
+    } else {
+        style = SkPaint::kFill_Style;
+    }
+    get_obj<SkPaint>(L, 1)->setStyle(style);
+    return 0;
+}
+
+static int lpaint_getStrokeWidth(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getStrokeWidth());
+    return 1;
+}
+
+static int lpaint_setStrokeWidth(lua_State* L) {
+    get_obj<SkPaint>(L, 1)->setStrokeWidth(lua2scalar(L, 2));
+    return 0;
+}
+
+static int lpaint_measureText(lua_State* L) {
+    if (lua_isstring(L, 2)) {
+        size_t len;
+        const char* text = lua_tolstring(L, 2, &len);
+        SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->measureText(text, len));
+        return 1;
+    }
+    return 0;
+}
+
+struct FontMetrics {
+    SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
+    SkScalar    fAscent;    //!< The recommended distance above the baseline (will be <= 0)
+    SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
+    SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
+    SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
+    SkScalar    fAvgCharWidth;  //!< the average charactor width (>= 0)
+    SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
+    SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
+    SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
+};
+
+static int lpaint_getFontMetrics(lua_State* L) {
+    SkPaint::FontMetrics fm;
+    SkScalar height = get_obj<SkPaint>(L, 1)->getFontMetrics(&fm);
+    
+    lua_newtable(L);
+    setfield_scalar(L, "top", fm.fTop);
+    setfield_scalar(L, "ascent", fm.fAscent);
+    setfield_scalar(L, "descent", fm.fDescent);
+    setfield_scalar(L, "bottom", fm.fBottom);
+    setfield_scalar(L, "leading", fm.fLeading);
+    SkLua(L).pushScalar(height);
+    return 2;
 }
 
 static int lpaint_gc(lua_State* L) {
@@ -483,6 +565,12 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getFontID", lpaint_getFontID },
     { "getTextAlign", lpaint_getTextAlign },
     { "setTextAlign", lpaint_setTextAlign },
+    { "getStroke", lpaint_getStroke },
+    { "setStroke", lpaint_setStroke },
+    { "getStrokeWidth", lpaint_getStrokeWidth },
+    { "setStrokeWidth", lpaint_setStrokeWidth },
+    { "measureText", lpaint_measureText },
+    { "getFontMetrics", lpaint_getFontMetrics },
     { "__gc", lpaint_gc },
     { NULL, NULL }
 };
