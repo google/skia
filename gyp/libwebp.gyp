@@ -74,6 +74,8 @@
               ],
               'sources': [
                 '../third_party/externals/libwebp/src/dsp/dec_neon.c',
+                '../third_party/externals/libwebp/src/dsp/enc_neon.c',
+                '../third_party/externals/libwebp/src/dsp/upsampling_neon.c',
               ],
               # behavior similar dsp_neon.c.neon in an Android.mk
               'cflags!': [
