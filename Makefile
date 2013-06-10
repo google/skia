@@ -43,6 +43,7 @@ VALID_TARGETS := \
                  gm \
                  most \
                  pathops_unittest \
+                 pdfviewer \
                  SampleApp \
                  SkiaAndroidApp \
                  skia_lib \
