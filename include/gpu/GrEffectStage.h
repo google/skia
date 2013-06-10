@@ -166,7 +166,7 @@ public:
             SkSafeUnref(oldEffectRef);
         }
 
-        bool isEqual(const GrEffectStage& stage) const {
+        bool isEqual(const GrEffectStage& stage, bool ignoreCoordChange) const {
             if (NULL == stage.fEffectRef) {
                 return NULL == fEffect;
             } else if (NULL == fEffect) {
@@ -180,6 +180,12 @@ public:
 
             if (!(*stage.getEffect())->isEqual(*fEffect)) {
                 return false;
+            }
+
+            if (ignoreCoordChange) {
+                // ignore the coordinate change matrix since there are
+                // explicit uv coordinates
+                return true;
             }
 
             if (fCoordChangeMatrixSet != stage.fCoordChangeMatrixSet) {
