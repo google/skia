@@ -23,6 +23,9 @@
         ['skia_os == "android"', {
           'dependencies': [ 'android_system.gyp:SkiaAndroidApp' ],
         }],
+        ['skia_os == "linux"', {
+          'dependencies': [ 'pdfviewer.gyp:pdfviewer' ],
+        }],
       ],
     },
   ],
