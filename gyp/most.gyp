@@ -18,13 +18,11 @@
         'tests.gyp:tests',
         'tools.gyp:tools',
         'pathops_unittest.gyp:*',
+#       'pdfviewer.gyp:pdfviewer',
       ],
       'conditions': [
         ['skia_os == "android"', {
           'dependencies': [ 'android_system.gyp:SkiaAndroidApp' ],
-        }],
-        ['skia_os == "linux"', {
-          'dependencies': [ 'pdfviewer.gyp:pdfviewer' ],
         }],
       ],
     },
