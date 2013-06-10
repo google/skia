@@ -366,7 +366,7 @@ public:
     }
 
     // doesn't preserve contents
-    void reset(size_t count) {
+    T* reset(size_t count) {
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }
@@ -377,6 +377,7 @@ public:
         } else {
             fPtr = NULL;
         }
+        return fPtr;
     }
 
     T* get() const { return fPtr; }
