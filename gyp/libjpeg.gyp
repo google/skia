@@ -35,6 +35,10 @@
               'target_name': 'libjpeg',
               'type': 'static_library',
               'sources': [
+                # we currently build skia's version of libjpeg-turbo without
+                # SIMD optimizations for simplicity
+                '../third_party/externals/libjpeg/jsimd_none.c',
+              
                 '../third_party/externals/libjpeg/jcapimin.c',
                 '../third_party/externals/libjpeg/jcapistd.c',
                 '../third_party/externals/libjpeg/jccoefct.c',
@@ -78,6 +82,7 @@
                 '../third_party/externals/libjpeg/jidctflt.c',
                 '../third_party/externals/libjpeg/jidctfst.c',
                 '../third_party/externals/libjpeg/jidctint.c',
+                '../third_party/externals/libjpeg/jidctred.c',
                 '../third_party/externals/libjpeg/jinclude.h',
                 '../third_party/externals/libjpeg/jmemmgr.c',
                 '../third_party/externals/libjpeg/jmemnobs.c',
@@ -85,6 +90,7 @@
                 '../third_party/externals/libjpeg/jmorecfg.h',
                 '../third_party/externals/libjpeg/jpegint.h',
                 '../third_party/externals/libjpeg/jpeglib.h',
+                '../third_party/externals/libjpeg/jpeglibmangler.h',
                 '../third_party/externals/libjpeg/jquant1.c',
                 '../third_party/externals/libjpeg/jquant2.c',
                 '../third_party/externals/libjpeg/jutils.c',
