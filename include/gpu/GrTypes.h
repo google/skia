@@ -379,6 +379,11 @@ enum GrTextureFlags {
      * Hint that the CPU may modify this texture after creation.
      */
     kDynamicUpdate_GrTextureFlagBit = 0x4,
+    /**
+     * Indicates that all allocations (color buffer, FBO completeness, etc)
+     * should be verified.
+     */
+    kCheckAllocation_GrTextureFlagBit  = 0x8,
 
     kDummy_GrTextureFlagBit,
     kLastPublic_GrTextureFlagBit = kDummy_GrTextureFlagBit-1,

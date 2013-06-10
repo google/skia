@@ -126,7 +126,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
 
     GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kCheckAllocation_GrTextureFlagBit;
     desc.fWidth = info.fWidth;
     desc.fHeight = info.fHeight;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(config);

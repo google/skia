@@ -32,6 +32,7 @@ public:
         GrPixelConfig    fConfig;
         int              fSampleCnt;
         GrSurfaceOrigin  fOrigin;
+        bool             fCheckAllocation;
     };
 
     // creates a GrGLRenderTarget associated with a texture

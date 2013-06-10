@@ -406,7 +406,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
     glTexDesc.fIsWrapped = true;
-    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrBackendTextureFlag);
+    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
     // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
     // assuming the old behaviour, which is that backend textures are always
     // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
@@ -426,6 +426,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         glRTDesc.fConfig = desc.fConfig;
         glRTDesc.fSampleCnt = desc.fSampleCnt;
         glRTDesc.fOrigin = glTexDesc.fOrigin;
+        glRTDesc.fCheckAllocation = false;
         if (!this->createRenderTargetObjects(glTexDesc.fWidth,
                                              glTexDesc.fHeight,
                                              glTexDesc.fTextureID,
@@ -451,6 +452,7 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     glDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     glDesc.fSampleCnt = desc.fSampleCnt;
     glDesc.fIsWrapped = true;
+    glDesc.fCheckAllocation = false;
 
     glDesc.fOrigin = resolve_origin(desc.fOrigin, true);
     GrGLIRect viewport;
@@ -535,6 +537,15 @@ bool adjust_pixel_ops_params(int surfaceWidth,
     *height = subRect.height();
     return true;
 }
+
+GrGLenum check_alloc_error(const GrTextureDesc& desc, const GrGLInterface* interface) {
+    if (SkToBool(desc.fFlags & kCheckAllocation_GrTextureFlagBit)) {
+        return GR_GL_GET_ERROR(interface);
+    } else {
+        return CHECK_ALLOC_ERROR(interface);
+    }
+}
+
 }
 
 bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
@@ -670,7 +681,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                                          data));
             }
         }
-        GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
+        GrGLenum error = check_alloc_error(desc, this->glInterface());
         if (error != GR_GL_NO_ERROR) {
             succeeded = false;
         } else {
@@ -798,7 +809,8 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                       GR_GL_COLOR_ATTACHMENT0,
                                       GR_GL_RENDERBUFFER,
                                       desc->fMSColorRenderbufferID));
-        if (!this->glCaps().isConfigVerifiedColorAttachment(desc->fConfig)) {
+        if (desc->fCheckAllocation ||
+            !this->glCaps().isConfigVerifiedColorAttachment(desc->fConfig)) {
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 goto FAILED;
@@ -819,7 +831,8 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                      GR_GL_TEXTURE_2D,
                                      texID, 0));
     }
-    if (!this->glCaps().isConfigVerifiedColorAttachment(desc->fConfig)) {
+    if (desc->fCheckAllocation ||
+        !this->glCaps().isConfigVerifiedColorAttachment(desc->fConfig)) {
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
@@ -882,8 +895,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glRTDesc.fTexFBOID = 0;
     glRTDesc.fIsWrapped = false;
     glRTDesc.fConfig = glTexDesc.fConfig;
+    glRTDesc.fCheckAllocation = SkToBool(desc.fFlags & kCheckAllocation_GrTextureFlagBit);
 
-    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
+    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrTextureFlagBit);
 
     glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
     glRTDesc.fOrigin = glTexDesc.fOrigin;
@@ -1039,7 +1053,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                               sFmt.fInternalFormat,
                                               width, height));
             created =
-                (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
+                (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
         }
         if (created) {
             // After sized formats we attempt an unsized format and take
