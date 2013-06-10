@@ -212,58 +212,55 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-static void hairquad(const SkPoint pts[3], const SkRegion* clip, SkBlitter* blitter, int level,
-                     void (*lineproc)(const SkPoint&, const SkPoint&, const SkRegion* clip, SkBlitter*))
-{
-#if 1
-    if (level > 0)
-    {
+typedef void (*LineProc)(const SkPoint&, const SkPoint&, const SkRegion*,
+                         SkBlitter*);
+
+static void hairquad(const SkPoint pts[3], const SkRegion* clip,
+                     SkBlitter* blitter, int level, LineProc lineproc) {
+    if (level > 0) {
         SkPoint tmp[5];
 
         SkChopQuadAtHalf(pts, tmp);
         hairquad(tmp, clip, blitter, level - 1, lineproc);
         hairquad(&tmp[2], clip, blitter, level - 1, lineproc);
-    }
-    else
+    } else {
         lineproc(pts[0], pts[2], clip, blitter);
-#else
-    int count = 1 << level;
-    const SkScalar dt = SkFixedToScalar(SK_Fixed1 >> level);
-    SkScalar t = dt;
-    SkPoint prevPt = pts[0];
-    for (int i = 1; i < count; i++) {
-        SkPoint nextPt;
-        SkEvalQuadAt(pts, t, &nextPt);
-        lineproc(prevPt, nextPt, clip, blitter);
-        t += dt;
-        prevPt = nextPt;
     }
-    // draw the last line explicitly to 1.0, in case t didn't match that exactly
-    lineproc(prevPt, pts[2], clip, blitter);
-#endif
 }
 
-static void haircubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter, int level,
-                      void (*lineproc)(const SkPoint&, const SkPoint&, const SkRegion*, SkBlitter*))
-{
-    if (level > 0)
-    {
+static void haircubic(const SkPoint pts[4], const SkRegion* clip,
+                      SkBlitter* blitter, int level, LineProc lineproc) {
+    if (level > 0) {
         SkPoint tmp[7];
 
         SkChopCubicAt(pts, tmp, SK_Scalar1/2);
         haircubic(tmp, clip, blitter, level - 1, lineproc);
         haircubic(&tmp[3], clip, blitter, level - 1, lineproc);
-    }
-    else
+    } else {
         lineproc(pts[0], pts[3], clip, blitter);
+    }
 }
 
 #define kMaxCubicSubdivideLevel 6
 #define kMaxQuadSubdivideLevel  5
 
-static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
-                      void (*lineproc)(const SkPoint&, const SkPoint&, const SkRegion*, SkBlitter*))
-{
+static int compute_quad_level(const SkPoint pts[3]) {
+    int d = compute_int_quad_dist(pts);
+    /*  quadratics approach the line connecting their start and end points
+     4x closer with each subdivision, so we compute the number of
+     subdivisions to be the minimum need to get that distance to be less
+     than a pixel.
+     */
+    int level = (33 - SkCLZ(d)) >> 1;
+    // sanity check on level (from the previous version)
+    if (level > kMaxQuadSubdivideLevel) {
+        level = kMaxQuadSubdivideLevel;
+    }
+    return level;
+}
+
+static void hair_path(const SkPath& path, const SkRasterClip& rclip,
+                      SkBlitter* blitter, LineProc lineproc) {
     if (path.isEmpty()) {
         return;
     }
@@ -293,32 +290,36 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
     SkPath::Iter    iter(path, false);
     SkPoint         pts[4];
     SkPath::Verb    verb;
+    SkAutoConicToQuads converter;
 
     while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
         switch (verb) {
+            case SkPath::kMove_Verb:
+                break;
             case SkPath::kLine_Verb:
                 lineproc(pts[0], pts[1], clip, blitter);
                 break;
-            case SkPath::kQuad_Verb: {
-                int d = compute_int_quad_dist(pts);
-                /*  quadratics approach the line connecting their start and end points
-                 4x closer with each subdivision, so we compute the number of
-                 subdivisions to be the minimum need to get that distance to be less
-                 than a pixel.
-                 */
-                int level = (33 - SkCLZ(d)) >> 1;
-    //          SkDebugf("----- distance %d computedLevel %d\n", d, computedLevel);
-                // sanity check on level (from the previous version)
-                if (level > kMaxQuadSubdivideLevel) {
-                    level = kMaxQuadSubdivideLevel;
+            case SkPath::kQuad_Verb:
+                hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
+                break;
+            case SkPath::kConic_Verb: {
+                // how close should the quads be to the original conic?
+                const SkScalar tol = SK_Scalar1 / 4;
+                const SkPoint* quadPts = converter.computeQuads(pts,
+                                                       iter.conicWeight(), tol);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    int level = compute_quad_level(quadPts);
+                    hairquad(quadPts, clip, blitter, level, lineproc);
+                    quadPts += 2;
                 }
-                hairquad(pts, clip, blitter, level, lineproc);
                 break;
             }
             case SkPath::kCubic_Verb:
                 haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
                 break;
-            default:
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kDone_Verb:
                 break;
         }
     }

@@ -9,6 +9,34 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+static void draw_conic(SkCanvas* canvas, SkScalar weight, const SkPaint& paint) {
+    SkPath path;
+    path.moveTo(100, 100);
+    path.conicTo(300, 100, 300, 300, weight);
+    canvas->drawPath(path, paint);
+}
+
+static void test_conic(SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    static const struct {
+        SkScalar fWeight;
+        SkColor  fColor;
+    } gRec[] = {
+        { 2   , SK_ColorRED },
+        { 1   , SK_ColorGREEN },
+        { 0.5f, SK_ColorBLUE },
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        paint.setColor(gRec[i].fColor);
+        draw_conic(canvas, gRec[i].fWeight, paint);
+        canvas->translate(-30, 30);
+    }
+}
+
 #include "SkGradientShader.h"
 static void test_shallow_gradient(SkCanvas* canvas, SkScalar width, SkScalar height) {
     SkColor colors[] = { 0xFF7F7F7F, 0xFF7F7F7F, 0xFF000000 };
@@ -219,6 +247,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        if (false) { test_conic(canvas); return; }
         if (false) {
             SkRect bounds;
             canvas->getClipBounds(&bounds);

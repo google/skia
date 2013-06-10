@@ -251,4 +251,51 @@ struct SkConic {
     void computeFastBounds(SkRect* bounds) const;
 };
 
+#include "SkTemplates.h"
+
+/**
+ *  Help class to allocate storage for approximating a conic with N quads.
+ */
+class SkAutoConicToQuads {
+public:
+    SkAutoConicToQuads() : fQuadCount(0) {}
+
+    /**
+     *  Given a conic and a tolerance, return the array of points for the
+     *  approximating quad(s). Call countQuads() to know the number of quads
+     *  represented in these points.
+     *
+     *  The quads are allocated to share end-points. e.g. if there are 4 quads,
+     *  there will be 9 points allocated as follows
+     *      quad[0] == pts[0..2]
+     *      quad[1] == pts[2..4]
+     *      quad[2] == pts[4..6]
+     *      quad[3] == pts[6..8]
+     */
+    const SkPoint* computeQuads(const SkConic& conic, SkScalar tol) {
+        int pow2 = conic.computeQuadPOW2(tol);
+        fQuadCount = 1 << pow2;
+        SkPoint* pts = fStorage.reset(1 + 2 * fQuadCount);
+        conic.chopIntoQuadsPOW2(pts, pow2);
+        return pts;
+    }
+
+    const SkPoint* computeQuads(const SkPoint pts[3], SkScalar weight,
+                                SkScalar tol) {
+        SkConic conic;
+        conic.set(pts, weight);
+        return computeQuads(conic, tol);
+    }
+
+    int countQuads() const { return fQuadCount; }
+
+private:
+    enum {
+        kQuadCount = 8, // should handle most conics
+        kPointCount = 1 + 2 * kQuadCount,
+    };
+    SkAutoSTMalloc<kPointCount, SkPoint> fStorage;
+    int fQuadCount; // #quads for current usage
+};
+
 #endif
