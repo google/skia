@@ -17,7 +17,7 @@
       'cflags': ['-fexceptions'],
       'cflags_cc': ['-fexceptions'],
       'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],         
+      'cflags_cc!': [ '-fno-exceptions' ],
       'sources': [
         '../experimental/PdfViewer/pdf_viewer_main.cpp',
       ],
@@ -40,7 +40,7 @@
       'link_settings': {
         'libraries': [
         ],
-      },    
+      },
       'defines': [
         'BUILDING_PODOFO',
       ],
@@ -60,7 +60,7 @@
         ],
       },
     ],
-  ],  
+  ],
 }
 
 # Local Variables:

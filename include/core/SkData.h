@@ -89,13 +89,13 @@ public:
      *  takes ownership of that allocation, and will handling calling sk_free.
      */
     static SkData* NewFromMalloc(const void* data, size_t length);
-    
+
     /**
      *  Create a new dataref the file with the specified path.
      *  If the file cannot be opened, this returns NULL.
      */
     static SkData* NewFromFileName(const char path[]);
-    
+
     /**
      *  Create a new dataref from a SkFILE.
      *  This does not take ownership of the SkFILE, nor close it.

@@ -29,7 +29,7 @@ static void test_conic(SkCanvas* canvas) {
         { 1   , SK_ColorGREEN },
         { 0.5f, SK_ColorBLUE },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         paint.setColor(gRec[i].fColor);
         draw_conic(canvas, gRec[i].fWeight, paint);
