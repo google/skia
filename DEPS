@@ -10,7 +10,8 @@ use_relative_paths = True
 deps = {
   # DEPS using https://chromium.googlesource.com are pulled from chromium @ r205199
   # (see https://chromium.googlesource.com/chromium/chromium/+/c59bfa8ef877f45bfa859669053859857af1d279)
-  "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git@36cced4a9b48cc1e654fbb27477f12fb77b63c91",
+  # NOTE: Angle has been reverted to http://angleproject.googlecode.com/svn/trunk@1268
+  "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git@e574e26f48223a6718feab841b4a7720785b497a",
   "third_party/externals/freetype" : "https://android.googlesource.com/platform/external/freetype.git@android-4.2.2_r1.2",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@8f42386eafcd7ddf1947cab2808a76c315ff30cc",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
