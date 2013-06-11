@@ -12,7 +12,7 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 
-#include "glyphs.h"
+#include "gUniqueGlyphIDs.h"
 
 class FontCacheBench : public SkBenchmark {
     enum { N = SkBENCHLOOP(800) };
