@@ -88,8 +88,10 @@ class Rebaseliner(object):
         self._configs = configs
         if not subdirs:
             self._subdirs = sorted(SUBDIR_MAPPING.keys())
+            self._missing_json_is_fatal = False
         else:
             self._subdirs = subdirs
+            self._missing_json_is_fatal = True
         self._json_base_url = json_base_url
         self._json_filename = json_filename
         self._dry_run = dry_run
@@ -144,6 +146,12 @@ class Rebaseliner(object):
     # rather than a list of TESTS, like this:
     #  ['imageblur', 'xfermodes']
     #
+    # If the JSON actual result summary file cannot be loaded, the behavior
+    # depends on self._missing_json_is_fatal:
+    # - if true: execution will halt with an exception
+    # - if false: we will log an error message but return an empty list so we
+    #   go on to the next platform
+    #
     # params:
     #  json_url: URL pointing to a JSON actual result summary file
     #
@@ -153,7 +161,16 @@ class Rebaseliner(object):
     def _GetFilesToRebaseline(self, json_url):
         print ('# Getting files to rebaseline from JSON summary URL %s ...'
                % json_url)
-        json_contents = self._GetContentsOfUrl(json_url)
+        try:
+            json_contents = self._GetContentsOfUrl(json_url)
+        except urllib2.HTTPError:
+            message = 'unable to load JSON summary URL %s' % json_url
+            if self._missing_json_is_fatal:
+                raise ValueError(message)
+            else:
+                print '# %s' % message
+                return []
+
         json_dict = gm_json.LoadFromString(json_contents)
         actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
 
