@@ -97,6 +97,16 @@ SkData* SkData::NewFromFILE(SkFILE* f) {
     return SkData::NewWithProc(addr, size, sk_mmap_releaseproc, NULL);
 }
 
+SkData* SkData::NewFromFileName(const char path[]) {
+    SkFILE* f = path ? sk_fopen(path, kRead_SkFILE_Flag) : NULL;
+    if (NULL == f) {
+        return NULL;
+    }
+    SkData* data = NewFromFILE(f);
+    sk_fclose(f);
+    return data;
+}
+
 SkData* SkData::NewFromFD(int fd) {
     size_t size;
     void* addr = sk_fdmmap(fd, &size);
