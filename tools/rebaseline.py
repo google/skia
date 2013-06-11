@@ -159,6 +159,9 @@ class Rebaseliner(object):
     # results (those for which we don't have any expectations yet)
     # should be rebaselined.  For now, we only return failed expectations.
     def _GetFilesToRebaseline(self, json_url):
+        if self._dry_run:
+            print ''
+            print '#'
         print ('# Getting files to rebaseline from JSON summary URL %s ...'
                % json_url)
         try:
@@ -180,11 +183,15 @@ class Rebaseliner(object):
             files_to_rebaseline.extend(failed_results.keys())
 
         print '# ... found files_to_rebaseline %s' % files_to_rebaseline
+        if self._dry_run:
+            print '#'
         return files_to_rebaseline
 
     # Rebaseline a single file.
     def _RebaselineOneFile(self, expectations_subdir, builder_name,
                            infilename, outfilename):
+        if self._dry_run:
+            print ''
         print '# ' + infilename
         url = ('http://skia-autogen.googlecode.com/svn/gm-actual/' +
                expectations_subdir + '/' + builder_name + '/' +
@@ -234,6 +241,8 @@ class Rebaseliner(object):
             else:
                 configs = [ '565', '8888', 'gpu', 'pdf', 'mesa', 'msaa16',
                             'msaa4' ]
+        if self._dry_run:
+            print ''
         print '# ' + expectations_subdir + ':'
         for config in configs:
             infilename = test + '_' + config + '.png'
