@@ -15,8 +15,9 @@ deps = {
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@8f42386eafcd7ddf1947cab2808a76c315ff30cc",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@ab1e40f3bce061ea6f9bdc60351d6cde2a4f872b",
+  # Move to a webp version newer than 0.3.0 to pickup NEON fix for iOS
   "third_party/externals/jsoncpp-chromium" : "https://chromium.googlesource.com/chromium/src/third_party/jsoncpp.git@41239939c0c60481f34887d52c038facf05f5533",
-  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@0.3.0",
+  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@3fe91635df8734b23f3c1b9d1f0c4fa8cfaf4e39",
   "third_party/externals/podofo" : "https://skia.googlesource.com/third_party/podofo.git@skia_ext",
 }
 
