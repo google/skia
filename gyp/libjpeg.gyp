@@ -38,7 +38,7 @@
                 # we currently build skia's version of libjpeg-turbo without
                 # SIMD optimizations for simplicity
                 '../third_party/externals/libjpeg/jsimd_none.c',
-              
+
                 '../third_party/externals/libjpeg/jcapimin.c',
                 '../third_party/externals/libjpeg/jcapistd.c',
                 '../third_party/externals/libjpeg/jccoefct.c',
