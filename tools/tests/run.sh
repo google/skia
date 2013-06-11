@@ -129,8 +129,8 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-# Run rebaseline.py with arguments in $1, recording its dry_run output.
-# Then compare that dry_run output to the content of $2/output-expected.
+# Run rebaseline.py with arguments in $1, recording its dry-run output.
+# Then compare that dry-run output to the content of $2/output-expected.
 function rebaseline_test {
   if [ $# != 2 ]; then
     echo "rebaseline_test requires exactly 2 parameters, got $#"
@@ -142,7 +142,7 @@ function rebaseline_test {
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="python tools/rebaseline.py --dry_run $ARGS"
+  COMMAND="python tools/rebaseline.py --dry-run $ARGS"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
@@ -211,6 +211,6 @@ REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
 rebaseline_test "--tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
 rebaseline_test "--tests test1 test2" "$REBASELINE_OUTPUT/all"
-rebaseline_test "--json_base_url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
+rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
 
 echo "All tests passed."
