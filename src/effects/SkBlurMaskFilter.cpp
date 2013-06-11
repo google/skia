@@ -106,13 +106,8 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
         (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
-#ifndef SK_DISABLE_SEPARABLE_MASK_BLUR
-    return SkBlurMask::BlurSeparable(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
-                            blurQuality, margin);
-#else
     return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
                             blurQuality, margin);
-#endif
 }
 
 bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,

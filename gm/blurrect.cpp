@@ -243,7 +243,7 @@ protected:
 
         memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-        return SkBlurMask::BlurSeparable(m, src, this->radius(), this->style(), this->getQuality());
+        return SkBlurMask::Blur(m, src, this->radius(), this->style(), this->getQuality());
     }
 
     virtual SkBlurMask::Quality getQuality() {
