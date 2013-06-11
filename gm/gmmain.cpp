@@ -1895,6 +1895,7 @@ int tool_main(int argc, char** argv) {
                            " Config will be skipped.\n", gRec[index].fName);
                 configs.remove(i);
                 --i;
+                continue;
             }
             if (gRec[index].fSampleCnt > ctx->getMaxSampleCount()) {
                 gm_fprintf(stderr, "Sample count (%d) of config %s is not supported."
