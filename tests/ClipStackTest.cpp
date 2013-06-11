@@ -392,6 +392,107 @@ static void test_rect_inverse_fill(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, bounds == rect);
 }
 
+static void test_rect_replace(skiatest::Reporter* reporter) {
+    SkRect rect = SkRect::MakeWH(100, 100);
+    SkRect rect2 = SkRect::MakeXYWH(50, 50, 100, 100);
+
+    SkRect bound;
+    SkClipStack::BoundsType type;
+    bool isIntersectionOfRects;
+
+    // Adding a new rect with the replace operator should not increase
+    // the stack depth. BW replacing BW.
+    {
+        SkClipStack stack;
+        REPORTER_ASSERT(reporter, 0 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+
+    // Adding a new rect with the replace operator should not increase
+    // the stack depth. AA replacing AA.
+    {
+        SkClipStack stack;
+        REPORTER_ASSERT(reporter, 0 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, true);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, true);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+
+    // Adding a new rect with the replace operator should not increase
+    // the stack depth. BW replacing AA replacing BW.
+    {
+        SkClipStack stack;
+        REPORTER_ASSERT(reporter, 0 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, true);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+
+    // Make sure replace clip rects don't collapse too much.
+    {
+        SkClipStack stack;
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        stack.clipDevRect(rect2, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.save();
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 2 == count(stack));
+        stack.getBounds(&bound, &type, &isIntersectionOfRects);
+        REPORTER_ASSERT(reporter, bound == rect);
+        stack.restore();
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.save();
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 2 == count(stack));
+        stack.restore();
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+
+        stack.save();
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        stack.clipDevRect(rect2, SkRegion::kIntersect_Op, false);
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 2 == count(stack));
+        stack.restore();
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+}
+
+// Simplified path-based version of test_rect_replace.
+static void test_path_replace(skiatest::Reporter* reporter) {
+    SkRect rect = SkRect::MakeWH(100, 100);
+    SkPath path;
+    path.addCircle(50, 50, 50);
+
+    // Replace operation doesn't grow the stack.
+    {
+        SkClipStack stack;
+        REPORTER_ASSERT(reporter, 0 == count(stack));
+        stack.clipDevPath(path, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevPath(path, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+
+    // Replacing rect with path.
+    {
+        SkClipStack stack;
+        stack.clipDevRect(rect, SkRegion::kReplace_Op, true);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+        stack.clipDevPath(path, SkRegion::kReplace_Op, true);
+        REPORTER_ASSERT(reporter, 1 == count(stack));
+    }
+}
+
 // Test out SkClipStack's merging of rect clips. In particular exercise
 // merging of aa vs. bw rects.
 static void test_rect_merging(skiatest::Reporter* reporter) {
@@ -950,7 +1051,9 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_bounds(reporter, false);       // once with paths
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
+    test_rect_replace(reporter);
     test_rect_inverse_fill(reporter);
+    test_path_replace(reporter);
     test_quickContains(reporter);
 #if SK_SUPPORT_GPU
     test_reduced_clip_stack(reporter);
