@@ -140,7 +140,7 @@ protected:
     virtual void makeBlurryRect(const SkRect&) SK_OVERRIDE {
         SkMask mask;
         mask.fImage = NULL;
-        SkBlurMask::BlurSeparable(&mask, fSrcMask, this->radius(),
+        SkBlurMask::Blur(&mask, fSrcMask, this->radius(),
                                   SkBlurMask::kNormal_Style,
                                   SkBlurMask::kHigh_Quality);
         SkMask::FreeImage(mask.fImage);
