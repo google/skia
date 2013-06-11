@@ -152,7 +152,7 @@
         'lua.gyp:lua',
       ],
       'conditions' : [
-       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
          'sources!': [
             '../samplecode/SampleDecode.cpp',
          ],

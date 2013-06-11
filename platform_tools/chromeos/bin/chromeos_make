@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# This script builds Skia for ChromeOS by mounting the Skia checkout inside a
+# chroot contained within an existing ChromeOS checkout, entering the chroot,
+# and running the build_skia_in_chroot script.
+
+MAKE_FLAGS=$@
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ $(uname) != "Linux" ]; then
+    echo "ERROR: Can only build for ChromeOS on Linux."
+    exit 1
+fi
+
+if [ -z "${CHROMEOS_ROOT}" ]; then
+    echo "ERROR: Please set CHROMEOS_ROOT to the root of your ChromeOS checkout."
+    exit 1
+fi
+
+CHROMEOS_CHROOT="${CHROMEOS_ROOT}/chroot"
+
+# Where the Skia code will pretend to live inside the chroot.
+SKIA_CHROOT_PARENT="/usr/local"
+SKIA_CHROOT_DIR="${SKIA_CHROOT_PARENT}/skia"
+
+echo "Mounting Skia source at ${SKIA_CHROOT_DIR} in chroot."
+sudo mkdir -p ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR}
+sudo mount $(pwd) ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR} -o bind
+
+echo "Compiling in chroot: ${CHROMEOS_CHROOT}"
+sudo ${CHROMEOS_ROOT}/chromite/bin/cros_sdk -- /bin/sh -c "cd ${SKIA_CHROOT_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot $MAKE_FLAGS"
+returnVal=$?
+
+sudo umount ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR}
+
+if [ "${returnVal}" != "0" ]
+then
+  exit 1;
+fi

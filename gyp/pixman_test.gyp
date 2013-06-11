@@ -125,7 +125,7 @@
         'xml.gyp:xml',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
         }],
         [ 'skia_os == "win"', {
         }],

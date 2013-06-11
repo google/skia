@@ -1,7 +1,7 @@
 {
   'variables': {
     'conditions': [
-      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
         # Use the systemwide Qt libs by default
         'variables': {
           'qt_sdk%': '/usr',

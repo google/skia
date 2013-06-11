@@ -39,7 +39,7 @@
         '../src/ports/SkXMLParser_empty.cpp',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'defines': [
             #The font host requires at least FreeType 2.3.0 at runtime.
             'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',\

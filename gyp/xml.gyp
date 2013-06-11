@@ -32,7 +32,7 @@
           '../src/xml/SkXMLPullParser.cpp', #if 0 around class decl in header
       ],
       'conditions': [
-        [ 'skia_os in ["win", "mac", "linux", "freebsd", "openbsd", "solaris", "android", "ios", "nacl"]', {
+        [ 'skia_os in ["win", "mac", "linux", "freebsd", "openbsd", "solaris", "android", "ios", "nacl", "chromeos"]', {
           'sources!': [
             # no jsapi.h by default on system
             '../include/xml/SkJS.h',

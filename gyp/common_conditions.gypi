@@ -117,7 +117,7 @@
       },
     ],
 
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]',
       {
         'defines': [
           'SK_SAMPLES_FOR_X',
@@ -145,22 +145,6 @@
               '-Werror',
             ],
           }],
-          [ 'skia_arch_width == 64', {
-            'cflags': [
-              '-m64',
-            ],
-            'ldflags': [
-              '-m64',
-            ],
-          }],
-          [ 'skia_arch_width == 32', {
-            'cflags': [
-              '-m32',
-            ],
-            'ldflags': [
-              '-m32',
-            ],
-          }],
           [ 'skia_os == "nacl"', {
             'defines': [
               'SK_BUILD_FOR_NACL',
@@ -176,6 +160,32 @@
           }, { # skia_os != "nacl"
             'include_dirs' : [
               '/usr/include/freetype2',
+            ],
+          }],
+          [ 'skia_os == "chromeos"', {
+            'ldflags': [
+              '--sysroot=/build/<(skia_cros_target)',
+              '-lstdc++',
+              '-lm',
+            ],
+          }, {
+            'conditions': [
+              [ 'skia_arch_width == 64', {
+                'cflags': [
+                  '-m64',
+                ],
+                'ldflags': [
+                  '-m64',
+                ],
+              }],
+              [ 'skia_arch_width == 32', {
+                'cflags': [
+                  '-m32',
+                ],
+                'ldflags': [
+                  '-m32',
+                ],
+              }],
             ],
           }],
         ],

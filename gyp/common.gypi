@@ -37,6 +37,12 @@
         [ 'skia_os == "nacl" and OS != "linux"', {
           'error': '<!(Skia NaCl build only currently supported on Linux.)',
         }],
+        [ 'skia_os == "chromeos" and OS != "linux"', {
+          'error': '<!(Skia ChromeOS build is only supported on Linux.)',
+        }],
+        [ 'skia_os == "chromeos" and not skia_cros_target', {
+          'error': '<!(skia_cros_target must be defined for ChromeOS)',
+        }],
       ],
     },
     # Validate the 'skia_os' setting against 'skia_shared_lib', because shared

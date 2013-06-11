@@ -57,13 +57,13 @@
             '../bench/BenchSysTimer_mach.cpp',
           ],
         }],
-        [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
+        [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "android", "chromeos"]', {
           'sources!': [
             '../bench/BenchSysTimer_posix.h',
             '../bench/BenchSysTimer_posix.cpp',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'link_settings': {
             'libraries': [
               '-lrt',
