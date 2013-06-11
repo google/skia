@@ -1,1 +1,1 @@
-python tools/rebaseline.py --dry_run --tests test1 test2
+python tools/rebaseline.py --dry-run --tests test1 test2

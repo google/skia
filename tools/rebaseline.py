@@ -259,15 +259,15 @@ parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     '"--configs 565 8888"; if unspecified, run a default ' +
                     'set of configs. This should ONLY be specified if ' +
                     '--tests has also been specified.')
-parser.add_argument('--dry_run', action='store_true',
+parser.add_argument('--dry-run', action='store_true',
                     help='instead of actually downloading files or adding ' +
                     'files to checkout, display a list of operations that ' +
                     'we would normally perform')
-parser.add_argument('--json_base_url',
+parser.add_argument('--json-base-url',
                     help='base URL from which to read JSON_FILENAME ' +
                     'files; defaults to %(default)s',
                     default='http://skia-autogen.googlecode.com/svn/gm-actual')
-parser.add_argument('--json_filename',
+parser.add_argument('--json-filename',
                     help='filename (under JSON_BASE_URL) to read a summary ' +
                     'of results from; defaults to %(default)s',
                     default='actual-results.json')
