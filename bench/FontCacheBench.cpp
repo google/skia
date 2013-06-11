@@ -37,7 +37,8 @@ protected:
                 end += 1;
             }
             for (int i = 0; i < N; ++i) {
-                paint.measureText(array, end - array);
+                size_t len = (end - array) * sizeof(uint16_t);
+                paint.measureText(array, len);
             }
             array = end + 1;    // skip the sentinel
         }
