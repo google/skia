@@ -23,6 +23,7 @@
     '../bench/DeferredCanvasBench.cpp',
     '../bench/DeferredSurfaceCopyBench.cpp',
     '../bench/DisplacementBench.cpp',
+    '../bench/FontCacheBench.cpp',
     '../bench/FontScalerBench.cpp',
     '../bench/GameBench.cpp',
     '../bench/GradientBench.cpp',
