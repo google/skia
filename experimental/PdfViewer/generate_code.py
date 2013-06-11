@@ -88,6 +88,11 @@ class PdfClass:
     self.fName = name
     self.fBase = base
     
+    self.fEnumSubclasses = [] 
+    
+    self.fEnum = '!UNDEFINED'
+    self.fEnumEnd = '!UNDEFINED'
+    
   def required(self):
     field = PdfClassField(self, True)
     self.fFields.append(field)
@@ -108,14 +113,66 @@ class PdfClass:
 
 class PdfClassManager:
   def __init__(self):
-    self.fClasses = []
+    self.fClasses = {}
 
   def addClass(self, name, base=''):
     cls = PdfClass(name, base)
-    self.fClasses.append(cls)
+    self.fClasses[name] = cls
     return cls
   
+  def longName(self, name):
+    ret = ''
+    while name != '':
+      cls = self.fClasses[name]
+      ret = name + ret
+      name = cls.fBase
+      
+    return ret
+  
+  
+  def writeEnum(self, enum, enumToCls):
+    print('  ' + enum + ',')
+    cls = enumToCls[enum]
+    cls.fEnumSubclasses.sort()
+    
+    cnt = 0
+    for sub in cls.fEnumSubclasses:
+      self.writeEnum(cls.fEnumSubclasses[cnt], enumToCls)
+      cnt = cnt + 1
+      
+    if cnt != 0:
+       print('  ' + cls.fEnumEnd + ',')
+  
   def write(self):
+    # generate enum
+    enumsRoot = []
+
+    enumToCls = {}
+    
+    for name in self.fClasses:
+      cls = self.fClasses[name]
+      enum = self.longName(name)
+      cls.fEnum = 'k' + enum + '_PdfObjectType'
+      cls.fEnumEnd = 'k' + enum + '__End_PdfObjectType'
+            
+      if cls.fBase != '':
+        self.fClasses[cls.fBase].fEnumSubclasses.append(cls.fEnum)
+
+      if cls.fBase == '':
+        enumsRoot.append(cls.fEnum)
+       
+      enumToCls[cls.fEnum] = cls
+      
+    enumsRoot.sort()
+    
+    # write enums
+    print('enum PdfObjectType {')
+    for enum in enumsRoot:
+      self.writeEnum(enum, enumToCls)
+    print('};')
+      
+    # generate each class
+    # generate parser  
     return
 
 def generateCode():
