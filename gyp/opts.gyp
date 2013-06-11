@@ -32,7 +32,7 @@
       'conditions': [
         [ 'skia_arch_type == "x86" and skia_os != "ios"', {
           'conditions': [
-            [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
+            [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]', {
               'cflags': [
                 '-msse2',
               ],
@@ -113,7 +113,7 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]', {
           'cflags': [
             '-mssse3',
           ],

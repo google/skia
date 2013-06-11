@@ -146,11 +146,11 @@
             '../src/utils/SkThreadUtils_pthread_mach.cpp',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'sources!': [
             '../src/utils/SkThreadUtils_pthread_other.cpp',
           ],
-        },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]'
+        },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]'
           'include_dirs!': [
             '../include/utils/unix',
           ],

@@ -149,6 +149,16 @@
             '../src/images/SkImageRef_ashmem.cpp',
           ],
         }],
+        [ 'skia_os == "chromeos"', {
+          'dependencies': [
+             'chromeos_deps.gyp:gif',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lpng',
+            ],
+          },
+        }],
         [ 'skia_os == "ios"', {
            'include_dirs': [
              '../include/utils/mac',

@@ -9,7 +9,7 @@
         'sources/': [ ['exclude', '_mac.(h|cpp|m|mm)$'],
         ],
       }],
-      ['skia_os != "linux"', {
+      ['skia_os != "linux" and skia_os != "chromeos"', {
         'sources/': [ ['exclude', '_unix.(h|cpp)$'],
         ],
       }],
@@ -35,7 +35,7 @@
           'GR_MAC_BUILD=1',
         ],
       }],
-      [ 'skia_os == "linux"', {
+      [ 'skia_os == "linux" or skia_os == "chromeos"', {
         'defines': [
           'GR_LINUX_BUILD=1',
         ],
@@ -232,7 +232,7 @@
             'GR_ANDROID_PATH_RENDERING=1',
           ],
         }],
-        [ 'skia_os == "linux"', {
+        [ 'skia_os == "linux" or skia_os == "chromeos"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
