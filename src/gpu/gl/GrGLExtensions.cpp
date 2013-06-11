@@ -66,7 +66,7 @@ bool GrGLExtensions::init(GrGLBinding binding,
             extensions += length;
         }
     }
-    if (0 != fStrings.count()) {
+    if (!fStrings.empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
         SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     }
@@ -74,6 +74,9 @@ bool GrGLExtensions::init(GrGLBinding binding,
 }
 
 bool GrGLExtensions::has(const char* ext) const {
+    if (fStrings.empty()) {
+        return false;
+    }
     SkString extensionStr(ext);
     int idx = SkTSearch<SkString, extension_compare>(&fStrings.front(),
                                                      fStrings.count(),
