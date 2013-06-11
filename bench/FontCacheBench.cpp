@@ -15,7 +15,7 @@
 #include "gUniqueGlyphIDs.h"
 
 class FontCacheBench : public SkBenchmark {
-    enum { N = SkBENCHLOOP(40) };
+    enum { N = SkBENCHLOOP(50) };
 public:
     FontCacheBench(void* param) : INHERITED(param) {
     }
@@ -30,16 +30,16 @@ protected:
         this->setupPaint(&paint);
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-        for (int i = 0; i < N; ++i) {
-            const uint16_t* array = gUniqueGlyphIDs;
-            while (*array != 0xFFFF) {
-                const uint16_t* end = array + 1;
-                while (*end != 0xFFFF) {
-                    end += 1;
-                }
-                paint.measureText(array, end - array);
-                array = end + 1;    // skip the sentinel
+        const uint16_t* array = gUniqueGlyphIDs;
+        while (*array != 0xFFFF) {
+            const uint16_t* end = array + 1;
+            while (*end != 0xFFFF) {
+                end += 1;
             }
+            for (int i = 0; i < N; ++i) {
+                paint.measureText(array, end - array);
+            }
+            array = end + 1;    // skip the sentinel
         }
     }
 
