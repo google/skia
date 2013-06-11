@@ -443,9 +443,13 @@ void SkClipStack::save() {
 
 void SkClipStack::restore() {
     fSaveCount -= 1;
+    restoreTo(fSaveCount);
+}
+
+void SkClipStack::restoreTo(int saveCount) {
     while (!fDeque.empty()) {
         Element* element = (Element*)fDeque.back();
-        if (element->fSaveCount <= fSaveCount) {
+        if (element->fSaveCount <= saveCount) {
             break;
         }
         this->purgeClip(element);
@@ -528,32 +532,37 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
     Element* element = (Element*) iter.prev();
 
-    if (element && element->canBeIntersectedInPlace(fSaveCount, op)) {
-        switch (element->fType) {
-            case Element::kEmpty_Type:
-                element->checkEmpty();
-                return;
-            case Element::kRect_Type:
-                if (element->rectRectIntersectAllowed(rect, doAA)) {
-                    this->purgeClip(element);
-                    if (!element->fRect.intersect(rect)) {
+    if (NULL != element) {
+        if (element->canBeIntersectedInPlace(fSaveCount, op)) {
+            switch (element->fType) {
+                case Element::kEmpty_Type:
+                    element->checkEmpty();
+                    return;
+                case Element::kRect_Type:
+                    if (element->rectRectIntersectAllowed(rect, doAA)) {
+                        this->purgeClip(element);
+                        if (!element->fRect.intersect(rect)) {
+                            element->setEmpty();
+                            return;
+                        }
+
+                        element->fDoAA = doAA;
+                        Element* prev = (Element*) iter.prev();
+                        element->updateBoundAndGenID(prev);
+                        return;
+                    }
+                    break;
+                case Element::kPath_Type:
+                    if (!SkRect::Intersects(element->fPath.getBounds(), rect)) {
+                        this->purgeClip(element);
                         element->setEmpty();
                         return;
                     }
-
-                    element->fDoAA = doAA;
-                    Element* prev = (Element*) iter.prev();
-                    element->updateBoundAndGenID(prev);
-                    return;
-                }
-                break;
-            case Element::kPath_Type:
-                if (!SkRect::Intersects(element->fPath.getBounds(), rect)) {
-                    this->purgeClip(element);
-                    element->setEmpty();
-                    return;
-                }
-                break;
+                    break;
+            }
+        } else if (SkRegion::kReplace_Op == op) {
+            this->restoreTo(fSaveCount - 1);
+            element = (Element*) fDeque.back();
         }
     }
     new (fDeque.push_back()) Element(fSaveCount, rect, op, doAA);
@@ -571,26 +580,31 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     }
 
     Element* element = (Element*)fDeque.back();
-    if (element && element->canBeIntersectedInPlace(fSaveCount, op)) {
-        const SkRect& pathBounds = path.getBounds();
-        switch (element->fType) {
-            case Element::kEmpty_Type:
-                element->checkEmpty();
-                return;
-            case Element::kRect_Type:
-                if (!SkRect::Intersects(element->fRect, pathBounds)) {
-                    this->purgeClip(element);
-                    element->setEmpty();
+    if (NULL != element) {
+        if (element->canBeIntersectedInPlace(fSaveCount, op)) {
+            const SkRect& pathBounds = path.getBounds();
+            switch (element->fType) {
+                case Element::kEmpty_Type:
+                    element->checkEmpty();
                     return;
-                }
-                break;
-            case Element::kPath_Type:
-                if (!SkRect::Intersects(element->fPath.getBounds(), pathBounds)) {
-                    this->purgeClip(element);
-                    element->setEmpty();
-                    return;
-                }
-                break;
+                case Element::kRect_Type:
+                    if (!SkRect::Intersects(element->fRect, pathBounds)) {
+                        this->purgeClip(element);
+                        element->setEmpty();
+                        return;
+                    }
+                    break;
+                case Element::kPath_Type:
+                    if (!SkRect::Intersects(element->fPath.getBounds(), pathBounds)) {
+                        this->purgeClip(element);
+                        element->setEmpty();
+                        return;
+                    }
+                    break;
+            }
+        } else if (SkRegion::kReplace_Op == op) {
+            this->restoreTo(fSaveCount - 1);
+            element = (Element*) fDeque.back();
         }
     }
     new (fDeque.push_back()) Element(fSaveCount, path, op, doAA);

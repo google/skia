@@ -453,6 +453,11 @@ private:
     mutable SkTDArray<ClipCallbackData> fCallbackData;
 
     /**
+     * Restore the stack back to the specified save count.
+     */
+    void restoreTo(int saveCount);
+
+    /**
      * Invoke all the purge callbacks passing in element's generation ID.
      */
     void purgeClip(Element* element);
