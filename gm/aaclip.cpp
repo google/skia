@@ -30,10 +30,16 @@ static void test_conic(SkCanvas* canvas) {
         { 0.5f, SK_ColorBLUE },
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        paint.setColor(gRec[i].fColor);
-        draw_conic(canvas, gRec[i].fWeight, paint);
-        canvas->translate(-30, 30);
+    for (SkScalar width = 0; width <= 20; width += 20) {
+        canvas->save();
+        paint.setStrokeWidth(width);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+            paint.setColor(gRec[i].fColor);
+            draw_conic(canvas, gRec[i].fWeight, paint);
+            canvas->translate(-30, 30);
+        }
+        canvas->restore();
+        canvas->translate(300, 0);
     }
 }
 
