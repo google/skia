@@ -37,6 +37,19 @@ static const SkPoint linearPts[][2] = {
     {{0, 1}, {1, 0}}
 };
 
+static const SkPoint radialPts[][2] = {
+    {{0,   0.5}, {1,   0.5}},
+    {{0.5, 0  }, {0.5, 1  }},
+    {{1,   0.5}, {0,   0.5}},
+    {{0.5, 1  }, {0.5, 0  }},
+
+    {{0, 0}, {1, 1}},
+    {{1, 1}, {0, 0}},
+    {{1, 0}, {0, 1}},
+    {{0, 1}, {1, 0}}
+};
+
+
 static const SkScalar TESTGRID_X = 200;    // pixels allocated to each image in x dimension
 static const SkScalar TESTGRID_Y = 200;    // pixels allocated to each image in y dimension
 
@@ -47,8 +60,17 @@ static SkShader* make_linear_gradient(const SkPoint pts[2]) {
                                           SkShader::kClamp_TileMode, NULL);
 }
 
+static SkShader* make_radial_gradient(const SkPoint pts[2]) {
+    SkPoint center;
+    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
+               SkScalarAve(pts[0].fY, pts[1].fY));
+    float radius = (center - pts[0]).length();
+    return SkGradientShader::CreateRadial(center, radius, gColors, NULL, SK_ARRAY_COUNT(gColors),
+                                          SkShader::kClamp_TileMode, NULL);
+}
+
 static void draw_gradients(SkCanvas* canvas, SkShader* (*makeShader)(const SkPoint[2]),
-                    const SkPoint ptsArray[][2], int numImages) {
+                           const SkPoint ptsArray[][2], int numImages) {
     // Use some nice prime numbers for the rectangle and matrix with
     // different scaling along the x and y axes (which is the bug this
     // test addresses, where incorrect order of operations mixed up the axes)
@@ -101,6 +123,11 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         draw_gradients(canvas, &make_linear_gradient,
                       linearPts, SK_ARRAY_COUNT(linearPts));
+
+        canvas->translate(0, TESTGRID_Y);
+
+        draw_gradients(canvas, &make_radial_gradient,
+                      radialPts, SK_ARRAY_COUNT(radialPts));
     }
 
 private:
