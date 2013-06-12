@@ -140,6 +140,10 @@ class Rebaseliner(object):
             print ('# unable to find filename %s in all_results dict' %
                    infilename)
             return False
+        except ValueError as e:
+            print '# ValueError reading filename %s from all_results dict: %s'%(
+                infilename, e)
+            return False
         url = '%s/%s/%s/%s.png' % (self._googlestorage_gm_actuals_root,
                                    hash_type, test_name, hash_value)
         try:
