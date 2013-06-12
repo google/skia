@@ -23,35 +23,41 @@ static const SkColor gColors[] = {
     SK_ColorRED, SK_ColorYELLOW
 };
 
-// these arrays define the gradient stop points
-// as x1, y1, x2, y2 per gradient to draw
-static const SkPoint linearPts[][2] = {
-    {{0, 0}, {1, 0}},
-    {{0, 0}, {0, 1}},
-    {{1, 0}, {0, 0}},
-    {{0, 1}, {0, 0}},
+// These annoying defines are necessary, because the only other alternative
+// is to use SkIntToScalar(...) or SkFloatToScalar(...) everywhere.
+static const SkScalar sZero = 0;
+static const SkScalar sHalf = SK_ScalarHalf;
+static const SkScalar sOne = SK_Scalar1;
 
-    {{0, 0}, {1, 1}},
-    {{1, 1}, {0, 0}},
-    {{1, 0}, {0, 1}},
-    {{0, 1}, {1, 0}}
+// These arrays define the gradient stop points
+// as x1, y1, x2, y2 per gradient to draw.
+static const SkPoint linearPts[][2] = {
+    {{sZero, sZero}, {sOne,  sZero}},
+    {{sZero, sZero}, {sZero, sOne}},
+    {{sOne,  sZero}, {sZero, sZero}},
+    {{sZero, sOne},  {sZero, sZero}},
+
+    {{sZero, sZero}, {sOne,  sOne}},
+    {{sOne,  sOne},  {sZero, sZero}},
+    {{sOne,  sZero}, {sZero, sOne}},
+    {{sZero, sOne},  {sOne,  sZero}}
 };
 
 static const SkPoint radialPts[][2] = {
-    {{0,   0.5f}, {1,   0.5f}},
-    {{0.5f, 0  }, {0.5f, 1  }},
-    {{1,   0.5f}, {0,   0.5f}},
-    {{0.5f, 1  }, {0.5f, 0  }},
+    {{sZero, sHalf}, {sOne,  sHalf}},
+    {{sHalf, sZero}, {sHalf, sOne}},
+    {{sOne,  sHalf}, {sZero, sHalf}},
+    {{sHalf, sOne},  {sHalf, sZero}},
 
-    {{0, 0}, {1, 1}},
-    {{1, 1}, {0, 0}},
-    {{1, 0}, {0, 1}},
-    {{0, 1}, {1, 0}}
+    {{sZero, sZero}, {sOne,  sOne}},
+    {{sOne,  sOne},  {sZero, sZero}},
+    {{sOne,  sZero}, {sZero, sOne}},
+    {{sZero, sOne},  {sOne,  sZero}}
 };
 
-
-static const SkScalar TESTGRID_X = 200;    // pixels allocated to each image in x dimension
-static const SkScalar TESTGRID_Y = 200;    // pixels allocated to each image in y dimension
+// These define the pixels allocated to each gradient image.
+static const SkScalar TESTGRID_X = SkIntToScalar(200);
+static const SkScalar TESTGRID_Y = SkIntToScalar(200);
 
 static const int IMAGES_X = 4;             // number of images per row
 
@@ -74,7 +80,9 @@ static void draw_gradients(SkCanvas* canvas, SkShader* (*makeShader)(const SkPoi
     // Use some nice prime numbers for the rectangle and matrix with
     // different scaling along the x and y axes (which is the bug this
     // test addresses, where incorrect order of operations mixed up the axes)
-    SkRect rectGrad = { 43, 61, 181, 167 };
+    SkRect rectGrad = {
+        SkIntToScalar(43),  SkIntToScalar(61),
+        SkIntToScalar(181), SkIntToScalar(167) };
     SkMatrix shaderMat;
     shaderMat.setScale(rectGrad.width(), rectGrad.height());
     shaderMat.postTranslate(rectGrad.left(), rectGrad.top());
