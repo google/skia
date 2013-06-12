@@ -39,7 +39,7 @@ static const SkPoint linearPts[][2] = {
 
 static const SkPoint radialPts[][2] = {
     {{0,   0.5f}, {1,   0.5f}},
-    {{0.5, 0  }, {0.5, 1  }},
+    {{0.5f, 0  }, {0.5f, 1  }},
     {{1,   0.5f}, {0,   0.5f}},
     {{0.5f, 1  }, {0.5f, 0  }},
 
