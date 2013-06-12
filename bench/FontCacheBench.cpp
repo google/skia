@@ -13,37 +13,143 @@
 #include "SkTemplates.h"
 
 #include "gUniqueGlyphIDs.h"
+#define gUniqueGlyphIDs_Sentinel    0xFFFF
+
+static int count_glyphs(const uint16_t start[]) {
+    const uint16_t* curr = start;
+    while (*curr != gUniqueGlyphIDs_Sentinel) {
+        curr += 1;
+    }
+    return curr - start;
+}
 
 class FontCacheBench : public SkBenchmark {
-    enum { N = SkBENCHLOOP(50) };
-public:
-    FontCacheBench(void* param) : INHERITED(param) {
-    }
+    enum {
+        N = SkBENCHLOOP(50)
+    };
 
+public:
+    FontCacheBench(void* param) : INHERITED(param) {}
+    
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "fontcache";
     }
-
+    
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
+        
         const uint16_t* array = gUniqueGlyphIDs;
-        while (*array != 0xFFFF) {
-            const uint16_t* end = array + 1;
-            while (*end != 0xFFFF) {
-                end += 1;
-            }
+        while (*array != gUniqueGlyphIDs_Sentinel) {
+            size_t count = count_glyphs(array);
             for (int i = 0; i < N; ++i) {
-                size_t len = (end - array) * sizeof(uint16_t);
-                paint.measureText(array, len);
+                paint.measureText(array, count * sizeof(uint16_t));
             }
-            array = end + 1;    // skip the sentinel
+            array += count + 1;    // skip the sentinel
         }
     }
+    
+private:
+    typedef SkBenchmark INHERITED;
+};
 
+///////////////////////////////////////////////////////////////////////////////
+
+static uint32_t rotr(uint32_t value, unsigned bits) {
+    return (value >> bits) | (value << (32 - bits));
+}
+
+typedef uint32_t (*HasherProc)(uint32_t);
+
+static uint32_t hasher0(uint32_t value) {
+    value = value ^ (value >> 16);
+    return value ^ (value >> 8);
+}
+
+static uint32_t hasher2(uint32_t h) {
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    
+    h ^= (h >> 8);
+    return h;
+}
+
+static const struct {
+    const char* fName;
+    HasherProc  fHasher;
+} gRec[] = {
+    { "hasher0",  hasher0 },
+    { "hasher2",  hasher2 },
+};
+
+#define kMaxHashBits   12
+#define kMaxHashCount  (1 << kMaxHashBits)
+
+static int count_collisions(const uint16_t array[], int count, HasherProc proc,
+                            unsigned hashMask) {
+    char table[kMaxHashCount];
+    sk_bzero(table, sizeof(table));
+    
+    int collisions = 0;
+    for (int i = 0; i < count; ++i) {
+        int index = proc(array[i]) & hashMask;
+        collisions += table[index];
+        table[index] = 1;
+    }
+    return collisions;
+}
+
+static void dump_array(const uint16_t array[], int count) {
+    for (int i = 0; i < count; ++i) {
+        SkDebugf(" %d,", array[i]);
+    }
+    SkDebugf("\n");
+}
+
+class FontCacheEfficiency : public SkBenchmark {
+public:
+    FontCacheEfficiency(void* param) : INHERITED(param) {
+        if (false) dump_array(NULL, 0);
+        if (false) rotr(0, 0);
+    }
+    
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return "fontefficiency";
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        static bool gDone;
+        if (gDone) {
+            return;
+        }
+        gDone = true;
+
+        for (int hashBits = 6; hashBits <= 12; hashBits += 1) {
+            int hashMask = ((1 << hashBits) - 1);
+            for (int limit = 32; limit <= 1024; limit <<= 1) {
+                for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+                    int collisions = 0;
+                    int glyphs = 0;
+                    const uint16_t* array = gUniqueGlyphIDs;
+                    while (*array != gUniqueGlyphIDs_Sentinel) {
+                        int count = SkMin32(count_glyphs(array), limit);
+                        collisions += count_collisions(array, count, gRec[i].fHasher, hashMask);
+                        glyphs += count;
+                        array += count + 1;    // skip the sentinel
+                    }
+                    SkDebugf("hashBits [%d] limit [%d] collisions [%d / %d = %1.2g%%] using %s\n", hashBits, limit, collisions, glyphs,
+                             collisions * 100.0 / glyphs, gRec[i].fName);
+                }
+            }
+        }
+    }
+    
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -51,3 +157,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new FontCacheBench(p); )
+
+// undefine this to run the efficiency test
+//DEF_BENCH( return new FontCacheEfficiency(p); )
