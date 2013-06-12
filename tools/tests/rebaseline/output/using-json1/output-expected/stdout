@@ -7,20 +7,14 @@
 # imageblur_565.png
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/imageblur_565.png --output base-android-galaxy-nexus/.temp-imageblur_565.png
 mv base-android-galaxy-nexus/.temp-imageblur_565.png base-android-galaxy-nexus/imageblur_565.png
-svn add --quiet base-android-galaxy-nexus/imageblur_565.png
-svn propset --quiet svn:mime-type image/png base-android-galaxy-nexus/imageblur_565.png
 
 # imageblur_8888.png
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/imageblur_8888.png --output base-android-galaxy-nexus/.temp-imageblur_8888.png
 mv base-android-galaxy-nexus/.temp-imageblur_8888.png base-android-galaxy-nexus/imageblur_8888.png
-svn add --quiet base-android-galaxy-nexus/imageblur_8888.png
-svn propset --quiet svn:mime-type image/png base-android-galaxy-nexus/imageblur_8888.png
 
 # shadertext3_8888.png
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/shadertext3_8888.png --output base-android-galaxy-nexus/.temp-shadertext3_8888.png
 mv base-android-galaxy-nexus/.temp-shadertext3_8888.png base-android-galaxy-nexus/shadertext3_8888.png
-svn add --quiet base-android-galaxy-nexus/shadertext3_8888.png
-svn propset --quiet svn:mime-type image/png base-android-galaxy-nexus/shadertext3_8888.png
 
 #
 # Getting files to rebaseline from JSON summary URL file:tools/tests/rebaseline/input/json1/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/actual-results.json ...
