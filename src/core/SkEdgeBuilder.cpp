@@ -257,7 +257,6 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     pow2 = SkMin32(pow2, MAX_POW2);
                     int quadCount = conic.chopIntoQuadsPOW2(storage, pow2);
                     SkASSERT(quadCount <= MAX_QUADS);
-                    SkDebugf("--- quadCount = %d\n", quadCount);
                     for (int i = 0; i < quadCount; ++i) {
                         handle_quad(this, &storage[i * 2]);
                     }
