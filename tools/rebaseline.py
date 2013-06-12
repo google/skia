@@ -22,8 +22,15 @@ import urllib2
 
 # Imports from within Skia
 #
-# Make sure that they are in the PYTHONPATH, but add them at the *end*
-# so any that are already in the PYTHONPATH will be preferred.
+# We need to add the 'gm' directory, so that we can import gm_json.py within
+# that directory.  That script allows us to parse the actual-results.json file
+# written out by the GM tool.
+# Make sure that the 'gm' dir is in the PYTHONPATH, but add it at the *end*
+# so any dirs that are already in the PYTHONPATH will be preferred.
+#
+# This assumes that the 'gm' directory has been checked out as a sibling of
+# the 'tools' directory containing this script, which will be the case if
+# 'trunk' was checked out as a single unit.
 GM_DIRECTORY = os.path.realpath(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
 if GM_DIRECTORY not in sys.path:
@@ -79,8 +86,10 @@ class Rebaseliner(object):
     #  dry_run: if True, instead of actually downloading files or adding
     #           files to checkout, display a list of operations that
     #           we would normally perform
+    #  add_new: if True, add expectations for tests which don't have any yet
     def __init__(self, json_base_url, json_filename,
-                 subdirs=None, tests=None, configs=None, dry_run=False):
+                 subdirs=None, tests=None, configs=None, dry_run=False,
+                 add_new=False):
         if configs and not tests:
             raise ValueError('configs should only be specified if tests ' +
                              'were specified also')
@@ -95,6 +104,7 @@ class Rebaseliner(object):
         self._json_base_url = json_base_url
         self._json_filename = json_filename
         self._dry_run = dry_run
+        self._add_new = add_new
         self._is_svn_checkout = (
             os.path.exists('.svn') or
             os.path.exists(os.path.join(os.pardir, '.svn')))
@@ -154,11 +164,13 @@ class Rebaseliner(object):
     #
     # params:
     #  json_url: URL pointing to a JSON actual result summary file
+    #  add_new: if True, then return files listed in any of these sections:
+    #            - JSONKEY_ACTUALRESULTS_FAILED
+    #            - JSONKEY_ACTUALRESULTS_NOCOMPARISON
+    #           if False, then return files listed in these sections:
+    #            - JSONKEY_ACTUALRESULTS_FAILED
     #
-    # TODO(epoger): add a parameter indicating whether "no-comparison"
-    # results (those for which we don't have any expectations yet)
-    # should be rebaselined.  For now, we only return failed expectations.
-    def _GetFilesToRebaseline(self, json_url):
+    def _GetFilesToRebaseline(self, json_url, add_new):
         if self._dry_run:
             print ''
             print '#'
@@ -176,11 +188,15 @@ class Rebaseliner(object):
 
         json_dict = gm_json.LoadFromString(json_contents)
         actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
+        sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
+        if add_new:
+            sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
 
         files_to_rebaseline = []
-        failed_results = actual_results[gm_json.JSONKEY_ACTUALRESULTS_FAILED]
-        if failed_results:
-            files_to_rebaseline.extend(failed_results.keys())
+        for section in sections:
+            section_results = actual_results[section]
+            if section_results:
+                files_to_rebaseline.extend(section_results.keys())
 
         print '# ... found files_to_rebaseline %s' % files_to_rebaseline
         if self._dry_run:
@@ -215,16 +231,17 @@ class Rebaseliner(object):
             print '# Couldn\'t fetch ' + url
             return
 
-        # Add this file to version control (if it isn't already).
-        if self._is_svn_checkout:
-            cmd = [ 'svn', 'add', '--quiet', outfilename ]
-            self._Call(cmd)
-            cmd = [ 'svn', 'propset', '--quiet', 'svn:mime-type', 'image/png',
-                    outfilename ];
-            self._Call(cmd)
-        elif self._is_git_checkout:
-            cmd = [ 'git', 'add', outfilename ]
-            self._Call(cmd)
+        # Add this file to version control (if appropriate).
+        if self._add_new:
+            if self._is_svn_checkout:
+                cmd = [ 'svn', 'add', '--quiet', outfilename ]
+                self._Call(cmd)
+                cmd = [ 'svn', 'propset', '--quiet', 'svn:mime-type',
+                        'image/png', outfilename ];
+                self._Call(cmd)
+            elif self._is_git_checkout:
+                cmd = [ 'git', 'add', outfilename ]
+                self._Call(cmd)
 
     # Rebaseline the given configs for a single test.
     #
@@ -269,7 +286,8 @@ class Rebaseliner(object):
                 json_url = '/'.join([self._json_base_url,
                                      subdir, builder_name, subdir,
                                      self._json_filename])
-                filenames = self._GetFilesToRebaseline(json_url=json_url)
+                filenames = self._GetFilesToRebaseline(json_url=json_url,
+                                                       add_new=self._add_new)
                 for filename in filenames:
                     outfilename = os.path.join(subdir, filename);
                     self._RebaselineOneFile(expectations_subdir=subdir,
@@ -280,6 +298,11 @@ class Rebaseliner(object):
 # main...
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--add-new', action='store_true',
+                    help='in addition to the standard behavior of ' +
+                    'updating expectations for failing tests, add ' +
+                    'expectations for tests which don\'t have expectations ' +
+                    'yet.')
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help='which configurations to rebaseline, e.g. ' +
                     '"--configs 565 8888"; if unspecified, run a default ' +
@@ -310,5 +333,6 @@ args = parser.parse_args()
 rebaseliner = Rebaseliner(tests=args.tests, configs=args.configs,
                           subdirs=args.subdirs, dry_run=args.dry_run,
                           json_base_url=args.json_base_url,
-                          json_filename=args.json_filename)
+                          json_filename=args.json_filename,
+                          add_new=args.add_new)
 rebaseliner.RebaselineAll()
