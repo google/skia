@@ -16,6 +16,7 @@ checkout, the files will be added to the staging area for commit.
 # System-level imports
 import argparse
 import os
+import re
 import subprocess
 import sys
 import urllib2
@@ -105,6 +106,9 @@ class Rebaseliner(object):
         self._json_filename = json_filename
         self._dry_run = dry_run
         self._add_new = add_new
+        self._googlestorage_gm_actuals_root = (
+            'http://chromium-skia-gm.commondatastorage.googleapis.com/gm')
+        self._testname_pattern = re.compile('(\S+)_(\S+).png')
         self._is_svn_checkout = (
             os.path.exists('.svn') or
             os.path.exists(os.path.join(os.pardir, '.svn')))
@@ -122,6 +126,42 @@ class Rebaseliner(object):
         if subprocess.call(cmd) != 0:
             raise CommandFailedException('error running command: ' +
                                          ' '.join(cmd))
+
+    # Download a single actual result from GoogleStorage, returning True if it
+    # succeeded.
+    def _DownloadFromGoogleStorage(self, infilename, outfilename, all_results):
+        test_name = self._testname_pattern.match(infilename).group(1)
+        if not test_name:
+            print '# unable to find test_name for infilename %s' % infilename
+            return False
+        try:
+            hash_type, hash_value = all_results[infilename]
+        except KeyError:
+            print ('# unable to find filename %s in all_results dict' %
+                   infilename)
+            return False
+        url = '%s/%s/%s/%s.png' % (self._googlestorage_gm_actuals_root,
+                                   hash_type, test_name, hash_value)
+        try:
+            self._DownloadFile(source_url=url, dest_filename=outfilename)
+            return True
+        except CommandFailedException:
+            print '# Couldn\'t fetch gs_url %s' % url
+            return False
+
+    # Download a single actual result from skia-autogen, returning True if it
+    # succeeded.
+    def _DownloadFromAutogen(self, infilename, outfilename,
+                             expectations_subdir, builder_name):
+        url = ('http://skia-autogen.googlecode.com/svn/gm-actual/' +
+               expectations_subdir + '/' + builder_name + '/' +
+               expectations_subdir + '/' + infilename)
+        try:
+            self._DownloadFile(source_url=url, dest_filename=outfilename)
+            return True
+        except CommandFailedException:
+            print '# Couldn\'t fetch autogen_url %s' % url
+            return False
 
     # Download a single file, raising a CommandFailedException if it fails.
     def _DownloadFile(self, source_url, dest_filename):
@@ -149,18 +189,54 @@ class Rebaseliner(object):
         else:
             return urllib2.urlopen(url).read()
 
+    # Returns a dictionary of actual results from actual-results.json file.
+    #
+    # The dictionary returned has this format:
+    # {
+    #  u'imageblur_565.png': [u'bitmap-64bitMD5', 3359963596899141322],
+    #  u'imageblur_8888.png': [u'bitmap-64bitMD5', 4217923806027861152],
+    #  u'shadertext3_8888.png': [u'bitmap-64bitMD5', 3713708307125704716]
+    # }
+    #
+    # If the JSON actual result summary file cannot be loaded, the behavior
+    # depends on self._missing_json_is_fatal:
+    # - if true: execution will halt with an exception
+    # - if false: we will log an error message but return an empty dictionary
+    #
+    # params:
+    #  json_url: URL pointing to a JSON actual result summary file
+    #  sections: a list of section names to include in the results, e.g.
+    #            [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
+    #             gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON] ;
+    #            if None, then include ALL sections.
+    def _GetActualResults(self, json_url, sections=None):
+        try:
+            json_contents = self._GetContentsOfUrl(json_url)
+        except (urllib2.HTTPError, IOError):
+            message = 'unable to load JSON summary URL %s' % json_url
+            if self._missing_json_is_fatal:
+                raise ValueError(message)
+            else:
+                print '# %s' % message
+                return {}
+
+        json_dict = gm_json.LoadFromString(json_contents)
+        results_to_return = {}
+        actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
+        if not sections:
+            sections = actual_results.keys()
+        for section in sections:
+            section_results = actual_results[section]
+            if section_results:
+                results_to_return.update(section_results)
+        return results_to_return
+
     # Returns a list of files that require rebaselining.
     #
     # Note that this returns a list of FILES, like this:
     #  ['imageblur_565.png', 'xfermodes_pdf.png']
     # rather than a list of TESTS, like this:
     #  ['imageblur', 'xfermodes']
-    #
-    # If the JSON actual result summary file cannot be loaded, the behavior
-    # depends on self._missing_json_is_fatal:
-    # - if true: execution will halt with an exception
-    # - if false: we will log an error message but return an empty list so we
-    #   go on to the next platform
     #
     # params:
     #  json_url: URL pointing to a JSON actual result summary file
@@ -176,28 +252,13 @@ class Rebaseliner(object):
             print '#'
         print ('# Getting files to rebaseline from JSON summary URL %s ...'
                % json_url)
-        try:
-            json_contents = self._GetContentsOfUrl(json_url)
-        except urllib2.HTTPError:
-            message = 'unable to load JSON summary URL %s' % json_url
-            if self._missing_json_is_fatal:
-                raise ValueError(message)
-            else:
-                print '# %s' % message
-                return []
-
-        json_dict = gm_json.LoadFromString(json_contents)
-        actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
         sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
         if add_new:
             sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
-
-        files_to_rebaseline = []
-        for section in sections:
-            section_results = actual_results[section]
-            if section_results:
-                files_to_rebaseline.extend(section_results.keys())
-
+        results_to_rebaseline = self._GetActualResults(json_url=json_url,
+                                                       sections=sections)
+        files_to_rebaseline = results_to_rebaseline.keys()
+        files_to_rebaseline.sort()
         print '# ... found files_to_rebaseline %s' % files_to_rebaseline
         if self._dry_run:
             print '#'
@@ -205,31 +266,33 @@ class Rebaseliner(object):
 
     # Rebaseline a single file.
     def _RebaselineOneFile(self, expectations_subdir, builder_name,
-                           infilename, outfilename):
+                           infilename, outfilename, all_results):
         if self._dry_run:
             print ''
         print '# ' + infilename
-        url = ('http://skia-autogen.googlecode.com/svn/gm-actual/' +
-               expectations_subdir + '/' + builder_name + '/' +
-               expectations_subdir + '/' + infilename)
 
-        # Try to download this file, but if that fails, keep going...
+        # First try to download this result image from Google Storage.
+        # If that fails, try skia-autogen.
+        # If that fails too, just go on to the next file.
         #
         # This not treated as a fatal failure because not all
         # platforms generate all configs (e.g., Android does not
         # generate PDF).
         #
-        # We could tweak the list of configs within this tool to
-        # reflect which combinations the bots actually generate, and
-        # then fail if any of those expected combinations are
-        # missing... but then this tool would become useless every
-        # time someone tweaked the configs on the bots without
-        # updating this script.
-        try:
-            self._DownloadFile(source_url=url, dest_filename=outfilename)
-        except CommandFailedException:
-            print '# Couldn\'t fetch ' + url
-            return
+        # TODO(epoger): Once we are downloading only files that the
+        # actual-results.json file told us to, this should become a
+        # fatal error.  (If the actual-results.json file told us that
+        # the test failed with XXX results, we should be able to download
+        # those results every time.)
+        if not self._DownloadFromGoogleStorage(infilename=infilename,
+                                               outfilename=outfilename,
+                                               all_results=all_results):
+            if not self._DownloadFromAutogen(infilename=infilename,
+                                             outfilename=outfilename,
+                                             expectations_subdir=expectations_subdir,
+                                             builder_name=builder_name):
+                print '# Couldn\'t fetch infilename ' + infilename
+                return
 
         # Add this file to version control (if appropriate).
         if self._add_new:
@@ -249,7 +312,9 @@ class Rebaseliner(object):
     #  expectations_subdir
     #  builder_name
     #  test: a single test to rebaseline
-    def _RebaselineOneTest(self, expectations_subdir, builder_name, test):
+    #  all_results: a dictionary of all actual results
+    def _RebaselineOneTest(self, expectations_subdir, builder_name, test,
+                           all_results):
         if self._configs:
             configs = self._configs
         else:
@@ -267,7 +332,8 @@ class Rebaseliner(object):
             self._RebaselineOneFile(expectations_subdir=expectations_subdir,
                                     builder_name=builder_name,
                                     infilename=infilename,
-                                    outfilename=outfilename)
+                                    outfilename=outfilename,
+                                    all_results=all_results)
 
     # Rebaseline all platforms/tests/types we specified in the constructor.
     def RebaselineAll(self):
@@ -277,15 +343,17 @@ class Rebaseliner(object):
                                  'should be one of %s') % (
                                      subdir, SUBDIR_MAPPING.keys()))
             builder_name = SUBDIR_MAPPING[subdir]
+            json_url = '/'.join([self._json_base_url,
+                                 subdir, builder_name, subdir,
+                                 self._json_filename])
+            all_results = self._GetActualResults(json_url=json_url)
+
             if self._tests:
                 for test in self._tests:
                     self._RebaselineOneTest(expectations_subdir=subdir,
                                             builder_name=builder_name,
-                                            test=test)
+                                            test=test, all_results=all_results)
             else:  # get the raw list of files that need rebaselining from JSON
-                json_url = '/'.join([self._json_base_url,
-                                     subdir, builder_name, subdir,
-                                     self._json_filename])
                 filenames = self._GetFilesToRebaseline(json_url=json_url,
                                                        add_new=self._add_new)
                 for filename in filenames:
@@ -293,7 +361,8 @@ class Rebaseliner(object):
                     self._RebaselineOneFile(expectations_subdir=subdir,
                                             builder_name=builder_name,
                                             infilename=filename,
-                                            outfilename=outfilename)
+                                            outfilename=outfilename,
+                                            all_results=all_results)
 
 # main...
 
