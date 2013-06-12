@@ -360,7 +360,7 @@ desk_facebook.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th
 desk_facebook.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,26.400,13.760,39.040
 desk_facebook.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,69.360,52.424,86.296
 desk_facebook.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,60.630,44.567,76.693
-desk_facebook.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,730.290,647.261,883.319
+desk_facebook.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,730.290,647.261,893.319
 desk_facebook.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,51.840,36.656,67.024
 desk_facebook.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,46.130,31.517,60.743
 desk_facebook.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,871.710,774.539,1060.881
@@ -1080,7 +1080,7 @@ mobi_wikipedia.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25t
 mobi_wikipedia.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.460,6.614,30.306
 mobi_wikipedia.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,23.370,11.033,35.707
 mobi_wikipedia.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,23.510,11.159,35.861
-mobi_wikipedia.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,312.810,271.529,374.091
+mobi_wikipedia.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,312.810,271.529,394.091
 mobi_wikipedia.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,25.830,13.247,38.413
 mobi_wikipedia.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,26.250,13.625,38.875
 mobi_wikipedia.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,510.630,449.567,580.693
