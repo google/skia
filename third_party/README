@@ -1,0 +1,5 @@
+This directory contains a set of dependencies that are needed to build various
+components and tools within Skia.  Some of these dependencies reside within
+the Skia repo, while others are pulled from other repositories and placed
+in the third_party/externals directory. These external dependencies are defined
+in a DEPS file and are kept up-to-date using 'gclient sync'.
