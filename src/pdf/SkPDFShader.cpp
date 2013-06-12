@@ -37,8 +37,8 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
 
     vec.scale(inv);
     matrix->setSinCos(vec.fY, vec.fX);
-    matrix->preTranslate(pts[0].fX, pts[0].fY);
     matrix->preScale(mag, mag);
+    matrix->postTranslate(pts[0].fX, pts[0].fY);
 }
 
 /* Assumes t + startOffset is on the stack and does a linear interpolation on t
@@ -609,8 +609,9 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     SkMatrix mapperMatrix;
     unitToPointsMatrix(transformPoints, &mapperMatrix);
     SkMatrix finalMatrix = fState.get()->fCanvasTransform;
-    finalMatrix.preConcat(mapperMatrix);
     finalMatrix.preConcat(fState.get()->fShaderTransform);
+    finalMatrix.preConcat(mapperMatrix);
+
     SkRect bbox;
     bbox.set(fState.get()->fBBox);
     if (!transformBBox(finalMatrix, &bbox)) {
