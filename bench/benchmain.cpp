@@ -972,9 +972,9 @@ int tool_main(int argc, char** argv) {
                              device->accessBitmap(false));
                 }
             }
-            if (loggedBenchStart) {
-                logger.logProgress(SkString("\n"));
-            }
+        }
+        if (loggedBenchStart) {
+            logger.logProgress(SkString("\n"));
         }
     }
 #if SK_SUPPORT_GPU
