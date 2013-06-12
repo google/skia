@@ -54,7 +54,7 @@ bool NameFromDictionary(const PdfMemDocument* pdfDoc,
  * - load font for youtube.pdf
 */
 
-#define PDF_TRACE
+//#define PDF_TRACE
 //#define PDF_TRACE_DIFF_IN_PNG
 //#define PDF_DEBUG_NO_CLIPING
 //#define PDF_DEBUG_NO_PAGE_CLIPING
@@ -1019,92 +1019,6 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImage* image, boo
     return bitmap;
 }
 
-SkBitmap getImageFromObjectOld(PdfContext* pdfContext, const PdfObject& obj, bool transparencyMask) {
-    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
-        !obj.IsDictionary()) {
-        // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
-    }
-
-    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                              obj.GetDictionary().GetKey(PdfName("Filter")));
-
-    if (value && value->IsArray() && value->GetArray().GetSize() == 1) {
-        value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                       &value->GetArray()[0]);
-    }
-
-    // TODO (edisonn): Fast Jpeg(DCTDecode) draw, or fast PNG(FlateDecode) draw ...
-//    if (value && value->IsName() && value->GetName().GetName() == "DCTDecode") {
-//        SkStream stream = SkStream::
-//        SkImageDecoder::Factory()
-//    }
-
-    // Get color space
-    // translate
-
-    long bpc = 0;
-    LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "BitsPerComponent", "BPC", &bpc);
-
-    bool imageMask = false;
-    BoolFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ImageMask", "", &imageMask);
-
-    if (imageMask) {
-        if (bpc != 0 && bpc != 1) {
-            // TODO(edisonn): report warning to be used in testing.
-            return SkBitmap();
-        }
-        bpc = 1;
-    }
-
-    long width;
-    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Width", &width)) {
-        // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
-    }
-
-    long height;
-    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Height", &height)) {
-        // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
-    }
-
-    std::string colorSpace;  // TODO(edisonn): load others than names, for more complicated
-    if (!NameFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ColorSpace", &colorSpace)) {
-        // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
-    }
-
-    char* uncompressedStream = NULL;
-    pdf_long uncompressedStreamLength = 0;
-
-    PdfResult ret = kPartial_PdfResult;
-    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-    try {
-        obj.GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-    } catch (PdfError& e) {
-        // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
-    }
-
-    int bytesPerLine = uncompressedStreamLength / height;
-#ifdef PDF_TRACE
-    if (uncompressedStreamLength % height != 0) {
-        printf("Warning uncompressedStreamLength % height != 0 !!!\n");
-    }
-#endif
-
-    SkBitmap bitmap = transferImageStreamToBitmap(
-            (unsigned char*)uncompressedStream, uncompressedStreamLength,
-            width, height, bytesPerLine,
-            bpc, colorSpace,
-            transparencyMask);
-
-    free(uncompressedStream);
-
-    return bitmap;
-}
-
 SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImage* obj) {
     const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
                                               obj->podofo()->GetDictionary().GetKey(PdfName("SMask")));
@@ -1125,27 +1039,6 @@ SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImage* obj) {
     // TODO(edisonn): implement GS SMask. Default to empty right now.
     return pdfContext->fGraphicsState.fSMask;
 }
-
-SkBitmap getSmaskFromObjectOld(PdfContext* pdfContext, const PdfObject& obj) {
-    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
-                                              obj.GetDictionary().GetKey(PdfName("SMask")));
-
-#ifdef PDF_TRACE
-    std::string str;
-    if (sMask) {
-        sMask->ToString(str);
-        printf("/SMask of /Subtype /Image: %s\n", str.c_str());
-    }
-#endif
-
-    if (sMask) {
-        return getImageFromObjectOld(pdfContext, *sMask, true);
-    }
-
-    // TODO(edisonn): implement GS SMask. Default to empty right now.
-    return pdfContext->fGraphicsState.fSMask;
-}
-
 
 PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfImage* skpdfimage) {
     if (skpdfimage == NULL || !skpdfimage->valid()) {
@@ -1170,148 +1063,6 @@ PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfI
         canvas->restore();
     }
 
-    canvas->restore();
-
-    return kPartial_PdfResult;
-}
-
-PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
-    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
-        !obj.IsDictionary()) {
-        return kIgnoreError_PdfResult;
-    }
-
-    SkBitmap image = getImageFromObjectOld(pdfContext, obj, false);
-    SkBitmap sMask = getSmaskFromObjectOld(pdfContext, obj);
-
-    canvas->save();
-    canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
-    SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
-
-    if (sMask.empty()) {
-        canvas->drawBitmapRect(image, dst, NULL);
-    } else {
-        canvas->saveLayer(&dst, NULL);
-        canvas->drawBitmapRect(image, dst, NULL);
-        SkPaint xfer;
-        xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
-        canvas->drawBitmapRect(sMask, dst, &xfer);
-        canvas->restore();
-    }
-
-    canvas->restore();
-
-    return kPartial_PdfResult;
-}
-
-
-PdfResult doXObject_ImageOld2(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
-    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
-        !obj.IsDictionary()) {
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
-                                              obj.GetDictionary().GetKey(PdfName("SMask")));
-    // TODO(edisonn): else get smask from graphi state
-    // TODO(edisonn): add utility, SkBitmap loadBitmap(PdfObject& obj, bool no_smask);
-    // TODO(edisonn): add utility, SkBitmap loadSmask(state, PdfObject& obj);
-
-#ifdef PDF_TRACE
-    std::string str;
-    if (sMask) {
-        sMask->ToString(str);
-        printf("/SMask of /Subtype /Image: %s\n", str.c_str());
-    }
-#endif
-
-/*
-    // TODO (edisonn): Fast Jpeg(DCTDecode) draw, or fast PNG(FlateDecode) draw ...
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                              obj.GetDictionary().GetKey(PdfName("Filter")));
-
-    if (value && value->IsArray() && value->GetArray().GetSize() == 1) {
-        value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                       &value->GetArray()[0]);
-    }
-
-    if (value && value->IsName() && value->GetName().GetName() == "DCTDecode") {
-        SkStream stream = SkStream::
-        SkImageDecoder::Factory()
-    }
-*/
-    // Get color space
-    // trasnlate
-
-    long bpc = 0;
-    LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "BitsPerComponent", "BPC", &bpc);
-
-    bool imageMask = false;
-    BoolFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ImageMask", "", &imageMask);
-
-    if (imageMask) {
-        if (bpc != 0 && bpc != 1) {
-            return kIgnoreError_PdfResult;
-        }
-        bpc = 1;
-    }
-
-    long width;
-    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Width", "W", &width)) {
-        return kIgnoreError_PdfResult;
-    }
-
-    long height;
-    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Height", "H", &height)) {
-        return kIgnoreError_PdfResult;
-    }
-
-    std::string colorSpace;  // TODO(edisonn): load others than names, for more complicated
-    if (!NameFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ColorSpace", "", &colorSpace)) {
-        return kIgnoreError_PdfResult;
-    }
-
-    char* uncompressedStream = NULL;
-    pdf_long uncompressedStreamLength = 0;
-
-    PdfResult ret = kPartial_PdfResult;
-    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-    try {
-        obj.GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-    } catch (PdfError& e) {
-        return kIgnoreError_PdfResult;
-    }
-
-    SkColor* uncompressedStreamArgb = NULL;
-    pdf_long uncompressedStreamLengthInBytesArgb = 0;
-
-    int bytesPerLine = uncompressedStreamLength / height;
-#ifdef PDF_TRACE
-    if (uncompressedStreamLength % height != 0) {
-        printf("Warning uncompressedStreamLength % height != 0 !!!\n");
-    }
-#endif
-
-    if (!transferImageStreamToARGB((unsigned char*)uncompressedStream, uncompressedStreamLength,
-                                   width, bytesPerLine,
-                                   bpc, colorSpace,
-                                   &uncompressedStreamArgb,
-                                   &uncompressedStreamLengthInBytesArgb)) {
-        free(uncompressedStream);  // TODO(edisonn): avoid freeing the stream in 2 places!
-        return kIgnoreError_PdfResult;
-    }
-    free(uncompressedStream);
-
-    SkBitmap::Config config = SkBitmap::kARGB_8888_Config;
-
-    SkBitmap bitmap;
-    bitmap.setConfig(config, width, height);
-    bitmap.setPixels(uncompressedStreamArgb);
-
-    canvas->save();
-    canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
-    SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
-    canvas->drawBitmapRect(bitmap, dst, NULL);
     canvas->restore();
 
     return kPartial_PdfResult;
@@ -1476,55 +1227,16 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& o
     {
         case kObjectDictionaryXObjectImage_SkPdfObjectType:
             ret = doXObject_Image(pdfContext, canvas, skobj->asImage());
-        //case kObjectDictionaryXObjectForm_SkPdfObjectType:
-            //return doXObject_Form(skxobj.asForm());
+            break;
+        case kObjectDictionaryXObjectForm_SkPdfObjectType:
+            ret = doXObject_Form(pdfContext, canvas, obj);
+            break;
         //case kObjectDictionaryXObjectPS_SkPdfObjectType:
             //return doXObject_PS(skxobj.asPS());
     }
 
     delete skobj;
     return ret;
-}
-
-PdfResult doXObjectOld(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
-    if (CheckRecursiveRendering::IsInRendering(obj)) {
-        // Oops, corrupt PDF!
-        return kIgnoreError_PdfResult;
-    }
-
-    CheckRecursiveRendering checkRecursion(obj);
-
-    if (!obj.IsDictionary()) {
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfObject* type = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                   obj.GetDictionary().GetKey(PdfName("Type")));
-
-    if (type == NULL || !type->IsName()) {
-        return kIgnoreError_PdfResult;
-    }
-
-    if (type->GetName().GetName() != "XObject") {
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfObject* subtype =
-            resolveReferenceObject(pdfContext->fPdfDoc,
-                                   obj.GetDictionary().GetKey(PdfName("Subtype")));
-
-    if (subtype == NULL || !subtype->IsName()) {
-        return kIgnoreError_PdfResult;
-    }
-
-    if (subtype->GetName().GetName() == "Image") {
-        return doXObject_ImageOld(pdfContext, canvas, obj);
-    } else if (subtype->GetName().GetName() == "Form") {
-        return doXObject_Form(pdfContext, canvas, obj);
-    } else if (subtype->GetName().GetName() == "PS") {
-        return doXObject_PS(pdfContext, canvas, obj);
-    }
-    return kIgnoreError_PdfResult;
 }
 
 PdfResult PdfOp_q(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
