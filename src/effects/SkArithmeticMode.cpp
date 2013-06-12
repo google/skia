@@ -18,6 +18,8 @@
 #include "SkImageFilterUtils.h"
 #endif
 
+static const bool gUseUnpremul = false;
+
 class SkArithmeticMode_scalar : public SkXfermode {
 public:
     SkArithmeticMode_scalar(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4) {
@@ -95,44 +97,55 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
         if ((NULL == aaCoverage) || aaCoverage[i]) {
             SkPMColor sc = src[i];
             SkPMColor dc = dst[i];
-            int sa = SkGetPackedA32(sc);
-            int da = SkGetPackedA32(dc);
-
-            int srcNeedsUnpremul = needsUnpremul(sa);
-            int dstNeedsUnpremul = needsUnpremul(da);
 
             int a, r, g, b;
 
-            if (!srcNeedsUnpremul && !dstNeedsUnpremul) {
-                a = arith(k1, k2, k3, k4, sa, da);
-                r = arith(k1, k2, k3, k4, SkGetPackedR32(sc), SkGetPackedR32(dc));
-                g = arith(k1, k2, k3, k4, SkGetPackedG32(sc), SkGetPackedG32(dc));
-                b = arith(k1, k2, k3, k4, SkGetPackedB32(sc), SkGetPackedB32(dc));
+            if (gUseUnpremul) {
+                int sa = SkGetPackedA32(sc);
+                int da = SkGetPackedA32(dc);
+
+                int srcNeedsUnpremul = needsUnpremul(sa);
+                int dstNeedsUnpremul = needsUnpremul(da);
+
+                if (!srcNeedsUnpremul && !dstNeedsUnpremul) {
+                    a = arith(k1, k2, k3, k4, sa, da);
+                    r = arith(k1, k2, k3, k4, SkGetPackedR32(sc), SkGetPackedR32(dc));
+                    g = arith(k1, k2, k3, k4, SkGetPackedG32(sc), SkGetPackedG32(dc));
+                    b = arith(k1, k2, k3, k4, SkGetPackedB32(sc), SkGetPackedB32(dc));
+                } else {
+                    int sr = SkGetPackedR32(sc);
+                    int sg = SkGetPackedG32(sc);
+                    int sb = SkGetPackedB32(sc);
+                    if (srcNeedsUnpremul) {
+                        SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(sa);
+                        sr = SkUnPreMultiply::ApplyScale(scale, sr);
+                        sg = SkUnPreMultiply::ApplyScale(scale, sg);
+                        sb = SkUnPreMultiply::ApplyScale(scale, sb);
+                    }
+
+                    int dr = SkGetPackedR32(dc);
+                    int dg = SkGetPackedG32(dc);
+                    int db = SkGetPackedB32(dc);
+                    if (dstNeedsUnpremul) {
+                        SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(da);
+                        dr = SkUnPreMultiply::ApplyScale(scale, dr);
+                        dg = SkUnPreMultiply::ApplyScale(scale, dg);
+                        db = SkUnPreMultiply::ApplyScale(scale, db);
+                    }
+
+                    a = arith(k1, k2, k3, k4, sa, da);
+                    r = arith(k1, k2, k3, k4, sr, dr);
+                    g = arith(k1, k2, k3, k4, sg, dg);
+                    b = arith(k1, k2, k3, k4, sb, db);
+                }
             } else {
-                int sr = SkGetPackedR32(sc);
-                int sg = SkGetPackedG32(sc);
-                int sb = SkGetPackedB32(sc);
-                if (srcNeedsUnpremul) {
-                    SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(sa);
-                    sr = SkUnPreMultiply::ApplyScale(scale, sr);
-                    sg = SkUnPreMultiply::ApplyScale(scale, sg);
-                    sb = SkUnPreMultiply::ApplyScale(scale, sb);
-                }
-
-                int dr = SkGetPackedR32(dc);
-                int dg = SkGetPackedG32(dc);
-                int db = SkGetPackedB32(dc);
-                if (dstNeedsUnpremul) {
-                    SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(da);
-                    dr = SkUnPreMultiply::ApplyScale(scale, dr);
-                    dg = SkUnPreMultiply::ApplyScale(scale, dg);
-                    db = SkUnPreMultiply::ApplyScale(scale, db);
-                }
-
-                a = arith(k1, k2, k3, k4, sa, da);
-                r = arith(k1, k2, k3, k4, sr, dr);
-                g = arith(k1, k2, k3, k4, sg, dg);
-                b = arith(k1, k2, k3, k4, sb, db);
+                a = arith(k1, k2, k3, k4, SkGetPackedA32(sc), SkGetPackedA32(dc));
+                r = arith(k1, k2, k3, k4, SkGetPackedR32(sc), SkGetPackedR32(dc));
+                r = SkMin32(r, a);
+                g = arith(k1, k2, k3, k4, SkGetPackedG32(sc), SkGetPackedG32(dc));
+                g = SkMin32(g, a);
+                b = arith(k1, k2, k3, k4, SkGetPackedB32(sc), SkGetPackedB32(dc));
+                b = SkMin32(b, a);
             }
 
             // apply antialias coverage if necessary
@@ -145,7 +158,7 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
             }
 
             // turn the result back into premul
-            if (0xFF != a) {
+            if (gUseUnpremul && (0xFF != a)) {
                 int scale = a + (a >> 7);
                 r = SkAlphaMul(r, scale);
                 g = SkAlphaMul(g, scale);
@@ -361,15 +374,23 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
         builder->fsCodeAppendf("\t\tconst vec4 src = %s;\n", GrGLSLOnesVecf(4));
     } else {
         builder->fsCodeAppendf("\t\tvec4 src = %s;\n", inputColor);
-        builder->fsCodeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
+        if (gUseUnpremul) {
+            builder->fsCodeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
+        }
     }
 
     builder->fsCodeAppendf("\t\tvec4 dst = %s;\n", dstColor);
-    builder->fsCodeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
+    if (gUseUnpremul) {
+        builder->fsCodeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
+    }
 
     builder->fsCodeAppendf("\t\t%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;\n", outputColor, kUni, kUni, kUni, kUni);
     builder->fsCodeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
-    builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+    if (gUseUnpremul) {
+        builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+    } else {
+        builder->fsCodeAppendf("\t\t%s.rgb = min(%s.rgb, %s.a);\n", outputColor, outputColor, outputColor);
+    }
 }
 
 void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
