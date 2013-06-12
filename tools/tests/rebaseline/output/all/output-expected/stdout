@@ -1,620 +1,775 @@
+# unable to load JSON summary URL file:nonexistent-path/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/actual-results.json
 
 # base-android-galaxy-nexus:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_565.png --output base-android-galaxy-nexus/.temp-test1_565.png
 mv base-android-galaxy-nexus/.temp-test1_565.png base-android-galaxy-nexus/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_8888.png --output base-android-galaxy-nexus/.temp-test1_8888.png
 mv base-android-galaxy-nexus/.temp-test1_8888.png base-android-galaxy-nexus/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_gpu.png --output base-android-galaxy-nexus/.temp-test1_gpu.png
 mv base-android-galaxy-nexus/.temp-test1_gpu.png base-android-galaxy-nexus/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_pdf.png --output base-android-galaxy-nexus/.temp-test1_pdf.png
 mv base-android-galaxy-nexus/.temp-test1_pdf.png base-android-galaxy-nexus/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_mesa.png --output base-android-galaxy-nexus/.temp-test1_mesa.png
 mv base-android-galaxy-nexus/.temp-test1_mesa.png base-android-galaxy-nexus/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_msaa16.png --output base-android-galaxy-nexus/.temp-test1_msaa16.png
 mv base-android-galaxy-nexus/.temp-test1_msaa16.png base-android-galaxy-nexus/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_msaa4.png --output base-android-galaxy-nexus/.temp-test1_msaa4.png
 mv base-android-galaxy-nexus/.temp-test1_msaa4.png base-android-galaxy-nexus/test1_msaa4.png
 
 # base-android-galaxy-nexus:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_565.png --output base-android-galaxy-nexus/.temp-test2_565.png
 mv base-android-galaxy-nexus/.temp-test2_565.png base-android-galaxy-nexus/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_8888.png --output base-android-galaxy-nexus/.temp-test2_8888.png
 mv base-android-galaxy-nexus/.temp-test2_8888.png base-android-galaxy-nexus/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_gpu.png --output base-android-galaxy-nexus/.temp-test2_gpu.png
 mv base-android-galaxy-nexus/.temp-test2_gpu.png base-android-galaxy-nexus/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_pdf.png --output base-android-galaxy-nexus/.temp-test2_pdf.png
 mv base-android-galaxy-nexus/.temp-test2_pdf.png base-android-galaxy-nexus/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_mesa.png --output base-android-galaxy-nexus/.temp-test2_mesa.png
 mv base-android-galaxy-nexus/.temp-test2_mesa.png base-android-galaxy-nexus/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_msaa16.png --output base-android-galaxy-nexus/.temp-test2_msaa16.png
 mv base-android-galaxy-nexus/.temp-test2_msaa16.png base-android-galaxy-nexus/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_msaa4.png --output base-android-galaxy-nexus/.temp-test2_msaa4.png
 mv base-android-galaxy-nexus/.temp-test2_msaa4.png base-android-galaxy-nexus/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/actual-results.json
 
 # base-android-nexus-10:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_565.png --output base-android-nexus-10/.temp-test1_565.png
 mv base-android-nexus-10/.temp-test1_565.png base-android-nexus-10/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_8888.png --output base-android-nexus-10/.temp-test1_8888.png
 mv base-android-nexus-10/.temp-test1_8888.png base-android-nexus-10/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_gpu.png --output base-android-nexus-10/.temp-test1_gpu.png
 mv base-android-nexus-10/.temp-test1_gpu.png base-android-nexus-10/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_pdf.png --output base-android-nexus-10/.temp-test1_pdf.png
 mv base-android-nexus-10/.temp-test1_pdf.png base-android-nexus-10/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_mesa.png --output base-android-nexus-10/.temp-test1_mesa.png
 mv base-android-nexus-10/.temp-test1_mesa.png base-android-nexus-10/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_msaa16.png --output base-android-nexus-10/.temp-test1_msaa16.png
 mv base-android-nexus-10/.temp-test1_msaa16.png base-android-nexus-10/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test1_msaa4.png --output base-android-nexus-10/.temp-test1_msaa4.png
 mv base-android-nexus-10/.temp-test1_msaa4.png base-android-nexus-10/test1_msaa4.png
 
 # base-android-nexus-10:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_565.png --output base-android-nexus-10/.temp-test2_565.png
 mv base-android-nexus-10/.temp-test2_565.png base-android-nexus-10/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_8888.png --output base-android-nexus-10/.temp-test2_8888.png
 mv base-android-nexus-10/.temp-test2_8888.png base-android-nexus-10/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_gpu.png --output base-android-nexus-10/.temp-test2_gpu.png
 mv base-android-nexus-10/.temp-test2_gpu.png base-android-nexus-10/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_pdf.png --output base-android-nexus-10/.temp-test2_pdf.png
 mv base-android-nexus-10/.temp-test2_pdf.png base-android-nexus-10/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_mesa.png --output base-android-nexus-10/.temp-test2_mesa.png
 mv base-android-nexus-10/.temp-test2_mesa.png base-android-nexus-10/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_msaa16.png --output base-android-nexus-10/.temp-test2_msaa16.png
 mv base-android-nexus-10/.temp-test2_msaa16.png base-android-nexus-10/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_msaa4.png --output base-android-nexus-10/.temp-test2_msaa4.png
 mv base-android-nexus-10/.temp-test2_msaa4.png base-android-nexus-10/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/actual-results.json
 
 # base-android-nexus-7:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_565.png --output base-android-nexus-7/.temp-test1_565.png
 mv base-android-nexus-7/.temp-test1_565.png base-android-nexus-7/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_8888.png --output base-android-nexus-7/.temp-test1_8888.png
 mv base-android-nexus-7/.temp-test1_8888.png base-android-nexus-7/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_gpu.png --output base-android-nexus-7/.temp-test1_gpu.png
 mv base-android-nexus-7/.temp-test1_gpu.png base-android-nexus-7/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_pdf.png --output base-android-nexus-7/.temp-test1_pdf.png
 mv base-android-nexus-7/.temp-test1_pdf.png base-android-nexus-7/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_mesa.png --output base-android-nexus-7/.temp-test1_mesa.png
 mv base-android-nexus-7/.temp-test1_mesa.png base-android-nexus-7/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_msaa16.png --output base-android-nexus-7/.temp-test1_msaa16.png
 mv base-android-nexus-7/.temp-test1_msaa16.png base-android-nexus-7/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test1_msaa4.png --output base-android-nexus-7/.temp-test1_msaa4.png
 mv base-android-nexus-7/.temp-test1_msaa4.png base-android-nexus-7/test1_msaa4.png
 
 # base-android-nexus-7:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_565.png --output base-android-nexus-7/.temp-test2_565.png
 mv base-android-nexus-7/.temp-test2_565.png base-android-nexus-7/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_8888.png --output base-android-nexus-7/.temp-test2_8888.png
 mv base-android-nexus-7/.temp-test2_8888.png base-android-nexus-7/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_gpu.png --output base-android-nexus-7/.temp-test2_gpu.png
 mv base-android-nexus-7/.temp-test2_gpu.png base-android-nexus-7/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_pdf.png --output base-android-nexus-7/.temp-test2_pdf.png
 mv base-android-nexus-7/.temp-test2_pdf.png base-android-nexus-7/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_mesa.png --output base-android-nexus-7/.temp-test2_mesa.png
 mv base-android-nexus-7/.temp-test2_mesa.png base-android-nexus-7/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_msaa16.png --output base-android-nexus-7/.temp-test2_msaa16.png
 mv base-android-nexus-7/.temp-test2_msaa16.png base-android-nexus-7/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/test2_msaa4.png --output base-android-nexus-7/.temp-test2_msaa4.png
 mv base-android-nexus-7/.temp-test2_msaa4.png base-android-nexus-7/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/actual-results.json
 
 # base-android-nexus-s:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_565.png --output base-android-nexus-s/.temp-test1_565.png
 mv base-android-nexus-s/.temp-test1_565.png base-android-nexus-s/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_8888.png --output base-android-nexus-s/.temp-test1_8888.png
 mv base-android-nexus-s/.temp-test1_8888.png base-android-nexus-s/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_gpu.png --output base-android-nexus-s/.temp-test1_gpu.png
 mv base-android-nexus-s/.temp-test1_gpu.png base-android-nexus-s/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_pdf.png --output base-android-nexus-s/.temp-test1_pdf.png
 mv base-android-nexus-s/.temp-test1_pdf.png base-android-nexus-s/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_mesa.png --output base-android-nexus-s/.temp-test1_mesa.png
 mv base-android-nexus-s/.temp-test1_mesa.png base-android-nexus-s/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_msaa16.png --output base-android-nexus-s/.temp-test1_msaa16.png
 mv base-android-nexus-s/.temp-test1_msaa16.png base-android-nexus-s/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test1_msaa4.png --output base-android-nexus-s/.temp-test1_msaa4.png
 mv base-android-nexus-s/.temp-test1_msaa4.png base-android-nexus-s/test1_msaa4.png
 
 # base-android-nexus-s:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_565.png --output base-android-nexus-s/.temp-test2_565.png
 mv base-android-nexus-s/.temp-test2_565.png base-android-nexus-s/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_8888.png --output base-android-nexus-s/.temp-test2_8888.png
 mv base-android-nexus-s/.temp-test2_8888.png base-android-nexus-s/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_gpu.png --output base-android-nexus-s/.temp-test2_gpu.png
 mv base-android-nexus-s/.temp-test2_gpu.png base-android-nexus-s/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_pdf.png --output base-android-nexus-s/.temp-test2_pdf.png
 mv base-android-nexus-s/.temp-test2_pdf.png base-android-nexus-s/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_mesa.png --output base-android-nexus-s/.temp-test2_mesa.png
 mv base-android-nexus-s/.temp-test2_mesa.png base-android-nexus-s/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_msaa16.png --output base-android-nexus-s/.temp-test2_msaa16.png
 mv base-android-nexus-s/.temp-test2_msaa16.png base-android-nexus-s/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-s/Test-Android-NexusS-SGX540-Arm7-Release/base-android-nexus-s/test2_msaa4.png --output base-android-nexus-s/.temp-test2_msaa4.png
 mv base-android-nexus-s/.temp-test2_msaa4.png base-android-nexus-s/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/actual-results.json
 
 # base-android-xoom:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_565.png --output base-android-xoom/.temp-test1_565.png
 mv base-android-xoom/.temp-test1_565.png base-android-xoom/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_8888.png --output base-android-xoom/.temp-test1_8888.png
 mv base-android-xoom/.temp-test1_8888.png base-android-xoom/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_gpu.png --output base-android-xoom/.temp-test1_gpu.png
 mv base-android-xoom/.temp-test1_gpu.png base-android-xoom/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_pdf.png --output base-android-xoom/.temp-test1_pdf.png
 mv base-android-xoom/.temp-test1_pdf.png base-android-xoom/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_mesa.png --output base-android-xoom/.temp-test1_mesa.png
 mv base-android-xoom/.temp-test1_mesa.png base-android-xoom/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_msaa16.png --output base-android-xoom/.temp-test1_msaa16.png
 mv base-android-xoom/.temp-test1_msaa16.png base-android-xoom/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test1_msaa4.png --output base-android-xoom/.temp-test1_msaa4.png
 mv base-android-xoom/.temp-test1_msaa4.png base-android-xoom/test1_msaa4.png
 
 # base-android-xoom:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_565.png --output base-android-xoom/.temp-test2_565.png
 mv base-android-xoom/.temp-test2_565.png base-android-xoom/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_8888.png --output base-android-xoom/.temp-test2_8888.png
 mv base-android-xoom/.temp-test2_8888.png base-android-xoom/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_gpu.png --output base-android-xoom/.temp-test2_gpu.png
 mv base-android-xoom/.temp-test2_gpu.png base-android-xoom/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_pdf.png --output base-android-xoom/.temp-test2_pdf.png
 mv base-android-xoom/.temp-test2_pdf.png base-android-xoom/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_mesa.png --output base-android-xoom/.temp-test2_mesa.png
 mv base-android-xoom/.temp-test2_mesa.png base-android-xoom/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_msaa16.png --output base-android-xoom/.temp-test2_msaa16.png
 mv base-android-xoom/.temp-test2_msaa16.png base-android-xoom/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-xoom/Test-Android-Xoom-Tegra2-Arm7-Release/base-android-xoom/test2_msaa4.png --output base-android-xoom/.temp-test2_msaa4.png
 mv base-android-xoom/.temp-test2_msaa4.png base-android-xoom/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/actual-results.json
 
 # base-macmini:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_565.png --output base-macmini/.temp-test1_565.png
 mv base-macmini/.temp-test1_565.png base-macmini/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_8888.png --output base-macmini/.temp-test1_8888.png
 mv base-macmini/.temp-test1_8888.png base-macmini/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_gpu.png --output base-macmini/.temp-test1_gpu.png
 mv base-macmini/.temp-test1_gpu.png base-macmini/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_pdf.png --output base-macmini/.temp-test1_pdf.png
 mv base-macmini/.temp-test1_pdf.png base-macmini/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_mesa.png --output base-macmini/.temp-test1_mesa.png
 mv base-macmini/.temp-test1_mesa.png base-macmini/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_msaa16.png --output base-macmini/.temp-test1_msaa16.png
 mv base-macmini/.temp-test1_msaa16.png base-macmini/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test1_msaa4.png --output base-macmini/.temp-test1_msaa4.png
 mv base-macmini/.temp-test1_msaa4.png base-macmini/test1_msaa4.png
 
 # base-macmini:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_565.png --output base-macmini/.temp-test2_565.png
 mv base-macmini/.temp-test2_565.png base-macmini/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_8888.png --output base-macmini/.temp-test2_8888.png
 mv base-macmini/.temp-test2_8888.png base-macmini/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_gpu.png --output base-macmini/.temp-test2_gpu.png
 mv base-macmini/.temp-test2_gpu.png base-macmini/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_pdf.png --output base-macmini/.temp-test2_pdf.png
 mv base-macmini/.temp-test2_pdf.png base-macmini/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_mesa.png --output base-macmini/.temp-test2_mesa.png
 mv base-macmini/.temp-test2_mesa.png base-macmini/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_msaa16.png --output base-macmini/.temp-test2_msaa16.png
 mv base-macmini/.temp-test2_msaa16.png base-macmini/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release/base-macmini/test2_msaa4.png --output base-macmini/.temp-test2_msaa4.png
 mv base-macmini/.temp-test2_msaa4.png base-macmini/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/actual-results.json
 
 # base-macmini-lion-float:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_565.png --output base-macmini-lion-float/.temp-test1_565.png
 mv base-macmini-lion-float/.temp-test1_565.png base-macmini-lion-float/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_8888.png --output base-macmini-lion-float/.temp-test1_8888.png
 mv base-macmini-lion-float/.temp-test1_8888.png base-macmini-lion-float/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_gpu.png --output base-macmini-lion-float/.temp-test1_gpu.png
 mv base-macmini-lion-float/.temp-test1_gpu.png base-macmini-lion-float/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_pdf.png --output base-macmini-lion-float/.temp-test1_pdf.png
 mv base-macmini-lion-float/.temp-test1_pdf.png base-macmini-lion-float/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_mesa.png --output base-macmini-lion-float/.temp-test1_mesa.png
 mv base-macmini-lion-float/.temp-test1_mesa.png base-macmini-lion-float/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_msaa16.png --output base-macmini-lion-float/.temp-test1_msaa16.png
 mv base-macmini-lion-float/.temp-test1_msaa16.png base-macmini-lion-float/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test1_msaa4.png --output base-macmini-lion-float/.temp-test1_msaa4.png
 mv base-macmini-lion-float/.temp-test1_msaa4.png base-macmini-lion-float/test1_msaa4.png
 
 # base-macmini-lion-float:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_565.png --output base-macmini-lion-float/.temp-test2_565.png
 mv base-macmini-lion-float/.temp-test2_565.png base-macmini-lion-float/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_8888.png --output base-macmini-lion-float/.temp-test2_8888.png
 mv base-macmini-lion-float/.temp-test2_8888.png base-macmini-lion-float/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_gpu.png --output base-macmini-lion-float/.temp-test2_gpu.png
 mv base-macmini-lion-float/.temp-test2_gpu.png base-macmini-lion-float/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_pdf.png --output base-macmini-lion-float/.temp-test2_pdf.png
 mv base-macmini-lion-float/.temp-test2_pdf.png base-macmini-lion-float/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_mesa.png --output base-macmini-lion-float/.temp-test2_mesa.png
 mv base-macmini-lion-float/.temp-test2_mesa.png base-macmini-lion-float/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_msaa16.png --output base-macmini-lion-float/.temp-test2_msaa16.png
 mv base-macmini-lion-float/.temp-test2_msaa16.png base-macmini-lion-float/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-lion-float/Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release/base-macmini-lion-float/test2_msaa4.png --output base-macmini-lion-float/.temp-test2_msaa4.png
 mv base-macmini-lion-float/.temp-test2_msaa4.png base-macmini-lion-float/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-shuttle-win7-intel-angle/Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE/base-shuttle-win7-intel-angle/actual-results.json
 
 # base-shuttle-win7-intel-angle:
 
 # test1_angle.png
+# unable to find filename test1_angle.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-angle/Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE/base-shuttle-win7-intel-angle/test1_angle.png --output base-shuttle-win7-intel-angle/.temp-test1_angle.png
 mv base-shuttle-win7-intel-angle/.temp-test1_angle.png base-shuttle-win7-intel-angle/test1_angle.png
 
 # test1_anglemsaa16.png
+# unable to find filename test1_anglemsaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-angle/Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE/base-shuttle-win7-intel-angle/test1_anglemsaa16.png --output base-shuttle-win7-intel-angle/.temp-test1_anglemsaa16.png
 mv base-shuttle-win7-intel-angle/.temp-test1_anglemsaa16.png base-shuttle-win7-intel-angle/test1_anglemsaa16.png
 
 # base-shuttle-win7-intel-angle:
 
 # test2_angle.png
+# unable to find filename test2_angle.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-angle/Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE/base-shuttle-win7-intel-angle/test2_angle.png --output base-shuttle-win7-intel-angle/.temp-test2_angle.png
 mv base-shuttle-win7-intel-angle/.temp-test2_angle.png base-shuttle-win7-intel-angle/test2_angle.png
 
 # test2_anglemsaa16.png
+# unable to find filename test2_anglemsaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-angle/Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE/base-shuttle-win7-intel-angle/test2_anglemsaa16.png --output base-shuttle-win7-intel-angle/.temp-test2_anglemsaa16.png
 mv base-shuttle-win7-intel-angle/.temp-test2_anglemsaa16.png base-shuttle-win7-intel-angle/test2_anglemsaa16.png
+# unable to load JSON summary URL file:nonexistent-path/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/actual-results.json
 
 # base-shuttle-win7-intel-directwrite:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_565.png --output base-shuttle-win7-intel-directwrite/.temp-test1_565.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_565.png base-shuttle-win7-intel-directwrite/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_8888.png --output base-shuttle-win7-intel-directwrite/.temp-test1_8888.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_8888.png base-shuttle-win7-intel-directwrite/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_gpu.png --output base-shuttle-win7-intel-directwrite/.temp-test1_gpu.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_gpu.png base-shuttle-win7-intel-directwrite/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_pdf.png --output base-shuttle-win7-intel-directwrite/.temp-test1_pdf.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_pdf.png base-shuttle-win7-intel-directwrite/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_mesa.png --output base-shuttle-win7-intel-directwrite/.temp-test1_mesa.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_mesa.png base-shuttle-win7-intel-directwrite/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_msaa16.png --output base-shuttle-win7-intel-directwrite/.temp-test1_msaa16.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_msaa16.png base-shuttle-win7-intel-directwrite/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test1_msaa4.png --output base-shuttle-win7-intel-directwrite/.temp-test1_msaa4.png
 mv base-shuttle-win7-intel-directwrite/.temp-test1_msaa4.png base-shuttle-win7-intel-directwrite/test1_msaa4.png
 
 # base-shuttle-win7-intel-directwrite:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_565.png --output base-shuttle-win7-intel-directwrite/.temp-test2_565.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_565.png base-shuttle-win7-intel-directwrite/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_8888.png --output base-shuttle-win7-intel-directwrite/.temp-test2_8888.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_8888.png base-shuttle-win7-intel-directwrite/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_gpu.png --output base-shuttle-win7-intel-directwrite/.temp-test2_gpu.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_gpu.png base-shuttle-win7-intel-directwrite/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_pdf.png --output base-shuttle-win7-intel-directwrite/.temp-test2_pdf.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_pdf.png base-shuttle-win7-intel-directwrite/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_mesa.png --output base-shuttle-win7-intel-directwrite/.temp-test2_mesa.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_mesa.png base-shuttle-win7-intel-directwrite/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_msaa16.png --output base-shuttle-win7-intel-directwrite/.temp-test2_msaa16.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_msaa16.png base-shuttle-win7-intel-directwrite/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-directwrite/Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite/base-shuttle-win7-intel-directwrite/test2_msaa4.png --output base-shuttle-win7-intel-directwrite/.temp-test2_msaa4.png
 mv base-shuttle-win7-intel-directwrite/.temp-test2_msaa4.png base-shuttle-win7-intel-directwrite/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/actual-results.json
 
 # base-shuttle-win7-intel-float:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_565.png --output base-shuttle-win7-intel-float/.temp-test1_565.png
 mv base-shuttle-win7-intel-float/.temp-test1_565.png base-shuttle-win7-intel-float/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_8888.png --output base-shuttle-win7-intel-float/.temp-test1_8888.png
 mv base-shuttle-win7-intel-float/.temp-test1_8888.png base-shuttle-win7-intel-float/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_gpu.png --output base-shuttle-win7-intel-float/.temp-test1_gpu.png
 mv base-shuttle-win7-intel-float/.temp-test1_gpu.png base-shuttle-win7-intel-float/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_pdf.png --output base-shuttle-win7-intel-float/.temp-test1_pdf.png
 mv base-shuttle-win7-intel-float/.temp-test1_pdf.png base-shuttle-win7-intel-float/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_mesa.png --output base-shuttle-win7-intel-float/.temp-test1_mesa.png
 mv base-shuttle-win7-intel-float/.temp-test1_mesa.png base-shuttle-win7-intel-float/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_msaa16.png --output base-shuttle-win7-intel-float/.temp-test1_msaa16.png
 mv base-shuttle-win7-intel-float/.temp-test1_msaa16.png base-shuttle-win7-intel-float/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_msaa4.png --output base-shuttle-win7-intel-float/.temp-test1_msaa4.png
 mv base-shuttle-win7-intel-float/.temp-test1_msaa4.png base-shuttle-win7-intel-float/test1_msaa4.png
 
 # base-shuttle-win7-intel-float:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_565.png --output base-shuttle-win7-intel-float/.temp-test2_565.png
 mv base-shuttle-win7-intel-float/.temp-test2_565.png base-shuttle-win7-intel-float/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_8888.png --output base-shuttle-win7-intel-float/.temp-test2_8888.png
 mv base-shuttle-win7-intel-float/.temp-test2_8888.png base-shuttle-win7-intel-float/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_gpu.png --output base-shuttle-win7-intel-float/.temp-test2_gpu.png
 mv base-shuttle-win7-intel-float/.temp-test2_gpu.png base-shuttle-win7-intel-float/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_pdf.png --output base-shuttle-win7-intel-float/.temp-test2_pdf.png
 mv base-shuttle-win7-intel-float/.temp-test2_pdf.png base-shuttle-win7-intel-float/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_mesa.png --output base-shuttle-win7-intel-float/.temp-test2_mesa.png
 mv base-shuttle-win7-intel-float/.temp-test2_mesa.png base-shuttle-win7-intel-float/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_msaa16.png --output base-shuttle-win7-intel-float/.temp-test2_msaa16.png
 mv base-shuttle-win7-intel-float/.temp-test2_msaa16.png base-shuttle-win7-intel-float/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_msaa4.png --output base-shuttle-win7-intel-float/.temp-test2_msaa4.png
 mv base-shuttle-win7-intel-float/.temp-test2_msaa4.png base-shuttle-win7-intel-float/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/actual-results.json
 
 # base-shuttle_ubuntu12_ati5770:
 
 # test1_565.png
+# unable to find filename test1_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_565.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_565.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_565.png base-shuttle_ubuntu12_ati5770/test1_565.png
 
 # test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_8888.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_8888.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_8888.png base-shuttle_ubuntu12_ati5770/test1_8888.png
 
 # test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_gpu.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_gpu.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_gpu.png base-shuttle_ubuntu12_ati5770/test1_gpu.png
 
 # test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_pdf.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_pdf.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_pdf.png base-shuttle_ubuntu12_ati5770/test1_pdf.png
 
 # test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_mesa.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_mesa.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_mesa.png base-shuttle_ubuntu12_ati5770/test1_mesa.png
 
 # test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_msaa16.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_msaa16.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_msaa16.png base-shuttle_ubuntu12_ati5770/test1_msaa16.png
 
 # test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test1_msaa4.png --output base-shuttle_ubuntu12_ati5770/.temp-test1_msaa4.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test1_msaa4.png base-shuttle_ubuntu12_ati5770/test1_msaa4.png
 
 # base-shuttle_ubuntu12_ati5770:
 
 # test2_565.png
+# unable to find filename test2_565.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_565.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_565.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_565.png base-shuttle_ubuntu12_ati5770/test2_565.png
 
 # test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_8888.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_8888.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_8888.png base-shuttle_ubuntu12_ati5770/test2_8888.png
 
 # test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_gpu.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_gpu.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_gpu.png base-shuttle_ubuntu12_ati5770/test2_gpu.png
 
 # test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_pdf.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_pdf.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_pdf.png base-shuttle_ubuntu12_ati5770/test2_pdf.png
 
 # test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_mesa.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_mesa.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_mesa.png base-shuttle_ubuntu12_ati5770/test2_mesa.png
 
 # test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_msaa16.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_msaa16.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_msaa16.png base-shuttle_ubuntu12_ati5770/test2_msaa16.png
 
 # test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle_ubuntu12_ati5770/Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release/base-shuttle_ubuntu12_ati5770/test2_msaa4.png --output base-shuttle_ubuntu12_ati5770/.temp-test2_msaa4.png
 mv base-shuttle_ubuntu12_ati5770/.temp-test2_msaa4.png base-shuttle_ubuntu12_ati5770/test2_msaa4.png

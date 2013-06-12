@@ -209,8 +209,8 @@ fi
 
 REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
-rebaseline_test "--tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
-rebaseline_test "--tests test1 test2" "$REBASELINE_OUTPUT/all"
+rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
+rebaseline_test "--json-base-url file:nonexistent-path --tests test1 test2" "$REBASELINE_OUTPUT/all"
 rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
 rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
 

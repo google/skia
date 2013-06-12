@@ -1,1 +1,1 @@
-python tools/rebaseline.py --dry-run --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float
+python tools/rebaseline.py --dry-run --json-base-url file:tools/tests/rebaseline/input/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float
