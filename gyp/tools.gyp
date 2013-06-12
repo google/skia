@@ -274,6 +274,7 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
+        'tools.gyp:picture_renderer',
       ],
     },
     {

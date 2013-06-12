@@ -5,14 +5,21 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkGraphics.h"
 #include "SkOSFile.h"
+#include "SkImageDecoder.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkDumpCanvas.h"
+#include "SkForceLinking.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
+
+// Defined in PictureRenderingFlags.cpp
+extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 static SkPicture* inspect(const char path[]) {
     SkFILEStream stream(path);
@@ -33,7 +40,12 @@ static SkPicture* inspect(const char path[]) {
     }
 
     stream.rewind();
-    SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream));
+    bool success = false;
+    SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream, &success, &lazy_decode_bitmap));
+    if (!success) {
+        SkDebugf("Could not create SkPicture: %s\n", path);
+        return pic;
+    }
     printf("picture size:[%d %d]\n", pic->width(), pic->height());
     return pic;
 }
@@ -50,6 +62,7 @@ static void dumpOps(SkPicture* pic) {
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SkAutoGraphics ag;
     if (argc < 2) {
         printf("Usage: pinspect [--dump-ops] filename [filename ...]\n");
         return 1;
