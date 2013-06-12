@@ -241,15 +241,10 @@ private:
     // no reason to use the same kHashCount as fGlyphHash, but we do for now
     CharGlyphRec    fCharToGlyphHash[kHashCount];
 
-    enum {
-        // shift so that the top bits fall into kHashBits region
-        kShiftForHashIndex = SkGlyph::kSubShift +
-                             SkGlyph::kSubBits*2 -
-                             kHashBits
-    };
-
     static inline unsigned ID2HashIndex(uint32_t id) {
-        return (id ^ (id >> kShiftForHashIndex)) & kHashMask;
+        id ^= id >> 16;
+        id ^= id >> 8;
+        return id & kHashMask;
     }
 
     // used to track (approx) how much ram is tied-up in this cache
