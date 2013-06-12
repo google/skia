@@ -15,6 +15,9 @@
 #include "picture_utils.h"
 #include "SkOSFile.h"
 #include "SkImageDecoder.h"
+#include "SkForceLinking.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 extern "C" {
     #include "lua.h"
