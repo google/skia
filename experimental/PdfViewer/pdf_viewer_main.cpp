@@ -22,6 +22,29 @@
 #include <stack>
 
 #include "podofo.h"
+using namespace PoDoFo;
+
+bool LongFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        long* data);
+
+bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        bool* data);
+
+bool NameFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        std::string* data);
+
+
+
+#include "pdf_auto_gen.h"
 
 /*
  * TODO(edisonn): ASAP so skp -> pdf -> png looks greap
@@ -31,7 +54,7 @@
  * - load font for youtube.pdf
 */
 
-//#define PDF_TRACE
+#define PDF_TRACE
 //#define PDF_TRACE_DIFF_IN_PNG
 //#define PDF_DEBUG_NO_CLIPING
 //#define PDF_DEBUG_NO_PAGE_CLIPING
@@ -78,9 +101,9 @@ int GetColorSpaceComponents(const std::string& colorSpace) {
     }
 }
 
-PdfObject* resolveReferenceObject(PdfMemDocument* pdfDoc,
-                                        PdfObject* obj,
-                                        bool resolveOneElementArrays = false) {
+const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
+                                  const PdfObject* obj,
+                                  bool resolveOneElementArrays = false) {
     while (obj && (obj->IsReference() || (resolveOneElementArrays &&
                                           obj->IsArray() &&
                                           obj->GetArray().GetSize() == 1))) {
@@ -152,7 +175,7 @@ struct PdfGraphicsState {
     double              fWordSpace;
     double              fCharSpace;
 
-    PdfObject*          fObjectWithResources;
+    const PdfObject*    fObjectWithResources;
 
     SkBitmap            fSMask;
 
@@ -562,7 +585,7 @@ PdfEncoding* FixPdfFont(PdfContext* pdfContext, PdfFont* fCurFont) {
         if (fCurFont->GetObject()->IsDictionary() && fCurFont->GetObject()->GetDictionary().HasKey(PdfName("ToUnicode"))) {
             PdfCMapEncoding* enc = new PdfCMapEncoding(
                     fCurFont->GetObject(),
-                    resolveReferenceObject(pdfContext->fPdfDoc,
+                    (PdfObject*)resolveReferenceObject(pdfContext->fPdfDoc,
                                            fCurFont->GetObject()->GetDictionary().GetKey(PdfName("ToUnicode"))),
                     PdfCMapEncoding::eBaseEncoding_Identity);  // todo, read the base encoding
             gFontsFixed[fCurFont] = enc;
@@ -728,12 +751,12 @@ PdfResult PdfOp_Tc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
 // TODO(edisonn): deal with synonyms (/BPC == /BitsPerComponent), here or in GetKey?
 // Always pass long form in key, and have a map of long -> short key
-bool LongFromDictionary(PdfContext* pdfContext,
-                        PdfDictionary& dict,
+bool LongFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
                         const char* key,
                         long* data) {
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                    dict.GetKey(PdfName(key)));
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsNumber()) {
         return false;
@@ -743,12 +766,22 @@ bool LongFromDictionary(PdfContext* pdfContext,
     return true;
 }
 
-bool BoolFromDictionary(PdfContext* pdfContext,
-                        PdfDictionary& dict,
+bool LongFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        long* data) {
+    if (LongFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return LongFromDictionary(pdfDoc, dict, abr, data);
+}
+
+bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
                         const char* key,
                         bool* data) {
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                    dict.GetKey(PdfName(key)));
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsBool()) {
         return false;
@@ -758,19 +791,39 @@ bool BoolFromDictionary(PdfContext* pdfContext,
     return true;
 }
 
-bool NameFromDictionary(PdfContext* pdfContext,
-                        PdfDictionary& dict,
+bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        bool* data) {
+    if (BoolFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return BoolFromDictionary(pdfDoc, dict, abr, data);
+}
+
+bool NameFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
                         const char* key,
                         std::string* data) {
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                    dict.GetKey(PdfName(key)),
-                                                    true);
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)),
+                                              true);
     if (value == NULL || !value->IsName()) {
         return false;
     }
 
     *data = value->GetName().GetName();
     return true;
+}
+
+bool NameFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        std::string* data) {
+    if (NameFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return NameFromDictionary(pdfDoc, dict, abr, data);
 }
 
 // TODO(edisonn): perf!!!
@@ -899,14 +952,81 @@ bool transferImageStreamToARGB(unsigned char* uncompressedStream, pdf_long uncom
 
 // this functions returns the image, it does not look at the smask.
 
-SkBitmap getImageFromObject(PdfContext* pdfContext, PdfObject& obj, bool transparencyMask) {
+SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImage* image, bool transparencyMask) {
+    if (image == NULL || !image->valid()) {
+        // TODO(edisonn): report warning to be used in testing.
+        return SkBitmap();
+    }
+
+    // TODO (edisonn): Fast Jpeg(DCTDecode) draw, or fast PNG(FlateDecode) draw ...
+//    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+//                                              obj.GetDictionary().GetKey(PdfName("Filter")));
+//    if (value && value->IsArray() && value->GetArray().GetSize() == 1) {
+//        value = resolveReferenceObject(pdfContext->fPdfDoc,
+//                                       &value->GetArray()[0]);
+//    }
+//    if (value && value->IsName() && value->GetName().GetName() == "DCTDecode") {
+//        SkStream stream = SkStream::
+//        SkImageDecoder::Factory()
+//    }
+
+    long bpc = image->bpc();
+    long width = image->w();
+    long height = image->h();
+    std::string colorSpace = image->cs();
+
+/*
+    bool imageMask = image->imageMask();
+
+    if (imageMask) {
+        if (bpc != 0 && bpc != 1) {
+            // TODO(edisonn): report warning to be used in testing.
+            return SkBitmap();
+        }
+        bpc = 1;
+    }
+*/
+
+    const PdfObject* obj = image->podofo();
+
+    char* uncompressedStream = NULL;
+    pdf_long uncompressedStreamLength = 0;
+
+    PdfResult ret = kPartial_PdfResult;
+    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
+    try {
+        obj->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
+    } catch (PdfError& e) {
+        // TODO(edisonn): report warning to be used in testing.
+        return SkBitmap();
+    }
+
+    int bytesPerLine = uncompressedStreamLength / height;
+#ifdef PDF_TRACE
+    if (uncompressedStreamLength % height != 0) {
+        printf("Warning uncompressedStreamLength % height != 0 !!!\n");
+    }
+#endif
+
+    SkBitmap bitmap = transferImageStreamToBitmap(
+            (unsigned char*)uncompressedStream, uncompressedStreamLength,
+            width, height, bytesPerLine,
+            bpc, colorSpace,
+            transparencyMask);
+
+    free(uncompressedStream);
+
+    return bitmap;
+}
+
+SkBitmap getImageFromObjectOld(PdfContext* pdfContext, const PdfObject& obj, bool transparencyMask) {
     if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
         !obj.IsDictionary()) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
 
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
                                               obj.GetDictionary().GetKey(PdfName("Filter")));
 
     if (value && value->IsArray() && value->GetArray().GetSize() == 1) {
@@ -924,10 +1044,10 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, PdfObject& obj, bool transpa
     // translate
 
     long bpc = 0;
-    LongFromDictionary(pdfContext, obj.GetDictionary(), "BitsPerComponent", &bpc);
+    LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "BitsPerComponent", "BPC", &bpc);
 
     bool imageMask = false;
-    BoolFromDictionary(pdfContext, obj.GetDictionary(), "ImageMask", &imageMask);
+    BoolFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ImageMask", "", &imageMask);
 
     if (imageMask) {
         if (bpc != 0 && bpc != 1) {
@@ -938,19 +1058,19 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, PdfObject& obj, bool transpa
     }
 
     long width;
-    if (!LongFromDictionary(pdfContext, obj.GetDictionary(), "Width", &width)) {
+    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Width", &width)) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
 
     long height;
-    if (!LongFromDictionary(pdfContext, obj.GetDictionary(), "Height", &height)) {
+    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Height", &height)) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
 
     std::string colorSpace;  // TODO(edisonn): load others than names, for more complicated
-    if (!NameFromDictionary(pdfContext, obj.GetDictionary(), "ColorSpace", &colorSpace)) {
+    if (!NameFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ColorSpace", &colorSpace)) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
@@ -985,8 +1105,29 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, PdfObject& obj, bool transpa
     return bitmap;
 }
 
-SkBitmap getSmaskFromObject(PdfContext* pdfContext, PdfObject& obj) {
-    PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
+SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImage* obj) {
+    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
+                                              obj->podofo()->GetDictionary().GetKey(PdfName("SMask")));
+
+#ifdef PDF_TRACE
+    std::string str;
+    if (sMask) {
+        sMask->ToString(str);
+        printf("/SMask of /Subtype /Image: %s\n", str.c_str());
+    }
+#endif
+
+    if (sMask) {
+        SkPdfImage skxobjmask(pdfContext->fPdfDoc, sMask);
+        return getImageFromObject(pdfContext, &skxobjmask, true);
+    }
+
+    // TODO(edisonn): implement GS SMask. Default to empty right now.
+    return pdfContext->fGraphicsState.fSMask;
+}
+
+SkBitmap getSmaskFromObjectOld(PdfContext* pdfContext, const PdfObject& obj) {
+    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
                                               obj.GetDictionary().GetKey(PdfName("SMask")));
 
 #ifdef PDF_TRACE
@@ -998,21 +1139,21 @@ SkBitmap getSmaskFromObject(PdfContext* pdfContext, PdfObject& obj) {
 #endif
 
     if (sMask) {
-        return getImageFromObject(pdfContext, *sMask, true);
+        return getImageFromObjectOld(pdfContext, *sMask, true);
     }
 
     // TODO(edisonn): implement GS SMask. Default to empty right now.
     return pdfContext->fGraphicsState.fSMask;
 }
 
-PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
-    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
-        !obj.IsDictionary()) {
+
+PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfImage* skpdfimage) {
+    if (skpdfimage == NULL || !skpdfimage->valid()) {
         return kIgnoreError_PdfResult;
     }
 
-    SkBitmap image = getImageFromObject(pdfContext, obj, false);
-    SkBitmap sMask = getSmaskFromObject(pdfContext, obj);
+    SkBitmap image = getImageFromObject(pdfContext, skpdfimage, false);
+    SkBitmap sMask = getSmaskFromObject(pdfContext, skpdfimage);
 
     canvas->save();
     canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
@@ -1034,13 +1175,43 @@ PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& o
     return kPartial_PdfResult;
 }
 
-PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
+PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
     if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
         !obj.IsDictionary()) {
         return kIgnoreError_PdfResult;
     }
 
-    PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
+    SkBitmap image = getImageFromObjectOld(pdfContext, obj, false);
+    SkBitmap sMask = getSmaskFromObjectOld(pdfContext, obj);
+
+    canvas->save();
+    canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
+    SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
+
+    if (sMask.empty()) {
+        canvas->drawBitmapRect(image, dst, NULL);
+    } else {
+        canvas->saveLayer(&dst, NULL);
+        canvas->drawBitmapRect(image, dst, NULL);
+        SkPaint xfer;
+        xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
+        canvas->drawBitmapRect(sMask, dst, &xfer);
+        canvas->restore();
+    }
+
+    canvas->restore();
+
+    return kPartial_PdfResult;
+}
+
+
+PdfResult doXObject_ImageOld2(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
+    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0 ||
+        !obj.IsDictionary()) {
+        return kIgnoreError_PdfResult;
+    }
+
+    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
                                               obj.GetDictionary().GetKey(PdfName("SMask")));
     // TODO(edisonn): else get smask from graphi state
     // TODO(edisonn): add utility, SkBitmap loadBitmap(PdfObject& obj, bool no_smask);
@@ -1054,6 +1225,8 @@ PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, PdfObject
     }
 #endif
 
+/*
+    // TODO (edisonn): Fast Jpeg(DCTDecode) draw, or fast PNG(FlateDecode) draw ...
     PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
                                               obj.GetDictionary().GetKey(PdfName("Filter")));
 
@@ -1062,20 +1235,19 @@ PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, PdfObject
                                        &value->GetArray()[0]);
     }
 
-    // TODO (edisonn): Fast Jpeg(DCTDecode) draw, or fast PNG(FlateDecode) draw ...
-//    if (value && value->IsName() && value->GetName().GetName() == "DCTDecode") {
-//        SkStream stream = SkStream::
-//        SkImageDecoder::Factory()
-//    }
-
+    if (value && value->IsName() && value->GetName().GetName() == "DCTDecode") {
+        SkStream stream = SkStream::
+        SkImageDecoder::Factory()
+    }
+*/
     // Get color space
     // trasnlate
 
     long bpc = 0;
-    LongFromDictionary(pdfContext, obj.GetDictionary(), "BitsPerComponent", &bpc);
+    LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "BitsPerComponent", "BPC", &bpc);
 
     bool imageMask = false;
-    BoolFromDictionary(pdfContext, obj.GetDictionary(), "ImageMask", &imageMask);
+    BoolFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ImageMask", "", &imageMask);
 
     if (imageMask) {
         if (bpc != 0 && bpc != 1) {
@@ -1085,17 +1257,17 @@ PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, PdfObject
     }
 
     long width;
-    if (!LongFromDictionary(pdfContext, obj.GetDictionary(), "Width", &width)) {
+    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Width", "W", &width)) {
         return kIgnoreError_PdfResult;
     }
 
     long height;
-    if (!LongFromDictionary(pdfContext, obj.GetDictionary(), "Height", &height)) {
+    if (!LongFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "Height", "H", &height)) {
         return kIgnoreError_PdfResult;
     }
 
     std::string colorSpace;  // TODO(edisonn): load others than names, for more complicated
-    if (!NameFromDictionary(pdfContext, obj.GetDictionary(), "ColorSpace", &colorSpace)) {
+    if (!NameFromDictionary(pdfContext->fPdfDoc, obj.GetDictionary(), "ColorSpace", "", &colorSpace)) {
         return kIgnoreError_PdfResult;
     }
 
@@ -1146,10 +1318,10 @@ PdfResult doXObject_ImageOld(PdfContext* pdfContext, SkCanvas* canvas, PdfObject
 }
 
 bool SkMatrixFromDictionary(PdfContext* pdfContext,
-                            PdfDictionary& dict,
+                            const PdfDictionary& dict,
                             const char* key,
                             SkMatrix* matrix) {
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
                                                     dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsArray()) {
@@ -1162,7 +1334,7 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
 
     double array[6];
     for (int i = 0; i < 6; i++) {
-        PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
+        const PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
         if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
             return false;
         }
@@ -1174,10 +1346,10 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
 }
 
 bool SkRectFromDictionary(PdfContext* pdfContext,
-                          PdfDictionary& dict,
+                          const PdfDictionary& dict,
                           const char* key,
                           SkRect* rect) {
-    PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
                                                     dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsArray()) {
@@ -1190,7 +1362,7 @@ bool SkRectFromDictionary(PdfContext* pdfContext,
 
     double array[4];
     for (int i = 0; i < 4; i++) {
-        PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
+        const PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
         if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
             return false;
         }
@@ -1204,7 +1376,7 @@ bool SkRectFromDictionary(PdfContext* pdfContext,
     return true;
 }
 
-PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
+PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
     if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0) {
         return kOK_PdfResult;
     }
@@ -1261,17 +1433,17 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& ob
     return ret;
 }
 
-PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
+PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
     return kNYI_PdfResult;
 }
 
 // TODO(edisonn): faster, have the property on the PdfObject itself.
-std::set<PdfObject*> gInRendering;
+std::set<const PdfObject*> gInRendering;
 
 class CheckRecursiveRendering {
-    PdfObject& fObj;
+    const PdfObject& fObj;
 public:
-    CheckRecursiveRendering(PdfObject& obj) : fObj(obj) {
+    CheckRecursiveRendering(const PdfObject& obj) : fObj(obj) {
         gInRendering.insert(&obj);
     }
 
@@ -1280,12 +1452,41 @@ public:
         gInRendering.erase(&fObj);
     }
 
-    static bool IsInRendering(PdfObject& obj) {
+    static bool IsInRendering(const PdfObject& obj) {
         return gInRendering.find(&obj) != gInRendering.end();
     }
 };
 
-PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
+PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
+    if (CheckRecursiveRendering::IsInRendering(obj)) {
+        // Oops, corrupt PDF!
+        return kIgnoreError_PdfResult;
+    }
+
+    CheckRecursiveRendering checkRecursion(obj);
+
+    // TODO(edisonn): check type
+    SkPdfObject* skobj = NULL;
+    if (!PodofoMapper::mapObject(*pdfContext->fPdfDoc, obj, &skobj)) return kIgnoreError_PdfResult;
+
+    if (!skobj || !skobj->valid()) return kIgnoreError_PdfResult;
+
+    PdfResult ret = kIgnoreError_PdfResult;
+    switch (skobj->getType())
+    {
+        case kObjectDictionaryXObjectImage_SkPdfObjectType:
+            ret = doXObject_Image(pdfContext, canvas, skobj->asImage());
+        //case kObjectDictionaryXObjectForm_SkPdfObjectType:
+            //return doXObject_Form(skxobj.asForm());
+        //case kObjectDictionaryXObjectPS_SkPdfObjectType:
+            //return doXObject_PS(skxobj.asPS());
+    }
+
+    delete skobj;
+    return ret;
+}
+
+PdfResult doXObjectOld(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
     if (CheckRecursiveRendering::IsInRendering(obj)) {
         // Oops, corrupt PDF!
         return kIgnoreError_PdfResult;
@@ -1297,7 +1498,7 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
         return kIgnoreError_PdfResult;
     }
 
-    PdfObject* type = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* type = resolveReferenceObject(pdfContext->fPdfDoc,
                                                    obj.GetDictionary().GetKey(PdfName("Type")));
 
     if (type == NULL || !type->IsName()) {
@@ -1308,7 +1509,7 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
         return kIgnoreError_PdfResult;
     }
 
-    PdfObject* subtype =
+    const PdfObject* subtype =
             resolveReferenceObject(pdfContext->fPdfDoc,
                                    obj.GetDictionary().GetKey(PdfName("Subtype")));
 
@@ -1317,7 +1518,7 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, PdfObject& obj) {
     }
 
     if (subtype->GetName().GetName() == "Image") {
-        return doXObject_Image(pdfContext, canvas, obj);
+        return doXObject_ImageOld(pdfContext, canvas, obj);
     } else if (subtype->GetName().GetName() == "Form") {
         return doXObject_Form(pdfContext, canvas, obj);
     } else if (subtype->GetName().GetName() == "PS") {
@@ -2058,8 +2259,8 @@ PdfResult PdfOp_i(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     PdfName name = pdfContext->fVarStack.top().GetName();    pdfContext->fVarStack.pop();
 
-    PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
-    PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
+    const PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
                                                         pageDict.GetKey("Resources"));
 
     if (resources == NULL) {
@@ -2082,9 +2283,9 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    PdfDictionary& resourceDict = resources->GetDictionary();
+    const PdfDictionary& resourceDict = resources->GetDictionary();
     //Next, get the ExtGState Dictionary from the Resource Dictionary:
-    PdfObject* extGStateDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* extGStateDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
                                                                 resourceDict.GetKey("ExtGState"));
 
     if (extGStateDictionary == NULL) {
@@ -2101,7 +2302,7 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    PdfObject* value =
+    const PdfObject* value =
             resolveReferenceObject(pdfContext->fPdfDoc,
                                    extGStateDictionary->GetDictionary().GetKey(name));
 
@@ -2200,8 +2401,8 @@ PdfResult PdfOp_sh(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     PdfName name = pdfContext->fVarStack.top().GetName();    pdfContext->fVarStack.pop();
 
-    PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
-    PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
+    const PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
                                                         pageDict.GetKey("Resources"));
 
     if (resources == NULL) {
@@ -2224,9 +2425,9 @@ PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    PdfDictionary& resourceDict = resources->GetDictionary();
+    const PdfDictionary& resourceDict = resources->GetDictionary();
     //Next, get the XObject Dictionary from the Resource Dictionary:
-    PdfObject* xObjectDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* xObjectDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
                                                                 resourceDict.GetKey("XObject"));
 
     if (xObjectDictionary == NULL) {
@@ -2243,7 +2444,7 @@ PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    PdfObject* value =
+    const PdfObject* value =
             resolveReferenceObject(pdfContext->fPdfDoc,
                                    xObjectDictionary->GetDictionary().GetKey(name));
 
