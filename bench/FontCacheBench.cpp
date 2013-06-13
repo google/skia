@@ -30,17 +30,17 @@ class FontCacheBench : public SkBenchmark {
 
 public:
     FontCacheBench(void* param) : INHERITED(param) {}
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "fontcache";
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        
+
         const uint16_t* array = gUniqueGlyphIDs;
         while (*array != gUniqueGlyphIDs_Sentinel) {
             size_t count = count_glyphs(array);
@@ -50,7 +50,7 @@ protected:
             array += count + 1;    // skip the sentinel
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -74,7 +74,7 @@ static uint32_t hasher2(uint32_t h) {
     h ^= h >> 13;
     h *= 0xc2b2ae35;
     h ^= h >> 16;
-    
+
     h ^= (h >> 8);
     return h;
 }
@@ -94,7 +94,7 @@ static int count_collisions(const uint16_t array[], int count, HasherProc proc,
                             unsigned hashMask) {
     char table[kMaxHashCount];
     sk_bzero(table, sizeof(table));
-    
+
     int collisions = 0;
     for (int i = 0; i < count; ++i) {
         int index = proc(array[i]) & hashMask;
@@ -117,12 +117,12 @@ public:
         if (false) dump_array(NULL, 0);
         if (false) rotr(0, 0);
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return "fontefficiency";
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static bool gDone;
         if (gDone) {
@@ -149,7 +149,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
