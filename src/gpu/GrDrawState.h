@@ -403,7 +403,9 @@ public:
     public:
         AutoRestoreEffects() : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) {}
 
-        AutoRestoreEffects(GrDrawState* ds) : fDrawState(NULL) { this->set(ds); }
+        AutoRestoreEffects(GrDrawState* ds) : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) { 
+            this->set(ds); 
+        }
 
         ~AutoRestoreEffects() { this->set(NULL); }
 
