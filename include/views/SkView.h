@@ -373,6 +373,11 @@ protected:
     virtual bool    onGetFocusView(SkView**) const { return false; }
     virtual bool    onSetFocusView(SkView*) { return false; }
 
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
 private:
     SkScalar    fWidth, fHeight;
     SkMatrix    fMatrix;
