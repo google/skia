@@ -64,6 +64,9 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fCommon.fStencilSettings.setDisabled();
     this->resetStateFlags();
 
+    // Enable the clip bit
+    this->enableState(GrDrawState::kClip_StateBit);
+
     this->setColor(paint.getColor());
     this->setState(GrDrawState::kDither_StateBit, paint.isDither());
     this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());

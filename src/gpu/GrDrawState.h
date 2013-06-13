@@ -94,7 +94,7 @@ public:
      * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
      * GrDrawState encompasses more than GrPaint. Aspects of GrDrawState that have no GrPaint
      * equivalents are set to default values. GrPaint has fewer stages than GrDrawState. The extra
-     * GrDrawState stages are disabled.
+     * GrDrawState stages are disabled. Clipping will be enabled.
      */
     void setFromPaint(const GrPaint& , const SkMatrix& viewMatrix, GrRenderTarget*);
 
