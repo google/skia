@@ -5,6 +5,7 @@
 
 # Self-test for skimage.
 
+import filecmp
 import os
 import subprocess
 import sys
@@ -30,6 +31,13 @@ def PickBinaryPath(base_dir):
             return binary_full_path
     raise BinaryNotFoundException
 
+# Quit early if two files have different content.
+def DieIfFilesMismatch(expected, actual):
+    if not filecmp.cmp(expected, actual):
+        print 'Error: file mismatch! expected=%s , actual=%s' % (
+            expected, actual)
+        exit(1)
+
 def main():
     # Use the directory of this file as the out directory
     file_dir = os.path.abspath(os.path.dirname(__file__))
@@ -40,24 +48,29 @@ def main():
     skimage_binary = PickBinaryPath(trunk_dir)
     print "Running " + skimage_binary
 
-    # Run skimage twice, first to create an expectations file, and then
-    # comparing to it.
+    # Generate an expectations file from known images.
+    images_dir = os.path.join(file_dir, "skimage", "input",
+                              "images-with-known-hashes")
+    expectations_path = os.path.join(file_dir, "skimage", "output-actual",
+                                     "create-expectations", "expectations.json")
+    subprocess.check_call([skimage_binary, "--readPath", images_dir,
+                           "--createExpectationsPath", expectations_path])
 
-    # Both commands will run the binary, reading from resources.
-    cmd_line = [skimage_binary]
-    resources_dir = os.path.join(trunk_dir, 'resources')
-    cmd_line.extend(["-r", resources_dir])
+    # Make sure the expectations file was generated correctly.
+    golden_expectations = os.path.join(file_dir, "skimage", "output-expected",
+                                       "create-expectations",
+                                       "expectations.json")
+    DieIfFilesMismatch(expected=golden_expectations, actual=expectations_path)
 
-    # Create the expectations file
-    results_file = os.path.join(file_dir, "skimage", "self_test_results.json")
-    create_expectations_cmd = cmd_line + ["--createExpectationsPath",
-                                          results_file]
-    subprocess.check_call(create_expectations_cmd)
+    # Tell skimage to read back the expectations file it just wrote, and
+    # confirm that the images in images_dir match it.
+    subprocess.check_call([skimage_binary, "--readPath", images_dir,
+                           "--readExpectationsPath", expectations_path])
 
-    # Now read from the expectations file
-    check_expectations_cmd = cmd_line + ["--readExpectationsPath",
-                                         results_file]
-    subprocess.check_call(check_expectations_cmd)
+    # TODO(scroggo): Add a test that compares expectations and image files that
+    # are known to NOT match, and make sure it returns an error.
+
+    # Done with all tests.
     print "Self tests succeeded!"
 
 if __name__ == "__main__":
