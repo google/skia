@@ -16,7 +16,7 @@
 #include "SkTArray.h"
 #include "SkString.h"
 
-class SkDebugCanvas : public SkCanvas {
+class SK_API SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
     virtual ~SkDebugCanvas();

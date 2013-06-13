@@ -13,7 +13,7 @@
 #include "SkCanvas.h"
 #include "SkString.h"
 
-class SkDrawCommand {
+class SK_API SkDrawCommand {
 public:
     /* TODO(chudy): Remove subclasses. */
     SkDrawCommand(DrawType drawType);
