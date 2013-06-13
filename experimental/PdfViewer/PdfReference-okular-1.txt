@@ -22359,7 +22359,7 @@ TrapStyles                  text string   (Optional) A human-readable text strin
        proxy’s OPI attributes.
                                 TABLE 9.49 Entry in an OPI version dictionary
 KEY                TYPE           VALUE
-version number     dictionary     (Required; PDF 1.2) An OPI dictionary specifying the attributes of this proxy
+version_number     dictionary     (Required; PDF 1.2) An OPI dictionary specifying the attributes of this proxy
                                   (see Tables 9.50 and 9.51). The key for this entry must be the name 1.3 or 2.0,
                                   identifying the version of OPI to which the proxy corresponds.
            Note: As in any other PDF dictionary, the key in an OPI version dictionary must be

@@ -43,6 +43,11 @@ class PdfBoolean:
   def toCpp(self):
     return self.fValue
 
+class CppNull:
+  def toCpp(self):
+    return 'NULL'
+
+
 class PdfField:
   def __init__(self, parent, name, abr):
     self.fParent = parent
@@ -106,15 +111,37 @@ class PdfField:
     self.fValidOptions = validOptions
     return self
     
+  def dictionary(self, name):
+    self.fType = 'dictionary'
+    self.fCppName = name
+    self.fDictionaryType = 'Resources'  # TODO(edisonn): Dictionary?
+    self.fCppReader = 'DictionaryFromDictionary'
+    self.fDefault = CppNull()
+    return self
+
+  def type(self, type):
+    # TODO (edisonn): if simple type, use it, otherwise set it to Dictionary, and set a mask for valid types, like array or name
+    self.fType = 'dictionary'
+    self.fDictionaryType = 'Dictionary'
+    self.fCppReader = 'DictionaryFromDictionary'
+    self.fDefault = CppNull()
+    return self
+
+  def comment(self, comment):
+    return self
+      
   def done(self):
     return self.fParent
 
 
 class PdfClassField:
-  def __init__(self, parent, required):
+  def __init__(self, parent, required, version='', inheritable=False, comment=''):
     #self.fProp = ''
     self.fParent = parent
     self.fRequired = required
+    self.fVersion = version
+    self.fInheritable = inheritable
+    self.fComment = comment
     
   def field(self, name, abr=''):
     self.fProp = PdfField(self, name, abr)
@@ -124,13 +151,14 @@ class PdfClassField:
     return self.fParent
 
 class PdfClass:
-  def __init__(self, name, base):
+  def __init__(self, name, base, comment):
     self.fFields = []
     self.fIncludes = []
     self.fCCPublic = []
     self.fCCPrivate = []
     self.fName = name
     self.fBase = base
+    self.fComment = comment
     
     self.fEnumSubclasses = [] 
     
@@ -147,6 +175,14 @@ class PdfClass:
     field = PdfClassField(self, False)
     self.fFields.append(field)
     return field
+  
+  #([Required] [;] [inheritable] [;] [version]; [comments])
+  # version: PDF [d].[d]
+  # ; separate props
+  #inheritable
+  #version
+  #required, if
+  #optional, if
     
   def include(self, path):
     self.fIncludes.append(path)
@@ -159,17 +195,20 @@ class PdfClass:
   def carbonCopyPrivate(self, cc):
     self.fCCPrivate.append(cc)
     return self 
+    
+  def done(self):
+    return
 
 class PdfClassManager:
   def __init__(self):
     self.fClasses = {}
     self.fClassesNamesInOrder = []
 
-  def addClass(self, name, base='Object'):
+  def addClass(self, name, base='Object', comment=''):
     if name == 'Object':
-      cls = PdfClass(name, '')
+      cls = PdfClass(name, '', comment)
     else:
-      cls = PdfClass(name, base)
+      cls = PdfClass(name, base, comment)
     self.fClasses[name] = cls
     self.fClassesNamesInOrder.append(name)
     return cls
@@ -311,16 +350,19 @@ class PdfClassManager:
         print('  const PdfObject* podofo() const { return fPodofoObj;}')
       else:
         print('public:')
-        print(' SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc, const PdfObject* podofoObj) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}')
+        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc, const PdfObject* podofoObj) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}')
+        print
       
       #check required fieds, also, there should be an internal_valid() manually wrote for complex
       # situations
       # right now valid return true      
       print('  virtual bool valid() const {return true;}')
+      print
       
       for field in cls.fFields:
         prop = field.fProp
         if prop.fCppName != '':
+          if prop.fType != 'dictionary':
             print('  ' + prop.fCppType + ' ' + prop.fCppName + '() const {')
             print('    ' + prop.fCppType + ' ret;')
             print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
@@ -331,6 +373,24 @@ class PdfClassManager:
               print('    return ' + field.fBadDefault + ';');
             print('  }') 
             print
+         
+          if prop.fType == 'dictionary':
+            print('  SkPdf' + prop.fDictionaryType + '* ' + prop.fCppName + '() const {')
+            print('    SkPdfObject* dict = NULL;')
+            print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &dict) && dict != NULL) {')
+            print('      SkPdf' + prop.fDictionaryType + '* ret = new SkPdf' + prop.fDictionaryType + '(fPodofoDoc, dict->podofo());')
+            print('      delete dict; dict = NULL;')
+            print('      return ret;')
+            print('    }')
+            if field.fRequired == False:
+              print('    return ' + prop.fDefault.toCpp() + ';');
+            if field.fRequired == True:
+              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
+              print('    return ' + field.fBadDefault + ';');
+            print('  }') 
+            print
+           
+         
 
       print('};')
       print
@@ -404,7 +464,9 @@ def generateCode():
   all.addClass('Stream')
   all.addClass('Reference')
   all.addClass('Array')
-  all.addClass('Dictionary')
+  all.addClass('Dictionary').optional().field('Resources', '').dictionary("r") #.inherited_from_page_tree()
+
+  all.addClass('Resources', 'Dictionary')
 
   all.addClass('XObject', 'Dictionary').required('""').field('Type').must(PdfName('XObject')).name('t')
   
@@ -430,9 +492,50 @@ def generateCode():
                                  .carbonCopyPublic('void test() {}')
 
 
+
+  all.addClass('SpecificToATrapNetworkAppearanceStream', 'Dictionary', 'Additional entries specific to a trap network appearance stream')\
+      .required('NULL')\
+          .field('PCM')\
+          .name('PCM')\
+          .type('name')\
+          .comment('(Required) The name of the process color model that was assumed when this trap network was created; equivalent to the PostScript page device parameter ProcessColorModel (see Section 6.2.5 of the PostScript Language Reference, Third Edition). Valid values are DeviceGray, DeviceRGB, DeviceCMYK, DeviceCMY, DeviceRGBK, and DeviceN.')\
+          .done().done()\
+      .optional()\
+          .field('SeparationColorNames')\
+          .name('SeparationColorNames')\
+          .type('array')\
+          .comment('(Optional) An array of names identifying the colorants that were assumed when this network was created; equivalent to the Post- Script page device parameter of the same name (see Section 6.2.5 of the PostScript Language Reference, Third Edition). Colorants im- plied by the process color model PCM are available automatically and need not be explicitly declared. If this entry is absent, the colorants implied by PCM are assumed.')\
+          .done().done()\
+      .optional()\
+          .field('TrapRegions')\
+          .name('TrapRegions')\
+          .type('array')\
+          .comment('(Optional) An array of indirect references to TrapRegion objects defining the page\'s trapping zones and the associated trapping parameters, as described in Adobe Technical Note #5620, Portable Job Ticket Format. These references are to objects comprising portions of a PJTF job ticket that is embedded in the PDF file. When the trapping zones and parameters are defined by an external job ticket (or by some other means, such as with JDF), this entry is absent.')\
+          .done().done()\
+      .optional()\
+          .field('TrapStyles')\
+          .name('TrapStyles')\
+          .type('text string')\
+          .comment('(Optional) A human-readable text string that applications can use to describe this trap network to the user (for example, to allow switching between trap networks).')\
+          .done().done()\
+      .done()
+
+  all.addClass('OpiVersionDictionary', 'Dictionary', 'Entry in an OPI version dictionary')\
+      .required('NULL')\
+          .field('version_number')\
+          .name('version_number')\
+          .type('dictionary')\
+          .comment('(Required; PDF 1.2) An OPI dictionary specifying the attributes of this proxy (see Tables 9.50 and 9.51). The key for this entry must be the name 1.3 or 2.0, identifying the version of OPI to which the proxy corresponds.')\
+          .done().done()\
+      .done()
+
+
+
   all.write()
   
   return 1
 
 if '__main__' == __name__:
   sys.exit(generateCode())
+
+  
