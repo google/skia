@@ -401,7 +401,7 @@ public:
      */
     class AutoRestoreEffects : public ::GrNoncopyable {
     public:
-        AutoRestoreEffects() : fDrawState(NULL) {}
+        AutoRestoreEffects() : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) {}
 
         AutoRestoreEffects(GrDrawState* ds) : fDrawState(NULL) { this->set(ds); }
 
