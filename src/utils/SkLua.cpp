@@ -228,6 +228,14 @@ static SkScalar lua2scalar(lua_State* L, int index) {
     return SkLuaToScalar(lua_tonumber(L, index));
 }
 
+static SkScalar lua2scalar_def(lua_State* L, int index, SkScalar defaultValue) {
+    if (lua_isnumber(L, index)) {
+        return SkLuaToScalar(lua_tonumber(L, index));
+    } else {
+        return defaultValue;
+    }
+}
+
 static SkScalar getfield_scalar(lua_State* L, int index, const char key[]) {
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
@@ -365,8 +373,23 @@ static int lcanvas_restore(lua_State* L) {
     return 0;
 }
 
+static int lcanvas_scale(lua_State* L) {
+    SkScalar sx = lua2scalar_def(L, 2, 1);
+    SkScalar sy = lua2scalar_def(L, 3, sx);
+    get_ref<SkCanvas>(L, 1)->scale(sx, sy);
+    return 0;
+}
+
 static int lcanvas_translate(lua_State* L) {
-    get_ref<SkCanvas>(L, 1)->translate(lua2scalar(L, 2), lua2scalar(L, 3));
+    SkScalar tx = lua2scalar_def(L, 2, 0);
+    SkScalar ty = lua2scalar_def(L, 3, 0);
+    get_ref<SkCanvas>(L, 1)->translate(tx, ty);
+    return 0;
+}
+
+static int lcanvas_rotate(lua_State* L) {
+    SkScalar degrees = lua2scalar_def(L, 2, 0);
+    get_ref<SkCanvas>(L, 1)->rotate(degrees);
     return 0;
 }
 
@@ -387,7 +410,9 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "getTotalMatrix", lcanvas_getTotalMatrix },
     { "save", lcanvas_save },
     { "restore", lcanvas_restore },
+    { "scale", lcanvas_scale },
     { "translate", lcanvas_translate },
+    { "rotate", lcanvas_rotate },
     { "__gc", lcanvas_gc },
     { NULL, NULL }
 };
