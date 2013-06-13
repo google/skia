@@ -282,7 +282,7 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
-        '../debugger',
+        '../src/utils/debugger',
       ],
       'sources': [
         '../tools/filtermain.cpp',

@@ -78,6 +78,7 @@
       ],
       'include_dirs' : [
         '../src/core',
+        '../src/utils/debugger',
         '../debugger',      # To pull SkDebugger.h
         '../src/gpu',       # To pull gl/GrGLUtil.h
         '../src/ports',     # To pull SkFontDescriptor.h

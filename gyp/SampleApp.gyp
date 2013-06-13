@@ -5,12 +5,12 @@
       'type': 'executable',
       'mac_bundle' : 1,
       'include_dirs' : [
-        '../debugger',
         '../src/core',
         '../src/effects', #needed for BlurMask.h
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController
+        '../src/utils/debugger',
       ],
       'includes': [
         'gmslides.gypi',

@@ -29,11 +29,11 @@
       'target_name': 'gm',
       'type': 'executable',
       'include_dirs' : [
-        '../debugger',
         '../src/core',
         '../src/effects',
         '../src/pipe/utils/',
         '../src/utils/',
+        '../src/utils/debugger',
       ],
       'includes': [
         'gmslides.gypi',
