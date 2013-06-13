@@ -1654,8 +1654,8 @@ void GrContext::setupDrawBuffer() {
     fDrawBuffer->setDrawState(fDrawState);
 }
 
-GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
-    return this->prepareToDraw(&paint, BUFFERED_DRAW);
+GrDrawTarget* GrContext::getTextTarget() {
+    return this->prepareToDraw(NULL, BUFFERED_DRAW);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
