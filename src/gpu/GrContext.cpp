@@ -66,6 +66,9 @@ static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
 
+// Glorified typedef to avoid including GrDrawState.h in GrContext.h
+class GrContext::AutoRestoreEffects : public GrDrawState::AutoRestoreEffects {};
+
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
     GrContext* context = SkNEW(GrContext);
     if (context->init(backend, backendContext)) {
@@ -259,7 +262,7 @@ void convolve_gaussian(GrDrawTarget* target,
                                                                        direction,
                                                                        radius,
                                                                        sigma));
-    drawState->setEffect(0, conv);
+    drawState->addColorEffect(conv);
     target->drawSimpleRect(rect, NULL);
 }
 
@@ -372,7 +375,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // texels in the resampled image are copies of texels from
         // the original.
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
-        drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
+        drawState->addColorTextureEffect(clampedTexture, SkMatrix::I(), params);
 
         drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs));
 
@@ -602,7 +605,8 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 void GrContext::clear(const GrIRect* rect,
                       const GrColor color,
                       GrRenderTarget* target) {
-    this->prepareToDraw(NULL, BUFFERED_DRAW)->clear(rect, color, target);
+    AutoRestoreEffects are;
+    this->prepareToDraw(NULL, BUFFERED_DRAW, &are)->clear(rect, color, target);
 }
 
 void GrContext::drawPaint(const GrPaint& origPaint) {
@@ -765,8 +769,8 @@ void GrContext::drawRect(const GrPaint& paint,
                          const SkMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     GrRect devRect;
     SkMatrix combinedMatrix;
@@ -846,8 +850,8 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const SkMatrix* dstMatrix,
                                const SkMatrix* localMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     target->drawRect(dstRect, dstMatrix, &localRect, localMatrix);
 }
@@ -902,8 +906,8 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     GrDrawState* drawState = target->drawState();
 
@@ -951,8 +955,8 @@ void GrContext::drawRRect(const GrPaint& paint,
                           const SkRRect& rect,
                           const SkStrokeRec& stroke) {
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     bool useAA = paint.isAntiAlias() &&
                  !target->getDrawState().getRenderTarget()->isMultisampled() &&
@@ -971,8 +975,8 @@ void GrContext::drawOval(const GrPaint& paint,
                          const GrRect& oval,
                          const SkStrokeRec& stroke) {
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     bool useAA = paint.isAntiAlias() &&
                  !target->getDrawState().getRenderTarget()->isMultisampled() &&
@@ -1045,8 +1049,8 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-    GrDrawState::AutoStageDisable atr(fDrawState);
+    AutoRestoreEffects are;
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
     bool useAA = paint.isAntiAlias() && !target->getDrawState().getRenderTarget()->isMultisampled();
     if (useAA && stroke.getWidth() < 0 && !path.isConvex()) {
@@ -1346,7 +1350,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
                 GrAssert(effect);
-                drawState->setEffect(0, effect);
+                drawState->addColorEffect(effect);
 
                 drawState->setRenderTarget(texture->asRenderTarget());
                 GrRect rect = GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -1421,7 +1425,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint*
         return;
     }
     sampleM.preTranslate(SkIntToScalar(srcRect.fLeft), SkIntToScalar(srcRect.fTop));
-    drawState->createTextureEffect(0, src, sampleM);
+    drawState->addColorTextureEffect(src, sampleM);
     SkRect dstR = SkRect::MakeWH(SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
     fGpu->drawSimpleRect(dstR, NULL);
 }
@@ -1539,7 +1543,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(effect);
-    drawState->setEffect(0, effect);
+    drawState->addColorEffect(effect);
 
     drawState->setRenderTarget(target);
 
@@ -1548,14 +1552,21 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffered) {
+GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
+                                       BufferedDraw buffered,
+                                       AutoRestoreEffects* are) {
+    // All users of this draw state should be freeing up all effects when they're done.
+    // Otherwise effects that own resources may keep those resources alive indefinitely.
+    GrAssert(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
+
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         this->flushDrawBuffer();
         fLastDrawWasBuffered = kNo_BufferedDraw;
     }
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (NULL != paint) {
-        GrAssert(fDrawState->stagesDisabled());
+        GrAssert(NULL != are);
+        are->set(fDrawState);
         fDrawState->setFromPaint(*paint, fViewMatrix, fRenderTarget.get());
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
         if ((paint->hasMask() || 0xff != paint->fCoverage) &&
@@ -1655,7 +1666,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget() {
-    return this->prepareToDraw(NULL, BUFFERED_DRAW);
+    return this->prepareToDraw(NULL, BUFFERED_DRAW, NULL);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
@@ -1779,7 +1790,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW);
+        AutoRestoreEffects are;
+        GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
         convolve_gaussian(target, srcTexture, srcRect, sigmaX, radiusX,
                           Gr1DKernelEffect::kX_Direction);
         srcTexture = dstTexture;
@@ -1796,7 +1808,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW);
+        AutoRestoreEffects are;
+        GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
         convolve_gaussian(target, srcTexture, srcRect, sigmaY, radiusY,
                           Gr1DKernelEffect::kY_Direction);
         srcTexture = dstTexture;

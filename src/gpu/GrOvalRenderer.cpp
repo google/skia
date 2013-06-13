@@ -349,16 +349,10 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
 
     GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
     static const int kCircleEdgeAttrIndex = 1;
-    drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
+    drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
 
     SkScalar innerRadius = 0.0f;
     SkScalar outerRadius = radius;
@@ -509,18 +503,11 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
     GrEffectRef* effect = EllipseEdgeEffect::Create(isStroked);
 
     static const int kEllipseCenterAttrIndex = 1;
     static const int kEllipseEdgeAttrIndex = 2;
-    drawState->setEffect(kEdgeEffectStage, effect,
-                         kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
+    drawState->addCoverageEffect(effect, kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
 
     // Compute the reciprocals of the radii here to save time in the shader
     SkScalar xRadRecip = SkScalarInvert(xRadius);
@@ -657,13 +644,6 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 
     bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
-
     GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(context->getGpu());
     if (NULL == indexBuffer) {
         GrPrintf("Failed to create index buffer!\n");
@@ -702,7 +682,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
-        drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
+        drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -805,8 +785,8 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
         GrEffectRef* effect = EllipseEdgeEffect::Create(isStroked);
         static const int kEllipseOffsetAttrIndex = 1;
         static const int kEllipseRadiiAttrIndex = 2;
-        drawState->setEffect(kEdgeEffectStage, effect,
-                             kEllipseOffsetAttrIndex, kEllipseRadiiAttrIndex)->unref();
+        drawState->addCoverageEffect(effect,
+                                     kEllipseOffsetAttrIndex, kEllipseRadiiAttrIndex)->unref();
 
         // Compute the reciprocals of the radii here to save time in the shader
         SkScalar xRadRecip = SkScalarInvert(xRadius);

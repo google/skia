@@ -37,8 +37,6 @@ void setup_drawstate_aaclip(GrGpu* gpu,
     GrDrawState* drawState = gpu->drawState();
     GrAssert(drawState);
 
-    static const int kMaskStage = GrPaint::kTotalStages+1;
-
     SkMatrix mat;
     // We want to use device coords to compute the texture coordinates. We set our matrix to be
     // equal to the view matrix followed by an offset to the devBound, and then a scaling matrix to
@@ -50,8 +48,8 @@ void setup_drawstate_aaclip(GrGpu* gpu,
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     // This could be a long-lived effect that is cached with the alpha-mask.
-    drawState->setEffect(kMaskStage,
-                         GrTextureDomainEffect::Create(result,
+    drawState->addCoverageEffect(
+        GrTextureDomainEffect::Create(result,
                                       mat,
                                       GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
                                       GrTextureDomainEffect::kDecal_WrapMode,
@@ -109,7 +107,8 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
+bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
+                                      GrDrawState::AutoRestoreEffects* are) {
     fCurrClipMaskType = kNone_ClipMaskType;
 
     ElementList elements(16);
@@ -178,6 +177,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clipDataIn->fOrigin);
+            are->set(fGpu->drawState());
             setup_drawstate_aaclip(fGpu, result, rtSpaceMaskBounds);
             fGpu->disableScissor();
             this->setGpuStencil();
@@ -350,6 +350,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
     GrDrawState::AutoViewMatrixRestore avmr;
     GrDrawState* drawState = fGpu->drawState();
     SkAssertResult(avmr.setIdentity(drawState));
+    GrDrawState::AutoRestoreEffects are(drawState);
 
     drawState->setRenderTarget(dstMask->asRenderTarget());
 
@@ -357,15 +358,13 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
 
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
-    drawState->setEffect(0,
+    drawState->addColorEffect(
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
                                       GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomainEffect::kDecal_WrapMode,
                                       false))->unref();
     fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
-
-    drawState->disableStage(0);
 }
 
 // get a texture to act as a temporary buffer for AA clip boolean operations

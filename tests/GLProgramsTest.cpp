@@ -118,8 +118,6 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
 
 bool GrGpuGL::programUnitTest(int maxStages) {
 
-    maxStages = GrMin(maxStages, (int)GrDrawState::kNumStages);
-
     GrTextureDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrTextureFlagBit;
     dummyDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -207,7 +205,7 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContextFactory* facto
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (NULL != context) {
             GrGpuGL* gpu = static_cast<GrGpuGL*>(context->getGpu());
-            int maxStages = GrDrawState::kNumStages;
+            int maxStages = 6;
 #if SK_ANGLE
             // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
             if (type == GrContextFactory::kANGLE_GLContextType) {

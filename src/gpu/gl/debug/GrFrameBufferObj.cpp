@@ -53,7 +53,7 @@ void GrFrameBufferObj::setStencil(GrFBBindableObj *buffer) {
         GrAlwaysAssert(fStencilBuffer->getStencilBound(this));
         fStencilBuffer->resetStencilBound(this);
 
-        GrAlwaysAssert(!fStencilBuffer->getDeleted());
+        //GrAlwaysAssert(!fStencilBuffer->getDeleted());
         fStencilBuffer->unref();
     }
     fStencilBuffer = buffer;

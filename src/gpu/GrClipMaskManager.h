@@ -10,6 +10,7 @@
 #define GrClipMaskManager_DEFINED
 
 #include "GrContext.h"
+#include "GrDrawState.h"
 #include "GrNoncopyable.h"
 #include "GrRect.h"
 #include "GrReducedClip.h"
@@ -29,7 +30,6 @@ class GrPathRenderer;
 class GrPathRendererChain;
 class SkPath;
 class GrTexture;
-class GrDrawState;
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti
@@ -51,7 +51,7 @@ public:
      * and sets the GrGpu's scissor and stencil state. If the return is false
      * then the draw can be skipped.
      */
-    bool setupClipping(const GrClipData* clipDataIn);
+    bool setupClipping(const GrClipData* clipDataIn, GrDrawState::AutoRestoreEffects*);
 
     void releaseResources();
 

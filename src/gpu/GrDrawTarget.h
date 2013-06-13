@@ -355,7 +355,7 @@ public:
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
     void drawSimpleRect(const GrRect& rect, const SkMatrix* matrix = NULL) {
-        drawRect(rect, matrix, NULL, NULL);
+        this->drawRect(rect, matrix, NULL, NULL);
     }
     void drawSimpleRect(const GrIRect& irect, const SkMatrix* matrix = NULL) {
         SkRect rect = SkRect::MakeFromIRect(irect);
