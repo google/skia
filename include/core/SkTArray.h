@@ -41,6 +41,8 @@ inline void copyAndDelete(SkTArray<T, false>* self, char* newMemArray) {
 
 }
 
+template <typename T, bool MEM_COPY> void* operator new(size_t, SkTArray<T, MEM_COPY>*, int);
+
 /** When MEM_COPY is true T will be bit copied when moved.
     When MEM_COPY is false, T will be copy constructed / destructed.
     In all cases T's constructor will be called on allocation,
@@ -91,7 +93,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        checkRealloc((int)array.count());
+        this->checkRealloc((int)array.count());
         fCount = array.count();
         SkTArrayExt::copy(this, static_cast<const T*>(array.fMemArray));
         return *this;
@@ -159,20 +161,18 @@ public:
      * elements.
      */
     T& push_back() {
-        this->checkRealloc(1);
-        SkNEW_PLACEMENT((char*)fMemArray + sizeof(T) * fCount, T);
-        ++fCount;
-        return fItemArray[fCount-1];
+        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
+        SkNEW_PLACEMENT(newT, T);
+        return *newT;
     }
 
     /**
      * Version of above that uses a copy constructor to initialize the new item
      */
     T& push_back(const T& t) {
-        this->checkRealloc(1);
-        SkNEW_PLACEMENT_ARGS((char*)fMemArray + sizeof(T) * fCount, T, (t));
-        ++fCount;
-        return fItemArray[fCount-1];
+        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
+        SkNEW_PLACEMENT_ARGS(newT, T, (t));
+        return *newT;
     }
 
     /**
@@ -182,12 +182,11 @@ public:
      */
     T* push_back_n(int n) {
         SkASSERT(n >= 0);
-        this->checkRealloc(n);
+        T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            SkNEW_PLACEMENT(fItemArray + fCount + i, T);
+            SkNEW_PLACEMENT(newTs + i, T);
         }
-        fCount += n;
-        return fItemArray + fCount - n;
+        return newTs;
     }
 
     /**
@@ -196,12 +195,11 @@ public:
      */
     T* push_back_n(int n, const T& t) {
         SkASSERT(n >= 0);
-        this->checkRealloc(n);
+        T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            SkNEW_PLACEMENT_ARGS(fItemArray + fCount + i, T, (t));
+            SkNEW_PLACEMENT_ARGS(newTs[i], T, (t));
         }
-        fCount += n;
-        return fItemArray + fCount - n;
+        return newTs;
     }
 
     /**
@@ -236,7 +234,7 @@ public:
         SkASSERT(fCount >= n);
         fCount -= n;
         for (int i = 0; i < n; ++i) {
-            fItemArray[i].~T();
+            fItemArray[fCount + i].~T();
         }
         this->checkRealloc(0);
     }
@@ -384,6 +382,15 @@ private:
 
     static const int gMIN_ALLOC_COUNT = 8;
 
+    // Helper function that makes space for n objects, adjusts the count, but does not initialize
+    // the new objects.
+    void* push_back_raw(int n) {
+        this->checkRealloc(n);
+        void* ptr = fItemArray + fCount;
+        fCount += n;
+        return ptr;
+    }
+
     inline void checkRealloc(int delta) {
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
@@ -418,6 +425,8 @@ private:
         }
     }
 
+    friend void* operator new<T>(size_t, SkTArray*, int);
+
     template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, const X*);
     template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, true>* that, char*);
 
@@ -433,6 +442,21 @@ private:
         void*    fMemArray;
     };
 };
+
+// Use the below macro (SkNEW_APPEND_TO_TARRAY) rather than calling this directly
+template <typename T, bool MEM_COPY>
+void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int atIndex) {
+    // Currently, we only support adding to the end of the array. When the array class itself
+    // supports random insertion then this should be updated.
+    // SkASSERT(atIndex >= 0 && atIndex <= array->count());
+    SkASSERT(atIndex == array->count());
+    return array->push_back_raw(1);
+}
+
+// Constructs a new object as the last element of an SkTArray.
+#define SkNEW_APPEND_TO_TARRAY(array_ptr, type_name, args)  \
+    (new ((array_ptr), (array_ptr)->count()) type_name args)
+
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
