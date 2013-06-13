@@ -387,14 +387,21 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     }
 
     GrAssert(NULL != drawState.getRenderTarget());
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (drawState.isStageEnabled(s)) {
-            const GrEffectRef& effect = *drawState.getStage(s).getEffect();
-            int numTextures = effect->numTextures();
-            for (int t = 0; t < numTextures; ++t) {
-                GrTexture* texture = effect->texture(t);
-                GrAssert(texture->asRenderTarget() != drawState.getRenderTarget());
-            }
+
+    for (int s = 0; s < drawState.numColorStages(); ++s) {
+        const GrEffectRef& effect = *drawState.getColorStage(s).getEffect();
+        int numTextures = effect->numTextures();
+        for (int t = 0; t < numTextures; ++t) {
+            GrTexture* texture = effect->texture(t);
+            GrAssert(texture->asRenderTarget() != drawState.getRenderTarget());
+        }
+    }
+    for (int s = 0; s < drawState.numCoverageStages(); ++s) {
+        const GrEffectRef& effect = *drawState.getCoverageStage(s).getEffect();
+        int numTextures = effect->numTextures();
+        for (int t = 0; t < numTextures; ++t) {
+            GrTexture* texture = effect->texture(t);
+            GrAssert(texture->asRenderTarget() != drawState.getRenderTarget());
         }
     }
 
@@ -912,7 +919,7 @@ bool GrDrawTarget::onCopySurface(GrSurface* dst,
     matrix.setTranslate(SkIntToScalar(srcRect.fLeft - dstPoint.fX),
                         SkIntToScalar(srcRect.fTop - dstPoint.fY));
     matrix.postIDiv(tex->width(), tex->height());
-    this->drawState()->createTextureEffect(0, tex, matrix);
+    this->drawState()->addColorTextureEffect(tex, matrix);
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX,
                                         dstPoint.fY,
                                         srcRect.width(),

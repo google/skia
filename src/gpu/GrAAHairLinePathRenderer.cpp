@@ -871,24 +871,27 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     }
 #endif
 
-    target->setIndexSourceToBuffer(fLinesIndexBuffer);
-    int lines = 0;
-    int nBufLines = fLinesIndexBuffer->maxQuads();
-    drawState->setEffect(kEdgeEffectStage, hairLineEffect, kEdgeAttrIndex)->unref();
-    while (lines < lineCnt) {
-        int n = GrMin(lineCnt - lines, nBufLines);
-        target->drawIndexed(kTriangles_GrPrimitiveType,
-                            kVertsPerLineSeg*lines,    // startV
-                            0,                         // startI
-                            kVertsPerLineSeg*n,        // vCount
-                            kIdxsPerLineSeg*n,
-                            &devBounds);        // iCount
-        lines += n;
+    {
+        GrDrawState::AutoRestoreEffects are(drawState);
+        target->setIndexSourceToBuffer(fLinesIndexBuffer);
+        int lines = 0;
+        int nBufLines = fLinesIndexBuffer->maxQuads();
+        drawState->addCoverageEffect(hairLineEffect, kEdgeAttrIndex)->unref();
+        while (lines < lineCnt) {
+            int n = GrMin(lineCnt - lines, nBufLines);
+            target->drawIndexed(kTriangles_GrPrimitiveType,
+                                kVertsPerLineSeg*lines,     // startV
+                                0,                          // startI
+                                kVertsPerLineSeg*n,         // vCount
+                                kIdxsPerLineSeg*n,
+                                &devBounds);                // iCount
+            lines += n;
+        }
     }
 
     target->setIndexSourceToBuffer(fQuadsIndexBuffer);
     int quads = 0;
-    drawState->setEffect(kEdgeEffectStage, hairQuadEffect, kEdgeAttrIndex)->unref();
+    drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
     while (quads < quadCnt) {
         int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
         target->drawIndexed(kTriangles_GrPrimitiveType,

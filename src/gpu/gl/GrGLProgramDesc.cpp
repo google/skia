@@ -14,6 +14,24 @@
 
 #include "SkChecksum.h"
 
+namespace {
+inline GrGLEffect::EffectKey get_key_and_update_stats(const GrEffectStage& stage,
+                                                      const GrGLCaps& caps,
+                                                      bool useExplicitLocalCoords,
+                                                      bool* setTrueIfReadsDst,
+                                                      bool* setTrueIfReadsPos) {
+    const GrEffectRef& effect = *stage.getEffect();
+    const GrBackendEffectFactory& factory = effect->getFactory();
+    GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
+    if (effect->willReadDstColor()) {
+        *setTrueIfReadsDst = true;
+    }
+    if (effect->willReadFragmentPosition()) {
+        *setTrueIfReadsPos = true;
+    }
+    return factory.glEffectKey(drawEffect, caps);
+}
+}
 void GrGLProgramDesc::Build(const GrDrawState& drawState,
                             bool isPoints,
                             GrDrawState::BlendOptFlags blendOpts,
@@ -50,27 +68,10 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
                              (!requiresColorAttrib && 0xffffffff == drawState.getColor());
 
-    // Do an initial loop over the stages to count them. We count the color and coverage effects
-    // separately here. Later we may decide the distinction doesn't matter and will count all
-    // effects as color in desc. Two things will allow simplication of this mess: GrDrawState will
-    // have tight lists of color and coverage stages rather than a fixed size array with NULLS and
-    // the xfermode-color filter will be removed.
-    if (!skipColor) {
-        for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
-            if (drawState.isStageEnabled(s)) {
-                colorStages->push_back(&drawState.getStage(s));
-            }
-        }
-    }
-    if (!skipCoverage) {
-        for (int s = drawState.getFirstCoverageStage(); s < GrDrawState::kNumStages; ++s) {
-            if (drawState.isStageEnabled(s)) {
-                coverageStages->push_back(&drawState.getStage(s));
-            }
-        }
-    }
+    int numEffects = (skipColor ? 0 : drawState.numColorStages()) +
+                     (skipCoverage ? 0 : drawState.numCoverageStages());
 
-    size_t newKeyLength = KeyLength(colorStages->count() + coverageStages->count());
+    size_t newKeyLength = KeyLength(numEffects);
     bool allocChanged;
     desc->fKey.reset(newKeyLength, SkAutoMalloc::kAlloc_OnShrink, &allocChanged);
     if (allocChanged || !desc->fInitialized) {
@@ -86,20 +87,18 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     int currEffectKey = 0;
     bool readsDst = false;
     bool readFragPosition = false;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        bool skip = s < drawState.getFirstCoverageStage() ? skipColor : skipCoverage;
-        if (!skip && drawState.isStageEnabled(s)) {
-            const GrEffectRef& effect = *drawState.getStage(s).getEffect();
-            const GrBackendEffectFactory& factory = effect->getFactory();
-            GrDrawEffect drawEffect(drawState.getStage(s), requiresLocalCoordAttrib);
-            effectKeys[currEffectKey] = factory.glEffectKey(drawEffect, gpu->glCaps());
-            ++currEffectKey;
-            if (effect->willReadDstColor()) {
-                readsDst = true;
-            }
-            if (effect->willReadFragmentPosition()) {
-                readFragPosition = true;
-            }
+    if (!skipColor) {
+        for (int s = 0; s < drawState.numColorStages(); ++s) {
+            effectKeys[currEffectKey++] = 
+                get_key_and_update_stats(drawState.getColorStage(s), gpu->glCaps(),
+                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition);
+        }
+    }
+    if (!skipCoverage) {
+        for (int s = 0; s < drawState.numCoverageStages(); ++s) {
+            effectKeys[currEffectKey++] = 
+                get_key_and_update_stats(drawState.getCoverageStage(s), gpu->glCaps(),
+                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition);
         }
     }
 
@@ -189,7 +188,8 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     // If we do have coverage determine whether it matters.
     bool separateCoverageFromColor = false;
-    if (!drawState.isCoverageDrawing() && (coverageStages->count() > 0 || requiresCoverageAttrib)) {
+    if (!drawState.isCoverageDrawing() && !skipCoverage &&
+        (drawState.numCoverageStages() > 0 || requiresCoverageAttrib)) {
         // color filter is applied between color/coverage computation
         if (SkXfermode::kDst_Mode != header->fColorFilterXfermode) {
             separateCoverageFromColor = true;
@@ -224,14 +224,24 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
             separateCoverageFromColor = true;
         }
     }
-    if (separateCoverageFromColor) {
-        header->fColorEffectCnt = colorStages->count();
-        header->fCoverageEffectCnt = coverageStages->count();
-    } else {
-        header->fColorEffectCnt = colorStages->count() + coverageStages->count();
-        header->fCoverageEffectCnt = 0;
-        colorStages->push_back_n(coverageStages->count(), coverageStages->begin());
-        coverageStages->reset();
+    if (!skipColor) {
+        for (int s = 0; s < drawState.numColorStages(); ++s) {
+            colorStages->push_back(&drawState.getColorStage(s));
+        }
+        header->fColorEffectCnt = drawState.numColorStages();
+    }
+    if (!skipCoverage) {
+        SkTArray<const GrEffectStage*, true>* array;
+        if (separateCoverageFromColor) {
+            array = coverageStages;
+            header->fCoverageEffectCnt = drawState.numCoverageStages();
+        } else {
+            array = colorStages;
+            header->fColorEffectCnt += drawState.numCoverageStages();
+        }
+        for (int s = 0; s < drawState.numCoverageStages(); ++s) {
+            array->push_back(&drawState.getCoverageStage(s));
+        }
     }
 
     *desc->checksum() = 0;

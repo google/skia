@@ -18,17 +18,15 @@
 #include "SkPath.h"
 #include "SkStrokeRec.h"
 
-// glyph rendering shares this stage with edge rendering (kEdgeEffectStage in GrContext) && SW path
-// rendering (kPathMaskStage in GrSWMaskHelper)
-static const int kGlyphMaskStage = GrPaint::kTotalStages;
 static const int kGlyphCoordsAttributeIndex = 1;
 
 void GrTextContext::flushGlyphs() {
     if (NULL == fDrawTarget) {
         return;
     }
-    GrDrawTarget::AutoStateRestore asr(fDrawTarget, GrDrawTarget::kPreserve_ASRInit);
+
     GrDrawState* drawState = fDrawTarget->drawState();
+    GrDrawState::AutoRestoreEffects are(drawState);
     drawState->setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
 
     if (fCurrVertex > 0) {
@@ -38,9 +36,9 @@ void GrTextContext::flushGlyphs() {
         GrTextureParams params(SkShader::kRepeat_TileMode, false);
 
         // This effect could be stored with one of the cache objects (atlas?)
-        drawState->setEffect(kGlyphMaskStage,
-                             GrSimpleTextureEffect::CreateWithCustomCoords(fCurrTexture, params),
-                             kGlyphCoordsAttributeIndex)->unref();
+        drawState->addCoverageEffect(
+                                GrSimpleTextureEffect::CreateWithCustomCoords(fCurrTexture, params),
+                                kGlyphCoordsAttributeIndex)->unref();
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||

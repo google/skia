@@ -542,17 +542,10 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
     RectVertex* verts = reinterpret_cast<RectVertex*>(geo.vertices());
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
-
     GrEffectRef* effect = GrRectEffect::Create();
     static const int kRectAttrIndex = 1;
     static const int kWidthIndex = 2;
-    drawState->setEffect(kEdgeEffectStage, effect, kRectAttrIndex, kWidthIndex)->unref();
+    drawState->addCoverageEffect(effect, kRectAttrIndex, kWidthIndex)->unref();
 
     for (int i = 0; i < 4; ++i) {
         verts[i].fCenter = center;
@@ -599,16 +592,9 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
 
     AARectVertex* verts = reinterpret_cast<AARectVertex*>(geo.vertices());
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
-
     GrEffectRef* effect = GrAlignedRectEffect::Create();
     static const int kOffsetIndex = 1;
-    drawState->setEffect(kEdgeEffectStage, effect, kOffsetIndex)->unref();
+    drawState->addCoverageEffect(effect, kOffsetIndex)->unref();
 
     SkRect devRect;
     combinedMatrix.mapRect(&devRect, rect);
