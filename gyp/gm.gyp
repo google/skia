@@ -39,19 +39,19 @@
         'gmslides.gypi',
       ],
       'sources': [
-        '../debugger/SkDrawCommand.h',
-        '../debugger/SkDrawCommand.cpp',
-        '../debugger/SkDebugCanvas.h',
-        '../debugger/SkDebugCanvas.cpp',
-        '../debugger/SkObjectParser.h',
-        '../debugger/SkObjectParser.cpp',
-
         '../gm/gm.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
 
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
+
+        '../src/utils/debugger/SkDrawCommand.h',
+        '../src/utils/debugger/SkDrawCommand.cpp',
+        '../src/utils/debugger/SkDebugCanvas.h',
+        '../src/utils/debugger/SkDebugCanvas.cpp',
+        '../src/utils/debugger/SkObjectParser.h',
+        '../src/utils/debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
