@@ -783,7 +783,7 @@ void SkView::validate() const {
     } else {
         bool nextNull = NULL == fNextSibling;
         bool prevNull = NULL == fNextSibling;
-        SkASSERT(nextNull && prevNull || !nextNull && !prevNull);
+        SkASSERT(nextNull == prevNull);
     }
 }
 
