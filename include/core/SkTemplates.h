@@ -228,33 +228,53 @@ private:
  */
 template <size_t N, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
+    /** Initialize with no objects */
+    SkAutoSTArray() {
+        fArray = NULL;
+        fCount = 0;
+    }
+
     /** Allocate count number of T elements
      */
     SkAutoSTArray(size_t count) {
-        fCount = count;
-        if (count > N) {
-            fArray = (T*) sk_malloc_throw(count * sizeof(T));
-        } else if (count > 0) {
-            fArray = (T*) fStorage;
-        } else {
-            fArray = NULL;
-            return;
-        }
-        T* iter = fArray;
-        T* stop = fArray + count;
-        while (iter < stop) {
-            SkNEW_PLACEMENT(iter++, T);
-        }
+        fArray = NULL;
+        fCount = 0;
+        this->reset(count);
     }
 
     ~SkAutoSTArray() {
+        this->reset(0);
+    }
+
+    /** Destroys previous objects in the array and default constructs count number of objects */
+    void reset(size_t count) {
         T* start = fArray;
         T* iter = start + fCount;
         while (iter > start) {
             (--iter)->~T();
         }
-        if (fCount > N) {
-            sk_free(fArray);
+
+        if (fCount != count) {
+            if (count > N) {
+                sk_free(fArray);
+            }
+
+            if (count > N) {
+                fArray = (T*) sk_malloc_throw(count * sizeof(T));
+            } else if (count > 0) {
+                fArray = (T*) fStorage;
+            } else {
+                fArray = NULL;
+                return;
+            }
+
+            fCount = count;
+        }
+
+        iter = fArray;
+        T* stop = fArray + count;
+        while (iter < stop) {
+            SkNEW_PLACEMENT(iter++, T);
         }
     }
 
