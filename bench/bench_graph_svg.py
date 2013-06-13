@@ -809,7 +809,7 @@ def output_svg(lines, regressions, requested_width, requested_height):
     
     (global_min_x, _), (global_max_x, global_max_y) = bounds(lines)
     max_up_slope, min_down_slope = bounds_slope(regressions)
-    
+
     #output
     global_min_y = 0
     x = global_min_x
@@ -818,7 +818,11 @@ def output_svg(lines, regressions, requested_width, requested_height):
     h = global_max_y - global_min_y
     font_size = 16
     line_width = 2
-    
+
+    # If there is nothing to see, don't try to draw anything.
+    if w == 0 or h == 0:
+        return
+
     pic_width, pic_height = compute_size(requested_width, requested_height
                                        , w, h)
     
