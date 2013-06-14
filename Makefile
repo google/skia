@@ -48,7 +48,8 @@ VALID_TARGETS := \
                  SkiaAndroidApp \
                  skia_lib \
                  tests \
-                 tools
+                 tools \
+                 skpdiff
 
 # Default target.  This must be listed before all other targets.
 .PHONY: default
