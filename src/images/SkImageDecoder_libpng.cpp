@@ -80,8 +80,9 @@ private:
     SkPNGImageIndex* fImageIndex;
 
     bool onDecodeInit(SkStream* stream, png_structp *png_ptrp, png_infop *info_ptrp);
-    bool decodePalette(png_structp png_ptr, png_infop info_ptr, bool *hasAlphap,
-                       bool *reallyHasAlphap, SkColorTable **colorTablep);
+    bool decodePalette(png_structp png_ptr, png_infop info_ptr,
+                       bool * SK_RESTRICT hasAlphap, bool *reallyHasAlphap,
+                       SkColorTable **colorTablep);
     bool getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                          SkBitmap::Config *config, bool *hasAlpha,
                          bool *doDither, SkPMColor *theTranspColor);
@@ -311,7 +312,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
     if (!reuseBitmap) {
         decodedBitmap->setConfig(config, sampler.scaledWidth(),
-                                 sampler.scaledHeight(), 0);
+                                 sampler.scaledHeight());
     }
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
@@ -383,7 +384,8 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             upscale png's palette to a direct model
          */
         SkAutoLockColors ctLock(colorTable);
-        if (!sampler.begin(decodedBitmap, sc, doDither, ctLock.colors())) {
+        if (!sampler.begin(decodedBitmap, sc, doDither, ctLock.colors(),
+                           this->getRequireUnpremultipliedColors())) {
             return false;
         }
         const int height = decodedBitmap->height();
@@ -435,6 +437,13 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (0 != theTranspColor) {
         reallyHasAlpha |= substituteTranspColor(decodedBitmap, theTranspColor);
     }
+    if (reallyHasAlpha && this->getRequireUnpremultipliedColors() &&
+        SkBitmap::kARGB_8888_Config != decodedBitmap->config()) {
+        // If the caller wants an unpremultiplied bitmap, and we let them get
+        // away with a config other than 8888, and it has alpha after all,
+        // return false, since the result will have premultiplied colors.
+        return false;
+    }
     decodedBitmap->setIsOpaque(!reallyHasAlpha);
     if (reuseBitmap) {
         decodedBitmap->notifyPixelsChanged();
@@ -445,7 +454,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
 
 bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
-                                        SkBitmap::Config *configp, bool *hasAlphap,
+                                        SkBitmap::Config *configp, bool * SK_RESTRICT hasAlphap,
                                         bool *doDitherp, SkPMColor *theTranspColorp) {
     png_uint_32 origWidth, origHeight;
     int bitDepth, colorType;
@@ -546,8 +555,19 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
         }
     }
 
-    return this->chooseFromOneChoice(*configp, origWidth, origHeight);
+    if (!this->chooseFromOneChoice(*configp, origWidth, origHeight)) {
+        return false;
+    }
+
+    // If the image has alpha and the decoder wants unpremultiplied
+    // colors, the only supported config is 8888.
+    if (this->getRequireUnpremultipliedColors() && *hasAlphap) {
+        *configp = SkBitmap::kARGB_8888_Config;
+    }
+    return true;
 }
+
+typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
 bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
                                       bool *hasAlphap, bool *reallyHasAlphap,
@@ -587,9 +607,17 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
     int index = 0;
     int transLessThanFF = 0;
 
+    // Choose which function to use to create the color table. If the final destination's
+    // config is unpremultiplied, the color table will store unpremultiplied colors.
+    PackColorProc proc;
+    if (this->getRequireUnpremultipliedColors()) {
+        proc = &SkPackARGB32NoCheck;
+    } else {
+        proc = &SkPreMultiplyARGB;
+    }
     for (; index < numTrans; index++) {
         transLessThanFF |= (int)*trans - 0xFF;
-        *colorPtr++ = SkPreMultiplyARGB(*trans++, palette->red, palette->green, palette->blue);
+        *colorPtr++ = proc(*trans++, palette->red, palette->green, palette->blue);
         palette++;
     }
     reallyHasAlpha |= (transLessThanFF < 0);
@@ -679,7 +707,7 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     SkScaledBitmapSampler sampler(origWidth, rect.height(), sampleSize);
 
     SkBitmap decodedBitmap;
-    decodedBitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0);
+    decodedBitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
 
     // from here down we are concerned with colortables and pixels
 
@@ -773,7 +801,8 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             upscale png's palette to a direct model
          */
         SkAutoLockColors ctLock(colorTable);
-        if (!sampler.begin(&decodedBitmap, sc, doDither, ctLock.colors())) {
+        if (!sampler.begin(&decodedBitmap, sc, doDither, ctLock.colors(),
+                           this->getRequireUnpremultipliedColors())) {
             return false;
         }
         const int height = decodedBitmap.height();

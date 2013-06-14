@@ -40,7 +40,8 @@ SkImageDecoder::SkImageDecoder()
     , fDefaultPref(SkBitmap::kNo_Config)
     , fDitherImage(true)
     , fUsePrefTable(false)
-    , fPreferQualityOverSpeed(false) {
+    , fPreferQualityOverSpeed(false)
+    , fRequireUnpremultipliedColors(false) {
 }
 
 SkImageDecoder::~SkImageDecoder() {

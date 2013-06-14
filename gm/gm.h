@@ -80,6 +80,10 @@ namespace skiagm {
             gResourcePath = resourcePath;
         }
 
+        static SkString& GetResourcePath() {
+            return gResourcePath;
+        }
+
         bool isCanvasDeferred() const { return fCanvasIsDeferred; }
         void setCanvasIsDeferred(bool isDeferred) {
             fCanvasIsDeferred = isDeferred;
