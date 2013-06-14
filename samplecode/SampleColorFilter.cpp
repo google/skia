@@ -85,6 +85,7 @@ static void test_5bits() {
 }
 
 // No longer marked static, since it is externed in SampleUnpremul.
+SkShader* createChecker();
 SkShader* createChecker() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
