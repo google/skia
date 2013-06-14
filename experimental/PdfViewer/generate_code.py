@@ -1,51 +1,11 @@
+
+
 import sys
 
-class PdfName:
-  def __init__(self, name, abr=''):
-    self.fName = name
-    self.fAbr = abr
-    
-  def toCpp(self):
-    return '\"' + self.fName + '\"'
+import datatypes
+import pdfspec_autogen
 
-class PdfString:
-  def __init__(self, value):
-    self.fValue = value
-    
-  def toCpp(self):
-    return '\"' + self.fValue + '\"'
 
-class PdfInteger:
-  def __init__(self, value):
-    self.fValue = value
-
-  def toCpp(self):
-    return str(self.fValue)
-
-class PdfReal:
-  def __init__(self, value):
-    self.fValue = value
-
-  def toCpp(self):
-    return str(self.fValue)
-
-class PdfString:
-  def __init__(self, value):
-    self.fValue = value
-
-  def toCpp(self):
-    return self.fValue
-
-class PdfBoolean:
-  def __init__(self, value):
-    self.fValue = value
-
-  def toCpp(self):
-    return self.fValue
-
-class CppNull:
-  def toCpp(self):
-    return 'NULL'
 
 
 class PdfField:
@@ -86,13 +46,6 @@ class PdfField:
     self.fCppReader = 'LongFromDictionary'
     return self
 
-  def real(self, name):
-    self.fType = 'real'
-    self.fCppName = name
-    self.fCppType = 'double'
-    self.fCppReader = 'DoubleFromDictionary'
-    return self
-
   def name(self, name):
     self.fType = 'name'
     self.fCppName = name
@@ -114,17 +67,52 @@ class PdfField:
   def dictionary(self, name):
     self.fType = 'dictionary'
     self.fCppName = name
-    self.fDictionaryType = 'Resources'  # TODO(edisonn): Dictionary?
+    self.fDictionaryType = 'Dictionary'
+    self.fCppType = 'SkPdfDictionary*'
     self.fCppReader = 'DictionaryFromDictionary'
-    self.fDefault = CppNull()
+    self.fDefault = datatypes.CppNull()
     return self
 
   def type(self, type):
     # TODO (edisonn): if simple type, use it, otherwise set it to Dictionary, and set a mask for valid types, like array or name
-    self.fType = 'dictionary'
-    self.fDictionaryType = 'Dictionary'
-    self.fCppReader = 'DictionaryFromDictionary'
-    self.fDefault = CppNull()
+    type = type.replace('or', ' ')
+    type = type.replace(',', ' ')
+    type = type.replace('text', ' ') # TODO(edisonn): what is the difference between 'text string' and 'string'?
+    
+    type = type.strip()
+    types = type.split()
+    
+    if len(types) == 1:
+      if type == 'integer':
+        self.integer(self.fCppName)
+        self.default(datatypes.PdfInteger(0))
+        return self
+        
+      if type == 'number':
+        self.number(self.fCppName)
+        self.default(datatypes.PdfNumber(0))
+        return self
+
+      if type == 'string':
+        self.string(self.fCppName)
+        self.default(datatypes.PdfString('""'))
+        return self
+
+      if type == 'name':
+        self.name(self.fCppName)
+        self.default(datatypes.PdfName('""'))
+        return self
+    
+      if type == 'dictionary':
+        self.dictionary(self.fCppName)
+        self.default(datatypes.CppNull())
+        return self
+
+    self.fType = 'object'
+    self.fDictionaryType = 'Object'
+    self.fCppType = 'SkPdfObject*'
+    self.fCppReader = 'ObjectFromDictionary'
+    self.fDefault = datatypes.CppNull()
     return self
 
   def comment(self, comment):
@@ -164,7 +152,12 @@ class PdfClass:
     
     self.fEnum = '!UNDEFINED'
     self.fEnumEnd = '!UNDEFINED'
+    self.fCheck = ''
     
+  def check(self, ifCheck):
+    self.fCheck = ifCheck
+    return self
+
   def required(self, badDefault):
     field = PdfClassField(self, True)
     field.fBadDefault = badDefault
@@ -214,6 +207,8 @@ class PdfClassManager:
     return cls
   
   def longName(self, name):
+    #return name
+    # TODO(edisonn): we need the long name to nenerate and sort enums, but we can generate them recursively
     ret = ''
     while name != '':
       cls = self.fClasses[name]
@@ -362,34 +357,22 @@ class PdfClassManager:
       for field in cls.fFields:
         prop = field.fProp
         if prop.fCppName != '':
-          if prop.fType != 'dictionary':
-            print('  ' + prop.fCppType + ' ' + prop.fCppName + '() const {')
-            print('    ' + prop.fCppType + ' ret;')
-            print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
-            if field.fRequired == False:
-              print('    return ' + prop.fDefault.toCpp() + ';');
-            if field.fRequired == True:
-              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
-              print('    return ' + field.fBadDefault + ';');
-            print('  }') 
-            print
-         
-          if prop.fType == 'dictionary':
-            print('  SkPdf' + prop.fDictionaryType + '* ' + prop.fCppName + '() const {')
-            print('    SkPdfObject* dict = NULL;')
-            print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &dict) && dict != NULL) {')
-            print('      SkPdf' + prop.fDictionaryType + '* ret = new SkPdf' + prop.fDictionaryType + '(fPodofoDoc, dict->podofo());')
-            print('      delete dict; dict = NULL;')
-            print('      return ret;')
-            print('    }')
-            if field.fRequired == False:
-              print('    return ' + prop.fDefault.toCpp() + ';');
-            if field.fRequired == True:
-              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
-              print('    return ' + field.fBadDefault + ';');
-            print('  }') 
-            print
+          if prop.fCppName[0] == '[':
+            print('/*')  # comment code of the atributes that can have any name
+            
+          print('  ' + prop.fCppType + ' ' + prop.fCppName + '() const {')
+          print('    ' + prop.fCppType + ' ret;')
+          print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
+          if field.fRequired == False:
+            print('    return ' + prop.fDefault.toCpp() + ';');
+          if field.fRequired == True:
+            print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
+            print('    return ' + field.fBadDefault + ';');
+          print('  }') 
+          print
            
+          if prop.fCppName[0] == '[':
+            print('*/')  # comment code of the atributes that can have any name
          
 
       print('};')
@@ -428,21 +411,24 @@ class PdfClassManager:
       
       print('  static bool isA' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {')
       
-      cntMust = 0
-      for field in cls.fFields:
-        prop = field.fProp
-        if prop.fHasMust:
-          cntMust = cntMust + 1
-          print('    ' + prop.fCppType + ' ' + prop.fCppName + ';')
-          print('    if (!' + prop.fCppReader + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;')
-          print('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;')
-          print
-      
-      # hack, we only care about dictionaries now, so ret tru only if there is a match
-      if cntMust != 0 or name == 'Object' or name == 'Dictionary':
-        print('    return true;')
+      if cls.fCheck != '':
+        print('    return ' + cls.fCheck + ';')
       else:
-        print('    return false;')
+        cntMust = 0
+        for field in cls.fFields:
+          prop = field.fProp
+          if prop.fHasMust:
+            cntMust = cntMust + 1
+            print('    ' + prop.fCppType + ' ' + prop.fCppName + ';')
+            print('    if (!' + prop.fCppReader + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;')
+            print('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;')
+            print
+      
+        # hack, we only care about dictionaries now, so ret tru only if there is a match
+        if cntMust != 0 or len(cls.fEnumSubclasses) > 0:
+          print('    return true;')
+        else:
+          print('    return false;')
               
       print('  }') 
       print    
@@ -453,85 +439,43 @@ class PdfClassManager:
     return
 
 def generateCode():
-  all = PdfClassManager()
+  manager = PdfClassManager()
   
-  all.addClass('Object')
-  all.addClass('Null')
-  all.addClass('Boolean')
-  all.addClass('Integer')
-  all.addClass('Real')
-  all.addClass('Name')
-  all.addClass('Stream')
-  all.addClass('Reference')
-  all.addClass('Array')
-  all.addClass('Dictionary').optional().field('Resources', '').dictionary("r") #.inherited_from_page_tree()
-
-  all.addClass('Resources', 'Dictionary')
-
-  all.addClass('XObject', 'Dictionary').required('""').field('Type').must(PdfName('XObject')).name('t')
+  manager.addClass('Object')
   
-  all.addClass('Image', 'XObject').required('""').field('Type').must(PdfName('XObject')).name('t').done()\
-                                                            .done()\
-                                  .required('""').field('Subtype').must(PdfName('Image')).name('s').done()\
-                                                               .done()\
-                                  .required('-1').field('Width', 'W').integer('w').done()\
-                                                                   .done()\
-                                  .required('-1').field('Height', 'H').integer('h').done()\
-                                                                    .done()\
-                                  .required('""').field('ColorSpace').name('cs').multiple([PdfName('/DeviceRGB', '/RGB'), PdfName('/DeviceGray', '/Gray')]).done()\
-                                                                  .done()\
-                                  .optional().field('BitsPerComponent', 'BPC').integer('bpc').multiple([PdfInteger(1), PdfInteger(2), PdfInteger(4), PdfInteger(8)])\
-                                                                                .default(PdfInteger(1)).done()\
-                                                                                .done()\
-                                  .carbonCopyPrivate('SkBitmap bitmap;')
+  manager.addClass('Null').check('podofoObj.GetDataType() == ePdfDataType_Null')
+  manager.addClass('Boolean').check('podofoObj.GetDataType() == ePdfDataType_Bool')
+  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number')
+  manager.addClass('Number').check('podofoObj.GetDataType() == ePdfDataType_Real')
+  manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')
+  #manager.addClass('Stream') - attached to a dictionary
+  manager.addClass('Reference').check('podofoObj.GetDataType() == ePdfDataType_Reference')
+  manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')
+  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String')
+  manager.addClass('HexString').check('podofoObj.GetDataType() == ePdfDataType_HexString')
+  
+  manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')
+  
+  # these classes are not explicitely backed by a table in the pdf spec
+  manager.addClass('XObjectDictionary', 'Dictionary')
+  
+  manager.addClass('FontDictionary', 'Dictionary')
+  
+  manager.addClass('TrueTypeFontDictionary', 'FontDictionary')
+  
+  pdfspec_autogen.buildPdfSpec(manager)  
 
-  all.addClass('Form', 'XObject').required('""').field('Type').must(PdfName('XObject')).name('t').done()\
-                                                           .done()\
-                                 .required('""').field('Subtype').must(PdfName('Form')).name('s').done()\
-                                                              .done()\
-                                 .carbonCopyPublic('void test() {}')
-
-
-
-  all.addClass('SpecificToATrapNetworkAppearanceStream', 'Dictionary', 'Additional entries specific to a trap network appearance stream')\
-      .required('NULL')\
-          .field('PCM')\
-          .name('PCM')\
+  manager.addClass('MultiMasterFontDictionary', 'Type1FontDictionary')\
+          .required('NULL')\
+          .field('Subtype')\
+          .name('Subtype')\
           .type('name')\
-          .comment('(Required) The name of the process color model that was assumed when this trap network was created; equivalent to the PostScript page device parameter ProcessColorModel (see Section 6.2.5 of the PostScript Language Reference, Third Edition). Valid values are DeviceGray, DeviceRGB, DeviceCMYK, DeviceCMY, DeviceRGBK, and DeviceN.')\
+          .comment('')\
+          .must(datatypes.PdfName('MMType1'))\
           .done().done()\
-      .optional()\
-          .field('SeparationColorNames')\
-          .name('SeparationColorNames')\
-          .type('array')\
-          .comment('(Optional) An array of names identifying the colorants that were assumed when this network was created; equivalent to the Post- Script page device parameter of the same name (see Section 6.2.5 of the PostScript Language Reference, Third Edition). Colorants im- plied by the process color model PCM are available automatically and need not be explicitly declared. If this entry is absent, the colorants implied by PCM are assumed.')\
-          .done().done()\
-      .optional()\
-          .field('TrapRegions')\
-          .name('TrapRegions')\
-          .type('array')\
-          .comment('(Optional) An array of indirect references to TrapRegion objects defining the page\'s trapping zones and the associated trapping parameters, as described in Adobe Technical Note #5620, Portable Job Ticket Format. These references are to objects comprising portions of a PJTF job ticket that is embedded in the PDF file. When the trapping zones and parameters are defined by an external job ticket (or by some other means, such as with JDF), this entry is absent.')\
-          .done().done()\
-      .optional()\
-          .field('TrapStyles')\
-          .name('TrapStyles')\
-          .type('text string')\
-          .comment('(Optional) A human-readable text string that applications can use to describe this trap network to the user (for example, to allow switching between trap networks).')\
-          .done().done()\
-      .done()
-
-  all.addClass('OpiVersionDictionary', 'Dictionary', 'Entry in an OPI version dictionary')\
-      .required('NULL')\
-          .field('version_number')\
-          .name('version_number')\
-          .type('dictionary')\
-          .comment('(Required; PDF 1.2) An OPI dictionary specifying the attributes of this proxy (see Tables 9.50 and 9.51). The key for this entry must be the name 1.3 or 2.0, identifying the version of OPI to which the proxy corresponds.')\
-          .done().done()\
-      .done()
 
 
-
-  all.write()
+  manager.write()
   
   return 1
 
