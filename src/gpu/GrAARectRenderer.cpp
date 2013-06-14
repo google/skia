@@ -78,9 +78,9 @@ public:
                 "\tfloat coverage = scaleW*clamp((%s.z-abs(%s.x))/spanW, 0.0, 1.0);\n", fsRectName,
                 fsRectName);
             // Compute the coverage for the rect's height and merge with the width
-             builder->fsCodeAppendf(
-                 "\tcoverage = coverage*scaleH*clamp((%s.w-abs(%s.y))/spanH, 0.0, 1.0);\n",
-                 fsRectName, fsRectName);
+            builder->fsCodeAppendf(
+                "\tcoverage = coverage*scaleH*clamp((%s.w-abs(%s.y))/spanH, 0.0, 1.0);\n",
+                fsRectName, fsRectName);
 
             SkString modulate;
             GrGLSLModulatef<4>(&modulate, inputColor, "coverage");
@@ -184,26 +184,34 @@ public:
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
             builder->vsCodeAppendf("\t%s = %s;\n", vsWidthHeightName, attr1Name->c_str());
 
-            // TODO: compute these scale factors in the VS
-            // These scale factors adjust the coverage for < 1 pixel wide/high rects
-            builder->fsCodeAppendf("\tfloat wScale = max(1.0, 2.0/(0.5+%s.x));\n",
-                                   fsWidthHeightName);
-            builder->fsCodeAppendf("\tfloat hScale = max(1.0, 2.0/(0.5+%s.y));\n",
-                                   fsWidthHeightName);
+            // TODO: compute all these offsets, spans, and scales in the VS
+            builder->fsCodeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);
+            builder->fsCodeAppendf("\tfloat insetH = min(1.0, %s.y) - 0.5;\n", fsWidthHeightName);
+            builder->fsCodeAppend("\tfloat outset = 0.5;\n");
+            // For rects > 1 pixel wide and tall the span's are noops (i.e., 1.0). For rects
+            // < 1 pixel wide or tall they serve to normalize the < 1 ramp to a 0 .. 1 range.
+            builder->fsCodeAppend("\tfloat spanW = insetW + outset;\n");
+            builder->fsCodeAppend("\tfloat spanH = insetH + outset;\n");
+            // For rects < 1 pixel wide or tall, these scale factors are used to cap the maximum
+            // value of coverage that is used. In other words it is the coverage that is
+            // used in the interior of the rect after the ramp.
+            builder->fsCodeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
+            builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
 
             // Compute the coverage for the rect's width
             builder->fsCodeAppendf("\tvec2 offset = %s.xy - %s.xy;\n",
                                    builder->fragmentPosition(), fsRectEdgeName);
             builder->fsCodeAppendf("\tfloat perpDot = abs(offset.x * %s.w - offset.y * %s.z);\n",
                                    fsRectEdgeName, fsRectEdgeName);
-            builder->fsCodeAppendf("\tfloat coverage = clamp(wScale*(%s.x-perpDot), 0.0, 1.0);\n",
-                                   fsWidthHeightName);
+            builder->fsCodeAppendf(
+                "\tfloat coverage = scaleW*clamp((%s.x-perpDot)/spanW, 0.0, 1.0);\n",
+                fsWidthHeightName);
 
             // Compute the coverage for the rect's height and merge with the width
             builder->fsCodeAppendf("\tperpDot = abs(dot(offset, %s.zw));\n",
                                    fsRectEdgeName);
             builder->fsCodeAppendf(
-                    "\tcoverage = min(coverage, clamp(hScale*(%s.y-perpDot), 0.0, 1.0));\n",
+                    "\tcoverage = coverage*scaleH*clamp((%s.y-perpDot)/spanH, 0.0, 1.0);\n",
                     fsWidthHeightName);
 
             SkString modulate;
