@@ -77,12 +77,18 @@ protected:
     }
     virtual bool onEvent(const SkEvent& evt) {
         if (evt.isType(gReplaceTransitionEvt)) {
+            SkView* prev = fPrev;
+            prev->ref();
+
             fPrev->detachFromParent();
             fPrev = (SkView*)SkEventSink::FindSink(evt.getFast32());
             (void)SampleView::SetUsePipe(fPrev, SkOSMenu::kOffState);
             //attach the new fPrev and call unref to balance the ref in onDraw
             this->attachChildToBack(fPrev)->unref();
             this->inval(NULL);
+            
+            SkASSERT(1 == prev->getRefCnt());
+            prev->unref();
             return true;
         }
         if (evt.isType("transition-done")) {

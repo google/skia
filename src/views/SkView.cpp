@@ -556,7 +556,6 @@ void SkView::detachFromParent() {
         this->detachFromParent_NoLayout();
         parent->invokeLayout();
     }
-    this->validate();
 }
 
 SkView* SkView::attachChildToBack(SkView* child) {
@@ -777,6 +776,7 @@ SkView* SkView::B2FIter::next() {
 #ifdef SK_DEBUG
 
 void SkView::validate() const {
+//    SkASSERT(this->getRefCnt() > 0 && this->getRefCnt() < 100);
     if (fParent) {
         SkASSERT(fNextSibling);
         SkASSERT(fPrevSibling);
