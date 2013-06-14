@@ -114,7 +114,17 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
+    /**
+     *  Called when determining the output config to request to webp.
+     *  If the image does not have alpha, there is no need to premultiply.
+     *  If the caller wants unpremultiplied colors, that is respected.
+     */
+    bool shouldPremultiply() const {
+        return SkToBool(fHasAlpha) && !this->getRequireUnpremultipliedColors();
+    }
+
     bool setDecodeConfig(SkBitmap* decodedBitmap, int width, int height);
+
     SkStream* fInputStream;
     int fOrigWidth;
     int fOrigHeight;
@@ -157,18 +167,16 @@ static bool return_false(const SkBitmap& bm, const char msg[]) {
     return false; // must always return false
 }
 
-static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, int hasAlpha) {
+static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, bool premultiply) {
     WEBP_CSP_MODE mode = MODE_LAST;
     SkBitmap::Config config = decodedBitmap->config();
-    // For images that have alpha, choose appropriate color mode (MODE_rgbA,
-    // MODE_rgbA_4444) that pre-multiplies RGB pixel values with transparency
-    // factor (alpha).
+
     if (config == SkBitmap::kARGB_8888_Config) {
-      mode = hasAlpha ? MODE_rgbA : MODE_RGBA;
+        mode = premultiply ? MODE_rgbA : MODE_RGBA;
     } else if (config == SkBitmap::kARGB_4444_Config) {
-      mode = hasAlpha ? MODE_rgbA_4444 : MODE_RGBA_4444;
+        mode = premultiply ? MODE_rgbA_4444 : MODE_RGBA_4444;
     } else if (config == SkBitmap::kRGB_565_Config) {
-      mode = MODE_RGB_565;
+        mode = MODE_RGB_565;
     }
     SkASSERT(MODE_LAST != mode);
     return mode;
@@ -224,8 +232,8 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
 
 static bool webp_get_config_resize(WebPDecoderConfig* config,
                                    SkBitmap* decodedBitmap,
-                                   int width, int height, int hasAlpha) {
-    WEBP_CSP_MODE mode = webp_decode_mode(decodedBitmap, hasAlpha);
+                                   int width, int height, bool premultiply) {
+    WEBP_CSP_MODE mode = webp_decode_mode(decodedBitmap, premultiply);
     if (MODE_LAST == mode) {
         return false;
     }
@@ -251,10 +259,10 @@ static bool webp_get_config_resize(WebPDecoderConfig* config,
 
 static bool webp_get_config_resize_crop(WebPDecoderConfig* config,
                                         SkBitmap* decodedBitmap,
-                                        const SkIRect& region, int hasAlpha) {
+                                        const SkIRect& region, bool premultiply) {
 
     if (!webp_get_config_resize(config, decodedBitmap, region.width(),
-                                region.height(), hasAlpha)) {
+                                region.height(), premultiply)) {
       return false;
     }
 
@@ -372,7 +380,8 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
 
     SkAutoLockPixels alp(*bitmap);
     WebPDecoderConfig config;
-    if (!webp_get_config_resize_crop(&config, bitmap, rect, fHasAlpha)) {
+    if (!webp_get_config_resize_crop(&config, bitmap, rect,
+                                     this->shouldPremultiply())) {
         return false;
     }
 
@@ -430,7 +439,7 @@ bool SkWEBPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 
     WebPDecoderConfig config;
     if (!webp_get_config_resize(&config, decodedBitmap, origWidth, origHeight,
-                                hasAlpha)) {
+                                this->shouldPremultiply())) {
         return false;
     }
 

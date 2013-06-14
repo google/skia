@@ -82,6 +82,21 @@ public:
         fPreferQualityOverSpeed = qualityOverSpeed;
     }
 
+    /** Set to true to require the decoder to return a bitmap with unpremultiplied
+        colors. The default is false, meaning the resulting bitmap will have its
+        colors premultiplied.
+        NOTE: Passing true to this function may result in a bitmap which cannot
+        be properly used by Skia.
+    */
+    void setRequireUnpremultipliedColors(bool request) {
+        fRequireUnpremultipliedColors = request;
+    }
+
+    /** Returns true if the decoder will only return bitmaps with unpremultiplied
+        colors.
+    */
+    bool getRequireUnpremultipliedColors() const { return fRequireUnpremultipliedColors; }
+
     /** \class Peeker
 
         Base class for optional callbacks to retrieve meta/chunk data out of
@@ -433,6 +448,7 @@ private:
     bool                    fUsePrefTable;
     mutable bool            fShouldCancelDecode;
     bool                    fPreferQualityOverSpeed;
+    bool                    fRequireUnpremultipliedColors;
 };
 
 /** Calling newDecoder with a stream returns a new matching imagedecoder

@@ -84,7 +84,8 @@ static void test_5bits() {
     SkDebugf("--- trunc: %d %d  round: %d %d new: %d %d\n", e0, ae0, e1, ae1, e2, ae2);
 }
 
-static SkShader* createChecker() {
+// No longer marked static, since it is externed in SampleUnpremul.
+SkShader* createChecker() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
     bm.allocPixels();

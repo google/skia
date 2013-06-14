@@ -109,6 +109,7 @@
         '../samplecode/SampleTiling.cpp',
         '../samplecode/SampleTinyBitmap.cpp',
         '../samplecode/SampleUnitMapper.cpp',
+        '../samplecode/SampleUnpremul.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
         '../samplecode/TransitionView.cpp',

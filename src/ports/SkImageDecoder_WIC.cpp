@@ -183,10 +183,17 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
         hr = piImagingFactory->CreateFormatConverter(&piFormatConverter);
     }
 
+    GUID destinationPixelFormat;
+    if (this->getRequireUnpremultipliedColors()) {
+        destinationPixelFormat = GUID_WICPixelFormat32bppBGRA;
+    } else {
+        destinationPixelFormat = GUID_WICPixelFormat32bppPBGRA;
+    }
+
     if (SUCCEEDED(hr)) {
         hr = piFormatConverter->Initialize(
             piBitmapSourceOriginal.get()      //Input bitmap to convert
-            , GUID_WICPixelFormat32bppPBGRA   //Destination pixel format
+            , destinationPixelFormat          //Destination pixel format
             , WICBitmapDitherTypeNone         //Specified dither patterm
             , NULL                            //Specify a particular palette
             , 0.f                             //Alpha threshold

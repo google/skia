@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
@@ -11,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
+#include "SkTypes.h"
 
 // 8888
 
@@ -289,6 +289,41 @@ static bool Sample_Index_DI(void* SK_RESTRICT dstRow,
     return false;
 }
 
+// 8888 Unpremul
+
+static bool Sample_Gray_D8888_Unpremul(void* SK_RESTRICT dstRow,
+                                       const uint8_t* SK_RESTRICT src,
+                                       int width, int deltaSrc, int,
+                                       const SkPMColor[]) {
+    uint32_t* SK_RESTRICT dst = reinterpret_cast<uint32_t*>(dstRow);
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPackARGB32NoCheck(0xFF, src[0], src[0], src[0]);
+        src += deltaSrc;
+    }
+    return false;
+}
+
+// Sample_RGBx_D8888_Unpremul is no different from Sample_RGBx_D8888, since alpha
+// is 0xFF
+
+static bool Sample_RGBA_D8888_Unpremul(void* SK_RESTRICT dstRow,
+                                       const uint8_t* SK_RESTRICT src,
+                                       int width, int deltaSrc, int,
+                                       const SkPMColor[]) {
+    uint32_t* SK_RESTRICT dst = reinterpret_cast<uint32_t*>(dstRow);
+    unsigned alphaMask = 0xFF;
+    for (int x = 0; x < width; x++) {
+        unsigned alpha = src[3];
+        dst[x] = SkPackARGB32NoCheck(alpha, src[0], src[1], src[2]);
+        src += deltaSrc;
+        alphaMask &= alpha;
+    }
+    return alphaMask != 0xFF;
+}
+
+// Sample_Index_D8888_Unpremul is the same as Sample_Index_D8888, since the
+// color table has its colors inserted unpremultiplied.
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkScaledBitmapSampler.h"
@@ -334,33 +369,44 @@ SkScaledBitmapSampler::SkScaledBitmapSampler(int width, int height,
 }
 
 bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
-                                  const SkPMColor ctable[]) {
+                                  const SkPMColor ctable[],
+                                  bool requireUnpremul) {
     static const RowProc gProcs[] = {
         // 8888 (no dither distinction)
-        Sample_Gray_D8888,  Sample_Gray_D8888,
-        Sample_RGBx_D8888,  Sample_RGBx_D8888,
-        Sample_RGBA_D8888,  Sample_RGBA_D8888,
-        Sample_Index_D8888, Sample_Index_D8888,
-        NULL,               NULL,
+        Sample_Gray_D8888,              Sample_Gray_D8888,
+        Sample_RGBx_D8888,              Sample_RGBx_D8888,
+        Sample_RGBA_D8888,              Sample_RGBA_D8888,
+        Sample_Index_D8888,             Sample_Index_D8888,
+        NULL,                           NULL,
         // 565 (no alpha distinction)
-        Sample_Gray_D565,   Sample_Gray_D565_D,
-        Sample_RGBx_D565,   Sample_RGBx_D565_D,
-        Sample_RGBx_D565,   Sample_RGBx_D565_D,
-        Sample_Index_D565,  Sample_Index_D565_D,
-        Sample_D565_D565,   Sample_D565_D565,
+        Sample_Gray_D565,               Sample_Gray_D565_D,
+        Sample_RGBx_D565,               Sample_RGBx_D565_D,
+        Sample_RGBx_D565,               Sample_RGBx_D565_D,
+        Sample_Index_D565,              Sample_Index_D565_D,
+        Sample_D565_D565,               Sample_D565_D565,
         // 4444
-        Sample_Gray_D4444,  Sample_Gray_D4444_D,
-        Sample_RGBx_D4444,  Sample_RGBx_D4444_D,
-        Sample_RGBA_D4444,  Sample_RGBA_D4444_D,
-        Sample_Index_D4444, Sample_Index_D4444_D,
-        NULL,               NULL,
+        Sample_Gray_D4444,              Sample_Gray_D4444_D,
+        Sample_RGBx_D4444,              Sample_RGBx_D4444_D,
+        Sample_RGBA_D4444,              Sample_RGBA_D4444_D,
+        Sample_Index_D4444,             Sample_Index_D4444_D,
+        NULL,                           NULL,
         // Index8
-        NULL,               NULL,
-        NULL,               NULL,
-        NULL,               NULL,
-        Sample_Index_DI,    Sample_Index_DI,
-        NULL,               NULL,
+        NULL,                           NULL,
+        NULL,                           NULL,
+        NULL,                           NULL,
+        Sample_Index_DI,                Sample_Index_DI,
+        NULL,                           NULL,
+        // 8888 Unpremul (no dither distinction)
+        Sample_Gray_D8888_Unpremul,     Sample_Gray_D8888_Unpremul,
+        Sample_RGBx_D8888,              Sample_RGBx_D8888,
+        Sample_RGBA_D8888_Unpremul,     Sample_RGBA_D8888_Unpremul,
+        Sample_Index_D8888,             Sample_Index_D8888,
+        NULL,                           NULL,
     };
+    // The jump between dst configs in the table
+    static const int gProcDstConfigSpan = 10;
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gProcs) == 5 * gProcDstConfigSpan,
+                      gProcs_has_the_wrong_number_of_entries);
 
     fCTable = ctable;
 
@@ -399,19 +445,26 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
 
     switch (dst->config()) {
         case SkBitmap::kARGB_8888_Config:
-            index += 0;
+            index += 0 * gProcDstConfigSpan;
             break;
         case SkBitmap::kRGB_565_Config:
-            index += 10;
+            index += 1 * gProcDstConfigSpan;
             break;
         case SkBitmap::kARGB_4444_Config:
-            index += 20;
+            index += 2 * gProcDstConfigSpan;
             break;
         case SkBitmap::kIndex8_Config:
-            index += 30;
+            index += 3 * gProcDstConfigSpan;
             break;
         default:
             return false;
+    }
+
+    if (requireUnpremul) {
+        if (dst->config() != SkBitmap::kARGB_8888_Config) {
+            return false;
+        }
+        index += 4 * gProcDstConfigSpan;
     }
 
     fRowProc = gProcs[index];
