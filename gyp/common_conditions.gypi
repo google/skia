@@ -113,6 +113,15 @@
               },
             },
           }],
+          [ 'skia_win_exceptions', {
+            'msvs_settings': {
+              'VCCLCompilerTool': {
+                'AdditionalOptions': [
+                  '/EHsc',
+                ],
+              },
+            },
+          }],
         ],
       },
     ],

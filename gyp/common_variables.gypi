@@ -120,6 +120,7 @@
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_directwrite%': '<(skia_directwrite)',
     'skia_gpu%': '<(skia_gpu)',
+    'skia_win_exceptions%': 0,
     'skia_osx_sdkroot%': '<(skia_osx_sdkroot)',
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
