@@ -2010,7 +2010,7 @@ the decoding process. Most of these parameters are related to techniques that re
           was encoded.
                   TABLE 3.7 Optional parameters for LZWDecode and FlateDecode ﬁlters
 KEY                   TYPE      VALUE
-Predictor             integer   A code that selects the predictor algorithm, if any. If the value of this entry
+Predictor             integer   ()A code that selects the predictor algorithm, if any. If the value of this entry
                                 is 1, the ﬁlter assumes that the normal algorithm was used to encode the data,
                                 without prediction. If the value is greater than 1, the ﬁlter assumes that the
                                 data was differenced before being encoded, and Predictor selects the predic-
@@ -2138,7 +2138,7 @@ The predictor function groups also differ in signiﬁcant ways:
     these parameters must match those used when the data was encoded.
                  TABLE 3.9 Optional parameters for the CCITTFaxDecode ﬁlter
 KEY                    TYPE         VALUE
-K                      integer      A code identifying the encoding scheme used:
+K                      integer      ()A code identifying the encoding scheme used:
                                       <0    Pure two-dimensional encoding (Group 4)
                                         0   Pure one-dimensional encoding (Group 3, 1-D)
                                       >0    Mixed one- and two-dimensional encoding (Group 3,
@@ -2147,40 +2147,40 @@ K                      integer      A code identifying the encoding scheme used:
                                     The ﬁlter distinguishes among negative, zero, and positive values of
                                     K to determine how to interpret the encoded data; however, it does
                                     not distinguish between different positive K values. Default value: 0.
-EndOfLine                  boolean        A ﬂag indicating whether end-of-line bit patterns are required to be
-                                          present in the encoding. The CCITTFaxDecode ﬁlter always accepts
-                                          end-of-line bit patterns, but requires them only if EndOfLine is true.
-                                          Default value: false.
-EncodedByteAlign           boolean        A ﬂag indicating whether the ﬁlter expects extra 0 bits before each
-                                          encoded line so that the line begins on a byte boundary. If true, the
-                                          ﬁlter skips over encoded bits to begin decoding each line at a byte
-                                          boundary. If false, the ﬁlter does not expect extra bits in the encod-
-                                          ed representation. Default value: false.
-Columns                    integer        The width of the image in pixels. If the value is not a multiple of 8,
-                                          the ﬁlter adjusts the width of the unencoded image to the next mul-
-                                          tiple of 8, so that each line starts on a byte boundary. Default value:
-                                          1728.
-Rows                       integer        The height of the image in scan lines. If the value is 0 or absent, the
-                                          image’s height is not predetermined, and the encoded data must be
-                                          terminated by an end-of-block bit pattern or by the end of the ﬁl-
-                                          ter’s data. Default value: 0.
-EndOfBlock                 boolean        A ﬂag indicating whether the ﬁlter expects the encoded data to be
-                                          terminated by an end-of-block pattern, overriding the Rows pa-
-                                          rameter. If false, the ﬁlter stops when it has decoded the number of
-                                          lines indicated by Rows or when its data has been exhausted, which-
-                                          ever occurs ﬁrst. The end-of-block pattern is the CCITT end-of-
-                                          facsimile-block (EOFB) or return-to-control (RTC) appropriate for
-                                          the K parameter. Default value: true.
-BlackIs1                   boolean        A ﬂag indicating whether 1 bits are to be interpreted as black pixels
-                                          and 0 bits as white pixels, the reverse of the normal PDF convention
-                                          for image data. Default value: false.
-DamagedRowsBeforeError     integer        The number of damaged rows of data to be tolerated before an
-                                          error occurs. This entry applies only if EndOfLine is true and K is
-                                          nonnegative. Tolerating a damaged row means locating its end in
-                                          the encoded data by searching for an EndOfLine pattern and then
-                                          substituting decoded data from the previous row if the previous
-                                          row was not damaged, or a white scan line if the previous row was
-                                          also damaged. Default value: 0.
+EndOfLine                  boolean  ()A ﬂag indicating whether end-of-line bit patterns are required to be
+                                    present in the encoding. The CCITTFaxDecode ﬁlter always accepts
+                                    end-of-line bit patterns, but requires them only if EndOfLine is true.
+                                    Default value: false.
+EncodedByteAlign           boolean  ()A ﬂag indicating whether the ﬁlter expects extra 0 bits before each
+                                    encoded line so that the line begins on a byte boundary. If true, the
+                                    ﬁlter skips over encoded bits to begin decoding each line at a byte
+                                    boundary. If false, the ﬁlter does not expect extra bits in the encod-
+                                    ed representation. Default value: false.
+Columns                    integer  ()The width of the image in pixels. If the value is not a multiple of 8,
+                                    the ﬁlter adjusts the width of the unencoded image to the next mul-
+                                    tiple of 8, so that each line starts on a byte boundary. Default value:
+                                    1728.
+Rows                       integer  ()The height of the image in scan lines. If the value is 0 or absent, the
+                                    image’s height is not predetermined, and the encoded data must be
+                                    terminated by an end-of-block bit pattern or by the end of the ﬁl-
+                                    ter’s data. Default value: 0.
+EndOfBlock                 boolean  ()A ﬂag indicating whether the ﬁlter expects the encoded data to be
+                                    terminated by an end-of-block pattern, overriding the Rows pa-
+                                    rameter. If false, the ﬁlter stops when it has decoded the number of
+                                    lines indicated by Rows or when its data has been exhausted, which-
+                                    ever occurs ﬁrst. The end-of-block pattern is the CCITT end-of-
+                                    facsimile-block (EOFB) or return-to-control (RTC) appropriate for
+                                    the K parameter. Default value: true.
+BlackIs1                   boolean  ()A ﬂag indicating whether 1 bits are to be interpreted as black pixels
+                                    and 0 bits as white pixels, the reverse of the normal PDF convention
+                                    for image data. Default value: false.
+DamagedRowsBeforeError     integer  ()The number of damaged rows of data to be tolerated before an
+                                    error occurs. This entry applies only if EndOfLine is true and K is
+                                    nonnegative. Tolerating a damaged row means locating its end in
+                                    the encoded data by searching for an EndOfLine pattern and then
+                                    substituting decoded data from the previous row if the previous
+                                    row was not damaged, or a white scan line if the previous row was
+                                    also damaged. Default value: 0.
           The compression achieved using CCITT encoding depends on the data, as well as
           on the value of various optional parameters. For Group 3 one-dimensional en-
           coding, in the best case (all zeros), each scan line compresses to 4 bytes, and the
@@ -2251,7 +2251,7 @@ representing each JBIG2 “page” as a PDF image, as follows:
    same global segments.
                            TABLE 3.10 Optional parameter for the JBIG2Decode ﬁlter
 KEY                 TYPE            VALUE
-JBIG2Globals        stream          A stream containing the JBIG2 global (page 0) segments. Global segments
+JBIG2Globals        stream          ()A stream containing the JBIG2 global (page 0) segments. Global segments
                                     must be placed in this stream even if only a single JBIG2 image XObject refers
                                     to it.
           Example 3.4 shows an image that was compressed using the JBIG2 compression
@@ -2352,7 +2352,7 @@ This bit stream is made up of the parts listed below (in the order listed).
       ﬁcients are then compressed.
                           TABLE 3.11 Optional parameter for the DCTDecode ﬁlter
 KEY                   TYPE       VALUE
-ColorTransform        integer    A code specifying the transformation to be performed on the sample values:
+ColorTransform        integer    ()A code specifying the transformation to be performed on the sample values:
                                      0    No transformation.
                                      1    If the image has three color components, transform RGB values to
                                           YUV before encoding and from YUV to RGB after decoding. If the
@@ -15591,18 +15591,18 @@ Dest   name, string,    (Optional; not permitted if an A entry is present) The d
                         also implementation note 56 in Appendix H).
 A      dictionary       (Optional; PDF 1.1; not permitted if a Dest entry is present) The action to be
                         performed when this item is activated (see Section 8.5, “Actions”).
-SE            dictionary             (Optional; PDF 1.3; must be an indirect reference) The structure element to
-                                     which the item refers (see Section 9.6.1, “Structure Hierarchy”).
-                                     Note: The ability to associate an outline item with a structure element (such as
-                                     the beginning of a chapter) is a PDF 1.3 feature. For backward compatibility
-                                     with earlier PDF versions, such an item should also specify a destination (Dest)
-                                     corresponding to an area of a page where the contents of the designated structure
-                                     element are displayed.
-C             array                  (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0, repre-
-                                     senting the components in the DeviceRGB color space of the color to be used
-                                     for the outline entry’s text. Default value: [0.0 0.0 0.0].
-F             integer                (Optional; PDF 1.4) A set of ﬂags specifying style characteristics for display-
-                                     ing the outline item’s text (see Table 8.5). Default value: 0.
+SE     dictionary       (Optional; PDF 1.3; must be an indirect reference) The structure element to
+                        which the item refers (see Section 9.6.1, “Structure Hierarchy”).
+                        Note: The ability to associate an outline item with a structure element (such as
+                        the beginning of a chapter) is a PDF 1.3 feature. For backward compatibility
+                        with earlier PDF versions, such an item should also specify a destination (Dest)
+                        corresponding to an area of a page where the contents of the designated structure
+                        element are displayed.
+C     array             (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0, repre-
+                        senting the components in the DeviceRGB color space of the color to be used
+                        for the outline entry’s text. Default value: [0.0 0.0 0.0].
+F     integer           (Optional; PDF 1.4) A set of ﬂags specifying style characteristics for display-
+                        ing the outline item’s text (see Table 8.5). Default value: 0.
            The value of the outline item dictionary’s F entry (PDF 1.4) is an unsigned 32-bit
            integer containing ﬂags specifying style characteristics for displaying the item. Bit
            positions within the ﬂag word are numbered from 1 (low-order) to 32 (high-
@@ -16708,6 +16708,7 @@ Bl  dictionary     (Optional; PDF 1.2; widget annotations only) (Uppercase B, lo
                    be performed when the annotation loses the input focus. (The name Bl stands for
                    “blurred.”)
                 TABLE 8.31 Entries in a page object’s additional-actions dictionary
+KEY TYPE           VALUE
 O   dictionary     (Optional; PDF 1.2) An action to be performed when the page is opened (for example,
                    when the user navigates to it from the next or previous page or via a link annotation or
                    outline item). This action is independent of any that may be deﬁned by the Open-
@@ -16718,30 +16719,32 @@ C   dictionary     (Optional; PDF 1.2) An action to be performed when the page i
                    outline item). This action applies to the page being closed, and is executed before any
                    other page is opened. (See implementation note 72 in Appendix H.)
                 TABLE 8.32 Entries in a form ﬁeld’s additional-actions dictionary
-K  dictionary      (Optional; PDF 1.3) A JavaScript action to be performed when the user types a key-
+KEY TYPE           VALUE
+K   dictionary     (Optional; PDF 1.3) A JavaScript action to be performed when the user types a key-
                    stroke into a text ﬁeld or combo box or modiﬁes the selection in a scrollable list box.
                    This allows the keystroke to be checked for validity and rejected or modiﬁed.
-F  dictionary      (Optional; PDF 1.3) A JavaScript action to be performed before the ﬁeld is formatted
+F   dictionary     (Optional; PDF 1.3) A JavaScript action to be performed before the ﬁeld is formatted
                    to display its current value. This allows the ﬁeld’s value to be modiﬁed before format-
                    ting.
-V  dictionary      (Optional; PDF 1.3) A JavaScript action to be performed when the ﬁeld’s value is
+V   dictionary     (Optional; PDF 1.3) A JavaScript action to be performed when the ﬁeld’s value is
                    changed. This allows the new value to be checked for validity. (The name V stands for
                    “validate.”)
-C  dictionary      (Optional; PDF 1.3) A JavaScript action to be performed in order to recalculate the
+C   dictionary     (Optional; PDF 1.3) A JavaScript action to be performed in order to recalculate the
                    value of this ﬁeld when that of another ﬁeld changes. (The name C stands for
                    “calculate.”) The order in which the document’s ﬁelds are recalculated is deﬁned by the
                    CO entry in the interactive form dictionary (see Section 8.6.1, “Interactive Form
                    Dictionary”).
             TABLE 8.33 Entries in the document catalog’s additional-actions dictionary
-DC dictionary      (Optional; PDF 1.4) A JavaScript action to be performed before closing a document.
+KEY TYPE           VALUE
+DC  dictionary     (Optional; PDF 1.4) A JavaScript action to be performed before closing a document.
                    (The name DC stands for “document close.”)
-WS dictionary      (Optional; PDF 1.4) A JavaScript action to be performed before saving a document.
+WS  dictionary     (Optional; PDF 1.4) A JavaScript action to be performed before saving a document.
                    (The name WS stands for “will save.”)
-DS dictionary      (Optional; PDF 1.4) A JavaScript action to be performed after saving a document. (The
+DS  dictionary     (Optional; PDF 1.4) A JavaScript action to be performed after saving a document. (The
                    name DS stands for “did save.”)
-WP dictionary      (Optional; PDF 1.4) A JavaScript action to be performed before printing a document.
+WP  dictionary     (Optional; PDF 1.4) A JavaScript action to be performed before printing a document.
                    (The name WP stands for “will print.”)
-DP dictionary      (Optional; PDF 1.4) A JavaScript action to be performed after printing a document.
+DP  dictionary     (Optional; PDF 1.4) A JavaScript action to be performed after printing a document.
                    (The name DP stands for “did print.”)
 For purposes of the trigger events E (enter), X (exit), D (down), and U (up), the
 term mouse denotes a generic pointing device with the following characteristics:
@@ -16863,7 +16866,7 @@ F         ﬁle speciﬁcation  (Required if none of the entries Win, Mac, or Un
                             and the viewer application does not understand any of the alternative entries,
                             it should do nothing.
 Win       dictionary        (Optional) A dictionary containing Windows-speciﬁc launch parameters (see
-                            Table 8.38; see also implementation note 73 in Appendix H).
+                            the Table 8.38; see also implementation note 73 in Appendix H).
 Mac       (undeﬁned)        (Optional) Mac OS–speciﬁc launch parameters; not yet deﬁned.
 Unix      (undeﬁned)        (Optional) UNIX-speciﬁc launch parameters; not yet deﬁned.
 NewWindow boolean           (Optional; PDF 1.2) A ﬂag specifying whether to open the destination docu-
@@ -18733,9 +18736,9 @@ OPI dictionary                                                   9.10.6
             dictionary containing all of the private data needed by the application other than
             the actual content of the page or form.
                                   TABLE 9.6 Entries in a page-piece dictionary
-KEY                         TYPE            VALUE
-any application name        dictionary      An application data dictionary (see Table 9.7).
-or well-known data type
+KEY                                                   TYPE            VALUE
+[any_application_name_or_well_known_data_type]        dictionary      ()An application data dictionary (see Table 9.7).
+
                                TABLE 9.7 Entries in an application data dictionary
 KEY                         TYPE            VALUE
 LastModiﬁed                 date            (Required) The date and time when the contents of the page or form
