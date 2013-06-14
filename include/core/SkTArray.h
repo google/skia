@@ -456,7 +456,8 @@ void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int atIndex) {
 // Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
 // to match the op new silences warnings about missing op delete when a constructor throws an
 // exception.
-template <typename T> void operator delete(void*, SkTArray<T, MEM_COPY>* array, int atIndex) {
+template <typename T, bool MEM_COPY> 
+void operator delete(void*, SkTArray<T, MEM_COPY>* array, int atIndex) {
     SK_CRASH();
 }
 
