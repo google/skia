@@ -70,8 +70,8 @@ public:
             // For rects < 1 pixel wide or tall, these scale factors are used to cap the maximum
             // value of coverage that is used. In other words it is the coverage that is
             // used in the interior of the rect after the ramp.
-            builder->fsCodeAppend("\tfloat scaleW = min(1.0, 2*insetW/spanW);\n");
-            builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2*insetH/spanH);\n");
+            builder->fsCodeAppend("\tfloat scaleW = min(1.0, 2.0*insetW/spanW);\n");
+            builder->fsCodeAppend("\tfloat scaleH = min(1.0, 2.0*insetH/spanH);\n");
 
             // Compute the coverage for the rect's width
             builder->fsCodeAppendf(
