@@ -79,8 +79,6 @@ static void SK_BLITBWMASK_NAME(const SkBitmap& bitmap, const SkMask& srcMask, co
         // back up manually so we can keep in sync with our byte-aligned src
         // and not trigger an assert from the getAddr## function
         device -= left_edge & 7;
-        // have cx reflect our actual starting x-coord
-        cx -= left_edge & 7;
 
         if (full_runs < 0)
         {
