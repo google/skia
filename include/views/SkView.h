@@ -365,19 +365,20 @@ protected:
     virtual void    onPostInflate(const SkTDict<SkView*>&);
 
 public:
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
     // default action is to inval the view
     virtual void    onFocusChange(bool gainFocusP);
+
 protected:
 
     // override these if you're acting as a layer/host
     virtual bool    onGetFocusView(SkView**) const { return false; }
     virtual bool    onSetFocusView(SkView*) { return false; }
 
-#ifdef SK_DEBUG
-    void validate() const;
-#else
-    void validate() const {}
-#endif
 private:
     SkScalar    fWidth, fHeight;
     SkMatrix    fMatrix;
