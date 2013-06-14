@@ -1,5 +1,6 @@
 #include "SkConfig8888.h"
 #include "SkMathPriv.h"
+#include "SkUnPreMultiply.h"
 
 namespace {
 
@@ -57,23 +58,20 @@ inline uint32_t convert_pixel(uint32_t pixel) {
     uint32_t a, r, g, b;
     unpack_config8888<IN_A_IDX, IN_R_IDX, IN_G_IDX, IN_B_IDX>(pixel, &a, &r, &g, &b);
     if (IN_PM && !OUT_PM) {
-        // We're doing the explicit divide to match WebKit layout
-        // test expectations. We can modify and rebaseline if there
-        // it can be shown that there is a more performant way to
-        // unpremul.
+        // Using SkUnPreMultiply::ApplyScale is faster than (value * 0xff) / a.
         if (a) {
-            r = r * 0xff / a;
-            g = g * 0xff / a;
-            b = b * 0xff / a;
+            SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(a);
+            r = SkUnPreMultiply::ApplyScale(scale, r);
+            g = SkUnPreMultiply::ApplyScale(scale, g);
+            b = SkUnPreMultiply::ApplyScale(scale, b);
         } else {
             return 0;
         }
     } else if (!IN_PM && OUT_PM) {
-        // This matches WebKit's conversion which we are replacing.
-        // We can consider alternative rounding rules for performance.
-        r = SkMulDiv255Ceiling(r, a);
-        g = SkMulDiv255Ceiling(g, a);
-        b = SkMulDiv255Ceiling(b, a);
+        // This matches SkUnPreMultiply conversion which we are replacing.
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
     }
     return pack_config8888<OUT_A_IDX, OUT_R_IDX, OUT_G_IDX, OUT_B_IDX>(a, r, g, b);
 }
