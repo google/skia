@@ -89,14 +89,14 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool readFragPosition = false;
     if (!skipColor) {
         for (int s = 0; s < drawState.numColorStages(); ++s) {
-            effectKeys[currEffectKey++] = 
+            effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getColorStage(s), gpu->glCaps(),
                                          requiresLocalCoordAttrib, &readsDst, &readFragPosition);
         }
     }
     if (!skipCoverage) {
         for (int s = 0; s < drawState.numCoverageStages(); ++s) {
-            effectKeys[currEffectKey++] = 
+            effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getCoverageStage(s), gpu->glCaps(),
                                          requiresLocalCoordAttrib, &readsDst, &readFragPosition);
         }
