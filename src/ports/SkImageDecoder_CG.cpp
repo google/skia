@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -6,14 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkCGUtils.h"
 #include "SkColorPriv.h"
-
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkCGUtils.h"
+#include "SkUnPreMultiply.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -50,6 +49,17 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
+// Returns an unpremultiplied version of color. It will have the same ordering and size as an
+// SkPMColor, but the alpha will not be premultiplied.
+static SkPMColor unpremultiply_pmcolor(SkPMColor color) {
+    U8CPU a = SkGetPackedA32(color);
+    const SkUnPreMultiply::Scale scale = SkUnPreMultiply::GetScale(a);
+    return SkPackARGB32NoCheck(a,
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedR32(color)),
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedG32(color)),
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedB32(color)));
+}
+
 #define BITMAP_INFO (kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast)
 
 bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
@@ -80,15 +90,10 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     bm->lockPixels();
     bm->eraseColor(SK_ColorTRANSPARENT);
 
-    // use the same colorspace, so we don't change the pixels at all
-    CGColorSpaceRef cs = CGImageGetColorSpace(image);
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
     CGContextRef cg = CGBitmapContextCreate(bm->getPixels(), width, height, 8, bm->rowBytes(), cs, BITMAP_INFO);
-    if (NULL == cg) {
-        // perhaps the image's colorspace does not work for a context, so try just rgb
-        cs = CGColorSpaceCreateDeviceRGB();
-        cg = CGBitmapContextCreate(bm->getPixels(), width, height, 8, bm->rowBytes(), cs, BITMAP_INFO);
-        CFRelease(cs);
-    }
+    CFRelease(cs);
+
     CGContextDrawImage(cg, CGRectMake(0, 0, width, height), image);
     CGContextRelease(cg);
 
@@ -103,6 +108,16 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         default:
             // we don't know if we're opaque or not, so compute it.
             bm->computeAndSetOpaquePredicate();
+    }
+    if (!bm->isOpaque() && this->getRequireUnpremultipliedColors()) {
+        // CGBitmapContext does not support unpremultiplied, so the image has been premultiplied.
+        // Convert to unpremultiplied.
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                uint32_t* addr = bm->getAddr32(i, j);
+                *addr = unpremultiply_pmcolor(*addr);
+            }
+        }
     }
     bm->unlockPixels();
     return true;

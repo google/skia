@@ -123,12 +123,11 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
 
             // Alpha component must be exactly the same.
             REPORTER_ASSERT(reporter, 0 == da);
-            // Other components may differ if rounding is done differently,
-            // but currently that is not the case. If an image fails here
-            // in the future, we can change these to account for differences.
-            REPORTER_ASSERT(reporter, 0 == dr);
-            REPORTER_ASSERT(reporter, 0 == dg);
-            REPORTER_ASSERT(reporter, 0 == db);
+
+            // Color components may not match exactly due to rounding error.
+            REPORTER_ASSERT(reporter, dr <= 1);
+            REPORTER_ASSERT(reporter, dg <= 1);
+            REPORTER_ASSERT(reporter, db <= 1);
         }
     }
 }
