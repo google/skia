@@ -71,6 +71,7 @@ enum GrGLVendor {
 GrGLVersion GrGLGetVersionFromString(const char* versionString);
 GrGLBinding GrGLGetBindingInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
+bool GrGLIsMesaFromVersionString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
 
 // these variants call glGetString()
