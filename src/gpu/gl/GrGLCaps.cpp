@@ -164,10 +164,15 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                          ctxInfo.hasExtension("GL_ARB_texture_storage") ||
                          ctxInfo.hasExtension("GL_EXT_texture_storage");
 
-    // ARB_texture_rg is part of OpenGL 3.0
+    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support it if
+    // it doesn't have ARB_texture_rg extension.
     if (kDesktop_GrGLBinding == binding) {
-        fTextureRedSupport = version >= GR_GL_VER(3,0) ||
-                             ctxInfo.hasExtension("GL_ARB_texture_rg");
+        if (ctxInfo.isMesa()) {
+            fTextureRedSupport = ctxInfo.hasExtension("GL_ARB_texture_rg");
+        } else {
+            fTextureRedSupport = version >= GR_GL_VER(3,0) ||
+                                 ctxInfo.hasExtension("GL_ARB_texture_rg");
+        }
     } else {
         fTextureRedSupport = ctxInfo.hasExtension("GL_EXT_texture_rg");
     }

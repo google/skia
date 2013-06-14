@@ -121,6 +121,12 @@ GrGLBinding GrGLGetBindingInUseFromString(const char* versionString) {
     return kNone_GrGLBinding;
 }
 
+bool GrGLIsMesaFromVersionString(const char* versionString) {
+    int major, minor, mesaMajor, mesaMinor;
+    int n = sscanf(versionString, "%d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
+    return 4 == n;
+}
+
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     if (NULL == versionString) {
         GrAssert(!"NULL GL version string.");
