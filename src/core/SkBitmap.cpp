@@ -1625,7 +1625,11 @@ SkBitmap::RLEPixels::~RLEPixels() {
 void SkBitmap::validate() const {
     SkASSERT(fConfig < kConfigCount);
     SkASSERT(fRowBytes >= (unsigned)ComputeRowBytes((Config)fConfig, fWidth));
-    SkASSERT(fFlags <= (kImageIsOpaque_Flag | kImageIsVolatile_Flag | kImageIsImmutable_Flag));
+    uint8_t allFlags = kImageIsOpaque_Flag | kImageIsVolatile_Flag | kImageIsImmutable_Flag;
+#ifdef SK_BUILD_FOR_ANDROID
+    allFlags |= kHasHardwareMipMap_Flag;
+#endif
+    SkASSERT(fFlags <= allFlags);
     SkASSERT(fPixelLockCount >= 0);
     SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);
