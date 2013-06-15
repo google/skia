@@ -86,7 +86,7 @@ protected:
             //attach the new fPrev and call unref to balance the ref in onDraw
             this->attachChildToBack(fPrev)->unref();
             this->inval(NULL);
-            
+
             SkASSERT(1 == prev->getRefCnt());
             prev->unref();
             return true;
