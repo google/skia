@@ -413,7 +413,7 @@ void AddSelfIntersectTs(SkOpContour* test) {
 
 // resolve any coincident pairs found while intersecting, and
 // see if coincidence is formed by clipping non-concident segments
-void CoincidenceCheck(SkTDArray<SkOpContour*>* contourList, int total) {
+void CoincidenceCheck(SkTArray<SkOpContour*, true>* contourList, int total) {
     int contourCount = (*contourList).count();
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         SkOpContour* contour = (*contourList)[cIndex];

@@ -46,7 +46,7 @@ public:
             SkASSERT(fCrosses[index] != crosser);
         }
 #endif
-        *fCrosses.append() = crosser;
+        fCrosses.push_back(crosser);
     }
 
     void addCubic(const SkPoint pts[4]) {
@@ -214,17 +214,17 @@ public:
 
 #if DEBUG_SHOW_WINDING
     int debugShowWindingValues(int totalSegments, int ofInterest);
-    static void debugShowWindingValues(const SkTDArray<SkOpContour*>& contourList);
+    static void debugShowWindingValues(const SkTArray<SkOpContour*, true>& contourList);
 #endif
 
 private:
     void setBounds();
 
     SkTArray<SkOpSegment> fSegments;
-    SkTDArray<SkOpSegment*> fSortedSegments;
+    SkTArray<SkOpSegment*, true> fSortedSegments;
     int fFirstSorted;
-    SkTDArray<SkCoincidence> fCoincidences;
-    SkTDArray<const SkOpContour*> fCrosses;
+    SkTArray<SkCoincidence, true> fCoincidences;
+    SkTArray<const SkOpContour*, true> fCrosses;
     SkPathOpsBounds fBounds;
     bool fContainsIntercepts;  // FIXME: is this used by anybody?
     bool fContainsCubics;

@@ -8,8 +8,8 @@
 #define PathOpsTestCommon_DEFINED
 
 #include "SkPathOpsQuad.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
-void CubicToQuads(const SkDCubic& cubic, double precision, SkTDArray<SkDQuad>& quads);
+void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, true>& quads);
 
 #endif

@@ -8,22 +8,24 @@
 #define SkPathOpsCommon_DEFINED
 
 #include "SkOpContour.h"
+#include "SkTDArray.h"
 
 class SkPathWriter;
 
 void Assemble(const SkPathWriter& path, SkPathWriter* simple);
+// FIXME: find chase uses insert, so it can't be converted to SkTArray yet
 SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex);
-SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& contourList, bool* firstContour,
+SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bool* firstContour,
                              int* index, int* endIndex, SkPoint* topLeft, bool* unsortable,
                              bool* done, bool binary);
-SkOpSegment* FindUndone(SkTDArray<SkOpContour*>& contourList, int* start, int* end);
-void FixOtherTIndex(SkTDArray<SkOpContour*>* contourList);
-void MakeContourList(SkTArray<SkOpContour>& contours, SkTDArray<SkOpContour*>& list,
+SkOpSegment* FindUndone(SkTArray<SkOpContour*, true>& contourList, int* start, int* end);
+void FixOtherTIndex(SkTArray<SkOpContour*, true>* contourList);
+void MakeContourList(SkTArray<SkOpContour>& contours, SkTArray<SkOpContour*, true>& list,
                      bool evenOdd, bool oppEvenOdd);
-void SortSegments(SkTDArray<SkOpContour*>* contourList);
+void SortSegments(SkTArray<SkOpContour*, true>* contourList);
 
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
-void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList);
+void DebugShowActiveSpans(SkTArray<SkOpContour*, true>& contourList);
 #endif
 
 #endif

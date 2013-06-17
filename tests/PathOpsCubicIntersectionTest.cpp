@@ -244,7 +244,7 @@ static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const S
         cubic2[0].fX, cubic2[0].fY, cubic2[1].fX, cubic2[1].fY,
         cubic2[2].fX, cubic2[2].fY, cubic2[3].fX, cubic2[3].fY);
 #endif
-    SkTDArray<SkDQuad> quads1;
+    SkTArray<SkDQuad, true> quads1;
     CubicToQuads(cubic1, cubic1.calcPrecision(), quads1);
 #if ONE_OFF_DEBUG
     SkDebugf("computed quadratics set 1\n");
@@ -254,7 +254,7 @@ static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const S
                  q[1].fX, q[1].fY,  q[2].fX, q[2].fY);
     }
 #endif
-    SkTDArray<SkDQuad> quads2;
+    SkTArray<SkDQuad, true> quads2;
     CubicToQuads(cubic2, cubic2.calcPrecision(), quads2);
 #if ONE_OFF_DEBUG
     SkDebugf("computed quadratics set 2\n");

@@ -18,7 +18,7 @@ static void test(skiatest::Reporter* reporter, const SkDCubic* cubics, const cha
     for (size_t index = firstTest; index < testCount; ++index) {
         const SkDCubic& cubic = cubics[index];
         double precision = cubic.calcPrecision();
-        SkTDArray<SkDQuad> quads;
+        SkTArray<SkDQuad, true> quads;
         CubicToQuads(cubic, precision, quads);
         if (quads.count() != 1 && quads.count() != 2) {
             SkDebugf("%s [%d] cubic to quadratics failed count=%d\n", name, static_cast<int>(index),
@@ -34,7 +34,7 @@ static void test(skiatest::Reporter* reporter, const SkDQuad* quadTests, const c
         const SkDQuad& quad = quadTests[index];
         SkDCubic cubic = quad.toCubic();
         double precision = cubic.calcPrecision();
-        SkTDArray<SkDQuad> quads;
+        SkTArray<SkDQuad, true> quads;
         CubicToQuads(cubic, precision, quads);
         if (quads.count() != 1 && quads.count() != 2) {
             SkDebugf("%s [%d] cubic to quadratics failed count=%d\n", name, static_cast<int>(index),
@@ -50,7 +50,7 @@ static void testC(skiatest::Reporter* reporter, const SkDCubic* cubics, const ch
     for (size_t index = firstTest; index < testCount; ++index) {
         const SkDCubic& cubic = cubics[index];
         double precision = cubic.calcPrecision();
-        SkTDArray<SkDQuad> quads;
+        SkTArray<SkDQuad, true> quads;
         CubicToQuads(cubic, precision, quads);
         if (!AlmostEqualUlps(cubic[0].fX, quads[0][0].fX)
                 || !AlmostEqualUlps(cubic[0].fY, quads[0][0].fY)) {
@@ -72,7 +72,7 @@ static void testC(skiatest::Reporter* reporter, const SkDCubic(* cubics)[2], con
         for (int idx2 = 0; idx2 < 2; ++idx2) {
             const SkDCubic& cubic = cubics[index][idx2];
             double precision = cubic.calcPrecision();
-            SkTDArray<SkDQuad> quads;
+            SkTArray<SkDQuad, true> quads;
             CubicToQuads(cubic, precision, quads);
             if (!AlmostEqualUlps(cubic[0].fX, quads[0][0].fX)
                     || !AlmostEqualUlps(cubic[0].fY, quads[0][0].fY)) {
@@ -176,7 +176,7 @@ static void oneOff(skiatest::Reporter* reporter, size_t x) {
     SkScalar skinflect[2];
     int skin = SkFindCubicInflections(skcubic, skinflect);
     if (false) SkDebugf("%s %d %1.9g\n", __FUNCTION__, skin, skinflect[0]);
-    SkTDArray<SkDQuad> quads;
+    SkTArray<SkDQuad, true> quads;
     double precision = cubic.calcPrecision();
     CubicToQuads(cubic, precision, quads);
     if (false) SkDebugf("%s quads=%d\n", __FUNCTION__, quads.count());

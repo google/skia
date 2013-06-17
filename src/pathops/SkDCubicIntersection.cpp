@@ -12,7 +12,6 @@
 #include "SkPathOpsQuad.h"
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
-#include "SkTDArray.h"
 #include "SkTSort.h"
 
 #if ONE_OFF_DEBUG
@@ -22,6 +21,8 @@ static const double tLimits2[2][2] = {{-0.865211397, -0.865215212}, {-0.86520769
 
 #define DEBUG_QUAD_PART 0
 #define SWAP_TOP_DEBUG 0
+
+static const int kCubicToQuadSubdivisionDepth = 8; // slots reserved for cubic to quads subdivision
 
 static int quadPart(const SkDCubic& cubic, double tStart, double tEnd, SkReduceOrder* reducer) {
     SkDCubic part = cubic.subDivide(tStart, tEnd);
@@ -74,10 +75,10 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
     i.upDepth();
     SkDCubic c1 = cubic1.subDivide(t1s, t1e);
     SkDCubic c2 = cubic2.subDivide(t2s, t2e);
-    SkTDArray<double> ts1;
+    SkSTArray<kCubicToQuadSubdivisionDepth, double, true> ts1;
     // OPTIMIZE: if c1 == c2, call once (happens when detecting self-intersection)
     c1.toQuadraticTs(c1.calcPrecision() * precisionScale, &ts1);
-    SkTDArray<double> ts2;
+    SkSTArray<kCubicToQuadSubdivisionDepth, double, true> ts2;
     c2.toQuadraticTs(c2.calcPrecision() * precisionScale, &ts2);
     double t1Start = t1s;
     int ts1Count = ts1.count();
@@ -264,10 +265,12 @@ static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cub
     int t1Index = start ? 0 : 3;
     // don't bother if the two cubics are connnected
 #if 1
-    SkTDArray<double> tVals;  // OPTIMIZE: replace with hard-sized array
+    static const int kPointsInCubic = 4; // FIXME: move to DCubic, replace '4' with this
+    static const int kMaxLineCubicIntersections = 3;
+    SkSTArray<(kMaxLineCubicIntersections - 1) * kMaxLineCubicIntersections, double, true> tVals;
     line[0] = cubic1[t1Index];
     // this variant looks for intersections with the end point and lines parallel to other points
-    for (int index = 0; index < 4; ++index) {
+    for (int index = 0; index < kPointsInCubic; ++index) {
         if (index == t1Index) {
             continue;
         }
@@ -296,7 +299,7 @@ static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cub
                     i.insert(start ? 0 : 1, foundT, line[0]);
                 }
             } else {
-                *tVals.append() = foundT;
+                tVals.push_back(foundT);
             }
         }
     }
