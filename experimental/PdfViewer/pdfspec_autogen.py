@@ -916,6 +916,171 @@ def buildPdfSpec(pdfspec):
           .done().done()\
       .done()
 
+  pdfspec.addClass('GraphicsStateDictionary', 'Dictionary', 'Entries in a graphics state parameter dictionary')\
+      .optional()\
+          .field('Type')\
+          .name('Type')\
+          .type('name')\
+          .comment('(Optional) The type of PDF object that this dictionary describes; must be\nExtGState for a graphics state parameter dictionary.')\
+          .done().done()\
+      .optional()\
+          .field('LW')\
+          .name('LW')\
+          .type('number')\
+          .comment('(Optional; PDF 1.3) The line width (see "Line Width" on page 152).')\
+          .done().done()\
+      .optional()\
+          .field('LC')\
+          .name('LC')\
+          .type('integer')\
+          .comment('(Optional; PDF 1.3) The line cap style (see "Line Cap Style" on page 153).')\
+          .done().done()\
+      .optional()\
+          .field('LJ')\
+          .name('LJ')\
+          .type('integer')\
+          .comment('(Optional; PDF 1.3) The line join style (see "Line Join Style" on page 153).')\
+          .done().done()\
+      .optional()\
+          .field('ML')\
+          .name('ML')\
+          .type('number')\
+          .comment('(Optional; PDF 1.3) The miter limit (see "Miter Limit" on page 153).')\
+          .done().done()\
+      .optional()\
+          .field('D')\
+          .name('D')\
+          .type('array')\
+          .comment('(Optional; PDF 1.3) The line dash pattern, expressed as an array of the form\n[dashArray dashPhase], where dashArray is itself an array and dashPhase is an\ninteger (see "Line Dash Pattern" on page 155).')\
+          .done().done()\
+      .optional()\
+          .field('RI')\
+          .name('RI')\
+          .type('name')\
+          .comment('(Optional; PDF 1.3) The name of the rendering intent (see "Rendering\nIntents" on page 197).')\
+          .done().done()\
+      .optional()\
+          .field('OP')\
+          .name('OP')\
+          .type('boolean')\
+          .comment('(Optional) A flag specifying whether to apply overprint (see Section 4.5.6,\n"Overprint Control"). In PDF 1.2 and earlier, there is a single overprint\nparameter that applies to all painting operations. Beginning with PDF 1.3,\nthere are two separate overprint parameters: one for stroking and one for all\nother painting operations. Specifying an OP entry sets both parameters un-\nless there is also an op entry in the same graphics state parameter dictionary,\nin which case the OP entry sets only the overprint parameter for stroking.')\
+          .done().done()\
+      .optional()\
+          .field('op')\
+          .name('op')\
+          .type('boolean')\
+          .comment('(Optional; PDF 1.3) A flag specifying whether to apply overprint (see Section\n4.5.6, "Overprint Control") for painting operations other than stroking. If\nthis entry is absent, the OP entry, if any, sets this parameter.')\
+          .done().done()\
+      .optional()\
+          .field('OPM')\
+          .name('OPM')\
+          .type('integer')\
+          .comment('(Optional; PDF 1.3) The overprint mode (see Section 4.5.6, "Overprint Con-\ntrol").')\
+          .done().done()\
+      .optional()\
+          .field('Font')\
+          .name('Font')\
+          .type('array')\
+          .comment('(Optional; PDF 1.3) An array of the form [font size], where font is an indirect\nreference to a font dictionary and size is a number expressed in text space\nunits. These two objects correspond to the operands of the Tf operator (see\nSection 5.2, "Text State Parameters and Operators"); however, the first oper-\nand is an indirect object reference instead of a resource name.')\
+          .done().done()\
+      .optional()\
+          .field('BG')\
+          .name('BG')\
+          .type('function')\
+          .comment('(Optional) The black-generation function, which maps the interval [0.0 1.0]\nto the interval [0.0 1.0] (see Section 6.2.3, "Conversion from DeviceRGB to\nDeviceCMYK").')\
+          .done().done()\
+      .optional()\
+          .field('BG2')\
+          .name('BG2')\
+          .type('function or name')\
+          .comment('(Optional; PDF 1.3) Same as BG except that the value may also be the name\nDefault, denoting the black-generation function that was in effect at the start\nof the page. If both BG and BG2 are present in the same graphics state param-\neter dictionary, BG2 takes precedence.')\
+          .done().done()\
+      .optional()\
+          .field('UCR')\
+          .name('UCR')\
+          .type('function')\
+          .comment('(Optional) The undercolor-removal function, which maps the interval\n[0.0 1.0] to the interval [-1.0 1.0] (see Section 6.2.3, "Conversion from\nDeviceRGB to DeviceCMYK").')\
+          .done().done()\
+      .optional()\
+          .field('UCR2')\
+          .name('UCR2')\
+          .type('function or name')\
+          .comment('(Optional; PDF 1.3) Same as UCR except that the value may also be the name\nDefault, denoting the undercolor-removal function that was in effect at the\nstart of the page. If both UCR and UCR2 are present in the same graphics state\nparameter dictionary, UCR2 takes precedence.')\
+          .done().done()\
+      .optional()\
+          .field('TR')\
+          .name('TR')\
+          .type('function, array, or name')\
+          .comment('(Optional) The transfer function, which maps the interval [0.0 1.0] to the\ninterval [0.0 1.0] (see Section 6.3, "Transfer Functions"). The value is either\na single function (which applies to all process colorants) or an array of four\nfunctions (which apply to the process colorants individually). The name\nIdentity may be used to represent the identity function.')\
+          .done().done()\
+      .optional()\
+          .field('TR2')\
+          .name('TR2')\
+          .type('function, array, or name')\
+          .comment('(Optional; PDF 1.3) Same as TR except that the value may also be the name\nDefault, denoting the transfer function that was in effect at the start of the\npage. If both TR and TR2 are present in the same graphics state parameter dic-\ntionary, TR2 takes precedence.')\
+          .done().done()\
+      .optional()\
+          .field('HT')\
+          .name('HT')\
+          .type('dictionary, stream, or name')\
+          .comment('(Optional) The halftone dictionary or stream (see Section 6.4, "Halftones")\nor the name Default, denoting the halftone that was in effect at the start of the\npage.')\
+          .done().done()\
+      .optional()\
+          .field('FL')\
+          .name('FL')\
+          .type('number')\
+          .comment('(Optional; PDF 1.3) The flatness tolerance (see Section 6.5.1, "Flatness Toler-\nance").')\
+          .done().done()\
+      .optional()\
+          .field('SM')\
+          .name('SM')\
+          .type('number')\
+          .comment('(Optional; PDF 1.3) The smoothness tolerance (see Section 6.5.2, "Smooth-\nness Tolerance").')\
+          .done().done()\
+      .optional()\
+          .field('SA')\
+          .name('SA')\
+          .type('boolean')\
+          .comment('(Optional) A flag specifying whether to apply automatic stroke adjustment\n(see Section 6.5.4, "Automatic Stroke Adjustment").')\
+          .done().done()\
+      .optional()\
+          .field('BM')\
+          .name('BM')\
+          .type('name or array')\
+          .comment('(Optional; PDF 1.4) The current blend mode to be used in the transparent\nimaging model (see Sections 7.2.4, "Blend Mode," and 7.5.2, "Specifying\nBlending Color Space and Blend Mode").')\
+          .done().done()\
+      .optional()\
+          .field('SMask')\
+          .name('SMask')\
+          .type('dictionary or name')\
+          .comment('(Optional; PDF 1.4) The current soft mask, specifying the mask shape or\nmask opacity values to be used in the transparent imaging model (see\n"Source Shape and Opacity" on page 421 and "Mask Shape and Opacity" on\npage 443).\nNote: Although the current soft mask is sometimes referred to as a "soft clip,"\naltering it with the gs operator completely replaces the old value with the new\none, rather than intersecting the two as is done with the current clipping path\nparameter (see Section 4.4.3, "Clipping Path Operators").')\
+          .done().done()\
+      .optional()\
+          .field('CA')\
+          .name('CA')\
+          .type('number')\
+          .comment('(Optional; PDF 1.4) The current stroking alpha constant, specifying the con-\nstant shape or constant opacity value to be used for stroking operations in the\ntransparent imaging model (see "Source Shape and Opacity" on page 421\nand "Constant Shape and Opacity" on page 444).')\
+          .done().done()\
+      .optional()\
+          .field('ca')\
+          .name('ca')\
+          .type('number')\
+          .comment('(Optional; PDF 1.4) Same as CA, but for nonstroking operations.')\
+          .done().done()\
+      .optional()\
+          .field('AIS')\
+          .name('AIS')\
+          .type('boolean')\
+          .comment('(Optional; PDF 1.4) The alpha source flag ("alpha is shape"), specifying\nwhether the current soft mask and alpha constant are to be interpreted as\nshape values (true) or opacity values (false).')\
+          .done().done()\
+      .optional()\
+          .field('TK')\
+          .name('TK')\
+          .type('boolean')\
+          .comment('(Optional; PDF 1.4) The text knockout flag, which determines the behavior\nof overlapping glyphs within a text object in the transparent imaging model\n(see Section 5.2.7, "Text Knockout").')\
+          .done().done()\
+      .done()
+
   pdfspec.addClass('CalgrayColorSpaceDictionary', 'Dictionary', 'Entries in a CalGray color space dictionary')\
       .required('NULL')\
           .field('WhitePoint')\
@@ -1434,30 +1599,6 @@ def buildPdfSpec(pdfspec):
           .name('Name')\
           .type('name')\
           .comment('(Required in PDF 1.0; optional otherwise) The name by which this form\nXObject is referenced in the XObject subdictionary of the current resource\ndictionary (see Section 3.7.2, "Resource Dictionaries").\nNote: This entry is obsolescent and its use is no longer recommended. (See\nimplementation note 38 in Appendix H.)')\
-          .done().done()\
-      .optional()\
-          .field('LastModified')\
-          .name('LastModified')\
-          .type('date')\
-          .comment('(Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and\ntime (see Section 3.8.2, "Dates") when the form XObject\'s contents were\nmost recently modified. If a page-piece dictionary (PieceInfo) is present, the\nmodification date is used to ascertain which of the application data diction-\naries it contains correspond to the current content of the form (see Section\n9.4, "Page-Piece Dictionaries").')\
-          .done().done()\
-      .required('NULL')\
-          .field('BBox')\
-          .name('BBox')\
-          .type('rectangle')\
-          .comment('(Required) An array of four numbers in the form coordinate system (see\nbelow), giving the coordinates of the left, bottom, right, and top edges,\nrespectively, of the form XObject\'s bounding box. These boundaries are used\nto clip the form XObject and to determine its size for caching.')\
-          .done().done()\
-      .optional()\
-          .field('Matrix')\
-          .name('Matrix')\
-          .type('array')\
-          .comment('(Optional) An array of six numbers specifying the form matrix, which maps\nform space into user space (see Section 4.2.3, "Transformation Matrices").\nDefault value: the identity matrix [1 0 0 1 0 0].')\
-          .done().done()\
-      .optional()\
-          .field('Resources')\
-          .name('Resources')\
-          .type('dictionary')\
-          .comment('(Optional but strongly recommended; PDF 1.2) A dictionary specifying any\nresources (such as fonts and images) required by the form XObject (see Sec-\ntion 3.7, "Content Streams and Resources").\nIn PDF 1.1 and earlier, all named resources used in the form XObject must be\nincluded in the resource dictionary of each page object on which the form\nXObject appears, whether or not they also appear in the resource dictionary\nof the form XObject itself. It can be useful to specify these resources in the\nform XObject\'s own resource dictionary as well, in order to determine which\nresources are used inside the form XObject. If a resource is included in both\ndictionaries, it should have the same name in both locations.')\
           .done().done()\
       .done()
 
@@ -2600,7 +2741,61 @@ def buildPdfSpec(pdfspec):
           .field('Border')\
           .name('Border')\
           .type('array')\
-          .comment('(Optional) An array specifying the characteristics of the annotation\'s border.\nThe border is specified as a "rounded rectangle."\nIn PDF 1.0, the array consists of three numbers defining the horizontal cor-\nner radius, vertical corner radius, and border width, all in default user space\nunits. If the corner radii are 0, the border has square (not rounded) corners;\nif the border width is 0, no border is drawn. (See implementation note 61 in\nAppendix H.)')\
+          .comment('(Optional) An array specifying the characteristics of the annotation\'s border.\nThe border is specified as a "rounded rectangle."\nIn PDF 1.0, the array consists of three numbers defining the horizontal cor-\nner radius, vertical corner radius, and border width, all in default user space\nunits. If the corner radii are 0, the border has square (not rounded) corners;\nif the border width is 0, no border is drawn. (See implementation note 61 in\nAppendix H.)\n  In PDF 1.1, the array may have a fourth element, an optional dash array\n  defining a pattern of dashes and gaps to be used in drawing the border. The\n  dash array is specified in the same format as in the line dash pattern parame-\n  ter of the graphics state (see "Line Dash Pattern" on page 155). For example,\n  a Border value of [0 0 1 [3 2]] specifies a border 1 unit wide, with square\n  corners, drawn with 3-unit dashes alternating with 2-unit gaps. Note that no\n  dash phase is specified; the phase is assumed to be 0. (See implementation\n  note 62 in Appendix H.)\n  Note: In PDF 1.2 or later, annotations may ignore this entry and use the BS\n  entry (see above) to specify their border styles instead. In PDF 1.2 and 1.3, only\n  widget annotations do so; in PDF 1.4, all of the standard annotation types ex-\n  cept Link (see Table 8.14 on page 499) use BS rather than Border if both are\n  present. For backward compatibility, however, Border is still supported for all\n  annotation types.\n  Default value: [0 0 1].')\
+          .done().done()\
+      .optional()\
+          .field('AP')\
+          .name('AP')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.2) An appearance dictionary specifying how the annotation\nis presented visually on the page (see Section 8.4.4, "Appearance Streams";\nsee also implementation note 60 in Appendix H).')\
+          .done().done()\
+      .optional()\
+          .field('AS')\
+          .name('AS')\
+          .type('name')\
+          .comment('(Required if the appearance dictionary AP contains one or more subdictionaries;\nPDF 1.2) The annotation\'s appearance state, which selects the applicable\nappearance stream from an appearance subdictionary (see Section 8.4.4,\n"Appearance Streams"; see also implementation note 60 in Appendix H).')\
+          .done().done()\
+      .optional()\
+          .field('C')\
+          .name('C')\
+          .type('array')\
+          .comment('(Optional; PDF 1.1) An array of three numbers in the range 0.0 to 1.0, repre-\nsenting the components of a color in the DeviceRGB color space. This color\nwill be used for the following purposes:\n*  The background of the annotation\'s icon when closed\n*  The title bar of the annotation\'s pop-up window\n*  The border of a link annotation')\
+          .done().done()\
+      .optional()\
+          .field('CA')\
+          .name('CA')\
+          .type('number')\
+          .comment('(Optional; PDF 1.4) The constant opacity value to be used in painting the\nannotation (see Sections 7.1, "Overview of Transparency," and 7.2.6, "Shape\nand Opacity Computations"). This value applies to all visible elements of\nthe annotation in its closed state (including its background and border), but\nnot to the pop-up window that appears when the annotation is opened. The\nspecified value is used as the initial alpha constant (both stroking and non-\nstroking) for interpreting the annotation\'s appearance stream, if any (see\nSection 8.4.4, "Appearance Streams," and "Constant Shape and Opacity" on\npage 444). The implicit blend mode (see Section 7.2.4, "Blend Mode") is\nNormal. Default value: 1.0.\n                  Note: If no explicit appearance stream is defined for the annotation, it will be\n                  painted by implementation-dependent means that do not necessarily conform to\n                  the Adobe imaging model; in this case, the effect of this entry is implementation-\n                  dependent as well.\n                  Note: This entry is recognized by all of the standard annotation types listed in\n                  Table 8.14 on page 499 except Link, Movie, Widget, PrinterMark, and TrapNet.')\
+          .done().done()\
+      .optional()\
+          .field('T')\
+          .name('T')\
+          .type('text string')\
+          .comment('(Optional; PDF 1.1) The text label to be displayed in the title bar of the anno-\ntation\'s pop-up window when open and active.')\
+          .done().done()\
+      .optional()\
+          .field('Popup')\
+          .name('Popup')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.3) An indirect reference to a pop-up annotation for enter-\ning or editing the text associated with this annotation.')\
+          .done().done()\
+      .optional()\
+          .field('A')\
+          .name('A')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.1) An action to be performed when the annotation is acti-\nvated (see Section 8.5, "Actions").\nNote: This entry is not permitted in link annotations if a Dest entry is present\n(see "Link Annotations" on page 501). Also note that the A entry in movie anno-\ntations has a different meaning (see "Movie Annotations" on page 510).')\
+          .done().done()\
+      .optional()\
+          .field('AA')\
+          .name('AA')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.2) An additional-actions dictionary defining the anno-\ntation\'s behavior in response to various trigger events (see Section 8.5.2,\n"Trigger Events"). At the time of publication, this entry is used only by wid-\nget annotations.')\
+          .done().done()\
+      .optional()\
+          .field('StructParent')\
+          .name('StructParent')\
+          .type('integer')\
+          .comment('(Required if the annotation is a structural content item; PDF 1.3) The integer\nkey of the annotation\'s entry in the structural parent tree (see "Finding Struc-\nture Elements from Content Items" on page 600).')\
           .done().done()\
       .done()
 

@@ -61,6 +61,13 @@ bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
                               const char* abr,
                               SkPdfDictionary** data);
 
+template <typename T>
+bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        T** data);
+
 class SkPdfObject;
 bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -72,9 +79,13 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
 #include "pdf_auto_gen.h"
 
 /*
- * TODO(edisonn): ASAP so skp -> pdf -> png looks greap
- * - load gs/ especially smask and already known prop
- * - use transparency (I think ca and CA ops)
+ * TODO(edisonn):
+ * - encapsulate podofo in the pdf api so the skpdf does not know anything about podofo
+ * - ASAP so skp -> pdf -> png looks great
+ * - load gs/ especially smask and already known prop (skp)
+ * - use transparency (I think ca and CA ops) (skp)
+ * - all font types
+ * - word spacing
  * - load font for baidu.pdf
  * - load font for youtube.pdf
 */
@@ -200,7 +211,7 @@ struct PdfGraphicsState {
     double              fWordSpace;
     double              fCharSpace;
 
-    const PdfObject*    fObjectWithResources;
+    SkPdfResourceDictionary fResources;
 
     SkBitmap            fSMask;
 
@@ -218,7 +229,6 @@ struct PdfGraphicsState {
         fTextLeading  = 0;
         fWordSpace    = 0;
         fCharSpace    = 0;
-        fObjectWithResources = NULL;
         fHasClipPathToApply = false;
     }
 };
@@ -913,7 +923,7 @@ bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
         return false;
     }
 
-    return PodofoMapper::mapDictionary(*pdfDoc, *value, (SkPdfObject**)data);
+    return PodofoMapper::map(*pdfDoc, *value, (SkPdfObject**)data);
 }
 
 bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
@@ -926,6 +936,32 @@ bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
     return DictionaryFromDictionary(pdfDoc, dict, abr, data);
 }
 
+template <typename T>
+bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
+                              const PdfDictionary& dict,
+                              const char* key,
+                              SkPdfDictionary** data) {
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)),
+                                              true);
+    if (value == NULL || !value->IsDictionary()) {
+        return false;
+    }
+
+    return PodofoMapper::map(*pdfDoc, *value, (T**)data);
+}
+
+template <typename T>
+bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        T** data) {
+    if (DictionaryFromDictionary2<T>(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return DictionaryFromDictionary2<T>(pdfDoc, dict, abr, data);
+}
+
 bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
                           const PdfDictionary& dict,
                           const char* key,
@@ -936,7 +972,7 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
     if (value == NULL) {
         return false;
     }
-    return PodofoMapper::mapObject(*pdfDoc, *value, data);
+    return PodofoMapper::map(*pdfDoc, *value, data);
 }
 
 bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
@@ -948,6 +984,7 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
     if (abr == NULL || *abr == '\0') return false;
     return ObjectFromDictionary(pdfDoc, dict, abr, data);
 }
+
 
 
 // TODO(edisonn): perf!!!
@@ -1257,20 +1294,39 @@ bool SkRectFromDictionary(PdfContext* pdfContext,
     return true;
 }
 
-PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
-    if (!obj.HasStream() || obj.GetStream() == NULL || obj.GetStream()->GetLength() == 0) {
+SkPdfObject* get(const SkPdfObject* obj, const char* key, const char* abr = "") {
+    SkPdfObject* ret = NULL;
+    if (obj == NULL) return NULL;
+    const SkPdfDictionary* dict = obj->asDictionary();
+    if (dict == NULL) return NULL;
+    if (!dict->podofo()->IsDictionary()) return NULL;
+    ObjectFromDictionary(dict->doc(), dict->podofo()->GetDictionary(), key, abr, &ret);
+    return ret;
+}
+
+PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
+    if (!skobj || !skobj->podofo() || !skobj->podofo()->HasStream() || skobj->podofo()->GetStream() == NULL || skobj->podofo()->GetStream()->GetLength() == 0) {
         return kOK_PdfResult;
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
     canvas->save();
 
-    pdfContext->fGraphicsState.fObjectWithResources = &obj;
+    if (get(skobj, "Resources")) {
+        SkPdfResourceDictionary* res = NULL;
+
+        PodofoMapper::map(*get(skobj, "Resources"), &res);
+
+        if (res) {
+            pdfContext->fGraphicsState.fResources = *res;
+            delete res;
+        }
+    }
 
     SkTraceMatrix(pdfContext->fGraphicsState.fMatrix, "Current matrix");
 
     SkMatrix matrix;
-    if (SkMatrixFromDictionary(pdfContext, obj.GetDictionary(), "Matrix", &matrix)) {
+    if (SkMatrixFromDictionary(pdfContext, skobj->podofo()->GetDictionary(), "Matrix", &matrix)) {
         pdfContext->fGraphicsState.fMatrix.preConcat(matrix);
         pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fMatrix;
         pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fMatrix;
@@ -1282,7 +1338,7 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, const PdfObje
     canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
 
     SkRect bbox;
-    if (SkRectFromDictionary(pdfContext, obj.GetDictionary(), "BBox", &bbox)) {
+    if (SkRectFromDictionary(pdfContext, skobj->podofo()->GetDictionary(), "BBox", &bbox)) {
         canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
     }
 
@@ -1296,7 +1352,7 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, const PdfObje
 
     // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
     try {
-        obj.GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
+        skobj->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
         if (uncompressedStream != NULL && uncompressedStreamLength != 0) {
             PdfContentsTokenizer tokenizer(uncompressedStream, uncompressedStreamLength);
             PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
@@ -1347,8 +1403,8 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& o
     CheckRecursiveRendering checkRecursion(obj);
 
     // TODO(edisonn): check type
-    SkPdfObject* skobj = NULL;
-    if (!PodofoMapper::mapXObjectDictionary(*pdfContext->fPdfDoc, obj, &skobj)) return kIgnoreError_PdfResult;
+    SkPdfXObjectDictionary* skobj = NULL;
+    if (!PodofoMapper::map(*pdfContext->fPdfDoc, obj, &skobj)) return kIgnoreError_PdfResult;
 
     if (!skobj || !skobj->valid()) return kIgnoreError_PdfResult;
 
@@ -1359,7 +1415,7 @@ PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& o
             ret = doXObject_Image(pdfContext, canvas, skobj->asImageDictionary());
             break;
         case kObjectDictionaryXObjectDictionaryType1FormDictionary_SkPdfObjectType:
-            ret = doXObject_Form(pdfContext, canvas, obj);//skobj->asType1FormDictionary());
+            ret = doXObject_Form(pdfContext, canvas, skobj->asType1FormDictionary());
             break;
         //case kObjectDictionaryXObjectPS_SkPdfObjectType:
             //return doXObject_PS(skxobj.asPS());
@@ -2105,15 +2161,7 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     std::string str;
 #endif
 
-    const PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
-
-#ifdef PDF_TRACE
-    pdfContext->fGraphicsState.fObjectWithResources->ToString(str);
-    printf("Print Object with resources: %s\n", str.c_str());
-#endif
-
-    const PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                        pageDict.GetKey("Resources"));
+    const PdfObject* resources = pdfContext->fGraphicsState.fResources.podofo();
 
     if (resources == NULL) {
 #ifdef PDF_TRACE
@@ -2168,6 +2216,8 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     value->ToString(str);
     printf("gs object value: %s\n", str.c_str());
 #endif
+
+    SkPdfGraphicsStateDictionary gs(pdfContext->fPdfDoc, value);
 
     // TODO(edisonn): now load all those properties in graphic state.
 
@@ -2252,9 +2302,7 @@ PdfResult PdfOp_sh(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     PdfName name = pdfContext->fVarStack.top().GetName();    pdfContext->fVarStack.pop();
 
-    const PdfDictionary& pageDict = pdfContext->fGraphicsState.fObjectWithResources->GetDictionary();
-    const PdfObject* resources = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                        pageDict.GetKey("Resources"));
+    const PdfObject* resources = pdfContext->fGraphicsState.fResources.podofo();
 
     if (resources == NULL) {
 #ifdef PDF_TRACE
@@ -2637,7 +2685,8 @@ public:
                 pdfContext.fPdfPage = page;
                 pdfContext.fPdfDoc = &doc;
                 pdfContext.fOriginalMatrix = SkMatrix::I();
-                pdfContext.fGraphicsState.fObjectWithResources = pdfContext.fPdfPage->GetObject();
+                pdfContext.fGraphicsState.fResources = SkPdfResourceDictionary(pdfContext.fPdfDoc, resolveReferenceObject(pdfContext.fPdfDoc,
+                                                                                                                          pdfContext.fPdfPage->GetResources()));
 
                 gPdfContext = &pdfContext;
                 gDumpBitmap = &bitmap;
