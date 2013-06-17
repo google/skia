@@ -80,6 +80,7 @@ tableToClassName = {
 'TABLE 3.33': ['EmbeddedFileStreamDictionary', 'Additional entries in an embedded file stream dictionary'],
 'TABLE 3.34': ['EmbeddedFileParameterDictionary', 'Entries in an embedded file parameter dictionary'],
 'TABLE 3.35': ['MacOsFileInformationDictionary', 'Entries in a Mac OS file information dictionary'],
+'TABLE 4.8': ['GraphicsStateDictionary', 'Entries in a graphics state parameter dictionary'],
 'TABLE 4.13': ['CalgrayColorSpaceDictionary', 'Entries in a CalGray color space dictionary'],
 'TABLE 4.14': ['CalrgbColorSpaceDictionary', 'Entries in a CalRGB color space dictionary'],
 'TABLE 4.15': ['LabColorSpaceDictionary', 'Entries in a Lab color space dictionary'],
@@ -417,7 +418,9 @@ def rebaseTable(line):
   global knownTypes
   global columnWidth
   
-  words = line.split()
+  line2 = line.replace(',', ' , ')
+  
+  words = line2.split()
   
   if len(words) < 3:
     return False
@@ -457,13 +460,15 @@ def stopTable():
 def killTable():
   return
 
-def processLine(line):
+def processLineCore(line):
   global lines
   global tableLine
   global tableRow
   global columnWidth
   global columnValues
   global mustFollowTableHeader
+  
+  global fnewspec
   
   lines = lines + 1
   
@@ -474,31 +479,32 @@ def processLine(line):
   words = line.split()
   if len(words) == 0:
     stopTable()
-    return
+    return False
         
   isTableHeader = re.search('^[\s]*(TABLE [0-9].[0-9][0-9]?)', striped)
   if isTableHeader:
     stopTable()
     tableDescriptionFound(striped)
     mustFollowTableHeader = True
-    return
+    return False
   
   if mustFollowTableHeader:
     mustFollowTableHeader = False
     if len(words) != 3:
       killTable()
+      return False
  
     # TODO(edisonn): support for generic table!
     if words[0] != 'KEY' or words[1] != 'TYPE' or words[2] != 'VALUE':
       killTable()
-      return
+      return False
 
     tableHasHeader()
     columnWidth = [0, 0, 0]
     columnWidth[0] = striped.index('TYPE')
     columnWidth[1] = striped.index('VALUE') - striped.index('TYPE')
     columnWidth[2] = 0
-    return
+    return True
       
   if inTable():
     tableLine = tableLine + 1
@@ -506,16 +512,13 @@ def processLine(line):
     second = striped[columnWidth[0] : columnWidth[0] + columnWidth[1]]
     third = striped[columnWidth[0] + columnWidth[1] :]
 
-
-
-
     if tableLine == 1:
       if third[0] != '(':
         killTable()
-        return
+        return False
 
       newRow(first, second, third)
-      return
+      return True
     
     if rebaseTable(striped):
       first = striped[0 : columnWidth[0]]
@@ -528,43 +531,65 @@ def processLine(line):
         
     if first == '' and second == '' and third != '':
       appendRow(second, third)
-      return
+      return True
       
     if len(first.split()) > 1:
       stopTable()
-      return
+      return False
 
     if first != '' and first[0] == ' ':
       stopTable()
-      return
+      return False
 
     if first != '' and second != '' and third == '':
       stopTable()
-      return
+      return False
 
     if first == '' and second != '' and second[0] != ' ':
       if acceptType(second):
         appendRow(second, third)
+        return True
       else:
         stopTable()
-      return
+        return False
 
     if first != '' and second != '' and third[0] != '(':
       stopTable()
-      return
+      return False
       
     if first == '' and second != '' and second[0] == ' ':
       stopTable()
-      return
+      return False
 
     if first != '' and second != '' and third[0] == '(':
       commitRow()
       newRow(first, second, third)
-      return
+      return True
+    
+    return False
+  return False
+  
+def processLine(line):
+  global fnewspec
+  
+  inSpec = processLineCore(line)
+  
+  #just return, use the next lines if you wish to rewrite spec
+  return
+  
+  if inSpec:
+    #resize colum with types
+    line = line[:columnWidth[0] + columnWidth[1]] + (' ' * (60 - columnWidth[1])) + line[columnWidth[0] + columnWidth[1]:]
+    line = line[:columnWidth[0]] + (' ' * (40 - columnWidth[0])) + line[columnWidth[0]:]
+  
+  fnewspec.write(line)
   
 
 def generateDef():
   global lines
+  global fnewspec
+  
+  #fnewspec = open('PdfReference-okular-2.txt', 'w')
   
   print 'import datatypes'
   print
@@ -580,6 +605,7 @@ def generateDef():
   print
   
   #print lines
+  #fnewspec.close()
 
 if '__main__' == __name__:
   sys.exit(generateDef())

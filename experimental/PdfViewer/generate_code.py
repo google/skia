@@ -341,17 +341,21 @@ class PdfClassManager:
         print('  const PdfObject* fPodofoObj;')
         print
         print('public:')
-        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc, const PdfObject* podofoObj) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}')
+        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}')
+        print('  const PdfMemDocument* doc() const { return fPodofoDoc;}')
         print('  const PdfObject* podofo() const { return fPodofoObj;}')
       else:
         print('public:')
-        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc, const PdfObject* podofoObj) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}')
+        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}')
         print
       
       #check required fieds, also, there should be an internal_valid() manually wrote for complex
       # situations
       # right now valid return true      
       print('  virtual bool valid() const {return true;}')
+      print
+      
+      print('  SkPdf' + cls.fName + '& operator=(const SkPdf' + cls.fName + '& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}')
       print
       
       for field in cls.fFields:
@@ -392,12 +396,18 @@ class PdfClassManager:
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      print('  static bool map' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out) {')
+
+      print('  static bool map(const SkPdfObject& in, SkPdf' + name + '** out) {')
+      print('    return map(*in.doc(), *in.podofo(), out);')
+      print('  }') 
+      print
+
+      print('  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {')
       print('    if (!isA' + name + '(podofoDoc, podofoObj)) return false;')
       print
       
       for sub in cls.fEnumSubclasses:
-        print('    if (map' + enumToCls[sub].fName + '(podofoDoc, podofoObj, out)) return true;')
+        print('    if (map(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;')
 
       print
       
@@ -424,11 +434,7 @@ class PdfClassManager:
             print('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;')
             print
       
-        # hack, we only care about dictionaries now, so ret tru only if there is a match
-        if cntMust != 0 or len(cls.fEnumSubclasses) > 0:
-          print('    return true;')
-        else:
-          print('    return false;')
+        print('    return true;')
               
       print('  }') 
       print    
