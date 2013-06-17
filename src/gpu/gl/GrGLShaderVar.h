@@ -67,12 +67,13 @@ public:
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
-    GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray) {
+    GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
+                  Precision precision = kDefault_Precision) {
         GrAssert(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = kNone_TypeModifier;
         fCount = arrayCount;
-        fPrecision = kDefault_Precision;
+        fPrecision = precision;
         fOrigin = kDefault_Origin;
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
         fName = name;
@@ -301,6 +302,25 @@ public:
                      fUseUniformFloatArrays ? "" : ".x");
     }
 
+    static const char* PrecisionString(Precision p, GrGLBinding binding) {
+        // Desktop GLSL has added precision qualifiers but they don't do anything.
+        if (kES2_GrGLBinding == binding) {
+            switch (p) {
+                case kLow_Precision:
+                    return "lowp ";
+                case kMedium_Precision:
+                    return "mediump ";
+                case kHigh_Precision:
+                    return "highp ";
+                case kDefault_Precision:
+                    return "";
+                default:
+                    GrCrash("Unexpected precision type.");
+            }
+        }
+        return "";
+    }
+
 private:
     static const char* TypeModifierString(TypeModifier t, GrGLSLGeneration gen) {
         switch (t) {
@@ -324,25 +344,6 @@ private:
                 GrCrash("Unknown shader variable type modifier.");
                 return ""; // suppress warning
         }
-    }
-
-    static const char* PrecisionString(Precision p, GrGLBinding binding) {
-        // Desktop GLSL has added precision qualifiers but they don't do anything.
-        if (kES2_GrGLBinding == binding) {
-            switch (p) {
-                case kLow_Precision:
-                    return "lowp ";
-                case kMedium_Precision:
-                    return "mediump ";
-                case kHigh_Precision:
-                    return "highp ";
-                case kDefault_Precision:
-                    return "";
-                default:
-                    GrCrash("Unexpected precision type.");
-            }
-        }
-        return "";
     }
 
     GrSLType        fType;

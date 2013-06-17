@@ -494,8 +494,7 @@ void SkPerlinNoiseShader::shadeSpan16(int x, int y, uint16_t result[], int count
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_ANDROID)
-// CPU noise is faster on Android, so the GPU implementation is only for desktop
+#if SK_SUPPORT_GPU
 
 #include "GrTBackendEffectFactory.h"
 
@@ -1008,23 +1007,29 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     // [-1,1] vector and perform a dot product between that vector and the provided vector.
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
+    // Android precision fix for NON Tegra devices, like, for example: Nexus 10 (ARM's Mali-T604)
+    // The value of perlinNoise is 4096.0, so we need a high precision float to store this
+    const GrGLShaderVar::Precision precision = GrGLShaderVar::kHigh_Precision;
+    const char* precisionString =
+        GrGLShaderVar::PrecisionString(precision, builder->ctxInfo().binding());
+
     // Add noise function
     static const GrGLShaderVar gPerlinNoiseArgs[] =  {
         GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType)
+        GrGLShaderVar(noiseVec, kVec2f_GrSLType, GrGLShaderVar::kNonArray, precision)
     };
 
     static const GrGLShaderVar gPerlinNoiseStitchArgs[] =  {
         GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType),
-        GrGLShaderVar(stitchData, kVec4f_GrSLType)
+        GrGLShaderVar(noiseVec, kVec2f_GrSLType, GrGLShaderVar::kNonArray, precision),
+        GrGLShaderVar(stitchData, kVec4f_GrSLType, GrGLShaderVar::kNonArray, precision)
     };
 
     SkString noiseCode;
 
     noiseCode.appendf(
-        "\tvec4 %s = vec4(floor(%s) + vec2(%s), fract(%s));",
-        noiseXY, noiseVec, perlinNoise, noiseVec);
+        "\t%svec4 %s = vec4(floor(%s) + vec2(%s), fract(%s));",
+        precisionString, noiseXY, noiseVec, perlinNoise, noiseVec);
 
     // smooth curve : t * t * (3 - 2 * t)
     noiseCode.appendf("\n\tvec2 %s = %s.zw * %s.zw * (vec2(3.0) - vec2(2.0) * %s.zw);",
@@ -1066,6 +1071,17 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
         noiseCode.append(".r;");
     }
 
+#if defined(SK_BUILD_FOR_ANDROID)
+    // Android rounding for Tegra devices, like, for example: Xoom (Tegra 2), Nexus 7 (Tegra 3).
+    // The issue is that colors aren't accurate enough on Tegra devices. For example, if an 8 bit
+    // value of 124 (or 0.486275 here) is entered, we can get a texture value of 123.513725
+    // (or 0.484368 here). The following rounding operation prevents these precision issues from
+    // affecting the result of the noise by making sure that we only have multiples of 1/255.
+    // (Note that 1/255 is about 0.003921569, which is the value used here).
+    noiseCode.appendf("\n\t%s = floor(%s * vec2(255.0) + vec2(0.5)) * vec2(0.003921569);",
+                      latticeIdx, latticeIdx);
+#endif
+
     // Get (x,y) coordinates with the permutated x
     noiseCode.appendf("\n\t%s = fract(%s + %s.yy);", latticeIdx, latticeIdx, noiseXY);
 
@@ -1088,7 +1104,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     {
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(%s.y, %s)", latticeIdx, chanCoord);
-        noiseCode.append("lattice = ");
+        noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
@@ -1104,7 +1120,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     {
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(fract(%s.y + %s), %s)", latticeIdx, inc8bit, chanCoord);
-        noiseCode.append("lattice = ");
+        noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
@@ -1116,7 +1132,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     {
         SkString latticeCoords("");
         latticeCoords.appendf("vec2(fract(%s.x + %s), %s)", latticeIdx, inc8bit, chanCoord);
-        noiseCode.append("lattice = ");
+        noiseCode.append("\n\tlattice = ");
         builder->appendTextureLookup(&noiseCode, samplers[1], latticeCoords.c_str(),
             kVec2f_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.x = ", uv);
@@ -1130,13 +1146,13 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     SkString noiseFuncName;
     if (fStitchTiles) {
-        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType, "perlinnoise",
-                              SK_ARRAY_COUNT(gPerlinNoiseStitchArgs), gPerlinNoiseStitchArgs,
-                              noiseCode.c_str(), &noiseFuncName);
+        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType,
+                              "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseStitchArgs),
+                              gPerlinNoiseStitchArgs, noiseCode.c_str(), &noiseFuncName);
     } else {
-        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType, "perlinnoise",
-                              SK_ARRAY_COUNT(gPerlinNoiseArgs), gPerlinNoiseArgs,
-                              noiseCode.c_str(), &noiseFuncName);
+        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType,
+                              "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseArgs),
+                              gPerlinNoiseArgs, noiseCode.c_str(), &noiseFuncName);
     }
 
     // There are rounding errors if the floor operation is not performed here
@@ -1148,7 +1164,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     if (fStitchTiles) {
         // Set up TurbulenceInitial stitch values.
-        builder->fsCodeAppendf("\n\t\tvec4 %s = %s;", stitchData, stitchDataUni);
+        builder->fsCodeAppendf("\n\t\t%s vec4 %s = %s;", precisionString, stitchData, stitchDataUni);
     }
 
     builder->fsCodeAppendf("\n\t\tfloat %s = 1.0;", ratio);
@@ -1187,7 +1203,8 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     if (fStitchTiles) {
         builder->fsCodeAppendf("\n\t\t\t%s.xz *= vec2(2.0);", stitchData);
-        builder->fsCodeAppendf("\n\t\t\t%s.yw = %s.xz + vec2(%s);", stitchData, stitchData, perlinNoise);
+        builder->fsCodeAppendf("\n\t\t\t%s.yw = %s.xz + vec2(%s);",
+                               stitchData, stitchData, perlinNoise);
     }
     builder->fsCodeAppend("\n\t\t}"); // end of the for loop on octaves
 
@@ -1334,9 +1351,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
 #else
 
 GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&) const {
-#if !defined(SK_BUILD_FOR_ANDROID)
     SkDEBUGFAIL("Should not call in GPU-less build");
-#endif
     return NULL;
 }
 
