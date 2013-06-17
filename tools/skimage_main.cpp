@@ -515,7 +515,8 @@ int tool_main(int argc, char** argv) {
                 decodeFileAndWrite(fullname.c_str(), outDirPtr);
             } while (iter.next(&filename));
         } else {
-            decodeFileAndWrite(FLAGS_readPath[i], outDirPtr);
+            // FLAGS_readPath[i] is an empty or nonexistent directory,
+            // so do nothing.
         }
     }
 
