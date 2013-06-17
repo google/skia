@@ -2137,8 +2137,8 @@ The predictor function groups also differ in signiﬁcant ways:
     Except where noted otherwise, all values supplied to the decoding ﬁlter by any of
     these parameters must match those used when the data was encoded.
                  TABLE 3.9 Optional parameters for the CCITTFaxDecode ﬁlter
-KEY                                     TYPE                                                        VALUE
-K                                       integer                                                     ()A code identifying the encoding scheme used:
+KEY                                         TYPE                                                    VALUE
+K                                           integer                                                 ()A code identifying the encoding scheme used:
                                                                                                       <0    Pure two-dimensional encoding (Group 4)
                                                                                                         0   Pure one-dimensional encoding (Group 3, 1-D)
                                                                                                       >0    Mixed one- and two-dimensional encoding (Group 3,
