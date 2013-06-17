@@ -1600,6 +1600,72 @@ def buildPdfSpec(pdfspec):
           .type('name')\
           .comment('(Required in PDF 1.0; optional otherwise) The name by which this form\nXObject is referenced in the XObject subdictionary of the current resource\ndictionary (see Section 3.7.2, "Resource Dictionaries").\nNote: This entry is obsolescent and its use is no longer recommended. (See\nimplementation note 38 in Appendix H.)')\
           .done().done()\
+      .optional()\
+          .field('LastModified')\
+          .name('LastModified')\
+          .type('date')\
+          .comment('(Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and\ntime (see Section 3.8.2, "Dates") when the form XObject\'s contents were\nmost recently modified. If a page-piece dictionary (PieceInfo) is present, the\nmodification date is used to ascertain which of the application data diction-\naries it contains correspond to the current content of the form (see Section\n9.4, "Page-Piece Dictionaries").')\
+          .done().done()\
+      .required('NULL')\
+          .field('BBox')\
+          .name('BBox')\
+          .type('rectangle')\
+          .comment('(Required) An array of four numbers in the form coordinate system (see\nbelow), giving the coordinates of the left, bottom, right, and top edges,\nrespectively, of the form XObject\'s bounding box. These boundaries are used\nto clip the form XObject and to determine its size for caching.')\
+          .done().done()\
+      .optional()\
+          .field('Matrix')\
+          .name('Matrix')\
+          .type('array')\
+          .comment('(Optional) An array of six numbers specifying the form matrix, which maps\nform space into user space (see Section 4.2.3, "Transformation Matrices").\nDefault value: the identity matrix [1 0 0 1 0 0].')\
+          .done().done()\
+      .optional()\
+          .field('Resources')\
+          .name('Resources')\
+          .type('dictionary')\
+          .comment('(Optional but strongly recommended; PDF 1.2) A dictionary specifying any\nresources (such as fonts and images) required by the form XObject (see Sec-\ntion 3.7, "Content Streams and Resources").\nIn PDF 1.1 and earlier, all named resources used in the form XObject must be\nincluded in the resource dictionary of each page object on which the form\nXObject appears, whether or not they also appear in the resource dictionary\nof the form XObject itself. It can be useful to specify these resources in the\nform XObject\'s own resource dictionary as well, in order to determine which\nresources are used inside the form XObject. If a resource is included in both\ndictionaries, it should have the same name in both locations.\n     In PDF 1.2 and later versions, form XObjects can be independent of the\n     content streams in which they appear, and this is strongly recommended\n     although not required. In an independent form XObject, the resource dic-\n     tionary of the form XObject is required and contains all named resources\n     used by the form XObject. These resources are not "promoted" to the outer\n     content stream\'s resource dictionary, although that stream\'s resource diction-\n     ary will refer to the form XObject itself.')\
+          .done().done()\
+      .optional()\
+          .field('Group')\
+          .name('Group')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.4) A group attributes dictionary indicating that the contents\nof the form XObject are to be treated as a group and specifying the attributes\nof that group (see Section 4.9.2, "Group XObjects").\nNote: If a Ref entry (see below) is present, the group attributes also apply to the\nexternal page imported by that entry. This allows such an imported page to be\ntreated as a group without further modification.')\
+          .done().done()\
+      .optional()\
+          .field('Ref')\
+          .name('Ref')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.4) A reference dictionary identifying a page to be imported\nfrom another PDF file, and for which the form XObject serves as a proxy (see\nSection 4.9.3, "Reference XObjects").')\
+          .done().done()\
+      .optional()\
+          .field('Metadata')\
+          .name('Metadata')\
+          .type('stream')\
+          .comment('(Optional; PDF 1.4) A metadata stream containing metadata for the form\nXObject (see Section 9.2.2, "Metadata Streams").')\
+          .done().done()\
+      .optional()\
+          .field('PieceInfo')\
+          .name('PieceInfo')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.3) A page-piece dictionary associated with the form\nXObject (see Section 9.4, "Page-Piece Dictionaries").')\
+          .done().done()\
+      .optional()\
+          .field('StructParent')\
+          .name('StructParent')\
+          .type('integer')\
+          .comment('(Required if the form XObject is a structural content item; PDF 1.3) The integer\nkey of the form XObject\'s entry in the structural parent tree (see "Finding\nStructure Elements from Content Items" on page 600).')\
+          .done().done()\
+      .optional()\
+          .field('StructParents')\
+          .name('StructParents')\
+          .type('integer')\
+          .comment('(Required if the form XObject contains marked-content sequences that are struc-\ntural content items; PDF 1.3) The integer key of the form XObject\'s entry in\nthe structural parent tree (see "Finding Structure Elements from Content\nItems" on page 600).\nNote: At most one of the entries StructParent or StructParents may be present. A\nform XObject can be either a content item in its entirety or a container for\nmarked-content sequences that are content items, but not both.')\
+          .done().done()\
+      .optional()\
+          .field('OPI')\
+          .name('OPI')\
+          .type('dictionary')\
+          .comment('(Optional; PDF 1.2) An OPI version dictionary for the form XObject (see\nSection 9.10.6, "Open Prepress Interface (OPI)").')\
+          .done().done()\
       .done()
 
   pdfspec.addClass('GroupAttributesDictionary', 'Dictionary', 'Entries common to all group attributes dictionaries')\

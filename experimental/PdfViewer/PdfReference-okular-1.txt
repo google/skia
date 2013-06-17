@@ -9450,7 +9450,7 @@ Name                                    name                                    
                                                                                                     dictionary (see Section 3.7.2, “Resource Dictionaries”).
                                                                                                     Note: This entry is obsolescent and its use is no longer recommended. (See
                                                                                                     implementation note 38 in Appendix H.)
-LastModiﬁe                            d date                                                        (Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and
+LastModiﬁed                             date                                                        (Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and
                                                                                                     time (see Section 3.8.2, “Dates”) when the form XObject’s contents were
                                                                                                     most recently modiﬁed. If a page-piece dictionary (PieceInfo) is present, the
                                                                                                     modiﬁcation date is used to ascertain which of the application data diction-
@@ -9473,38 +9473,38 @@ Resources                               dictionary                              
                                                                                                     form XObject’s own resource dictionary as well, in order to determine which
                                                                                                     resources are used inside the form XObject. If a resource is included in both
                                                                                                     dictionaries, it should have the same name in both locations.
-                         In PDF 1.2 and later versions, form XObjects can be independent of the
-                         content streams in which they appear, and this is strongly recommended
-                         although not required. In an independent form XObject, the resource dic-
-                         tionary of the form XObject is required and contains all named resources
-                         used by the form XObject. These resources are not “promoted” to the outer
-                         content stream’s resource dictionary, although that stream’s resource diction-
-                         ary will refer to the form XObject itself.
-Group         dictionary (Optional; PDF 1.4) A group attributes dictionary indicating that the contents
-                         of the form XObject are to be treated as a group and specifying the attributes
-                         of that group (see Section 4.9.2, “Group XObjects”).
-                         Note: If a Ref entry (see below) is present, the group attributes also apply to the
-                         external page imported by that entry. This allows such an imported page to be
-                         treated as a group without further modiﬁcation.
-Ref           dictionary (Optional; PDF 1.4) A reference dictionary identifying a page to be imported
-                         from another PDF ﬁle, and for which the form XObject serves as a proxy (see
-                         Section 4.9.3, “Reference XObjects”).
-Metadata      stream     (Optional; PDF 1.4) A metadata stream containing metadata for the form
-                         XObject (see Section 9.2.2, “Metadata Streams”).
-PieceInfo     dictionary (Optional; PDF 1.3) A page-piece dictionary associated with the form
-                         XObject (see Section 9.4, “Page-Piece Dictionaries”).
-StructParent  integer    (Required if the form XObject is a structural content item; PDF 1.3) The integer
-                         key of the form XObject’s entry in the structural parent tree (see “Finding
-                         Structure Elements from Content Items” on page 600).
-StructParents integer    (Required if the form XObject contains marked-content sequences that are struc-
-                         tural content items; PDF 1.3) The integer key of the form XObject’s entry in
-                         the structural parent tree (see “Finding Structure Elements from Content
-                         Items” on page 600).
-                         Note: At most one of the entries StructParent or StructParents may be present. A
-                         form XObject can be either a content item in its entirety or a container for
-                         marked-content sequences that are content items, but not both.
-OPI           dictionary (Optional; PDF 1.2) An OPI version dictionary for the form XObject (see
-                         Section 9.10.6, “Open Prepress Interface (OPI)”).
+                                                                                                         In PDF 1.2 and later versions, form XObjects can be independent of the
+                                                                                                         content streams in which they appear, and this is strongly recommended
+                                                                                                         although not required. In an independent form XObject, the resource dic-
+                                                                                                         tionary of the form XObject is required and contains all named resources
+                                                                                                         used by the form XObject. These resources are not “promoted” to the outer
+                                                                                                         content stream’s resource dictionary, although that stream’s resource diction-
+                                                                                                         ary will refer to the form XObject itself.
+Group                                   dictionary                                                  (Optional; PDF 1.4) A group attributes dictionary indicating that the contents
+                                                                                                    of the form XObject are to be treated as a group and specifying the attributes
+                                                                                                    of that group (see Section 4.9.2, “Group XObjects”).
+                                                                                                    Note: If a Ref entry (see below) is present, the group attributes also apply to the
+                                                                                                    external page imported by that entry. This allows such an imported page to be
+                                                                                                    treated as a group without further modiﬁcation.
+Ref                                     dictionary                                                  (Optional; PDF 1.4) A reference dictionary identifying a page to be imported
+                                                                                                    from another PDF ﬁle, and for which the form XObject serves as a proxy (see
+                                                                                                    Section 4.9.3, “Reference XObjects”).
+Metadata                                stream                                                      (Optional; PDF 1.4) A metadata stream containing metadata for the form
+                                                                                                    XObject (see Section 9.2.2, “Metadata Streams”).
+PieceInfo                               dictionary                                                  (Optional; PDF 1.3) A page-piece dictionary associated with the form
+                                                                                                    XObject (see Section 9.4, “Page-Piece Dictionaries”).
+StructParent                            integer                                                     (Required if the form XObject is a structural content item; PDF 1.3) The integer
+                                                                                                    key of the form XObject’s entry in the structural parent tree (see “Finding
+                                                                                                    Structure Elements from Content Items” on page 600).
+StructParents                           integer                                                     (Required if the form XObject contains marked-content sequences that are struc-
+                                                                                                    tural content items; PDF 1.3) The integer key of the form XObject’s entry in
+                                                                                                    the structural parent tree (see “Finding Structure Elements from Content
+                                                                                                    Items” on page 600).
+                                                                                                    Note: At most one of the entries StructParent or StructParents may be present. A
+                                                                                                    form XObject can be either a content item in its entirety or a container for
+                                                                                                    marked-content sequences that are content items, but not both.
+OPI                                     dictionary                                                  (Optional; PDF 1.2) An OPI version dictionary for the form XObject (see
+                                                                                                    Section 9.10.6, “Open Prepress Interface (OPI)”).
       Example 4.27 shows a simple form XObject that paints a ﬁlled square 1000 units
       on each side.
       Example 4.27

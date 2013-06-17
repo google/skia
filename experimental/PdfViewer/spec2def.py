@@ -575,7 +575,7 @@ def processLine(line):
   inSpec = processLineCore(line)
   
   #just return, use the next lines if you wish to rewrite spec
-  return
+  #return
   
   if inSpec:
     #resize colum with types
@@ -589,7 +589,7 @@ def generateDef():
   global lines
   global fnewspec
   
-  #fnewspec = open('PdfReference-okular-2.txt', 'w')
+  fnewspec = open('PdfReference-okular-2.txt', 'w')
   
   print 'import datatypes'
   print
@@ -605,7 +605,7 @@ def generateDef():
   print
   
   #print lines
-  #fnewspec.close()
+  fnewspec.close()
 
 if '__main__' == __name__:
   sys.exit(generateDef())
