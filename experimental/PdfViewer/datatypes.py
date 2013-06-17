@@ -46,3 +46,29 @@ class CppNull:
   def toCpp(self):
     return 'NULL'
     
+class PdfDateNever:
+  def toCpp(self):
+    return 'SkPdfDate()'
+
+class FileSpecNone:
+  def toCpp(self):
+    return 'SkPdfFileSpec()'
+
+class PdfEmptyRect:
+  def toCpp(self):
+    return 'SkRect()'
+    
+class PdfEmptyStream:
+  def toCpp(self):
+    return 'SkPdfStream()'
+    
+class PdfArrayNone:
+  def toCpp(self):
+    return 'SkPdfArray()'
+    
+class PdfFunctionNone:
+  def toCpp(self):
+    return 'SkPdfFunction()'
+    
+
+    

@@ -76,7 +76,103 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
                         SkPdfObject** data);
 
 
+struct SkPdfFileSpec {};
+class SkPdfArray;
+struct SkPdfStream {};
+struct SkPdfDate {};
+struct SkPdfTree {};
+struct SkPdfFunction {};
+
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfArray* data);
+
+
+bool FileSpecFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfFileSpec* data);
+
+
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfStream* data);
+
+bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfTree** data);
+
+bool DateFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfDate* data);
+
+bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkRect* data);
+
+bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfFunction* data);
+
+
 #include "pdf_auto_gen.h"
+
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfArray* data) {return false;}
+
+bool FileSpecFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfFileSpec* data) {return false;}
+
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfStream* data) {return false;}
+
+bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfTree** data) {return false;}
+
+bool DateFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfDate* data) {return false;}
+
+bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkRect* data) {return false;}
+
+bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfFunction* data) {return false;}
+
+
 
 /*
  * TODO(edisonn):
@@ -1134,12 +1230,11 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
     long bpc = image->BitsPerComponent();
     long width = image->Width();
     long height = image->Height();
-    SkPdfObject* colorSpaceDict = image->ColorSpace();
     std::string colorSpace = "DeviceRGB";
-    // TODO(edisonn): for multiple type fileds, generate code, like, isName(), isArray(), ...and fields like colorSpace_name(), colorSpace_array()
-    // so we do nto go to podofo anywhere in our cpp file
-    if (colorSpaceDict && colorSpaceDict->podofo() && colorSpaceDict->podofo()->IsName()) {
-        colorSpace = colorSpaceDict->podofo()->GetName().GetName();
+
+    // TODO(edisonn): color space can be an array too!
+    if (image->isColorSpaceAName()) {
+        colorSpace = image->getColorSpaceAsName();
     }
 
 /*

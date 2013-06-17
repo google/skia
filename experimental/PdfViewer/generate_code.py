@@ -5,7 +5,26 @@ import sys
 import datatypes
 import pdfspec_autogen
 
-
+knowTypes = {
+'(any)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
+'(undefined)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
+'(various)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
+'array': ['SkPdfArray', 'ArrayFromDictionary', datatypes.PdfArrayNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
+'boolean': ['bool', 'BoolFromDictionary', datatypes.PdfBoolean('false'), 'ret->podofo()->GetDataType() == ePdfDataType_Bool'],
+'date': ['SkPdfDate', 'DateFromDictionary', datatypes.PdfDateNever(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
+'dictionary': ['SkPdfDictionary*', 'DictionaryFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Dictionary'],
+'function': ['SkPdfFunction', 'FunctionFromDictionary', datatypes.PdfFunctionNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
+'integer': ['long', 'LongFromDictionary', datatypes.PdfInteger(0), 'ret->podofo()->GetDataType() == ePdfDataType_Number'],
+'file_specification': ['SkPdfFileSpec', 'FileSpecFromDictionary', datatypes.FileSpecNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
+'name': ['std::string', 'NameFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_Name'],
+'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
+'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real'],
+'rectangle': ['SkRect', 'SkRectFromDictionary', datatypes.PdfEmptyRect(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
+'stream': ['SkPdfStream', 'StreamFromDictionary',  datatypes.PdfEmptyStream(), 'ret->podofo()->HasStream()'],
+'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
+'text': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
+'text string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
+}
 
 
 class PdfField:
@@ -15,12 +34,10 @@ class PdfField:
     self.fAbr = abr
     
     self.fDefault = ''
-    self.fType = ''
+    self.fTypes = ''
     self.fCppName = ''
-    self.fCppType = ''
-    self.fCppReader = ''
-    self.fValidOptions = []
-    self.fHasMust = False 
+    self.fEnumValues = []
+    self.fHasMust = False
     self.fMustBe = ''
 
   def must(self, value):
@@ -32,87 +49,24 @@ class PdfField:
     self.fDefault = value
     return self
     
-  def number(self, name):
-    self.fType = 'number'
-    self.fCppName = name
-    self.fCppType = 'double'
-    self.fCppReader = 'DoubleFromDictionary'
-    return self
-    
-  def integer(self, name):
-    self.fType = 'integer'
-    self.fCppName = name
-    self.fCppType = 'long'
-    self.fCppReader = 'LongFromDictionary'
+  def multiple(self, enumValues):
+    self.fEnumValues = enumValues
     return self
 
   def name(self, name):
-    self.fType = 'name'
     self.fCppName = name
-    self.fCppType = 'std::string'
-    self.fCppReader = 'NameFromDictionary'
     return self
     
-  def string(self, name):
-    self.fType = 'string'
-    self.fCppName = name
-    self.fCppType = 'std::string'
-    self.fCppReader = 'StringFromDictionary'
-    return self
-    
-  def multiple(self, validOptions):
-    self.fValidOptions = validOptions
-    return self
-    
-  def dictionary(self, name):
-    self.fType = 'dictionary'
-    self.fCppName = name
-    self.fDictionaryType = 'Dictionary'
-    self.fCppType = 'SkPdfDictionary*'
-    self.fCppReader = 'DictionaryFromDictionary'
-    self.fDefault = datatypes.CppNull()
-    return self
-
-  def type(self, type):
+  def type(self, types):
     # TODO (edisonn): if simple type, use it, otherwise set it to Dictionary, and set a mask for valid types, like array or name
-    type = type.replace('or', ' ')
-    type = type.replace(',', ' ')
-    type = type.replace('text', ' ') # TODO(edisonn): what is the difference between 'text string' and 'string'?
+    types = types.strip()
+    types = types.replace('or', ' ')
+    types = types.replace(',', ' ')
+    types = types.replace('text', ' ') # TODO(edisonn): what is the difference between 'text string' and 'string'?
+    types = types.replace('file specification', 'file_specification')
     
-    type = type.strip()
-    types = type.split()
     
-    if len(types) == 1:
-      if type == 'integer':
-        self.integer(self.fCppName)
-        self.default(datatypes.PdfInteger(0))
-        return self
-        
-      if type == 'number':
-        self.number(self.fCppName)
-        self.default(datatypes.PdfNumber(0))
-        return self
-
-      if type == 'string':
-        self.string(self.fCppName)
-        self.default(datatypes.PdfString('""'))
-        return self
-
-      if type == 'name':
-        self.name(self.fCppName)
-        self.default(datatypes.PdfName('""'))
-        return self
-    
-      if type == 'dictionary':
-        self.dictionary(self.fCppName)
-        self.default(datatypes.CppNull())
-        return self
-
-    self.fType = 'object'
-    self.fDictionaryType = 'Object'
-    self.fCppType = 'SkPdfObject*'
-    self.fCppReader = 'ObjectFromDictionary'
-    self.fDefault = datatypes.CppNull()
+    self.fTypes = types
     return self
 
   def comment(self, comment):
@@ -271,6 +225,9 @@ class PdfClassManager:
       
   
   def write(self):
+  
+    global knowTypes
+  
     # generate enum
     enumsRoot = []
 
@@ -363,17 +320,42 @@ class PdfClassManager:
         if prop.fCppName != '':
           if prop.fCppName[0] == '[':
             print('/*')  # comment code of the atributes that can have any name
-            
-          print('  ' + prop.fCppType + ' ' + prop.fCppName + '() const {')
-          print('    ' + prop.fCppType + ' ret;')
-          print('    if (' + prop.fCppReader + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
-          if field.fRequired == False:
-            print('    return ' + prop.fDefault.toCpp() + ';');
-          if field.fRequired == True:
-            print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
-            print('    return ' + field.fBadDefault + ';');
-          print('  }') 
-          print
+          
+          # TODO(edisonn): has_foo();  
+            print('  bool has_' + prop.fCppName + '() const {')
+            print('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));')
+            print('  }') 
+
+          if len(prop.fTypes.split()) == 1:
+            t = prop.fTypes.strip()
+            print('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '() const {')
+            print('    ' + knowTypes[t][0] + ' ret;')
+            print('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
+            if field.fRequired == False and prop.fDefault != '':
+              print('    return ' + prop.fDefault.toCpp() + ';');
+            else:
+              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
+              print('    return ' + knowTypes[t][2].toCpp() + ';');
+            print('  }') 
+            print
+          else:
+            for type in prop.fTypes.split():
+              t = type.strip()
+              print('  bool is' + prop.fCppName + 'A' + t.title() + '() const {')
+              print('    SkPdfObject* ret = NULL;')
+              print('    if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return false;')
+              print('    return ' + knowTypes[t][3] + ';')
+              print('  }')
+              print
+
+              print('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '() const {')
+              print('    ' + knowTypes[t][0] + ' ret = ' + knowTypes[t][2].toCpp() + ';')
+              print('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
+              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
+              print('    return ' + knowTypes[t][2].toCpp() + ';')
+              print('  }') 
+              print
+               
            
           if prop.fCppName[0] == '[':
             print('*/')  # comment code of the atributes that can have any name
@@ -403,7 +385,7 @@ class PdfClassManager:
       print
 
       print('  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {')
-      print('    if (!isA' + name + '(podofoDoc, podofoObj)) return false;')
+      print('    if (!is' + name + '(podofoDoc, podofoObj)) return false;')
       print
       
       for sub in cls.fEnumSubclasses:
@@ -419,7 +401,7 @@ class PdfClassManager:
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      print('  static bool isA' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {')
+      print('  static bool is' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {')
       
       if cls.fCheck != '':
         print('    return ' + cls.fCheck + ';')
@@ -429,8 +411,8 @@ class PdfClassManager:
           prop = field.fProp
           if prop.fHasMust:
             cntMust = cntMust + 1
-            print('    ' + prop.fCppType + ' ' + prop.fCppName + ';')
-            print('    if (!' + prop.fCppReader + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;')
+            print('    ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';')
+            print('    if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;')
             print('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;')
             print
       
