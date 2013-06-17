@@ -60,13 +60,23 @@
     {
       'target_name': 'skhello',
       'type': 'executable',
-      'sources': [
-        '../tools/skhello.cpp',
-      ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'pdf.gyp:pdf',
-        'flags.gyp:flags',
+      ],
+      'conditions': [
+        [ 'skia_os == "nacl"', {
+          'sources': [
+            '../platform_tools/nacl/src/nacl_hello.cpp',
+          ],
+        }, {
+          'sources': [
+            '../tools/skhello.cpp',
+          ],
+          'dependencies': [
+            'pdf.gyp:pdf',
+            'flags.gyp:flags',
+          ],
+        }],
       ],
     },
     {
