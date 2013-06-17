@@ -425,31 +425,31 @@ int SkReduceOrder::reduce(const SkDCubic& cubic, Quadratics allowQuadratics,
     return 4;
 }
 
-SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkTDArray<SkPoint>* reducePts) {
+SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkTArray<SkPoint, true>* reducePts) {
     SkDQuad quad;
     quad.set(a);
     SkReduceOrder reducer;
     int order = reducer.reduce(quad, kFill_Style);
     if (order == 2) {  // quad became line
         for (int index = 0; index < order; ++index) {
-            SkPoint* pt = reducePts->append();
-            pt->fX = SkDoubleToScalar(reducer.fLine[index].fX);
-            pt->fY = SkDoubleToScalar(reducer.fLine[index].fY);
+            SkPoint& pt = reducePts->push_back();
+            pt.fX = SkDoubleToScalar(reducer.fLine[index].fX);
+            pt.fY = SkDoubleToScalar(reducer.fLine[index].fY);
         }
     }
     return SkPathOpsPointsToVerb(order - 1);
 }
 
-SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkTDArray<SkPoint>* reducePts) {
+SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkTArray<SkPoint, true>* reducePts) {
     SkDCubic cubic;
     cubic.set(a);
     SkReduceOrder reducer;
     int order = reducer.reduce(cubic, kAllow_Quadratics, kFill_Style);
     if (order == 2 || order == 3) {  // cubic became line or quad
         for (int index = 0; index < order; ++index) {
-            SkPoint* pt = reducePts->append();
-            pt->fX = SkDoubleToScalar(reducer.fQuad[index].fX);
-            pt->fY = SkDoubleToScalar(reducer.fQuad[index].fY);
+            SkPoint& pt = reducePts->push_back();
+            pt.fX = SkDoubleToScalar(reducer.fQuad[index].fX);
+            pt.fY = SkDoubleToScalar(reducer.fQuad[index].fY);
         }
     }
     return SkPathOpsPointsToVerb(order - 1);

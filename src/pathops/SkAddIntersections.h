@@ -9,10 +9,10 @@
 
 #include "SkIntersectionHelper.h"
 #include "SkIntersections.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
 bool AddIntersectTs(SkOpContour* test, SkOpContour* next);
 void AddSelfIntersectTs(SkOpContour* test);
-void CoincidenceCheck(SkTDArray<SkOpContour*>* contourList, int total);
+void CoincidenceCheck(SkTArray<SkOpContour*, true>* contourList, int total);
 
 #endif

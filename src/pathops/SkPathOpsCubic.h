@@ -10,7 +10,7 @@
 
 #include "SkPath.h"
 #include "SkPathOpsPoint.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
 struct SkDCubicPair {
     const SkDCubic& first() const { return (const SkDCubic&) pts[0]; }
@@ -74,7 +74,7 @@ struct SkDCubic {
     }
 
     SkDPoint top(double startT, double endT) const;
-    void toQuadraticTs(double precision, SkTDArray<double>* ts) const;
+    void toQuadraticTs(double precision, SkTArray<double, true>* ts) const;
     SkDQuad toQuad() const;
     SkDPoint xyAtT(double t) const;
 };

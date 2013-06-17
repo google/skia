@@ -10,7 +10,6 @@
 #include "SkOpContour.h"
 #include "SkPathWriter.h"
 #include "SkTArray.h"
-#include "SkTDArray.h"
 
 class SkOpEdgeBuilder {
 public:
@@ -49,12 +48,12 @@ private:
     bool walk();
 
     const SkPath* fPath;
-    SkTDArray<SkPoint> fPathPts;
-    SkTDArray<uint8_t> fPathVerbs;
+    SkTArray<SkPoint, true> fPathPts;
+    SkTArray<uint8_t, true> fPathVerbs;
     SkOpContour* fCurrentContour;
     SkTArray<SkOpContour>& fContours;
-    SkTDArray<SkPoint> fReducePts;  // segments created on the fly
-    SkTDArray<int> fExtra;  // -1 marks new contour, > 0 offsets into contour
+    SkTArray<SkPoint, true> fReducePts;  // segments created on the fly
+    SkTArray<int, true> fExtra;  // -1 marks new contour, > 0 offsets into contour
     SkPathOpsMask fXorMask[2];
     const SkPoint* fFinalCurveStart;
     const SkPoint* fFinalCurveEnd;

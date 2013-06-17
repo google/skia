@@ -49,7 +49,7 @@ http://www.caffeineowl.com/graphics/2d/vectorial/cubic2quad01.html
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "SkTSort.h"
 
 #define USE_CUBIC_END_POINTS 1
@@ -88,26 +88,26 @@ SkDQuad SkDCubic::toQuad() const {
     return quad;
 }
 
-static bool add_simple_ts(const SkDCubic& cubic, double precision, SkTDArray<double>* ts) {
+static bool add_simple_ts(const SkDCubic& cubic, double precision, SkTArray<double, true>* ts) {
     double tDiv = calc_t_div(cubic, precision, 0);
     if (tDiv >= 1) {
         return true;
     }
     if (tDiv >= 0.5) {
-        *ts->append() = 0.5;
+        ts->push_back(0.5);
         return true;
     }
     return false;
 }
 
 static void addTs(const SkDCubic& cubic, double precision, double start, double end,
-        SkTDArray<double>* ts) {
+        SkTArray<double, true>* ts) {
     double tDiv = calc_t_div(cubic, precision, 0);
     double parts = ceil(1.0 / tDiv);
     for (double index = 0; index < parts; ++index) {
         double newT = start + (index / parts) * (end - start);
         if (newT > 0 && newT < 1) {
-            *ts->append() = newT;
+            ts->push_back(newT);
         }
     }
 }
@@ -116,7 +116,7 @@ static void addTs(const SkDCubic& cubic, double precision, double start, double 
 // FIXME: when called from recursive intersect 2, this could take the original cubic
 // and do a more precise job when calling chop at and sub divide by computing the fractional ts.
 // it would still take the prechopped cubic for reduce order and find cubic inflections
-void SkDCubic::toQuadraticTs(double precision, SkTDArray<double>* ts) const {
+void SkDCubic::toQuadraticTs(double precision, SkTArray<double, true>* ts) const {
     SkReduceOrder reducer;
     int order = reducer.reduce(*this, SkReduceOrder::kAllow_Quadratics, SkReduceOrder::kFill_Style);
     if (order < 3) {

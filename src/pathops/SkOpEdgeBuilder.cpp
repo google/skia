@@ -22,7 +22,7 @@ void SkOpEdgeBuilder::init() {
 
 void SkOpEdgeBuilder::addOperand(const SkPath& path) {
     SkASSERT(fPathVerbs.count() > 0 && fPathVerbs.end()[-1] == SkPath::kDone_Verb);
-    fPathVerbs.pop();
+    fPathVerbs.pop_back();
     fPath = &path;
     fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;
@@ -72,11 +72,11 @@ int SkOpEdgeBuilder::preFetch() {
     SkPath::Verb verb;
     do {
         verb = iter.next(pts);
-        *fPathVerbs.append() = verb;
+        fPathVerbs.push_back(verb);
         if (verb == SkPath::kMove_Verb) {
-            *fPathPts.append() = pts[0];
+            fPathPts.push_back(pts[0]);
         } else if (verb >= SkPath::kLine_Verb && verb <= SkPath::kCubic_Verb) {
-            fPathPts.append(SkPathOpsVerbToPoints(verb), &pts[1]);
+            fPathPts.push_back_n(SkPathOpsVerbToPoints(verb), &pts[1]);
         }
     } while (verb != SkPath::kDone_Verb);
     return fPathVerbs.count() - 1;
@@ -84,10 +84,10 @@ int SkOpEdgeBuilder::preFetch() {
 
 bool SkOpEdgeBuilder::close() {
     if (fFinalCurveStart && fFinalCurveEnd && *fFinalCurveStart != *fFinalCurveEnd) {
-        *fReducePts.append() = *fFinalCurveStart;
-        *fReducePts.append() = *fFinalCurveEnd;
+        fReducePts.push_back(*fFinalCurveStart);
+        fReducePts.push_back(*fFinalCurveEnd);
         const SkPoint* lineStart = fReducePts.end() - 2;
-        *fExtra.append() = fCurrentContour->addLine(lineStart);
+        fExtra.push_back(fCurrentContour->addLine(lineStart));
     }
     complete();
     return true;
@@ -119,7 +119,7 @@ bool SkOpEdgeBuilder::walk() {
                     fCurrentContour = fContours.push_back_n(1);
                     fCurrentContour->setOperand(fOperand);
                     fCurrentContour->setXor(fXorMask[fOperand] == kEvenOdd_PathOpsMask);
-                    *fExtra.append() = -1;  // start new contour
+                    fExtra.push_back(-1);  // start new contour
                 }
                 fFinalCurveEnd = pointsPtr++;
                 continue;
@@ -139,7 +139,7 @@ bool SkOpEdgeBuilder::walk() {
                 }
                 if (reducedVerb == SkPath::kLine_Verb) {
                     const SkPoint* lineStart = fReducePts.end() - 2;
-                   *fExtra.append() = fCurrentContour->addLine(lineStart);
+                    fExtra.push_back(fCurrentContour->addLine(lineStart));
                     break;
                 }
                 fCurrentContour->addQuad(quadStart);
@@ -152,12 +152,12 @@ bool SkOpEdgeBuilder::walk() {
                 }
                 if (reducedVerb == SkPath::kLine_Verb) {
                     const SkPoint* lineStart = fReducePts.end() - 2;
-                    *fExtra.append() = fCurrentContour->addLine(lineStart);
+                    fExtra.push_back(fCurrentContour->addLine(lineStart));
                     break;
                 }
                 if (reducedVerb == SkPath::kQuad_Verb) {
                     const SkPoint* quadStart = fReducePts.end() - 3;
-                    *fExtra.append() = fCurrentContour->addQuad(quadStart);
+                    fExtra.push_back(fCurrentContour->addQuad(quadStart));
                     break;
                 }
                 fCurrentContour->addCubic(cubicStart);

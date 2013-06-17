@@ -9,7 +9,7 @@
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "SkQuarticRoot.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "SkTSort.h"
 
 /* given the implicit form 0 = Ax^2 + Bxy + Cy^2 + Dx + Ey + F
@@ -150,9 +150,9 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
     SkDQuad hull = q1.subDivide(t1s, t1e);
     SkDLine line = {{hull[2], hull[0]}};
     const SkDLine* testLines[] = { &line, (const SkDLine*) &hull[0], (const SkDLine*) &hull[1] };
-    size_t testCount = SK_ARRAY_COUNT(testLines);
-    SkTDArray<double> tsFound;
-    for (size_t index = 0; index < testCount; ++index) {
+    const size_t kTestCount = SK_ARRAY_COUNT(testLines);
+    SkSTArray<kTestCount * 2, double, true> tsFound;
+    for (size_t index = 0; index < kTestCount; ++index) {
         SkIntersections rootTs;
         int roots = rootTs.intersect(q2, *testLines[index]);
         for (int idx2 = 0; idx2 < roots; ++idx2) {
@@ -165,7 +165,7 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
             if (approximately_negative(t - t2s) || approximately_positive(t - t2e)) {
                 continue;
             }
-            *tsFound.append() = rootTs[0][idx2];
+            tsFound.push_back(rootTs[0][idx2]);
         }
     }
     int tCount = tsFound.count();

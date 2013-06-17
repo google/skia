@@ -17,6 +17,8 @@ class SkOpSegment;
 // given angles of {dx dy ddx ddy dddx dddy} sort them
 class SkOpAngle {
 public:
+    enum { kStackBasedCount = 8 }; // FIXME: determine what this should be
+
     bool operator<(const SkOpAngle& rh) const;
 
     bool calcSlop(double x, double y, double rx, double ry, bool* result) const;

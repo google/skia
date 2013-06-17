@@ -9,7 +9,7 @@
 #include "SkPathWriter.h"
 #include "SkTSort.h"
 
-static int contourRangeCheckY(const SkTDArray<SkOpContour*>& contourList, SkOpSegment** currentPtr,
+static int contourRangeCheckY(const SkTArray<SkOpContour*, true>& contourList, SkOpSegment** currentPtr,
                               int* indexPtr, int* endIndexPtr, double* bestHit, SkScalar* bestDx,
                               bool* tryAgain, double* midPtr, bool opp) {
     const int index = *indexPtr;
@@ -97,7 +97,7 @@ abortContours:
     return result;
 }
 
-SkOpSegment* FindUndone(SkTDArray<SkOpContour*>& contourList, int* start, int* end) {
+SkOpSegment* FindUndone(SkTArray<SkOpContour*, true>& contourList, int* start, int* end) {
     int contourCount = contourList.count();
     SkOpSegment* result;
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
@@ -117,7 +117,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
         const SkOpSpan& backPtr = span->fOther->span(span->fOtherIndex);
         SkOpSegment* segment = backPtr.fOther;
         tIndex = backPtr.fOtherIndex;
-        SkTDArray<SkOpAngle> angles;
+        SkSTArray<SkOpAngle::kStackBasedCount, SkOpAngle, true> angles;
         int done = 0;
         if (segment->activeAngle(tIndex, &done, &angles)) {
             SkOpAngle* last = angles.end() - 1;
@@ -133,7 +133,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
         if (done == angles.count()) {
             continue;
         }
-        SkTDArray<SkOpAngle*> sorted;
+        SkSTArray<SkOpAngle::kStackBasedCount, SkOpAngle*, true> sorted;
         bool sortable = SkOpSegment::SortAngles(angles, &sorted,
                 SkOpSegment::kMayBeUnordered_SortAngleKind);
         int angleCount = sorted.count();
@@ -208,7 +208,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
 }
 
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
-void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList) {
+void DebugShowActiveSpans(SkTArray<SkOpContour*, true>& contourList) {
     int index;
     for (index = 0; index < contourList.count(); ++ index) {
         contourList[index]->debugShowActiveSpans();
@@ -216,7 +216,7 @@ void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList) {
 }
 #endif
 
-static SkOpSegment* findSortableTop(const SkTDArray<SkOpContour*>& contourList,
+static SkOpSegment* findSortableTop(const SkTArray<SkOpContour*, true>& contourList,
                                     int* index, int* endIndex, SkPoint* topLeft, bool* unsortable,
                                     bool* done, bool onlySortable) {
     SkOpSegment* result;
@@ -253,7 +253,7 @@ static SkOpSegment* findSortableTop(const SkTDArray<SkOpContour*>& contourList,
     return result;
 }
 
-static int rightAngleWinding(const SkTDArray<SkOpContour*>& contourList,
+static int rightAngleWinding(const SkTArray<SkOpContour*, true>& contourList,
                              SkOpSegment** current, int* index, int* endIndex, double* tHit,
                              SkScalar* hitDx, bool* tryAgain, bool opp) {
     double test = 0.9;
@@ -270,7 +270,7 @@ static int rightAngleWinding(const SkTDArray<SkOpContour*>& contourList,
     return contourWinding;
 }
 
-static void skipVertical(const SkTDArray<SkOpContour*>& contourList,
+static void skipVertical(const SkTArray<SkOpContour*, true>& contourList,
         SkOpSegment** current, int* index, int* endIndex) {
     if (!(*current)->isVertical(*index, *endIndex)) {
         return;
@@ -288,7 +288,7 @@ static void skipVertical(const SkTDArray<SkOpContour*>& contourList,
     }
 }
 
-SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& contourList, bool* firstContour,
+SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bool* firstContour,
                              int* indexPtr, int* endIndexPtr, SkPoint* topLeft, bool* unsortable,
                              bool* done,  bool binary) {
     SkOpSegment* current = findSortableTop(contourList, indexPtr, endIndexPtr, topLeft, unsortable,
@@ -344,7 +344,7 @@ SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& contourList, bool* f
     return current;
 }
 
-void FixOtherTIndex(SkTDArray<SkOpContour*>* contourList) {
+void FixOtherTIndex(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
@@ -352,7 +352,7 @@ void FixOtherTIndex(SkTDArray<SkOpContour*>* contourList) {
     }
 }
 
-void SortSegments(SkTDArray<SkOpContour*>* contourList) {
+void SortSegments(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
@@ -360,7 +360,7 @@ void SortSegments(SkTDArray<SkOpContour*>* contourList) {
     }
 }
 
-void MakeContourList(SkTArray<SkOpContour>& contours, SkTDArray<SkOpContour*>& list,
+void MakeContourList(SkTArray<SkOpContour>& contours, SkTArray<SkOpContour*, true>& list,
                      bool evenOdd, bool oppEvenOdd) {
     int count = contours.count();
     if (count == 0) {
@@ -369,7 +369,7 @@ void MakeContourList(SkTArray<SkOpContour>& contours, SkTDArray<SkOpContour*>& l
     for (int index = 0; index < count; ++index) {
         SkOpContour& contour = contours[index];
         contour.setOppXor(contour.operand() ? evenOdd : oppEvenOdd);
-        *list.append() = &contour;
+        list.push_back(&contour);
     }
     SkTQSort<SkOpContour>(list.begin(), list.end() - 1);
 }
@@ -403,7 +403,7 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     builder.finish();
     int count = contours.count();
     int outer;
-    SkTDArray<int> runs;  // indices of partial contours
+    SkTArray<int, true> runs(count);  // indices of partial contours
     for (outer = 0; outer < count; ++outer) {
         const SkOpContour& eContour = contours[outer];
         const SkPoint& eStart = eContour.start();
@@ -422,23 +422,23 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
             eContour.toPath(simple);
             continue;
         }
-        *runs.append() = outer;
+        runs.push_back(outer);
     }
     count = runs.count();
     if (count == 0) {
         return;
     }
-    SkTDArray<int> sLink, eLink;
-    sLink.setCount(count);
-    eLink.setCount(count);
+    SkTArray<int, true> sLink, eLink;
+    sLink.push_back_n(count);
+    eLink.push_back_n(count);
     int rIndex, iIndex;
     for (rIndex = 0; rIndex < count; ++rIndex) {
         sLink[rIndex] = eLink[rIndex] = SK_MaxS32;
     }
-    SkTDArray<double> distances;
     const int ends = count * 2;  // all starts and ends
     const int entries = (ends - 1) * count;  // folded triangle : n * (n - 1) / 2
-    distances.setCount(entries);
+    SkTArray<double, true> distances;
+    distances.push_back_n(entries);
     for (rIndex = 0; rIndex < ends - 1; ++rIndex) {
         outer = runs[rIndex >> 1];
         const SkOpContour& oContour = contours[outer];
@@ -455,8 +455,8 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
             distances[row + iIndex] = dist;  // oStart distance from iStart
         }
     }
-    SkTDArray<int> sortedDist;
-    sortedDist.setCount(entries);
+    SkTArray<int, true> sortedDist;
+    sortedDist.push_back_n(entries);
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         sortedDist[rIndex] = rIndex;
     }

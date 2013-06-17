@@ -383,8 +383,13 @@ static double interp_cubic_coords(const double* src, double t) {
 }
 
 SkDCubic SkDCubic::subDivide(double t1, double t2) const {
-    if (t1 == 0 && t2 == 1) {
-        return *this;
+    if (t1 == 0 || t2 == 1) {
+        if (t1 == 0 && t2 == 1) {
+            return *this;
+        }
+        SkDCubicPair pair = chopAt(t1 == 0 ? t2 : t1);
+        SkDCubic dst = t1 == 0 ? pair.first() : pair.second();
+        return dst;
     }
     SkDCubic dst;
     double ax = dst[0].fX = interp_cubic_coords(&fPts[0].fX, t1);

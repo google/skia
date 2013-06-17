@@ -11,7 +11,7 @@
 
 void SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, bool swap) {
-    SkCoincidence& coincidence = *fCoincidences.append();
+    SkCoincidence& coincidence = fCoincidences.push_back();
     coincidence.fContours[0] = this;  // FIXME: no need to store
     coincidence.fContours[1] = other;
     coincidence.fSegments[0] = index;
@@ -152,9 +152,9 @@ void SkOpContour::calcCoincidentWinding() {
 
 void SkOpContour::sortSegments() {
     int segmentCount = fSegments.count();
-    fSortedSegments.setReserve(segmentCount);
+    fSortedSegments.push_back_n(segmentCount);
     for (int test = 0; test < segmentCount; ++test) {
-        *fSortedSegments.append() = &fSegments[test];
+        fSortedSegments[test] = &fSegments[test];
     }
     SkTQSort<SkOpSegment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
     fFirstSorted = 0;
@@ -229,7 +229,7 @@ int SkOpContour::debugShowWindingValues(int totalSegments, int ofInterest) {
     return sum;
 }
 
-static void SkOpContour::debugShowWindingValues(const SkTDArray<SkOpContour*>& contourList) {
+static void SkOpContour::debugShowWindingValues(const SkTArray<SkOpContour*, true>& contourList) {
 //     int ofInterest = 1 << 1 | 1 << 5 | 1 << 9 | 1 << 13;
 //    int ofInterest = 1 << 4 | 1 << 8 | 1 << 12 | 1 << 16;
     int ofInterest = 1 << 5 | 1 << 8;

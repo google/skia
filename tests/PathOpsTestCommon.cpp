@@ -7,12 +7,12 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsCubic.h"
 
-void CubicToQuads(const SkDCubic& cubic, double precision, SkTDArray<SkDQuad>& quads) {
-    SkTDArray<double> ts;
+void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, true>& quads) {
+    SkTArray<double, true> ts;
     cubic.toQuadraticTs(precision, &ts);
     if (ts.count() <= 0) {
         SkDQuad quad = cubic.toQuad();
-        *quads.append() = quad;
+        quads.push_back(quad);
         return;
     }
     double tStart = 0;
@@ -20,7 +20,7 @@ void CubicToQuads(const SkDCubic& cubic, double precision, SkTDArray<SkDQuad>& q
         const double tEnd = i1 < ts.count() ? ts[i1] : 1;
         SkDCubic part = cubic.subDivide(tStart, tEnd);
         SkDQuad quad = part.toQuad();
-        *quads.append() = quad;
+        quads.push_back(quad);
         tStart = tEnd;
     }
 }
