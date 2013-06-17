@@ -149,23 +149,6 @@ void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info) 
     fUnixWindow.fGc = XCreateGC(dsp, fUnixWindow.fWin, 0, NULL);
 }
 
-
-void SkOSWindow::post_linuxevent() {
-    // Put an event in the X queue to fire an SkEvent.
-    if (NULL == fUnixWindow.fDisplay) {
-        return;
-    }
-    XClientMessageEvent event;
-    event.type = ClientMessage;
-    Atom myAtom(0);
-    event.message_type = myAtom;
-    event.format = 32;
-    event.data.l[0] = 0;
-    XSendEvent(fUnixWindow.fDisplay, fUnixWindow.fWin, false, 0,
-               (XEvent*) &event);
-    XFlush(fUnixWindow.fDisplay);
-}
-
 static unsigned getModi(const XEvent& evt) {
     static const struct {
         unsigned    fXMask;
@@ -186,6 +169,81 @@ static unsigned getModi(const XEvent& evt) {
     return modi;
 }
 
+static SkMSec gTimerDelay;
+
+static void MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
+    SkMSec ms = gTimerDelay;
+    if (ms > 0) {
+        int x11_fd = ConnectionNumber(dsp);
+        fd_set input_fds;
+        FD_ZERO(&input_fds);
+        FD_SET(x11_fd, &input_fds);
+
+        timeval tv;
+        tv.tv_sec = ms / 1000;              // seconds
+        tv.tv_usec = (ms % 1000) * 1000;    // microseconds
+        
+        (void)select(x11_fd + 1, &input_fds, NULL, NULL, &tv);
+    }
+
+    if (XPending(dsp)) {
+        XNextEvent(dsp, evt);
+    }
+}
+
+SkOSWindow::NextXEventResult SkOSWindow::nextXEvent() {
+    XEvent evt;
+    Display* dsp = fUnixWindow.fDisplay;
+
+    MyXNextEventWithDelay(fUnixWindow.fDisplay, &evt);
+
+    switch (evt.type) {
+        case Expose:
+            if (0 == evt.xexpose.count) {
+                return kPaintRequest_NextXEventResult;
+            }
+            break;
+        case ConfigureNotify:
+            this->resize(evt.xconfigure.width, evt.xconfigure.height);
+            break;
+        case ButtonPress:
+            if (evt.xbutton.button == Button1)
+                this->handleClick(evt.xbutton.x, evt.xbutton.y,
+                            SkView::Click::kDown_State, NULL, getModi(evt));
+            break;
+        case ButtonRelease:
+            if (evt.xbutton.button == Button1)
+                this->handleClick(evt.xbutton.x, evt.xbutton.y,
+                              SkView::Click::kUp_State, NULL, getModi(evt));
+            break;
+        case MotionNotify:
+            this->handleClick(evt.xmotion.x, evt.xmotion.y,
+                           SkView::Click::kMoved_State, NULL, getModi(evt));
+            break;
+        case KeyPress: {
+            int shiftLevel = (evt.xkey.keycode & ShiftMask) ? 1 : 0;
+            KeySym keysym = XkbKeycodeToKeysym(dsp, evt.xkey.keycode,
+                                               0, shiftLevel);
+            if (keysym == XK_Escape) {
+                return kQuitRequest_NextXEventResult;
+            }
+            this->handleKey(XKeyToSkKey(keysym));
+            long uni = keysym2ucs(keysym);
+            if (uni != -1) {
+                this->handleChar((SkUnichar) uni);
+            }
+            break;
+        }
+        case KeyRelease:
+            this->handleKeyUp(XKeyToSkKey(XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0)));
+            break;
+        default:
+            // Do nothing for other events
+            break;
+    }
+    return kContinue_NextXEventResult;
+}
+
 void SkOSWindow::loop() {
     Display* dsp = fUnixWindow.fDisplay;
     if (NULL == dsp) {
@@ -193,58 +251,31 @@ void SkOSWindow::loop() {
     }
     XSelectInput(dsp, fUnixWindow.fWin, EVENT_MASK);
 
-    bool loop = true;
-    XEvent evt;
-    while (loop) {
-        XNextEvent(dsp, &evt);
-        switch (evt.type) {
-            case Expose:
-                if (evt.xexpose.count == 0)
-                    this->inval(NULL);
-                break;
-            case ConfigureNotify:
-                this->resize(evt.xconfigure.width, evt.xconfigure.height);
-                break;
-            case ButtonPress:
-                if (evt.xbutton.button == Button1)
-                    this->handleClick(evt.xbutton.x, evt.xbutton.y,
-                                SkView::Click::kDown_State, NULL, getModi(evt));
-                break;
-            case ButtonRelease:
-                if (evt.xbutton.button == Button1)
-                    this->handleClick(evt.xbutton.x, evt.xbutton.y,
-                                  SkView::Click::kUp_State, NULL, getModi(evt));
-                break;
-            case MotionNotify:
-                this->handleClick(evt.xmotion.x, evt.xmotion.y,
-                               SkView::Click::kMoved_State, NULL, getModi(evt));
-                break;
-            case KeyPress: {
-                KeySym keysym = XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0);
-                //SkDebugf("pressed key %i!\n\tKeySym:%i\n", evt.xkey.keycode, XKeycodeToKeysym(dsp, evt.xkey.keycode, 0));
-                if (keysym == XK_Escape) {
-                    loop = false;
+    bool needPaint = false;
+
+    for (;;) {
+        if (this->isDirty()) {
+            this->update(NULL);
+            needPaint = true;
+        }
+        if (needPaint) {
+            this->doPaint();
+            needPaint = false;
+        }
+        if (gTimerDelay) {
+            SkEvent::ServiceQueueTimer();
+        }
+        bool moreToDo = SkEvent::ProcessEvent() || needPaint || this->isDirty();
+        if (XPending(dsp) || !moreToDo) {
+            switch (this->nextXEvent()) {
+                case kContinue_NextXEventResult:
                     break;
-                }
-                this->handleKey(XKeyToSkKey(keysym));
-                long uni = keysym2ucs(keysym);
-                if (uni != -1) {
-                    this->handleChar((SkUnichar) uni);
-                }
-                break;
+                case kPaintRequest_NextXEventResult:
+                    needPaint = true;
+                    break;
+                case kQuitRequest_NextXEventResult:
+                    return;
             }
-            case KeyRelease:
-                //SkDebugf("released key %i\n", evt.xkey.keycode);
-                this->handleKeyUp(XKeyToSkKey(XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0)));
-                break;
-            case ClientMessage:
-                if (SkEvent::ProcessEvent()) {
-                    this->post_linuxevent();
-                }
-                break;
-            default:
-                // Do nothing for other events
-                break;
         }
     }
 }
@@ -321,20 +352,6 @@ void SkOSWindow::onSetTitle(const char title[]) {
     XSetWMName(fUnixWindow.fDisplay, fUnixWindow.fWin, &textProp);
 }
 
-void SkOSWindow::onHandleInval(const SkIRect&) {
-    (new SkEvent("inval-imageview", this->getSinkID()))->post();
-}
-
-bool SkOSWindow::onEvent(const SkEvent& evt) {
-    if (evt.isType("inval-imageview")) {
-        update(NULL);
-        if (NULL == fUnixWindow.fGLContext)
-            this->doPaint();
-        return true;
-    }
-    return INHERITED::onEvent(evt);
-}
-
 static bool convertBitmapToXImage(XImage& image, const SkBitmap& bitmap) {
     sk_bzero(&image, sizeof(image));
 
@@ -348,7 +365,7 @@ static bool convertBitmapToXImage(XImage& image, const SkBitmap& bitmap) {
     image.bitmap_bit_order = LSBFirst;
     image.bitmap_pad = bitsPerPixel;
     image.depth = 24;
-    image.bytes_per_line = bitmap.rowBytes() - bitmap.width() * bitmap.bytesPerPixel();
+    image.bytes_per_line = bitmap.rowBytes() - bitmap.width() * 4;
     image.bits_per_pixel = bitsPerPixel;
     return XInitImage(&image);
 }
@@ -376,14 +393,15 @@ void SkOSWindow::doPaint() {
               width, height);
 }
 
-bool SkOSWindow::onHandleChar(SkUnichar) {
-    return false;
+///////////////////////////////////////////////////////////////////////////////
+
+void SkEvent::SignalNonEmptyQueue() {
+    // nothing to do, since we spin on our event-queue, polling for XPending
 }
 
-bool SkOSWindow::onHandleKey(SkKey) {
-    return false;
+void SkEvent::SignalQueueTimer(SkMSec delay) {
+    // just need to record the delay time. We handle waking up for it in
+    // MyXNextEventWithDelay()
+    gTimerDelay = delay;
 }
 
-bool SkOSWindow::onHandleKeyUp(SkKey) {
-    return false;
-}
