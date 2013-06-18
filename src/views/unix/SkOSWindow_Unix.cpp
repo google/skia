@@ -182,7 +182,7 @@ static void MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
         timeval tv;
         tv.tv_sec = ms / 1000;              // seconds
         tv.tv_usec = (ms % 1000) * 1000;    // microseconds
-        
+
         (void)select(x11_fd + 1, &input_fds, NULL, NULL, &tv);
     }
 
@@ -404,4 +404,3 @@ void SkEvent::SignalQueueTimer(SkMSec delay) {
     // MyXNextEventWithDelay()
     gTimerDelay = delay;
 }
-
