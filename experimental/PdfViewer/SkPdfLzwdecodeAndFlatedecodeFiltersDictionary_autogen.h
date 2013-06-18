@@ -7,8 +7,8 @@
 
 class SkPdfLzwdecodeAndFlatedecodeFiltersDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryLzwdecodeAndFlatedecodeFiltersDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryLzwdecodeAndFlatedecodeFiltersDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kLzwdecodeAndFlatedecodeFiltersDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kLzwdecodeAndFlatedecodeFiltersDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfLzwdecodeAndFlatedecodeFiltersDictionary* asLzwdecodeAndFlatedecodeFiltersDictionary() {return this;}
   virtual const SkPdfLzwdecodeAndFlatedecodeFiltersDictionary* asLzwdecodeAndFlatedecodeFiltersDictionary() const {return this;}

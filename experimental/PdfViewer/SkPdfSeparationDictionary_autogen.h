@@ -7,8 +7,8 @@
 
 class SkPdfSeparationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySeparationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySeparationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSeparationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSeparationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSeparationDictionary* asSeparationDictionary() {return this;}
   virtual const SkPdfSeparationDictionary* asSeparationDictionary() const {return this;}

@@ -522,11 +522,11 @@ public:
   virtual SkPdfType1FormDictionary* asType1FormDictionary() {return NULL;}
   virtual const SkPdfType1FormDictionary* asType1FormDictionary() const {return NULL;}
 
-  virtual SkPdfHexString* asHexString() {return NULL;}
-  virtual const SkPdfHexString* asHexString() const {return NULL;}
-
   virtual SkPdfInteger* asInteger() {return NULL;}
   virtual const SkPdfInteger* asInteger() const {return NULL;}
+
+  virtual SkPdfNumber* asNumber() {return NULL;}
+  virtual const SkPdfNumber* asNumber() const {return NULL;}
 
   virtual SkPdfName* asName() {return NULL;}
   virtual const SkPdfName* asName() const {return NULL;}
@@ -534,14 +534,14 @@ public:
   virtual SkPdfNull* asNull() {return NULL;}
   virtual const SkPdfNull* asNull() const {return NULL;}
 
-  virtual SkPdfNumber* asNumber() {return NULL;}
-  virtual const SkPdfNumber* asNumber() const {return NULL;}
-
   virtual SkPdfReference* asReference() {return NULL;}
   virtual const SkPdfReference* asReference() const {return NULL;}
 
   virtual SkPdfString* asString() {return NULL;}
   virtual const SkPdfString* asString() const {return NULL;}
+
+  virtual SkPdfHexString* asHexString() {return NULL;}
+  virtual const SkPdfHexString* asHexString() const {return NULL;}
 
 public:
 private:

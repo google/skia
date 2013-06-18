@@ -7,8 +7,8 @@
 
 class SkPdfMarkedContentReferenceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryMarkedContentReferenceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryMarkedContentReferenceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kMarkedContentReferenceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kMarkedContentReferenceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfMarkedContentReferenceDictionary* asMarkedContentReferenceDictionary() {return this;}
   virtual const SkPdfMarkedContentReferenceDictionary* asMarkedContentReferenceDictionary() const {return this;}

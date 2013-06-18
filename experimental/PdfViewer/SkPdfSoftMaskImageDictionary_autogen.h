@@ -7,8 +7,8 @@
 
 class SkPdfSoftMaskImageDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySoftMaskImageDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySoftMaskImageDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSoftMaskImageDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSoftMaskImageDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSoftMaskImageDictionary* asSoftMaskImageDictionary() {return this;}
   virtual const SkPdfSoftMaskImageDictionary* asSoftMaskImageDictionary() const {return this;}

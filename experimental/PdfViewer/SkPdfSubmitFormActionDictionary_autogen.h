@@ -7,8 +7,8 @@
 
 class SkPdfSubmitFormActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySubmitFormActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySubmitFormActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSubmitFormActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSubmitFormActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSubmitFormActionDictionary* asSubmitFormActionDictionary() {return this;}
   virtual const SkPdfSubmitFormActionDictionary* asSubmitFormActionDictionary() const {return this;}

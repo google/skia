@@ -7,8 +7,8 @@
 
 class SkPdfWebCaptureImageSetDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryWebCaptureImageSetDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryWebCaptureImageSetDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kWebCaptureImageSetDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kWebCaptureImageSetDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfWebCaptureImageSetDictionary* asWebCaptureImageSetDictionary() {return this;}
   virtual const SkPdfWebCaptureImageSetDictionary* asWebCaptureImageSetDictionary() const {return this;}

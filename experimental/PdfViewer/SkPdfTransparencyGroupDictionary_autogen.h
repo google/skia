@@ -7,8 +7,8 @@
 
 class SkPdfTransparencyGroupDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryTransparencyGroupDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryTransparencyGroupDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kTransparencyGroupDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kTransparencyGroupDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfTransparencyGroupDictionary* asTransparencyGroupDictionary() {return this;}
   virtual const SkPdfTransparencyGroupDictionary* asTransparencyGroupDictionary() const {return this;}

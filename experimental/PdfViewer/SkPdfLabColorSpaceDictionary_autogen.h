@@ -7,8 +7,8 @@
 
 class SkPdfLabColorSpaceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryLabColorSpaceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryLabColorSpaceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kLabColorSpaceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kLabColorSpaceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfLabColorSpaceDictionary* asLabColorSpaceDictionary() {return this;}
   virtual const SkPdfLabColorSpaceDictionary* asLabColorSpaceDictionary() const {return this;}

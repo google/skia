@@ -7,8 +7,8 @@
 
 class SkPdfMetadataStreamDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryMetadataStreamDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryMetadataStreamDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kMetadataStreamDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kMetadataStreamDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfMetadataStreamDictionary* asMetadataStreamDictionary() {return this;}
   virtual const SkPdfMetadataStreamDictionary* asMetadataStreamDictionary() const {return this;}

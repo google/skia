@@ -7,8 +7,8 @@
 
 class SkPdfURLAliasDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryURLAliasDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryURLAliasDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kURLAliasDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kURLAliasDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfURLAliasDictionary* asURLAliasDictionary() {return this;}
   virtual const SkPdfURLAliasDictionary* asURLAliasDictionary() const {return this;}

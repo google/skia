@@ -7,8 +7,8 @@
 
 class SkPdfSoundObjectDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySoundObjectDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySoundObjectDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSoundObjectDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSoundObjectDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSoundObjectDictionary* asSoundObjectDictionary() {return this;}
   virtual const SkPdfSoundObjectDictionary* asSoundObjectDictionary() const {return this;}

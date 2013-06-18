@@ -7,8 +7,8 @@
 
 class SkPdfPageObjectDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryPageObjectDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryPageObjectDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kPageObjectDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kPageObjectDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfPageObjectDictionary* asPageObjectDictionary() {return this;}
   virtual const SkPdfPageObjectDictionary* asPageObjectDictionary() const {return this;}

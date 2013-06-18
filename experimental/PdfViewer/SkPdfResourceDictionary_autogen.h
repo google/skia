@@ -7,8 +7,8 @@
 
 class SkPdfResourceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryResourceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryResourceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kResourceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kResourceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfResourceDictionary* asResourceDictionary() {return this;}
   virtual const SkPdfResourceDictionary* asResourceDictionary() const {return this;}
@@ -549,11 +549,11 @@ public:
     return NULL;
   }
 
-  SkPdfStream XObject() const {
-    SkPdfStream ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XObject", "", &ret)) return ret;
+  SkPdfDictionary* XObject() const {
+    SkPdfDictionary* ret;
+    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XObject", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
   SkPdfDictionary* Font() const {

@@ -7,8 +7,8 @@
 
 class SkPdfWindowsLaunchActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryWindowsLaunchActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryWindowsLaunchActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kWindowsLaunchActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kWindowsLaunchActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfWindowsLaunchActionDictionary* asWindowsLaunchActionDictionary() {return this;}
   virtual const SkPdfWindowsLaunchActionDictionary* asWindowsLaunchActionDictionary() const {return this;}

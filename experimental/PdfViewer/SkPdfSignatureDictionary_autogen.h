@@ -7,8 +7,8 @@
 
 class SkPdfSignatureDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySignatureDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySignatureDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSignatureDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSignatureDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSignatureDictionary* asSignatureDictionary() {return this;}
   virtual const SkPdfSignatureDictionary* asSignatureDictionary() const {return this;}

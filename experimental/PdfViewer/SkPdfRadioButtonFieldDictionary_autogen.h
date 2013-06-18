@@ -7,8 +7,8 @@
 
 class SkPdfRadioButtonFieldDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryRadioButtonFieldDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryRadioButtonFieldDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kRadioButtonFieldDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kRadioButtonFieldDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfRadioButtonFieldDictionary* asRadioButtonFieldDictionary() {return this;}
   virtual const SkPdfRadioButtonFieldDictionary* asRadioButtonFieldDictionary() const {return this;}

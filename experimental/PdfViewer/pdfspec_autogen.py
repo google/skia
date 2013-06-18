@@ -83,43 +83,43 @@ def buildPdfSpec(pdfspec):
       .optional()\
           .field('EndOfLine')\
           .name('EndOfLine')\
-          .type('    boolean')\
+          .type('boolean')\
           .comment('()A flag indicating whether end-of-line bit patterns are required to be\npresent in the encoding. The CCITTFaxDecode filter always accepts\nend-of-line bit patterns, but requires them only if EndOfLine is true.\nDefault value: false.')\
           .done().done()\
       .optional()\
           .field('EncodedByteAlign')\
           .name('EncodedByteAlign')\
-          .type('    boolean')\
+          .type('boolean')\
           .comment('()A flag indicating whether the filter expects extra 0 bits before each\nencoded line so that the line begins on a byte boundary. If true, the\nfilter skips over encoded bits to begin decoding each line at a byte\nboundary. If false, the filter does not expect extra bits in the encod-\ned representation. Default value: false.')\
           .done().done()\
       .optional()\
           .field('Columns')\
           .name('Columns')\
-          .type('    integer')\
+          .type('integer')\
           .comment('()The width of the image in pixels. If the value is not a multiple of 8,\nthe filter adjusts the width of the unencoded image to the next mul-\ntiple of 8, so that each line starts on a byte boundary. Default value:\n1728.')\
           .done().done()\
       .optional()\
           .field('Rows')\
           .name('Rows')\
-          .type('    integer')\
+          .type('integer')\
           .comment('()The height of the image in scan lines. If the value is 0 or absent, the\nimage\'s height is not predetermined, and the encoded data must be\nterminated by an end-of-block bit pattern or by the end of the fil-\nter\'s data. Default value: 0.')\
           .done().done()\
       .optional()\
           .field('EndOfBlock')\
           .name('EndOfBlock')\
-          .type('    boolean')\
+          .type('boolean')\
           .comment('()A flag indicating whether the filter expects the encoded data to be\nterminated by an end-of-block pattern, overriding the Rows pa-\nrameter. If false, the filter stops when it has decoded the number of\nlines indicated by Rows or when its data has been exhausted, which-\never occurs first. The end-of-block pattern is the CCITT end-of-\nfacsimile-block (EOFB) or return-to-control (RTC) appropriate for\nthe K parameter. Default value: true.')\
           .done().done()\
       .optional()\
           .field('BlackIs1')\
           .name('BlackIs1')\
-          .type('    boolean')\
+          .type('boolean')\
           .comment('()A flag indicating whether 1 bits are to be interpreted as black pixels\nand 0 bits as white pixels, the reverse of the normal PDF convention\nfor image data. Default value: false.')\
           .done().done()\
       .optional()\
           .field('DamagedRowsBeforeError')\
           .name('DamagedRowsBeforeError')\
-          .type('    integer')\
+          .type('integer')\
           .comment('()The number of damaged rows of data to be tolerated before an\nerror occurs. This entry applies only if EndOfLine is true and K is\nnonnegative. Tolerating a damaged row means locating its end in\nthe encoded data by searching for an EndOfLine pattern and then\nsubstituting decoded data from the previous row if the previous\nrow was not damaged, or a white scan line if the previous row was\nalso damaged. Default value: 0.')\
           .done().done()\
       .done()
@@ -617,7 +617,7 @@ def buildPdfSpec(pdfspec):
       .optional()\
           .field('XObject')\
           .name('XObject')\
-          .type('stream')\
+          .type('dictionary')\
           .comment('(Optional) A dictionary mapping resource names to external objects (see Sec-\ntion 4.7, "External Objects").')\
           .done().done()\
       .optional()\

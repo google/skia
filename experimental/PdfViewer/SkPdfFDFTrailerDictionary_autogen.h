@@ -7,8 +7,8 @@
 
 class SkPdfFDFTrailerDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFDFTrailerDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryFDFTrailerDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kFDFTrailerDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kFDFTrailerDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfFDFTrailerDictionary* asFDFTrailerDictionary() {return this;}
   virtual const SkPdfFDFTrailerDictionary* asFDFTrailerDictionary() const {return this;}

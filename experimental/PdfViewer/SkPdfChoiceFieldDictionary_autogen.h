@@ -7,8 +7,8 @@
 
 class SkPdfChoiceFieldDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryChoiceFieldDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryChoiceFieldDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kChoiceFieldDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kChoiceFieldDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfChoiceFieldDictionary* asChoiceFieldDictionary() {return this;}
   virtual const SkPdfChoiceFieldDictionary* asChoiceFieldDictionary() const {return this;}

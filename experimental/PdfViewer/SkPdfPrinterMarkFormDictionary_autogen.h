@@ -7,8 +7,8 @@
 
 class SkPdfPrinterMarkFormDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryPrinterMarkFormDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryPrinterMarkFormDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kPrinterMarkFormDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kPrinterMarkFormDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfPrinterMarkFormDictionary* asPrinterMarkFormDictionary() {return this;}
   virtual const SkPdfPrinterMarkFormDictionary* asPrinterMarkFormDictionary() const {return this;}

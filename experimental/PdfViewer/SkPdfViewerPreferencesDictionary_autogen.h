@@ -7,8 +7,8 @@
 
 class SkPdfViewerPreferencesDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryViewerPreferencesDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryViewerPreferencesDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kViewerPreferencesDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kViewerPreferencesDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfViewerPreferencesDictionary* asViewerPreferencesDictionary() {return this;}
   virtual const SkPdfViewerPreferencesDictionary* asViewerPreferencesDictionary() const {return this;}

@@ -7,8 +7,8 @@
 
 class SkPdfBlockLevelStructureElementsDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryBlockLevelStructureElementsDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryBlockLevelStructureElementsDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kBlockLevelStructureElementsDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kBlockLevelStructureElementsDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfBlockLevelStructureElementsDictionary* asBlockLevelStructureElementsDictionary() {return this;}
   virtual const SkPdfBlockLevelStructureElementsDictionary* asBlockLevelStructureElementsDictionary() const {return this;}
@@ -573,7 +573,7 @@ public:
   bool isWidthANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", &ret)) return false;
-    return ret->podofo()->GetDataType() == ePdfDataType_Real;
+    return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
   double getWidthAsNumber() const {
@@ -599,7 +599,7 @@ public:
   bool isHeightANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return false;
-    return ret->podofo()->GetDataType() == ePdfDataType_Real;
+    return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
   double getHeightAsNumber() const {

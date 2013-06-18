@@ -7,8 +7,8 @@
 
 class SkPdfEncodingDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryEncodingDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryEncodingDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kEncodingDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kEncodingDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfEncodingDictionary* asEncodingDictionary() {return this;}
   virtual const SkPdfEncodingDictionary* asEncodingDictionary() const {return this;}

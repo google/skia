@@ -7,8 +7,8 @@
 
 class SkPdfComponentsWithMetadataDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryComponentsWithMetadataDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryComponentsWithMetadataDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kComponentsWithMetadataDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kComponentsWithMetadataDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfComponentsWithMetadataDictionary* asComponentsWithMetadataDictionary() {return this;}
   virtual const SkPdfComponentsWithMetadataDictionary* asComponentsWithMetadataDictionary() const {return this;}

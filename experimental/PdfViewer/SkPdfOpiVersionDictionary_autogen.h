@@ -7,8 +7,8 @@
 
 class SkPdfOpiVersionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryOpiVersionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryOpiVersionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kOpiVersionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kOpiVersionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfOpiVersionDictionary* asOpiVersionDictionary() {return this;}
   virtual const SkPdfOpiVersionDictionary* asOpiVersionDictionary() const {return this;}

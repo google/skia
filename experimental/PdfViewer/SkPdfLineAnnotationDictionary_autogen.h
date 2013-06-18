@@ -7,8 +7,8 @@
 
 class SkPdfLineAnnotationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryLineAnnotationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryLineAnnotationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kLineAnnotationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kLineAnnotationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfLineAnnotationDictionary* asLineAnnotationDictionary() {return this;}
   virtual const SkPdfLineAnnotationDictionary* asLineAnnotationDictionary() const {return this;}

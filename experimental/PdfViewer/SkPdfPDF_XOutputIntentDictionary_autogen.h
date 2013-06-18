@@ -7,8 +7,8 @@
 
 class SkPdfPDF_XOutputIntentDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryPDF_XOutputIntentDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryPDF_XOutputIntentDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kPDF_XOutputIntentDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kPDF_XOutputIntentDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfPDF_XOutputIntentDictionary* asPDF_XOutputIntentDictionary() {return this;}
   virtual const SkPdfPDF_XOutputIntentDictionary* asPDF_XOutputIntentDictionary() const {return this;}

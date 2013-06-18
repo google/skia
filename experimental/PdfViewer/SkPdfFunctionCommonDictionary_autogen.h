@@ -7,8 +7,8 @@
 
 class SkPdfFunctionCommonDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFunctionCommonDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryFunctionCommonDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kFunctionCommonDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kFunctionCommonDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfFunctionCommonDictionary* asFunctionCommonDictionary() {return this;}
   virtual const SkPdfFunctionCommonDictionary* asFunctionCommonDictionary() const {return this;}

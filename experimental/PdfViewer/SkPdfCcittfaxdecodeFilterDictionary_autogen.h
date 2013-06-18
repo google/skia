@@ -7,8 +7,8 @@
 
 class SkPdfCcittfaxdecodeFilterDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryCcittfaxdecodeFilterDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryCcittfaxdecodeFilterDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCcittfaxdecodeFilterDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCcittfaxdecodeFilterDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCcittfaxdecodeFilterDictionary* asCcittfaxdecodeFilterDictionary() {return this;}
   virtual const SkPdfCcittfaxdecodeFilterDictionary* asCcittfaxdecodeFilterDictionary() const {return this;}

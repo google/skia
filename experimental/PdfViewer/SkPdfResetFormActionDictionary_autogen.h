@@ -7,8 +7,8 @@
 
 class SkPdfResetFormActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryResetFormActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryResetFormActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kResetFormActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kResetFormActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfResetFormActionDictionary* asResetFormActionDictionary() {return this;}
   virtual const SkPdfResetFormActionDictionary* asResetFormActionDictionary() const {return this;}

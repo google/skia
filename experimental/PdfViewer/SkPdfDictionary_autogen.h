@@ -7,8 +7,8 @@
 
 class SkPdfDictionary : public SkPdfObject {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return kObjectDictionary__End_SkPdfObjectType;}
+  virtual SkPdfObjectType getType() const { return kDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return kDictionary__End_SkPdfObjectType;}
 public:
   virtual SkPdfDictionary* asDictionary() {return this;}
   virtual const SkPdfDictionary* asDictionary() const {return this;}
@@ -20,11 +20,11 @@ private:
   virtual SkPdfBoolean* asBoolean() {return NULL;}
   virtual const SkPdfBoolean* asBoolean() const {return NULL;}
 
-  virtual SkPdfHexString* asHexString() {return NULL;}
-  virtual const SkPdfHexString* asHexString() const {return NULL;}
-
   virtual SkPdfInteger* asInteger() {return NULL;}
   virtual const SkPdfInteger* asInteger() const {return NULL;}
+
+  virtual SkPdfNumber* asNumber() {return NULL;}
+  virtual const SkPdfNumber* asNumber() const {return NULL;}
 
   virtual SkPdfName* asName() {return NULL;}
   virtual const SkPdfName* asName() const {return NULL;}
@@ -32,16 +32,18 @@ private:
   virtual SkPdfNull* asNull() {return NULL;}
   virtual const SkPdfNull* asNull() const {return NULL;}
 
-  virtual SkPdfNumber* asNumber() {return NULL;}
-  virtual const SkPdfNumber* asNumber() const {return NULL;}
-
   virtual SkPdfReference* asReference() {return NULL;}
   virtual const SkPdfReference* asReference() const {return NULL;}
 
   virtual SkPdfString* asString() {return NULL;}
   virtual const SkPdfString* asString() const {return NULL;}
 
+  virtual SkPdfHexString* asHexString() {return NULL;}
+  virtual const SkPdfHexString* asHexString() const {return NULL;}
+
 public:
+  const SkPdfObject get(const char* dictionaryKeyName) const {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}
+  SkPdfObject get(const char* dictionaryKeyName) {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}
 private:
 public:
   SkPdfDictionary(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdfObject(podofoDoc, podofoObj) {}

@@ -7,8 +7,8 @@
 
 class SkPdfFDFFileAnnotationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFDFFileAnnotationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryFDFFileAnnotationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kFDFFileAnnotationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kFDFFileAnnotationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfFDFFileAnnotationDictionary* asFDFFileAnnotationDictionary() {return this;}
   virtual const SkPdfFDFFileAnnotationDictionary* asFDFFileAnnotationDictionary() const {return this;}
