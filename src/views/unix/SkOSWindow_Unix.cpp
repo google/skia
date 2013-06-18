@@ -374,6 +374,10 @@ void SkOSWindow::doPaint() {
     if (NULL == fUnixWindow.fDisplay) {
         return;
     }
+    // If we are drawing with GL, we don't need XPutImage.
+    if (NULL != fUnixWindow.fGLContext) {
+        return;
+    }
     // Draw the bitmap to the screen.
     const SkBitmap& bitmap = getBitmap();
     int width = bitmap.width();
