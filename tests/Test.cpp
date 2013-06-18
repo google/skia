@@ -31,8 +31,8 @@ void Reporter::startTest(Test* test) {
     this->onStart(test);
 }
 
-void Reporter::report(const char desc[], Result result) {
-    this->onReport(desc ? desc : "<no description>", result);
+void Reporter::reportFailed(const SkString& desc) {
+    this->onReportFailed(desc);
 }
 
 void Reporter::endTest(Test* test) {
@@ -64,13 +64,11 @@ namespace {
         explicit LocalReporter(Reporter* reporterToMimic) : fReporter(reporterToMimic) {}
 
         int failure_size() const { return fFailures.count(); }
-        const char* failure(int i) const { return fFailures[i].c_str(); }
+        const SkString& failure(int i) const { return fFailures[i]; }
 
     protected:
-        void onReport(const char desc[], Result result) SK_OVERRIDE {
-            if (kFailed == result) {
-                fFailures.push_back().set(desc);
-            }
+        void onReportFailed(const SkString& desc) SK_OVERRIDE {
+            fFailures.push_back(desc);
         }
 
         // Proxy down to fReporter.  We assume these calls are threadsafe.
@@ -110,7 +108,7 @@ void Test::run() {
 
     // Now tell fReporter about any failures and wrap up.
     for (int i = 0; i < local.failure_size(); i++) {
-      fReporter->report(local.failure(i), Reporter::kFailed);
+      fReporter->reportFailed(local.failure(i));
     }
     fReporter->endTest(this);
 

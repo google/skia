@@ -25,35 +25,19 @@ namespace skiatest {
         SK_DECLARE_INST_COUNT(Reporter)
         Reporter();
 
-        enum Result {
-            kPassed,    // must begin with 0
-            kFailed,
-            /////
-            kLastResult = kFailed
-        };
-
         int countTests() const { return fTestCount; }
 
         void startTest(Test*);
-        void report(const char testDesc[], Result);
+        void reportFailed(const SkString& desc);
         void endTest(Test*);
 
         virtual bool allowExtendedTest() const { return false; }
         virtual bool allowThreaded() const { return false; }
         virtual void bumpTestCount() { sk_atomic_inc(&fTestCount); }
 
-        // helpers for tests
-        void reportFailed(const char desc[]) {
-            this->report(desc, kFailed);
-        }
-        void reportFailed(const SkString& desc) {
-            this->report(desc.c_str(), kFailed);
-        }
-
-
     protected:
         virtual void onStart(Test*) {}
-        virtual void onReport(const char desc[], Result) {}
+        virtual void onReportFailed(const SkString& desc) {}
         virtual void onEnd(Test*) {}
 
     private:

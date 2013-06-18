@@ -55,10 +55,6 @@ private:
     const TestRegistry* fReg;
 };
 
-static const char* result2string(Reporter::Result result) {
-    return result == Reporter::kPassed ? "passed" : "FAILED";
-}
-
 class DebugfReporter : public Reporter {
 public:
     DebugfReporter(bool allowExtendedTest, bool allowThreaded)
@@ -87,8 +83,8 @@ protected:
         sk_atomic_inc(&fPending);
         SkDebugf("[%3d/%3d] (%d) %s\n", index+1, fTotal, fPending, test->getName());
     }
-    virtual void onReport(const char desc[], Reporter::Result result) {
-        SkDebugf("\t%s: %s\n", result2string(result), desc);
+    virtual void onReportFailed(const SkString& desc) {
+        SkDebugf("\tFAILED: %s\n", desc.c_str());
     }
 
     virtual void onEnd(Test* test) {

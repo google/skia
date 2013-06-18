@@ -59,7 +59,7 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
         }
         appendStr(&str, paint);
         appendStr(&str, path);
-        reporter->report(str.c_str(), skiatest::Reporter::kFailed);
+        reporter->reportFailed(str);
 
 // uncomment this if you want to step in to see the failure
 //        canvas.drawPath(path, p);
