@@ -273,7 +273,7 @@ static void test_files(skiatest::Reporter* reporter) {
         if (!writer.isValid()) {
             SkString msg;
             msg.printf("Failed to create tmp file %s\n", path.c_str());
-            reporter->reportFailed(msg.c_str());
+            reporter->reportFailed(msg);
             return;
         }
         writer.write(s, 26);
