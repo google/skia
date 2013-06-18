@@ -432,15 +432,31 @@ def generateCode():
   manager.addClass('Object')
   
   manager.addClass('Null').check('podofoObj.GetDataType() == ePdfDataType_Null')
-  manager.addClass('Boolean').check('podofoObj.GetDataType() == ePdfDataType_Bool')
-  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number')
-  manager.addClass('Number').check('podofoObj.GetDataType() == ePdfDataType_Real')
-  manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')
+  manager.addClass('Boolean').check('podofoObj.GetDataType() == ePdfDataType_Bool')\
+                             .carbonCopyPublic('bool value() const {return fPodofoObj->GetBool();}')
+                             
+  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number')\
+                             .carbonCopyPublic('long value() const {return fPodofoObj->GetNumber();}')
+  
+  manager.addClass('Number').check('podofoObj.GetDataType() == ePdfDataType_Real')\
+                             .carbonCopyPublic('double value() const {return fPodofoObj->GetReal();}')
+  
+  manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')\
+                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetName().GetName();}')
+  
   #manager.addClass('Stream') - attached to a dictionary
   manager.addClass('Reference').check('podofoObj.GetDataType() == ePdfDataType_Reference')
-  manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')
-  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String')
-  manager.addClass('HexString').check('podofoObj.GetDataType() == ePdfDataType_HexString')
+  
+  manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')\
+                             .carbonCopyPublic('const int size() const {return fPodofoObj->GetArray().GetSize();}')\
+                             .carbonCopyPublic('const SkPdfObject operator[](int i) const {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')\
+                             .carbonCopyPublic('SkPdfObject operator[](int i) {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')
+  
+  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String')\
+                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
+                             
+  manager.addClass('HexString').check('podofoObj.GetDataType() == ePdfDataType_HexString')\
+                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
   
   manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')
   
