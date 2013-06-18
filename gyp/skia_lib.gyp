@@ -24,8 +24,7 @@
       }],
       [ 'skia_gpu', {
         'component_libs': [
-          'gpu.gyp:gr',
-          'gpu.gyp:skgr',
+          'gpu.gyp:skgpu',
         ],
       }],
       [ 'skia_os == "nacl"', {
