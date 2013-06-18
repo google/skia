@@ -117,8 +117,8 @@
   },
   'targets': [
     {
-      'target_name': 'skgr',
-      'product_name': 'skia_skgr',
+      'target_name': 'skgpu',
+      'product_name': 'skia_skgpu',
       'type': 'static_library',
       'standalone_static_library': 1,
       'includes': [
@@ -139,67 +139,12 @@
         'angle.gyp:*',
       ],
       'sources': [
-        '<@(skgr_sources)',
-        '<@(skgr_native_gl_sources)',
-        '<@(skgr_angle_gl_sources)',
-        '<@(skgr_mesa_gl_sources)',
-        '<@(skgr_debug_gl_sources)',
-        '<@(skgr_null_gl_sources)',
-        'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
-      ],
-      'conditions': [
-        [ 'not skia_mesa', {
-          'sources!': [
-            '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
-          ],
-        }],
-        [ 'skia_mesa and skia_os == "mac"', {
-          'include_dirs': [
-             '/opt/X11/include/',
-          ],
-        }],
-        [ 'not skia_angle', {
-          'sources!': [
-            '<@(skgr_angle_gl_sources)',
-          ],
-          'dependencies!': [
-            'angle.gyp:*',
-          ],
-          'export_dependent_settings!': [
-            'angle.gyp:*',
-          ],
-        }],
-      ],
-    },
-    {
-      'target_name': 'gr',
-      'product_name': 'skia_gr',
-      'type': 'static_library',
-      'standalone_static_library': 1,
-      'includes': [
-        'gpu.gypi',
-      ],
-     'include_dirs': [
-        '../include/core',
-        '../include/config',
-        '../include/utils',
-        '../include/gpu',
-        '../src/core', # SkRasterClip.h
-        '../src/gpu'
-      ],
-      'dependencies': [
-        'angle.gyp:*',
-      ],
-      'export_dependent_settings': [
-        'angle.gyp:*',
-      ],
-      'sources': [
-        '<@(gr_sources)',
-        '<@(gr_native_gl_sources)',
-        '<@(gr_angle_gl_sources)',
-        '<@(gr_mesa_gl_sources)',
-        '<@(gr_debug_gl_sources)',
-        '<@(gr_null_gl_sources)',
+        '<@(skgpu_sources)',
+        '<@(skgpu_native_gl_sources)',
+        '<@(skgpu_angle_gl_sources)',
+        '<@(skgpu_mesa_gl_sources)',
+        '<@(skgpu_debug_gl_sources)',
+        '<@(skgpu_null_gl_sources)',
         'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'defines': [
@@ -270,6 +215,12 @@
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
           ],
         }],
+        [ 'not skia_mesa', {
+          'sources!': [
+            '../src/gpu/gl/mesa/SkMesaGLContext.cpp',
+            '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
+          ],
+        }],
         [ 'skia_mesa and skia_os == "mac"', {
           'link_settings': {
             'libraries': [
@@ -280,11 +231,6 @@
              '/opt/X11/include/',
           ],
         }],
-        [ 'not skia_mesa', {
-          'sources!': [
-            '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
-          ],
-        }],
         [ 'skia_os in ["win", "ios"]', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
@@ -293,7 +239,7 @@
         }],
         [ 'not skia_angle', {
           'sources!': [
-            '<@(gr_angle_gl_sources)',
+            '<@(skgpu_angle_gl_sources)',
           ],
           'dependencies!': [
             'angle.gyp:*',

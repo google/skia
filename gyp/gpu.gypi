@@ -1,4 +1,4 @@
-# Include this gypi to include all 'gr' and 'skgr' files
+# Include this gypi to include all 'gpu' files
 # The parent gyp/gypi file must define
 #       'skia_src_path'     e.g. skia/trunk/src
 #       'skia_include_path' e.g. skia/trunk/include
@@ -7,7 +7,7 @@
 #
 {
   'variables': {
-    'gr_sources': [
+    'skgpu_sources': [
       '<(skia_include_path)/gpu/GrAARectRenderer.h',
       '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
       '<(skia_include_path)/gpu/GrClipData.h',
@@ -188,22 +188,58 @@
       '<(skia_src_path)/gpu/gl/GrGpuGL.cpp',
       '<(skia_src_path)/gpu/gl/GrGpuGL.h',
       '<(skia_src_path)/gpu/gl/GrGpuGL_program.cpp',
+
+      # Sk files
+      '<(skia_include_path)/gpu/SkGpuDevice.h',
+      '<(skia_include_path)/gpu/SkGr.h',
+      '<(skia_include_path)/gpu/SkGrPixelRef.h',
+      '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
+
+      '<(skia_include_path)/gpu/gl/SkGLContextHelper.h',
+
+      '<(skia_src_path)/gpu/SkGpuDevice.cpp',
+      '<(skia_src_path)/gpu/SkGr.cpp',
+      '<(skia_src_path)/gpu/SkGrFontScaler.cpp',
+      '<(skia_src_path)/gpu/SkGrPixelRef.cpp',
+      '<(skia_src_path)/gpu/SkGrTexturePixelRef.cpp',
+
+      '<(skia_src_path)/image/SkImage_Gpu.cpp',
+      '<(skia_src_path)/image/SkSurface_Gpu.cpp',
+
+      '<(skia_src_path)/gpu/gl/SkGLContextHelper.cpp'
     ],
-    'gr_native_gl_sources': [
+    'skgpu_native_gl_sources': [
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_native.cpp',
       '<(skia_src_path)/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp',
       '<(skia_src_path)/gpu/gl/win/GrGLCreateNativeInterface_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
       '<(skia_src_path)/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp',
       '<(skia_src_path)/gpu/gl/android/GrGLCreateNativeInterface_android.cpp',
+
+      # Sk files
+      '<(skia_include_path)/gpu/gl/SkNativeGLContext.h',
+      '<(skia_src_path)/gpu/gl/mac/SkNativeGLContext_mac.cpp',
+      '<(skia_src_path)/gpu/gl/nacl/SkNativeGLContext_nacl.cpp',
+      '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
+      '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
+      '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',
+      '<(skia_src_path)/gpu/gl/iOS/SkNativeGLContext_iOS.mm',
     ],
-    'gr_mesa_gl_sources': [
+    'skgpu_mesa_gl_sources': [
       '<(skia_src_path)/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
+
+      # Sk files
+      '<(skia_include_path)/gpu/gl/SkMesaGLContext.h',
+      '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.cpp',
     ],
-    'gr_angle_gl_sources': [
+    'skgpu_angle_gl_sources': [
       '<(skia_src_path)/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
+
+      # Sk files
+      '<(skia_include_path)/gpu/gl/SkANGLEGLContext.h',
+      '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
     ],
-    'gr_debug_gl_sources': [
+    'skgpu_debug_gl_sources': [
       '<(skia_src_path)/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrFakeRefObj.h',
       '<(skia_src_path)/gpu/gl/debug/GrBufferObj.h',
@@ -223,52 +259,15 @@
       '<(skia_src_path)/gpu/gl/debug/GrDebugGL.h',
       '<(skia_src_path)/gpu/gl/debug/GrDebugGL.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrVertexArrayObj.h',
-    ],
-    'gr_null_gl_sources': [
-      '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
-    ],
 
-    'skgr_sources': [
-      '<(skia_include_path)/gpu/SkGpuDevice.h',
-      '<(skia_include_path)/gpu/SkGr.h',
-      '<(skia_include_path)/gpu/SkGrPixelRef.h',
-      '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
-
-      '<(skia_include_path)/gpu/gl/SkGLContextHelper.h',
-
-      '<(skia_src_path)/gpu/SkGpuDevice.cpp',
-      '<(skia_src_path)/gpu/SkGr.cpp',
-      '<(skia_src_path)/gpu/SkGrFontScaler.cpp',
-      '<(skia_src_path)/gpu/SkGrPixelRef.cpp',
-      '<(skia_src_path)/gpu/SkGrTexturePixelRef.cpp',
-
-      '<(skia_src_path)/image/SkImage_Gpu.cpp',
-      '<(skia_src_path)/image/SkSurface_Gpu.cpp',
-
-      '<(skia_src_path)/gpu/gl/SkGLContextHelper.cpp'
-    ],
-    'skgr_native_gl_sources': [
-      '<(skia_include_path)/gpu/gl/SkNativeGLContext.h',
-      '<(skia_src_path)/gpu/gl/mac/SkNativeGLContext_mac.cpp',
-      '<(skia_src_path)/gpu/gl/nacl/SkNativeGLContext_nacl.cpp',
-      '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
-      '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
-      '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',
-      '<(skia_src_path)/gpu/gl/iOS/SkNativeGLContext_iOS.mm',
-    ],
-    'skgr_angle_gl_sources': [
-      '<(skia_include_path)/gpu/gl/SkANGLEGLContext.h',
-      '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
-    ],
-    'skgr_mesa_gl_sources': [
-      '<(skia_include_path)/gpu/gl/SkMesaGLContext.h',
-      '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.cpp',
-    ],
-    'skgr_debug_gl_sources': [
+      # Sk files
       '<(skia_include_path)/gpu/gl/SkDebugGLContext.h',
       '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.cpp',
     ],
-    'skgr_null_gl_sources': [
+    'skgpu_null_gl_sources': [
+      '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
+
+      # Sk files
       '<(skia_include_path)/gpu/gl/SkNullGLContext.h',
       '<(skia_src_path)/gpu/gl/SkNullGLContext.cpp',
     ],
