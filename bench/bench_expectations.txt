@@ -75,7 +75,7 @@ desk_baidu.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.140,-7
 desk_baidu.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,41.210,27.089,55.331
 desk_baidu.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.440,-6.904,13.784
 desk_baidu.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.420,-6.922,13.762
-desk_baidu.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,65.840,49.256,82.424
+desk_baidu.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,65.840,49.256,102.424
 desk_baidu.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,11.510,0.359,22.661
 desk_baidu.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.920,-0.172,22.012
 desk_baidu.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,25.540,12.986,38.094
@@ -122,8 +122,8 @@ desk_blogger.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-
 desk_blogger.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,17.530,5.777,29.283
 desk_blogger.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.750,4.175,27.325
 desk_blogger.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,17.090,5.381,28.799
-desk_booking.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,28.230,15.407,41.053
-desk_booking.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,39.410,25.469,53.351
+desk_booking.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,28.230,7.407,41.053
+desk_booking.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,9.410,25.469,53.351
 desk_booking.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.034,-9.969,10.037
 desk_booking.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.034,-9.970,10.037
 desk_booking.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.135,-9.878,10.149
@@ -183,7 +183,7 @@ desk_br337.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.950,7
 desk_br337.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,232.830,199.547,286.113
 desk_br337.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.350,3.815,26.885
 desk_br337.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,15.530,3.977,27.083
-desk_br337.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,383.560,335.204,431.916
+desk_br337.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,383.560,335.204,451.916
 desk_br337.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,53.910,38.519,69.301
 desk_br337.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,53.820,38.438,69.202
 desk_br337.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,151.610,126.449,176.771
@@ -266,8 +266,8 @@ desk_css3gradients.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Re
 desk_css3gradients.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.560,-0.496,21.616
 desk_css3gradients.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,9.380,-1.558,20.318
 desk_css3gradients.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.640,-0.424,21.704
-desk_ebay.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,25.760,13.184,38.336
-desk_ebay.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,40.180,26.162,54.198
+desk_ebay.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,25.760,11.184,38.336
+desk_ebay.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,40.180,6.162,54.198
 desk_ebay.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.025,-9.977,10.028
 desk_ebay.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.027,-9.976,10.030
 desk_ebay.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.082,-9.926,10.091
@@ -303,7 +303,7 @@ desk_ebay.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.
 desk_ebay.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.930,4.337,27.523
 desk_ebay.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.860,6.974,30.746
 desk_espn.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,16.030,4.427,27.633
-desk_espn.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,20.990,8.891,33.089
+desk_espn.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,20.990,5.891,33.089
 desk_espn.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.022,-9.980,10.025
 desk_espn.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.020,-9.982,10.022
 desk_espn.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.076,-9.932,10.083
@@ -363,7 +363,7 @@ desk_facebook.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,60.63
 desk_facebook.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,730.290,647.261,893.319
 desk_facebook.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,51.840,36.656,67.024
 desk_facebook.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,46.130,31.517,60.743
-desk_facebook.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,871.710,774.539,1060.881
+desk_facebook.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,871.710,774.539,1090.881
 desk_facebook.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,125.320,102.788,147.852
 desk_facebook.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,107.640,86.876,128.404
 desk_facebook.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,375.780,328.202,423.358
@@ -626,7 +626,7 @@ desk_pinterest.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Releas
 desk_pinterest.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.130,2.717,25.543
 desk_pinterest.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,17.320,5.588,29.052
 desk_pinterest.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.910,5.219,28.601
-desk_pokemonwiki.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,95.580,76.022,115.138
+desk_pokemonwiki.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,95.580,70.022,115.138
 desk_pokemonwiki.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,105.080,84.572,125.588
 desk_pokemonwiki.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.085,-9.923,10.094
 desk_pokemonwiki.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.312,-9.720,10.343
@@ -662,8 +662,8 @@ desk_pokemonwiki.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Rele
 desk_pokemonwiki.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,50.690,35.621,65.759
 desk_pokemonwiki.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,155.280,129.752,180.808
 desk_pokemonwiki.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,176.480,148.832,204.128
-desk_sfgate.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,24.610,12.149,37.071
-desk_sfgate.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.780,21.302,48.258
+desk_sfgate.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,24.610,5.149,37.071
+desk_sfgate.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.780,5.302,48.258
 desk_sfgate.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.032,-9.971,10.035
 desk_sfgate.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.029,-9.974,10.032
 desk_sfgate.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.145,-9.870,10.160
@@ -699,7 +699,7 @@ desk_sfgate.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0
 desk_sfgate.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.400,1.160,23.640
 desk_sfgate.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,12.650,1.385,23.915
 desk_techcrunch.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,31.020,17.918,44.122
-desk_techcrunch.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,42.390,28.151,56.629
+desk_techcrunch.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,42.390,20.151,56.629
 desk_techcrunch.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.021,-9.981,10.023
 desk_techcrunch.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.021,-9.981,10.024
 desk_techcrunch.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.128,-9.885,10.141
@@ -771,7 +771,7 @@ desk_twitter.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,
 desk_twitter.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,25.750,13.175,38.325
 desk_twitter.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,29.110,16.199,42.021
 desk_weather.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.980,1.682,24.278
-desk_weather.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.920,7.028,30.812
+desk_weather.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.920,4.028,30.812
 desk_weather.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.021,-9.981,10.023
 desk_weather.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.020,-9.982,10.022
 desk_weather.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.057,-9.949,10.063
@@ -806,8 +806,8 @@ desk_weather.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-
 desk_weather.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.910,-2.881,18.701
 desk_weather.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.610,-3.151,18.371
 desk_weather.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,8.100,-2.710,18.910
-desk_wordpress.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,43.530,29.177,57.883
-desk_wordpress.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,51.420,36.278,66.562
+desk_wordpress.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,43.530,19.177,57.883
+desk_wordpress.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,51.420,16.278,66.562
 desk_wordpress.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.042,-9.962,10.046
 desk_wordpress.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.044,-9.961,10.048
 desk_wordpress.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.130,-9.883,10.143
@@ -842,8 +842,8 @@ desk_wordpress.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Releas
 desk_wordpress.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,22.770,10.493,35.047
 desk_wordpress.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,32.120,18.908,45.332
 desk_wordpress.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,33.170,19.853,46.487
-desk_wowwiki.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,90.860,71.774,109.946
-desk_wowwiki.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,118.540,96.686,140.394
+desk_wowwiki.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,90.860,51.774,109.946
+desk_wowwiki.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,118.540,56.686,140.394
 desk_wowwiki.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.061,-9.945,10.067
 desk_wowwiki.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.060,-9.946,10.066
 desk_wowwiki.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.635,-9.428,10.699
@@ -863,7 +863,7 @@ desk_wowwiki.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7
 desk_wowwiki.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,81.440,63.296,99.584
 desk_wowwiki.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,93.610,74.249,112.971
 desk_wowwiki.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,163.330,136.997,189.663
-desk_wowwiki.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,194.700,165.230,224.170
+desk_wowwiki.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,154.700,165.230,224.170
 desk_wowwiki.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1690.600,1511.540,1869.660
 desk_wowwiki.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,128.580,105.722,151.438
 desk_wowwiki.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,151.440,126.296,176.584
@@ -879,7 +879,7 @@ desk_wowwiki.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,
 desk_wowwiki.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,78.250,60.425,96.075
 desk_wowwiki.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,88.380,69.542,107.218
 desk_yahooanswers.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.770,3.293,26.247
-desk_yahooanswers.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.570,6.713,30.427
+desk_yahooanswers.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.570,4.713,30.427
 desk_yahooanswers.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.018,-9.984,10.020
 desk_yahooanswers.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.017,-9.985,10.019
 desk_yahooanswers.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.073,-9.934,10.080
@@ -951,7 +951,7 @@ desk_yahoogames.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25
 desk_yahoogames.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,40.410,26.369,54.451
 desk_yahoogames.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,46.380,31.742,61.018
 desk_yahoonews.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,17.540,5.786,29.294
-desk_yahoonews.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,24.720,12.248,37.192
+desk_yahoonews.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,24.720,7.248,37.192
 desk_yahoonews.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.031,-9.972,10.034
 desk_yahoonews.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.030,-9.973,10.033
 desk_yahoonews.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.095,-9.915,10.104
@@ -987,7 +987,7 @@ desk_yahoonews.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25t
 desk_yahoonews.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,11.700,0.530,22.870
 desk_yahoonews.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,12.020,0.818,23.222
 desk_yahoosports.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,26.730,14.057,39.403
-desk_yahoosports.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,38.980,25.082,52.878
+desk_yahoosports.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,38.980,15.082,52.878
 desk_yahoosports.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.038,-9.966,10.042
 desk_yahoosports.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.036,-9.968,10.039
 desk_yahoosports.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.128,-9.885,10.141
@@ -1083,7 +1083,7 @@ mobi_wikipedia.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,23.5
 mobi_wikipedia.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,312.810,271.529,394.091
 mobi_wikipedia.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,25.830,13.247,38.413
 mobi_wikipedia.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,26.250,13.625,38.875
-mobi_wikipedia.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,510.630,449.567,580.693
+mobi_wikipedia.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,510.630,449.567,640.693
 mobi_wikipedia.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,61.900,45.710,78.090
 mobi_wikipedia.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,48.360,33.524,63.196
 mobi_wikipedia.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,211.920,180.728,243.112
@@ -1130,8 +1130,8 @@ tabl_androidpolice.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Re
 tabl_androidpolice.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,17.500,5.750,29.250
 tabl_androidpolice.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.200,3.680,26.720
 tabl_androidpolice.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.860,5.174,28.546
-tabl_cnet.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,42.660,28.394,56.926
-tabl_cnet.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,56.360,40.724,71.996
+tabl_cnet.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,42.660,10.394,56.926
+tabl_cnet.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,56.360,10.724,71.996
 tabl_cnet.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.051,-9.954,10.056
 tabl_cnet.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.050,-9.955,10.054
 tabl_cnet.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.104,-9.906,10.114
@@ -1166,8 +1166,8 @@ tabl_cnet.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25t
 tabl_cnet.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.100,6.290,29.910
 tabl_cnet.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.450,6.605,30.295
 tabl_cnet.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.890,7.001,30.779
-tabl_cnn.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,42.140,27.926,56.354
-tabl_cnn.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,54.230,38.807,69.653
+tabl_cnn.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,42.140,15.926,56.354
+tabl_cnn.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,54.230,18.807,69.653
 tabl_cnn.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.042,-9.962,10.047
 tabl_cnn.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.042,-9.962,10.046
 tabl_cnn.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.267,-9.760,10.293
@@ -1202,8 +1202,8 @@ tabl_cnn.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th
 tabl_cnn.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,24.380,11.942,36.818
 tabl_cnn.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,26.790,14.111,39.469
 tabl_cnn.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,28.690,15.821,41.559
-tabl_culturalsolutions.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,45.640,31.076,65.204
-tabl_culturalsolutions.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,61.910,45.719,78.101
+tabl_culturalsolutions.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,45.640,25.076,65.204
+tabl_culturalsolutions.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,61.910,25.719,78.101
 tabl_culturalsolutions.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.025,-9.978,10.027
 tabl_culturalsolutions.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.024,-9.979,10.026
 tabl_culturalsolutions.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.066,-9.940,10.073
@@ -1239,7 +1239,7 @@ tabl_culturalsolutions.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Rel
 tabl_culturalsolutions.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,26.330,13.697,38.963
 tabl_culturalsolutions.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,28.070,15.263,40.877
 tabl_cuteoverload.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,39.180,25.262,53.098
-tabl_cuteoverload.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,44.220,29.798,58.642
+tabl_cuteoverload.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,44.220,25.798,58.642
 tabl_cuteoverload.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.044,-9.960,10.049
 tabl_cuteoverload.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.041,-9.963,10.045
 tabl_cuteoverload.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.129,-9.884,10.142
@@ -1346,8 +1346,8 @@ tabl_digg.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25t
 tabl_digg.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,19.550,7.595,31.505
 tabl_digg.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,20.100,8.090,32.110
 tabl_digg.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,21.360,9.224,33.496
-tabl_engadget.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,67.460,50.714,84.206
-tabl_engadget.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,100.670,80.603,120.737
+tabl_engadget.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,17.460,50.714,84.206
+tabl_engadget.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,100.670,20.603,120.737
 tabl_engadget.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.034,-9.970,10.037
 tabl_engadget.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.034,-9.970,10.037
 tabl_engadget.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.143,-9.871,10.158
@@ -1598,8 +1598,8 @@ tabl_gspro.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25
 tabl_gspro.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.580,-6.778,13.938
 tabl_gspro.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.040,-7.264,13.344
 tabl_gspro.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.410,-6.931,13.751
-tabl_hsfi.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,52.630,37.367,67.893
-tabl_hsfi.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,71.930,54.737,89.123
+tabl_hsfi.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,52.630,17.367,67.893
+tabl_hsfi.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,71.930,14.737,89.123
 tabl_hsfi.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.037,-9.967,10.040
 tabl_hsfi.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.036,-9.967,10.040
 tabl_hsfi.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.175,-9.843,10.192
@@ -1706,8 +1706,8 @@ tabl_mlb.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th
 tabl_mlb.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,17.190,5.471,28.909
 tabl_mlb.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.050,2.645,25.455
 tabl_mlb.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,15.340,3.806,26.874
-tabl_mozilla.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,203.210,172.889,233.531
-tabl_mozilla.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,248.320,213.488,283.152
+tabl_mozilla.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,203.210,162.889,233.531
+tabl_mozilla.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,248.320,203.488,283.152
 tabl_mozilla.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.394,-9.646,10.433
 tabl_mozilla.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.365,-9.671,10.402
 tabl_mozilla.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.515,-8.636,11.667
@@ -1814,8 +1814,8 @@ tabl_nytimes.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-
 tabl_nytimes.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,9.510,-1.441,20.461
 tabl_nytimes.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,8.410,-2.431,19.251
 tabl_nytimes.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.450,-0.595,21.495
-tabl_onlinewsj.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,36.960,23.264,50.656
-tabl_onlinewsj.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,57.400,41.660,73.140
+tabl_onlinewsj.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,36.960,5.264,50.656
+tabl_onlinewsj.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,57.400,11.660,73.140
 tabl_onlinewsj.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.071,-9.936,10.078
 tabl_onlinewsj.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.065,-9.942,10.071
 tabl_onlinewsj.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.179,-9.839,10.197
@@ -1994,8 +1994,8 @@ tabl_techmeme.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release
 tabl_techmeme.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,4.630,-5.833,15.093
 tabl_techmeme.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.840,-5.644,15.324
 tabl_techmeme.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.360,-5.176,15.896
-tabl_theverge.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,90.830,71.747,109.913
-tabl_theverge.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,120.030,98.027,162.033
+tabl_theverge.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,90.830,51.747,109.913
+tabl_theverge.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,120.030,58.027,162.033
 tabl_theverge.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.050,-9.955,10.054
 tabl_theverge.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.046,-9.959,10.050
 tabl_theverge.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.163,-9.853,10.180
@@ -2066,8 +2066,8 @@ tabl_transformice.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Rel
 tabl_transformice.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,12.390,1.151,23.629
 tabl_transformice.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,11.500,0.350,22.650
 tabl_transformice.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,11.840,0.656,23.024
-tabl_ukwsj.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,30.590,17.531,43.649
-tabl_ukwsj.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,47.850,33.065,62.635
+tabl_ukwsj.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,30.590,7.531,43.649
+tabl_ukwsj.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,47.850,7.065,62.635
 tabl_ukwsj.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.061,-9.945,10.067
 tabl_ukwsj.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.055,-9.950,10.061
 tabl_ukwsj.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.163,-9.853,10.179
@@ -2138,8 +2138,8 @@ tabl_vnexpress.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Releas
 tabl_vnexpress.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.150,4.535,27.765
 tabl_vnexpress.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.580,3.122,26.038
 tabl_vnexpress.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,16.210,4.589,27.831
-tabl_worldjournal.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,33.680,20.312,110.0
-tabl_worldjournal.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.240,20.816,60.664
+tabl_worldjournal.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,33.680,10.312,110.0
+tabl_worldjournal.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.240,10.816,60.664
 tabl_worldjournal.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.018,-9.984,10.020
 tabl_worldjournal.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.017,-9.985,10.019
 tabl_worldjournal.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.143,-9.872,10.157
