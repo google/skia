@@ -9,6 +9,7 @@
 #include "skdiff_utils.h"
 #include "SkBitmap.h"
 #include "SkData.h"
+#include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
@@ -17,6 +18,8 @@
 #include "SkTemplates.h"
 #include "SkTSearch.h"
 #include "SkTypes.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /**
  * skdiff
