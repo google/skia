@@ -7,8 +7,8 @@
 
 class SkPdfURIDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryURIDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryURIDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kURIDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kURIDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfURIDictionary* asURIDictionary() {return this;}
   virtual const SkPdfURIDictionary* asURIDictionary() const {return this;}

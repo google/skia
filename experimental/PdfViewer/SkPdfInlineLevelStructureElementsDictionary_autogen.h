@@ -7,8 +7,8 @@
 
 class SkPdfInlineLevelStructureElementsDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryInlineLevelStructureElementsDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryInlineLevelStructureElementsDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kInlineLevelStructureElementsDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kInlineLevelStructureElementsDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfInlineLevelStructureElementsDictionary* asInlineLevelStructureElementsDictionary() {return this;}
   virtual const SkPdfInlineLevelStructureElementsDictionary* asInlineLevelStructureElementsDictionary() const {return this;}
@@ -524,7 +524,7 @@ public:
   bool isLineHeightANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LineHeight", "", &ret)) return false;
-    return ret->podofo()->GetDataType() == ePdfDataType_Real;
+    return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
   double getLineHeightAsNumber() const {

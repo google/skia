@@ -7,8 +7,8 @@
 
 class SkPdfCIDFontDictionary : public SkPdfFontDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFontDictionaryCIDFontDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryFontDictionaryCIDFontDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCIDFontDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCIDFontDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return this;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return this;}

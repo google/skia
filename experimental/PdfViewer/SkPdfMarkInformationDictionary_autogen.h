@@ -7,8 +7,8 @@
 
 class SkPdfMarkInformationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryMarkInformationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryMarkInformationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kMarkInformationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kMarkInformationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfMarkInformationDictionary* asMarkInformationDictionary() {return this;}
   virtual const SkPdfMarkInformationDictionary* asMarkInformationDictionary() const {return this;}

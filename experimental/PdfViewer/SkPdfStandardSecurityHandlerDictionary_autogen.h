@@ -7,8 +7,8 @@
 
 class SkPdfStandardSecurityHandlerDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryStandardSecurityHandlerDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryStandardSecurityHandlerDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kStandardSecurityHandlerDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kStandardSecurityHandlerDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfStandardSecurityHandlerDictionary* asStandardSecurityHandlerDictionary() {return this;}
   virtual const SkPdfStandardSecurityHandlerDictionary* asStandardSecurityHandlerDictionary() const {return this;}

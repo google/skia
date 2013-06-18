@@ -7,8 +7,8 @@
 
 class SkPdfBoxColorInformationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryBoxColorInformationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryBoxColorInformationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kBoxColorInformationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kBoxColorInformationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfBoxColorInformationDictionary* asBoxColorInformationDictionary() {return this;}
   virtual const SkPdfBoxColorInformationDictionary* asBoxColorInformationDictionary() const {return this;}

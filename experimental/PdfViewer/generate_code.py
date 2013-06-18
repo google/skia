@@ -18,7 +18,7 @@ knowTypes = {
 'file_specification': ['SkPdfFileSpec', 'FileSpecFromDictionary', datatypes.FileSpecNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
 'name': ['std::string', 'NameFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_Name'],
 'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
-'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real'],
+'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number'],
 'rectangle': ['SkRect', 'SkRectFromDictionary', datatypes.PdfEmptyRect(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
 'stream': ['SkPdfStream', 'StreamFromDictionary',  datatypes.PdfEmptyStream(), 'ret->podofo()->HasStream()'],
 'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
@@ -160,72 +160,60 @@ class PdfClassManager:
     self.fClassesNamesInOrder.append(name)
     return cls
   
-  def longName(self, name):
-    #return name
-    # TODO(edisonn): we need the long name to nenerate and sort enums, but we can generate them recursively
-    ret = ''
-    while name != '':
-      cls = self.fClasses[name]
-      ret = name + ret
-      name = cls.fBase
-      
-    return ret
-  
-  
-  def writeEnum(self, enum, enumToCls):
-    print('  ' + enum + ',')
+  def writeEnum(self, fileEnums, enum, enumToCls):
+    fileEnums.write('  ' + enum + ',\n')
     cls = enumToCls[enum]
     cls.fEnumSubclasses.sort()
     
     cnt = 0
     for sub in cls.fEnumSubclasses:
-      self.writeEnum(cls.fEnumSubclasses[cnt], enumToCls)
+      self.writeEnum(fileEnums, cls.fEnumSubclasses[cnt], enumToCls)
       cnt = cnt + 1
       
     if cnt != 0:
-       print('  ' + cls.fEnumEnd + ',')
+       fileEnums.write('  ' + cls.fEnumEnd + ',\n')
 
 
-  def writeAsNull(self, cls, enumToCls):
-    print('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return NULL;}')
-    print('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return NULL;}')
-    print
+  def writeAsNull(self, fileClass, cls, enumToCls):
+    fileClass.write('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return NULL;}\n')
+    fileClass.write('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return NULL;}\n')
+    fileClass.write('\n')
 
     cnt = 0
     for sub in cls.fEnumSubclasses:
-      self.writeAsNull(enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
+      self.writeAsNull(fileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
       cnt = cnt + 1
 
        
-  def writeAsFoo(self, cls, enumToCls):
+  def writeAsFoo(self, fileClass, cls, enumToCls):
     # TODO(edisonn): add a container, with sections, public, private, default, ...
     # the end code will be grouped
     
     # me
-    print('public:')
-    print('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return this;}')
-    print('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return this;}')
-    print
+    fileClass.write('public:\n')
+    fileClass.write('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return this;}\n')
+    fileClass.write('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return this;}\n')
+    fileClass.write('\n')
 
     if cls.fName == 'Object':
       cnt = 0
       for sub in cls.fEnumSubclasses:
-        self.writeAsNull(enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
+        self.writeAsNull(fileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
         cnt = cnt + 1
             
     if cls.fName != 'Object':
-      print('private:')
+      fileClass.write('private:\n')
       base = self.fClasses[cls.fBase]
       cnt = 0
       for sub in base.fEnumSubclasses:
         if enumToCls[base.fEnumSubclasses[cnt]].fName != cls.fName:
-          self.writeAsNull(enumToCls[base.fEnumSubclasses[cnt]], enumToCls)
+          self.writeAsNull(fileClass, enumToCls[base.fEnumSubclasses[cnt]], enumToCls)
         cnt = cnt + 1
       
       
   
   def write(self):
-  
+    global fileHeaders 
     global knowTypes
   
     # generate enum
@@ -235,9 +223,10 @@ class PdfClassManager:
     
     for name in self.fClasses:
       cls = self.fClasses[name]
-      enum = self.longName(name)
-      cls.fEnum = 'k' + enum + '_SkPdfObjectType'
-      cls.fEnumEnd = 'k' + enum + '__End_SkPdfObjectType'
+      cls.fEnum = 'k' + name + '_SkPdfObjectType'
+      cls.fEnumEnd = 'k' + name + '__End_SkPdfObjectType'
+
+      fileHeaders.write('#include "SkPdf' + cls.fName + '_autogen.h"\n')
             
       if cls.fBase != '':
         self.fClasses[cls.fBase].fEnumSubclasses.append(cls.fEnum)
@@ -254,116 +243,134 @@ class PdfClassManager:
     # write imports
     
     # write enums
-    print('enum SkPdfObjectType {')
+    fileEnums = open('SkPdfEnums_autogen.h', 'w')
+    fileEnums.write('#ifndef __DEFINED__SkPdfEnums\n')
+    fileEnums.write('#define __DEFINED__SkPdfEnums\n')
+    fileEnums.write('\n')
+    
+    fileEnums.write('enum SkPdfObjectType {\n')
     for enum in enumsRoot:
-      self.writeEnum(enum, enumToCls)
-    print('};')
-    print
+      self.writeEnum(fileEnums, enum, enumToCls)
+    fileEnums.write('};\n')
+    fileEnums.write('\n')
     
     # write forward class declaration
     for name in self.fClassesNamesInOrder:
-      print('class SkPdf' + name + ';')
-    print
+      fileEnums.write('class SkPdf' + name + ';\n')
+    fileEnums.write('\n')
+
+    fileEnums.write('#endif  // __DEFINED__SkPdfEnums\n')
+    fileEnums.close()
     
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       enum = cls.fEnum
       
+      fileClass = open('SkPdf' + cls.fName + '_autogen.h', 'w')
+      fileClass.write('#ifndef __DEFINED__SkPdf' + cls.fName + '\n')
+      fileClass.write('#define __DEFINED__SkPdf' + cls.fName + '\n')
+      fileClass.write('\n')
+
+      fileClass.write('#include "SkPdfEnums_autogen.h"\n')
+      fileClass.write('#include "SkPdfArray_autogen.h"\n')
+      
       if cls.fBase == '':
-        print('class SkPdf' + cls.fName + ' {')
+        fileClass.write('\nclass SkPdf' + cls.fName + ' {\n')
       else:
-        print('class SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {')
+        fileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
+        fileClass.write('\nclass SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
       
-      print('public:')
-      print('  virtual SkPdfObjectType getType() const { return ' + cls.fEnum + ';}')
+      fileClass.write('public:\n')
+      fileClass.write('  virtual SkPdfObjectType getType() const { return ' + cls.fEnum + ';}\n')
       if len(cls.fEnumSubclasses) == 0:
-        print('  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(' + cls.fEnum + ' + 1);}')
+        fileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(' + cls.fEnum + ' + 1);}\n')
       else:
-        print('  virtual SkPdfObjectType getTypeEnd() const { return ' + cls.fEnumEnd + ';}')
+        fileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return ' + cls.fEnumEnd + ';}\n')
       
+      self.writeAsFoo(fileClass, cls, enumToCls)
       
-      self.writeAsFoo(cls, enumToCls)
-      
-      print('public:')
+      fileClass.write('public:\n')
       for cc in cls.fCCPublic:
-        print('  ' + cc)
+        fileClass.write('  ' + cc + '\n')
     
-      print('private:')
+      fileClass.write('private:\n')
       for cc in cls.fCCPrivate:
-        print('  ' + cc)
+        fileClass.write('  ' + cc + '\n')
 
       if cls.fBase == '':
-        print('protected:')
-        print('  const PdfMemDocument* fPodofoDoc;')
-        print('  const PdfObject* fPodofoObj;')
-        print
-        print('public:')
-        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}')
-        print('  const PdfMemDocument* doc() const { return fPodofoDoc;}')
-        print('  const PdfObject* podofo() const { return fPodofoObj;}')
+        fileClass.write('protected:\n')
+        fileClass.write('  const PdfMemDocument* fPodofoDoc;\n')
+        fileClass.write('  const PdfObject* fPodofoObj;\n')
+        fileClass.write('\n')
+        fileClass.write('public:\n')
+        fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}\n')
+        fileClass.write('  const PdfMemDocument* doc() const { return fPodofoDoc;}\n')
+        fileClass.write('  const PdfObject* podofo() const { return fPodofoObj;}\n')
       else:
-        print('public:')
-        print('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}')
-        print
+        fileClass.write('public:\n')
+        fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}\n')
+        fileClass.write('\n')
       
       #check required fieds, also, there should be an internal_valid() manually wrote for complex
       # situations
       # right now valid return true      
-      print('  virtual bool valid() const {return true;}')
-      print
+      fileClass.write('  virtual bool valid() const {return true;}\n')
+      fileClass.write('\n')
       
-      print('  SkPdf' + cls.fName + '& operator=(const SkPdf' + cls.fName + '& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}')
-      print
+      fileClass.write('  SkPdf' + cls.fName + '& operator=(const SkPdf' + cls.fName + '& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}\n')
+      fileClass.write('\n')
       
       for field in cls.fFields:
         prop = field.fProp
         if prop.fCppName != '':
           if prop.fCppName[0] == '[':
-            print('/*')  # comment code of the atributes that can have any name
+            fileClass.write('/*\n')  # comment code of the atributes that can have any name
           
           # TODO(edisonn): has_foo();  
-            print('  bool has_' + prop.fCppName + '() const {')
-            print('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));')
-            print('  }') 
+            fileClass.write('  bool has_' + prop.fCppName + '() const {\n')
+            fileClass.write('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));\n')
+            fileClass.write('  }\n') 
 
           if len(prop.fTypes.split()) == 1:
             t = prop.fTypes.strip()
-            print('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '() const {')
-            print('    ' + knowTypes[t][0] + ' ret;')
-            print('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
+            fileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '() const {\n')
+            fileClass.write('    ' + knowTypes[t][0] + ' ret;\n')
+            fileClass.write('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
             if field.fRequired == False and prop.fDefault != '':
-              print('    return ' + prop.fDefault.toCpp() + ';');
+              fileClass.write('    return ' + prop.fDefault.toCpp() + ';\n');
             else:
-              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
-              print('    return ' + knowTypes[t][2].toCpp() + ';');
-            print('  }') 
-            print
+              fileClass.write('    // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
+              fileClass.write('    return ' + knowTypes[t][2].toCpp() + ';\n');
+            fileClass.write('  }\n') 
+            fileClass.write('\n')
           else:
             for type in prop.fTypes.split():
               t = type.strip()
-              print('  bool is' + prop.fCppName + 'A' + t.title() + '() const {')
-              print('    SkPdfObject* ret = NULL;')
-              print('    if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return false;')
-              print('    return ' + knowTypes[t][3] + ';')
-              print('  }')
-              print
+              fileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '() const {\n')
+              fileClass.write('    SkPdfObject* ret = NULL;\n')
+              fileClass.write('    if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return false;\n')
+              fileClass.write('    return ' + knowTypes[t][3] + ';\n')
+              fileClass.write('  }\n')
+              fileClass.write('\n')
 
-              print('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '() const {')
-              print('    ' + knowTypes[t][0] + ' ret = ' + knowTypes[t][2].toCpp() + ';')
-              print('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;')
-              print('    // TODO(edisonn): warn about missing required field, assert for known good pdfs')
-              print('    return ' + knowTypes[t][2].toCpp() + ';')
-              print('  }') 
-              print
+              fileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '() const {\n')
+              fileClass.write('    ' + knowTypes[t][0] + ' ret = ' + knowTypes[t][2].toCpp() + ';\n')
+              fileClass.write('    if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
+              fileClass.write('    // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
+              fileClass.write('    return ' + knowTypes[t][2].toCpp() + ';\n')
+              fileClass.write('  }\n') 
+              fileClass.write('\n')
                
            
           if prop.fCppName[0] == '[':
-            print('*/')  # comment code of the atributes that can have any name
+            fileClass.write('*/\n')  # comment code of the atributes that can have any name
          
 
-      print('};')
-      print
-      print
+      fileClass.write('};\n')
+      fileClass.write('\n')
+
+      fileClass.write('#endif  // __DEFINED__SkPdf' + cls.fName + '\n')
+      fileClass.close()
     
       
     
@@ -371,62 +378,79 @@ class PdfClassManager:
       # later, p2, generate constructor when not knowing the type - very similar with parsing?
       
     # generate parser  
-    
     # TODO(edisonn): fast recognition based on must attributes.
-    print('class PodofoMapper {')
-    print('public:')
+    fileMapper = open('SkPdfPodofoMapper_autogen.h', 'w')
+    fileMapper.write('#ifndef __DEFINED__SkPdfPodofoMapper\n')
+    fileMapper.write('#define __DEFINED__SkPdfPodofoMapper\n')
+    fileMapper.write('\n')
+
+    fileMapper.write('#include "SkPdfHeaders_autogen.h"\n')
+    fileMapper.write('class PodofoMapper {\n')
+    fileMapper.write('public:\n')
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
 
-      print('  static bool map(const SkPdfObject& in, SkPdf' + name + '** out) {')
-      print('    return map(*in.doc(), *in.podofo(), out);')
-      print('  }') 
-      print
+      fileMapper.write('  static bool map(const SkPdfObject& in, SkPdf' + name + '** out) {\n')
+      fileMapper.write('    return map(*in.doc(), *in.podofo(), out);\n')
+      fileMapper.write('  }\n') 
+      fileMapper.write('\n')
 
-      print('  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {')
-      print('    if (!is' + name + '(podofoDoc, podofoObj)) return false;')
-      print
+      fileMapper.write('  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {\n')
+      fileMapper.write('    if (!is' + name + '(podofoDoc, podofoObj)) return false;\n')
+      fileMapper.write('\n')
       
       for sub in cls.fEnumSubclasses:
-        print('    if (map(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;')
+        fileMapper.write('    if (map(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;\n')
 
-      print
+      fileMapper.write('\n')
       
-      print('    *out = new SkPdf' + name + '(&podofoDoc, &podofoObj);')
-      print('    return true;')        
-      print('  }') 
-      print
+      fileMapper.write('    *out = new SkPdf' + name + '(&podofoDoc, &podofoObj);\n')
+      fileMapper.write('    return true;\n')        
+      fileMapper.write('  }\n') 
+      fileMapper.write('\n')
        
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      print('  static bool is' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {')
+      fileMapper.write('  static bool is' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {\n')
       
       if cls.fCheck != '':
-        print('    return ' + cls.fCheck + ';')
+        fileMapper.write('    return ' + cls.fCheck + ';\n')
       else:
         cntMust = 0
         for field in cls.fFields:
           prop = field.fProp
           if prop.fHasMust:
             cntMust = cntMust + 1
-            print('    ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';')
-            print('    if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;')
-            print('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;')
-            print
+            fileMapper.write('    ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';\n')
+            fileMapper.write('    if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;\n')
+            fileMapper.write('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;\n')
+            fileMapper.write('\n')
       
-        print('    return true;')
+        fileMapper.write('    return true;\n')
               
-      print('  }') 
-      print    
+      fileMapper.write('  }\n') 
+      fileMapper.write('\n')    
     
-    print('};') 
-    print
+    fileMapper.write('};\n') 
+    fileMapper.write('\n')
+    
+    fileMapper.write('#endif  // __DEFINED__SkPdfPodofoMapper\n')
+    fileMapper.close()
     
     return
 
 def generateCode():
+  global fileHeaders 
+
+  fileHeaders = open('SkPdfHeaders_autogen.h', 'w')
+  fileHeaders.write('#ifndef __DEFINED__SkPdfHeaders\n')
+  fileHeaders.write('#define __DEFINED__SkPdfHeaders\n')
+  fileHeaders.write('\n')
+  
+  fileHeaders.write('#include "SkPdfEnums_autogen.h"\n')
+
   manager = PdfClassManager()
   
   manager.addClass('Object')
@@ -435,10 +459,10 @@ def generateCode():
   manager.addClass('Boolean').check('podofoObj.GetDataType() == ePdfDataType_Bool')\
                              .carbonCopyPublic('bool value() const {return fPodofoObj->GetBool();}')
                              
-  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number')\
+  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real')\
                              .carbonCopyPublic('long value() const {return fPodofoObj->GetNumber();}')
   
-  manager.addClass('Number').check('podofoObj.GetDataType() == ePdfDataType_Real')\
+  manager.addClass('Number', 'Integer').check('podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real')\
                              .carbonCopyPublic('double value() const {return fPodofoObj->GetReal();}')
   
   manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')\
@@ -452,13 +476,16 @@ def generateCode():
                              .carbonCopyPublic('const SkPdfObject operator[](int i) const {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')\
                              .carbonCopyPublic('SkPdfObject operator[](int i) {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')
   
-  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String')\
+  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString')\
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
                              
-  manager.addClass('HexString').check('podofoObj.GetDataType() == ePdfDataType_HexString')\
+  manager.addClass('HexString', 'String').check('podofoObj.GetDataType() == ePdfDataType_HexString')\
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
   
-  manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')
+  manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')\
+                                .carbonCopyPublic('const SkPdfObject get(const char* dictionaryKeyName) const {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+                                .carbonCopyPublic('SkPdfObject get(const char* dictionaryKeyName) {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+  
   
   # these classes are not explicitely backed by a table in the pdf spec
   manager.addClass('XObjectDictionary', 'Dictionary')
@@ -481,9 +508,11 @@ def generateCode():
 
   manager.write()
   
+  fileHeaders.write('#endif  // __DEFINED__SkPdfHeaders\n')
+  fileHeaders.close()
+  
   return 1
 
 if '__main__' == __name__:
   sys.exit(generateCode())
 
-  

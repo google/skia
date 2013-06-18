@@ -7,8 +7,8 @@
 
 class SkPdfFontDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFontDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return kObjectDictionaryFontDictionary__End_SkPdfObjectType;}
+  virtual SkPdfObjectType getType() const { return kFontDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return kFontDictionary__End_SkPdfObjectType;}
 public:
   virtual SkPdfFontDictionary* asFontDictionary() {return this;}
   virtual const SkPdfFontDictionary* asFontDictionary() const {return this;}

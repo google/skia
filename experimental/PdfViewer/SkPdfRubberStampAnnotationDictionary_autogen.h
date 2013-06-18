@@ -7,8 +7,8 @@
 
 class SkPdfRubberStampAnnotationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryRubberStampAnnotationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryRubberStampAnnotationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kRubberStampAnnotationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kRubberStampAnnotationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfRubberStampAnnotationDictionary* asRubberStampAnnotationDictionary() {return this;}
   virtual const SkPdfRubberStampAnnotationDictionary* asRubberStampAnnotationDictionary() const {return this;}

@@ -7,8 +7,8 @@
 
 class SkPdfAppearanceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryAppearanceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryAppearanceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kAppearanceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kAppearanceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfAppearanceDictionary* asAppearanceDictionary() {return this;}
   virtual const SkPdfAppearanceDictionary* asAppearanceDictionary() const {return this;}

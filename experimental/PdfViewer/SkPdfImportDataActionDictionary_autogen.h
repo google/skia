@@ -7,8 +7,8 @@
 
 class SkPdfImportDataActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryImportDataActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryImportDataActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kImportDataActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kImportDataActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfImportDataActionDictionary* asImportDataActionDictionary() {return this;}
   virtual const SkPdfImportDataActionDictionary* asImportDataActionDictionary() const {return this;}

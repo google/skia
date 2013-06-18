@@ -7,8 +7,8 @@
 
 class SkPdfVariableTextFieldDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryVariableTextFieldDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryVariableTextFieldDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kVariableTextFieldDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kVariableTextFieldDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfVariableTextFieldDictionary* asVariableTextFieldDictionary() {return this;}
   virtual const SkPdfVariableTextFieldDictionary* asVariableTextFieldDictionary() const {return this;}

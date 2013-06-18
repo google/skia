@@ -7,8 +7,8 @@
 
 class SkPdfMovieActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryMovieActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryMovieActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kMovieActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kMovieActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfMovieActionDictionary* asMovieActionDictionary() {return this;}
   virtual const SkPdfMovieActionDictionary* asMovieActionDictionary() const {return this;}

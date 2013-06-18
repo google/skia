@@ -7,8 +7,8 @@
 
 class SkPdfStreamCommonDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryStreamCommonDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryStreamCommonDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kStreamCommonDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kStreamCommonDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfStreamCommonDictionary* asStreamCommonDictionary() {return this;}
   virtual const SkPdfStreamCommonDictionary* asStreamCommonDictionary() const {return this;}

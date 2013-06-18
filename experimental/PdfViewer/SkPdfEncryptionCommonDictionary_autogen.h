@@ -7,8 +7,8 @@
 
 class SkPdfEncryptionCommonDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryEncryptionCommonDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryEncryptionCommonDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kEncryptionCommonDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kEncryptionCommonDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfEncryptionCommonDictionary* asEncryptionCommonDictionary() {return this;}
   virtual const SkPdfEncryptionCommonDictionary* asEncryptionCommonDictionary() const {return this;}

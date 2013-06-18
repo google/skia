@@ -7,8 +7,8 @@
 
 class SkPdfShadingDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryShadingDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return kObjectDictionaryShadingDictionary__End_SkPdfObjectType;}
+  virtual SkPdfObjectType getType() const { return kShadingDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return kShadingDictionary__End_SkPdfObjectType;}
 public:
   virtual SkPdfShadingDictionary* asShadingDictionary() {return this;}
   virtual const SkPdfShadingDictionary* asShadingDictionary() const {return this;}

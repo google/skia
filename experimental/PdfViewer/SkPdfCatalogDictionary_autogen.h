@@ -7,8 +7,8 @@
 
 class SkPdfCatalogDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryCatalogDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryCatalogDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCatalogDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCatalogDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCatalogDictionary* asCatalogDictionary() {return this;}
   virtual const SkPdfCatalogDictionary* asCatalogDictionary() const {return this;}
@@ -545,7 +545,7 @@ public:
   bool isPageLabelsANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PageLabels", "", &ret)) return false;
-    return ret->podofo()->GetDataType() == ePdfDataType_Real;
+    return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
   double getPageLabelsAsNumber() const {

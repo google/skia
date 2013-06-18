@@ -7,8 +7,8 @@
 
 class SkPdfIccProfileStreamDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryIccProfileStreamDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryIccProfileStreamDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kIccProfileStreamDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kIccProfileStreamDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfIccProfileStreamDictionary* asIccProfileStreamDictionary() {return this;}
   virtual const SkPdfIccProfileStreamDictionary* asIccProfileStreamDictionary() const {return this;}

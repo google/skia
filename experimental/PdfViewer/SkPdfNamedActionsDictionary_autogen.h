@@ -7,8 +7,8 @@
 
 class SkPdfNamedActionsDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryNamedActionsDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryNamedActionsDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kNamedActionsDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kNamedActionsDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfNamedActionsDictionary* asNamedActionsDictionary() {return this;}
   virtual const SkPdfNamedActionsDictionary* asNamedActionsDictionary() const {return this;}

@@ -7,8 +7,8 @@
 
 class SkPdfFileSpecificationDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryFileSpecificationDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryFileSpecificationDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kFileSpecificationDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kFileSpecificationDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfFileSpecificationDictionary* asFileSpecificationDictionary() {return this;}
   virtual const SkPdfFileSpecificationDictionary* asFileSpecificationDictionary() const {return this;}

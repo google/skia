@@ -7,8 +7,8 @@
 
 class SkPdfName : public SkPdfObject {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectName_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectName_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kName_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kName_SkPdfObjectType + 1);}
 public:
   virtual SkPdfName* asName() {return this;}
   virtual const SkPdfName* asName() const {return this;}
@@ -524,23 +524,23 @@ private:
   virtual SkPdfType1FormDictionary* asType1FormDictionary() {return NULL;}
   virtual const SkPdfType1FormDictionary* asType1FormDictionary() const {return NULL;}
 
-  virtual SkPdfHexString* asHexString() {return NULL;}
-  virtual const SkPdfHexString* asHexString() const {return NULL;}
-
   virtual SkPdfInteger* asInteger() {return NULL;}
   virtual const SkPdfInteger* asInteger() const {return NULL;}
 
-  virtual SkPdfNull* asNull() {return NULL;}
-  virtual const SkPdfNull* asNull() const {return NULL;}
-
   virtual SkPdfNumber* asNumber() {return NULL;}
   virtual const SkPdfNumber* asNumber() const {return NULL;}
+
+  virtual SkPdfNull* asNull() {return NULL;}
+  virtual const SkPdfNull* asNull() const {return NULL;}
 
   virtual SkPdfReference* asReference() {return NULL;}
   virtual const SkPdfReference* asReference() const {return NULL;}
 
   virtual SkPdfString* asString() {return NULL;}
   virtual const SkPdfString* asString() const {return NULL;}
+
+  virtual SkPdfHexString* asHexString() {return NULL;}
+  virtual const SkPdfHexString* asHexString() const {return NULL;}
 
 public:
   const std::string& value() const {return fPodofoObj->GetName().GetName();}

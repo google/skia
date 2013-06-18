@@ -7,8 +7,8 @@
 
 class SkPdfEmbeddedFontStreamDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryEmbeddedFontStreamDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryEmbeddedFontStreamDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kEmbeddedFontStreamDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kEmbeddedFontStreamDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfEmbeddedFontStreamDictionary* asEmbeddedFontStreamDictionary() {return this;}
   virtual const SkPdfEmbeddedFontStreamDictionary* asEmbeddedFontStreamDictionary() const {return this;}

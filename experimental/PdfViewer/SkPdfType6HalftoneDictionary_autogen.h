@@ -7,8 +7,8 @@
 
 class SkPdfType6HalftoneDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryType6HalftoneDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryType6HalftoneDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kType6HalftoneDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kType6HalftoneDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfType6HalftoneDictionary* asType6HalftoneDictionary() {return this;}
   virtual const SkPdfType6HalftoneDictionary* asType6HalftoneDictionary() const {return this;}

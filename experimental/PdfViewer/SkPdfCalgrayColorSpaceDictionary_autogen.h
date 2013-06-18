@@ -7,8 +7,8 @@
 
 class SkPdfCalgrayColorSpaceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryCalgrayColorSpaceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryCalgrayColorSpaceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCalgrayColorSpaceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCalgrayColorSpaceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCalgrayColorSpaceDictionary* asCalgrayColorSpaceDictionary() {return this;}
   virtual const SkPdfCalgrayColorSpaceDictionary* asCalgrayColorSpaceDictionary() const {return this;}

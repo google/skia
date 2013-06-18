@@ -7,8 +7,8 @@
 
 class SkPdfIconFitDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryIconFitDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryIconFitDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kIconFitDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kIconFitDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfIconFitDictionary* asIconFitDictionary() {return this;}
   virtual const SkPdfIconFitDictionary* asIconFitDictionary() const {return this;}

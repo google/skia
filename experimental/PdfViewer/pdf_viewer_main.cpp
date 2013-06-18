@@ -24,6 +24,10 @@
 #include "podofo.h"
 using namespace PoDoFo;
 
+const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
+                                  const PdfObject* obj,
+                                  bool resolveOneElementArrays = false);
+
 bool LongFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
                         const char* key,
@@ -128,7 +132,9 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
                         SkPdfFunction* data);
 
 
-#include "pdf_auto_gen.h"
+#include "SkPdfHeaders_autogen.h"
+#include "SkPdfPodofoMapper_autogen.h"
+#include "SkPdfParser.h"
 
 bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -159,12 +165,6 @@ bool DateFromDictionary(const PdfMemDocument* pdfDoc,
                         const char* key,
                         const char* abr,
                         SkPdfDate* data) {return false;}
-
-bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkRect* data) {return false;}
 
 bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -235,7 +235,7 @@ int GetColorSpaceComponents(const std::string& colorSpace) {
 
 const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
                                   const PdfObject* obj,
-                                  bool resolveOneElementArrays = false) {
+                                  bool resolveOneElementArrays) {
     while (obj && (obj->IsReference() || (resolveOneElementArrays &&
                                           obj->IsArray() &&
                                           obj->GetArray().GetSize() == 1))) {
@@ -307,7 +307,7 @@ struct PdfGraphicsState {
     double              fWordSpace;
     double              fCharSpace;
 
-    SkPdfResourceDictionary fResources;
+    SkPdfResourceDictionary* fResources;
 
     SkBitmap            fSMask;
 
@@ -326,6 +326,7 @@ struct PdfGraphicsState {
         fWordSpace    = 0;
         fCharSpace    = 0;
         fHasClipPathToApply = false;
+        fResources = NULL;
     }
 };
 
@@ -338,17 +339,15 @@ struct PdfInlineImage {
 
 // TODO(edisonn): better class design.
 struct PdfContext {
-    std::stack<PdfVariant>          fVarStack;
+    std::stack<SkPdfObject*>        fObjectStack;
     std::stack<PdfGraphicsState>    fStateStack;
     PdfGraphicsState                fGraphicsState;
-    PoDoFo::PdfPage*                fPdfPage;
-    PdfMemDocument*                 fPdfDoc;
+    SkPdfDoc&                       fPdfDoc;
     SkMatrix                        fOriginalMatrix;
 
     PdfInlineImage                  fInlineImage;
 
-    PdfContext() :  fPdfPage(NULL),
-                    fPdfDoc(NULL) {}
+    PdfContext(SkPdfDoc& doc) :  fPdfDoc(doc) {}
 
 };
 
@@ -364,20 +363,12 @@ enum PdfResult {
     kCount_PdfResult
 };
 
-struct PdfToken {
-    const char*      pszToken;
-    PdfVariant       var;
-    EPdfContentsType eType;
-
-    PdfToken() : pszToken(NULL) {}
-};
-
 PdfContext* gPdfContext = NULL;
 SkBitmap* gDumpBitmap = NULL;
 SkCanvas* gDumpCanvas = NULL;
 char gLastKeyword[100] = "";
 int gLastOpKeyword = -1;
-char allOpWithVisualEffects[100] = ",S,s,f,F,f*,B,B*,b,b*,n,Tj,TJ,\',\",d0,d1,sh,EI,Do,EX";
+char allOpWithVisualEffects[100] = ",S,s,f,F,f*,B,B*,b,b*,n,Tj,TJ,\',\",d0,d1,sh,EI,Do,EX,";
 int gReadOp = 0;
 
 
@@ -394,8 +385,8 @@ bool hasVisualEffect(const char* pdfOp) {
 }
 
 // TODO(edisonn): Pass PdfContext and SkCanvasd only with the define for instrumentation.
-static bool readToken(PdfContentsTokenizer* fTokenizer, PdfToken* token) {
-    bool ret = fTokenizer->ReadNext(token->eType, token->pszToken, token->var);
+static bool readToken(SkPdfTokenizer fTokenizer, PdfToken* token) {
+    bool ret = fTokenizer.readToken(token);
 
     gReadOp++;
 
@@ -474,8 +465,8 @@ static bool readToken(PdfContentsTokenizer* fTokenizer, PdfToken* token) {
         SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
     }
 
-    if (token->eType == ePdfContentsType_Keyword) {
-        strcpy(gLastKeyword, token->pszToken);
+    if (token->fType == kKeyword_TokenType) {
+        strcpy(gLastKeyword, token->fKeyword);
         gLastOpKeyword = gReadOp;
     } else {
         strcpy(gLastKeyword, "");
@@ -489,13 +480,13 @@ static bool readToken(PdfContentsTokenizer* fTokenizer, PdfToken* token) {
 class PdfTokenLooper {
 protected:
     PdfTokenLooper* fParent;
-    PdfContentsTokenizer* fTokenizer;
+    SkPdfTokenizer fTokenizer;
     PdfContext* fPdfContext;
     SkCanvas* fCanvas;
 
 public:
     PdfTokenLooper(PdfTokenLooper* parent,
-                   PdfContentsTokenizer* tokenizer,
+                   SkPdfTokenizer tokenizer,
                    PdfContext* pdfContext,
                    SkCanvas* canvas)
         : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
@@ -514,7 +505,7 @@ public:
 class PdfMainLooper : public PdfTokenLooper {
 public:
     PdfMainLooper(PdfTokenLooper* parent,
-                  PdfContentsTokenizer* tokenizer,
+                  SkPdfTokenizer tokenizer,
                   PdfContext* pdfContext,
                   SkCanvas* canvas)
         : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
@@ -526,7 +517,7 @@ public:
 class PdfInlineImageLooper : public PdfTokenLooper {
 public:
     PdfInlineImageLooper()
-        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+        : PdfTokenLooper(NULL, SkPdfTokenizer(), NULL, NULL) {}
 
     virtual PdfResult consumeToken(PdfToken& token);
     virtual void loop();
@@ -536,7 +527,7 @@ public:
 class PdfCompatibilitySectionLooper : public PdfTokenLooper {
 public:
     PdfCompatibilitySectionLooper()
-        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+        : PdfTokenLooper(NULL, SkPdfTokenizer(), NULL, NULL) {}
 
     virtual PdfResult consumeToken(PdfToken& token);
     virtual void loop();
@@ -716,7 +707,7 @@ PdfEncoding* FixPdfFont(PdfContext* pdfContext, PdfFont* fCurFont) {
         if (fCurFont->GetObject()->IsDictionary() && fCurFont->GetObject()->GetDictionary().HasKey(PdfName("ToUnicode"))) {
             PdfCMapEncoding* enc = new PdfCMapEncoding(
                     fCurFont->GetObject(),
-                    (PdfObject*)resolveReferenceObject(pdfContext->fPdfDoc,
+                    (PdfObject*)resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
                                            fCurFont->GetObject()->GetDictionary().GetKey(PdfName("ToUnicode"))),
                     PdfCMapEncoding::eBaseEncoding_Identity);  // todo, read the base encoding
             gFontsFixed[fCurFont] = enc;
@@ -1282,7 +1273,7 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 }
 
 SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* obj) {
-    const PdfObject* sMask = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* sMask = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
                                               obj->podofo()->GetDictionary().GetKey(PdfName("SMask")));
 
 #ifdef PDF_TRACE
@@ -1294,7 +1285,7 @@ SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 #endif
 
     if (sMask) {
-        SkPdfImageDictionary skxobjmask(pdfContext->fPdfDoc, sMask);
+        SkPdfImageDictionary skxobjmask(&pdfContext->fPdfDoc.podofo(), sMask);
         return getImageFromObject(pdfContext, &skxobjmask, true);
     }
 
@@ -1334,7 +1325,7 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
                             const PdfDictionary& dict,
                             const char* key,
                             SkMatrix* matrix) {
-    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* value = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
                                                     dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsArray()) {
@@ -1347,7 +1338,7 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
 
     double array[6];
     for (int i = 0; i < 6; i++) {
-        const PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
+        const PdfObject* elem = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(), &value->GetArray()[i]);
         if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
             return false;
         }
@@ -1358,11 +1349,11 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
     return true;
 }
 
-bool SkRectFromDictionary(PdfContext* pdfContext,
+bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
                           const PdfDictionary& dict,
                           const char* key,
                           SkRect* rect) {
-    const PdfObject* value = resolveReferenceObject(pdfContext->fPdfDoc,
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
                                                     dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsArray()) {
@@ -1375,7 +1366,7 @@ bool SkRectFromDictionary(PdfContext* pdfContext,
 
     double array[4];
     for (int i = 0; i < 4; i++) {
-        const PdfObject* elem = resolveReferenceObject(pdfContext->fPdfDoc, &value->GetArray()[i]);
+        const PdfObject* elem = resolveReferenceObject(pdfDoc, &value->GetArray()[i]);
         if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
             return false;
         }
@@ -1388,6 +1379,18 @@ bool SkRectFromDictionary(PdfContext* pdfContext,
                              SkDoubleToScalar(array[3]));
     return true;
 }
+
+bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkRect* data) {
+    if (SkRectFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return SkRectFromDictionary(pdfDoc, dict, abr, data);
+
+}
+
 
 SkPdfObject* get(const SkPdfObject* obj, const char* key, const char* abr = "") {
     SkPdfObject* ret = NULL;
@@ -1413,8 +1416,7 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
         PodofoMapper::map(*get(skobj, "Resources"), &res);
 
         if (res) {
-            pdfContext->fGraphicsState.fResources = *res;
-            delete res;
+            pdfContext->fGraphicsState.fResources = res;
         }
     }
 
@@ -1433,7 +1435,7 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
     canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
 
     SkRect bbox;
-    if (SkRectFromDictionary(pdfContext, skobj->podofo()->GetDictionary(), "BBox", &bbox)) {
+    if (SkRectFromDictionary(&pdfContext->fPdfDoc.podofo(), skobj->podofo()->GetDictionary(), "BBox", &bbox)) {
         canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
     }
 
@@ -1449,8 +1451,8 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
     try {
         skobj->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
         if (uncompressedStream != NULL && uncompressedStreamLength != 0) {
-            PdfContentsTokenizer tokenizer(uncompressedStream, uncompressedStreamLength);
-            PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
+            SkPdfTokenizer tokenizer = pdfContext->fPdfDoc.tokenizerOfStream(uncompressedStream, uncompressedStreamLength);
+            PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
             looper.loop();
         }
         free(uncompressedStream);
@@ -1469,7 +1471,7 @@ PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject
     return kNYI_PdfResult;
 }
 
-// TODO(edisonn): faster, have the property on the PdfObject itself.
+// TODO(edisonn): faster, have the property on the SkPdfObject itself?
 std::set<const PdfObject*> gInRendering;
 
 class CheckRecursiveRendering {
@@ -1489,27 +1491,27 @@ public:
     }
 };
 
-PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
-    if (CheckRecursiveRendering::IsInRendering(obj)) {
+PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObject& obj) {
+    if (CheckRecursiveRendering::IsInRendering(*obj.podofo())) {
         // Oops, corrupt PDF!
         return kIgnoreError_PdfResult;
     }
 
-    CheckRecursiveRendering checkRecursion(obj);
+    CheckRecursiveRendering checkRecursion(*obj.podofo());
 
     // TODO(edisonn): check type
     SkPdfXObjectDictionary* skobj = NULL;
-    if (!PodofoMapper::map(*pdfContext->fPdfDoc, obj, &skobj)) return kIgnoreError_PdfResult;
+    if (!PodofoMapper::map(obj, &skobj)) return kIgnoreError_PdfResult;
 
     if (!skobj || !skobj->valid()) return kIgnoreError_PdfResult;
 
     PdfResult ret = kIgnoreError_PdfResult;
     switch (skobj->getType())
     {
-        case kObjectDictionaryXObjectDictionaryImageDictionary_SkPdfObjectType:
+        case kImageDictionary_SkPdfObjectType:
             ret = doXObject_Image(pdfContext, canvas, skobj->asImageDictionary());
             break;
-        case kObjectDictionaryXObjectDictionaryType1FormDictionary_SkPdfObjectType:
+        case kType1FormDictionary_SkPdfObjectType:
             ret = doXObject_Form(pdfContext, canvas, skobj->asType1FormDictionary());
             break;
         //case kObjectDictionaryXObjectPS_SkPdfObjectType:
@@ -1536,8 +1538,8 @@ PdfResult PdfOp_Q(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 PdfResult PdfOp_cm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     double array[6];
     for (int i = 0 ; i < 6 ; i++) {
-        array[5 - i] = pdfContext->fVarStack.top().GetReal();
-        pdfContext->fVarStack.pop();
+        array[5 - i] = pdfContext->fObjectStack.top()->asNumber()->value();
+        pdfContext->fObjectStack.pop();
     }
 
     // a b
@@ -1571,7 +1573,7 @@ PdfResult PdfOp_cm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //, to leading, which is a number expressed in unscaled text
 //space units. Text leading is used only by the T*, ', and " operators. Initial value: 0.
 PdfResult PdfOp_TL(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ty = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
+    double ty = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fTextLeading = ty;
 
@@ -1579,8 +1581,8 @@ PdfResult PdfOp_TL(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 }
 
 PdfResult PdfOp_Td(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ty = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double tx = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
+    double ty = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double tx = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
     double array[6] = {1, 0, 0, 1, tx, ty};
     SkMatrix matrix = SkMatrixFromPdfMatrix(array);
@@ -1592,27 +1594,30 @@ PdfResult PdfOp_Td(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 }
 
 PdfResult PdfOp_TD(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ty = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double tx = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
+    double ty = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double tx = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
-    PdfVariant _ty(-ty);
-    pdfContext->fVarStack.push(_ty);
+    PdfObject _ty(PdfVariant(-ty));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &_ty));
+
     PdfOp_TL(pdfContext, canvas, looper);
 
-    PdfVariant vtx(tx);
-    PdfVariant vty(ty);
-    pdfContext->fVarStack.push(vtx);
-    pdfContext->fVarStack.push(vty);
+    PdfObject vtx(PdfVariant(-(-tx)));  // TODO(edisonn) Hmm, the compiler thinks I have here a function pointer if we use (tx), but not -(-tx)
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &vtx));
+
+    PdfObject vty(PdfVariant(-(-ty)));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &vty));
+
     return PdfOp_Td(pdfContext, canvas, looper);
 }
 
 PdfResult PdfOp_Tm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double f = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double e = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double d = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double c = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double b = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
-    double a = pdfContext->fVarStack.top().GetReal(); pdfContext->fVarStack.pop();
+    double f = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double e = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double d = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double c = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double b = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
+    double a = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
     double array[6];
     array[0] = a;
@@ -1636,11 +1641,11 @@ PdfResult PdfOp_Tm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //0 Tl Td
 //where Tl is the current leading parameter in the text state
 PdfResult PdfOp_T_star(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    PdfVariant zero(0.0);
-    PdfVariant tl(pdfContext->fGraphicsState.fTextLeading);
+    PdfObject zero(PdfVariant(0.0));
+    PdfObject tl(PdfVariant(-(-pdfContext->fGraphicsState.fTextLeading)));
 
-    pdfContext->fVarStack.push(zero);
-    pdfContext->fVarStack.push(tl);
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &zero));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &tl));
     return PdfOp_Td(pdfContext, canvas, looper);
 }
 
@@ -1650,8 +1655,8 @@ PdfResult PdfOp_m(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    pdfContext->fGraphicsState.fCurPosY = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    pdfContext->fGraphicsState.fCurPosX = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    pdfContext->fGraphicsState.fCurPosY = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    pdfContext->fGraphicsState.fCurPosX = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.moveTo(SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosX),
                                           SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
@@ -1665,8 +1670,8 @@ PdfResult PdfOp_l(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    pdfContext->fGraphicsState.fCurPosY = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    pdfContext->fGraphicsState.fCurPosX = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    pdfContext->fGraphicsState.fCurPosY = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    pdfContext->fGraphicsState.fCurPosX = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.lineTo(SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosX),
                                           SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
@@ -1680,12 +1685,12 @@ PdfResult PdfOp_c(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double y2 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x2 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double y1 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x1 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    double y3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double y2 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x2 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double y1 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x1 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.cubicTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
                                             SkDoubleToScalar(x2), SkDoubleToScalar(y2),
@@ -1703,10 +1708,10 @@ PdfResult PdfOp_v(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double y2 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x2 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    double y3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double y2 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x2 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
     double y1 = pdfContext->fGraphicsState.fCurPosY;
     double x1 = pdfContext->fGraphicsState.fCurPosX;
 
@@ -1726,12 +1731,12 @@ PdfResult PdfOp_y(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x3 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    double y3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x3 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
     double y2 = pdfContext->fGraphicsState.fCurPosY;
     double x2 = pdfContext->fGraphicsState.fCurPosX;
-    double y1 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
-    double x1 = pdfContext->fVarStack.top().GetReal();    pdfContext->fVarStack.pop();
+    double y1 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
+    double x1 = pdfContext->fObjectStack.top()->asNumber()->value();    pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.cubicTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
                                             SkDoubleToScalar(x2), SkDoubleToScalar(y2),
@@ -1749,10 +1754,10 @@ PdfResult PdfOp_re(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double height = pdfContext->fVarStack.top().GetReal();      pdfContext->fVarStack.pop();
-    double width = pdfContext->fVarStack.top().GetReal();       pdfContext->fVarStack.pop();
-    double y = pdfContext->fVarStack.top().GetReal();           pdfContext->fVarStack.pop();
-    double x = pdfContext->fVarStack.top().GetReal();           pdfContext->fVarStack.pop();
+    double height = pdfContext->fObjectStack.top()->asNumber()->value();      pdfContext->fObjectStack.pop();
+    double width = pdfContext->fObjectStack.top()->asNumber()->value();       pdfContext->fObjectStack.pop();
+    double y = pdfContext->fObjectStack.top()->asNumber()->value();           pdfContext->fObjectStack.pop();
+    double x = pdfContext->fObjectStack.top()->asNumber()->value();           pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.addRect(SkDoubleToScalar(x), SkDoubleToScalar(y),
                                            SkDoubleToScalar(x + width), SkDoubleToScalar(y + height));
@@ -1904,18 +1909,26 @@ PdfResult PdfOp_ET(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //a number representing a scale factor. There is no initial value for either font or
 //size; they must be speciﬁed explicitly using Tf before any text is shown.
 PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fGraphicsState.fCurFontSize = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    PdfName fontName = pdfContext->fVarStack.top().GetName();                           pdfContext->fVarStack.pop();
+    pdfContext->fGraphicsState.fCurFontSize = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    std::string fontName = pdfContext->fObjectStack.top()->asName()->value();                           pdfContext->fObjectStack.pop();
+
+#ifdef PDF_TRACE
+    printf("font name: %s\n", fontName.c_str());
+    std::string str;
+    pdfContext->fGraphicsState.fResources->podofo()->ToString(str);
+    printf("Print Tf font Resources: %s\n", str.c_str());
+#endif
 
     // TODO(edisonn): Load font from pdfContext->fGraphicsState.fObjectWithResources ?
-    PdfObject* pFont = pdfContext->fPdfPage->GetFromResources( PdfName("Font"), fontName );
+    const PdfObject* pFont = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
+                                                    pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str()).podofo());
     if( !pFont )
     {
         // TODO(edisonn): try to ignore the error, make sure we do not crash.
         return kIgnoreError_PdfResult;
     }
 
-    pdfContext->fGraphicsState.fCurFont = pdfContext->fPdfDoc->GetFont( pFont );
+    pdfContext->fGraphicsState.fCurFont = pdfContext->fPdfDoc.podofo().GetFont( (PdfObject*)pFont );
     if( !pdfContext->fGraphicsState.fCurFont )
     {
         // TODO(edisonn): check ~/crasing, for one of the files PoDoFo throws exception
@@ -1934,9 +1947,9 @@ PdfResult PdfOp_Tj(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     PdfResult ret = DrawText(pdfContext,
                              pdfContext->fGraphicsState.fCurFont,
-                             pdfContext->fVarStack.top().GetString(),
+                             pdfContext->fObjectStack.top()->podofo()->GetString(),
                              canvas);
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return ret;
 }
@@ -1958,17 +1971,17 @@ PdfResult PdfOp_doublequote(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLo
         return kIgnoreError_PdfResult;
     }
 
-    PdfVariant str = pdfContext->fVarStack.top();       pdfContext->fVarStack.pop();
-    PdfVariant ac = pdfContext->fVarStack.top();        pdfContext->fVarStack.pop();
-    PdfVariant aw = pdfContext->fVarStack.top();        pdfContext->fVarStack.pop();
+    SkPdfObject* str = pdfContext->fObjectStack.top();       pdfContext->fObjectStack.pop();
+    SkPdfObject* ac = pdfContext->fObjectStack.top();        pdfContext->fObjectStack.pop();
+    SkPdfObject* aw = pdfContext->fObjectStack.top();        pdfContext->fObjectStack.pop();
 
-    pdfContext->fVarStack.push(aw);
+    pdfContext->fObjectStack.push(aw);
     PdfOp_Tw(pdfContext, canvas, looper);
 
-    pdfContext->fVarStack.push(ac);
+    pdfContext->fObjectStack.push(ac);
     PdfOp_Tc(pdfContext, canvas, looper);
 
-    pdfContext->fVarStack.push(str);
+    pdfContext->fObjectStack.push(str);
     PdfOp_quote(pdfContext, canvas, looper);
 
     return kPartial_PdfResult;
@@ -1980,18 +1993,18 @@ PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    PdfArray array = pdfContext->fVarStack.top().GetArray();
-    pdfContext->fVarStack.pop();
+    SkPdfArray* array = pdfContext->fObjectStack.top()->asArray();
+    pdfContext->fObjectStack.pop();
 
-    for( int i=0; i<static_cast<int>(array.GetSize()); i++ )
+    for( int i=0; i<static_cast<int>(array->size()); i++ )
     {
-        if( array[i].IsString() || array[i].IsHexString() ) {
+        if( (*array)[i].asString()) {
             DrawText(pdfContext,
                            pdfContext->fGraphicsState.fCurFont,
-                           array[i].GetString(),
+                           (*array)[i].podofo()->GetString(),
                            canvas);
-        } else if (array[i].IsReal() || array[i].IsNumber()) {
-            double dx = array[i].GetReal();
+        } else if ((*array)[i].asInteger() || (*array)[i].asNumber()) {
+            double dx = (*array)[i].asNumber()->value();
             SkMatrix matrix;
             matrix.setAll(SkDoubleToScalar(1),
                           SkDoubleToScalar(0),
@@ -2011,7 +2024,7 @@ PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 }
 
 PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
-    colorOperator->fColorSpace = pdfContext->fVarStack.top().GetName().GetName();    pdfContext->fVarStack.pop();
+    colorOperator->fColorSpace = pdfContext->fObjectStack.top()->asName()->value();    pdfContext->fObjectStack.pop();
     return kOK_PdfResult;
 }
 
@@ -2040,9 +2053,9 @@ PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator
 
     for (int i = n - 1; i >= 0 ; i--) {
         if (doubles) {
-            c[i] = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+            c[i] = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
         } else {
-            v[i] = pdfContext->fVarStack.top().GetNumber();   pdfContext->fVarStack.pop();
+            v[i] = pdfContext->fObjectStack.top()->asInteger()->value();   pdfContext->fObjectStack.pop();
         }
     }
 
@@ -2064,8 +2077,8 @@ PdfResult PdfOp_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 PdfResult PdfOp_SCN_scn(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
     PdfString name;
 
-    if (pdfContext->fVarStack.top().IsName()) {
-        pdfContext->fVarStack.pop();
+    if (pdfContext->fObjectStack.top()->asName()) {
+        pdfContext->fObjectStack.pop();
     }
 
     // TODO(edisonn): SCN supports more color spaces than SCN. Read and implement spec.
@@ -2083,7 +2096,7 @@ PdfResult PdfOp_scn(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** l
 }
 
 PdfResult PdfOp_G_g(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
-    double gray = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double gray = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     return kNYI_PdfResult;
 }
 
@@ -2096,9 +2109,9 @@ PdfResult PdfOp_g(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 }
 
 PdfResult PdfOp_RG_rg(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
-    double b = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    double g = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    double r = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double b = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    double g = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    double r = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     colorOperator->fColorSpace = "DeviceRGB";
     colorOperator->setRGBColor(SkColorSetRGB(255*r, 255*g, 255*b));
@@ -2115,10 +2128,10 @@ PdfResult PdfOp_rg(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
 PdfResult PdfOp_K_k(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
     // TODO(edisonn): spec has some rules about overprint, implement them.
-    double k = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    double y = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    double m = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
-    double c = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double k = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    double y = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    double m = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+    double c = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     colorOperator->fColorSpace = "DeviceCMYK";
     // TODO(edisonn): Set color.
@@ -2192,7 +2205,7 @@ PdfResult PdfOp_EI(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
 //lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
 PdfResult PdfOp_w(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double lineWidth = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double lineWidth = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     pdfContext->fGraphicsState.fLineWidth = lineWidth;
 
     return kOK_PdfResult;
@@ -2200,24 +2213,24 @@ PdfResult PdfOp_w(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
 PdfResult PdfOp_J(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    //double lineCap = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    //double lineCap = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
 PdfResult PdfOp_j(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    //double lineJoin = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    //double lineJoin = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //miterLimit M Set the miter limit in the graphics state (see “Miter Limit” on page 153).
 PdfResult PdfOp_M(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    //double miterLimit = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    //double miterLimit = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2225,15 +2238,15 @@ PdfResult PdfOp_M(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 //dashArray dashPhase d Set the line dash pattern in the graphics state (see “Line Dash Pattern” on
 //page 155).
 PdfResult PdfOp_d(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //intent ri (PDF 1.1) Set the color rendering intent in the graphics state (see “Rendering Intents” on page 197).
 PdfResult PdfOp_ri(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2242,7 +2255,7 @@ PdfResult PdfOp_ri(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //Tolerance”). ﬂatness is a number in the range 0 to 100; a value of 0 speci-
 //ﬁes the output device’s default ﬂatness tolerance.
 PdfResult PdfOp_i(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2250,37 +2263,14 @@ PdfResult PdfOp_i(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 //dictName gs (PDF 1.2) Set the speciﬁed parameters in the graphics state. dictName is
 //the name of a graphics state parameter dictionary in the ExtGState subdictionary of the current resource dictionary (see the next section).
 PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    PdfName name = pdfContext->fVarStack.top().GetName();    pdfContext->fVarStack.pop();
+    std::string name = pdfContext->fObjectStack.top()->asName()->value();    pdfContext->fObjectStack.pop();
 
 #ifdef PDF_TRACE
     std::string str;
 #endif
 
-    const PdfObject* resources = pdfContext->fGraphicsState.fResources.podofo();
-
-    if (resources == NULL) {
-#ifdef PDF_TRACE
-        printf("WARNING: No Resources for a page with 'gs' operator!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-#ifdef PDF_TRACE
-    resources->ToString(str);
-    printf("Print gs Page Resources: %s\n", str.c_str());
-#endif
-
-    if (!resources->IsDictionary()) {
-#ifdef PDF_TRACE
-        printf("Resources is not a dictionary!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfDictionary& resourceDict = resources->GetDictionary();
     //Next, get the ExtGState Dictionary from the Resource Dictionary:
-    const PdfObject* extGStateDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                                resourceDict.GetKey("ExtGState"));
+    const SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->ExtGState();
 
     if (extGStateDictionary == NULL) {
 #ifdef PDF_TRACE
@@ -2289,30 +2279,15 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    if (!extGStateDictionary->IsDictionary()) {
-#ifdef PDF_TRACE
-        printf("extGStateDictionary is not a dictionary!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfObject* value =
-            resolveReferenceObject(pdfContext->fPdfDoc,
-                                   extGStateDictionary->GetDictionary().GetKey(name));
-
-    if (value == NULL) {
-#ifdef PDF_TRACE
-        printf("Named object not found!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
+    SkPdfObject value = extGStateDictionary->get(name.c_str());
 
 #ifdef PDF_TRACE
-    value->ToString(str);
-    printf("gs object value: %s\n", str.c_str());
+//    value->ToString(str);
+//    printf("gs object value: %s\n", str.c_str());
 #endif
 
-    SkPdfGraphicsStateDictionary gs(pdfContext->fPdfDoc, value);
+    SkPdfGraphicsStateDictionary* gs = NULL;
+    PodofoMapper::map(value, &gs);
 
     // TODO(edisonn): now load all those properties in graphic state.
 
@@ -2323,7 +2298,7 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //, to charSpace, which is a number expressed in unscaled text space units. Character spacing is used by the Tj, TJ, and ' operators.
 //Initial value: 0.
 PdfResult PdfOp_Tc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double charSpace = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double charSpace = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     pdfContext->fGraphicsState.fCharSpace = charSpace;
 
     return kOK_PdfResult;
@@ -2335,7 +2310,7 @@ PdfResult PdfOp_Tc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //text space units. Word spacing is used by the Tj, TJ, and ' operators. Initial
 //value: 0.
 PdfResult PdfOp_Tw(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double wordSpace = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double wordSpace = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     pdfContext->fGraphicsState.fWordSpace = wordSpace;
 
     return kOK_PdfResult;
@@ -2345,7 +2320,7 @@ PdfResult PdfOp_Tw(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //, to (scale ˜ 100). scale is a number specifying the
 //percentage of the normal width. Initial value: 100 (normal width).
 PdfResult PdfOp_Tz(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double scale = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double scale = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2353,7 +2328,7 @@ PdfResult PdfOp_Tz(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //render Tr Set the text rendering mode, T
 //mode, to render, which is an integer. Initial value: 0.
 PdfResult PdfOp_Tr(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double render = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double render = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2361,107 +2336,65 @@ PdfResult PdfOp_Tr(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //rise Ts Set the text rise, Trise, to rise, which is a number expressed in unscaled text space
 //units. Initial value: 0.
 PdfResult PdfOp_Ts(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double rise = pdfContext->fVarStack.top().GetReal();     pdfContext->fVarStack.pop();
+    double rise = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //wx wy d0
 PdfResult PdfOp_d0(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //wx wy llx lly urx ury d1
 PdfResult PdfOp_d1(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //name sh
 PdfResult PdfOp_sh(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
 
 //name Do
 PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    PdfName name = pdfContext->fVarStack.top().GetName();    pdfContext->fVarStack.pop();
+    std::string name = pdfContext->fObjectStack.top()->asName()->value();    pdfContext->fObjectStack.pop();
 
-    const PdfObject* resources = pdfContext->fGraphicsState.fResources.podofo();
+    SkPdfDictionary* xObject =  pdfContext->fGraphicsState.fResources->XObject();
 
-    if (resources == NULL) {
-#ifdef PDF_TRACE
-        printf("WARNING: No Resources for a page with 'Do' operator!s\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-#ifdef PDF_TRACE
-    std::string str;
-    resources->ToString(str);
-    printf("Print Do Page Resources: %s\n", str.c_str());
-#endif
-
-    if (!resources->IsDictionary()) {
-#ifdef PDF_TRACE
-        printf("Resources is not a dictionary!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfDictionary& resourceDict = resources->GetDictionary();
-    //Next, get the XObject Dictionary from the Resource Dictionary:
-    const PdfObject* xObjectDictionary = resolveReferenceObject(pdfContext->fPdfDoc,
-                                                                resourceDict.GetKey("XObject"));
-
-    if (xObjectDictionary == NULL) {
+    if (xObject == NULL) {
 #ifdef PDF_TRACE
         printf("XObject is NULL!\n");
 #endif
         return kIgnoreError_PdfResult;
     }
 
-    if (!xObjectDictionary->IsDictionary()) {
-#ifdef PDF_TRACE
-        printf("xObjectDictionary is not a dictionary!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
-
-    const PdfObject* value =
-            resolveReferenceObject(pdfContext->fPdfDoc,
-                                   xObjectDictionary->GetDictionary().GetKey(name));
-
-    if (value == NULL) {
-#ifdef PDF_TRACE
-        printf("Named object not found!\n");
-#endif
-        return kIgnoreError_PdfResult;
-    }
+    SkPdfObject value = xObject->get(name.c_str());
 
 #ifdef PDF_TRACE
-    value->ToString(str);
-    printf("Do object value: %s\n", str.c_str());
+//    value->ToString(str);
+//    printf("Do object value: %s\n", str.c_str());
 #endif
 
-    return doXObject(pdfContext, canvas, *value);
+    return doXObject(pdfContext, canvas, value);
 }
-
 
 //tag MP Designate a marked-content point. tag is a name object indicating the role or
 //signiﬁcance of the point.
 PdfResult PdfOp_MP(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2472,8 +2405,8 @@ PdfResult PdfOp_MP(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //associated with it in the Properties subdictionary of the current resource
 //dictionary (see Section 9.5.1, “Property Lists”).
 PdfResult PdfOp_DP(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2481,7 +2414,7 @@ PdfResult PdfOp_DP(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //tag BMC Begin a marked-content sequence terminated by a balancing EMC operator.
 //tag is a name object indicating the role or signiﬁcance of the sequence.
 PdfResult PdfOp_BMC(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2490,8 +2423,8 @@ PdfResult PdfOp_BMC(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** l
 //by a balancing EMCoperator. tag is a name object indicating the role or significance of the sequence; propertiesis either an inline dictionary containing the
 //property list or a name object associated with it in the Properties subdictionary of the current resource dictionary (see Section 9.5.1, “Property Lists”).
 PdfResult PdfOp_BDC(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fVarStack.pop();
-    pdfContext->fVarStack.pop();
+    pdfContext->fObjectStack.pop();
+    pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
 }
@@ -2610,17 +2543,17 @@ void reportPdfRenderStats() {
 }
 
 PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
-    if( token.eType == ePdfContentsType_Keyword )
+    if (token.fType == kKeyword_TokenType)
     {
         // TODO(edisonn): log trace flag (verbose, error, info, warning, ...)
 #ifdef PDF_TRACE
-        printf("KEYWORD: %s\n", token.pszToken);
+        printf("KEYWORD: %s\n", token.fKeyword);
 #endif
-        PdfOperatorRenderer pdfOperatorRenderer = gPdfOps[token.pszToken];
+        PdfOperatorRenderer pdfOperatorRenderer = gPdfOps[token.fKeyword];
         if (pdfOperatorRenderer) {
             // caller, main work is done by pdfOperatorRenderer(...)
             PdfTokenLooper* childLooper = NULL;
-            gRenderStats[pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper)][token.pszToken]++;
+            gRenderStats[pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper)][token.fKeyword]++;
 
             if (childLooper) {
                 childLooper->setUp(this);
@@ -2628,19 +2561,19 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
                 delete childLooper;
             }
         } else {
-            gRenderStats[kUnsupported_PdfResult][token.pszToken]++;
+            gRenderStats[kUnsupported_PdfResult][token.fKeyword]++;
         }
     }
-    else if ( token.eType == ePdfContentsType_Variant )
+    else if (token.fType == kObject_TokenType)
     {
 #ifdef PDF_TRACE
         std::string _var;
-        token.var.ToString(_var);
+        token.fObject->podofo()->ToString(_var);
         printf("var: %s\n", _var.c_str());
 #endif
-        fPdfContext->fVarStack.push( token.var );
+        fPdfContext->fObjectStack.push( token.fObject );
     }
-    else if ( token.eType == ePdfContentsType_ImageData) {
+    else if ( token.fType == kImageData_TokenType) {
         // TODO(edisonn): implement inline image.
     }
     else {
@@ -2664,12 +2597,12 @@ PdfResult PdfInlineImageLooper::consumeToken(PdfToken& token) {
 void PdfInlineImageLooper::loop() {
     PdfToken token;
     while (readToken(fTokenizer, &token)) {
-        if (token.eType == ePdfContentsType_Keyword && strcmp(token.pszToken, "BX") == 0) {
+        if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "BX") == 0) {
             PdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
             looper->setUp(this);
             looper->loop();
         } else {
-            if (token.eType == ePdfContentsType_Keyword && strcmp(token.pszToken, "EI") == 0) {
+            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "EI") == 0) {
                 done();
                 return;
             }
@@ -2710,13 +2643,13 @@ void PdfCompatibilitySectionLooper::loop() {
     // pop-ing too much will not affect outside the section.
     PdfToken token;
     while (readToken(fTokenizer, &token)) {
-        if (token.eType == ePdfContentsType_Keyword && strcmp(token.pszToken, "BX") == 0) {
+        if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "BX") == 0) {
             PdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
             looper->setUp(this);
             looper->loop();
             delete looper;
         } else {
-            if (token.eType == ePdfContentsType_Keyword && strcmp(token.pszToken, "EX") == 0) break;
+            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "EX") == 0) break;
             fParent->consumeToken(token);
         }
     }
@@ -2744,44 +2677,41 @@ public:
     {
         std::cout << "Init: " << inputFileName.c_str() << std::endl;
 
-        PdfMemDocument doc(inputFileName.c_str());
-        if( !doc.GetPageCount() )
+        SkPdfDoc doc(inputFileName.c_str());
+        if( !doc.pages() )
         {
             std::cout << "ERROR: Empty Document" << inputFileName.c_str() << std::endl;
             return false;
         } else {
 
-            for (int pn = 0; pn < doc.GetPageCount(); ++pn) {
-                PoDoFo::PdfPage* page = doc.GetPage(pn);
-                PdfRect rect = page->GetMediaBox();
+            for (int pn = 0; pn < doc.pages(); ++pn) {
+                SkPdfPageObjectDictionary* page = doc.page(pn);
+
+                // TODO(edisonn): implement inheritance properties as per PDF spec
+                //SkRect rect = page->MediaBox();
+                SkRect rect = doc.MediaBox(pn);
+
 #ifdef PDF_TRACE
-                printf("Page Width: %f, Page Height: %f\n", rect.GetWidth(), rect.GetHeight());
+                printf("Page Width: %f, Page Height: %f\n", SkScalarToDouble(rect.width()), SkScalarToDouble(rect.height()));
 #endif
 
                 // TODO(edisonn): page->GetCropBox(), page->GetTrimBox() ... how to use?
 
                 SkBitmap bitmap;
 #ifdef PDF_DEBUG_3X
-                setup_bitmap(&bitmap, 3*rect.GetWidth(), 3*rect.GetHeight());
+                setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()))
 #else
-                setup_bitmap(&bitmap, rect.GetWidth(), rect.GetHeight());
+                setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
 #endif
                 SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
                 SkCanvas canvas(device);
 
+                SkPdfTokenizer tokenizer = doc.tokenizerOfPage(pn);
 
-                const char*      pszToken = NULL;
-                PdfVariant       var;
-                EPdfContentsType eType;
-
-                PdfContentsTokenizer tokenizer( page );
-
-                PdfContext pdfContext;
-                pdfContext.fPdfPage = page;
-                pdfContext.fPdfDoc = &doc;
+                PdfContext pdfContext(doc);
                 pdfContext.fOriginalMatrix = SkMatrix::I();
-                pdfContext.fGraphicsState.fResources = SkPdfResourceDictionary(pdfContext.fPdfDoc, resolveReferenceObject(pdfContext.fPdfDoc,
-                                                                                                                          pdfContext.fPdfPage->GetResources()));
+                pdfContext.fGraphicsState.fResources = NULL;
+                PodofoMapper::map(*page->Resources(), &pdfContext.fGraphicsState.fResources);
 
                 gPdfContext = &pdfContext;
                 gDumpBitmap = &bitmap;
@@ -2791,8 +2721,8 @@ public:
                 // TODO(edisonn): get matrix stuff right.
                 // TODO(edisonn): add DPI/scale/zoom.
                 SkScalar z = SkIntToScalar(0);
-                SkScalar w = SkDoubleToScalar(rect.GetWidth());
-                SkScalar h = SkDoubleToScalar(rect.GetHeight());
+                SkScalar w = rect.width();
+                SkScalar h = rect.height();
 
                 SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(w, z), SkPoint::Make(w, h), SkPoint::Make(z, h)};
 //                SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
@@ -2830,7 +2760,7 @@ public:
                 canvas.clipRect(SkRect::MakeXYWH(z, z, w, h), SkRegion::kIntersect_Op, true);
 #endif
 
-                PdfMainLooper looper(NULL, &tokenizer, &pdfContext, &canvas);
+                PdfMainLooper looper(NULL, tokenizer, &pdfContext, &canvas);
                 looper.loop();
 
                 canvas.flush();

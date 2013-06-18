@@ -7,8 +7,8 @@
 
 class SkPdfHideActionDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryHideActionDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryHideActionDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kHideActionDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kHideActionDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfHideActionDictionary* asHideActionDictionary() {return this;}
   virtual const SkPdfHideActionDictionary* asHideActionDictionary() const {return this;}

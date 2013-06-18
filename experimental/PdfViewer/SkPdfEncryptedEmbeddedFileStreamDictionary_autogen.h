@@ -7,8 +7,8 @@
 
 class SkPdfEncryptedEmbeddedFileStreamDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryEncryptedEmbeddedFileStreamDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryEncryptedEmbeddedFileStreamDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kEncryptedEmbeddedFileStreamDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kEncryptedEmbeddedFileStreamDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfEncryptedEmbeddedFileStreamDictionary* asEncryptedEmbeddedFileStreamDictionary() {return this;}
   virtual const SkPdfEncryptedEmbeddedFileStreamDictionary* asEncryptedEmbeddedFileStreamDictionary() const {return this;}

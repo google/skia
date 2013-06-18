@@ -7,8 +7,8 @@
 
 class SkPdfTableAttributesDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryTableAttributesDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryTableAttributesDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kTableAttributesDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kTableAttributesDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfTableAttributesDictionary* asTableAttributesDictionary() {return this;}
   virtual const SkPdfTableAttributesDictionary* asTableAttributesDictionary() const {return this;}

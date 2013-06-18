@@ -7,8 +7,8 @@
 
 class SkPdfTrapNetworkAppearanceStreamDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryTrapNetworkAppearanceStreamDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryTrapNetworkAppearanceStreamDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kTrapNetworkAppearanceStreamDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kTrapNetworkAppearanceStreamDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfTrapNetworkAppearanceStreamDictionary* asTrapNetworkAppearanceStreamDictionary() {return this;}
   virtual const SkPdfTrapNetworkAppearanceStreamDictionary* asTrapNetworkAppearanceStreamDictionary() const {return this;}

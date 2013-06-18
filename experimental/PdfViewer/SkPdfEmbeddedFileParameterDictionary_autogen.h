@@ -7,8 +7,8 @@
 
 class SkPdfEmbeddedFileParameterDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryEmbeddedFileParameterDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryEmbeddedFileParameterDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kEmbeddedFileParameterDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kEmbeddedFileParameterDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfEmbeddedFileParameterDictionary* asEmbeddedFileParameterDictionary() {return this;}
   virtual const SkPdfEmbeddedFileParameterDictionary* asEmbeddedFileParameterDictionary() const {return this;}

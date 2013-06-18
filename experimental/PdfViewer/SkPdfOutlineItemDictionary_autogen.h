@@ -7,8 +7,8 @@
 
 class SkPdfOutlineItemDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryOutlineItemDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryOutlineItemDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kOutlineItemDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kOutlineItemDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfOutlineItemDictionary* asOutlineItemDictionary() {return this;}
   virtual const SkPdfOutlineItemDictionary* asOutlineItemDictionary() const {return this;}

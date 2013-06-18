@@ -7,8 +7,8 @@
 
 class SkPdfDeviceNColorSpaceDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryDeviceNColorSpaceDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryDeviceNColorSpaceDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kDeviceNColorSpaceDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kDeviceNColorSpaceDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfDeviceNColorSpaceDictionary* asDeviceNColorSpaceDictionary() {return this;}
   virtual const SkPdfDeviceNColorSpaceDictionary* asDeviceNColorSpaceDictionary() const {return this;}

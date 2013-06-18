@@ -7,8 +7,8 @@
 
 class SkPdfBeadDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryBeadDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryBeadDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kBeadDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kBeadDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfBeadDictionary* asBeadDictionary() {return this;}
   virtual const SkPdfBeadDictionary* asBeadDictionary() const {return this;}

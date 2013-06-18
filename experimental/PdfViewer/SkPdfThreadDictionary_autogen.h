@@ -7,8 +7,8 @@
 
 class SkPdfThreadDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryThreadDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryThreadDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kThreadDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kThreadDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfThreadDictionary* asThreadDictionary() {return this;}
   virtual const SkPdfThreadDictionary* asThreadDictionary() const {return this;}

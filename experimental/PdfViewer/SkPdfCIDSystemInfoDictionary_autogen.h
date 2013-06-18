@@ -7,8 +7,8 @@
 
 class SkPdfCIDSystemInfoDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryCIDSystemInfoDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryCIDSystemInfoDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCIDSystemInfoDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCIDSystemInfoDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCIDSystemInfoDictionary* asCIDSystemInfoDictionary() {return this;}
   virtual const SkPdfCIDSystemInfoDictionary* asCIDSystemInfoDictionary() const {return this;}

@@ -7,8 +7,8 @@
 
 class SkPdfSquareOrCircleAnnotation : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionarySquareOrCircleAnnotation_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionarySquareOrCircleAnnotation_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kSquareOrCircleAnnotation_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kSquareOrCircleAnnotation_SkPdfObjectType + 1);}
 public:
   virtual SkPdfSquareOrCircleAnnotation* asSquareOrCircleAnnotation() {return this;}
   virtual const SkPdfSquareOrCircleAnnotation* asSquareOrCircleAnnotation() const {return this;}

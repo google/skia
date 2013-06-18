@@ -7,8 +7,8 @@
 
 class SkPdfJbig2DecodeFilterDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryJbig2DecodeFilterDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryJbig2DecodeFilterDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kJbig2DecodeFilterDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kJbig2DecodeFilterDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfJbig2DecodeFilterDictionary* asJbig2DecodeFilterDictionary() {return this;}
   virtual const SkPdfJbig2DecodeFilterDictionary* asJbig2DecodeFilterDictionary() const {return this;}

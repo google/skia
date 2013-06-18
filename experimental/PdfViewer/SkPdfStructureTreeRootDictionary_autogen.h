@@ -7,8 +7,8 @@
 
 class SkPdfStructureTreeRootDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryStructureTreeRootDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryStructureTreeRootDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kStructureTreeRootDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kStructureTreeRootDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfStructureTreeRootDictionary* asStructureTreeRootDictionary() {return this;}
   virtual const SkPdfStructureTreeRootDictionary* asStructureTreeRootDictionary() const {return this;}
@@ -583,7 +583,7 @@ public:
   bool isParentTreeANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTree", "", &ret)) return false;
-    return ret->podofo()->GetDataType() == ePdfDataType_Real;
+    return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
   double getParentTreeAsNumber() const {

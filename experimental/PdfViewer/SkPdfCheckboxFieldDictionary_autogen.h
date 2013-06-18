@@ -7,8 +7,8 @@
 
 class SkPdfCheckboxFieldDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryCheckboxFieldDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryCheckboxFieldDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kCheckboxFieldDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kCheckboxFieldDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfCheckboxFieldDictionary* asCheckboxFieldDictionary() {return this;}
   virtual const SkPdfCheckboxFieldDictionary* asCheckboxFieldDictionary() const {return this;}

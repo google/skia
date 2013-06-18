@@ -7,8 +7,8 @@
 
 class SkPdfBorderStyleDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryBorderStyleDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryBorderStyleDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kBorderStyleDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kBorderStyleDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfBorderStyleDictionary* asBorderStyleDictionary() {return this;}
   virtual const SkPdfBorderStyleDictionary* asBorderStyleDictionary() const {return this;}

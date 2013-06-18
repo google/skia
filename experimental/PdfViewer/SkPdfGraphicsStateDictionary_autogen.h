@@ -7,8 +7,8 @@
 
 class SkPdfGraphicsStateDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryGraphicsStateDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryGraphicsStateDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kGraphicsStateDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kGraphicsStateDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfGraphicsStateDictionary* asGraphicsStateDictionary() {return this;}
   virtual const SkPdfGraphicsStateDictionary* asGraphicsStateDictionary() const {return this;}

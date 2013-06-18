@@ -7,8 +7,8 @@
 
 class SkPdfType2PatternDictionary : public SkPdfDictionary {
 public:
-  virtual SkPdfObjectType getType() const { return kObjectDictionaryType2PatternDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kObjectDictionaryType2PatternDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getType() const { return kType2PatternDictionary_SkPdfObjectType;}
+  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kType2PatternDictionary_SkPdfObjectType + 1);}
 public:
   virtual SkPdfType2PatternDictionary* asType2PatternDictionary() {return this;}
   virtual const SkPdfType2PatternDictionary* asType2PatternDictionary() const {return this;}

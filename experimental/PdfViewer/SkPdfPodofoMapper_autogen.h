@@ -14,11 +14,9 @@ public:
     if (map(podofoDoc, podofoObj, (SkPdfArray**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfBoolean**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfHexString**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfInteger**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfName**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfNull**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNumber**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfReference**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfString**)out)) return true;
 
@@ -57,6 +55,7 @@ public:
   static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInteger** out) {
     if (!isInteger(podofoDoc, podofoObj)) return false;
 
+    if (map(podofoDoc, podofoObj, (SkPdfNumber**)out)) return true;
 
     *out = new SkPdfInteger(&podofoDoc, &podofoObj);
     return true;
@@ -117,6 +116,7 @@ public:
   static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfString** out) {
     if (!isString(podofoDoc, podofoObj)) return false;
 
+    if (map(podofoDoc, podofoObj, (SkPdfHexString**)out)) return true;
 
     *out = new SkPdfString(&podofoDoc, &podofoObj);
     return true;
@@ -2330,11 +2330,11 @@ public:
   }
 
   static bool isInteger(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Number;
+    return podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real;
   }
 
   static bool isNumber(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Real;
+    return podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real;
   }
 
   static bool isName(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
@@ -2350,7 +2350,7 @@ public:
   }
 
   static bool isString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_String;
+    return podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString;
   }
 
   static bool isHexString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
