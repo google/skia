@@ -24,6 +24,7 @@
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDrawFilter.h"
+#include "SkForceLinking.h"
 #include "SkGPipe.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -36,6 +37,8 @@
 #include "SkTDict.h"
 #include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #ifdef SK_BUILD_FOR_WIN
     // json includes xlocale which generates warning 4530 because we're compiling without
