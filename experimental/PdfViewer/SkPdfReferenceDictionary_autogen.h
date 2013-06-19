@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a reference dictionary
 class SkPdfReferenceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kReferenceDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfReferenceDictionary& operator=(const SkPdfReferenceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The file containing the target document.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfFileSpec F() const {
     SkPdfFileSpec ret;
     if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFileSpec();
+  }
+
+/** (Required) A page index or page label (see Section 8.3.1, "Page Labels")
+ *  identifying the page of the target document containing the content to be
+ *  imported. Note that the reference is a weak one and can be inadvertently in-
+ *  validated if the referenced page is changed or replaced in the target document
+ *  after the reference is created.
+**/
+  bool has_Page() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", NULL));
   }
 
   bool isPageAInteger() const {
@@ -552,6 +569,15 @@ public:
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An array of two strings constituting a file identifier (see Section 9.3,
+ *  "File Identifiers") for the file containing the target document. The use of this
+ *  entry improves a viewer application's chances of finding the intended file and
+ *  allows it to warn the user if the file has changed since the reference was created.
+**/
+  bool has_ID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
   SkPdfArray ID() const {

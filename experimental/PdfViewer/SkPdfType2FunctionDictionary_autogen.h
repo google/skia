@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 2 function dictionary
 class SkPdfType2FunctionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType2FunctionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfType2FunctionDictionary& operator=(const SkPdfType2FunctionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) An array of n numbers defining the function result when x = 0.0 (hence the "0"
+ *  in the name). Default value: [0.0].
+**/
+  bool has_C0() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C0", "", NULL));
+  }
+
   SkPdfArray C0() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C0", "", &ret)) return ret;
@@ -528,11 +536,25 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of n numbers defining the function result when x = 1.0 (hence the "1"
+ *  in the name). Default value: [1.0].
+**/
+  bool has_C1() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C1", "", NULL));
+  }
+
   SkPdfArray C1() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C1", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) The interpolation exponent. Each input value x will return n values, given by
+ *  yj = C0j + xN x (C1j - C0j ), for 0 <= j < n.
+**/
+  bool has_N() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
   }
 
   double N() const {

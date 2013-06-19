@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a page label dictionary
 class SkPdfPageLabelDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPageLabelDictionary_SkPdfObjectType;}
@@ -521,11 +522,33 @@ public:
 
   SkPdfPageLabelDictionary& operator=(const SkPdfPageLabelDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  PageLabel for a page label dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The numbering style to be used for the numeric portion of each page label:
+ *     D     Decimal arabic numerals
+ *     R     Uppercase roman numerals
+ *     r     Lowercase roman numerals
+ *     A     Uppercase letters (A to Z for the first 26 pages, AA to ZZ for the next 26, and so on)
+ *     a     Lowercase letters (a to z for the first 26 pages, aa to zz for the next 26, and so on)
+ *  There is no default numbering style; if no S entry is present, page labels will consist solely
+ *  of a label prefix with no numeric portion. For example, if the P entry (below) specifies the
+ *  label prefix Contents, each page will simply be labeled Contents with no page number. (If
+ *  the P entry is also missing or empty, the page label will be an empty string.)
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {
@@ -535,11 +558,25 @@ public:
     return "";
   }
 
+/** (Optional) The label prefix for page labels in this range.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
+  }
+
   std::string P() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The value of the numeric portion for the first page label in the range. Sub-
+ *  sequent pages will be numbered sequentially from this value, which must be greater than
+ *  or equal to 1. Default value: 1.
+**/
+  bool has_St() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "St", "", NULL));
   }
 
   long St() const {

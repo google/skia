@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a thread dictionary
 class SkPdfThreadDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kThreadDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfThreadDictionary& operator=(const SkPdfThreadDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  Thread for a thread dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,26 @@ public:
     return "";
   }
 
+/** (Required; must be an indirect reference) The first bead in the thread.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfDictionary* F() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A thread information dictionary containing information about the
+ *  thread, such as its title, author, and creation date. The contents of this dictionary are
+ *  similar to those of the document information dictionary (see Section 9.2.1, "Docu-
+ *  ment Information Dictionary").
+**/
+  bool has_I() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", NULL));
   }
 
   SkPdfDictionary* I() const {

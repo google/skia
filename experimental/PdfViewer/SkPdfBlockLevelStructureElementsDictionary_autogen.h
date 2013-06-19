@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional standard layout attributes specific to block-level structure elements
 class SkPdfBlockLevelStructureElementsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kBlockLevelStructureElementsDictionary_SkPdfObjectType;}
@@ -521,11 +522,37 @@ public:
 
   SkPdfBlockLevelStructureElementsDictionary& operator=(const SkPdfBlockLevelStructureElementsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The amount of extra space preceding the before edge of the BLSE,
+ *  measured in default user space units in the block-progression direction. This
+ *  value is added to any adjustments induced by the LineHeight attributes of
+ *  ILSEs within the first line of the BLSE (see "Layout Attributes for ILSEs" on
+ *  page 646). If the preceding BLSE has a SpaceAfter attribute, the greater of the
+ *  two attribute values is used. Default value: 0.
+ *  Note: This attribute is disregarded for the first BLSE placed in a given reference
+ *  area.
+**/
+  bool has_SpaceBefore() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceBefore", "", NULL));
+  }
+
   double SpaceBefore() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceBefore", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The amount of extra space following the after edge of the BLSE,
+ *  measured in default user space units in the block-progression direction. This
+ *  value is added to any adjustments induced by the LineHeight attributes of
+ *  ILSEs within the last line of the BLSE (see "Layout Attributes for ILSEs" on
+ *  page 646). If the following BLSE has a SpaceBefore attribute, the greater of
+ *  the two attribute values is used. Default value: 0.
+ *  Note: This attribute is disregarded for the last BLSE placed in a given reference
+ *  area.
+**/
+  bool has_SpaceAfter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceAfter", "", NULL));
   }
 
   double SpaceAfter() const {
@@ -535,11 +562,47 @@ public:
     return 0;
   }
 
+/** (Optional) The distance from the start edge of the reference area to that of the
+ *  BLSE, measured in default user space units in the inline-progression direc-
+ *  tion. This attribute applies only to structure elements with a Placement
+ *  attribute of Block or Start (see "General Layout Attributes" on page 640); it is
+ *  disregarded for those with other Placement values. Default value: 0.
+ *  Note: A negative value for this attribute places the start edge of the BLSE out-
+ *  side that of the reference area. The results are implementation-dependent and
+ *  may not be supported by all Tagged PDF consumer applications or export
+ *  formats.
+ *  Note: If a structure element with a StartIndent attribute is placed adjacent to a
+ *  floating element with a Placement attribute of Start, the actual value used for
+ *  the element's starting indent will be its own StartIndent attribute or the inline
+ *  extent of the adjacent floating element, whichever is greater. This value may
+ *  then be further adjusted by the element's TextIndent attribute, if any.
+**/
+  bool has_StartIndent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StartIndent", "", NULL));
+  }
+
   double StartIndent() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StartIndent", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The distance from the end edge of the BLSE to that of the ref-
+ *  erence area, measured in default user space units in the inline-progression
+ *  direction. This attribute applies only to structure elements with a Placement
+ *  attribute of Block or End (see "General Layout Attributes" on page 640); it is
+ *  disregarded for those with other Placement values. Default value: 0.
+ *  Note: A negative value for this attribute places the end edge of the BLSE outside
+ *  that of the reference area. The results are implementation-dependent and may
+ *  not be supported by all Tagged PDF consumer applications or export formats.
+ *  Note: If a structure element with an EndIndent attribute is placed adjacent to a
+ *  floating element with a Placement attribute of End, the actual value used for the
+ *  element's ending indent will be its own EndIndent attribute or the inline extent
+ *  of the adjacent floating element, whichever is greater.
+**/
+  bool has_EndIndent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndIndent", "", NULL));
   }
 
   double EndIndent() const {
@@ -549,11 +612,39 @@ public:
     return 0;
   }
 
+/** (Optional; applies only to some BLSEs, as described below) The additional
+ *  distance, measured in default user space units in the inline-progression
+ *  direction, from the start edge of the BLSE, as specified by StartIndent
+ *  (above), to that of the first line of text. A negative value indicates a hanging
+ *  indent. Default value: 0.
+ *  This attribute applies only to paragraphlike BLSEs and those of structure
+ *  types Lbl (Label), LBody (List body), TH (Table header), and TD (Table data),
+ *  provided that they contain content other than nested BLSEs.
+**/
+  bool has_TextIndent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextIndent", "", NULL));
+  }
+
   double TextIndent() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextIndent", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; applies only to BLSEs containing text) The alignment, in the inline-
+ *  progression direction, of text and other content within lines of the BLSE:
+ *  Start        Aligned with the start edge.
+ *  Center       Centered between the start and end edges.
+ *  End          Aligned with the end edge.
+ *  Justify      Aligned with both the start and end edges, with internal
+ *          spacing within each line expanded, if necessary, to achieve
+ *          such alignment. The last (or only) line is aligned with the
+ *          start edge only, as for Start (above).
+ *          Default value: Start.
+**/
+  bool has_TextAlign() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextAlign", "", NULL));
   }
 
   std::string TextAlign() const {
@@ -563,11 +654,36 @@ public:
     return "";
   }
 
+/** (Illustrations and tables only; required if the element appears in its entirety on a
+ *  single page) An array of four numbers in default user space units giving the
+ *  coordinates of the left, bottom, right, and top edges, respectively, of the ele-
+ *  ment's bounding box (the rectangle that completely encloses its visible con-
+ *  tent). This attribute applies only to elements of structure type Figure,
+ *  Formula, Form, or Table.
+**/
+  bool has_BBox() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
+  }
+
   SkRect BBox() const {
     SkRect ret;
     if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkRect();
+  }
+
+/** (Optional; illustrations, tables, table headers, and table cells only; strongly
+ *  recommended for table cells) The desired width of the element's content
+ *  rectangle (see "Content and Allocation Rectangles" on page 648), measured
+ *  in default user space units in the inline-progression direction. This attribute
+ *  applies only to elements of structure type Figure, Formula, Form, Table, TH
+ *  (Table header), or TD (Table data).
+ *  The name Auto in place of a numeric value indicates that no specific width
+ *  constraint is to be imposed; the element's width is determined by the intrin-
+ *  sic width of its content. Default value: Auto.
+**/
+  bool has_Width() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", NULL));
   }
 
   bool isWidthANumber() const {
@@ -596,6 +712,19 @@ public:
     return "";
   }
 
+/** (Optional; illustrations, tables, table headers, and table cells only) The desired
+ *  height of the element's content rectangle (see "Content and Allocation
+ *  Rectangles" on page 648), measured in default user space units in the block-
+ *  progression direction. This attribute applies only to elements of structure
+ *  type Figure, Formula, Form, Table, TH (Table header), or TD (Table data).
+ *  The name Auto in place of a numeric value indicates that no specific height
+ *  constraint is to be imposed; the element's height is determined by the intrin-
+ *  sic height of its content. Default value: Auto.
+**/
+  bool has_Height() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", NULL));
+  }
+
   bool isHeightANumber() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return false;
@@ -622,11 +751,57 @@ public:
     return "";
   }
 
+/** (Optional; table cells only) The alignment, in the block-progression direction,
+ *  of content within the table cell:
+ *       Before        Before edge of the first child's allocation rectangle aligned
+ *                     with that of the table cell's content rectangle.
+ *       Middle        Children centered within the table cell, so that the distance
+ *                     between the before edge of the first child's allocation rec-
+ *                     tangle and that of the table cell's content rectangle is the same
+ *                     as the distance between the after edge of the last child's allo-
+ *                     cation rectangle and that of the table cell's content rectangle.
+ *       After         After edge of the last child's allocation rectangle aligned with
+ *                     that of the table cell's content rectangle.
+ *       Justify       Children aligned with both the before and after edges of the
+ *                     table cell's content rectangle. The first child is placed as
+ *                     described above for Before and the last child as described for
+ *                     After, with equal spacing between the children. If there is only
+ *                     one child, it is aligned with the before edge only, as for Before.
+ *   This attribute applies only to elements of structure type TH (Table header) or
+ *   TD (Table data), and controls the placement of all BLSEs that are children of
+ *   the given element. The table cell's content rectangle (see "Content and Allo-
+ *   cation Rectangles" on page 648) becomes the reference area for all of its
+ *   descendants. Default value: Before.
+**/
+  bool has_BlockAlign() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlockAlign", "", NULL));
+  }
+
   std::string BlockAlign() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlockAlign", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; table cells only) The alignment, in the inline-progression direction,
+ *  of content within the table cell:
+ *     Start         Start edge of each child's allocation rectangle aligned with
+ *                   that of the table cell's content rectangle
+ *     Center        Each child centered within the table cell, so that the distance
+ *                   between the start edges of the child's allocation rectangle and
+ *                   the table cell's content rectangle is the same as the distance
+ *                   between their end edges
+ *     End           End edge of each child's allocation rectangle aligned with
+ *                   that of the table cell's content rectangle
+ *  This attribute applies only to elements of structure type TH (Table header) or
+ *  TD (Table data), and controls the placement of all BLSEs that are children of
+ *  the given element. The table cell's content rectangle (see "Content and Allo-
+ *  cation Rectangles" on page 648) becomes the reference area for all of its
+ *  descendants. Default value: Start.
+**/
+  bool has_InlineAlign() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "InlineAlign", "", NULL));
   }
 
   std::string InlineAlign() const {

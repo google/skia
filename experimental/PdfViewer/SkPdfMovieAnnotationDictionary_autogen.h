@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a movie annotation
 class SkPdfMovieAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMovieAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfMovieAnnotationDictionary& operator=(const SkPdfMovieAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Movie
+ *  for a movie annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A movie dictionary describing the movie's static characteristics (see
+ *  Section 8.8, "Movies").
+**/
+  bool has_Movie() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Movie", "", NULL));
   }
 
   SkPdfDictionary* Movie() const {
@@ -535,11 +550,31 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) An alternate representation of the annotation's contents in
+ *  human-readable form, useful when extracting the document's contents in sup-
+ *  port of accessibility to disabled users or for other purposes (see Section 9.8.2,
+ *  "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A flag or dictionary specifying whether and how to play the movie
+ *  when the annotation is activated. If this value is a dictionary, it is a movie activa-
+ *  tion dictionary (see Section 8.8, "Movies") specifying how to play the movie; if it
+ *  is the boolean value true, the movie should be played using default activation
+ *  parameters; if it is false, the movie should not be played at all. Default value:
+ *  true.
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
   }
 
   bool isAABoolean() const {

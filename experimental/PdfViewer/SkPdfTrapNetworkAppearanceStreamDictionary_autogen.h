@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a trap network appearance stream
 class SkPdfTrapNetworkAppearanceStreamDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTrapNetworkAppearanceStreamDictionary_SkPdfObjectType;}
@@ -521,11 +522,34 @@ public:
 
   SkPdfTrapNetworkAppearanceStreamDictionary& operator=(const SkPdfTrapNetworkAppearanceStreamDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The name of the process color model that was assumed
+ *  when this trap network was created; equivalent to the PostScript
+ *  page device parameter ProcessColorModel (see Section 6.2.5 of the
+ *  PostScript Language Reference, Third Edition). Valid values are
+ *  DeviceGray, DeviceRGB, DeviceCMYK, DeviceCMY, DeviceRGBK,
+ *  and DeviceN.
+**/
+  bool has_PCM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PCM", "", NULL));
+  }
+
   std::string PCM() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PCM", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An array of names identifying the colorants that were
+ *  assumed when this network was created; equivalent to the Post-
+ *  Script page device parameter of the same name (see Section 6.2.5 of
+ *  the PostScript Language Reference, Third Edition). Colorants im-
+ *  plied by the process color model PCM are available automatically
+ *  and need not be explicitly declared. If this entry is absent, the
+ *  colorants implied by PCM are assumed.
+**/
+  bool has_SeparationColorNames() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SeparationColorNames", "", NULL));
   }
 
   SkPdfArray SeparationColorNames() const {
@@ -535,11 +559,32 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of indirect references to TrapRegion objects
+ *  defining the page's trapping zones and the associated trapping
+ *  parameters, as described in Adobe Technical Note #5620, Portable
+ *  Job Ticket Format. These references are to objects comprising
+ *  portions of a PJTF job ticket that is embedded in the PDF file.
+ *  When the trapping zones and parameters are defined by an external
+ *  job ticket (or by some other means, such as with JDF), this entry is
+ *  absent.
+**/
+  bool has_TrapRegions() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapRegions", "", NULL));
+  }
+
   SkPdfArray TrapRegions() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapRegions", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A human-readable text string that applications can use
+ *  to describe this trap network to the user (for example, to allow
+ *  switching between trap networks).
+**/
+  bool has_TrapStyles() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapStyles", "", NULL));
   }
 
   std::string TrapStyles() const {

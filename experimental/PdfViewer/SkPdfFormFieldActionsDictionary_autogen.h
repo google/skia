@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a form field's additional-actions dictionary
 class SkPdfFormFieldActionsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFormFieldActionsDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfFormFieldActionsDictionary& operator=(const SkPdfFormFieldActionsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.3) A JavaScript action to be performed when the user types a key-
+ *  stroke into a text field or combo box or modifies the selection in a scrollable list box.
+ *  This allows the keystroke to be checked for validity and rejected or modified.
+**/
+  bool has_K() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", NULL));
+  }
+
   SkPdfDictionary* K() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A JavaScript action to be performed before the field is formatted
+ *  to display its current value. This allows the field's value to be modified before format-
+ *  ting.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
   SkPdfDictionary* F() const {
@@ -535,11 +552,29 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.3) A JavaScript action to be performed when the field's value is
+ *  changed. This allows the new value to be checked for validity. (The name V stands for
+ *  "validate.")
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
+  }
+
   SkPdfDictionary* V() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A JavaScript action to be performed in order to recalculate the
+ *  value of this field when that of another field changes. (The name C stands for
+ *  "calculate.") The order in which the document's fields are recalculated is defined by the
+ *  CO entry in the interactive form dictionary (see Section 8.6.1, "Interactive Form
+ *  Dictionary").
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfDictionary* C() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a widget annotation
 class SkPdfWidgetAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWidgetAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfWidgetAnnotationDictionary& operator=(const SkPdfWidgetAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Widget
+ *  for a widget annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) An alternate representation of the annotation's contents in
+ *  human-readable form, useful when extracting the document's contents in sup-
+ *  port of accessibility to disabled users or for other purposes (see Section 9.8.2,
+ *  "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +552,38 @@ public:
     return "";
   }
 
+/** (Optional) The annotation's highlighting mode, the visual effect to be used when
+ *  the mouse button is pressed or held down inside its active area:
+ *     N    (None) No highlighting.
+ *     I    (Invert) Invert the contents of the annotation rectangle.
+ *     O    (Outline) Invert the annotation's border.
+ *     P    (Push) Display the annotation's down appearance, if any (see Section
+ *          8.4.4, "Appearance Streams"). If no down appearance is defined, offset
+ *          the contents of the annotation rectangle to appear as if it were being
+ *          "pushed" below the surface of the page.
+ *     T    (Toggle) Same as P (which is preferred).
+ *  A highlighting mode other than P overrides any down appearance defined for
+ *  the annotation. Default value: I.
+**/
+  bool has_H() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
+  }
+
   std::string H() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An appearance characteristics dictionary to be used in constructing a
+ *  dynamic appearance stream specifying the annotation's visual presentation on
+ *  the page; see "Variable Text" on page 533 for further discussion.
+ *  Note: The name MK for this entry is of historical significance only and has no direct
+ *  meaning.
+**/
+  bool has_MK() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MK", "", NULL));
   }
 
   SkPdfDictionary* MK() const {

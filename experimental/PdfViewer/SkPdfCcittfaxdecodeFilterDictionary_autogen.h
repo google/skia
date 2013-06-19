@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Optional parameters for the CCITTFaxDecode filter
 class SkPdfCcittfaxdecodeFilterDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCcittfaxdecodeFilterDictionary_SkPdfObjectType;}
@@ -521,11 +522,34 @@ public:
 
   SkPdfCcittfaxdecodeFilterDictionary& operator=(const SkPdfCcittfaxdecodeFilterDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** ()A code identifying the encoding scheme used:
+ *    <0    Pure two-dimensional encoding (Group 4)
+ *      0   Pure one-dimensional encoding (Group 3, 1-D)
+ *    >0    Mixed one- and two-dimensional encoding (Group 3,
+ *          2-D), in which a line encoded one-dimensionally can be
+ *          followed by at most K - 1 lines encoded two-dimensionally
+ *  The filter distinguishes among negative, zero, and positive values of
+ *  K to determine how to interpret the encoded data; however, it does
+ *  not distinguish between different positive K values. Default value: 0.
+**/
+  bool has_K() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", NULL));
+  }
+
   long K() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** ()A flag indicating whether end-of-line bit patterns are required to be
+ *  present in the encoding. The CCITTFaxDecode filter always accepts
+ *  end-of-line bit patterns, but requires them only if EndOfLine is true.
+ *  Default value: false.
+**/
+  bool has_EndOfLine() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfLine", "", NULL));
   }
 
   bool EndOfLine() const {
@@ -535,11 +559,30 @@ public:
     return false;
   }
 
+/** ()A flag indicating whether the filter expects extra 0 bits before each
+ *  encoded line so that the line begins on a byte boundary. If true, the
+ *  filter skips over encoded bits to begin decoding each line at a byte
+ *  boundary. If false, the filter does not expect extra bits in the encod-
+ *  ed representation. Default value: false.
+**/
+  bool has_EncodedByteAlign() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EncodedByteAlign", "", NULL));
+  }
+
   bool EncodedByteAlign() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EncodedByteAlign", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** ()The width of the image in pixels. If the value is not a multiple of 8,
+ *  the filter adjusts the width of the unencoded image to the next mul-
+ *  tiple of 8, so that each line starts on a byte boundary. Default value:
+ *  1728.
+**/
+  bool has_Columns() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", NULL));
   }
 
   long Columns() const {
@@ -549,11 +592,32 @@ public:
     return 0;
   }
 
+/** ()The height of the image in scan lines. If the value is 0 or absent, the
+ *  image's height is not predetermined, and the encoded data must be
+ *  terminated by an end-of-block bit pattern or by the end of the fil-
+ *  ter's data. Default value: 0.
+**/
+  bool has_Rows() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rows", "", NULL));
+  }
+
   long Rows() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rows", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** ()A flag indicating whether the filter expects the encoded data to be
+ *  terminated by an end-of-block pattern, overriding the Rows pa-
+ *  rameter. If false, the filter stops when it has decoded the number of
+ *  lines indicated by Rows or when its data has been exhausted, which-
+ *  ever occurs first. The end-of-block pattern is the CCITT end-of-
+ *  facsimile-block (EOFB) or return-to-control (RTC) appropriate for
+ *  the K parameter. Default value: true.
+**/
+  bool has_EndOfBlock() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfBlock", "", NULL));
   }
 
   bool EndOfBlock() const {
@@ -563,11 +627,31 @@ public:
     return false;
   }
 
+/** ()A flag indicating whether 1 bits are to be interpreted as black pixels
+ *  and 0 bits as white pixels, the reverse of the normal PDF convention
+ *  for image data. Default value: false.
+**/
+  bool has_BlackIs1() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackIs1", "", NULL));
+  }
+
   bool BlackIs1() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackIs1", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** ()The number of damaged rows of data to be tolerated before an
+ *  error occurs. This entry applies only if EndOfLine is true and K is
+ *  nonnegative. Tolerating a damaged row means locating its end in
+ *  the encoded data by searching for an EndOfLine pattern and then
+ *  substituting decoded data from the previous row if the previous
+ *  row was not damaged, or a white scan line if the previous row was
+ *  also damaged. Default value: 0.
+**/
+  bool has_DamagedRowsBeforeError() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DamagedRowsBeforeError", "", NULL));
   }
 
   long DamagedRowsBeforeError() const {

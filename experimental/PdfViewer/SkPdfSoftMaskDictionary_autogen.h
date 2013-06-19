@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a soft-mask dictionary
 class SkPdfSoftMaskDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSoftMaskDictionary_SkPdfObjectType;}
@@ -521,11 +522,30 @@ public:
 
   SkPdfSoftMaskDictionary& operator=(const SkPdfSoftMaskDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Mask for a soft-mask dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A subtype specifying the method to be used in deriving the mask
+ *  values from the transparency group specified by the G entry:
+ *     Alpha          Use the group's computed alpha, disregarding its color (see
+ *                    Section 7.4.1, "Deriving a Soft Mask from Group Alpha").
+ *     Luminosity     Convert the group's computed color to a single-component
+ *                    luminosity value (see Section 7.4.2, "Deriving a Soft Mask
+ *                    from Group Luminosity").
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {
@@ -535,6 +555,16 @@ public:
     return "";
   }
 
+/** (Required) A transparency group XObject (see Section 7.5.5, "Transparency
+ *  Group XObjects") to be used as the source of alpha or color values for deriv-
+ *  ing the mask. If the subtype S is Luminosity, the group attributes dictionary
+ *  must contain a CS entry defining the color space in which the compositing
+ *  computation is to be performed.
+**/
+  bool has_G() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", NULL));
+  }
+
   SkPdfStream G() const {
     SkPdfStream ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", &ret)) return ret;
@@ -542,11 +572,36 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) An array of component values specifying the color to be used as
+ *  the backdrop against which to composite the transparency group XObject G.
+ *  This entry is consulted only if the subtype S is Luminosity. The array consists
+ *  of n numbers, where n is the number of components in the color space speci-
+ *  fied by the CS entry in the group attributes dictionary (see Section 7.5.5,
+ *  "Transparency Group XObjects"). Default value: the color space's initial
+ *  value, representing black.
+**/
+  bool has_BC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BC", "", NULL));
+  }
+
   SkPdfArray BC() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BC", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A function object (see Section 3.9, "Functions") specifying the
+ *  transfer function to be used in deriving the mask values. The function ac-
+ *  cepts one input, the computed group alpha or luminosity (depending on the
+ *  value of the subtype S), and returns one output, the resulting mask value.
+ *  Both the input and output must be in the range 0.0 to 1.0; if the computed
+ *  output falls outside this range, it is forced to the nearest valid value. The
+ *  name Identity may be specified in place of a function object to designate the
+ *  identity function. Default value: Identity.
+**/
+  bool has_TR() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", NULL));
   }
 
   bool isTRAFunction() const {

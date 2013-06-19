@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a go-to action
 class SkPdfGoToActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kGoToActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfGoToActionDictionary& operator=(const SkPdfGoToActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be GoTo for a
+ *  go-to action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The destination to jump to (see Section 8.2.1, "Destinations").
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   bool isDAName() const {

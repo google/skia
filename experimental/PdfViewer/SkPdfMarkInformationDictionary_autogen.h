@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry in the mark information dictionary
 class SkPdfMarkInformationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMarkInformationDictionary_SkPdfObjectType;}
@@ -520,6 +521,13 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfMarkInformationDictionary& operator=(const SkPdfMarkInformationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional) A flag indicating whether the document conforms to Tagged PDF
+ *  conventions. Default value: false.
+**/
+  bool has_Marked() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Marked", "", NULL));
+  }
 
   bool Marked() const {
     bool ret;

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a JavaScript action
 class SkPdfJavascriptActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kJavascriptActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfJavascriptActionDictionary& operator=(const SkPdfJavascriptActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be JavaScript
+ *  for a JavaScript action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A string or stream containing the JavaScript script to be executed.
+ *  Note: PDFDocEncoding or Unicode encoding (the latter identified by the Unicode
+ *  prefix U+ FEFF) is used to encode the contents of the string or stream. (See imple-
+ *  mentation note 89 in Appendix H.)
+**/
+  bool has_JS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JS", "", NULL));
   }
 
   bool isJSAString() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a line annotation
 class SkPdfLineAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kLineAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfLineAnnotationDictionary& operator=(const SkPdfLineAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Line
+ *  for a line annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The text to be displayed in the pop-up window when the annotation
+ *  is opened. Carriage returns may be used to separate the text into paragraphs.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +550,27 @@ public:
     return "";
   }
 
+/** (Required) An array of four numbers, [x1 y1 x2 y2 ], specifying the starting and
+ *  ending coordinates of the line in default user space.
+**/
+  bool has_L() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", NULL));
+  }
+
   SkPdfArray L() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A border style dictionary (see Table 8.12 on page 495) specifying the
+ *  width and dash pattern to be used in drawing the line.
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the L
+ *  and BS entries; see Table 8.10 on page 490 and Section 8.4.4, "Appearance Streams."
+**/
+  bool has_BS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
   }
 
   SkPdfDictionary* BS() const {
@@ -549,11 +580,30 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) An array of two names specifying the line ending styles to be
+ *  used in drawing the line. The first and second elements of the array specify the
+ *  line ending styles for the endpoints defined, respectively, by the first and second
+ *  pairs of coordinates, (x1 , y1 ) and (x2 , y2 ), in the L array. Table 8.19 shows the
+ *  possible values. Default value: [/None /None].
+**/
+  bool has_LE() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LE", "", NULL));
+  }
+
   SkPdfArray LE() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LE", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0 specifying
+ *  the components, in the DeviceRGB color space, of the interior color with which to
+ *  fill the annotation's line endings (see Table 8.19). If this entry is absent, the inte-
+ *  riors of the line endings are left transparent.
+**/
+  bool has_IC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", NULL));
   }
 
   SkPdfArray IC() const {

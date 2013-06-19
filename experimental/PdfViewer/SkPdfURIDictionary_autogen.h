@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry in a URI dictionary
 class SkPdfURIDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kURIDictionary_SkPdfObjectType;}
@@ -520,6 +521,17 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfURIDictionary& operator=(const SkPdfURIDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional) The base URI to be used in resolving relative URI references. URI actions
+ *  within the document may specify URIs in partial form, to be interpreted relative to
+ *  this base address. If no base URI is specified, such partial URIs will be interpreted rel-
+ *  ative to the location of the document itself. The use of this entry is parallel to that of
+ *  the body element <BASE>, as described in section 2.7.2 of Internet RFC 1866, Hyper-
+ *  text Markup Language 2.0 Proposed Standard (see the Bibliography).
+**/
+  bool has_Base() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Base", "", NULL));
+  }
 
   std::string Base() const {
     std::string ret;

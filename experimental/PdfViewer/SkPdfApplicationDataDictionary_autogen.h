@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an application data dictionary
 class SkPdfApplicationDataDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kApplicationDataDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfApplicationDataDictionary& operator=(const SkPdfApplicationDataDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The date and time when the contents of the page or form
+ *  were most recently modified by this application.
+**/
+  bool has_LastModified() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
+  }
+
   SkPdfDate LastModified() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfDate();
+  }
+
+/** (Optional) Any private data appropriate to the application, typically
+ *  in the form of a dictionary.
+**/
+  bool has_Private() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Private", "", NULL));
   }
 
   SkPdfObject* Private() const {

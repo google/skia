@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry specific to a radio button field
 class SkPdfRadioButtonFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kRadioButtonFieldDictionary_SkPdfObjectType;}
@@ -520,6 +521,16 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfRadioButtonFieldDictionary& operator=(const SkPdfRadioButtonFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional; inheritable; PDF 1.4) An array of text strings to be used in
+ *  place of the V entries for the values of the widget annotations repre-
+ *  senting the individual radio buttons. Each element in the array repre-
+ *  sents the export value of the corresponding widget annotation in the
+ *  Kids array of the radio button field.
+**/
+  bool has_Opt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", NULL));
+  }
 
   SkPdfArray Opt() const {
     SkPdfArray ret;

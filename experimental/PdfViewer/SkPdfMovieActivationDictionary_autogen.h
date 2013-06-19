@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a movie activation dictionary
 class SkPdfMovieActivationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMovieActivationDictionary_SkPdfObjectType;}
@@ -521,11 +522,38 @@ public:
 
   SkPdfMovieActivationDictionary& operator=(const SkPdfMovieActivationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The starting time of the movie segment to be played. Movie time
+ *  values are expressed in units of time based on a time scale, which defines the
+ *  number of units per second; the default time scale is defined in the movie
+ *  data itself. The starting time is nominally a 64-bit integer, specified as follows:
+ *  *  If it is representable as an integer (subject to the implementation limit for
+ *     integers, as described in Appendix C), it should be specified as such.
+ *  *  If it is not representable as an integer, it should be specified as an 8-byte
+ *     string representing a 64-bit twos-complement integer, most significant
+ *     byte first.
+ *  *  If it is expressed in a time scale different from that of the movie itself, it is
+ *     represented as an array of two values: an integer or string denoting the
+ *     starting time, as above, followed by an integer specifying the time scale in
+ *     units per second.
+ *  If this entry is omitted, the movie is played from the beginning.
+**/
+  bool has_Start() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Start", "", NULL));
+  }
+
   SkPdfObject* Start() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Start", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) The duration of the movie segment to be played, specified in the
+ *  same form as Start. Negative values specify that the movie is to be played
+ *  backward. If this entry is omitted, the movie is played to the end.
+**/
+  bool has_Duration() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Duration", "", NULL));
   }
 
   SkPdfObject* Duration() const {
@@ -535,11 +563,27 @@ public:
     return NULL;
   }
 
+/** (Optional) The initial speed at which to play the movie. If the value of this
+ *  entry is negative, the movie is played backward with respect to Start and
+ *  Duration. Default value: 1.0.
+**/
+  bool has_Rate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rate", "", NULL));
+  }
+
   double Rate() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rate", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The initial sound volume at which to play the movie, in the range
+ *  -1.0 to 1.0. Higher values denote greater volume; negative values mute the
+ *  sound. Default value: 1.0.
+**/
+  bool has_Volume() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", NULL));
   }
 
   double Volume() const {
@@ -549,11 +593,29 @@ public:
     return 0;
   }
 
+/** (Optional) A flag specifying whether to display a movie controller bar while
+ *  playing the movie. Default value: false.
+**/
+  bool has_ShowControls() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShowControls", "", NULL));
+  }
+
   bool ShowControls() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShowControls", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) The play mode for playing the movie:
+ *      Once              Play once and stop.
+ *      Open              Play and leave the movie controller bar open.
+ *      Repeat            Play repeatedly from beginning to end until stopped.
+ *      Palindrome        Play continuously forward and backward until stopped.
+ *  Default value: Once.
+**/
+  bool has_Mode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mode", "", NULL));
   }
 
   std::string Mode() const {
@@ -563,6 +625,16 @@ public:
     return "";
   }
 
+/** (Optional) A flag specifying whether to play the movie synchronously or
+ *  asynchronously. If this value is true, the movie player will retain control until
+ *  the movie is completed or dismissed by the user; if false, it will return control
+ *  to the viewer application immediately after starting the movie. Default value:
+ *  false.
+**/
+  bool has_Synchronous() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", NULL));
+  }
+
   bool Synchronous() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", &ret)) return ret;
@@ -570,11 +642,36 @@ public:
     return false;
   }
 
+/** (Optional) The magnification (zoom) factor at which to play the movie. The
+ *  presence of this entry implies that the movie is to be played in a floating win-
+ *  dow; if the entry is absent, it will be played in the annotation rectangle.
+ *  The value of the entry is an array of two integers, [numerator denominator],
+ *  denoting a rational magnification factor for the movie. The final window
+ *  size, in pixels, is
+ *      (numerator / denominator) x Aspect
+ *  where the value of Aspect is taken from the movie dictionary (see Table 8.79).
+**/
+  bool has_FWScale() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWScale", "", NULL));
+  }
+
   SkPdfArray FWScale() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWScale", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) For floating play windows, the relative position of the window on
+ *  the screen. The value is an array of two numbers
+ *      [horiz vert]
+ *  each in the range 0.0 to 1.0, denoting the relative horizontal and vertical posi-
+ *  tion of the movie window with respect to the screen. For example, the value
+ *  [0.5 0.5] centers the window on the screen. Default value: [0.5 0.5].
+ *                CHAPTER 9
+**/
+  bool has_FWPosition() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWPosition", "", NULL));
   }
 
   SkPdfArray FWPosition() const {

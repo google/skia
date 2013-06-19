@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a movie action
 class SkPdfMovieActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMovieActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfMovieActionDictionary& operator=(const SkPdfMovieActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Movie
+ *  for a movie action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An indirect reference to a movie annotation identifying the movie
+ *  to be played.
+**/
+  bool has_Annot() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annot", "", NULL));
   }
 
   SkPdfDictionary* Annot() const {
@@ -535,11 +550,34 @@ public:
     return NULL;
   }
 
+/** (Optional) The title of a movie annotation identifying the movie to be
+ *  played.
+ *  Note: The dictionary must include either an Annot or a T entry, but not both.
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
+  }
+
   std::string T() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The operation to be performed on the movie:
+ *     Play         Start playing the movie, using the play mode specified by the
+ *                  dictionary's Mode entry (see Table 8.79 on page 571). If the
+ *                  movie is currently paused, it is repositioned to the beginning
+ *                  before playing (or to the starting point specified by the dic-
+ *                  tionary's Start entry, if present).
+ *     Stop         Stop playing the movie.
+ *     Pause        Pause a playing movie.
+ *     Resume       Resume a paused movie.
+ *  Default value: Play.
+**/
+  bool has_Operation() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Operation", "", NULL));
   }
 
   std::string Operation() const {

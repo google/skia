@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 10 halftone dictionary
 class SkPdfType10HalftoneDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType10HalftoneDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfType10HalftoneDictionary& operator=(const SkPdfType10HalftoneDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if
+ *  present, must be Halftone for a halftone dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A code identifying the halftone type that this dictionary
+ *  describes; must be 10 for this type of halftone.
+**/
+  bool has_HalftoneType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
   long HalftoneType() const {
@@ -535,11 +550,23 @@ public:
     return 0;
   }
 
+/** (Optional) The name of the halftone dictionary.
+**/
+  bool has_HalftoneName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
+  }
+
   std::string HalftoneName() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The side of square X, in device pixels; see below.
+**/
+  bool has_Xsquare() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Xsquare", "", NULL));
   }
 
   long Xsquare() const {
@@ -549,11 +576,29 @@ public:
     return 0;
   }
 
+/** (Required) The side of square Y, in device pixels; see below.
+**/
+  bool has_Ysquare() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ysquare", "", NULL));
+  }
+
   long Ysquare() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ysquare", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A transfer function, which overrides the current transfer
+ *  function in the graphics state for the same component. This entry is
+ *  required if the dictionary is a component of a type 5 halftone (see
+ *  "Type 5 Halftones" on page 400) and represents either a nonprimary
+ *  or nonstandard primary color component (see Section 6.3, "Transfer
+ *  Functions"). The name Identity may be used to specify the identity
+ *  function.
+**/
+  bool has_TransferFunction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", NULL));
   }
 
   bool isTransferFunctionAFunction() const {

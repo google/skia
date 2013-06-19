@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a Mac OS file information dictionary
 class SkPdfMacOsFileInformationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMacOsFileInformationDictionary_SkPdfObjectType;}
@@ -521,6 +522,12 @@ public:
 
   SkPdfMacOsFileInformationDictionary& operator=(const SkPdfMacOsFileInformationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The embedded file's file type.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
@@ -528,11 +535,23 @@ public:
     return "";
   }
 
+/** (Optional) The embedded file's creator signature.
+**/
+  bool has_Creator() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", NULL));
+  }
+
   std::string Creator() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The binary contents of the embedded file's resource fork.
+**/
+  bool has_ResFork() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ResFork", "", NULL));
   }
 
   SkPdfStream ResFork() const {

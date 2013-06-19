@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a page-piece dictionary
 class SkPdfPagePieceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPagePieceDictionary_SkPdfObjectType;}
@@ -521,10 +522,13 @@ public:
 
   SkPdfPagePieceDictionary& operator=(const SkPdfPagePieceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** ()An application data dictionary (see Table 9.7).
+**/
 /*
   bool has_[any_application_name_or_well_known_data_type]() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_application_name_or_well_known_data_type]", "", NULL));
   }
+
   SkPdfDictionary* [any_application_name_or_well_known_data_type]() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_application_name_or_well_known_data_type]", "", &ret)) return ret;

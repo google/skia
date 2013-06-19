@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an FDF page dictionary
 class SkPdfFDFPageDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFPageDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfFDFPageDictionary& operator=(const SkPdfFDFPageDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of FDF template dictionaries (see Table 8.75) describing the
+ *  named pages that serve as templates on the page.
+**/
+  bool has_Templates() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", NULL));
+  }
+
   SkPdfArray Templates() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) An FDF page information dictionary containing additional informa-
+ *  tion about the page. At the time of publication, no entries have been defined for
+ *  this dictionary.
+**/
+  bool has_Info() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
   }
 
   SkPdfDictionary* Info() const {

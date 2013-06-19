@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Standard layout attributes specific to inline-level structure elements
 class SkPdfInlineLevelStructureElementsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kInlineLevelStructureElementsDictionary_SkPdfObjectType;}
@@ -520,6 +521,22 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfInlineLevelStructureElementsDictionary& operator=(const SkPdfInlineLevelStructureElementsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional) The element's preferred height, measured in default user space
+ *  units in the block-progression direction. The height of a line is deter-
+ *  mined by the largest LineHeight value for any complete or partial ILSE
+ *  that it contains.
+ *  The name Normal or Auto in place of a numeric value indicates that no
+ *  specific height constraint is to be imposed; the element's height is set to a
+ *  reasonable value based on the content's font size:
+ *      Normal         Adjust the line height to include any nonzero value
+ *                     specified for BaselineShift (see below).
+ *      Auto           Do not adjust for the value of BaselineShift.
+ *  Default value: Normal.
+**/
+  bool has_LineHeight() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LineHeight", "", NULL));
+  }
 
   bool isLineHeightANumber() const {
     SkPdfObject* ret = NULL;

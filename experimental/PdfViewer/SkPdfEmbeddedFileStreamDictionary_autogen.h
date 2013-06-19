@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries in an embedded file stream dictionary
 class SkPdfEmbeddedFileStreamDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kEmbeddedFileStreamDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfEmbeddedFileStreamDictionary& operator=(const SkPdfEmbeddedFileStreamDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be EmbeddedFile for an embedded file stream.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,30 @@ public:
     return "";
   }
 
+/** (Optional) The subtype of the embedded file. The value of this entry must be
+ *  a first-class name, as defined in Appendix E. Names without a registered pre-
+ *  fix must conform to the MIME media type names defined in Internet RFC
+ *  2046, Multipurpose Internet Mail Extensions (MIME), Part Two: Media Types
+ *  (see the Bibliography), with the provision that characters not allowed in
+ *  names must use the 2-character hexadecimal code format described in Sec-
+ *  tion 3.2.4, "Name Objects."
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An embedded file parameter dictionary containing additional, file-
+ *  specific information (see Table 3.34).
+**/
+  bool has_Params() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Params", "", NULL));
   }
 
   SkPdfDictionary* Params() const {

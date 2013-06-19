@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a square or circle annotation
 class SkPdfSquareOrCircleAnnotation : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSquareOrCircleAnnotation_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfSquareOrCircleAnnotation& operator=(const SkPdfSquareOrCircleAnnotation& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Square
+ *  or Circle for a square or circle annotation, respectively.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The text to be displayed in the pop-up window when the annotation
+ *  is opened. Carriage returns may be used to separate the text into paragraphs.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +550,30 @@ public:
     return "";
   }
 
+/** (Optional) A border style dictionary (see Table 8.12 on page 495) specifying the
+ *  line width and dash pattern to be used in drawing the rectangle or ellipse.
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
+ *  Rect and BS entries; see Table 8.10 on page 490 and Section 8.4.4, "Appearance
+ *  Streams."
+**/
+  bool has_BS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
+  }
+
   SkPdfDictionary* BS() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0 specifying
+ *  the components, in the DeviceRGB color space, of the interior color with which to
+ *  fill the annotation's rectangle or ellipse (see Table 8.19). If this entry is absent,
+ *  the interior of the annotation is left transparent.
+**/
+  bool has_IC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", NULL));
   }
 
   SkPdfArray IC() const {

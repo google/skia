@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a type 1 halftone dictionary
 class SkPdfType1HalftoneDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType1HalftoneDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfType1HalftoneDictionary& operator=(const SkPdfType1HalftoneDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if
+ *  present, must be Halftone for a halftone dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A code identifying the halftone type that this dictionary
+ *  describes; must be 1 for this type of halftone.
+**/
+  bool has_HalftoneType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
   long HalftoneType() const {
@@ -535,11 +550,24 @@ public:
     return 0;
   }
 
+/** (Optional) The name of the halftone dictionary.
+**/
+  bool has_HalftoneName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
+  }
+
   std::string HalftoneName() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The screen frequency, measured in halftone cells per inch in
+ *  device space.
+**/
+  bool has_Frequency() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Frequency", "", NULL));
   }
 
   double Frequency() const {
@@ -549,11 +577,29 @@ public:
     return 0;
   }
 
+/** (Required) The screen angle, in degrees of rotation counterclockwise
+ *  with respect to the device coordinate system. (Note that most output
+ *  devices have left-handed device spaces; on such devices, a counter-
+ *  clockwise angle in device space will correspond to a clockwise angle in
+ *  default user space and on the physical medium.)
+**/
+  bool has_Angle() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Angle", "", NULL));
+  }
+
   double Angle() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Angle", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required) A function object defining the order in which device pixels
+ *  within a screen cell are adjusted for different gray levels, or the name of
+ *  one of the predefined spot functions (see Table 6.1 on page 385).
+**/
+  bool has_SpotFunction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpotFunction", "", NULL));
   }
 
   bool isSpotFunctionAFunction() const {
@@ -582,11 +628,31 @@ public:
     return "";
   }
 
+/** (Optional) A flag specifying whether to invoke a special halftone al-
+ *  gorithm that is extremely precise, but computationally expensive; see
+ *  below for further discussion. Default value: false.
+**/
+  bool has_AccurateScreens() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AccurateScreens", "", NULL));
+  }
+
   bool AccurateScreens() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AccurateScreens", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) A transfer function, which overrides the current transfer
+ *  function in the graphics state for the same component. This entry is
+ *  required if the dictionary is a component of a type 5 halftone (see
+ *  "Type 5 Halftones" on page 400) and represents either a nonprimary
+ *  or nonstandard primary color component (see Section 6.3, "Transfer
+ *  Functions"). The name Identity may be used to specify the identity
+ *  function.
+**/
+  bool has_TransferFunction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", NULL));
   }
 
   bool isTransferFunctionAFunction() const {

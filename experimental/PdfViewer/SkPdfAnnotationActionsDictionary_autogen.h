@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an annotation's additional-actions dictionary
 class SkPdfAnnotationActionsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAnnotationActionsDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfAnnotationActionsDictionary& operator=(const SkPdfAnnotationActionsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.2) An action to be performed when the cursor enters the annotation's
+ *  active area.
+**/
+  bool has_E() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
+  }
+
   SkPdfDictionary* E() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2) An action to be performed when the cursor exits the annotation's
+ *  active area.
+**/
+  bool has_X() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "X", "", NULL));
   }
 
   SkPdfDictionary* X() const {
@@ -535,11 +550,27 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2) An action to be performed when the mouse button is pressed
+ *  inside the annotation's active area. (The name D stands for "down.")
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
+  }
+
   SkPdfDictionary* D() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2) An action to be performed when the mouse button is released
+ *  inside the annotation's active area. (The name U stands for "up.")
+ *  Note: For backward compatibility, the A entry in an annotation dictionary, if present,
+ *  takes precedence over this entry (see Table 8.10 on page 490).
+**/
+  bool has_U() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
   }
 
   SkPdfDictionary* U() const {
@@ -549,11 +580,26 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2; widget annotations only) An action to be performed when the
+ *  annotation receives the input focus.
+**/
+  bool has_Fo() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fo", "", NULL));
+  }
+
   SkPdfDictionary* Fo() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fo", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2; widget annotations only) (Uppercase B, lowercase L) An action to
+ *  be performed when the annotation loses the input focus. (The name Bl stands for
+ *  "blurred.")
+**/
+  bool has_Bl() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bl", "", NULL));
   }
 
   SkPdfDictionary* Bl() const {

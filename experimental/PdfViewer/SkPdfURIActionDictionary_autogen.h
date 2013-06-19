@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a URI action
 class SkPdfURIActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kURIActionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfURIActionDictionary& operator=(const SkPdfURIActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be URI for a URI
+ *  action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
@@ -528,11 +536,27 @@ public:
     return "";
   }
 
+/** (Required) The uniform resource identifier to resolve, encoded in 7-bit ASCII.
+**/
+  bool has_URI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URI", "", NULL));
+  }
+
   std::string URI() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URI", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A flag specifying whether to track the mouse position when the URI is re-
+ *  solved (see below). Default value: false.
+ *  This entry applies only to actions triggered by the user's clicking an annotation; it is
+ *  ignored for actions associated with outline items or with a document's OpenAction
+ *  entry.
+**/
+  bool has_IsMap() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IsMap", "", NULL));
   }
 
   bool IsMap() const {

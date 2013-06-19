@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a launch action
 class SkPdfLaunchActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kLaunchActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfLaunchActionDictionary& operator=(const SkPdfLaunchActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Launch
+ *  for a launch action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required if none of the entries Win, Mac, or Unix is present) The application to
+ *  be launched or the document to be opened or printed. If this entry is absent
+ *  and the viewer application does not understand any of the alternative entries,
+ *  it should do nothing.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
   SkPdfFileSpec F() const {
@@ -535,11 +552,24 @@ public:
     return SkPdfFileSpec();
   }
 
+/** (Optional) A dictionary containing Windows-specific launch parameters (see
+ *  the Table 8.38; see also implementation note 73 in Appendix H).
+**/
+  bool has_Win() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Win", "", NULL));
+  }
+
   SkPdfDictionary* Win() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Win", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) Mac OS'specific launch parameters; not yet defined.
+**/
+  bool has_Mac() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", NULL));
   }
 
   SkPdfObject* Mac() const {
@@ -549,11 +579,28 @@ public:
     return NULL;
   }
 
+/** (Optional) UNIX-specific launch parameters; not yet defined.
+**/
+  bool has_Unix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Unix", "", NULL));
+  }
+
   SkPdfObject* Unix() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Unix", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2) A flag specifying whether to open the destination docu-
+ *  ment in a new window. If this flag is false, the destination document will
+ *  replace the current document in the same window. If this entry is absent, the
+ *  viewer application should behave in accordance with the current user prefer-
+ *  ence. This entry is ignored if the file designated by the F entry is not a PDF
+ *  document.
+**/
+  bool has_NewWindow() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NewWindow", "", NULL));
   }
 
   bool NewWindow() const {

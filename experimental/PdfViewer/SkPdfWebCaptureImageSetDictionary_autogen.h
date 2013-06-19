@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a Web Capture image set
 class SkPdfWebCaptureImageSetDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCaptureImageSetDictionary_SkPdfObjectType;}
@@ -521,11 +522,29 @@ public:
 
   SkPdfWebCaptureImageSetDictionary& operator=(const SkPdfWebCaptureImageSetDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The subtype of content set that this dictionary describes; must be SIS ("Spider
+ *  image set") for an image set.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The reference counts (see below) for the image XObjects belonging to the
+ *  image set. For an image set containing a single XObject, the value is simply the integer
+ *  reference count for that XObject. If the image set contains multiple XObjects, the value is
+ *  an array of reference counts parallel to the O array (see Table 9.33 on page 668); that is,
+ *  each element in the R array holds the reference count for the image XObject at the corre-
+ *  sponding position in the O array.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
   }
 
   bool isRAInteger() const {

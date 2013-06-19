@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a source information dictionary
 class SkPdfSourceInformationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSourceInformationDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfSourceInformationDictionary& operator=(const SkPdfSourceInformationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) A string or URL alias dictionary (see "URL Alias Dictionaries," below)
+ *  identifying the URLs from which the source data was retrieved.
+**/
+  bool has_AU() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AU", "", NULL));
+  }
+
   bool isAUAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AU", "", &ret)) return false;
@@ -547,11 +555,25 @@ public:
     return NULL;
   }
 
+/** (Optional) A time stamp giving the most recent date and time at which the content
+ *  set's contents were known to be up to date with the source data.
+**/
+  bool has_TS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TS", "", NULL));
+  }
+
   SkPdfDate TS() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TS", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfDate();
+  }
+
+/** (Optional) An expiration stamp giving the date and time at which the content set's
+ *  contents should be considered out of date with the source data.
+**/
+  bool has_E() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
   }
 
   SkPdfDate E() const {
@@ -561,11 +583,32 @@ public:
     return SkPdfDate();
   }
 
+/** (Optional) A code indicating the type of form submission, if any, by which the source
+ *  data was accessed (see "Submit-Form Actions" on page 550):
+ *      0    Not accessed via a form submission
+ *      1    Accessed via an HTTP GET request
+ *      2    Accessed via an HTTP POST request
+ *  This entry should be present only in source information dictionaries associated with
+ *  page sets. Default value: 0.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   long S() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; must be an indirect reference) A command dictionary (see "Command Dic-
+ *  tionaries" on page 672) describing the command that caused the source data to be
+ *  retrieved. This entry should be present only in source information dictionaries associ-
+ *  ated with page sets.
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfDictionary* C() const {

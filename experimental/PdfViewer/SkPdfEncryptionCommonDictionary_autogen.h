@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all encryption dictionaries
 class SkPdfEncryptionCommonDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kEncryptionCommonDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfEncryptionCommonDictionary& operator=(const SkPdfEncryptionCommonDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The name of the security handler for this document; see below. Default value:
+ *  Standard, for the built-in security handler. (Names for other security handlers can be
+ *  registered using the procedure described in Appendix E.)
+**/
+  bool has_Filter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", NULL));
+  }
+
   std::string Filter() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", &ret)) return ret;
@@ -528,11 +537,35 @@ public:
     return "";
   }
 
+/** (Optional but strongly recommended) A code specifying the algorithm to be used in en-
+ *  crypting and decrypting the document:
+ *     0     An algorithm that is undocumented and no longer supported, and whose use is
+ *           strongly discouraged.
+ *     1     Algorithm 3.1 on page 73, with an encryption key length of 40 bits; see below.
+ *     2     (PDF 1.4) Algorithm 3.1 on page 73, but allowing encryption key lengths greater
+ *           than 40 bits.
+ *     3     (PDF 1.4) An unpublished algorithm allowing encryption key lengths ranging
+ *           from 40 to 128 bits. (This algorithm is unpublished as an export requirement of
+ *           the U.S. Department of Commerce.)
+ *  The default value if this entry is omitted is 0, but a value of 1 or greater is strongly rec-
+ *  ommended. (See implementation note 15 in Appendix H.)
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
+  }
+
   double V() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.4; only if V is 2 or 3) The length of the encryption key, in bits. The value
+ *  must be a multiple of 8, in the range 40 to 128. Default value: 40.
+**/
+  bool has_Length() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length", "", NULL));
   }
 
   long Length() const {

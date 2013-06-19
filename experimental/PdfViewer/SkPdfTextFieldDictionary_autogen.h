@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry specific to a text field
 class SkPdfTextFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTextFieldDictionary_SkPdfObjectType;}
@@ -520,6 +521,12 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfTextFieldDictionary& operator=(const SkPdfTextFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional; inheritable) The maximum length of the field's text, in characters.
+**/
+  bool has_MaxLen() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MaxLen", "", NULL));
+  }
 
   long MaxLen() const {
     long ret;

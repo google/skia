@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Standard list attribute
 class SkPdfListAttributeDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kListAttributeDictionary_SkPdfObjectType;}
@@ -520,6 +521,29 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfListAttributeDictionary& operator=(const SkPdfListAttributeDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional) The numbering system used to generate the content of the Lbl (Label)
+ *  elements in an autonumbered list, or the symbol used to identify each item in an
+ *  unnumbered list:
+ *      None              No autonumbering; Lbl elements (if present) contain arbi-
+ *                        trary text not subject to any numbering scheme
+ *      Disc              Solid circular bullet
+ *      Circle            Open circular bullet
+ *      Square            Solid square bullet
+ *      Decimal           Decimal arabic numerals (1'9, 10'99, ...)
+ *      UpperRoman        Uppercase roman numerals (I, II, III, IV, ...)
+ *      LowerRoman        Lowercase roman numerals (i, ii, iii, iv, ...)
+ *      UpperAlpha        Uppercase letters (A, B, C, ...)
+ *      LowerAlpha        Lowercase letters (a, b, c, ...)
+ *  Default value: None.
+ *  Note: The alphabet used for UpperAlpha and LowerAlpha is determined by the pre-
+ *  vailing Lang entry (see Section 9.8.1, "Natural Language Specification").
+ *  Note: The set of possible values may be expanded as Unicode identifies additional
+ *  numbering systems.
+**/
+  bool has_ListNumbering() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ListNumbering", "", NULL));
+  }
 
   std::string ListNumbering() const {
     std::string ret;

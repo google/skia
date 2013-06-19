@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an outline item dictionary
 class SkPdfOutlineItemDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kOutlineItemDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfOutlineItemDictionary& operator=(const SkPdfOutlineItemDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The text to be displayed on the screen for this item.
+**/
+  bool has_Title() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", NULL));
+  }
+
   std::string Title() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required; must be an indirect reference) The parent of this item in the outline
+ *  hierarchy. The parent of a top-level item is the outline dictionary itself.
+**/
+  bool has_Parent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
   }
 
   SkPdfDictionary* Parent() const {
@@ -535,11 +549,25 @@ public:
     return NULL;
   }
 
+/** (Required for all but the first item at each level; must be an indirect reference)
+ *  The previous item at this outline level.
+**/
+  bool has_Prev() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", NULL));
+  }
+
   SkPdfDictionary* Prev() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required for all but the last item at each level; must be an indirect reference)
+ *  The next item at this outline level.
+**/
+  bool has_Next() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Next", "", NULL));
   }
 
   SkPdfDictionary* Next() const {
@@ -549,11 +577,25 @@ public:
     return NULL;
   }
 
+/** (Required if the item has any descendants; must be an indirect reference) The
+ *  first of this item's immediate children in the outline hierarchy.
+**/
+  bool has_First() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "First", "", NULL));
+  }
+
   SkPdfDictionary* First() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "First", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required if the item has any descendants; must be an indirect reference) The
+ *  last of this item's immediate children in the outline hierarchy.
+**/
+  bool has_Last() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Last", "", NULL));
   }
 
   SkPdfDictionary* Last() const {
@@ -563,11 +605,28 @@ public:
     return NULL;
   }
 
+/** (Required if the item has any descendants) If the item is open, the total num-
+ *  ber of its open descendants at all lower levels of the outline hierarchy. If the
+ *  item is closed, a negative integer whose absolute value specifies how many
+ *  descendants would appear if the item were reopened.
+**/
+  bool has_Count() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Count", "", NULL));
+  }
+
   long Count() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Count", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; not permitted if an A entry is present) The destination to be
+ *  displayed when this item is activated (see Section 8.2.1, "Destinations"; see
+ *  also implementation note 56 in Appendix H).
+**/
+  bool has_Dest() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", NULL));
   }
 
   bool isDestAName() const {
@@ -609,11 +668,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; PDF 1.1; not permitted if a Dest entry is present) The action to be
+ *  performed when this item is activated (see Section 8.5, "Actions").
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
+  }
+
   SkPdfDictionary* A() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3; must be an indirect reference) The structure element to
+ *  which the item refers (see Section 9.6.1, "Structure Hierarchy").
+ *  Note: The ability to associate an outline item with a structure element (such as
+ *  the beginning of a chapter) is a PDF 1.3 feature. For backward compatibility
+ *  with earlier PDF versions, such an item should also specify a destination (Dest)
+ *  corresponding to an area of a page where the contents of the designated structure
+ *  element are displayed.
+**/
+  bool has_SE() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SE", "", NULL));
   }
 
   SkPdfDictionary* SE() const {
@@ -623,11 +701,26 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0, repre-
+ *  senting the components in the DeviceRGB color space of the color to be used
+ *  for the outline entry's text. Default value: [0.0 0.0 0.0].
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
+  }
+
   SkPdfArray C() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.4) A set of flags specifying style characteristics for display-
+ *  ing the outline item's text (see Table 8.5). Default value: 0.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
   long F() const {

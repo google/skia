@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the interactive form dictionary
 class SkPdfInteractiveFormDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kInteractiveFormDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfInteractiveFormDictionary& operator=(const SkPdfInteractiveFormDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of references to the document's root fields (those with
+ *  no ancestors in the field hierarchy).
+**/
+  bool has_Fields() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
+  }
+
   SkPdfArray Fields() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A flag specifying whether to construct appearance streams and
+ *  appearance dictionaries for all widget annotations in the document (see
+ *  "Variable Text" on page 533). Default value: false.
+**/
+  bool has_NeedAppearances() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NeedAppearances", "", NULL));
   }
 
   bool NeedAppearances() const {
@@ -535,11 +551,29 @@ public:
     return false;
   }
 
+/** (Optional; PDF 1.3) A set of flags specifying various document-level char-
+ *  acteristics related to signature fields (see Table 8.48, below, and "Signature
+ *  Fields" on page 547). Default value: 0.
+**/
+  bool has_SigFlags() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SigFlags", "", NULL));
+  }
+
   long SigFlags() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SigFlags", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required if any fields in the document have additional-actions dictionaries
+ *  containing a C entry; PDF 1.3) An array of indirect references to field dic-
+ *  tionaries with calculation actions, defining the calculation order in which
+ *  their values will be recalculated when the value of any field changes (see
+ *  Section 8.5.2, "Trigger Events").
+**/
+  bool has_CO() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", NULL));
   }
 
   SkPdfArray CO() const {
@@ -549,6 +583,13 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) A document-wide default value for the DR attribute of variable
+ *  text fields (see "Variable Text" on page 533).
+**/
+  bool has_DR() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", NULL));
+  }
+
   SkPdfDictionary* DR() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", &ret)) return ret;
@@ -556,11 +597,25 @@ public:
     return NULL;
   }
 
+/** (Optional) A document-wide default value for the DA attribute of variable
+ *  text fields (see "Variable Text" on page 533).
+**/
+  bool has_DA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
+  }
+
   std::string DA() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A document-wide default value for the Q attribute of variable
+ *  text fields (see "Variable Text" on page 533).
+**/
+  bool has_Q() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
   long Q() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the outline dictionary
 class SkPdfOutlineDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kOutlineDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfOutlineDictionary& operator=(const SkPdfOutlineDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Outlines for an outline dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required; must be an indirect reference) An outline item dictionary represent-
+ *  ing the first top-level item in the outline.
+**/
+  bool has_First() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "First", "", NULL));
   }
 
   SkPdfDictionary* First() const {
@@ -535,11 +550,26 @@ public:
     return NULL;
   }
 
+/** (Required; must be an indirect reference) An outline item dictionary represent-
+ *  ing the last top-level item in the outline.
+**/
+  bool has_Last() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Last", "", NULL));
+  }
+
   SkPdfDictionary* Last() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Last", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required if the document has any open outline entries) The total number of
+ *  open items at all levels of the outline. This entry should be omitted if there
+ *  are no open outline items.
+**/
+  bool has_Count() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Count", "", NULL));
   }
 
   long Count() const {

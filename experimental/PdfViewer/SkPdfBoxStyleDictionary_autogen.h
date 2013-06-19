@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a box style dictionary
 class SkPdfBoxStyleDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kBoxStyleDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfBoxStyleDictionary& operator=(const SkPdfBoxStyleDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of three numbers in the range 0.0 to 1.0, representing the com-
+ *  ponents in the DeviceRGB color space of the color to be used for displaying the
+ *  guidelines. Default value: [0.0 0.0 0.0].
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
+  }
+
   SkPdfArray C() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) The guideline width in default user space units. Default value: 1.
+**/
+  bool has_W() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", NULL));
   }
 
   double W() const {
@@ -535,11 +550,32 @@ public:
     return 0;
   }
 
+/** (Optional) The guideline style:
+ *      S    (Solid) A solid rectangle.
+ *      D    (Dashed) A dashed rectangle. The dash pattern is specified by the D entry
+ *           (see below).
+ *  Other guideline styles may be defined in the future. Default value: S.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A dash array defining a pattern of dashes and gaps to be used in drawing
+ *  dashed guidelines (guideline style D above). The dash array is specified in default
+ *  user space units, in the same format as in the line dash pattern parameter of the
+ *  graphics state (see "Line Dash Pattern" on page 155). The dash phase is not speci-
+ *  fied and is assumed to be 0. For example, a D entry of [3 2] specifies guidelines
+ *  drawn with 3-point dashes alternating with 2-point gaps. Default value: [3].
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   SkPdfArray D() const {

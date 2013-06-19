@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all Web Capture content sets
 class SkPdfWebCaptureDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCaptureDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfWebCaptureDictionary& operator=(const SkPdfWebCaptureDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  SpiderContentSet for a Web Capture content set.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The subtype of content set that this dictionary describes:
+ *     SPS     ("Spider page set") A page set
+ *     SIS     ("Spider image set") An image set
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {
@@ -535,6 +551,14 @@ public:
     return "";
   }
 
+/** (Required) The digital identifier of the content set (see "Digital Identifiers" on page
+ *  664). If the content set has been located via the URLS name tree, this allows its related
+ *  entry in the IDS name tree to be found.
+**/
+  bool has_ID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
+  }
+
   std::string ID() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
@@ -542,11 +566,27 @@ public:
     return "";
   }
 
+/** (Required) An array of indirect references to the objects belonging to the content set.
+ *  The order of objects in the array is undefined in general, but may be restricted by spe-
+ *  cific content set subtypes.
+**/
+  bool has_O() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
+  }
+
   SkPdfArray O() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) A source information dictionary (see Section 9.9.4, "Source Information"),
+ *  or an array of such dictionaries, describing the sources from which the objects belong-
+ *  ing to the content set were created.
+**/
+  bool has_SI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SI", "", NULL));
   }
 
   bool isSIADictionary() const {
@@ -575,11 +615,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) The content type, a string characterizing the source from which the objects
+ *  belonging to the content set were created. The string should conform to the content
+ *  type specification described in Internet RFC 2045, Multipurpose Internet Mail Exten-
+ *  sions (MIME) Part One: Format of Internet Message Bodies (see the Bibliography). For
+ *  example, for a page set consisting of a group of PDF pages created from an HTML file,
+ *  the content type would be text/html.
+**/
+  bool has_CT() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", NULL));
+  }
+
   std::string CT() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A time stamp giving the date and time at which the content set was created.
+**/
+  bool has_TS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TS", "", NULL));
   }
 
   SkPdfDate TS() const {

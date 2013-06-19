@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Optional parameter for the JBIG2Decode filter
 class SkPdfJbig2DecodeFilterDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kJbig2DecodeFilterDictionary_SkPdfObjectType;}
@@ -520,6 +521,14 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfJbig2DecodeFilterDictionary& operator=(const SkPdfJbig2DecodeFilterDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** ()A stream containing the JBIG2 global (page 0) segments. Global segments
+ *  must be placed in this stream even if only a single JBIG2 image XObject refers
+ *  to it.
+**/
+  bool has_JBIG2Globals() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JBIG2Globals", "", NULL));
+  }
 
   SkPdfStream JBIG2Globals() const {
     SkPdfStream ret;

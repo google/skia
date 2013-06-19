@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all action dictionaries
 class SkPdfActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kActionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfActionDictionary& operator=(const SkPdfActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if
+ *  present, must be Action for an action dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,27 @@ public:
     return "";
   }
 
+/** (Required) The type of action that this dictionary describes; see Table 8.34
+ *  on page 518 for specific values.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.2) The next action, or sequence of actions, to be per-
+ *  formed after this one. The value is either a single action dictionary or an
+ *  array of action dictionaries to be performed in order; see below for fur-
+ *  ther discussion.
+**/
+  bool has_Next() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Next", "", NULL));
   }
 
   bool isNextADictionary() const {

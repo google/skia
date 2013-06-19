@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a CalGray color space dictionary
 class SkPdfCalgrayColorSpaceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCalgrayColorSpaceDictionary_SkPdfObjectType;}
@@ -521,6 +522,15 @@ public:
 
   SkPdfCalgrayColorSpaceDictionary& operator=(const SkPdfCalgrayColorSpaceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of three numbers [XW YW ZW ] specifying the tri-
+ *  stimulus value, in the CIE 1931 XYZ space, of the diffuse white point; see
+ *  "CalRGB Color Spaces," below, for further discussion. The numbers XW and
+ *  ZW must be positive, and YW must be equal to 1.0.
+**/
+  bool has_WhitePoint() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", NULL));
+  }
+
   SkPdfArray WhitePoint() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", &ret)) return ret;
@@ -528,11 +538,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of three numbers [ XB YB ZB ] specifying the tristimulus
+ *  value, in the CIE 1931 XYZ space, of the diffuse black point; see "CalRGB
+ *  Color Spaces," below, for further discussion. All three of these numbers must
+ *  be nonnegative. Default value: [0.0 0.0 0.0].
+**/
+  bool has_BlackPoint() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", NULL));
+  }
+
   SkPdfArray BlackPoint() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A number G defining the gamma for the gray (A) component. G
+ *  must be positive and will generally be greater than or equal to 1. Default
+ *  value: 1.
+**/
+  bool has_Gamma() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", NULL));
   }
 
   double Gamma() const {

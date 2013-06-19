@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a thread action
 class SkPdfThreadActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kThreadActionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfThreadActionDictionary& operator=(const SkPdfThreadActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Thread
+ *  for a thread action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
@@ -528,11 +536,33 @@ public:
     return "";
   }
 
+/** (Optional) The file containing the desired thread. If this entry is absent, the
+ *  thread is in the current file.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfFileSpec F() const {
     SkPdfFileSpec ret;
     if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFileSpec();
+  }
+
+/** (Required) The desired destination thread, specified in one of the following
+ *  forms:
+ *  *  An indirect reference to a thread dictionary (see Section 8.3.2, "Articles").
+ *     In this case, the thread must be in the current file.
+ *  *  The index of the thread within the Threads array of its document's catalog
+ *     (see Section 3.6.1, "Document Catalog"). The first thread in the array has
+ *     index 0.
+ *  *  The title of the thread, as specified in its thread information dictionary (see
+ *     Table 8.7 on page 484). If two or more threads have the same title, the one
+ *     appearing first in the document catalog's Threads array will be used.
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   bool isDADictionary() const {
@@ -572,6 +602,17 @@ public:
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The desired bead in the destination thread, specified in one of the
+ *  following forms:
+ *  *  An indirect reference to a bead dictionary (see Section 8.3.2, "Articles"). In
+ *     this case, the thread must be in the current file.
+ *  *  The index of the bead within its thread. The first bead in a thread has
+ *     index 0.
+**/
+  bool has_B() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", NULL));
   }
 
   bool isBADictionary() const {

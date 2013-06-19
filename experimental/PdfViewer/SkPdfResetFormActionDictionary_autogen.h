@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a reset-form action
 class SkPdfResetFormActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kResetFormActionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfResetFormActionDictionary& operator=(const SkPdfResetFormActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be
+ *  ResetForm for a reset-form action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
@@ -528,11 +536,31 @@ public:
     return "";
   }
 
+/** (Optional) An array identifying which fields to reset or which to exclude
+ *  from resetting, depending on the setting of the Include/Exclude flag in
+ *  the Flags entry (see Table 8.64). Each element of the array is either an in-
+ *  direct reference to a field dictionary or (PDF 1.3) a string representing
+ *  the fully qualified name of a field. Elements of both kinds may be mixed
+ *  in the same array.
+ *  If this entry is omitted, the Include/Exclude flag is ignored; all fields in
+ *  the document's interactive form are reset.
+**/
+  bool has_Fields() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
+  }
+
   SkPdfArray Fields() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; inheritable) A set of flags specifying various characteristics of
+ *  the action (see Table 8.64). Default value: 0.
+**/
+  bool has_Flags() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Flags", "", NULL));
   }
 
   long Flags() const {

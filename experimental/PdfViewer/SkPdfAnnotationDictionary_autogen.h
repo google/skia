@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all annotation dictionaries
 class SkPdfAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfAnnotationDictionary& operator=(const SkPdfAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Annot for an annotation dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The type of annotation that this dictionary describes; see Table
+ *  8.14 on page 499 for specific values.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
   std::string Subtype() const {
@@ -535,11 +550,29 @@ public:
     return "";
   }
 
+/** (Required or optional, depending on the annotation type) Text to be displayed
+ *  for the annotation or, if this type of annotation does not display text, an al-
+ *  ternate description of the annotation's contents in human-readable form. In
+ *  either case, this text is useful when extracting the document's contents in
+ *  support of accessibility to disabled users or for other purposes (see Section
+ *  9.8.2, "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.3; not used in FDF files) An indirect reference to the page
+ *  object with which this annotation is associated.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
   SkPdfDictionary* P() const {
@@ -549,11 +582,34 @@ public:
     return NULL;
   }
 
+/** (Required) The annotation rectangle, defining the location of the annotation
+ *  on the page in default user space units.
+**/
+  bool has_Rect() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rect", "", NULL));
+  }
+
   SkRect Rect() const {
     SkRect ret;
     if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rect", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkRect();
+  }
+
+/** (Optional; PDF 1.4) The annotation name, a text string uniquely identifying
+ *  it among all the annotations on its page.
+**/
+  bool has_NM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NM", "", NULL));
+  }
+
+/** (Optional; PDF 1.1) The date and time when the annotation was most
+ *  recently modified. The preferred format is a date string as described in Sec-
+ *  tion 3.8.2, "Dates," but viewer applications should be prepared to accept and
+ *  display a string in any format. (See implementation note 59 in Appendix H.)
+**/
+  bool has_M() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", NULL));
   }
 
   bool isMADate() const {
@@ -582,11 +638,29 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.1) A set of flags specifying various characteristics of the an-
+ *  notation (see Section 8.4.2, "Annotation Flags"). Default value: 0.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   long F() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.2) A border style dictionary specifying the characteristics of
+ *  the annotation's border (see Section 8.4.3, "Border Styles"; see also imple-
+ *  mentation note 60 in Appendix H).
+ *  Note: This entry also specifies the width and dash pattern for the lines drawn by
+ *  line, square, circle, and ink annotations. See the note under Border (below) for
+ *  additional information.
+**/
+  bool has_BS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
   }
 
   SkPdfDictionary* BS() const {
@@ -596,11 +670,46 @@ public:
     return NULL;
   }
 
+/** (Optional) An array specifying the characteristics of the annotation's border.
+ *  The border is specified as a "rounded rectangle."
+ *  In PDF 1.0, the array consists of three numbers defining the horizontal cor-
+ *  ner radius, vertical corner radius, and border width, all in default user space
+ *  units. If the corner radii are 0, the border has square (not rounded) corners;
+ *  if the border width is 0, no border is drawn. (See implementation note 61 in
+ *  Appendix H.)
+ *    In PDF 1.1, the array may have a fourth element, an optional dash array
+ *    defining a pattern of dashes and gaps to be used in drawing the border. The
+ *    dash array is specified in the same format as in the line dash pattern parame-
+ *    ter of the graphics state (see "Line Dash Pattern" on page 155). For example,
+ *    a Border value of [0 0 1 [3 2]] specifies a border 1 unit wide, with square
+ *    corners, drawn with 3-unit dashes alternating with 2-unit gaps. Note that no
+ *    dash phase is specified; the phase is assumed to be 0. (See implementation
+ *    note 62 in Appendix H.)
+ *    Note: In PDF 1.2 or later, annotations may ignore this entry and use the BS
+ *    entry (see above) to specify their border styles instead. In PDF 1.2 and 1.3, only
+ *    widget annotations do so; in PDF 1.4, all of the standard annotation types ex-
+ *    cept Link (see Table 8.14 on page 499) use BS rather than Border if both are
+ *    present. For backward compatibility, however, Border is still supported for all
+ *    annotation types.
+ *    Default value: [0 0 1].
+**/
+  bool has_Border() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Border", "", NULL));
+  }
+
   SkPdfArray Border() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Border", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.2) An appearance dictionary specifying how the annotation
+ *  is presented visually on the page (see Section 8.4.4, "Appearance Streams";
+ *  see also implementation note 60 in Appendix H).
+**/
+  bool has_AP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", NULL));
   }
 
   SkPdfDictionary* AP() const {
@@ -610,11 +719,31 @@ public:
     return NULL;
   }
 
+/** (Required if the appearance dictionary AP contains one or more subdictionaries;
+ *  PDF 1.2) The annotation's appearance state, which selects the applicable
+ *  appearance stream from an appearance subdictionary (see Section 8.4.4,
+ *  "Appearance Streams"; see also implementation note 60 in Appendix H).
+**/
+  bool has_AS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AS", "", NULL));
+  }
+
   std::string AS() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AS", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.1) An array of three numbers in the range 0.0 to 1.0, repre-
+ *  senting the components of a color in the DeviceRGB color space. This color
+ *  will be used for the following purposes:
+ *  *  The background of the annotation's icon when closed
+ *  *  The title bar of the annotation's pop-up window
+ *  *  The border of a link annotation
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfArray C() const {
@@ -624,11 +753,39 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; PDF 1.4) The constant opacity value to be used in painting the
+ *  annotation (see Sections 7.1, "Overview of Transparency," and 7.2.6, "Shape
+ *  and Opacity Computations"). This value applies to all visible elements of
+ *  the annotation in its closed state (including its background and border), but
+ *  not to the pop-up window that appears when the annotation is opened. The
+ *  specified value is used as the initial alpha constant (both stroking and non-
+ *  stroking) for interpreting the annotation's appearance stream, if any (see
+ *  Section 8.4.4, "Appearance Streams," and "Constant Shape and Opacity" on
+ *  page 444). The implicit blend mode (see Section 7.2.4, "Blend Mode") is
+ *  Normal. Default value: 1.0.
+ *                    Note: If no explicit appearance stream is defined for the annotation, it will be
+ *                    painted by implementation-dependent means that do not necessarily conform to
+ *                    the Adobe imaging model; in this case, the effect of this entry is implementation-
+ *                    dependent as well.
+ *                    Note: This entry is recognized by all of the standard annotation types listed in
+ *                    Table 8.14 on page 499 except Link, Movie, Widget, PrinterMark, and TrapNet.
+**/
+  bool has_CA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", NULL));
+  }
+
   double CA() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.1) The text label to be displayed in the title bar of the anno-
+ *  tation's pop-up window when open and active.
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   std::string T() const {
@@ -638,11 +795,28 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.3) An indirect reference to a pop-up annotation for enter-
+ *  ing or editing the text associated with this annotation.
+**/
+  bool has_Popup() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Popup", "", NULL));
+  }
+
   SkPdfDictionary* Popup() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Popup", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.1) An action to be performed when the annotation is acti-
+ *  vated (see Section 8.5, "Actions").
+ *  Note: This entry is not permitted in link annotations if a Dest entry is present
+ *  (see "Link Annotations" on page 501). Also note that the A entry in movie anno-
+ *  tations has a different meaning (see "Movie Annotations" on page 510).
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
   }
 
   SkPdfDictionary* A() const {
@@ -652,11 +826,28 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2) An additional-actions dictionary defining the anno-
+ *  tation's behavior in response to various trigger events (see Section 8.5.2,
+ *  "Trigger Events"). At the time of publication, this entry is used only by wid-
+ *  get annotations.
+**/
+  bool has_AA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
+  }
+
   SkPdfDictionary* AA() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required if the annotation is a structural content item; PDF 1.3) The integer
+ *  key of the annotation's entry in the structural parent tree (see "Finding Struc-
+ *  ture Elements from Content Items" on page 600).
+**/
+  bool has_StructParent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", NULL));
   }
 
   long StructParent() const {

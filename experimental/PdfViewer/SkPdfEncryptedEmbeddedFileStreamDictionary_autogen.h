@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry in an embedded file stream dictionary for an encrypted FDF file
 class SkPdfEncryptedEmbeddedFileStreamDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kEncryptedEmbeddedFileStreamDictionary_SkPdfObjectType;}
@@ -520,6 +521,14 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfEncryptedEmbeddedFileStreamDictionary& operator=(const SkPdfEncryptedEmbeddedFileStreamDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Required if the FDF file is encrypted; PDF 1.4) The revision number of the
+ *  FDF encryption algorithm used to encrypt the file. The only valid value
+ *  defined at the time of publication is 1.
+**/
+  bool has_EncryptionRevision() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EncryptionRevision", "", NULL));
+  }
 
   long EncryptionRevision() const {
     long ret;

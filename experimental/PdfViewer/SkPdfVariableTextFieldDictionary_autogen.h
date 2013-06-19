@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries common to all fields containing variable text
 class SkPdfVariableTextFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kVariableTextFieldDictionary_SkPdfObjectType;}
@@ -521,6 +522,16 @@ public:
 
   SkPdfVariableTextFieldDictionary& operator=(const SkPdfVariableTextFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required; inheritable) A resource dictionary (see Section 3.7.2, "Resource Diction-
+ *  aries") containing default resources (such as fonts, patterns, or color spaces) to be used
+ *  by the appearance stream. At a minimum, this dictionary must contain a Font entry
+ *  specifying the resource name and font dictionary of the default font for displaying the
+ *  field's text. (See implementation note 84 in Appendix H.)
+**/
+  bool has_DR() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", NULL));
+  }
+
   SkPdfDictionary* DR() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", &ret)) return ret;
@@ -528,11 +539,30 @@ public:
     return NULL;
   }
 
+/** (Required; inheritable) The default appearance string, containing a sequence of valid
+ *  page-content graphics or text state operators defining such properties as the field's text
+ *  size and color.
+**/
+  bool has_DA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
+  }
+
   std::string DA() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; inheritable) A code specifying the form of quadding (justification) to be
+ *  used in displaying the text:
+ *      0    Left-justified
+ *      1    Centered
+ *      2    Right-justified
+ *  Default value: 0 (left-justified).
+**/
+  bool has_Q() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
   long Q() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a free text annotation
 class SkPdfFreeTextAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFreeTextAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfFreeTextAnnotationDictionary& operator=(const SkPdfFreeTextAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be
+ *  FreeText for a free text annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The text to be displayed.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +549,31 @@ public:
     return "";
   }
 
+/** (Required) The default appearance string to be used in formatting the text (see
+ *  "Variable Text" on page 533).
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the DA
+ *  entry; see Table 8.10 on page 490 and Section 8.4.4, "Appearance Streams."
+**/
+  bool has_DA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
+  }
+
   std::string DA() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) A code specifying the form of quadding (justification) to be
+ *  used in displaying the annotation's text:
+ *     0     Left-justified
+ *     1     Centered
+ *     2     Right-justified
+ *  Default value: 0 (left-justified).
+**/
+  bool has_Q() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
   long Q() const {

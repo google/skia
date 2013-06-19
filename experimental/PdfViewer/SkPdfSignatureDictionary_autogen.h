@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a signature dictionary
 class SkPdfSignatureDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSignatureDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfSignatureDictionary& operator=(const SkPdfSignatureDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Sig for a signature dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required; inheritable) The name of the signature handler to be used for
+ *  authenticating the field's contents, such as Adobe.PPKLite, Entrust.PPKEF,
+ *  CICI.SignIt, or VeriSign.PPKVS.
+**/
+  bool has_Filter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", NULL));
   }
 
   std::string Filter() const {
@@ -535,11 +551,26 @@ public:
     return "";
   }
 
+/** (Optional) The name of a specific submethod of the specified handler.
+**/
+  bool has_SubFilter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SubFilter", "", NULL));
+  }
+
   std::string SubFilter() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SubFilter", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) An array of pairs of integers (starting byte offset, length in bytes)
+ *  describing the exact byte range for the digest calculation. Multiple discontig-
+ *  uous byte ranges may be used to describe a digest that does not include the
+ *  signature token itself.
+**/
+  bool has_ByteRange() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ByteRange", "", NULL));
   }
 
   SkPdfArray ByteRange() const {
@@ -549,11 +580,23 @@ public:
     return SkPdfArray();
   }
 
+/** (Required) The encrypted signature token.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The name of the person or authority signing the document.
+**/
+  bool has_Name() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
   std::string Name() const {
@@ -563,6 +606,14 @@ public:
     return "";
   }
 
+/** (Optional) The time of signing. Depending on the signature handler, this
+ *  may be a normal unverified computer time or a time generated in a verifiable
+ *  way from a secure time server.
+**/
+  bool has_M() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", NULL));
+  }
+
   SkPdfDate M() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", &ret)) return ret;
@@ -570,11 +621,23 @@ public:
     return SkPdfDate();
   }
 
+/** (Optional) The CPU host name or physical location of the signing.
+**/
+  bool has_Location() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Location", "", NULL));
+  }
+
   std::string Location() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Location", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The reason for the signing, such as (I agree...).
+**/
+  bool has_Reason() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Reason", "", NULL));
   }
 
   std::string Reason() const {

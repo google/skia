@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a URL alias dictionary
 class SkPdfURLAliasDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kURLAliasDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfURLAliasDictionary& operator=(const SkPdfURLAliasDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The destination URL to which all of the chains specified by the C entry lead.
+**/
+  bool has_U() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
+  }
+
   std::string U() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An array of one or more arrays of strings, each representing a chain of URLs
+ *  leading to the common destination specified by U.
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfArray C() const {

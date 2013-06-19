@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a type 5 halftone dictionary
 class SkPdfType5HalftoneDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType5HalftoneDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfType5HalftoneDictionary& operator=(const SkPdfType5HalftoneDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Halftone for a halftone dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A code identifying the halftone type that this dictionary describes;
+ *  must be 5 for this type of halftone.
+**/
+  bool has_HalftoneType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
   double HalftoneType() const {
@@ -535,6 +550,12 @@ public:
     return 0;
   }
 
+/** (Optional) The name of the halftone dictionary.
+**/
+  bool has_HalftoneName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
+  }
+
   std::string HalftoneName() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
@@ -542,10 +563,16 @@ public:
     return "";
   }
 
+/** (Required, one per colorant) The halftone corresponding to the colorant or
+ *  color component named by the key. The halftone may be of any type other
+ *  than 5. Note that the key must be a name object; strings are not permitted, as
+ *  they are in type 5 PostScript halftone dictionaries.
+**/
 /*
   bool has_[any_colorant_name]() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_colorant_name]", "", NULL));
   }
+
   bool is[any_colorant_name]ADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_colorant_name]", "", &ret)) return false;
@@ -573,6 +600,15 @@ public:
   }
 
 */
+/** (Required) A halftone to be used for any colorant or color component that
+ *  does not have an entry of its own. The value may not be a type 5 halftone. If
+ *  there are any nonprimary colorants, the default halftone must have a transfer
+ *  function.
+**/
+  bool has_Default() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Default", "", NULL));
+  }
+
   bool isDefaultADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Default", "", &ret)) return false;

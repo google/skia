@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a viewer preferences dictionary
 class SkPdfViewerPreferencesDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kViewerPreferencesDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfViewerPreferencesDictionary& operator=(const SkPdfViewerPreferencesDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) A flag specifying whether to hide the viewer application's tool
+ *  bars when the document is active. Default value: false.
+**/
+  bool has_HideToolbar() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideToolbar", "", NULL));
+  }
+
   bool HideToolbar() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideToolbar", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) A flag specifying whether to hide the viewer application's
+ *  menu bar when the document is active. Default value: false.
+**/
+  bool has_HideMenubar() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideMenubar", "", NULL));
   }
 
   bool HideMenubar() const {
@@ -535,11 +550,26 @@ public:
     return false;
   }
 
+/** (Optional) A flag specifying whether to hide user interface elements in
+ *  the document's window (such as scroll bars and navigation controls),
+ *  leaving only the document's contents displayed. Default value: false.
+**/
+  bool has_HideWindowUI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideWindowUI", "", NULL));
+  }
+
   bool HideWindowUI() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideWindowUI", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) A flag specifying whether to resize the document's window to
+ *  fit the size of the first displayed page. Default value: false.
+**/
+  bool has_FitWindow() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FitWindow", "", NULL));
   }
 
   bool FitWindow() const {
@@ -549,11 +579,28 @@ public:
     return false;
   }
 
+/** (Optional) A flag specifying whether to position the document's window
+ *  in the center of the screen. Default value: false.
+**/
+  bool has_CenterWindow() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CenterWindow", "", NULL));
+  }
+
   bool CenterWindow() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CenterWindow", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional; PDF 1.4) A flag specifying whether the window's title bar
+ *  should display the document title taken from the Title entry of the docu-
+ *  ment information dictionary (see Section 9.2.1, "Document Informa-
+ *  tion Dictionary"). If false, the title bar should instead display the name
+ *  of the PDF file containing the document. Default value: false.
+**/
+  bool has_DisplayDocTitle() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DisplayDocTitle", "", NULL));
   }
 
   bool DisplayDocTitle() const {
@@ -563,11 +610,37 @@ public:
     return false;
   }
 
+/** (Optional) The document's page mode, specifying how to display the
+ *  document on exiting full-screen mode:
+ *       UseNone            Neither document outline nor thumbnail images
+ *                          visible
+ *       UseOutlines        Document outline visible
+ *       UseThumbs          Thumbnail images visible
+ *  This entry is meaningful only if the value of the PageMode entry in the
+ *  catalog dictionary (see Section 3.6.1, "Document Catalog") is FullScreen;
+ *  it is ignored otherwise. Default value: UseNone.
+**/
+  bool has_NonFullScreenPageMode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NonFullScreenPageMode", "", NULL));
+  }
+
   std::string NonFullScreenPageMode() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NonFullScreenPageMode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.3) The predominant reading order for text:
+ *       L2R                Left to right
+ *       R2L                Right to left (including vertical writing systems
+ *                          such as Chinese, Japanese, and Korean)
+ *  This entry has no direct effect on the document's contents or page num-
+ *  bering, but can be used to determine the relative positioning of pages
+ *  when displayed side by side or printed n-up. Default value: L2R.
+**/
+  bool has_Direction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Direction", "", NULL));
   }
 
   std::string Direction() const {
@@ -577,11 +650,41 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.4) The name of the page boundary representing the
+ *  area of a page to be displayed when viewing the document on the screen.
+ *  The value is the key designating the relevant page boundary in the page
+ *  object (see "Page Objects" on page 87 and Section 9.10.1, "Page Bound-
+ *  aries"). If the specified page boundary is not defined in the page object,
+ *  its default value will be used, as specified in Table 3.18 on page 88.
+ *  Default value: CropBox.
+ *  Note: This entry is intended primarily for use by prepress applications that
+ *  interpret or manipulate the page boundaries as described in Section 9.10.1,
+ *  "Page Boundaries." Most PDF consumer applications will disregard it.
+**/
+  bool has_ViewArea() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewArea", "", NULL));
+  }
+
   std::string ViewArea() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewArea", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) The name of the page boundary to which the con-
+ *  tents of a page are to be clipped when viewing the document on the
+ *  screen. The value is the key designating the relevant page boundary in
+ *  the page object (see "Page Objects" on page 87 and Section 9.10.1, "Page
+ *  Boundaries"). If the specified page boundary is not defined in the page
+ *  object, its default value will be used, as specified in Table 3.18 on page
+ *  88. Default value: CropBox.
+ *  Note: This entry is intended primarily for use by prepress applications that
+ *  interpret or manipulate the page boundaries as described in Section 9.10.1,
+ *  "Page Boundaries." Most PDF consumer applications will disregard it.
+**/
+  bool has_ViewClip() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewClip", "", NULL));
   }
 
   std::string ViewClip() const {
@@ -591,11 +694,39 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.4) The name of the page boundary representing the
+ *  area of a page to be rendered when printing the document. The value is
+ *  the key designating the relevant page boundary in the page object (see
+ *  "Page Objects" on page 87 and Section 9.10.1, "Page Boundaries"). If the
+ *  specified page boundary is not defined in the page object, its default value
+ *  will be used, as specified in Table 3.18 on page 88. Default value: CropBox.
+ *  Note: This entry is intended primarily for use by prepress applications that
+ *  interpret or manipulate the page boundaries as described in Section 9.10.1,
+ *  "Page Boundaries." Most PDF consumer applications will disregard it.
+**/
+  bool has_PrintArea() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintArea", "", NULL));
+  }
+
   std::string PrintArea() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintArea", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) The name of the page boundary to which the con-
+ *  tents of a page are to be clipped when printing the document. The value
+ *  is the key designating the relevant page boundary in the page object (see
+ *  "Page Objects" on page 87 and Section 9.10.1, "Page Boundaries"). If the
+ *  specified page boundary is not defined in the page object, its default value
+ *  will be used, as specified in Table 3.18 on page 88. Default value: CropBox.
+ *  Note: This entry is intended primarily for use by prepress applications that
+ *  interpret or manipulate the page boundaries as described in Section 9.10.1,
+ *  "Page Boundaries." Most PDF consumer applications will disregard it.
+**/
+  bool has_PrintClip() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintClip", "", NULL));
   }
 
   std::string PrintClip() const {

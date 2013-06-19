@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an appearance dictionary
 class SkPdfAppearanceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAppearanceDictionary_SkPdfObjectType;}
@@ -521,6 +522,12 @@ public:
 
   SkPdfAppearanceDictionary& operator=(const SkPdfAppearanceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The annotation's normal appearance.
+**/
+  bool has_N() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
+  }
+
   bool isNAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", &ret)) return false;
@@ -547,6 +554,13 @@ public:
     return NULL;
   }
 
+/** (Optional) The annotation's rollover appearance. Default value: the value of
+ *  the N entry.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
+  }
+
   bool isRAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return false;
@@ -571,6 +585,13 @@ public:
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) The annotation's down appearance. Default value: the value of the
+ *  N entry.
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   bool isDAStream() const {

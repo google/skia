@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a transition dictionary
 class SkPdfTransitionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTransitionDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfTransitionDictionary& operator=(const SkPdfTransitionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  Trans for a transition dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The duration of the transition effect, in seconds. Default value: 1.
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   double D() const {
@@ -535,11 +549,47 @@ public:
     return 0;
   }
 
+/** (Optional) The transition style to use when moving to this page from another during a
+ *  presentation:
+ *     Split       Two lines sweep across the screen, revealing the new page. The lines may
+ *                 be either horizontal or vertical and may move inward from the edges of
+ *                 the page or outward from the center, as specified by the Dm and M
+ *                 entries, respectively.
+ *     Blinds      Multiple lines, evenly spaced across the screen, synchronously sweep in
+ *                 the same direction to reveal the new page. The lines may be either hori-
+ *                 zontal or vertical, as specified by the Dm entry. Horizontal lines move
+ *                 downward, vertical lines to the right.
+ *     Box         A rectangular box sweeps inward from the edges of the page or outward
+ *                 from the center, as specified by the M entry, revealing the new page.
+ *     Wipe        A single line sweeps across the screen from one edge to the other in the
+ *                 direction specified by the Di entry, revealing the new page.
+ *     Dissolve    The old page "dissolves" gradually to reveal the new one.
+ *     Glitter     Similar to Dissolve, except that the effect sweeps across the page in a
+ *                 wide band moving from one side of the screen to the other in the direc-
+ *                 tion specified by the Di entry.
+ *     R           The new page simply replaces the old one with no special transition ef-
+ *                 fect; the D entry is ignored.
+ *  Default value: R.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; Split and Blinds transition styles only) The dimension in which the specified
+ *  transition effect occurs:
+ *       H         Horizontal
+ *       V         Vertical
+ *  Default value: H.
+**/
+  bool has_Dm() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dm", "", NULL));
   }
 
   std::string Dm() const {
@@ -549,11 +599,36 @@ public:
     return "";
   }
 
+/** (Optional; Split and Box transition styles only) The direction of motion for the specified
+ *  transition effect:
+ *       I         Inward from the edges of the page
+ *       O         Outward from the center of the page
+ *  Default value: I.
+**/
+  bool has_M() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", NULL));
+  }
+
   std::string M() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; Wipe and Glitter transition styles only) The direction in which the specified
+ *  transition effect moves, expressed in degrees counterclockwise starting from a left-to-
+ *  right direction. (Note that this differs from the page object's Rotate entry, which is
+ *  measured clockwise from the top.) Only the following values are valid:
+ *          0      Left to right
+ *         90      Bottom to top (Wipe only)
+ *       180       Right to left (Wipe only)
+ *       270       Top to bottom
+ *       315       Top-left to bottom-right (Glitter only)
+ *  Default value: 0.
+**/
+  bool has_Di() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Di", "", NULL));
   }
 
   double Di() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the Web Capture information dictionary
 class SkPdfWebCaptureInformationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCaptureInformationDictionary_SkPdfObjectType;}
@@ -521,11 +522,28 @@ public:
 
   SkPdfWebCaptureInformationDictionary& operator=(const SkPdfWebCaptureInformationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The Web Capture version number. For PDF 1.3, the version number is 1.0.
+ *  Note: This value is a single real number, not a major and minor version number. Thus, for
+ *  example, a version number of 1.2 would be considered greater than 1.15.
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
+  }
+
   double V() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) An array of indirect references to Web Capture command dictionaries (see
+ *  "Command Dictionaries" on page 672) describing commands that were used in building
+ *  the PDF file. The commands appear in the array in the order in which they were executed
+ *  in building the file.
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfArray C() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the FDF catalog dictionary
 class SkPdfFDFCatalogDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFCatalogDictionary_SkPdfObjectType;}
@@ -521,11 +522,30 @@ public:
 
   SkPdfFDFCatalogDictionary& operator=(const SkPdfFDFCatalogDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.4) The version of the PDF specification to which
+ *  this FDF file conforms (for example, 1.4), if later than the version
+ *  specified in the file's header (see "FDF Header" on page 559). If the
+ *  header specifies a later version, or if this entry is absent, the docu-
+ *  ment conforms to the version specified in the header.
+ *  Note: The value of this entry is a name object, not a number, and so
+ *  must be preceded by a slash character (/) when written in the FDF file
+ *  (for example, /1.4).
+**/
+  bool has_Version() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", NULL));
+  }
+
   std::string Version() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The FDF dictionary for this file (see Table 8.69).
+**/
+  bool has_FDF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FDF", "", NULL));
   }
 
   SkPdfDictionary* FDF() const {

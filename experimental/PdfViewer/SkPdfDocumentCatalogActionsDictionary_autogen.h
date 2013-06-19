@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the document catalog's additional-actions dictionary
 class SkPdfDocumentCatalogActionsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kDocumentCatalogActionsDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfDocumentCatalogActionsDictionary& operator=(const SkPdfDocumentCatalogActionsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.4) A JavaScript action to be performed before closing a document.
+ *  (The name DC stands for "document close.")
+**/
+  bool has_DC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DC", "", NULL));
+  }
+
   SkPdfDictionary* DC() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DC", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) A JavaScript action to be performed before saving a document.
+ *  (The name WS stands for "will save.")
+**/
+  bool has_WS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WS", "", NULL));
   }
 
   SkPdfDictionary* WS() const {
@@ -535,6 +550,13 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) A JavaScript action to be performed after saving a document. (The
+ *  name DS stands for "did save.")
+**/
+  bool has_DS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DS", "", NULL));
+  }
+
   SkPdfDictionary* DS() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DS", "", &ret)) return ret;
@@ -542,11 +564,25 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) A JavaScript action to be performed before printing a document.
+ *  (The name WP stands for "will print.")
+**/
+  bool has_WP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WP", "", NULL));
+  }
+
   SkPdfDictionary* WP() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WP", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) A JavaScript action to be performed after printing a document.
+ *  (The name DP stands for "did print.")
+**/
+  bool has_DP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DP", "", NULL));
   }
 
   SkPdfDictionary* DP() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional dictionary entries for structure element access
 class SkPdfStructureElementAccessDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStructureElementAccessDictionary_SkPdfObjectType;}
@@ -521,11 +522,29 @@ public:
 
   SkPdfStructureElementAccessDictionary& operator=(const SkPdfStructureElementAccessDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required for all objects that are structural content items; PDF 1.3) The integer key
+ *  of this object's entry in the structural parent tree.
+**/
+  bool has_StructParent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", NULL));
+  }
+
   long StructParent() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required for all content streams containing marked-content sequences that are
+ *  structural content items; PDF 1.3) The integer key of this object's entry in the
+ *  structural parent tree.
+ *  Note: At most one of these two entries may be present in a given object. An object
+ *  can be either a content item in its entirety or a container for marked-content
+ *  sequences that are content items, but not both.
+**/
+  bool has_StructParents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", NULL));
   }
 
   long StructParents() const {

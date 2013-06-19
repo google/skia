@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a CalRGB color space dictionary
 class SkPdfCalrgbColorSpaceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCalrgbColorSpaceDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfCalrgbColorSpaceDictionary& operator=(const SkPdfCalrgbColorSpaceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of three numbers [ XW YW ZW ] specifying the tristimulus value,
+ *  in the CIE 1931 XYZ space, of the diffuse white point; see below for further discus-
+ *  sion. The numbers XW and ZW must be positive, and YW must be equal to 1.0.
+**/
+  bool has_WhitePoint() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", NULL));
+  }
+
   SkPdfArray WhitePoint() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) An array of three numbers [ XB YB ZB ] specifying the tristimulus value, in
+ *  the CIE 1931 XYZ space, of the diffuse black point; see below for further discussion.
+ *  All three of these numbers must be nonnegative. Default value: [0.0 0.0 0.0].
+**/
+  bool has_BlackPoint() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", NULL));
   }
 
   SkPdfArray BlackPoint() const {
@@ -535,11 +552,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of three numbers [ GR GG GB ] specifying the gamma for the red,
+ *  green, and blue (A, B, and C) components of the color space. Default value:
+ *  [1.0 1.0 1.0].
+**/
+  bool has_Gamma() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", NULL));
+  }
+
   SkPdfArray Gamma() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) An array of nine numbers [ XA YA ZA XB YB ZB XC YC ZC ] specifying
+ *  the linear interpretation of the decoded A, B, and C components of the color space
+ *  with respect to the final XYZ representation. Default value: the identity matrix
+ *  [1 0 0 0 1 0 0 0 1].
+**/
+  bool has_Matrix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
   }
 
   SkPdfArray Matrix() const {

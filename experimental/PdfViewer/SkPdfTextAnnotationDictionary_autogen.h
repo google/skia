@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a text annotation
 class SkPdfTextAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTextAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfTextAnnotationDictionary& operator=(const SkPdfTextAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Text
+ *  for a text annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The text to be displayed in the pop-up window when the annotation
+ *  is opened. Carriage returns may be used to separate the text into paragraphs.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +550,32 @@ public:
     return "";
   }
 
+/** (Optional) A flag specifying whether the annotation should initially be displayed
+ *  open. Default value: false (closed).
+**/
+  bool has_Open() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Open", "", NULL));
+  }
+
   bool Open() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Open", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) The name of an icon to be used in displaying the annotation. Viewer
+ *  applications should provide predefined icon appearances for at least the follow-
+ *  ing standard names:
+ *      Comment                   Key                      Note
+ *      Help                      NewParagraph             Paragraph
+ *      Insert
+ *  Additional names may be supported as well. Default value: Note.
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
+ *  Name entry; see Table 8.10 on page 490 and Section 8.4.4, "Appearance Streams."
+**/
+  bool has_Name() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
   std::string Name() const {

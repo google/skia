@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all function dictionaries
 class SkPdfFunctionCommonDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFunctionCommonDictionary_SkPdfObjectType;}
@@ -521,6 +522,16 @@ public:
 
   SkPdfFunctionCommonDictionary& operator=(const SkPdfFunctionCommonDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The function type:
+ *      0    Sampled function
+ *      2    Exponential interpolation function
+ *      3    Stitching function
+ *      4    PostScript calculator function
+**/
+  bool has_FunctionType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FunctionType", "", NULL));
+  }
+
   long FunctionType() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FunctionType", "", &ret)) return ret;
@@ -528,11 +539,32 @@ public:
     return 0;
   }
 
+/** (Required) An array of 2 x m numbers, where m is the number of input
+ *  values. For each i from 0 to m - 1, Domain2i must be less than or equal to
+ *  Domain2i+1 , and the ith input value, xi , must lie in the interval
+ *  Domain2i <= xi <= Domain2i+1 . Input values outside the declared domain are
+ *  clipped to the nearest boundary value.
+**/
+  bool has_Domain() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", NULL));
+  }
+
   SkPdfArray Domain() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required for type 0 and type 4 functions, optional otherwise; see below) An
+ *  array of 2 x n numbers, where n is the number of output values. For each j
+ *  from 0 to n - 1, Range2j must be less than or equal to Range2j+1 , and the jth
+ *  output value, yj , must lie in the interval Range2j <= yj <= Range2j+1 . Output
+ *  values outside the declared range are clipped to the nearest boundary value.
+ *  If this entry is absent, no clipping is done.
+**/
+  bool has_Range() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", NULL));
   }
 
   SkPdfArray Range() const {

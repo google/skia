@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfShadingDictionary_autogen.h"
 
+// Additional entries specific to a type 1 shading dictionary
 class SkPdfType1ShadingDictionary : public SkPdfShadingDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType1ShadingDictionary_SkPdfObjectType;}
@@ -38,6 +39,14 @@ public:
 
   SkPdfType1ShadingDictionary& operator=(const SkPdfType1ShadingDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) An array of four numbers [ xmin xmax ymin ymax ] specifying the rec-
+ *  tangular domain of coordinates over which the color function(s) are defined.
+ *  Default value: [0.0 1.0 0.0 1.0].
+**/
+  bool has_Domain() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", NULL));
+  }
+
   SkPdfArray Domain() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", &ret)) return ret;
@@ -45,11 +54,32 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of six numbers specifying a transformation matrix mapping
+ *  the coordinate space specified by the Domain entry into the shading's target co-
+ *  ordinate space. For example, to map the domain rectangle [0.0 1.0 0.0 1.0] to a
+ *  1-inch square with lower-left corner at coordinates (100, 100) in default user
+ *  space, the Matrix value would be [72 0 0 72 100 100]. Default value: the iden-
+ *  tity matrix [1 0 0 1 0 0].
+**/
+  bool has_Matrix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
+  }
+
   SkPdfArray Matrix() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) A 2-in, n-out function or an array of n 2-in, 1-out functions (where n
+ *  is the number of color components in the shading dictionary's color space).
+ *  Each function's domain must be a superset of that of the shading dictionary. If
+ *  the value returned by the function for a given color component is out of range, it
+ *  will be adjusted to the nearest valid value.
+**/
+  bool has_Function() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", NULL));
   }
 
   SkPdfFunction Function() const {

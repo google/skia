@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Standard table attributes
 class SkPdfTableAttributesDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTableAttributesDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfTableAttributesDictionary& operator=(const SkPdfTableAttributesDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The number of rows in the enclosing table that are spanned by the
+ *  cell. The cell expands by adding rows in the block-progression direction speci-
+ *  fied by the table's WritingMode attribute. Default value: 1.
+**/
+  bool has_RowSpan() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RowSpan", "", NULL));
+  }
+
   long RowSpan() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RowSpan", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The number of columns in the enclosing table that are spanned by
+ *  the cell. The cell expands by adding columns in the inline-progression direction
+ *  specified by the table's WritingMode attribute. Default value: 1.
+**/
+  bool has_ColSpan() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColSpan", "", NULL));
   }
 
   long ColSpan() const {

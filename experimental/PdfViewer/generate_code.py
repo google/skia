@@ -39,6 +39,7 @@ class PdfField:
     self.fEnumValues = []
     self.fHasMust = False
     self.fMustBe = ''
+    self.fComment = ''
 
   def must(self, value):
     self.fHasMust = True
@@ -70,6 +71,7 @@ class PdfField:
     return self
 
   def comment(self, comment):
+    self.fComment = comment
     return self
       
   def done(self):
@@ -77,13 +79,12 @@ class PdfField:
 
 
 class PdfClassField:
-  def __init__(self, parent, required, version='', inheritable=False, comment=''):
+  def __init__(self, parent, required, version='', inheritable=False):
     #self.fProp = ''
     self.fParent = parent
     self.fRequired = required
     self.fVersion = version
     self.fInheritable = inheritable
-    self.fComment = comment
     
   def field(self, name, abr=''):
     self.fProp = PdfField(self, name, abr)
@@ -273,12 +274,17 @@ class PdfClassManager:
 
       fileClass.write('#include "SkPdfEnums_autogen.h"\n')
       fileClass.write('#include "SkPdfArray_autogen.h"\n')
+      if cls.fBase != '':
+        fileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
+      fileClass.write('\n')
+      
+      if cls.fComment != '':
+        fileClass.write('// ' + cls.fComment + '\n')
       
       if cls.fBase == '':
-        fileClass.write('\nclass SkPdf' + cls.fName + ' {\n')
+        fileClass.write('class SkPdf' + cls.fName + ' {\n')
       else:
-        fileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
-        fileClass.write('\nclass SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
+        fileClass.write('class SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
       
       fileClass.write('public:\n')
       fileClass.write('  virtual SkPdfObjectType getType() const { return ' + cls.fEnum + ';}\n')
@@ -323,13 +329,22 @@ class PdfClassManager:
       for field in cls.fFields:
         prop = field.fProp
         if prop.fCppName != '':
+          
+          lines = prop.fComment.split('\n')
+          if prop.fComment != '' and len(lines) > 0:
+            fileClass.write('/** ' + lines[0] + '\n')
+            for line in lines[1:]:
+              fileClass.write(' *  ' + line + '\n')
+            fileClass.write('**/\n')
+          
           if prop.fCppName[0] == '[':
             fileClass.write('/*\n')  # comment code of the atributes that can have any name
           
           # TODO(edisonn): has_foo();  
-            fileClass.write('  bool has_' + prop.fCppName + '() const {\n')
-            fileClass.write('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));\n')
-            fileClass.write('  }\n') 
+          fileClass.write('  bool has_' + prop.fCppName + '() const {\n')
+          fileClass.write('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));\n')
+          fileClass.write('  }\n') 
+          fileClass.write('\n') 
 
           if len(prop.fTypes.split()) == 1:
             t = prop.fTypes.strip()

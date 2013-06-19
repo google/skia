@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an icon fit dictionary
 class SkPdfIconFitDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kIconFitDictionary_SkPdfObjectType;}
@@ -521,6 +522,18 @@ public:
 
   SkPdfIconFitDictionary& operator=(const SkPdfIconFitDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The circumstances under which the icon should be scaled inside the annota-
+ *  tion rectangle:
+ *      A    Always scale.
+ *      B    Scale only when the icon is bigger than the annotation rectangle.
+ *      S    Scale only when the icon is smaller than the annotation rectangle.
+ *      N    Never scale.
+ *  Default value: A.
+**/
+  bool has_SW() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SW", "", NULL));
+  }
+
   std::string SW() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SW", "", &ret)) return ret;
@@ -528,11 +541,34 @@ public:
     return "";
   }
 
+/** (Required) The type of scaling to use:
+ *      A    Anamorphic scaling: scale the icon to fill the annotation rectangle exactly, with-
+ *           out regard to its original aspect ratio (ratio of width to height).
+ *      P    Proportional scaling: scale the icon to fit the width or height of the annotation
+ *           rectangle while maintaining the icon's original aspect ratio. If the required hori-
+ *           zontal and vertical scaling factors are different, use the smaller of the two, cen-
+ *           tering the icon within the annotation rectangle in the other dimension.
+ *  Default value: P.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) An array of two numbers between 0.0 and 1.0 indicating the fraction of left-
+ *  over space to allocate at the left and bottom of the icon. A value of [0.0 0.0] positions the
+ *  icon at the bottom-left corner of the annotation rectangle; a value of [0.5 0.5] centers it
+ *  within the rectangle. This entry is used only if the icon is scaled proportionally. Default
+ *  value: [0.5 0.5].
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
   }
 
   SkPdfArray A() const {

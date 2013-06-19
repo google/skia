@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an FDF template dictionary
 class SkPdfFDFTemplateDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFTemplateDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfFDFTemplateDictionary& operator=(const SkPdfFDFTemplateDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) A named page reference dictionary (see Table 8.76) specifying the
+ *  location of the template.
+**/
+  bool has_TRef() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TRef", "", NULL));
+  }
+
   SkPdfDictionary* TRef() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TRef", "", &ret)) return ret;
@@ -528,11 +536,27 @@ public:
     return NULL;
   }
 
+/** (Optional) An array of references to FDF field dictionaries (see Table 8.72 on
+ *  page 564) describing the root fields to be imported (those with no ancestors in
+ *  the field hierarchy).
+**/
+  bool has_Fields() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
+  }
+
   SkPdfArray Fields() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A flag specifying whether fields imported from the template may be
+ *  renamed in the event of name conflicts with existing fields; see below for further
+ *  discussion. Default value: true.
+**/
+  bool has_Rename() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rename", "", NULL));
   }
 
   bool Rename() const {

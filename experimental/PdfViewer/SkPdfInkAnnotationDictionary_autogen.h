@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to an ink annotation
 class SkPdfInkAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kInkAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfInkAnnotationDictionary& operator=(const SkPdfInkAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Ink for
+ *  an ink annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The text to be displayed in the pop-up window when the annotation
+ *  is opened. Carriage returns may be used to separate the text into paragraphs.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +550,31 @@ public:
     return "";
   }
 
+/** (Required) An array of n arrays, each representing a stroked path. Each array is a
+ *  series of alternating horizontal and vertical coordinates in default user space,
+ *  specifying points along the path. When drawn, the points are connected by
+ *  straight lines or curves in an implementation-dependent way. (See implementa-
+ *  tion note 68 in Appendix H.)
+**/
+  bool has_InkList() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "InkList", "", NULL));
+  }
+
   SkPdfArray InkList() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "InkList", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A border style dictionary (see Table 8.12 on page 495) specifying the
+ *  line width and dash pattern to be used in drawing the paths.
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
+ *  InkList and BS entries; see Table 8.10 on page 490 and Section 8.4.4, "Appearance
+ *  Streams."
+**/
+  bool has_BS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
   }
 
   SkPdfDictionary* BS() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to an ICC profile stream dictionary
 class SkPdfIccProfileStreamDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kIccProfileStreamDictionary_SkPdfObjectType;}
@@ -521,11 +522,35 @@ public:
 
   SkPdfIccProfileStreamDictionary& operator=(const SkPdfIccProfileStreamDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The number of color components in the color space described by the ICC
+ *  profile data. This number must match the number of components actually in the ICC
+ *  profile. As of PDF 1.4, N must be 1, 3, or 4.
+**/
+  bool has_N() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
+  }
+
   long N() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) An alternate color space to be used in case the one specified in the stream
+ *  data is not supported (for example, by viewer applications designed for earlier
+ *  versions of PDF). The alternate space may be any valid color space (except a Pattern
+ *  color space) that has the number of components specified by N. If this entry is omit-
+ *  ted and the viewer application does not understand the ICC profile data, the color
+ *  space used will be DeviceGray, DeviceRGB, or DeviceCMYK, depending on whether
+ *  the value of N is 1, 3, or 4, respectively.
+ *  Note: Note that there is no conversion of source color values, such as a tint transforma-
+ *  tion, when using the alternate color space. Color values that are within the range of the
+ *  ICCBased color space might not be within the range of the alternate color space. In this
+ *  case, the nearest values within the range of the alternate space will be substituted.
+**/
+  bool has_Alternate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternate", "", NULL));
   }
 
   bool isAlternateAArray() const {
@@ -554,11 +579,27 @@ public:
     return "";
   }
 
+/** (Optional) An array of 2 x N numbers [min0 max0 min1 max1 ... ] specifying the
+ *  minimum and maximum valid values of the corresponding color components.
+ *  These values must match the information in the ICC profile. Default value:
+ *  [0.0 1.0 0.0 1.0 ...].
+**/
+  bool has_Range() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", NULL));
+  }
+
   SkPdfArray Range() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.4) A metadata stream containing metadata for the color space (see
+ *  Section 9.2.2, "Metadata Streams").
+**/
+  bool has_Metadata() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
   SkPdfStream Metadata() const {

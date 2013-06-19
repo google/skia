@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all stream dictionaries
 class SkPdfStreamCommonDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStreamCommonDictionary_SkPdfObjectType;}
@@ -521,11 +522,31 @@ public:
 
   SkPdfStreamCommonDictionary& operator=(const SkPdfStreamCommonDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The number of bytes from the beginning of the line fol-
+ *  lowing the keyword stream to the last byte just before the keyword
+ *  endstream. (There may be an additional EOL marker, preceding
+ *  endstream, that is not included in the count and is not logically part
+ *  of the stream data.) See "Stream Extent," above, for further discus-
+ *  sion.
+**/
+  bool has_Length() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length", "", NULL));
+  }
+
   long Length() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The name of a filter to be applied in processing the stream
+ *  data found between the keywords stream and endstream, or an array
+ *  of such names. Multiple filters should be specified in the order in
+ *  which they are to be applied.
+**/
+  bool has_Filter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", NULL));
   }
 
   bool isFilterAName() const {
@@ -554,6 +575,23 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) A parameter dictionary, or an array of such dictionaries,
+ *  used by the filters specified by Filter. If there is only one filter and that
+ *  filter has parameters, DecodeParms must be set to the filter's parame-
+ *  ter dictionary unless all the filter's parameters have their default
+ *  values, in which case the DecodeParms entry may be omitted. If there
+ *  are multiple filters and any of the filters has parameters set to non-
+ *  default values, DecodeParms must be an array with one entry for
+ *  each filter: either the parameter dictionary for that filter, or the null
+ *  object if that filter has no parameters (or if all of its parameters have
+ *  their default values). If none of the filters have parameters, or if all
+ *  their parameters have default values, the DecodeParms entry may be
+ *  omitted. (See implementation note 7 in Appendix H.)
+**/
+  bool has_DecodeParms() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DecodeParms", "", NULL));
+  }
+
   bool isDecodeParmsADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DecodeParms", "", &ret)) return false;
@@ -580,11 +618,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; PDF 1.2) The file containing the stream data. If this entry
+ *  is present, the bytes between stream and endstream are ignored, the
+ *  filters are specified by FFilter rather than Filter, and the filter parame-
+ *  ters are specified by FDecodeParms rather than DecodeParms. How-
+ *  ever, the Length entry should still specify the number of those bytes.
+ *  (Usually there are no bytes and Length is 0.)
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfFileSpec F() const {
     SkPdfFileSpec ret;
     if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFileSpec();
+  }
+
+/** (Optional; PDF 1.2) The name of a filter to be applied in processing
+ *  the data found in the stream's external file, or an array of such names.
+ *  The same rules apply as for Filter.
+**/
+  bool has_FFilter() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FFilter", "", NULL));
   }
 
   bool isFFilterAName() const {
@@ -611,6 +668,14 @@ public:
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FFilter", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.2) A parameter dictionary, or an array of such dic-
+ *  tionaries, used by the filters specified by FFilter. The same rules apply
+ *  as for DecodeParms.
+**/
+  bool has_FDecodeParms() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FDecodeParms", "", NULL));
   }
 
   bool isFDecodeParmsADictionary() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a sound object
 class SkPdfSoundObjectDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSoundObjectDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfSoundObjectDictionary& operator=(const SkPdfSoundObjectDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  Sound for a sound object.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The sampling rate, in samples per second.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
   }
 
   double R() const {
@@ -535,11 +549,24 @@ public:
     return 0;
   }
 
+/** (Optional) The number of sound channels. Default value: 1. (See implementation
+ *  note 101 in Appendix H.)
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
+  }
+
   long C() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The number of bits per sample value per channel. Default value: 8.
+**/
+  bool has_B() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", NULL));
   }
 
   long B() const {
@@ -549,6 +576,17 @@ public:
     return 0;
   }
 
+/** (Optional) The encoding format for the sample data:
+ *     Raw          Unspecified or unsigned values in the range 0 to 2B - 1
+ *     Signed       Twos-complement values
+ *     muLaw        mu-law'encoded samples
+ *     ALaw         A-law'encoded samples
+ *  Default value: Raw.
+**/
+  bool has_E() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
+  }
+
   std::string E() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", &ret)) return ret;
@@ -556,11 +594,29 @@ public:
     return "";
   }
 
+/** (Optional) The sound compression format used on the sample data. (Note that this is
+ *  separate from any stream compression specified by the sound object's Filter entry; see
+ *  Table 3.4 on page 38 and Section 3.3, "Filters.") If this entry is absent, then no sound
+ *  compression has been used; the data contains sampled waveforms to be played at R
+ *  samples per second per channel.
+**/
+  bool has_CO() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", NULL));
+  }
+
   std::string CO() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) Optional parameters specific to the sound compression format used.
+ *  Note: At the time of publication, no standard values have been defined for the CO and CP
+ *  entries.
+**/
+  bool has_CP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CP", "", NULL));
   }
 
   SkPdfObject* CP() const {

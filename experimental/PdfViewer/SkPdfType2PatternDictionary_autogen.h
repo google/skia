@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a type 2 pattern dictionary
 class SkPdfType2PatternDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType2PatternDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfType2PatternDictionary& operator=(const SkPdfType2PatternDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Pattern for a pattern dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   long Type() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,26 @@ public:
     return 0;
   }
 
+/** (Required) A code identifying the type of pattern that this dictionary de-
+ *  scribes; must be 2 for a shading pattern.
+**/
+  bool has_PatternType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", NULL));
+  }
+
   long PatternType() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required) A shading object (see below) defining the shading pattern's gradient
+ *  fill. The contents of the dictionary consist of the entries in Table 4.25 on page
+ *  234, plus those in one of Tables 4.26 to 4.31 on pages 237 to 253.
+**/
+  bool has_Shading() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", NULL));
   }
 
   bool isShadingADictionary() const {
@@ -561,11 +584,30 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) An array of six numbers specifying the pattern matrix (see Section
+ *  4.6.1, "General Properties of Patterns"). Default value: the identity matrix
+ *  [1 0 0 1 0 0].
+**/
+  bool has_Matrix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
+  }
+
   SkPdfArray Matrix() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A graphics state parameter dictionary (see Section 4.3.4, "Graph-
+ *  ics State Parameter Dictionaries") containing graphics state parameters to be
+ *  put into effect temporarily while the shading pattern is painted. Any parame-
+ *  ters that are not so specified are inherited from the graphics state that was in
+ *  effect at the beginning of the content stream in which the pattern is defined
+ *  as a resource.
+**/
+  bool has_ExtGState() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ExtGState", "", NULL));
   }
 
   SkPdfDictionary* ExtGState() const {

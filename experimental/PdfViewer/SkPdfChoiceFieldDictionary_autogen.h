@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a choice field
 class SkPdfChoiceFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kChoiceFieldDictionary_SkPdfObjectType;}
@@ -521,6 +522,16 @@ public:
 
   SkPdfChoiceFieldDictionary& operator=(const SkPdfChoiceFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required; inheritable) An array of options to be presented to the user. Each element of
+ *  the array is either a text string representing one of the available options or a two-element
+ *  array consisting of a text string together with a default appearance string for construct-
+ *  ing the item's appearance dynamically at viewing time (see "Variable Text" on page 533;
+ *  see also implementation note 85 in Appendix H).
+**/
+  bool has_Opt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", NULL));
+  }
+
   SkPdfArray Opt() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", &ret)) return ret;
@@ -528,11 +539,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; inheritable) For scrollable list boxes, the top index (the index in the Opt array
+ *  of the first option visible in the list).
+**/
+  bool has_TI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TI", "", NULL));
+  }
+
   long TI() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TI", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Sometimes required, otherwise optional; inheritable; PDF 1.4) For choice fields that allow
+ *  multiple selection (MultiSelect flag set), an array of integers, sorted in ascending order,
+ *  representing the zero-based indices in the Opt array of the currently selected option
+ *  items. This entry is required when two or more elements in the Opt array have different
+ *  names but the same export value, or when the value of the choice field is an array; in
+ *  other cases, it is permitted but not required. If the items identified by this entry differ
+ *  from those in the V entry of the field dictionary (see below), the V entry takes precedence.
+**/
+  bool has_I() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", NULL));
   }
 
   SkPdfArray I() const {

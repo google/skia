@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the name dictionary
 class SkPdfNameDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kNameDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfNameDictionary& operator=(const SkPdfNameDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.2) A name tree mapping name strings to destinations (see
+ *  "Named Destinations" on page 476).
+**/
+  bool has_Dests() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", NULL));
+  }
+
   bool isDestsAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", &ret)) return false;
@@ -545,6 +553,13 @@ public:
     if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A name tree mapping name strings to annotation
+ *  appearance streams (see Section 8.4.4, "Appearance Streams").
+**/
+  bool has_AP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", NULL));
   }
 
   bool isAPAName() const {
@@ -573,6 +588,13 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.3) A name tree mapping name strings to document-level
+ *  JavaScript(R) actions (see "JavaScript Actions" on page 556).
+**/
+  bool has_JavaScript() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", NULL));
+  }
+
   bool isJavaScriptAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return false;
@@ -597,6 +619,13 @@ public:
     if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A name tree mapping name strings to visible pages for
+ *  use in interactive forms (see Section 8.6.5, "Named Pages").
+**/
+  bool has_Pages() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", NULL));
   }
 
   bool isPagesAName() const {
@@ -625,6 +654,13 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.3) A name tree mapping name strings to invisible (tem-
+ *  plate) pages for use in interactive forms (see Section 8.6.5, "Named Pages").
+**/
+  bool has_Templates() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", NULL));
+  }
+
   bool isTemplatesAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return false;
@@ -649,6 +685,13 @@ public:
     if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A name tree mapping digital identifiers to Web Capture
+ *  content sets (see Section 9.9.3, "Content Sets").
+**/
+  bool has_IDS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDS", "", NULL));
   }
 
   bool isIDSAName() const {
@@ -677,6 +720,13 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.3) A name tree mapping uniform resource locators (URLs)
+ *  to Web Capture content sets (see Section 9.9.3, "Content Sets").
+**/
+  bool has_URLS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", NULL));
+  }
+
   bool isURLSAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", &ret)) return false;
@@ -701,6 +751,13 @@ public:
     if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) A name tree mapping name strings to embedded file
+ *  streams (see Section 3.10.3, "Embedded File Streams").
+**/
+  bool has_EmbeddedFiles() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFiles", "", NULL));
   }
 
   bool isEmbeddedFilesAName() const {

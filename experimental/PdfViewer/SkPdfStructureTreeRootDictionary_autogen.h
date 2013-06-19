@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the structure tree root
 class SkPdfStructureTreeRootDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStructureTreeRootDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfStructureTreeRootDictionary& operator=(const SkPdfStructureTreeRootDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must
+ *  be StructTreeRoot for a structure tree root.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The immediate child or children of the structure tree root in
+ *  the structure hierarchy. The value may be either a dictionary represent-
+ *  ing a single structure element or an array of such dictionaries.
+**/
+  bool has_K() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", NULL));
   }
 
   bool isKADictionary() const {
@@ -554,6 +570,14 @@ public:
     return SkPdfArray();
   }
 
+/** (Required if any structure elements have element identifiers) A name tree
+ *  that maps element identifiers (see Table 9.10) to the structure elements
+ *  they denote.
+**/
+  bool has_IDTree() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", NULL));
+  }
+
   bool isIDTreeAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", &ret)) return false;
@@ -578,6 +602,28 @@ public:
     if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required if any structure element contains PDF objects or marked-content
+ *  sequences as content items) A number tree (see Section 3.8.5, "Number
+ *  Trees") used in finding the structure elements to which content items
+ *  belong. Each integer key in the number tree corresponds to a single page
+ *  of the document or to an individual object (such as an annotation or an
+ *  XObject) that is a content item in its own right. The integer key is given
+ *  as the value of the StructParent or StructParents entry in that object (see
+ *  "Finding Structure Elements from Content Items" on page 600). The
+ *  form of the associated value depends on the nature of the object:
+ *  *  For an object that is a content item in its own right, the value is an in-
+ *     direct reference to the object's parent element (the structure element
+ *     that contains it as a content item).
+ *  *  For a page object or content stream containing marked-content
+ *     sequences that are content items, the value is an array of references to
+ *     the parent elements of those marked-content sequences.
+ *  See "Finding Structure Elements from Content Items" on page 600 for
+ *  further discussion.
+**/
+  bool has_ParentTree() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTree", "", NULL));
   }
 
   bool isParentTreeANumber() const {
@@ -606,6 +652,13 @@ public:
     return NULL;
   }
 
+/** (Optional) An integer greater than any key in the parent tree, to be used
+ *  as a key for the next entry added to the tree.
+**/
+  bool has_ParentTreeNextKey() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTreeNextKey", "", NULL));
+  }
+
   long ParentTreeNextKey() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTreeNextKey", "", &ret)) return ret;
@@ -613,11 +666,27 @@ public:
     return 0;
   }
 
+/** (Optional) A dictionary mapping the names of structure types used in
+ *  the document to their approximate equivalents in the set of standard
+ *  structure types (see Section 9.7.4, "Standard Structure Types").
+**/
+  bool has_RoleMap() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RoleMap", "", NULL));
+  }
+
   SkPdfDictionary* RoleMap() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RoleMap", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A dictionary mapping name objects designating attribute
+ *  classes to the corresponding attribute objects or arrays of attribute ob-
+ *  jects (see "Attribute Classes" on page 605).
+**/
+  bool has_ClassMap() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClassMap", "", NULL));
   }
 
   SkPdfDictionary* ClassMap() const {

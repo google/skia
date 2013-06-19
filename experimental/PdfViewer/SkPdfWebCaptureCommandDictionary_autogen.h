@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a Web Capture command dictionary
 class SkPdfWebCaptureCommandDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCaptureCommandDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfWebCaptureCommandDictionary& operator=(const SkPdfWebCaptureCommandDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The initial URL from which source data was requested.
+**/
+  bool has_URL() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URL", "", NULL));
+  }
+
   std::string URL() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URL", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The number of levels of pages retrieved from the initial URL. Default
+ *  value: 1.
+**/
+  bool has_L() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", NULL));
   }
 
   long L() const {
@@ -535,11 +549,24 @@ public:
     return 0;
   }
 
+/** (Optional) A set of flags specifying various characteristics of the command (see
+ *  Table 9.39). Default value: 0.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   long F() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) Data that was posted to the URL.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
   bool isPAString() const {
@@ -568,6 +595,13 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) A content type describing the data posted to the URL. Default value:
+ *  application/x-www-form-urlencoded.
+**/
+  bool has_CT() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", NULL));
+  }
+
   std::string CT() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", &ret)) return ret;
@@ -575,11 +609,24 @@ public:
     return "";
   }
 
+/** (Optional) Additional HTTP request headers sent to the URL.
+**/
+  bool has_H() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
+  }
+
   std::string H() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A command settings dictionary containing settings used in the con-
+ *  version process (see "Command Settings" on page 674).
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   SkPdfDictionary* S() const {

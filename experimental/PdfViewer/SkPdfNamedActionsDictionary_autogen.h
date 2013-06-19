@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to named actions
 class SkPdfNamedActionsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kNamedActionsDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfNamedActionsDictionary& operator=(const SkPdfNamedActionsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Named for a named
+ *  action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The name of the action to be performed (see Table 8.45).
+**/
+  bool has_N() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
   }
 
   std::string N() const {
