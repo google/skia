@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a PDF/X output intent dictionary
 class SkPdfPDF_XOutputIntentDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPDF_XOutputIntentDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfPDF_XOutputIntentDictionary& operator=(const SkPdfPDF_XOutputIntentDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes;
+ *  if present, must be OutputIntent for an output intent dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The output intent subtype; must be GTS_PDFX for a
+ *  PDF/X output intent.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {
@@ -535,11 +550,39 @@ public:
     return "";
   }
 
+/** (Optional) A text string concisely identifying the intended out-
+ *  put device or production condition in human-readable form.
+ *  This is the preferred method of defining such a string for pre-
+ *  sentation to the user.
+**/
+  bool has_OutputCondition() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputCondition", "", NULL));
+  }
+
   std::string OutputCondition() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputCondition", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A string identifying the intended output device or
+ *  production condition in human- or machine-readable form. If
+ *  human-readable, this string may be used in lieu of an Output-
+ *  Condition string for presentation to the user.
+ *  A typical value for this entry would be the name of a production
+ *  condition maintained in an industry-standard registry such as
+ *  the ICC Characterization Data Registry (see the Bibliography). If
+ *  the designated condition matches that in effect at production
+ *  time, it is the responsibility of the production software to pro-
+ *  vide the corresponding ICC profile as defined in the registry.
+ *  If the intended production condition is not a recognized
+ *  standard, the value Custom is recommended for this entry; the
+ *  DestOutputProfile entry defines the ICC profile and the Info
+ *  entry is used for further human-readable identification.
+**/
+  bool has_OutputConditionIdentifier() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputConditionIdentifier", "", NULL));
   }
 
   std::string OutputConditionIdentifier() const {
@@ -549,6 +592,14 @@ public:
     return "";
   }
 
+/** (Optional) A string (conventionally a uniform resource identifi-
+ *  er, or URI) identifying the registry in which the condition desig-
+ *  nated by OutputConditionIdentifier is defined.
+**/
+  bool has_RegistryName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RegistryName", "", NULL));
+  }
+
   std::string RegistryName() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RegistryName", "", &ret)) return ret;
@@ -556,11 +607,37 @@ public:
     return "";
   }
 
+/** (Required if OutputConditionIdentifier does not specify a standard
+ *  production condition; optional otherwise) A human-readable text
+ *  string containing additional information or comments about
+ *  the intended target device or production condition.
+**/
+  bool has_Info() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
+  }
+
   std::string Info() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required if OutputConditionIdentifier does not specify a standard
+ *  production condition; optional otherwise) An ICC profile stream
+ *  defining the transformation from the PDF document's source
+ *  colors to output device colorants.
+ *  The format of the profile stream is the same as that used in speci-
+ *  fying an ICCBased color space (see "ICCBased Color Spaces" on
+ *  page 189). The output transformation uses the profile's "from
+ *  CIE" information (BToA in ICC terminology); the "to CIE"
+ *  (AToB) information can optionally be used to remap source
+ *  color values to some other destination color space, such as for
+ *  screen preview or hardcopy proofing. (See implementation note
+ *  111 in Appendix H.)
+**/
+  bool has_DestOutputProfile() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DestOutputProfile", "", NULL));
   }
 
   SkPdfStream DestOutputProfile() const {

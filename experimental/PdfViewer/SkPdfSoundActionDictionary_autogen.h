@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a sound action
 class SkPdfSoundActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSoundActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfSoundActionDictionary& operator=(const SkPdfSoundActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Sound
+ *  for a sound action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A sound object defining the sound to be played (see Section 8.7,
+ *  "Sounds"; see also implementation note 76 in Appendix H).
+**/
+  bool has_Sound() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Sound", "", NULL));
   }
 
   SkPdfStream Sound() const {
@@ -535,11 +550,28 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) The volume at which to play the sound, in the range -1.0 to 1.0.
+ *  Higher values denote greater volume; negative values mute the sound.
+ *  Default value: 1.0.
+**/
+  bool has_Volume() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", NULL));
+  }
+
   double Volume() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A flag specifying whether to play the sound synchronously or
+ *  asynchronously. If this flag is true, the viewer application will retain control,
+ *  allowing no further user interaction other than canceling the sound, until the
+ *  sound has been completely played. Default value: false.
+**/
+  bool has_Synchronous() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", NULL));
   }
 
   bool Synchronous() const {
@@ -549,11 +581,27 @@ public:
     return false;
   }
 
+/** (Optional) A flag specifying whether to repeat the sound indefinitely. If this
+ *  entry is present, the Synchronous entry is ignored. Default value: false.
+**/
+  bool has_Repeat() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Repeat", "", NULL));
+  }
+
   bool Repeat() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Repeat", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional) A flag specifying whether to mix this sound with any other sound
+ *  already playing. If this flag is false, any previously playing sound will be
+ *  stopped before starting this sound; this can be used to stop a repeating sound
+ *  (see Repeat, above). Default value: false.
+**/
+  bool has_Mix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mix", "", NULL));
   }
 
   bool Mix() const {

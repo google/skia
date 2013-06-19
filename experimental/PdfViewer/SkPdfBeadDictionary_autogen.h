@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a bead dictionary
 class SkPdfBeadDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kBeadDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfBeadDictionary& operator=(const SkPdfBeadDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  Bead for a bead dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required for the first bead of a thread; optional for all others; must be an indirect refer-
+ *  ence) The thread to which this bead belongs.
+ *  Note: In PDF 1.1, this entry is permitted only for the first bead of a thread. In PDF 1.2
+ *  and higher, it is permitted for any bead but required only for the first.
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   SkPdfDictionary* T() const {
@@ -535,11 +552,25 @@ public:
     return NULL;
   }
 
+/** (Required; must be an indirect reference) The next bead in the thread. In the last bead,
+ *  this entry points to the first.
+**/
+  bool has_N() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
+  }
+
   SkPdfDictionary* N() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required; must be an indirect reference) The previous bead in the thread. In the first
+ *  bead, this entry points to the last.
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
   SkPdfDictionary* V() const {
@@ -549,11 +580,24 @@ public:
     return NULL;
   }
 
+/** (Required; must be an indirect reference) The page object representing the page on
+ *  which this bead appears.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
+  }
+
   SkPdfDictionary* P() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required) A rectangle specifying the location of this bead on the page.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
   }
 
   SkRect R() const {

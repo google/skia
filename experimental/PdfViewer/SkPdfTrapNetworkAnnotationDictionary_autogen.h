@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a trap network annotation
 class SkPdfTrapNetworkAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTrapNetworkAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfTrapNetworkAnnotationDictionary& operator=(const SkPdfTrapNetworkAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be
+ *  TrapNet for a trap network annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) An alternate description of the annotation's contents in
+ *  human-readable form, useful when extracting the document's contents in
+ *  support of accessibility to disabled users or for other purposes (see Section
+ *  9.8.2, "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +552,37 @@ public:
     return "";
   }
 
+/** (Required if Version and AnnotStates are absent; must be absent if Version and
+ *  AnnotStates are present; PDF 1.4) The date and time (see Section 3.8.2,
+ *  "Dates") when the trap network was most recently modified.
+**/
+  bool has_LastModified() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
+  }
+
   SkPdfDate LastModified() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfDate();
+  }
+
+/** (Required if AnnotStates is present; must be absent if LastModified is present)
+ *  An unordered array of all objects present in the page description at the time
+ *  the trap networks were generated and that, if changed, could affect the
+ *  appearance of the page. If present, the array must include the following
+ *  objects:
+ *  *  All content streams identified in the page object's Contents entry (see
+ *     "Page Objects" on page 87)
+ *  *  All resource objects (other than procedure sets) in the page's resource dic-
+ *     tionary (see Section 3.7.2, "Resource Dictionaries")
+ *  *  All resource objects (other than procedure sets) in the resource diction-
+ *     aries of any form XObjects on the page (see Section 4.9, "Form XObjects")
+ *  *  All OPI dictionaries associated with XObjects on the page (see Section
+ *     9.10.6, "Open Prepress Interface (OPI)")
+**/
+  bool has_Version() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", NULL));
   }
 
   SkPdfArray Version() const {
@@ -549,11 +592,31 @@ public:
     return SkPdfArray();
   }
 
+/** (Required if Version is present; must be absent if LastModified is present) An
+ *  array of name objects representing the appearance states (value of the AS
+ *  entry) for annotations associated with the page. The appearance states must
+ *  be listed in the same order as the annotations in the page's Annots array (see
+ *  "Page Objects" on page 87). For an annotation with no AS entry, the corre-
+ *  sponding array element should be null. No appearance state should be
+ *  included for the trap network annotation itself.
+**/
+  bool has_AnnotStates() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AnnotStates", "", NULL));
+  }
+
   SkPdfArray AnnotStates() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AnnotStates", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) An array of font dictionaries representing fonts that were "fauxed"
+ *  (replaced by substitute fonts) during the generation of trap networks for the
+ *  page.
+**/
+  bool has_FontFauxing() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFauxing", "", NULL));
   }
 
   SkPdfArray FontFauxing() const {

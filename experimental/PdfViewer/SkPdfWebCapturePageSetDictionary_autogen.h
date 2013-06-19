@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a Web Capture page set
 class SkPdfWebCapturePageSetDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCapturePageSetDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfWebCapturePageSetDictionary& operator=(const SkPdfWebCapturePageSetDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The subtype of content set that this dictionary describes; must be SPS
+ *  ("Spider page set") for a page set.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
@@ -528,11 +536,25 @@ public:
     return "";
   }
 
+/** (Optional) The title of the page set, a text string representing it in human-readable
+ *  form.
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
+  }
+
   std::string T() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A text identifier generated from the text of the page set, as described in
+ *  "Digital Identifiers" on page 664.
+**/
+  bool has_TID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TID", "", NULL));
   }
 
   std::string TID() const {

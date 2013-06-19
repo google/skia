@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a movie dictionary
 class SkPdfMovieDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMovieDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfMovieDictionary& operator=(const SkPdfMovieDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) A file specification identifying a self-describing movie file.
+ *  Note: The format of a "self-describing movie file" is left unspecified, and there is
+ *  no guarantee of portability.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfFileSpec F() const {
     SkPdfFileSpec ret;
     if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFileSpec();
+  }
+
+/** (Optional) The width and height of the movie's bounding box, in pixels,
+ *  specified as [width height]. This entry should be omitted for a movie consist-
+ *  ing entirely of sound with no visible images.
+**/
+  bool has_Aspect() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Aspect", "", NULL));
   }
 
   SkPdfArray Aspect() const {
@@ -535,11 +552,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) The number of degrees by which the movie is rotated clockwise
+ *  relative to the page. The value must be a multiple of 90. Default value: 0.
+**/
+  bool has_Rotate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", NULL));
+  }
+
   long Rotate() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A flag or stream specifying whether and how to display a poster
+ *  image representing the movie. If this value is a stream, it contains an image
+ *  XObject (see Section 4.8, "Images") to be displayed as the poster; if it is the
+ *  boolean value true, the poster image should be retrieved from the movie file
+ *  itself; if it is false, no poster should be displayed. Default value: false.
+**/
+  bool has_Poster() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Poster", "", NULL));
   }
 
   bool isPosterABoolean() const {

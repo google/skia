@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a structure element dictionary
 class SkPdfStructureElementDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStructureElementDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfStructureElementDictionary& operator=(const SkPdfStructureElementDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if
+ *  present, must be StructElem for a structure element.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The structure type, a name object identifying the nature of the
+ *  structure element and its role within the document, such as a chapter,
+ *  paragraph, or footnote (see Section 9.6.2, "Structure Types"). Names of
+ *  structure types must conform to the guidelines described in Appendix E.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {
@@ -535,11 +552,28 @@ public:
     return "";
   }
 
+/** (Required; must be an indirect reference) The structure element that is the
+ *  immediate parent of this one in the structure hierarchy.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
+  }
+
   SkPdfDictionary* P() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) The element identifier, a string designating this structure
+ *  element. The string must be unique among all elements in the docu-
+ *  ment's structure hierarchy. The IDTree entry in the structure tree root
+ *  (see Table 9.9) defines the correspondence between element identifiers
+ *  and the structure elements they denote.
+**/
+  bool has_ID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
   std::string ID() const {
@@ -549,11 +583,36 @@ public:
     return "";
   }
 
+/** (Optional; must be an indirect reference) A page object representing a
+ *  page on which some or all of the content items designated by the K entry
+ *  are rendered.
+**/
+  bool has_Pg() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", NULL));
+  }
+
   SkPdfDictionary* Pg() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) The contents of this structure element, which may consist of
+ *  one or more marked-content sequences, PDF objects, and other struc-
+ *  ture elements. The value of this entry may be any of the following:
+ *  *  An integer marked-content identifier denoting a marked-content
+ *     sequence
+ *  *  A marked-content reference dictionary denoting a marked-content
+ *     sequence
+ *  *  An object reference dictionary denoting a PDF object
+ *  *  A structure element dictionary denoting another structure element
+ *  *  An array, each of whose elements is one of the objects listed above
+ *  See Section 9.6.3, "Structure Content" for further discussion of each of
+ *  these forms of representation.
+**/
+  bool has_K() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", NULL));
   }
 
   SkPdfObject* K() const {
@@ -563,11 +622,34 @@ public:
     return NULL;
   }
 
+/** (Optional) The attribute object or objects, if any, associated with this
+ *  structure element. Each attribute object is either a dictionary or a
+ *  stream; the value of this entry may be either a single attribute object or
+ *  an array of such objects together with their revision numbers (see
+ *  Section 9.6.4, "Structure Attributes," and "Attribute Revision Numbers"
+ *  on page 606).
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
+  }
+
   SkPdfObject* A() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) The attribute class or classes, if any, to which this structure
+ *  element belongs. The value of this entry may be either a single class
+ *  name or an array of class names together with their revision numbers
+ *  (see "Attribute Classes" on page 605 and "Attribute Revision Numbers"
+ *  on page 606).
+ *  Note: If both the A and C entries are present and a given attribute is speci-
+ *  fied by both, the one specified by the A entry takes precedence.
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   bool isCAName() const {
@@ -596,11 +678,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) The current revision number of this structure element (see
+ *  "Attribute Revision Numbers" on page 606). The value must be a non-
+ *  negative integer. Default value: 0.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
+  }
+
   long R() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The title of the structure element, a text string representing it
+ *  in human-readable form. The title should characterize the specific struc-
+ *  ture element, such as Chapter 1, rather than merely a generic element
+ *  type, such as Chapter.
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   std::string T() const {
@@ -610,6 +709,16 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.4) A language identifier specifying the natural language
+ *  for all text in the structure element except where overridden by language
+ *  specifications for nested structure elements or marked content (see Sec-
+ *  tion 9.8.1, "Natural Language Specification"). If this entry is absent, the
+ *  language (if any) specified in the document catalog applies.
+**/
+  bool has_Lang() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", NULL));
+  }
+
   std::string Lang() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", &ret)) return ret;
@@ -617,11 +726,30 @@ public:
     return "";
   }
 
+/** (Optional) An alternate description of the structure element and its
+ *  children in human-readable form, useful when extracting the docu-
+ *  ment's contents in support of accessibility to disabled users or for other
+ *  purposes (see Section 9.8.2, "Alternate Descriptions").
+**/
+  bool has_Alt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alt", "", NULL));
+  }
+
   std::string Alt() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alt", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) Text that is an exact replacement for the structure
+ *  element and its children. This replacement text (which should apply to
+ *  as small a piece of content as possible) is useful when extracting the doc-
+ *  ument's contents in support of accessibility to disabled users or for other
+ *  purposes (see Section 9.8.3, "Replacement Text").
+**/
+  bool has_ActualText() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ActualText", "", NULL));
   }
 
   std::string ActualText() const {

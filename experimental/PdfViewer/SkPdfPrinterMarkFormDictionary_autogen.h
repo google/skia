@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a printer's mark form dictionary
 class SkPdfPrinterMarkFormDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPrinterMarkFormDictionary_SkPdfObjectType;}
@@ -521,11 +522,29 @@ public:
 
   SkPdfPrinterMarkFormDictionary& operator=(const SkPdfPrinterMarkFormDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.4) A text string representing the printer's mark in
+ *  human-readable form, suitable for presentation to the user on the screen.
+**/
+  bool has_MarkStyle() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MarkStyle", "", NULL));
+  }
+
   std::string MarkStyle() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MarkStyle", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) A dictionary identifying the individual colorants
+ *  associated with a printer's mark such as a color bar. For each entry in this
+ *  dictionary, the key is a colorant name and the value is an array defining a
+ *  Separation color space for that colorant (see "Separation Color Spaces"
+ *  on page 201). The key must match the colorant name given in that color
+ *  space.
+**/
+  bool has_Colorants() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colorants", "", NULL));
   }
 
   SkPdfDictionary* Colorants() const {

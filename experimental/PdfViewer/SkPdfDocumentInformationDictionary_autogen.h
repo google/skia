@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the document information dictionary
 class SkPdfDocumentInformationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kDocumentInformationDictionary_SkPdfObjectType;}
@@ -521,11 +522,23 @@ public:
 
   SkPdfDocumentInformationDictionary& operator=(const SkPdfDocumentInformationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.1) The document's title.
+**/
+  bool has_Title() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", NULL));
+  }
+
   std::string Title() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The name of the person who created the document.
+**/
+  bool has_Author() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Author", "", NULL));
   }
 
   std::string Author() const {
@@ -535,11 +548,23 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.1) The subject of the document.
+**/
+  bool has_Subject() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subject", "", NULL));
+  }
+
   std::string Subject() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subject", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.1) Keywords associated with the document.
+**/
+  bool has_Keywords() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Keywords", "", NULL));
   }
 
   std::string Keywords() const {
@@ -549,11 +574,27 @@ public:
     return "";
   }
 
+/** (Optional) If the document was converted to PDF from another format, the
+ *  name of the application (for example, Adobe FrameMaker(R)) that created the
+ *  original document from which it was converted.
+**/
+  bool has_Creator() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", NULL));
+  }
+
   std::string Creator() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) If the document was converted to PDF from another format, the
+ *  name of the application (for example, Acrobat Distiller) that converted it to
+ *  PDF.
+**/
+  bool has_Producer() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Producer", "", NULL));
   }
 
   std::string Producer() const {
@@ -563,6 +604,13 @@ public:
     return "";
   }
 
+/** (Optional) The date and time the document was created, in human-readable
+ *  form (see Section 3.8.2, "Dates").
+**/
+  bool has_CreationDate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", NULL));
+  }
+
   SkPdfDate CreationDate() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", &ret)) return ret;
@@ -570,11 +618,39 @@ public:
     return SkPdfDate();
   }
 
+/** (Optional; PDF 1.1) The date and time the document was most recently
+ *  modified, in human-readable form (see Section 3.8.2, "Dates").
+**/
+  bool has_ModDate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", NULL));
+  }
+
   SkPdfDate ModDate() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfDate();
+  }
+
+/** (Optional; PDF 1.3) A name object indicating whether the document has
+ *  been modified to include trapping information (see Section 9.10.5, "Trap-
+ *  ping Support"):
+ *     True         The document has been fully trapped; no further trapping is
+ *                  needed. (Note that this is the name True, not the boolean
+ *                  value true.)
+ *     False        The document has not yet been trapped; any desired trap-
+ *                  ping must still be done. (Note that this is the name False, not
+ *                  the boolean value false.)
+ *     Unknown      Either it is unknown whether the document has been
+ *                  trapped or it has been partly but not yet fully trapped; some
+ *                  additional trapping may still be needed.
+ *  Default value: Unknown.
+ *  The value of this entry may be set automatically by the software creating the
+ *  document's trapping information or may be known only to a human opera-
+ *  tor and entered manually.
+**/
+  bool has_Trapped() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Trapped", "", NULL));
   }
 
   std::string Trapped() const {

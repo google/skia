@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to markup annotations
 class SkPdfMarkupAnnotationsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMarkupAnnotationsDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfMarkupAnnotationsDictionary& operator=(const SkPdfMarkupAnnotationsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be
+ *  Highlight, Underline, Squiggly, or StrikeOut for a highlight, underline,
+ *  squiggly-underline, or strikeout annotation, respectively.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
@@ -528,11 +537,43 @@ public:
     return "";
   }
 
+/** (Required) The text to be displayed in the pop-up window when the annota-
+ *  tion is opened. Carriage returns may be used to separate the text into para-
+ *  graphs.
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) An array of 8 x n numbers specifying the coordinates of n quadri-
+ *  laterals in default user space. Each quadrilateral encompasses a word or
+ *  group of contiguous words in the text underlying the annotation. The coor-
+ *  dinates for each quadrilateral are given in the order
+ *      x1 y1 x2 y2 x3 y3 x4 y4
+ *  specifying the quadrilateral's four vertices in counterclockwise order (see
+ *  Figure 8.5). The text is oriented with respect to the edge connecting points
+ *  (x1 , y1) and (x2 , y2). (See implementation note 67 in Appendix H.)
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
+ *  QuadPoints entry; see Table 8.10 on page 490 and Section 8.4.4, "Appearance
+ *  Streams."
+ *                               (x3 , y3 )
+ *                              ter
+ *                                          (x2 , y2 )
+ *                            pi
+ *      (x4 , y4 )
+ *                   Ju
+ *                 (x1 , y1 )
+ *     FIGURE 8.5 QuadPoints specification
+**/
+  bool has_QuadPoints() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "QuadPoints", "", NULL));
   }
 
   SkPdfArray QuadPoints() const {

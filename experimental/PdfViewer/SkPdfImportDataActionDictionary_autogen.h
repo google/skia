@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to an import-data action
 class SkPdfImportDataActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kImportDataActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfImportDataActionDictionary& operator=(const SkPdfImportDataActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be ImportData
+ *  for an import-data action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The FDF file from which to import the data. (See implementation
+ *  notes 87 and 88 in Appendix H.)
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
   SkPdfFileSpec F() const {

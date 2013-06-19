@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all field dictionaries
 class SkPdfFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFieldDictionary_SkPdfObjectType;}
@@ -521,11 +522,36 @@ public:
 
   SkPdfFieldDictionary& operator=(const SkPdfFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required for terminal fields; inheritable) The type of field that this dictionary
+ *  describes:
+ *       Btn       Button (see "Button Fields" on page 538)
+ *       Tx        Text (see "Text Fields" on page 543)
+ *       Ch        Choice (see "Choice Fields" on page 545)
+ *       Sig       (PDF 1.3) Signature (see "Signature Fields" on page 547)
+ *  Note: This entry may be present in a nonterminal field (one whose descendants
+ *  are themselves fields) in order to provide an inheritable FT value. However, a
+ *  nonterminal field does not logically have a type of its own; it is merely a contain-
+ *  er for inheritable attributes that are intended for descendant terminal fields of
+ *  any type.
+**/
+  bool has_FT() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FT", "", NULL));
+  }
+
   std::string FT() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FT", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required if this field is the child of another in the field hierarchy; absent other-
+ *  wise) The field that is the immediate parent of this one (the field, if any,
+ *  whose Kids array includes this field). A field can have at most one parent; that
+ *  is, it can be included in the Kids array of at most one other field.
+**/
+  bool has_Parent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
   }
 
   SkPdfDictionary* Parent() const {
@@ -535,11 +561,25 @@ public:
     return NULL;
   }
 
+/** (Optional) An array of indirect references to the immediate children of this
+ *  field.
+**/
+  bool has_Kids() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
+  }
+
   SkPdfArray Kids() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) The partial field name (see "Field Names," below; see also imple-
+ *  mentation notes 82 and 83 in Appendix H).
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   std::string T() const {
@@ -549,11 +589,29 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.3) An alternate field name, to be used in place of the actual
+ *  field name wherever the field must be identified in the user interface (such as
+ *  in error or status messages referring to the field). This text is also useful
+ *  when extracting the document's contents in support of accessibility to dis-
+ *  abled users or for other purposes (see Section 9.8.2, "Alternate Descrip-
+ *  tions").
+**/
+  bool has_TU() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TU", "", NULL));
+  }
+
   std::string TU() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TU", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.3) The mapping name to be used when exporting inter-
+ *  active form field data from the document.
+**/
+  bool has_TM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TM", "", NULL));
   }
 
   std::string TM() const {
@@ -563,11 +621,26 @@ public:
     return "";
   }
 
+/** (Optional; inheritable) A set of flags specifying various characteristics of the
+ *  field (see Table 8.50). Default value: 0.
+**/
+  bool has_Ff() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ff", "", NULL));
+  }
+
   long Ff() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ff", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; inheritable) The field's value, whose format varies depending on
+ *  the field type; see the descriptions of individual field types for further infor-
+ *  mation.
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
   SkPdfObject* V() const {
@@ -577,11 +650,28 @@ public:
     return NULL;
   }
 
+/** (Optional; inheritable) The default value to which the field reverts when a
+ *  reset-form action is executed (see "Reset-Form Actions" on page 554). The
+ *  format of this value is the same as that of V.
+**/
+  bool has_DV() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DV", "", NULL));
+  }
+
   SkPdfObject* DV() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DV", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2) An additional-actions dictionary defining the field's
+ *  behavior in response to various trigger events (see Section 8.5.2, "Trigger
+ *  Events"). This entry has exactly the same meaning as the AA entry in an
+ *  annotation dictionary (see Section 8.4.1, "Annotation Dictionaries").
+**/
+  bool has_AA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
   }
 
   SkPdfDictionary* AA() const {

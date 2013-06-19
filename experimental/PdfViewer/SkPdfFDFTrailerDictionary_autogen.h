@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry in the FDF trailer dictionary
 class SkPdfFDFTrailerDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFTrailerDictionary_SkPdfObjectType;}
@@ -520,6 +521,13 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfFDFTrailerDictionary& operator=(const SkPdfFDFTrailerDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Required; must be an indirect reference) The catalog object for this FDF file (see
+ *  "FDF Catalog," below).
+**/
+  bool has_Root() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Root", "", NULL));
+  }
 
   SkPdfDictionary* Root() const {
     SkPdfDictionary* ret;

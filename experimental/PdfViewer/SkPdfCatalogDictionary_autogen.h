@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the catalog dictionary
 class SkPdfCatalogDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCatalogDictionary_SkPdfObjectType;}
@@ -521,11 +522,34 @@ public:
 
   SkPdfCatalogDictionary& operator=(const SkPdfCatalogDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must
+ *  be Catalog for the catalog dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) The version of the PDF specification to which the
+ *  document conforms (for example, 1.4), if later than the version specified
+ *  in the file's header (see Section 3.4.1, "File Header"). If the header speci-
+ *  fies a later version, or if this entry is absent, the document conforms to
+ *  the version specified in the header. This entry enables a PDF producer
+ *  application to update the version using an incremental update; see Sec-
+ *  tion 3.4.5, "Incremental Updates." (See implementation note 18 in Ap-
+ *  pendix H.)
+ *  Note: The value of this entry is a name object, not a number, and so must
+ *  be preceded by a slash character (/) when written in the PDF file (for ex-
+ *  ample, /1.4).
+**/
+  bool has_Version() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", NULL));
   }
 
   std::string Version() const {
@@ -535,11 +559,29 @@ public:
     return "";
   }
 
+/** (Required; must be an indirect reference) The page tree node that is the
+ *  root of the document's page tree (see Section 3.6.2, "Page Tree").
+**/
+  bool has_Pages() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", NULL));
+  }
+
   SkPdfDictionary* Pages() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A number tree (see Section 3.8.5, "Number Trees")
+ *  defining the page labeling for the document. The keys in this tree are
+ *  page indices; the corresponding values are page label dictionaries (see
+ *  Section 8.3.1, "Page Labels"). Each page index denotes the first page in a
+ *  labeling range to which the specified page label dictionary applies. The
+ *  tree must include a value for page index 0.
+**/
+  bool has_PageLabels() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PageLabels", "", NULL));
   }
 
   bool isPageLabelsANumber() const {
@@ -568,11 +610,26 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2) The document's name dictionary (see Section 3.6.3,
+ *  "Name Dictionary").
+**/
+  bool has_Names() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Names", "", NULL));
+  }
+
   SkPdfDictionary* Names() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Names", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.1; must be an indirect reference) A dictionary of names
+ *  and corresponding destinations (see "Named Destinations" on page
+ *  476).
+**/
+  bool has_Dests() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", NULL));
   }
 
   SkPdfDictionary* Dests() const {
@@ -582,11 +639,34 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2) A viewer preferences dictionary (see Section 8.1,
+ *  "Viewer Preferences") specifying the way the document is to be dis-
+ *  played on the screen. If this entry is absent, viewer applications should
+ *  use their own current user preference settings.
+**/
+  bool has_ViewerPreferences() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewerPreferences", "", NULL));
+  }
+
   SkPdfDictionary* ViewerPreferences() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewerPreferences", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A name object specifying the page layout to be used when the
+ *  document is opened:
+ *      SinglePage           Display one page at a time.
+ *      OneColumn            Display the pages in one column.
+ *      TwoColumnLeft        Display the pages in two columns, with odd-
+ *                           numbered pages on the left.
+ *      TwoColumnRight       Display the pages in two columns, with odd-
+ *                           numbered pages on the right.
+ *  (See implementation note 19 in Appendix H.) Default value: SinglePage.
+**/
+  bool has_PageLayout() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PageLayout", "", NULL));
   }
 
   std::string PageLayout() const {
@@ -596,11 +676,33 @@ public:
     return "";
   }
 
+/** (Optional) A name object specifying how the document should be dis-
+ *  played when opened:
+ *      UseNone              Neither document outline nor thumbnail im-
+ *                           ages visible
+ *      UseOutlines          Document outline visible
+ *      UseThumbs            Thumbnail images visible
+ *      FullScreen           Full-screen mode, with no menu bar, window
+ *                           controls, or any other window visible
+ *  Default value: UseNone.
+**/
+  bool has_PageMode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PageMode", "", NULL));
+  }
+
   std::string PageMode() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PageMode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; must be an indirect reference) The outline dictionary that is the
+ *  root of the document's outline hierarchy (see Section 8.2.2, "Document
+ *  Outline").
+**/
+  bool has_Outlines() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Outlines", "", NULL));
   }
 
   SkPdfDictionary* Outlines() const {
@@ -610,11 +712,30 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.1; must be an indirect reference) An array of thread
+ *  dictionaries representing the document's article threads (see Section
+ *  8.3.2, "Articles").
+**/
+  bool has_Threads() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Threads", "", NULL));
+  }
+
   SkPdfArray Threads() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Threads", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.1) A value specifying a destination to be displayed or
+ *  an action to be performed when the document is opened. The value is
+ *  either an array defining a destination (see Section 8.2.1, "Destinations")
+ *  or an action dictionary representing an action (Section 8.5, "Actions"). If
+ *  this entry is absent, the document should be opened to the top of the
+ *  first page at the default magnification factor.
+**/
+  bool has_OpenAction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OpenAction", "", NULL));
   }
 
   bool isOpenActionAArray() const {
@@ -643,11 +764,28 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) An additional-actions dictionary defining the actions
+ *  to be taken in response to various trigger events affecting the document
+ *  as a whole (see "Trigger Events" on page 514). (See also implementation
+ *  note 20 in Appendix H.)
+**/
+  bool has_AA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
+  }
+
   SkPdfDictionary* AA() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A URI dictionary containing document-level information for
+ *  URI (uniform resource identifier) actions (see "URI Actions" on page
+ *  523).
+**/
+  bool has_URI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URI", "", NULL));
   }
 
   SkPdfDictionary* URI() const {
@@ -657,11 +795,26 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.2) The document's interactive form (AcroForm) dic-
+ *  tionary (see Section 8.6.1, "Interactive Form Dictionary").
+**/
+  bool has_AcroForm() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AcroForm", "", NULL));
+  }
+
   SkPdfDictionary* AcroForm() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AcroForm", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4; must be an indirect reference) A metadata stream
+ *  containing metadata for the document (see Section 9.2.2, "Metadata
+ *  Streams").
+**/
+  bool has_Metadata() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
   SkPdfStream Metadata() const {
@@ -671,11 +824,26 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional; PDF 1.3) The document's structure tree root dictionary (see
+ *  Section 9.6.1, "Structure Hierarchy").
+**/
+  bool has_StructTreeRoot() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructTreeRoot", "", NULL));
+  }
+
   SkPdfDictionary* StructTreeRoot() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructTreeRoot", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) A mark information dictionary containing informa-
+ *  tion about the document's usage of Tagged PDF conventions (see Sec-
+ *  tion 9.7.1, "Mark Information Dictionary").
+**/
+  bool has_MarkInfo() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MarkInfo", "", NULL));
   }
 
   SkPdfDictionary* MarkInfo() const {
@@ -685,6 +853,16 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.4) A language identifier specifying the natural language
+ *  for all text in the document except where overridden by language speci-
+ *  fications for structure elements or marked content (see Section 9.8.1,
+ *  "Natural Language Specification"). If this entry is absent, the language is
+ *  considered unknown.
+**/
+  bool has_Lang() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", NULL));
+  }
+
   std::string Lang() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", &ret)) return ret;
@@ -692,11 +870,27 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.3) A Web Capture information dictionary containing
+ *  state information used by the Acrobat Web Capture (AcroSpider) plug-
+ *  in extension (see Section 9.9.1, "Web Capture Information Dictionary").
+**/
+  bool has_SpiderInfo() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpiderInfo", "", NULL));
+  }
+
   SkPdfDictionary* SpiderInfo() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpiderInfo", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.4) An array of output intent dictionaries describing the
+ *  color characteristics of output devices on which the document might be
+ *  rendered (see "Output Intents" on page 684).
+**/
+  bool has_OutputIntents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputIntents", "", NULL));
   }
 
   SkPdfArray OutputIntents() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a PostScript XObject dictionary
 class SkPdfPSXobjectDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPSXobjectDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfPSXobjectDictionary& operator=(const SkPdfPSXobjectDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must be
+ *  XObject for a PostScript XObject.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,26 @@ public:
     return "";
   }
 
+/** (Required) The type of XObject that this dictionary describes; must be PS for a
+ *  PostScript XObject.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A stream whose contents are to be used in place of the PostScript
+ *  XObject's stream when the target PostScript interpreter is known to support only
+ *  LanguageLevel 1.
+**/
+  bool has_Level1() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Level1", "", NULL));
   }
 
   SkPdfStream Level1() const {

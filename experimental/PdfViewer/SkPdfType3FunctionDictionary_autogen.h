@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 3 function dictionary
 class SkPdfType3FunctionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType3FunctionDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfType3FunctionDictionary& operator=(const SkPdfType3FunctionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of k 1-input functions making up the stitching function. The out-
+ *  put dimensionality of all functions must be the same, and compatible with the value of
+ *  Range if Range is present.
+**/
+  bool has_Functions() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Functions", "", NULL));
+  }
+
   SkPdfArray Functions() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Functions", "", &ret)) return ret;
@@ -528,11 +537,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Required) An array of k - 1 numbers that, in combination with Domain, define the
+ *  intervals to which each function from the Functions array applies. Bounds elements
+ *  must be in order of increasing value, and each value must be within the domain
+ *  defined by Domain.
+**/
+  bool has_Bounds() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bounds", "", NULL));
+  }
+
   SkPdfArray Bounds() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bounds", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) An array of 2 x k numbers that, taken in pairs, map each subset of the do-
+ *  main defined by Domain and the Bounds array to the domain of the corresponding
+ *  function.
+**/
+  bool has_Encode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", NULL));
   }
 
   SkPdfArray Encode() const {

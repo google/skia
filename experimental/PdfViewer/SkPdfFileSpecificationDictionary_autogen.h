@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a file specification dictionary
 class SkPdfFileSpecificationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFileSpecificationDictionary_SkPdfObjectType;}
@@ -521,11 +522,29 @@ public:
 
   SkPdfFileSpecificationDictionary& operator=(const SkPdfFileSpecificationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required if an EF or RF entry is present; recommended always) The type of PDF object
+ *  that this dictionary describes; must be Filespec for a file specification dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The name of the file system to be used to interpret this file specification. If
+ *  this entry is present, all other entries in the dictionary are interpreted by the desig-
+ *  nated file system. PDF defines only one standard file system, URL (see Section 3.10.4,
+ *  "URL Specifications"); a viewer application or plug-in extension can register a differ-
+ *  ent one (see Appendix E). Note that this entry is independent of the F, DOS, Mac, and
+ *  Unix entries.
+**/
+  bool has_FS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FS", "", NULL));
   }
 
   std::string FS() const {
@@ -535,11 +554,27 @@ public:
     return "";
   }
 
+/** (Required if the DOS, Mac, and Unix entries are all absent) A file specification string of
+ *  the form described in Section 3.10.1, "File Specification Strings," or (if the file system
+ *  is URL) a uniform resource locator, as described in Section 3.10.4, "URL Specifica-
+ *  tions."
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   std::string F() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
+ *  representing a DOS file name.
+**/
+  bool has_DOS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DOS", "", NULL));
   }
 
   std::string DOS() const {
@@ -549,11 +584,25 @@ public:
     return "";
   }
 
+/** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
+ *  representing a Mac OS file name.
+**/
+  bool has_Mac() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", NULL));
+  }
+
   std::string Mac() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
+ *  representing a UNIX file name.
+**/
+  bool has_Unix() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Unix", "", NULL));
   }
 
   std::string Unix() const {
@@ -563,11 +612,30 @@ public:
     return "";
   }
 
+/** (Optional) An array of two strings constituting a file identifier (see Section 9.3, "File
+ *  Identifiers") that is also included in the referenced file. The use of this entry improves
+ *  a viewer application's chances of finding the intended file and allows it to warn the
+ *  user if the file has changed since the link was made.
+**/
+  bool has_ID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
+  }
+
   SkPdfArray ID() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.2) A flag indicating whether the file referenced by the file specifica-
+ *  tion is volatile (changes frequently with time). If the value is true, viewer applications
+ *  should never cache a copy of the file. For example, a movie annotation referencing a
+ *  URL to a live video camera could set this flag to true, notifying the application that it
+ *  should reacquire the movie each time it is played. Default value: false.
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
   bool V() const {
@@ -577,11 +645,33 @@ public:
     return false;
   }
 
+/** (Required if RF is present; PDF 1.3) A dictionary containing a subset of the keys F,
+ *  DOS, Mac, and Unix, corresponding to the entries by those names in the file specifica-
+ *  tion dictionary. The value of each such key is an embedded file stream (see Section
+ *  3.10.3, "Embedded File Streams") containing the corresponding file. If this entry is
+ *  present, the Type entry is required and the file specification dictionary must be indi-
+ *  rectly referenced.
+**/
+  bool has_EF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EF", "", NULL));
+  }
+
   SkPdfDictionary* EF() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EF", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3) A dictionary with the same structure as the EF dictionary, which
+ *  must also be present. Each key in the RF dictionary must also be present in the EF dic-
+ *  tionary. Each value is a related files array (see "Related Files Arrays" on page 125)
+ *  identifying files that are related to the corresponding file in the EF dictionary. If this
+ *  entry is present, the Type entry is required and the file specification dictionary must
+ *  be indirectly referenced.
+**/
+  bool has_RF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RF", "", NULL));
   }
 
   SkPdfDictionary* RF() const {

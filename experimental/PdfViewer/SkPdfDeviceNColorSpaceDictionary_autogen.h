@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry in a DeviceN color space attributes dictionary
 class SkPdfDeviceNColorSpaceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kDeviceNColorSpaceDictionary_SkPdfObjectType;}
@@ -520,6 +521,23 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfDeviceNColorSpaceDictionary& operator=(const SkPdfDeviceNColorSpaceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional) A dictionary describing the individual colorants used in the DeviceN
+ *  color space. For each entry in this dictionary, the key is a colorant name and the
+ *  value is an array defining a Separation color space for that colorant (see "Separa-
+ *  tion Color Spaces" on page 201). The key must match the colorant name given in
+ *  that color space. The dictionary need not list all colorants used in the DeviceN
+ *  color space and may list additional colorants.
+ *  This dictionary has no effect on the operation of the DeviceN color space itself or
+ *  the appearance that it produces. However, it provides information about the indi-
+ *  vidual colorants that may be useful to some applications. In particular, the alter-
+ *  nate color space and tint transformation function of a Separation color space
+ *  describe the appearance of that colorant alone, whereas those of a DeviceN color
+ *  space describe only the appearance of its colorants in combination.
+**/
+  bool has_Colorants() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colorants", "", NULL));
+  }
 
   SkPdfDictionary* Colorants() const {
     SkPdfDictionary* ret;

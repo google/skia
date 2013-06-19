@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Standard layout attributes common to all standard structure types
 class SkPdfStandardStructureDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStandardStructureDictionary_SkPdfObjectType;}
@@ -521,11 +522,84 @@ public:
 
   SkPdfStandardStructureDictionary& operator=(const SkPdfStandardStructureDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The positioning of the element with respect to the enclosing refer-
+ *  ence area and other content:
+ *      Block        Stacked in the block-progression direction within an enclos-
+ *                   ing reference area or parent BLSE.
+ *      Inline       Packed in the inline-progression direction within an enclos-
+ *                   ing BLSE.
+ *      Before       Placed so that the before edge of the element's allocation rec-
+ *                   tangle (see "Content and Allocation Rectangles" on page
+ *                   648) coincides with that of the nearest enclosing reference
+ *                   area. The element may float, if necessary, to achieve the speci-
+ *                   fied placement (see note below). The element is treated as a
+ *                   block occupying the full extent of the enclosing reference
+ *                   area in the inline direction; other content is stacked so as to
+ *                   begin at the after edge of the element's allocation rectangle.
+ *      Start        Placed so that the start edge of the element's allocation rec-
+ *                   tangle (see "Content and Allocation Rectangles" on page
+ *                   648) coincides with that of the nearest enclosing reference
+ *                   area. The element may float, if necessary, to achieve the speci-
+ *                   fied placement (see note below). Other content that would
+ *                   intrude into the element's allocation rectangle is laid out as a
+ *                   runaround.
+ *      End          Placed so that the end edge of the element's allocation rec-
+ *                   tangle (see "Content and Allocation Rectangles" on page
+ *                   648) coincides with that of the nearest enclosing reference
+ *                   area. The element may float, if necessary, to achieve the speci-
+ *                   fied placement (see note below). Other content that would
+ *                   intrude into the element's allocation rectangle is laid out as a
+ *                   runaround.
+ *  When applied to an ILSE, any value except Inline causes the element to be
+ *  treated as a BLSE instead. Default value: Inline.
+ *  Note: Elements with Placement values of Before, Start, or End are removed from
+ *  the normal stacking or packing process and allowed to "float" to the specified
+ *  edge of the enclosing reference area or parent BLSE. Multiple such floating ele-
+ *  ments may be positioned adjacent to one another against the specified edge of the
+ *  reference area, or placed serially against the edge, in the order encountered.
+ *       Complex cases such as floating elements that interfere with each other or do not
+ *       fit on the same page may be handled differently by different layout applications;
+ *       Tagged PDF merely identifies the elements as floating and indicates their desired
+ *       placement.
+**/
+  bool has_Placement() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Placement", "", NULL));
+  }
+
   std::string Placement() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Placement", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The directions of layout progression for packing of ILSEs (inline
+ *  progression) and stacking of BLSEs (block progression):
+ *      LrTb         Inline progression from left to right; block progression from
+ *                   top to bottom. This is the typical writing mode for Western
+ *                   writing systems.
+ *      RlTb         Inline progression from right to left; block progression from
+ *                   top to bottom. This is the typical writing mode for Arabic
+ *                   and Hebrew writing systems.
+ *      TbRl         Inline progression from top to bottom; block progression
+ *                   from right to left. This is the typical writing mode for Chi-
+ *                   nese and Japanese writing systems.
+ *  The specified layout directions apply to the given structure element and all of
+ *  its descendants to any level of nesting. Default value: LrTb.
+ *  For elements that produce multiple columns, the writing mode defines the
+ *  direction of column progression within the reference area: the inline direc-
+ *  tion determines the stacking direction for columns and the default flow
+ *  order of text from column to column. For tables, the writing mode controls
+ *  the layout of rows and columns: table rows (structure type TR) are stacked
+ *  in the block direction, cells within a row (structure type TD) in the inline
+ *  direction.
+ *  Note: The inline-progression direction specified by the writing mode is subject to
+ *  local override within the text being laid out, as described in Unicode Standard
+ *  Annex #9, The Bidirectional Algorithm, available from the Unicode Consor-
+ *  tium (see the Bibliography).
+**/
+  bool has_WritingMode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WritingMode", "", NULL));
   }
 
   std::string WritingMode() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a link annotation
 class SkPdfALinkAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kALinkAnnotationDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfALinkAnnotationDictionary& operator=(const SkPdfALinkAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Link
+ *  for a link annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
@@ -528,11 +536,28 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.4) An alternate representation of the annotation's contents in
+ *  human-readable form, useful when extracting the document's contents in sup-
+ *  port of accessibility to disabled users or for other purposes (see Section 9.8.2,
+ *  "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; not permitted if an A entry is present) A destination to be displayed
+ *  when the annotation is activated (see Section 8.2.1, "Destinations"; see also
+ *  implementation note 66 in Appendix H).
+**/
+  bool has_Dest() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", NULL));
   }
 
   bool isDestAArray() const {
@@ -574,11 +599,40 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.2) The annotation's highlighting mode, the visual effect to be
+ *  used when the mouse button is pressed or held down inside its active area:
+ *      N    (None) No highlighting.
+ *      I    (Invert) Invert the contents of the annotation rectangle.
+ *      O    (Outline) Invert the annotation's border.
+ *      P    (Push) Display the annotation's down appearance, if any (see Section
+ *           8.4.4, "Appearance Streams"). If no down appearance is defined, offset
+ *           the contents of the annotation rectangle to appear as if it were being
+ *           "pushed" below the surface of the page.
+ *  A highlighting mode other than P overrides any down appearance defined for
+ *  the annotation. Default value: I.
+ *  Note: In PDF 1.1, highlighting is always done by inverting colors inside the anno-
+ *  tation rectangle.
+**/
+  bool has_H() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
+  }
+
   std::string H() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.3) A URI action (see "URI Actions" on page 523) formerly
+ *  associated with this annotation. When Web Capture (Section 9.9, "Web Cap-
+ *  ture") changes an annotation from a URI to a go-to action ("Go-To Actions"
+ *  on page 519), it uses this entry to save the data from the original URI action so
+ *  that it can be changed back in case the target page for the go-to action is subse-
+ *  quently deleted.
+**/
+  bool has_PA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PA", "", NULL));
   }
 
   SkPdfDictionary* PA() const {

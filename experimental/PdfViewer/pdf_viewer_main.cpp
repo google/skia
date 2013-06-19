@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -23,6 +24,8 @@
 
 #include "podofo.h"
 using namespace PoDoFo;
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
 
 const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
                                   const PdfObject* obj,
@@ -176,14 +179,20 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
 
 /*
  * TODO(edisonn):
- * - encapsulate podofo in the pdf api so the skpdf does not know anything about podofo
+ * - encapsulate podofo in the pdf api so the skpdf does not know anything about podofo ... in progress
  * - ASAP so skp -> pdf -> png looks great
- * - load gs/ especially smask and already known prop (skp)
- * - use transparency (I think ca and CA ops) (skp)
- * - all font types
- * - word spacing
- * - load font for baidu.pdf
- * - load font for youtube.pdf
+ * - load gs/ especially smask and already known prop (skp)...
+ * - all font types and all ppdf font features
+ *      - word spacing
+ *      - load font for baidu.pdf
+ *      - load font for youtube.pdf
+ *      - parser for pdf from the definition already available in pdfspec_autogen.py
+ * - wrapper on classes for customizations? e.g.
+ * SkPdfPageObjectVanila - has only the basic loaders/getters
+ * SkPdfPageObject : public SkPdfPageObjectVanila, extends, and I can add customizations here
+ * need to find a nice object model for all this with constructors and factories
+ * - deal with inheritable automatically ?
+ * - deal with specific type in spec directly, add all dictionary types to known types
 */
 
 //#define PDF_TRACE
@@ -270,6 +279,7 @@ static SkMatrix SkMatrixFromPdfMatrix(double array[6]) {
 struct PdfColorOperator {
     std::string fColorSpace;  // TODO(edisonn): use SkString
     SkColor fColor;
+    double fOpacity;  // ca or CA
     // TODO(edisonn): add here other color space options.
 
     void setRGBColor(SkColor color) {
@@ -277,7 +287,12 @@ struct PdfColorOperator {
         fColor = color;
     }
     // TODO(edisonn): double check the default values for all fields.
-    PdfColorOperator() : fColor(SK_ColorBLACK) {}
+    PdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {}
+
+    void applyGraphicsState(SkPaint* paint) {
+        paint->setColor(SkColorSetA(fColor, fOpacity * 255));
+    }
+
 };
 
 // TODO(edisonn): better class design.
@@ -326,7 +341,22 @@ struct PdfGraphicsState {
         fWordSpace    = 0;
         fCharSpace    = 0;
         fHasClipPathToApply = false;
-        fResources = NULL;
+        fResources    = NULL;
+    }
+
+    void applyGraphicsState(SkPaint* paint, bool stroking) {
+        if (stroking) {
+            fStroking.applyGraphicsState(paint);
+        } else {
+            fNonStroking.applyGraphicsState(paint);
+        }
+
+        // TODO(edisonn): get this from pdfContext->options,
+        // or pdfContext->addPaintOptions(&paint);
+        paint->setAntiAlias(true);
+
+        // TODO(edisonn): dashing, miter, ...
+        paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
     }
 };
 
@@ -763,7 +793,8 @@ PdfResult DrawText(PdfContext* pdfContext,
     if (fCurFont->GetFontScale() != 0) {
         paint.setTextScaleX(SkFloatToScalar(fCurFont->GetFontScale() / 100.0));
     }
-    paint.setColor(pdfContext->fGraphicsState.fNonStroking.fColor);
+
+    pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
 
     paint.setTypeface(SkTypefaceFromPdfFont(fCurFont));
 
@@ -883,6 +914,9 @@ bool LongFromDictionary(const PdfMemDocument* pdfDoc,
     if (value == NULL || !value->IsNumber()) {
         return false;
     }
+    if (data == NULL) {
+        return true;
+    }
 
     *data = value->GetNumber();
     return true;
@@ -905,8 +939,11 @@ bool DoubleFromDictionary(const PdfMemDocument* pdfDoc,
     const PdfObject* value = resolveReferenceObject(pdfDoc,
                                               dict.GetKey(PdfName(key)));
 
-    if (value == NULL || !value->IsReal()) {
+    if (value == NULL || (!value->IsReal() && !value->IsNumber())) {
         return false;
+    }
+    if (data == NULL) {
+        return true;
     }
 
     *data = value->GetReal();
@@ -934,6 +971,9 @@ bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
     if (value == NULL || !value->IsBool()) {
         return false;
     }
+    if (data == NULL) {
+        return true;
+    }
 
     *data = value->GetBool();
     return true;
@@ -958,6 +998,9 @@ bool NameFromDictionary(const PdfMemDocument* pdfDoc,
                                               true);
     if (value == NULL || !value->IsName()) {
         return false;
+    }
+    if (data == NULL) {
+        return true;
     }
 
     *data = value->GetName().GetName();
@@ -984,6 +1027,9 @@ bool StringFromDictionary(const PdfMemDocument* pdfDoc,
     if (value == NULL || (!value->IsString() && !value->IsHexString())) {
         return false;
     }
+    if (data == NULL) {
+        return true;
+    }
 
     *data = value->GetString().GetString();
     return true;
@@ -1008,6 +1054,9 @@ bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
                                               true);
     if (value == NULL || !value->IsDictionary()) {
         return false;
+    }
+    if (data == NULL) {
+        return true;
     }
 
     return PodofoMapper::map(*pdfDoc, *value, (SkPdfObject**)data);
@@ -1035,6 +1084,10 @@ bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
         return false;
     }
 
+    if (data == NULL) {
+        return true;
+    }
+
     return PodofoMapper::map(*pdfDoc, *value, (T**)data);
 }
 
@@ -1058,6 +1111,9 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
                                               true);
     if (value == NULL) {
         return false;
+    }
+    if (data == NULL) {
+        return true;
     }
     return PodofoMapper::map(*pdfDoc, *value, data);
 }
@@ -1311,6 +1367,7 @@ PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfI
         canvas->saveLayer(&dst, NULL);
         canvas->drawBitmapRect(image, dst, NULL);
         SkPaint xfer;
+        pdfContext->fGraphicsState.applyGraphicsState(&xfer, false);
         xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
         canvas->drawBitmapRect(sMask, dst, &xfer);
         canvas->restore();
@@ -1597,12 +1654,13 @@ PdfResult PdfOp_TD(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     double ty = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
     double tx = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
+    // TODO(edisonn): Create factory methods or constructors so podofo is hidden
     PdfObject _ty(PdfVariant(-ty));
     pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &_ty));
 
     PdfOp_TL(pdfContext, canvas, looper);
 
-    PdfObject vtx(PdfVariant(-(-tx)));  // TODO(edisonn) Hmm, the compiler thinks I have here a function pointer if we use (tx), but not -(-tx)
+    PdfObject vtx(PdfVariant(-(-tx)));  // TODO(edisonn): Hmm, the compiler thinks I have here a function pointer if we use (tx), but not -(-tx)
     pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &vtx));
 
     PdfObject vty(PdfVariant(-(-ty)));
@@ -1785,20 +1843,13 @@ PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, bool fil
 
     SkPaint paint;
 
-    // TODO(edisonn): get this from pdfContext->options,
-    // or pdfContext->addPaintOptions(&paint);
-    paint.setAntiAlias(true);
-
-    // TODO(edisonn): dashing, miter, ...
-
-//    path.transform(pdfContext->fGraphicsState.fMatrix);
-//    path.transform(pdfContext->fOriginalMatrix);
-
     SkPoint line[2];
     if (fill && !stroke && path.isLine(line)) {
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(pdfContext->fGraphicsState.fNonStroking.fColor);
+
+        pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
         paint.setStrokeWidth(SkDoubleToScalar(0));
+
         canvas->drawPath(path, paint);
     } else {
         if (fill) {
@@ -1806,14 +1857,17 @@ PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, bool fil
             if (evenOdd) {
                 path.setFillType(SkPath::kEvenOdd_FillType);
             }
-            paint.setColor(pdfContext->fGraphicsState.fNonStroking.fColor);
+
+            pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
+
             canvas->drawPath(path, paint);
         }
 
         if (stroke) {
             paint.setStyle(SkPaint::kStroke_Style);
-            paint.setColor(pdfContext->fGraphicsState.fStroking.fColor);
-            paint.setStrokeWidth(SkDoubleToScalar(pdfContext->fGraphicsState.fLineWidth));
+
+            pdfContext->fGraphicsState.applyGraphicsState(&paint, true);
+
             path.setFillType(SkPath::kWinding_FillType);  // reset it, just in case it messes up the stroke
             canvas->drawPath(path, paint);
         }
@@ -2290,6 +2344,23 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     PodofoMapper::map(value, &gs);
 
     // TODO(edisonn): now load all those properties in graphic state.
+    if (gs == NULL) {
+        return kIgnoreError_PdfResult;
+    }
+
+    if (gs->has_CA()) {
+        pdfContext->fGraphicsState.fStroking.fOpacity = gs->CA();
+    }
+
+    if (gs->has_ca()) {
+        pdfContext->fGraphicsState.fNonStroking.fOpacity = gs->ca();
+    }
+
+    if (gs->has_LW()) {
+        pdfContext->fGraphicsState.fLineWidth = gs->LW();
+    }
+
+
 
     return kNYI_PdfResult;
 }

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a separation dictionary
 class SkPdfSeparationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSeparationDictionary_SkPdfObjectType;}
@@ -521,11 +522,28 @@ public:
 
   SkPdfSeparationDictionary& operator=(const SkPdfSeparationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of indirect references to page objects representing separa-
+ *  tions of the same document page. One of the page objects in the array must be
+ *  the one with which this separation dictionary is associated, and all of them must
+ *  have separation dictionaries (SeparationInfo entries) containing Pages arrays
+ *  identical to this one.
+**/
+  bool has_Pages() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", NULL));
+  }
+
   SkPdfArray Pages() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) The name of the device colorant to be used in rendering this
+ *  separation, such as Cyan or PANTONE 35 CV.
+**/
+  bool has_DeviceColorant() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DeviceColorant", "", NULL));
   }
 
   bool isDeviceColorantAName() const {
@@ -552,6 +570,21 @@ public:
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DeviceColorant", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) An array defining a Separation or DeviceN color space (see "Separa-
+ *  tion Color Spaces" on page 201 and "DeviceN Color Spaces" on page 205). This
+ *  provides additional information about the color specified by DeviceColorant-
+ *  in particular, the alternate color space and tint transformation function that
+ *  would be used to represent the colorant as a process color. This information
+ *  enables a viewer application to preview the separation in a color that approxi-
+ *  mates the device colorant.
+ *  The value of DeviceColorant must match the space's colorant name (if it is a
+ *  Separation space) or be one of the space's colorant names (if it is a DeviceN
+ *  space).
+**/
+  bool has_ColorSpace() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", NULL));
   }
 
   SkPdfArray ColorSpace() const {

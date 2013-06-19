@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a Web Capture command settings dictionary
 class SkPdfWebCaptureCommandSettingsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWebCaptureCommandSettingsDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfWebCaptureCommandSettingsDictionary& operator=(const SkPdfWebCaptureCommandSettingsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) A dictionary containing global conversion engine settings relevant to all con-
+ *  version engines. If this key is absent, default settings will be used.
+**/
+  bool has_G() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", NULL));
+  }
+
   SkPdfDictionary* G() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) Settings for specific conversion engines. Each key in this dictionary is the
+ *  internal name of a conversion engine (see below). The associated value is a dictionary
+ *  containing the settings associated with that conversion engine. If the settings for a par-
+ *  ticular conversion engine are not found in the dictionary, default settings will be used.
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfDictionary* C() const {

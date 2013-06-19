@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a graphics state parameter dictionary
 class SkPdfGraphicsStateDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kGraphicsStateDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfGraphicsStateDictionary& operator=(const SkPdfGraphicsStateDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; must be
+ *  ExtGState for a graphics state parameter dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.3) The line width (see "Line Width" on page 152).
+**/
+  bool has_LW() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LW", "", NULL));
   }
 
   double LW() const {
@@ -535,11 +549,23 @@ public:
     return 0;
   }
 
+/** (Optional; PDF 1.3) The line cap style (see "Line Cap Style" on page 153).
+**/
+  bool has_LC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LC", "", NULL));
+  }
+
   long LC() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LC", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.3) The line join style (see "Line Join Style" on page 153).
+**/
+  bool has_LJ() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LJ", "", NULL));
   }
 
   long LJ() const {
@@ -549,11 +575,25 @@ public:
     return 0;
   }
 
+/** (Optional; PDF 1.3) The miter limit (see "Miter Limit" on page 153).
+**/
+  bool has_ML() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ML", "", NULL));
+  }
+
   double ML() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ML", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.3) The line dash pattern, expressed as an array of the form
+ *  [dashArray dashPhase], where dashArray is itself an array and dashPhase is an
+ *  integer (see "Line Dash Pattern" on page 155).
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   SkPdfArray D() const {
@@ -563,11 +603,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; PDF 1.3) The name of the rendering intent (see "Rendering
+ *  Intents" on page 197).
+**/
+  bool has_RI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RI", "", NULL));
+  }
+
   std::string RI() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RI", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A flag specifying whether to apply overprint (see Section 4.5.6,
+ *  "Overprint Control"). In PDF 1.2 and earlier, there is a single overprint
+ *  parameter that applies to all painting operations. Beginning with PDF 1.3,
+ *  there are two separate overprint parameters: one for stroking and one for all
+ *  other painting operations. Specifying an OP entry sets both parameters un-
+ *  less there is also an op entry in the same graphics state parameter dictionary,
+ *  in which case the OP entry sets only the overprint parameter for stroking.
+**/
+  bool has_OP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OP", "", NULL));
   }
 
   bool OP() const {
@@ -577,11 +636,26 @@ public:
     return false;
   }
 
+/** (Optional; PDF 1.3) A flag specifying whether to apply overprint (see Section
+ *  4.5.6, "Overprint Control") for painting operations other than stroking. If
+ *  this entry is absent, the OP entry, if any, sets this parameter.
+**/
+  bool has_op() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "op", "", NULL));
+  }
+
   bool op() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "op", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional; PDF 1.3) The overprint mode (see Section 4.5.6, "Overprint Con-
+ *  trol").
+**/
+  bool has_OPM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPM", "", NULL));
   }
 
   long OPM() const {
@@ -591,6 +665,16 @@ public:
     return 0;
   }
 
+/** (Optional; PDF 1.3) An array of the form [font size], where font is an indirect
+ *  reference to a font dictionary and size is a number expressed in text space
+ *  units. These two objects correspond to the operands of the Tf operator (see
+ *  Section 5.2, "Text State Parameters and Operators"); however, the first oper-
+ *  and is an indirect object reference instead of a resource name.
+**/
+  bool has_Font() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", NULL));
+  }
+
   SkPdfArray Font() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", &ret)) return ret;
@@ -598,11 +682,28 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) The black-generation function, which maps the interval [0.0 1.0]
+ *  to the interval [0.0 1.0] (see Section 6.2.3, "Conversion from DeviceRGB to
+ *  DeviceCMYK").
+**/
+  bool has_BG() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", NULL));
+  }
+
   SkPdfFunction BG() const {
     SkPdfFunction ret;
     if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFunction();
+  }
+
+/** (Optional; PDF 1.3) Same as BG except that the value may also be the name
+ *  Default, denoting the black-generation function that was in effect at the start
+ *  of the page. If both BG and BG2 are present in the same graphics state param-
+ *  eter dictionary, BG2 takes precedence.
+**/
+  bool has_BG2() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG2", "", NULL));
   }
 
   bool isBG2AFunction() const {
@@ -631,11 +732,28 @@ public:
     return "";
   }
 
+/** (Optional) The undercolor-removal function, which maps the interval
+ *  [0.0 1.0] to the interval [-1.0 1.0] (see Section 6.2.3, "Conversion from
+ *  DeviceRGB to DeviceCMYK").
+**/
+  bool has_UCR() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR", "", NULL));
+  }
+
   SkPdfFunction UCR() const {
     SkPdfFunction ret;
     if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFunction();
+  }
+
+/** (Optional; PDF 1.3) Same as UCR except that the value may also be the name
+ *  Default, denoting the undercolor-removal function that was in effect at the
+ *  start of the page. If both UCR and UCR2 are present in the same graphics state
+ *  parameter dictionary, UCR2 takes precedence.
+**/
+  bool has_UCR2() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR2", "", NULL));
   }
 
   bool isUCR2AFunction() const {
@@ -662,6 +780,16 @@ public:
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR2", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The transfer function, which maps the interval [0.0 1.0] to the
+ *  interval [0.0 1.0] (see Section 6.3, "Transfer Functions"). The value is either
+ *  a single function (which applies to all process colorants) or an array of four
+ *  functions (which apply to the process colorants individually). The name
+ *  Identity may be used to represent the identity function.
+**/
+  bool has_TR() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", NULL));
   }
 
   bool isTRAFunction() const {
@@ -703,6 +831,15 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.3) Same as TR except that the value may also be the name
+ *  Default, denoting the transfer function that was in effect at the start of the
+ *  page. If both TR and TR2 are present in the same graphics state parameter dic-
+ *  tionary, TR2 takes precedence.
+**/
+  bool has_TR2() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", NULL));
+  }
+
   bool isTR2AFunction() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return false;
@@ -740,6 +877,14 @@ public:
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The halftone dictionary or stream (see Section 6.4, "Halftones")
+ *  or the name Default, denoting the halftone that was in effect at the start of the
+ *  page.
+**/
+  bool has_HT() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", NULL));
   }
 
   bool isHTADictionary() const {
@@ -781,11 +926,25 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.3) The flatness tolerance (see Section 6.5.1, "Flatness Toler-
+ *  ance").
+**/
+  bool has_FL() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FL", "", NULL));
+  }
+
   double FL() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FL", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.3) The smoothness tolerance (see Section 6.5.2, "Smooth-
+ *  ness Tolerance").
+**/
+  bool has_SM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SM", "", NULL));
   }
 
   double SM() const {
@@ -795,11 +954,26 @@ public:
     return 0;
   }
 
+/** (Optional) A flag specifying whether to apply automatic stroke adjustment
+ *  (see Section 6.5.4, "Automatic Stroke Adjustment").
+**/
+  bool has_SA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SA", "", NULL));
+  }
+
   bool SA() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional; PDF 1.4) The current blend mode to be used in the transparent
+ *  imaging model (see Sections 7.2.4, "Blend Mode," and 7.5.2, "Specifying
+ *  Blending Color Space and Blend Mode").
+**/
+  bool has_BM() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BM", "", NULL));
   }
 
   bool isBMAName() const {
@@ -828,6 +1002,19 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional; PDF 1.4) The current soft mask, specifying the mask shape or
+ *  mask opacity values to be used in the transparent imaging model (see
+ *  "Source Shape and Opacity" on page 421 and "Mask Shape and Opacity" on
+ *  page 443).
+ *  Note: Although the current soft mask is sometimes referred to as a "soft clip,"
+ *  altering it with the gs operator completely replaces the old value with the new
+ *  one, rather than intersecting the two as is done with the current clipping path
+ *  parameter (see Section 4.4.3, "Clipping Path Operators").
+**/
+  bool has_SMask() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", NULL));
+  }
+
   bool isSMaskADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return false;
@@ -854,11 +1041,26 @@ public:
     return "";
   }
 
+/** (Optional; PDF 1.4) The current stroking alpha constant, specifying the con-
+ *  stant shape or constant opacity value to be used for stroking operations in the
+ *  transparent imaging model (see "Source Shape and Opacity" on page 421
+ *  and "Constant Shape and Opacity" on page 444).
+**/
+  bool has_CA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", NULL));
+  }
+
   double CA() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional; PDF 1.4) Same as CA, but for nonstroking operations.
+**/
+  bool has_ca() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ca", "", NULL));
   }
 
   double ca() const {
@@ -868,11 +1070,27 @@ public:
     return 0;
   }
 
+/** (Optional; PDF 1.4) The alpha source flag ("alpha is shape"), specifying
+ *  whether the current soft mask and alpha constant are to be interpreted as
+ *  shape values (true) or opacity values (false).
+**/
+  bool has_AIS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AIS", "", NULL));
+  }
+
   bool AIS() const {
     bool ret;
     if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AIS", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return false;
+  }
+
+/** (Optional; PDF 1.4) The text knockout flag, which determines the behavior
+ *  of overlapping glyphs within a text object in the transparent imaging model
+ *  (see Section 5.2.7, "Text Knockout").
+**/
+  bool has_TK() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TK", "", NULL));
   }
 
   bool TK() const {

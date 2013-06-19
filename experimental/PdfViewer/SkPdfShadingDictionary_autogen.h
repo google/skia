@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all shading dictionaries
 class SkPdfShadingDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kShadingDictionary_SkPdfObjectType;}
@@ -503,11 +504,32 @@ public:
 
   SkPdfShadingDictionary& operator=(const SkPdfShadingDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The shading type:
+ *      1    Function-based shading
+ *      2    Axial shading
+ *      3    Radial shading
+ *      4    Free-form Gouraud-shaded triangle mesh
+ *      5    Lattice-form Gouraud-shaded triangle mesh
+ *      6    Coons patch mesh
+ *      7    Tensor-product patch mesh
+**/
+  bool has_ShadingType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShadingType", "", NULL));
+  }
+
   long ShadingType() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShadingType", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required) The color space in which color values are expressed. This may be
+ *  any device, CIE-based, or special color space except a Pattern space. See
+ *  "Color Space: Special Considerations," below, for further information.
+**/
+  bool has_ColorSpace() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", NULL));
   }
 
   bool isColorSpaceAName() const {
@@ -536,6 +558,20 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of color components appropriate to the color space,
+ *  specifying a single background color value. If present, this color is used be-
+ *  fore any painting operation involving the shading, to fill those portions of the
+ *  area to be painted that lie outside the bounds of the shading object itself. In
+ *  the opaque imaging model, the effect is as if the painting operation were
+ *  performed twice: first with the background color and then again with the
+ *  shading.
+ *  Note: The background color is applied only when the shading is used as part of a
+ *  shading pattern, not when it is painted directly with the sh operator.
+**/
+  bool has_Background() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Background", "", NULL));
+  }
+
   SkPdfArray Background() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Background", "", &ret)) return ret;
@@ -543,11 +579,36 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of four numbers giving the left, bottom, right, and top
+ *  coordinates, respectively, of the shading's bounding box. The coordinates are
+ *  interpreted in the shading's target coordinate space. If present, this bounding
+ *  box is applied as a temporary clipping boundary when the shading is painted,
+ *  in addition to the current clipping path and any other clipping boundaries in
+ *  effect at that time.
+**/
+  bool has_BBox() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
+  }
+
   SkRect BBox() const {
     SkRect ret;
     if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkRect();
+  }
+
+/** (Optional) A flag indicating whether to filter the shading function to prevent
+ *  aliasing artifacts. The shading operators sample shading functions at a rate
+ *  determined by the resolution of the output device. Aliasing can occur if the
+ *  function is not smooth-that is, if it has a high spatial frequency relative to
+ *  the sampling rate. Anti-aliasing can be computationally expensive and is usu-
+ *  ally unnecessary, since most shading functions are smooth enough, or are
+ *  sampled at a high enough frequency, to avoid aliasing effects. Anti-aliasing
+ *  may not be implemented on some output devices, in which case this flag is
+ *  ignored. Default value: false.
+**/
+  bool has_AntiAlias() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AntiAlias", "", NULL));
   }
 
   bool AntiAlias() const {

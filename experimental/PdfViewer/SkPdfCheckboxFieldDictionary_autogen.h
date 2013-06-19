@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry specific to a checkbox field
 class SkPdfCheckboxFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCheckboxFieldDictionary_SkPdfObjectType;}
@@ -520,6 +521,13 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfCheckboxFieldDictionary& operator=(const SkPdfCheckboxFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional; inheritable; PDF 1.4) A text string to be used in place of the V entry for the
+ *  value of the field.
+**/
+  bool has_Opt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", NULL));
+  }
 
   std::string Opt() const {
     std::string ret;

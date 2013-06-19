@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a page object's additional-actions dictionary
 class SkPdfPageObjectActionsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPageObjectActionsDictionary_SkPdfObjectType;}
@@ -521,11 +522,30 @@ public:
 
   SkPdfPageObjectActionsDictionary& operator=(const SkPdfPageObjectActionsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional; PDF 1.2) An action to be performed when the page is opened (for example,
+ *  when the user navigates to it from the next or previous page or via a link annotation or
+ *  outline item). This action is independent of any that may be defined by the Open-
+ *  Action entry in the document catalog (see Section 3.6.1, "Document Catalog"), and is
+ *  executed after such an action. (See implementation note 72 in Appendix H.)
+**/
+  bool has_O() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
+  }
+
   SkPdfDictionary* O() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.2) An action to be performed when the page is closed (for example,
+ *  when the user navigates to the next or previous page or follows a link annotation or an
+ *  outline item). This action applies to the page being closed, and is executed before any
+ *  other page is opened. (See implementation note 72 in Appendix H.)
+**/
+  bool has_C() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
   SkPdfDictionary* C() const {

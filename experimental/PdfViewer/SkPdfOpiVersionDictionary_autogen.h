@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry in an OPI version dictionary
 class SkPdfOpiVersionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kOpiVersionDictionary_SkPdfObjectType;}
@@ -520,6 +521,14 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfOpiVersionDictionary& operator=(const SkPdfOpiVersionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Required; PDF 1.2) An OPI dictionary specifying the attributes of this proxy
+ *  (see Tables 9.50 and 9.51). The key for this entry must be the name 1.3 or 2.0,
+ *  identifying the version of OPI to which the proxy corresponds.
+**/
+  bool has_version_number() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "version_number", "", NULL));
+  }
 
   SkPdfDictionary* version_number() const {
     SkPdfDictionary* ret;

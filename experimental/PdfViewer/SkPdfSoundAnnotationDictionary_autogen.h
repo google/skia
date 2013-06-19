@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a sound annotation
 class SkPdfSoundAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSoundAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfSoundAnnotationDictionary& operator=(const SkPdfSoundAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be Sound
+ *  for a sound annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A sound object defining the sound to be played when the annotation
+ *  is activated (see Section 8.7, "Sounds").
+**/
+  bool has_Sound() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Sound", "", NULL));
   }
 
   SkPdfStream Sound() const {
@@ -535,11 +550,31 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) Text to be displayed in a pop-up window for the annotation in place
+ *  of the sound, useful when extracting the document's contents in support of
+ *  accessibility to disabled users or for other purposes (see Section 9.8.2, "Alternate
+ *  Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
+  }
+
   std::string Contents() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The name of an icon to be used in displaying the annotation. Viewer
+ *  applications should provide predefined icon appearances for at least the stan-
+ *  dard names Speaker and Microphone; additional names may be supported as
+ *  well. Default value: Speaker.
+ *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
+ *  Name entry; see Table 8.10 on page 490 and Section 8.4.4, "Appearance Streams."
+**/
+  bool has_Name() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
   std::string Name() const {

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the file trailer dictionary
 class SkPdfFileTrailerDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFileTrailerDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfFileTrailerDictionary& operator=(const SkPdfFileTrailerDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The total number of entries in the file's cross-reference table, as defined
+ *  by the combination of the original section and all update sections. Equivalently, this
+ *  value is 1 greater than the highest object number used in the file.
+**/
+  bool has_Size() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
+  }
+
   long Size() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Present only if the file has more than one cross-reference section) The byte offset from
+ *  the beginning of the file to the beginning of the previous cross-reference section.
+**/
+  bool has_Prev() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", NULL));
   }
 
   long Prev() const {
@@ -535,11 +551,25 @@ public:
     return 0;
   }
 
+/** (Required; must be an indirect reference) The catalog dictionary for the PDF docu-
+ *  ment contained in the file (see Section 3.6.1, "Document Catalog").
+**/
+  bool has_Root() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Root", "", NULL));
+  }
+
   SkPdfDictionary* Root() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Root", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required if document is encrypted; PDF 1.1) The document's encryption dictionary
+ *  (see Section 3.5, "Encryption").
+**/
+  bool has_Encrypt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encrypt", "", NULL));
   }
 
   SkPdfDictionary* Encrypt() const {
@@ -549,11 +579,25 @@ public:
     return NULL;
   }
 
+/** (Optional; must be an indirect reference) The document's information dictionary
+ *  (see Section 9.2.1, "Document Information Dictionary").
+**/
+  bool has_Info() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
+  }
+
   SkPdfDictionary* Info() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.1) An array of two strings constituting a file identifier (see Section
+ *  9.3, "File Identifiers") for the file.
+**/
+  bool has_ID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
   SkPdfArray ID() const {

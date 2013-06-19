@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a name tree node dictionary
 class SkPdfNameTreeNodeDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kNameTreeNodeDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfNameTreeNodeDictionary& operator=(const SkPdfNameTreeNodeDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Root and intermediate nodes only; required in intermediate nodes; present in the root node
+ *  if and only if Names is not present) An array of indirect references to the immediate chil-
+ *  dren of this node. The children may be intermediate or leaf nodes.
+**/
+  bool has_Kids() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
+  }
+
   SkPdfArray Kids() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
@@ -528,11 +537,29 @@ public:
     return SkPdfArray();
   }
 
+/** (Root and leaf nodes only; required in leaf nodes; present in the root node if and only if Kids
+ *  is not present) An array of the form
+ *      [key1 value1 key2 value2 ... keyn valuen ]
+ *  where each keyi is a string and the corresponding valuei is an indirect reference to the
+ *  object associated with that key. The keys are sorted in lexical order, as described below.
+**/
+  bool has_Names() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Names", "", NULL));
+  }
+
   SkPdfArray Names() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Names", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Intermediate and leaf nodes only; required) An array of two strings, specifying the (lexi-
+ *  cally) least and greatest keys included in the Names array of a leaf node or in the Names
+ *  arrays of any leaf nodes that are descendants of an intermediate node.
+**/
+  bool has_Limits() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Limits", "", NULL));
   }
 
   SkPdfArray Limits() const {

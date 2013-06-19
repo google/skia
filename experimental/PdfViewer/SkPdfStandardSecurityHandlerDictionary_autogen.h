@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional encryption dictionary entries for the standard security handler
 class SkPdfStandardSecurityHandlerDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kStandardSecurityHandlerDictionary_SkPdfObjectType;}
@@ -521,11 +522,31 @@ public:
 
   SkPdfStandardSecurityHandlerDictionary& operator=(const SkPdfStandardSecurityHandlerDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) A number specifying which revision of the standard security handler should
+ *  be used to interpret this dictionary. The revision number should be 2 if the document is
+ *  encrypted with a V value less than 2 (see Table 3.13) and does not have any of the access
+ *  permissions set (via the P entry, below) that are designated "Revision 3" in Table 3.15;
+ *  otherwise (that is, if the document is encrypted with a V value greater than 2 or has any
+ *  "Revision 3" access permissions set), this value should be 3.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
+  }
+
   double R() const {
     double ret;
     if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required) A 32-byte string, based on both the owner and user passwords, that is used in
+ *  computing the encryption key and in determining whether a valid owner password was
+ *  entered. For more information, see "Encryption Key Algorithm" on page 78 and "Pass-
+ *  word Algorithms" on page 79.
+**/
+  bool has_O() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
   }
 
   std::string O() const {
@@ -535,11 +556,26 @@ public:
     return "";
   }
 
+/** (Required) A 32-byte string, based on the user password, that is used in determining
+ *  whether to prompt the user for a password and, if so, whether a valid user or owner pass-
+ *  word was entered. For more information, see "Password Algorithms" on page 79.
+**/
+  bool has_U() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
+  }
+
   std::string U() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A set of flags specifying which operations are permitted when the document is
+ *  opened with user access (see Table 3.15).
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
   long P() const {

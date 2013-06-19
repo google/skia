@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Property list entries for artifacts
 class SkPdfArtifactsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kArtifactsDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfArtifactsDictionary& operator=(const SkPdfArtifactsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of artifact that this property list describes; if present, must
+ *  be one of the names Pagination, Layout, or Page.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,30 @@ public:
     return "";
   }
 
+/** (Optional) An array of four numbers in default user space units giving the coor-
+ *  dinates of the left, bottom, right, and top edges, respectively, of the artifact's
+ *  bounding box (the rectangle that completely encloses its visible extent).
+**/
+  bool has_BBox() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
+  }
+
   SkRect BBox() const {
     SkRect ret;
     if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkRect();
+  }
+
+/** (Optional; pagination artifacts only) An array of name objects containing one to
+ *  four of the names Top, Bottom, Left, and Right, specifying the edges of the page, if
+ *  any, to which the artifact is logically attached. Page edges are defined by the
+ *  page's crop box (see Section 9.10.1, "Page Boundaries"). The ordering of names
+ *  within the array is immaterial. Including both Left and Right or both Top and
+ *  Bottom indicates a full-width or full-height artifact, respectively.
+**/
+  bool has_Attached() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Attached", "", NULL));
   }
 
   SkPdfArray Attached() const {

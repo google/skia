@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entry common to all attribute objects
 class SkPdfAttributeObjectDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAttributeObjectDictionary_SkPdfObjectType;}
@@ -520,6 +521,13 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfAttributeObjectDictionary& operator=(const SkPdfAttributeObjectDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Required) The name of the application or plug-in extension owning the attribute data.
+ *  The name must conform to the guidelines described in Appendix E.
+**/
+  bool has_O() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
+  }
 
   std::string O() const {
     std::string ret;

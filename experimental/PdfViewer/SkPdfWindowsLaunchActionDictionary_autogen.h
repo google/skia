@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a Windows launch parameter dictionary
 class SkPdfWindowsLaunchActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kWindowsLaunchActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfWindowsLaunchActionDictionary& operator=(const SkPdfWindowsLaunchActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The file name of the application to be launched or the document
+ *  to be opened or printed, in standard Windows pathname format. If the name
+ *  string includes a backslash character (\), the backslash must itself be preceded
+ *  by a backslash.
+ *  Note: This value must be a simple string; it is not a file specification.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   std::string F() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A string specifying the default directory in standard DOS syntax.
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   std::string D() const {
@@ -535,11 +552,28 @@ public:
     return "";
   }
 
+/** (Optional) A string specifying the operation to perform:
+ *      open      Open a document.
+ *      print     Print a document.
+ *  If the F entry designates an application instead of a document, this entry is ig-
+ *  nored and the application is launched. Default value: open.
+**/
+  bool has_O() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
+  }
+
   std::string O() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) A parameter string to be passed to the application designated by
+ *  the F entry. This entry should be omitted if F designates a document.
+**/
+  bool has_P() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
   std::string P() const {

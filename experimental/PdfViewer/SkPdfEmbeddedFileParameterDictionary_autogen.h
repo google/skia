@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an embedded file parameter dictionary
 class SkPdfEmbeddedFileParameterDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kEmbeddedFileParameterDictionary_SkPdfObjectType;}
@@ -521,11 +522,23 @@ public:
 
   SkPdfEmbeddedFileParameterDictionary& operator=(const SkPdfEmbeddedFileParameterDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The size of the embedded file, in bytes.
+**/
+  bool has_Size() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
+  }
+
   long Size() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The date and time when the embedded file was created.
+**/
+  bool has_CreationDate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", NULL));
   }
 
   SkPdfDate CreationDate() const {
@@ -535,6 +548,12 @@ public:
     return SkPdfDate();
   }
 
+/** (Optional) The date and time when the embedded file was last modified.
+**/
+  bool has_ModDate() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", NULL));
+  }
+
   SkPdfDate ModDate() const {
     SkPdfDate ret;
     if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", &ret)) return ret;
@@ -542,11 +561,28 @@ public:
     return SkPdfDate();
   }
 
+/** (Optional) A subdictionary containing additional information specific to
+ *  Mac OS files (see Table 3.35).
+**/
+  bool has_Mac() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", NULL));
+  }
+
   SkPdfDictionary* Mac() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A 16-byte string that is the checksum of the bytes of the uncom-
+ *  pressed embedded file. The checksum is calculated by applying the standard
+ *  MD5 message-digest algorithm (described in Internet RFC 1321, The MD5
+ *  Message-Digest Algorithm; see the Bibliography) to the bytes of the embedded
+ *  file stream.
+**/
+  bool has_CheckSum() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CheckSum", "", NULL));
   }
 
   std::string CheckSum() const {

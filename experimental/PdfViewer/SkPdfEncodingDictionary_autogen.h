@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an encoding dictionary
 class SkPdfEncodingDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kEncodingDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfEncodingDictionary& operator=(const SkPdfEncodingDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must
+ *  be Encoding for an encoding dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,34 @@ public:
     return "";
   }
 
+/** (Optional) The base encoding-that is, the encoding from which the Differences
+ *  entry (if present) describes differences-specified as the name of a predefined
+ *  encoding MacRomanEncoding, MacExpertEncoding, or WinAnsiEncoding (see
+ *  Appendix D).
+ *  If this entry is absent, the Differences entry describes differences from an im-
+ *  plicit base encoding. For a font program that is embedded in the PDF file, the
+ *  implicit base encoding is the font program's built-in encoding, as described
+ *  above and further elaborated in the sections on specific font types below. Other-
+ *  wise, for a nonsymbolic font, it is StandardEncoding, and for a symbolic font, it
+ *  is the font's built-in encoding.
+**/
+  bool has_BaseEncoding() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseEncoding", "", NULL));
+  }
+
   std::string BaseEncoding() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseEncoding", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; not recommended with TrueType fonts) An array describing the differ-
+ *  ences from the encoding specified by BaseEncoding or, if BaseEncoding is ab-
+ *  sent, from an implicit base encoding. The Differences array is described above.
+**/
+  bool has_Differences() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Differences", "", NULL));
   }
 
   SkPdfArray Differences() const {

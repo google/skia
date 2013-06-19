@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an appearance characteristics dictionary
 class SkPdfAppearanceCharacteristicsDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAppearanceCharacteristicsDictionary_SkPdfObjectType;}
@@ -521,11 +522,31 @@ public:
 
   SkPdfAppearanceCharacteristicsDictionary& operator=(const SkPdfAppearanceCharacteristicsDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The number of degrees by which the widget annotation is rotated
+ *  counterclockwise relative to the page. The value must be a multiple of 90.
+ *  Default value: 0.
+**/
+  bool has_R() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
+  }
+
   long R() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) An array of numbers in the range 0.0 to 1.0 specifying the color of the
+ *  widget annotation's border. The number of array elements determines the color
+ *  space in which the color is defined:
+ *     0    No color; transparent
+ *     1    DeviceGray
+ *     3    DeviceRGB
+ *     4    DeviceCMYK
+**/
+  bool has_BC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BC", "", NULL));
   }
 
   SkPdfArray BC() const {
@@ -535,11 +556,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An array of numbers in the range 0.0 to 1.0 specifying the color of the
+ *  widget annotation's background. The number of array elements determines the
+ *  color space, as described above for BC.
+**/
+  bool has_BG() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", NULL));
+  }
+
   SkPdfArray BG() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; button fields only) The widget annotation's normal caption, displayed
+ *  when it is not interacting with the user.
+ *  Note: Unlike the remaining entries listed below, which apply only to widget annota-
+ *  tions associated with pushbutton fields (see "Pushbuttons" on page 539), the CA
+ *  entry can be used with any type of button field, including checkboxes ("Checkboxes"
+ *  on page 539) and radio buttons ("Radio Buttons" on page 540).
+**/
+  bool has_CA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", NULL));
   }
 
   std::string CA() const {
@@ -549,11 +589,26 @@ public:
     return "";
   }
 
+/** (Optional; pushbutton fields only) The widget annotation's rollover caption, dis-
+ *  played when the user rolls the cursor into its active area without pressing the
+ *  mouse button.
+**/
+  bool has_RC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RC", "", NULL));
+  }
+
   std::string RC() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RC", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; pushbutton fields only) The widget annotation's alternate (down)
+ *  caption, displayed when the mouse button is pressed within its active area.
+**/
+  bool has_AC() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AC", "", NULL));
   }
 
   std::string AC() const {
@@ -563,11 +618,27 @@ public:
     return "";
   }
 
+/** (Optional; pushbutton fields only; must be an indirect reference) A form XObject
+ *  defining the widget annotation's normal icon, displayed when it is not inter-
+ *  acting with the user.
+**/
+  bool has_I() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", NULL));
+  }
+
   SkPdfStream I() const {
     SkPdfStream ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfStream();
+  }
+
+/** (Optional; pushbutton fields only; must be an indirect reference) A form XObject
+ *  defining the widget annotation's rollover icon, displayed when the user rolls the
+ *  cursor into its active area without pressing the mouse button.
+**/
+  bool has_RI() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RI", "", NULL));
   }
 
   SkPdfStream RI() const {
@@ -577,6 +648,14 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional; pushbutton fields only; must be an indirect reference) A form XObject
+ *  defining the widget annotation's alternate (down) icon, displayed when the
+ *  mouse button is pressed within its active area.
+**/
+  bool has_IX() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IX", "", NULL));
+  }
+
   SkPdfStream IX() const {
     SkPdfStream ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IX", "", &ret)) return ret;
@@ -584,11 +663,35 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional; pushbutton fields only) An icon fit dictionary (see Table 8.73 on page
+ *  566) specifying how to display the widget annotation's icon within its
+ *  annotation rectangle. If present, the icon fit dictionary applies to all of the anno-
+ *  tation's icons (normal, rollover, and alternate).
+**/
+  bool has_IF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IF", "", NULL));
+  }
+
   SkPdfDictionary* IF() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IF", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; pushbutton fields only) A code indicating where to position the text of
+ *  the widget annotation's caption relative to its icon:
+ *      0    No icon; caption only
+ *      1    No caption; icon only
+ *      2    Caption below the icon
+ *      3    Caption above the icon
+ *      4    Caption to the right of the icon
+ *      5    Caption to the left of the icon
+ *      6    Caption overlaid directly on the icon
+ *  Default value: 0.
+**/
+  bool has_TP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TP", "", NULL));
   }
 
   long TP() const {

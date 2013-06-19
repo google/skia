@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries in a CMap dictionary
 class SkPdfCMapDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kCMapDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfCMapDictionary& operator=(const SkPdfCMapDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must be
+ *  CMap for a CMap dictionary. (Note that although this object is the value of
+ *  an entry named Encoding in a Type 0 font, its type is CMap.)
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +537,38 @@ public:
     return "";
   }
 
+/** (Required) The PostScript name of the CMap. This should be the same as the
+ *  value of CMapName in the CMap file itself.
+**/
+  bool has_CMapName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CMapName", "", NULL));
+  }
+
   std::string CMapName() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CMapName", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A dictionary or array containing entries that define the character
+ *  collection for the CIDFont or CIDFonts associated with the CMap. If the
+ *  CMap selects only font number 0 and specifies character selectors that are
+ *  CIDs, this entry can be a dictionary identifying the character collection for
+ *  the associated CIDFont. Otherwise, it is an array indexed by the font num-
+ *  ber. If the character selectors for a given font number are CIDs, the corre-
+ *  sponding array element is a dictionary identifying the character collection
+ *  for the associated CIDFont. If the character selectors are names or codes (to
+ *  be used with an associated font, not a CIDFont), the array element should
+ *  be null. For details of the CIDSystemInfo dictionaries, see Section 5.6.2,
+ *  "CIDSystemInfo Dictionaries."
+ *  Note: In all PDF versions up to and including PDF 1.4, CIDSystemInfo must be
+ *  either a dictionary or a one-element array containing a dictionary.
+ *  The value of this entry should be the same as the value of CIDSystemInfo in
+ *  the CMap file itself.
+**/
+  bool has_CIDSystemInfo() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", NULL));
   }
 
   bool isCIDSystemInfoADictionary() const {
@@ -561,11 +597,32 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) A code that determines the writing mode for any CIDFont with
+ *  which this CMap is combined:
+ *      0    Horizontal
+ *      1    Vertical
+ *  Default value: 0.
+ *  The value of this entry should be the same as the value of WMode in the
+ *  CMap file itself.
+**/
+  bool has_WMode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WMode", "", NULL));
+  }
+
   long WMode() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WMode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The name of a predefined CMap, or a stream containing a CMap,
+ *  that is to be used as the base for this CMap. This allows the CMap to be de-
+ *  fined differentially, specifying only the character mappings that differ from
+ *  the base CMap.
+**/
+  bool has_UseCMap() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UseCMap", "", NULL));
   }
 
   bool isUseCMapAName() const {

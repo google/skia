@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a marked-content reference dictionary
 class SkPdfMarkedContentReferenceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMarkedContentReferenceDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfMarkedContentReferenceDictionary& operator=(const SkPdfMarkedContentReferenceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must be MCR
+ *  for a marked-content reference.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; must be an indirect reference) The page object representing the page on
+ *  which the graphics objects in the marked-content sequence are rendered. This
+ *  entry overrides any Pg entry in the structure element containing the marked-
+ *  content reference; it is required if the structure element has no such entry.
+**/
+  bool has_Pg() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", NULL));
   }
 
   SkPdfDictionary* Pg() const {
@@ -535,6 +552,17 @@ public:
     return NULL;
   }
 
+/** (Optional; must be an indirect reference) The content stream containing the
+ *  marked-content sequence. This entry is needed only if the marked-content
+ *  sequence resides in some other content stream associated with the page-for
+ *  example, in a form XObject (see Section 4.9, "Form XObjects") or an annota-
+ *  tion's appearance stream (Section 8.4.4, "Appearance Streams"). Default value:
+ *  the content stream of the page identified by Pg.
+**/
+  bool has_Stm() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", NULL));
+  }
+
   SkPdfStream Stm() const {
     SkPdfStream ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", &ret)) return ret;
@@ -542,11 +570,26 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional; must be an indirect reference) The PDF object owning the stream
+ *  identified by Stm-for example, the annotation to which an appearance stream
+ *  belongs.
+**/
+  bool has_StmOwn() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StmOwn", "", NULL));
+  }
+
   SkPdfObject* StmOwn() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StmOwn", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required) The marked-content identifier of the marked-content sequence with-
+ *  in its content stream.
+**/
+  bool has_MCID() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MCID", "", NULL));
   }
 
   long MCID() const {

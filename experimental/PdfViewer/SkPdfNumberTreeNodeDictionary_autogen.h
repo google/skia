@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in a number tree node dictionary
 class SkPdfNumberTreeNodeDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kNumberTreeNodeDictionary_SkPdfObjectType;}
@@ -521,6 +522,14 @@ public:
 
   SkPdfNumberTreeNodeDictionary& operator=(const SkPdfNumberTreeNodeDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Root and intermediate nodes only; required in intermediate nodes; present in the root node
+ *  if and only if Nums is not present) An array of indirect references to the immediate chil-
+ *  dren of this node. The children may be intermediate or leaf nodes.
+**/
+  bool has_Kids() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
+  }
+
   SkPdfArray Kids() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
@@ -528,11 +537,30 @@ public:
     return SkPdfArray();
   }
 
+/** (Root and leaf nodes only; required in leaf nodes; present in the root node if and only if Kids
+ *  is not present) An array of the form
+ *      [key1 value1 key2 value2 ... keyn valuen ]
+ *  where each keyi is an integer and the corresponding valuei is an indirect reference to the
+ *  object associated with that key. The keys are sorted in numerical order, analogously to
+ *  the arrangement of keys in a name tree as described in Section 3.8.4, "Name Trees."
+**/
+  bool has_Nums() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Nums", "", NULL));
+  }
+
   SkPdfArray Nums() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Nums", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Intermediate and leaf nodes only; required) An array of two integers, specifying the
+ *  (numerically) least and greatest keys included in the Nums array of a leaf node or in the
+ *  Nums arrays of any leaf nodes that are descendants of an intermediate node.
+**/
+  bool has_Limits() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Limits", "", NULL));
   }
 
   SkPdfArray Limits() const {

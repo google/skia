@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a transparency group attributes dictionary
 class SkPdfTransparencyGroupDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kTransparencyGroupDictionary_SkPdfObjectType;}
@@ -521,11 +522,54 @@ public:
 
   SkPdfTransparencyGroupDictionary& operator=(const SkPdfTransparencyGroupDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The group subtype, which identifies the type of group whose at-
+ *  tributes this dictionary describes; must be Transparency for a transparency
+ *  group.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Sometimes required, as discussed below) The group color space, which is used for
+ *  the following purposes:
+ *  *  As the color space into which colors are converted when painted into the
+ *     group
+ *  *  As the blending color space in which objects are composited within the group
+ *     (see Section 7.2.3, "Blending Color Space")
+ *  *  As the color space of the group as a whole when it in turn is painted as an ob-
+ *     ject onto its backdrop
+ *  The group color space may be any device or CIE-based color space that treats its
+ *  components as independent additive or subtractive values in the range 0.0 to
+ *  1.0, subject to the restrictions described in Section 7.2.3, "Blending Color
+ *  Space." These restrictions exclude Lab and lightness-chromaticity ICCBased
+ *  color spaces, as well as the special color spaces Pattern, Indexed, Separation, and
+ *  DeviceN. Device color spaces are subject to remapping according to the Default-
+ *  Gray, DefaultRGB, and DefaultCMYK entries in the ColorSpace subdictionary of
+ *  the current resource dictionary (see "Default Color Spaces" on page 194).
+ *  Ordinarily, the CS entry is allowed only for isolated transparency groups (those
+ *  for which I, below, is true) and even then it is optional. However, this entry is re-
+ *  quired in the group attributes dictionary for any transparency group XObject
+ *  that has no parent group or page from which to inherit-in particular, one that
+ *  is the value of the G entry in a soft-mask dictionary of subtype Luminosity (see
+ *  "Soft-Mask Dictionaries" on page 445).
+ *  In addition, it is always permissible to specify CS in the group attributes diction-
+ *  ary associated with a page object, even if I is false or absent. In the normal case in
+ *  which the page is imposed directly on the output medium, the page group is
+ *  effectively isolated regardless of the I value, and the specified CS value is there-
+ *  fore honored. But if the page is in turn used as an element of some other page
+ *  and if the group is non-isolated, CS is ignored and the color space is inherited
+ *  from the actual backdrop with which the page is composited (see Section 7.3.6,
+ *  "Page Group").
+**/
+  bool has_CS() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CS", "", NULL));
   }
 
   bool isCSAName() const {

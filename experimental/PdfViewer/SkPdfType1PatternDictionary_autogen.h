@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 1 pattern dictionary
 class SkPdfType1PatternDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType1PatternDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfType1PatternDictionary& operator=(const SkPdfType1PatternDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present,
+ *  must be Pattern for a pattern dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,34 @@ public:
     return "";
   }
 
+/** (Required) A code identifying the type of pattern that this dictionary de-
+ *  scribes; must be 1 for a tiling pattern.
+**/
+  bool has_PatternType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", NULL));
+  }
+
   long PatternType() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Required) A code that determines how the color of the pattern cell is to be
+ *  specified:
+ *     1     Colored tiling pattern. The pattern's content stream itself specifies the
+ *           colors used to paint the pattern cell. When the content stream begins
+ *           execution, the current color is the one that was initially in effect in the
+ *           pattern's parent content stream. (This is similar to the definition of the
+ *           pattern matrix; see Section 4.6.1, "General Properties of Patterns.")
+ *     2     Uncolored tiling pattern. The pattern's content stream does not speci-
+ *           fy any color information. Instead, the entire pattern cell is painted
+ *           with a separately specified color each time the pattern is used. Essen-
+ *           tially, the content stream describes a stencil through which the cur-
+**/
+  bool has_PaintType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PaintType", "", NULL));
   }
 
   long PaintType() const {

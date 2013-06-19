@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an alternate image dictionary
 class SkPdfAlternateImageDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kAlternateImageDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfAlternateImageDictionary& operator=(const SkPdfAlternateImageDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The image XObject for the alternate image.
+**/
+  bool has_Image() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Image", "", NULL));
+  }
+
   SkPdfStream Image() const {
     SkPdfStream ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Image", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfStream();
+  }
+
+/** (Optional) A flag indicating whether this alternate image is the default ver-
+ *  sion to be used for printing. At most one alternate for a given base image may
+ *  be so designated. If no alternate has this entry set to true, the base image itself
+ *  is used for printing.
+**/
+  bool has_DefaultForPrinting() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DefaultForPrinting", "", NULL));
   }
 
   bool DefaultForPrinting() const {

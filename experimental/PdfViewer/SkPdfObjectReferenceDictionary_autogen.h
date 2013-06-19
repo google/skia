@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an object reference dictionary
 class SkPdfObjectReferenceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kObjectReferenceDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfObjectReferenceDictionary& operator=(const SkPdfObjectReferenceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must be OBJR for an
+ *  object reference.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
@@ -528,11 +536,26 @@ public:
     return "";
   }
 
+/** (Optional; must be an indirect reference) The page object representing the page on
+ *  which the object is rendered. This entry overrides any Pg entry in the structure ele-
+ *  ment containing the object reference; it is required if the structure element has no such
+ *  entry.
+**/
+  bool has_Pg() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", NULL));
+  }
+
   SkPdfDictionary* Pg() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Required; must be an indirect reference) The referenced object.
+**/
+  bool has_Obj() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Obj", "", NULL));
   }
 
   SkPdfObject* Obj() const {

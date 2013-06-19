@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an FDF named page reference dictionary
 class SkPdfFDFNamedPageReferenceDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFNamedPageReferenceDictionary_SkPdfObjectType;}
@@ -521,11 +522,24 @@ public:
 
   SkPdfFDFNamedPageReferenceDictionary& operator=(const SkPdfFDFNamedPageReferenceDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The name of the referenced page.
+**/
+  bool has_Name() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
+  }
+
   std::string Name() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional) The file containing the named page. If this key is absent, it is
+ *  assumed that the page resides in the associated PDF file.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
   SkPdfFileSpec F() const {

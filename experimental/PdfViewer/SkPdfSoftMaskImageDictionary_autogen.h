@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry in a soft-mask image dictionary
 class SkPdfSoftMaskImageDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kSoftMaskImageDictionary_SkPdfObjectType;}
@@ -520,6 +521,17 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfSoftMaskImageDictionary& operator=(const SkPdfSoftMaskImageDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional; PDF 1.4) An array of component values specifying the matte color with
+ *  which the image data in the parent image has been preblended. The array consists of n
+ *  numbers, where n is the number of components in the color space specified by the
+ *  ColorSpace entry in the parent image's image dictionary; the numbers must be valid
+ *  color components in that color space. If this entry is absent, the image data is not pre-
+ *  blended.
+**/
+  bool has_Matte() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matte", "", NULL));
+  }
 
   SkPdfArray Matte() const {
     SkPdfArray ret;

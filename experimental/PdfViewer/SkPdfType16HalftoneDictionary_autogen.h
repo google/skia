@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 16 halftone dictionary
 class SkPdfType16HalftoneDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType16HalftoneDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfType16HalftoneDictionary& operator=(const SkPdfType16HalftoneDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if
+ *  present, must be Halftone for a halftone dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) A code identifying the halftone type that this dictionary
+ *  describes; must be 16 for this type of halftone.
+**/
+  bool has_HalftoneType() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
   long HalftoneType() const {
@@ -535,11 +550,24 @@ public:
     return 0;
   }
 
+/** (Optional) The name of the halftone dictionary.
+**/
+  bool has_HalftoneName() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
+  }
+
   std::string HalftoneName() const {
     std::string ret;
     if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The width of the first (or only) rectangle in the threshold
+ *  array, in device pixels.
+**/
+  bool has_Width() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", NULL));
   }
 
   long Width() const {
@@ -549,11 +577,27 @@ public:
     return 0;
   }
 
+/** (Required) The height of the first (or only) rectangle in the threshold
+ *  array, in device pixels.
+**/
+  bool has_Height() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", NULL));
+  }
+
   long Height() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) The width of the optional second rectangle in the threshold
+ *  array, in device pixels. If this entry is present, the Height2 entry must
+ *  be present as well; if this entry is absent, the Height2 entry must also be
+ *  absent and the threshold array has only one rectangle.
+**/
+  bool has_Width2() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width2", "", NULL));
   }
 
   long Width2() const {
@@ -563,11 +607,30 @@ public:
     return 0;
   }
 
+/** (Optional) The height of the optional second rectangle in the threshold
+ *  array, in device pixels.
+**/
+  bool has_Height2() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height2", "", NULL));
+  }
+
   long Height2() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height2", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A transfer function, which overrides the current transfer
+ *  function in the graphics state for the same component. This entry is
+ *  required if the dictionary is a component of a type 5 halftone (see
+ *  "Type 5 Halftones," below) and represents either a nonprimary or
+ *  nonstandard primary color component (see Section 6.3, "Transfer
+ *  Functions"). The name Identity may be used to specify the identity
+ *  function.
+**/
+  bool has_TransferFunction() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", NULL));
   }
 
   bool isTransferFunctionAFunction() const {

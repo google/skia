@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry for components having metadata
 class SkPdfComponentsWithMetadataDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kComponentsWithMetadataDictionary_SkPdfObjectType;}
@@ -520,6 +521,12 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfComponentsWithMetadataDictionary& operator=(const SkPdfComponentsWithMetadataDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Optional; PDF 1.4) A metadata stream containing metadata for the component.
+**/
+  bool has_Metadata() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
+  }
 
   SkPdfStream Metadata() const {
     SkPdfStream ret;

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a pop-up annotation
 class SkPdfPopUpAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kPopUpAnnotationDictionary_SkPdfObjectType;}
@@ -521,11 +522,27 @@ public:
 
   SkPdfPopUpAnnotationDictionary& operator=(const SkPdfPopUpAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of annotation that this dictionary describes; must be
+ *  Popup for a pop-up annotation.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
+  }
+
   std::string Subtype() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Optional; PDF 1.4) An alternate representation of the annotation's contents
+ *  in human-readable form, useful when extracting the document's contents in
+ *  support of accessibility to disabled users or for other purposes (see Section
+ *  9.8.2, "Alternate Descriptions").
+**/
+  bool has_Contents() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
   std::string Contents() const {
@@ -535,11 +552,28 @@ public:
     return "";
   }
 
+/** (Optional; must be an indirect reference) The parent annotation with which
+ *  this pop-up annotation is associated.
+ *  Note: If this entry is present, the parent annotation's Contents, M, C, and T
+ *  entries (see Table 8.10 on page 490) override those of the pop-up annotation
+ *  itself.
+**/
+  bool has_Parent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
+  }
+
   SkPdfDictionary* Parent() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A flag specifying whether the pop-up annotation should initially
+ *  be displayed open. Default value: false (closed).
+**/
+  bool has_Open() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Open", "", NULL));
   }
 
   bool Open() const {

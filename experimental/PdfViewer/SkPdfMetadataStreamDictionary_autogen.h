@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries in a metadata stream dictionary
 class SkPdfMetadataStreamDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kMetadataStreamDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfMetadataStreamDictionary& operator=(const SkPdfMetadataStreamDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of PDF object that this dictionary describes; must be Metadata
+ *  for a metadata stream.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The type of metadata stream that this dictionary describes; must be
+ *  XML.
+**/
+  bool has_Subtype() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
   std::string Subtype() const {

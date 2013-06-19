@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in an FDF field dictionary
 class SkPdfFDFFieldDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFFieldDictionary_SkPdfObjectType;}
@@ -521,11 +522,25 @@ public:
 
   SkPdfFDFFieldDictionary& operator=(const SkPdfFDFFieldDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) An array containing the immediate children of this field.
+ *  Note: Unlike the children of fields in a PDF file, which must be specified as indirect
+ *  object references, those of an FDF field may be either direct or indirect objects.
+**/
+  bool has_Kids() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
+  }
+
   SkPdfArray Kids() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) The partial field name (see "Field Names" on page 532).
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   std::string T() const {
@@ -535,11 +550,28 @@ public:
     return "";
   }
 
+/** (Optional) The field's value, whose format varies depending on the field type; see
+ *  the descriptions of individual field types in Section 8.6.3 for further information.
+**/
+  bool has_V() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
+  }
+
   SkPdfObject* V() const {
     SkPdfObject* ret;
     if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) A set of flags specifying various characteristics of the field (see Tables
+ *  8.50 on page 532, 8.53 on page 538, 8.56 on page 543, and 8.58 on page 546). When
+ *  imported into an interactive form, the value of this entry replaces that of the Ff
+ *  entry in the form's corresponding field dictionary. If this field is present, the SetFf
+ *  and ClrFf entries, if any, are ignored.
+**/
+  bool has_Ff() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ff", "", NULL));
   }
 
   long Ff() const {
@@ -549,11 +581,30 @@ public:
     return 0;
   }
 
+/** (Optional) A set of flags to be set (turned on) in the Ff entry of the form's cor-
+ *  responding field dictionary. Bits equal to 1 in SetFf cause the corresponding bits in
+ *  Ff to be set to 1. This entry is ignored if an Ff entry is present in the FDF field
+ *  dictionary.
+**/
+  bool has_SetFf() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SetFf", "", NULL));
+  }
+
   long SetFf() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SetFf", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A set of flags to be cleared (turned off) in the Ff entry of the form's cor-
+ *  responding field dictionary. Bits equal to 1 in ClrFf cause the corresponding bits in
+ *  Ff to be set to 0. If a SetFf entry is also present in the FDF field dictionary, it is
+ *  applied before this entry. This entry is ignored if an Ff entry is present in the FDF
+ *  field dictionary.
+**/
+  bool has_ClrFf() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClrFf", "", NULL));
   }
 
   long ClrFf() const {
@@ -563,11 +614,30 @@ public:
     return 0;
   }
 
+/** (Optional) A set of flags specifying various characteristics of the field's widget anno-
+ *  tation (see Section 8.4.2, "Annotation Flags"). When imported into an interactive
+ *  form, the value of this entry replaces that of the F entry in the form's corresponding
+ *  annotation dictionary. If this field is present, the SetF and ClrF entries, if any, are
+ *  ignored.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   long F() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) A set of flags to be set (turned on) in the F entry of the form's corre-
+ *  sponding widget annotation dictionary. Bits equal to 1 in SetF cause the corre-
+ *  sponding bits in F to be set to 1. This entry is ignored if an F entry is present in the
+ *  FDF field dictionary.
+**/
+  bool has_SetF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SetF", "", NULL));
   }
 
   long SetF() const {
@@ -577,11 +647,30 @@ public:
     return 0;
   }
 
+/** (Optional) A set of flags to be cleared (turned off) in the F entry of the form's corre-
+ *  sponding widget annotation dictionary. Bits equal to 1 in ClrF cause the corre-
+ *  sponding bits in F to be set to 0. If a SetF entry is also present in the FDF field
+ *  dictionary, it is applied before this entry. This entry is ignored if an F entry is
+ *  present in the FDF field dictionary.
+**/
+  bool has_ClrF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClrF", "", NULL));
+  }
+
   long ClrF() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClrF", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Optional) An appearance dictionary specifying the appearance of a pushbutton
+ *  field (see "Pushbuttons" on page 539). The appearance dictionary's contents are as
+ *  shown in Table 8.13 on page 497, except that the values of the N, R, and D entries
+ *  must all be streams.
+**/
+  bool has_AP() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", NULL));
   }
 
   SkPdfDictionary* AP() const {
@@ -591,11 +680,29 @@ public:
     return NULL;
   }
 
+/** (Optional; PDF 1.3) A dictionary holding references to external PDF files contain-
+ *  ing the pages to use for the appearances of a pushbutton field. This dictionary is
+ *  similar to an appearance dictionary (see Table 8.13 on page 497), except that the
+ *  values of the N, R, and D entries must all be named page reference dictionaries
+ *  (Table 8.76 on page 568). This entry is ignored if an AP entry is present.
+**/
+  bool has_APRef() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "APRef", "", NULL));
+  }
+
   SkPdfDictionary* APRef() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "APRef", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional; PDF 1.3; button fields only) An icon fit dictionary (see Table 8.73) speci-
+ *  fying how to display a button field's icon within the annotation rectangle of its wid-
+ *  get annotation.
+**/
+  bool has_IF() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IF", "", NULL));
   }
 
   SkPdfDictionary* IF() const {
@@ -605,6 +712,17 @@ public:
     return NULL;
   }
 
+/** (Required; choice fields only) An array of options to be presented to the user. Each
+ *  element of the array can take either of two forms:
+ *  *  A text string representing one of the available options
+ *  *  A two-element array consisting of a text string representing one of the available
+ *     options and a default appearance string for constructing the item's appearance
+ *     dynamically at viewing time (see "Variable Text" on page 533)
+**/
+  bool has_Opt() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", NULL));
+  }
+
   SkPdfArray Opt() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", &ret)) return ret;
@@ -612,11 +730,25 @@ public:
     return SkPdfArray();
   }
 
+/** (Optional) An action to be performed when this field's widget annotation is activat-
+ *  ed (see Section 8.5, "Actions").
+**/
+  bool has_A() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
+  }
+
   SkPdfDictionary* A() const {
     SkPdfDictionary* ret;
     if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return NULL;
+  }
+
+/** (Optional) An additional-actions dictionary defining the field's behavior in re-
+ *  sponse to various trigger events (see Section 8.5.2, "Trigger Events").
+**/
+  bool has_AA() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
   }
 
   SkPdfDictionary* AA() const {

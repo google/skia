@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a hide action
 class SkPdfHideActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kHideActionDictionary_SkPdfObjectType;}
@@ -521,11 +522,30 @@ public:
 
   SkPdfHideActionDictionary& operator=(const SkPdfHideActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be Hide for a hide
+ *  action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The annotation or annotations to be hidden or shown, specified in any
+ *  of the following forms:
+ *  *  An indirect reference to an annotation dictionary
+ *  *  A string giving the fully qualified field name of an interactive form field whose
+ *     associated widget annotation or annotations are to be affected (see "Field
+ *     Names" on page 532)
+ *  *  An array of such dictionaries or strings
+**/
+  bool has_T() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
   bool isTADictionary() const {
@@ -565,6 +585,13 @@ public:
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) A flag indicating whether to hide the annotation (true) or show it (false).
+ *  Default value: true.
+**/
+  bool has_H() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
   }
 
   bool H() const {

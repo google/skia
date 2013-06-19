@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a remote go-to action
 class SkPdfRemoteGoToActionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kRemoteGoToActionDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfRemoteGoToActionDictionary& operator=(const SkPdfRemoteGoToActionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) The type of action that this dictionary describes; must be GoToR
+ *  for a remote go-to action.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
+  }
+
   std::string S() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
@@ -528,11 +536,27 @@ public:
     return "";
   }
 
+/** (Required) The file in which the destination is located.
+**/
+  bool has_F() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
+  }
+
   SkPdfFileSpec F() const {
     SkPdfFileSpec ret;
     if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfFileSpec();
+  }
+
+/** (Required) The destination to jump to (see Section 8.2.1, "Destinations"). If
+ *  the value is an array defining an explicit destination (as described under
+ *  "Explicit Destinations" on page 474), its first element must be a page number
+ *  within the remote document rather than an indirect reference to a page ob-
+ *  ject in the current document. The first page is numbered 0.
+**/
+  bool has_D() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
   bool isDAName() const {
@@ -572,6 +596,16 @@ public:
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional; PDF 1.2) A flag specifying whether to open the destination docu-
+ *  ment in a new window. If this flag is false, the destination document will
+ *  replace the current document in the same window. If this entry is absent,
+ *  the viewer application should behave in accordance with the current user
+ *  preference.
+**/
+  bool has_NewWindow() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NewWindow", "", NULL));
   }
 
   bool NewWindow() const {

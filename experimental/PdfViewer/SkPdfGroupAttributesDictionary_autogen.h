@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries common to all group attributes dictionaries
 class SkPdfGroupAttributesDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kGroupAttributesDictionary_SkPdfObjectType;}
@@ -521,11 +522,29 @@ public:
 
   SkPdfGroupAttributesDictionary& operator=(const SkPdfGroupAttributesDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) The type of PDF object that this dictionary describes; if present, must
+ *  be Group for a group attributes dictionary.
+**/
+  bool has_Type() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
+  }
+
   std::string Type() const {
     std::string ret;
     if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return "";
+  }
+
+/** (Required) The group subtype, which identifies the type of group whose at-
+ *  tributes this dictionary describes and determines the format and meaning of the
+ *  dictionary's remaining entries. The only group subtype defined in PDF 1.4 is
+ *  Transparency; see Section 7.5.5, "Transparency Group XObjects," for the re-
+ *  maining contents of this type of dictionary. Other group subtypes may be added
+ *  in the future.
+**/
+  bool has_S() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
   std::string S() const {

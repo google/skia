@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entries specific to a type 0 function dictionary
 class SkPdfType0FunctionDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType0FunctionDictionary_SkPdfObjectType;}
@@ -521,11 +522,26 @@ public:
 
   SkPdfType0FunctionDictionary& operator=(const SkPdfType0FunctionDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Required) An array of m positive integers specifying the number of samples
+ *  in each input dimension of the sample table.
+**/
+  bool has_Size() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
+  }
+
   SkPdfArray Size() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Required) The number of bits used to represent each sample. (If the function
+ *  has multiple output values, each one occupies BitsPerSample bits.) Valid
+ *  values are 1, 2, 4, 8, 12, 16, 24, and 32.
+**/
+  bool has_BitsPerSample() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerSample", "", NULL));
   }
 
   long BitsPerSample() const {
@@ -535,6 +551,14 @@ public:
     return 0;
   }
 
+/** (Optional) The order of interpolation between samples. Valid values are 1
+ *  and 3, specifying linear and cubic spline interpolation, respectively. (See im-
+ *  plementation note 26 in Appendix H.) Default value: 1.
+**/
+  bool has_Order() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Order", "", NULL));
+  }
+
   long Order() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Order", "", &ret)) return ret;
@@ -542,11 +566,27 @@ public:
     return 0;
   }
 
+/** (Optional) An array of 2 x m numbers specifying the linear mapping of input
+ *  values into the domain of the function's sample table. Default value:
+ *  [0 (Size0 - 1) 0 (Size1 - 1) ...].
+**/
+  bool has_Encode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", NULL));
+  }
+
   SkPdfArray Encode() const {
     SkPdfArray ret;
     if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfArray();
+  }
+
+/** (Optional) An array of 2 x n numbers specifying the linear mapping of sam-
+ *  ple values into the range appropriate for the function's output values. Default
+ *  value: same as the value of Range.
+**/
+  bool has_Decode() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", NULL));
   }
 
   SkPdfArray Decode() const {

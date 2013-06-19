@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Additional entry for annotation dictionaries in an FDF file
 class SkPdfFDFFileAnnotationDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kFDFFileAnnotationDictionary_SkPdfObjectType;}
@@ -520,6 +521,13 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfFDFFileAnnotationDictionary& operator=(const SkPdfFDFFileAnnotationDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** (Required for annotations in FDF files) The ordinal page number on which
+ *  this annotation should appear, where page 0 is the first page.
+**/
+  bool has_Page() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", NULL));
+  }
 
   long Page() const {
     long ret;

@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Optional parameters for LZWDecode and FlateDecode filters
 class SkPdfLzwdecodeAndFlatedecodeFiltersDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kLzwdecodeAndFlatedecodeFiltersDictionary_SkPdfObjectType;}
@@ -521,11 +522,30 @@ public:
 
   SkPdfLzwdecodeAndFlatedecodeFiltersDictionary& operator=(const SkPdfLzwdecodeAndFlatedecodeFiltersDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** ()A code that selects the predictor algorithm, if any. If the value of this entry
+ *  is 1, the filter assumes that the normal algorithm was used to encode the data,
+ *  without prediction. If the value is greater than 1, the filter assumes that the
+ *  data was differenced before being encoded, and Predictor selects the predic-
+ *  tor algorithm. For more information regarding Predictor values greater
+ *  than 1, see "LZW and Flate Predictor Functions," below. Default value: 1.
+**/
+  bool has_Predictor() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Predictor", "", NULL));
+  }
+
   long Predictor() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Predictor", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (Used only if Predictor is greater than 1) The number of interleaved color com-
+ *  ponents per sample. Valid values are 1 to 4 in PDF 1.2 or earlier, and 1 or
+ *  greater in PDF 1.3 or later. Default value: 1.
+**/
+  bool has_Colors() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colors", "", NULL));
   }
 
   long Colors() const {
@@ -535,6 +555,14 @@ public:
     return 0;
   }
 
+/** (Used only if Predictor is greater than 1) The number of bits used to represent
+ *  each color component in a sample. Valid values are 1, 2, 4, and 8. Default
+ *  value: 8.
+**/
+  bool has_BitsPerComponent() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", NULL));
+  }
+
   long BitsPerComponent() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", &ret)) return ret;
@@ -542,11 +570,28 @@ public:
     return 0;
   }
 
+/** (Used only if Predictor is greater than 1) The number of samples in each row.
+ *  Default value: 1.
+**/
+  bool has_Columns() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", NULL));
+  }
+
   long Columns() const {
     long ret;
     if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return 0;
+  }
+
+/** (LZWDecode only) An indication of when to increase the code length. If the
+ *  value of this entry is 0, code length increases are postponed as long as pos-
+ *  sible. If it is 1, they occur one code early. This parameter is included because
+ *  LZW sample code distributed by some vendors increases the code length one
+ *  code earlier than necessary. Default value: 1.
+**/
+  bool has_EarlyChange() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EarlyChange", "", NULL));
   }
 
   long EarlyChange() const {

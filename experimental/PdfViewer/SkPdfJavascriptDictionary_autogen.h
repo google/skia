@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Entries in the JavaScript dictionary
 class SkPdfJavascriptDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kJavascriptDictionary_SkPdfObjectType;}
@@ -521,6 +522,13 @@ public:
 
   SkPdfJavascriptDictionary& operator=(const SkPdfJavascriptDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
 
+/** (Optional) A string or stream containing a JavaScript script to be executed
+ *  just before the FDF file is imported.
+**/
+  bool has_Before() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", NULL));
+  }
+
   bool isBeforeAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", &ret)) return false;
@@ -547,6 +555,13 @@ public:
     return SkPdfStream();
   }
 
+/** (Optional) A string or stream containing a JavaScript script to be executed
+ *  just after the FDF file is imported.
+**/
+  bool has_After() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", NULL));
+  }
+
   bool isAfterAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return false;
@@ -571,6 +586,20 @@ public:
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
     return SkPdfStream();
+  }
+
+/** (Optional) An array defining additional JavaScript scripts to be added to
+ *  those defined in the JavaScript entry of the document's name dictionary (see
+ *  Section 3.6.3, "Name Dictionary"). The array contains an even number of
+ *  elements, organized in pairs. The first element of each pair is a name and the
+ *  second is a string or stream defining the script corresponding to that name.
+ *  Each of the defined scripts will be added to those already defined in the name
+ *  dictionary and then executed before the script defined in the Before entry is
+ *  executed. As described in "JavaScript Actions" on page 556, these scripts are
+ *  used to define JavaScript functions for use by other scripts in the document.
+**/
+  bool has_Doc() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Doc", "", NULL));
   }
 
   SkPdfArray Doc() const {

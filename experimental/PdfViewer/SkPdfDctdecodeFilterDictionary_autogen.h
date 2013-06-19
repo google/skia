@@ -5,6 +5,7 @@
 #include "SkPdfArray_autogen.h"
 #include "SkPdfDictionary_autogen.h"
 
+// Optional parameter for the DCTDecode filter
 class SkPdfDctdecodeFilterDictionary : public SkPdfDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kDctdecodeFilterDictionary_SkPdfObjectType;}
@@ -520,6 +521,29 @@ public:
   virtual bool valid() const {return true;}
 
   SkPdfDctdecodeFilterDictionary& operator=(const SkPdfDctdecodeFilterDictionary& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}
+
+/** ()A code specifying the transformation to be performed on the sample values:
+ *      0    No transformation.
+ *      1    If the image has three color components, transform RGB values to
+ *           YUV before encoding and from YUV to RGB after decoding. If the
+ *           image has four components, transform CMYK values to YUVK be-
+ *           fore encoding and from YUVK to CMYK after decoding. This option
+ *           is ignored if the image has one or two color components.
+ *  Note: The RGB and YUV used here have nothing to do with the color spaces de-
+ *  fined as part of the Adobe imaging model. The purpose of converting from RGB
+ *  to YUV is to separate luminance and chrominance information (see below).
+ *  The default value of ColorTransform is 1 if the image has three components
+ *  and 0 otherwise. In other words, conversion between RGB and YUV is per-
+ *  formed for all three-component images unless explicitly disabled by setting
+ *  ColorTransform to 0. Additionally, the encoding algorithm inserts an Adobe-
+ *  defined marker code in the encoded data indicating the ColorTransform value
+ *  used. If present, this marker code overrides the ColorTransform value given to
+ *  DCTDecode. Thus it is necessary to specify ColorTransform only when decod-
+ *  ing data that does not contain the Adobe-defined marker code.
+**/
+  bool has_ColorTransform() const {
+    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorTransform", "", NULL));
+  }
 
   long ColorTransform() const {
     long ret;
