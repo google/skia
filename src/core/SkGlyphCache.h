@@ -230,7 +230,6 @@ private:
     SkGlyph*            fGlyphHash[kHashCount];
     SkTDArray<SkGlyph*> fGlyphArray;
     SkChunkAlloc        fGlyphAlloc;
-    SkChunkAlloc        fImageAlloc;
 
     int fMetricsCount, fAdvanceCount;
 
