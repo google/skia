@@ -124,12 +124,11 @@ void BaseExample::onSizeChange() {
 
 #ifdef SK_BUILD_FOR_WIN
 void BaseExample::onHandleInval(const SkIRect& rect) {
-	RECT winRect;
-	winRect.top = rect.top();
-	winRect.bottom = rect.bottom();
-	winRect.right = rect.right();
-	winRect.left = rect.left();
-	InvalidateRect((HWND)this->getHWND(), &winRect, false);
+    RECT winRect;
+    winRect.top = rect.top();
+    winRect.bottom = rect.bottom();
+    winRect.right = rect.right();
+    winRect.left = rect.left();
+    InvalidateRect((HWND)this->getHWND(), &winRect, false);
 }
 #endif
-
