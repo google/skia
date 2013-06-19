@@ -110,4 +110,3 @@ class HelloSkia : public BaseExample {
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     return new HelloSkia(hwnd, argc, argv);
 }
-
