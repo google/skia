@@ -50,8 +50,12 @@ public:
                         outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 case GrConfigConversionEffect::kMulByAlpha_RoundDown_PMConversion:
+                    // Add a compensation(0.001) here to avoid the side effect of the floor operation.
+                    // In Intel GPUs, the integer value converted from floor(%s.r * 255.0) / 255.0
+                    // is less than the integer value converted from  %s.r by 1 when the %s.r is
+                    // converted from the integer value 2^n, such as 1, 2, 4, 8, etc.
                     builder->fsCodeAppendf(
-                        "\t\t%s = vec4(floor(%s.%s * %s.a * 255.0) / 255.0, %s.a);\n",
+                        "\t\t%s = vec4(floor(%s.%s * %s.a * 255.0 + 0.001) / 255.0, %s.a);\n",
                         outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
