@@ -102,20 +102,53 @@ static void TestString(skiatest::Reporter* reporter) {
     a.set("abcd");
 
     a.set("");
-    a.appendS64(72036854775808LL, 0);
-    REPORTER_ASSERT(reporter, a.equals("72036854775808"));
+    a.appendS32(0x7FFFFFFFL);
+    REPORTER_ASSERT(reporter, a.equals("2147483647"));
+    a.set("");
+    a.appendS32(0x80000001L);
+    REPORTER_ASSERT(reporter, a.equals("-2147483647"));
+    a.set("");
+    a.appendS32(0x80000000L);
+    REPORTER_ASSERT(reporter, a.equals("-2147483648"));
 
     a.set("");
-    a.appendS64(-1844674407370LL, 0);
-    REPORTER_ASSERT(reporter, a.equals("-1844674407370"));
+    a.appendU32(0x7FFFFFFFUL);
+    REPORTER_ASSERT(reporter, a.equals("2147483647"));
+    a.set("");
+    a.appendU32(0x80000001UL);
+    REPORTER_ASSERT(reporter, a.equals("2147483649"));
+    a.set("");
+    a.appendU32(0xFFFFFFFFUL);
+    REPORTER_ASSERT(reporter, a.equals("4294967295"));
 
     a.set("");
-    a.appendS64(73709551616LL, 15);
-    REPORTER_ASSERT(reporter, a.equals("000073709551616"));
+    a.appendS64(0x7FFFFFFFFFFFFFFFLL, 0);
+    REPORTER_ASSERT(reporter, a.equals("9223372036854775807"));
+    a.set("");
+    a.appendS64(0x8000000000000001LL, 0);
+    REPORTER_ASSERT(reporter, a.equals("-9223372036854775807"));
+    a.set("");
+    a.appendS64(0x8000000000000000LL, 0);
+    REPORTER_ASSERT(reporter, a.equals("-9223372036854775808"));
+    a.set("");
+    a.appendS64(0x0000000001000000LL, 15);
+    REPORTER_ASSERT(reporter, a.equals("000000016777216"));
+    a.set("");
+    a.appendS64(0xFFFFFFFFFF000000LL, 15);
+    REPORTER_ASSERT(reporter, a.equals("-000000016777216"));
 
     a.set("");
-    a.appendS64(-429496729612LL, 15);
-    REPORTER_ASSERT(reporter, a.equals("-000429496729612"));
+    a.appendU64(0x7FFFFFFFFFFFFFFFULL, 0);
+    REPORTER_ASSERT(reporter, a.equals("9223372036854775807"));
+    a.set("");
+    a.appendU64(0x8000000000000001ULL, 0);
+    REPORTER_ASSERT(reporter, a.equals("9223372036854775809"));
+    a.set("");
+    a.appendU64(0xFFFFFFFFFFFFFFFFULL, 0);
+    REPORTER_ASSERT(reporter, a.equals("18446744073709551615"));
+    a.set("");
+    a.appendU64(0x0000000001000000ULL, 15);
+    REPORTER_ASSERT(reporter, a.equals("000000016777216"));
 
     static const struct {
         SkScalar    fValue;

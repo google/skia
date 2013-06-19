@@ -59,9 +59,14 @@ static inline char *SkStrDup(const char string[]) {
 
 
 
-#define SkStrAppendS32_MaxSize  11
+#define SkStrAppendU32_MaxSize  10
+char*   SkStrAppendU32(char buffer[], int32_t);
+#define SkStrAppendU64_MaxSize  20
+char*   SkStrAppendU64(char buffer[], int64_t, int minDigits);
+
+#define SkStrAppendS32_MaxSize  (SkStrAppendU32_MaxSize + 1)
 char*   SkStrAppendS32(char buffer[], int32_t);
-#define SkStrAppendS64_MaxSize  20
+#define SkStrAppendS64_MaxSize  (SkStrAppendU64_MaxSize + 1)
 char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 
 /**
@@ -164,6 +169,8 @@ public:
     void insertUnichar(size_t offset, SkUnichar);
     void insertS32(size_t offset, int32_t value);
     void insertS64(size_t offset, int64_t value, int minDigits = 0);
+    void insertU32(size_t offset, uint32_t value);
+    void insertU64(size_t offset, uint64_t value, int minDigits = 0);
     void insertHex(size_t offset, uint32_t value, int minDigits = 0);
     void insertScalar(size_t offset, SkScalar);
 
@@ -173,6 +180,8 @@ public:
     void appendUnichar(SkUnichar uni) { this->insertUnichar((size_t)-1, uni); }
     void appendS32(int32_t value) { this->insertS32((size_t)-1, value); }
     void appendS64(int64_t value, int minDigits = 0) { this->insertS64((size_t)-1, value, minDigits); }
+    void appendU32(uint32_t value) { this->insertU32((size_t)-1, value); }
+    void appendU64(uint64_t value, int minDigits = 0) { this->insertU64((size_t)-1, value, minDigits); }
     void appendHex(uint32_t value, int minDigits = 0) { this->insertHex((size_t)-1, value, minDigits); }
     void appendScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
