@@ -216,6 +216,10 @@ gm_test "--ignoreErrorTypes ExpectationsMismatch NoGpuContext --verbose --hierar
 # Test non-hierarchical mode.
 gm_test "--verbose --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-no-hierarchy.json" "$GM_OUTPUTS/no-hierarchy"
 
+# Try writing out actual images using checksum-based filenames, like we do when
+# uploading to Google Storage.
+gm_test "--verbose --writeChecksumBasedFilenames --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-no-hierarchy.json" "$GM_OUTPUTS/checksum-based-filenames"
+
 # Exercise display_json_results.py
 PASSING_CASES="compared-against-identical-bytes-json compared-against-identical-pixels-json"
 FAILING_CASES="compared-against-different-pixels-json"
