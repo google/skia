@@ -225,7 +225,7 @@ SkOSWindow::NextXEventResult SkOSWindow::nextXEvent() {
                            SkView::Click::kMoved_State, NULL, getModi(evt));
             break;
         case KeyPress: {
-            int shiftLevel = (evt.xkey.keycode & ShiftMask) ? 1 : 0;
+            int shiftLevel = (evt.xkey.state & ShiftMask) ? 1 : 0;
             KeySym keysym = XkbKeycodeToKeysym(dsp, evt.xkey.keycode,
                                                0, shiftLevel);
             if (keysym == XK_Escape) {
