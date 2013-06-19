@@ -14,22 +14,27 @@ static void test_chunkalloc(skiatest::Reporter* reporter) {
     SkChunkAlloc alloc(min);
 
     REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
+    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
     REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
     REPORTER_ASSERT(reporter, !alloc.contains(NULL));
     REPORTER_ASSERT(reporter, !alloc.contains(reporter));
 
     alloc.reset();
     REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
+    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
     REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
 
     size_t size = min >> 1;
     void* ptr = alloc.allocThrow(size);
     REPORTER_ASSERT(reporter, alloc.totalCapacity() >= size);
+    REPORTER_ASSERT(reporter, alloc.totalUsed() == size);
     REPORTER_ASSERT(reporter, alloc.blockCount() > 0);
     REPORTER_ASSERT(reporter, alloc.contains(ptr));
 
     alloc.reset();
     REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
+    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

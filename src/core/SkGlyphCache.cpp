@@ -48,14 +48,13 @@ bool gSkSuppressFontCachePurgeSpew;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define kMinGlphAlloc       (sizeof(SkGlyph) * 64)
-#define kMinImageAlloc      (24 * 64)   // should be pointsize-dependent
-
-#define METRICS_RESERVE_COUNT  128  // so we don't grow this array a lot
+// so we don't grow our arrays a lot
+#define kMinGlyphCount      16
+#define kMinGlyphImageSize  (16*2)
+#define kMinAllocAmount     ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount)
 
 SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
-        : fGlyphAlloc(kMinGlphAlloc)
-        , fImageAlloc(kMinImageAlloc) {
+        : fGlyphAlloc(kMinAllocAmount) {
     SkASSERT(typeface);
 
     fPrev = fNext = NULL;
@@ -69,9 +68,9 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
     // init with 0xFF so that the charCode field will be -1, which is invalid
     memset(fCharToGlyphHash, 0xFF, sizeof(fCharToGlyphHash));
 
-    fMemoryUsed = sizeof(*this) + kMinGlphAlloc + kMinImageAlloc;
+    fMemoryUsed = sizeof(*this);
 
-    fGlyphArray.setReserve(METRICS_RESERVE_COUNT);
+    fGlyphArray.setReserve(kMinGlyphCount);
 
     fMetricsCount = 0;
     fAdvanceCount = 0;
@@ -79,6 +78,30 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
 }
 
 SkGlyphCache::~SkGlyphCache() {
+#if 0
+    {
+        size_t ptrMem = fGlyphArray.count() * sizeof(SkGlyph*);
+        size_t glyphAlloc = fGlyphAlloc.totalCapacity();
+        size_t glyphHashUsed = 0;
+        size_t uniHashUsed = 0;
+        for (int i = 0; i < kHashCount; ++i) {
+            glyphHashUsed += fGlyphHash[i] ? sizeof(fGlyphHash[0]) : 0;
+            uniHashUsed += fCharToGlyphHash[i].fID != 0xFFFFFFFF ? sizeof(fCharToGlyphHash[0]) : 0;
+        }
+        size_t glyphUsed = fGlyphArray.count() * sizeof(SkGlyph);
+        size_t imageUsed = 0;
+        for (int i = 0; i < fGlyphArray.count(); ++i) {
+            const SkGlyph& g = *fGlyphArray[i];
+            if (g.fImage) {
+                imageUsed += g.fHeight * g.rowBytes();
+            }
+        }
+
+        printf("glyphPtrArray,%zu, Alloc,%zu, imageUsed,%zu, glyphUsed,%zu, glyphHashAlloc,%zu, glyphHashUsed,%zu, unicharHashAlloc,%zu, unicharHashUsed,%zu\n",
+                 ptrMem, glyphAlloc, imageUsed, glyphUsed, sizeof(fGlyphHash), glyphHashUsed, sizeof(fCharToGlyphHash), uniHashUsed);
+        
+    }
+#endif
     SkGlyph**   gptr = fGlyphArray.begin();
     SkGlyph**   stop = fGlyphArray.end();
     while (gptr < stop) {
@@ -296,7 +319,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (glyph.fImage == NULL) {
             size_t  size = glyph.computeImageSize();
-            const_cast<SkGlyph&>(glyph).fImage = fImageAlloc.alloc(size,
+            const_cast<SkGlyph&>(glyph).fImage = fGlyphAlloc.alloc(size,
                                         SkChunkAlloc::kReturnNil_AllocFailType);
             // check that alloc() actually succeeded
             if (glyph.fImage) {
@@ -708,7 +731,7 @@ void SkGlyphCache::validate() const {
         SkASSERT(glyph);
         SkASSERT(fGlyphAlloc.contains(glyph));
         if (glyph->fImage) {
-            SkASSERT(fImageAlloc.contains(glyph->fImage));
+            SkASSERT(fGlyphAlloc.contains(glyph->fImage));
         }
     }
 #endif

@@ -52,6 +52,7 @@ SkChunkAlloc::SkChunkAlloc(size_t minSize) {
     fMinSize = minSize;
     fChunkSize = fMinSize;
     fTotalCapacity = 0;
+    fTotalUsed = 0;
     fBlockCount = 0;
 }
 
@@ -64,6 +65,7 @@ void SkChunkAlloc::reset() {
     fBlock = NULL;
     fChunkSize = fMinSize;  // reset to our initial minSize
     fTotalCapacity = 0;
+    fTotalUsed = 0;
     fBlockCount = 0;
 }
 
@@ -90,6 +92,8 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
 }
 
 void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
+    fTotalUsed += bytes;
+    
     bytes = SkAlign4(bytes);
 
     Block* block = fBlock;

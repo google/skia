@@ -42,6 +42,7 @@ public:
     size_t unalloc(void* ptr);
 
     size_t totalCapacity() const { return fTotalCapacity; }
+    size_t totalUsed() const { return fTotalUsed; }
     int blockCount() const { return fBlockCount; }
 
     /**
@@ -58,6 +59,7 @@ private:
     size_t  fMinSize;
     size_t  fChunkSize;
     size_t  fTotalCapacity;
+    size_t  fTotalUsed;     // will be <= fTotalCapacity
     int     fBlockCount;
 
     Block* newBlock(size_t bytes, AllocFailType ftype);
