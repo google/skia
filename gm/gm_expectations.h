@@ -76,30 +76,9 @@ namespace skiagm {
          */
         Json::Value asJsonTypeValuePair() const;
 
-        /**
-         * Returns the hashtype, such as "bitmap-64bitMD5", as an SkString.
-         */
-        SkString getHashType() const;
-
-        /**
-         * Returns the hash digest value, such as "12345", as an SkString.
-         */
-        SkString getDigestValue() const;
-
     private:
         bool fIsValid; // always check this first--if it's false, other fields are meaningless
         uint64_t fHashDigest;
-    };
-
-    /**
-     * Encapsulates an SkBitmap and its GmResultDigest, guaranteed to keep them in sync.
-     */
-    class BitmapAndDigest {
-    public:
-        BitmapAndDigest(const SkBitmap &bitmap) : fBitmap(bitmap), fDigest(bitmap) {}
-
-        const SkBitmap fBitmap;
-        const GmResultDigest fDigest;
     };
 
     /**
