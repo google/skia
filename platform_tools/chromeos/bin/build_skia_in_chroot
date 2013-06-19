@@ -31,6 +31,22 @@ then
   exit 1;
 fi
 
+
+# TODO(borenet): Add these to the tarball, so we don't have to copy.
+# Copy missing headers and libraries into the sysroot.
+if [[ ${GENERIC_BOARD_TYPE} == "amd64-generic" ]];
+then 
+  LIB_DIR="lib64"
+else
+  LIB_DIR="lib"
+fi
+if ! [[ -f "${SYSROOT}/usr/include/GL/glu.h" ]]; then
+  cp platform_tools/chromeos/toolchain/${GENERIC_BOARD_TYPE}/usr/include/GL/glu.h ${SYSROOT}/usr/include/GL
+fi
+if ! [[ -f "${SYSROOT}/usr/${LIB_DIR}/libGLU.so" ]]; then
+  cp platform_tools/chromeos/toolchain/${GENERIC_BOARD_TYPE}/usr/${LIB_DIR}/libGLU.so* ${SYSROOT}/usr/${LIB_DIR}
+fi
+
 make ${makeVars}
 returnVal=$?
 if [ $returnVal != 0 ]

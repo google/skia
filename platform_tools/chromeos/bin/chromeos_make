@@ -4,7 +4,6 @@
 # chroot contained within an existing ChromeOS checkout, entering the chroot,
 # and running the build_skia_in_chroot script.
 
-MAKE_FLAGS=$@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ $(uname) != "Linux" ]; then
@@ -12,26 +11,69 @@ if [ $(uname) != "Linux" ]; then
     exit 1
 fi
 
-if [ -z "${CHROMEOS_ROOT}" ]; then
-    echo "ERROR: Please set CHROMEOS_ROOT to the root of your ChromeOS checkout."
-    exit 1
+
+makeVars=""
+deviceID=""
+
+while (( "$#" )); do
+
+  if [[ $(echo "$1" | grep "^-d$") != "" ]];
+  then 
+    deviceID="$2"
+    shift
+  else
+    makeVars="$makeVars $1"
+  fi
+
+shift
+done
+
+if [[ -z "${deviceID}" ]]; then
+  echo "You must provide a deviceID with -d."
+  exit 1
 fi
 
-CHROMEOS_CHROOT="${CHROMEOS_ROOT}/chroot"
+CHROMEOS_CHROOT="${SCRIPT_DIR}/../toolchain"
+
+# Obtain some extra headers and libraries if needed.
+if ! [[ -d "${CHROMEOS_CHROOT}/x86-generic" && \
+        -d "${CHROMEOS_CHROOT}/amd64-generic" && \
+        -d "${CHROMEOS_CHROOT}/arm-generic" ]]; then
+  gsutil cp gs://chromium-skia-gm/chromeos-toolchains/cros_toolchain.tgz ${CHROMEOS_CHROOT}
+  if [[ "$?" != "0" ]]; then
+    exit 1
+  fi
+  pushd ${CHROMEOS_CHROOT} > /dev/null
+  tar -zxvf cros_toolchain.tgz
+  if [[ "$?" != "0" ]]; then
+    exit 1
+  fi
+  rm cros_toolchain.tgz
+  popd > /dev/null
+fi
+
+# Get the required SDK version.
+# TODO(borenet): Should we instead get the latest from GS?
+#SDK_VERSION=$(gsutil cat gs://chromeos-image-archive/${deviceID}-release/LATEST-master)
+#SDK_VERSION=${SDK_VERSION:4}
+SDK_VERSION="4279.0.0"
+mkdir -p "${CHROMEOS_CHROOT}/src/chromeos"
+echo -n ${SDK_VERSION} > "${CHROMEOS_CHROOT}/src/chromeos/CHROMEOS_LKGM"
+
+# Put a fake .gclient file in the toolchain directory so that the cros tool
+# thinks we're in a Chrome checkout.
+echo "Delete me!" > "${CHROMEOS_CHROOT}/.gclient"
 
 # Where the Skia code will pretend to live inside the chroot.
-SKIA_CHROOT_PARENT="/usr/local"
-SKIA_CHROOT_DIR="${SKIA_CHROOT_PARENT}/skia"
+SKIA_TOP_DIR="${SCRIPT_DIR}/../../.."
 
-echo "Mounting Skia source at ${SKIA_CHROOT_DIR} in chroot."
-sudo mkdir -p ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR}
-sudo mount $(pwd) ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR} -o bind
-
-echo "Compiling in chroot: ${CHROMEOS_CHROOT}"
-sudo ${CHROMEOS_ROOT}/chromite/bin/cros_sdk -- /bin/sh -c "cd ${SKIA_CHROOT_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot $MAKE_FLAGS"
+pushd ${CHROMEOS_CHROOT}
+cros chrome-sdk --board ${deviceID} --debug -- /bin/sh -c "cd ${SKIA_TOP_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot ${makeVars}"
 returnVal=$?
+popd > /dev/null
 
-sudo umount ${CHROMEOS_CHROOT}${SKIA_CHROOT_DIR}
+# Clean up
+rm ${CHROMEOS_CHROOT}/.gclient
 
 if [ "${returnVal}" != "0" ]
 then
