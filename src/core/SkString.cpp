@@ -68,47 +68,39 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]) {
     return -1;
 }
 
-char* SkStrAppendS32(char string[], int32_t dec) {
+char* SkStrAppendU32(char string[], uint32_t dec) {
     SkDEBUGCODE(char* start = string;)
 
-    char    buffer[SkStrAppendS32_MaxSize];
+    char    buffer[SkStrAppendU32_MaxSize];
     char*   p = buffer + sizeof(buffer);
-    bool    neg = false;
-
-    if (dec < 0) {
-        neg = true;
-        dec = -dec;
-    }
 
     do {
         *--p = SkToU8('0' + dec % 10);
         dec /= 10;
     } while (dec != 0);
 
-    if (neg) {
-        *--p = '-';
-    }
-
     SkASSERT(p >= buffer);
     char* stop = buffer + sizeof(buffer);
     while (p < stop) {
         *string++ = *p++;
     }
-    SkASSERT(string - start <= SkStrAppendS32_MaxSize);
+    SkASSERT(string - start <= SkStrAppendU32_MaxSize);
     return string;
 }
 
-char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
-    SkDEBUGCODE(char* start = string;)
-
-    char    buffer[SkStrAppendS64_MaxSize];
-    char*   p = buffer + sizeof(buffer);
-    bool    neg = false;
-
+char* SkStrAppendS32(char string[], int32_t dec) {
     if (dec < 0) {
-        neg = true;
+        *string++ = '-';
         dec = -dec;
     }
+    return SkStrAppendU32(string, static_cast<uint32_t>(dec));
+}
+
+char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
+    SkDEBUGCODE(char* start = string;)
+
+    char    buffer[SkStrAppendU64_MaxSize];
+    char*   p = buffer + sizeof(buffer);
 
     do {
         *--p = SkToU8('0' + (int32_t) (dec % 10));
@@ -121,16 +113,21 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
         minDigits--;
     }
 
-    if (neg) {
-        *--p = '-';
-    }
     SkASSERT(p >= buffer);
     size_t cp_len = buffer + sizeof(buffer) - p;
     memcpy(string, p, cp_len);
     string += cp_len;
 
-    SkASSERT(string - start <= SkStrAppendS64_MaxSize);
+    SkASSERT(string - start <= SkStrAppendU64_MaxSize);
     return string;
+}
+
+char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
+    if (dec < 0) {
+        *string++ = '-';
+        dec = -dec;
+    }
+    return SkStrAppendU64(string, static_cast<uint64_t>(dec), minDigits);
 }
 
 char* SkStrAppendFloat(char string[], float value) {
@@ -515,6 +512,18 @@ void SkString::insertS32(size_t offset, int32_t dec) {
 void SkString::insertS64(size_t offset, int64_t dec, int minDigits) {
     char    buffer[SkStrAppendS64_MaxSize];
     char*   stop = SkStrAppendS64(buffer, dec, minDigits);
+    this->insert(offset, buffer, stop - buffer);
+}
+
+void SkString::insertU32(size_t offset, uint32_t dec) {
+    char    buffer[SkStrAppendU32_MaxSize];
+    char*   stop = SkStrAppendU32(buffer, dec);
+    this->insert(offset, buffer, stop - buffer);
+}
+
+void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
+    char    buffer[SkStrAppendU64_MaxSize];
+    char*   stop = SkStrAppendU64(buffer, dec, minDigits);
     this->insert(offset, buffer, stop - buffer);
 }
 
