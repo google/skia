@@ -171,7 +171,7 @@ static unsigned getModi(const XEvent& evt) {
 
 static SkMSec gTimerDelay;
 
-static void MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
+static bool MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
     SkMSec ms = gTimerDelay;
     if (ms > 0) {
         int x11_fd = ConnectionNumber(dsp);
@@ -183,19 +183,23 @@ static void MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
         tv.tv_sec = ms / 1000;              // seconds
         tv.tv_usec = (ms % 1000) * 1000;    // microseconds
 
-        (void)select(x11_fd + 1, &input_fds, NULL, NULL, &tv);
+        if (!select(x11_fd + 1, &input_fds, NULL, NULL, &tv)) {
+            if (!XPending(dsp)) {
+                return false;
+            }
+        }
     }
-
-    if (XPending(dsp)) {
-        XNextEvent(dsp, evt);
-    }
+    XNextEvent(dsp, evt);
+    return true;
 }
 
 SkOSWindow::NextXEventResult SkOSWindow::nextXEvent() {
     XEvent evt;
     Display* dsp = fUnixWindow.fDisplay;
 
-    MyXNextEventWithDelay(fUnixWindow.fDisplay, &evt);
+    if (!MyXNextEventWithDelay(fUnixWindow.fDisplay, &evt)) {
+        return kContinue_NextXEventResult;
+    }
 
     switch (evt.type) {
         case Expose:
@@ -249,29 +253,37 @@ void SkOSWindow::loop() {
     if (NULL == dsp) {
         return;
     }
-    XSelectInput(dsp, fUnixWindow.fWin, EVENT_MASK);
+    Window win = fUnixWindow.fWin;
 
-    bool needPaint = false;
+    XSelectInput(dsp, win, EVENT_MASK);
+
+    bool sentExposeEvent = false;
 
     for (;;) {
-        if (this->isDirty()) {
-            this->update(NULL);
-            needPaint = true;
+        SkEvent::ServiceQueueTimer();
+
+        bool moreToDo = SkEvent::ProcessEvent();
+
+        if (this->isDirty() && !sentExposeEvent) {
+            sentExposeEvent = true;
+
+            XEvent evt;
+            sk_bzero(&evt, sizeof(evt));
+            evt.type = Expose;
+            evt.xexpose.display = dsp;
+            XSendEvent(dsp, win, false, ExposureMask, &evt);
         }
-        if (needPaint) {
-            this->doPaint();
-            needPaint = false;
-        }
-        if (gTimerDelay) {
-            SkEvent::ServiceQueueTimer();
-        }
-        bool moreToDo = SkEvent::ProcessEvent() || needPaint || this->isDirty();
+
         if (XPending(dsp) || !moreToDo) {
             switch (this->nextXEvent()) {
                 case kContinue_NextXEventResult:
                     break;
                 case kPaintRequest_NextXEventResult:
-                    needPaint = true;
+                    sentExposeEvent = false;
+                    if (this->isDirty()) {
+                        this->update(NULL);
+                    }
+                    this->doPaint();
                     break;
                 case kQuitRequest_NextXEventResult:
                     return;
@@ -408,3 +420,4 @@ void SkEvent::SignalQueueTimer(SkMSec delay) {
     // MyXNextEventWithDelay()
     gTimerDelay = delay;
 }
+
