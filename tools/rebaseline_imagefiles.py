@@ -1,28 +1,29 @@
 #!/usr/bin/python
 
 '''
-Copyright 2012 Google Inc.
+Copyright 2013 Google Inc.
 
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 '''
 
 '''
-Rebaselines the given GM tests, on all bots and all configurations.
-Must be run from the gm-expected directory.  If run from a git or SVN
-checkout, the files will be added to the staging area for commit.
+Rebaselines GM test results as individual image files
+(the "old way", before https://goto.google.com/ChecksumTransitionDetail ).
+
+Once we have switched our expectations to JSON form for all platforms,
+we can delete this file.
+
+There is a lot of code duplicated between here and rebaseline.py, but
+that's fine because we will delete this file soon.
 '''
 
 # System-level imports
-import argparse
 import os
 import re
 import subprocess
 import sys
 import urllib2
-
-# Imports from local directory
-import rebaseline_imagefiles
 
 # Imports from within Skia
 #
@@ -41,47 +42,11 @@ if GM_DIRECTORY not in sys.path:
     sys.path.append(GM_DIRECTORY)
 import gm_json
 
-JSON_EXPECTATIONS_FILENAME='expected-results.json'
-
-# Mapping of gm-expectations subdir (under
-# https://skia.googlecode.com/svn/gm-expected/ )
-# to builder name (see list at http://108.170.217.252:10117/builders )
-SUBDIR_MAPPING = {
-   'base-shuttle-win7-intel-float':
-    'Test-Win7-ShuttleA-HD2000-x86-Release',
-   'base-shuttle-win7-intel-angle':
-    'Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE',
-   'base-shuttle-win7-intel-directwrite':
-    'Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite',
-   'base-shuttle_ubuntu12_ati5770':
-    'Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release',
-   'base-macmini':
-    'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release',
-   'base-macmini-lion-float':
-    'Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release',
-   'base-android-galaxy-nexus':
-    'Test-Android-GalaxyNexus-SGX540-Arm7-Debug',
-   'base-android-nexus-7':
-    'Test-Android-Nexus7-Tegra3-Arm7-Release',
-   'base-android-nexus-s':
-    'Test-Android-NexusS-SGX540-Arm7-Release',
-   'base-android-xoom':
-    'Test-Android-Xoom-Tegra2-Arm7-Release',
-   'base-android-nexus-10':
-    'Test-Android-Nexus10-MaliT604-Arm7-Release',
-}
-
 
 class CommandFailedException(Exception):
     pass
 
-# Object that rebaselines a JSON expectations file (not individual image files).
-#
-# TODO(epoger): Most of this is just the code from the old ImageRebaseliner...
-# some of it will need to be updated in order to properly rebaseline JSON files.
-# There is a lot of code duplicated between here and ImageRebaseliner, but
-# that's fine because we will delete ImageRebaseliner soon.
-class JsonRebaseliner(object):
+class ImageRebaseliner(object):
 
     # params:
     #  expectations_root: root directory of all expectations
@@ -102,7 +67,6 @@ class JsonRebaseliner(object):
     def __init__(self, expectations_root, json_base_url, json_filename,
                  tests=None, configs=None, dry_run=False,
                  add_new=False, missing_json_is_fatal=False):
-        raise ValueError('JsonRebaseliner not yet implemented') # TODO(epoger)
         if configs and not tests:
             raise ValueError('configs should only be specified if tests ' +
                              'were specified also')
@@ -340,7 +304,8 @@ class JsonRebaseliner(object):
         print '# ' + expectations_subdir + ':'
         for config in configs:
             infilename = test + '_' + config + '.png'
-            outfilename = os.path.join(expectations_subdir, infilename);
+            outfilename = os.path.join(self._expectations_root,
+                                       expectations_subdir, infilename);
             self._RebaselineOneFile(expectations_subdir=expectations_subdir,
                                     builder_name=builder_name,
                                     infilename=infilename,
@@ -374,87 +339,3 @@ class JsonRebaseliner(object):
                                         infilename=filename,
                                         outfilename=outfilename,
                                         all_results=all_results)
-
-# main...
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--add-new', action='store_true',
-                    help='in addition to the standard behavior of ' +
-                    'updating expectations for failing tests, add ' +
-                    'expectations for tests which don\'t have expectations ' +
-                    'yet.')
-parser.add_argument('--configs', metavar='CONFIG', nargs='+',
-                    help='which configurations to rebaseline, e.g. ' +
-                    '"--configs 565 8888"; if unspecified, run a default ' +
-                    'set of configs. This should ONLY be specified if ' +
-                    '--tests has also been specified.')
-parser.add_argument('--dry-run', action='store_true',
-                    help='instead of actually downloading files or adding ' +
-                    'files to checkout, display a list of operations that ' +
-                    'we would normally perform')
-parser.add_argument('--expectations-root',
-                    help='root of expectations directory to update-- should ' +
-                    'contain one or more base-* subdirectories. Defaults to ' +
-                    '%(default)s',
-                    default='.')
-parser.add_argument('--json-base-url',
-                    help='base URL from which to read JSON_FILENAME ' +
-                    'files; defaults to %(default)s',
-                    default='http://skia-autogen.googlecode.com/svn/gm-actual')
-parser.add_argument('--json-filename',
-                    help='filename (under JSON_BASE_URL) to read a summary ' +
-                    'of results from; defaults to %(default)s',
-                    default='actual-results.json')
-parser.add_argument('--subdirs', metavar='SUBDIR', nargs='+',
-                    help='which platform subdirectories to rebaseline; ' +
-                    'if unspecified, rebaseline all subdirs, same as ' +
-                    '"--subdirs %s"' % ' '.join(sorted(SUBDIR_MAPPING.keys())))
-parser.add_argument('--tests', metavar='TEST', nargs='+',
-                    help='which tests to rebaseline, e.g. ' +
-                    '"--tests aaclip bigmatrix"; if unspecified, then all ' +
-                    'failing tests (according to the actual-results.json ' +
-                    'file) will be rebaselined.')
-args = parser.parse_args()
-if args.subdirs:
-    subdirs = args.subdirs
-    missing_json_is_fatal = True
-else:
-    subdirs = sorted(SUBDIR_MAPPING.keys())
-    missing_json_is_fatal = False
-for subdir in subdirs:
-    if not subdir in SUBDIR_MAPPING.keys():
-        raise Exception(('unrecognized platform subdir "%s"; ' +
-                         'should be one of %s') % (
-                             subdir, SUBDIR_MAPPING.keys()))
-    builder = SUBDIR_MAPPING[subdir]
-
-    # We instantiate different Rebaseliner objects depending
-    # on whether we are rebaselining an expected-results.json file, or
-    # individual image files.  Different gm-expected subdirectories may move
-    # from individual image files to JSON-format expectations at different
-    # times, so we need to make this determination per subdirectory.
-    #
-    # See https://goto.google.com/ChecksumTransitionDetail
-    expectations_json_file = os.path.join(args.expectations_root, subdir,
-                                          JSON_EXPECTATIONS_FILENAME)
-    if os.path.isfile(expectations_json_file):
-        sys.stderr.write('ERROR: JsonRebaseliner is not implemented yet.\n')
-        sys.exit(1)
-        rebaseliner = JsonRebaseliner(
-            expectations_root=args.expectations_root,
-            tests=args.tests, configs=args.configs,
-            dry_run=args.dry_run,
-            json_base_url=args.json_base_url,
-            json_filename=args.json_filename,
-            add_new=args.add_new,
-            missing_json_is_fatal=missing_json_is_fatal)
-    else:
-        rebaseliner = rebaseline_imagefiles.ImageRebaseliner(
-            expectations_root=args.expectations_root,
-            tests=args.tests, configs=args.configs,
-            dry_run=args.dry_run,
-            json_base_url=args.json_base_url,
-            json_filename=args.json_filename,
-            add_new=args.add_new,
-            missing_json_is_fatal=missing_json_is_fatal)
-    rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
