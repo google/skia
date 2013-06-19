@@ -484,7 +484,7 @@ int tool_main(int argc, char** argv) {
 
     SkAutoGraphics ag;
 
-    if (!FLAGS_readExpectationsPath.isEmpty()) {
+    if (!FLAGS_readExpectationsPath.isEmpty() && sk_exists(FLAGS_readExpectationsPath[0])) {
         gJsonExpectations.reset(SkNEW_ARGS(skiagm::JsonExpectationsSource,
                                            (FLAGS_readExpectationsPath[0])));
     }
