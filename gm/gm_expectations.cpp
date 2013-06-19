@@ -109,6 +109,20 @@ namespace skiagm {
         return jsonTypeValuePair;
     }
 
+    SkString GmResultDigest::getHashType() const {
+        // TODO(epoger): The current implementation assumes that the
+        // result digest is always of type kJsonKey_Hashtype_Bitmap_64bitMD5
+        return SkString(kJsonKey_Hashtype_Bitmap_64bitMD5);
+    }
+
+    SkString GmResultDigest::getDigestValue() const {
+        // TODO(epoger): The current implementation assumes that the
+        // result digest is always of type kJsonKey_Hashtype_Bitmap_64bitMD5
+        SkString retval;
+        retval.appendU64(fHashDigest);
+        return retval;
+    }
+
 
     // Expectations class...
 
