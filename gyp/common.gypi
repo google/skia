@@ -45,15 +45,6 @@
         }],
       ],
     },
-    # Validate the 'skia_os' setting against 'skia_shared_lib', because shared
-    # library build is only supported on Android.
-    'variables': {
-      'conditions': [
-        [ 'skia_os != "android" and skia_shared_lib', {
-          'error': '<!(Skia shared lib build only currently supported on Android.)',
-        }],
-      ],
-    },
     'includes': [
       'common_conditions.gypi',
     ],
