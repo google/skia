@@ -74,7 +74,7 @@ protected:
             nearParabola->moveTo(0, -0);
             nearParabola->conicTo(SkIntToScalar(0), SkIntToScalar(100),
                                         SkIntToScalar(100), SkIntToScalar(100),
-                                        0.999);
+                                        0.999f);
         }
         {
             SkPath* thinEllipse = &fPaths.push_back();
@@ -151,6 +151,10 @@ protected:
             }
         }
         canvas->restore();
+    }
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return  kSkipPDF_Flag;
     }
 
 private:
