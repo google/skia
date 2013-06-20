@@ -420,4 +420,3 @@ void SkEvent::SignalQueueTimer(SkMSec delay) {
     // MyXNextEventWithDelay()
     gTimerDelay = delay;
 }
-
