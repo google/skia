@@ -24,6 +24,15 @@
         'skhello',
         'skimage',
       ],
+      'conditions': [
+        ['skia_shared_lib',
+          {
+            'dependencies': [
+              'sklua', # This can only be built if skia is built as a shared library
+            ],
+          },
+        ],
+      ],
     },
     {
       'target_name': 'skdiff',
@@ -97,6 +106,7 @@
         'utils.gyp:utils',
       ],
     },
+
     {
       'target_name': 'lua_app',
       'type': 'executable',
@@ -312,6 +322,40 @@
     },
   ],
   'conditions': [
+    ['skia_shared_lib',
+      {
+        'targets': [
+          {
+            'target_name': 'sklua',
+            'product_name': 'skia',
+            'product_prefix': '',
+            'product_dir': '<(PRODUCT_DIR)/',
+            'type': 'shared_library',
+            'sources': [
+              '../src/utils/SkLuaCanvas.cpp',
+              '../src/utils/SkLua.cpp',
+            ],
+            'include_dirs': [
+              '../third_party/lua/src/',
+            ],
+            'dependencies': [
+              'lua.gyp:lua',
+              'pdf.gyp:pdf',
+              'skia_lib.gyp:skia_lib',
+            ],
+            'conditions': [
+              ['skia_os != "win"',
+                {
+                  'ldflags': [
+                    '-Wl,-rpath,\$$ORIGIN,--enable-new-dtags',
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+      },
+    ],
     ['skia_win_debuggers_path and skia_os == "win"',
       {
         'targets': [

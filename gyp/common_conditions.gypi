@@ -149,6 +149,17 @@
           '-Wno-c++11-extensions'
         ],
         'conditions' : [
+          [ 'skia_shared_lib', {
+            'cflags': [
+              '-fPIC',
+            ],
+            'defines': [
+              'GR_DLL=1',
+              'GR_IMPLEMENTATION=1',
+              'SKIA_DLL',
+              'SKIA_IMPLEMENTATION=1',
+            ],
+          }],
           [ 'skia_warnings_as_errors', {
             'cflags': [
               '-Werror',
