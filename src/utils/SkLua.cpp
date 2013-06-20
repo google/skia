@@ -950,6 +950,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkTypeface);
 }
 
+extern "C" int luaopen_skia(lua_State* L);
 extern "C" int luaopen_skia(lua_State* L) {
     SkLua::Load(L);
     return 0;
