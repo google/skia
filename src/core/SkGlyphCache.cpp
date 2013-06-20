@@ -99,7 +99,7 @@ SkGlyphCache::~SkGlyphCache() {
 
         printf("glyphPtrArray,%zu, Alloc,%zu, imageUsed,%zu, glyphUsed,%zu, glyphHashAlloc,%zu, glyphHashUsed,%zu, unicharHashAlloc,%zu, unicharHashUsed,%zu\n",
                  ptrMem, glyphAlloc, imageUsed, glyphUsed, sizeof(fGlyphHash), glyphHashUsed, sizeof(fCharToGlyphHash), uniHashUsed);
-        
+
     }
 #endif
     SkGlyph**   gptr = fGlyphArray.begin();
