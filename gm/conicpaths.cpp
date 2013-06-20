@@ -19,7 +19,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE { 
-        return SkISize::Make(800, 600);
+        return SkISize::Make(1000, 1000);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
