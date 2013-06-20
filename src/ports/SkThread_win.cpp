@@ -36,7 +36,7 @@ void sk_membar_aquire__after_atomic_dec() { }
 
 int32_t sk_atomic_conditional_inc(int32_t* addr) {
     while (true) {
-        LONG value = static_cast<LONG const volatile&>(*addr);
+        LONG value = static_cast<int32_t const volatile&>(*addr);
         if (value == 0) {
             return 0;
         }
