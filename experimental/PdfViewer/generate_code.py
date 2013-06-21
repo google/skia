@@ -526,7 +526,7 @@ def generateCode():
   
   manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')\
                              .carbonCopyPublic('const int size() const {return fPodofoObj->GetArray().GetSize();}')\
-                             .carbonCopyPublic('SkPdfObject* operator[](int i) const {return new SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')\
+                             .carbonCopyPublic('SkPdfObject* operator[](int i) const { SkPdfObject* ret = NULL;  skpdfmap(*fPodofoDoc, fPodofoObj->GetArray()[i], &ret);  return ret; }')\
   
   manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString')\
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
