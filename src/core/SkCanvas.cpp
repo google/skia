@@ -461,18 +461,9 @@ private:
 
 #include "SkColorPriv.h"
 
-class AutoValidator {
-public:
-    AutoValidator(SkDevice* device) : fDevice(device) {}
-
-private:
-    SkDevice* fDevice;
-};
-
 ////////// macros to place around the internal draw calls //////////////////
 
 #define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
-/*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, true);                      \
     while (looper.next(type)) {                                     \
@@ -480,7 +471,6 @@ private:
         SkDrawIter          iter(this);
 
 #define LOOPER_BEGIN(paint, type)                                   \
-/*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint);                            \
     while (looper.next(type)) {                                     \

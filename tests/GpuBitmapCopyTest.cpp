@@ -118,8 +118,8 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
             return;
         }
         static const Pair gPairs[] = {
-            { SkBitmap::kNo_Config,         "000"  },
-            { SkBitmap::kARGB_8888_Config,  "011"  },
+            { SkBitmap::kNo_Config,         "00"  },
+            { SkBitmap::kARGB_8888_Config,  "01"  },
         };
 
         const int W = 20;
