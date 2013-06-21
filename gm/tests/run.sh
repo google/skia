@@ -85,7 +85,7 @@ function gm_test {
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
 
-  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE --writePath $ACTUAL_OUTPUT_DIR/writePath --mismatchPath $ACTUAL_OUTPUT_DIR/mismatchPath"
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE --writePath $ACTUAL_OUTPUT_DIR/writePath --mismatchPath $ACTUAL_OUTPUT_DIR/mismatchPath --missingExpectationsPath $ACTUAL_OUTPUT_DIR/missingExpectationsPath"
 
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND >$ACTUAL_OUTPUT_DIR/stdout 2>$ACTUAL_OUTPUT_DIR/stderr
@@ -108,11 +108,11 @@ function gm_test {
   for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.png); do
     echo "[contents of $IMAGEFILE]" >$IMAGEFILE
   done
-  if [ -d $ACTUAL_OUTPUT_DIR/mismatchPath ]; then
-    for MISMATCHDIR in $(find $ACTUAL_OUTPUT_DIR/mismatchPath -mindepth 1 -type d); do
-      echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$MISMATCHDIR/bogusfile
-    done
-  fi
+
+  # Add a file to any empty subdirectories.
+  for DIR in $(find $ACTUAL_OUTPUT_DIR -mindepth 1 -type d); do
+    echo "Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories." >$DIR/bogusfile
+  done
 
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }

@@ -193,7 +193,8 @@ class GMMain {
 public:
     GMMain() : fUseFileHierarchy(false), fWriteChecksumBasedFilenames(false),
                fIgnorableErrorTypes(kDefaultIgnorableErrorTypes),
-               fMismatchPath(NULL), fTestsRun(0), fRenderModesEncountered(1) {}
+               fMismatchPath(NULL), fMissingExpectationsPath(NULL), fTestsRun(0),
+               fRenderModesEncountered(1) {}
 
     /**
      * Assemble shortNamePlusConfig from (surprise!) shortName and configName.
@@ -767,6 +768,7 @@ public:
      *
      * If fMismatchPath has been set, and there are pixel diffs, then the
      * actual bitmap will be written out to a file within fMismatchPath.
+     * And similarly for fMissingExpectationsPath...
      *
      * @param expectations what expectations to compare actualBitmap against
      * @param actualBitmapAndDigest the SkBitmap we actually generated, and its GmResultDigest
@@ -795,6 +797,16 @@ public:
 
         if (expectations.empty()) {
             errors.add(kMissingExpectations_ErrorType);
+
+            // Write out the "actuals" for any tests without expectations, if we have
+            // been directed to do so.
+            if (fMissingExpectationsPath) {
+                SkString path = make_bitmap_filename(fMissingExpectationsPath, shortName,
+                                                     configName, renderModeDescriptor,
+                                                     actualBitmapAndDigest.fDigest);
+                write_bitmap(path, actualBitmapAndDigest.fBitmap);
+            }
+
         } else if (!expectations.match(actualBitmapAndDigest.fDigest)) {
             addToJsonSummary = true;
             // The error mode we record depends on whether this was running
@@ -1178,6 +1190,7 @@ public:
     ErrorCombination fIgnorableErrorTypes;
 
     const char* fMismatchPath;
+    const char* fMissingExpectationsPath;
 
     // collection of tests that have failed with each ErrorType
     SkTArray<SkString> fFailedTests[kLast_ErrorType+1];
@@ -1317,6 +1330,8 @@ DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
               "^ and $ requires an exact match\n"
               "If a test does not match any list entry,\n"
               "it is skipped unless some list entry starts with ~");
+DEFINE_string(missingExpectationsPath, "", "Write images for tests without expectations "
+              "into this directory.");
 DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
               "pixel mismatches into this directory.");
 DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
@@ -1799,6 +1814,9 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_mismatchPath.count() == 1) {
         gmmain.fMismatchPath = FLAGS_mismatchPath[0];
     }
+    if (FLAGS_missingExpectationsPath.count() == 1) {
+        gmmain.fMissingExpectationsPath = FLAGS_missingExpectationsPath[0];
+    }
 
     for (int i = 0; i < FLAGS_config.count(); i++) {
         const char* config = FLAGS_config[i];
@@ -1987,6 +2005,10 @@ int tool_main(int argc, char** argv) {
         if (NULL != gmmain.fMismatchPath) {
             gm_fprintf(stdout, "writing mismatches to %s\n", gmmain.fMismatchPath);
         }
+        if (NULL != gmmain.fMissingExpectationsPath) {
+            gm_fprintf(stdout, "writing images without expectations to %s\n",
+                       gmmain.fMissingExpectationsPath);
+        }
         if (FLAGS_writePicturePath.count() == 1) {
             gm_fprintf(stdout, "writing pictures to %s\n", FLAGS_writePicturePath[0]);
         }
@@ -2014,6 +2036,12 @@ int tool_main(int argc, char** argv) {
     }
     if (NULL != gmmain.fMismatchPath) {
         if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy, configs)) {
+            return -1;
+        }
+    }
+    if (NULL != gmmain.fMissingExpectationsPath) {
+        if (!prepare_subdirectories(gmmain.fMissingExpectationsPath, gmmain.fUseFileHierarchy,
+                                    configs)) {
             return -1;
         }
     }

@@ -2,6 +2,7 @@ GM: These configs will be run: 8888 565
 GM: reading from gm/tests/inputs/images/identical-bytes
 GM: writing to gm/tests/outputs/compared-against-identical-bytes-images/output-actual/writePath
 GM: writing mismatches to gm/tests/outputs/compared-against-identical-bytes-images/output-actual/mismatchPath
+GM: writing images without expectations to gm/tests/outputs/compared-against-identical-bytes-images/output-actual/missingExpectationsPath
 GM: drawing... selftest1 [300 200]
 GM: Ran 1 GMs
 GM: ... over  2 configs ["8888", "565"]
