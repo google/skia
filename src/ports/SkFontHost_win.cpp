@@ -839,7 +839,9 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
     SkASSERT(fDDC);
 
+#ifndef SK_GDI_ALWAYS_USE_TEXTMETRICS_FOR_FONT_METRICS
     if (fType == SkScalerContext_Windows::kBitmap_Type) {
+#endif
         if (mx) {
             mx->fTop = SkIntToScalar(-fTM.tmAscent);
             mx->fAscent = SkIntToScalar(-fTM.tmAscent);
@@ -855,9 +857,15 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
             my->fBottom = SkIntToScalar(fTM.tmDescent);
             my->fLeading = SkIntToScalar(fTM.tmExternalLeading);
             my->fAvgCharWidth = SkIntToScalar(fTM.tmAveCharWidth);
+            my->fMaxCharWidth = SkIntToScalar(fTM.tmMaxCharWidth);
+            my->fXMin = 0;
+            my->fXMax = my->fMaxCharWidth;
+            //my->fXHeight = 0;
         }
+#ifndef SK_GDI_ALWAYS_USE_TEXTMETRICS_FOR_FONT_METRICS
         return;
     }
+#endif
 
     OUTLINETEXTMETRIC otm;
 
@@ -879,12 +887,17 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     }
 
     if (my) {
+#ifndef SK_GDI_ALWAYS_USE_TEXTMETRICS_FOR_FONT_METRICS
         my->fTop = -fScale * otm.otmrcFontBox.top;
         my->fAscent = -fScale * otm.otmAscent;
         my->fDescent = -fScale * otm.otmDescent;
         my->fBottom = -fScale * otm.otmrcFontBox.bottom;
         my->fLeading = fScale * otm.otmLineGap;
         my->fAvgCharWidth = fScale * otm.otmTextMetrics.tmAveCharWidth;
+        my->fMaxCharWidth = fScale * otm.otmTextMetrics.tmMaxCharWidth;
+        my->fXMin = fScale * otm.otmrcFontBox.left;
+        my->fXMax = fScale * otm.otmrcFontBox.right;
+#endif
         my->fXHeight = fScale * otm.otmsXHeight;
     }
 }
