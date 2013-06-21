@@ -9,6 +9,7 @@ import filecmp
 import os
 import subprocess
 import sys
+import tempfile
 
 class BinaryNotFoundException(Exception):
     def __str__ (self):
@@ -69,6 +70,26 @@ def main():
 
     # TODO(scroggo): Add a test that compares expectations and image files that
     # are known to NOT match, and make sure it returns an error.
+
+    # Generate an expectations file from an empty directory.
+    empty_dir = tempfile.mkdtemp()
+    expectations_path = os.path.join(file_dir, "skimage", "output-actual",
+                                     "empty-dir", "expectations.json")
+    subprocess.check_call([skimage_binary, "--readPath", empty_dir,
+                           "--createExpectationsPath", expectations_path])
+    golden_expectations = os.path.join(file_dir, "skimage", "output-expected",
+                                       "empty-dir", "expectations.json")
+    DieIfFilesMismatch(expected=golden_expectations, actual=expectations_path)
+    os.rmdir(empty_dir)
+
+    # Generate an expectations file from a nonexistent directory.
+    expectations_path = os.path.join(file_dir, "skimage", "output-actual",
+                                     "nonexistent-dir", "expectations.json")
+    subprocess.check_call([skimage_binary, "--readPath", "/nonexistent/dir",
+                           "--createExpectationsPath", expectations_path])
+    golden_expectations = os.path.join(file_dir, "skimage", "output-expected",
+                                       "nonexistent-dir", "expectations.json")
+    DieIfFilesMismatch(expected=golden_expectations, actual=expectations_path)
 
     # Done with all tests.
     print "Self tests succeeded!"
