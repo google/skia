@@ -205,11 +205,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream Metadata() const {
-    SkPdfStream ret;
+  SkPdfStream* Metadata() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional; PDF 1.3) A page-piece dictionary associated with the form

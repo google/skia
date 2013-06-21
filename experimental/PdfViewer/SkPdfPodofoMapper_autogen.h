@@ -19,6 +19,7 @@ public:
     if (map(podofoDoc, podofoObj, (SkPdfNull**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfReference**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfString**)out)) return true;
+    if (map(podofoDoc, podofoObj, (SkPdfStream**)out)) return true;
 
     *out = new SkPdfObject(&podofoDoc, &podofoObj);
     return true;
@@ -299,6 +300,18 @@ public:
     return true;
   }
 
+  static bool map(const SkPdfObject& in, SkPdfStream** out) {
+    return map(*in.doc(), *in.podofo(), out);
+  }
+
+  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStream** out) {
+    if (!isStream(podofoDoc, podofoObj)) return false;
+
+
+    *out = new SkPdfStream(&podofoDoc, &podofoObj);
+    return true;
+  }
+
   static bool map(const SkPdfObject& in, SkPdfXObjectDictionary** out) {
     return map(*in.doc(), *in.podofo(), out);
   }
@@ -321,10 +334,8 @@ public:
     if (!isFontDictionary(podofoDoc, podofoObj)) return false;
 
     if (map(podofoDoc, podofoObj, (SkPdfCIDFontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTrueTypeFontDictionary**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfType0FontDictionary**)out)) return true;
     if (map(podofoDoc, podofoObj, (SkPdfType1FontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType3FontDictionary**)out)) return true;
 
     *out = new SkPdfFontDictionary(&podofoDoc, &podofoObj);
     return true;
@@ -884,6 +895,7 @@ public:
     if (!isType1FontDictionary(podofoDoc, podofoObj)) return false;
 
     if (map(podofoDoc, podofoObj, (SkPdfMultiMasterFontDictionary**)out)) return true;
+    if (map(podofoDoc, podofoObj, (SkPdfTrueTypeFontDictionary**)out)) return true;
 
     *out = new SkPdfType1FontDictionary(&podofoDoc, &podofoObj);
     return true;
@@ -956,6 +968,7 @@ public:
   static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType0FontDictionary** out) {
     if (!isType0FontDictionary(podofoDoc, podofoObj)) return false;
 
+    if (map(podofoDoc, podofoObj, (SkPdfType3FontDictionary**)out)) return true;
 
     *out = new SkPdfType0FontDictionary(&podofoDoc, &podofoObj);
     return true;
@@ -2361,6 +2374,10 @@ public:
     return podofoObj.GetDataType() == ePdfDataType_Dictionary;
   }
 
+  static bool isStream(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    return true;
+  }
+
   static bool isXObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
     return true;
   }
@@ -2370,6 +2387,10 @@ public:
   }
 
   static bool isTrueTypeFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    std::string Subtype;
+    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
+    if ((Subtype != "TrueType")) return false;
+
     return true;
   }
 
@@ -2528,7 +2549,7 @@ public:
   static bool isImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
     std::string Subtype;
     if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if (Subtype != "Image") return false;
+    if ((Subtype != "Image")) return false;
 
     return true;
   }
@@ -2540,7 +2561,7 @@ public:
   static bool isType1FormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
     std::string Subtype;
     if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if (Subtype != "Form") return false;
+    if ((Subtype != "Form")) return false;
 
     return true;
   }
@@ -2558,10 +2579,18 @@ public:
   }
 
   static bool isType1FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    std::string Subtype;
+    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
+    if ((Subtype != "MMType1") && (Subtype != "TrueType") && (Subtype != "Type1")) return false;
+
     return true;
   }
 
   static bool isType3FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    std::string Subtype;
+    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
+    if ((Subtype != "Type3")) return false;
+
     return true;
   }
 
@@ -2574,6 +2603,10 @@ public:
   }
 
   static bool isCIDFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    std::string Subtype;
+    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
+    if ((Subtype != "CIDFontType0") && (Subtype != "CIDFontType2")) return false;
+
     return true;
   }
 
@@ -2582,6 +2615,10 @@ public:
   }
 
   static bool isType0FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+    std::string Subtype;
+    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
+    if ((Subtype != "Type3") && (Subtype != "Type0")) return false;
+
     return true;
   }
 
@@ -3036,7 +3073,7 @@ public:
   static bool isMultiMasterFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
     std::string Subtype;
     if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if (Subtype != "MMType1") return false;
+    if ((Subtype != "MMType1")) return false;
 
     return true;
   }

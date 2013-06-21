@@ -165,11 +165,11 @@ private:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
+
+  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
+  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
 
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
@@ -177,8 +177,8 @@ private:
   virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
 
-  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
-  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
 
   virtual SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() {return NULL;}
   virtual const SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() const {return NULL;}
@@ -706,11 +706,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getContentsAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getContentsAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
   bool isContentsAArray() const {
@@ -763,11 +763,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Thumb", "", NULL));
   }
 
-  SkPdfStream Thumb() const {
-    SkPdfStream ret;
+  SkPdfStream* Thumb() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Thumb", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional; PDF 1.1; recommended if the page contains article beads) An ar-
@@ -854,11 +854,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream Metadata() const {
-    SkPdfStream ret;
+  SkPdfStream* Metadata() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional; PDF 1.3) A page-piece dictionary associated with the page (see

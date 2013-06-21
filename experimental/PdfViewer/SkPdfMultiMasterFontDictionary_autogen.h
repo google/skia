@@ -14,6 +14,9 @@ public:
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return this;}
 
 private:
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
+
 public:
 private:
 public:

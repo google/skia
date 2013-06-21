@@ -20,7 +20,7 @@ knowTypes = {
 'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
 'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number'],
 'rectangle': ['SkRect', 'SkRectFromDictionary', datatypes.PdfEmptyRect(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
-'stream': ['SkPdfStream', 'StreamFromDictionary',  datatypes.PdfEmptyStream(), 'ret->podofo()->HasStream()'],
+'stream': ['SkPdfStream*', 'StreamFromDictionary',  datatypes.CppNull(), 'ret->podofo()->HasStream()'],
 'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
 'text': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
 'text string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
@@ -38,7 +38,7 @@ class PdfField:
     self.fCppName = ''
     self.fEnumValues = []
     self.fHasMust = False
-    self.fMustBe = ''
+    self.fMustBe = []
     self.fComment = ''
 
   def must(self, value):
@@ -212,6 +212,23 @@ class PdfClassManager:
         cnt = cnt + 1
       
       
+  def determineAllMustBe(self, cls, field, enumToCls):
+    mustBe = []
+    for sub in cls.fEnumSubclasses:
+      mustBe = mustBe + self.determineAllMustBe(enumToCls[sub], field, enumToCls)
+
+    for subField in cls.fFields:
+      if subField.fProp.fName == field.fProp.fName:
+        mustBe = mustBe + subField.fProp.fMustBe
+
+#    while cls.fBase != '':
+#      cls = self.fClasses[cls.fBase]
+#      # TODO(edisonn): bad perf
+#      for subField in cls.fFields:
+#        if subField.fProp.fName == field.fProp.fName:
+#          mustBe = mustBe + subField.fProp.fMustBe
+
+    return mustBe 
   
   def write(self):
     global fileHeaders 
@@ -414,9 +431,18 @@ class PdfClassManager:
       fileMapper.write('  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {\n')
       fileMapper.write('    if (!is' + name + '(podofoDoc, podofoObj)) return false;\n')
       fileMapper.write('\n')
-      
+
+      # stream must be last one
+      hasStream = False
       for sub in cls.fEnumSubclasses:
-        fileMapper.write('    if (map(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;\n')
+        if cls.fName == 'Object' and enumToCls[sub].fName == 'Stream':
+          hasStream = True
+        else:
+          fileMapper.write('    if (map(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;\n')
+      
+      if hasStream:
+        fileMapper.write('    if (map(podofoDoc, podofoObj, (SkPdfStream**)out)) return true;\n')
+      
 
       fileMapper.write('\n')
       
@@ -440,8 +466,21 @@ class PdfClassManager:
             cntMust = cntMust + 1
             fileMapper.write('    ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';\n')
             fileMapper.write('    if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;\n')
-            fileMapper.write('    if (' + prop.fCppName + ' != ' + prop.fMustBe.toCpp() + ') return false;\n')
-            fileMapper.write('\n')
+            
+            eval = '';
+            # TODO(edisonn): this could get out of hand, and could have poor performance if continued on this path
+            # but if we would write our parser, then best thing would be to create a map of (key, value) -> to bits
+            # and at each (key, value) we do an and with the bits existent, then we check what bits are left, which would tell the posible types of this dictionary
+            # and for non unique posinilities (if any) based on context, or the requester of dictionry we can determine fast the dictionary type
+            mustBe = self.determineAllMustBe(cls, field, enumToCls)
+            if len(mustBe) > 0:
+              for cnd in mustBe:
+                if eval == '':
+                  eval = '(' + prop.fCppName + ' != ' + cnd.toCpp() + ')'
+                else:
+                  eval = eval + ' && ' + '(' + prop.fCppName + ' != ' + cnd.toCpp() + ')'
+              fileMapper.write('    if (' + eval + ') return false;\n')
+              fileMapper.write('\n')
       
         fileMapper.write('    return true;\n')
               
@@ -483,13 +522,11 @@ def generateCode():
   manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')\
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetName().GetName();}')
   
-  #manager.addClass('Stream') - attached to a dictionary
   manager.addClass('Reference').check('podofoObj.GetDataType() == ePdfDataType_Reference')
   
   manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')\
                              .carbonCopyPublic('const int size() const {return fPodofoObj->GetArray().GetSize();}')\
-                             .carbonCopyPublic('const SkPdfObject operator[](int i) const {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')\
-                             .carbonCopyPublic('SkPdfObject operator[](int i) {return SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')
+                             .carbonCopyPublic('SkPdfObject* operator[](int i) const {return new SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}')\
   
   manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString')\
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
@@ -500,6 +537,8 @@ def generateCode():
   manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')\
                                 .carbonCopyPublic('const SkPdfObject get(const char* dictionaryKeyName) const {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
                                 .carbonCopyPublic('SkPdfObject get(const char* dictionaryKeyName) {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+
+  manager.addClass('Stream')  # attached to a dictionary in podofo
   
   
   # these classes are not explicitely backed by a table in the pdf spec
@@ -507,7 +546,14 @@ def generateCode():
   
   manager.addClass('FontDictionary', 'Dictionary')
   
-  manager.addClass('TrueTypeFontDictionary', 'FontDictionary')
+  manager.addClass('TrueTypeFontDictionary', 'Type1FontDictionary')\
+          .required('NULL')\
+          .field('Subtype')\
+          .name('Subtype')\
+          .type('name')\
+          .comment('')\
+          .must([datatypes.PdfName('TrueType')])\
+          .done().done()\
   
   pdfspec_autogen.buildPdfSpec(manager)  
 
@@ -517,7 +563,7 @@ def generateCode():
           .name('Subtype')\
           .type('name')\
           .comment('')\
-          .must(datatypes.PdfName('MMType1'))\
+          .must([datatypes.PdfName('MMType1')])\
           .done().done()\
 
 

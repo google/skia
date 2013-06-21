@@ -1459,7 +1459,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of XObject that this dictionary describes; must be\nImage for an image XObject.')\
-          .must(datatypes.PdfName('Image'))\
+          .must([datatypes.PdfName('Image')])\
           .done().done()\
       .required('NULL')\
           .field('Width')\
@@ -1586,7 +1586,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of XObject that this dictionary describes; must be Form\nfor a form XObject.')\
-          .must(datatypes.PdfName('Form'))\
+          .must([datatypes.PdfName('Form')])\
           .done().done()\
       .optional()\
           .field('FormType')\
@@ -1737,6 +1737,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of font; must be Type1 for a Type 1 font.')\
+          .must([datatypes.PdfName('Type1')])\
           .done().done()\
       .optional()\
           .field('Name')\
@@ -1788,7 +1789,7 @@ def buildPdfSpec(pdfspec):
           .done().done()\
       .done()
 
-  pdfspec.addClass('Type3FontDictionary', 'FontDictionary', 'Entries in a Type 3 font dictionary')\
+  pdfspec.addClass('Type3FontDictionary', 'Type0FontDictionary', 'Entries in a Type 3 font dictionary')\
       .required('NULL')\
           .field('Type')\
           .name('Type')\
@@ -1800,6 +1801,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of font; must be Type3 for a Type 3 font.')\
+          .must([datatypes.PdfName('Type3')])\
           .done().done()\
       .optional()\
           .field('Name')\
@@ -1875,6 +1877,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of CIDFont; CIDFontType0 or CIDFontType2.')\
+          .must([datatypes.PdfName('CIDFontType0'), datatypes.PdfName('CIDFontType2')])\
           .done().done()\
       .required('NULL')\
           .field('BaseFont')\
@@ -1971,6 +1974,7 @@ def buildPdfSpec(pdfspec):
           .name('Subtype')\
           .type('name')\
           .comment('(Required) The type of font; must be Type0 for a Type 0 font.')\
+          .must([datatypes.PdfName('Type0')])\
           .done().done()\
       .required('NULL')\
           .field('BaseFont')\

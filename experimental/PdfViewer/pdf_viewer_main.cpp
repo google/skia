@@ -25,7 +25,16 @@
 #include "podofo.h"
 using namespace PoDoFo;
 
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
+
+
+//#define PDF_TRACE
+//#define PDF_TRACE_DIFF_IN_PNG
+//#define PDF_DEBUG_NO_CLIPING
+//#define PDF_DEBUG_NO_PAGE_CLIPING
+//#define PDF_DEBUG_3X
+
 
 const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
                                   const PdfObject* obj,
@@ -85,7 +94,7 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
 
 struct SkPdfFileSpec {};
 class SkPdfArray;
-struct SkPdfStream {};
+class SkPdfStream;
 struct SkPdfDate {};
 struct SkPdfTree {};
 struct SkPdfFunction {};
@@ -108,7 +117,7 @@ bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
                         const char* key,
                         const char* abr,
-                        SkPdfStream* data);
+                        SkPdfStream** data);
 
 bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -138,6 +147,10 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfPodofoMapper_autogen.h"
 #include "SkPdfParser.h"
+#include "SkPdfFont.h"
+
+// TODO(edisonn): fix the mess with the files.
+#include "SkPdfFont.cpp"
 
 bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -155,7 +168,7 @@ bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
                         const char* key,
                         const char* abr,
-                        SkPdfStream* data) {return false;}
+                        SkPdfStream** data);
 
 bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
@@ -179,14 +192,14 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
 
 /*
  * TODO(edisonn):
- * - encapsulate podofo in the pdf api so the skpdf does not know anything about podofo ... in progress
- * - ASAP so skp -> pdf -> png looks great
- * - load gs/ especially smask and already known prop (skp)...
  * - all font types and all ppdf font features
  *      - word spacing
  *      - load font for baidu.pdf
  *      - load font for youtube.pdf
  *      - parser for pdf from the definition already available in pdfspec_autogen.py
+ *      - all docs from ~/work
+ * - encapsulate podofo in the pdf api so the skpdf does not know anything about podofo ... in progress
+ * - load gs/ especially smask and already known prop (skp) ... in progress
  * - wrapper on classes for customizations? e.g.
  * SkPdfPageObjectVanila - has only the basic loaders/getters
  * SkPdfPageObject : public SkPdfPageObjectVanila, extends, and I can add customizations here
@@ -195,11 +208,6 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
  * - deal with specific type in spec directly, add all dictionary types to known types
 */
 
-//#define PDF_TRACE
-//#define PDF_TRACE_DIFF_IN_PNG
-//#define PDF_DEBUG_NO_CLIPING
-//#define PDF_DEBUG_NO_PAGE_CLIPING
-//#define PDF_DEBUG_3X
 
 // TODO(edisonn): move in trace util.
 #ifdef PDF_TRACE
@@ -307,6 +315,7 @@ struct PdfGraphicsState {
     double              fCurFontSize;
     bool                fTextBlock;
     PdfFont*            fCurFont;
+    SkPdfFont*          fSkFont;
     SkPath              fPath;
     bool                fPathClosed;
 
@@ -342,6 +351,7 @@ struct PdfGraphicsState {
         fCharSpace    = 0;
         fHasClipPathToApply = false;
         fResources    = NULL;
+        fSkFont       = NULL;
     }
 
     void applyGraphicsState(SkPaint* paint, bool stroking) {
@@ -415,8 +425,8 @@ bool hasVisualEffect(const char* pdfOp) {
 }
 
 // TODO(edisonn): Pass PdfContext and SkCanvasd only with the define for instrumentation.
-static bool readToken(SkPdfTokenizer fTokenizer, PdfToken* token) {
-    bool ret = fTokenizer.readToken(token);
+static bool readToken(SkPdfTokenizer* fTokenizer, PdfToken* token) {
+    bool ret = fTokenizer->readToken(token);
 
     gReadOp++;
 
@@ -510,13 +520,13 @@ static bool readToken(SkPdfTokenizer fTokenizer, PdfToken* token) {
 class PdfTokenLooper {
 protected:
     PdfTokenLooper* fParent;
-    SkPdfTokenizer fTokenizer;
+    SkPdfTokenizer* fTokenizer;
     PdfContext* fPdfContext;
     SkCanvas* fCanvas;
 
 public:
     PdfTokenLooper(PdfTokenLooper* parent,
-                   SkPdfTokenizer tokenizer,
+                   SkPdfTokenizer* tokenizer,
                    PdfContext* pdfContext,
                    SkCanvas* canvas)
         : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
@@ -535,7 +545,7 @@ public:
 class PdfMainLooper : public PdfTokenLooper {
 public:
     PdfMainLooper(PdfTokenLooper* parent,
-                  SkPdfTokenizer tokenizer,
+                  SkPdfTokenizer* tokenizer,
                   PdfContext* pdfContext,
                   SkCanvas* canvas)
         : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
@@ -547,7 +557,7 @@ public:
 class PdfInlineImageLooper : public PdfTokenLooper {
 public:
     PdfInlineImageLooper()
-        : PdfTokenLooper(NULL, SkPdfTokenizer(), NULL, NULL) {}
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
 
     virtual PdfResult consumeToken(PdfToken& token);
     virtual void loop();
@@ -557,7 +567,7 @@ public:
 class PdfCompatibilitySectionLooper : public PdfTokenLooper {
 public:
     PdfCompatibilitySectionLooper()
-        : PdfTokenLooper(NULL, SkPdfTokenizer(), NULL, NULL) {}
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
 
     virtual PdfResult consumeToken(PdfToken& token);
     virtual void loop();
@@ -578,104 +588,11 @@ char* gRenderStatsNames[kCount_PdfResult] = {
     "Unsupported/Unknown"
 };
 
-struct SkPdfStandardFont {
-    const char* fName;
-    bool fIsBold;
-    bool fIsItalic;
-};
-
-static map<std::string, SkPdfStandardFont>& getStandardFonts() {
-    static std::map<std::string, SkPdfStandardFont> gPdfStandardFonts;
-
-    // TODO (edisonn): , vs - ? what does it mean?
-    // TODO (edisonn): MT, PS, Oblique=italic?, ... what does it mean?
-    if (gPdfStandardFonts.empty()) {
-        gPdfStandardFonts["Arial"] = {"Arial", false, false};
-        gPdfStandardFonts["Arial,Bold"] = {"Arial", true, false};
-        gPdfStandardFonts["Arial,BoldItalic"] = {"Arial", true, true};
-        gPdfStandardFonts["Arial,Italic"] = {"Arial", false, true};
-        gPdfStandardFonts["Arial-Bold"] = {"Arial", true, false};
-        gPdfStandardFonts["Arial-BoldItalic"] = {"Arial", true, true};
-        gPdfStandardFonts["Arial-BoldItalicMT"] = {"Arial", true, true};
-        gPdfStandardFonts["Arial-BoldMT"] = {"Arial", true, false};
-        gPdfStandardFonts["Arial-Italic"] = {"Arial", false, true};
-        gPdfStandardFonts["Arial-ItalicMT"] = {"Arial", false, true};
-        gPdfStandardFonts["ArialMT"] = {"Arial", false, false};
-        gPdfStandardFonts["Courier"] = {"Courier New", false, false};
-        gPdfStandardFonts["Courier,Bold"] = {"Courier New", true, false};
-        gPdfStandardFonts["Courier,BoldItalic"] = {"Courier New", true, true};
-        gPdfStandardFonts["Courier,Italic"] = {"Courier New", false, true};
-        gPdfStandardFonts["Courier-Bold"] = {"Courier New", true, false};
-        gPdfStandardFonts["Courier-BoldOblique"] = {"Courier New", true, true};
-        gPdfStandardFonts["Courier-Oblique"] = {"Courier New", false, true};
-        gPdfStandardFonts["CourierNew"] = {"Courier New", false, false};
-        gPdfStandardFonts["CourierNew,Bold"] = {"Courier New", true, false};
-        gPdfStandardFonts["CourierNew,BoldItalic"] = {"Courier New", true, true};
-        gPdfStandardFonts["CourierNew,Italic"] = {"Courier New", false, true};
-        gPdfStandardFonts["CourierNew-Bold"] = {"Courier New", true, false};
-        gPdfStandardFonts["CourierNew-BoldItalic"] = {"Courier New", true, true};
-        gPdfStandardFonts["CourierNew-Italic"] = {"Courier New", false, true};
-        gPdfStandardFonts["CourierNewPS-BoldItalicMT"] = {"Courier New", true, true};
-        gPdfStandardFonts["CourierNewPS-BoldMT"] = {"Courier New", true, false};
-        gPdfStandardFonts["CourierNewPS-ItalicMT"] = {"Courier New", false, true};
-        gPdfStandardFonts["CourierNewPSMT"] = {"Courier New", false, false};
-        gPdfStandardFonts["Helvetica"] = {"Helvetica", false, false};
-        gPdfStandardFonts["Helvetica,Bold"] = {"Helvetica", true, false};
-        gPdfStandardFonts["Helvetica,BoldItalic"] = {"Helvetica", true, true};
-        gPdfStandardFonts["Helvetica,Italic"] = {"Helvetica", false, true};
-        gPdfStandardFonts["Helvetica-Bold"] = {"Helvetica", true, false};
-        gPdfStandardFonts["Helvetica-BoldItalic"] = {"Helvetica", true, true};
-        gPdfStandardFonts["Helvetica-BoldOblique"] = {"Helvetica", true, true};
-        gPdfStandardFonts["Helvetica-Italic"] = {"Helvetica", false, true};
-        gPdfStandardFonts["Helvetica-Oblique"] = {"Helvetica", false, true};
-        gPdfStandardFonts["Times-Bold"] = {"Times", true, false};
-        gPdfStandardFonts["Times-BoldItalic"] = {"Times", true, true};
-        gPdfStandardFonts["Times-Italic"] = {"Times", false, true};
-        gPdfStandardFonts["Times-Roman"] = {"Times New Roman", false, false};
-        gPdfStandardFonts["TimesNewRoman"] = {"Times New Roman", false, false};
-        gPdfStandardFonts["TimesNewRoman,Bold"] = {"Times New Roman", true, false};
-        gPdfStandardFonts["TimesNewRoman,BoldItalic"] = {"Times New Roman", true, true};
-        gPdfStandardFonts["TimesNewRoman,Italic"] = {"Times New Roman", false, true};
-        gPdfStandardFonts["TimesNewRoman-Bold"] = {"Times New Roman", true, false};
-        gPdfStandardFonts["TimesNewRoman-BoldItalic"] = {"Times New Roman", true, true};
-        gPdfStandardFonts["TimesNewRoman-Italic"] = {"Times New Roman", false, true};
-        gPdfStandardFonts["TimesNewRomanPS"] = {"Times New Roman", false, false};
-        gPdfStandardFonts["TimesNewRomanPS-Bold"] = {"Times New Roman", true, false};
-        gPdfStandardFonts["TimesNewRomanPS-BoldItalic"] = {"Times New Roman", true, true};
-        gPdfStandardFonts["TimesNewRomanPS-BoldItalicMT"] = {"Times New Roman", true, true};
-        gPdfStandardFonts["TimesNewRomanPS-BoldMT"] = {"Times New Roman", true, false};
-        gPdfStandardFonts["TimesNewRomanPS-Italic"] = {"Times New Roman", false, true};
-        gPdfStandardFonts["TimesNewRomanPS-ItalicMT"] = {"Times New Roman", false, true};
-        gPdfStandardFonts["TimesNewRomanPSMT"] = {"Times New Roman", false, false};
-    }
-
-    return gPdfStandardFonts;
-}
-
-static SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool italic) {
-    map<std::string, SkPdfStandardFont>& standardFontMap = getStandardFonts();
-
-    if (standardFontMap.find(fontName) != standardFontMap.end()) {
-        SkPdfStandardFont fontData = standardFontMap[fontName];
-
-        // TODO(edisonn): How does the bold/italic specified in standard definition combines with
-        // the one in /font key? use OR for now.
-        bold = bold || fontData.fIsBold;
-        italic = italic || fontData.fIsItalic;
-
-        SkTypeface* typeface = SkTypeface::CreateFromName(
-            fontData.fName,
-            SkTypeface::Style((bold ? SkTypeface::kBold : 0) |
-                              (italic ? SkTypeface::kItalic : 0)));
-        if (typeface) {
-            typeface->ref();
-        }
-        return typeface;
-    }
-    return NULL;
-}
-
 static SkTypeface* SkTypefaceFromPdfFont(PdfFont* font) {
+    if (font == NULL) {
+        return SkTypeface::CreateFromName("Times New Roman", SkTypeface::kNormal);
+    }
+
     PdfObject* fontObject = font->GetObject();
 
     PdfObject* pBaseFont = NULL;
@@ -728,6 +645,7 @@ static SkTypeface* SkTypefaceFromPdfFont(PdfFont* font) {
                                   (font->IsItalic() ? SkTypeface::kItalic : 0)));
 }
 
+
 // TODO(edisonn): move this code in podofo, so we don't have to fix the font.
 // This logic needs to be moved in PdfEncodingObjectFactory::CreateEncoding
 std::map<PdfFont*, PdfCMapEncoding*> gFontsFixed;
@@ -751,23 +669,85 @@ PdfEncoding* FixPdfFont(PdfContext* pdfContext, PdfFont* fCurFont) {
 }
 
 PdfResult DrawText(PdfContext* pdfContext,
-                   PdfFont* fCurFont,
-                   const PdfString& rString,
+                   const SkPdfObject* str,
                    SkCanvas* canvas)
 {
+
+    SkPdfFont* skfont = pdfContext->fGraphicsState.fSkFont;
+    if (skfont == NULL) {
+        skfont = SkPdfFont::Default();
+    }
+
+    SkUnencodedText binary(str);
+
+    SkDecodedText decoded;
+    skfont->encoding()->decodeText(binary, &decoded);
+
+    SkUnicodeText unicode;
+    skfont->ToUnicode(decoded, &unicode);
+
+    SkPaint paint;
+    // TODO(edisonn): when should fCurFont->GetFontSize() used? When cur is fCurFontSize == 0?
+    // Or maybe just not call setTextSize at all?
+    if (pdfContext->fGraphicsState.fCurFontSize != 0) {
+        paint.setTextSize(SkDoubleToScalar(pdfContext->fGraphicsState.fCurFontSize));
+    }
+
+//    if (fCurFont && fCurFont->GetFontScale() != 0) {
+//        paint.setTextScaleX(SkFloatToScalar(fCurFont->GetFontScale() / 100.0));
+//    }
+
+    pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
+
+    canvas->save();
+
+#if 1
+    SkMatrix matrix = pdfContext->fGraphicsState.fMatrixTm;
+
+    SkPoint point1;
+    pdfContext->fGraphicsState.fMatrixTm.mapXY(SkIntToScalar(0), SkIntToScalar(0), &point1);
+
+    SkMatrix mirror;
+    mirror.setTranslate(0, -point1.y());
+    // TODO(edisonn): fix rotated text, and skewed too
+    mirror.postScale(SK_Scalar1, -SK_Scalar1);
+    // TODO(edisonn): post rotate, skew
+    mirror.postTranslate(0, point1.y());
+
+    matrix.postConcat(mirror);
+
+    canvas->setMatrix(matrix);
+
+    SkTraceMatrix(matrix, "mirrored");
+#endif
+
+    skfont->drawText(unicode, &paint, canvas, &pdfContext->fGraphicsState.fMatrixTm);
+    canvas->restore();
+
+/*
+    PdfString& rString = str->podofo()->GetString();
+
+    //pdfContext->fGraphicsState.fSkFont->GetDecoding()->ToUnicode(rString);
+    //void* text;
+    //int len;
+    //SkPaint paint;
+    //pdfContext->fGraphicsState.fSkFont->drawText(text, len, paint, canvas, &pdfContext->fGraphicsState.fMatrixTm);
+
+    PdfFont* fCurFont = pdfContext->fGraphicsState.fCurFont;
+
     if (!fCurFont)
     {
         // TODO(edisonn): ignore the error, use the default font?
-        return kError_PdfResult;
+        // return kError_PdfResult;
     }
 
-    const PdfEncoding* enc = FixPdfFont(pdfContext, fCurFont);
+    const PdfEncoding* enc = fCurFont ? FixPdfFont(pdfContext, fCurFont) : NULL;
     bool cMapUnicodeFont = enc != NULL;
-    if (!enc) enc = fCurFont->GetEncoding();
+    if (!enc) enc = fCurFont ? fCurFont->GetEncoding() : NULL;
     if (!enc)
     {
         // TODO(edisonn): Can we recover from this error?
-        return kError_PdfResult;
+        //return kError_PdfResult;
     }
 
     PdfString r2 = rString;
@@ -777,7 +757,7 @@ PdfResult DrawText(PdfContext* pdfContext,
         r2 = PdfString((pdf_utf16be*)rString.GetString(), rString.GetLength() / 2);
     }
 
-    unicode = enc->ConvertToUnicode( r2, fCurFont );
+    unicode = enc ? enc->ConvertToUnicode( r2, fCurFont ) : r2.ToUnicode();
 
 #ifdef PDF_TRACE
     printf("%i %i ? %c rString.len = %i\n", (int)rString.GetString()[0], (int)rString.GetString()[1], (int)rString.GetString()[1], rString.GetLength());
@@ -790,16 +770,13 @@ PdfResult DrawText(PdfContext* pdfContext,
     if (pdfContext->fGraphicsState.fCurFontSize != 0) {
         paint.setTextSize(SkDoubleToScalar(pdfContext->fGraphicsState.fCurFontSize));
     }
-    if (fCurFont->GetFontScale() != 0) {
+    if (fCurFont && fCurFont->GetFontScale() != 0) {
         paint.setTextScaleX(SkFloatToScalar(fCurFont->GetFontScale() / 100.0));
     }
 
     pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
 
     paint.setTypeface(SkTypefaceFromPdfFont(fCurFont));
-
-    paint.setAntiAlias(true);
-    // TODO(edisonn): paint.setStyle(...);
 
     canvas->save();
     SkMatrix matrix = pdfContext->fGraphicsState.fMatrixTm;
@@ -892,7 +869,7 @@ PdfResult DrawText(PdfContext* pdfContext,
 
     canvas->restore();
 
-
+*/
     return kPartial_PdfResult;
 }
 
@@ -1128,6 +1105,31 @@ bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
     return ObjectFromDictionary(pdfDoc, dict, abr, data);
 }
 
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
+                          const PdfDictionary& dict,
+                          const char* key,
+                          SkPdfStream** data) {
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)),
+                                              true);
+    if (value == NULL) {
+        return false;
+    }
+    if (data == NULL) {
+        return true;
+    }
+    return PodofoMapper::map(*pdfDoc, *value, data);
+}
+
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfStream** data) {
+    if (StreamFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return StreamFromDictionary(pdfDoc, dict, abr, data);
+}
 
 
 // TODO(edisonn): perf!!!
@@ -1499,23 +1501,10 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
     // For this PdfContentsTokenizer needs to be extended.
 
-    char* uncompressedStream = NULL;
-    pdf_long uncompressedStreamLength = 0;
-
     PdfResult ret = kPartial_PdfResult;
-
-    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-    try {
-        skobj->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-        if (uncompressedStream != NULL && uncompressedStreamLength != 0) {
-            SkPdfTokenizer tokenizer = pdfContext->fPdfDoc.tokenizerOfStream(uncompressedStream, uncompressedStreamLength);
-            PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
-            looper.loop();
-        }
-        free(uncompressedStream);
-    } catch (PdfError& e) {
-        ret = kIgnoreError_PdfResult;
-    }
+    SkPdfTokenizer tokenizer(skobj);
+    PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
+    looper.loop();
 
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
@@ -1970,8 +1959,30 @@ PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     printf("font name: %s\n", fontName.c_str());
     std::string str;
     pdfContext->fGraphicsState.fResources->podofo()->ToString(str);
-    printf("Print Tf font Resources: %s\n", str.c_str());
+    printf("Print Tf Resources: %s\n", str.c_str());
+    pdfContext->fGraphicsState.fResources->Font()->podofo()->ToString(str);
+    printf("Print Tf Resources/Font: %s\n", str.c_str());
 #endif
+
+    SkPdfFontDictionary* fd = NULL;
+    if (pdfContext->fGraphicsState.fResources->Font()) {
+        SkPdfObject objFont = pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str());
+        PodofoMapper::map(objFont, &fd);
+
+#ifdef PDF_TRACE
+        objFont.podofo()->ToString(str);
+        printf("Print Font loaded: %s\n", str.c_str());
+        fd->podofo()->ToString(str);
+        printf("Print Font loaded and resolved and upgraded: %s\n", str.c_str());
+#endif
+
+    }
+
+    SkPdfFont* skfont = SkPdfFont::fontFromPdfDictionary(fd);
+
+    if (skfont) {
+        pdfContext->fGraphicsState.fSkFont = skfont;
+    }
 
     // TODO(edisonn): Load font from pdfContext->fGraphicsState.fObjectWithResources ?
     const PdfObject* pFont = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
@@ -1982,9 +1993,10 @@ PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    pdfContext->fGraphicsState.fCurFont = pdfContext->fPdfDoc.podofo().GetFont( (PdfObject*)pFont );
-    if( !pdfContext->fGraphicsState.fCurFont )
-    {
+    PdfFont* font = pdfContext->fPdfDoc.podofo().GetFont( (PdfObject*)pFont );
+    if (font) {
+        pdfContext->fGraphicsState.fCurFont = font;
+    } else {
         // TODO(edisonn): check ~/crasing, for one of the files PoDoFo throws exception
         // when calling pFont->Reference(), with Linked list corruption.
         return kIgnoreError_PdfResult;
@@ -2000,8 +2012,7 @@ PdfResult PdfOp_Tj(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     }
 
     PdfResult ret = DrawText(pdfContext,
-                             pdfContext->fGraphicsState.fCurFont,
-                             pdfContext->fObjectStack.top()->podofo()->GetString(),
+                             pdfContext->fObjectStack.top(),
                              canvas);
     pdfContext->fObjectStack.pop();
 
@@ -2052,13 +2063,13 @@ PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     for( int i=0; i<static_cast<int>(array->size()); i++ )
     {
-        if( (*array)[i].asString()) {
+        if( (*array)[i]->asString()) {
+            SkPdfObject* obj = (*array)[i];
             DrawText(pdfContext,
-                           pdfContext->fGraphicsState.fCurFont,
-                           (*array)[i].podofo()->GetString(),
-                           canvas);
-        } else if ((*array)[i].asInteger() || (*array)[i].asNumber()) {
-            double dx = (*array)[i].asNumber()->value();
+                     obj,
+                     canvas);
+        } else if ((*array)[i]->asInteger() || (*array)[i]->asNumber()) {
+            double dx = (*array)[i]->asNumber()->value();
             SkMatrix matrix;
             matrix.setAll(SkDoubleToScalar(1),
                           SkDoubleToScalar(0),
@@ -2617,9 +2628,6 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
     if (token.fType == kKeyword_TokenType)
     {
         // TODO(edisonn): log trace flag (verbose, error, info, warning, ...)
-#ifdef PDF_TRACE
-        printf("KEYWORD: %s\n", token.fKeyword);
-#endif
         PdfOperatorRenderer pdfOperatorRenderer = gPdfOps[token.fKeyword];
         if (pdfOperatorRenderer) {
             // caller, main work is done by pdfOperatorRenderer(...)
@@ -2637,11 +2645,6 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
     }
     else if (token.fType == kObject_TokenType)
     {
-#ifdef PDF_TRACE
-        std::string _var;
-        token.fObject->podofo()->ToString(_var);
-        printf("var: %s\n", _var.c_str());
-#endif
         fPdfContext->fObjectStack.push( token.fObject );
     }
     else if ( token.fType == kImageData_TokenType) {
@@ -2777,7 +2780,7 @@ public:
                 SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
                 SkCanvas canvas(device);
 
-                SkPdfTokenizer tokenizer = doc.tokenizerOfPage(pn);
+                SkPdfTokenizer* tokenizer = doc.tokenizerOfPage(pn);
 
                 PdfContext pdfContext(doc);
                 pdfContext.fOriginalMatrix = SkMatrix::I();
@@ -2833,6 +2836,8 @@ public:
 
                 PdfMainLooper looper(NULL, tokenizer, &pdfContext, &canvas);
                 looper.loop();
+
+                delete tokenizer;
 
                 canvas.flush();
 

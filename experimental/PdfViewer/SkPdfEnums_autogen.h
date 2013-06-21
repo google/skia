@@ -56,12 +56,13 @@ enum SkPdfObjectType {
   kFontDescriptorDictionary_SkPdfObjectType,
   kFontDictionary_SkPdfObjectType,
   kCIDFontDictionary_SkPdfObjectType,
-  kTrueTypeFontDictionary_SkPdfObjectType,
   kType0FontDictionary_SkPdfObjectType,
+  kType3FontDictionary_SkPdfObjectType,
+  kType0FontDictionary__End_SkPdfObjectType,
   kType1FontDictionary_SkPdfObjectType,
   kMultiMasterFontDictionary_SkPdfObjectType,
+  kTrueTypeFontDictionary_SkPdfObjectType,
   kType1FontDictionary__End_SkPdfObjectType,
-  kType3FontDictionary_SkPdfObjectType,
   kFontDictionary__End_SkPdfObjectType,
   kFormFieldActionsDictionary_SkPdfObjectType,
   kFreeTextAnnotationDictionary_SkPdfObjectType,
@@ -184,6 +185,7 @@ enum SkPdfObjectType {
   kName_SkPdfObjectType,
   kNull_SkPdfObjectType,
   kReference_SkPdfObjectType,
+  kStream_SkPdfObjectType,
   kString_SkPdfObjectType,
   kHexString_SkPdfObjectType,
   kString__End_SkPdfObjectType,
@@ -201,6 +203,7 @@ class SkPdfArray;
 class SkPdfString;
 class SkPdfHexString;
 class SkPdfDictionary;
+class SkPdfStream;
 class SkPdfXObjectDictionary;
 class SkPdfFontDictionary;
 class SkPdfTrueTypeFontDictionary;

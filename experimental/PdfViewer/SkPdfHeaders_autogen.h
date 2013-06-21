@@ -78,6 +78,7 @@
 #include "SkPdfFDFCatalogDictionary_autogen.h"
 #include "SkPdfALinkAnnotationDictionary_autogen.h"
 #include "SkPdfAppearanceCharacteristicsDictionary_autogen.h"
+#include "SkPdfStream_autogen.h"
 #include "SkPdfTransitionDictionary_autogen.h"
 #include "SkPdfApplicationDataDictionary_autogen.h"
 #include "SkPdfFileAttachmentAnnotationDictionary_autogen.h"

@@ -35,6 +35,9 @@ private:
   virtual SkPdfReference* asReference() {return NULL;}
   virtual const SkPdfReference* asReference() const {return NULL;}
 
+  virtual SkPdfStream* asStream() {return NULL;}
+  virtual const SkPdfStream* asStream() const {return NULL;}
+
   virtual SkPdfString* asString() {return NULL;}
   virtual const SkPdfString* asString() const {return NULL;}
 

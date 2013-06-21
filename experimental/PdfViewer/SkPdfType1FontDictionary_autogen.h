@@ -18,9 +18,6 @@ private:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
 
@@ -210,11 +207,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", NULL));
   }
 
-  SkPdfStream ToUnicode() const {
-    SkPdfStream ret;
+  SkPdfStream* ToUnicode() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 };

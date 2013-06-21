@@ -3,10 +3,10 @@
 
 #include "SkPdfEnums_autogen.h"
 #include "SkPdfArray_autogen.h"
-#include "SkPdfFontDictionary_autogen.h"
+#include "SkPdfType0FontDictionary_autogen.h"
 
 // Entries in a Type 3 font dictionary
-class SkPdfType3FontDictionary : public SkPdfFontDictionary {
+class SkPdfType3FontDictionary : public SkPdfType0FontDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType3FontDictionary_SkPdfObjectType;}
   virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kType3FontDictionary_SkPdfObjectType + 1);}
@@ -15,25 +15,10 @@ public:
   virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return this;}
 
 private:
-  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
-  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
-
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
-  virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
-  virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
-
-  virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
-  virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
-
-  virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
-  virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
-
 public:
 private:
 public:
-  SkPdfType3FontDictionary(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdfFontDictionary(podofoDoc, podofoObj) {}
+  SkPdfType3FontDictionary(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdfType0FontDictionary(podofoDoc, podofoObj) {}
 
   virtual bool valid() const {return true;}
 
