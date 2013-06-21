@@ -143,6 +143,7 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
                         const char* abr,
                         SkPdfFunction* data);
 
+bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out);
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfPodofoMapper_autogen.h"
@@ -151,6 +152,11 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
 
 // TODO(edisonn): fix the mess with the files.
 #include "SkPdfFont.cpp"
+
+bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out) {
+    return PodofoMapper::map(podofoDoc, podofoObj, out);
+}
+
 
 bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,

@@ -547,7 +547,7 @@ private:
 
 public:
   const int size() const {return fPodofoObj->GetArray().GetSize();}
-  SkPdfObject* operator[](int i) const {return new SkPdfObject(fPodofoDoc, &fPodofoObj->GetArray()[i]);}
+  SkPdfObject* operator[](int i) const { SkPdfObject* ret = NULL;  skpdfmap(*fPodofoDoc, fPodofoObj->GetArray()[i], &ret);  return ret; }
 private:
 public:
   SkPdfArray(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdfObject(podofoDoc, podofoObj) {}
