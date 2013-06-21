@@ -18,7 +18,7 @@ protected:
         return SkString("conicpaths");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { 
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1000, 1000);
     }
 
