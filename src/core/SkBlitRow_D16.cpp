@@ -224,8 +224,6 @@ static const SkBlitRow::Proc gDefault_565_Procs[] = {
     S32A_D565_Blend_Dither
 };
 
-extern SkBlitRow::Proc SkBlitRow_Factory_4444(unsigned flags);
-
 SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_Procs));
     // just so we don't crash
@@ -238,12 +236,6 @@ SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
             proc = PlatformProcs565(flags);
             if (NULL == proc) {
                 proc = gDefault_565_Procs[flags];
-            }
-            break;
-        case SkBitmap::kARGB_4444_Config:
-            proc = PlatformProcs4444(flags);
-            if (NULL == proc) {
-                proc = SkBlitRow_Factory_4444(flags);
             }
             break;
         default:

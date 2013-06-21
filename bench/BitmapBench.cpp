@@ -374,8 +374,6 @@ private:
 DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); )
 DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); )
 DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); )
-DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kARGB_4444_Config); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_4444_Config); )
 DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kIndex8_Config); )
 DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kIndex8_Config); )
 DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); )

@@ -44,8 +44,6 @@ public:
                         const SkAlpha aa[]) const SK_OVERRIDE;
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
-    virtual void xfer4444(uint16_t dst[], const SkPMColor src[], int count,
-                          const SkAlpha aa[]) const SK_OVERRIDE;
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
 

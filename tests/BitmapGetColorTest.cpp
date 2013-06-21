@@ -18,8 +18,6 @@ static void TestGetColor(skiatest::Reporter* reporter) {
         // unpremultiply aspect of getColor()
         {   SkBitmap::kA8_Config,           0xFF000000,     0xFF000000  },
         {   SkBitmap::kA8_Config,           0,              0           },
-        {   SkBitmap::kARGB_4444_Config,    0xFF224466,     0xFF224466  },
-        {   SkBitmap::kARGB_4444_Config,    0,              0           },
         {   SkBitmap::kRGB_565_Config,      0xFF00FF00,     0xFF00FF00  },
         {   SkBitmap::kRGB_565_Config,      0xFFFF00FF,     0xFFFF00FF  },
         {   SkBitmap::kARGB_8888_Config,    0xFFFFFFFF,     0xFFFFFFFF  },

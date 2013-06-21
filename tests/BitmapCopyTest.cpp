@@ -242,11 +242,11 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
     static const Pair gPairs[] = {
         { SkBitmap::kNo_Config,         "00000000"  },
         { SkBitmap::kA1_Config,         "01000000"  },
-        { SkBitmap::kA8_Config,         "00101110"  },
-        { SkBitmap::kIndex8_Config,     "00111110"  },
-        { SkBitmap::kRGB_565_Config,    "00101110"  },
+        { SkBitmap::kA8_Config,         "00101010"  },
+        { SkBitmap::kIndex8_Config,     "00111010"  },
+        { SkBitmap::kRGB_565_Config,    "00101010"  },
         { SkBitmap::kARGB_4444_Config,  "00101110"  },
-        { SkBitmap::kARGB_8888_Config,  "00101110"  },
+        { SkBitmap::kARGB_8888_Config,  "00101010"  },
 // TODO: create valid RLE bitmap to test with
  //       { SkBitmap::kRLE_Index8_Config, "00101111"  }
     };

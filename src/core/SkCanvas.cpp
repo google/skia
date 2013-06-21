@@ -464,20 +464,7 @@ private:
 class AutoValidator {
 public:
     AutoValidator(SkDevice* device) : fDevice(device) {}
-    ~AutoValidator() {
-#ifdef SK_DEBUG
-        const SkBitmap& bm = fDevice->accessBitmap(false);
-        if (bm.config() == SkBitmap::kARGB_4444_Config) {
-            for (int y = 0; y < bm.height(); y++) {
-                const SkPMColor16* p = bm.getAddr16(0, y);
-                for (int x = 0; x < bm.width(); x++) {
-                    SkPMColor16 c = p[x];
-                    SkPMColor16Assert(c);
-                }
-            }
-        }
-#endif
-    }
+
 private:
     SkDevice* fDevice;
 };

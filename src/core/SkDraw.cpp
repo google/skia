@@ -222,12 +222,6 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
                     }
 //                    SkDebugf("--- D32_Src_BitmapXferProc\n");
                     return D32_Src_BitmapXferProc;
-                case SkBitmap::kARGB_4444_Config:
-                    if (data) {
-                        *data = SkPixel32ToPixel4444(pmc);
-                    }
-//                    SkDebugf("--- D16_Src_BitmapXferProc\n");
-                    return D16_Src_BitmapXferProc;
                 case SkBitmap::kRGB_565_Config:
                     if (data) {
                         *data = SkPixel32ToPixel16(pmc);
@@ -258,7 +252,6 @@ static void CallBitmapXferProc(const SkBitmap& bitmap, const SkIRect& rect,
         case SkBitmap::kARGB_8888_Config:
             shiftPerPixel = 2;
             break;
-        case SkBitmap::kARGB_4444_Config:
         case SkBitmap::kRGB_565_Config:
             shiftPerPixel = 1;
             break;

@@ -32,6 +32,8 @@ SkDevice::SkDevice(const SkBitmap& bitmap)
 {
     fOrigin.setZero();
     fMetaData = NULL;
+    
+    SkASSERT(SkBitmap::kARGB_4444_Config != bitmap.config());
 }
 
 SkDevice::SkDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)

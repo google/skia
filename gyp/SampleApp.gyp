@@ -99,7 +99,6 @@
         '../samplecode/SampleSkLayer.cpp',
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStrokePath.cpp',
-        '../samplecode/SampleStrokeText.cpp',
         '../samplecode/SampleTests.cpp',
         '../samplecode/SampleText.cpp',
         '../samplecode/SampleTextAlpha.cpp',

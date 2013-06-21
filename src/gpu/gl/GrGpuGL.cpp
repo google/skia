@@ -218,10 +218,8 @@ void GrGpuGL::fillInConfigRenderableTable() {
         fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
     }
 
-    // Pre 3.0, Ganesh relies on either GL_ARB_framebuffer_object or
-    // GL_EXT_framebuffer_object for FBO support. Both of these
-    // allow RGBA4 render targets so this is always supported.
-    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = true;
+    // we no longer support 444 as a render target
+    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = false;
 
     if (this->glCaps().rgba8RenderbufferSupport()) {
         fConfigRenderSupport[kRGBA_8888_GrPixelConfig] = true;

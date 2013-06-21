@@ -138,5 +138,4 @@ private:
 DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, true))
 DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, false))
 DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kRGB_565_Config))
-DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_4444_Config))
 DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kIndex8_Config))

@@ -154,7 +154,7 @@ private:
 class SkA1_Blitter : public SkRasterBlitter {
 public:
     SkA1_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width);
+    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
 
 private:
     uint8_t fSrcA;
@@ -179,10 +179,6 @@ private:
     These pre-conditions must be handled by the caller, in our case
     SkBlitter::Choose(...)
  */
-
-extern SkBlitter* SkBlitter_ChooseD4444(const SkBitmap& device,
-                                        const SkPaint& paint,
-                                        void* storage, size_t storageSize);
 
 extern SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device,
                                        const SkPaint& paint,

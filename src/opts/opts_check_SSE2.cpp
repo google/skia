@@ -152,10 +152,6 @@ static SkBlitRow::Proc32 platform_32_procs[] = {
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
-SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
-    return NULL;
-}
-
 SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return NULL;
 }

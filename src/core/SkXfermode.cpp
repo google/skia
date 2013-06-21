@@ -751,31 +751,6 @@ void SkXfermode::xfer16(uint16_t* dst,
     }
 }
 
-void SkXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
-                          const SkPMColor* SK_RESTRICT src, int count,
-                          const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (NULL == aa) {
-        for (int i = count - 1; i >= 0; --i) {
-            SkPMColor dstC = SkPixel4444ToPixel32(dst[i]);
-            dst[i] = SkPixel32ToPixel4444(this->xferColor(src[i], dstC));
-        }
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0 != a) {
-                SkPMColor dstC = SkPixel4444ToPixel32(dst[i]);
-                SkPMColor C = this->xferColor(src[i], dstC);
-                if (0xFF != a) {
-                    C = SkFourByteInterp(C, dstC, a);
-                }
-                dst[i] = SkPixel32ToPixel4444(C);
-            }
-        }
-    }
-}
-
 void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                         const SkPMColor src[], int count,
                         const SkAlpha* SK_RESTRICT aa) const {
@@ -855,35 +830,6 @@ void SkProcXfermode::xfer16(uint16_t* SK_RESTRICT dst,
                         C = SkFourByteInterp(C, dstC, a);
                     }
                     dst[i] = SkPixel32ToPixel16_ToU16(C);
-                }
-            }
-        }
-    }
-}
-
-void SkProcXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
-                              const SkPMColor* SK_RESTRICT src, int count,
-                              const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    SkXfermodeProc proc = fProc;
-
-    if (NULL != proc) {
-        if (NULL == aa) {
-            for (int i = count - 1; i >= 0; --i) {
-                SkPMColor dstC = SkPixel4444ToPixel32(dst[i]);
-                dst[i] = SkPixel32ToPixel4444(proc(src[i], dstC));
-            }
-        } else {
-            for (int i = count - 1; i >= 0; --i) {
-                unsigned a = aa[i];
-                if (0 != a) {
-                    SkPMColor dstC = SkPixel4444ToPixel32(dst[i]);
-                    SkPMColor C = proc(src[i], dstC);
-                    if (0xFF != a) {
-                        C = SkFourByteInterp(C, dstC, a);
-                    }
-                    dst[i] = SkPixel32ToPixel4444(C);
                 }
             }
         }
