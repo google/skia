@@ -349,20 +349,6 @@ const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[] = {
     NULL,   // S32A_D565_Blend_Dither
 };
 
-const SkBlitRow::Proc sk_blitrow_platform_4444_procs_arm[] = {
-    // no dither
-    NULL,   // S32_D4444_Opaque,
-    NULL,   // S32_D4444_Blend,
-    NULL,   // S32A_D4444_Opaque,
-    NULL,   // S32A_D4444_Blend,
-
-    // dither
-    NULL,   // S32_D4444_Opaque_Dither,
-    NULL,   // S32_D4444_Blend_Dither,
-    NULL,   // S32A_D4444_Opaque_Dither,
-    NULL,   // S32A_D4444_Blend_Dither
-};
-
 const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     NULL,   // S32_Opaque,
     NULL,   // S32_Blend,
@@ -370,10 +356,6 @@ const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     S32A_Blend_BlitRow32_arm     // S32A_Blend
 };
 #endif
-
-SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
-    return SK_ARM_NEON_WRAP(sk_blitrow_platform_4444_procs_arm)[flags];
-}
 
 SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return SK_ARM_NEON_WRAP(sk_blitrow_platform_565_procs_arm)[flags];
