@@ -793,17 +793,11 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
             }
             break;
         }
-        case kARGB_4444_Config:
         case kRGB_565_Config: {
             uint16_t* p = (uint16_t*)fPixels;
-            uint16_t v;
-
-            if (kARGB_4444_Config == fConfig) {
-                v = SkPackARGB4444(a >> 4, r >> 4, g >> 4, b >> 4);
-            } else {    // kRGB_565_Config
-                v = SkPackRGB16(r >> (8 - SK_R16_BITS), g >> (8 - SK_G16_BITS),
-                                b >> (8 - SK_B16_BITS));
-            }
+            uint16_t v = SkPackRGB16(r >> (8 - SK_R16_BITS),
+                                     g >> (8 - SK_G16_BITS),
+                                     b >> (8 - SK_B16_BITS));
             while (--height >= 0) {
                 sk_memset16(p, v, width);
                 p = (uint16_t*)((char*)p + rowBytes);
@@ -1005,12 +999,12 @@ bool SkBitmap::canCopyTo(Config dstConfig) const {
     bool sameConfigs = (this->config() == dstConfig);
     switch (dstConfig) {
         case kA8_Config:
-        case kARGB_4444_Config:
         case kRGB_565_Config:
         case kARGB_8888_Config:
             break;
         case kA1_Config:
         case kIndex8_Config:
+        case kARGB_4444_Config:
             if (!sameConfigs) {
                 return false;
             }

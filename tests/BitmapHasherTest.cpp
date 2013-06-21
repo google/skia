@@ -51,10 +51,6 @@ namespace skiatest {
             CreateTestBitmap(bitmap, SkBitmap::kARGB_8888_Config, 555, 333, SK_ColorGREEN);
             REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
             REPORTER_ASSERT(fReporter, digest == 0x2423c51cad6d1edcULL);
-            // same pixel colors in a different config should yield the same checksum
-            CreateTestBitmap(bitmap, SkBitmap::kARGB_4444_Config, 555, 333, SK_ColorGREEN);
-            REPORTER_ASSERT(fReporter, SkBitmapHasher::ComputeDigest(bitmap, &digest));
-            REPORTER_ASSERT(fReporter, digest == 0x2423c51cad6d1edcULL);
         }
 
         Reporter* fReporter;

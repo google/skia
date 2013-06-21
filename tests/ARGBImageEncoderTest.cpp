@@ -25,7 +25,6 @@ protected:
 
 static SkBitmap::Config configs[] = {
         SkBitmap::kRGB_565_Config,
-        SkBitmap::kARGB_4444_Config,
         SkBitmap::kARGB_8888_Config,
 };
 

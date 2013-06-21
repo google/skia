@@ -19,7 +19,6 @@
 #if USE_NEON_CODE
 // These are defined in SkBlitRow_opts_arm_neon.cpp
 extern const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[];
-extern const SkBlitRow::Proc sk_blitrow_platform_4444_procs_arm_neon[];
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[];
 
 extern void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
@@ -29,7 +28,6 @@ extern void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 #if USE_ARM_CODE
 // These are defined in SkBlitRow_opts_arm.cpp
 extern const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[];
-extern const SkBlitRow::Proc sk_blitrow_platform_4444_procs_arm[];
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[];
 #endif
 

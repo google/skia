@@ -53,7 +53,6 @@ static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
 static const SkBitmap::Config gConfigs[] = {
     SkBitmap::kARGB_8888_Config,
     SkBitmap::kRGB_565_Config,
-    SkBitmap::kARGB_4444_Config
 };
 static const int gWidth = 32;
 static const int gHeight = 32;

@@ -30,7 +30,6 @@ uint32_t SkTransparentShader::getFlags() {
                 flags |= kOpaqueAlpha_Flag;
             break;
         case SkBitmap::kARGB_8888_Config:
-        case SkBitmap::kARGB_4444_Config:
             if (fAlpha == 255 && fDevice->isOpaque())
                 flags |= kOpaqueAlpha_Flag;
             break;
@@ -75,21 +74,6 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
                                             SkAlphaMul(r, scale),
                                             SkAlphaMul(g, scale),
                                             SkAlphaMul(b, scale));
-                }
-            }
-            break;
-        }
-        case SkBitmap::kARGB_4444_Config: {
-            const uint16_t* src = fDevice->getAddr16(x, y);
-            if (scale == 256) {
-                for (int i = count - 1; i >= 0; --i) {
-                    span[i] = SkPixel4444ToPixel32(src[i]);
-                }
-            } else {
-                unsigned scale16 = scale >> 4;
-                for (int i = count - 1; i >= 0; --i) {
-                    uint32_t c = SkExpand_4444(src[i]) * scale16;
-                    span[i] = SkCompact_8888(c);
                 }
             }
             break;

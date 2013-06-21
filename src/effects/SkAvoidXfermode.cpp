@@ -48,19 +48,6 @@ static unsigned color_dist16(uint16_t c, unsigned r, unsigned g, unsigned b) {
     return SkMax32(dr, SkMax32(dg, db));
 }
 
-// returns 0..15
-static unsigned color_dist4444(uint16_t c, unsigned r, unsigned g, unsigned b) {
-    SkASSERT(r <= 0xF);
-    SkASSERT(g <= 0xF);
-    SkASSERT(b <= 0xF);
-
-    unsigned dr = SkAbs32(SkGetPackedR4444(c) - r);
-    unsigned dg = SkAbs32(SkGetPackedG4444(c) - g);
-    unsigned db = SkAbs32(SkGetPackedB4444(c) - b);
-
-    return SkMax32(dr, SkMax32(dg, db));
-}
-
 // returns 0..255
 static unsigned color_dist32(SkPMColor c, U8CPU r, U8CPU g, U8CPU b) {
     SkASSERT(r <= 0xFF);
@@ -170,46 +157,6 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
                 }
             }
             dst[i] = SkBlend3216(src[i], dst[i], d);
-        }
-    }
-}
-
-void SkAvoidXfermode::xfer4444(uint16_t dst[], const SkPMColor src[], int count,
-                               const SkAlpha aa[]) const {
-    unsigned    opR = SkColorGetR(fOpColor) >> 4;
-    unsigned    opG = SkColorGetG(fOpColor) >> 4;
-    unsigned    opB = SkColorGetB(fOpColor) >> 4;
-    uint32_t    mul = fDistMul;
-    uint32_t    sub = (fDistMul - (1 << 14)) << 4;
-
-    int MAX, mask;
-
-    if (kTargetColor_Mode == fMode) {
-        mask = -1;
-        MAX = 15;
-    } else {
-        mask = 0;
-        MAX = 0;
-    }
-
-    for (int i = 0; i < count; i++) {
-        int d = color_dist4444(dst[i], opR, opG, opB);
-        // now reverse d if we need to
-        d = MAX + (d ^ mask) - mask;
-        SkASSERT((unsigned)d <= 15);
-        // convert from 0..15 to 0..16
-        d += d >> 3;
-        d = scale_dist_14(d, mul, sub);
-        SkASSERT(d <= 16);
-
-        if (d > 0) {
-            if (NULL != aa) {
-                d = SkAlphaMul(d, Accurate255To256(*aa++));
-                if (0 == d) {
-                    continue;
-                }
-            }
-            dst[i] = SkBlend4444(SkPixel32ToPixel4444(src[i]), dst[i], d);
         }
     }
 }
