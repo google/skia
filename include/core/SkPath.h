@@ -17,7 +17,7 @@
 
 #ifdef SK_BUILD_FOR_ANDROID
 #define GEN_ID_INC              fGenerationID++
-#define GEN_ID_PTR_INC(ptr)     ptr->fGenerationID++
+#define GEN_ID_PTR_INC(ptr)     (ptr)->fGenerationID++
 #else
 #define GEN_ID_INC
 #define GEN_ID_PTR_INC(ptr)
