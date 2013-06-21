@@ -984,6 +984,19 @@ private:
     const SkPath*       fSourcePath;
 #endif
 
+    /** Resets all fields other than fPathRef to their initial 'empty' values.
+     *  Assumes the caller has already emptied fPathRef.
+     *  On Android increments fGenerationID without reseting it.
+     */
+    void resetFields();
+
+    /** Sets all fields other than fPathRef to the values in 'that'.
+     *  Assumes the caller has already set fPathRef.
+     *  On Android increments fGenerationID without copying it.
+     *  On Android sets fSourcePath to NULL.
+     */
+    void copyFields(const SkPath& that);
+
     // called, if dirty, by getBounds()
     void computeBounds() const;
 

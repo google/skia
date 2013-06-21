@@ -164,8 +164,8 @@ bool Simplify(const SkPath& path, SkPath* result) {
     SkTArray<SkOpContour*, true> contourList;
     MakeContourList(contours, contourList, false, false);
     SkOpContour** currentPtr = contourList.begin();
-    result->setFillType(fillType);
     result->reset();
+    result->setFillType(fillType);
     if (!currentPtr) {
         return true;
     }
