@@ -236,6 +236,15 @@ public:
      */
     bool isLine(SkPoint line[2]) const;
 
+    enum Direction {
+        /** Direction either has not been or could not be computed */
+        kUnknown_Direction,
+        /** clockwise direction for adding closed contours */
+        kCW_Direction,
+        /** counter-clockwise direction for adding closed contours */
+        kCCW_Direction,
+    };
+    
     /** Returns true if the path specifies a rectangle. If so, and if rect is
         not null, set rect to the bounds of the path. If the path does not
         specify a rectangle, return false and ignore rect.
@@ -244,7 +253,36 @@ public:
                     a rectangle
         @return true if the path specifies a rectangle
     */
-    bool isRect(SkRect* rect) const;
+    bool isRect(SkRect* rect) const {
+        return this->isRect(rect, NULL, NULL);
+    }
+    
+    /**
+     *  Returns true if the path specifies a rectangle.
+     *
+     *  If this returns false, then all output parameters are ignored, and left
+     *  unchanged. If this returns true, then each of the output parameters
+     *  are checked for NULL. If they are not, they return their value.
+     *
+     *  @param rect If not null, set to the bounds of the rectangle
+     *  @param isClosed If not null, set to true if the path is closed
+     *  @param direction If not null, set to the rectangle's direction
+     *  @return true if the path specifies a rectangle
+     */
+    bool isRect(SkRect* rect, bool* isClosed, Direction* direction) const;
+    
+    /** Returns true if the path specifies a pair of nested rectangles. If so, and if
+     rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner
+     rectangle. If so, and dirs is not null, set dirs[0] to the direction of
+     the outer rectangle and dirs[1] to the direction of the inner rectangle. If
+     the path does not specify a pair of nested rectangles, return
+     false and ignore rect and dirs.
+     
+     @param rect If not null, returns the path as a pair of nested rectangles
+     @param dirs If not null, returns the direction of the rects
+     @return true if the path describes a pair of nested rectangles
+     */
+    bool isNestedRects(SkRect rect[2], Direction dirs[2] = NULL) const;
 
     /** Return the number of points in the path
      */
@@ -500,15 +538,6 @@ public:
     */
     void close();
 
-    enum Direction {
-        /** Direction either has not been or could not be computed */
-        kUnknown_Direction,
-        /** clockwise direction for adding closed contours */
-        kCW_Direction,
-        /** counter-clockwise direction for adding closed contours */
-        kCCW_Direction,
-    };
-
     /**
      *  Return the opposite of the specified direction. kUnknown is its own
      *  opposite.
@@ -572,30 +601,6 @@ public:
         (void)this->cheapComputeDirection(&computedDir);
         return computedDir == dir;
     }
-
-    /** Returns true if the path specifies a rectangle. If so, and if isClosed is
-        not null, set isClosed to true if the path is closed. Also, if returning true
-        and direction is not null, return the rect direction. If the path does not
-        specify a rectangle, return false and ignore isClosed and direction.
-
-        @param isClosed If not null, set to true if the path is closed
-        @param direction If not null, set to the rectangle's direction
-        @return true if the path specifies a rectangle
-    */
-    bool isRect(bool* isClosed, Direction* direction) const;
-
-    /** Returns true if the path specifies a pair of nested rectangles. If so, and if
-        rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner
-        rectangle. If so, and dirs is not null, set dirs[0] to the direction of
-        the outer rectangle and dirs[1] to the direction of the inner rectangle. If
-        the path does not specify a pair of nested rectangles, return
-        false and ignore rect and dirs.
-
-        @param rect If not null, returns the path as a pair of nested rectangles
-        @param dirs If not null, returns the direction of the rects
-        @return true if the path describes a pair of nested rectangles
-    */
-    bool isNestedRects(SkRect rect[2], Direction dirs[2] = NULL) const;
 
     /**
      *  Add a closed rectangle contour to the path
