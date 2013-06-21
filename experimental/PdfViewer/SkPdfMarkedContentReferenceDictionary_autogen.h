@@ -165,11 +165,11 @@ private:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
+
+  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
+  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
 
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
@@ -177,8 +177,8 @@ private:
   virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
 
-  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
-  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
 
   virtual SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() {return NULL;}
   virtual const SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() const {return NULL;}
@@ -563,11 +563,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", NULL));
   }
 
-  SkPdfStream Stm() const {
-    SkPdfStream ret;
+  SkPdfStream* Stm() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional; must be an indirect reference) The PDF object owning the stream

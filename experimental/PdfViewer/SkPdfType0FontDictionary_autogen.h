@@ -9,7 +9,7 @@
 class SkPdfType0FontDictionary : public SkPdfFontDictionary {
 public:
   virtual SkPdfObjectType getType() const { return kType0FontDictionary_SkPdfObjectType;}
-  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(kType0FontDictionary_SkPdfObjectType + 1);}
+  virtual SkPdfObjectType getTypeEnd() const { return kType0FontDictionary__End_SkPdfObjectType;}
 public:
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return this;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return this;}
@@ -18,17 +18,14 @@ private:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
 
   virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
 
-  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
-  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
 
 public:
 private:
@@ -116,11 +113,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getEncodingAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getEncodingAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Required) An array specifying one or more fonts or CIDFonts that are
@@ -148,11 +145,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", NULL));
   }
 
-  SkPdfStream ToUnicode() const {
-    SkPdfStream ret;
+  SkPdfStream* ToUnicode() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 };

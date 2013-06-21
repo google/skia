@@ -15,11 +15,11 @@ public:
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return this;}
 
 private:
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
+
+  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
+  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
 
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
@@ -27,8 +27,8 @@ private:
   virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
 
-  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
-  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
 
 public:
 private:
@@ -194,11 +194,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getCIDToGIDMapAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getCIDToGIDMapAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDToGIDMap", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
   bool isCIDToGIDMapAName() const {

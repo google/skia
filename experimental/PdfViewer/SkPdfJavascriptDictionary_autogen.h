@@ -165,11 +165,11 @@ private:
   virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
   virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
-  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
-  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
+
+  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
+  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
 
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
@@ -177,8 +177,8 @@ private:
   virtual SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() {return NULL;}
   virtual const SkPdfMultiMasterFontDictionary* asMultiMasterFontDictionary() const {return NULL;}
 
-  virtual SkPdfType3FontDictionary* asType3FontDictionary() {return NULL;}
-  virtual const SkPdfType3FontDictionary* asType3FontDictionary() const {return NULL;}
+  virtual SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() {return NULL;}
+  virtual const SkPdfTrueTypeFontDictionary* asTrueTypeFontDictionary() const {return NULL;}
 
   virtual SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() {return NULL;}
   virtual const SkPdfFormFieldActionsDictionary* asFormFieldActionsDictionary() const {return NULL;}
@@ -548,11 +548,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getBeforeAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getBeforeAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional) A string or stream containing a JavaScript script to be executed
@@ -581,11 +581,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getAfterAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getAfterAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional) An array defining additional JavaScript scripts to be added to

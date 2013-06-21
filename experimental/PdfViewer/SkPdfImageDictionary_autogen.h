@@ -187,11 +187,11 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream getMaskAsStream() const {
-    SkPdfStream ret = SkPdfStream();
+  SkPdfStream* getMaskAsStream() const {
+    SkPdfStream* ret = NULL;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mask", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
   bool isMaskAArray() const {
@@ -222,11 +222,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", NULL));
   }
 
-  SkPdfStream SMask() const {
-    SkPdfStream ret;
+  SkPdfStream* SMask() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 /** (Optional) An array of numbers describing how to map image samples
@@ -346,11 +346,11 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream Metadata() const {
-    SkPdfStream ret;
+  SkPdfStream* Metadata() const {
+    SkPdfStream* ret;
     if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
     // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfStream();
+    return NULL;
   }
 
 };
