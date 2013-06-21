@@ -748,6 +748,14 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b) {
+    unsigned pixel = (SkA32To4444(a) << SK_A4444_SHIFT) |
+                     (SkR32To4444(r) << SK_R4444_SHIFT) |
+                     (SkG32To4444(g) << SK_G4444_SHIFT) |
+                     (SkB32To4444(b) << SK_B4444_SHIFT);
+    return SkToU16(pixel);
+}
+
 void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
     SkDEBUGCODE(this->validate();)
 
@@ -793,11 +801,18 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
             }
             break;
         }
+        case kARGB_4444_Config:
         case kRGB_565_Config: {
             uint16_t* p = (uint16_t*)fPixels;
-            uint16_t v = SkPackRGB16(r >> (8 - SK_R16_BITS),
-                                     g >> (8 - SK_G16_BITS),
-                                     b >> (8 - SK_B16_BITS));
+            uint16_t v;
+            
+            if (kARGB_4444_Config == fConfig) {
+                v = pack_8888_to_4444(a, r, g, b);
+            } else {
+                v = SkPackRGB16(r >> (8 - SK_R16_BITS),
+                                g >> (8 - SK_G16_BITS),
+                                b >> (8 - SK_B16_BITS));
+            }
             while (--height >= 0) {
                 sk_memset16(p, v, width);
                 p = (uint16_t*)((char*)p + rowBytes);
