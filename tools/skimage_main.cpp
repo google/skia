@@ -501,21 +501,20 @@ int tool_main(int argc, char** argv) {
     }
 
     for (int i = 0; i < FLAGS_readPath.count(); i++) {
-        if (strlen(FLAGS_readPath[i]) < 1) {
+        const char* readPath = FLAGS_readPath[i];
+        if (strlen(readPath) < 1) {
             break;
         }
-        SkOSFile::Iter iter(FLAGS_readPath[i]);
-        SkString filename;
-        if (iter.next(&filename)) {
-            SkString directory(FLAGS_readPath[i]);
-            append_path_separator_if_necessary(&directory);
-            do {
-                SkString fullname(directory);
-                fullname.append(filename);
+        if (sk_isdir(readPath)) {
+            const char* dir = readPath;
+            SkOSFile::Iter iter(dir);
+            SkString filename;
+            while (iter.next(&filename)) {
+                SkString fullname = SkOSPath::SkPathJoin(dir, filename.c_str());
                 decodeFileAndWrite(fullname.c_str(), outDirPtr);
-            } while (iter.next(&filename));
-        } else {
-            decodeFileAndWrite(FLAGS_readPath[i], outDirPtr);
+            }
+        } else if (sk_exists(readPath)) {
+            decodeFileAndWrite(readPath, outDirPtr);
         }
     }
 
