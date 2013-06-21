@@ -33,6 +33,10 @@ static const char gSummarizeFunc[] = "sk_scrape_summarize";
 // PictureRenderingFlags.cpp
 extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap*);
 
+// Example usage for the modulo flag:
+// for i in {0..5}; do lua_pictures --skpPath SKP_PATH -l YOUR_SCRIPT --modulo $i 6 &; done
+DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
+              "testIndex %% divisor == remainder.");
 DEFINE_string2(skpPath, r, "", "Read this .skp file or .skp files from this dir");
 DEFINE_string2(luaFile, l, "", "File containing lua script to run");
 DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
@@ -115,6 +119,19 @@ int tool_main(int argc, char** argv) {
         L.runCode(FLAGS_headCode[0]);
     }
 
+    int moduloRemainder = -1;
+    int moduloDivisor = -1;
+    SkString moduloStr;
+
+    if (FLAGS_modulo.count() == 2) {
+        moduloRemainder = atoi(FLAGS_modulo[0]);
+        moduloDivisor = atoi(FLAGS_modulo[1]);
+        if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
+            SkDebugf("invalid modulo values.\n");
+            return -1;
+        }
+    }
+
     for (int i = 0; i < FLAGS_skpPath.count(); i ++) {
         SkTArray<SkString> paths;
         if (sk_isdir(FLAGS_skpPath[i])) {
@@ -131,8 +148,14 @@ int tool_main(int argc, char** argv) {
         }
 
         for (int i = 0; i < paths.count(); i++) {
+            if (moduloRemainder >= 0) {
+                if ((i % moduloDivisor) != moduloRemainder) {
+                    continue;
+                }
+                moduloStr.printf("[%d.%d] ", i, moduloDivisor);
+            }
             const char* path = paths[i].c_str();
-            SkDebugf("scraping %s\n", path);
+            SkDebugf("scraping %s %s\n", path, moduloStr.c_str());
 
             SkAutoTUnref<SkPicture> pic(load_picture(path));
             if (pic.get()) {
