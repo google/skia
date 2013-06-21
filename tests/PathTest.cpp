@@ -2327,11 +2327,8 @@ static void test_oval(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isOval(NULL));
 }
 
-static void TestPath(skiatest::Reporter* reporter) {
-    SkTSize<SkScalar>::Make(3,4);
-
-    SkPath  p, p2;
-    SkRect  bounds, bounds2;
+static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
+    SkPath  empty;
 
     REPORTER_ASSERT(reporter, p.isEmpty());
     REPORTER_ASSERT(reporter, 0 == p.countPoints());
@@ -2340,8 +2337,16 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
-    REPORTER_ASSERT(reporter, p == p2);
-    REPORTER_ASSERT(reporter, !(p != p2));
+    REPORTER_ASSERT(reporter, p == empty);
+    REPORTER_ASSERT(reporter, !(p != empty));
+}
+
+static void TestPath(skiatest::Reporter* reporter) {
+    SkTSize<SkScalar>::Make(3,4);
+
+    SkPath  p, empty;
+    SkRect  bounds, bounds2;
+    test_empty(reporter, p);
 
     REPORTER_ASSERT(reporter, p.getBounds().isEmpty());
 
@@ -2354,22 +2359,23 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.isEmpty());
 
     p.reset();
-    REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, p.isEmpty());
+    test_empty(reporter, p);
 
     p.addOval(bounds);
     check_convex_bounds(reporter, p, bounds);
     REPORTER_ASSERT(reporter, !p.isEmpty());
 
-    p.reset();
+    p.rewind();
+    test_empty(reporter, p);
+
     p.addRect(bounds);
     check_convex_bounds(reporter, p, bounds);
     // we have only lines
     REPORTER_ASSERT(reporter, SkPath::kLine_SegmentMask == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, !p.isEmpty());
 
-    REPORTER_ASSERT(reporter, p != p2);
-    REPORTER_ASSERT(reporter, !(p == p2));
+    REPORTER_ASSERT(reporter, p != empty);
+    REPORTER_ASSERT(reporter, !(p == empty));
 
     // do getPoints and getVerbs return the right result
     REPORTER_ASSERT(reporter, p.getPoints(NULL, 0) == 4);
