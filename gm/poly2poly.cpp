@@ -14,18 +14,18 @@ public:
 
     void save();
     void restore();
-    
+
     double lineWidth;
     void setLineWidth(double);
-    
+
     void beginPath();
     void moveTo(double x, double y);
     void lineTo(double x, double y);
     void closePath();
-    
+
     void fill();
     void stroke();
-    
+
     void fillText(const char text[], double x, double y);
 
 private:
@@ -95,7 +95,7 @@ static void test_stroke(SkCanvas* canvas) {
         path.reset(); path.moveTo(0, 0); path.lineTo(100, 100); path.moveTo(200, 200);
         dump(path);
     }
-    
+
 #if 0
     // TEST 1 - The rectangle as it's expected to look
     var canvas = document.createElement('canvas');
@@ -113,15 +113,15 @@ static void test_stroke(SkCanvas* canvas) {
     ctx.lineTo(150, 15);
     ctx.lineTo(10, 15);
     ctx.closePath();
-    
+
     // no extra moveTo here
     // ctx.moveTo(175, 125);
-    
+
     ctx.stroke();
     ctx.restore();
-    
+
     ctx.fillText("As Expected", 10, 10);
-    
+
 #if 0
     // TEST 2 - Includes an extra moveTo call before stroke; the rectangle appears larger
     canvas = document.createElement('canvas');
@@ -139,14 +139,14 @@ static void test_stroke(SkCanvas* canvas) {
     ctx.lineTo(150, 15);
     ctx.lineTo(10, 15);
     ctx.closePath();
-    
+
     ctx.moveTo(175, 125);
-    
+
     ctx.stroke();
     ctx.restore();
-    
+
     ctx.fillText("Larger Rectangle", 10, 10);
-    
+
 #if 0
     // TEST 3 - Identical to test 2 except the line width is 1
     canvas = document.createElement('canvas');
@@ -164,12 +164,12 @@ static void test_stroke(SkCanvas* canvas) {
     ctx.lineTo(150, 15);
     ctx.lineTo(10, 15);
     ctx.closePath();
-    
+
     ctx.moveTo(175, 125);
-    
+
     ctx.stroke();
     ctx.restore();
-    
+
     ctx.fillText("As Expected - line width 1", 10, 10);
 }
 
@@ -269,4 +269,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new Poly2PolyGM; )
-

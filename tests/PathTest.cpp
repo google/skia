@@ -2420,7 +2420,7 @@ static void TestPath(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, p.isRect(&r));
         REPORTER_ASSERT(reporter, r == bounds);
     }
-    
+
     test_isLine(reporter);
     test_isRect(reporter);
     test_isNestedRects(reporter);
