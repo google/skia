@@ -805,7 +805,7 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
         case kRGB_565_Config: {
             uint16_t* p = (uint16_t*)fPixels;
             uint16_t v;
-            
+
             if (kARGB_4444_Config == fConfig) {
                 v = pack_8888_to_4444(a, r, g, b);
             } else {

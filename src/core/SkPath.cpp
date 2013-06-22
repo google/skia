@@ -592,7 +592,7 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
     if (!this->isRectContour(false, &currVerb, &pts, isClosed, direction)) {
         return false;
     }
-    
+
     if (rect) {
         rect->set(first, SkToS32(pts - first));
     }
