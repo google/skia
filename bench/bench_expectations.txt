@@ -359,7 +359,7 @@ desk_facebook.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm
 desk_facebook.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,27.790,15.011,40.569
 desk_facebook.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,26.400,13.760,39.040
 desk_facebook.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,69.360,52.424,86.296
-desk_facebook.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,60.630,44.567,76.693
+desk_facebook.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,60.630,44.567,86.693
 desk_facebook.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,730.290,647.261,893.319
 desk_facebook.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,51.840,36.656,67.024
 desk_facebook.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,46.130,31.517,60.743
@@ -649,7 +649,7 @@ desk_pokemonwiki.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2
 desk_pokemonwiki.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,581.590,513.431,659.749
 desk_pokemonwiki.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,711.080,629.972,832.188
 desk_pokemonwiki.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,5691.880,5112.692,6571.068
-desk_pokemonwiki.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,372.990,325.691,450.289
+desk_pokemonwiki.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,372.990,325.691,480.289
 desk_pokemonwiki.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,472.640,415.376,559.904
 desk_pokemonwiki.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,6978.240,6270.416,7730.064
 desk_pokemonwiki.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,651.560,576.404,726.716
@@ -1803,7 +1803,7 @@ tabl_nytimes.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,12.840
 tabl_nytimes.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,168.230,141.407,195.053
 tabl_nytimes.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,11.080,-0.028,22.188
 tabl_nytimes.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,13.010,1.709,24.311
-tabl_nytimes.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,177.260,149.534,204.986
+tabl_nytimes.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,177.260,149.534,214.986
 tabl_nytimes.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,28.800,15.920,41.680
 tabl_nytimes.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,24.180,11.762,36.598
 tabl_nytimes.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,134.510,111.059,157.961
