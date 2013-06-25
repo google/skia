@@ -1230,7 +1230,8 @@ static void test_isRect(skiatest::Reporter* reporter) {
         if (close) {
             path.close();
         }
-        REPORTER_ASSERT(reporter, fail ^ path.isRect(NULL));
+        REPORTER_ASSERT(reporter, fail ^ path.isRect(0));
+        REPORTER_ASSERT(reporter, fail ^ path.isRect(NULL, NULL));
 
         if (!fail) {
             SkRect computed, expected;
@@ -1241,7 +1242,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
             bool isClosed;
             SkPath::Direction direction, cheapDirection;
             REPORTER_ASSERT(reporter, path.cheapComputeDirection(&cheapDirection));
-            REPORTER_ASSERT(reporter, path.isRect(NULL, &isClosed, &direction));
+            REPORTER_ASSERT(reporter, path.isRect(&isClosed, &direction));
             REPORTER_ASSERT(reporter, isClosed == close);
             REPORTER_ASSERT(reporter, direction == cheapDirection);
         } else {
@@ -1253,7 +1254,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
 
             bool isClosed = (bool) -1;
             SkPath::Direction direction = (SkPath::Direction) -1;
-            REPORTER_ASSERT(reporter, !path.isRect(NULL, &isClosed, &direction));
+            REPORTER_ASSERT(reporter, !path.isRect(&isClosed, &direction));
             REPORTER_ASSERT(reporter, isClosed == (bool) -1);
             REPORTER_ASSERT(reporter, direction == (SkPath::Direction) -1);
         }
@@ -1274,7 +1275,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     }
     path1.close();
     path1.lineTo(1, 0);
-    REPORTER_ASSERT(reporter, fail ^ path1.isRect(NULL));
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 
     // fail, move in the middle
     path1.reset();
@@ -1286,7 +1287,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
     path1.close();
-    REPORTER_ASSERT(reporter, fail ^ path1.isRect(NULL));
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 
     // fail, move on the edge
     path1.reset();
@@ -1295,7 +1296,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
     path1.close();
-    REPORTER_ASSERT(reporter, fail ^ path1.isRect(NULL));
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 
     // fail, quad
     path1.reset();
@@ -1307,7 +1308,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
     path1.close();
-    REPORTER_ASSERT(reporter, fail ^ path1.isRect(NULL));
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 
     // fail, cubic
     path1.reset();
@@ -1319,7 +1320,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
     path1.close();
-    REPORTER_ASSERT(reporter, fail ^ path1.isRect(NULL));
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 }
 
 static void test_isNestedRects(skiatest::Reporter* reporter) {
@@ -2407,19 +2408,6 @@ static void TestPath(skiatest::Reporter* reporter) {
     bounds.set(0, 0, SK_Scalar1/2, SK_Scalar1/2);
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, !p.isRect(NULL));
-
-    // test isRect for a trailing moveTo
-    {
-        SkRect r;
-        p.reset();
-        p.addRect(bounds);
-        REPORTER_ASSERT(reporter, p.isRect(&r));
-        REPORTER_ASSERT(reporter, r == bounds);
-        // add a moveTo outside of our bounds
-        p.moveTo(bounds.fLeft + 10, bounds.fBottom + 10);
-        REPORTER_ASSERT(reporter, p.isRect(&r));
-        REPORTER_ASSERT(reporter, r == bounds);
-    }
 
     test_isLine(reporter);
     test_isRect(reporter);
