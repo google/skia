@@ -67,7 +67,7 @@ echo "Delete me!" > "${CHROMEOS_CHROOT}/.gclient"
 SKIA_TOP_DIR="${SCRIPT_DIR}/../../.."
 
 pushd ${CHROMEOS_CHROOT}
-cros chrome-sdk --board ${deviceID} --debug -- /bin/sh -c "cd ${SKIA_TOP_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot ${makeVars}"
+cros chrome-sdk --nogoma --board ${deviceID} --debug -- /bin/sh -c "cd ${SKIA_TOP_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot ${makeVars}"
 returnVal=$?
 popd > /dev/null
 
