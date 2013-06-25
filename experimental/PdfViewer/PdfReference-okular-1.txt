@@ -9463,10 +9463,10 @@ BBox                                    rectangle                               
                                                                                                     below), giving the coordinates of the left, bottom, right, and top edges,
                                                                                                     respectively, of the form XObject’s bounding box. These boundaries are used
                                                                                                     to clip the form XObject and to determine its size for caching.
-Matrix                                  array                                                       (Optional) An array of six numbers specifying the form matrix, which maps
+Matrix                                  matrix                                                      (Optional) An array of six numbers specifying the form matrix, which maps
                                                                                                     form space into user space (see Section 4.2.3, “Transformation Matrices”).
                                                                                                     Default value: the identity matrix [1 0 0 1 0 0].
-Resources                               dictionary                                                  (Optional but strongly recommended; PDF 1.2) A dictionary specifying any
+Resources                               ResourceDictionary                                          (Optional but strongly recommended; PDF 1.2) A dictionary specifying any
                                                                                                     resources (such as fonts and images) required by the form XObject (see Sec-
                                                                                                     tion 3.7, “Content Streams and Resources”).
                                                                                                     In PDF 1.1 and earlier, all named resources used in the form XObject must be
@@ -10652,39 +10652,40 @@ FontBBox                                rectangle                               
                                                                                                     on the font bounding box. If any element is nonzero, it is essential that the
                                                                                                     font bounding box be accurate; if any glyph’s marks fall outside this bound-
                                                                                                     ing box, incorrect behavior may result.
-FontMatrix                              array                                                       (Required) An array of six numbers specifying the font matrix, mapping
+FontMatrix                              matrix                                                      (Required) An array of six numbers specifying the font matrix, mapping
                                                                                                     glyph space to text space (see Section 5.1.3, “Glyph Positioning and
                                                                                                     Metrics”). A common practice is to deﬁne glyphs in terms of a 1000-unit
-                                glyph     coordinate      system,     in    which    case the font    matrix    is
-                                [0.001 0 0 0.001 0 0].
-CharProcs       dictionary      (Required) A dictionary in which each key is a character name and the value
-                                associated with that key is a content stream that constructs and paints the
-                                glyph for that character. The stream must include as its ﬁrst operator either
-                                d0 or d1. This is followed by operators describing one or more graphics
-                                objects, which may include path, text, or image objects. See below for more
-                                details about Type 3 glyph descriptions.
-Encoding        name or         (Required) An encoding dictionary whose Differences array speciﬁes the
-                dictionary      complete character encoding for this font (see Section 5.5.5, “Character
-                                Encoding”; also see implementation note 46 in Appendix H).
-FirstChar       integer         (Required) The ﬁrst character code deﬁned in the font’s Widths array.
-LastChar        integer         (Required) The last character code deﬁned in the font’s Widths array.
-Widths          array           (Required; indirect reference preferred) An array of (LastChar − FirstChar + 1)
-                                widths, each element being the glyph width for the character whose code is
-                                FirstChar plus the array index. For character codes outside the range FirstChar
-                                to LastChar, the width is 0. These widths are interpreted in glyph space as
-                                speciﬁed by FontMatrix (unlike the widths of a Type 1 font, which are in
-                                thousandths of a unit of text space).
-                                Note: If FontMatrix speciﬁes a rotation, only the horizontal component of the
-                                transformed width is used. That is, the resulting displacement is always horizon-
-                                tal in text space, as is the case for all simple fonts.
-Resources       dictionary      (Optional but strongly recommended; PDF 1.2) A list of the named resources,
-                                such as fonts and images, required by the glyph descriptions in this font (see
-                                Section 3.7.2, “Resource Dictionaries”). If any glyph descriptions refer to
-                                named resources but this dictionary is absent, the names are looked up in the
-                                resource dictionary of the page on which the font is used. (See implementa-
-                                tion note 47 in Appendix H.)
-ToUnicode       stream          (Optional; PDF 1.2) A stream containing a CMap ﬁle that maps character
-                                codes to Unicode values (see Section 5.9, “ToUnicode CMaps”).
+                                                                                                    glyph     coordinate      system,     in    which    case the font    matrix    is
+                                                                                                    [0.001 0 0 0.001 0 0].
+CharProcs                               dictionary                                                  (Required) A dictionary in which each key is a character name and the value
+                                                                                                    associated with that key is a content stream that constructs and paints the
+                                                                                                    glyph for that character. The stream must include as its ﬁrst operator either
+                                                                                                    d0 or d1. This is followed by operators describing one or more graphics
+                                                                                                    objects, which may include path, text, or image objects. See below for more
+                                                                                                    details about Type 3 glyph descriptions.
+Encoding                                name or EncodingDictionary                                  (Required) An encoding dictionary whose Differences array speciﬁes the
+                                                                                                    complete character encoding for this font (see Section 5.5.5, “Character
+                                                                                                    Encoding”; also see implementation note 46 in Appendix H).
+FirstChar                               integer                                                     (Required) The ﬁrst character code deﬁned in the font’s Widths array.
+LastChar                                integer                                                     (Required) The last character code deﬁned in the font’s Widths array.
+Widths                                  array                                                       (Required; indirect reference preferred) An array of (LastChar − FirstChar + 1)
+                                                                                                    widths, each element being the glyph width for the character whose code is
+                                                                                                    FirstChar plus the array index. For character codes outside the range FirstChar
+                                                                                                    to LastChar, the width is 0. These widths are interpreted in glyph space as
+                                                                                                    speciﬁed by FontMatrix (unlike the widths of a Type 1 font, which are in
+                                                                                                    thousandths of a unit of text space).
+                                                                                                    Note: If FontMatrix speciﬁes a rotation, only the horizontal component of the
+                                                                                                    transformed width is used. That is, the resulting displacement is always horizon-
+                                                                                                    tal in text space, as is the case for all simple fonts.
+Resources                               dictionary                                                  (Optional but strongly recommended; PDF 1.2) A list of the named resources,
+                                                                                                    such as fonts and images, required by the glyph descriptions in this font (see
+                                                                                                    Section 3.7.2, “Resource Dictionaries”). If any glyph descriptions refer to
+                                                                                                    named resources but this dictionary is absent, the names are looked up in the
+                                                                                                    resource dictionary of the page on which the font is used. (See implementa-
+                                                                                                    tion note 47 in Appendix H.)
+ToUnicode                               stream                                                      (Optional; PDF 1.2) A stream containing a CMap ﬁle that maps character
+                                                                                                    codes to Unicode values (see Section 5.9, “ToUnicode CMaps”).
+
           For each character shown by a text-showing operator using a Type 3 font, the
           viewer application does the following:
           1. Looks up the character code in the font’s Encoding entry, as described in Sec-
@@ -10862,20 +10863,20 @@ BaseEncoding                            name                                    
 Differences                             array                                                       (Optional; not recommended with TrueType fonts) An array describing the differ-
                                                                                                     ences from the encoding speciﬁed by BaseEncoding or, if BaseEncoding is ab-
                                                                                                     sent, from an implicit base encoding. The Differences array is described above.
-           The value of the Differences entry is an array of character codes and character
-           names organized as follows:
-                code1 name1,1 name1,2 …
-                code2 name2,1 name2,2 …
-                …
-                coden namen,1 namen,2 …
-           Each code is the ﬁrst index in a sequence of characters to be changed. The ﬁrst
-           character name after the code becomes the name corresponding to that code.
-           Subsequent names replace consecutive code indices until the next code appears in
-           the array or the array ends. These sequences may be speciﬁed in any order but
-           should not overlap.
-           For example, in the encoding dictionary in Example 5.10, the name quotesingle
-           ( ' ) is associated with character code 39, Adieresis (Ä) with code 128, Aring (Å)
-           with 129, and trademark (™) with 170.
+                                                                                                       The value of the Differences entry is an array of character codes and character
+                                                                                                       names organized as follows:
+                                                                                                            code1 name1,1 name1,2 …
+                                                                                                            code2 name2,1 name2,2 …
+                                                                                                            …
+                                                                                                            coden namen,1 namen,2 …
+                                                                                                       Each code is the ﬁrst index in a sequence of characters to be changed. The ﬁrst
+                                                                                                       character name after the code becomes the name corresponding to that code.
+                                                                                                       Subsequent names replace consecutive code indices until the next code appears in
+                                                                                                       the array or the array ends. These sequences may be speciﬁed in any order but
+                                                                                                       should not overlap.
+                                                                                                       For example, in the encoding dictionary in Example 5.10, the name quotesingle
+                                                                                                       ( ' ) is associated with character code 39, Adieresis (Ä) with code 128, Aring (Å)
+                                                                                                       with 129, and trademark (™) with 170.
 Example 5.10
    25 0 obj
       << /Type /Encoding

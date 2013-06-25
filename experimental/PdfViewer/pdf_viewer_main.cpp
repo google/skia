@@ -28,172 +28,30 @@ using namespace PoDoFo;
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
+// TODO(edisonn): tool, show what objects were read at least, show the ones not even read
+// keep for each object pos in file
+// plug in for VS? syntax coloring, show selected object ... from the text, or from rendered x,y
 
-//#define PDF_TRACE
-//#define PDF_TRACE_DIFF_IN_PNG
-//#define PDF_DEBUG_NO_CLIPING
-//#define PDF_DEBUG_NO_PAGE_CLIPING
-//#define PDF_DEBUG_3X
+// TODO(edisonn): security - validate all the user input, all pdf!
 
-
-const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
-                                  const PdfObject* obj,
-                                  bool resolveOneElementArrays = false);
-
-bool LongFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        long* data);
-
-bool DoubleFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          const char* abr,
-                          double* data);
-
-bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        bool* data);
-
-bool NameFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        std::string* data);
-
-bool StringFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          const char* abr,
-                          std::string* data);
-
-class SkPdfDictionary;
-bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
-                              const PdfDictionary& dict,
-                              const char* key,
-                              const char* abr,
-                              SkPdfDictionary** data);
-
-template <typename T>
-bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        T** data);
-
-class SkPdfObject;
-bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfObject** data);
-
-
-struct SkPdfFileSpec {};
-class SkPdfArray;
-class SkPdfStream;
-struct SkPdfDate {};
-struct SkPdfTree {};
-struct SkPdfFunction {};
-
-bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfArray* data);
-
-
-bool FileSpecFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfFileSpec* data);
-
-
-bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfStream** data);
-
-bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfTree** data);
-
-bool DateFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfDate* data);
-
-bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkRect* data);
-
-bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfFunction* data);
-
-bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out);
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfPodofoMapper_autogen.h"
 #include "SkPdfParser.h"
+
+#include "SkPdfBasics.h"
+#include "SkPdfUtils.h"
+
 #include "SkPdfFont.h"
 
 // TODO(edisonn): fix the mess with the files.
 #include "SkPdfFont.cpp"
+#include "SkPdfBasics.cpp"
+#include "SkPdfUtils.cpp"
 
 bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out) {
     return PodofoMapper::map(podofoDoc, podofoObj, out);
 }
-
-
-bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfArray* data) {return false;}
-
-bool FileSpecFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfFileSpec* data) {return false;}
-
-bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfStream** data);
-
-bool TreeFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfTree** data) {return false;}
-
-bool DateFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfDate* data) {return false;}
-
-bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfFunction* data) {return false;}
-
 
 
 /*
@@ -224,8 +82,19 @@ static void SkTraceMatrix(const SkMatrix& matrix, const char* sz = "") {
     }
     printf("\n");
 }
+
+static void SkTraceRect(const SkRect& rect, const char* sz = "") {
+    printf("SkRect %s ", sz);
+    printf("x = %f ", SkScalarToDouble(rect.x()));
+    printf("y = %f ", SkScalarToDouble(rect.y()));
+    printf("w = %f ", SkScalarToDouble(rect.width()));
+    printf("h = %f ", SkScalarToDouble(rect.height()));
+    printf("\n");
+}
+
 #else
 #define SkTraceMatrix(a,b)
+#define SkTraceRect(a,b)
 #endif
 
 using namespace std;
@@ -289,125 +158,20 @@ static SkMatrix SkMatrixFromPdfMatrix(double array[6]) {
     return matrix;
 }
 
-// TODO(edisonn): better class design.
-struct PdfColorOperator {
-    std::string fColorSpace;  // TODO(edisonn): use SkString
-    SkColor fColor;
-    double fOpacity;  // ca or CA
-    // TODO(edisonn): add here other color space options.
+SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray) {
+    double array[6];
 
-    void setRGBColor(SkColor color) {
-        // TODO(edisonn): ASSERT DeviceRGB is the color space.
-        fColor = color;
-    }
-    // TODO(edisonn): double check the default values for all fields.
-    PdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {}
-
-    void applyGraphicsState(SkPaint* paint) {
-        paint->setColor(SkColorSetA(fColor, fOpacity * 255));
-    }
-
-};
-
-// TODO(edisonn): better class design.
-struct PdfGraphicsState {
-    SkMatrix            fMatrix;
-    SkMatrix            fMatrixTm;
-    SkMatrix            fMatrixTlm;
-
-    double              fCurPosX;
-    double              fCurPosY;
-
-    double              fCurFontSize;
-    bool                fTextBlock;
-    PdfFont*            fCurFont;
-    SkPdfFont*          fSkFont;
-    SkPath              fPath;
-    bool                fPathClosed;
-
-    // Clip that is applied after the drawing is done!!!
-    bool                fHasClipPathToApply;
-    SkPath              fClipPath;
-
-    PdfColorOperator    fStroking;
-    PdfColorOperator    fNonStroking;
-
-    double              fLineWidth;
-    double              fTextLeading;
-    double              fWordSpace;
-    double              fCharSpace;
-
-    SkPdfResourceDictionary* fResources;
-
-    SkBitmap            fSMask;
-
-    PdfGraphicsState() {
-        fCurPosX      = 0.0;
-        fCurPosY      = 0.0;
-        fCurFontSize  = 0.0;
-        fTextBlock    = false;
-        fCurFont      = NULL;
-        fMatrix       = SkMatrix::I();
-        fMatrixTm     = SkMatrix::I();
-        fMatrixTlm    = SkMatrix::I();
-        fPathClosed   = true;
-        fLineWidth    = 0;
-        fTextLeading  = 0;
-        fWordSpace    = 0;
-        fCharSpace    = 0;
-        fHasClipPathToApply = false;
-        fResources    = NULL;
-        fSkFont       = NULL;
-    }
-
-    void applyGraphicsState(SkPaint* paint, bool stroking) {
-        if (stroking) {
-            fStroking.applyGraphicsState(paint);
-        } else {
-            fNonStroking.applyGraphicsState(paint);
+    // TODO(edisonn): security issue, ret if size() != 6
+    for (int i = 0; i < 6; i++) {
+        const PdfObject* elem = resolveReferenceObject(pdfArray->doc(), (*pdfArray)[i]->podofo());
+        if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
+            return SkMatrix::I();  // TODO(edisonn): report issue
         }
-
-        // TODO(edisonn): get this from pdfContext->options,
-        // or pdfContext->addPaintOptions(&paint);
-        paint->setAntiAlias(true);
-
-        // TODO(edisonn): dashing, miter, ...
-        paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
+        array[i] = elem->GetReal();
     }
-};
 
-// TODO(edisonn): better class design.
-struct PdfInlineImage {
-    std::map<std::string, std::string> fKeyValuePairs;
-    std::string fImageData;
-
-};
-
-// TODO(edisonn): better class design.
-struct PdfContext {
-    std::stack<SkPdfObject*>        fObjectStack;
-    std::stack<PdfGraphicsState>    fStateStack;
-    PdfGraphicsState                fGraphicsState;
-    SkPdfDoc&                       fPdfDoc;
-    SkMatrix                        fOriginalMatrix;
-
-    PdfInlineImage                  fInlineImage;
-
-    PdfContext(SkPdfDoc& doc) :  fPdfDoc(doc) {}
-
-};
-
-//  TODO(edisonn): temporary code, to report how much of the PDF we actually think we rendered.
-enum PdfResult {
-    kOK_PdfResult,
-    kPartial_PdfResult,
-    kNYI_PdfResult,
-    kIgnoreError_PdfResult,
-    kError_PdfResult,
-    kUnsupported_PdfResult,
-
-    kCount_PdfResult
-};
+    return SkMatrixFromPdfMatrix(array);
+}
 
 PdfContext* gPdfContext = NULL;
 SkBitmap* gDumpBitmap = NULL;
@@ -651,29 +415,6 @@ static SkTypeface* SkTypefaceFromPdfFont(PdfFont* font) {
                                   (font->IsItalic() ? SkTypeface::kItalic : 0)));
 }
 
-
-// TODO(edisonn): move this code in podofo, so we don't have to fix the font.
-// This logic needs to be moved in PdfEncodingObjectFactory::CreateEncoding
-std::map<PdfFont*, PdfCMapEncoding*> gFontsFixed;
-PdfEncoding* FixPdfFont(PdfContext* pdfContext, PdfFont* fCurFont) {
-    // TODO(edisonn): and is Identity-H
-    if (gFontsFixed.find(fCurFont) == gFontsFixed.end()) {
-        if (fCurFont->GetObject()->IsDictionary() && fCurFont->GetObject()->GetDictionary().HasKey(PdfName("ToUnicode"))) {
-            PdfCMapEncoding* enc = new PdfCMapEncoding(
-                    fCurFont->GetObject(),
-                    (PdfObject*)resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
-                                           fCurFont->GetObject()->GetDictionary().GetKey(PdfName("ToUnicode"))),
-                    PdfCMapEncoding::eBaseEncoding_Identity);  // todo, read the base encoding
-            gFontsFixed[fCurFont] = enc;
-            return enc;
-        }
-
-        return NULL;
-    }
-
-    return gFontsFixed[fCurFont];
-}
-
 PdfResult DrawText(PdfContext* pdfContext,
                    const SkPdfObject* str,
                    SkCanvas* canvas)
@@ -687,10 +428,13 @@ PdfResult DrawText(PdfContext* pdfContext,
     SkUnencodedText binary(str);
 
     SkDecodedText decoded;
-    skfont->encoding()->decodeText(binary, &decoded);
 
-    SkUnicodeText unicode;
-    skfont->ToUnicode(decoded, &unicode);
+    if (skfont->encoding() == NULL) {
+        // TODO(edisonn): report warning
+        return kNYI_PdfResult;
+    }
+
+    skfont->encoding()->decodeText(binary, &decoded);
 
     SkPaint paint;
     // TODO(edisonn): when should fCurFont->GetFontSize() used? When cur is fCurFontSize == 0?
@@ -727,155 +471,9 @@ PdfResult DrawText(PdfContext* pdfContext,
     SkTraceMatrix(matrix, "mirrored");
 #endif
 
-    skfont->drawText(unicode, &paint, canvas, &pdfContext->fGraphicsState.fMatrixTm);
+    skfont->drawText(decoded, &paint, pdfContext, canvas, &pdfContext->fGraphicsState.fMatrixTm);
     canvas->restore();
 
-/*
-    PdfString& rString = str->podofo()->GetString();
-
-    //pdfContext->fGraphicsState.fSkFont->GetDecoding()->ToUnicode(rString);
-    //void* text;
-    //int len;
-    //SkPaint paint;
-    //pdfContext->fGraphicsState.fSkFont->drawText(text, len, paint, canvas, &pdfContext->fGraphicsState.fMatrixTm);
-
-    PdfFont* fCurFont = pdfContext->fGraphicsState.fCurFont;
-
-    if (!fCurFont)
-    {
-        // TODO(edisonn): ignore the error, use the default font?
-        // return kError_PdfResult;
-    }
-
-    const PdfEncoding* enc = fCurFont ? FixPdfFont(pdfContext, fCurFont) : NULL;
-    bool cMapUnicodeFont = enc != NULL;
-    if (!enc) enc = fCurFont ? fCurFont->GetEncoding() : NULL;
-    if (!enc)
-    {
-        // TODO(edisonn): Can we recover from this error?
-        //return kError_PdfResult;
-    }
-
-    PdfString r2 = rString;
-    PdfString unicode;
-
-    if (cMapUnicodeFont) {
-        r2 = PdfString((pdf_utf16be*)rString.GetString(), rString.GetLength() / 2);
-    }
-
-    unicode = enc ? enc->ConvertToUnicode( r2, fCurFont ) : r2.ToUnicode();
-
-#ifdef PDF_TRACE
-    printf("%i %i ? %c rString.len = %i\n", (int)rString.GetString()[0], (int)rString.GetString()[1], (int)rString.GetString()[1], rString.GetLength());
-    printf("%i %i %i %i %c unicode.len = %i\n", (int)unicode.GetString()[0], (int)unicode.GetString()[1], (int)unicode.GetString()[2], (int)unicode.GetString()[3], (int)unicode.GetString()[0], unicode.GetLength());
-#endif
-
-    SkPaint paint;
-    // TODO(edisonn): when should fCurFont->GetFontSize() used? When cur is fCurFontSize == 0?
-    // Or maybe just not call setTextSize at all?
-    if (pdfContext->fGraphicsState.fCurFontSize != 0) {
-        paint.setTextSize(SkDoubleToScalar(pdfContext->fGraphicsState.fCurFontSize));
-    }
-    if (fCurFont && fCurFont->GetFontScale() != 0) {
-        paint.setTextScaleX(SkFloatToScalar(fCurFont->GetFontScale() / 100.0));
-    }
-
-    pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
-
-    paint.setTypeface(SkTypefaceFromPdfFont(fCurFont));
-
-    canvas->save();
-    SkMatrix matrix = pdfContext->fGraphicsState.fMatrixTm;
-
-#if 0
-    // Reverse now the space, otherwise the text is upside down.
-    SkScalar z = SkIntToScalar(0);
-    SkScalar one = SkIntToScalar(1);
-
-    SkPoint normalSpace1[4] = {SkPoint::Make(z, z), SkPoint::Make(one, z), SkPoint::Make(one, one), SkPoint::Make(z, one)};
-    SkPoint mirrorSpace1[4];
-    pdfContext->fGraphicsState.fMatrixTm.mapPoints(mirrorSpace1, normalSpace1, 4);
-
-    SkPoint normalSpace2[4] = {SkPoint::Make(z, z), SkPoint::Make(one, z), SkPoint::Make(one, -one), SkPoint::Make(z, -one)};
-    SkPoint mirrorSpace2[4];
-    pdfContext->fGraphicsState.fMatrixTm.mapPoints(mirrorSpace2, normalSpace2, 4);
-
-#ifdef PDF_TRACE
-    printf("mirror1[0], x = %f y = %f\n", SkScalarToDouble(mirrorSpace1[0].x()), SkScalarToDouble(mirrorSpace1[0].y()));
-    printf("mirror1[1], x = %f y = %f\n", SkScalarToDouble(mirrorSpace1[1].x()), SkScalarToDouble(mirrorSpace1[1].y()));
-    printf("mirror1[2], x = %f y = %f\n", SkScalarToDouble(mirrorSpace1[2].x()), SkScalarToDouble(mirrorSpace1[2].y()));
-    printf("mirror1[3], x = %f y = %f\n", SkScalarToDouble(mirrorSpace1[3].x()), SkScalarToDouble(mirrorSpace1[3].y()));
-    printf("mirror2[0], x = %f y = %f\n", SkScalarToDouble(mirrorSpace2[0].x()), SkScalarToDouble(mirrorSpace2[0].y()));
-    printf("mirror2[1], x = %f y = %f\n", SkScalarToDouble(mirrorSpace2[1].x()), SkScalarToDouble(mirrorSpace2[1].y()));
-    printf("mirror2[2], x = %f y = %f\n", SkScalarToDouble(mirrorSpace2[2].x()), SkScalarToDouble(mirrorSpace2[2].y()));
-    printf("mirror2[3], x = %f y = %f\n", SkScalarToDouble(mirrorSpace2[3].x()), SkScalarToDouble(mirrorSpace2[3].y()));
-#endif
-
-    SkMatrix mirror;
-    SkASSERT(mirror.setPolyToPoly(mirrorSpace1, mirrorSpace2, 4));
-
-    // TODO(edisonn): text positioning wrong right now. Need to get matrix operations right.
-    matrix.preConcat(mirror);
-    canvas->setMatrix(matrix);
-#endif
-
-    SkPoint point1;
-    pdfContext->fGraphicsState.fMatrixTm.mapXY(SkIntToScalar(0), SkIntToScalar(0), &point1);
-
-    SkMatrix mirror;
-    mirror.setTranslate(0, -point1.y());
-    // TODO(edisonn): fix rotated text, and skewed too
-    mirror.postScale(SK_Scalar1, -SK_Scalar1);
-    // TODO(edisonn): post rotate, skew
-    mirror.postTranslate(0, point1.y());
-
-    matrix.postConcat(mirror);
-
-    canvas->setMatrix(matrix);
-
-    SkTraceMatrix(matrix, "mirrored");
-
-#ifdef PDF_TRACE
-    SkPoint point;
-    pdfContext->fGraphicsState.fMatrixTm.mapXY(SkDoubleToScalar(0), SkDoubleToScalar(0), &point);
-    printf("Original SkCanvas resolved coordinates, x = %f y = %f\n", SkScalarToDouble(point.x()), SkScalarToDouble(point.y()));
-    matrix.mapXY(SkDoubleToScalar(0), SkDoubleToScalar(0), &point);
-    printf("Mirored SkCanvas resolved coordinates, x = %f y = %f\n", SkScalarToDouble(point.x()), SkScalarToDouble(point.y()));
-#endif
-
-    // TODO(edisonn): remove this call once we load the font properly
-    // The extra * will show that we got at least the text positioning right
-    // even if font failed to be loaded
-//    canvas->drawText(".", 1, SkDoubleToScalar(-5.0), SkDoubleToScalar(0.0), paint);
-
-
-
-    // TODO(edisonn): use character and word spacing .. add utility function
-    if (cMapUnicodeFont) {
-        paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
-        SkScalar textWidth = paint.measureText(unicode.GetString(), unicode.GetLength());
-        pdfContext->fGraphicsState.fMatrixTm.preTranslate(textWidth, SkDoubleToScalar(0.0));
-        canvas->drawText(unicode.GetString(), unicode.GetLength(), SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), paint);
-    }
-    else {
-        paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-        SkScalar textWidth = paint.measureText(unicode.GetStringUtf8().c_str(), strlen(unicode.GetStringUtf8().c_str()));
-        pdfContext->fGraphicsState.fMatrixTm.preTranslate(textWidth, SkDoubleToScalar(0.0));
-        canvas->drawText(unicode.GetStringUtf8().c_str(), strlen(unicode.GetStringUtf8().c_str()), SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), paint);
-    }
-
-//    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-//    unsigned char ch = *(unicode.GetString() + 3);
-//    if ((ch & 0xC0) != 0x80 && ch < 0x80) {
-//        printf("x%i", ch);
-//        SkScalar textWidth = paint.measureText(&ch, 1);
-//        pdfContext->fGraphicsState.fMatrixTm.preTranslate(textWidth, SkDoubleToScalar(0.0));
-//        canvas->drawText(&ch, 1, SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), paint);
-//    }
-
-    canvas->restore();
-
-*/
     return kPartial_PdfResult;
 }
 
@@ -1028,6 +626,35 @@ bool StringFromDictionary(const PdfMemDocument* pdfDoc,
     return StringFromDictionary(pdfDoc, dict, abr, data);
 }
 
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
+                              const PdfDictionary& dict,
+                              const char* key,
+                              SkPdfArray** data) {
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
+                                              dict.GetKey(PdfName(key)),
+                                              true);
+    if (value == NULL || !value->IsArray()) {
+        return false;
+    }
+    if (data == NULL) {
+        return true;
+    }
+
+    return PodofoMapper::map(*pdfDoc, *value, (SkPdfObject**)data);
+}
+
+
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkPdfArray** data) {
+    if (ArrayFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return ArrayFromDictionary(pdfDoc, dict, abr, data);
+}
+
+
 bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
                               const PdfDictionary& dict,
                               const char* key,
@@ -1059,7 +686,7 @@ template <typename T>
 bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
                               const PdfDictionary& dict,
                               const char* key,
-                              SkPdfDictionary** data) {
+                              T** data) {
     const PdfObject* value = resolveReferenceObject(pdfDoc,
                                               dict.GetKey(PdfName(key)),
                                               true);
@@ -1337,7 +964,7 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 }
 
 SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* obj) {
-    const PdfObject* sMask = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
+    const PdfObject* sMask = resolveReferenceObject(&pdfContext->fPdfDoc->podofo(),
                                               obj->podofo()->GetDictionary().GetKey(PdfName("SMask")));
 
 #ifdef PDF_TRACE
@@ -1349,7 +976,7 @@ SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 #endif
 
     if (sMask) {
-        SkPdfImageDictionary skxobjmask(&pdfContext->fPdfDoc.podofo(), sMask);
+        SkPdfImageDictionary skxobjmask(&pdfContext->fPdfDoc->podofo(), sMask);
         return getImageFromObject(pdfContext, &skxobjmask, true);
     }
 
@@ -1386,11 +1013,11 @@ PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfI
     return kPartial_PdfResult;
 }
 
-bool SkMatrixFromDictionary(PdfContext* pdfContext,
+bool SkMatrixFromDictionary(const PdfMemDocument* pdfDoc,
                             const PdfDictionary& dict,
                             const char* key,
-                            SkMatrix* matrix) {
-    const PdfObject* value = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
+                            SkMatrix** matrix) {
+    const PdfObject* value = resolveReferenceObject(pdfDoc,
                                                     dict.GetKey(PdfName(key)));
 
     if (value == NULL || !value->IsArray()) {
@@ -1403,21 +1030,33 @@ bool SkMatrixFromDictionary(PdfContext* pdfContext,
 
     double array[6];
     for (int i = 0; i < 6; i++) {
-        const PdfObject* elem = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(), &value->GetArray()[i]);
+        const PdfObject* elem = resolveReferenceObject(pdfDoc, &value->GetArray()[i]);
         if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
             return false;
         }
         array[i] = elem->GetReal();
     }
 
-    *matrix = SkMatrixFromPdfMatrix(array);
+    *matrix = new SkMatrix();
+    **matrix = SkMatrixFromPdfMatrix(array);
     return true;
+}
+
+bool SkMatrixFromDictionary(const PdfMemDocument* pdfDoc,
+                        const PdfDictionary& dict,
+                        const char* key,
+                        const char* abr,
+                        SkMatrix** data) {
+    if (SkMatrixFromDictionary(pdfDoc, dict, key, data)) return true;
+    if (abr == NULL || *abr == '\0') return false;
+    return SkMatrixFromDictionary(pdfDoc, dict, abr, data);
+
 }
 
 bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
                           const PdfDictionary& dict,
                           const char* key,
-                          SkRect* rect) {
+                          SkRect** rect) {
     const PdfObject* value = resolveReferenceObject(pdfDoc,
                                                     dict.GetKey(PdfName(key)));
 
@@ -1438,10 +1077,11 @@ bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
         array[i] = elem->GetReal();
     }
 
-    *rect = SkRect::MakeLTRB(SkDoubleToScalar(array[0]),
-                             SkDoubleToScalar(array[1]),
-                             SkDoubleToScalar(array[2]),
-                             SkDoubleToScalar(array[3]));
+    *rect = new SkRect();
+    **rect = SkRect::MakeLTRB(SkDoubleToScalar(array[0]),
+                              SkDoubleToScalar(array[1]),
+                              SkDoubleToScalar(array[2]),
+                              SkDoubleToScalar(array[3]));
     return true;
 }
 
@@ -1449,7 +1089,7 @@ bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
                         const PdfDictionary& dict,
                         const char* key,
                         const char* abr,
-                        SkRect* data) {
+                        SkRect** data) {
     if (SkRectFromDictionary(pdfDoc, dict, key, data)) return true;
     if (abr == NULL || *abr == '\0') return false;
     return SkRectFromDictionary(pdfDoc, dict, abr, data);
@@ -1475,21 +1115,15 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
     PdfOp_q(pdfContext, canvas, NULL);
     canvas->save();
 
-    if (get(skobj, "Resources")) {
-        SkPdfResourceDictionary* res = NULL;
 
-        PodofoMapper::map(*get(skobj, "Resources"), &res);
-
-        if (res) {
-            pdfContext->fGraphicsState.fResources = res;
-        }
+    if (skobj->Resources()) {
+        pdfContext->fGraphicsState.fResources = skobj->Resources();
     }
 
     SkTraceMatrix(pdfContext->fGraphicsState.fMatrix, "Current matrix");
 
-    SkMatrix matrix;
-    if (SkMatrixFromDictionary(pdfContext, skobj->podofo()->GetDictionary(), "Matrix", &matrix)) {
-        pdfContext->fGraphicsState.fMatrix.preConcat(matrix);
+    if (skobj->Matrix()) {
+        pdfContext->fGraphicsState.fMatrix.preConcat(*skobj->Matrix());
         pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fMatrix;
         pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fMatrix;
         // TODO(edisonn) reset matrixTm and matricTlm also?
@@ -1499,9 +1133,8 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
 
     canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
 
-    SkRect bbox;
-    if (SkRectFromDictionary(&pdfContext->fPdfDoc.podofo(), skobj->podofo()->GetDictionary(), "BBox", &bbox)) {
-        canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
+    if (skobj->BBox()) {
+        canvas->clipRect(*skobj->BBox(), SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
     }
 
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
@@ -1522,6 +1155,47 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
 PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
     return kNYI_PdfResult;
 }
+
+PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, SkPdfObject* skobj, SkRect bBox, SkMatrix matrix, double textSize) {
+    if (!skobj || !skobj->podofo() || !skobj->podofo()->HasStream() || skobj->podofo()->GetStream() == NULL || skobj->podofo()->GetStream()->GetLength() == 0) {
+        return kOK_PdfResult;
+    }
+
+    PdfOp_q(pdfContext, canvas, NULL);
+    canvas->save();
+
+    pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
+    pdfContext->fGraphicsState.fMatrixTm.preScale(SkDoubleToScalar(textSize), SkDoubleToScalar(textSize));
+
+    pdfContext->fGraphicsState.fMatrix = pdfContext->fGraphicsState.fMatrixTm;
+    pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fMatrix;
+
+    SkTraceMatrix(pdfContext->fGraphicsState.fMatrix, "Total matrix");
+
+    canvas->setMatrix(pdfContext->fGraphicsState.fMatrix);
+
+    SkRect rm = bBox;
+    pdfContext->fGraphicsState.fMatrix.mapRect(&rm);
+
+    SkTraceRect(rm, "bbox mapped");
+
+    canvas->clipRect(bBox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
+
+    // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
+    // For this PdfContentsTokenizer needs to be extended.
+
+    PdfResult ret = kPartial_PdfResult;
+    SkPdfTokenizer tokenizer(skobj);
+    PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
+    looper.loop();
+
+    // TODO(edisonn): should we restore the variable stack at the same state?
+    // There could be operands left, that could be consumed by a parent tokenizer when we pop.
+    canvas->restore();
+    PdfOp_Q(pdfContext, canvas, NULL);
+    return ret;
+}
+
 
 // TODO(edisonn): faster, have the property on the SkPdfObject itself?
 std::set<const PdfObject*> gInRendering;
@@ -1651,15 +1325,15 @@ PdfResult PdfOp_TD(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     // TODO(edisonn): Create factory methods or constructors so podofo is hidden
     PdfObject _ty(PdfVariant(-ty));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &_ty));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &_ty));
 
     PdfOp_TL(pdfContext, canvas, looper);
 
     PdfObject vtx(PdfVariant(-(-tx)));  // TODO(edisonn): Hmm, the compiler thinks I have here a function pointer if we use (tx), but not -(-tx)
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &vtx));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &vtx));
 
     PdfObject vty(PdfVariant(-(-ty)));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &vty));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &vty));
 
     return PdfOp_Td(pdfContext, canvas, looper);
 }
@@ -1697,8 +1371,8 @@ PdfResult PdfOp_T_star(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
     PdfObject zero(PdfVariant(0.0));
     PdfObject tl(PdfVariant(-(-pdfContext->fGraphicsState.fTextLeading)));
 
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &zero));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc.podofo(), &tl));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &zero));
+    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &tl));
     return PdfOp_Td(pdfContext, canvas, looper);
 }
 
@@ -1823,7 +1497,6 @@ PdfResult PdfOp_re(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
 PdfResult PdfOp_h(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fPath.close();
-    pdfContext->fGraphicsState.fPathClosed = true;
     return kOK_PdfResult;
 }
 
@@ -1972,11 +1645,11 @@ PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     SkPdfFontDictionary* fd = NULL;
     if (pdfContext->fGraphicsState.fResources->Font()) {
-        SkPdfObject objFont = pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str());
-        PodofoMapper::map(objFont, &fd);
+        SkPdfObject* objFont = pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str());
+        PodofoMapper::map(*objFont, &fd);
 
 #ifdef PDF_TRACE
-        objFont.podofo()->ToString(str);
+        objFont->podofo()->ToString(str);
         printf("Print Font loaded: %s\n", str.c_str());
         fd->podofo()->ToString(str);
         printf("Print Font loaded and resolved and upgraded: %s\n", str.c_str());
@@ -1988,24 +1661,6 @@ PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     if (skfont) {
         pdfContext->fGraphicsState.fSkFont = skfont;
-    }
-
-    // TODO(edisonn): Load font from pdfContext->fGraphicsState.fObjectWithResources ?
-    const PdfObject* pFont = resolveReferenceObject(&pdfContext->fPdfDoc.podofo(),
-                                                    pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str()).podofo());
-    if( !pFont )
-    {
-        // TODO(edisonn): try to ignore the error, make sure we do not crash.
-        return kIgnoreError_PdfResult;
-    }
-
-    PdfFont* font = pdfContext->fPdfDoc.podofo().GetFont( (PdfObject*)pFont );
-    if (font) {
-        pdfContext->fGraphicsState.fCurFont = font;
-    } else {
-        // TODO(edisonn): check ~/crasing, for one of the files PoDoFo throws exception
-        // when calling pFont->Reference(), with Linked list corruption.
-        return kIgnoreError_PdfResult;
     }
 
     return kPartial_PdfResult;
@@ -2350,7 +2005,7 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    SkPdfObject value = extGStateDictionary->get(name.c_str());
+    SkPdfObject* value = extGStateDictionary->get(name.c_str());
 
 #ifdef PDF_TRACE
 //    value->ToString(str);
@@ -2358,7 +2013,7 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 #endif
 
     SkPdfGraphicsStateDictionary* gs = NULL;
-    PodofoMapper::map(value, &gs);
+    PodofoMapper::map(*value, &gs);
 
     // TODO(edisonn): now load all those properties in graphic state.
     if (gs == NULL) {
@@ -2420,7 +2075,6 @@ PdfResult PdfOp_Tr(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     return kNYI_PdfResult;
 }
-
 //rise Ts Set the text rise, Trise, to rise, which is a number expressed in unscaled text space
 //units. Initial value: 0.
 PdfResult PdfOp_Ts(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
@@ -2469,14 +2123,14 @@ PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         return kIgnoreError_PdfResult;
     }
 
-    SkPdfObject value = xObject->get(name.c_str());
+    SkPdfObject* value = xObject->get(name.c_str());
 
 #ifdef PDF_TRACE
 //    value->ToString(str);
 //    printf("Do object value: %s\n", str.c_str());
 #endif
 
-    return doXObject(pdfContext, canvas, value);
+    return doXObject(pdfContext, canvas, *value);
 }
 
 //tag MP Designate a marked-content point. tag is a name object indicating the role or
@@ -2779,7 +2433,7 @@ public:
 
                 SkBitmap bitmap;
 #ifdef PDF_DEBUG_3X
-                setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()))
+                setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
 #else
                 setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
 #endif
@@ -2788,7 +2442,7 @@ public:
 
                 SkPdfTokenizer* tokenizer = doc.tokenizerOfPage(pn);
 
-                PdfContext pdfContext(doc);
+                PdfContext pdfContext(&doc);
                 pdfContext.fOriginalMatrix = SkMatrix::I();
                 pdfContext.fGraphicsState.fResources = NULL;
                 PodofoMapper::map(*page->Resources(), &pdfContext.fGraphicsState.fResources);

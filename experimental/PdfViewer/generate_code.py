@@ -3,13 +3,13 @@
 import sys
 
 import datatypes
-import pdfspec_autogen
+from autogen.pdfspec_autogen import *
 
 knowTypes = {
 '(any)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
 '(undefined)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
 '(various)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
-'array': ['SkPdfArray', 'ArrayFromDictionary', datatypes.PdfArrayNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
+'array': ['SkPdfArray*', 'ArrayFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
 'boolean': ['bool', 'BoolFromDictionary', datatypes.PdfBoolean('false'), 'ret->podofo()->GetDataType() == ePdfDataType_Bool'],
 'date': ['SkPdfDate', 'DateFromDictionary', datatypes.PdfDateNever(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
 'dictionary': ['SkPdfDictionary*', 'DictionaryFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Dictionary'],
@@ -19,11 +19,12 @@ knowTypes = {
 'name': ['std::string', 'NameFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_Name'],
 'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
 'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number'],
-'rectangle': ['SkRect', 'SkRectFromDictionary', datatypes.PdfEmptyRect(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
+'rectangle': ['SkRect*', 'SkRectFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
 'stream': ['SkPdfStream*', 'StreamFromDictionary',  datatypes.CppNull(), 'ret->podofo()->HasStream()'],
 'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
 'text': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
 'text string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
+'matrix': ['SkMatrix*', 'SkMatrixFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
 }
 
 
@@ -289,6 +290,7 @@ class PdfClassManager:
       fileClass.write('#define __DEFINED__SkPdf' + cls.fName + '\n')
       fileClass.write('\n')
 
+      fileClass.write('#include "SkPdfUtils.h"\n')
       fileClass.write('#include "SkPdfEnums_autogen.h"\n')
       fileClass.write('#include "SkPdfArray_autogen.h"\n')
       if cls.fBase != '':
@@ -327,12 +329,17 @@ class PdfClassManager:
         fileClass.write('\n')
         fileClass.write('public:\n')
         fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}\n')
+        fileClass.write('  SkPdf' + cls.fName + '(const SkPdf' + cls.fName + '& from) : fPodofoDoc(from.fPodofoDoc), fPodofoObj(from.fPodofoObj) {}\n')
+        fileClass.write('\n')
         fileClass.write('  const PdfMemDocument* doc() const { return fPodofoDoc;}\n')
         fileClass.write('  const PdfObject* podofo() const { return fPodofoObj;}\n')
       else:
         fileClass.write('public:\n')
         fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}\n')
         fileClass.write('\n')
+        fileClass.write('  SkPdf' + cls.fName + '(const SkPdf' + cls.fName + '& from) : SkPdf' + cls.fBase + '(from.fPodofoDoc, from.fPodofoObj) {}\n')
+        fileClass.write('\n')
+      
       
       #check required fieds, also, there should be an internal_valid() manually wrote for complex
       # situations
@@ -497,6 +504,7 @@ class PdfClassManager:
 
 def generateCode():
   global fileHeaders 
+  global knowTypes
 
   fileHeaders = open('SkPdfHeaders_autogen.h', 'w')
   fileHeaders.write('#ifndef __DEFINED__SkPdfHeaders\n')
@@ -535,8 +543,8 @@ def generateCode():
                              .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
   
   manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')\
-                                .carbonCopyPublic('const SkPdfObject get(const char* dictionaryKeyName) const {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
-                                .carbonCopyPublic('SkPdfObject get(const char* dictionaryKeyName) {return SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+                                .carbonCopyPublic('SkPdfObject* get(const char* dictionaryKeyName) const {return new SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+                                .carbonCopyPublic('SkPdfObject* get(const char* dictionaryKeyName) {return new SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
 
   manager.addClass('Stream')  # attached to a dictionary in podofo
   
@@ -555,7 +563,9 @@ def generateCode():
           .must([datatypes.PdfName('TrueType')])\
           .done().done()\
   
-  pdfspec_autogen.buildPdfSpec(manager)  
+  
+  addDictionaryTypesTo(knowTypes)
+  buildPdfSpec(manager)  
 
   manager.addClass('MultiMasterFontDictionary', 'Type1FontDictionary')\
           .required('NULL')\
