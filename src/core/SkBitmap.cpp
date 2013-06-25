@@ -662,7 +662,6 @@ SkColor SkBitmap::getColor(int x, int y) const {
             return SkUnPreMultiply::PMColorToColor((*fColorTable)[dst]);
         }
         case kNo_Config:
-        case kConfigCount:
             SkASSERT(false);
             return 0;
     }
