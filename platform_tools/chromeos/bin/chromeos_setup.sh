@@ -20,7 +20,7 @@ setup_device() {
     return 1
   fi
 
-  DEFINES="OS=linux host_os=linux skia_os=chromeos"
+  DEFINES="OS=linux host_os=linux skia_os=chromeos skia_gpu=0"
 
   case $TARGET_DEVICE in
     x86-alex)
