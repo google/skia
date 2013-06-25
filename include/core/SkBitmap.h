@@ -59,8 +59,12 @@ public:
          *  i.e. you may be able to draw from one, but you cannot draw into one.
          */
         kRLE_Index8_Config,
-
-        kConfigCount
+    };
+    
+    // do not add this to the Config enum, otherwise the compiler will let us
+    // pass this as a valid parameter for Config.
+    enum {
+        kConfigCount = kRLE_Index8_Config + 1
     };
 
     /**
