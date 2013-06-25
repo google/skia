@@ -853,6 +853,11 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkPoint strokeSize;
     RectType rtype = ComputeRectType(paint, *fMatrix, &strokeSize);
 
+    // work-around bug in antiframerect when strokesize is < 1
+    if (strokeSize.fX < SK_Scalar1 || strokeSize.fY < SK_Scalar1) {
+        rtype = kPath_RectType;
+    }
+
     if (kPath_RectType == rtype) {
         SkPath  tmp;
         tmp.addRect(rect);
