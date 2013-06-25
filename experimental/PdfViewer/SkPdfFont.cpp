@@ -70,6 +70,7 @@ std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
         // see FT_Get_Postscript_Name
         // Font config is not using it, yet.
         //https://bugs.freedesktop.org/show_bug.cgi?id=18095
+
         gPdfStandardFonts["Arial-Black"] = {"Arial", true, false};
         gPdfStandardFonts["DejaVuSans"] = {"DejaVu Sans", false, false};
         gPdfStandardFonts["DejaVuSansMono"] = {"DejaVuSans Mono", false, false};
@@ -82,6 +83,34 @@ std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
         gPdfStandardFonts["TrebuchetMS-Bold"] = {"Trebuchet MS", true, false};
         gPdfStandardFonts["Verdana-Bold"] = {"Verdana", true, false};
         gPdfStandardFonts["WenQuanYiMicroHei"] = {"WenQuanYi Micro Hei", false, false};
+
+        // TODO(edisonn): list all phonts available, builf post script name as in pdf spec
+        /*
+         * The PostScript name for the value of BaseFontis determined in one of two ways:
+• Use the PostScript name that is an optional entry in the “name” table of the
+TrueType font itself.
+• In the absence of such an entry in the “name” table, derive a PostScript name
+from the name by which the font is known in the host operating system: on a
+Windows system, it is based on the lfFaceName ﬁeld in a LOGFONT structure; in
+the Mac OS, it is based on the name of the FONDresource. If the name contains
+any spaces, the spaces are removed.
+If the font in a source document uses a bold or italic style, but there is no font
+data for that style, the host operating system will synthesize the style. In this case,
+a comma and the style name (one of Bold, Italic, or BoldItalic) are appended to the
+font name. For example, for a TrueType font that is a bold variant of the New
+         */
+
+        /*
+         * If the value of Subtype is MMType1.
+• If the PostScript name of the instance contains spaces, the spaces are replaced
+by underscores in the value of BaseFont. For instance, as illustrated in Example
+5.7, the name “MinionMM 366 465 11 ” (which ends with a space character)
+becomes /MinionMM_366_465_11_.
+         */
+
+        // might not work on all oses ?
+        //
+
     }
 
     return gPdfStandardFonts;
@@ -178,6 +207,8 @@ SkPdfType3Font* SkPdfFont::fontFromType3FontDictionary(SkPdfType3FontDictionary*
         return NULL;  // default one?
     }
 
+
+
     return new SkPdfType3Font(dict);
 }
 
@@ -213,26 +244,11 @@ static int skstoi(const SkPdfString* str) {
     return ret;
 }
 
-SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
-    fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
-
-    // TODO(edisonn): load encoding, let it now to be Identity-H by default
-    if (dict->has_Encoding()) {
-        if (dict->isEncodingAName()) {
-            //report encoding not supported
-            //fEncoding = loadEncodingFromName(dict->getEncodingAsName().c_str());
-        } else if (dict->isEncodingAStream()) {
-            //fEncoding = loadEncodingFromStream(dict->getEncodingAsStream());
-        } else {
-            // error
-        }
-    }
-
+SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
     fCMapEncoding = NULL;
     fCMapEncodingFlag = NULL;
 
-    if (dict->has_ToUnicode()) {
-        const SkPdfStream* stream = dict->ToUnicode();
+    if (stream) {
         SkPdfTokenizer tokenizer(stream);
         PdfToken token;
 
@@ -317,4 +333,45 @@ SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
             }
         }
     }
+}
+
+
+SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
+    fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
+    fEncoding = NULL;
+
+    if (dict->has_Encoding()) {
+        if (dict->isEncodingAName()) {
+            fEncoding = SkPdfEncoding::fromName(dict->getEncodingAsName().c_str());
+        } else if (dict->isEncodingAStream()) {
+            //fEncoding = loadEncodingFromStream(dict->getEncodingAsStream());
+        } else {
+            // TODO(edisonn): error ... warning .. assert?
+        }
+    }
+
+    if (dict->has_ToUnicode()) {
+        fToUnicode = new SkPdfToUnicode(dict->ToUnicode());
+    }
+}
+
+std::map<std::string, SkPdfEncoding*>& getStandardEncodings() {
+    static std::map<std::string, SkPdfEncoding*> encodings;
+    if (encodings.empty()) {
+        encodings["Identity-H"] = SkPdfIdentityHEncoding::instance();
+    }
+
+    return encodings;
+}
+
+
+SkPdfEncoding* SkPdfEncoding::fromName(const char* name) {
+    SkPdfEncoding* encoding = getStandardEncodings()[name];
+
+#ifdef PDF_TRACE
+    if (encoding == NULL) {
+        printf("Encoding not found: %s\n", name);
+    }
+#endif
+    return encoding;
 }

@@ -20,6 +20,7 @@
       'cflags_cc!': [ '-fno-exceptions' ],
       'sources': [
         '../experimental/PdfViewer/pdf_viewer_main.cpp',
+        #'../experimental/PdfViewer/SkPdfFont.cpp',
       ],
       'include_dirs': [
         '../third_party/externals/podofo/src/base',
@@ -27,6 +28,7 @@
         '../third_party/externals/podofo',
         '../tools',
         '../experimental/PdfViewer',
+        '../experimental/PdfViewer/autogen',
       ],
       'dependencies': [
         'core.gyp:core',
