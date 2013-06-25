@@ -49,6 +49,8 @@ class PictFileView : public SampleView {
             SkFILEStream stream(path);
             if (stream.isValid()) {
                 pic = SkNEW_ARGS(SkPicture, (&stream, NULL, &SkImageDecoder::DecodeMemory));
+            } else {
+                SkDebugf("coun't load picture at \"path\"\n", path);
             }
 
             if (false) { // re-record
