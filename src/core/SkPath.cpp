@@ -584,19 +584,22 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     return result;
 }
 
-bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
+bool SkPath::isRect(SkRect* rect) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    const SkPoint* first = pts;
-    if (!this->isRectContour(false, &currVerb, &pts, isClosed, direction)) {
-        return false;
+    bool result = isRectContour(false, &currVerb, &pts, NULL, NULL);
+    if (result && rect) {
+        *rect = getBounds();
     }
+    return result;
+}
 
-    if (rect) {
-        rect->set(first, SkToS32(pts - first));
-    }
-    return true;
+bool SkPath::isRect(bool* isClosed, Direction* direction) const {
+    SkDEBUGCODE(this->validate();)
+    int currVerb = 0;
+    const SkPoint* pts = fPathRef->points();
+    return isRectContour(false, &currVerb, &pts, isClosed, direction);
 }
 
 bool SkPath::isNestedRects(SkRect rects[2], Direction dirs[2]) const {
