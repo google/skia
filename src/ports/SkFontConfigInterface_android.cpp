@@ -107,6 +107,7 @@ public:
 private:
     void addFallbackFont(FontRecID fontRecID);
     SkTypeface* getTypefaceForFontRec(FontRecID fontRecID);
+    FallbackFontList* getCurrentLocaleFallbackFontList();
     FallbackFontList* findFallbackFontList(const SkLanguage& lang, bool isOriginal = true);
 
     SkTArray<FontRec> fFonts;
@@ -118,6 +119,10 @@ private:
     SkTDict<FallbackFontList*> fFallbackFontDict;
     SkTDict<FallbackFontList*> fFallbackFontAliasDict;
     FallbackFontList fDefaultFallbackList;
+
+    // fallback info for current locale
+    SkString fCachedLocale;
+    FallbackFontList* fLocaleFallbackFontList;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,7 +198,8 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
         fFamilyNameDict(1024),
         fDefaultFamilyRecID(INVALID_FAMILY_REC_ID),
         fFallbackFontDict(128),
-        fFallbackFontAliasDict(128) {
+        fFallbackFontAliasDict(128),
+        fLocaleFallbackFontList(NULL) {
 
     for (int i = 0; i < fontFamilies.count(); ++i) {
         FontFamily* family = fontFamilies[i];
@@ -489,8 +495,9 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForFontRec(FontRecID fontRe
 }
 
 bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
-    for (int i = 0; i < fDefaultFallbackList.count(); i++) {
-        FontRecID fontRecID = fDefaultFallbackList[i];
+    FallbackFontList* fallbackFontList = this->getCurrentLocaleFallbackFontList();
+    for (int i = 0; i < fallbackFontList->count(); i++) {
+        FontRecID fontRecID = fallbackFontList->getAt(i);
         SkTypeface* face = this->getTypefaceForFontRec(fontRecID);
 
         SkPaint paint;
@@ -531,6 +538,15 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForChar(SkUnichar uni,
         return SkTypefaceCache::FindByID(fontID);
     }
     return NULL;
+}
+
+FallbackFontList* SkFontConfigInterfaceAndroid::getCurrentLocaleFallbackFontList() {
+    SkString locale = SkFontConfigParser::GetLocale();
+    if (NULL == fLocaleFallbackFontList || locale != fCachedLocale) {
+        fCachedLocale = locale;
+        fLocaleFallbackFontList = this->findFallbackFontList(locale);
+    }
+    return fLocaleFallbackFontList;
 }
 
 FallbackFontList* SkFontConfigInterfaceAndroid::findFallbackFontList(const SkLanguage& lang,
