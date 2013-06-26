@@ -449,9 +449,9 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw, bool forceIdentity) {
     DO_DEFERRED_CLEAR();
 }
 
-SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() {
+GrRenderTarget* SkGpuDevice::accessRenderTarget() {
     DO_DEFERRED_CLEAR();
-    return (SkGpuRenderTarget*)fRenderTarget;
+    return fRenderTarget;
 }
 
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
@@ -1494,8 +1494,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkBitmap filterBitmap;
         if (filter_texture(this, fContext, texture, filter, w, h, &filterBitmap)) {
             grPaint.colorStage(kBitmapEffectIdx)->setEffect(
-                GrSimpleTextureEffect::Create((GrTexture*) filterBitmap.getTexture(), SkMatrix::I()))->unref();
-            texture = (GrTexture*) filterBitmap.getTexture();
+                GrSimpleTextureEffect::Create(filterBitmap.getTexture(), SkMatrix::I()))->unref();
+            texture = filterBitmap.getTexture();
             w = filterBitmap.width();
             h = filterBitmap.height();
         }
@@ -1571,8 +1571,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         SkBitmap filterBitmap;
         if (filter_texture(this, fContext, devTex, filter, w, h, &filterBitmap)) {
             grPaint.colorStage(kBitmapEffectIdx)->setEffect(
-                GrSimpleTextureEffect::Create((GrTexture*) filterBitmap.getTexture(), SkMatrix::I()))->unref();
-            devTex = (GrTexture*) filterBitmap.getTexture();
+                GrSimpleTextureEffect::Create(filterBitmap.getTexture(), SkMatrix::I()))->unref();
+            devTex = filterBitmap.getTexture();
             w = filterBitmap.width();
             h = filterBitmap.height();
         }

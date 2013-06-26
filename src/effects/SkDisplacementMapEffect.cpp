@@ -280,12 +280,12 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, &colorBM)) {
         return false;
     }
-    GrTexture* color = (GrTexture*) colorBM.getTexture();
+    GrTexture* color = colorBM.getTexture();
     SkBitmap displacementBM;
     if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, &displacementBM)) {
         return false;
     }
-    GrTexture* displacement = (GrTexture*) displacementBM.getTexture();
+    GrTexture* displacement = displacementBM.getTexture();
     GrContext* context = color->getContext();
 
     GrTextureDesc desc;

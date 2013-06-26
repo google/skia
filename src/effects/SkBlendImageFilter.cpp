@@ -155,12 +155,12 @@ bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBit
     if (!SkImageFilterUtils::GetInputResultGPU(getBackgroundInput(), proxy, src, &backgroundBM)) {
         return false;
     }
-    GrTexture* background = (GrTexture*) backgroundBM.getTexture();
+    GrTexture* background = backgroundBM.getTexture();
     SkBitmap foregroundBM;
     if (!SkImageFilterUtils::GetInputResultGPU(getForegroundInput(), proxy, src, &foregroundBM)) {
         return false;
     }
-    GrTexture* foreground = (GrTexture*) foregroundBM.getTexture();
+    GrTexture* foreground = foregroundBM.getTexture();
     GrContext* context = foreground->getContext();
 
     GrTextureDesc desc;

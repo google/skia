@@ -39,7 +39,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkDevice* device = canvas->getTopDevice();
-        GrRenderTarget* target = (GrRenderTarget*) device->accessRenderTarget();
+        GrRenderTarget* target = device->accessRenderTarget();
         GrContext* ctx = GetGr();
         if (ctx && target) {
             SkPMColor gTextureData[(2 * S) * (2 * S)];

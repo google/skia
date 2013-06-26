@@ -70,12 +70,12 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, Sk
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &background)) {
         return false;
     }
-    GrTexture* backgroundTex = (GrTexture*) background.getTexture();
+    GrTexture* backgroundTex = background.getTexture();
     SkBitmap foreground;
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(1), proxy, src, &foreground)) {
         return false;
     }
-    GrTexture* foregroundTex = (GrTexture*) foreground.getTexture();
+    GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
 
     GrEffectRef* xferEffect = NULL;

@@ -23,8 +23,7 @@ class SkMatrix;
 class SkMetaData;
 class SkRegion;
 
-// This is an opaque class, not interpreted by skia
-class SkGpuRenderTarget;
+class GrRenderTarget;
 
 class SK_API SkDevice : public SkRefCnt {
 public:
@@ -160,7 +159,7 @@ public:
     /**
      * Return the device's associated gpu render target, or NULL.
      */
-    virtual SkGpuRenderTarget* accessRenderTarget() { return NULL; }
+    virtual GrRenderTarget* accessRenderTarget() { return NULL; }
 
 
     /**

@@ -105,7 +105,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* 
     if (!SkImageFilterUtils::GetInputResultGPU(this->getInput(0), proxy, src, &input)) {
         return false;
     }
-    GrTexture* srcTexture = (GrTexture*) input.getTexture();
+    GrTexture* srcTexture = input.getTexture();
     SkRect rect;
     src.getBounds(&rect);
     GrContext* context = srcTexture->getContext();

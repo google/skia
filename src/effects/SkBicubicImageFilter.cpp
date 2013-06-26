@@ -346,7 +346,7 @@ bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkB
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &srcBM)) {
         return false;
     }
-    GrTexture* srcTexture = (GrTexture*) srcBM.getTexture();
+    GrTexture* srcTexture = srcBM.getTexture();
     GrContext* context = srcTexture->getContext();
 
     SkRect dstRect = SkRect::MakeWH(srcBM.width() * fScale.fWidth,
