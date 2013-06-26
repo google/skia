@@ -2,6 +2,7 @@
 .android_config
 .DS_Store
 .gclient*
+*.pyc
 /gyp/build/
 /out/
 /third_party/externals/
