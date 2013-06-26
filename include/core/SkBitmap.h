@@ -23,8 +23,7 @@ class SkPixelRef;
 class SkRegion;
 class SkString;
 
-// This is an opaque class, not interpreted by skia
-class SkGpuTexture;
+class GrTexture;
 
 /** \class SkBitmap
 
@@ -365,7 +364,7 @@ public:
 
     /** Returns the pixelRef's texture, or NULL
      */
-    SkGpuTexture* getTexture() const;
+    GrTexture* getTexture() const;
 
     /** Return the bitmap's colortable, if it uses one (i.e. fConfig is
         kIndex8_Config) and the pixels are locked.

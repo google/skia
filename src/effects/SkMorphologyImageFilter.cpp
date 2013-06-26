@@ -507,7 +507,7 @@ bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBi
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM)) {
         return false;
     }
-    GrTexture* input = (GrTexture*) inputBM.getTexture();
+    GrTexture* input = inputBM.getTexture();
     SkIRect bounds;
     src.getBounds(&bounds);
     SkAutoTUnref<GrTexture> resultTex(apply_morphology(input, bounds,
@@ -520,7 +520,7 @@ bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBit
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM)) {
         return false;
     }
-    GrTexture* input = (GrTexture*) inputBM.getTexture();
+    GrTexture* input = inputBM.getTexture();
     SkIRect bounds;
     src.getBounds(&bounds);
     SkAutoTUnref<GrTexture> resultTex(apply_morphology(input, bounds,

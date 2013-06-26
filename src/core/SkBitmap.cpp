@@ -424,7 +424,7 @@ void SkBitmap::notifyPixelsChanged() const {
     }
 }
 
-SkGpuTexture* SkBitmap::getTexture() const {
+GrTexture* SkBitmap::getTexture() const {
     return fPixelRef ? fPixelRef->getTexture() : NULL;
 }
 

@@ -60,7 +60,7 @@ public:
 
     GrContext* context() const { return fContext; }
 
-    virtual SkGpuRenderTarget* accessRenderTarget() SK_OVERRIDE;
+    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     // overrides from SkDevice
 

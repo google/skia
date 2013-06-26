@@ -198,7 +198,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitm
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &input)) {
         return false;
     }
-    GrTexture* source = (GrTexture*) input.getTexture();
+    GrTexture* source = input.getTexture();
     SkRect rect;
     src.getBounds(&rect);
     SkAutoTUnref<GrTexture> tex(source->getContext()->gaussianBlur(source, false, rect,

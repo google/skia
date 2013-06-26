@@ -34,8 +34,7 @@ class SkData;
 struct SkIRect;
 class SkMutex;
 
-// this is an opaque class, not interpreted by skia
-class SkGpuTexture;
+class GrTexture;
 
 /** \class SkPixelRef
 
@@ -144,7 +143,7 @@ public:
 
     /** Are we really wrapping a texture instead of a bitmap?
      */
-    virtual SkGpuTexture* getTexture() { return NULL; }
+    virtual GrTexture* getTexture() { return NULL; }
 
     bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
 

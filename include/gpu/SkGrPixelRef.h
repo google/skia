@@ -51,7 +51,7 @@ public:
     virtual ~SkGrPixelRef();
 
     // override from SkPixelRef
-    virtual SkGpuTexture* getTexture() SK_OVERRIDE;
+    virtual GrTexture* getTexture() SK_OVERRIDE;
 
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 

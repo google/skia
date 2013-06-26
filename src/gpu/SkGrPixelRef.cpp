@@ -128,9 +128,9 @@ SkGrPixelRef::~SkGrPixelRef() {
     GrSafeUnref(fSurface);
 }
 
-SkGpuTexture* SkGrPixelRef::getTexture() {
+GrTexture* SkGrPixelRef::getTexture() {
     if (NULL != fSurface) {
-        return (SkGpuTexture*) fSurface->asTexture();
+        return fSurface->asTexture();
     }
     return NULL;
 }
