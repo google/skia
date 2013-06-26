@@ -691,7 +691,7 @@ private:
     bool hasMipMap() const;
     void freeMipMap();
     
-    friend class SkBitmapProcState;
+    friend struct SkBitmapProcState;
 };
 
 class SkAutoLockPixels : public SkNoncopyable {
