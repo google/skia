@@ -4,6 +4,9 @@
 #include "podofo.h"
 using namespace PoDoFo;
 
+#include "SkCanvas.h"
+#include "SkPaint.h"
+
 #include <iostream>
 #include <cstdio>
 #include <stack>
@@ -16,6 +19,8 @@ using namespace PoDoFo;
 
 class SkPdfFont;
 class SkPdfDoc;
+class SkPdfObject;
+class SkPdfResourceDictionary;
 
 // TODO(edisonn): better class design.
 struct PdfColorOperator {

@@ -40,39 +40,21 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of font; must be Type3 for a Type 3 font.
 **/
   bool has_Subtype() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required in PDF 1.0; optional otherwise) See Table 5.8 on page 317.
 **/
   bool has_Name() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 /** (Required) A rectangle (see Section 3.8.3, "Rectangles"), expressed in the
  *  glyph coordinate system, specifying the font bounding box. This is the small-
  *  est rectangle enclosing the shape that would result if all of the glyphs of the
@@ -86,13 +68,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontBBox", "", NULL));
   }
 
-  SkRect* FontBBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontBBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* FontBBox() const;
 /** (Required) An array of six numbers specifying the font matrix, mapping
  *  glyph space to text space (see Section 5.1.3, "Glyph Positioning and
  *  Metrics"). A common practice is to define glyphs in terms of a 1000-unit
@@ -103,13 +79,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontMatrix", "", NULL));
   }
 
-  SkMatrix* FontMatrix() const {
-    SkMatrix* ret;
-    if (SkMatrixFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontMatrix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkMatrix* FontMatrix() const;
 /** (Required) A dictionary in which each key is a character name and the value
  *  associated with that key is a content stream that constructs and paints the
  *  glyph for that character. The stream must include as its first operator either
@@ -121,13 +91,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CharProcs", "", NULL));
   }
 
-  SkPdfDictionary* CharProcs() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CharProcs", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* CharProcs() const;
 /** (Required) An encoding dictionary whose Differences array specifies the
  *  complete character encoding for this font (see Section 5.5.5, "Character
  *  Encoding"; also see implementation note 46 in Appendix H).
@@ -142,52 +106,28 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getEncodingAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getEncodingAsName() const;
   bool isEncodingAEncodingdictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfEncodingDictionary* getEncodingAsEncodingdictionary() const {
-    SkPdfEncodingDictionary* ret = NULL;
-    if (DictionaryFromDictionary2(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfEncodingDictionary* getEncodingAsEncodingdictionary() const;
 /** (Required) The first character code defined in the font's Widths array.
 **/
   bool has_FirstChar() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FirstChar", "", NULL));
   }
 
-  long FirstChar() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FirstChar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long FirstChar() const;
 /** (Required) The last character code defined in the font's Widths array.
 **/
   bool has_LastChar() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastChar", "", NULL));
   }
 
-  long LastChar() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastChar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long LastChar() const;
 /** (Required; indirect reference preferred) An array of (LastChar - FirstChar + 1)
  *  widths, each element being the glyph width for the character whose code is
  *  FirstChar plus the array index. For character codes outside the range FirstChar
@@ -202,13 +142,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Widths", "", NULL));
   }
 
-  SkPdfArray* Widths() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Widths", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Widths() const;
 /** (Optional but strongly recommended; PDF 1.2) A list of the named resources,
  *  such as fonts and images, required by the glyph descriptions in this font (see
  *  Section 3.7.2, "Resource Dictionaries"). If any glyph descriptions refer to
@@ -220,13 +154,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", NULL));
   }
 
-  SkPdfDictionary* Resources() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Resources() const;
 /** (Optional; PDF 1.2) A stream containing a CMap file that maps character
  *  codes to Unicode values (see Section 5.9, "ToUnicode CMaps").
 **/
@@ -234,13 +162,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", NULL));
   }
 
-  SkPdfStream* ToUnicode() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* ToUnicode() const;
 };
 
 #endif  // __DEFINED__SkPdfType3FontDictionary

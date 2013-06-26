@@ -2,3082 +2,900 @@
 #define __DEFINED__SkPdfPodofoMapper
 
 #include "SkPdfHeaders_autogen.h"
-class PodofoMapper {
-public:
-  static bool map(const SkPdfObject& in, SkPdfObject** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out) {
-    if (!isObject(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfArray**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBoolean**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfInteger**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfName**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNull**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfReference**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfString**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStream**)out)) return true;
-
-    *out = new SkPdfObject(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNull** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNull** out) {
-    if (!isNull(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNull(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBoolean** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoolean** out) {
-    if (!isBoolean(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBoolean(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfInteger** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInteger** out) {
-    if (!isInteger(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfNumber**)out)) return true;
-
-    *out = new SkPdfInteger(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNumber** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNumber** out) {
-    if (!isNumber(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNumber(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfName** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfName** out) {
-    if (!isName(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfName(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfReference** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfReference** out) {
-    if (!isReference(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfReference(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfArray** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfArray** out) {
-    if (!isArray(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfArray(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfString** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfString** out) {
-    if (!isString(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfHexString**)out)) return true;
-
-    *out = new SkPdfString(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfHexString** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfHexString** out) {
-    if (!isHexString(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfHexString(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDictionary** out) {
-    if (!isDictionary(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfALinkAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAlternateImageDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAnnotationActionsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAppearanceCharacteristicsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAppearanceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfApplicationDataDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfArtifactsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfAttributeObjectDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBeadDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBlockLevelStructureElementsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBorderStyleDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBoxColorInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfBoxStyleDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCIDFontDescriptorDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCIDSystemInfoDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCMapDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCalgrayColorSpaceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCalrgbColorSpaceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCatalogDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCcittfaxdecodeFilterDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfCheckboxFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfChoiceFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfComponentsWithMetadataDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfDctdecodeFilterDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfDeviceNColorSpaceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfDocumentCatalogActionsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfDocumentInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEmbeddedFileParameterDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEmbeddedFileStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEmbeddedFontStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEncodingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEncryptedEmbeddedFileStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfEncryptionCommonDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFCatalogDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFFileAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFNamedPageReferenceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFPageDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFTemplateDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFDFTrailerDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFileAttachmentAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFileSpecificationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFileTrailerDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFontDescriptorDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFormFieldActionsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFreeTextAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfFunctionCommonDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfGoToActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfGraphicsStateDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfGroupAttributesDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfHideActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfIccProfileStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfIconFitDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfImportDataActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfInkAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfInlineLevelStructureElementsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfInteractiveFormDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfJavascriptActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfJavascriptDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfJbig2DecodeFilterDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfLabColorSpaceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfLaunchActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfLineAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfListAttributeDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfLzwdecodeAndFlatedecodeFiltersDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMacOsFileInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMarkInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMarkedContentReferenceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMarkupAnnotationsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMetadataStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMovieActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMovieActivationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMovieAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfMovieDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNameDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNameTreeNodeDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNamedActionsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfNumberTreeNodeDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfObjectReferenceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfOpiVersionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfOutlineDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfOutlineItemDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPDF_XOutputIntentDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPSXobjectDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPageLabelDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPageObjectActionsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPageObjectDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPagePieceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPageTreeNodeDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPopUpAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPrinterMarkAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfPrinterMarkFormDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfRadioButtonFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfReferenceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfRemoteGoToActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfResetFormActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfResourceDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfRubberStampAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSeparationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSignatureDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSoftMaskDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSoftMaskImageDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSoundActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSoundAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSoundObjectDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSourceInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSquareOrCircleAnnotation**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStandardSecurityHandlerDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStandardStructureDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStreamCommonDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStructureElementAccessDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStructureElementDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfStructureTreeRootDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfSubmitFormActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTableAttributesDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTextAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTextFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfThreadActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfThreadDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTransitionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTransparencyGroupDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTrapNetworkAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTrapNetworkAppearanceStreamDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType0FunctionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType10HalftoneDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType16HalftoneDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType1HalftoneDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType1PatternDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType2FunctionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType2PatternDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType3FunctionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType5HalftoneDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType6HalftoneDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfURIActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfURIDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfURLAliasDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfVariableTextFieldDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfViewerPreferencesDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCaptureCommandDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCaptureCommandSettingsDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCaptureDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCaptureImageSetDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCaptureInformationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWebCapturePageSetDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWidgetAnnotationDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfWindowsLaunchActionDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfXObjectDictionary**)out)) return true;
-
-    *out = new SkPdfDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStream** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStream** out) {
-    if (!isStream(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStream(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfXObjectDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfXObjectDictionary** out) {
-    if (!isXObjectDictionary(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfImageDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType1FormDictionary**)out)) return true;
-
-    *out = new SkPdfXObjectDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFontDictionary** out) {
-    if (!isFontDictionary(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfCIDFontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType0FontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType1FontDictionary**)out)) return true;
-
-    *out = new SkPdfFontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTrueTypeFontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrueTypeFontDictionary** out) {
-    if (!isTrueTypeFontDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTrueTypeFontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStreamCommonDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStreamCommonDictionary** out) {
-    if (!isStreamCommonDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStreamCommonDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** out) {
-    if (!isLzwdecodeAndFlatedecodeFiltersDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfLzwdecodeAndFlatedecodeFiltersDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCcittfaxdecodeFilterDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCcittfaxdecodeFilterDictionary** out) {
-    if (!isCcittfaxdecodeFilterDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCcittfaxdecodeFilterDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfJbig2DecodeFilterDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJbig2DecodeFilterDictionary** out) {
-    if (!isJbig2DecodeFilterDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfJbig2DecodeFilterDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfDctdecodeFilterDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDctdecodeFilterDictionary** out) {
-    if (!isDctdecodeFilterDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfDctdecodeFilterDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFileTrailerDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileTrailerDictionary** out) {
-    if (!isFileTrailerDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFileTrailerDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEncryptionCommonDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncryptionCommonDictionary** out) {
-    if (!isEncryptionCommonDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEncryptionCommonDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStandardSecurityHandlerDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStandardSecurityHandlerDictionary** out) {
-    if (!isStandardSecurityHandlerDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStandardSecurityHandlerDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCatalogDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCatalogDictionary** out) {
-    if (!isCatalogDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCatalogDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPageTreeNodeDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageTreeNodeDictionary** out) {
-    if (!isPageTreeNodeDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPageTreeNodeDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPageObjectDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageObjectDictionary** out) {
-    if (!isPageObjectDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPageObjectDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNameDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNameDictionary** out) {
-    if (!isNameDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNameDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfResourceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfResourceDictionary** out) {
-    if (!isResourceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfResourceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNameTreeNodeDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNameTreeNodeDictionary** out) {
-    if (!isNameTreeNodeDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNameTreeNodeDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNumberTreeNodeDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNumberTreeNodeDictionary** out) {
-    if (!isNumberTreeNodeDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNumberTreeNodeDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFunctionCommonDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFunctionCommonDictionary** out) {
-    if (!isFunctionCommonDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFunctionCommonDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType0FunctionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType0FunctionDictionary** out) {
-    if (!isType0FunctionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType0FunctionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType2FunctionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2FunctionDictionary** out) {
-    if (!isType2FunctionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType2FunctionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType3FunctionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3FunctionDictionary** out) {
-    if (!isType3FunctionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType3FunctionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFileSpecificationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileSpecificationDictionary** out) {
-    if (!isFileSpecificationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFileSpecificationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEmbeddedFileStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFileStreamDictionary** out) {
-    if (!isEmbeddedFileStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEmbeddedFileStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEmbeddedFileParameterDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFileParameterDictionary** out) {
-    if (!isEmbeddedFileParameterDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEmbeddedFileParameterDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMacOsFileInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMacOsFileInformationDictionary** out) {
-    if (!isMacOsFileInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMacOsFileInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfGraphicsStateDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGraphicsStateDictionary** out) {
-    if (!isGraphicsStateDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfGraphicsStateDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCalgrayColorSpaceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCalgrayColorSpaceDictionary** out) {
-    if (!isCalgrayColorSpaceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCalgrayColorSpaceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCalrgbColorSpaceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCalrgbColorSpaceDictionary** out) {
-    if (!isCalrgbColorSpaceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCalrgbColorSpaceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfLabColorSpaceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLabColorSpaceDictionary** out) {
-    if (!isLabColorSpaceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfLabColorSpaceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfIccProfileStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfIccProfileStreamDictionary** out) {
-    if (!isIccProfileStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfIccProfileStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfDeviceNColorSpaceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDeviceNColorSpaceDictionary** out) {
-    if (!isDeviceNColorSpaceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfDeviceNColorSpaceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType1PatternDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1PatternDictionary** out) {
-    if (!isType1PatternDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType1PatternDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType2PatternDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2PatternDictionary** out) {
-    if (!isType2PatternDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType2PatternDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfShadingDictionary** out) {
-    if (!isShadingDictionary(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfType1ShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType2ShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType3ShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType4ShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType5ShadingDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType6ShadingDictionary**)out)) return true;
-
-    *out = new SkPdfShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType1ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1ShadingDictionary** out) {
-    if (!isType1ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType1ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType2ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2ShadingDictionary** out) {
-    if (!isType2ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType2ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType3ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3ShadingDictionary** out) {
-    if (!isType3ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType3ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType4ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType4ShadingDictionary** out) {
-    if (!isType4ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType4ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType5ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType5ShadingDictionary** out) {
-    if (!isType5ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType5ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType6ShadingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType6ShadingDictionary** out) {
-    if (!isType6ShadingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType6ShadingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfImageDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfImageDictionary** out) {
-    if (!isImageDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfImageDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAlternateImageDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAlternateImageDictionary** out) {
-    if (!isAlternateImageDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAlternateImageDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType1FormDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1FormDictionary** out) {
-    if (!isType1FormDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType1FormDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfGroupAttributesDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGroupAttributesDictionary** out) {
-    if (!isGroupAttributesDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfGroupAttributesDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfReferenceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfReferenceDictionary** out) {
-    if (!isReferenceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfReferenceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPSXobjectDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPSXobjectDictionary** out) {
-    if (!isPSXobjectDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPSXobjectDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType1FontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1FontDictionary** out) {
-    if (!isType1FontDictionary(podofoDoc, podofoObj)) return false;
-
-    if (map(podofoDoc, podofoObj, (SkPdfMultiMasterFontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfTrueTypeFontDictionary**)out)) return true;
-    if (map(podofoDoc, podofoObj, (SkPdfType3FontDictionary**)out)) return true;
-
-    *out = new SkPdfType1FontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType3FontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3FontDictionary** out) {
-    if (!isType3FontDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType3FontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEncodingDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncodingDictionary** out) {
-    if (!isEncodingDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEncodingDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCIDSystemInfoDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDSystemInfoDictionary** out) {
-    if (!isCIDSystemInfoDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCIDSystemInfoDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCIDFontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDFontDictionary** out) {
-    if (!isCIDFontDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCIDFontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCMapDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCMapDictionary** out) {
-    if (!isCMapDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCMapDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType0FontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType0FontDictionary** out) {
-    if (!isType0FontDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType0FontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFontDescriptorDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFontDescriptorDictionary** out) {
-    if (!isFontDescriptorDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFontDescriptorDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCIDFontDescriptorDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDFontDescriptorDictionary** out) {
-    if (!isCIDFontDescriptorDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCIDFontDescriptorDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEmbeddedFontStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFontStreamDictionary** out) {
-    if (!isEmbeddedFontStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEmbeddedFontStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType1HalftoneDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1HalftoneDictionary** out) {
-    if (!isType1HalftoneDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType1HalftoneDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType6HalftoneDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType6HalftoneDictionary** out) {
-    if (!isType6HalftoneDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType6HalftoneDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType10HalftoneDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType10HalftoneDictionary** out) {
-    if (!isType10HalftoneDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType10HalftoneDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType16HalftoneDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType16HalftoneDictionary** out) {
-    if (!isType16HalftoneDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType16HalftoneDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfType5HalftoneDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType5HalftoneDictionary** out) {
-    if (!isType5HalftoneDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfType5HalftoneDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSoftMaskDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoftMaskDictionary** out) {
-    if (!isSoftMaskDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSoftMaskDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSoftMaskImageDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoftMaskImageDictionary** out) {
-    if (!isSoftMaskImageDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSoftMaskImageDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTransparencyGroupDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTransparencyGroupDictionary** out) {
-    if (!isTransparencyGroupDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTransparencyGroupDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfViewerPreferencesDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfViewerPreferencesDictionary** out) {
-    if (!isViewerPreferencesDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfViewerPreferencesDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfOutlineDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOutlineDictionary** out) {
-    if (!isOutlineDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfOutlineDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfOutlineItemDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOutlineItemDictionary** out) {
-    if (!isOutlineItemDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfOutlineItemDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPageLabelDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageLabelDictionary** out) {
-    if (!isPageLabelDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPageLabelDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfThreadDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfThreadDictionary** out) {
-    if (!isThreadDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfThreadDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBeadDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBeadDictionary** out) {
-    if (!isBeadDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBeadDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTransitionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTransitionDictionary** out) {
-    if (!isTransitionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTransitionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAnnotationDictionary** out) {
-    if (!isAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBorderStyleDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBorderStyleDictionary** out) {
-    if (!isBorderStyleDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBorderStyleDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAppearanceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAppearanceDictionary** out) {
-    if (!isAppearanceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAppearanceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTextAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTextAnnotationDictionary** out) {
-    if (!isTextAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTextAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfALinkAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfALinkAnnotationDictionary** out) {
-    if (!isALinkAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfALinkAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFreeTextAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFreeTextAnnotationDictionary** out) {
-    if (!isFreeTextAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFreeTextAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfLineAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLineAnnotationDictionary** out) {
-    if (!isLineAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfLineAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSquareOrCircleAnnotation** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSquareOrCircleAnnotation** out) {
-    if (!isSquareOrCircleAnnotation(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSquareOrCircleAnnotation(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMarkupAnnotationsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkupAnnotationsDictionary** out) {
-    if (!isMarkupAnnotationsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMarkupAnnotationsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfRubberStampAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRubberStampAnnotationDictionary** out) {
-    if (!isRubberStampAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfRubberStampAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfInkAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInkAnnotationDictionary** out) {
-    if (!isInkAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfInkAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPopUpAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPopUpAnnotationDictionary** out) {
-    if (!isPopUpAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPopUpAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFileAttachmentAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileAttachmentAnnotationDictionary** out) {
-    if (!isFileAttachmentAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFileAttachmentAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSoundAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundAnnotationDictionary** out) {
-    if (!isSoundAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSoundAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMovieAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieAnnotationDictionary** out) {
-    if (!isMovieAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMovieAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWidgetAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWidgetAnnotationDictionary** out) {
-    if (!isWidgetAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWidgetAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfActionDictionary** out) {
-    if (!isActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAnnotationActionsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAnnotationActionsDictionary** out) {
-    if (!isAnnotationActionsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAnnotationActionsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPageObjectActionsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageObjectActionsDictionary** out) {
-    if (!isPageObjectActionsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPageObjectActionsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFormFieldActionsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFormFieldActionsDictionary** out) {
-    if (!isFormFieldActionsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFormFieldActionsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfDocumentCatalogActionsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDocumentCatalogActionsDictionary** out) {
-    if (!isDocumentCatalogActionsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfDocumentCatalogActionsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfGoToActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGoToActionDictionary** out) {
-    if (!isGoToActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfGoToActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfRemoteGoToActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRemoteGoToActionDictionary** out) {
-    if (!isRemoteGoToActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfRemoteGoToActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfLaunchActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLaunchActionDictionary** out) {
-    if (!isLaunchActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfLaunchActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWindowsLaunchActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWindowsLaunchActionDictionary** out) {
-    if (!isWindowsLaunchActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWindowsLaunchActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfThreadActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfThreadActionDictionary** out) {
-    if (!isThreadActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfThreadActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfURIActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURIActionDictionary** out) {
-    if (!isURIActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfURIActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfURIDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURIDictionary** out) {
-    if (!isURIDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfURIDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSoundActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundActionDictionary** out) {
-    if (!isSoundActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSoundActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMovieActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieActionDictionary** out) {
-    if (!isMovieActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMovieActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfHideActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfHideActionDictionary** out) {
-    if (!isHideActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfHideActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfNamedActionsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNamedActionsDictionary** out) {
-    if (!isNamedActionsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfNamedActionsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfInteractiveFormDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInteractiveFormDictionary** out) {
-    if (!isInteractiveFormDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfInteractiveFormDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFieldDictionary** out) {
-    if (!isFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfVariableTextFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfVariableTextFieldDictionary** out) {
-    if (!isVariableTextFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfVariableTextFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAppearanceCharacteristicsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAppearanceCharacteristicsDictionary** out) {
-    if (!isAppearanceCharacteristicsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAppearanceCharacteristicsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfCheckboxFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCheckboxFieldDictionary** out) {
-    if (!isCheckboxFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfCheckboxFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfRadioButtonFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRadioButtonFieldDictionary** out) {
-    if (!isRadioButtonFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfRadioButtonFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTextFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTextFieldDictionary** out) {
-    if (!isTextFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTextFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfChoiceFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfChoiceFieldDictionary** out) {
-    if (!isChoiceFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfChoiceFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSignatureDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSignatureDictionary** out) {
-    if (!isSignatureDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSignatureDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSubmitFormActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSubmitFormActionDictionary** out) {
-    if (!isSubmitFormActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSubmitFormActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfResetFormActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfResetFormActionDictionary** out) {
-    if (!isResetFormActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfResetFormActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfImportDataActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfImportDataActionDictionary** out) {
-    if (!isImportDataActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfImportDataActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfJavascriptActionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJavascriptActionDictionary** out) {
-    if (!isJavascriptActionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfJavascriptActionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFTrailerDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFTrailerDictionary** out) {
-    if (!isFDFTrailerDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFTrailerDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFCatalogDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFCatalogDictionary** out) {
-    if (!isFDFCatalogDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFCatalogDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFDictionary** out) {
-    if (!isFDFDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfEncryptedEmbeddedFileStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncryptedEmbeddedFileStreamDictionary** out) {
-    if (!isEncryptedEmbeddedFileStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfEncryptedEmbeddedFileStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfJavascriptDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJavascriptDictionary** out) {
-    if (!isJavascriptDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfJavascriptDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFFieldDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFFieldDictionary** out) {
-    if (!isFDFFieldDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFFieldDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfIconFitDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfIconFitDictionary** out) {
-    if (!isIconFitDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfIconFitDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFPageDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFPageDictionary** out) {
-    if (!isFDFPageDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFPageDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFTemplateDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFTemplateDictionary** out) {
-    if (!isFDFTemplateDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFTemplateDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFNamedPageReferenceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFNamedPageReferenceDictionary** out) {
-    if (!isFDFNamedPageReferenceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFNamedPageReferenceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfFDFFileAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFFileAnnotationDictionary** out) {
-    if (!isFDFFileAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfFDFFileAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSoundObjectDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundObjectDictionary** out) {
-    if (!isSoundObjectDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSoundObjectDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMovieDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieDictionary** out) {
-    if (!isMovieDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMovieDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMovieActivationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieActivationDictionary** out) {
-    if (!isMovieActivationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMovieActivationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfDocumentInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDocumentInformationDictionary** out) {
-    if (!isDocumentInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfDocumentInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMetadataStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMetadataStreamDictionary** out) {
-    if (!isMetadataStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMetadataStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfComponentsWithMetadataDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfComponentsWithMetadataDictionary** out) {
-    if (!isComponentsWithMetadataDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfComponentsWithMetadataDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPagePieceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPagePieceDictionary** out) {
-    if (!isPagePieceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPagePieceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfApplicationDataDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfApplicationDataDictionary** out) {
-    if (!isApplicationDataDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfApplicationDataDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStructureTreeRootDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureTreeRootDictionary** out) {
-    if (!isStructureTreeRootDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStructureTreeRootDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStructureElementDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureElementDictionary** out) {
-    if (!isStructureElementDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStructureElementDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMarkedContentReferenceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkedContentReferenceDictionary** out) {
-    if (!isMarkedContentReferenceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMarkedContentReferenceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfObjectReferenceDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObjectReferenceDictionary** out) {
-    if (!isObjectReferenceDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfObjectReferenceDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStructureElementAccessDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureElementAccessDictionary** out) {
-    if (!isStructureElementAccessDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStructureElementAccessDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfAttributeObjectDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAttributeObjectDictionary** out) {
-    if (!isAttributeObjectDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfAttributeObjectDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMarkInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkInformationDictionary** out) {
-    if (!isMarkInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMarkInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfArtifactsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfArtifactsDictionary** out) {
-    if (!isArtifactsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfArtifactsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfStandardStructureDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStandardStructureDictionary** out) {
-    if (!isStandardStructureDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfStandardStructureDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBlockLevelStructureElementsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBlockLevelStructureElementsDictionary** out) {
-    if (!isBlockLevelStructureElementsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBlockLevelStructureElementsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfInlineLevelStructureElementsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInlineLevelStructureElementsDictionary** out) {
-    if (!isInlineLevelStructureElementsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfInlineLevelStructureElementsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfListAttributeDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfListAttributeDictionary** out) {
-    if (!isListAttributeDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfListAttributeDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTableAttributesDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTableAttributesDictionary** out) {
-    if (!isTableAttributesDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTableAttributesDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCaptureInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureInformationDictionary** out) {
-    if (!isWebCaptureInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCaptureInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCaptureDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureDictionary** out) {
-    if (!isWebCaptureDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCaptureDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCapturePageSetDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCapturePageSetDictionary** out) {
-    if (!isWebCapturePageSetDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCapturePageSetDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCaptureImageSetDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureImageSetDictionary** out) {
-    if (!isWebCaptureImageSetDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCaptureImageSetDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSourceInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSourceInformationDictionary** out) {
-    if (!isSourceInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSourceInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfURLAliasDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURLAliasDictionary** out) {
-    if (!isURLAliasDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfURLAliasDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCaptureCommandDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureCommandDictionary** out) {
-    if (!isWebCaptureCommandDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCaptureCommandDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfWebCaptureCommandSettingsDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureCommandSettingsDictionary** out) {
-    if (!isWebCaptureCommandSettingsDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfWebCaptureCommandSettingsDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBoxColorInformationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoxColorInformationDictionary** out) {
-    if (!isBoxColorInformationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBoxColorInformationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfBoxStyleDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoxStyleDictionary** out) {
-    if (!isBoxStyleDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfBoxStyleDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPrinterMarkAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPrinterMarkAnnotationDictionary** out) {
-    if (!isPrinterMarkAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPrinterMarkAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPrinterMarkFormDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPrinterMarkFormDictionary** out) {
-    if (!isPrinterMarkFormDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPrinterMarkFormDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfSeparationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSeparationDictionary** out) {
-    if (!isSeparationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfSeparationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfPDF_XOutputIntentDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPDF_XOutputIntentDictionary** out) {
-    if (!isPDF_XOutputIntentDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfPDF_XOutputIntentDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTrapNetworkAnnotationDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrapNetworkAnnotationDictionary** out) {
-    if (!isTrapNetworkAnnotationDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTrapNetworkAnnotationDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfTrapNetworkAppearanceStreamDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrapNetworkAppearanceStreamDictionary** out) {
-    if (!isTrapNetworkAppearanceStreamDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfTrapNetworkAppearanceStreamDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfOpiVersionDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOpiVersionDictionary** out) {
-    if (!isOpiVersionDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfOpiVersionDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool map(const SkPdfObject& in, SkPdfMultiMasterFontDictionary** out) {
-    return map(*in.doc(), *in.podofo(), out);
-  }
-
-  static bool map(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMultiMasterFontDictionary** out) {
-    if (!isMultiMasterFontDictionary(podofoDoc, podofoObj)) return false;
-
-
-    *out = new SkPdfMultiMasterFontDictionary(&podofoDoc, &podofoObj);
-    return true;
-  }
-
-  static bool isObject(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isNull(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Null;
-  }
-
-  static bool isBoolean(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Bool;
-  }
-
-  static bool isInteger(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real;
-  }
-
-  static bool isNumber(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real;
-  }
-
-  static bool isName(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Name;
-  }
-
-  static bool isReference(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Reference;
-  }
-
-  static bool isArray(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Array;
-  }
-
-  static bool isString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString;
-  }
-
-  static bool isHexString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_HexString;
-  }
-
-  static bool isDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return podofoObj.GetDataType() == ePdfDataType_Dictionary;
-  }
-
-  static bool isStream(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isXObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTrueTypeFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "TrueType")) return false;
-
-    return true;
-  }
-
-  static bool isStreamCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isLzwdecodeAndFlatedecodeFiltersDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCcittfaxdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isJbig2DecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isDctdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFileTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isEncryptionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isStandardSecurityHandlerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPageTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPageObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isNameDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isResourceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isNameTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isNumberTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFunctionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType0FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType2FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType3FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFileSpecificationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isEmbeddedFileParameterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMacOsFileInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isGraphicsStateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCalgrayColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCalrgbColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isLabColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isIccProfileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isDeviceNColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType1PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType2PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType1ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType2ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType3ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType4ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType5ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType6ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "Image")) return false;
-
-    return true;
-  }
-
-  static bool isAlternateImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType1FormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "Form")) return false;
-
-    return true;
-  }
-
-  static bool isGroupAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPSXobjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType1FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "MMType1") && (Subtype != "TrueType") && (Subtype != "Type3") && (Subtype != "Type1")) return false;
-
-    return true;
-  }
-
-  static bool isType3FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "Type3")) return false;
-
-    return true;
-  }
-
-  static bool isEncodingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCIDSystemInfoDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCIDFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "CIDFontType0") && (Subtype != "CIDFontType2")) return false;
-
-    return true;
-  }
-
-  static bool isCMapDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType0FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "Type0")) return false;
-
-    return true;
-  }
-
-  static bool isFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCIDFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isEmbeddedFontStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType1HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType6HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType10HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType16HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isType5HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSoftMaskDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSoftMaskImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTransparencyGroupDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isViewerPreferencesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isOutlineDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isOutlineItemDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPageLabelDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isThreadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isBeadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTransitionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isBorderStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isAppearanceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isALinkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFreeTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isLineAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSquareOrCircleAnnotation(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMarkupAnnotationsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isRubberStampAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isInkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPopUpAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFileAttachmentAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSoundAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMovieAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWidgetAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isAnnotationActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPageObjectActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFormFieldActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isDocumentCatalogActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isRemoteGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWindowsLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isThreadActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isURIActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isURIDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSoundActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMovieActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isHideActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isNamedActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isInteractiveFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isVariableTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isAppearanceCharacteristicsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isCheckboxFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isRadioButtonFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isChoiceFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSignatureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSubmitFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isResetFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isImportDataActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isJavascriptActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isEncryptedEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isJavascriptDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isIconFitDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFPageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFTemplateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFNamedPageReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isFDFFileAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSoundObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMovieDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMovieActivationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isDocumentInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMetadataStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isComponentsWithMetadataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPagePieceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isApplicationDataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isStructureTreeRootDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isStructureElementDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMarkedContentReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isObjectReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isStructureElementAccessDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isAttributeObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMarkInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isArtifactsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isStandardStructureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isBlockLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isInlineLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isListAttributeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTableAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCaptureInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCaptureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCapturePageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCaptureImageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSourceInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isURLAliasDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCaptureCommandDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isWebCaptureCommandSettingsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isBoxColorInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isBoxStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPrinterMarkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPrinterMarkFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isSeparationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isPDF_XOutputIntentDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTrapNetworkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isTrapNetworkAppearanceStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isOpiVersionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    return true;
-  }
-
-  static bool isMultiMasterFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
-    std::string Subtype;
-    if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
-    if ((Subtype != "MMType1")) return false;
-
-    return true;
-  }
-
-};
+bool mapObject(const SkPdfObject& in, SkPdfObject** out);
+bool mapObject(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out);
+bool mapNull(const SkPdfObject& in, SkPdfNull** out);
+bool mapNull(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNull** out);
+bool mapBoolean(const SkPdfObject& in, SkPdfBoolean** out);
+bool mapBoolean(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoolean** out);
+bool mapInteger(const SkPdfObject& in, SkPdfInteger** out);
+bool mapInteger(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInteger** out);
+bool mapNumber(const SkPdfObject& in, SkPdfNumber** out);
+bool mapNumber(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNumber** out);
+bool mapName(const SkPdfObject& in, SkPdfName** out);
+bool mapName(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfName** out);
+bool mapReference(const SkPdfObject& in, SkPdfReference** out);
+bool mapReference(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfReference** out);
+bool mapArray(const SkPdfObject& in, SkPdfArray** out);
+bool mapArray(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfArray** out);
+bool mapString(const SkPdfObject& in, SkPdfString** out);
+bool mapString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfString** out);
+bool mapHexString(const SkPdfObject& in, SkPdfHexString** out);
+bool mapHexString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfHexString** out);
+bool mapDictionary(const SkPdfObject& in, SkPdfDictionary** out);
+bool mapDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDictionary** out);
+bool mapStream(const SkPdfObject& in, SkPdfStream** out);
+bool mapStream(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStream** out);
+bool mapXObjectDictionary(const SkPdfObject& in, SkPdfXObjectDictionary** out);
+bool mapXObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfXObjectDictionary** out);
+bool mapFontDictionary(const SkPdfObject& in, SkPdfFontDictionary** out);
+bool mapFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFontDictionary** out);
+bool mapTrueTypeFontDictionary(const SkPdfObject& in, SkPdfTrueTypeFontDictionary** out);
+bool mapTrueTypeFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrueTypeFontDictionary** out);
+bool mapStreamCommonDictionary(const SkPdfObject& in, SkPdfStreamCommonDictionary** out);
+bool mapStreamCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStreamCommonDictionary** out);
+bool mapLzwdecodeAndFlatedecodeFiltersDictionary(const SkPdfObject& in, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** out);
+bool mapLzwdecodeAndFlatedecodeFiltersDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** out);
+bool mapCcittfaxdecodeFilterDictionary(const SkPdfObject& in, SkPdfCcittfaxdecodeFilterDictionary** out);
+bool mapCcittfaxdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCcittfaxdecodeFilterDictionary** out);
+bool mapJbig2DecodeFilterDictionary(const SkPdfObject& in, SkPdfJbig2DecodeFilterDictionary** out);
+bool mapJbig2DecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJbig2DecodeFilterDictionary** out);
+bool mapDctdecodeFilterDictionary(const SkPdfObject& in, SkPdfDctdecodeFilterDictionary** out);
+bool mapDctdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDctdecodeFilterDictionary** out);
+bool mapFileTrailerDictionary(const SkPdfObject& in, SkPdfFileTrailerDictionary** out);
+bool mapFileTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileTrailerDictionary** out);
+bool mapEncryptionCommonDictionary(const SkPdfObject& in, SkPdfEncryptionCommonDictionary** out);
+bool mapEncryptionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncryptionCommonDictionary** out);
+bool mapStandardSecurityHandlerDictionary(const SkPdfObject& in, SkPdfStandardSecurityHandlerDictionary** out);
+bool mapStandardSecurityHandlerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStandardSecurityHandlerDictionary** out);
+bool mapCatalogDictionary(const SkPdfObject& in, SkPdfCatalogDictionary** out);
+bool mapCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCatalogDictionary** out);
+bool mapPageTreeNodeDictionary(const SkPdfObject& in, SkPdfPageTreeNodeDictionary** out);
+bool mapPageTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageTreeNodeDictionary** out);
+bool mapPageObjectDictionary(const SkPdfObject& in, SkPdfPageObjectDictionary** out);
+bool mapPageObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageObjectDictionary** out);
+bool mapNameDictionary(const SkPdfObject& in, SkPdfNameDictionary** out);
+bool mapNameDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNameDictionary** out);
+bool mapResourceDictionary(const SkPdfObject& in, SkPdfResourceDictionary** out);
+bool mapResourceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfResourceDictionary** out);
+bool mapNameTreeNodeDictionary(const SkPdfObject& in, SkPdfNameTreeNodeDictionary** out);
+bool mapNameTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNameTreeNodeDictionary** out);
+bool mapNumberTreeNodeDictionary(const SkPdfObject& in, SkPdfNumberTreeNodeDictionary** out);
+bool mapNumberTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNumberTreeNodeDictionary** out);
+bool mapFunctionCommonDictionary(const SkPdfObject& in, SkPdfFunctionCommonDictionary** out);
+bool mapFunctionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFunctionCommonDictionary** out);
+bool mapType0FunctionDictionary(const SkPdfObject& in, SkPdfType0FunctionDictionary** out);
+bool mapType0FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType0FunctionDictionary** out);
+bool mapType2FunctionDictionary(const SkPdfObject& in, SkPdfType2FunctionDictionary** out);
+bool mapType2FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2FunctionDictionary** out);
+bool mapType3FunctionDictionary(const SkPdfObject& in, SkPdfType3FunctionDictionary** out);
+bool mapType3FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3FunctionDictionary** out);
+bool mapFileSpecificationDictionary(const SkPdfObject& in, SkPdfFileSpecificationDictionary** out);
+bool mapFileSpecificationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileSpecificationDictionary** out);
+bool mapEmbeddedFileStreamDictionary(const SkPdfObject& in, SkPdfEmbeddedFileStreamDictionary** out);
+bool mapEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFileStreamDictionary** out);
+bool mapEmbeddedFileParameterDictionary(const SkPdfObject& in, SkPdfEmbeddedFileParameterDictionary** out);
+bool mapEmbeddedFileParameterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFileParameterDictionary** out);
+bool mapMacOsFileInformationDictionary(const SkPdfObject& in, SkPdfMacOsFileInformationDictionary** out);
+bool mapMacOsFileInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMacOsFileInformationDictionary** out);
+bool mapGraphicsStateDictionary(const SkPdfObject& in, SkPdfGraphicsStateDictionary** out);
+bool mapGraphicsStateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGraphicsStateDictionary** out);
+bool mapCalgrayColorSpaceDictionary(const SkPdfObject& in, SkPdfCalgrayColorSpaceDictionary** out);
+bool mapCalgrayColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCalgrayColorSpaceDictionary** out);
+bool mapCalrgbColorSpaceDictionary(const SkPdfObject& in, SkPdfCalrgbColorSpaceDictionary** out);
+bool mapCalrgbColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCalrgbColorSpaceDictionary** out);
+bool mapLabColorSpaceDictionary(const SkPdfObject& in, SkPdfLabColorSpaceDictionary** out);
+bool mapLabColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLabColorSpaceDictionary** out);
+bool mapIccProfileStreamDictionary(const SkPdfObject& in, SkPdfIccProfileStreamDictionary** out);
+bool mapIccProfileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfIccProfileStreamDictionary** out);
+bool mapDeviceNColorSpaceDictionary(const SkPdfObject& in, SkPdfDeviceNColorSpaceDictionary** out);
+bool mapDeviceNColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDeviceNColorSpaceDictionary** out);
+bool mapType1PatternDictionary(const SkPdfObject& in, SkPdfType1PatternDictionary** out);
+bool mapType1PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1PatternDictionary** out);
+bool mapType2PatternDictionary(const SkPdfObject& in, SkPdfType2PatternDictionary** out);
+bool mapType2PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2PatternDictionary** out);
+bool mapShadingDictionary(const SkPdfObject& in, SkPdfShadingDictionary** out);
+bool mapShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfShadingDictionary** out);
+bool mapType1ShadingDictionary(const SkPdfObject& in, SkPdfType1ShadingDictionary** out);
+bool mapType1ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1ShadingDictionary** out);
+bool mapType2ShadingDictionary(const SkPdfObject& in, SkPdfType2ShadingDictionary** out);
+bool mapType2ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType2ShadingDictionary** out);
+bool mapType3ShadingDictionary(const SkPdfObject& in, SkPdfType3ShadingDictionary** out);
+bool mapType3ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3ShadingDictionary** out);
+bool mapType4ShadingDictionary(const SkPdfObject& in, SkPdfType4ShadingDictionary** out);
+bool mapType4ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType4ShadingDictionary** out);
+bool mapType5ShadingDictionary(const SkPdfObject& in, SkPdfType5ShadingDictionary** out);
+bool mapType5ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType5ShadingDictionary** out);
+bool mapType6ShadingDictionary(const SkPdfObject& in, SkPdfType6ShadingDictionary** out);
+bool mapType6ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType6ShadingDictionary** out);
+bool mapImageDictionary(const SkPdfObject& in, SkPdfImageDictionary** out);
+bool mapImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfImageDictionary** out);
+bool mapAlternateImageDictionary(const SkPdfObject& in, SkPdfAlternateImageDictionary** out);
+bool mapAlternateImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAlternateImageDictionary** out);
+bool mapType1FormDictionary(const SkPdfObject& in, SkPdfType1FormDictionary** out);
+bool mapType1FormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1FormDictionary** out);
+bool mapGroupAttributesDictionary(const SkPdfObject& in, SkPdfGroupAttributesDictionary** out);
+bool mapGroupAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGroupAttributesDictionary** out);
+bool mapReferenceDictionary(const SkPdfObject& in, SkPdfReferenceDictionary** out);
+bool mapReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfReferenceDictionary** out);
+bool mapPSXobjectDictionary(const SkPdfObject& in, SkPdfPSXobjectDictionary** out);
+bool mapPSXobjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPSXobjectDictionary** out);
+bool mapType1FontDictionary(const SkPdfObject& in, SkPdfType1FontDictionary** out);
+bool mapType1FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1FontDictionary** out);
+bool mapType3FontDictionary(const SkPdfObject& in, SkPdfType3FontDictionary** out);
+bool mapType3FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType3FontDictionary** out);
+bool mapEncodingDictionary(const SkPdfObject& in, SkPdfEncodingDictionary** out);
+bool mapEncodingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncodingDictionary** out);
+bool mapCIDSystemInfoDictionary(const SkPdfObject& in, SkPdfCIDSystemInfoDictionary** out);
+bool mapCIDSystemInfoDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDSystemInfoDictionary** out);
+bool mapCIDFontDictionary(const SkPdfObject& in, SkPdfCIDFontDictionary** out);
+bool mapCIDFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDFontDictionary** out);
+bool mapCMapDictionary(const SkPdfObject& in, SkPdfCMapDictionary** out);
+bool mapCMapDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCMapDictionary** out);
+bool mapType0FontDictionary(const SkPdfObject& in, SkPdfType0FontDictionary** out);
+bool mapType0FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType0FontDictionary** out);
+bool mapFontDescriptorDictionary(const SkPdfObject& in, SkPdfFontDescriptorDictionary** out);
+bool mapFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFontDescriptorDictionary** out);
+bool mapCIDFontDescriptorDictionary(const SkPdfObject& in, SkPdfCIDFontDescriptorDictionary** out);
+bool mapCIDFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCIDFontDescriptorDictionary** out);
+bool mapEmbeddedFontStreamDictionary(const SkPdfObject& in, SkPdfEmbeddedFontStreamDictionary** out);
+bool mapEmbeddedFontStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEmbeddedFontStreamDictionary** out);
+bool mapType1HalftoneDictionary(const SkPdfObject& in, SkPdfType1HalftoneDictionary** out);
+bool mapType1HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType1HalftoneDictionary** out);
+bool mapType6HalftoneDictionary(const SkPdfObject& in, SkPdfType6HalftoneDictionary** out);
+bool mapType6HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType6HalftoneDictionary** out);
+bool mapType10HalftoneDictionary(const SkPdfObject& in, SkPdfType10HalftoneDictionary** out);
+bool mapType10HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType10HalftoneDictionary** out);
+bool mapType16HalftoneDictionary(const SkPdfObject& in, SkPdfType16HalftoneDictionary** out);
+bool mapType16HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType16HalftoneDictionary** out);
+bool mapType5HalftoneDictionary(const SkPdfObject& in, SkPdfType5HalftoneDictionary** out);
+bool mapType5HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfType5HalftoneDictionary** out);
+bool mapSoftMaskDictionary(const SkPdfObject& in, SkPdfSoftMaskDictionary** out);
+bool mapSoftMaskDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoftMaskDictionary** out);
+bool mapSoftMaskImageDictionary(const SkPdfObject& in, SkPdfSoftMaskImageDictionary** out);
+bool mapSoftMaskImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoftMaskImageDictionary** out);
+bool mapTransparencyGroupDictionary(const SkPdfObject& in, SkPdfTransparencyGroupDictionary** out);
+bool mapTransparencyGroupDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTransparencyGroupDictionary** out);
+bool mapViewerPreferencesDictionary(const SkPdfObject& in, SkPdfViewerPreferencesDictionary** out);
+bool mapViewerPreferencesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfViewerPreferencesDictionary** out);
+bool mapOutlineDictionary(const SkPdfObject& in, SkPdfOutlineDictionary** out);
+bool mapOutlineDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOutlineDictionary** out);
+bool mapOutlineItemDictionary(const SkPdfObject& in, SkPdfOutlineItemDictionary** out);
+bool mapOutlineItemDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOutlineItemDictionary** out);
+bool mapPageLabelDictionary(const SkPdfObject& in, SkPdfPageLabelDictionary** out);
+bool mapPageLabelDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageLabelDictionary** out);
+bool mapThreadDictionary(const SkPdfObject& in, SkPdfThreadDictionary** out);
+bool mapThreadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfThreadDictionary** out);
+bool mapBeadDictionary(const SkPdfObject& in, SkPdfBeadDictionary** out);
+bool mapBeadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBeadDictionary** out);
+bool mapTransitionDictionary(const SkPdfObject& in, SkPdfTransitionDictionary** out);
+bool mapTransitionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTransitionDictionary** out);
+bool mapAnnotationDictionary(const SkPdfObject& in, SkPdfAnnotationDictionary** out);
+bool mapAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAnnotationDictionary** out);
+bool mapBorderStyleDictionary(const SkPdfObject& in, SkPdfBorderStyleDictionary** out);
+bool mapBorderStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBorderStyleDictionary** out);
+bool mapAppearanceDictionary(const SkPdfObject& in, SkPdfAppearanceDictionary** out);
+bool mapAppearanceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAppearanceDictionary** out);
+bool mapTextAnnotationDictionary(const SkPdfObject& in, SkPdfTextAnnotationDictionary** out);
+bool mapTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTextAnnotationDictionary** out);
+bool mapALinkAnnotationDictionary(const SkPdfObject& in, SkPdfALinkAnnotationDictionary** out);
+bool mapALinkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfALinkAnnotationDictionary** out);
+bool mapFreeTextAnnotationDictionary(const SkPdfObject& in, SkPdfFreeTextAnnotationDictionary** out);
+bool mapFreeTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFreeTextAnnotationDictionary** out);
+bool mapLineAnnotationDictionary(const SkPdfObject& in, SkPdfLineAnnotationDictionary** out);
+bool mapLineAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLineAnnotationDictionary** out);
+bool mapSquareOrCircleAnnotation(const SkPdfObject& in, SkPdfSquareOrCircleAnnotation** out);
+bool mapSquareOrCircleAnnotation(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSquareOrCircleAnnotation** out);
+bool mapMarkupAnnotationsDictionary(const SkPdfObject& in, SkPdfMarkupAnnotationsDictionary** out);
+bool mapMarkupAnnotationsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkupAnnotationsDictionary** out);
+bool mapRubberStampAnnotationDictionary(const SkPdfObject& in, SkPdfRubberStampAnnotationDictionary** out);
+bool mapRubberStampAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRubberStampAnnotationDictionary** out);
+bool mapInkAnnotationDictionary(const SkPdfObject& in, SkPdfInkAnnotationDictionary** out);
+bool mapInkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInkAnnotationDictionary** out);
+bool mapPopUpAnnotationDictionary(const SkPdfObject& in, SkPdfPopUpAnnotationDictionary** out);
+bool mapPopUpAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPopUpAnnotationDictionary** out);
+bool mapFileAttachmentAnnotationDictionary(const SkPdfObject& in, SkPdfFileAttachmentAnnotationDictionary** out);
+bool mapFileAttachmentAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFileAttachmentAnnotationDictionary** out);
+bool mapSoundAnnotationDictionary(const SkPdfObject& in, SkPdfSoundAnnotationDictionary** out);
+bool mapSoundAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundAnnotationDictionary** out);
+bool mapMovieAnnotationDictionary(const SkPdfObject& in, SkPdfMovieAnnotationDictionary** out);
+bool mapMovieAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieAnnotationDictionary** out);
+bool mapWidgetAnnotationDictionary(const SkPdfObject& in, SkPdfWidgetAnnotationDictionary** out);
+bool mapWidgetAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWidgetAnnotationDictionary** out);
+bool mapActionDictionary(const SkPdfObject& in, SkPdfActionDictionary** out);
+bool mapActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfActionDictionary** out);
+bool mapAnnotationActionsDictionary(const SkPdfObject& in, SkPdfAnnotationActionsDictionary** out);
+bool mapAnnotationActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAnnotationActionsDictionary** out);
+bool mapPageObjectActionsDictionary(const SkPdfObject& in, SkPdfPageObjectActionsDictionary** out);
+bool mapPageObjectActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPageObjectActionsDictionary** out);
+bool mapFormFieldActionsDictionary(const SkPdfObject& in, SkPdfFormFieldActionsDictionary** out);
+bool mapFormFieldActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFormFieldActionsDictionary** out);
+bool mapDocumentCatalogActionsDictionary(const SkPdfObject& in, SkPdfDocumentCatalogActionsDictionary** out);
+bool mapDocumentCatalogActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDocumentCatalogActionsDictionary** out);
+bool mapGoToActionDictionary(const SkPdfObject& in, SkPdfGoToActionDictionary** out);
+bool mapGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfGoToActionDictionary** out);
+bool mapRemoteGoToActionDictionary(const SkPdfObject& in, SkPdfRemoteGoToActionDictionary** out);
+bool mapRemoteGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRemoteGoToActionDictionary** out);
+bool mapLaunchActionDictionary(const SkPdfObject& in, SkPdfLaunchActionDictionary** out);
+bool mapLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfLaunchActionDictionary** out);
+bool mapWindowsLaunchActionDictionary(const SkPdfObject& in, SkPdfWindowsLaunchActionDictionary** out);
+bool mapWindowsLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWindowsLaunchActionDictionary** out);
+bool mapThreadActionDictionary(const SkPdfObject& in, SkPdfThreadActionDictionary** out);
+bool mapThreadActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfThreadActionDictionary** out);
+bool mapURIActionDictionary(const SkPdfObject& in, SkPdfURIActionDictionary** out);
+bool mapURIActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURIActionDictionary** out);
+bool mapURIDictionary(const SkPdfObject& in, SkPdfURIDictionary** out);
+bool mapURIDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURIDictionary** out);
+bool mapSoundActionDictionary(const SkPdfObject& in, SkPdfSoundActionDictionary** out);
+bool mapSoundActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundActionDictionary** out);
+bool mapMovieActionDictionary(const SkPdfObject& in, SkPdfMovieActionDictionary** out);
+bool mapMovieActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieActionDictionary** out);
+bool mapHideActionDictionary(const SkPdfObject& in, SkPdfHideActionDictionary** out);
+bool mapHideActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfHideActionDictionary** out);
+bool mapNamedActionsDictionary(const SkPdfObject& in, SkPdfNamedActionsDictionary** out);
+bool mapNamedActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfNamedActionsDictionary** out);
+bool mapInteractiveFormDictionary(const SkPdfObject& in, SkPdfInteractiveFormDictionary** out);
+bool mapInteractiveFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInteractiveFormDictionary** out);
+bool mapFieldDictionary(const SkPdfObject& in, SkPdfFieldDictionary** out);
+bool mapFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFieldDictionary** out);
+bool mapVariableTextFieldDictionary(const SkPdfObject& in, SkPdfVariableTextFieldDictionary** out);
+bool mapVariableTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfVariableTextFieldDictionary** out);
+bool mapAppearanceCharacteristicsDictionary(const SkPdfObject& in, SkPdfAppearanceCharacteristicsDictionary** out);
+bool mapAppearanceCharacteristicsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAppearanceCharacteristicsDictionary** out);
+bool mapCheckboxFieldDictionary(const SkPdfObject& in, SkPdfCheckboxFieldDictionary** out);
+bool mapCheckboxFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfCheckboxFieldDictionary** out);
+bool mapRadioButtonFieldDictionary(const SkPdfObject& in, SkPdfRadioButtonFieldDictionary** out);
+bool mapRadioButtonFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfRadioButtonFieldDictionary** out);
+bool mapTextFieldDictionary(const SkPdfObject& in, SkPdfTextFieldDictionary** out);
+bool mapTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTextFieldDictionary** out);
+bool mapChoiceFieldDictionary(const SkPdfObject& in, SkPdfChoiceFieldDictionary** out);
+bool mapChoiceFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfChoiceFieldDictionary** out);
+bool mapSignatureDictionary(const SkPdfObject& in, SkPdfSignatureDictionary** out);
+bool mapSignatureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSignatureDictionary** out);
+bool mapSubmitFormActionDictionary(const SkPdfObject& in, SkPdfSubmitFormActionDictionary** out);
+bool mapSubmitFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSubmitFormActionDictionary** out);
+bool mapResetFormActionDictionary(const SkPdfObject& in, SkPdfResetFormActionDictionary** out);
+bool mapResetFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfResetFormActionDictionary** out);
+bool mapImportDataActionDictionary(const SkPdfObject& in, SkPdfImportDataActionDictionary** out);
+bool mapImportDataActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfImportDataActionDictionary** out);
+bool mapJavascriptActionDictionary(const SkPdfObject& in, SkPdfJavascriptActionDictionary** out);
+bool mapJavascriptActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJavascriptActionDictionary** out);
+bool mapFDFTrailerDictionary(const SkPdfObject& in, SkPdfFDFTrailerDictionary** out);
+bool mapFDFTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFTrailerDictionary** out);
+bool mapFDFCatalogDictionary(const SkPdfObject& in, SkPdfFDFCatalogDictionary** out);
+bool mapFDFCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFCatalogDictionary** out);
+bool mapFDFDictionary(const SkPdfObject& in, SkPdfFDFDictionary** out);
+bool mapFDFDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFDictionary** out);
+bool mapEncryptedEmbeddedFileStreamDictionary(const SkPdfObject& in, SkPdfEncryptedEmbeddedFileStreamDictionary** out);
+bool mapEncryptedEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfEncryptedEmbeddedFileStreamDictionary** out);
+bool mapJavascriptDictionary(const SkPdfObject& in, SkPdfJavascriptDictionary** out);
+bool mapJavascriptDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfJavascriptDictionary** out);
+bool mapFDFFieldDictionary(const SkPdfObject& in, SkPdfFDFFieldDictionary** out);
+bool mapFDFFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFFieldDictionary** out);
+bool mapIconFitDictionary(const SkPdfObject& in, SkPdfIconFitDictionary** out);
+bool mapIconFitDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfIconFitDictionary** out);
+bool mapFDFPageDictionary(const SkPdfObject& in, SkPdfFDFPageDictionary** out);
+bool mapFDFPageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFPageDictionary** out);
+bool mapFDFTemplateDictionary(const SkPdfObject& in, SkPdfFDFTemplateDictionary** out);
+bool mapFDFTemplateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFTemplateDictionary** out);
+bool mapFDFNamedPageReferenceDictionary(const SkPdfObject& in, SkPdfFDFNamedPageReferenceDictionary** out);
+bool mapFDFNamedPageReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFNamedPageReferenceDictionary** out);
+bool mapFDFFileAnnotationDictionary(const SkPdfObject& in, SkPdfFDFFileAnnotationDictionary** out);
+bool mapFDFFileAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFDFFileAnnotationDictionary** out);
+bool mapSoundObjectDictionary(const SkPdfObject& in, SkPdfSoundObjectDictionary** out);
+bool mapSoundObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSoundObjectDictionary** out);
+bool mapMovieDictionary(const SkPdfObject& in, SkPdfMovieDictionary** out);
+bool mapMovieDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieDictionary** out);
+bool mapMovieActivationDictionary(const SkPdfObject& in, SkPdfMovieActivationDictionary** out);
+bool mapMovieActivationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMovieActivationDictionary** out);
+bool mapDocumentInformationDictionary(const SkPdfObject& in, SkPdfDocumentInformationDictionary** out);
+bool mapDocumentInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfDocumentInformationDictionary** out);
+bool mapMetadataStreamDictionary(const SkPdfObject& in, SkPdfMetadataStreamDictionary** out);
+bool mapMetadataStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMetadataStreamDictionary** out);
+bool mapComponentsWithMetadataDictionary(const SkPdfObject& in, SkPdfComponentsWithMetadataDictionary** out);
+bool mapComponentsWithMetadataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfComponentsWithMetadataDictionary** out);
+bool mapPagePieceDictionary(const SkPdfObject& in, SkPdfPagePieceDictionary** out);
+bool mapPagePieceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPagePieceDictionary** out);
+bool mapApplicationDataDictionary(const SkPdfObject& in, SkPdfApplicationDataDictionary** out);
+bool mapApplicationDataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfApplicationDataDictionary** out);
+bool mapStructureTreeRootDictionary(const SkPdfObject& in, SkPdfStructureTreeRootDictionary** out);
+bool mapStructureTreeRootDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureTreeRootDictionary** out);
+bool mapStructureElementDictionary(const SkPdfObject& in, SkPdfStructureElementDictionary** out);
+bool mapStructureElementDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureElementDictionary** out);
+bool mapMarkedContentReferenceDictionary(const SkPdfObject& in, SkPdfMarkedContentReferenceDictionary** out);
+bool mapMarkedContentReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkedContentReferenceDictionary** out);
+bool mapObjectReferenceDictionary(const SkPdfObject& in, SkPdfObjectReferenceDictionary** out);
+bool mapObjectReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObjectReferenceDictionary** out);
+bool mapStructureElementAccessDictionary(const SkPdfObject& in, SkPdfStructureElementAccessDictionary** out);
+bool mapStructureElementAccessDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStructureElementAccessDictionary** out);
+bool mapAttributeObjectDictionary(const SkPdfObject& in, SkPdfAttributeObjectDictionary** out);
+bool mapAttributeObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfAttributeObjectDictionary** out);
+bool mapMarkInformationDictionary(const SkPdfObject& in, SkPdfMarkInformationDictionary** out);
+bool mapMarkInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMarkInformationDictionary** out);
+bool mapArtifactsDictionary(const SkPdfObject& in, SkPdfArtifactsDictionary** out);
+bool mapArtifactsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfArtifactsDictionary** out);
+bool mapStandardStructureDictionary(const SkPdfObject& in, SkPdfStandardStructureDictionary** out);
+bool mapStandardStructureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfStandardStructureDictionary** out);
+bool mapBlockLevelStructureElementsDictionary(const SkPdfObject& in, SkPdfBlockLevelStructureElementsDictionary** out);
+bool mapBlockLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBlockLevelStructureElementsDictionary** out);
+bool mapInlineLevelStructureElementsDictionary(const SkPdfObject& in, SkPdfInlineLevelStructureElementsDictionary** out);
+bool mapInlineLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfInlineLevelStructureElementsDictionary** out);
+bool mapListAttributeDictionary(const SkPdfObject& in, SkPdfListAttributeDictionary** out);
+bool mapListAttributeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfListAttributeDictionary** out);
+bool mapTableAttributesDictionary(const SkPdfObject& in, SkPdfTableAttributesDictionary** out);
+bool mapTableAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTableAttributesDictionary** out);
+bool mapWebCaptureInformationDictionary(const SkPdfObject& in, SkPdfWebCaptureInformationDictionary** out);
+bool mapWebCaptureInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureInformationDictionary** out);
+bool mapWebCaptureDictionary(const SkPdfObject& in, SkPdfWebCaptureDictionary** out);
+bool mapWebCaptureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureDictionary** out);
+bool mapWebCapturePageSetDictionary(const SkPdfObject& in, SkPdfWebCapturePageSetDictionary** out);
+bool mapWebCapturePageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCapturePageSetDictionary** out);
+bool mapWebCaptureImageSetDictionary(const SkPdfObject& in, SkPdfWebCaptureImageSetDictionary** out);
+bool mapWebCaptureImageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureImageSetDictionary** out);
+bool mapSourceInformationDictionary(const SkPdfObject& in, SkPdfSourceInformationDictionary** out);
+bool mapSourceInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSourceInformationDictionary** out);
+bool mapURLAliasDictionary(const SkPdfObject& in, SkPdfURLAliasDictionary** out);
+bool mapURLAliasDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfURLAliasDictionary** out);
+bool mapWebCaptureCommandDictionary(const SkPdfObject& in, SkPdfWebCaptureCommandDictionary** out);
+bool mapWebCaptureCommandDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureCommandDictionary** out);
+bool mapWebCaptureCommandSettingsDictionary(const SkPdfObject& in, SkPdfWebCaptureCommandSettingsDictionary** out);
+bool mapWebCaptureCommandSettingsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfWebCaptureCommandSettingsDictionary** out);
+bool mapBoxColorInformationDictionary(const SkPdfObject& in, SkPdfBoxColorInformationDictionary** out);
+bool mapBoxColorInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoxColorInformationDictionary** out);
+bool mapBoxStyleDictionary(const SkPdfObject& in, SkPdfBoxStyleDictionary** out);
+bool mapBoxStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfBoxStyleDictionary** out);
+bool mapPrinterMarkAnnotationDictionary(const SkPdfObject& in, SkPdfPrinterMarkAnnotationDictionary** out);
+bool mapPrinterMarkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPrinterMarkAnnotationDictionary** out);
+bool mapPrinterMarkFormDictionary(const SkPdfObject& in, SkPdfPrinterMarkFormDictionary** out);
+bool mapPrinterMarkFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPrinterMarkFormDictionary** out);
+bool mapSeparationDictionary(const SkPdfObject& in, SkPdfSeparationDictionary** out);
+bool mapSeparationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfSeparationDictionary** out);
+bool mapPDF_XOutputIntentDictionary(const SkPdfObject& in, SkPdfPDF_XOutputIntentDictionary** out);
+bool mapPDF_XOutputIntentDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfPDF_XOutputIntentDictionary** out);
+bool mapTrapNetworkAnnotationDictionary(const SkPdfObject& in, SkPdfTrapNetworkAnnotationDictionary** out);
+bool mapTrapNetworkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrapNetworkAnnotationDictionary** out);
+bool mapTrapNetworkAppearanceStreamDictionary(const SkPdfObject& in, SkPdfTrapNetworkAppearanceStreamDictionary** out);
+bool mapTrapNetworkAppearanceStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfTrapNetworkAppearanceStreamDictionary** out);
+bool mapOpiVersionDictionary(const SkPdfObject& in, SkPdfOpiVersionDictionary** out);
+bool mapOpiVersionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfOpiVersionDictionary** out);
+bool mapMultiMasterFontDictionary(const SkPdfObject& in, SkPdfMultiMasterFontDictionary** out);
+bool mapMultiMasterFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfMultiMasterFontDictionary** out);
+bool isObject(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ObjectFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfObject** data);
+bool ObjectFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfObject** data);
+bool isNull(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NullFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNull** data);
+bool NullFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNull** data);
+bool isBoolean(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BooleanFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBoolean** data);
+bool BooleanFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBoolean** data);
+bool isInteger(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool IntegerFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfInteger** data);
+bool IntegerFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfInteger** data);
+bool isNumber(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NumberFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNumber** data);
+bool NumberFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNumber** data);
+bool isName(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NameFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfName** data);
+bool NameFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfName** data);
+bool isReference(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ReferenceFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfReference** data);
+bool ReferenceFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfReference** data);
+bool isArray(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfArray** data);
+bool ArrayFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfArray** data);
+bool isString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StringFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfString** data);
+bool StringFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfString** data);
+bool isHexString(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool HexStringFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfHexString** data);
+bool HexStringFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfHexString** data);
+bool isDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfDictionary** data);
+bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfDictionary** data);
+bool isStream(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStream** data);
+bool StreamFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStream** data);
+bool isXObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool XObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfXObjectDictionary** data);
+bool XObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfXObjectDictionary** data);
+bool isFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFontDictionary** data);
+bool FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFontDictionary** data);
+bool isTrueTypeFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TrueTypeFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTrueTypeFontDictionary** data);
+bool TrueTypeFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTrueTypeFontDictionary** data);
+bool isStreamCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StreamCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStreamCommonDictionary** data);
+bool StreamCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStreamCommonDictionary** data);
+bool isLzwdecodeAndFlatedecodeFiltersDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool LzwdecodeAndFlatedecodeFiltersDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** data);
+bool LzwdecodeAndFlatedecodeFiltersDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfLzwdecodeAndFlatedecodeFiltersDictionary** data);
+bool isCcittfaxdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CcittfaxdecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCcittfaxdecodeFilterDictionary** data);
+bool CcittfaxdecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCcittfaxdecodeFilterDictionary** data);
+bool isJbig2DecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Jbig2DecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfJbig2DecodeFilterDictionary** data);
+bool Jbig2DecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfJbig2DecodeFilterDictionary** data);
+bool isDctdecodeFilterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool DctdecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfDctdecodeFilterDictionary** data);
+bool DctdecodeFilterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfDctdecodeFilterDictionary** data);
+bool isFileTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FileTrailerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFileTrailerDictionary** data);
+bool FileTrailerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFileTrailerDictionary** data);
+bool isEncryptionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EncryptionCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEncryptionCommonDictionary** data);
+bool EncryptionCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEncryptionCommonDictionary** data);
+bool isStandardSecurityHandlerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StandardSecurityHandlerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStandardSecurityHandlerDictionary** data);
+bool StandardSecurityHandlerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStandardSecurityHandlerDictionary** data);
+bool isCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CatalogDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCatalogDictionary** data);
+bool CatalogDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCatalogDictionary** data);
+bool isPageTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PageTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPageTreeNodeDictionary** data);
+bool PageTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPageTreeNodeDictionary** data);
+bool isPageObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PageObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPageObjectDictionary** data);
+bool PageObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPageObjectDictionary** data);
+bool isNameDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NameDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNameDictionary** data);
+bool NameDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNameDictionary** data);
+bool isResourceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ResourceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfResourceDictionary** data);
+bool ResourceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfResourceDictionary** data);
+bool isNameTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NameTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNameTreeNodeDictionary** data);
+bool NameTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNameTreeNodeDictionary** data);
+bool isNumberTreeNodeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NumberTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNumberTreeNodeDictionary** data);
+bool NumberTreeNodeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNumberTreeNodeDictionary** data);
+bool isFunctionCommonDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FunctionCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFunctionCommonDictionary** data);
+bool FunctionCommonDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFunctionCommonDictionary** data);
+bool isType0FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type0FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType0FunctionDictionary** data);
+bool Type0FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType0FunctionDictionary** data);
+bool isType2FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type2FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType2FunctionDictionary** data);
+bool Type2FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType2FunctionDictionary** data);
+bool isType3FunctionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type3FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType3FunctionDictionary** data);
+bool Type3FunctionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType3FunctionDictionary** data);
+bool isFileSpecificationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FileSpecificationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFileSpecificationDictionary** data);
+bool FileSpecificationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFileSpecificationDictionary** data);
+bool isEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EmbeddedFileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEmbeddedFileStreamDictionary** data);
+bool EmbeddedFileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEmbeddedFileStreamDictionary** data);
+bool isEmbeddedFileParameterDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EmbeddedFileParameterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEmbeddedFileParameterDictionary** data);
+bool EmbeddedFileParameterDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEmbeddedFileParameterDictionary** data);
+bool isMacOsFileInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MacOsFileInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMacOsFileInformationDictionary** data);
+bool MacOsFileInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMacOsFileInformationDictionary** data);
+bool isGraphicsStateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool GraphicsStateDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfGraphicsStateDictionary** data);
+bool GraphicsStateDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfGraphicsStateDictionary** data);
+bool isCalgrayColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CalgrayColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCalgrayColorSpaceDictionary** data);
+bool CalgrayColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCalgrayColorSpaceDictionary** data);
+bool isCalrgbColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CalrgbColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCalrgbColorSpaceDictionary** data);
+bool CalrgbColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCalrgbColorSpaceDictionary** data);
+bool isLabColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool LabColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfLabColorSpaceDictionary** data);
+bool LabColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfLabColorSpaceDictionary** data);
+bool isIccProfileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool IccProfileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfIccProfileStreamDictionary** data);
+bool IccProfileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfIccProfileStreamDictionary** data);
+bool isDeviceNColorSpaceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool DeviceNColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfDeviceNColorSpaceDictionary** data);
+bool DeviceNColorSpaceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfDeviceNColorSpaceDictionary** data);
+bool isType1PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type1PatternDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType1PatternDictionary** data);
+bool Type1PatternDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType1PatternDictionary** data);
+bool isType2PatternDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type2PatternDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType2PatternDictionary** data);
+bool Type2PatternDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType2PatternDictionary** data);
+bool isShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfShadingDictionary** data);
+bool ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfShadingDictionary** data);
+bool isType1ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type1ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType1ShadingDictionary** data);
+bool Type1ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType1ShadingDictionary** data);
+bool isType2ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type2ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType2ShadingDictionary** data);
+bool Type2ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType2ShadingDictionary** data);
+bool isType3ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type3ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType3ShadingDictionary** data);
+bool Type3ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType3ShadingDictionary** data);
+bool isType4ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type4ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType4ShadingDictionary** data);
+bool Type4ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType4ShadingDictionary** data);
+bool isType5ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type5ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType5ShadingDictionary** data);
+bool Type5ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType5ShadingDictionary** data);
+bool isType6ShadingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type6ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType6ShadingDictionary** data);
+bool Type6ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType6ShadingDictionary** data);
+bool isImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfImageDictionary** data);
+bool ImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfImageDictionary** data);
+bool isAlternateImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AlternateImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAlternateImageDictionary** data);
+bool AlternateImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAlternateImageDictionary** data);
+bool isType1FormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type1FormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType1FormDictionary** data);
+bool Type1FormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType1FormDictionary** data);
+bool isGroupAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool GroupAttributesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfGroupAttributesDictionary** data);
+bool GroupAttributesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfGroupAttributesDictionary** data);
+bool isReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfReferenceDictionary** data);
+bool ReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfReferenceDictionary** data);
+bool isPSXobjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PSXobjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPSXobjectDictionary** data);
+bool PSXobjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPSXobjectDictionary** data);
+bool isType1FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type1FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType1FontDictionary** data);
+bool Type1FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType1FontDictionary** data);
+bool isType3FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type3FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType3FontDictionary** data);
+bool Type3FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType3FontDictionary** data);
+bool isEncodingDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EncodingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEncodingDictionary** data);
+bool EncodingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEncodingDictionary** data);
+bool isCIDSystemInfoDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CIDSystemInfoDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCIDSystemInfoDictionary** data);
+bool CIDSystemInfoDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCIDSystemInfoDictionary** data);
+bool isCIDFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CIDFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCIDFontDictionary** data);
+bool CIDFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCIDFontDictionary** data);
+bool isCMapDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CMapDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCMapDictionary** data);
+bool CMapDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCMapDictionary** data);
+bool isType0FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type0FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType0FontDictionary** data);
+bool Type0FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType0FontDictionary** data);
+bool isFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FontDescriptorDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFontDescriptorDictionary** data);
+bool FontDescriptorDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFontDescriptorDictionary** data);
+bool isCIDFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CIDFontDescriptorDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCIDFontDescriptorDictionary** data);
+bool CIDFontDescriptorDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCIDFontDescriptorDictionary** data);
+bool isEmbeddedFontStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EmbeddedFontStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEmbeddedFontStreamDictionary** data);
+bool EmbeddedFontStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEmbeddedFontStreamDictionary** data);
+bool isType1HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type1HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType1HalftoneDictionary** data);
+bool Type1HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType1HalftoneDictionary** data);
+bool isType6HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type6HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType6HalftoneDictionary** data);
+bool Type6HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType6HalftoneDictionary** data);
+bool isType10HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type10HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType10HalftoneDictionary** data);
+bool Type10HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType10HalftoneDictionary** data);
+bool isType16HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type16HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType16HalftoneDictionary** data);
+bool Type16HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType16HalftoneDictionary** data);
+bool isType5HalftoneDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool Type5HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfType5HalftoneDictionary** data);
+bool Type5HalftoneDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfType5HalftoneDictionary** data);
+bool isSoftMaskDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SoftMaskDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSoftMaskDictionary** data);
+bool SoftMaskDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSoftMaskDictionary** data);
+bool isSoftMaskImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SoftMaskImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSoftMaskImageDictionary** data);
+bool SoftMaskImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSoftMaskImageDictionary** data);
+bool isTransparencyGroupDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TransparencyGroupDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTransparencyGroupDictionary** data);
+bool TransparencyGroupDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTransparencyGroupDictionary** data);
+bool isViewerPreferencesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ViewerPreferencesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfViewerPreferencesDictionary** data);
+bool ViewerPreferencesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfViewerPreferencesDictionary** data);
+bool isOutlineDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool OutlineDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfOutlineDictionary** data);
+bool OutlineDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfOutlineDictionary** data);
+bool isOutlineItemDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool OutlineItemDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfOutlineItemDictionary** data);
+bool OutlineItemDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfOutlineItemDictionary** data);
+bool isPageLabelDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PageLabelDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPageLabelDictionary** data);
+bool PageLabelDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPageLabelDictionary** data);
+bool isThreadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ThreadDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfThreadDictionary** data);
+bool ThreadDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfThreadDictionary** data);
+bool isBeadDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BeadDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBeadDictionary** data);
+bool BeadDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBeadDictionary** data);
+bool isTransitionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TransitionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTransitionDictionary** data);
+bool TransitionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTransitionDictionary** data);
+bool isAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAnnotationDictionary** data);
+bool AnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAnnotationDictionary** data);
+bool isBorderStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BorderStyleDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBorderStyleDictionary** data);
+bool BorderStyleDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBorderStyleDictionary** data);
+bool isAppearanceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AppearanceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAppearanceDictionary** data);
+bool AppearanceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAppearanceDictionary** data);
+bool isTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TextAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTextAnnotationDictionary** data);
+bool TextAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTextAnnotationDictionary** data);
+bool isALinkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ALinkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfALinkAnnotationDictionary** data);
+bool ALinkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfALinkAnnotationDictionary** data);
+bool isFreeTextAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FreeTextAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFreeTextAnnotationDictionary** data);
+bool FreeTextAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFreeTextAnnotationDictionary** data);
+bool isLineAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool LineAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfLineAnnotationDictionary** data);
+bool LineAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfLineAnnotationDictionary** data);
+bool isSquareOrCircleAnnotation(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SquareOrCircleAnnotationFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSquareOrCircleAnnotation** data);
+bool SquareOrCircleAnnotationFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSquareOrCircleAnnotation** data);
+bool isMarkupAnnotationsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MarkupAnnotationsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMarkupAnnotationsDictionary** data);
+bool MarkupAnnotationsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMarkupAnnotationsDictionary** data);
+bool isRubberStampAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool RubberStampAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfRubberStampAnnotationDictionary** data);
+bool RubberStampAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfRubberStampAnnotationDictionary** data);
+bool isInkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool InkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfInkAnnotationDictionary** data);
+bool InkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfInkAnnotationDictionary** data);
+bool isPopUpAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PopUpAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPopUpAnnotationDictionary** data);
+bool PopUpAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPopUpAnnotationDictionary** data);
+bool isFileAttachmentAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FileAttachmentAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFileAttachmentAnnotationDictionary** data);
+bool FileAttachmentAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFileAttachmentAnnotationDictionary** data);
+bool isSoundAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SoundAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSoundAnnotationDictionary** data);
+bool SoundAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSoundAnnotationDictionary** data);
+bool isMovieAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MovieAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMovieAnnotationDictionary** data);
+bool MovieAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMovieAnnotationDictionary** data);
+bool isWidgetAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WidgetAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWidgetAnnotationDictionary** data);
+bool WidgetAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWidgetAnnotationDictionary** data);
+bool isActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfActionDictionary** data);
+bool ActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfActionDictionary** data);
+bool isAnnotationActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AnnotationActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAnnotationActionsDictionary** data);
+bool AnnotationActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAnnotationActionsDictionary** data);
+bool isPageObjectActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PageObjectActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPageObjectActionsDictionary** data);
+bool PageObjectActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPageObjectActionsDictionary** data);
+bool isFormFieldActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FormFieldActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFormFieldActionsDictionary** data);
+bool FormFieldActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFormFieldActionsDictionary** data);
+bool isDocumentCatalogActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool DocumentCatalogActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfDocumentCatalogActionsDictionary** data);
+bool DocumentCatalogActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfDocumentCatalogActionsDictionary** data);
+bool isGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool GoToActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfGoToActionDictionary** data);
+bool GoToActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfGoToActionDictionary** data);
+bool isRemoteGoToActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool RemoteGoToActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfRemoteGoToActionDictionary** data);
+bool RemoteGoToActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfRemoteGoToActionDictionary** data);
+bool isLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool LaunchActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfLaunchActionDictionary** data);
+bool LaunchActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfLaunchActionDictionary** data);
+bool isWindowsLaunchActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WindowsLaunchActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWindowsLaunchActionDictionary** data);
+bool WindowsLaunchActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWindowsLaunchActionDictionary** data);
+bool isThreadActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ThreadActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfThreadActionDictionary** data);
+bool ThreadActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfThreadActionDictionary** data);
+bool isURIActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool URIActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfURIActionDictionary** data);
+bool URIActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfURIActionDictionary** data);
+bool isURIDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool URIDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfURIDictionary** data);
+bool URIDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfURIDictionary** data);
+bool isSoundActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SoundActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSoundActionDictionary** data);
+bool SoundActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSoundActionDictionary** data);
+bool isMovieActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MovieActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMovieActionDictionary** data);
+bool MovieActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMovieActionDictionary** data);
+bool isHideActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool HideActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfHideActionDictionary** data);
+bool HideActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfHideActionDictionary** data);
+bool isNamedActionsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool NamedActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfNamedActionsDictionary** data);
+bool NamedActionsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfNamedActionsDictionary** data);
+bool isInteractiveFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool InteractiveFormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfInteractiveFormDictionary** data);
+bool InteractiveFormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfInteractiveFormDictionary** data);
+bool isFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFieldDictionary** data);
+bool FieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFieldDictionary** data);
+bool isVariableTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool VariableTextFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfVariableTextFieldDictionary** data);
+bool VariableTextFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfVariableTextFieldDictionary** data);
+bool isAppearanceCharacteristicsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AppearanceCharacteristicsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAppearanceCharacteristicsDictionary** data);
+bool AppearanceCharacteristicsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAppearanceCharacteristicsDictionary** data);
+bool isCheckboxFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool CheckboxFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfCheckboxFieldDictionary** data);
+bool CheckboxFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfCheckboxFieldDictionary** data);
+bool isRadioButtonFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool RadioButtonFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfRadioButtonFieldDictionary** data);
+bool RadioButtonFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfRadioButtonFieldDictionary** data);
+bool isTextFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TextFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTextFieldDictionary** data);
+bool TextFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTextFieldDictionary** data);
+bool isChoiceFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ChoiceFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfChoiceFieldDictionary** data);
+bool ChoiceFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfChoiceFieldDictionary** data);
+bool isSignatureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SignatureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSignatureDictionary** data);
+bool SignatureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSignatureDictionary** data);
+bool isSubmitFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SubmitFormActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSubmitFormActionDictionary** data);
+bool SubmitFormActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSubmitFormActionDictionary** data);
+bool isResetFormActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ResetFormActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfResetFormActionDictionary** data);
+bool ResetFormActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfResetFormActionDictionary** data);
+bool isImportDataActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ImportDataActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfImportDataActionDictionary** data);
+bool ImportDataActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfImportDataActionDictionary** data);
+bool isJavascriptActionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool JavascriptActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfJavascriptActionDictionary** data);
+bool JavascriptActionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfJavascriptActionDictionary** data);
+bool isFDFTrailerDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFTrailerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFTrailerDictionary** data);
+bool FDFTrailerDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFTrailerDictionary** data);
+bool isFDFCatalogDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFCatalogDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFCatalogDictionary** data);
+bool FDFCatalogDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFCatalogDictionary** data);
+bool isFDFDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFDictionary** data);
+bool FDFDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFDictionary** data);
+bool isEncryptedEmbeddedFileStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool EncryptedEmbeddedFileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfEncryptedEmbeddedFileStreamDictionary** data);
+bool EncryptedEmbeddedFileStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfEncryptedEmbeddedFileStreamDictionary** data);
+bool isJavascriptDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool JavascriptDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfJavascriptDictionary** data);
+bool JavascriptDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfJavascriptDictionary** data);
+bool isFDFFieldDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFFieldDictionary** data);
+bool FDFFieldDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFFieldDictionary** data);
+bool isIconFitDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool IconFitDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfIconFitDictionary** data);
+bool IconFitDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfIconFitDictionary** data);
+bool isFDFPageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFPageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFPageDictionary** data);
+bool FDFPageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFPageDictionary** data);
+bool isFDFTemplateDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFTemplateDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFTemplateDictionary** data);
+bool FDFTemplateDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFTemplateDictionary** data);
+bool isFDFNamedPageReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFNamedPageReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFNamedPageReferenceDictionary** data);
+bool FDFNamedPageReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFNamedPageReferenceDictionary** data);
+bool isFDFFileAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool FDFFileAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfFDFFileAnnotationDictionary** data);
+bool FDFFileAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfFDFFileAnnotationDictionary** data);
+bool isSoundObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SoundObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSoundObjectDictionary** data);
+bool SoundObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSoundObjectDictionary** data);
+bool isMovieDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MovieDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMovieDictionary** data);
+bool MovieDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMovieDictionary** data);
+bool isMovieActivationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MovieActivationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMovieActivationDictionary** data);
+bool MovieActivationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMovieActivationDictionary** data);
+bool isDocumentInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool DocumentInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfDocumentInformationDictionary** data);
+bool DocumentInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfDocumentInformationDictionary** data);
+bool isMetadataStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MetadataStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMetadataStreamDictionary** data);
+bool MetadataStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMetadataStreamDictionary** data);
+bool isComponentsWithMetadataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ComponentsWithMetadataDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfComponentsWithMetadataDictionary** data);
+bool ComponentsWithMetadataDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfComponentsWithMetadataDictionary** data);
+bool isPagePieceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PagePieceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPagePieceDictionary** data);
+bool PagePieceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPagePieceDictionary** data);
+bool isApplicationDataDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ApplicationDataDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfApplicationDataDictionary** data);
+bool ApplicationDataDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfApplicationDataDictionary** data);
+bool isStructureTreeRootDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StructureTreeRootDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStructureTreeRootDictionary** data);
+bool StructureTreeRootDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStructureTreeRootDictionary** data);
+bool isStructureElementDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StructureElementDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStructureElementDictionary** data);
+bool StructureElementDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStructureElementDictionary** data);
+bool isMarkedContentReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MarkedContentReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMarkedContentReferenceDictionary** data);
+bool MarkedContentReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMarkedContentReferenceDictionary** data);
+bool isObjectReferenceDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ObjectReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfObjectReferenceDictionary** data);
+bool ObjectReferenceDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfObjectReferenceDictionary** data);
+bool isStructureElementAccessDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StructureElementAccessDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStructureElementAccessDictionary** data);
+bool StructureElementAccessDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStructureElementAccessDictionary** data);
+bool isAttributeObjectDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool AttributeObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfAttributeObjectDictionary** data);
+bool AttributeObjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfAttributeObjectDictionary** data);
+bool isMarkInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MarkInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMarkInformationDictionary** data);
+bool MarkInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMarkInformationDictionary** data);
+bool isArtifactsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ArtifactsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfArtifactsDictionary** data);
+bool ArtifactsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfArtifactsDictionary** data);
+bool isStandardStructureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool StandardStructureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfStandardStructureDictionary** data);
+bool StandardStructureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfStandardStructureDictionary** data);
+bool isBlockLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BlockLevelStructureElementsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBlockLevelStructureElementsDictionary** data);
+bool BlockLevelStructureElementsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBlockLevelStructureElementsDictionary** data);
+bool isInlineLevelStructureElementsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool InlineLevelStructureElementsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfInlineLevelStructureElementsDictionary** data);
+bool InlineLevelStructureElementsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfInlineLevelStructureElementsDictionary** data);
+bool isListAttributeDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool ListAttributeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfListAttributeDictionary** data);
+bool ListAttributeDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfListAttributeDictionary** data);
+bool isTableAttributesDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TableAttributesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTableAttributesDictionary** data);
+bool TableAttributesDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTableAttributesDictionary** data);
+bool isWebCaptureInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCaptureInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCaptureInformationDictionary** data);
+bool WebCaptureInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCaptureInformationDictionary** data);
+bool isWebCaptureDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCaptureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCaptureDictionary** data);
+bool WebCaptureDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCaptureDictionary** data);
+bool isWebCapturePageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCapturePageSetDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCapturePageSetDictionary** data);
+bool WebCapturePageSetDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCapturePageSetDictionary** data);
+bool isWebCaptureImageSetDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCaptureImageSetDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCaptureImageSetDictionary** data);
+bool WebCaptureImageSetDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCaptureImageSetDictionary** data);
+bool isSourceInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SourceInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSourceInformationDictionary** data);
+bool SourceInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSourceInformationDictionary** data);
+bool isURLAliasDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool URLAliasDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfURLAliasDictionary** data);
+bool URLAliasDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfURLAliasDictionary** data);
+bool isWebCaptureCommandDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCaptureCommandDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCaptureCommandDictionary** data);
+bool WebCaptureCommandDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCaptureCommandDictionary** data);
+bool isWebCaptureCommandSettingsDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool WebCaptureCommandSettingsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfWebCaptureCommandSettingsDictionary** data);
+bool WebCaptureCommandSettingsDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfWebCaptureCommandSettingsDictionary** data);
+bool isBoxColorInformationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BoxColorInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBoxColorInformationDictionary** data);
+bool BoxColorInformationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBoxColorInformationDictionary** data);
+bool isBoxStyleDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool BoxStyleDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfBoxStyleDictionary** data);
+bool BoxStyleDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfBoxStyleDictionary** data);
+bool isPrinterMarkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PrinterMarkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPrinterMarkAnnotationDictionary** data);
+bool PrinterMarkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPrinterMarkAnnotationDictionary** data);
+bool isPrinterMarkFormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PrinterMarkFormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPrinterMarkFormDictionary** data);
+bool PrinterMarkFormDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPrinterMarkFormDictionary** data);
+bool isSeparationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool SeparationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfSeparationDictionary** data);
+bool SeparationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfSeparationDictionary** data);
+bool isPDF_XOutputIntentDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool PDF_XOutputIntentDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfPDF_XOutputIntentDictionary** data);
+bool PDF_XOutputIntentDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfPDF_XOutputIntentDictionary** data);
+bool isTrapNetworkAnnotationDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TrapNetworkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTrapNetworkAnnotationDictionary** data);
+bool TrapNetworkAnnotationDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTrapNetworkAnnotationDictionary** data);
+bool isTrapNetworkAppearanceStreamDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool TrapNetworkAppearanceStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfTrapNetworkAppearanceStreamDictionary** data);
+bool TrapNetworkAppearanceStreamDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfTrapNetworkAppearanceStreamDictionary** data);
+bool isOpiVersionDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool OpiVersionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfOpiVersionDictionary** data);
+bool OpiVersionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfOpiVersionDictionary** data);
+bool isMultiMasterFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);
+bool MultiMasterFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdfMultiMasterFontDictionary** data);
+bool MultiMasterFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdfMultiMasterFontDictionary** data);
 
 #endif  // __DEFINED__SkPdfPodofoMapper

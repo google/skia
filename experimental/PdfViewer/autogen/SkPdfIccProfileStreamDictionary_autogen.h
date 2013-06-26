@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", NULL));
   }
 
-  long N() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "N", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long N() const;
 /** (Optional) An alternate color space to be used in case the one specified in the stream
  *  data is not supported (for example, by viewer applications designed for earlier
  *  versions of PDF). The alternate space may be any valid color space (except a Pattern
@@ -562,26 +556,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getAlternateAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getAlternateAsArray() const;
   bool isAlternateAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternate", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getAlternateAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getAlternateAsName() const;
 /** (Optional) An array of 2 x N numbers [min0 max0 min1 max1 ... ] specifying the
  *  minimum and maximum valid values of the corresponding color components.
  *  These values must match the information in the ICC profile. Default value:
@@ -591,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", NULL));
   }
 
-  SkPdfArray* Range() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Range() const;
 /** (Optional; PDF 1.4) A metadata stream containing metadata for the color space (see
  *  Section 9.2.2, "Metadata Streams").
 **/
@@ -605,13 +581,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream* Metadata() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Metadata() const;
 };
 
 #endif  // __DEFINED__SkPdfIccProfileStreamDictionary

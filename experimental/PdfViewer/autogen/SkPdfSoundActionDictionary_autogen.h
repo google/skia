@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) A sound object defining the sound to be played (see Section 8.7,
  *  "Sounds"; see also implementation note 76 in Appendix H).
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Sound", "", NULL));
   }
 
-  SkPdfStream* Sound() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Sound", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Sound() const;
 /** (Optional) The volume at which to play the sound, in the range -1.0 to 1.0.
  *  Higher values denote greater volume; negative values mute the sound.
  *  Default value: 1.0.
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", NULL));
   }
 
-  double Volume() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Volume() const;
 /** (Optional) A flag specifying whether to play the sound synchronously or
  *  asynchronously. If this flag is true, the viewer application will retain control,
  *  allowing no further user interaction other than canceling the sound, until the
@@ -577,13 +559,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", NULL));
   }
 
-  bool Synchronous() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Synchronous() const;
 /** (Optional) A flag specifying whether to repeat the sound indefinitely. If this
  *  entry is present, the Synchronous entry is ignored. Default value: false.
 **/
@@ -591,13 +567,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Repeat", "", NULL));
   }
 
-  bool Repeat() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Repeat", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Repeat() const;
 /** (Optional) A flag specifying whether to mix this sound with any other sound
  *  already playing. If this flag is false, any previously playing sound will be
  *  stopped before starting this sound; this can be used to stop a repeating sound
@@ -607,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mix", "", NULL));
   }
 
-  bool Mix() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Mix() const;
 };
 
 #endif  // __DEFINED__SkPdfSoundActionDictionary

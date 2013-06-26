@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The immediate child or children of the structure tree root in
  *  the structure hierarchy. The value may be either a dictionary represent-
  *  ing a single structure element or an array of such dictionaries.
@@ -553,26 +547,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getKAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getKAsDictionary() const;
   bool isKAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getKAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getKAsArray() const;
 /** (Required if any structure elements have element identifiers) A name tree
  *  that maps element identifiers (see Table 9.10) to the structure elements
  *  they denote.
@@ -587,26 +569,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getIDTreeAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getIDTreeAsName() const;
   bool isIDTreeATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getIDTreeAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDTree", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getIDTreeAsTree() const;
 /** (Required if any structure element contains PDF objects or marked-content
  *  sequences as content items) A number tree (see Section 3.8.5, "Number
  *  Trees") used in finding the structure elements to which content items
@@ -635,26 +605,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  double getParentTreeAsNumber() const {
-    double ret = 0;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTree", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double getParentTreeAsNumber() const;
   bool isParentTreeATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTree", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getParentTreeAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTree", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getParentTreeAsTree() const;
 /** (Optional) An integer greater than any key in the parent tree, to be used
  *  as a key for the next entry added to the tree.
 **/
@@ -662,13 +620,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTreeNextKey", "", NULL));
   }
 
-  long ParentTreeNextKey() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ParentTreeNextKey", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long ParentTreeNextKey() const;
 /** (Optional) A dictionary mapping the names of structure types used in
  *  the document to their approximate equivalents in the set of standard
  *  structure types (see Section 9.7.4, "Standard Structure Types").
@@ -677,13 +629,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RoleMap", "", NULL));
   }
 
-  SkPdfDictionary* RoleMap() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RoleMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* RoleMap() const;
 /** (Optional) A dictionary mapping name objects designating attribute
  *  classes to the corresponding attribute objects or arrays of attribute ob-
  *  jects (see "Attribute Classes" on page 605).
@@ -692,13 +638,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClassMap", "", NULL));
   }
 
-  SkPdfDictionary* ClassMap() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ClassMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* ClassMap() const;
 };
 
 #endif  // __DEFINED__SkPdfStructureTreeRootDictionary

@@ -538,26 +538,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", NULL));
   }
 
-  std::string Version() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Version() const;
 /** (Required) The FDF dictionary for this file (see Table 8.69).
 **/
   bool has_FDF() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FDF", "", NULL));
   }
 
-  SkPdfDictionary* FDF() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FDF", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* FDF() const;
 };
 
 #endif  // __DEFINED__SkPdfFDFCatalogDictionary

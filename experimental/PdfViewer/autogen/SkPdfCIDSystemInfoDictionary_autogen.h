@@ -534,13 +534,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Registry", "", NULL));
   }
 
-  std::string Registry() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Registry", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Registry() const;
 /** (Required) A string that uniquely names the character collection within the speci-
  *  fied registry-for example, Japan1.
 **/
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ordering", "", NULL));
   }
 
-  std::string Ordering() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ordering", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Ordering() const;
 /** (Required) The supplement number of the character collection. An original charac-
  *  ter collection has a supplement number of 0. Whenever additional CIDs are
  *  assigned in a character collection, the supplement number is increased. Supple-
@@ -565,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Supplement", "", NULL));
   }
 
-  long Supplement() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Supplement", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Supplement() const;
 };
 
 #endif  // __DEFINED__SkPdfCIDSystemInfoDictionary

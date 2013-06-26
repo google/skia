@@ -520,13 +520,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShadingType", "", NULL));
   }
 
-  long ShadingType() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShadingType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long ShadingType() const;
 /** (Required) The color space in which color values are expressed. This may be
  *  any device, CIE-based, or special color space except a Pattern space. See
  *  "Color Space: Special Considerations," below, for further information.
@@ -541,26 +535,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getColorSpaceAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getColorSpaceAsName() const;
   bool isColorSpaceAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getColorSpaceAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getColorSpaceAsArray() const;
 /** (Optional) An array of color components appropriate to the color space,
  *  specifying a single background color value. If present, this color is used be-
  *  fore any painting operation involving the shading, to fill those portions of the
@@ -575,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Background", "", NULL));
   }
 
-  SkPdfArray* Background() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Background", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Background() const;
 /** (Optional) An array of four numbers giving the left, bottom, right, and top
  *  coordinates, respectively, of the shading's bounding box. The coordinates are
  *  interpreted in the shading's target coordinate space. If present, this bounding
@@ -593,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
   }
 
-  SkRect* BBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* BBox() const;
 /** (Optional) A flag indicating whether to filter the shading function to prevent
  *  aliasing artifacts. The shading operators sample shading functions at a rate
  *  determined by the resolution of the output device. Aliasing can occur if the
@@ -614,13 +584,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AntiAlias", "", NULL));
   }
 
-  bool AntiAlias() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AntiAlias", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool AntiAlias() const;
 };
 
 #endif  // __DEFINED__SkPdfShadingDictionary

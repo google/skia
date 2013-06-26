@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) A code identifying the halftone type that this dictionary
  *  describes; must be 10 for this type of halftone.
 **/
@@ -546,52 +540,28 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
-  long HalftoneType() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long HalftoneType() const;
 /** (Optional) The name of the halftone dictionary.
 **/
   bool has_HalftoneName() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
   }
 
-  std::string HalftoneName() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string HalftoneName() const;
 /** (Required) The side of square X, in device pixels; see below.
 **/
   bool has_Xsquare() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Xsquare", "", NULL));
   }
 
-  long Xsquare() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Xsquare", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Xsquare() const;
 /** (Required) The side of square Y, in device pixels; see below.
 **/
   bool has_Ysquare() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ysquare", "", NULL));
   }
 
-  long Ysquare() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ysquare", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Ysquare() const;
 /** (Optional) A transfer function, which overrides the current transfer
  *  function in the graphics state for the same component. This entry is
  *  required if the dictionary is a component of a type 5 halftone (see
@@ -610,26 +580,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getTransferFunctionAsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getTransferFunctionAsFunction() const;
   bool isTransferFunctionAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getTransferFunctionAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TransferFunction", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTransferFunctionAsName() const;
 };
 
 #endif  // __DEFINED__SkPdfType10HalftoneDictionary

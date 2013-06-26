@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The text to be displayed in the pop-up window when the annotation
  *  is opened. Carriage returns may be used to separate the text into paragraphs.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Optional) A border style dictionary (see Table 8.12 on page 495) specifying the
  *  line width and dash pattern to be used in drawing the rectangle or ellipse.
  *  Note: The annotation dictionary's AP entry, if present, takes precedence over the
@@ -563,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
   }
 
-  SkPdfDictionary* BS() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* BS() const;
 /** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0 specifying
  *  the components, in the DeviceRGB color space, of the interior color with which to
  *  fill the annotation's rectangle or ellipse (see Table 8.19). If this entry is absent,
@@ -579,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", NULL));
   }
 
-  SkPdfArray* IC() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* IC() const;
 };
 
 #endif  // __DEFINED__SkPdfSquareOrCircleAnnotation

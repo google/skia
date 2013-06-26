@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Style", "", NULL));
   }
 
-  SkPdfDictionary* Style() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Style", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Style() const;
 /** (Optional) A name specifying the language of the font, used for encodings where
  *  the language is not implied by the encoding itself. The possible values are the
  *  2-character language codes defined by ISO 639-for example, en for English and ja
@@ -549,13 +543,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", NULL));
   }
 
-  std::string Lang() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Lang", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Lang() const;
 /** (Optional) A dictionary whose keys identify a class of characters in a CIDFont.
  *  Each value is a dictionary containing entries that override the corresponding
  *  values in the main font descriptor dictionary for that class of characters (see "FD,"
@@ -565,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FD", "", NULL));
   }
 
-  SkPdfDictionary* FD() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FD", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* FD() const;
 /** (Optional) A stream identifying which CIDs are present in the CIDFont file. If this
  *  entry is present, the CIDFont contains only a subset of the glyphs in the character
  *  collection defined by the CIDSystemInfo dictionary. If it is absent, the only indica-
@@ -585,13 +567,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSet", "", NULL));
   }
 
-  SkPdfStream* CIDSet() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSet", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* CIDSet() const;
 };
 
 #endif  // __DEFINED__SkPdfCIDFontDescriptorDictionary

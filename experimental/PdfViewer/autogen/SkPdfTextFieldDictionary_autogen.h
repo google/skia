@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MaxLen", "", NULL));
   }
 
-  long MaxLen() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MaxLen", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long MaxLen() const;
 };
 
 #endif  // __DEFINED__SkPdfTextFieldDictionary

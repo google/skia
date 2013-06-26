@@ -621,7 +621,7 @@ def generateDef():
 
   print 'def addDictionaryTypesTo(knowTypes):'  
   for e in tableToClassName:
-    print('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'DictionaryFromDictionary2\', datatypes.CppNull(), \'ret->podofo()->GetDataType() == ePdfDataType_Dictionary\']')
+    print('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'' + tableToClassName[e][0] + 'FromDictionary\', datatypes.CppNull(), \'ret->podofo()->GetDataType() == ePdfDataType_Dictionary\']')
   print
   print
 

@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The text to be displayed in the pop-up window when the annotation
  *  is opened. Carriage returns may be used to separate the text into paragraphs.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Required) An array of four numbers, [x1 y1 x2 y2 ], specifying the starting and
  *  ending coordinates of the line in default user space.
 **/
@@ -560,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", NULL));
   }
 
-  SkPdfArray* L() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* L() const;
 /** (Optional) A border style dictionary (see Table 8.12 on page 495) specifying the
  *  width and dash pattern to be used in drawing the line.
  *  Note: The annotation dictionary's AP entry, if present, takes precedence over the L
@@ -576,13 +558,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", NULL));
   }
 
-  SkPdfDictionary* BS() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* BS() const;
 /** (Optional; PDF 1.4) An array of two names specifying the line ending styles to be
  *  used in drawing the line. The first and second elements of the array specify the
  *  line ending styles for the endpoints defined, respectively, by the first and second
@@ -593,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LE", "", NULL));
   }
 
-  SkPdfArray* LE() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LE", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* LE() const;
 /** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0 specifying
  *  the components, in the DeviceRGB color space, of the interior color with which to
  *  fill the annotation's line endings (see Table 8.19). If this entry is absent, the inte-
@@ -609,13 +579,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", NULL));
   }
 
-  SkPdfArray* IC() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IC", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* IC() const;
 };
 
 #endif  // __DEFINED__SkPdfLineAnnotationDictionary

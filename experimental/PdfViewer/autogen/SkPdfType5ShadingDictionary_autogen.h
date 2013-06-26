@@ -49,13 +49,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerCoordinate", "", NULL));
   }
 
-  long BitsPerCoordinate() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerCoordinate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long BitsPerCoordinate() const;
 /** (Required) The number of bits used to represent each color component.
  *  Valid values are 1, 2, 4, 8, 12, and 16.
 **/
@@ -63,13 +57,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", NULL));
   }
 
-  long BitsPerComponent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long BitsPerComponent() const;
 /** (Required) The number of vertices in each row of the lattice; the value
  *  must be greater than or equal to 2. The number of rows need not be
  *  specified.
@@ -78,13 +66,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "VerticesPerRow", "", NULL));
   }
 
-  long VerticesPerRow() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "VerticesPerRow", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long VerticesPerRow() const;
 /** (Required) An array of numbers specifying how to map vertex coordinates
  *  and color components into the appropriate ranges of values. The de-
  *  coding method is similar to that used in image dictionaries (see "Decode
@@ -97,13 +79,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", NULL));
   }
 
-  SkPdfArray* Decode() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Decode() const;
 /** (Optional) A 1-in, n-out function or an array of n 1-in, 1-out functions
  *  (where n is the number of color components in the shading dictionary's
  *  color space). If this entry is present, the color data for each vertex must be
@@ -121,13 +97,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", NULL));
   }
 
-  SkPdfFunction Function() const {
-    SkPdfFunction ret;
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction Function() const;
 };
 
 #endif  // __DEFINED__SkPdfType5ShadingDictionary

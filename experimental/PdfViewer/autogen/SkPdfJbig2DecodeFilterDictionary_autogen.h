@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JBIG2Globals", "", NULL));
   }
 
-  SkPdfStream* JBIG2Globals() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JBIG2Globals", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* JBIG2Globals() const;
 };
 
 #endif  // __DEFINED__SkPdfJbig2DecodeFilterDictionary

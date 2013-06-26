@@ -28,8 +28,8 @@ struct PdfToken {
 };
 
 class SkPdfTokenizer {
-    PdfContentsTokenizer* fTokenizer;
     PdfMemDocument* fDoc;
+    PdfContentsTokenizer* fTokenizer;
 
     char* fUncompressedStream;
     pdf_long fUncompressedStreamLength;
@@ -39,8 +39,8 @@ class SkPdfTokenizer {
     PdfToken fPutBack;
 
 public:
-    SkPdfTokenizer(PdfMemDocument* doc = NULL, PdfContentsTokenizer* tokenizer = NULL) : fDoc(doc), fTokenizer(tokenizer), fEmpty(false), fUncompressedStream(NULL), fUncompressedStreamLength(0), fHasPutBack(false) {}
-    SkPdfTokenizer(const SkPdfObject* objWithStream) : fDoc(NULL), fTokenizer(NULL), fHasPutBack(false), fEmpty(false) {
+    SkPdfTokenizer(PdfMemDocument* doc = NULL, PdfContentsTokenizer* tokenizer = NULL) : fDoc(doc), fTokenizer(tokenizer), fUncompressedStream(NULL), fUncompressedStreamLength(0),  fEmpty(false), fHasPutBack(false) {}
+    SkPdfTokenizer(const SkPdfObject* objWithStream) : fDoc(NULL), fTokenizer(NULL), fEmpty(false), fHasPutBack(false) {
         fUncompressedStream = NULL;
         fUncompressedStreamLength = 0;
 
@@ -60,7 +60,7 @@ public:
 
     }
 
-    SkPdfTokenizer(const char* buffer, int len) : fDoc(NULL), fTokenizer(NULL), fHasPutBack(false), fUncompressedStream(NULL), fUncompressedStreamLength(0), fEmpty(false) {
+    SkPdfTokenizer(const char* buffer, int len) : fDoc(NULL), fTokenizer(NULL), fUncompressedStream(NULL), fUncompressedStreamLength(0), fEmpty(false), fHasPutBack(false) {
         try {
             fTokenizer = new PdfContentsTokenizer(buffer, len);
         } catch (PdfError& e) {
@@ -107,7 +107,7 @@ public:
             case ePdfContentsType_Variant: {
                     token->fType = kObject_TokenType;
                     PdfObject* obj = new PdfObject(var);
-                    PodofoMapper::map(*fDoc, *obj, &token->fObject);
+                    mapObject(*fDoc, *obj, &token->fObject);
                 }
                 break;
 
@@ -127,6 +127,91 @@ public:
     }
 };
 
+extern "C" PdfContext* gPdfContext;
+extern "C" SkBitmap* gDumpBitmap;
+extern "C" SkCanvas* gDumpCanvas;
+
+// TODO(edisonn): move in trace util.
+#ifdef PDF_TRACE
+static void SkTraceMatrix(const SkMatrix& matrix, const char* sz = "") {
+    printf("SkMatrix %s ", sz);
+    for (int i = 0 ; i < 9 ; i++) {
+        printf("%f ", SkScalarToDouble(matrix.get(i)));
+    }
+    printf("\n");
+}
+
+static void SkTraceRect(const SkRect& rect, const char* sz = "") {
+    printf("SkRect %s ", sz);
+    printf("x = %f ", SkScalarToDouble(rect.x()));
+    printf("y = %f ", SkScalarToDouble(rect.y()));
+    printf("w = %f ", SkScalarToDouble(rect.width()));
+    printf("h = %f ", SkScalarToDouble(rect.height()));
+    printf("\n");
+}
+
+#else
+#define SkTraceMatrix(a,b)
+#define SkTraceRect(a,b)
+#endif
+
+// TODO(edisonn): Document PdfTokenLooper and subclasses.
+class PdfTokenLooper {
+protected:
+    PdfTokenLooper* fParent;
+    SkPdfTokenizer* fTokenizer;
+    PdfContext* fPdfContext;
+    SkCanvas* fCanvas;
+
+public:
+    PdfTokenLooper(PdfTokenLooper* parent,
+                   SkPdfTokenizer* tokenizer,
+                   PdfContext* pdfContext,
+                   SkCanvas* canvas)
+        : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
+
+    virtual PdfResult consumeToken(PdfToken& token) = 0;
+    virtual void loop() = 0;
+
+    void setUp(PdfTokenLooper* parent) {
+        fParent = parent;
+        fTokenizer = parent->fTokenizer;
+        fPdfContext = parent->fPdfContext;
+        fCanvas = parent->fCanvas;
+    }
+};
+
+class PdfMainLooper : public PdfTokenLooper {
+public:
+    PdfMainLooper(PdfTokenLooper* parent,
+                  SkPdfTokenizer* tokenizer,
+                  PdfContext* pdfContext,
+                  SkCanvas* canvas)
+        : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+};
+
+class PdfInlineImageLooper : public PdfTokenLooper {
+public:
+    PdfInlineImageLooper()
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+    PdfResult done();
+};
+
+class PdfCompatibilitySectionLooper : public PdfTokenLooper {
+public:
+    PdfCompatibilitySectionLooper()
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+};
+
 class SkPdfDoc {
     PdfMemDocument fDoc;
 public:
@@ -139,10 +224,20 @@ public:
         return fDoc.GetPageCount();
     }
 
+    double width(int n) {
+        PdfRect rect = fDoc.GetPage(n)->GetMediaBox();
+        return rect.GetWidth() + rect.GetLeft();
+    }
+
+    double height(int n) {
+        PdfRect rect = fDoc.GetPage(n)->GetMediaBox();
+        return rect.GetHeight() + rect.GetBottom();
+    }
+
     // Can return NULL
     SkPdfPageObjectDictionary* page(int n) {
         SkPdfPageObjectDictionary* page = NULL;
-        PodofoMapper::map(fDoc, *fDoc.GetPage(n)->GetObject(), &page);
+        mapPageObjectDictionary(fDoc, *fDoc.GetPage(n)->GetObject(), &page);
         return page;
     }
 
@@ -155,10 +250,89 @@ public:
         return skrect;
     }
 
+    void drawPage(int n, SkCanvas* canvas) {
+        SkPdfPageObjectDictionary* pg = page(n);
+        SkPdfTokenizer* tokenizer = tokenizerOfPage(n);
+
+        PdfContext pdfContext(this);
+        pdfContext.fOriginalMatrix = SkMatrix::I();
+        pdfContext.fGraphicsState.fResources = NULL;
+        mapResourceDictionary(*pg->Resources(), &pdfContext.fGraphicsState.fResources);
+
+        gPdfContext = &pdfContext;
+        gDumpCanvas = canvas;
+
+        // TODO(edisonn): get matrix stuff right.
+        // TODO(edisonn): add DPI/scale/zoom.
+        SkScalar z = SkIntToScalar(0);
+        SkRect rect = MediaBox(n);
+        SkScalar w = rect.width();
+        SkScalar h = rect.height();
+
+        SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(w, z), SkPoint::Make(w, h), SkPoint::Make(z, h)};
+//                SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
+
+        // TODO(edisonn): add flag for this app to create sourunding buffer zone
+        // TODO(edisonn): add flagg for no clipping.
+        // Use larger image to make sure we do not draw anything outside of page
+        // could be used in tests.
+
+#ifdef PDF_DEBUG_3X
+        SkPoint skiaSpace[4] = {SkPoint::Make(w+z, h+h), SkPoint::Make(w+w, h+h), SkPoint::Make(w+w, h+z), SkPoint::Make(w+z, h+z)};
+#else
+        SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
+#endif
+        //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(w, h)};
+        //SkPoint skiaSpace[2] = {SkPoint::Make(w, z), SkPoint::Make(z, h)};
+
+        //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(z, h)};
+        //SkPoint skiaSpace[2] = {SkPoint::Make(z, h), SkPoint::Make(z, z)};
+
+        //SkPoint pdfSpace[3] = {SkPoint::Make(z, z), SkPoint::Make(z, h), SkPoint::Make(w, h)};
+        //SkPoint skiaSpace[3] = {SkPoint::Make(z, h), SkPoint::Make(z, z), SkPoint::Make(w, 0)};
+
+        SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
+        SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
+
+
+        pdfContext.fGraphicsState.fMatrix = pdfContext.fOriginalMatrix;
+        pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fMatrix;
+        pdfContext.fGraphicsState.fMatrixTlm = pdfContext.fGraphicsState.fMatrix;
+
+        canvas->setMatrix(pdfContext.fOriginalMatrix);
+
+#ifndef PDF_DEBUG_NO_PAGE_CLIPING
+        canvas->clipRect(SkRect::MakeXYWH(z, z, w, h), SkRegion::kIntersect_Op, true);
+#endif
+
+// erase with red before?
+//        SkPaint paint;
+//        paint.setColor(SK_ColorRED);
+//        canvas->drawRect(rect, paint);
+
+        PdfMainLooper looper(NULL, tokenizer, &pdfContext, canvas);
+        looper.loop();
+
+        delete tokenizer;
+
+
+        canvas->flush();
+    }
+
     SkPdfTokenizer* tokenizerOfPage(int n) {
         PdfContentsTokenizer* t = new PdfContentsTokenizer(fDoc.GetPage(n));
         return new SkPdfTokenizer(&fDoc, t);
     }
 };
+
+// TODO(edisonn): move in another file
+class SkPdfViewer : public SkRefCnt {
+public:
+
+  bool load(const SkString inputFileName, SkPicture* out);
+  bool write(void*) const { return false; }
+};
+
+void reportPdfRenderStats();
 
 #endif  // SkPdfParser_DEFINED

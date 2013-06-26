@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", NULL));
   }
 
-  std::string Filter() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Filter", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Filter() const;
 /** (Optional but strongly recommended) A code specifying the algorithm to be used in en-
  *  crypting and decrypting the document:
  *     0     An algorithm that is undocumented and no longer supported, and whose use is
@@ -557,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
-  double V() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double V() const;
 /** (Optional; PDF 1.4; only if V is 2 or 3) The length of the encryption key, in bits. The value
  *  must be a multiple of 8, in the range 40 to 128. Default value: 40.
 **/
@@ -571,13 +559,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length", "", NULL));
   }
 
-  long Length() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Length() const;
 };
 
 #endif  // __DEFINED__SkPdfEncryptionCommonDictionary

@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  long Type() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Type() const;
 /** (Required) A code identifying the type of pattern that this dictionary de-
  *  scribes; must be 2 for a shading pattern.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", NULL));
   }
 
-  long PatternType() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PatternType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long PatternType() const;
 /** (Required) A shading object (see below) defining the shading pattern's gradient
  *  fill. The contents of the dictionary consist of the entries in Table 4.25 on page
  *  234, plus those in one of Tables 4.26 to 4.31 on pages 237 to 253.
@@ -567,26 +555,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getShadingAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getShadingAsDictionary() const;
   bool isShadingAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getShadingAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getShadingAsStream() const;
 /** (Optional) An array of six numbers specifying the pattern matrix (see Section
  *  4.6.1, "General Properties of Patterns"). Default value: the identity matrix
  *  [1 0 0 1 0 0].
@@ -595,13 +571,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
   }
 
-  SkPdfArray* Matrix() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Matrix() const;
 /** (Optional) A graphics state parameter dictionary (see Section 4.3.4, "Graph-
  *  ics State Parameter Dictionaries") containing graphics state parameters to be
  *  put into effect temporarily while the shading pattern is painted. Any parame-
@@ -613,13 +583,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ExtGState", "", NULL));
   }
 
-  SkPdfDictionary* ExtGState() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ExtGState", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* ExtGState() const;
 };
 
 #endif  // __DEFINED__SkPdfType2PatternDictionary

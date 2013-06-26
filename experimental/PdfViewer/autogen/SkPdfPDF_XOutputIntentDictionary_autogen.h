@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The output intent subtype; must be GTS_PDFX for a
  *  PDF/X output intent.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) A text string concisely identifying the intended out-
  *  put device or production condition in human-readable form.
  *  This is the preferred method of defining such a string for pre-
@@ -562,13 +550,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputCondition", "", NULL));
   }
 
-  std::string OutputCondition() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputCondition", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string OutputCondition() const;
 /** (Required) A string identifying the intended output device or
  *  production condition in human- or machine-readable form. If
  *  human-readable, this string may be used in lieu of an Output-
@@ -588,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputConditionIdentifier", "", NULL));
   }
 
-  std::string OutputConditionIdentifier() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OutputConditionIdentifier", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string OutputConditionIdentifier() const;
 /** (Optional) A string (conventionally a uniform resource identifi-
  *  er, or URI) identifying the registry in which the condition desig-
  *  nated by OutputConditionIdentifier is defined.
@@ -603,13 +579,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RegistryName", "", NULL));
   }
 
-  std::string RegistryName() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RegistryName", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string RegistryName() const;
 /** (Required if OutputConditionIdentifier does not specify a standard
  *  production condition; optional otherwise) A human-readable text
  *  string containing additional information or comments about
@@ -619,13 +589,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
   }
 
-  std::string Info() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Info() const;
 /** (Required if OutputConditionIdentifier does not specify a standard
  *  production condition; optional otherwise) An ICC profile stream
  *  defining the transformation from the PDF document's source
@@ -643,13 +607,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DestOutputProfile", "", NULL));
   }
 
-  SkPdfStream* DestOutputProfile() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DestOutputProfile", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* DestOutputProfile() const;
 };
 
 #endif  // __DEFINED__SkPdfPDF_XOutputIntentDictionary

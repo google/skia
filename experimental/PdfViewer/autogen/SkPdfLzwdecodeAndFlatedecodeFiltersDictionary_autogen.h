@@ -536,13 +536,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Predictor", "", NULL));
   }
 
-  long Predictor() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Predictor", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Predictor() const;
 /** (Used only if Predictor is greater than 1) The number of interleaved color com-
  *  ponents per sample. Valid values are 1 to 4 in PDF 1.2 or earlier, and 1 or
  *  greater in PDF 1.3 or later. Default value: 1.
@@ -551,13 +545,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colors", "", NULL));
   }
 
-  long Colors() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colors", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Colors() const;
 /** (Used only if Predictor is greater than 1) The number of bits used to represent
  *  each color component in a sample. Valid values are 1, 2, 4, and 8. Default
  *  value: 8.
@@ -566,13 +554,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", NULL));
   }
 
-  long BitsPerComponent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long BitsPerComponent() const;
 /** (Used only if Predictor is greater than 1) The number of samples in each row.
  *  Default value: 1.
 **/
@@ -580,13 +562,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", NULL));
   }
 
-  long Columns() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Columns() const;
 /** (LZWDecode only) An indication of when to increase the code length. If the
  *  value of this entry is 0, code length increases are postponed as long as pos-
  *  sible. If it is 1, they occur one code early. This parameter is included because
@@ -597,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EarlyChange", "", NULL));
   }
 
-  long EarlyChange() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EarlyChange", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long EarlyChange() const;
 };
 
 #endif  // __DEFINED__SkPdfLzwdecodeAndFlatedecodeFiltersDictionary

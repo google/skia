@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", NULL));
   }
 
-  SkPdfArray* WhitePoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* WhitePoint() const;
 /** (Optional) An array of three numbers [ XB YB ZB ] specifying the tristimulus value, in
  *  the CIE 1931 XYZ space, of the diffuse black point; see below for further discussion.
  *  All three of these numbers must be nonnegative. Default value: [0.0 0.0 0.0].
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", NULL));
   }
 
-  SkPdfArray* BlackPoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* BlackPoint() const;
 /** (Optional) An array of three numbers [ GR GG GB ] specifying the gamma for the red,
  *  green, and blue (A, B, and C) components of the color space. Default value:
  *  [1.0 1.0 1.0].
@@ -563,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", NULL));
   }
 
-  SkPdfArray* Gamma() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Gamma() const;
 /** (Optional) An array of nine numbers [ XA YA ZA XB YB ZB XC YC ZC ] specifying
  *  the linear interpretation of the decoded A, B, and C components of the color space
  *  with respect to the final XYZ representation. Default value: the identity matrix
@@ -579,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
   }
 
-  SkPdfArray* Matrix() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Matrix() const;
 };
 
 #endif  // __DEFINED__SkPdfCalrgbColorSpaceDictionary

@@ -536,13 +536,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PCM", "", NULL));
   }
 
-  std::string PCM() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PCM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string PCM() const;
 /** (Optional) An array of names identifying the colorants that were
  *  assumed when this network was created; equivalent to the Post-
  *  Script page device parameter of the same name (see Section 6.2.5 of
@@ -555,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SeparationColorNames", "", NULL));
   }
 
-  SkPdfArray* SeparationColorNames() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SeparationColorNames", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* SeparationColorNames() const;
 /** (Optional) An array of indirect references to TrapRegion objects
  *  defining the page's trapping zones and the associated trapping
  *  parameters, as described in Adobe Technical Note #5620, Portable
@@ -575,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapRegions", "", NULL));
   }
 
-  SkPdfArray* TrapRegions() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapRegions", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* TrapRegions() const;
 /** (Optional) A human-readable text string that applications can use
  *  to describe this trap network to the user (for example, to allow
  *  switching between trap networks).
@@ -590,13 +572,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapStyles", "", NULL));
   }
 
-  std::string TrapStyles() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrapStyles", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string TrapStyles() const;
 };
 
 #endif  // __DEFINED__SkPdfTrapNetworkAppearanceStreamDictionary

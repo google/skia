@@ -37,13 +37,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of XObject that this dictionary describes; must be
  *  Image for an image XObject.
 **/
@@ -51,39 +45,21 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The width of the image, in samples.
 **/
   bool has_Width() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", NULL));
   }
 
-  long Width() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Width() const;
 /** (Required) The height of the image, in samples.
 **/
   bool has_Height() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", NULL));
   }
 
-  long Height() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Height() const;
 /** (Required except for image masks; not allowed for image masks) The color
  *  space in which image samples are specified. This may be any type of color
  *  space except Pattern.
@@ -98,26 +74,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getColorSpaceAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getColorSpaceAsName() const;
   bool isColorSpaceAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getColorSpaceAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getColorSpaceAsArray() const;
 /** (Required except for image masks; optional for image masks) The number of
  *  bits used to represent each color component. Only a single value may be
  *  specified; the number of bits is the same for all color components. Valid
@@ -134,13 +98,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", NULL));
   }
 
-  long BitsPerComponent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerComponent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long BitsPerComponent() const;
 /** (Optional; PDF 1.1) The name of a color rendering intent to be used in
  *  rendering the image (see "Rendering Intents" on page 197). Default value:
  *  the current rendering intent in the graphics state.
@@ -149,13 +107,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Intent", "", NULL));
   }
 
-  std::string Intent() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Intent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Intent() const;
 /** (Optional) A flag indicating whether the image is to be treated as an image
  *  mask (see Section 4.8.5, "Masked Images"). If this flag is true, the value of
  *  BitsPerComponent must be 1 and Mask and ColorSpace should not be
@@ -166,13 +118,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ImageMask", "", NULL));
   }
 
-  bool ImageMask() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ImageMask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool ImageMask() const;
 /** (Optional except for image masks; not allowed for image masks; PDF 1.3) An
  *  image XObject defining an image mask to be applied to this image (see
  *  "Explicit Masking" on page 277), or an array specifying a range of colors
@@ -190,26 +136,14 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getMaskAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getMaskAsStream() const;
   bool isMaskAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mask", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getMaskAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getMaskAsArray() const;
 /** (Optional; PDF 1.4) A subsidiary image XObject defining a soft-mask
  *  image (see "Soft-Mask Images" on page 447) to be used as a source of
  *  mask shape or mask opacity values in the transparent imaging model. The
@@ -225,13 +159,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", NULL));
   }
 
-  SkPdfStream* SMask() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* SMask() const;
 /** (Optional) An array of numbers describing how to map image samples
  *  into the range of values appropriate for the image's color space (see
  *  "Decode Arrays" on page 271). If ImageMask is true, the array must be
@@ -243,13 +171,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", NULL));
   }
 
-  SkPdfArray* Decode() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Decode() const;
 /** (Optional) A flag indicating whether image interpolation is to be per-
  *  formed (see "Image Interpolation" on page 273). Default value: false.
 **/
@@ -257,13 +179,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Interpolate", "", NULL));
   }
 
-  bool Interpolate() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Interpolate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Interpolate() const;
 /** (Optional; PDF 1.3) An array of alternate image dictionaries for this image
  *  (see "Alternate Images" on page 273). The order of elements within the
  *  array has no significance. This entry may not be present in an image
@@ -273,13 +189,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternates", "", NULL));
   }
 
-  SkPdfArray* Alternates() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Alternates", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Alternates() const;
 /** (Required in PDF 1.0; optional otherwise) The name by which this image
  *  XObject is referenced in the XObject subdictionary of the current resource
  *  dictionary (see Section 3.7.2, "Resource Dictionaries").
@@ -290,13 +200,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 /** (Required if the image is a structural content item; PDF 1.3) The integer key
  *  of the image's entry in the structural parent tree (see "Finding Structure
  *  Elements from Content Items" on page 600).
@@ -305,13 +209,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", NULL));
   }
 
-  long StructParent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParent() const;
 /** (Optional; PDF 1.3; indirect reference preferred) The digital identifier of the
  *  image's parent Web Capture content set (see Section 9.9.5, "Object At-
  *  tributes Related to Web Capture").
@@ -320,13 +218,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  std::string ID() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string ID() const;
 /** (Optional; PDF 1.2) An OPI version dictionary for the image (see Section
  *  9.10.6, "Open Prepress Interface (OPI)"). If ImageMask is true, this entry
  *  is ignored.
@@ -335,13 +227,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPI", "", NULL));
   }
 
-  SkPdfDictionary* OPI() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPI", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* OPI() const;
 /** (Optional; PDF 1.4) A metadata stream containing metadata for the image
  *  (see Section 9.2.2, "Metadata Streams").
 **/
@@ -349,13 +235,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream* Metadata() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Metadata() const;
 };
 
 #endif  // __DEFINED__SkPdfImageDictionary

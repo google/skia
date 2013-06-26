@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
   }
 
-  SkPdfArray* Kids() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Kids() const;
 /** (Root and leaf nodes only; required in leaf nodes; present in the root node if and only if Kids
  *  is not present) An array of the form
  *      [key1 value1 key2 value2 ... keyn valuen ]
@@ -551,13 +545,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Nums", "", NULL));
   }
 
-  SkPdfArray* Nums() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Nums", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Nums() const;
 /** (Intermediate and leaf nodes only; required) An array of two integers, specifying the
  *  (numerically) least and greatest keys included in the Nums array of a leaf node or in the
  *  Nums arrays of any leaf nodes that are descendants of an intermediate node.
@@ -566,13 +554,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Limits", "", NULL));
   }
 
-  SkPdfArray* Limits() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Limits", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Limits() const;
 };
 
 #endif  // __DEFINED__SkPdfNumberTreeNodeDictionary

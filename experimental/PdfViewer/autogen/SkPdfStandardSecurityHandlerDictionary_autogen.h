@@ -536,13 +536,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
   }
 
-  double R() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double R() const;
 /** (Required) A 32-byte string, based on both the owner and user passwords, that is used in
  *  computing the encryption key and in determining whether a valid owner password was
  *  entered. For more information, see "Encryption Key Algorithm" on page 78 and "Pass-
@@ -552,13 +546,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
   }
 
-  std::string O() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string O() const;
 /** (Required) A 32-byte string, based on the user password, that is used in determining
  *  whether to prompt the user for a password and, if so, whether a valid user or owner pass-
  *  word was entered. For more information, see "Password Algorithms" on page 79.
@@ -567,13 +555,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
   }
 
-  std::string U() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string U() const;
 /** (Required) A set of flags specifying which operations are permitted when the document is
  *  opened with user access (see Table 3.15).
 **/
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
-  long P() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long P() const;
 };
 
 #endif  // __DEFINED__SkPdfStandardSecurityHandlerDictionary

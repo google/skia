@@ -538,26 +538,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getDestsAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDestsAsName() const;
   bool isDestsATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getDestsAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dests", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getDestsAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping name strings to annotation
  *  appearance streams (see Section 8.4.4, "Appearance Streams").
 **/
@@ -571,26 +559,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getAPAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getAPAsName() const;
   bool isAPATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getAPAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getAPAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping name strings to document-level
  *  JavaScript(R) actions (see "JavaScript Actions" on page 556).
 **/
@@ -604,26 +580,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getJavaScriptAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getJavaScriptAsName() const;
   bool isJavaScriptATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getJavaScriptAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getJavaScriptAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping name strings to visible pages for
  *  use in interactive forms (see Section 8.6.5, "Named Pages").
 **/
@@ -637,26 +601,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getPagesAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getPagesAsName() const;
   bool isPagesATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getPagesAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getPagesAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping name strings to invisible (tem-
  *  plate) pages for use in interactive forms (see Section 8.6.5, "Named Pages").
 **/
@@ -670,26 +622,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getTemplatesAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTemplatesAsName() const;
   bool isTemplatesATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getTemplatesAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getTemplatesAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping digital identifiers to Web Capture
  *  content sets (see Section 9.9.3, "Content Sets").
 **/
@@ -703,26 +643,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getIDSAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getIDSAsName() const;
   bool isIDSATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDS", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getIDSAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "IDS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getIDSAsTree() const;
 /** (Optional; PDF 1.3) A name tree mapping uniform resource locators (URLs)
  *  to Web Capture content sets (see Section 9.9.3, "Content Sets").
 **/
@@ -736,26 +664,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getURLSAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getURLSAsName() const;
   bool isURLSATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getURLSAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URLS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getURLSAsTree() const;
 /** (Optional; PDF 1.4) A name tree mapping name strings to embedded file
  *  streams (see Section 3.10.3, "Embedded File Streams").
 **/
@@ -769,26 +685,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getEmbeddedFilesAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFiles", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getEmbeddedFilesAsName() const;
   bool isEmbeddedFilesATree() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFiles", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfTree* getEmbeddedFilesAsTree() const {
-    SkPdfTree* ret = NULL;
-    if (TreeFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFiles", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfTree* getEmbeddedFilesAsTree() const;
 };
 
 #endif  // __DEFINED__SkPdfNameDictionary

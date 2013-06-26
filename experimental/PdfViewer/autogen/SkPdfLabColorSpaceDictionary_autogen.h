@@ -534,13 +534,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", NULL));
   }
 
-  SkPdfArray* WhitePoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* WhitePoint() const;
 /** (Optional) An array of three numbers [ XB YB ZB ] specifying the tristimulus value, in
  *  the CIE 1931 XYZ space, of the diffuse black point; see "CalRGB Color Spaces" on
  *  page 184 for further discussion. All three of these numbers must be nonnegative.
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", NULL));
   }
 
-  SkPdfArray* BlackPoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* BlackPoint() const;
 /** (Optional) An array of four numbers [ amin amax bmin bmax ] specifying the range of
  *  valid values for the a* and b* (B and C) components of the color space-that is,
  *        a min <= a* <= a max
@@ -569,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", NULL));
   }
 
-  SkPdfArray* Range() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Range() const;
 };
 
 #endif  // __DEFINED__SkPdfLabColorSpaceDictionary

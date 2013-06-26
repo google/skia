@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required; must be an indirect reference) The page tree node that is the im-
  *  mediate parent of this page object.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
   }
 
-  SkPdfDictionary* Parent() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Parent() const;
 /** (Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and
  *  time (see Section 3.8.2, "Dates") when the page's contents were most re-
  *  cently modified. If a page-piece dictionary (PieceInfo) is present, the
@@ -564,13 +552,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
   }
 
-  SkPdfDate LastModified() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate LastModified() const;
 /** (Required; inheritable) A dictionary containing any resources required by
  *  the page (see Section 3.7.2, "Resource Dictionaries"). If the page requires
  *  no resources, the value of this entry should be an empty dictionary; omit-
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", NULL));
   }
 
-  SkPdfDictionary* Resources() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Resources() const;
 /** (Required; inheritable) A rectangle (see Section 3.8.3, "Rectangles"), ex-
  *  pressed in default user space units, defining the boundaries of the physical
  *  medium on which the page is intended to be displayed or printed (see
@@ -597,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MediaBox", "", NULL));
   }
 
-  SkRect* MediaBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MediaBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* MediaBox() const;
 /** (Optional; inheritable) A rectangle, expressed in default user space units,
  *  defining the visible region of default user space. When the page is dis-
  *  played or printed, its contents are to be clipped (cropped) to this rectangle
@@ -615,13 +585,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CropBox", "", NULL));
   }
 
-  SkRect* CropBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CropBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* CropBox() const;
 /** (Optional; PDF 1.3) A rectangle, expressed in default user space units, de-
  *  fining the region to which the contents of the page should be clipped
  *  when output in a production environment (see Section 9.10.1, "Page
@@ -631,13 +595,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BleedBox", "", NULL));
   }
 
-  SkRect* BleedBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BleedBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* BleedBox() const;
 /** (Optional; PDF 1.3) A rectangle, expressed in default user space units, de-
  *  fining the intended dimensions of the finished page after trimming (see
  *  Section 9.10.1, "Page Boundaries"). Default value: the value of CropBox.
@@ -646,13 +604,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrimBox", "", NULL));
   }
 
-  SkRect* TrimBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrimBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* TrimBox() const;
 /** (Optional; PDF 1.3) A rectangle, expressed in default user space units, de-
  *  fining the extent of the page's meaningful content (including potential
  *  white space) as intended by the page's creator (see Section 9.10.1, "Page
@@ -662,13 +614,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ArtBox", "", NULL));
   }
 
-  SkRect* ArtBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ArtBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* ArtBox() const;
 /** (Optional) A box color information dictionary specifying the colors and
  *  other visual characteristics to be used in displaying guidelines on the
  *  screen for the various page boundaries (see "Display of Page Boundaries"
@@ -679,13 +625,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BoxColorInfo", "", NULL));
   }
 
-  SkPdfDictionary* BoxColorInfo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BoxColorInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* BoxColorInfo() const;
 /** (Optional) A content stream (see Section 3.7.1, "Content Streams") de-
  *  scribing the contents of this page. If this entry is absent, the page is empty.
  *  The value may be either a single stream or an array of streams. If it is an
@@ -709,26 +649,14 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getContentsAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getContentsAsStream() const;
   bool isContentsAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getContentsAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getContentsAsArray() const;
 /** (Optional; inheritable) The number of degrees by which the page should
  *  be rotated clockwise when displayed or printed. The value must be a mul-
  *  tiple of 90. Default value: 0.
@@ -737,13 +665,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", NULL));
   }
 
-  long Rotate() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Rotate() const;
 /** (Optional; PDF 1.4) A group attributes dictionary specifying the attributes
  *  of the page's page group for use in the transparent imaging model (see
  *  Sections 7.3.6, "Page Group," and 7.5.5, "Transparency Group XObjects").
@@ -752,13 +674,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Group", "", NULL));
   }
 
-  SkPdfDictionary* Group() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Group", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Group() const;
 /** (Optional) A stream object defining the page's thumbnail image (see Sec-
  *  tion 8.2.3, "Thumbnail Images").
 **/
@@ -766,13 +682,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Thumb", "", NULL));
   }
 
-  SkPdfStream* Thumb() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Thumb", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Thumb() const;
 /** (Optional; PDF 1.1; recommended if the page contains article beads) An ar-
  *  ray of indirect references to article beads appearing on the page (see Sec-
  *  tion 8.3.2, "Articles"; see also implementation note 23 in Appendix H).
@@ -782,13 +692,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", NULL));
   }
 
-  SkPdfArray* B() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* B() const;
 /** (Optional; PDF 1.1) The page's display duration (also called its advance
  *  timing): the maximum length of time, in seconds, that the page will be
  *  displayed during presentations before the viewer application automati-
@@ -799,13 +703,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dur", "", NULL));
   }
 
-  double Dur() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dur", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Dur() const;
 /** (Optional; PDF 1.1) A transition dictionary describing the transition effect
  *  to be used when displaying the page during presentations (see Section
  *  8.3.3, "Presentations").
@@ -814,13 +712,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Trans", "", NULL));
   }
 
-  SkPdfDictionary* Trans() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Trans", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Trans() const;
 /** (Optional) An array of annotation dictionaries representing annotations
  *  associated with the page (see Section 8.4, "Annotations").
 **/
@@ -828,13 +720,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annots", "", NULL));
   }
 
-  SkPdfArray* Annots() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annots", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Annots() const;
 /** (Optional; PDF 1.2) An additional-actions dictionary defining actions to
  *  be performed when the page is opened or closed (see Section 8.5.2, "Trig-
  *  ger Events"; see also implementation note 24 in Appendix H).
@@ -843,13 +729,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
   }
 
-  SkPdfDictionary* AA() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* AA() const;
 /** (Optional; PDF 1.4) A metadata stream containing metadata for the page
  *  (see Section 9.2.2, "Metadata Streams").
 **/
@@ -857,13 +737,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream* Metadata() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Metadata() const;
 /** (Optional; PDF 1.3) A page-piece dictionary associated with the page (see
  *  Section 9.4, "Page-Piece Dictionaries").
 **/
@@ -871,13 +745,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PieceInfo", "", NULL));
   }
 
-  SkPdfDictionary* PieceInfo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PieceInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* PieceInfo() const;
 /** (Required if the page contains structural content items; PDF 1.3) The inte-
  *  ger key of the page's entry in the structural parent tree (see "Finding Struc-
  *  ture Elements from Content Items" on page 600).
@@ -886,13 +754,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", NULL));
   }
 
-  long StructParents() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParents() const;
 /** (Optional; PDF 1.3; indirect reference preferred) The digital identifier of the
  *  page's parent Web Capture content set (see Section 9.9.5, "Object At-
  *  tributes Related to Web Capture").
@@ -901,13 +763,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  std::string ID() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string ID() const;
 /** (Optional; PDF 1.3) The page's preferred zoom (magnification) factor: the
  *  factor by which it should be scaled to achieve the "natural" display magni-
  *  fication (see Section 9.9.5, "Object Attributes Related to Web Capture").
@@ -916,13 +772,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PZ", "", NULL));
   }
 
-  double PZ() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PZ", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double PZ() const;
 /** (Optional; PDF 1.3) A separation dictionary containing information need-
  *  ed to generate color separations for the page (see Section 9.10.3, "Separa-
  *  tion Dictionaries").
@@ -931,13 +781,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SeparationInfo", "", NULL));
   }
 
-  SkPdfDictionary* SeparationInfo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SeparationInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* SeparationInfo() const;
 };
 
 #endif  // __DEFINED__SkPdfPageObjectDictionary

@@ -536,13 +536,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matte", "", NULL));
   }
 
-  SkPdfArray* Matte() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matte", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Matte() const;
 };
 
 #endif  // __DEFINED__SkPdfSoftMaskImageDictionary

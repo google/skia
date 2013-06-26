@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
   }
 
-  SkPdfDictionary* E() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* E() const;
 /** (Optional; PDF 1.2) An action to be performed when the cursor exits the annotation's
  *  active area.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "X", "", NULL));
   }
 
-  SkPdfDictionary* X() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "X", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* X() const;
 /** (Optional; PDF 1.2) An action to be performed when the mouse button is pressed
  *  inside the annotation's active area. (The name D stands for "down.")
 **/
@@ -560,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
-  SkPdfDictionary* D() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* D() const;
 /** (Optional; PDF 1.2) An action to be performed when the mouse button is released
  *  inside the annotation's active area. (The name U stands for "up.")
  *  Note: For backward compatibility, the A entry in an annotation dictionary, if present,
@@ -576,13 +558,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
   }
 
-  SkPdfDictionary* U() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* U() const;
 /** (Optional; PDF 1.2; widget annotations only) An action to be performed when the
  *  annotation receives the input focus.
 **/
@@ -590,13 +566,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fo", "", NULL));
   }
 
-  SkPdfDictionary* Fo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Fo() const;
 /** (Optional; PDF 1.2; widget annotations only) (Uppercase B, lowercase L) An action to
  *  be performed when the annotation loses the input focus. (The name Bl stands for
  *  "blurred.")
@@ -605,13 +575,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bl", "", NULL));
   }
 
-  SkPdfDictionary* Bl() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bl", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Bl() const;
 };
 
 #endif  // __DEFINED__SkPdfAnnotationActionsDictionary

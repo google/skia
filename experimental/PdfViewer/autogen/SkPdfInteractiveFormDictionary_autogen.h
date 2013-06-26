@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
   }
 
-  SkPdfArray* Fields() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Fields() const;
 /** (Optional) A flag specifying whether to construct appearance streams and
  *  appearance dictionaries for all widget annotations in the document (see
  *  "Variable Text" on page 533). Default value: false.
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NeedAppearances", "", NULL));
   }
 
-  bool NeedAppearances() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NeedAppearances", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool NeedAppearances() const;
 /** (Optional; PDF 1.3) A set of flags specifying various document-level char-
  *  acteristics related to signature fields (see Table 8.48, below, and "Signature
  *  Fields" on page 547). Default value: 0.
@@ -562,13 +550,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SigFlags", "", NULL));
   }
 
-  long SigFlags() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SigFlags", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long SigFlags() const;
 /** (Required if any fields in the document have additional-actions dictionaries
  *  containing a C entry; PDF 1.3) An array of indirect references to field dic-
  *  tionaries with calculation actions, defining the calculation order in which
@@ -579,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", NULL));
   }
 
-  SkPdfArray* CO() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* CO() const;
 /** (Optional) A document-wide default value for the DR attribute of variable
  *  text fields (see "Variable Text" on page 533).
 **/
@@ -593,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", NULL));
   }
 
-  SkPdfDictionary* DR() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* DR() const;
 /** (Optional) A document-wide default value for the DA attribute of variable
  *  text fields (see "Variable Text" on page 533).
 **/
@@ -607,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
   }
 
-  std::string DA() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string DA() const;
 /** (Optional) A document-wide default value for the Q attribute of variable
  *  text fields (see "Variable Text" on page 533).
 **/
@@ -621,13 +585,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
-  long Q() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Q() const;
 };
 
 #endif  // __DEFINED__SkPdfInteractiveFormDictionary

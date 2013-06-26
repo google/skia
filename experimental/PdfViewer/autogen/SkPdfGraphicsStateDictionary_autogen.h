@@ -532,65 +532,35 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional; PDF 1.3) The line width (see "Line Width" on page 152).
 **/
   bool has_LW() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LW", "", NULL));
   }
 
-  double LW() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LW", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double LW() const;
 /** (Optional; PDF 1.3) The line cap style (see "Line Cap Style" on page 153).
 **/
   bool has_LC() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LC", "", NULL));
   }
 
-  long LC() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LC", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long LC() const;
 /** (Optional; PDF 1.3) The line join style (see "Line Join Style" on page 153).
 **/
   bool has_LJ() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LJ", "", NULL));
   }
 
-  long LJ() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LJ", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long LJ() const;
 /** (Optional; PDF 1.3) The miter limit (see "Miter Limit" on page 153).
 **/
   bool has_ML() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ML", "", NULL));
   }
 
-  double ML() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ML", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double ML() const;
 /** (Optional; PDF 1.3) The line dash pattern, expressed as an array of the form
  *  [dashArray dashPhase], where dashArray is itself an array and dashPhase is an
  *  integer (see "Line Dash Pattern" on page 155).
@@ -599,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
-  SkPdfArray* D() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* D() const;
 /** (Optional; PDF 1.3) The name of the rendering intent (see "Rendering
  *  Intents" on page 197).
 **/
@@ -613,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RI", "", NULL));
   }
 
-  std::string RI() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RI", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string RI() const;
 /** (Optional) A flag specifying whether to apply overprint (see Section 4.5.6,
  *  "Overprint Control"). In PDF 1.2 and earlier, there is a single overprint
  *  parameter that applies to all painting operations. Beginning with PDF 1.3,
@@ -632,13 +590,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OP", "", NULL));
   }
 
-  bool OP() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool OP() const;
 /** (Optional; PDF 1.3) A flag specifying whether to apply overprint (see Section
  *  4.5.6, "Overprint Control") for painting operations other than stroking. If
  *  this entry is absent, the OP entry, if any, sets this parameter.
@@ -647,13 +599,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "op", "", NULL));
   }
 
-  bool op() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "op", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool op() const;
 /** (Optional; PDF 1.3) The overprint mode (see Section 4.5.6, "Overprint Con-
  *  trol").
 **/
@@ -661,13 +607,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPM", "", NULL));
   }
 
-  long OPM() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long OPM() const;
 /** (Optional; PDF 1.3) An array of the form [font size], where font is an indirect
  *  reference to a font dictionary and size is a number expressed in text space
  *  units. These two objects correspond to the operands of the Tf operator (see
@@ -678,13 +618,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", NULL));
   }
 
-  SkPdfArray* Font() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Font() const;
 /** (Optional) The black-generation function, which maps the interval [0.0 1.0]
  *  to the interval [0.0 1.0] (see Section 6.2.3, "Conversion from DeviceRGB to
  *  DeviceCMYK").
@@ -693,13 +627,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", NULL));
   }
 
-  SkPdfFunction BG() const {
-    SkPdfFunction ret;
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction BG() const;
 /** (Optional; PDF 1.3) Same as BG except that the value may also be the name
  *  Default, denoting the black-generation function that was in effect at the start
  *  of the page. If both BG and BG2 are present in the same graphics state param-
@@ -715,26 +643,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getBG2AsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getBG2AsFunction() const;
   bool isBG2AName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG2", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getBG2AsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BG2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getBG2AsName() const;
 /** (Optional) The undercolor-removal function, which maps the interval
  *  [0.0 1.0] to the interval [-1.0 1.0] (see Section 6.2.3, "Conversion from
  *  DeviceRGB to DeviceCMYK").
@@ -743,13 +659,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR", "", NULL));
   }
 
-  SkPdfFunction UCR() const {
-    SkPdfFunction ret;
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction UCR() const;
 /** (Optional; PDF 1.3) Same as UCR except that the value may also be the name
  *  Default, denoting the undercolor-removal function that was in effect at the
  *  start of the page. If both UCR and UCR2 are present in the same graphics state
@@ -765,26 +675,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getUCR2AsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getUCR2AsFunction() const;
   bool isUCR2AName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR2", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getUCR2AsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UCR2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getUCR2AsName() const;
 /** (Optional) The transfer function, which maps the interval [0.0 1.0] to the
  *  interval [0.0 1.0] (see Section 6.3, "Transfer Functions"). The value is either
  *  a single function (which applies to all process colorants) or an array of four
@@ -801,39 +699,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getTRAsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getTRAsFunction() const;
   bool isTRAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getTRAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getTRAsArray() const;
   bool isTRAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getTRAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTRAsName() const;
 /** (Optional; PDF 1.3) Same as TR except that the value may also be the name
  *  Default, denoting the transfer function that was in effect at the start of the
  *  page. If both TR and TR2 are present in the same graphics state parameter dic-
@@ -849,39 +729,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getTR2AsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getTR2AsFunction() const;
   bool isTR2AArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getTR2AsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getTR2AsArray() const;
   bool isTR2AName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getTR2AsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTR2AsName() const;
 /** (Optional) The halftone dictionary or stream (see Section 6.4, "Halftones")
  *  or the name Default, denoting the halftone that was in effect at the start of the
  *  page.
@@ -896,39 +758,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getHTAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getHTAsDictionary() const;
   bool isHTAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getHTAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getHTAsStream() const;
   bool isHTAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getHTAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HT", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getHTAsName() const;
 /** (Optional; PDF 1.3) The flatness tolerance (see Section 6.5.1, "Flatness Toler-
  *  ance").
 **/
@@ -936,13 +780,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FL", "", NULL));
   }
 
-  double FL() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FL", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double FL() const;
 /** (Optional; PDF 1.3) The smoothness tolerance (see Section 6.5.2, "Smooth-
  *  ness Tolerance").
 **/
@@ -950,13 +788,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SM", "", NULL));
   }
 
-  double SM() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double SM() const;
 /** (Optional) A flag specifying whether to apply automatic stroke adjustment
  *  (see Section 6.5.4, "Automatic Stroke Adjustment").
 **/
@@ -964,13 +796,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SA", "", NULL));
   }
 
-  bool SA() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool SA() const;
 /** (Optional; PDF 1.4) The current blend mode to be used in the transparent
  *  imaging model (see Sections 7.2.4, "Blend Mode," and 7.5.2, "Specifying
  *  Blending Color Space and Blend Mode").
@@ -985,26 +811,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getBMAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getBMAsName() const;
   bool isBMAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BM", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getBMAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getBMAsArray() const;
 /** (Optional; PDF 1.4) The current soft mask, specifying the mask shape or
  *  mask opacity values to be used in the transparent imaging model (see
  *  "Source Shape and Opacity" on page 421 and "Mask Shape and Opacity" on
@@ -1024,26 +838,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getSMaskAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getSMaskAsDictionary() const;
   bool isSMaskAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getSMaskAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SMask", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getSMaskAsName() const;
 /** (Optional; PDF 1.4) The current stroking alpha constant, specifying the con-
  *  stant shape or constant opacity value to be used for stroking operations in the
  *  transparent imaging model (see "Source Shape and Opacity" on page 421
@@ -1053,26 +855,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", NULL));
   }
 
-  double CA() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double CA() const;
 /** (Optional; PDF 1.4) Same as CA, but for nonstroking operations.
 **/
   bool has_ca() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ca", "", NULL));
   }
 
-  double ca() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ca", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double ca() const;
 /** (Optional; PDF 1.4) The alpha source flag ("alpha is shape"), specifying
  *  whether the current soft mask and alpha constant are to be interpreted as
  *  shape values (true) or opacity values (false).
@@ -1081,13 +871,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AIS", "", NULL));
   }
 
-  bool AIS() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AIS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool AIS() const;
 /** (Optional; PDF 1.4) The text knockout flag, which determines the behavior
  *  of overlapping glyphs within a text object in the transparent imaging model
  *  (see Section 5.2.7, "Text Knockout").
@@ -1096,13 +880,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TK", "", NULL));
   }
 
-  bool TK() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TK", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool TK() const;
 };
 
 #endif  // __DEFINED__SkPdfGraphicsStateDictionary

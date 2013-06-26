@@ -1,4 +1,5 @@
 #include "SkPdfFont.h"
+#include "SkPdfParser.h"
 
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
     static std::map<std::string, SkPdfStandardFontEntry> gPdfStandardFonts;

@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 /** (Required) A page index or page label (see Section 8.3.1, "Page Labels")
  *  identifying the page of the target document containing the content to be
  *  imported. Note that the reference is a weak one and can be inadvertently in-
@@ -554,26 +548,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  long getPageAsInteger() const {
-    long ret = 0;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long getPageAsInteger() const;
   bool isPageAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getPageAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Page", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getPageAsString() const;
 /** (Optional) An array of two strings constituting a file identifier (see Section 9.3,
  *  "File Identifiers") for the file containing the target document. The use of this
  *  entry improves a viewer application's chances of finding the intended file and
@@ -583,13 +565,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  SkPdfArray* ID() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* ID() const;
 };
 
 #endif  // __DEFINED__SkPdfReferenceDictionary

@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CropBox", "", NULL));
   }
 
-  SkPdfDictionary* CropBox() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CropBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* CropBox() const;
 /** (Optional) A box style dictionary (see Table 9.42) specifying the visual characteris-
  *  tics for displaying guidelines for the page's bleed box. This entry is ignored if no
  *  bleed box is defined in the page object.
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BleedBox", "", NULL));
   }
 
-  SkPdfDictionary* BleedBox() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BleedBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* BleedBox() const;
 /** (Optional) A box style dictionary (see Table 9.42) specifying the visual characteris-
  *  tics for displaying guidelines for the page's trim box. This entry is ignored if no trim
  *  box is defined in the page object.
@@ -563,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrimBox", "", NULL));
   }
 
-  SkPdfDictionary* TrimBox() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TrimBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* TrimBox() const;
 /** (Optional) A box style dictionary (see Table 9.42) specifying the visual characteris-
  *  tics for displaying guidelines for the page's art box. This entry is ignored if no art
  *  box is defined in the page object.
@@ -578,13 +560,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ArtBox", "", NULL));
   }
 
-  SkPdfDictionary* ArtBox() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ArtBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* ArtBox() const;
 };
 
 #endif  // __DEFINED__SkPdfBoxColorInformationDictionary

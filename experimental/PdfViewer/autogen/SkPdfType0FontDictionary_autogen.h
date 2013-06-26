@@ -49,26 +49,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of font; must be Type0 for a Type 0 font.
 **/
   bool has_Subtype() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The PostScript name of the font. In principle, this is an arbitrary
  *  name, since there is no font program associated directly with a Type 0 font
  *  dictionary. The conventions described here ensure maximum compatibility
@@ -83,13 +71,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", NULL));
   }
 
-  std::string BaseFont() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string BaseFont() const;
 /** (Required) The name of a predefined CMap, or a stream containing a CMap
  *  program, that maps character codes to font numbers and CIDs. If the descen-
  *  dant is a Type 2 CIDFont whose associated TrueType font program is not em-
@@ -106,26 +88,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getEncodingAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getEncodingAsName() const;
   bool isEncodingAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getEncodingAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getEncodingAsStream() const;
 /** (Required) An array specifying one or more fonts or CIDFonts that are
  *  descendants of this composite font. This array is indexed by the font number
  *  that is obtained by mapping a character code through the CMap specified in
@@ -137,13 +107,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DescendantFonts", "", NULL));
   }
 
-  SkPdfArray* DescendantFonts() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DescendantFonts", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* DescendantFonts() const;
 /** (Optional) A stream containing a CMap file that maps character codes to
  *  Unicode values (see Section 5.9, "ToUnicode CMaps").
 **/
@@ -151,13 +115,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", NULL));
   }
 
-  SkPdfStream* ToUnicode() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* ToUnicode() const;
 };
 
 #endif  // __DEFINED__SkPdfType0FontDictionary

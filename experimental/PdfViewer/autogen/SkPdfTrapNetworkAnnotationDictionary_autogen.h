@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Optional; PDF 1.4) An alternate description of the annotation's contents in
  *  human-readable form, useful when extracting the document's contents in
  *  support of accessibility to disabled users or for other purposes (see Section
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Required if Version and AnnotStates are absent; must be absent if Version and
  *  AnnotStates are present; PDF 1.4) The date and time (see Section 3.8.2,
  *  "Dates") when the trap network was most recently modified.
@@ -563,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
   }
 
-  SkPdfDate LastModified() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate LastModified() const;
 /** (Required if AnnotStates is present; must be absent if LastModified is present)
  *  An unordered array of all objects present in the page description at the time
  *  the trap networks were generated and that, if changed, could affect the
@@ -588,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", NULL));
   }
 
-  SkPdfArray* Version() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Version", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Version() const;
 /** (Required if Version is present; must be absent if LastModified is present) An
  *  array of name objects representing the appearance states (value of the AS
  *  entry) for annotations associated with the page. The appearance states must
@@ -607,13 +583,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AnnotStates", "", NULL));
   }
 
-  SkPdfArray* AnnotStates() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AnnotStates", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* AnnotStates() const;
 /** (Optional) An array of font dictionaries representing fonts that were "fauxed"
  *  (replaced by substitute fonts) during the generation of trap networks for the
  *  page.
@@ -622,13 +592,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFauxing", "", NULL));
   }
 
-  SkPdfArray* FontFauxing() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFauxing", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* FontFauxing() const;
 };
 
 #endif  // __DEFINED__SkPdfTrapNetworkAnnotationDictionary

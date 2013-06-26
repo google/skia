@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TRef", "", NULL));
   }
 
-  SkPdfDictionary* TRef() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TRef", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* TRef() const;
 /** (Optional) An array of references to FDF field dictionaries (see Table 8.72 on
  *  page 564) describing the root fields to be imported (those with no ancestors in
  *  the field hierarchy).
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
   }
 
-  SkPdfArray* Fields() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Fields() const;
 /** (Optional) A flag specifying whether fields imported from the template may be
  *  renamed in the event of name conflicts with existing fields; see below for further
  *  discussion. Default value: true.
@@ -562,13 +550,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rename", "", NULL));
   }
 
-  bool Rename() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rename", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Rename() const;
 };
 
 #endif  // __DEFINED__SkPdfFDFTemplateDictionary

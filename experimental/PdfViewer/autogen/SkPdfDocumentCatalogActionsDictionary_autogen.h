@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DC", "", NULL));
   }
 
-  SkPdfDictionary* DC() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DC", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* DC() const;
 /** (Optional; PDF 1.4) A JavaScript action to be performed before saving a document.
  *  (The name WS stands for "will save.")
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WS", "", NULL));
   }
 
-  SkPdfDictionary* WS() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* WS() const;
 /** (Optional; PDF 1.4) A JavaScript action to be performed after saving a document. (The
  *  name DS stands for "did save.")
 **/
@@ -560,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DS", "", NULL));
   }
 
-  SkPdfDictionary* DS() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* DS() const;
 /** (Optional; PDF 1.4) A JavaScript action to be performed before printing a document.
  *  (The name WP stands for "will print.")
 **/
@@ -574,13 +556,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WP", "", NULL));
   }
 
-  SkPdfDictionary* WP() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* WP() const;
 /** (Optional; PDF 1.4) A JavaScript action to be performed after printing a document.
  *  (The name DP stands for "did print.")
 **/
@@ -588,13 +564,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DP", "", NULL));
   }
 
-  SkPdfDictionary* DP() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* DP() const;
 };
 
 #endif  // __DEFINED__SkPdfDocumentCatalogActionsDictionary

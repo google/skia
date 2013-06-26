@@ -39,20 +39,17 @@ bool StringFromDictionary(const PdfMemDocument* pdfDoc,
                           const char* key,
                           const char* abr,
                           std::string* data);
-
+/*
 class SkPdfDictionary;
 bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
                               const PdfDictionary& dict,
                               const char* key,
                               const char* abr,
                               SkPdfDictionary** data);
+*/
 
-template <typename T>
-bool DictionaryFromDictionary2(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        T** data);
+bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out);
+
 
 class SkPdfObject;
 bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
@@ -118,9 +115,10 @@ bool FunctionFromDictionary(const PdfMemDocument* pdfDoc,
                         const char* abr,
                         SkPdfFunction* data);
 
-bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out);
 SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray);
 
 PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, SkPdfObject* skobj, SkRect bBox, SkMatrix matrix, double textSize);
+
+#include "SkPdfPodofoMapper_autogen.h"
 
 #endif   // __DEFINED__SkPdfUtils

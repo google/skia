@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length1", "", NULL));
   }
 
-  long Length1() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length1", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Length1() const;
 /** (Required for Type 1 fonts) The length in bytes of the encrypted portion of the Type 1
  *  font program (see below) after it has been decoded using the filters specified by the
  *  stream's Filter entry.
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length2", "", NULL));
   }
 
-  long Length2() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Length2() const;
 /** (Required for Type 1 fonts) The length in bytes of the fixed-content portion of the
  *  Type 1 font program (see below), after it has been decoded using the filters specified
  *  by the stream's Filter entry. If Length3 is 0, it indicates that the 512 zeros and clearto-
@@ -564,13 +552,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length3", "", NULL));
   }
 
-  long Length3() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Length3", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Length3() const;
 /** (Required if referenced from FontFile3; PDF 1.2) A name specifying the format of the
  *  embedded font program. The name must be Type1C for Type 1 compact fonts or CID-
  *  FontType0C for Type 0 compact CIDFonts. When additional font formats are added
@@ -580,13 +562,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Optional; PDF 1.4) A metadata stream containing metadata for the embedded font
  *  program (see Section 9.2.2, "Metadata Streams").
 **/
@@ -594,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream* Metadata() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Metadata() const;
 };
 
 #endif  // __DEFINED__SkPdfEmbeddedFontStreamDictionary

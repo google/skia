@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", NULL));
   }
 
-  std::string Title() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Title() const;
 /** (Required; must be an indirect reference) The parent of this item in the outline
  *  hierarchy. The parent of a top-level item is the outline dictionary itself.
 **/
@@ -545,13 +539,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
   }
 
-  SkPdfDictionary* Parent() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Parent() const;
 /** (Required for all but the first item at each level; must be an indirect reference)
  *  The previous item at this outline level.
 **/
@@ -559,13 +547,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", NULL));
   }
 
-  SkPdfDictionary* Prev() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Prev() const;
 /** (Required for all but the last item at each level; must be an indirect reference)
  *  The next item at this outline level.
 **/
@@ -573,13 +555,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Next", "", NULL));
   }
 
-  SkPdfDictionary* Next() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Next", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Next() const;
 /** (Required if the item has any descendants; must be an indirect reference) The
  *  first of this item's immediate children in the outline hierarchy.
 **/
@@ -587,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "First", "", NULL));
   }
 
-  SkPdfDictionary* First() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "First", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* First() const;
 /** (Required if the item has any descendants; must be an indirect reference) The
  *  last of this item's immediate children in the outline hierarchy.
 **/
@@ -601,13 +571,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Last", "", NULL));
   }
 
-  SkPdfDictionary* Last() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Last", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Last() const;
 /** (Required if the item has any descendants) If the item is open, the total num-
  *  ber of its open descendants at all lower levels of the outline hierarchy. If the
  *  item is closed, a negative integer whose absolute value specifies how many
@@ -617,13 +581,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Count", "", NULL));
   }
 
-  long Count() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Count", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Count() const;
 /** (Optional; not permitted if an A entry is present) The destination to be
  *  displayed when this item is activated (see Section 8.2.1, "Destinations"; see
  *  also implementation note 56 in Appendix H).
@@ -638,39 +596,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getDestAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDestAsName() const;
   bool isDestAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getDestAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDestAsString() const;
   bool isDestAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getDestAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getDestAsArray() const;
 /** (Optional; PDF 1.1; not permitted if a Dest entry is present) The action to be
  *  performed when this item is activated (see Section 8.5, "Actions").
 **/
@@ -678,13 +618,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
   }
 
-  SkPdfDictionary* A() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* A() const;
 /** (Optional; PDF 1.3; must be an indirect reference) The structure element to
  *  which the item refers (see Section 9.6.1, "Structure Hierarchy").
  *  Note: The ability to associate an outline item with a structure element (such as
@@ -697,13 +631,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SE", "", NULL));
   }
 
-  SkPdfDictionary* SE() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SE", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* SE() const;
 /** (Optional; PDF 1.4) An array of three numbers in the range 0.0 to 1.0, repre-
  *  senting the components in the DeviceRGB color space of the color to be used
  *  for the outline entry's text. Default value: [0.0 0.0 0.0].
@@ -712,13 +640,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  SkPdfArray* C() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* C() const;
 /** (Optional; PDF 1.4) A set of flags specifying style characteristics for display-
  *  ing the outline item's text (see Table 8.5). Default value: 0.
 **/
@@ -726,13 +648,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  long F() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long F() const;
 };
 
 #endif  // __DEFINED__SkPdfOutlineItemDictionary

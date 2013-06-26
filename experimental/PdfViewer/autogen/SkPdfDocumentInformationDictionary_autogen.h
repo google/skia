@@ -531,52 +531,28 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", NULL));
   }
 
-  std::string Title() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Title", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Title() const;
 /** (Optional) The name of the person who created the document.
 **/
   bool has_Author() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Author", "", NULL));
   }
 
-  std::string Author() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Author", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Author() const;
 /** (Optional; PDF 1.1) The subject of the document.
 **/
   bool has_Subject() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subject", "", NULL));
   }
 
-  std::string Subject() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subject", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subject() const;
 /** (Optional; PDF 1.1) Keywords associated with the document.
 **/
   bool has_Keywords() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Keywords", "", NULL));
   }
 
-  std::string Keywords() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Keywords", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Keywords() const;
 /** (Optional) If the document was converted to PDF from another format, the
  *  name of the application (for example, Adobe FrameMaker(R)) that created the
  *  original document from which it was converted.
@@ -585,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", NULL));
   }
 
-  std::string Creator() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Creator() const;
 /** (Optional) If the document was converted to PDF from another format, the
  *  name of the application (for example, Acrobat Distiller) that converted it to
  *  PDF.
@@ -600,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Producer", "", NULL));
   }
 
-  std::string Producer() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Producer", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Producer() const;
 /** (Optional) The date and time the document was created, in human-readable
  *  form (see Section 3.8.2, "Dates").
 **/
@@ -614,13 +578,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", NULL));
   }
 
-  SkPdfDate CreationDate() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate CreationDate() const;
 /** (Optional; PDF 1.1) The date and time the document was most recently
  *  modified, in human-readable form (see Section 3.8.2, "Dates").
 **/
@@ -628,13 +586,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", NULL));
   }
 
-  SkPdfDate ModDate() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate ModDate() const;
 /** (Optional; PDF 1.3) A name object indicating whether the document has
  *  been modified to include trapping information (see Section 9.10.5, "Trap-
  *  ping Support"):
@@ -656,13 +608,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Trapped", "", NULL));
   }
 
-  std::string Trapped() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Trapped", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Trapped() const;
 };
 
 #endif  // __DEFINED__SkPdfDocumentInformationDictionary
