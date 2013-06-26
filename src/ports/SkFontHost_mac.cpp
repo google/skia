@@ -44,7 +44,6 @@
 #include "SkFontMgr.h"
 
 //#define HACK_COLORGLYPHS
-//#define SK_IGNORE_MAC_TEXT_BOUNDS_FIX
 
 class SkScalerContext_Mac;
 
@@ -124,15 +123,6 @@ public:
 static bool CGRectIsEmpty_inline(const CGRect& rect) {
     return rect.size.width <= 0 || rect.size.height <= 0;
 }
-
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-static void CGRectInset_inline(CGRect* rect, CGFloat dx, CGFloat dy) {
-    rect->origin.x += dx;
-    rect->origin.y += dy;
-    rect->size.width -= dx * 2;
-    rect->size.height -= dy * 2;
-}
-#endif
 
 static CGFloat CGRectGetMinX_inline(const CGRect& rect) {
     return rect.origin.x;
@@ -298,13 +288,6 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
                                   ScalarToCG(matrix[SkMatrix::kMTransX] * sx),
                                   ScalarToCG(matrix[SkMatrix::kMTransY] * sy));
 }
-
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-static SkScalar getFontScale(CGFontRef cgFont) {
-    int unitsPerEm = CGFontGetUnitsPerEm(cgFont);
-    return SkScalarInvert(SkIntToScalar(unitsPerEm));
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -643,13 +626,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return face;
 }
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-static void flip(SkMatrix* matrix) {
-    matrix->setSkewX(-matrix->getSkewX());
-    matrix->setSkewY(-matrix->getSkewY());
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** GlyphRect is in FUnits (em space, y up). */
@@ -676,12 +652,8 @@ protected:
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-    void getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) const;
-#else
     /** Returns the offset from the horizontal origin to the vertical origin in SkGlyph units. */
     void getVerticalOffset(CGGlyph glyphID, SkPoint* offset) const;
-#endif
 
     /** Initializes and returns the value of fFBoundingBoxesGlyphOffset.
      *
@@ -734,13 +706,6 @@ private:
     const bool fDoSubPosition;
     const bool fVertical;
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-    SkMatrix fVerticalMatrix; // unit rotated
-    SkMatrix fMatrix; // with font size
-    SkMatrix fFBoundingBoxesMatrix; // lion-specific fix
-    SkMatrix fUnitMatrix; // without font size
-#endif
-
     friend class Offscreen;
 
     typedef SkScalerContext INHERITED;
@@ -761,20 +726,8 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-    // Get the state we need
-    fRec.getSingleMatrix(&fMatrix);
-    CGAffineTransform transform = MatrixToCGAffineTransform(fMatrix);
-
-    // extract the font size out of the matrix, but leave the skewing for italic
-    SkScalar reciprocal = SkScalarInvert(fRec.fTextSize);
-    fUnitMatrix = fMatrix;
-    fUnitMatrix.preScale(reciprocal, reciprocal);
-    flip(&fUnitMatrix); // flip to fix up bounds later
-#else
     fRec.getSingleMatrix(&fFUnitMatrix);
     CGAffineTransform transform = MatrixToCGAffineTransform(fFUnitMatrix);
-#endif
 
     AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
     if (fVertical) {
@@ -797,22 +750,10 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
         CGAffineTransform rotateLeft = CGAffineTransformMake(0, -1, 1, 0, 0, 0);
         transform = CGAffineTransformConcat(rotateLeft, transform);
         fCTVerticalFont = CTFontCreateCopyWithAttributes(ctFont, 1, &transform, NULL);
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-        fVerticalMatrix = fUnitMatrix;
-        if (isSnowLeopard()) {
-            SkScalar scale = SkScalarMul(fRec.fTextSize, getFontScale(fCGFont));
-            fVerticalMatrix.preScale(scale, scale);
-        } else {
-            fVerticalMatrix.preRotate(SkIntToScalar(90));
-        }
-        fVerticalMatrix.postScale(SK_Scalar1, -SK_Scalar1);
-#endif
     }
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-#else
+
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
     fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
-#endif
 }
 
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
@@ -864,16 +805,11 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         CGContextSetFontSize(fCG, 1 /*CTFontGetSize(context.fCTFont)*/);
         CGContextSetTextMatrix(fCG, CTFontGetMatrix(context.fCTFont));
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-        CGContextSetAllowsFontSubpixelPositioning(fCG, context.fDoSubPosition);
-        CGContextSetShouldSubpixelPositionFonts(fCG, context.fDoSubPosition);
-#else
         // Because CG always draws from the horizontal baseline,
         // if there is a non-integral translation from the horizontal origin to the vertical origin,
         // then CG cannot draw the glyph in the correct location without subpixel positioning.
         CGContextSetAllowsFontSubpixelPositioning(fCG, context.fDoSubPosition || context.fVertical);
         CGContextSetShouldSubpixelPositionFonts(fCG, context.fDoSubPosition || context.fVertical);
-#endif
 
         // Draw white on black to create mask.
         // TODO: Draw black on white and invert, CG has a special case codepath.
@@ -909,11 +845,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
     // CGContextShowGlyphsAtPoint always draws using the horizontal baseline origin.
     if (context.fVertical) {
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-        SkIPoint offset;
-#else
         SkPoint offset;
-#endif
         context.getVerticalOffset(glyphID, &offset);
         subX += offset.fX;
         subY += offset.fY;
@@ -928,25 +860,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     return image;
 }
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) const {
-    CGSize vertOffset;
-    CTFontGetVerticalTranslationsForGlyphs(fCTVerticalFont, &glyphID, &vertOffset, 1);
-    const SkPoint trans = {CGToScalar(vertOffset.width),
-                           CGToScalar(vertOffset.height)};
-    SkPoint floatOffset;
-    fVerticalMatrix.mapPoints(&floatOffset, &trans, 1);
-    if (!isSnowLeopard()) {
-    // SnowLeopard fails to apply the font's matrix to the vertical metrics,
-    // but Lion and Leopard do. The unit matrix describes the font's matrix at
-    // point size 1. There may be some way to avoid mapping here by setting up
-    // fVerticalMatrix differently, but this works for now.
-        fUnitMatrix.mapPoints(&floatOffset, 1);
-    }
-    offset->fX = SkScalarRound(floatOffset.fX);
-    offset->fY = SkScalarRound(floatOffset.fY);
-}
-#else
 void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkPoint* offset) const {
     // Snow Leopard returns cgVertOffset in completely un-transformed FUnits (em space, y up).
     // Lion and Leopard return cgVertOffset in CG units (pixels, y up).
@@ -964,7 +877,6 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkPoint* offset) co
 
     *offset = skVertOffset;
 }
-#endif
 
 uint16_t SkScalerContext_Mac::getFBoundingBoxesGlyphOffset() {
     if (fFBoundingBoxesGlyphOffset) {
@@ -1013,12 +925,7 @@ bool SkScalerContext_Mac::generateBBoxes() {
         rect.fMaxX = SkEndian_SwapBE16(glyphData->xMax);
         rect.fMaxY = SkEndian_SwapBE16(glyphData->yMax);
     }
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-    fFBoundingBoxesMatrix = fMatrix;
-    flip(&fFBoundingBoxesMatrix);
-    SkScalar fontScale = getFontScale(fCGFont);
-    fFBoundingBoxesMatrix.preScale(fontScale, fontScale);
-#endif
+
     return true;
 }
 
@@ -1048,97 +955,6 @@ void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
     this->generateMetrics(glyph);
 }
 
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
-    CGSize advance;
-    CGRect bounds;
-    CGGlyph cgGlyph;
-
-    // Get the state we need
-    cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
-
-    if (fVertical) {
-        if (!isSnowLeopard()) {
-            // Lion and Leopard respect the vertical font metrics.
-            CTFontGetBoundingRectsForGlyphs(fCTVerticalFont, kCTFontVerticalOrientation,
-                                            &cgGlyph, &bounds, 1);
-        } else {
-            // Snow Leopard and earlier respect the vertical font metrics for
-            // advances, but not bounds, so use the default box and adjust it below.
-            CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation,
-                                            &cgGlyph, &bounds, 1);
-        }
-        CTFontGetAdvancesForGlyphs(fCTVerticalFont, kCTFontVerticalOrientation,
-                                   &cgGlyph, &advance, 1);
-    } else {
-        CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontDefaultOrientation,
-                                        &cgGlyph, &bounds, 1);
-        CTFontGetAdvancesForGlyphs(fCTFont, kCTFontDefaultOrientation,
-                                   &cgGlyph, &advance, 1);
-    }
-
-    // BUG?
-    // 0x200B (zero-advance space) seems to return a huge (garbage) bounds, when
-    // it should be empty. So, if we see a zero-advance, we check if it has an
-    // empty path or not, and if so, we jam the bounds to 0. Hopefully a zero-advance
-    // is rare, so we won't incur a big performance cost for this extra check.
-    if (0 == advance.width && 0 == advance.height) {
-        AutoCFRelease<CGPathRef> path(CTFontCreatePathForGlyph(fCTFont, cgGlyph, NULL));
-        if (NULL == path || CGPathIsEmpty(path)) {
-            bounds = CGRectMake(0, 0, 0, 0);
-        }
-    }
-
-    glyph->zeroMetrics();
-    glyph->fAdvanceX =  SkFloatToFixed_Check(advance.width);
-    glyph->fAdvanceY = -SkFloatToFixed_Check(advance.height);
-
-    if (CGRectIsEmpty_inline(bounds)) {
-        return;
-    }
-
-    // Adjust the bounds
-    //
-    // CTFontGetBoundingRectsForGlyphs ignores the font transform, so we need
-    // to transform the bounding box ourselves.
-    //
-    // The bounds are also expanded by 1 pixel, to give CG room for anti-aliasing.
-    CGRectInset_inline(&bounds, -1, -1);
-
-    // Get the metrics
-    bool lionAdjustedMetrics = false;
-    if (isLion() || isMountainLion()) {
-        if (cgGlyph < fGlyphCount && cgGlyph >= getFBoundingBoxesGlyphOffset() && generateBBoxes()){
-            lionAdjustedMetrics = true;
-            SkRect adjust;
-            const GlyphRect& gRect = fFBoundingBoxes[cgGlyph - fFBoundingBoxesGlyphOffset];
-            adjust.set(gRect.fMinX, gRect.fMinY, gRect.fMaxX, gRect.fMaxY);
-            fFBoundingBoxesMatrix.mapRect(&adjust);
-            bounds.origin.x = SkScalarToFloat(adjust.fLeft) - 1;
-            bounds.origin.y = SkScalarToFloat(adjust.fTop) - 1;
-        }
-        // Lion returns fractions in the bounds
-        glyph->fWidth = SkToU16(sk_float_ceil2int(bounds.size.width));
-        glyph->fHeight = SkToU16(sk_float_ceil2int(bounds.size.height));
-    } else {
-        glyph->fWidth = SkToU16(sk_float_round2int(bounds.size.width));
-        glyph->fHeight = SkToU16(sk_float_round2int(bounds.size.height));
-    }
-    glyph->fTop = SkToS16(-sk_float_round2int(CGRectGetMaxY_inline(bounds)));
-    glyph->fLeft = SkToS16(sk_float_round2int(CGRectGetMinX_inline(bounds)));
-    SkIPoint offset;
-    if (fVertical && (isSnowLeopard() || lionAdjustedMetrics)) {
-        // SnowLeopard doesn't respect vertical metrics, so compute them manually.
-        // Also compute them for Lion when the metrics were computed by hand.
-        getVerticalOffset(cgGlyph, &offset);
-        glyph->fLeft += offset.fX;
-        glyph->fTop += offset.fY;
-    }
-#ifdef HACK_COLORGLYPHS
-    glyph->fMaskFormat = SkMask::kARGB32_Format;
-#endif
-}
-#else
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
     glyph->zeroMetrics();
@@ -1250,7 +1066,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 #endif
 }
 
-#endif
 #include "SkColorPriv.h"
 
 static void build_power_table(uint8_t table[], float ee) {
@@ -1541,15 +1356,9 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         CFSafeRelease(font);
     }
     if (fVertical) {
-#if defined(SK_IGNORE_MAC_TEXT_BOUNDS_FIX)
-        SkIPoint offset;
-        getVerticalOffset(cgGlyph, &offset);
-        path->offset(SkIntToScalar(offset.fX), SkIntToScalar(offset.fY));
-#else
         SkPoint offset;
         getVerticalOffset(cgGlyph, &offset);
         path->offset(offset.fX, offset.fY);
-#endif
     }
 }
 
