@@ -60,7 +60,7 @@ public:
          */
         kRLE_Index8_Config,
     };
-    
+
     // do not add this to the Config enum, otherwise the compiler will let us
     // pass this as a valid parameter for Config.
     enum {

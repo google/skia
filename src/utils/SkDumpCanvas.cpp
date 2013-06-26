@@ -505,7 +505,7 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
             msg.appendf(" textSize:%g", SkScalarToFloat(p->getTextSize()));
             appendPtr(&msg, p->getTypeface(), "typeface");
         }
-        
+
         if (p->getStyle() != SkPaint::kFill_Style) {
             msg.appendf(" strokeWidth:%g", SkScalarToFloat(p->getStrokeWidth()));
         }
