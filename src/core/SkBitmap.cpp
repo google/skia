@@ -1615,7 +1615,7 @@ void SkBitmap::validate() const {
 void SkBitmap::toString(SkString* str) const {
 
     static const char* gConfigNames[kConfigCount] = {
-        "NONE", "A1", "A8", "INDEX8", "565", "4444", "8888", "RLE"
+        "NONE", "A1", "A8", "INDEX8", "565", "4444", "8888"
     };
 
     str->appendf("bitmap: ((%d, %d) %s", this->width(), this->height(),
