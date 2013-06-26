@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The PostScript name of the font. This should be the same as the
  *  value of BaseFont in the font or CIDFont dictionary that refers to this font
  *  descriptor.
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontName", "", NULL));
   }
 
-  std::string FontName() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontName", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string FontName() const;
 /** (Required) A collection of flags defining various characteristics of the font
  *  (see Section 5.7.1, "Font Descriptor Flags").
 **/
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Flags", "", NULL));
   }
 
-  long Flags() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Flags", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Flags() const;
 /** (Required) A rectangle (see Section 3.8.3, "Rectangles"), expressed in the
  *  glyph coordinate system, specifying the font bounding box. This is the small-
  *  est rectangle enclosing the shape that would result if all of the glyphs of the
@@ -577,13 +559,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontBBox", "", NULL));
   }
 
-  SkRect* FontBBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontBBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* FontBBox() const;
 /** (Required) The angle, expressed in degrees counterclockwise from the verti-
  *  cal, of the dominant vertical strokes of the font. (For example, the 9-o'clock
  *  position is 90 degrees, and the 3-o'clock position is '90 degrees.) The value is
@@ -593,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ItalicAngle", "", NULL));
   }
 
-  double ItalicAngle() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ItalicAngle", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double ItalicAngle() const;
 /** (Required) The maximum height above the baseline reached by glyphs in this
  *  font, excluding the height of glyphs for accented characters.
 **/
@@ -607,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ascent", "", NULL));
   }
 
-  double Ascent() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ascent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Ascent() const;
 /** (Required) The maximum depth below the baseline reached by glyphs in this
  *  font. The value is a negative number.
 **/
@@ -621,13 +585,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Descent", "", NULL));
   }
 
-  double Descent() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Descent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Descent() const;
 /** (Optional) The desired spacing between baselines of consecutive lines of text.
  *  Default value: 0.
 **/
@@ -635,13 +593,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Leading", "", NULL));
   }
 
-  double Leading() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Leading", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Leading() const;
 /** (Required) The vertical coordinate of the top of flat capital letters, measured
  *  from the baseline.
 **/
@@ -649,13 +601,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CapHeight", "", NULL));
   }
 
-  double CapHeight() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CapHeight", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double CapHeight() const;
 /** (Optional) The font's x height: the vertical coordinate of the top of flat non-
  *  ascending lowercase letters (like the letter x), measured from the baseline.
  *  Default value: 0.
@@ -664,13 +610,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XHeight", "", NULL));
   }
 
-  double XHeight() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XHeight", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double XHeight() const;
 /** (Required) The thickness, measured horizontally, of the dominant vertical
  *  stems of glyphs in the font.
 **/
@@ -678,13 +618,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StemV", "", NULL));
   }
 
-  double StemV() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StemV", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double StemV() const;
 /** (Optional) The thickness, measured invertically, of the dominant horizontal
  *  stems of glyphs in the font. Default value: 0.
 **/
@@ -692,39 +626,21 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StemH", "", NULL));
   }
 
-  double StemH() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StemH", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double StemH() const;
 /** (Optional) The average width of glyphs in the font. Default value: 0.
 **/
   bool has_AvgWidth() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AvgWidth", "", NULL));
   }
 
-  double AvgWidth() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AvgWidth", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double AvgWidth() const;
 /** (Optional) The maximum width of glyphs in the font. Default value: 0.
 **/
   bool has_MaxWidth() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MaxWidth", "", NULL));
   }
 
-  double MaxWidth() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MaxWidth", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double MaxWidth() const;
 /** (Optional) The width to use for character codes whose widths are not speci-
  *  fied in a font dictionary's Widths array. This has a predictable effect only if all
  *  such codes map to glyphs whose actual widths are the same as the Missing-
@@ -734,13 +650,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MissingWidth", "", NULL));
   }
 
-  double MissingWidth() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MissingWidth", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double MissingWidth() const;
 /** (Optional) A stream containing a Type 1 font program (see Section 5.8,
  *  "Embedded Font Programs").
 **/
@@ -748,13 +658,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile", "", NULL));
   }
 
-  SkPdfStream* FontFile() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* FontFile() const;
 /** (Optional; PDF 1.1) A stream containing a TrueType font program (see Sec-
  *  tion 5.8, "Embedded Font Programs").
 **/
@@ -762,13 +666,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile2", "", NULL));
   }
 
-  SkPdfStream* FontFile2() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* FontFile2() const;
 /** (Optional; PDF 1.2) A stream containing a font program other than Type 1 or
  *  TrueType. The format of the font program is specified by the Subtype entry
  *  in the stream dictionary (see Section 5.8, "Embedded Font Programs," and
@@ -780,13 +678,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile3", "", NULL));
   }
 
-  SkPdfStream* FontFile3() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontFile3", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* FontFile3() const;
 /** (Optional; meaningful only in Type 1 fonts; PDF 1.1) A string listing the char-
  *  acter names defined in a font subset. The names in this string must be in PDF
  *  syntax-that is, each name preceded by a slash (/). The names can appear in
@@ -798,13 +690,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CharSet", "", NULL));
   }
 
-  std::string CharSet() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CharSet", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string CharSet() const;
 };
 
 #endif  // __DEFINED__SkPdfFontDescriptorDictionary

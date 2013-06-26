@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 
+#include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkPdfBasics.h"
 #include "SkPdfUtils.h"

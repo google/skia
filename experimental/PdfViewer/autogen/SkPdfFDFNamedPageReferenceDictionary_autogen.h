@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 /** (Optional) The file containing the named page. If this key is absent, it is
  *  assumed that the page resides in the associated PDF file.
 **/
@@ -545,13 +539,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 };
 
 #endif  // __DEFINED__SkPdfFDFNamedPageReferenceDictionary

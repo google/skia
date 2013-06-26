@@ -536,13 +536,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Base", "", NULL));
   }
 
-  std::string Base() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Base", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Base() const;
 };
 
 #endif  // __DEFINED__SkPdfURIDictionary

@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
   }
 
-  long Size() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Size() const;
 /** (Present only if the file has more than one cross-reference section) The byte offset from
  *  the beginning of the file to the beginning of the previous cross-reference section.
 **/
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", NULL));
   }
 
-  long Prev() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Prev", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Prev() const;
 /** (Required; must be an indirect reference) The catalog dictionary for the PDF docu-
  *  ment contained in the file (see Section 3.6.1, "Document Catalog").
 **/
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Root", "", NULL));
   }
 
-  SkPdfDictionary* Root() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Root", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Root() const;
 /** (Required if document is encrypted; PDF 1.1) The document's encryption dictionary
  *  (see Section 3.5, "Encryption").
 **/
@@ -575,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encrypt", "", NULL));
   }
 
-  SkPdfDictionary* Encrypt() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encrypt", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Encrypt() const;
 /** (Optional; must be an indirect reference) The document's information dictionary
  *  (see Section 9.2.1, "Document Information Dictionary").
 **/
@@ -589,13 +565,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
   }
 
-  SkPdfDictionary* Info() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Info() const;
 /** (Optional; PDF 1.1) An array of two strings constituting a file identifier (see Section
  *  9.3, "File Identifiers") for the file.
 **/
@@ -603,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  SkPdfArray* ID() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* ID() const;
 };
 
 #endif  // __DEFINED__SkPdfFileTrailerDictionary

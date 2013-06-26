@@ -537,13 +537,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SW", "", NULL));
   }
 
-  std::string SW() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SW", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string SW() const;
 /** (Required) The type of scaling to use:
  *      A    Anamorphic scaling: scale the icon to fill the annotation rectangle exactly, with-
  *           out regard to its original aspect ratio (ratio of width to height).
@@ -557,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) An array of two numbers between 0.0 and 1.0 indicating the fraction of left-
  *  over space to allocate at the left and bottom of the icon. A value of [0.0 0.0] positions the
  *  icon at the bottom-left corner of the annotation rectangle; a value of [0.5 0.5] centers it
@@ -574,13 +562,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", NULL));
   }
 
-  SkPdfArray* A() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "A", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* A() const;
 };
 
 #endif  // __DEFINED__SkPdfIconFitDictionary

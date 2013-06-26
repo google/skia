@@ -532,26 +532,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The text to be displayed.
 **/
   bool has_Contents() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Required) The default appearance string to be used in formatting the text (see
  *  "Variable Text" on page 533).
  *  Note: The annotation dictionary's AP entry, if present, takes precedence over the DA
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
   }
 
-  std::string DA() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string DA() const;
 /** (Optional; PDF 1.4) A code specifying the form of quadding (justification) to be
  *  used in displaying the annotation's text:
  *     0     Left-justified
@@ -579,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
-  long Q() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Q() const;
 };
 
 #endif  // __DEFINED__SkPdfFreeTextAnnotationDictionary

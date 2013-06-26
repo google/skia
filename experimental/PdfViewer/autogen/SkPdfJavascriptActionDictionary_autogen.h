@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) A string or stream containing the JavaScript script to be executed.
  *  Note: PDFDocEncoding or Unicode encoding (the latter identified by the Unicode
  *  prefix U+ FEFF) is used to encode the contents of the string or stream. (See imple-
@@ -554,26 +548,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getJSAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getJSAsString() const;
   bool isJSAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JS", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getJSAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getJSAsStream() const;
 };
 
 #endif  // __DEFINED__SkPdfJavascriptActionDictionary

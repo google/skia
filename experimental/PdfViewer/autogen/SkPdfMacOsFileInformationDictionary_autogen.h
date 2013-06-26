@@ -531,39 +531,21 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Optional) The embedded file's creator signature.
 **/
   bool has_Creator() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", NULL));
   }
 
-  std::string Creator() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Creator", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Creator() const;
 /** (Optional) The binary contents of the embedded file's resource fork.
 **/
   bool has_ResFork() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ResFork", "", NULL));
   }
 
-  SkPdfStream* ResFork() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ResFork", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* ResFork() const;
 };
 
 #endif  // __DEFINED__SkPdfMacOsFileInformationDictionary

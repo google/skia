@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) An array identifying which fields to reset or which to exclude
  *  from resetting, depending on the setting of the Include/Exclude flag in
  *  the Flags entry (see Table 8.64). Each element of the array is either an in-
@@ -552,13 +546,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
   }
 
-  SkPdfArray* Fields() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Fields() const;
 /** (Optional; inheritable) A set of flags specifying various characteristics of
  *  the action (see Table 8.64). Default value: 0.
 **/
@@ -566,13 +554,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Flags", "", NULL));
   }
 
-  long Flags() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Flags", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Flags() const;
 };
 
 #endif  // __DEFINED__SkPdfResetFormActionDictionary

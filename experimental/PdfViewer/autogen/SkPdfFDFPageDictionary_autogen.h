@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", NULL));
   }
 
-  SkPdfArray* Templates() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Templates", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Templates() const;
 /** (Optional) An FDF page information dictionary containing additional informa-
  *  tion about the page. At the time of publication, no entries have been defined for
  *  this dictionary.
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", NULL));
   }
 
-  SkPdfDictionary* Info() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Info", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Info() const;
 };
 
 #endif  // __DEFINED__SkPdfFDFPageDictionary

@@ -532,26 +532,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The duration of the transition effect, in seconds. Default value: 1.
 **/
   bool has_D() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
-  double D() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double D() const;
 /** (Optional) The transition style to use when moving to this page from another during a
  *  presentation:
  *     Split       Two lines sweep across the screen, revealing the new page. The lines may
@@ -578,13 +566,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional; Split and Blinds transition styles only) The dimension in which the specified
  *  transition effect occurs:
  *       H         Horizontal
@@ -595,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dm", "", NULL));
   }
 
-  std::string Dm() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dm", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Dm() const;
 /** (Optional; Split and Box transition styles only) The direction of motion for the specified
  *  transition effect:
  *       I         Inward from the edges of the page
@@ -612,13 +588,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", NULL));
   }
 
-  std::string M() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "M", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string M() const;
 /** (Optional; Wipe and Glitter transition styles only) The direction in which the specified
  *  transition effect moves, expressed in degrees counterclockwise starting from a left-to-
  *  right direction. (Note that this differs from the page object's Rotate entry, which is
@@ -634,13 +604,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Di", "", NULL));
   }
 
-  double Di() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Di", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Di() const;
 };
 
 #endif  // __DEFINED__SkPdfTransitionDictionary

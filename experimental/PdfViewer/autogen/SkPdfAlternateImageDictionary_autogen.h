@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Image", "", NULL));
   }
 
-  SkPdfStream* Image() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Image", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Image() const;
 /** (Optional) A flag indicating whether this alternate image is the default ver-
  *  sion to be used for printing. At most one alternate for a given base image may
  *  be so designated. If no alternate has this entry set to true, the base image itself
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DefaultForPrinting", "", NULL));
   }
 
-  bool DefaultForPrinting() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DefaultForPrinting", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool DefaultForPrinting() const;
 };
 
 #endif  // __DEFINED__SkPdfAlternateImageDictionary

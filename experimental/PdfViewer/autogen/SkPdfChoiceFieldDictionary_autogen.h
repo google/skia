@@ -535,13 +535,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", NULL));
   }
 
-  SkPdfArray* Opt() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Opt", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Opt() const;
 /** (Optional; inheritable) For scrollable list boxes, the top index (the index in the Opt array
  *  of the first option visible in the list).
 **/
@@ -549,13 +543,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TI", "", NULL));
   }
 
-  long TI() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TI", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long TI() const;
 /** (Sometimes required, otherwise optional; inheritable; PDF 1.4) For choice fields that allow
  *  multiple selection (MultiSelect flag set), an array of integers, sorted in ascending order,
  *  representing the zero-based indices in the Opt array of the currently selected option
@@ -568,13 +556,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", NULL));
   }
 
-  SkPdfArray* I() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "I", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* I() const;
 };
 
 #endif  // __DEFINED__SkPdfChoiceFieldDictionary

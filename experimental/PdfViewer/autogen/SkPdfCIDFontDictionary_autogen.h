@@ -49,26 +49,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of CIDFont; CIDFontType0 or CIDFontType2.
 **/
   bool has_Subtype() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The PostScript name of the CIDFont. For Type 0 CIDFonts, this
  *  is usually the value of the CIDFontName entry in the CIDFont program. For
  *  Type 2 CIDFonts, it is derived the same way as for a simple TrueType font;
@@ -79,13 +67,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", NULL));
   }
 
-  std::string BaseFont() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string BaseFont() const;
 /** (Required) A dictionary containing entries that define the character collec-
  *  tion of the CIDFont. See Table 5.12 on page 337.
 **/
@@ -93,13 +75,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", NULL));
   }
 
-  SkPdfDictionary* CIDSystemInfo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* CIDSystemInfo() const;
 /** (Required; must be an indirect reference) A font descriptor describing the
  *  CIDFont's default metrics other than its glyph widths (see Section 5.7,
  *  "Font Descriptors").
@@ -108,13 +84,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", NULL));
   }
 
-  SkPdfDictionary* FontDescriptor() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* FontDescriptor() const;
 /** (Optional) The default width for glyphs in the CIDFont (see "Glyph Met-
  *  rics in CIDFonts" on page 340). Default value: 1000.
 **/
@@ -122,13 +92,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DW", "", NULL));
   }
 
-  long DW() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DW", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long DW() const;
 /** (Optional) A description of the widths for the glyphs in the CIDFont. The
  *  array's elements have a variable format that can specify individual widths
  *  for consecutive CIDs or one width for a range of CIDs (see "Glyph Metrics
@@ -139,13 +103,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", NULL));
   }
 
-  SkPdfArray* W() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* W() const;
 /** (Optional; applies only to CIDFonts used for vertical writing) An array of two
  *  numbers specifying the default metrics for vertical writing (see "Glyph
  *  Metrics in CIDFonts" on page 340). Default value: [880 -1000].
@@ -154,13 +112,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DW2", "", NULL));
   }
 
-  SkPdfArray* DW2() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DW2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* DW2() const;
 /** (Optional; applies only to CIDFonts used for vertical writing) A description of
  *  the metrics for vertical writing for the glyphs in the CIDFont (see "Glyph
  *  Metrics in CIDFonts" on page 340). Default value: none (the DW2 value is
@@ -170,13 +122,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W2", "", NULL));
   }
 
-  SkPdfArray* W2() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W2", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* W2() const;
 /** (Optional; Type 2 CIDFonts only) A specification of the mapping from CIDs
  *  to glyph indices. If the value is a stream, the bytes in the stream contain the
  *  mapping from CIDs to glyph indices: the glyph index for a particular CID
@@ -197,26 +143,14 @@ public:
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getCIDToGIDMapAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDToGIDMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getCIDToGIDMapAsStream() const;
   bool isCIDToGIDMapAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDToGIDMap", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getCIDToGIDMapAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDToGIDMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getCIDToGIDMapAsName() const;
 };
 
 #endif  // __DEFINED__SkPdfCIDFontDictionary

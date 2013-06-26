@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 /** (Optional) The width and height of the movie's bounding box, in pixels,
  *  specified as [width height]. This entry should be omitted for a movie consist-
  *  ing entirely of sound with no visible images.
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Aspect", "", NULL));
   }
 
-  SkPdfArray* Aspect() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Aspect", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Aspect() const;
 /** (Optional) The number of degrees by which the movie is rotated clockwise
  *  relative to the page. The value must be a multiple of 90. Default value: 0.
 **/
@@ -562,13 +550,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", NULL));
   }
 
-  long Rotate() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rotate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Rotate() const;
 /** (Optional) A flag or stream specifying whether and how to display a poster
  *  image representing the movie. If this value is a stream, it contains an image
  *  XObject (see Section 4.8, "Images") to be displayed as the poster; if it is the
@@ -585,26 +567,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Bool;
   }
 
-  bool getPosterAsBoolean() const {
-    bool ret = false;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Poster", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool getPosterAsBoolean() const;
   bool isPosterAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Poster", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getPosterAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Poster", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getPosterAsStream() const;
 };
 
 #endif  // __DEFINED__SkPdfMovieDictionary

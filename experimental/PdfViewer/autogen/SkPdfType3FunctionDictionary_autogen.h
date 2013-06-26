@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Functions", "", NULL));
   }
 
-  SkPdfArray* Functions() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Functions", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Functions() const;
 /** (Required) An array of k - 1 numbers that, in combination with Domain, define the
  *  intervals to which each function from the Functions array applies. Bounds elements
  *  must be in order of increasing value, and each value must be within the domain
@@ -549,13 +543,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bounds", "", NULL));
   }
 
-  SkPdfArray* Bounds() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Bounds", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Bounds() const;
 /** (Required) An array of 2 x k numbers that, taken in pairs, map each subset of the do-
  *  main defined by Domain and the Bounds array to the domain of the corresponding
  *  function.
@@ -564,13 +552,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", NULL));
   }
 
-  SkPdfArray* Encode() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Encode() const;
 };
 
 #endif  // __DEFINED__SkPdfType3FunctionDictionary

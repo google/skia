@@ -535,13 +535,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", NULL));
   }
 
-  SkPdfDictionary* DR() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* DR() const;
 /** (Required; inheritable) The default appearance string, containing a sequence of valid
  *  page-content graphics or text state operators defining such properties as the field's text
  *  size and color.
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", NULL));
   }
 
-  std::string DA() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string DA() const;
 /** (Optional; inheritable) A code specifying the form of quadding (justification) to be
  *  used in displaying the text:
  *      0    Left-justified
@@ -568,13 +556,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", NULL));
   }
 
-  long Q() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Q", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Q() const;
 };
 
 #endif  // __DEFINED__SkPdfVariableTextFieldDictionary

@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The numbering style to be used for the numeric portion of each page label:
  *     D     Decimal arabic numerals
  *     R     Uppercase roman numerals
@@ -554,26 +548,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) The label prefix for page labels in this range.
 **/
   bool has_P() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", NULL));
   }
 
-  std::string P() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string P() const;
 /** (Optional) The value of the numeric portion for the first page label in the range. Sub-
  *  sequent pages will be numbered sequentially from this value, which must be greater than
  *  or equal to 1. Default value: 1.
@@ -582,13 +564,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "St", "", NULL));
   }
 
-  long St() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "St", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long St() const;
 };
 
 #endif  // __DEFINED__SkPdfPageLabelDictionary

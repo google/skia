@@ -532,26 +532,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required) The file associated with this annotation.
 **/
   bool has_FS() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FS", "", NULL));
   }
 
-  SkPdfFileSpec FS() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec FS() const;
 /** (Required) The text to be displayed in the pop-up window when the annota-
  *  tion is opened. Carriage returns may be used to separate the text into para-
  *  graphs.
@@ -560,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Optional) The name of an icon to be used in displaying the annotation.
  *  Viewer applications should provide predefined icon appearances for at least
  *  the following standard names:
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 };
 
 #endif  // __DEFINED__SkPdfFileAttachmentAnnotationDictionary

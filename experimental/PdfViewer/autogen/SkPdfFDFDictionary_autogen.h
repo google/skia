@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 /** (Optional) An array of two strings constituting a file identifier (see
  *  Section 9.3, "File Identifiers") for the source or target file designated
  *  by F, taken from the ID entry in the file's trailer dictionary (see Sec-
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  SkPdfArray* ID() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* ID() const;
 /** (Optional) An array of FDF field dictionaries (see "FDF Fields" on
  *  page 564) describing the root fields (those with no ancestors in
  *  the field hierarchy) to be exported or imported. This entry and
@@ -564,13 +552,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", NULL));
   }
 
-  SkPdfArray* Fields() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Fields", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Fields() const;
 /** (Optional) A status string to be displayed indicating the result of an
  *  action, typically a submit-form action (see "Submit-Form Actions"
  *  on page 550). The string is encoded with PDFDocEncoding. (See
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Status", "", NULL));
   }
 
-  std::string Status() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Status", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Status() const;
 /** (Optional; PDF 1.3) An array of FDF page dictionaries (see "FDF
  *  Pages" on page 566) describing new pages to be added to a PDF
  *  target document. The Fields and Status entries may not be present
@@ -597,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", NULL));
   }
 
-  SkPdfArray* Pages() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pages", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Pages() const;
 /** (Optional; PDF 1.3) The encoding to be used for any FDF field
  *  value or option (V or Opt in the field dictionary; see Table 8.72 on
  *  page 564) that is a string and does not begin with the Unicode pre-
@@ -614,13 +584,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", NULL));
   }
 
-  std::string Encoding() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Encoding() const;
 /** (Optional; PDF 1.3) An array of FDF annotation dictionaries (see
  *  "FDF Annotation Dictionaries" on page 568). The array can in-
  *  clude annotations of any of the standard types listed in Table 8.14
@@ -630,13 +594,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annots", "", NULL));
   }
 
-  SkPdfArray* Annots() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annots", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Annots() const;
 /** (Optional; PDF 1.4) A stream containing all the bytes in all incre-
  *  mental updates made to the underlying PDF document since it was
  *  opened (see Section 3.4.5, "Incremental Updates"). If a submit-
@@ -660,13 +618,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Differences", "", NULL));
   }
 
-  SkPdfStream* Differences() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Differences", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Differences() const;
 /** (Optional; PDF 1.4) The name of a browser frame in which the un-
  *  derlying PDF document is to be opened. This mimics the behavior
  *  of the target attribute in HTML <href> tags.
@@ -675,13 +627,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Target", "", NULL));
   }
 
-  std::string Target() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Target", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Target() const;
 /** (Optional; PDF 1.4) An array of file specifications (see Section 3.10,
  *  "File Specifications") representing other FDF files embedded with-
  *  in this one (Section 3.10.3, "Embedded File Streams").
@@ -690,13 +636,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFDFs", "", NULL));
   }
 
-  SkPdfArray* EmbeddedFDFs() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EmbeddedFDFs", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* EmbeddedFDFs() const;
 /** (Optional; PDF 1.4) A JavaScript dictionary (see Table 8.71) defin-
  *  ing document-level JavaScript scripts.
 **/
@@ -704,13 +644,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", NULL));
   }
 
-  SkPdfDictionary* JavaScript() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "JavaScript", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* JavaScript() const;
 };
 
 #endif  // __DEFINED__SkPdfFDFDictionary

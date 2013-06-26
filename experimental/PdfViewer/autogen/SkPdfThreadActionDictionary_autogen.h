@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) The file containing the desired thread. If this entry is absent, the
  *  thread is in the current file.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 /** (Required) The desired destination thread, specified in one of the following
  *  forms:
  *  *  An indirect reference to a thread dictionary (see Section 8.3.2, "Articles").
@@ -574,39 +562,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getDAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getDAsDictionary() const;
   bool isDAInteger() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  long getDAsInteger() const {
-    long ret = 0;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long getDAsInteger() const;
   bool isDAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getDAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDAsString() const;
 /** (Optional) The desired bead in the destination thread, specified in one of the
  *  following forms:
  *  *  An indirect reference to a bead dictionary (see Section 8.3.2, "Articles"). In
@@ -624,26 +594,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getBAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getBAsDictionary() const;
   bool isBAInteger() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  long getBAsInteger() const {
-    long ret = 0;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long getBAsInteger() const;
 };
 
 #endif  // __DEFINED__SkPdfThreadActionDictionary

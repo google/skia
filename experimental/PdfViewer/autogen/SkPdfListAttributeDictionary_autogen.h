@@ -548,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ListNumbering", "", NULL));
   }
 
-  std::string ListNumbering() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ListNumbering", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string ListNumbering() const;
 };
 
 #endif  // __DEFINED__SkPdfListAttributeDictionary

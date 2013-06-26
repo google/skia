@@ -539,13 +539,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", NULL));
   }
 
-  long K() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "K", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long K() const;
 /** ()A flag indicating whether end-of-line bit patterns are required to be
  *  present in the encoding. The CCITTFaxDecode filter always accepts
  *  end-of-line bit patterns, but requires them only if EndOfLine is true.
@@ -555,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfLine", "", NULL));
   }
 
-  bool EndOfLine() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfLine", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool EndOfLine() const;
 /** ()A flag indicating whether the filter expects extra 0 bits before each
  *  encoded line so that the line begins on a byte boundary. If true, the
  *  filter skips over encoded bits to begin decoding each line at a byte
@@ -572,13 +560,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EncodedByteAlign", "", NULL));
   }
 
-  bool EncodedByteAlign() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EncodedByteAlign", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool EncodedByteAlign() const;
 /** ()The width of the image in pixels. If the value is not a multiple of 8,
  *  the filter adjusts the width of the unencoded image to the next mul-
  *  tiple of 8, so that each line starts on a byte boundary. Default value:
@@ -588,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", NULL));
   }
 
-  long Columns() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Columns", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Columns() const;
 /** ()The height of the image in scan lines. If the value is 0 or absent, the
  *  image's height is not predetermined, and the encoded data must be
  *  terminated by an end-of-block bit pattern or by the end of the fil-
@@ -604,13 +580,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rows", "", NULL));
   }
 
-  long Rows() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rows", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Rows() const;
 /** ()A flag indicating whether the filter expects the encoded data to be
  *  terminated by an end-of-block pattern, overriding the Rows pa-
  *  rameter. If false, the filter stops when it has decoded the number of
@@ -623,13 +593,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfBlock", "", NULL));
   }
 
-  bool EndOfBlock() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndOfBlock", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool EndOfBlock() const;
 /** ()A flag indicating whether 1 bits are to be interpreted as black pixels
  *  and 0 bits as white pixels, the reverse of the normal PDF convention
  *  for image data. Default value: false.
@@ -638,13 +602,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackIs1", "", NULL));
   }
 
-  bool BlackIs1() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackIs1", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool BlackIs1() const;
 /** ()The number of damaged rows of data to be tolerated before an
  *  error occurs. This entry applies only if EndOfLine is true and K is
  *  nonnegative. Tolerating a damaged row means locating its end in
@@ -657,13 +615,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DamagedRowsBeforeError", "", NULL));
   }
 
-  long DamagedRowsBeforeError() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DamagedRowsBeforeError", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long DamagedRowsBeforeError() const;
 };
 
 #endif  // __DEFINED__SkPdfCcittfaxdecodeFilterDictionary

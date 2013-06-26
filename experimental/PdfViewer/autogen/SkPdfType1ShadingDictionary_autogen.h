@@ -50,13 +50,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", NULL));
   }
 
-  SkPdfArray* Domain() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Domain() const;
 /** (Optional) An array of six numbers specifying a transformation matrix mapping
  *  the coordinate space specified by the Domain entry into the shading's target co-
  *  ordinate space. For example, to map the domain rectangle [0.0 1.0 0.0 1.0] to a
@@ -68,13 +62,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
   }
 
-  SkPdfArray* Matrix() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Matrix() const;
 /** (Required) A 2-in, n-out function or an array of n 2-in, 1-out functions (where n
  *  is the number of color components in the shading dictionary's color space).
  *  Each function's domain must be a superset of that of the shading dictionary. If
@@ -85,13 +73,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", NULL));
   }
 
-  SkPdfFunction Function() const {
-    SkPdfFunction ret;
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction Function() const;
 };
 
 #endif  // __DEFINED__SkPdfType1ShadingDictionary

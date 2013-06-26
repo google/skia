@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MarkStyle", "", NULL));
   }
 
-  std::string MarkStyle() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MarkStyle", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string MarkStyle() const;
 /** (Optional; PDF 1.4) A dictionary identifying the individual colorants
  *  associated with a printer's mark such as a color bar. For each entry in this
  *  dictionary, the key is a colorant name and the value is an array defining a
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colorants", "", NULL));
   }
 
-  SkPdfDictionary* Colorants() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Colorants", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Colorants() const;
 };
 
 #endif  // __DEFINED__SkPdfPrinterMarkFormDictionary

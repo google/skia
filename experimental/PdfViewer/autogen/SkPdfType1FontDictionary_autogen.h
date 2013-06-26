@@ -40,26 +40,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of font; must be Type1 for a Type 1 font.
 **/
   bool has_Subtype() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Required in PDF 1.0; optional otherwise) The name by which this font is ref-
  *  erenced in the Font subdictionary of the current resource dictionary.
  *  Note: This entry is obsolescent and its use is no longer recommended. (See
@@ -69,13 +57,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 /** (Required) The PostScript name of the font. For Type 1 fonts, this is usually
  *  the value of the FontName entry in the font program; for more information,
  *  see Section 5.2 of the PostScript Language Reference, Third Edition. The Post-
@@ -87,13 +69,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", NULL));
   }
 
-  std::string BaseFont() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseFont", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string BaseFont() const;
 /** (Required except for the standard 14 fonts) The first character code defined in
  *  the font's Widths array.
 **/
@@ -101,13 +77,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FirstChar", "", NULL));
   }
 
-  long FirstChar() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FirstChar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long FirstChar() const;
 /** (Required except for the standard 14 fonts) The last character code defined in
  *  the font's Widths array.
 **/
@@ -115,13 +85,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastChar", "", NULL));
   }
 
-  long LastChar() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastChar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long LastChar() const;
 /** (Required except for the standard 14 fonts; indirect reference preferred) An array
  *  of (LastChar - FirstChar + 1) widths, each element being the glyph width for
  *  the character whose code is FirstChar plus the array index. For character
@@ -137,13 +101,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Widths", "", NULL));
   }
 
-  SkPdfArray* Widths() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Widths", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Widths() const;
 /** (Required except for the standard 14 fonts; must be an indirect reference) A font
  *  descriptor describing the font's metrics other than its glyph widths (see Sec-
  *  tion 5.7, "Font Descriptors").
@@ -156,13 +114,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", NULL));
   }
 
-  SkPdfDictionary* FontDescriptor() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* FontDescriptor() const;
 /** (Optional) A specification of the font's character encoding, if different from
  *  its built-in encoding. The value of Encoding may be either the name of a pre-
  *  defined encoding (MacRomanEncoding, MacExpertEncoding, or WinAnsi-
@@ -180,26 +132,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getEncodingAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getEncodingAsName() const;
   bool isEncodingADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getEncodingAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getEncodingAsDictionary() const;
 /** (Optional; PDF 1.2) A stream containing a CMap file that maps character
  *  codes to Unicode values (see Section 5.9, "ToUnicode CMaps").
 **/
@@ -207,13 +147,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", NULL));
   }
 
-  SkPdfStream* ToUnicode() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ToUnicode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* ToUnicode() const;
 };
 
 #endif  // __DEFINED__SkPdfType1FontDictionary

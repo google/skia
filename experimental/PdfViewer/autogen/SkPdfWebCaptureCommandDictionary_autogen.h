@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URL", "", NULL));
   }
 
-  std::string URL() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "URL", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string URL() const;
 /** (Optional) The number of levels of pages retrieved from the initial URL. Default
  *  value: 1.
 **/
@@ -545,13 +539,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", NULL));
   }
 
-  long L() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "L", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long L() const;
 /** (Optional) A set of flags specifying various characteristics of the command (see
  *  Table 9.39). Default value: 0.
 **/
@@ -559,13 +547,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  long F() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long F() const;
 /** (Optional) Data that was posted to the URL.
 **/
   bool has_P() const {
@@ -578,26 +560,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getPAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getPAsString() const;
   bool isPAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getPAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "P", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getPAsStream() const;
 /** (Optional) A content type describing the data posted to the URL. Default value:
  *  application/x-www-form-urlencoded.
 **/
@@ -605,26 +575,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", NULL));
   }
 
-  std::string CT() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CT", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string CT() const;
 /** (Optional) Additional HTTP request headers sent to the URL.
 **/
   bool has_H() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
   }
 
-  std::string H() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string H() const;
 /** (Optional) A command settings dictionary containing settings used in the con-
  *  version process (see "Command Settings" on page 674).
 **/
@@ -632,13 +590,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  SkPdfDictionary* S() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* S() const;
 };
 
 #endif  // __DEFINED__SkPdfWebCaptureCommandDictionary

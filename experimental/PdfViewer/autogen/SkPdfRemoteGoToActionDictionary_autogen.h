@@ -532,26 +532,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) The file in which the destination is located.
 **/
   bool has_F() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  SkPdfFileSpec F() const {
-    SkPdfFileSpec ret;
-    if (FileSpecFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFileSpec();
-  }
-
+  SkPdfFileSpec F() const;
 /** (Required) The destination to jump to (see Section 8.2.1, "Destinations"). If
  *  the value is an array defining an explicit destination (as described under
  *  "Explicit Destinations" on page 474), its first element must be a page number
@@ -568,39 +556,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getDAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDAsName() const;
   bool isDAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getDAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDAsString() const;
   bool isDAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getDAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getDAsArray() const;
 /** (Optional; PDF 1.2) A flag specifying whether to open the destination docu-
  *  ment in a new window. If this flag is false, the destination document will
  *  replace the current document in the same window. If this entry is absent,
@@ -611,13 +581,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NewWindow", "", NULL));
   }
 
-  bool NewWindow() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NewWindow", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool NewWindow() const;
 };
 
 #endif  // __DEFINED__SkPdfRemoteGoToActionDictionary

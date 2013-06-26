@@ -535,13 +535,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FunctionType", "", NULL));
   }
 
-  long FunctionType() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FunctionType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long FunctionType() const;
 /** (Required) An array of 2 x m numbers, where m is the number of input
  *  values. For each i from 0 to m - 1, Domain2i must be less than or equal to
  *  Domain2i+1 , and the ith input value, xi , must lie in the interval
@@ -552,13 +546,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", NULL));
   }
 
-  SkPdfArray* Domain() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Domain() const;
 /** (Required for type 0 and type 4 functions, optional otherwise; see below) An
  *  array of 2 x n numbers, where n is the number of output values. For each j
  *  from 0 to n - 1, Range2j must be less than or equal to Range2j+1 , and the jth
@@ -570,13 +558,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", NULL));
   }
 
-  SkPdfArray* Range() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Range", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Range() const;
 };
 
 #endif  // __DEFINED__SkPdfFunctionCommonDictionary

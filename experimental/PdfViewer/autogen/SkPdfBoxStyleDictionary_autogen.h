@@ -533,26 +533,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  SkPdfArray* C() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* C() const;
 /** (Optional) The guideline width in default user space units. Default value: 1.
 **/
   bool has_W() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", NULL));
   }
 
-  double W() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double W() const;
 /** (Optional) The guideline style:
  *      S    (Solid) A solid rectangle.
  *      D    (Dashed) A dashed rectangle. The dash pattern is specified by the D entry
@@ -563,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) A dash array defining a pattern of dashes and gaps to be used in drawing
  *  dashed guidelines (guideline style D above). The dash array is specified in default
  *  user space units, in the same format as in the line dash pattern parameter of the
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
-  SkPdfArray* D() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* D() const;
 };
 
 #endif  // __DEFINED__SkPdfBoxStyleDictionary

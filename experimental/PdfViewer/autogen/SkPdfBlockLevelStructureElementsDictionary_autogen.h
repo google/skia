@@ -538,13 +538,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceBefore", "", NULL));
   }
 
-  double SpaceBefore() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceBefore", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double SpaceBefore() const;
 /** (Optional) The amount of extra space following the after edge of the BLSE,
  *  measured in default user space units in the block-progression direction. This
  *  value is added to any adjustments induced by the LineHeight attributes of
@@ -558,13 +552,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceAfter", "", NULL));
   }
 
-  double SpaceAfter() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "SpaceAfter", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double SpaceAfter() const;
 /** (Optional) The distance from the start edge of the reference area to that of the
  *  BLSE, measured in default user space units in the inline-progression direc-
  *  tion. This attribute applies only to structure elements with a Placement
@@ -584,13 +572,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StartIndent", "", NULL));
   }
 
-  double StartIndent() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StartIndent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double StartIndent() const;
 /** (Optional) The distance from the end edge of the BLSE to that of the ref-
  *  erence area, measured in default user space units in the inline-progression
  *  direction. This attribute applies only to structure elements with a Placement
@@ -608,13 +590,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndIndent", "", NULL));
   }
 
-  double EndIndent() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EndIndent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double EndIndent() const;
 /** (Optional; applies only to some BLSEs, as described below) The additional
  *  distance, measured in default user space units in the inline-progression
  *  direction, from the start edge of the BLSE, as specified by StartIndent
@@ -628,13 +604,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextIndent", "", NULL));
   }
 
-  double TextIndent() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextIndent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double TextIndent() const;
 /** (Optional; applies only to BLSEs containing text) The alignment, in the inline-
  *  progression direction, of text and other content within lines of the BLSE:
  *  Start        Aligned with the start edge.
@@ -650,13 +620,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextAlign", "", NULL));
   }
 
-  std::string TextAlign() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TextAlign", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string TextAlign() const;
 /** (Illustrations and tables only; required if the element appears in its entirety on a
  *  single page) An array of four numbers in default user space units giving the
  *  coordinates of the left, bottom, right, and top edges, respectively, of the ele-
@@ -668,13 +632,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
   }
 
-  SkRect* BBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* BBox() const;
 /** (Optional; illustrations, tables, table headers, and table cells only; strongly
  *  recommended for table cells) The desired width of the element's content
  *  rectangle (see "Content and Allocation Rectangles" on page 648), measured
@@ -695,26 +653,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  double getWidthAsNumber() const {
-    double ret = 0;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double getWidthAsNumber() const;
   bool isWidthAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getWidthAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Width", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getWidthAsName() const;
 /** (Optional; illustrations, tables, table headers, and table cells only) The desired
  *  height of the element's content rectangle (see "Content and Allocation
  *  Rectangles" on page 648), measured in default user space units in the block-
@@ -734,26 +680,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  double getHeightAsNumber() const {
-    double ret = 0;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double getHeightAsNumber() const;
   bool isHeightAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getHeightAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Height", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getHeightAsName() const;
 /** (Optional; table cells only) The alignment, in the block-progression direction,
  *  of content within the table cell:
  *       Before        Before edge of the first child's allocation rectangle aligned
@@ -780,13 +714,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlockAlign", "", NULL));
   }
 
-  std::string BlockAlign() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlockAlign", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string BlockAlign() const;
 /** (Optional; table cells only) The alignment, in the inline-progression direction,
  *  of content within the table cell:
  *     Start         Start edge of each child's allocation rectangle aligned with
@@ -807,13 +735,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "InlineAlign", "", NULL));
   }
 
-  std::string InlineAlign() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "InlineAlign", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string InlineAlign() const;
 };
 
 #endif  // __DEFINED__SkPdfBlockLevelStructureElementsDictionary

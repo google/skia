@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Sometimes required, as discussed below) The group color space, which is used for
  *  the following purposes:
  *  *  As the color space into which colors are converted when painted into the
@@ -581,26 +575,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getCSAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getCSAsName() const;
   bool isCSAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CS", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getCSAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getCSAsArray() const;
 };
 
 #endif  // __DEFINED__SkPdfTransparencyGroupDictionary

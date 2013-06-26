@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
   }
 
-  SkPdfArray* Size() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Size() const;
 /** (Required) The number of bits used to represent each sample. (If the function
  *  has multiple output values, each one occupies BitsPerSample bits.) Valid
  *  values are 1, 2, 4, 8, 12, 16, 24, and 32.
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerSample", "", NULL));
   }
 
-  long BitsPerSample() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BitsPerSample", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long BitsPerSample() const;
 /** (Optional) The order of interpolation between samples. Valid values are 1
  *  and 3, specifying linear and cubic spline interpolation, respectively. (See im-
  *  plementation note 26 in Appendix H.) Default value: 1.
@@ -562,13 +550,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Order", "", NULL));
   }
 
-  long Order() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Order", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Order() const;
 /** (Optional) An array of 2 x m numbers specifying the linear mapping of input
  *  values into the domain of the function's sample table. Default value:
  *  [0 (Size0 - 1) 0 (Size1 - 1) ...].
@@ -577,13 +559,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", NULL));
   }
 
-  SkPdfArray* Encode() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Encode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Encode() const;
 /** (Optional) An array of 2 x n numbers specifying the linear mapping of sam-
  *  ple values into the range appropriate for the function's output values. Default
  *  value: same as the value of Range.
@@ -592,13 +568,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", NULL));
   }
 
-  SkPdfArray* Decode() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Decode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Decode() const;
 };
 
 #endif  // __DEFINED__SkPdfType0FunctionDictionary

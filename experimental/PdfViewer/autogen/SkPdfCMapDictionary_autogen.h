@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The PostScript name of the CMap. This should be the same as the
  *  value of CMapName in the CMap file itself.
 **/
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CMapName", "", NULL));
   }
 
-  std::string CMapName() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CMapName", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string CMapName() const;
 /** (Required) A dictionary or array containing entries that define the character
  *  collection for the CIDFont or CIDFonts associated with the CMap. If the
  *  CMap selects only font number 0 and specifies character selectors that are
@@ -580,26 +568,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getCIDSystemInfoAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getCIDSystemInfoAsDictionary() const;
   bool isCIDSystemInfoAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getCIDSystemInfoAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CIDSystemInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getCIDSystemInfoAsArray() const;
 /** (Optional) A code that determines the writing mode for any CIDFont with
  *  which this CMap is combined:
  *      0    Horizontal
@@ -612,13 +588,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WMode", "", NULL));
   }
 
-  long WMode() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WMode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long WMode() const;
 /** (Optional) The name of a predefined CMap, or a stream containing a CMap,
  *  that is to be used as the base for this CMap. This allows the CMap to be de-
  *  fined differentially, specifying only the character mappings that differ from
@@ -634,26 +604,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getUseCMapAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UseCMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getUseCMapAsName() const;
   bool isUseCMapAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UseCMap", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getUseCMapAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "UseCMap", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getUseCMapAsStream() const;
 };
 
 #endif  // __DEFINED__SkPdfCMapDictionary

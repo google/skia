@@ -534,13 +534,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", NULL));
   }
 
-  SkPdfArray* WhitePoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WhitePoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* WhitePoint() const;
 /** (Optional) An array of three numbers [ XB YB ZB ] specifying the tristimulus
  *  value, in the CIE 1931 XYZ space, of the diffuse black point; see "CalRGB
  *  Color Spaces," below, for further discussion. All three of these numbers must
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", NULL));
   }
 
-  SkPdfArray* BlackPoint() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BlackPoint", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* BlackPoint() const;
 /** (Optional) A number G defining the gamma for the gray (A) component. G
  *  must be positive and will generally be greater than or equal to 1. Default
  *  value: 1.
@@ -565,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", NULL));
   }
 
-  double Gamma() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Gamma", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Gamma() const;
 };
 
 #endif  // __DEFINED__SkPdfCalgrayColorSpaceDictionary

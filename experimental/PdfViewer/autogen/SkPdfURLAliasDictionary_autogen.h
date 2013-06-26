@@ -531,13 +531,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", NULL));
   }
 
-  std::string U() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "U", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string U() const;
 /** (Optional) An array of one or more arrays of strings, each representing a chain of URLs
  *  leading to the common destination specified by U.
 **/
@@ -545,13 +539,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  SkPdfArray* C() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* C() const;
 };
 
 #endif  // __DEFINED__SkPdfURLAliasDictionary

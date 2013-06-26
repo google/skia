@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideToolbar", "", NULL));
   }
 
-  bool HideToolbar() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideToolbar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool HideToolbar() const;
 /** (Optional) A flag specifying whether to hide the viewer application's
  *  menu bar when the document is active. Default value: false.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideMenubar", "", NULL));
   }
 
-  bool HideMenubar() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideMenubar", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool HideMenubar() const;
 /** (Optional) A flag specifying whether to hide user interface elements in
  *  the document's window (such as scroll bars and navigation controls),
  *  leaving only the document's contents displayed. Default value: false.
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideWindowUI", "", NULL));
   }
 
-  bool HideWindowUI() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HideWindowUI", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool HideWindowUI() const;
 /** (Optional) A flag specifying whether to resize the document's window to
  *  fit the size of the first displayed page. Default value: false.
 **/
@@ -575,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FitWindow", "", NULL));
   }
 
-  bool FitWindow() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FitWindow", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool FitWindow() const;
 /** (Optional) A flag specifying whether to position the document's window
  *  in the center of the screen. Default value: false.
 **/
@@ -589,13 +565,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CenterWindow", "", NULL));
   }
 
-  bool CenterWindow() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CenterWindow", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool CenterWindow() const;
 /** (Optional; PDF 1.4) A flag specifying whether the window's title bar
  *  should display the document title taken from the Title entry of the docu-
  *  ment information dictionary (see Section 9.2.1, "Document Informa-
@@ -606,13 +576,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DisplayDocTitle", "", NULL));
   }
 
-  bool DisplayDocTitle() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DisplayDocTitle", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool DisplayDocTitle() const;
 /** (Optional) The document's page mode, specifying how to display the
  *  document on exiting full-screen mode:
  *       UseNone            Neither document outline nor thumbnail images
@@ -627,13 +591,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NonFullScreenPageMode", "", NULL));
   }
 
-  std::string NonFullScreenPageMode() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "NonFullScreenPageMode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string NonFullScreenPageMode() const;
 /** (Optional; PDF 1.3) The predominant reading order for text:
  *       L2R                Left to right
  *       R2L                Right to left (including vertical writing systems
@@ -646,13 +604,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Direction", "", NULL));
   }
 
-  std::string Direction() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Direction", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Direction() const;
 /** (Optional; PDF 1.4) The name of the page boundary representing the
  *  area of a page to be displayed when viewing the document on the screen.
  *  The value is the key designating the relevant page boundary in the page
@@ -668,13 +620,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewArea", "", NULL));
   }
 
-  std::string ViewArea() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewArea", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string ViewArea() const;
 /** (Optional; PDF 1.4) The name of the page boundary to which the con-
  *  tents of a page are to be clipped when viewing the document on the
  *  screen. The value is the key designating the relevant page boundary in
@@ -690,13 +636,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewClip", "", NULL));
   }
 
-  std::string ViewClip() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ViewClip", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string ViewClip() const;
 /** (Optional; PDF 1.4) The name of the page boundary representing the
  *  area of a page to be rendered when printing the document. The value is
  *  the key designating the relevant page boundary in the page object (see
@@ -711,13 +651,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintArea", "", NULL));
   }
 
-  std::string PrintArea() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintArea", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string PrintArea() const;
 /** (Optional; PDF 1.4) The name of the page boundary to which the con-
  *  tents of a page are to be clipped when printing the document. The value
  *  is the key designating the relevant page boundary in the page object (see
@@ -732,13 +666,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintClip", "", NULL));
   }
 
-  std::string PrintClip() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PrintClip", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string PrintClip() const;
 };
 
 #endif  // __DEFINED__SkPdfViewerPreferencesDictionary

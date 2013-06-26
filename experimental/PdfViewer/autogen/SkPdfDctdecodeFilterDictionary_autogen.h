@@ -548,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorTransform", "", NULL));
   }
 
-  long ColorTransform() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorTransform", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long ColorTransform() const;
 };
 
 #endif  // __DEFINED__SkPdfDctdecodeFilterDictionary

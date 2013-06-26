@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) The annotation or annotations to be hidden or shown, specified in any
  *  of the following forms:
  *  *  An indirect reference to an annotation dictionary
@@ -557,39 +551,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getTAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getTAsDictionary() const;
   bool isTAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getTAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTAsString() const;
   bool isTAArray() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getTAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getTAsArray() const;
 /** (Optional) A flag indicating whether to hide the annotation (true) or show it (false).
  *  Default value: true.
 **/
@@ -597,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
   }
 
-  bool H() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool H() const;
 };
 
 #endif  // __DEFINED__SkPdfHideActionDictionary

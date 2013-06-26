@@ -569,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Placement", "", NULL));
   }
 
-  std::string Placement() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Placement", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Placement() const;
 /** (Optional) The directions of layout progression for packing of ILSEs (inline
  *  progression) and stacking of BLSEs (block progression):
  *      LrTb         Inline progression from left to right; block progression from
@@ -605,13 +599,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WritingMode", "", NULL));
   }
 
-  std::string WritingMode() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "WritingMode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string WritingMode() const;
 };
 
 #endif  // __DEFINED__SkPdfStandardStructureDictionary

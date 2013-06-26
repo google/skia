@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The border width in points. If this value is 0, no border is drawn. Default
  *  value: 1.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", NULL));
   }
 
-  double W() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "W", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double W() const;
 /** (Optional) The border style:
  *      S    (Solid) A solid rectangle surrounding the annotation.
  *      D    (Dashed) A dashed rectangle surrounding the annotation. The dash pattern
@@ -569,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) A dash array defining a pattern of dashes and gaps to be used in drawing a
  *  dashed border (border style D above). The dash array is specified in the same format
  *  as in the line dash pattern parameter of the graphics state (see "Line Dash Pattern" on
@@ -587,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", NULL));
   }
 
-  SkPdfArray* D() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "D", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* D() const;
 };
 
 #endif  // __DEFINED__SkPdfBorderStyleDictionary

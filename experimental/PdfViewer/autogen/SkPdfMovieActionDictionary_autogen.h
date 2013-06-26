@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Optional) An indirect reference to a movie annotation identifying the movie
  *  to be played.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annot", "", NULL));
   }
 
-  SkPdfDictionary* Annot() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Annot", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Annot() const;
 /** (Optional) The title of a movie annotation identifying the movie to be
  *  played.
  *  Note: The dictionary must include either an Annot or a T entry, but not both.
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
-  std::string T() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string T() const;
 /** (Optional) The operation to be performed on the movie:
  *     Play         Start playing the movie, using the play mode specified by the
  *                  dictionary's Mode entry (see Table 8.79 on page 571). If the
@@ -583,13 +565,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Operation", "", NULL));
   }
 
-  std::string Operation() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Operation", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Operation() const;
 };
 
 #endif  // __DEFINED__SkPdfMovieActionDictionary

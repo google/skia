@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Optional; PDF 1.4) An alternate representation of the annotation's contents in
  *  human-readable form, useful when extracting the document's contents in sup-
  *  port of accessibility to disabled users or for other purposes (see Section 9.8.2,
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", NULL));
   }
 
-  std::string Contents() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Contents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Contents() const;
 /** (Optional; not permitted if an A entry is present) A destination to be displayed
  *  when the annotation is activated (see Section 8.2.1, "Destinations"; see also
  *  implementation note 66 in Appendix H).
@@ -569,39 +557,21 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Array;
   }
 
-  SkPdfArray* getDestAsArray() const {
-    SkPdfArray* ret = NULL;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* getDestAsArray() const;
   bool isDestAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getDestAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDestAsName() const;
   bool isDestAString() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getDestAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Dest", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getDestAsString() const;
 /** (Optional; PDF 1.2) The annotation's highlighting mode, the visual effect to be
  *  used when the mouse button is pressed or held down inside its active area:
  *      N    (None) No highlighting.
@@ -620,13 +590,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", NULL));
   }
 
-  std::string H() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "H", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string H() const;
 /** (Optional; PDF 1.3) A URI action (see "URI Actions" on page 523) formerly
  *  associated with this annotation. When Web Capture (Section 9.9, "Web Cap-
  *  ture") changes an annotation from a URI to a go-to action ("Go-To Actions"
@@ -638,13 +602,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PA", "", NULL));
   }
 
-  SkPdfDictionary* PA() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* PA() const;
 };
 
 #endif  // __DEFINED__SkPdfALinkAnnotationDictionary

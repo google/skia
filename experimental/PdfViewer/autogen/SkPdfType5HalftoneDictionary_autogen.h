@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) A code identifying the halftone type that this dictionary describes;
  *  must be 5 for this type of halftone.
 **/
@@ -546,26 +540,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", NULL));
   }
 
-  double HalftoneType() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double HalftoneType() const;
 /** (Optional) The name of the halftone dictionary.
 **/
   bool has_HalftoneName() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", NULL));
   }
 
-  std::string HalftoneName() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "HalftoneName", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string HalftoneName() const;
 /** (Required, one per colorant) The halftone corresponding to the colorant or
  *  color component named by the key. The halftone may be of any type other
  *  than 5. Note that the key must be a name object; strings are not permitted, as
@@ -582,26 +564,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* get[any_colorant_name]AsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_colorant_name]", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* get[any_colorant_name]AsDictionary() const;
   bool is[any_colorant_name]AStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_colorant_name]", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* get[any_colorant_name]AsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "[any_colorant_name]", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* get[any_colorant_name]AsStream() const;
 */
 /** (Required) A halftone to be used for any colorant or color component that
  *  does not have an entry of its own. The value may not be a type 5 halftone. If
@@ -618,26 +588,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getDefaultAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Default", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getDefaultAsDictionary() const;
   bool isDefaultAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Default", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getDefaultAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Default", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getDefaultAsStream() const;
 };
 
 #endif  // __DEFINED__SkPdfType5HalftoneDictionary

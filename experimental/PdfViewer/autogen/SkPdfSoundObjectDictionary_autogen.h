@@ -532,26 +532,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The sampling rate, in samples per second.
 **/
   bool has_R() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", NULL));
   }
 
-  double R() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "R", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double R() const;
 /** (Optional) The number of sound channels. Default value: 1. (See implementation
  *  note 101 in Appendix H.)
 **/
@@ -559,26 +547,14 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  long C() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long C() const;
 /** (Optional) The number of bits per sample value per channel. Default value: 8.
 **/
   bool has_B() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", NULL));
   }
 
-  long B() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "B", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long B() const;
 /** (Optional) The encoding format for the sample data:
  *     Raw          Unspecified or unsigned values in the range 0 to 2B - 1
  *     Signed       Twos-complement values
@@ -590,13 +566,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
   }
 
-  std::string E() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string E() const;
 /** (Optional) The sound compression format used on the sample data. (Note that this is
  *  separate from any stream compression specified by the sound object's Filter entry; see
  *  Table 3.4 on page 38 and Section 3.3, "Filters.") If this entry is absent, then no sound
@@ -607,13 +577,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", NULL));
   }
 
-  std::string CO() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CO", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string CO() const;
 /** (Optional) Optional parameters specific to the sound compression format used.
  *  Note: At the time of publication, no standard values have been defined for the CO and CP
  *  entries.
@@ -622,13 +586,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CP", "", NULL));
   }
 
-  SkPdfObject* CP() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CP", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* CP() const;
 };
 
 #endif  // __DEFINED__SkPdfSoundObjectDictionary

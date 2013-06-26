@@ -544,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Start", "", NULL));
   }
 
-  SkPdfObject* Start() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Start", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* Start() const;
 /** (Optional) The duration of the movie segment to be played, specified in the
  *  same form as Start. Negative values specify that the movie is to be played
  *  backward. If this entry is omitted, the movie is played to the end.
@@ -559,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Duration", "", NULL));
   }
 
-  SkPdfObject* Duration() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Duration", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* Duration() const;
 /** (Optional) The initial speed at which to play the movie. If the value of this
  *  entry is negative, the movie is played backward with respect to Start and
  *  Duration. Default value: 1.0.
@@ -574,13 +562,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rate", "", NULL));
   }
 
-  double Rate() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Rate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Rate() const;
 /** (Optional) The initial sound volume at which to play the movie, in the range
  *  -1.0 to 1.0. Higher values denote greater volume; negative values mute the
  *  sound. Default value: 1.0.
@@ -589,13 +571,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", NULL));
   }
 
-  double Volume() const {
-    double ret;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Volume", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double Volume() const;
 /** (Optional) A flag specifying whether to display a movie controller bar while
  *  playing the movie. Default value: false.
 **/
@@ -603,13 +579,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShowControls", "", NULL));
   }
 
-  bool ShowControls() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ShowControls", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool ShowControls() const;
 /** (Optional) The play mode for playing the movie:
  *      Once              Play once and stop.
  *      Open              Play and leave the movie controller bar open.
@@ -621,13 +591,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mode", "", NULL));
   }
 
-  std::string Mode() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mode", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Mode() const;
 /** (Optional) A flag specifying whether to play the movie synchronously or
  *  asynchronously. If this value is true, the movie player will retain control until
  *  the movie is completed or dismissed by the user; if false, it will return control
@@ -638,13 +602,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", NULL));
   }
 
-  bool Synchronous() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Synchronous", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool Synchronous() const;
 /** (Optional) The magnification (zoom) factor at which to play the movie. The
  *  presence of this entry implies that the movie is to be played in a floating win-
  *  dow; if the entry is absent, it will be played in the annotation rectangle.
@@ -658,13 +616,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWScale", "", NULL));
   }
 
-  SkPdfArray* FWScale() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWScale", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* FWScale() const;
 /** (Optional) For floating play windows, the relative position of the window on
  *  the screen. The value is an array of two numbers
  *      [horiz vert]
@@ -677,13 +629,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWPosition", "", NULL));
   }
 
-  SkPdfArray* FWPosition() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FWPosition", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* FWPosition() const;
 };
 
 #endif  // __DEFINED__SkPdfMovieActivationDictionary

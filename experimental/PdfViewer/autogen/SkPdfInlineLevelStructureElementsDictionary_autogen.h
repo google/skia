@@ -547,26 +547,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number;
   }
 
-  double getLineHeightAsNumber() const {
-    double ret = 0;
-    if (DoubleFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LineHeight", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  double getLineHeightAsNumber() const;
   bool isLineHeightAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LineHeight", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getLineHeightAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LineHeight", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getLineHeightAsName() const;
 };
 
 #endif  // __DEFINED__SkPdfInlineLevelStructureElementsDictionary

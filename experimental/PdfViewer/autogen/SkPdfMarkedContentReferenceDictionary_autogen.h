@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional; must be an indirect reference) The page object representing the page on
  *  which the graphics objects in the marked-content sequence are rendered. This
  *  entry overrides any Pg entry in the structure element containing the marked-
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", NULL));
   }
 
-  SkPdfDictionary* Pg() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pg", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Pg() const;
 /** (Optional; must be an indirect reference) The content stream containing the
  *  marked-content sequence. This entry is needed only if the marked-content
  *  sequence resides in some other content stream associated with the page-for
@@ -566,13 +554,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", NULL));
   }
 
-  SkPdfStream* Stm() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Stm", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Stm() const;
 /** (Optional; must be an indirect reference) The PDF object owning the stream
  *  identified by Stm-for example, the annotation to which an appearance stream
  *  belongs.
@@ -581,13 +563,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StmOwn", "", NULL));
   }
 
-  SkPdfObject* StmOwn() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StmOwn", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* StmOwn() const;
 /** (Required) The marked-content identifier of the marked-content sequence with-
  *  in its content stream.
 **/
@@ -595,13 +571,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MCID", "", NULL));
   }
 
-  long MCID() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "MCID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long MCID() const;
 };
 
 #endif  // __DEFINED__SkPdfMarkedContentReferenceDictionary

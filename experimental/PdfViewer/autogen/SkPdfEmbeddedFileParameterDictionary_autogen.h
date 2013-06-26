@@ -531,39 +531,21 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", NULL));
   }
 
-  long Size() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Size", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Size() const;
 /** (Optional) The date and time when the embedded file was created.
 **/
   bool has_CreationDate() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", NULL));
   }
 
-  SkPdfDate CreationDate() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CreationDate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate CreationDate() const;
 /** (Optional) The date and time when the embedded file was last modified.
 **/
   bool has_ModDate() const {
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", NULL));
   }
 
-  SkPdfDate ModDate() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ModDate", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate ModDate() const;
 /** (Optional) A subdictionary containing additional information specific to
  *  Mac OS files (see Table 3.35).
 **/
@@ -571,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", NULL));
   }
 
-  SkPdfDictionary* Mac() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Mac() const;
 /** (Optional) A 16-byte string that is the checksum of the bytes of the uncom-
  *  pressed embedded file. The checksum is calculated by applying the standard
  *  MD5 message-digest algorithm (described in Internet RFC 1321, The MD5
@@ -588,13 +564,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CheckSum", "", NULL));
   }
 
-  std::string CheckSum() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "CheckSum", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string CheckSum() const;
 };
 
 #endif  // __DEFINED__SkPdfEmbeddedFileParameterDictionary

@@ -538,26 +538,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getBeforeAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getBeforeAsString() const;
   bool isBeforeAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getBeforeAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Before", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getBeforeAsStream() const;
 /** (Optional) A string or stream containing a JavaScript script to be executed
  *  just after the FDF file is imported.
 **/
@@ -571,26 +559,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getAfterAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getAfterAsString() const;
   bool isAfterAStream() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return false;
     return ret->podofo()->HasStream();
   }
 
-  SkPdfStream* getAfterAsStream() const {
-    SkPdfStream* ret = NULL;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "After", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* getAfterAsStream() const;
 /** (Optional) An array defining additional JavaScript scripts to be added to
  *  those defined in the JavaScript entry of the document's name dictionary (see
  *  Section 3.6.3, "Name Dictionary"). The array contains an even number of
@@ -605,13 +581,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Doc", "", NULL));
   }
 
-  SkPdfArray* Doc() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Doc", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Doc() const;
 };
 
 #endif  // __DEFINED__SkPdfJavascriptDictionary

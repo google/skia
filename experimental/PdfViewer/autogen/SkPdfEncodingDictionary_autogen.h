@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The base encoding-that is, the encoding from which the Differences
  *  entry (if present) describes differences-specified as the name of a predefined
  *  encoding MacRomanEncoding, MacExpertEncoding, or WinAnsiEncoding (see
@@ -554,13 +548,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseEncoding", "", NULL));
   }
 
-  std::string BaseEncoding() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BaseEncoding", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string BaseEncoding() const;
 /** (Optional; not recommended with TrueType fonts) An array describing the differ-
  *  ences from the encoding specified by BaseEncoding or, if BaseEncoding is ab-
  *  sent, from an implicit base encoding. The Differences array is described above.
@@ -583,13 +571,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Differences", "", NULL));
   }
 
-  SkPdfArray* Differences() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Differences", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Differences() const;
 };
 
 #endif  // __DEFINED__SkPdfEncodingDictionary

@@ -533,13 +533,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RowSpan", "", NULL));
   }
 
-  long RowSpan() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RowSpan", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long RowSpan() const;
 /** (Optional) The number of columns in the enclosing table that are spanned by
  *  the cell. The cell expands by adding columns in the inline-progression direction
  *  specified by the table's WritingMode attribute. Default value: 1.
@@ -548,13 +542,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColSpan", "", NULL));
   }
 
-  long ColSpan() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColSpan", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long ColSpan() const;
 };
 
 #endif  // __DEFINED__SkPdfTableAttributesDictionary

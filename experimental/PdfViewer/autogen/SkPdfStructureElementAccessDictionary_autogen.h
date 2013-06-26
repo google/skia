@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", NULL));
   }
 
-  long StructParent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParent() const;
 /** (Required for all content streams containing marked-content sequences that are
  *  structural content items; PDF 1.3) The integer key of this object's entry in the
  *  structural parent tree.
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", NULL));
   }
 
-  long StructParents() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParents() const;
 };
 
 #endif  // __DEFINED__SkPdfStructureElementAccessDictionary

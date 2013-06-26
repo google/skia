@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ExtGState", "", NULL));
   }
 
-  SkPdfDictionary* ExtGState() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ExtGState", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* ExtGState() const;
 /** (Optional) A dictionary mapping each resource name to either the name of a
  *  device-dependent color space or an array describing a color space (see Sec-
  *  tion 4.5, "Color Spaces").
@@ -547,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", NULL));
   }
 
-  SkPdfDictionary* ColorSpace() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ColorSpace", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* ColorSpace() const;
 /** (Optional) A dictionary mapping resource names to pattern objects (see Sec-
  *  tion 4.6, "Patterns").
 **/
@@ -561,13 +549,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pattern", "", NULL));
   }
 
-  SkPdfDictionary* Pattern() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Pattern", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Pattern() const;
 /** (Optional; PDF 1.3) A dictionary mapping resource names to shading dic-
  *  tionaries (see "Shading Dictionaries" on page 233).
 **/
@@ -575,13 +557,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", NULL));
   }
 
-  SkPdfDictionary* Shading() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Shading", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Shading() const;
 /** (Optional) A dictionary mapping resource names to external objects (see Sec-
  *  tion 4.7, "External Objects").
 **/
@@ -589,13 +565,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XObject", "", NULL));
   }
 
-  SkPdfDictionary* XObject() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "XObject", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* XObject() const;
 /** (Optional) A dictionary mapping resource names to font dictionaries (see
  *  Chapter 5).
 **/
@@ -603,13 +573,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", NULL));
   }
 
-  SkPdfDictionary* Font() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Font", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Font() const;
 /** (Optional) An array of predefined procedure set names (see Section 9.1,
  *  "Procedure Sets").
 **/
@@ -617,13 +581,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ProcSet", "", NULL));
   }
 
-  SkPdfArray* ProcSet() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ProcSet", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* ProcSet() const;
 /** (Optional; PDF 1.2) A dictionary mapping resource names to property list
  *  dictionaries for marked content (see Section 9.5.1, "Property Lists").
 **/
@@ -631,13 +589,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Properties", "", NULL));
   }
 
-  SkPdfDictionary* Properties() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Properties", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Properties() const;
 };
 
 #endif  // __DEFINED__SkPdfResourceDictionary

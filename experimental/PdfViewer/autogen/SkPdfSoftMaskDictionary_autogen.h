@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) A subtype specifying the method to be used in deriving the mask
  *  values from the transparency group specified by the G entry:
  *     Alpha          Use the group's computed alpha, disregarding its color (see
@@ -551,13 +545,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  std::string S() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string S() const;
 /** (Required) A transparency group XObject (see Section 7.5.5, "Transparency
  *  Group XObjects") to be used as the source of alpha or color values for deriv-
  *  ing the mask. If the subtype S is Luminosity, the group attributes dictionary
@@ -568,13 +556,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", NULL));
   }
 
-  SkPdfStream* G() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "G", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* G() const;
 /** (Optional) An array of component values specifying the color to be used as
  *  the backdrop against which to composite the transparency group XObject G.
  *  This entry is consulted only if the subtype S is Luminosity. The array consists
@@ -587,13 +569,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BC", "", NULL));
   }
 
-  SkPdfArray* BC() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BC", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* BC() const;
 /** (Optional) A function object (see Section 3.9, "Functions") specifying the
  *  transfer function to be used in deriving the mask values. The function ac-
  *  cepts one input, the computed group alpha or luminosity (depending on the
@@ -613,26 +589,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_Reference;
   }
 
-  SkPdfFunction getTRAsFunction() const {
-    SkPdfFunction ret = SkPdfFunction();
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction getTRAsFunction() const;
   bool isTRAName() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Name;
   }
 
-  std::string getTRAsName() const {
-    std::string ret = "";
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TR", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getTRAsName() const;
 };
 
 #endif  // __DEFINED__SkPdfSoftMaskDictionary

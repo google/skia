@@ -541,13 +541,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FT", "", NULL));
   }
 
-  std::string FT() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FT", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string FT() const;
 /** (Required if this field is the child of another in the field hierarchy; absent other-
  *  wise) The field that is the immediate parent of this one (the field, if any,
  *  whose Kids array includes this field). A field can have at most one parent; that
@@ -557,13 +551,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", NULL));
   }
 
-  SkPdfDictionary* Parent() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Parent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Parent() const;
 /** (Optional) An array of indirect references to the immediate children of this
  *  field.
 **/
@@ -571,13 +559,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", NULL));
   }
 
-  SkPdfArray* Kids() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Kids", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Kids() const;
 /** (Optional) The partial field name (see "Field Names," below; see also imple-
  *  mentation notes 82 and 83 in Appendix H).
 **/
@@ -585,13 +567,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", NULL));
   }
 
-  std::string T() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "T", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string T() const;
 /** (Optional; PDF 1.3) An alternate field name, to be used in place of the actual
  *  field name wherever the field must be identified in the user interface (such as
  *  in error or status messages referring to the field). This text is also useful
@@ -603,13 +579,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TU", "", NULL));
   }
 
-  std::string TU() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TU", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string TU() const;
 /** (Optional; PDF 1.3) The mapping name to be used when exporting inter-
  *  active form field data from the document.
 **/
@@ -617,13 +587,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TM", "", NULL));
   }
 
-  std::string TM() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TM", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string TM() const;
 /** (Optional; inheritable) A set of flags specifying various characteristics of the
  *  field (see Table 8.50). Default value: 0.
 **/
@@ -631,13 +595,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ff", "", NULL));
   }
 
-  long Ff() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ff", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long Ff() const;
 /** (Optional; inheritable) The field's value, whose format varies depending on
  *  the field type; see the descriptions of individual field types for further infor-
  *  mation.
@@ -646,13 +604,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
-  SkPdfObject* V() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* V() const;
 /** (Optional; inheritable) The default value to which the field reverts when a
  *  reset-form action is executed (see "Reset-Form Actions" on page 554). The
  *  format of this value is the same as that of V.
@@ -661,13 +613,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DV", "", NULL));
   }
 
-  SkPdfObject* DV() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DV", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* DV() const;
 /** (Optional; PDF 1.2) An additional-actions dictionary defining the field's
  *  behavior in response to various trigger events (see Section 8.5.2, "Trigger
  *  Events"). This entry has exactly the same meaning as the AA entry in an
@@ -677,13 +623,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", NULL));
   }
 
-  SkPdfDictionary* AA() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AA", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* AA() const;
 };
 
 #endif  // __DEFINED__SkPdfFieldDictionary

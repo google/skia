@@ -538,26 +538,14 @@ public:
     return ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString;
   }
 
-  std::string getAUAsString() const {
-    std::string ret = "";
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AU", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string getAUAsString() const;
   bool isAUADictionary() const {
     SkPdfObject* ret = NULL;
     if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AU", "", &ret)) return false;
     return ret->podofo()->GetDataType() == ePdfDataType_Dictionary;
   }
 
-  SkPdfDictionary* getAUAsDictionary() const {
-    SkPdfDictionary* ret = NULL;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "AU", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* getAUAsDictionary() const;
 /** (Optional) A time stamp giving the most recent date and time at which the content
  *  set's contents were known to be up to date with the source data.
 **/
@@ -565,13 +553,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TS", "", NULL));
   }
 
-  SkPdfDate TS() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "TS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate TS() const;
 /** (Optional) An expiration stamp giving the date and time at which the content set's
  *  contents should be considered out of date with the source data.
 **/
@@ -579,13 +561,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", NULL));
   }
 
-  SkPdfDate E() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "E", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate E() const;
 /** (Optional) A code indicating the type of form submission, if any, by which the source
  *  data was accessed (see "Submit-Form Actions" on page 550):
  *      0    Not accessed via a form submission
@@ -598,13 +574,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", NULL));
   }
 
-  long S() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "S", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long S() const;
 /** (Optional; must be an indirect reference) A command dictionary (see "Command Dic-
  *  tionaries" on page 672) describing the command that caused the source data to be
  *  retrieved. This entry should be present only in source information dictionaries associ-
@@ -614,13 +584,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  SkPdfDictionary* C() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* C() const;
 };
 
 #endif  // __DEFINED__SkPdfSourceInformationDictionary

@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Optional) The name of the file system to be used to interpret this file specification. If
  *  this entry is present, all other entries in the dictionary are interpreted by the desig-
  *  nated file system. PDF defines only one standard file system, URL (see Section 3.10.4,
@@ -550,13 +544,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FS", "", NULL));
   }
 
-  std::string FS() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string FS() const;
 /** (Required if the DOS, Mac, and Unix entries are all absent) A file specification string of
  *  the form described in Section 3.10.1, "File Specification Strings," or (if the file system
  *  is URL) a uniform resource locator, as described in Section 3.10.4, "URL Specifica-
@@ -566,13 +554,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", NULL));
   }
 
-  std::string F() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "F", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string F() const;
 /** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
  *  representing a DOS file name.
 **/
@@ -580,13 +562,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DOS", "", NULL));
   }
 
-  std::string DOS() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "DOS", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string DOS() const;
 /** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
  *  representing a Mac OS file name.
 **/
@@ -594,13 +570,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", NULL));
   }
 
-  std::string Mac() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Mac", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Mac() const;
 /** (Optional) A file specification string (see Section 3.10.1, "File Specification Strings")
  *  representing a UNIX file name.
 **/
@@ -608,13 +578,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Unix", "", NULL));
   }
 
-  std::string Unix() const {
-    std::string ret;
-    if (StringFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Unix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Unix() const;
 /** (Optional) An array of two strings constituting a file identifier (see Section 9.3, "File
  *  Identifiers") that is also included in the referenced file. The use of this entry improves
  *  a viewer application's chances of finding the intended file and allows it to warn the
@@ -624,13 +588,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", NULL));
   }
 
-  SkPdfArray* ID() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "ID", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* ID() const;
 /** (Optional; PDF 1.2) A flag indicating whether the file referenced by the file specifica-
  *  tion is volatile (changes frequently with time). If the value is true, viewer applications
  *  should never cache a copy of the file. For example, a movie annotation referencing a
@@ -641,13 +599,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", NULL));
   }
 
-  bool V() const {
-    bool ret;
-    if (BoolFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "V", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return false;
-  }
-
+  bool V() const;
 /** (Required if RF is present; PDF 1.3) A dictionary containing a subset of the keys F,
  *  DOS, Mac, and Unix, corresponding to the entries by those names in the file specifica-
  *  tion dictionary. The value of each such key is an embedded file stream (see Section
@@ -659,13 +611,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EF", "", NULL));
   }
 
-  SkPdfDictionary* EF() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "EF", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* EF() const;
 /** (Optional; PDF 1.3) A dictionary with the same structure as the EF dictionary, which
  *  must also be present. Each key in the RF dictionary must also be present in the EF dic-
  *  tionary. Each value is a related files array (see "Related Files Arrays" on page 125)
@@ -677,13 +623,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RF", "", NULL));
   }
 
-  SkPdfDictionary* RF() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "RF", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* RF() const;
 };
 
 #endif  // __DEFINED__SkPdfFileSpecificationDictionary

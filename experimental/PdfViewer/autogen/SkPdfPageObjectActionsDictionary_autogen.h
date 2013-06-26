@@ -535,13 +535,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", NULL));
   }
 
-  SkPdfDictionary* O() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "O", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* O() const;
 /** (Optional; PDF 1.2) An action to be performed when the page is closed (for example,
  *  when the user navigates to the next or previous page or follows a link annotation or an
  *  outline item). This action applies to the page being closed, and is executed before any
@@ -551,13 +545,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", NULL));
   }
 
-  SkPdfDictionary* C() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "C", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* C() const;
 };
 
 #endif  // __DEFINED__SkPdfPageObjectActionsDictionary

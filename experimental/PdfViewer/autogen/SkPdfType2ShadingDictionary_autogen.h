@@ -50,13 +50,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Coords", "", NULL));
   }
 
-  SkPdfArray* Coords() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Coords", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Coords() const;
 /** (Optional) An array of two numbers [ t0 t1 ] specifying the limiting values of a
  *  parametric variable t. The variable is considered to vary linearly between these
  *  two values as the color gradient varies between the starting and ending points of
@@ -67,13 +61,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", NULL));
   }
 
-  SkPdfArray* Domain() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Domain", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Domain() const;
 /** (Required) A 1-in, n-out function or an array of n 1-in, 1-out functions (where n
  *  is the number of color components in the shading dictionary's color space). The
  *  function(s) are called with values of the parametric variable t in the domain de-
@@ -85,13 +73,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", NULL));
   }
 
-  SkPdfFunction Function() const {
-    SkPdfFunction ret;
-    if (FunctionFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Function", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfFunction();
-  }
-
+  SkPdfFunction Function() const;
 /** (Optional) An array of two boolean values specifying whether to extend the
  *  shading beyond the starting and ending points of the axis, respectively. Default
  *  value: [false false].
@@ -100,13 +82,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Extend", "", NULL));
   }
 
-  SkPdfArray* Extend() const {
-    SkPdfArray* ret;
-    if (ArrayFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Extend", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfArray* Extend() const;
 };
 
 #endif  // __DEFINED__SkPdfType2ShadingDictionary

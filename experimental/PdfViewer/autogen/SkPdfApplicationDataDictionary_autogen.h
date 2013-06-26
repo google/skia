@@ -532,13 +532,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
   }
 
-  SkPdfDate LastModified() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate LastModified() const;
 /** (Optional) Any private data appropriate to the application, typically
  *  in the form of a dictionary.
 **/
@@ -546,13 +540,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Private", "", NULL));
   }
 
-  SkPdfObject* Private() const {
-    SkPdfObject* ret;
-    if (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Private", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfObject* Private() const;
 };
 
 #endif  // __DEFINED__SkPdfApplicationDataDictionary

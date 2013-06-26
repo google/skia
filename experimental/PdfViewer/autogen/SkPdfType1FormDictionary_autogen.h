@@ -37,13 +37,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", NULL));
   }
 
-  std::string Type() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Type", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Type() const;
 /** (Required) The type of XObject that this dictionary describes; must be Form
  *  for a form XObject.
 **/
@@ -51,13 +45,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", NULL));
   }
 
-  std::string Subtype() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Subtype", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Subtype() const;
 /** (Optional) A code identifying the type of form XObject that this dictionary
  *  describes. The only valid value defined at the time of publication is 1. Default
  *  value: 1.
@@ -66,13 +54,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FormType", "", NULL));
   }
 
-  long FormType() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FormType", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long FormType() const;
 /** (Required in PDF 1.0; optional otherwise) The name by which this form
  *  XObject is referenced in the XObject subdictionary of the current resource
  *  dictionary (see Section 3.7.2, "Resource Dictionaries").
@@ -83,13 +65,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", NULL));
   }
 
-  std::string Name() const {
-    std::string ret;
-    if (NameFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Name", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return "";
-  }
-
+  std::string Name() const;
 /** (Required if PieceInfo is present; optional otherwise; PDF 1.3) The date and
  *  time (see Section 3.8.2, "Dates") when the form XObject's contents were
  *  most recently modified. If a page-piece dictionary (PieceInfo) is present, the
@@ -101,13 +77,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", NULL));
   }
 
-  SkPdfDate LastModified() const {
-    SkPdfDate ret;
-    if (DateFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "LastModified", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return SkPdfDate();
-  }
-
+  SkPdfDate LastModified() const;
 /** (Required) An array of four numbers in the form coordinate system (see
  *  below), giving the coordinates of the left, bottom, right, and top edges,
  *  respectively, of the form XObject's bounding box. These boundaries are used
@@ -117,13 +87,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", NULL));
   }
 
-  SkRect* BBox() const {
-    SkRect* ret;
-    if (SkRectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "BBox", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkRect* BBox() const;
 /** (Optional) An array of six numbers specifying the form matrix, which maps
  *  form space into user space (see Section 4.2.3, "Transformation Matrices").
  *  Default value: the identity matrix [1 0 0 1 0 0].
@@ -132,13 +96,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", NULL));
   }
 
-  SkMatrix* Matrix() const {
-    SkMatrix* ret;
-    if (SkMatrixFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Matrix", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkMatrix* Matrix() const;
 /** (Optional but strongly recommended; PDF 1.2) A dictionary specifying any
  *  resources (such as fonts and images) required by the form XObject (see Sec-
  *  tion 3.7, "Content Streams and Resources").
@@ -161,13 +119,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", NULL));
   }
 
-  SkPdfResourceDictionary* Resources() const {
-    SkPdfResourceDictionary* ret;
-    if (DictionaryFromDictionary2(fPodofoDoc, fPodofoObj->GetDictionary(), "Resources", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfResourceDictionary* Resources() const;
 /** (Optional; PDF 1.4) A group attributes dictionary indicating that the contents
  *  of the form XObject are to be treated as a group and specifying the attributes
  *  of that group (see Section 4.9.2, "Group XObjects").
@@ -179,13 +131,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Group", "", NULL));
   }
 
-  SkPdfDictionary* Group() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Group", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Group() const;
 /** (Optional; PDF 1.4) A reference dictionary identifying a page to be imported
  *  from another PDF file, and for which the form XObject serves as a proxy (see
  *  Section 4.9.3, "Reference XObjects").
@@ -194,13 +140,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ref", "", NULL));
   }
 
-  SkPdfDictionary* Ref() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Ref", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* Ref() const;
 /** (Optional; PDF 1.4) A metadata stream containing metadata for the form
  *  XObject (see Section 9.2.2, "Metadata Streams").
 **/
@@ -208,13 +148,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", NULL));
   }
 
-  SkPdfStream* Metadata() const {
-    SkPdfStream* ret;
-    if (StreamFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "Metadata", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfStream* Metadata() const;
 /** (Optional; PDF 1.3) A page-piece dictionary associated with the form
  *  XObject (see Section 9.4, "Page-Piece Dictionaries").
 **/
@@ -222,13 +156,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PieceInfo", "", NULL));
   }
 
-  SkPdfDictionary* PieceInfo() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "PieceInfo", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* PieceInfo() const;
 /** (Required if the form XObject is a structural content item; PDF 1.3) The integer
  *  key of the form XObject's entry in the structural parent tree (see "Finding
  *  Structure Elements from Content Items" on page 600).
@@ -237,13 +165,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", NULL));
   }
 
-  long StructParent() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParent", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParent() const;
 /** (Required if the form XObject contains marked-content sequences that are struc-
  *  tural content items; PDF 1.3) The integer key of the form XObject's entry in
  *  the structural parent tree (see "Finding Structure Elements from Content
@@ -256,13 +178,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", NULL));
   }
 
-  long StructParents() const {
-    long ret;
-    if (LongFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "StructParents", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return 0;
-  }
-
+  long StructParents() const;
 /** (Optional; PDF 1.2) An OPI version dictionary for the form XObject (see
  *  Section 9.10.6, "Open Prepress Interface (OPI)").
 **/
@@ -270,13 +186,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPI", "", NULL));
   }
 
-  SkPdfDictionary* OPI() const {
-    SkPdfDictionary* ret;
-    if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "OPI", "", &ret)) return ret;
-    // TODO(edisonn): warn about missing required field, assert for known good pdfs
-    return NULL;
-  }
-
+  SkPdfDictionary* OPI() const;
 };
 
 #endif  // __DEFINED__SkPdfType1FormDictionary
