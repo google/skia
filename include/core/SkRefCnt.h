@@ -81,6 +81,11 @@ public:
      */
     void Release() { this->unref(); }
 
+    /**
+     * Alias for unref(), for compatibility with WTF::RefPtr.
+     */
+    void deref() { this->unref(); }
+
 protected:
     /**
      *  Allow subclasses to call this if they've overridden internal_dispose
