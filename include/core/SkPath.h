@@ -951,7 +951,6 @@ public:
         of SkPathRefs */
     class PathRefDebugRef {
     public:
-        PathRefDebugRef(SkPath* owner);
         PathRefDebugRef(SkPathRef* pr, SkPath* owner);
         ~PathRefDebugRef();
         void reset(SkPathRef* ref);
