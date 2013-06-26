@@ -107,6 +107,7 @@
     '../gm/testimagefilters.cpp',
     '../gm/texdata.cpp',
     '../gm/thinrects.cpp',
+    '../gm/thinstrokedrects.cpp',
     '../gm/tilemodes.cpp',
     '../gm/tinybitmap.cpp',
     '../gm/twopointradial.cpp',
