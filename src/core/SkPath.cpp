@@ -19,11 +19,10 @@
 
 #if SK_DEBUG_PATH_REF
 
-SkPath::PathRefDebugRef::PathRefDebugRef(SkPath* owner) : fOwner(owner) {}
-
 SkPath::PathRefDebugRef::PathRefDebugRef(SkPathRef* pr, SkPath* owner)
-: fPathRef(pr)
-, fOwner(owner) {
+    : fPathRef(pr)
+    , fOwner(owner)
+{
     pr->addOwner(owner);
 }
 
@@ -244,7 +243,7 @@ void SkPath::resetFields() {
 
 SkPath::SkPath(const SkPath& that)
 #if SK_DEBUG_PATH_REF
-    : fPathRef(this)
+    : fPathRef(SkRef(that.fPathRef.get()), this)
 #else
     : fPathRef(SkRef(that.fPathRef.get()))
 #endif
