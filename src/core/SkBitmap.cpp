@@ -161,7 +161,6 @@ int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
         case kA1_Config:
             bpp = 0;   // not applicable
             break;
-        case kRLE_Index8_Config:
         case kA8_Config:
         case kIndex8_Config:
             bpp = 1;
@@ -191,7 +190,6 @@ size_t SkBitmap::ComputeRowBytes(Config c, int width) {
 
     switch (c) {
         case kNo_Config:
-        case kRLE_Index8_Config:
             break;
         case kA1_Config:
             rowBytes.set(width);
@@ -473,8 +471,7 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
         dstRowBytes = fRowBytes;
     }
 
-    if (getConfig() == kRLE_Index8_Config ||
-        dstRowBytes < ComputeRowBytes(getConfig(), fWidth) ||
+    if (dstRowBytes < ComputeRowBytes(getConfig(), fWidth) ||
         dst == NULL || (getPixels() == NULL && pixelRef() == NULL))
         return false;
 
@@ -538,19 +535,18 @@ bool SkBitmap::isOpaque() const {
         case kARGB_8888_Config:
             return (fFlags & kImageIsOpaque_Flag) != 0;
 
-        case kIndex8_Config:
-        case kRLE_Index8_Config: {
-                uint32_t flags = 0;
+        case kIndex8_Config: {
+            uint32_t flags = 0;
 
-                this->lockPixels();
-                // if lockPixels failed, we may not have a ctable ptr
-                if (fColorTable) {
-                    flags = fColorTable->getFlags();
-                }
-                this->unlockPixels();
-
-                return (flags & SkColorTable::kColorsAreOpaque_Flag) != 0;
+            this->lockPixels();
+            // if lockPixels failed, we may not have a ctable ptr
+            if (fColorTable) {
+                flags = fColorTable->getFlags();
             }
+            this->unlockPixels();
+
+            return (flags & SkColorTable::kColorsAreOpaque_Flag) != 0;
+        }
 
         case kRGB_565_Config:
             return true;
@@ -606,10 +602,6 @@ void* SkBitmap::getAddr(int x, int y) const {
             case SkBitmap::kA1_Config:
                 base += x >> 3;
                 break;
-            case kRLE_Index8_Config:
-                SkDEBUGFAIL("Can't return addr for kRLE_Index8_Config");
-                base = NULL;
-                break;
             default:
                 SkDEBUGFAIL("Can't return addr for config");
                 base = NULL;
@@ -654,13 +646,6 @@ SkColor SkBitmap::getColor(int x, int y) const {
             uint32_t* addr = this->getAddr32(x, y);
             return SkUnPreMultiply::PMColorToColor(addr[0]);
         }
-        case kRLE_Index8_Config: {
-            uint8_t dst;
-            const SkBitmap::RLEPixels* rle =
-                (const SkBitmap::RLEPixels*)this->getPixels();
-            SkPackBits::Unpack8(&dst, x, 1, rle->packedAtY(y));
-            return SkUnPreMultiply::PMColorToColor((*fColorTable)[dst]);
-        }
         case kNo_Config:
             SkASSERT(false);
             return 0;
@@ -695,7 +680,6 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             }
             return true;
         } break;
-        case kRLE_Index8_Config:
         case SkBitmap::kIndex8_Config: {
             SkAutoLockColors alc(bm);
             const SkPMColor* table = alc.colors();
@@ -944,34 +928,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
             result->swap(dst);
             return true;
         }
-    }
-
-    if (kRLE_Index8_Config == fConfig) {
-        SkAutoLockPixels alp(*this);
-        // don't call readyToDraw(), since we can operate w/o a colortable
-        // at this stage
-        if (this->getPixels() == NULL) {
-            return false;
-        }
-        SkBitmap bm;
-
-        bm.setConfig(kIndex8_Config, r.width(), r.height());
-        bm.allocPixels(this->getColorTable());
-        if (NULL == bm.getPixels()) {
-            return false;
-        }
-
-        const RLEPixels* rle = (const RLEPixels*)this->getPixels();
-        uint8_t* dst = bm.getAddr8(0, 0);
-        const int width = bm.width();
-        const size_t rowBytes = bm.rowBytes();
-
-        for (int y = r.fTop; y < r.fBottom; y++) {
-            SkPackBits::Unpack8(dst, r.fLeft, width, rle->packedAtY(y));
-            dst += rowBytes;
-        }
-        result->swap(bm);
-        return true;
     }
 
     // If the upper left of the rectangle was outside the bounds of this SkBitmap, we should have

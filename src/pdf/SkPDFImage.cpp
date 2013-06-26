@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -6,13 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkPDFImage.h"
 
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkPackBits.h"
 #include "SkPDFCatalog.h"
 #include "SkRect.h"
 #include "SkStream.h"
@@ -36,19 +33,6 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
             uint8_t* dst = (uint8_t*)image->getMemoryBase();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 memcpy(dst, bitmap.getAddr8(srcRect.fLeft, y), rowBytes);
-                dst += rowBytes;
-            }
-            break;
-        }
-        case SkBitmap::kRLE_Index8_Config: {
-            const int rowBytes = srcRect.width();
-            image = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)image->getMemoryBase();
-            const SkBitmap::RLEPixels* rle =
-                (const SkBitmap::RLEPixels*)bitmap.getPixels();
-            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
-                SkPackBits::Unpack8(dst, srcRect.fLeft, rowBytes,
-                                    rle->packedAtY(y));
                 dst += rowBytes;
             }
             break;
@@ -319,8 +303,7 @@ SkPDFImage::SkPDFImage(SkStream* imageData,
     // if (!image mask) {
     if (doingAlpha || alphaOnly) {
         insertName("ColorSpace", "DeviceGray");
-    } else if (config == SkBitmap::kIndex8_Config ||
-        config == SkBitmap::kRLE_Index8_Config) {
+    } else if (config == SkBitmap::kIndex8_Config) {
         SkAutoLockPixels alp(bitmap);
         insert("ColorSpace",
                makeIndexedColorSpace(bitmap.getColorTable()))->unref();

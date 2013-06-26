@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #include "SkGr.h"
 
@@ -213,7 +210,7 @@ GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
         case SkBitmap::kARGB_8888_Config:
             return kSkia8888_GrPixelConfig;
         default:
-            // kNo_Config, kA1_Config missing, and kRLE_Index8_Config
+            // kNo_Config, kA1_Config missing
             return kUnknown_GrPixelConfig;
     }
 }

@@ -183,8 +183,6 @@ static const char* getSkConfigName(const SkBitmap& bm) {
         case SkBitmap::kRGB_565_Config: return "SkBitmap::kRGB_565_Config";
         case SkBitmap::kARGB_4444_Config: return "SkBitmap::kARGB_4444_Config";
         case SkBitmap::kARGB_8888_Config: return "SkBitmap::kARGB_8888_Config";
-        case SkBitmap::kRLE_Index8_Config:
-            return "SkBitmap::kRLE_Index8_Config,";
         default: return "Unknown SkBitmap configuration.";
     }
 }
@@ -247,8 +245,6 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
         { SkBitmap::kRGB_565_Config,    "00101010"  },
         { SkBitmap::kARGB_4444_Config,  "00101110"  },
         { SkBitmap::kARGB_8888_Config,  "00101010"  },
-// TODO: create valid RLE bitmap to test with
- //       { SkBitmap::kRLE_Index8_Config, "00101111"  }
     };
 
     static const bool isExtracted[] = {
@@ -264,8 +260,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
             SkColorTable* ct = NULL;
 
             src.setConfig(gPairs[i].fConfig, W, H);
-            if (SkBitmap::kIndex8_Config == src.config() ||
-                    SkBitmap::kRLE_Index8_Config == src.config()) {
+            if (SkBitmap::kIndex8_Config == src.config()) {
                 ct = init_ctable();
             }
             src.allocPixels(ct);
@@ -365,247 +360,242 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
             // Test copying to/from external buffer.
             // Note: the tests below have hard-coded values ---
             //       Please take care if modifying.
-            if (gPairs[i].fConfig != SkBitmap::kRLE_Index8_Config) {
 
-                // Tests for getSafeSize64().
-                // Test with a very large configuration without pixel buffer
-                // attached.
-                SkBitmap tstSafeSize;
-                tstSafeSize.setConfig(gPairs[i].fConfig, 100000000U,
-                                      100000000U);
-                Sk64 safeSize = tstSafeSize.getSafeSize64();
-                if (safeSize.isNeg()) {
-                    SkString str;
-                    str.printf("getSafeSize64() negative: %s",
-                        getSkConfigName(tstSafeSize));
-                    reporter->reportFailed(str);
-                }
-                bool sizeFail = false;
-                // Compare against hand-computed values.
-                switch (gPairs[i].fConfig) {
-                    case SkBitmap::kNo_Config:
-                        break;
+            // Tests for getSafeSize64().
+            // Test with a very large configuration without pixel buffer
+            // attached.
+            SkBitmap tstSafeSize;
+            tstSafeSize.setConfig(gPairs[i].fConfig, 100000000U,
+                                  100000000U);
+            Sk64 safeSize = tstSafeSize.getSafeSize64();
+            if (safeSize.isNeg()) {
+                SkString str;
+                str.printf("getSafeSize64() negative: %s",
+                    getSkConfigName(tstSafeSize));
+                reporter->reportFailed(str);
+            }
+            bool sizeFail = false;
+            // Compare against hand-computed values.
+            switch (gPairs[i].fConfig) {
+                case SkBitmap::kNo_Config:
+                    break;
 
-                    case SkBitmap::kA1_Config:
-                        if (safeSize.fHi != 0x470DE ||
-                            safeSize.fLo != 0x4DF82000)
-                            sizeFail = true;
-                        break;
+                case SkBitmap::kA1_Config:
+                    if (safeSize.fHi != 0x470DE ||
+                        safeSize.fLo != 0x4DF82000)
+                        sizeFail = true;
+                    break;
 
-                    case SkBitmap::kA8_Config:
-                    case SkBitmap::kIndex8_Config:
-                        if (safeSize.fHi != 0x2386F2 ||
-                            safeSize.fLo != 0x6FC10000)
-                            sizeFail = true;
-                        break;
+                case SkBitmap::kA8_Config:
+                case SkBitmap::kIndex8_Config:
+                    if (safeSize.fHi != 0x2386F2 ||
+                        safeSize.fLo != 0x6FC10000)
+                        sizeFail = true;
+                    break;
 
-                    case SkBitmap::kRGB_565_Config:
-                    case SkBitmap::kARGB_4444_Config:
-                        if (safeSize.fHi != 0x470DE4 ||
-                            safeSize.fLo != 0xDF820000)
-                            sizeFail = true;
-                        break;
+                case SkBitmap::kRGB_565_Config:
+                case SkBitmap::kARGB_4444_Config:
+                    if (safeSize.fHi != 0x470DE4 ||
+                        safeSize.fLo != 0xDF820000)
+                        sizeFail = true;
+                    break;
 
-                    case SkBitmap::kARGB_8888_Config:
-                        if (safeSize.fHi != 0x8E1BC9 ||
-                            safeSize.fLo != 0xBF040000)
-                            sizeFail = true;
-                        break;
+                case SkBitmap::kARGB_8888_Config:
+                    if (safeSize.fHi != 0x8E1BC9 ||
+                        safeSize.fLo != 0xBF040000)
+                        sizeFail = true;
+                    break;
 
-                    case SkBitmap::kRLE_Index8_Config:
-                        break;
+                default:
+                    break;
+            }
+            if (sizeFail) {
+                SkString str;
+                str.printf("getSafeSize64() wrong size: %s",
+                    getSkConfigName(tstSafeSize));
+                reporter->reportFailed(str);
+            }
 
-                    default:
-                        break;
-                }
-                if (sizeFail) {
-                    SkString str;
-                    str.printf("getSafeSize64() wrong size: %s",
-                        getSkConfigName(tstSafeSize));
-                    reporter->reportFailed(str);
-                }
+            size_t subW, subH;
+            // Set sizes to be height = 2 to force the last row of the
+            // source to be used, thus verifying correct operation if
+            // the bitmap is an extracted subset.
+            if (gPairs[i].fConfig == SkBitmap::kA1_Config) {
+                // If one-bit per pixel, use 9 pixels to force more than
+                // one byte per row.
+                subW = 9;
+                subH = 2;
+            } else {
+                // All other configurations are at least one byte per pixel,
+                // and different configs will test copying different numbers
+                // of bytes.
+                subW = subH = 2;
+            }
 
-                size_t subW, subH;
-                // Set sizes to be height = 2 to force the last row of the
-                // source to be used, thus verifying correct operation if
-                // the bitmap is an extracted subset.
-                if (gPairs[i].fConfig == SkBitmap::kA1_Config) {
-                    // If one-bit per pixel, use 9 pixels to force more than
-                    // one byte per row.
-                    subW = 9;
-                    subH = 2;
-                } else {
-                    // All other configurations are at least one byte per pixel,
-                    // and different configs will test copying different numbers
-                    // of bytes.
-                    subW = subH = 2;
-                }
+            // Create bitmap to act as source for copies and subsets.
+            SkBitmap src, subset;
+            SkColorTable* ct = NULL;
+            if (isExtracted[copyCase]) { // A larger image to extract from.
+                src.setConfig(gPairs[i].fConfig, 2 * subW + 1, subH);
+            } else { // Tests expect a 2x2 bitmap, so make smaller.
+                src.setConfig(gPairs[i].fConfig, subW, subH);
+            }
+            if (SkBitmap::kIndex8_Config == src.config()) {
+                ct = init_ctable();
+            }
 
-                // Create bitmap to act as source for copies and subsets.
-                SkBitmap src, subset;
-                SkColorTable* ct = NULL;
-                if (isExtracted[copyCase]) { // A larger image to extract from.
-                    src.setConfig(gPairs[i].fConfig, 2 * subW + 1, subH);
-                } else // Tests expect a 2x2 bitmap, so make smaller.
-                    src.setConfig(gPairs[i].fConfig, subW, subH);
-                if (SkBitmap::kIndex8_Config == src.config() ||
-                        SkBitmap::kRLE_Index8_Config == src.config()) {
-                    ct = init_ctable();
-                }
+            src.allocPixels(ct);
+            SkSafeUnref(ct);
 
-                src.allocPixels(ct);
-                SkSafeUnref(ct);
+            // Either copy src or extract into 'subset', which is used
+            // for subsequent calls to copyPixelsTo/From.
+            bool srcReady = false;
+            if (isExtracted[copyCase]) {
+                // The extractedSubset() test case allows us to test copy-
+                // ing when src and dst mave possibly different strides.
+                SkIRect r;
+                if (gPairs[i].fConfig == SkBitmap::kA1_Config)
+                    // This config seems to need byte-alignment of
+                    // extracted subset bits.
+                    r.set(0, 0, subW, subH);
+                else
+                    r.set(1, 0, 1 + subW, subH); // 2x2 extracted bitmap
 
-                // Either copy src or extract into 'subset', which is used
-                // for subsequent calls to copyPixelsTo/From.
-                bool srcReady = false;
-                if (isExtracted[copyCase]) {
-                    // The extractedSubset() test case allows us to test copy-
-                    // ing when src and dst mave possibly different strides.
-                    SkIRect r;
-                    if (gPairs[i].fConfig == SkBitmap::kA1_Config)
-                        // This config seems to need byte-alignment of
-                        // extracted subset bits.
-                        r.set(0, 0, subW, subH);
-                    else
-                        r.set(1, 0, 1 + subW, subH); // 2x2 extracted bitmap
+                srcReady = src.extractSubset(&subset, r);
+            } else {
+                srcReady = src.copyTo(&subset, src.getConfig());
+            }
 
-                    srcReady = src.extractSubset(&subset, r);
-                } else {
-                    srcReady = src.copyTo(&subset, src.getConfig());
-                }
+            // Not all configurations will generate a valid 'subset'.
+            if (srcReady) {
 
-                // Not all configurations will generate a valid 'subset'.
-                if (srcReady) {
+                // Allocate our target buffer 'buf' for all copies.
+                // To simplify verifying correctness of copies attach
+                // buf to a SkBitmap, but copies are done using the
+                // raw buffer pointer.
+                const uint32_t bufSize = subH *
+                    SkBitmap::ComputeRowBytes(src.getConfig(), subW) * 2;
+                SkAutoMalloc autoBuf (bufSize);
+                uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
 
-                    // Allocate our target buffer 'buf' for all copies.
-                    // To simplify verifying correctness of copies attach
-                    // buf to a SkBitmap, but copies are done using the
-                    // raw buffer pointer.
-                    const uint32_t bufSize = subH *
-                        SkBitmap::ComputeRowBytes(src.getConfig(), subW) * 2;
-                    SkAutoMalloc autoBuf (bufSize);
-                    uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
+                SkBitmap bufBm; // Attach buf to this bitmap.
+                bool successExpected;
 
-                    SkBitmap bufBm; // Attach buf to this bitmap.
-                    bool successExpected;
+                // Set up values for each pixel being copied.
+                Coordinates coords(subW * subH);
+                for (size_t x = 0; x < subW; ++x)
+                    for (size_t y = 0; y < subH; ++y)
+                    {
+                        int index = y * subW + x;
+                        SkASSERT(index < coords.length);
+                        coords[index]->fX = x;
+                        coords[index]->fY = y;
+                    }
 
-                    // Set up values for each pixel being copied.
-                    Coordinates coords(subW * subH);
-                    for (size_t x = 0; x < subW; ++x)
-                        for (size_t y = 0; y < subH; ++y)
-                        {
-                            int index = y * subW + x;
-                            SkASSERT(index < coords.length);
-                            coords[index]->fX = x;
-                            coords[index]->fY = y;
-                        }
+                writeCoordPixels(subset, coords);
 
-                    writeCoordPixels(subset, coords);
+                // Test #1 ////////////////////////////////////////////
 
-                    // Test #1 ////////////////////////////////////////////
+                // Before/after comparisons easier if we attach buf
+                // to an appropriately configured SkBitmap.
+                memset(buf, 0xFF, bufSize);
+                // Config with stride greater than src but that fits in buf.
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH,
+                    SkBitmap::ComputeRowBytes(subset.getConfig(), subW)
+                                              * 2);
+                bufBm.setPixels(buf);
+                successExpected = false;
+                // Then attempt to copy with a stride that is too large
+                // to fit in the buffer.
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsTo(buf, bufSize, bufBm.rowBytes() * 3)
+                    == successExpected);
 
-                    // Before/after comparisons easier if we attach buf
-                    // to an appropriately configured SkBitmap.
-                    memset(buf, 0xFF, bufSize);
-                    // Config with stride greater than src but that fits in buf.
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH,
-                        SkBitmap::ComputeRowBytes(subset.getConfig(), subW)
-                                                  * 2);
-                    bufBm.setPixels(buf);
-                    successExpected = false;
-                    // Then attempt to copy with a stride that is too large
-                    // to fit in the buffer.
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsTo(buf, bufSize, bufBm.rowBytes() * 3)
-                        == successExpected);
-
-                    if (successExpected)
-                        reportCopyVerification(subset, bufBm, coords,
-                            "copyPixelsTo(buf, bufSize, 1.5*maxRowBytes)",
-                            reporter);
-
-                    // Test #2 ////////////////////////////////////////////
-                    // This test should always succeed, but in the case
-                    // of extracted bitmaps only because we handle the
-                    // issue of getSafeSize(). Without getSafeSize()
-                    // buffer overrun/read would occur.
-                    memset(buf, 0xFF, bufSize);
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH,
-                                    subset.rowBytes());
-                    bufBm.setPixels(buf);
-                    successExpected = subset.getSafeSize() <= bufSize;
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsTo(buf, bufSize) ==
-                            successExpected);
-                    if (successExpected)
-                        reportCopyVerification(subset, bufBm, coords,
-                        "copyPixelsTo(buf, bufSize)", reporter);
-
-                    // Test #3 ////////////////////////////////////////////
-                    // Copy with different stride between src and dst.
-                    memset(buf, 0xFF, bufSize);
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH,
-                                    subset.rowBytes()+1);
-                    bufBm.setPixels(buf);
-                    successExpected = true; // Should always work.
-                    REPORTER_ASSERT(reporter,
-                            subset.copyPixelsTo(buf, bufSize,
-                                subset.rowBytes()+1) == successExpected);
-                    if (successExpected)
-                        reportCopyVerification(subset, bufBm, coords,
-                        "copyPixelsTo(buf, bufSize, rowBytes+1)", reporter);
-
-                    // Test #4 ////////////////////////////////////////////
-                    // Test copy with stride too small.
-                    memset(buf, 0xFF, bufSize);
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH);
-                    bufBm.setPixels(buf);
-                    successExpected = false;
-                    // Request copy with stride too small.
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsTo(buf, bufSize, bufBm.rowBytes()-1)
-                            == successExpected);
-                    if (successExpected)
-                        reportCopyVerification(subset, bufBm, coords,
-                        "copyPixelsTo(buf, bufSize, rowBytes()-1)", reporter);
-
-#if 0   // copyPixelsFrom is gone
-                    // Test #5 ////////////////////////////////////////////
-                    // Tests the case where the source stride is too small
-                    // for the source configuration.
-                    memset(buf, 0xFF, bufSize);
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH);
-                    bufBm.setPixels(buf);
-                    writeCoordPixels(bufBm, coords);
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsFrom(buf, bufSize, 1) == false);
-
-                    // Test #6 ///////////////////////////////////////////
-                    // Tests basic copy from an external buffer to the bitmap.
-                    // If the bitmap is "extracted", this also tests the case
-                    // where the source stride is different from the dest.
-                    // stride.
-                    // We've made the buffer large enough to always succeed.
-                    bufBm.setConfig(gPairs[i].fConfig, subW, subH);
-                    bufBm.setPixels(buf);
-                    writeCoordPixels(bufBm, coords);
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsFrom(buf, bufSize, bufBm.rowBytes()) ==
-                            true);
-                    reportCopyVerification(bufBm, subset, coords,
-                        "copyPixelsFrom(buf, bufSize)",
+                if (successExpected)
+                    reportCopyVerification(subset, bufBm, coords,
+                        "copyPixelsTo(buf, bufSize, 1.5*maxRowBytes)",
                         reporter);
 
-                    // Test #7 ////////////////////////////////////////////
-                    // Tests the case where the source buffer is too small
-                    // for the transfer.
-                    REPORTER_ASSERT(reporter,
-                        subset.copyPixelsFrom(buf, 1, subset.rowBytes()) ==
-                            false);
+                // Test #2 ////////////////////////////////////////////
+                // This test should always succeed, but in the case
+                // of extracted bitmaps only because we handle the
+                // issue of getSafeSize(). Without getSafeSize()
+                // buffer overrun/read would occur.
+                memset(buf, 0xFF, bufSize);
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH,
+                                subset.rowBytes());
+                bufBm.setPixels(buf);
+                successExpected = subset.getSafeSize() <= bufSize;
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsTo(buf, bufSize) ==
+                        successExpected);
+                if (successExpected)
+                    reportCopyVerification(subset, bufBm, coords,
+                    "copyPixelsTo(buf, bufSize)", reporter);
+
+                // Test #3 ////////////////////////////////////////////
+                // Copy with different stride between src and dst.
+                memset(buf, 0xFF, bufSize);
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH,
+                                subset.rowBytes()+1);
+                bufBm.setPixels(buf);
+                successExpected = true; // Should always work.
+                REPORTER_ASSERT(reporter,
+                        subset.copyPixelsTo(buf, bufSize,
+                            subset.rowBytes()+1) == successExpected);
+                if (successExpected)
+                    reportCopyVerification(subset, bufBm, coords,
+                    "copyPixelsTo(buf, bufSize, rowBytes+1)", reporter);
+
+                // Test #4 ////////////////////////////////////////////
+                // Test copy with stride too small.
+                memset(buf, 0xFF, bufSize);
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH);
+                bufBm.setPixels(buf);
+                successExpected = false;
+                // Request copy with stride too small.
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsTo(buf, bufSize, bufBm.rowBytes()-1)
+                        == successExpected);
+                if (successExpected)
+                    reportCopyVerification(subset, bufBm, coords,
+                    "copyPixelsTo(buf, bufSize, rowBytes()-1)", reporter);
+
+#if 0   // copyPixelsFrom is gone
+                // Test #5 ////////////////////////////////////////////
+                // Tests the case where the source stride is too small
+                // for the source configuration.
+                memset(buf, 0xFF, bufSize);
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH);
+                bufBm.setPixels(buf);
+                writeCoordPixels(bufBm, coords);
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsFrom(buf, bufSize, 1) == false);
+
+                // Test #6 ///////////////////////////////////////////
+                // Tests basic copy from an external buffer to the bitmap.
+                // If the bitmap is "extracted", this also tests the case
+                // where the source stride is different from the dest.
+                // stride.
+                // We've made the buffer large enough to always succeed.
+                bufBm.setConfig(gPairs[i].fConfig, subW, subH);
+                bufBm.setPixels(buf);
+                writeCoordPixels(bufBm, coords);
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsFrom(buf, bufSize, bufBm.rowBytes()) ==
+                        true);
+                reportCopyVerification(bufBm, subset, coords,
+                    "copyPixelsFrom(buf, bufSize)",
+                    reporter);
+
+                // Test #7 ////////////////////////////////////////////
+                // Tests the case where the source buffer is too small
+                // for the transfer.
+                REPORTER_ASSERT(reporter,
+                    subset.copyPixelsFrom(buf, 1, subset.rowBytes()) ==
+                        false);
 
 #endif
-                }
             }
         } // for (size_t copyCase ...
     }
