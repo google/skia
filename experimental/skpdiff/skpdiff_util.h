@@ -34,5 +34,13 @@ double get_seconds();
  */
 bool get_directory(const char path[], SkTArray<SkString>* entries);
 
+/**
+ * Gets the files that match the specified pattern in sorted order.
+ * @param  globPattern The pattern to use. Patterns must be valid paths, optionally with wildcards (*)
+ * @param  entries     An array to return the results into
+ * @return             True on success, false otherwise
+ */
+bool glob_files(const char globPattern[], SkTArray<SkString>* entries);
+
 
 #endif

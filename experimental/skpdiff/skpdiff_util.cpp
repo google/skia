@@ -7,6 +7,7 @@
 
 #include <time.h>
 #include <dirent.h>
+#include <glob.h>
 #include "SkOSFile.h"
 #include "skpdiff_util.h"
 
@@ -89,6 +90,28 @@ bool get_directory(const char path[], SkTArray<SkString>* entries) {
             entries->push_back(SkString(entry->d_name));
         }
     }
+
+    closedir(dir);
+
+    return true;
+}
+
+bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
+    // TODO Make sure this works on windows. This may require use of FindNextFile windows function.
+    glob_t globBuffer;
+    if (glob(globPattern, 0, NULL, &globBuffer) != 0) {
+        return false;
+    }
+
+    // Note these paths are in sorted order by default according to http://linux.die.net/man/3/glob
+    // Check under the flag GLOB_NOSORT
+    char** paths = globBuffer.gl_pathv;
+    while(NULL != *paths) {
+        entries->push_back(SkString(*paths));
+        paths++;
+    }
+
+    globfree(&globBuffer);
 
     return true;
 }
