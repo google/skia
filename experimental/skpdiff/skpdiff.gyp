@@ -13,6 +13,10 @@
         'SkImageDiffer.cpp',
         'SkCLImageDiffer.cpp',
         'skpdiff_util.cpp',
+        '../../tools/flags/SkCommandLineFlags.cpp',
+      ],
+      'include_dirs': [
+        '../../tools/flags'
       ],
       'dependencies': [
         '../../gyp/skia_lib.gyp:skia_lib',
