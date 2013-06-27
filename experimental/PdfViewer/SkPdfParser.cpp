@@ -2348,5 +2348,3 @@ bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
 
     return true;
 }
-
-

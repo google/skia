@@ -41,4 +41,3 @@ SkPdfDictionary* SkPdfType2PatternDictionary::ExtGState() const {
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return NULL;
 }
-
