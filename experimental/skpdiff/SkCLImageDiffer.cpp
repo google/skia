@@ -126,7 +126,7 @@ bool SkCLImageDiffer::makeImage2D(SkBitmap* bitmap, cl_mem* image) {
 ////////////////////////////////////////////////////////////////
 
 const char* SkDifferentPixelsImageDiffer::getName() {
-    return "Find Different Pixels";
+    return "different_pixels";
 }
 
 int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test) {
