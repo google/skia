@@ -29,42 +29,13 @@
 
 class SkPathRef;
 
-// This path ref should never be deleted once it is created. It should not be global but was made
-// so for checks when SK_DEBUG_PATH_REF is enabled. It we be re-hidden when the debugging code is
-// reverted.
-SkPathRef* gEmptyPathRef;
-
-// Temporary hackery to try to nail down http://code.google.com/p/chromium/issues/detail?id=148637
-#if SK_DEBUG_PATH_REF
-    #define PR_CONTAINER SkPath::PathRefDebugRef
-    #define SkDEBUGCODE_X(code) code
-    #define SkASSERT_X(cond) SK_DEBUGBREAK(cond)
-    // We put the mutex in a factory function to protect against static-initializion order
-    // fiasco when SkPaths are created before main().
-    static SkMutex* owners_mutex() {
-        static SkMutex* gOwnersMutex;
-        if (!gOwnersMutex) {
-            gOwnersMutex = new SkMutex(); // leak!
-        }
-        return gOwnersMutex;
-    }
-    // We have a static initializer that calls owners_mutex before main() so that
-    // hopefully that we only wind up with one mutex (assuming no threads created
-    // before static initialization is finished.)
-    static const SkMutex* gOwnersMutexForce = owners_mutex();
-#else
-    #define PR_CONTAINER SkAutoTUnref<SkPathRef>
-    #define SkDEBUGCODE_X(code) SkDEBUGCODE(code)
-    #define SkASSERT_X(cond) SkASSERT(cond)
-#endif
-
 class SkPathRef : public ::SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPathRef);
 
     class Editor {
     public:
-        Editor(PR_CONTAINER* pathRef,
+        Editor(SkAutoTUnref<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
                int incReservePoints = 0) {
             if (pathRef->get()->getRefCnt() > 1) {
@@ -76,10 +47,10 @@ public:
             }
             fPathRef = pathRef->get();
             fPathRef->fGenerationID = 0;
-            SkDEBUGCODE_X(sk_atomic_inc(&fPathRef->fEditorsAttached);)
+            SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
         }
 
-        ~Editor() { SkDEBUGCODE_X(sk_atomic_dec(&fPathRef->fEditorsAttached);) }
+        ~Editor() { SkDEBUGCODE(sk_atomic_dec(&fPathRef->fEditorsAttached);) }
 
         /**
          * Returns the array of points.
@@ -145,36 +116,11 @@ public:
     };
 
 public:
-#if SK_DEBUG_PATH_REF
-    void addOwner(SkPath* owner) {
-        SkAutoMutexAcquire ac(owners_mutex());
-        for (int i = 0; i < fOwners.count(); ++i) {
-            SkASSERT_X(fOwners[i] != owner);
-        }
-        *fOwners.append() = owner;
-        SkASSERT_X((this->getRefCnt() == fOwners.count()) ||
-                   (this == gEmptyPathRef && this->getRefCnt() == fOwners.count() + 1));
-    }
-
-    void removeOwner(SkPath* owner) {
-        SkAutoMutexAcquire ac(owners_mutex());
-        SkASSERT_X((this->getRefCnt() == fOwners.count()) ||
-                   (this == gEmptyPathRef && this->getRefCnt() == fOwners.count() + 1));
-        bool found = false;
-        for (int i = 0; !found && i < fOwners.count(); ++i) {
-            found = (owner == fOwners[i]);
-            if (found) {
-                fOwners.remove(i);
-            }
-        }
-        SkASSERT_X(found);
-    }
-#endif
-
     /**
      * Gets a path ref with no verbs or points.
      */
     static SkPathRef* CreateEmpty() {
+        static SkPathRef* gEmptyPathRef;
         if (!gEmptyPathRef) {
             gEmptyPathRef = SkNEW(SkPathRef); // leak!
         }
@@ -184,7 +130,7 @@ public:
     /**
      * Transforms a path ref by a matrix, allocating a new one only if necessary.
      */
-    static void CreateTransformedCopy(PR_CONTAINER* dst,
+    static void CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix) {
         src.validate();
@@ -232,7 +178,7 @@ public:
      * repopulated with approximately the same number of verbs and points. A new path ref is created
      * only if necessary.
      */
-    static void Rewind(PR_CONTAINER* pathRef) {
+    static void Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
         if (1 == (*pathRef)->getRefCnt()) {
             (*pathRef)->validate();
             (*pathRef)->fVerbCnt = 0;
@@ -250,21 +196,16 @@ public:
     }
 
     virtual ~SkPathRef() {
-        SkASSERT_X(this != gEmptyPathRef);
-#if SK_DEBUG_PATH_REF
-        SkASSERT_X(!fOwners.count());
-#endif
-
         this->validate();
         sk_free(fPoints);
 
-        SkDEBUGCODE_X(fPoints = NULL;)
-        SkDEBUGCODE_X(fVerbs = NULL;)
-        SkDEBUGCODE_X(fVerbCnt = 0x9999999;)
-        SkDEBUGCODE_X(fPointCnt = 0xAAAAAAA;)
-        SkDEBUGCODE_X(fPointCnt = 0xBBBBBBB;)
-        SkDEBUGCODE_X(fGenerationID = 0xEEEEEEEE;)
-        SkDEBUGCODE_X(fEditorsAttached = 0x7777777;)
+        SkDEBUGCODE(fPoints = NULL;)
+        SkDEBUGCODE(fVerbs = NULL;)
+        SkDEBUGCODE(fVerbCnt = 0x9999999;)
+        SkDEBUGCODE(fPointCnt = 0xAAAAAAA;)
+        SkDEBUGCODE(fPointCnt = 0xBBBBBBB;)
+        SkDEBUGCODE(fGenerationID = 0xEEEEEEEE;)
+        SkDEBUGCODE(fEditorsAttached = 0x7777777;)
     }
 
     int countPoints() const { this->validate(); return fPointCnt; }
@@ -350,7 +291,7 @@ public:
      */
     void writeToBuffer(SkWBuffer* buffer) {
         this->validate();
-        SkDEBUGCODE_X(size_t beforePos = buffer->pos();)
+        SkDEBUGCODE(size_t beforePos = buffer->pos();)
 
         // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
         // SkWBuffer. Until this is fixed we write 0.
@@ -383,7 +324,7 @@ private:
         fPoints = NULL;
         fFreeSpace = 0;
         fGenerationID = kEmptyGenID;
-        SkDEBUGCODE_X(fEditorsAttached = 0;)
+        SkDEBUGCODE(fEditorsAttached = 0;)
         this->validate();
     }
 
@@ -551,7 +492,7 @@ private:
      * for the path ref.
      */
     int32_t genID() const {
-        SkASSERT_X(!fEditorsAttached);
+        SkASSERT(!fEditorsAttached);
         if (!fGenerationID) {
             if (0 == fPointCnt && 0 == fVerbCnt) {
                 fGenerationID = kEmptyGenID;
@@ -594,11 +535,7 @@ private:
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
     };
     mutable int32_t     fGenerationID;
-    SkDEBUGCODE_X(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
-
-#if SK_DEBUG_PATH_REF
-    SkTDArray<SkPath*> fOwners;
-#endif
+    SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
     typedef SkRefCnt INHERITED;
 };
