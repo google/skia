@@ -153,6 +153,7 @@ bool mapDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, 
   if (mapBoxColorInformationDictionary(podofoDoc, podofoObj, (SkPdfBoxColorInformationDictionary**)out)) return true;
   if (mapBoxStyleDictionary(podofoDoc, podofoObj, (SkPdfBoxStyleDictionary**)out)) return true;
   if (mapCIDFontDescriptorDictionary(podofoDoc, podofoObj, (SkPdfCIDFontDescriptorDictionary**)out)) return true;
+  if (mapCIDFontDictionary(podofoDoc, podofoObj, (SkPdfCIDFontDictionary**)out)) return true;
   if (mapCIDSystemInfoDictionary(podofoDoc, podofoObj, (SkPdfCIDSystemInfoDictionary**)out)) return true;
   if (mapCMapDictionary(podofoDoc, podofoObj, (SkPdfCMapDictionary**)out)) return true;
   if (mapCalgrayColorSpaceDictionary(podofoDoc, podofoObj, (SkPdfCalgrayColorSpaceDictionary**)out)) return true;
@@ -328,7 +329,6 @@ bool mapFontDictionary(const SkPdfObject& in, SkPdfFontDictionary** out) {
 bool mapFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfFontDictionary** out) {
   if (!isFontDictionary(podofoDoc, podofoObj)) return false;
 
-  if (mapCIDFontDictionary(podofoDoc, podofoObj, (SkPdfCIDFontDictionary**)out)) return true;
   if (mapType0FontDictionary(podofoDoc, podofoObj, (SkPdfType0FontDictionary**)out)) return true;
   if (mapType1FontDictionary(podofoDoc, podofoObj, (SkPdfType1FontDictionary**)out)) return true;
 
@@ -5403,3 +5403,4 @@ bool MultiMasterFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const
   if (abr == NULL || *abr == '\0') return false;
   return MultiMasterFontDictionaryFromDictionary(pdfDoc, dict, abr, data);
 }
+

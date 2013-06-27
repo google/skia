@@ -10453,7 +10453,7 @@ Widths                                  array                                   
                                                                                                     (See implementation note 43 in Appendix H.) For more information on
                                                                                                     glyph widths and other glyph metrics, see Section 5.1.3, “Glyph Positioning
                                                                                                     and Metrics.”
-FontDescriptor                          dictionary                                                  (Required except for the standard 14 fonts; must be an indirect reference) A font
+FontDescriptor                          FontDescriptorDictionary                                    (Required except for the standard 14 fonts; must be an indirect reference) A font
                                                                                                     descriptor describing the font’s metrics other than its glyph widths (see Sec-
                                                                                                     tion 5.7, “Font Descriptors”).
                                                                                                        Note: For the standard 14 fonts, the entries FirstChar, LastChar, Widths, and
@@ -11130,7 +11130,7 @@ BaseFont                                name                                    
                                                                                                     set preﬁx if appropriate; see Section 5.5.3, “Font Subsets.”
 CIDSystemInfo                           dictionary                                                  (Required) A dictionary containing entries that deﬁne the character collec-
                                                                                                     tion of the CIDFont. See Table 5.12 on page 337.
-FontDescriptor                          dictionary                                                  (Required; must be an indirect reference) A font descriptor describing the
+FontDescriptor                          FontDescriptorDictionary                                    (Required; must be an indirect reference) A font descriptor describing the
                                                                                                     CIDFont’s default metrics other than its glyph widths (see Section 5.7,
                                                                                                     “Font Descriptors”).
 DW                                      integer                                                     (Optional) The default width for glyphs in the CIDFont (see “Glyph Met-

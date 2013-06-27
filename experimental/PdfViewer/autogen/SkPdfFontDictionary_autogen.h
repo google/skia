@@ -63,6 +63,9 @@ private:
   virtual SkPdfCIDFontDescriptorDictionary* asCIDFontDescriptorDictionary() {return NULL;}
   virtual const SkPdfCIDFontDescriptorDictionary* asCIDFontDescriptorDictionary() const {return NULL;}
 
+  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
+  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
+
   virtual SkPdfCIDSystemInfoDictionary* asCIDSystemInfoDictionary() {return NULL;}
   virtual const SkPdfCIDSystemInfoDictionary* asCIDSystemInfoDictionary() const {return NULL;}
 

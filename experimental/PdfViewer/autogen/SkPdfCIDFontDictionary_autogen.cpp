@@ -28,9 +28,9 @@ SkPdfDictionary* SkPdfCIDFontDictionary::CIDSystemInfo() const {
   return NULL;
 }
 
-SkPdfDictionary* SkPdfCIDFontDictionary::FontDescriptor() const {
-  SkPdfDictionary* ret;
-  if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
+SkPdfFontDescriptorDictionary* SkPdfCIDFontDictionary::FontDescriptor() const {
+  SkPdfFontDescriptorDictionary* ret;
+  if (FontDescriptorDictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return NULL;
 }
@@ -76,3 +76,4 @@ std::string SkPdfCIDFontDictionary::getCIDToGIDMapAsName() const {
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return "";
 }
+

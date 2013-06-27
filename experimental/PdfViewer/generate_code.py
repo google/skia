@@ -62,7 +62,10 @@ class PdfField:
   def type(self, types):
     # TODO (edisonn): if simple type, use it, otherwise set it to Dictionary, and set a mask for valid types, like array or name
     types = types.strip()
-    types = types.replace('or', ' ')
+    types = types.replace(' or ', ' ')
+    types = types.replace(' or,', ' ')
+    types = types.replace(',or ', ' ')
+    types = types.replace(',or,', ' ')
     types = types.replace(',', ' ')
     types = types.replace('text', ' ') # TODO(edisonn): what is the difference between 'text string' and 'string'?
     types = types.replace('file specification', 'file_specification')

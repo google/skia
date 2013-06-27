@@ -1772,7 +1772,7 @@ def buildPdfSpec(pdfspec):
       .optional()\
           .field('FontDescriptor')\
           .name('FontDescriptor')\
-          .type('dictionary')\
+          .type('FontDescriptorDictionary')\
           .comment('(Required except for the standard 14 fonts; must be an indirect reference) A font\ndescriptor describing the font\'s metrics other than its glyph widths (see Sec-\ntion 5.7, "Font Descriptors").\n   Note: For the standard 14 fonts, the entries FirstChar, LastChar, Widths, and\n   FontDescriptor must either all be present or all absent. Ordinarily, they are ab-\n   sent; specifying them enables a standard font to be overridden (see "Standard\n   Type 1 Fonts," below).')\
           .done().done()\
       .optional()\
@@ -1907,7 +1907,7 @@ def buildPdfSpec(pdfspec):
           .done().done()\
       .done()
 
-  pdfspec.addClass('CIDFontDictionary', 'FontDictionary', 'Entries in a CIDFont dictionary')\
+  pdfspec.addClass('CIDFontDictionary', 'Dictionary', 'Entries in a CIDFont dictionary')\
       .required('NULL')\
           .field('Type')\
           .name('Type')\
@@ -1936,7 +1936,7 @@ def buildPdfSpec(pdfspec):
       .optional()\
           .field('FontDescriptor')\
           .name('FontDescriptor')\
-          .type('dictionary')\
+          .type('FontDescriptorDictionary')\
           .comment('(Required; must be an indirect reference) A font descriptor describing the\nCIDFont\'s default metrics other than its glyph widths (see Section 5.7,\n"Font Descriptors").')\
           .done().done()\
       .optional()\

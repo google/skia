@@ -148,49 +148,51 @@ SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool 
     return typeface;
 }
 
-static SkPdfFont* fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd) {
+SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd, bool loadFromName) {
+    // TODO(edisonn): partial implementation
     // Only one, at most be available
+    SkPdfStream* pdfStream = NULL;
     if (fd->has_FontFile()) {
-
+        pdfStream = fd->FontFile();
     } else if (fd->has_FontFile2()) {
-        SkPdfStream* pdfStream = fd->FontFile2();
-
-        if (!pdfStream->podofo()->GetStream()) {
-            // TODO(edisonn): report warning to be used in testing.
-            return NULL;
-        }
-
-        char* uncompressedStream = NULL;
-        pdf_long uncompressedStreamLength = 0;
-
-        // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-        try {
-            pdfStream->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-        } catch (PdfError& e) {
-            // TODO(edisonn): report warning to be used in testing.
-            return NULL;
-        }
-        SkMemoryStream* skStream = new SkMemoryStream(uncompressedStream, uncompressedStreamLength);
-        SkTypeface* face = SkTypeface::CreateFromStream(skStream);
-
-        if (face == NULL) {
-            // TODO(edisonn): report warning to be used in testing.
-            return NULL;
-        }
-
-        face->ref();
-
-        return new SkPdfStandardFont(face);
+        pdfStream = fd->FontFile2();
     } if (fd->has_FontFile3()) {
-
+        pdfStream = fd->FontFile3();
     } else {
-
+        if (loadFromName) {
+            return fontFromName(fd, fd->FontName().c_str());
+        }
     }
 
-    return NULL;
+    if (!pdfStream || !pdfStream->podofo()->GetStream()) {
+        // TODO(edisonn): report warning to be used in testing.
+        return NULL;
+    }
+
+    char* uncompressedStream = NULL;
+    pdf_long uncompressedStreamLength = 0;
+
+    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
+    try {
+        pdfStream->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
+    } catch (PdfError& e) {
+        // TODO(edisonn): report warning to be used in testing.
+        return NULL;
+    }
+    SkMemoryStream* skStream = new SkMemoryStream(uncompressedStream, uncompressedStreamLength);
+    SkTypeface* face = SkTypeface::CreateFromStream(skStream);
+
+    if (face == NULL) {
+        // TODO(edisonn): report warning to be used in testing.
+        return NULL;
+    }
+
+    face->ref();
+
+    return new SkPdfStandardFont(face);
 }
 
-SkPdfFont* SkPdfFontFromName(SkPdfObject* obj, const char* fontName) {
+SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName) {
     SkTypeface* typeface = SkTypefaceFromPdfStandardFont(fontName, false, false);
     if (typeface != NULL) {
         return new SkPdfStandardFont(typeface);
@@ -203,7 +205,7 @@ SkPdfFont* SkPdfFontFromName(SkPdfObject* obj, const char* fontName) {
         SkPdfFontDescriptorDictionary* fd = NULL;
         if (mapFontDescriptorDictionary(*obj->doc(), *podofoFont, &fd)) {
             if (fd->has_FontName() && fd->FontName() == fontName) {
-                SkPdfFont* font = fontFromFontDescriptor(fd);
+                SkPdfFont* font = SkPdfFont::fontFromFontDescriptor(fd, false);
                 if (font) {
                     return font;
                 } else {
@@ -232,9 +234,6 @@ SkPdfFont* SkPdfFont::fontFromPdfDictionary(SkPdfFontDictionary* dict) {
 
         case kType1FontDictionary_SkPdfObjectType:
             return fontFromType1FontDictionary(dict->asType1FontDictionary());
-
-        case kCIDFontDictionary_SkPdfObjectType:
-            return fontFromCIDFontDictionary(dict->asCIDFontDictionary());
 
         case kMultiMasterFontDictionary_SkPdfObjectType:
             return fontFromMultiMasterFontDictionary(dict->asMultiMasterFontDictionary());
@@ -277,14 +276,6 @@ SkPdfTrueTypeFont* SkPdfFont::fontFromTrueTypeFontDictionary(SkPdfTrueTypeFontDi
     }
 
     return new SkPdfTrueTypeFont(dict);
-}
-
-SkPdfCIDFont* SkPdfFont::fontFromCIDFontDictionary(SkPdfCIDFontDictionary* dict) {
-    if (dict == NULL) {
-        return NULL;  // default one?
-    }
-
-    return new SkPdfCIDFont(dict);
 }
 
 SkPdfMultiMasterFont* SkPdfFont::fontFromMultiMasterFontDictionary(SkPdfMultiMasterFontDictionary* dict) {
@@ -396,7 +387,7 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
 
 
 SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
-    fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
+    fBaseFont = fontFromName(dict, dict->BaseFont().c_str());
     fEncoding = NULL;
 
     if (dict->has_Encoding()) {

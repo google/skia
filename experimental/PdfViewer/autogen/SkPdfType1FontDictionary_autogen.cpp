@@ -49,9 +49,9 @@ SkPdfArray* SkPdfType1FontDictionary::Widths() const {
   return NULL;
 }
 
-SkPdfDictionary* SkPdfType1FontDictionary::FontDescriptor() const {
-  SkPdfDictionary* ret;
-  if (DictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
+SkPdfFontDescriptorDictionary* SkPdfType1FontDictionary::FontDescriptor() const {
+  SkPdfFontDescriptorDictionary* ret;
+  if (FontDescriptorDictionaryFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", &ret)) return ret;
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return NULL;
 }
@@ -76,3 +76,4 @@ SkPdfStream* SkPdfType1FontDictionary::ToUnicode() const {
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return NULL;
 }
+
