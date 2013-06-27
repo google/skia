@@ -118,6 +118,9 @@ exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
 exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
 exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
 
+# Use the "android" flavor of the Makefile generator for both Linux and OS X.
+exportVar GYP_GENERATORS "make-android"
+
 # Helper function to configure the GYP defines to the appropriate values
 # based on the target device.
 setup_device() {
@@ -184,19 +187,36 @@ setup_device() {
   exportVar SKIA_OUT "out/config/android-${TARGET_DEVICE}"
 }
 
-# Run the setup device command initially as a convenience for the user
-#setup_device
-#echo "** The device has been setup for you by default. If you would like to **"
-#echo "** use a different device then run the setup_device function with the **"
-#echo "** appropriate input.                                                 **"
+# adb_pull_if_needed(android_src, host_dst)
+adb_pull_if_needed() {
 
-# Use the "android" flavor of the Makefile generator for both Linux and OS X.
-exportVar GYP_GENERATORS "make-android"
+  # get adb location
+  source $SCRIPT_DIR/utils/setup_adb.sh
 
-# Helper function so that when we run "make" to build for clank it exports
-# the toolchain variables to make.
-#make_android() {
-#  CC="$CROSS_CC" CXX="$CROSS_CXX" LINK="$CROSS_LINK" \
-#  AR="$CROSS_AR" RANLIB="$CROSS_RANLIB" \
-#    command make $*
-#}
+  # read input params
+  ANDROID_SRC="$1"
+  HOST_DST="$2"
+
+  if [ -d $HOST_DST ];
+  then
+    HOST_DST="${HOST_DST}/$(basename ${ANDROID_SRC})"
+  fi
+
+  echo "HOST: $HOST_DST"
+  
+  if [ -f $HOST_DST ]; 
+  then
+    #get the MD5 for dst and src
+    ANDROID_MD5=`$ADB shell md5 $ANDROID_SRC`
+    HOST_MD5=`md5sum $HOST_DST`
+
+    if [ "${ANDROID_MD5:0:32}" != "${HOST_MD5:0:32}" ];
+    then
+      $ADB pull $ANDROID_SRC $HOST_DST
+#   else
+#      echo "md5 match of android [$ANDROID_SRC] and host [$HOST_DST]"
+    fi
+  else
+    $ADB pull $ANDROID_SRC $HOST_DST
+  fi
+}
