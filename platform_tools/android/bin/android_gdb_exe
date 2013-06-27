@@ -3,62 +3,23 @@
 # android_gdb: Pushes gdbserver. Connects and enters debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP_NAME=$(basename $1)
-PORT=5039
 
-# Collect extra arguments to be passed to the Skia binary
-shift
-while (( "$#" )); do
-  APP_ARGS="$APP_ARGS $1"
-  shift
-done
+# setup the gdbserver
+$SCRIPT_DIR/android_gdbserver $@
 
-source $SCRIPT_DIR/android_setup.sh
-source $SCRIPT_DIR/utils/setup_adb.sh
-
-# We need the debug symbols from these files
-GDB_TMP_DIR=$(pwd)/android_gdb_tmp
-mkdir $GDB_TMP_DIR
-echo "Copying symbol files"
-$ADB pull /system/bin/skia_launcher $GDB_TMP_DIR
-$ADB pull /system/lib/libc.so $GDB_TMP_DIR
-$ADB pull /data/data/com.skia/lib/libskia_android.so $GDB_TMP_DIR
-$ADB pull /data/data/com.skia/lib/lib$APP_NAME.so $GDB_TMP_DIR
-
-echo "Checking for skia_launcher app..."
-if [ ! -f $GDB_TMP_DIR/skia_launcher ]
-then
-    echo "Unable for find the skia_launcher on the device"
-    rm -rf $GDB_TMP_DIR
-    exit 1;
+# quit if gdbserver setup failed
+if [[ "$?" != "0" ]]; then
+  echo "ERROR: gdbserver failed to setup properly."
+  exit 1
 fi
-
-echo "Checking for $APP_NAME library..."
-if [ ! -f $GDB_TMP_DIR/lib$APP_NAME.so ]
-then
-    echo "Unable for find the app's shared library on the device"
-    rm -rf $GDB_TMP_DIR
-    exit 1;
-fi
-
-echo "Pushing gdbserver..."
-$ADB remount
-$ADB push $ANDROID_TOOLCHAIN/../gdbserver /system/bin/gdbserver
-
-echo "Setting up port forward"
-$ADB forward "tcp:5039" "tcp:5039"
-
-# Kill all previous instances of gdbserver and skia_launcher to rid all port overriding errors.
-echo "Killing any running Skia processes."
-$ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill
-$ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
-
-# Starting up gdbserver in android shell
-echo "Starting gdbserver with command: skia_launcher $APP_NAME$APP_ARGS"
-$ADB shell gdbserver :5039 /system/bin/skia_launcher $APP_NAME$APP_ARGS &
 
 # Wait for gdbserver
 sleep 2
+
+# variables that must match those in gdb_server
+GDB_TMP_DIR=$(pwd)/android_gdb_tmp
+APP_NAME=$(basename $1)
+PORT=5039
 
 # Set up gdb commands
 GDBSETUP=$GDB_TMP_DIR/gdb.setup
@@ -72,6 +33,7 @@ echo "break skia_launcher.cpp:launch_app" >> $GDBSETUP
 echo "continue" >> $GDBSETUP
 echo "sharedLibrary $APP_NAME" >> $GDBSETUP
 
+source $SCRIPT_DIR/android_setup.sh
 
 # Launch gdb client
 echo "Entering gdb client shell"

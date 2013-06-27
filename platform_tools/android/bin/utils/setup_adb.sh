@@ -14,4 +14,4 @@ else
     exit 1;
 fi
 
-echo "ADB is: $ADB"
+#echo "ADB is: $ADB"
