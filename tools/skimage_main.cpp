@@ -164,6 +164,18 @@ static void write_expectations(const SkBitmap& bitmap, const char* filename) {
 }
 
 /**
+ *  Return true if this filename is a known failure, and therefore a failure
+ *  to decode should be ignored.
+ */
+static bool expect_to_fail(const char* filename) {
+    if (NULL == gJsonExpectations.get()) {
+        return false;
+    }
+    skiagm::Expectations jsExpectations = gJsonExpectations->get(filename);
+    return jsExpectations.ignoreFailure();
+}
+
+/**
  *  Compare against an expectation for this filename, if there is one.
  *  @param bitmap SkBitmap to compare to the expected value.
  *  @param filename String used to find the expected value.
@@ -299,15 +311,21 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     SkAutoTDelete<SkImageDecoder> ad(codec);
 
     stream.rewind();
-    if (!codec->decode(&stream, &bitmap, SkBitmap::kARGB_8888_Config,
-                       SkImageDecoder::kDecodePixels_Mode)) {
-        gDecodeFailures.push_back().set(srcPath);
-        return;
-    }
 
     // Create a string representing just the filename itself, for use in json expectations.
     SkString basename = SkOSPath::SkBasename(srcPath);
     const char* filename = basename.c_str();
+
+    if (!codec->decode(&stream, &bitmap, SkBitmap::kARGB_8888_Config,
+                       SkImageDecoder::kDecodePixels_Mode)) {
+        if (expect_to_fail(filename)) {
+            gSuccessfulDecodes.push_back().appendf(
+                "failed to decode %s, which is a known failure.", srcPath);
+        } else {
+            gDecodeFailures.push_back().set(srcPath);
+        }
+        return;
+    }
 
     if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
