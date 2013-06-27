@@ -6,4 +6,3 @@ std::string SkPdfMultiMasterFontDictionary::Subtype() const {
   // TODO(edisonn): warn about missing required field, assert for known good pdfs
   return "";
 }
-
