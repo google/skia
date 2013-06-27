@@ -34,6 +34,8 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 // TODO(edisonn): security - validate all the user input, all pdf!
 
+// TODO(edisonn): put drawtext in #ifdefs, so comparations will ignore minor changes in text positioning and font
+// this way, we look more at other features and layout in diffs
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfPodofoMapper_autogen.h"
@@ -386,7 +388,7 @@ PdfResult DrawText(PdfContext* pdfContext,
     SkTraceMatrix(matrix, "mirrored");
 #endif
 
-    skfont->drawText(decoded, &paint, pdfContext, canvas, &pdfContext->fGraphicsState.fMatrixTm);
+    skfont->drawText(decoded, &paint, pdfContext, canvas);
     canvas->restore();
 
     return kPartial_PdfResult;
@@ -2334,7 +2336,14 @@ bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
                 doc.drawPage(pn, &canvas);
 
                 SkString out;
-                out.appendf("%s-%i.png", inputFileName.c_str(), pn);
+                if (doc.pages() > 1) {
+                    out.appendf("%s-%i.png", inputFileName.c_str(), pn);
+                } else {
+                    out = inputFileName;
+                    // .pdf -> .png
+                    out[out.size() - 2] = 'n';
+                    out[out.size() - 1] = 'g';
+                }
                 SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
             }
             return true;

@@ -105,7 +105,7 @@ tableToClassName = {
 'TABLE 5.9': ['Type3FontDictionary', 'Entries in a Type 3 font dictionary', 'Type1FontDictionary', {'Subtype': '[datatypes.PdfName(\'Type3\')]'}],
 'TABLE 5.11': ['EncodingDictionary', 'Entries in an encoding dictionary'],
 'TABLE 5.12': ['CIDSystemInfoDictionary', 'Entries in a CIDSystemInfo dictionary'],
-'TABLE 5.13': ['CIDFontDictionary', 'Entries in a CIDFont dictionary', 'FontDictionary', {'Subtype': '[datatypes.PdfName(\'CIDFontType0\'), datatypes.PdfName(\'CIDFontType2\')]'}],
+'TABLE 5.13': ['CIDFontDictionary', 'Entries in a CIDFont dictionary', '', {'Subtype': '[datatypes.PdfName(\'CIDFontType0\'), datatypes.PdfName(\'CIDFontType2\')]'}],
 'TABLE 5.16': ['CMapDictionary', 'Additional entries in a CMap dictionary'],
 'TABLE 5.17': ['Type0FontDictionary', 'Entries in a Type 0 font dictionary', 'FontDictionary', {'Subtype': '[datatypes.PdfName(\'Type0\')]'}],
 'TABLE 5.18': ['FontDescriptorDictionary', 'Entries common to all font descriptors', '', {'Type': '[datatypes.PdfName(\'FontDescriptor\')]'}],

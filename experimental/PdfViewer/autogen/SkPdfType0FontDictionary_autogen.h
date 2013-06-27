@@ -16,9 +16,6 @@ public:
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return this;}
 
 private:
-  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
-  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
-
   virtual SkPdfType1FontDictionary* asType1FontDictionary() {return NULL;}
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return NULL;}
 

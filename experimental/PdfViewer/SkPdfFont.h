@@ -17,7 +17,6 @@ class SkPdfType0Font;
 class SkPdfType1Font;
 class SkPdfType3Font;
 class SkPdfTrueTypeFont;
-class SkPdfCIDFont;
 class SkPdfMultiMasterFont;
 class SkPdfFont;
 
@@ -30,7 +29,7 @@ struct SkPdfStandardFontEntry {
 
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts();
 SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool italic);
-SkPdfFont* SkPdfFontFromName(SkPdfObject* obj, const char* fontName);
+SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName);
 
 struct SkUnencodedText {
     void* text;
@@ -100,6 +99,28 @@ public:
     }
 };
 
+// TODO(edisonn): using this one when no encoding is specified
+class SkPdfDefaultEncoding : public SkPdfEncoding {
+public:
+    virtual bool decodeText(const SkUnencodedText& textIn, SkDecodedText* textOut) const {
+        // TODO(edisonn): SkASSERT(textIn.len % 2 == 0); or report error?
+
+        unsigned char* text = (unsigned char*)textIn.text;
+        textOut->text = new uint16_t[textIn.len];
+        textOut->len = textIn.len;
+
+        for (int i = 0; i < textOut->len; i++) {
+            textOut->text[i] = text[i];
+        }
+
+        return true;
+    }
+
+    static SkPdfDefaultEncoding* instance() {
+        static SkPdfDefaultEncoding* inst = new SkPdfDefaultEncoding();
+        return inst;
+    }
+};
 
 class SkPdfCIDToGIDMapIdentityEncoding : public SkPdfEncoding {
 public:
@@ -131,13 +152,15 @@ public:
 
 
 public:
-    SkPdfFont() : fBaseFont(NULL), fEncoding(NULL), fToUnicode(NULL) {}
+    SkPdfFont() : fBaseFont(NULL), fEncoding(SkPdfDefaultEncoding::instance()), fToUnicode(NULL) {}
 
     const SkPdfEncoding* encoding() const {return fEncoding;}
 
-    void drawText(const SkDecodedText& text, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
+    void drawText(const SkDecodedText& text, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
         for (int i = 0 ; i < text.size(); i++) {
-            drawOneChar(text[i], paint, pdfContext, canvas, matrix);
+            double width = drawOneChar(text[i], paint, pdfContext, canvas);
+            pdfContext->fGraphicsState.fMatrixTm.preTranslate(SkDoubleToScalar(width), SkDoubleToScalar(0.0));
+            canvas->translate(SkDoubleToScalar(width), SkDoubleToScalar(0.0));
         }
     }
 
@@ -163,18 +186,18 @@ public:
     };
 
     static SkPdfFont* fontFromPdfDictionary(SkPdfFontDictionary* dict);
-    static SkPdfFont* Default() {return SkPdfFontFromName(NULL, "TimesNewRoman");}
+    static SkPdfFont* Default() {return fontFromName(NULL, "TimesNewRoman");}
 
     static SkPdfType0Font* fontFromType0FontDictionary(SkPdfType0FontDictionary* dict);
     static SkPdfType1Font* fontFromType1FontDictionary(SkPdfType1FontDictionary* dict);
     static SkPdfType3Font* fontFromType3FontDictionary(SkPdfType3FontDictionary* dict);
     static SkPdfTrueTypeFont* fontFromTrueTypeFontDictionary(SkPdfTrueTypeFontDictionary* dict);
-    static SkPdfCIDFont* fontFromCIDFontDictionary(SkPdfCIDFontDictionary* dict);
     static SkPdfMultiMasterFont* fontFromMultiMasterFontDictionary(SkPdfMultiMasterFontDictionary* dict);
 
+    static SkPdfFont* fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd, bool loadFromName = true);
+
 public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) = 0;
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) = 0;
+    virtual double drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) = 0;
     virtual void afterWord(SkPaint* paint, SkMatrix* matrix) = 0;
 };
 
@@ -185,7 +208,7 @@ public:
     SkPdfStandardFont(SkTypeface* typeface) : fTypeface(typeface) {}
 
 public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
+    virtual double drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
         paint->setTypeface(fTypeface);
         paint->setTextEncoding(SkPaint::kUTF8_TextEncoding);
 
@@ -196,10 +219,9 @@ public:
         canvas->drawText(utf8, len, SkDoubleToScalar(0), SkDoubleToScalar(0), *paint);
 
         SkScalar textWidth = paint->measureText(utf8, len);
-        matrix->preTranslate(textWidth, SkDoubleToScalar(0.0));
+        return SkScalarToDouble(textWidth);
     }
 
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {}
     virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {}
 };
 
@@ -209,98 +231,43 @@ public:
 
 public:
 
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
-        fBaseFont->drawOneChar(ToUnicode(ch), paint, pdfContext, canvas, matrix);
-    }
-
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
-
+    virtual double drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
+        return fBaseFont->drawOneChar(ToUnicode(ch), paint, pdfContext, canvas);
     }
 
     virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {
     }
 };
-
-class SkPdfTrueTypeFont : public SkPdfFont {
-public:
-    SkPdfTrueTypeFont(SkPdfTrueTypeFontDictionary* dict) {
-        fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
-    }
-
-public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {
-
-    }
-};
-
 
 class SkPdfType1Font : public SkPdfFont {
 public:
     SkPdfType1Font(SkPdfType1FontDictionary* dict) {
-        fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
+        if (dict->has_FontDescriptor()) {
+            fBaseFont = SkPdfFont::fontFromFontDescriptor(dict->FontDescriptor());
+        } else {
+            fBaseFont = fontFromName(dict, dict->BaseFont().c_str());
+        }
     }
 
-
 public:
-      virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
-
-      }
-
-      virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
-
+      virtual double drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
+          return fBaseFont->drawOneChar(ToUnicode(ch), paint, pdfContext, canvas);
       }
 
       virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {
 
       }
- };
+};
 
-
-class SkPdfCIDFont : public SkPdfFont {
+class SkPdfTrueTypeFont : public SkPdfType1Font {
 public:
-    SkPdfCIDFont(SkPdfCIDFontDictionary* dict) {
-        fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
-    }
-
-public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {
-
+    SkPdfTrueTypeFont(SkPdfTrueTypeFontDictionary* dict) : SkPdfType1Font(dict) {
     }
 };
 
-class SkPdfMultiMasterFont : public SkPdfFont {
+class SkPdfMultiMasterFont : public SkPdfType1Font {
 public:
-    SkPdfMultiMasterFont(SkPdfMultiMasterFontDictionary* dict) {
-        fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
-    }
-
-public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
-
-    }
-
-    virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {
-
+    SkPdfMultiMasterFont(SkPdfMultiMasterFontDictionary* dict) : SkPdfType1Font(dict) {
     }
 };
 /*
@@ -351,7 +318,7 @@ class SkPdfType3Font : public SkPdfFont {
 
 public:
     SkPdfType3Font(SkPdfType3FontDictionary* dict) {
-        fBaseFont = SkPdfFontFromName(dict, dict->BaseFont().c_str());
+        fBaseFont = fontFromName(dict, dict->BaseFont().c_str());
 
         if (dict->has_Encoding()) {
             if (dict->isEncodingAName()) {
@@ -410,10 +377,9 @@ public:
     }
 
 public:
-    virtual void drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas, SkMatrix* matrix) {
+    virtual double drawOneChar(unsigned int ch, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
         if (ch < fFirstChar || ch > fLastChar || !fChars[ch - fFirstChar].fObj) {
-            fBaseFont->drawOneChar(ToUnicode(ch), paint, pdfContext, canvas, matrix);
-            return;
+            return fBaseFont->drawOneChar(ToUnicode(ch), paint, pdfContext, canvas);
         }
 
 #ifdef PDF_TRACE
@@ -424,9 +390,10 @@ public:
 #endif
 
         doType3Char(pdfContext, canvas, fChars[ch - fFirstChar].fObj, fFontBBox, fFonMatrix, pdfContext->fGraphicsState.fCurFontSize);
-    }
 
-    virtual void afterChar(SkPaint* paint, SkMatrix* matrix) {
+        // TODO(edisonn): verify/test translate code, not tested yet
+        pdfContext->fGraphicsState.fMatrixTm.preTranslate(SkDoubleToScalar(pdfContext->fGraphicsState.fCurFontSize * fChars[ch - fFirstChar].fWidth),
+                             SkDoubleToScalar(0.0));
     }
 
     virtual void afterWord(SkPaint* paint, SkMatrix* matrix) {

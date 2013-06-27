@@ -16,9 +16,6 @@ public:
   virtual const SkPdfType1FontDictionary* asType1FontDictionary() const {return this;}
 
 private:
-  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
-  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
-
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
 
@@ -114,7 +111,7 @@ public:
     return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), "FontDescriptor", "", NULL));
   }
 
-  SkPdfDictionary* FontDescriptor() const;
+  SkPdfFontDescriptorDictionary* FontDescriptor() const;
 /** (Optional) A specification of the font's character encoding, if different from
  *  its built-in encoding. The value of Encoding may be either the name of a pre-
  *  defined encoding (MacRomanEncoding, MacExpertEncoding, or WinAnsi-

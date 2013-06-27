@@ -64,6 +64,9 @@ private:
   virtual SkPdfCIDFontDescriptorDictionary* asCIDFontDescriptorDictionary() {return NULL;}
   virtual const SkPdfCIDFontDescriptorDictionary* asCIDFontDescriptorDictionary() const {return NULL;}
 
+  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
+  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
+
   virtual SkPdfCMapDictionary* asCMapDictionary() {return NULL;}
   virtual const SkPdfCMapDictionary* asCMapDictionary() const {return NULL;}
 
@@ -159,9 +162,6 @@ private:
 
   virtual SkPdfFontDictionary* asFontDictionary() {return NULL;}
   virtual const SkPdfFontDictionary* asFontDictionary() const {return NULL;}
-
-  virtual SkPdfCIDFontDictionary* asCIDFontDictionary() {return NULL;}
-  virtual const SkPdfCIDFontDictionary* asCIDFontDictionary() const {return NULL;}
 
   virtual SkPdfType0FontDictionary* asType0FontDictionary() {return NULL;}
   virtual const SkPdfType0FontDictionary* asType0FontDictionary() const {return NULL;}
