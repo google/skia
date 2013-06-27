@@ -2050,6 +2050,7 @@ def buildPdfSpec(pdfspec):
           .name('Type')\
           .type('name')\
           .comment('(Required) The type of PDF object that this dictionary describes; must be\nFontDescriptor for a font descriptor.')\
+          .must([datatypes.PdfName('FontDescriptor')])\
           .done().done()\
       .required('NULL')\
           .field('FontName')\

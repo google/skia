@@ -1,6 +1,9 @@
 #include "SkPdfFont.h"
 #include "SkPdfParser.h"
 
+#include "SkStream.h"
+#include "SkTypeface.h"
+
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
     static std::map<std::string, SkPdfStandardFontEntry> gPdfStandardFonts;
 
@@ -145,18 +148,73 @@ SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool 
     return typeface;
 }
 
+static SkPdfFont* fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd) {
+    // Only one, at most be available
+    if (fd->has_FontFile()) {
+
+    } else if (fd->has_FontFile2()) {
+        SkPdfStream* pdfStream = fd->FontFile2();
+
+        if (!pdfStream->podofo()->GetStream()) {
+            // TODO(edisonn): report warning to be used in testing.
+            return NULL;
+        }
+
+        char* uncompressedStream = NULL;
+        pdf_long uncompressedStreamLength = 0;
+
+        // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
+        try {
+            pdfStream->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
+        } catch (PdfError& e) {
+            // TODO(edisonn): report warning to be used in testing.
+            return NULL;
+        }
+        SkMemoryStream* skStream = new SkMemoryStream(uncompressedStream, uncompressedStreamLength);
+        SkTypeface* face = SkTypeface::CreateFromStream(skStream);
+
+        if (face == NULL) {
+            // TODO(edisonn): report warning to be used in testing.
+            return NULL;
+        }
+
+        face->ref();
+
+        return new SkPdfStandardFont(face);
+    } if (fd->has_FontFile3()) {
+
+    } else {
+
+    }
+
+    return NULL;
+}
+
 SkPdfFont* SkPdfFontFromName(SkPdfObject* obj, const char* fontName) {
     SkTypeface* typeface = SkTypefaceFromPdfStandardFont(fontName, false, false);
     if (typeface != NULL) {
         return new SkPdfStandardFont(typeface);
     }
-//        SkPdfObject* font = obtainFont(pdfContext, fontName);
-//        if (!font->asFontDictionary()) {
-//            return NULL;
-//        }
-//        SkPdfFont::fontFromPdfDictionary(font->asDictionary());
-//    }
-    // TODO(edisonn): deal with inherited fonts, load from parent objects
+
+    // TODO(edisonn): perf - make a map
+    for (int i = 0 ; i < obj->doc()->GetObjects().GetSize(); i++) {
+        PdfVecObjects& objects = (PdfVecObjects&)obj->doc()->GetObjects();
+        const PdfObject* podofoFont = objects[i];
+        SkPdfFontDescriptorDictionary* fd = NULL;
+        if (mapFontDescriptorDictionary(*obj->doc(), *podofoFont, &fd)) {
+            if (fd->has_FontName() && fd->FontName() == fontName) {
+                SkPdfFont* font = fontFromFontDescriptor(fd);
+                if (font) {
+                    return font;
+                } else {
+                    // failed to load font descriptor
+                    break;
+                }
+            }
+        }
+    }
+
+    // TODO(edisonn): warning/report issue
     return SkPdfFont::Default();
 }
 

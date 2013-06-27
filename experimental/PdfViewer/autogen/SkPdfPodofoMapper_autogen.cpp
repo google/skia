@@ -3476,6 +3476,10 @@ bool Type0FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDi
 }
 
 bool isFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
+  std::string Type;
+  if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Type", "", &Type)) return false;
+  if ((Type != "FontDescriptor")) return false;
+
   return true;
 }
 

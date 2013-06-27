@@ -108,7 +108,7 @@ tableToClassName = {
 'TABLE 5.13': ['CIDFontDictionary', 'Entries in a CIDFont dictionary', 'FontDictionary', {'Subtype': '[datatypes.PdfName(\'CIDFontType0\'), datatypes.PdfName(\'CIDFontType2\')]'}],
 'TABLE 5.16': ['CMapDictionary', 'Additional entries in a CMap dictionary'],
 'TABLE 5.17': ['Type0FontDictionary', 'Entries in a Type 0 font dictionary', 'FontDictionary', {'Subtype': '[datatypes.PdfName(\'Type0\')]'}],
-'TABLE 5.18': ['FontDescriptorDictionary', 'Entries common to all font descriptors'],
+'TABLE 5.18': ['FontDescriptorDictionary', 'Entries common to all font descriptors', '', {'Type': '[datatypes.PdfName(\'FontDescriptor\')]'}],
 'TABLE 5.20': ['CIDFontDescriptorDictionary', 'Additional font descriptor entries for CIDFonts'],
 'TABLE 5.23': ['EmbeddedFontStreamDictionary', 'Additional entries in an embedded font stream dictionary'],
 'TABLE 6.3': ['Type1HalftoneDictionary', 'Entries in a type 1 halftone dictionary'],
