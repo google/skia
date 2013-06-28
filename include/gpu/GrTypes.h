@@ -600,6 +600,25 @@ struct GrBackendRenderTargetDesc {
     GrBackendObject                 fRenderTargetHandle;
 };
 
+/**
+ * The GrContext's cache of backend context state can be partially invalidated.
+ * These enums are specific to the GL backend and we'd add a new set for an alternative backend.
+ */
+enum GrGLBackendState {
+    kRenderTarget_GrGLBackendState     = 1 << 0,
+    kTextureBinding_GrGLBackendState   = 1 << 1,
+    // View state stands for scissor and viewport
+    kView_GrGLBackendState             = 1 << 2,
+    kBlend_GrGLBackendState            = 1 << 3,
+    kAA_GrGLBackendState               = 1 << 4,
+    kVertex_GrGLBackendState           = 1 << 5,
+    kStencil_GrGLBackendState          = 1 << 6,
+    kPixelStore_GrGLBackendState       = 1 << 7,
+    kProgram_GrGLBackendState          = 1 << 8,
+    kPathStencil_GrGLBackendState      = 1 << 9,
+    kMisc_GrGLBackendState             = 1 << 10,
+    kALL_GrGLBackendState              = 0xffff
+};
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif
