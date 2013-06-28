@@ -93,20 +93,17 @@ class SkDifferentPixelsImageDiffer : public SkCLImageDiffer {
 public:
     virtual const char* getName() SK_OVERRIDE;
     virtual int queueDiff(SkBitmap* baseline, SkBitmap* test) SK_OVERRIDE;
+    virtual void deleteDiff(int id) SK_OVERRIDE;
     virtual bool isFinished(int id) SK_OVERRIDE;
     virtual double getResult(int id) SK_OVERRIDE;
+    virtual int getPointsOfInterestCount(int id) SK_OVERRIDE;
+    virtual SkIPoint* getPointsOfInterest(int id) SK_OVERRIDE;
 
 protected:
     virtual bool onInit() SK_OVERRIDE;
 
 private:
-    struct QueuedDiff {
-        bool finished;
-        double result;
-        cl_mem baseline;
-        cl_mem test;
-        cl_mem resultsBuffer;
-    };
+    struct QueuedDiff;
 
     SkTDArray<QueuedDiff> fQueuedDiffs;
     cl_kernel fKernel;

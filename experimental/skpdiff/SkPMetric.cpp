@@ -233,7 +233,7 @@ static void convolve(const ImageL* imageL,
     }
 }
 
-float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB) {
+float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<SkIPoint>* poi) {
     int width = baselineLAB->width;
     int height = baselineLAB->height;
     int maxLevels = (int)log2(width < height ? width : height);
@@ -371,6 +371,7 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB) {
 
             if (isFailure) {
                 failures++;
+                poi->push()->set(x, y);
             }
         }
     }
@@ -388,13 +389,13 @@ const char* SkPMetric::getName() {
 int SkPMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
     int diffID = fQueuedDiffs.count();
     double startTime = get_seconds();
-    QueuedDiff* diff = fQueuedDiffs.push();
+    QueuedDiff& diff = fQueuedDiffs.push_back();
+    diff.result = 0.0;
 
     // Ensure the images are comparable
     if (baseline->width() != test->width() || baseline->height() != test->height() ||
                     baseline->width() <= 0 || baseline->height() <= 0) {
-        diff->finished = true;
-        diff->result = 0.0;
+        diff.finished = true;
         return diffID;
     }
 
@@ -404,7 +405,7 @@ int SkPMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
     bitmap_to_cielab(baseline, &baselineLAB);
     bitmap_to_cielab(test, &testLAB);
 
-    diff->result = pmetric(&baselineLAB, &testLAB);
+    diff.result = pmetric(&baselineLAB, &testLAB, &diff.poi);
 
     SkDebugf("Time: %f\n", (get_seconds() - startTime));
 
@@ -412,10 +413,22 @@ int SkPMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
 }
 
 
+void SkPMetric::deleteDiff(int id) {
+   fQueuedDiffs[id].poi.reset();
+}
+
 bool SkPMetric::isFinished(int id) {
     return fQueuedDiffs[id].finished;
 }
 
 double SkPMetric::getResult(int id) {
     return fQueuedDiffs[id].result;
+}
+
+int SkPMetric::getPointsOfInterestCount(int id) {
+    return fQueuedDiffs[id].poi.count();
+}
+
+SkIPoint* SkPMetric::getPointsOfInterest(int id) {
+    return fQueuedDiffs[id].poi.begin();
 }

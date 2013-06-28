@@ -11,7 +11,8 @@ const sampler_t gInSampler = CLK_NORMALIZED_COORDS_FALSE |
                              CLK_ADDRESS_CLAMP_TO_EDGE   |
                              CLK_FILTER_NEAREST;
 
-__kernel void diff(read_only image2d_t baseline, read_only image2d_t test, __global int* result) {
+__kernel void diff(read_only image2d_t baseline, read_only image2d_t test,
+                   __global int* result, __global int2* poi) {
     int2 coord = (int2)(get_global_id(0), get_global_id(1));
     uint4 baselinePixel = read_imageui(baseline, gInSampler, coord);
     uint4 testPixel = read_imageui(test, gInSampler, coord);
@@ -21,6 +22,7 @@ __kernel void diff(read_only image2d_t baseline, read_only image2d_t test, __glo
         baselinePixel.z != testPixel.z ||
         baselinePixel.w != testPixel.w) {
 
-        atom_inc(result);
+        int poiIndex = atomic_inc(result);
+        poi[poiIndex] = coord;
     }
 }

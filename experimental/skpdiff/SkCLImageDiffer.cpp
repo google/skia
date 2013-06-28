@@ -69,7 +69,8 @@ bool SkCLImageDiffer::loadKernelSource(const char source[], const char name[], c
 
         // Attempt to get information about why the build failed
         char buildLog[4096];
-        clGetProgramBuildInfo(program, fDevice, CL_PROGRAM_BUILD_LOG, sizeof(buildLog), buildLog, NULL);
+        clGetProgramBuildInfo(program, fDevice, CL_PROGRAM_BUILD_LOG, sizeof(buildLog),
+                              buildLog, NULL);
         SkDebugf("Build log: %s\n", buildLog);
 
         return false;
@@ -125,6 +126,17 @@ bool SkCLImageDiffer::makeImage2D(SkBitmap* bitmap, cl_mem* image) {
 
 ////////////////////////////////////////////////////////////////
 
+struct SkDifferentPixelsImageDiffer::QueuedDiff {
+    bool finished;
+    double result;
+    int numDiffPixels;
+    SkIPoint* poi;
+    cl_mem baseline;
+    cl_mem test;
+    cl_mem resultsBuffer;
+    cl_mem poiBuffer;
+};
+
 const char* SkDifferentPixelsImageDiffer::getName() {
     return "different_pixels";
 }
@@ -134,18 +146,22 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     double startTime = get_seconds();
     QueuedDiff* diff = fQueuedDiffs.push();
 
+    // If we never end up running the kernel, include some safe defaults in the result.
+    diff->finished = false;
+    diff->result = -1.0;
+    diff->numDiffPixels = 0;
+    diff->poi = NULL;
+
     // Ensure the images are comparable
     if (baseline->width() != test->width() || baseline->height() != test->height() ||
                     baseline->width() <= 0 || baseline->height() <= 0) {
         diff->finished = true;
-        diff->result = 0.0;
         return diffID;
     }
 
     // Upload images to the CL device
     if (!this->makeImage2D(baseline, &diff->baseline) || !this->makeImage2D(test, &diff->test)) {
         diff->finished = true;
-        diff->result = 0.0;
         fIsGood = false;
         return -1;
     }
@@ -153,15 +169,21 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     // A small hack that makes calculating percentage difference easier later on.
     diff->result = 1.0 / ((double)baseline->width() * baseline->height());
 
-    // Make a buffer to store results into
-    int numDiffPixels = 0;
+    // Make a buffer to store results into. It must be initialized with pointers to memory.
+    static const int kZero = 0;
+    // We know OpenCL won't write to it because we use CL_MEM_COPY_HOST_PTR
     diff->resultsBuffer = clCreateBuffer(fContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-                                         sizeof(int), &numDiffPixels, NULL);
+                                         sizeof(int), (int*)&kZero, NULL);
+
+    diff->poiBuffer = clCreateBuffer(fContext, CL_MEM_WRITE_ONLY,
+                                     sizeof(int) * 2 * baseline->width() * baseline->height(),
+                                     NULL, NULL);
 
     // Set all kernel arguments
     cl_int setArgErr = clSetKernelArg(fKernel, 0, sizeof(cl_mem), &diff->baseline);
     setArgErr       |= clSetKernelArg(fKernel, 1, sizeof(cl_mem), &diff->test);
     setArgErr       |= clSetKernelArg(fKernel, 2, sizeof(cl_mem), &diff->resultsBuffer);
+    setArgErr       |= clSetKernelArg(fKernel, 3, sizeof(cl_mem), &diff->poiBuffer);
     if (CL_SUCCESS != setArgErr) {
         SkDebugf("Set arg failed: %s\n", cl_error_to_string(setArgErr));
         fIsGood = false;
@@ -172,7 +194,8 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     cl_event event;
     const size_t workSize[] = { baseline->width(), baseline->height() };
     cl_int enqueueErr;
-    enqueueErr = clEnqueueNDRangeKernel(fCommandQueue, fKernel, 2, NULL, workSize, NULL, 0, NULL, &event);
+    enqueueErr = clEnqueueNDRangeKernel(fCommandQueue, fKernel, 2, NULL, workSize,
+                                        NULL, 0, NULL, &event);
     if (CL_SUCCESS != enqueueErr) {
         SkDebugf("Enqueue failed: %s\n", cl_error_to_string(enqueueErr));
         fIsGood = false;
@@ -184,11 +207,17 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     diff->finished = true;
 
     // Immediate read back the results
-    clEnqueueReadBuffer(fCommandQueue, diff->resultsBuffer, CL_TRUE, 0, sizeof(int), &numDiffPixels, 0, NULL, NULL);
-    diff->result *= (double)numDiffPixels;
+    clEnqueueReadBuffer(fCommandQueue, diff->resultsBuffer, CL_TRUE, 0,
+                        sizeof(int), &diff->numDiffPixels, 0, NULL, NULL);
+    diff->result *= (double)diff->numDiffPixels;
     diff->result = (1.0 - diff->result);
 
+    diff->poi = SkNEW_ARRAY(SkIPoint, diff->numDiffPixels);
+    clEnqueueReadBuffer(fCommandQueue, diff->poiBuffer, CL_TRUE, 0,
+                        sizeof(SkIPoint) * diff->numDiffPixels, diff->poi, 0, NULL, NULL);
+
     // Release all the buffers created
+    clReleaseMemObject(diff->poiBuffer);
     clReleaseMemObject(diff->resultsBuffer);
     clReleaseMemObject(diff->baseline);
     clReleaseMemObject(diff->test);
@@ -196,6 +225,14 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     SkDebugf("Time: %f\n", (get_seconds() - startTime));
 
     return diffID;
+}
+
+void SkDifferentPixelsImageDiffer::deleteDiff(int id) {
+    QueuedDiff* diff = &fQueuedDiffs[id];
+    if (NULL != diff->poi) {
+        SkDELETE_ARRAY(diff->poi);
+        diff->poi = NULL;
+    }
 }
 
 bool SkDifferentPixelsImageDiffer::isFinished(int id) {
@@ -206,6 +243,13 @@ double SkDifferentPixelsImageDiffer::getResult(int id) {
     return fQueuedDiffs[id].result;
 }
 
+int SkDifferentPixelsImageDiffer::getPointsOfInterestCount(int id) {
+    return fQueuedDiffs[id].numDiffPixels;
+}
+
+SkIPoint* SkDifferentPixelsImageDiffer::getPointsOfInterest(int id) {
+    return fQueuedDiffs[id].poi;
+}
 
 bool SkDifferentPixelsImageDiffer::onInit() {
     if (!loadKernelFile("experimental/skpdiff/diff_pixels.cl", "diff", &fKernel)) {

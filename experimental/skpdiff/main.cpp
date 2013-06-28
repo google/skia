@@ -11,6 +11,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
+#include "SkPoint.h"
 #include "SkOSFile.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -83,7 +84,7 @@ static void diff_directories(const char baselinePath[], const char testPath[], S
     SkTDArray<int> queuedDiffIDs;
     for (int baselineIndex = 0; baselineIndex < baselineEntries.count(); baselineIndex++) {
         const char* baseFilename = baselineEntries[baselineIndex].c_str();
-        SkDebugf("%s\n", baseFilename);
+        SkDebugf("\n%s\n", baseFilename);
 
         // Find the real location of each file to compare
         SkString baselineFile = SkOSPath::SkPathJoin(baselinePath, baseFilename);
@@ -96,6 +97,8 @@ static void diff_directories(const char baselinePath[], const char testPath[], S
             if (diffID >= 0) {
                 queuedDiffIDs.push(diffID);
                 SkDebugf("Result: %f\n", differ->getResult(diffID));
+                SkDebugf("POI Count: %i\n", differ->getPointsOfInterestCount(diffID));
+                differ->deleteDiff(diffID);
             }
         } else {
             SkDebugf("Baseline file \"%s\" has no corresponding test file\n", baselineFile.c_str());
@@ -130,12 +133,14 @@ static void diff_patterns(const char baselinePattern[], const char testPattern[]
     for (int entryIndex = 0; entryIndex < baselineEntries.count(); entryIndex++) {
         const char* baselineFilename = baselineEntries[entryIndex].c_str();
         const char* testFilename     = testEntries    [entryIndex].c_str();
-        SkDebugf("%s %s\n", baselineFilename, testFilename);
+        SkDebugf("\n%s %s\n", baselineFilename, testFilename);
 
         int diffID = differ->queueDiffOfFile(baselineFilename, testFilename);
         if (diffID >= 0) {
             queuedDiffIDs.push(diffID);
             SkDebugf("Result: %f\n", differ->getResult(diffID));
+            SkDebugf("POI Count: %i\n", differ->getPointsOfInterestCount(diffID));
+            differ->deleteDiff(diffID);
         }
     }
 }
