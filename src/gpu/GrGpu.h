@@ -66,7 +66,9 @@ public:
      * the GrGpu that the state was modified and it shouldn't make assumptions
      * about the state.
      */
-    void markContextDirty() { fContextIsDirty = true; }
+    void markContextDirty(uint32_t state = kAll_GrBackendState) {
+        fResetBits |= state;
+    }
 
     void unimpl(const char[]);
 
@@ -426,7 +428,7 @@ private:
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
-    virtual void onResetContext() = 0;
+    virtual void onResetContext(uint32_t resetBits) = 0;
 
     // overridden by backend-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
@@ -507,14 +509,14 @@ private:
         // stencil buffer. Perhaps we should detect whether it is a
         // internally created stencil buffer and if so skip the invalidate.
         fClipMaskManager.invalidateStencilMask();
-        this->onResetContext();
+        this->onResetContext(fResetBits);
+        fResetBits = 0;
         ++fResetTimestamp;
     }
 
     void handleDirtyContext() {
-        if (fContextIsDirty) {
+        if (fResetBits) {
             this->resetContext();
-            fContextIsDirty = false;
         }
     }
 
@@ -524,6 +526,7 @@ private:
     typedef SkTInternalLList<GrResource> ResourceList;
     SkSTArray<kPreallocGeomPoolStateStackCnt, GeometryPoolState, true>  fGeomPoolStateStack;
     ResetTimestamp                                                      fResetTimestamp;
+    uint32_t                                                            fResetBits;
     GrVertexBufferAllocPool*                                            fVertexPool;
     GrIndexBufferAllocPool*                                             fIndexPool;
     // counts number of uses of vertex/index pool in the geometry stack
@@ -531,7 +534,6 @@ private:
     int                                                                 fIndexPoolUseCnt;
     // these are mutable so they can be created on-demand
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
-    bool                                                                fContextIsDirty;
     // Used to abandon/release all resources created by this GrGpu. TODO: Move this
     // functionality to GrResourceCache.
     ResourceList                                                        fResourceList;

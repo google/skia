@@ -61,8 +61,10 @@ public:
      * within the underlying 3D API's context/device/whatever. This call informs
      * the context that the state was modified and it should resend. Shouldn't
      * be called frequently for good performance.
+     * The flag bits, state, is dpendent on which backend is used by the
+     * context, either GL or D3D (possible in future).
      */
-    void resetContext();
+    void resetContext(uint32_t state = kAll_GrBackendState);
 
     /**
      * Callback function to allow classes to cleanup on GrContext destruction.

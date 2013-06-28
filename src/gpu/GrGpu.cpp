@@ -30,12 +30,12 @@ static const int INDEX_POOL_IB_COUNT = 4;
 GrGpu::GrGpu(GrContext* context)
     : GrDrawTarget(context)
     , fResetTimestamp(kExpiredTimestamp+1)
+    , fResetBits(kAll_GrBackendState)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)
     , fIndexPoolUseCnt(0)
-    , fQuadIndexBuffer(NULL)
-    , fContextIsDirty(true) {
+    , fQuadIndexBuffer(NULL) {
 
     fClipMaskManager.setGpu(this);
 
