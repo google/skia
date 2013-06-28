@@ -2351,6 +2351,7 @@ bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
     }
     catch( PdfError & e )
     {
+        e.PrintErrorMsg();
         std::cout << "ERROR: PDF can't be parsed!" << inputFileName.c_str() << std::endl;
         return false;
     }

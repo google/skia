@@ -1,9 +1,6 @@
 #ifndef __DEFINED__SkPdfBasics
 #define __DEFINED__SkPdfBasics
 
-#include "podofo.h"
-using namespace PoDoFo;
-
 #include "SkCanvas.h"
 #include "SkPaint.h"
 

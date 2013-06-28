@@ -203,6 +203,7 @@ SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName) {
         PdfVecObjects& objects = (PdfVecObjects&)obj->doc()->GetObjects();
         const PdfObject* podofoFont = objects[i];
         SkPdfFontDescriptorDictionary* fd = NULL;
+
         if (mapFontDescriptorDictionary(*obj->doc(), *podofoFont, &fd)) {
             if (fd->has_FontName() && fd->FontName() == fontName) {
                 SkPdfFont* font = SkPdfFont::fontFromFontDescriptor(fd, false);
