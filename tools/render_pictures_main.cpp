@@ -149,6 +149,8 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         return false;
     }
 
+    SkDebugf("deserializing... %s\n", inputPath.c_str());
+
     bool success = false;
     SkPicture* picture;
     if (FLAGS_deferImageDecoding) {
