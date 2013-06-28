@@ -102,7 +102,7 @@ protected:
 
 private:
     // GrGpu overrides
-    virtual void onResetContext(uint32_t resetBits) SK_OVERRIDE;
+    virtual void onResetContext() SK_OVERRIDE;
 
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
