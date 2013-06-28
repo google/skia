@@ -12,6 +12,7 @@
         'main.cpp',
         'SkImageDiffer.cpp',
         'SkCLImageDiffer.cpp',
+        'SkPMetric.cpp',
         'skpdiff_util.cpp',
         '../../tools/flags/SkCommandLineFlags.cpp',
       ],

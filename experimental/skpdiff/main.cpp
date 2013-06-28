@@ -18,6 +18,7 @@
 
 #include "SkImageDiffer.h"
 #include "SkCLImageDiffer.h"
+#include "SkPMetric.h"
 #include "skpdiff_util.h"
 
 #include "SkForceLinking.h"
@@ -107,7 +108,7 @@ static void diff_directories(const char baselinePath[], const char testPath[], S
 static void diff_patterns(const char baselinePattern[], const char testPattern[], SkImageDiffer* differ) {
     // Get the files in the baseline and test patterns. Because they are in sorted order, it's easy
     // to find corresponding images by matching entry indices.
-    //
+
     SkTArray<SkString> baselineEntries;
     if (!glob_files(baselinePattern, &baselineEntries)) {
         SkDebugf("Unable to get pattern \"%s\"\n", baselinePattern);
@@ -140,8 +141,7 @@ static void diff_patterns(const char baselinePattern[], const char testPattern[]
 }
 
 
-static bool init_cl_diff(SkImageDiffer* differ)
-{
+static bool init_cl_diff(SkImageDiffer* differ) {
     // Setup OpenCL
     cl::Device device;
     cl::Context context;
@@ -154,17 +154,26 @@ static bool init_cl_diff(SkImageDiffer* differ)
     return clDiffer->init(device(), context());
 }
 
+static bool init_dummy(SkImageDiffer* differ) {
+    return true;
+}
+
+
 // TODO Find a better home for the diff registry. One possibility is to have the differs self
 // register.
 
 // List here every differ
 SkDifferentPixelsImageDiffer gDiffPixel;
+SkPMetric gPDiff;
 
-/// A null terminated array of pointer to every differ declared above
-SkImageDiffer* gDiffers[] = { &gDiffPixel, NULL };
+// A null terminated array of pointer to every differ declared above
+SkImageDiffer* gDiffers[] = { &gDiffPixel, &gPDiff, NULL };
 
-/// A parallel array of functions to initialize the above differs
-bool (*gDiffInits[])(SkImageDiffer*) = { init_cl_diff, NULL };
+// A parallel array of functions to initialize the above differs. The reason we don't initialize
+// everything immediately is that certain differs may require special initialization, but we still
+// want to construct all of them globally so they can be queried for things like their name and
+// description.
+bool (*gDiffInits[])(SkImageDiffer*) = { init_cl_diff, init_dummy, NULL };
 
 
 int main(int argc, char** argv) {
@@ -226,10 +235,12 @@ int main(int argc, char** argv) {
     // be helped.
 
     // Perform each requested diff
-    for (int differIndex = 0; differIndex < chosenDiffers.count(); differIndex++) {
+    for (int chosenDifferIndex = 0; chosenDifferIndex < chosenDiffers.count(); chosenDifferIndex++) {
+        int differIndex = chosenDiffers[chosenDifferIndex];
+
         // Get the chosen differ and say which one they chose
         SkImageDiffer * differ = gDiffers[differIndex];
-        SkDebugf("Using differ \"%s\"\n", differ->getName());
+        SkDebugf("Using metric \"%s\"\n", differ->getName());
 
         // Initialize the differ using the global list of init functions that match the list of
         // differs
