@@ -204,8 +204,8 @@ void GrContext::contextDestroyed() {
     fGpu->markContextDirty();
 }
 
-void GrContext::resetContext(uint32_t state) {
-    fGpu->markContextDirty(state);
+void GrContext::resetContext() {
+    fGpu->markContextDirty();
 }
 
 void GrContext::freeGpuResources() {
