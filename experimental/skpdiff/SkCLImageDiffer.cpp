@@ -187,6 +187,12 @@ int SkDifferentPixelsImageDiffer::queueDiff(SkBitmap * baseline, SkBitmap * test
     clEnqueueReadBuffer(fCommandQueue, diff->resultsBuffer, CL_TRUE, 0, sizeof(int), &numDiffPixels, 0, NULL, NULL);
     diff->result *= (double)numDiffPixels;
     diff->result = (1.0 - diff->result);
+
+    // Release all the buffers created
+    clReleaseMemObject(diff->resultsBuffer);
+    clReleaseMemObject(diff->baseline);
+    clReleaseMemObject(diff->test);
+
     SkDebugf("Time: %f\n", (get_seconds() - startTime));
 
     return diffID;
