@@ -165,7 +165,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
         displayable = engine->fWorking;
         if (SK_LITERAL_STR_EQUAL("parent", token, len)) {
             SkDisplayable* parent = displayable->getParent();
-            if (parent == false)
+            if (parent == NULL)
                 parent = engine->fParent;
             if (parent) {
                 value->fOperand.fDisplayable = parent;
