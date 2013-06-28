@@ -739,11 +739,18 @@ static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b
     return SkToU16(pixel);
 }
 
-void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
+void SkBitmap::internalErase(const SkIRect& area,
+                             U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
+#ifdef SK_DEBUG
     SkDEBUGCODE(this->validate();)
+    SkASSERT(!area.isEmpty());
+    {
+        SkIRect total = { 0, 0, fWidth, fHeight };
+        SkASSERT(total.contains(area));
+    }
+#endif
 
-    if (0 == fWidth || 0 == fHeight ||
-            kNo_Config == fConfig || kIndex8_Config == fConfig) {
+    if (kNo_Config == fConfig || kIndex8_Config == fConfig) {
         return;
     }
 
@@ -753,8 +760,8 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
         return;
     }
 
-    int height = fHeight;
-    const int width = fWidth;
+    int height = area.height();
+    const int width = area.width();
     const int rowBytes = fRowBytes;
 
     // make rgb premultiplied
@@ -766,18 +773,39 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
 
     switch (fConfig) {
         case kA1_Config: {
-            uint8_t* p = (uint8_t*)fPixels;
-            const int count = (width + 7) >> 3;
+            uint8_t* p = this->getAddr1(area.fLeft, area.fTop);
+            const int left = area.fLeft >> 3;
+            const int right = area.fRight >> 3;
+            
+            int middle = right - left - 1;
+
+            uint8_t leftMask = 0xFF >> (area.fLeft & 7);
+            uint8_t rightMask = ~(0xFF >> (area.fRight & 7));
+            if (left == right) {
+                leftMask &= rightMask;
+                rightMask = 0;
+            }
+
             a = (a >> 7) ? 0xFF : 0;
-            SkASSERT(count <= rowBytes);
             while (--height >= 0) {
-                memset(p, a, count);
-                p += rowBytes;
+                uint8_t* startP = p;
+
+                *p = (*p & ~leftMask) | (a & leftMask);
+                p++;
+                if (middle > 0) {
+                    memset(p, a, middle);
+                    p += middle;
+                }
+                if (rightMask) {
+                    *p = (*p & ~rightMask) | (a & rightMask);
+                }
+                
+                p = startP + rowBytes;
             }
             break;
         }
         case kA8_Config: {
-            uint8_t* p = (uint8_t*)fPixels;
+            uint8_t* p = this->getAddr8(area.fLeft, area.fTop);
             while (--height >= 0) {
                 memset(p, a, width);
                 p += rowBytes;
@@ -786,7 +814,7 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
         }
         case kARGB_4444_Config:
         case kRGB_565_Config: {
-            uint16_t* p = (uint16_t*)fPixels;
+            uint16_t* p = this->getAddr16(area.fLeft, area.fTop);;
             uint16_t v;
 
             if (kARGB_4444_Config == fConfig) {
@@ -803,7 +831,7 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
             break;
         }
         case kARGB_8888_Config: {
-            uint32_t* p = (uint32_t*)fPixels;
+            uint32_t* p = this->getAddr32(area.fLeft, area.fTop);
             uint32_t  v = SkPackARGB32(a, r, g, b);
 
             while (--height >= 0) {
@@ -815,6 +843,21 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
     }
 
     this->notifyPixelsChanged();
+}
+
+void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
+    SkIRect area = { 0, 0, fWidth, fHeight };
+    if (!area.isEmpty()) {
+        this->internalErase(area, a, r, g, b);
+    }
+}
+
+void SkBitmap::eraseArea(const SkIRect& rect, SkColor c) const {
+    SkIRect area = { 0, 0, fWidth, fHeight };
+    if (area.intersect(rect)) {
+        this->internalErase(area, SkColorGetA(c), SkColorGetR(c),
+                            SkColorGetG(c), SkColorGetB(c));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

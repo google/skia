@@ -386,27 +386,37 @@ public:
     */
     void notifyPixelsChanged() const;
 
-    /** Initialize the bitmap's pixels with the specified color+alpha, automatically converting into the correct format
-        for the bitmap's config. If the config is kRGB_565_Config, then the alpha value is ignored.
-        If the config is kA8_Config, then the r,g,b parameters are ignored.
-    */
-    void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
-    /** Initialize the bitmap's pixels with the specified color+alpha, automatically converting into the correct format
-        for the bitmap's config. If the config is kRGB_565_Config, then the alpha value is presumed
-        to be 0xFF. If the config is kA8_Config, then the r,g,b parameters are ignored and the
-        pixels are all set to 0xFF.
-    */
-    void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
-        this->eraseARGB(0xFF, r, g, b);
-    }
-    /** Initialize the bitmap's pixels with the specified color, automatically converting into the correct format
-        for the bitmap's config. If the config is kRGB_565_Config, then the color's alpha value is presumed
-        to be 0xFF. If the config is kA8_Config, then only the color's alpha value is used.
-    */
+    /**
+     *  Fill the entire bitmap with the specified color.
+     *  If the bitmap's config does not support alpha (e.g. 565) then the alpha
+     *  of the color is ignored (treated as opaque). If the config only supports
+     *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
+     */
     void eraseColor(SkColor c) const {
         this->eraseARGB(SkColorGetA(c), SkColorGetR(c), SkColorGetG(c),
                         SkColorGetB(c));
     }
+
+    /**
+     *  Fill the entire bitmap with the specified color.
+     *  If the bitmap's config does not support alpha (e.g. 565) then the alpha
+     *  of the color is ignored (treated as opaque). If the config only supports
+     *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
+     */
+    void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
+
+    // DEPRECATED -- call eraseColor or eraseARGB
+    void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
+        this->eraseARGB(0xFF, r, g, b);
+    }
+
+    /**
+     *  Fill the specified area of this bitmap with the specified color.
+     *  If the bitmap's config does not support alpha (e.g. 565) then the alpha
+     *  of the color is ignored (treated as opaque). If the config only supports
+     *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
+     */
+    void eraseArea(const SkIRect& area, SkColor c) const;
 
     /** Scroll (a subset of) the contents of this bitmap by dx/dy. If there are
         no pixels allocated (i.e. getPixels() returns null) the method will
@@ -664,6 +674,8 @@ private:
     uint8_t     fConfig;
     uint8_t     fFlags;
     uint8_t     fBytesPerPixel; // based on config
+
+    void internalErase(const SkIRect&, U8CPU a, U8CPU r, U8CPU g, U8CPU b)const;
 
     /* Internal computations for safe size.
     */
