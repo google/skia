@@ -282,88 +282,110 @@ bool GrGpuGL::fullReadPixelsIsFasterThanPartial() const {
     return SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL);
 }
 
-void GrGpuGL::onResetContext() {
+void GrGpuGL::onResetContext(uint32_t resetBits) {
 
     // we don't use the zb at all
-    GL_CALL(Disable(GR_GL_DEPTH_TEST));
-    GL_CALL(DepthMask(GR_GL_FALSE));
+    if (resetBits & kMisc_GrGLBackendState) {
+        GL_CALL(Disable(GR_GL_DEPTH_TEST));
+        GL_CALL(DepthMask(GR_GL_FALSE));
 
-    fHWDrawFace = GrDrawState::kInvalid_DrawFace;
-    fHWDitherEnabled = kUnknown_TriState;
+        fHWDrawFace = GrDrawState::kInvalid_DrawFace;
+        fHWDitherEnabled = kUnknown_TriState;
 
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        // Desktop-only state that we never change
-        if (!this->glCaps().isCoreProfile()) {
-            GL_CALL(Disable(GR_GL_POINT_SMOOTH));
-            GL_CALL(Disable(GR_GL_LINE_SMOOTH));
-            GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
-            GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
-            GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
-            GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
+        if (kDesktop_GrGLBinding == this->glBinding()) {
+            // Desktop-only state that we never change
+            if (!this->glCaps().isCoreProfile()) {
+                GL_CALL(Disable(GR_GL_POINT_SMOOTH));
+                GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+                GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
+                GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
+                GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
+                GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
+            }
+            // The windows NVIDIA driver has GL_ARB_imaging in the extension string when using a
+            // core profile. This seems like a bug since the core spec removes any mention of
+            // GL_ARB_imaging.
+            if (this->glCaps().imagingSupport() && !this->glCaps().isCoreProfile()) {
+                GL_CALL(Disable(GR_GL_COLOR_TABLE));
+            }
+            GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
+            // Since ES doesn't support glPointSize at all we always use the VS to
+            // set the point size
+            GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
+
+            // We should set glPolygonMode(FRONT_AND_BACK,FILL) here, too. It isn't
+            // currently part of our gl interface. There are probably others as
+            // well.
         }
-        // The windows NVIDIA driver has GL_ARB_imaging in the extension string when using a core
-        // profile. This seems like a bug since the core spec removes any mention of GL_ARB_imaging.
-        if (this->glCaps().imagingSupport() && !this->glCaps().isCoreProfile()) {
-            GL_CALL(Disable(GR_GL_COLOR_TABLE));
-        }
-        GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
-        // Since ES doesn't support glPointSize at all we always use the VS to
-        // set the point size
-        GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
-
-        // We should set glPolygonMode(FRONT_AND_BACK,FILL) here, too. It isn't
-        // currently part of our gl interface. There are probably others as
-        // well.
+        fHWWriteToColor = kUnknown_TriState;
+        // we only ever use lines in hairline mode
+        GL_CALL(LineWidth(1));
     }
-    fHWAAState.invalidate();
-    fHWWriteToColor = kUnknown_TriState;
 
-    // we only ever use lines in hairline mode
-    GL_CALL(LineWidth(1));
+    if (resetBits & kAA_GrGLBackendState) {
+        fHWAAState.invalidate();
+    }
 
     // invalid
-    fHWActiveTextureUnitIdx = -1;
-
-    fHWBlendState.invalidate();
-
-    for (int s = 0; s < fHWBoundTextures.count(); ++s) {
-        fHWBoundTextures[s] = NULL;
+    if (resetBits & kTextureBinding_GrGLBackendState) {
+        fHWActiveTextureUnitIdx = -1;
+        for (int s = 0; s < fHWBoundTextures.count(); ++s) {
+            fHWBoundTextures[s] = NULL;
+        }
     }
 
-    fHWScissorSettings.invalidate();
+    if (resetBits & kBlend_GrGLBackendState) {
+        fHWBlendState.invalidate();
+    }
 
-    fHWViewport.invalidate();
+    if (resetBits & kView_GrGLBackendState) {
+        fHWScissorSettings.invalidate();
+        fHWViewport.invalidate();
+    }
 
-    fHWStencilSettings.invalidate();
-    fHWStencilTestEnabled = kUnknown_TriState;
+    if (resetBits & kStencil_GrGLBackendState) {
+        fHWStencilSettings.invalidate();
+        fHWStencilTestEnabled = kUnknown_TriState;
+    }
 
-    fHWGeometryState.invalidate();
+    // Vertex
+    if (resetBits & kVertex_GrGLBackendState) {
+        fHWGeometryState.invalidate();
+    }
 
-    fHWBoundRenderTarget = NULL;
+    if (resetBits & kRenderTarget_GrGLBackendState) {
+        fHWBoundRenderTarget = NULL;
+    }
 
-    fHWPathStencilMatrixState.invalidate();
-    if (this->caps()->pathStencilingSupport()) {
-        // we don't use the model view matrix.
-        GL_CALL(MatrixMode(GR_GL_MODELVIEW));
-        GL_CALL(LoadIdentity());
+    if (resetBits & kPathStencil_GrGLBackendState) {
+        fHWPathStencilMatrixState.invalidate();
+        if (this->caps()->pathStencilingSupport()) {
+            // we don't use the model view matrix.
+            GL_CALL(MatrixMode(GR_GL_MODELVIEW));
+            GL_CALL(LoadIdentity());
+        }
     }
 
     // we assume these values
-    if (this->glCaps().unpackRowLengthSupport()) {
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-    if (this->glCaps().packRowLengthSupport()) {
-        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
-    }
-    if (this->glCaps().unpackFlipYSupport()) {
-        GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
-    }
-    if (this->glCaps().packFlipYSupport()) {
-        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
+    if (resetBits & kPixelStore_GrGLBackendState) {
+        if (this->glCaps().unpackRowLengthSupport()) {
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+        }
+        if (this->glCaps().packRowLengthSupport()) {
+            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
+        }
+        if (this->glCaps().unpackFlipYSupport()) {
+            GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
+        }
+        if (this->glCaps().packFlipYSupport()) {
+            GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
+        }
     }
 
-    fHWProgramID = 0;
-    fSharedGLProgramState.invalidate();
+    if (resetBits & kProgram_GrGLBackendState) {
+        fHWProgramID = 0;
+        fSharedGLProgramState.invalidate();
+    }
 }
 
 namespace {
