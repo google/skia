@@ -173,16 +173,15 @@ static bool run_single_benchmark(const SkString& inputPath,
         gLruImageCache.setImageCacheLimit(0);
     }
 
-    bool success = false;
-    SkPicture* picture;
+    SkPicture::InstallPixelRefProc proc;
     if (FLAGS_deferImageDecoding) {
-        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &lazy_decode_bitmap));
+        proc = &lazy_decode_bitmap;
     } else {
-        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory));
+        proc = &SkImageDecoder::DecodeMemory;
     }
-    SkAutoTDelete<SkPicture> ad(picture);
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream, proc));
 
-    if (!success) {
+    if (NULL == picture.get()) {
         SkString err;
         err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());
         gLogger.logError(err);

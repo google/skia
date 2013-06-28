@@ -1,3 +1,4 @@
+# Gyp for utils.
 {
   'targets': [
     {
@@ -10,6 +11,7 @@
         '../include/core',
         '../include/effects',
         '../include/images',
+        '../include/lazy',
         '../include/pipe',
         '../include/utils',
         '../include/utils/mac',

@@ -1,3 +1,4 @@
+# Gyp file for effects
 {
   'targets': [
     {
@@ -12,6 +13,7 @@
         '../include/config',
         '../include/core',
         '../include/effects',
+        '../include/lazy',
         '../include/utils',
         '../src/core',
       ],

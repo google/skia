@@ -1379,8 +1379,10 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
             SkAutoDataUnref data(ostream.copyToData());
             SkMemoryStream istream(data->data(), data->size());
-            SkPicture pict(&istream);
-            orig->drawPicture(pict);
+            SkAutoTUnref<SkPicture> pict(SkPicture::CreateFromStream(&istream));
+            if (pict.get() != NULL) {
+                orig->drawPicture(*pict.get());
+            }
         } else {
             fPicture->draw(orig);
             fPicture->unref();

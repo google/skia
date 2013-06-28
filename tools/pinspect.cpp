@@ -40,11 +40,10 @@ static SkPicture* inspect(const char path[]) {
     }
 
     stream.rewind();
-    bool success = false;
-    SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream, &success, &lazy_decode_bitmap));
-    if (!success) {
+    SkPicture* pic = SkPicture::CreateFromStream(&stream, &lazy_decode_bitmap);
+    if (NULL == pic) {
         SkDebugf("Could not create SkPicture: %s\n", path);
-        return pic;
+        return NULL;
     }
     printf("picture size:[%d %d]\n", pic->width(), pic->height());
     return pic;
