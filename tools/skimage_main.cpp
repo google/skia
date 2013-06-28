@@ -489,6 +489,22 @@ static void append_path_separator_if_necessary(SkString* directory) {
     }
 }
 
+/**
+ *  Return true if the filename represents an image.
+ */
+static bool is_image_file(const char* filename) {
+    const char* gImageExtensions[] = {
+        ".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".bmp", ".BMP",
+        ".webp", ".WEBP", ".ico", ".ICO", ".wbmp", ".WBMP", ".gif", ".GIF"
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gImageExtensions); ++i) {
+        if (SkStrEndsWith(filename, gImageExtensions[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Decode files, and optionally write the results to files.");
@@ -528,10 +544,13 @@ int tool_main(int argc, char** argv) {
             SkOSFile::Iter iter(dir);
             SkString filename;
             while (iter.next(&filename)) {
+                if (!is_image_file(filename.c_str())) {
+                    continue;
+                }
                 SkString fullname = SkOSPath::SkPathJoin(dir, filename.c_str());
                 decodeFileAndWrite(fullname.c_str(), outDirPtr);
             }
-        } else if (sk_exists(readPath)) {
+        } else if (sk_exists(readPath) && is_image_file(readPath)) {
             decodeFileAndWrite(readPath, outDirPtr);
         }
     }
