@@ -68,7 +68,7 @@ public:
                     return;
                 }
                 SkMemoryStream pictureStream(decodedData.getData(), decodedSize);
-                fPicture = new SkPicture(&pictureStream);
+                fPicture = SkPicture::CreateFromStream(&pictureStream);
                 if (fPicture->width() == 0 || fPicture->height() == 0) {
                     SkDebugf("Failed to create SKP.\n");
                     return;
