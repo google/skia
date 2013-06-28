@@ -5403,4 +5403,3 @@ bool MultiMasterFontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const
   if (abr == NULL || *abr == '\0') return false;
   return MultiMasterFontDictionaryFromDictionary(pdfDoc, dict, abr, data);
 }
-
