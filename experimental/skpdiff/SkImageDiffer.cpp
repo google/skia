@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include <cstring>
-
 #include "SkBitmap.h"
 #include "SkImageDecoder.h"
 
 #include "SkImageDiffer.h"
-
 #include "skpdiff_util.h"
 
 

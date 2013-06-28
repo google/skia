@@ -9,6 +9,7 @@
 #define SkImageDiffer_DEFINED
 
 class SkBitmap;
+struct SkIPoint;
 
 /**
  * Encapsulates an image difference metric algorithm that can be potentially run asynchronously.
@@ -54,13 +55,34 @@ public:
     virtual bool isFinished(int id) = 0;
 
     /**
+     * Deletes memory associated with a diff and its results. This may block execution until the
+     * diff is finished,
+     * @param id The id of the diff to query
+     */
+    virtual void deleteDiff(int id) = 0;
+
+    /**
      * Gets the results of the queued diff of the given id. The results are only meaningful after
      * the queued diff has finished.
      * @param  id The id of the queued diff to query
-     * @return    A score between of how different the compared images are, with lower numbers being
-     *            more different.
      */
     virtual double getResult(int id) = 0;
+
+    /**
+     * Gets the number of points of interest for the diff of the given id. The results are only
+     * meaningful after the queued diff has finished.
+     * @param  id The id of the queued diff to query
+     */
+    virtual int getPointsOfInterestCount(int id) = 0;
+
+    /**
+     * Gets an array of the points of interest for the diff of the given id. The results are only
+     * meaningful after the queued diff has finished.
+     * @param  id The id of the queued diff to query
+     */
+    virtual SkIPoint* getPointsOfInterest(int id) = 0;
+
+
 
 protected:
     bool fIsGood;

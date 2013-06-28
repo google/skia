@@ -8,6 +8,7 @@
 #ifndef SkPMetric_DEFINED
 #define SkPMetric_DEFINED
 
+#include "SkTArray.h"
 #include "SkTDArray.h"
 
 #include "SkImageDiffer.h"
@@ -19,16 +20,20 @@ class SkPMetric : public SkImageDiffer {
 public:
     virtual const char* getName() SK_OVERRIDE;
     virtual int queueDiff(SkBitmap* baseline, SkBitmap* test) SK_OVERRIDE;
+    virtual void deleteDiff(int id) SK_OVERRIDE;
     virtual bool isFinished(int id) SK_OVERRIDE;
     virtual double getResult(int id) SK_OVERRIDE;
+    virtual int getPointsOfInterestCount(int id) SK_OVERRIDE;
+    virtual SkIPoint* getPointsOfInterest(int id) SK_OVERRIDE;
 
 private:
     struct QueuedDiff {
         bool finished;
         double result;
+        SkTDArray<SkIPoint> poi;
     };
 
-    SkTDArray<QueuedDiff> fQueuedDiffs;
+    SkTArray<QueuedDiff> fQueuedDiffs;
 
     typedef SkImageDiffer INHERITED;
 };
