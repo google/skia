@@ -1025,10 +1025,7 @@ public:
         //@todo thudson 22 April 2011 when can we safely delete [] dst?
         storage.copyTo(dst);
         SkMemoryStream pictReadback(dst, streamSize);
-        bool success;
-        // Pass a decoding bitmap function so that the factory GM (which has an SkBitmap with
-        // encoded data) does not fail.
-        SkPicture* retval = new SkPicture (&pictReadback, &success, &SkImageDecoder::DecodeMemory);
+        SkPicture* retval = SkPicture::CreateFromStream(&pictReadback);
         return retval;
     }
 

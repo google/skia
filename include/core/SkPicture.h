@@ -11,6 +11,7 @@
 #define SkPicture_DEFINED
 
 #include "SkBitmap.h"
+#include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 
 class SkBBoxHierarchy;
@@ -21,6 +22,8 @@ class SkPicturePlayback;
 class SkPictureRecord;
 class SkStream;
 class SkWStream;
+
+struct SkPictInfo;
 
 /** \class SkPicture
 
@@ -42,13 +45,6 @@ public:
     SkPicture(const SkPicture& src);
 
     /**
-     *  Recreate a picture that was serialized into a stream.
-     *  On failure, silently creates an empty picture.
-     *  @param SkStream Serialized picture data.
-     */
-    explicit SkPicture(SkStream*);
-
-    /**
      *  Function signature defining a function that sets up an SkBitmap from encoded data. On
      *  success, the SkBitmap should have its Config, width, height, rowBytes and pixelref set.
      *  If the installed pixelref has decoded the data into pixels, then the src buffer need not be
@@ -64,12 +60,13 @@ public:
     /**
      *  Recreate a picture that was serialized into a stream.
      *  @param SkStream Serialized picture data.
-     *  @param success Output parameter. If non-NULL, will be set to true if the picture was
-     *                 deserialized successfully and false otherwise.
      *  @param proc Function pointer for installing pixelrefs on SkBitmaps representing the
      *              encoded bitmap data from the stream.
+     *  @return A new SkPicture representing the serialized data, or NULL if the stream is
+     *          invalid.
      */
-    SkPicture(SkStream*, bool* success, InstallPixelRefProc proc);
+    static SkPicture* CreateFromStream(SkStream*,
+                                       InstallPixelRefProc proc = &SkImageDecoder::DecodeMemory);
 
     virtual ~SkPicture();
 
@@ -220,13 +217,20 @@ protected:
     SkPictureRecord* fRecord;
     int fWidth, fHeight;
 
+    // Create a new SkPicture from an existing SkPicturePlayback. Ref count of
+    // playback is unchanged.
+    SkPicture(SkPicturePlayback*, int width, int height);
+
     // For testing. Derived classes may instantiate an alternate
     // SkBBoxHierarchy implementation
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
 
+    // Return true if the SkStream represents a serialized picture, and fills out
+    // SkPictInfo. After this function returns, the SkStream is not rewound; it
+    // will be ready to be parsed to create an SkPicturePlayback.
+    // If false is returned, SkPictInfo is unmodified.
+    static bool StreamIsSKP(SkStream*, SkPictInfo*);
 private:
-    void initFromStream(SkStream*, bool* success, InstallPixelRefProc);
-
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
 

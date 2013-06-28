@@ -237,35 +237,24 @@ private:
 // Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
 class SkTimedPicture : public SkPicture {
 public:
-    explicit SkTimedPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc proc,
-                            const SkTDArray<bool>& deletedCommands) {
-        if (success) {
-            *success = false;
-        }
-        fRecord = NULL;
-        fPlayback = NULL;
-        fWidth = fHeight = 0;
-
+    static SkTimedPicture* CreateTimedPicture(SkStream* stream,
+                                              SkPicture::InstallPixelRefProc proc,
+                                              const SkTDArray<bool>& deletedCommands) {
         SkPictInfo info;
-
-        if (!stream->read(&info, sizeof(info))) {
-            return;
-        }
-        if (SkPicture::PICTURE_VERSION != info.fVersion) {
-            return;
+        if (!StreamIsSKP(stream, &info)) {
+            return NULL;
         }
 
+        SkTimedPicturePlayback* playback;
+        // Check to see if there is a playback to recreate.
         if (stream->readBool()) {
-            fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                   (stream, info, proc, deletedCommands));
+            playback = SkNEW_ARGS(SkTimedPicturePlayback,
+                                  (stream, info, proc, deletedCommands));
+        } else {
+            playback = NULL;
         }
 
-        // do this at the end, so that they will be zero if we hit an error.
-        fWidth = info.fWidth;
-        fHeight = info.fHeight;
-        if (success) {
-            *success = true;
-        }
+        return SkNEW_ARGS(SkTimedPicture, (playback, info.fWidth, info.fHeight));
     }
 
     void resetTimes() { ((SkTimedPicturePlayback*) fPlayback)->resetTimes(); }
@@ -282,6 +271,9 @@ public:
 private:
     // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr
     SkTimedPicture();
+    // Private ctor only used by CreateTimedPicture, which has created the playback.
+    SkTimedPicture(SkTimedPicturePlayback* playback, int width, int height)
+        : INHERITED(playback, width, height) {}
     // disallow the copy ctor - enabling would require copying code from SkPicture
     SkTimedPicture(const SkTimedPicture& src);
 
@@ -338,10 +330,9 @@ void SkDebuggerGUI::actionProfile() {
         return;
     }
 
-    bool success = false;
-    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeMemory,
-                           fSkipCommands);
-    if (!success) {
+    SkAutoTUnref<SkTimedPicture> picture(SkTimedPicture::CreateTimedPicture(&inputStream,
+                                         &SkImageDecoder::DecodeMemory, fSkipCommands));
+    if (NULL == picture.get()) {
         return;
     }
 
@@ -377,20 +368,20 @@ void SkDebuggerGUI::actionProfile() {
 
     static const int kNumRepeats = 10;
 
-    run(&picture, renderer, kNumRepeats);
+    run(picture.get(), renderer, kNumRepeats);
 
-    SkASSERT(picture.count() == fListWidget.count());
+    SkASSERT(picture->count() == fListWidget.count());
 
     // extract the individual command times from the SkTimedPlaybackPicture
-    for (int i = 0; i < picture.count(); ++i) {
-        double temp = picture.time(i);
+    for (int i = 0; i < picture->count(); ++i) {
+        double temp = picture->time(i);
 
         QListWidgetItem* item = fListWidget.item(i);
 
         item->setData(Qt::UserRole + 4, 100.0*temp);
     }
 
-    setupOverviewText(picture.typeTimes(), picture.totTime(), kNumRepeats);
+    setupOverviewText(picture->typeTimes(), picture->totTime(), kNumRepeats);
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -905,12 +896,9 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fLoading = true;
     SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.c_str()));
 
-    bool success = false;
+    SkPicture* picture = SkPicture::CreateFromStream(stream);
 
-    SkPicture* picture = SkNEW_ARGS(SkPicture,
-                                    (stream, &success, &SkImageDecoder::DecodeMemory));
-
-    if (!success) {
+    if (NULL == picture) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
         SkSafeUnref(stream);
         return;

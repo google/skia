@@ -420,10 +420,9 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     context.fReporter = reporter;
     SkSetErrorCallback(assert_one_parse_error_cb, &context);
     SkMemoryStream pictureStream(picture1);
-    bool success;
     SkClearLastError();
-    SkPicture pictureFromStream(&pictureStream, &success, NULL);
-    REPORTER_ASSERT(reporter, success);
+    SkAutoUnref pictureFromStream(SkPicture::CreateFromStream(&pictureStream, NULL));
+    REPORTER_ASSERT(reporter, pictureFromStream.get() != NULL);
     SkClearLastError();
     SkSetErrorCallback(NULL, NULL);
 }

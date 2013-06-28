@@ -520,15 +520,14 @@ void SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
         case PICT_PICTURE_TAG: {
             fPictureCount = size;
             fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
-            bool success;
             for (int i = 0; i < fPictureCount; i++) {
-                fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream, &success, proc));
-                // Success can only be false if PICTURE_VERSION does not match
+                fPictureRefs[i] = SkPicture::CreateFromStream(stream, proc);
+                // CreateFromStream can only fail if PICTURE_VERSION does not match
                 // (which should never happen from here, since a sub picture will
                 // have the same PICTURE_VERSION as its parent) or if stream->read
                 // returns 0. In the latter case, we have a bug when writing the
                 // picture to begin with, which will be alerted to here.
-                SkASSERT(success);
+                SkASSERT(fPictureRefs[i] != NULL);
             }
         } break;
         case PICT_BUFFER_SIZE_TAG: {

@@ -9,7 +9,6 @@
 #include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -169,11 +168,9 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
         return false;
     }
 
-    bool success = false;
-    SkAutoTUnref<SkPicture>
-        picture(SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory)));
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream));
 
-    if (!success) {
+    if (NULL == picture.get()) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;
     }
@@ -185,7 +182,7 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
 
     renderer.render();
 
-    success = write_output(outputDir, inputFilename, renderer);
+    bool success = write_output(outputDir, inputFilename, renderer);
 
     renderer.end();
     return success;

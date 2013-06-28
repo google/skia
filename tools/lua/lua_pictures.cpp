@@ -46,13 +46,7 @@ static SkPicture* load_picture(const char path[]) {
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
     SkPicture* pic = NULL;
     if (stream.get()) {
-        bool success;
-        pic = SkNEW_ARGS(SkPicture, (stream.get(), &success,
-                                     &lazy_decode_bitmap));
-        if (!success) {
-            SkDELETE(pic);
-            pic = NULL;
-        }
+        pic = SkPicture::CreateFromStream(stream.get(), &lazy_decode_bitmap);
     }
     return pic;
 }
