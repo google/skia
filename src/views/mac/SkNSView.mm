@@ -84,7 +84,7 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 }
 
 - (void)backingPropertiesChanged:(NSNotification *)notification {
-    CGFloat oldBackingScaleFactor = [
+    CGFloat oldBackingScaleFactor = (CGFloat)[
         [notification.userInfo objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue
     ];
     CGFloat newBackingScaleFactor = [self scaleFactor];
