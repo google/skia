@@ -28,5 +28,7 @@
 	<string>SampleApp</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 </dict>
 </plist>
