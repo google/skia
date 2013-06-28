@@ -1,0 +1,5 @@
+TODO(edisonn): do not check in the generated code, but generate the code at build time
+To generate the code, run 
+python spec2def.py <PdfReference-okular-1.txt >autogen/pdfspec_autogen.py
+autogen$ python ../generate_code.py
+

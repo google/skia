@@ -23,8 +23,8 @@
         '../experimental/PdfViewer/SkPdfFont.cpp',
         '../experimental/PdfViewer/SkPdfParser.cpp',
         '../experimental/PdfViewer/SkPdfUtils.cpp',
-        '../experimental/PdfViewer/autogen/SkPdfPodofoMapper_autogen.cpp',
-        '../experimental/PdfViewer/autogen/SkPdfHeaders_autogen.cpp',
+        '../experimental/PdfViewer/pdfparser/podofo/autogen/SkPdfPodofoMapper_autogen.cpp',
+        '../experimental/PdfViewer/pdfparser/podofo/autogen/SkPdfHeaders_autogen.cpp',
       ],
       'include_dirs': [
         '../third_party/externals/podofo/src/base',
@@ -32,7 +32,11 @@
         '../third_party/externals/podofo',
         '../tools',
         '../experimental/PdfViewer',
-        '../experimental/PdfViewer/autogen',
+        '../experimental/PdfViewer/pdfparser',
+        '../experimental/PdfViewer/pdfparser/podofo',
+        '../experimental/PdfViewer/pdfparser/podofo/autogen',
+        #'../experimental/PdfViewer/pdfparser/native',
+        #'../experimental/PdfViewer/pdfparser/native/autogen',
       ],
       'dependencies': [
         'core.gyp:core',
