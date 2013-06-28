@@ -58,6 +58,12 @@ public:
     typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
 
     /**
+     *  @Deprecated - use CreateFromStream instead.
+     *  Create an SkPicture from an SkStream.
+     */
+    SkPicture(SkStream*, bool*, InstallPixelRefProc);
+
+    /**
      *  Recreate a picture that was serialized into a stream.
      *  @param SkStream Serialized picture data.
      *  @param proc Function pointer for installing pixelrefs on SkBitmaps representing the

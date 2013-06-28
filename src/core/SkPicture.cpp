@@ -283,6 +283,26 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     return true;
 }
 
+SkPicture::SkPicture(SkStream* stream, bool* success, InstallPixelRefProc proc) {
+    fRecord = NULL;
+    SkAutoTUnref<SkPicture> picture(CreateFromStream(stream, proc));
+    if (NULL == picture.get()) {
+        fPlayback = NULL;
+        fWidth = fHeight = 0;
+        if (success) {
+            *success = false;
+        }
+    } else {
+        fPlayback = picture->fPlayback;
+        picture->fPlayback = NULL;
+        fWidth = picture->fWidth;
+        fHeight = picture->fHeight;
+        if (success) {
+            *success = true;
+        }
+    }
+}
+
 SkPicture::SkPicture(SkPicturePlayback* playback, int width, int height)
     : fPlayback(playback)
     , fRecord(NULL)
