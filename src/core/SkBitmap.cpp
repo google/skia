@@ -745,7 +745,7 @@ void SkBitmap::internalErase(const SkIRect& area,
     SkDEBUGCODE(this->validate();)
     SkASSERT(!area.isEmpty());
     {
-        SkIRect total = { 0, 0, fWidth, fHeight };
+        SkIRect total = { 0, 0, this->width(), this->height() };
         SkASSERT(total.contains(area));
     }
 #endif
@@ -846,14 +846,14 @@ void SkBitmap::internalErase(const SkIRect& area,
 }
 
 void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
-    SkIRect area = { 0, 0, fWidth, fHeight };
+    SkIRect area = { 0, 0, this->width(), this->height() };
     if (!area.isEmpty()) {
         this->internalErase(area, a, r, g, b);
     }
 }
 
 void SkBitmap::eraseArea(const SkIRect& rect, SkColor c) const {
-    SkIRect area = { 0, 0, fWidth, fHeight };
+    SkIRect area = { 0, 0, this->width(), this->height() };
     if (area.intersect(rect)) {
         this->internalErase(area, SkColorGetA(c), SkColorGetR(c),
                             SkColorGetG(c), SkColorGetB(c));
