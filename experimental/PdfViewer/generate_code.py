@@ -490,6 +490,7 @@ class PdfClassManager:
           if prop.fHasMust:
             cntMust = cntMust + 1
             fileMapperCpp.write('  ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';\n')
+            fileMapperCpp.write('  if (!podofoObj.IsDictionary()) return false;\n')
             fileMapperCpp.write('  if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;\n')
             
             eval = '';

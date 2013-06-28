@@ -2565,6 +2565,7 @@ bool FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDiction
 
 bool isTrueTypeFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "TrueType")) return false;
 
@@ -3232,6 +3233,7 @@ bool Type6ShadingDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const Pd
 
 bool isImageDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "Image")) return false;
 
@@ -3270,6 +3272,7 @@ bool AlternateImageDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const 
 
 bool isType1FormDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "Form")) return false;
 
@@ -3342,6 +3345,7 @@ bool PSXobjectDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDi
 
 bool isType1FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "MMType1") && (Subtype != "TrueType") && (Subtype != "Type3") && (Subtype != "Type1")) return false;
 
@@ -3363,6 +3367,7 @@ bool Type1FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDi
 
 bool isType3FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "Type3")) return false;
 
@@ -3418,6 +3423,7 @@ bool CIDSystemInfoDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const P
 
 bool isCIDFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "CIDFontType0") && (Subtype != "CIDFontType2")) return false;
 
@@ -3456,6 +3462,7 @@ bool CMapDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDiction
 
 bool isType0FontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "Type0")) return false;
 
@@ -3477,6 +3484,7 @@ bool Type0FontDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfDi
 
 bool isFontDescriptorDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Type;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Type", "", &Type)) return false;
   if ((Type != "FontDescriptor")) return false;
 
@@ -5385,6 +5393,7 @@ bool OpiVersionDictionaryFromDictionary(const PdfMemDocument* pdfDoc, const PdfD
 
 bool isMultiMasterFontDictionary(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {
   std::string Subtype;
+  if (!podofoObj.IsDictionary()) return false;
   if (!NameFromDictionary(&podofoDoc, podofoObj.GetDictionary(), "Subtype", "", &Subtype)) return false;
   if ((Subtype != "MMType1")) return false;
 
