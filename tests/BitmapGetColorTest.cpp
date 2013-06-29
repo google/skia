@@ -40,7 +40,7 @@ static void test_equal_A1_A8(skiatest::Reporter* reporter,
 
             int p8 = *bm8.getAddr8(x, y);
             SkASSERT(0 == p8 || 0xFF == p8);
-            
+
             REPORTER_ASSERT(reporter, p1 == p8);
         }
     }
@@ -51,7 +51,7 @@ static void test_eraserect_A1(skiatest::Reporter* reporter) {
     const int H = 13;
 
     SkBitmap bm1, bm8;
-    
+
     bm1.setConfig(SkBitmap::kA1_Config, W, H);
     bm1.allocPixels();
     bm8.setConfig(SkBitmap::kA8_Config, W, H);
@@ -61,10 +61,10 @@ static void test_eraserect_A1(skiatest::Reporter* reporter) {
     for (int i = 0; i < 10000; ++i) {
         SkIRect area;
         rand_irect(&area, W, H, rand);
-        
+
         bm1.eraseColor(0);
         bm8.eraseColor(0);
-        
+
         bm1.eraseArea(area, SK_ColorWHITE);
         bm8.eraseArea(area, SK_ColorWHITE);
         test_equal_A1_A8(reporter, bm1, bm8);
@@ -105,7 +105,7 @@ static void TestGetColor(skiatest::Reporter* reporter) {
         SkColor c = bm.getColor(1, 1);
         REPORTER_ASSERT(reporter, c == gRec[i].fOutColor);
     }
-    
+
     test_eraserect_A1(reporter);
 }
 

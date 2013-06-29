@@ -776,7 +776,7 @@ void SkBitmap::internalErase(const SkIRect& area,
             uint8_t* p = this->getAddr1(area.fLeft, area.fTop);
             const int left = area.fLeft >> 3;
             const int right = area.fRight >> 3;
-            
+
             int middle = right - left - 1;
 
             uint8_t leftMask = 0xFF >> (area.fLeft & 7);
@@ -799,7 +799,7 @@ void SkBitmap::internalErase(const SkIRect& area,
                 if (rightMask) {
                     *p = (*p & ~rightMask) | (a & rightMask);
                 }
-                
+
                 p = startP + rowBytes;
             }
             break;
