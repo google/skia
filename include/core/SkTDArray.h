@@ -268,7 +268,7 @@ public:
     }
 
     void copy(T* dst) const {
-        this->copyRange(0, fCount, dst);
+        this->copyRange(dst, 0, fCount);
     }
 
     // routines to treat the array like a stack
