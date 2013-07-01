@@ -37,7 +37,6 @@ public:
     explicit SkiaInstance(PP_Instance instance)
         : pp::Instance(instance)
         , fCanvas(NULL)
-        , fPicture(NULL)
         , fFlushLoopRunning(false)
         , fFlushPending(false)
 
@@ -68,12 +67,13 @@ public:
                     return;
                 }
                 SkMemoryStream pictureStream(decodedData.getData(), decodedSize);
-                fPicture = SkPicture::CreateFromStream(&pictureStream);
-                if (fPicture->width() == 0 || fPicture->height() == 0) {
+                SkPicture* picture = SkPicture::CreateFromStream(&pictureStream);
+                if (NULL == picture) {
                     SkDebugf("Failed to create SKP.\n");
                     return;
                 }
-                fDebugger.loadPicture(fPicture);
+                fDebugger.loadPicture(picture);
+                picture->unref();
 
                 // Set up the command list.
                 SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
@@ -194,7 +194,6 @@ private:
     SkBitmap fBitmap;
     SkCanvas* fCanvas;
     SkDebugger fDebugger;
-    SkPicture* fPicture;
 
     bool fFlushLoopRunning;
     bool fFlushPending;
