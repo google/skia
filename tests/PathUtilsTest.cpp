@@ -14,7 +14,7 @@
 #include "SkRandom.h"
 #include "SkTime.h"
 
-#define NUM_IT 100000
+#define NUM_IT 1000
 #define ON  0xFF000000 // black pixel
 #define OFF 0x00000000 // transparent pixel    
 
@@ -109,9 +109,12 @@ static void test_region(skiatest::Reporter* reporter, const SkBitmap* truth,
     test_path_eq(reporter, &path, truth, h, w);
 }
 
+#define W_tests 4
+
 static void TestPathUtils(skiatest::Reporter* reporter) {
-    const int w[4] = {4, 8, 12, 16};
-    int h = 8, stride = 4;
+    const int w[W_tests] = {4, 8, 12, 16};
+    const int h = 8, stride = 4;
+
     char bits[ h * stride ];
     static char* bin_bmp = &bits[0];
 
@@ -122,7 +125,7 @@ static void TestPathUtils(skiatest::Reporter* reporter) {
         fillRandomBits( h * stride, bin_bmp); // generate random bitmap    
     
         // for each bitmap width, use subset of binary bitmap
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < W_tests; ++i) {
             // generate truth bitmap
             SkBitmap bmpTruth;
             bin2SkBitmap(bin_bmp, &bmpTruth, h, w[i], stride);
