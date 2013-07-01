@@ -199,7 +199,7 @@ static bool skip_src_rows_tile(jpeg_decompress_struct* cinfo,
 static bool return_false(const jpeg_decompress_struct& cinfo,
                          const SkBitmap& bm, const char msg[]) {
 #ifdef SK_DEBUG
-    SkDebugf("libjpeg error %d <%s> from %s [%d %d]", cinfo.err->msg_code,
+    SkDebugf("libjpeg error %d <%s> from %s [%d %d]\n", cinfo.err->msg_code,
              cinfo.err->jpeg_message_table[cinfo.err->msg_code], msg,
              bm.width(), bm.height());
 #endif
