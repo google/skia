@@ -75,7 +75,8 @@ static void Line2path_span(SkPath* path, const char* line,
                 start = i; // mark beginning of span
             }else { // if transition off add the span as a path
                 inRun = 0;
-                path->addRect(SkRect::MakeXYWH(start, lineIdx, i-start, SK_Scalar1),
+                path->addRect(SkRect::MakeXYWH(start, lineIdx,
+                                               SkIntToScalar(i-start), SK_Scalar1),
                               SkPath::kCW_Direction);
             }
         }
