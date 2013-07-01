@@ -75,7 +75,7 @@ static void Line2path_span(SkPath* path, const char* line,
                 start = i; // mark beginning of span
             }else { // if transition off add the span as a path
                 inRun = 0;
-                path->addRect(SkRect::MakeXYWH(start, lineIdx,
+                path->addRect(SkRect::MakeXYWH(SkIntToScalar(start), SkIntToScalar(lineIdx),
                                                SkIntToScalar(i-start), SK_Scalar1),
                               SkPath::kCW_Direction);
             }
@@ -85,11 +85,11 @@ static void Line2path_span(SkPath* path, const char* line,
     if (inRun==1) { // close any open spans
         int end = 0;
         if ( GetBit(line,width-1) ) ++end;
-        path->addRect(SkRect::MakeXYWH(start, lineIdx,
-                                       width - SK_Scalar1 + end - start, SK_Scalar1),
+        path->addRect(SkRect::MakeXYWH(SkIntToScalar(start), SkIntToScalar(lineIdx),
+                                       SkIntToScalar(width - 1 + end - start), SK_Scalar1),
                       SkPath::kCW_Direction);
     } else if ( GetBit(line, width - 1) ) { // if last pixel on add
-        path->addRect(SkRect::MakeXYWH(width - SK_Scalar1, lineIdx,
+        path->addRect(SkRect::MakeXYWH(width - SK_Scalar1, SkIntToScalar(lineIdx),
                                        SK_Scalar1, SK_Scalar1),
                       SkPath::kCW_Direction);
     }
