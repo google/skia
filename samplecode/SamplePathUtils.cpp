@@ -23,7 +23,7 @@ public:
 
 protected:
     static const int numModes = 3;
-    static const int h=8, w=12, stride=2, scale=10; // stride is in bytes
+    static const int h=8, w=12, stride=2, kScale=10; // stride is in bytes
     static const int numChars = h * stride; // number of chars in entire array
 
     SkPaint bmp_paint;
@@ -57,7 +57,8 @@ protected:
             SkPathUtils::BitsToPath_Path(&path, (char*) &bits[i], h, w, stride);
             
             canvas->save(); // DRAWING
-            canvas->scale(scale, scale);  // scales up each bitmap
+            canvas->scale(SkIntToScalar(kScale), 
+                          SkIntToScalar(kScale));  // scales up each bitmap
             canvas->translate(0, 1.5f * h * i);
             canvas->drawPath(path, bmp_paint); // draw bitmap
             canvas->restore();
@@ -67,7 +68,8 @@ protected:
             SkPathUtils::BitsToPath_Region(&pathR, (char*) &bits[i], h, w, stride);
             
             canvas->save();
-            canvas->scale(scale, scale);  // scales up each bitmap
+            canvas->scale(SkIntToScalar(kScale), 
+                          SkIntToScalar(kScale));  // scales up each bitmap
             canvas->translate(1.5f * w, 1.5f * h * i); // translates past previous bitmap
             canvas->drawPath(pathR, bmp_paint); // draw bitmap
             canvas->restore();
