@@ -245,6 +245,7 @@ private:
     QAction fActionDirectory;
     QAction fActionGoToLine;
     QAction fActionInspector;
+    QAction fActionSettings;
     QAction fActionPlay;
     QAction fActionPause;
     QAction fActionRewind;

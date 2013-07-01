@@ -44,6 +44,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fActionDirectory(this)
     , fActionGoToLine(this)
     , fActionInspector(this)
+    , fActionSettings(this)
     , fActionPlay(this)
     , fActionPause(this)
     , fActionRewind(this)
@@ -82,7 +83,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionStepForward, SIGNAL(triggered()), this, SLOT(actionStepForward()));
     connect(&fActionBreakpoint, SIGNAL(triggered()), this, SLOT(actionBreakpoints()));
     connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
-    connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionSettings()));
+    connect(&fActionSettings, SIGNAL(triggered()), this, SLOT(actionSettings()));
     connect(&fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
     connect(&fActionProfile, SIGNAL(triggered()), this, SLOT(actionProfile()));
     connect(&fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
@@ -706,6 +707,13 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionInspector.setIcon(inspector);
     fActionInspector.setText("Inspector");
 
+    QIcon settings;
+    settings.addFile(QString::fromUtf8(":/inspector.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
+    fActionSettings.setShortcut(QKeySequence(tr("Ctrl+G")));
+    fActionSettings.setIcon(settings);
+    fActionSettings.setText("Settings");
+    
     QIcon play;
     play.addFile(QString::fromUtf8(":/play.png"), QSize(),
             QIcon::Normal, QIcon::Off);
@@ -819,6 +827,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fToolBar.addAction(&fActionPlay);
     fToolBar.addSeparator();
     fToolBar.addAction(&fActionInspector);
+    fToolBar.addAction(&fActionSettings);
     fToolBar.addSeparator();
     fToolBar.addAction(&fActionProfile);
 
@@ -863,6 +872,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fMenuWindows.setTitle("Window");
     fMenuWindows.addAction(&fActionInspector);
+    fMenuWindows.addAction(&fActionSettings);
     fMenuWindows.addAction(&fActionDirectory);
 
     fActionGoToLine.setText("Go to Line...");
