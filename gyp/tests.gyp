@@ -83,6 +83,7 @@
         '../tests/PathCoverageTest.cpp',
         '../tests/PathMeasureTest.cpp',
         '../tests/PathTest.cpp',
+        '../tests/PathUtilsTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',
         '../tests/PictureTest.cpp',
         '../tests/PictureUtilsTest.cpp',
