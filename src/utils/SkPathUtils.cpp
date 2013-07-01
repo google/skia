@@ -87,7 +87,7 @@ static void Line2path_span(SkPath* path, const char* line,
         path->addRect(SkRect::MakeXYWH(start, lineIdx,
                                        width - SK_Scalar1 + end - start, SK_Scalar1),
                       SkPath::kCW_Direction);
-    } else if ( GetBit(line, width - SK_Scalar1) ) { // if last pixel on add
+    } else if ( GetBit(line, width - 1) ) { // if last pixel on add
         path->addRect(SkRect::MakeXYWH(width - SK_Scalar1, lineIdx,
                                        SK_Scalar1, SK_Scalar1),
                       SkPath::kCW_Direction);
