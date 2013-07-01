@@ -44,6 +44,7 @@
     '../bench/MutexBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
+    '../bench/PathUtilsBench.cpp',
     '../bench/PerlinNoiseBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/PictureRecordBench.cpp',
