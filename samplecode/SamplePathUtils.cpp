@@ -41,7 +41,7 @@ protected:
     
     virtual void onDrawContent(SkCanvas* canvas) {
         // bitmap definitions
-        const char bits[numModes][numChars] = {
+        const uint8_t bits[numModes][numChars] = {
             { 0x18, 0x00, 0x3c, 0x00, 0x7e, 0x00, 0xdb, 0x00,
                0xff, 0x00, 0x24, 0x00, 0x5a, 0x00, 0xa5, 0x00 },
             
