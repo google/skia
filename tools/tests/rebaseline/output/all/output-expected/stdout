@@ -148,6 +148,81 @@ mv ./base-android-nexus-10/.temp-test2_msaa16.png ./base-android-nexus-10/test2_
 # unable to find filename test2_msaa4.png in all_results dict
 curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10/test2_msaa4.png --output ./base-android-nexus-10/.temp-test2_msaa4.png
 mv ./base-android-nexus-10/.temp-test2_msaa4.png ./base-android-nexus-10/test2_msaa4.png
+# unable to load JSON summary URL file:nonexistent-path/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/actual-results.json
+
+# base-android-nexus-4:
+
+# test1_565.png
+# unable to find filename test1_565.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_565.png --output ./base-android-nexus-4/.temp-test1_565.png
+mv ./base-android-nexus-4/.temp-test1_565.png ./base-android-nexus-4/test1_565.png
+
+# test1_8888.png
+# unable to find filename test1_8888.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_8888.png --output ./base-android-nexus-4/.temp-test1_8888.png
+mv ./base-android-nexus-4/.temp-test1_8888.png ./base-android-nexus-4/test1_8888.png
+
+# test1_gpu.png
+# unable to find filename test1_gpu.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_gpu.png --output ./base-android-nexus-4/.temp-test1_gpu.png
+mv ./base-android-nexus-4/.temp-test1_gpu.png ./base-android-nexus-4/test1_gpu.png
+
+# test1_pdf.png
+# unable to find filename test1_pdf.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_pdf.png --output ./base-android-nexus-4/.temp-test1_pdf.png
+mv ./base-android-nexus-4/.temp-test1_pdf.png ./base-android-nexus-4/test1_pdf.png
+
+# test1_mesa.png
+# unable to find filename test1_mesa.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_mesa.png --output ./base-android-nexus-4/.temp-test1_mesa.png
+mv ./base-android-nexus-4/.temp-test1_mesa.png ./base-android-nexus-4/test1_mesa.png
+
+# test1_msaa16.png
+# unable to find filename test1_msaa16.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_msaa16.png --output ./base-android-nexus-4/.temp-test1_msaa16.png
+mv ./base-android-nexus-4/.temp-test1_msaa16.png ./base-android-nexus-4/test1_msaa16.png
+
+# test1_msaa4.png
+# unable to find filename test1_msaa4.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test1_msaa4.png --output ./base-android-nexus-4/.temp-test1_msaa4.png
+mv ./base-android-nexus-4/.temp-test1_msaa4.png ./base-android-nexus-4/test1_msaa4.png
+
+# base-android-nexus-4:
+
+# test2_565.png
+# unable to find filename test2_565.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_565.png --output ./base-android-nexus-4/.temp-test2_565.png
+mv ./base-android-nexus-4/.temp-test2_565.png ./base-android-nexus-4/test2_565.png
+
+# test2_8888.png
+# unable to find filename test2_8888.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_8888.png --output ./base-android-nexus-4/.temp-test2_8888.png
+mv ./base-android-nexus-4/.temp-test2_8888.png ./base-android-nexus-4/test2_8888.png
+
+# test2_gpu.png
+# unable to find filename test2_gpu.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_gpu.png --output ./base-android-nexus-4/.temp-test2_gpu.png
+mv ./base-android-nexus-4/.temp-test2_gpu.png ./base-android-nexus-4/test2_gpu.png
+
+# test2_pdf.png
+# unable to find filename test2_pdf.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_pdf.png --output ./base-android-nexus-4/.temp-test2_pdf.png
+mv ./base-android-nexus-4/.temp-test2_pdf.png ./base-android-nexus-4/test2_pdf.png
+
+# test2_mesa.png
+# unable to find filename test2_mesa.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_mesa.png --output ./base-android-nexus-4/.temp-test2_mesa.png
+mv ./base-android-nexus-4/.temp-test2_mesa.png ./base-android-nexus-4/test2_mesa.png
+
+# test2_msaa16.png
+# unable to find filename test2_msaa16.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_msaa16.png --output ./base-android-nexus-4/.temp-test2_msaa16.png
+mv ./base-android-nexus-4/.temp-test2_msaa16.png ./base-android-nexus-4/test2_msaa16.png
+
+# test2_msaa4.png
+# unable to find filename test2_msaa4.png in all_results dict
+curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-nexus-4/Test-Android-Nexus4-Adreno320-Arm7-Release/base-android-nexus-4/test2_msaa4.png --output ./base-android-nexus-4/.temp-test2_msaa4.png
+mv ./base-android-nexus-4/.temp-test2_msaa4.png ./base-android-nexus-4/test2_msaa4.png
 # unable to load JSON summary URL file:nonexistent-path/base-android-nexus-7/Test-Android-Nexus7-Tegra3-Arm7-Release/base-android-nexus-7/actual-results.json
 
 # base-android-nexus-7:
