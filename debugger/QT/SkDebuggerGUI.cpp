@@ -713,7 +713,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionSettings.setShortcut(QKeySequence(tr("Ctrl+G")));
     fActionSettings.setIcon(settings);
     fActionSettings.setText("Settings");
-    
+
     QIcon play;
     play.addFile(QString::fromUtf8(":/play.png"), QSize(),
             QIcon::Normal, QIcon::Off);
