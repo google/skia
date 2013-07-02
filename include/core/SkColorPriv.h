@@ -838,29 +838,29 @@ static inline SkPMColor SkBlendLCD16Opaque(int srcR, int srcG, int srcB,
                         SkBlend32(srcB, dstB, maskB));
 }
 
-static inline void SkBlitLCD16Row(SkPMColor dst[], const uint16_t src[],
-                                  SkColor color, int width, SkPMColor) {
-    int srcA = SkColorGetA(color);
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
+static inline void SkBlitLCD16Row(SkPMColor dst[], const uint16_t mask[],
+                                  SkColor src, int width, SkPMColor) {
+    int srcA = SkColorGetA(src);
+    int srcR = SkColorGetR(src);
+    int srcG = SkColorGetG(src);
+    int srcB = SkColorGetB(src);
 
     srcA = SkAlpha255To256(srcA);
 
     for (int i = 0; i < width; i++) {
-        dst[i] = SkBlendLCD16(srcA, srcR, srcG, srcB, dst[i], src[i]);
+        dst[i] = SkBlendLCD16(srcA, srcR, srcG, srcB, dst[i], mask[i]);
     }
 }
 
-static inline void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t src[],
-                                        SkColor color, int width,
+static inline void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t mask[],
+                                        SkColor src, int width,
                                         SkPMColor opaqueDst) {
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
+    int srcR = SkColorGetR(src);
+    int srcG = SkColorGetG(src);
+    int srcB = SkColorGetB(src);
 
     for (int i = 0; i < width; i++) {
-        dst[i] = SkBlendLCD16Opaque(srcR, srcG, srcB, dst[i], src[i],
+        dst[i] = SkBlendLCD16Opaque(srcR, srcG, srcB, dst[i], mask[i],
                                     opaqueDst);
     }
 }
