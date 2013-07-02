@@ -17,6 +17,7 @@
     '../bench/ChecksumBench.cpp',
     '../bench/ChartBench.cpp',
     '../bench/ChromeBench.cpp',
+    '../bench/CmapBench.cpp',
     '../bench/ColorFilterBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
