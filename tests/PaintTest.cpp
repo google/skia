@@ -231,11 +231,12 @@ static void TestPaint(skiatest::Reporter* reporter) {
     regression_measureText(reporter);
 
     test_bicubic(reporter);
-#ifdef SK_BUILD_FOR_MAC
+    
     // need to implement charsToGlyphs on other backends (e.g. linux, win)
-    // before we can run this tests everywhre
-    test_cmap(reporter);
-#endif
+    // before we can run this tests everywhere
+    if (false) {
+       test_cmap(reporter);
+    }
 }
 
 #include "TestClassDef.h"
