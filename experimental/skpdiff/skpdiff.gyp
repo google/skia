@@ -10,6 +10,7 @@
       'type': 'executable',
       'sources': [
         'main.cpp',
+        'SkDiffContext.cpp',
         'SkImageDiffer.cpp',
         'SkCLImageDiffer.cpp',
         'SkPMetric.cpp',
