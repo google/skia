@@ -175,7 +175,8 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
     double tMin, tMax;
     if (tCount == 1) {
         tMin = tMax = tsFound[0];
-    } else if (tCount > 1) {
+    } else {
+        SkASSERT(tCount > 1);
         SkTQSort<double>(tsFound.begin(), tsFound.end() - 1);
         tMin = tsFound[0];
         tMax = tsFound[tsFound.count() - 1];
