@@ -75,8 +75,8 @@ public:
         fName.printf("cmap_%s", name);
         
         for (int i = 0; i < NGLYPHS; ++i) {
-            // we're just jamming values into utf8, so we must keep it legal
-            fText[i] = 'A' + i;
+            // we're jamming values into utf8, so we must keep it legal utf8
+            fText[i] = 'A' + (i & 31);
         }
         fPaint.setTypeface(SkTypeface::RefDefault())->unref();
     }
