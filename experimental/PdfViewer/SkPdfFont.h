@@ -2,7 +2,7 @@
 #define __DEFINED__SkPdfFont
 
 #include "SkPdfHeaders_autogen.h"
-#include "SkPdfPodofoMapper_autogen.h"
+#include "SkPdfMapper_autogen.h"
 
 #include <map>
 #include <string>
@@ -36,9 +36,9 @@ struct SkUnencodedText {
     int len;
 
 public:
-    SkUnencodedText(const SkPdfObject* obj) {
-        text = (void*)obj->podofo()->GetString().GetString();
-        len = obj->podofo()->GetString().GetLength();
+    SkUnencodedText(const SkPdfString* obj) {
+        text = (void*)obj->c_str();
+        len = obj->len();
     }
 };
 

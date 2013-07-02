@@ -3,24 +3,22 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkPdfConfig.h"
 
 #include <iostream>
 #include <cstdio>
+#include <map>
 #include <stack>
-
-#define PDF_TRACE
-//#define PDF_TRACE_DIFF_IN_PNG
-//#define PDF_DEBUG_NO_CLIPING
-//#define PDF_DEBUG_NO_PAGE_CLIPING
-//#define PDF_DEBUG_3X
 
 class SkPdfFont;
 class SkPdfDoc;
 class SkPdfObject;
 class SkPdfResourceDictionary;
 
+class SkPodofoParsedPDF;
+
 // TODO(edisonn): better class design.
-struct PdfColorOperator {
+struct SkPdfColorOperator {
     std::string fColorSpace;  // TODO(edisonn): use SkString
     SkColor fColor;
     double fOpacity;  // ca or CA
@@ -31,7 +29,7 @@ struct PdfColorOperator {
         fColor = color;
     }
     // TODO(edisonn): double check the default values for all fields.
-    PdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {}
+    SkPdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {}
 
     void applyGraphicsState(SkPaint* paint) {
         paint->setColor(SkColorSetA(fColor, fOpacity * 255));
@@ -39,7 +37,7 @@ struct PdfColorOperator {
 };
 
 // TODO(edisonn): better class design.
-struct PdfGraphicsState {
+struct SkPdfGraphicsState {
     SkMatrix            fMatrix;
     SkMatrix            fMatrixTm;
     SkMatrix            fMatrixTlm;
@@ -57,19 +55,19 @@ struct PdfGraphicsState {
     bool                fHasClipPathToApply;
     SkPath              fClipPath;
 
-    PdfColorOperator    fStroking;
-    PdfColorOperator    fNonStroking;
+    SkPdfColorOperator  fStroking;
+    SkPdfColorOperator  fNonStroking;
 
     double              fLineWidth;
     double              fTextLeading;
     double              fWordSpace;
     double              fCharSpace;
 
-    SkPdfResourceDictionary* fResources;
+    const SkPdfResourceDictionary* fResources;
 
     SkBitmap            fSMask;
 
-    PdfGraphicsState() {
+    SkPdfGraphicsState() {
         fCurPosX      = 0.0;
         fCurPosY      = 0.0;
         fCurFontSize  = 0.0;
@@ -104,26 +102,30 @@ struct PdfGraphicsState {
 };
 
 // TODO(edisonn): better class design.
-struct PdfInlineImage {
+// TODO(edisonn): could we remove it?
+// TODO(edisonn): rename to SkPdfInlineImage
+struct SkPdfInlineImage {
     std::map<std::string, std::string> fKeyValuePairs;
     std::string fImageData;
 };
 
 // TODO(edisonn): better class design.
+// TODO(edisonn): rename to SkPdfContext
 struct PdfContext {
     std::stack<SkPdfObject*>        fObjectStack;
-    std::stack<PdfGraphicsState>    fStateStack;
-    PdfGraphicsState                fGraphicsState;
-    SkPdfDoc*                       fPdfDoc;
+    std::stack<SkPdfGraphicsState>  fStateStack;
+    SkPdfGraphicsState              fGraphicsState;
+    const SkPodofoParsedPDF*        fPdfDoc;
     SkMatrix                        fOriginalMatrix;
 
-    PdfInlineImage                  fInlineImage;
+    SkPdfInlineImage                fInlineImage;
 
-    PdfContext(SkPdfDoc* doc) :  fPdfDoc(doc) {}
+    PdfContext(const SkPodofoParsedPDF* doc) :  fPdfDoc(doc) {}
 
 };
 
-//  TODO(edisonn): temporary code, to report how much of the PDF we actually think we rendered.
+// TODO(edisonn): temporary code, to report how much of the PDF we actually think we rendered.
+// TODO(edisonn): rename to SkPdfResult
 enum PdfResult {
     kOK_PdfResult,
     kPartial_PdfResult,

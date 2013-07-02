@@ -1,0 +1,10 @@
+#ifndef EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_
+#define EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_
+
+struct SkPdfFileSpec {};
+struct SkPdfDate {};
+struct SkPdfTree {};
+struct SkPdfFunction {};
+
+
+#endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_

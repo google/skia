@@ -6,25 +6,25 @@ import datatypes
 from autogen.pdfspec_autogen import *
 
 knowTypes = {
-'(any)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
-'(undefined)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
-'(various)': ['SkPdfObject*', 'ObjectFromDictionary', datatypes.CppNull(), 'true'],
-'array': ['SkPdfArray*', 'ArrayFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
-'boolean': ['bool', 'BoolFromDictionary', datatypes.PdfBoolean('false'), 'ret->podofo()->GetDataType() == ePdfDataType_Bool'],
-'date': ['SkPdfDate', 'DateFromDictionary', datatypes.PdfDateNever(), 'ret->podofo()->GetDataType() == ePdfDataType_Array'],
-'dictionary': ['SkPdfDictionary*', 'DictionaryFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Dictionary'],
-'function': ['SkPdfFunction', 'FunctionFromDictionary', datatypes.PdfFunctionNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
-'integer': ['long', 'LongFromDictionary', datatypes.PdfInteger(0), 'ret->podofo()->GetDataType() == ePdfDataType_Number'],
-'file_specification': ['SkPdfFileSpec', 'FileSpecFromDictionary', datatypes.FileSpecNone(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
-'name': ['std::string', 'NameFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_Name'],
-'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Reference'],
-'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == ePdfDataType_Real || ret->podofo()->GetDataType() == ePdfDataType_Number'],
-'rectangle': ['SkRect*', 'SkRectFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
+'(any)': ['SkPdfObject*', 'SkPdfObjectFromDictionary', datatypes.CppNull(), 'true', 'use a mapper'],
+'(undefined)': ['SkPdfObject*', 'SkPdfObjectFromDictionary', datatypes.CppNull(), 'true', 'use a mapper'],
+'(various)': ['SkPdfObject*', 'SkPdfObjectFromDictionary', datatypes.CppNull(), 'true', 'use a mapper'],
+'array': ['SkPdfArray*', 'ArrayFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Array'],
+'boolean': ['bool', 'BoolFromDictionary', datatypes.PdfBoolean('false'), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Bool'],
+'date': ['SkPdfDate', 'DateFromDictionary', datatypes.PdfDateNever(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Array'],
+'dictionary': ['SkPdfDictionary*', 'SkPdfDictionaryFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Dictionary', 'use a mapper'],
+'function': ['SkPdfFunction', 'FunctionFromDictionary', datatypes.PdfFunctionNone(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Reference'],
+'integer': ['long', 'LongFromDictionary', datatypes.PdfInteger(0), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Number'],
+'file_specification': ['SkPdfFileSpec', 'FileSpecFromDictionary', datatypes.FileSpecNone(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Reference'],
+'name': ['std::string', 'NameFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Name'],
+'tree': ['SkPdfTree*', 'TreeFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Reference'],
+'number': ['double', 'DoubleFromDictionary', datatypes.PdfNumber(0), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Real || ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Number'],
+'rectangle': ['SkRect*', 'SkRectFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
 'stream': ['SkPdfStream*', 'StreamFromDictionary',  datatypes.CppNull(), 'ret->podofo()->HasStream()'],
-'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
-'text': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
-'text string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == ePdfDataType_String || ret->podofo()->GetDataType() == ePdfDataType_HexString'],
-'matrix': ['SkMatrix*', 'SkMatrixFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
+'string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_String || ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_HexString'],
+'text': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_String || ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_HexString'],
+'text string': ['std::string', 'StringFromDictionary', datatypes.PdfString('""'), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_String || ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_HexString'],
+'matrix': ['SkMatrix*', 'SkMatrixFromDictionary', datatypes.CppNull(), 'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Array && ret->podofo()->GetArray().GetLength() == 4'],
 }
 
 
@@ -101,8 +101,8 @@ class PdfClass:
   def __init__(self, name, base, comment):
     self.fFields = []
     self.fIncludes = []
-    self.fCCPublic = []
-    self.fCCPrivate = []
+    self.fCCPublicPodofo = []
+    self.fCCPublicPodofoCpp = []
     self.fName = name
     self.fBase = base
     self.fComment = comment
@@ -140,14 +140,14 @@ class PdfClass:
     self.fIncludes.append(path)
     return self
     
-  def carbonCopyPublic(self, cc):
-    self.fCCPublic.append(cc)
+  def carbonCopyPublicPodofo(self, cc):
+    self.fCCPublicPodofo.append(cc)
     return self 
 
-  def carbonCopyPrivate(self, cc):
-    self.fCCPrivate.append(cc)
+  def carbonCopyPublicPodofoCpp(self, cc):
+    self.fCCPublicPodofoCpp.append(cc)
     return self 
-    
+
   def done(self):
     return
 
@@ -179,40 +179,42 @@ class PdfClassManager:
        fileEnums.write('  ' + cls.fEnumEnd + ',\n')
 
 
-  def writeAsNull(self, fileClass, cls, enumToCls):
-    fileClass.write('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return NULL;}\n')
-    fileClass.write('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return NULL;}\n')
-    fileClass.write('\n')
+  def writeAsNull(self, podofoFileClass, cls, enumToCls):
+    podofoFileClass.write('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return NULL;}\n')
+    podofoFileClass.write('   virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return NULL;}\n')
+    podofoFileClass.write('\n')
 
     cnt = 0
     for sub in cls.fEnumSubclasses:
-      self.writeAsNull(fileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
+      self.writeAsNull(podofoFileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
       cnt = cnt + 1
 
        
-  def writeAsFoo(self, fileClass, cls, enumToCls):
+  def writeAsFoo(self, podofoFileClass, cls, enumToCls):
     # TODO(edisonn): add a container, with sections, public, private, default, ...
     # the end code will be grouped
     
     # me
-    fileClass.write('public:\n')
-    fileClass.write('  virtual SkPdf' + cls.fName +'* as' + cls.fName + '() {return this;}\n')
-    fileClass.write('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return this;}\n')
-    fileClass.write('\n')
+    podofoFileClass.write('public:\n')
+
+    podofoFileClass.write('public:\n')
+    podofoFileClass.write('   SkPdf' + cls.fName +'* as' + cls.fName + '() {return this;}\n')
+    podofoFileClass.write('  virtual const SkPdf' + cls.fName +'* as' + cls.fName + '() const {return this;}\n')
+    podofoFileClass.write('\n')
 
     if cls.fName == 'Object':
       cnt = 0
       for sub in cls.fEnumSubclasses:
-        self.writeAsNull(fileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
+        self.writeAsNull(podofoFileClass, enumToCls[cls.fEnumSubclasses[cnt]], enumToCls)
         cnt = cnt + 1
             
     if cls.fName != 'Object':
-      fileClass.write('private:\n')
+      podofoFileClass.write('private:\n')
       base = self.fClasses[cls.fBase]
       cnt = 0
       for sub in base.fEnumSubclasses:
         if enumToCls[base.fEnumSubclasses[cnt]].fName != cls.fName:
-          self.writeAsNull(fileClass, enumToCls[base.fEnumSubclasses[cnt]], enumToCls)
+          self.writeAsNull(podofoFileClass, enumToCls[base.fEnumSubclasses[cnt]], enumToCls)
         cnt = cnt + 1
       
       
@@ -235,8 +237,8 @@ class PdfClassManager:
     return mustBe 
   
   def write(self):
-    global fileHeaders 
-    global fileHeadersCpp 
+    global fileHeadersPodofo 
+    global fileHeadersPodofoCpp 
     global knowTypes
   
     # generate enum
@@ -249,8 +251,8 @@ class PdfClassManager:
       cls.fEnum = 'k' + name + '_SkPdfObjectType'
       cls.fEnumEnd = 'k' + name + '__End_SkPdfObjectType'
 
-      fileHeaders.write('#include "SkPdf' + cls.fName + '_autogen.h"\n')
-      fileHeadersCpp.write('#include "SkPdf' + cls.fName + '_autogen.cpp"\n')
+      fileHeadersPodofo.write('#include "SkPdf' + cls.fName + '_autogen.h"\n')
+      fileHeadersPodofoCpp.write('#include "SkPdf' + cls.fName + '_autogen.cpp"\n')
             
       if cls.fBase != '':
         self.fClasses[cls.fBase].fEnumSubclasses.append(cls.fEnum)
@@ -267,7 +269,7 @@ class PdfClassManager:
     # write imports
     
     # write enums
-    fileEnums = open('SkPdfEnums_autogen.h', 'w')
+    fileEnums = open(sys.argv[1] + 'autogen/SkPdfEnums_autogen.h', 'w')
     fileEnums.write('#ifndef __DEFINED__SkPdfEnums\n')
     fileEnums.write('#define __DEFINED__SkPdfEnums\n')
     fileEnums.write('\n')
@@ -290,72 +292,93 @@ class PdfClassManager:
       cls = self.fClasses[name]
       enum = cls.fEnum
       
-      fileClass = open('SkPdf' + cls.fName + '_autogen.h', 'w')
-      fileClassCpp = open('SkPdf' + cls.fName + '_autogen.cpp', 'w')
-      fileClass.write('#ifndef __DEFINED__SkPdf' + cls.fName + '\n')
-      fileClass.write('#define __DEFINED__SkPdf' + cls.fName + '\n')
-      fileClass.write('\n')
+      podofoFileClass = open(sys.argv[1] + 'podofo/autogen/SkPdf' + cls.fName + '_autogen.h', 'w')
+      podofoFileClassCpp = open(sys.argv[1] + 'podofo/autogen/SkPdf' + cls.fName + '_autogen.cpp', 'w')
 
-      fileClassCpp.write('#include "SkPdf' + cls.fName + '_autogen.h"\n\n')
-      fileClass.write('#include "SkPdfUtils.h"\n')
-      fileClass.write('#include "SkPdfEnums_autogen.h"\n')
-      fileClass.write('#include "SkPdfArray_autogen.h"\n')
+      podofoFileClass.write('#ifndef __DEFINED__SkPdf' + cls.fName + '\n')
+      podofoFileClass.write('#define __DEFINED__SkPdf' + cls.fName + '\n')
+      podofoFileClass.write('\n')
+
+      podofoFileClassCpp.write('#include "SkPdf' + cls.fName + '_autogen.h"\n\n')
+      podofoFileClassCpp.write('#include "podofo.h"\n')
+      podofoFileClassCpp.write('#include "SkPodofoUtils.h"\n')
+      podofoFileClassCpp.write('#include "SkPdfMapper_autogen.h"\n')
+      podofoFileClassCpp.write('\n')
+
+      
+      if cls.fBase == '':
+        podofoFileClass.write('#include "stddef.h"\n')
+        podofoFileClass.write('#include <string>\n')
+        podofoFileClass.write('#include "SkPdfEnums_autogen.h"\n')
+        podofoFileClass.write('#include "SkPdfNYI.h"\n')
+        podofoFileClass.write('#include "SkPodofoUtils.h"\n')
+
       if cls.fBase != '':
-        fileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
-      fileClass.write('\n')
+        podofoFileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
+
+      if cls.fBase == '':
+        podofoFileClass.write('#include "SkPodofoParsedPDF.h"\n')
+
+      podofoFileClass.write('\n')
+      
+      if cls.fBase == '':
+        podofoFileClass.write('namespace PoDoFo {\n')
+        podofoFileClass.write('class PdfMemDocument;\n')
+        podofoFileClass.write('class PdfObject;\n')      
+        podofoFileClass.write('}\n')
       
       if cls.fComment != '':
-        fileClass.write('// ' + cls.fComment + '\n')
+        podofoFileClass.write('// ' + cls.fComment + '\n')
       
       if cls.fBase == '':
-        fileClass.write('class SkPdf' + cls.fName + ' {\n')
+        podofoFileClass.write('class SkPdf' + cls.fName + ' {\n')
       else:
-        fileClass.write('class SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
+        podofoFileClass.write('class SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
       
-      fileClass.write('public:\n')
-      fileClass.write('  virtual SkPdfObjectType getType() const { return ' + cls.fEnum + ';}\n')
+      podofoFileClass.write('public:\n')
+      podofoFileClass.write('  virtual SkPdfObjectType getType() const { return ' + cls.fEnum + ';}\n')
       if len(cls.fEnumSubclasses) == 0:
-        fileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(' + cls.fEnum + ' + 1);}\n')
+        podofoFileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return (SkPdfObjectType)(' + cls.fEnum + ' + 1);}\n')
       else:
-        fileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return ' + cls.fEnumEnd + ';}\n')
+        podofoFileClass.write('  virtual SkPdfObjectType getTypeEnd() const { return ' + cls.fEnumEnd + ';}\n')
       
-      self.writeAsFoo(fileClass, cls, enumToCls)
+      self.writeAsFoo(podofoFileClass, cls, enumToCls)
       
-      fileClass.write('public:\n')
-      for cc in cls.fCCPublic:
-        fileClass.write('  ' + cc + '\n')
-    
-      fileClass.write('private:\n')
-      for cc in cls.fCCPrivate:
-        fileClass.write('  ' + cc + '\n')
+      podofoFileClass.write('public:\n')
+
+      for cc in cls.fCCPublicPodofo:
+        podofoFileClass.write('  ' + cc + '\n')
+      
+      for cc in cls.fCCPublicPodofoCpp:
+        podofoFileClassCpp.write(cc + '\n\n')
+
 
       if cls.fBase == '':
-        fileClass.write('protected:\n')
-        fileClass.write('  const PdfMemDocument* fPodofoDoc;\n')
-        fileClass.write('  const PdfObject* fPodofoObj;\n')
-        fileClass.write('\n')
-        fileClass.write('public:\n')
-        fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : fPodofoDoc(podofoDoc), fPodofoObj(podofoObj) {}\n')
-        fileClass.write('  SkPdf' + cls.fName + '(const SkPdf' + cls.fName + '& from) : fPodofoDoc(from.fPodofoDoc), fPodofoObj(from.fPodofoObj) {}\n')
-        fileClass.write('\n')
-        fileClass.write('  const PdfMemDocument* doc() const { return fPodofoDoc;}\n')
-        fileClass.write('  const PdfObject* podofo() const { return fPodofoObj;}\n')
+        podofoFileClass.write('protected:\n')
+        podofoFileClass.write('  const PoDoFo::PdfMemDocument* fPodofoDoc;\n')
+        podofoFileClass.write('  const SkPodofoParsedPDF* fParsedDoc;\n')
+        podofoFileClass.write('  const PoDoFo::PdfObject* fPodofoObj;\n')
+        podofoFileClass.write('\n')
+        
+        podofoFileClass.write('public:\n')
+        
+        podofoFileClass.write('  SkPdf' + cls.fName + '(const SkPodofoParsedPDF* doc = NULL, const PoDoFo::PdfObject* podofoObj = NULL) : fPodofoDoc(doc->podofo()), fParsedDoc(doc), fPodofoObj(podofoObj) {}\n')
+        podofoFileClass.write('\n')
+        podofoFileClass.write('  const SkPodofoParsedPDF* doc() const { return fParsedDoc;}\n')
+        podofoFileClass.write('  const void* data() const {return fPodofoObj;}\n')
+        podofoFileClass.write('  const PoDoFo::PdfObject* podofo() const {return fPodofoObj;}\n')
       else:
-        fileClass.write('public:\n')
-        fileClass.write('  SkPdf' + cls.fName + '(const PdfMemDocument* podofoDoc = NULL, const PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(podofoDoc, podofoObj) {}\n')
-        fileClass.write('\n')
-        fileClass.write('  SkPdf' + cls.fName + '(const SkPdf' + cls.fName + '& from) : SkPdf' + cls.fBase + '(from.fPodofoDoc, from.fPodofoObj) {}\n')
-        fileClass.write('\n')
+        podofoFileClass.write('public:\n')
+        podofoFileClass.write('  SkPdf' + cls.fName + '(const SkPodofoParsedPDF* doc = NULL, const PoDoFo::PdfObject* podofoObj = NULL) : SkPdf' + cls.fBase + '(doc, podofoObj) {}\n')
+        podofoFileClass.write('\n')
       
-      
+
+      # TODO(edisonn): add is valid ?
       #check required fieds, also, there should be an internal_valid() manually wrote for complex
       # situations
       # right now valid return true      
-      fileClass.write('  virtual bool valid() const {return true;}\n')
-      fileClass.write('\n')
-      
-      fileClass.write('  SkPdf' + cls.fName + '& operator=(const SkPdf' + cls.fName + '& from) {this->fPodofoDoc = from.fPodofoDoc; this->fPodofoObj = from.fPodofoObj; return *this;}\n')
-      fileClass.write('\n')
+      #podofoFileClass.write('  virtual bool valid() const {return true;}\n')
+      #podofoFileClass.write('\n')
       
       for field in cls.fFields:
         prop = field.fProp
@@ -363,98 +386,133 @@ class PdfClassManager:
           
           lines = prop.fComment.split('\n')
           if prop.fComment != '' and len(lines) > 0:
-            fileClass.write('/** ' + lines[0] + '\n')
+            podofoFileClass.write('/** ' + lines[0] + '\n')
             for line in lines[1:]:
-              fileClass.write(' *  ' + line + '\n')
-            fileClass.write('**/\n')
+              podofoFileClass.write(' *  ' + line + '\n')
+            podofoFileClass.write('**/\n')
           
           if prop.fCppName[0] == '[':
-            fileClass.write('/*\n')  # comment code of the atributes that can have any name
-            fileClassCpp.write('/*\n')  # comment code of the atributes that can have any name
+            podofoFileClass.write('/*\n')  # comment code of the atributes that can have any name
+            podofoFileClassCpp.write('/*\n')  # comment code of the atributes that can have any name
           
-          # TODO(edisonn): has_foo();  
-          fileClass.write('  bool has_' + prop.fCppName + '() const {\n')
-          fileClass.write('    return (ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));\n')
-          fileClass.write('  }\n') 
-          fileClass.write('\n') 
 
           if len(prop.fTypes.split()) == 1:
             t = prop.fTypes.strip()
-            fileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '() const;\n')
-            fileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '() const {\n')
-            fileClassCpp.write('  ' + knowTypes[t][0] + ' ret;\n')
-            fileClassCpp.write('  if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
-            if field.fRequired == False and prop.fDefault != '':
-              fileClassCpp.write('  return ' + prop.fDefault.toCpp() + ';\n');
+
+            podofoFileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '() const;\n')
+            podofoFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '() const {\n')
+            podofoFileClassCpp.write('  ' + knowTypes[t][0] + ' ret;\n')
+            
+            #hack, find out if it is dict, they have an extra entry in the array
+            if len(knowTypes[t]) == 5:
+              podofoFileClassCpp.write('  if (fParsedDoc->mapper()->' + knowTypes[t][1] + '(podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
             else:
-              fileClassCpp.write('  // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
-              fileClassCpp.write('  return ' + knowTypes[t][2].toCpp() + ';\n');
-            fileClassCpp.write('}\n') 
-            fileClassCpp.write('\n')
+              podofoFileClassCpp.write('  if (' + knowTypes[t][1] + '(fParsedDoc, podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
+            
+            if field.fRequired == False and prop.fDefault != '':
+              podofoFileClassCpp.write('  return ' + prop.fDefault.toCpp() + ';\n');
+            else:
+              podofoFileClassCpp.write('  // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
+              podofoFileClassCpp.write('  return ' + knowTypes[t][2].toCpp() + ';\n');
+            podofoFileClassCpp.write('}\n') 
+            podofoFileClassCpp.write('\n')
           else:
             for type in prop.fTypes.split():
               t = type.strip()
-              fileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '() const {\n')
-              fileClass.write('    SkPdfObject* ret = NULL;\n')
-              fileClass.write('    if (!ObjectFromDictionary(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return false;\n')
-              fileClass.write('    return ' + knowTypes[t][3] + ';\n')
-              fileClass.write('  }\n')
-              fileClass.write('\n')
+              
+              podofoFileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '() const;\n')
 
-              fileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '() const;\n')
-              fileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '() const {\n')
-              fileClassCpp.write('  ' + knowTypes[t][0] + ' ret = ' + knowTypes[t][2].toCpp() + ';\n')
-              fileClassCpp.write('  if (' + knowTypes[t][1] + '(fPodofoDoc, fPodofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
-              fileClassCpp.write('  // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
-              fileClassCpp.write('  return ' + knowTypes[t][2].toCpp() + ';\n')
-              fileClassCpp.write('}\n') 
-              fileClassCpp.write('\n')
+              podofoFileClassCpp.write('bool SkPdf' + cls.fName + '::is' + prop.fCppName + 'A' + t.title() + '() const {\n')
+              podofoFileClassCpp.write('  SkPdfObject* ret = NULL;\n')
+              podofoFileClassCpp.write('  if (!fParsedDoc->mapper()->SkPdfObjectFromDictionary(podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return false;\n')
+              podofoFileClassCpp.write('  return ' + knowTypes[t][3] + ';\n')
+              podofoFileClassCpp.write('}\n')
+              podofoFileClassCpp.write('\n')
+
+              podofoFileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '() const;\n')
+              podofoFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '() const {\n')
+              podofoFileClassCpp.write('  ' + knowTypes[t][0] + ' ret = ' + knowTypes[t][2].toCpp() + ';\n')
+
+              # hack
+              if len(knowTypes[t]) == 5:
+                podofoFileClassCpp.write('  if (fParsedDoc->mapper()->' + knowTypes[t][1] + '(podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
+              else:
+                podofoFileClassCpp.write('  if (' + knowTypes[t][1] + '(fParsedDoc, podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &ret)) return ret;\n')
+              
+              podofoFileClassCpp.write('  // TODO(edisonn): warn about missing required field, assert for known good pdfs\n')
+              podofoFileClassCpp.write('  return ' + knowTypes[t][2].toCpp() + ';\n')
+              podofoFileClassCpp.write('}\n') 
+              podofoFileClassCpp.write('\n')
                
+          podofoFileClass.write('  bool has_' + prop.fCppName + '() const;\n')
+          podofoFileClassCpp.write('bool SkPdf' + cls.fName + '::has_' + prop.fCppName + '() const {\n')
+          podofoFileClassCpp.write('  return (ObjectFromDictionary(fParsedDoc, podofo()->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", NULL));\n')
+          podofoFileClassCpp.write('}\n') 
+          podofoFileClassCpp.write('\n') 
            
           if prop.fCppName[0] == '[':
-            fileClass.write('*/\n')  # comment code of the atributes that can have any name
-            fileClassCpp.write('*/\n')  # comment code of the atributes that can have any name
+            podofoFileClass.write('*/\n')  # comment code of the atributes that can have any name
+            podofoFileClassCpp.write('*/\n')  # comment code of the atributes that can have any name
          
 
-      fileClass.write('};\n')
-      fileClass.write('\n')
+      podofoFileClass.write('};\n')
+      podofoFileClass.write('\n')
 
-      fileClass.write('#endif  // __DEFINED__SkPdf' + cls.fName + '\n')
-      fileClass.close()
-      fileClassCpp.close()
-    
-      
+      podofoFileClass.write('#endif  // __DEFINED__PODOFO_SkPdf' + cls.fName + '\n')
+
+      podofoFileClass.close()
+      podofoFileClassCpp.close()
     
       # generate constructor when knowing the type
       # later, p2, generate constructor when not knowing the type - very similar with parsing?
       
     # generate parser  
     # TODO(edisonn): fast recognition based on must attributes.
-    fileMapper = open('SkPdfPodofoMapper_autogen.h', 'w')
-    fileMapperCpp = open('SkPdfPodofoMapper_autogen.cpp', 'w')
-    fileMapper.write('#ifndef __DEFINED__SkPdfPodofoMapper\n')
-    fileMapper.write('#define __DEFINED__SkPdfPodofoMapper\n')
-    fileMapper.write('\n')
+    fileMapperPodofo = open(sys.argv[1] + 'podofo/autogen/SkPdfMapper_autogen.h', 'w')
+    fileMapperPodofoCpp = open(sys.argv[1] + 'podofo/autogen/SkPdfMapper_autogen.cpp', 'w')
 
-    fileMapper.write('#include "SkPdfHeaders_autogen.h"\n')
-    fileMapperCpp.write('#include "SkPdfPodofoMapper_autogen.h"\n')
-#    fileMapper.write('class PodofoMapper {\n')
-#    fileMapper.write('public:\n')
+    fileMapperPodofo.write('#ifndef __DEFINED__SkPdfMapper\n')
+    fileMapperPodofo.write('#define __DEFINED__SkPdfMapper\n')
+    fileMapperPodofo.write('\n')
+
+    fileMapperPodofo.write('#include "SkPdfHeaders_autogen.h"\n')
+
+
+    fileMapperPodofo.write('namespace PoDoFo {\n')
+    fileMapperPodofo.write('class PdfDictionary;\n')
+    fileMapperPodofo.write('class PdfMemDocument;\n')
+    fileMapperPodofo.write('class PdfObject;\n')      
+    fileMapperPodofo.write('}\n')
+
+    fileMapperPodofoCpp.write('#include "SkPdfMapper_autogen.h"\n')
+    fileMapperPodofoCpp.write('#include "SkPdfUtils.h"\n')
+    fileMapperPodofoCpp.write('#include "podofo.h"\n')
+    fileMapperPodofoCpp.write('\n')
+    
+    fileMapperPodofo.write('class SkPdfMapper {\n')
+
+    fileMapperPodofo.write('  const SkPodofoParsedPDF* fParsedDoc;\n')
+    fileMapperPodofo.write('  const PoDoFo::PdfMemDocument* fPodofoDoc;\n')
+    
+    fileMapperPodofo.write('public:\n')
+    
+    fileMapperPodofo.write('  SkPdfMapper(const SkPodofoParsedPDF* doc) : fParsedDoc(doc), fPodofoDoc(doc ? doc->podofo() : NULL) {}\n')
+    fileMapperPodofo.write('\n')
+    
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
+      fileMapperPodofo.write('  bool map' + name + '(const SkPdfObject* in, SkPdf' + name + '** out) const;\n')
 
-      fileMapper.write('bool map' + name + '(const SkPdfObject& in, SkPdf' + name + '** out);\n')
+      fileMapperPodofoCpp.write('bool SkPdfMapper::map' + name + '(const SkPdfObject* in, SkPdf' + name + '** out) const {\n')
+      fileMapperPodofoCpp.write('  return map' + name + '((const PoDoFo::PdfObject*)in->data(), (SkPdf' + name + '**)out);\n')
+      fileMapperPodofoCpp.write('}\n') 
+      fileMapperPodofoCpp.write('\n')
 
-      fileMapperCpp.write('bool map' + name + '(const SkPdfObject& in, SkPdf' + name + '** out) {\n')
-      fileMapperCpp.write('  return map' + name + '(*in.doc(), *in.podofo(), out);\n')
-      fileMapperCpp.write('}\n') 
-      fileMapperCpp.write('\n')
-
-      fileMapper.write('bool map' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out);\n')
-      fileMapperCpp.write('bool map' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdf' + name + '** out) {\n')
-      fileMapperCpp.write('  if (!is' + name + '(podofoDoc, podofoObj)) return false;\n')
-      fileMapperCpp.write('\n')
+      fileMapperPodofo.write('  bool map' + name + '(const PoDoFo::PdfObject* podofoObj, SkPdf' + name + '** out) const ;\n')
+      fileMapperPodofoCpp.write('bool SkPdfMapper::map' + name + '(const PoDoFo::PdfObject* podofoObj, SkPdf' + name + '** out) const {\n')
+      fileMapperPodofoCpp.write('  if (!is' + name + '(podofoObj)) return false;\n')
+      fileMapperPodofoCpp.write('\n')
 
       # stream must be last one
       hasStream = False
@@ -462,36 +520,36 @@ class PdfClassManager:
         if cls.fName == 'Object' and enumToCls[sub].fName == 'Stream':
           hasStream = True
         else:
-          fileMapperCpp.write('  if (map' + enumToCls[sub].fName + '(podofoDoc, podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;\n')
+          fileMapperPodofoCpp.write('  if (map' + enumToCls[sub].fName + '(podofoObj, (SkPdf' + enumToCls[sub].fName + '**)out)) return true;\n')
       
       if hasStream:
-        fileMapperCpp.write('  if (mapStream(podofoDoc, podofoObj, (SkPdfStream**)out)) return true;\n')
+        fileMapperPodofoCpp.write('  if (mapStream(podofoObj, (SkPdfStream**)out)) return true;\n')
       
 
-      fileMapperCpp.write('\n')
+      fileMapperPodofoCpp.write('\n')
       
-      fileMapperCpp.write('  *out = new SkPdf' + name + '(&podofoDoc, &podofoObj);\n')
-      fileMapperCpp.write('  return true;\n')        
-      fileMapperCpp.write('}\n') 
-      fileMapperCpp.write('\n')
+      fileMapperPodofoCpp.write('  *out = new SkPdf' + name + '(fParsedDoc, podofoObj);\n')
+      fileMapperPodofoCpp.write('  return true;\n')        
+      fileMapperPodofoCpp.write('}\n') 
+      fileMapperPodofoCpp.write('\n')
        
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      fileMapper.write('bool is' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj);\n')
-      fileMapperCpp.write('bool is' + name + '(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj) {\n')
+      fileMapperPodofo.write('  bool is' + name + '(const PoDoFo::PdfObject* podofoObj) const ;\n')
+      fileMapperPodofoCpp.write('bool SkPdfMapper::is' + name + '(const PoDoFo::PdfObject* podofoObj) const {\n')
       
       if cls.fCheck != '':
-        fileMapperCpp.write('  return ' + cls.fCheck + ';\n')
+        fileMapperPodofoCpp.write('  return ' + cls.fCheck + ';\n')
       else:
         cntMust = 0
         for field in cls.fFields:
           prop = field.fProp
           if prop.fHasMust:
             cntMust = cntMust + 1
-            fileMapperCpp.write('  ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';\n')
-            fileMapperCpp.write('  if (!podofoObj.IsDictionary()) return false;\n')
-            fileMapperCpp.write('  if (!' + knowTypes[prop.fTypes.strip()][1] + '(&podofoDoc, podofoObj.GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;\n')
+            fileMapperPodofoCpp.write('  ' + knowTypes[prop.fTypes.strip()][0] + ' ' + prop.fCppName + ';\n')
+            fileMapperPodofoCpp.write('  if (!podofoObj->IsDictionary()) return false;\n')
+            fileMapperPodofoCpp.write('  if (!' + knowTypes[prop.fTypes.strip()][1] + '(fParsedDoc, podofoObj->GetDictionary(), \"' + prop.fName + '\", \"' + prop.fAbr + '\", &' + prop.fCppName + ')) return false;\n')
             
             eval = '';
             # TODO(edisonn): this could get out of hand, and could have poor performance if continued on this path
@@ -505,88 +563,105 @@ class PdfClassManager:
                   eval = '(' + prop.fCppName + ' != ' + cnd.toCpp() + ')'
                 else:
                   eval = eval + ' && ' + '(' + prop.fCppName + ' != ' + cnd.toCpp() + ')'
-              fileMapperCpp.write('  if (' + eval + ') return false;\n')
-              fileMapperCpp.write('\n')
+              fileMapperPodofoCpp.write('  if (' + eval + ') return false;\n')
+              fileMapperPodofoCpp.write('\n')
       
-        fileMapperCpp.write('  return true;\n')
+        fileMapperPodofoCpp.write('  return true;\n')
               
-      fileMapperCpp.write('}\n') 
-      fileMapperCpp.write('\n')    
+      fileMapperPodofoCpp.write('}\n') 
+      fileMapperPodofoCpp.write('\n')    
     
-      fileMapper.write('bool ' + name + 'FromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdf' + name + '** data);\n')
-      fileMapperCpp.write('bool ' + name + 'FromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, SkPdf' + name + '** data) {\n')
-      fileMapperCpp.write('  const PdfObject* value = resolveReferenceObject(pdfDoc, dict.GetKey(PdfName(key)), true);\n')
-      fileMapperCpp.write('  if (value == NULL) { return false; }\n')
-      fileMapperCpp.write('  if (data == NULL) { return true; }\n')
-      fileMapperCpp.write('  return map' + name + '(*pdfDoc, *value, (SkPdf' + name + '**)data);\n')
-      fileMapperCpp.write('}\n')
-      fileMapperCpp.write('\n')
+      fileMapperPodofo.write('  bool SkPdf' + name + 'FromDictionary(const PoDoFo::PdfDictionary& dict, const char* key, SkPdf' + name + '** data) const ;\n')
+      fileMapperPodofoCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const PoDoFo::PdfDictionary& dict, const char* key, SkPdf' + name + '** data) const {\n')
+      fileMapperPodofoCpp.write('  const PoDoFo::PdfObject* value = resolveReferenceObject(fParsedDoc, dict.GetKey(PoDoFo::PdfName(key)), true);\n')
+      fileMapperPodofoCpp.write('  if (value == NULL) { return false; }\n')
+      fileMapperPodofoCpp.write('  if (data == NULL) { return true; }\n')
+      fileMapperPodofoCpp.write('  return map' + name + '(value, (SkPdf' + name + '**)data);\n')
+      fileMapperPodofoCpp.write('}\n')
+      fileMapperPodofoCpp.write('\n')
 
-      fileMapper.write('bool ' + name + 'FromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdf' + name + '** data);\n')
-      fileMapperCpp.write('bool ' + name + 'FromDictionary(const PdfMemDocument* pdfDoc, const PdfDictionary& dict, const char* key, const char* abr, SkPdf' + name + '** data) {\n')
-      fileMapperCpp.write('  if (' + name + 'FromDictionary(pdfDoc, dict, key, data)) return true;\n')
-      fileMapperCpp.write('  if (abr == NULL || *abr == \'\\0\') return false;\n')
-      fileMapperCpp.write('  return ' + name + 'FromDictionary(pdfDoc, dict, abr, data);\n')
-      fileMapperCpp.write('}\n')
-      fileMapperCpp.write('\n')
+      fileMapperPodofo.write('  bool SkPdf' + name + 'FromDictionary(const PoDoFo::PdfDictionary& dict, const char* key, const char* abr, SkPdf' + name + '** data) const ;\n')
+      fileMapperPodofoCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const PoDoFo::PdfDictionary& dict, const char* key, const char* abr, SkPdf' + name + '** data) const {\n')
+      fileMapperPodofoCpp.write('  if (SkPdf' + name + 'FromDictionary(dict, key, data)) return true;\n')
+      fileMapperPodofoCpp.write('  if (abr == NULL || *abr == \'\\0\') return false;\n')
+      fileMapperPodofoCpp.write('  return SkPdf' + name + 'FromDictionary(dict, abr, data);\n')
+      fileMapperPodofoCpp.write('}\n')
+      fileMapperPodofoCpp.write('\n')
           
-    #fileMapper.write('};\n') 
-    fileMapper.write('\n')
+    fileMapperPodofo.write('};\n') 
+    fileMapperPodofo.write('\n')
     
-    fileMapper.write('#endif  // __DEFINED__SkPdfPodofoMapper\n')
-    fileMapper.close()
+    fileMapperPodofo.write('#endif  // __DEFINED__SkPdfMapper\n')
+
+    fileMapperPodofo.close()
+    fileMapperPodofoCpp.close()
     
     return
 
 def generateCode():
-  global fileHeaders 
-  global fileHeadersCpp 
+  global fileHeadersPodofo 
+  global fileHeadersPodofoCpp 
   global knowTypes
 
-  fileHeaders = open('SkPdfHeaders_autogen.h', 'w')
-  fileHeadersCpp = open('SkPdfHeaders_autogen.cpp', 'w')
-  fileHeaders.write('#ifndef __DEFINED__SkPdfHeaders\n')
-  fileHeaders.write('#define __DEFINED__SkPdfHeaders\n')
-  fileHeaders.write('\n')
+  fileHeadersPodofo = open(sys.argv[1] + 'podofo/autogen/SkPdfHeaders_autogen.h', 'w')
+  fileHeadersPodofoCpp = open(sys.argv[1] + 'podofo/autogen/SkPdfHeaders_autogen.cpp', 'w')
   
-  fileHeaders.write('#include "SkPdfEnums_autogen.h"\n')
+  fileHeadersPodofo.write('#ifndef __DEFINED__SkPdfHeaders\n')
+  fileHeadersPodofo.write('#define __DEFINED__SkPdfHeaders\n')
+  fileHeadersPodofo.write('\n')
 
-  fileHeadersCpp.write('#include "SkPdfHeaders_autogen.h"\n')
+  fileHeadersPodofoCpp.write('#include "SkPdfHeaders_autogen.h"\n')
 
   manager = PdfClassManager()
   
   manager.addClass('Object')
   
-  manager.addClass('Null').check('podofoObj.GetDataType() == ePdfDataType_Null')
-  manager.addClass('Boolean').check('podofoObj.GetDataType() == ePdfDataType_Bool')\
-                             .carbonCopyPublic('bool value() const {return fPodofoObj->GetBool();}')
+  # TODO(edisonn): perf, instead of virtual functions, store data in field and reurn it.
+  # maybe in constructor load it, or laizy load it 
+  
+  manager.addClass('Null').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Null')
+  manager.addClass('Boolean').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Bool')\
+                             .carbonCopyPublicPodofo('bool value() const;')\
+                             .carbonCopyPublicPodofoCpp('bool SkPdfBoolean::value() const {return podofo()->GetBool();}')
                              
-  manager.addClass('Integer').check('podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real')\
-                             .carbonCopyPublic('long value() const {return fPodofoObj->GetNumber();}')
+  manager.addClass('Integer').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Number || podofoObj->GetDataType() == PoDoFo::ePdfDataType_Real')\
+                             .carbonCopyPublicPodofo('long value() const;')\
+                             .carbonCopyPublicPodofoCpp('long SkPdfInteger::value() const {return podofo()->GetNumber();}')
   
-  manager.addClass('Number', 'Integer').check('podofoObj.GetDataType() == ePdfDataType_Number || podofoObj.GetDataType() == ePdfDataType_Real')\
-                             .carbonCopyPublic('double value() const {return fPodofoObj->GetReal();}')
+  manager.addClass('Number', 'Integer').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Number || podofoObj->GetDataType() == PoDoFo::ePdfDataType_Real')\
+                             .carbonCopyPublicPodofo('double value() const;')\
+                             .carbonCopyPublicPodofoCpp('double SkPdfNumber::value() const {return podofo()->GetReal();}')\
   
-  manager.addClass('Name').check('podofoObj.GetDataType() == ePdfDataType_Name')\
-                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetName().GetName();}')
+  manager.addClass('Name').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Name')\
+                             .carbonCopyPublicPodofo('const std::string& value() const;')\
+                             .carbonCopyPublicPodofoCpp('const std::string& SkPdfName::value() const {return podofo()->GetName().GetName();}')
   
-  manager.addClass('Reference').check('podofoObj.GetDataType() == ePdfDataType_Reference')
+  manager.addClass('Reference').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Reference')
   
-  manager.addClass('Array').check('podofoObj.GetDataType() == ePdfDataType_Array')\
-                             .carbonCopyPublic('const int size() const {return fPodofoObj->GetArray().GetSize();}')\
-                             .carbonCopyPublic('SkPdfObject* operator[](int i) const { SkPdfObject* ret = NULL;  skpdfmap(*fPodofoDoc, fPodofoObj->GetArray()[i], &ret);  return ret; }')\
+  manager.addClass('Array').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Array')\
+                             .carbonCopyPublicPodofo('const int size() const;')\
+                             .carbonCopyPublicPodofoCpp('const int SkPdfArray::size() const {return podofo()->GetArray().GetSize();}')\
+                             .carbonCopyPublicPodofo('SkPdfObject* operator[](int i) const;')\
+                             .carbonCopyPublicPodofoCpp('SkPdfObject* SkPdfArray::operator[](int i) const { SkPdfObject* ret = NULL;  fParsedDoc->mapper()->mapObject(&podofo()->GetArray()[i], &ret);  return ret; }')
   
-  manager.addClass('String').check('podofoObj.GetDataType() == ePdfDataType_String || podofoObj.GetDataType() == ePdfDataType_HexString')\
-                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
+  manager.addClass('String').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_String || podofoObj->GetDataType() == PoDoFo::ePdfDataType_HexString')\
+                            .carbonCopyPublicPodofo('const std::string& value() const;')\
+                            .carbonCopyPublicPodofoCpp('const std::string& SkPdfString::value() const {return podofo()->GetString().GetStringUtf8();}')\
+                            .carbonCopyPublicPodofo('const char* c_str() const;')\
+                            .carbonCopyPublicPodofoCpp('const char* SkPdfString::c_str() const {return podofo()->GetString().GetString();}')\
+                            .carbonCopyPublicPodofo('size_t len() const;')\
+                            .carbonCopyPublicPodofoCpp('size_t SkPdfString::len() const {return podofo()->GetString().GetLength();}')
                              
-  manager.addClass('HexString', 'String').check('podofoObj.GetDataType() == ePdfDataType_HexString')\
-                             .carbonCopyPublic('const std::string& value() const {return fPodofoObj->GetString().GetStringUtf8();}')
+  manager.addClass('HexString', 'String').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_HexString')\
   
-  manager.addClass('Dictionary').check('podofoObj.GetDataType() == ePdfDataType_Dictionary')\
-                                .carbonCopyPublic('SkPdfObject* get(const char* dictionaryKeyName) const {return new SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
-                                .carbonCopyPublic('SkPdfObject* get(const char* dictionaryKeyName) {return new SkPdfObject(fPodofoDoc, resolveReferenceObject(fPodofoDoc, fPodofoObj->GetDictionary().GetKey(PdfName(dictionaryKeyName))));}')\
+  manager.addClass('Dictionary').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Dictionary')\
+                                .carbonCopyPublicPodofo('SkPdfObject* get(const char* dictionaryKeyName) const;')\
+                                .carbonCopyPublicPodofoCpp('SkPdfObject* SkPdfDictionary::get(const char* dictionaryKeyName) const {SkPdfObject* ret = NULL; fParsedDoc->mapper()->mapObject(resolveReferenceObject(fParsedDoc, podofo()->GetDictionary().GetKey(PoDoFo::PdfName(dictionaryKeyName))), &ret); return ret;}')\
 
-  manager.addClass('Stream')  # attached to a dictionary in podofo
+  # attached to a dictionary in podofo
+  manager.addClass('Stream')\
+              .carbonCopyPublicPodofo('bool GetFilteredCopy(char** buffer, long* len) const;')\
+              .carbonCopyPublicPodofoCpp('bool SkPdfStream::GetFilteredCopy(char** buffer, long* len) const {try {PoDoFo::pdf_long podofoLen = 0; *buffer = NULL; *len = 0;podofo()->GetStream()->GetFilteredCopy(buffer, &podofoLen); *len = (long)podofoLen;} catch (PoDoFo::PdfError& e) { return false; } return true;}')
   
   
   # these classes are not explicitely backed by a table in the pdf spec
@@ -619,12 +694,12 @@ def generateCode():
 
   manager.write()
   
-  fileHeaders.write('#endif  // __DEFINED__SkPdfHeaders\n')
-  fileHeaders.close()
-  fileHeadersCpp.close()
-  
-  return 1
+  fileHeadersPodofo.write('#endif  // __DEFINED__SkPdfHeaders\n')
+
+  fileHeadersPodofo.close()
+  fileHeadersPodofoCpp.close()
 
 if '__main__' == __name__:
+  #print sys.argv
   sys.exit(generateCode())
 

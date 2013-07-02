@@ -3257,7 +3257,7 @@ LastModiﬁed                             date                                  
                                                                                                     modiﬁcation date is used to ascertain which of the application data dic-
                                                                                                     tionaries that it contains correspond to the current content of the page
                                                                                                     (see Section 9.4, “Page-Piece Dictionaries”).
-Resources                               dictionary                                                  (Required; inheritable) A dictionary containing any resources required by
+Resources                               ResourceDictionary                                          (Required; inheritable) A dictionary containing any resources required by
                                                                                                     the page (see Section 3.7.2, “Resource Dictionaries”). If the page requires
                                                                                                     no resources, the value of this entry should be an empty dictionary; omit-
                                                                                                     ting the entry entirely indicates that the resources are to be inherited from
@@ -8944,7 +8944,7 @@ Mask                                    stream                                  
                                                                                                     to be applied to it as a color key mask (see “Color Key Masking” on page
                                                                                                     277). If ImageMask is true, this entry must not be present. (See
                                                                                                     implementation note 35 in Appendix H.)
-SMask                                   stream                                                      (Optional; PDF 1.4) A subsidiary image XObject deﬁning a soft-mask
+SMask                                   ImageDictionary                                             (Optional; PDF 1.4) A subsidiary image XObject deﬁning a soft-mask
                                                                                                     image (see “Soft-Mask Images” on page 447) to be used as a source of
                                                                                                     mask shape or mask opacity values in the transparent imaging model. The
                                                                                                     alpha source parameter in the graphics state determines whether the mask

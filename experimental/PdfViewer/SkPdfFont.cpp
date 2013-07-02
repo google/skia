@@ -3,6 +3,7 @@
 
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkPdfPodofoTokenizer.h"
 
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
     static std::map<std::string, SkPdfStandardFontEntry> gPdfStandardFonts;
@@ -164,21 +165,17 @@ SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd, 
         }
     }
 
-    if (!pdfStream || !pdfStream->podofo()->GetStream()) {
-        // TODO(edisonn): report warning to be used in testing.
-        return NULL;
-    }
-
     char* uncompressedStream = NULL;
-    pdf_long uncompressedStreamLength = 0;
+    long uncompressedStreamLength = 0;
 
-    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-    try {
-        pdfStream->podofo()->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-    } catch (PdfError& e) {
-        // TODO(edisonn): report warning to be used in testing.
+    // TODO(edisonn): report warning to be used in testing.
+    if (!pdfStream ||
+            !pdfStream->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength) ||
+            !uncompressedStream ||
+            !uncompressedStreamLength) {
         return NULL;
     }
+
     SkMemoryStream* skStream = new SkMemoryStream(uncompressedStream, uncompressedStreamLength);
     SkTypeface* face = SkTypeface::CreateFromStream(skStream);
 
@@ -199,12 +196,11 @@ SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName) {
     }
 
     // TODO(edisonn): perf - make a map
-    for (int i = 0 ; i < obj->doc()->GetObjects().GetSize(); i++) {
-        PdfVecObjects& objects = (PdfVecObjects&)obj->doc()->GetObjects();
-        const PdfObject* podofoFont = objects[i];
+    for (int i = 0 ; i < obj->doc()->objects(); i++) {
+        const SkPdfObject* podofoFont = obj->doc()->object(i);
         SkPdfFontDescriptorDictionary* fd = NULL;
 
-        if (mapFontDescriptorDictionary(*obj->doc(), *podofoFont, &fd)) {
+        if (obj->doc()->mapper()->mapFontDescriptorDictionary(podofoFont, &fd)) {
             if (fd->has_FontName() && fd->FontName() == fontName) {
                 SkPdfFont* font = SkPdfFont::fontFromFontDescriptor(fd, false);
                 if (font) {
@@ -289,8 +285,8 @@ SkPdfMultiMasterFont* SkPdfFont::fontFromMultiMasterFontDictionary(SkPdfMultiMas
 
 static int skstoi(const SkPdfString* str) {
     int ret = 0;
-    for (int i = 0 ; i < str->podofo()->GetString().GetLength(); i++) {
-        ret = (ret << 8) + ((unsigned char*)str->podofo()->GetString().GetString())[i];
+    for (int i = 0 ; i < str->len(); i++) {
+        ret = (ret << 8) + ((unsigned char*)str->c_str())[i];
     }
     return ret;
 }
@@ -300,7 +296,7 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
     fCMapEncodingFlag = NULL;
 
     if (stream) {
-        SkPdfTokenizer tokenizer(stream);
+        SkPdfPodofoTokenizer* tokenizer = stream->doc()->tokenizerOfStream(stream);
         PdfToken token;
 
         fCMapEncoding = new unsigned short[256 * 256];
@@ -316,15 +312,15 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
         //<0000> <005E> <0020>
         //<005F> <0061> [<00660066> <00660069> <00660066006C>]
 
-        while (tokenizer.readToken(&token)) {
+        while (tokenizer->readToken(&token)) {
 
             if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "begincodespacerange") == 0) {
-                while (tokenizer.readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endcodespacerange") == 0)) {
-//                    tokenizer.PutBack(token);
-//                    tokenizer.readToken(&token);
+                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endcodespacerange") == 0)) {
+//                    tokenizer->PutBack(token);
+//                    tokenizer->readToken(&token);
                     // TODO(edisonn): check token type! ignore/report errors.
                     int start = skstoi(token.fObject->asString());
-                    tokenizer.readToken(&token);
+                    tokenizer->readToken(&token);
                     int end = skstoi(token.fObject->asString());
                     for (int i = start; i <= end; i++) {
                         fCMapEncodingFlag[i] |= 1;
@@ -333,11 +329,11 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
             }
 
             if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "beginbfchar") == 0) {
-                while (tokenizer.readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfchar") == 0)) {
-//                    tokenizer.PutBack(token);
-//                    tokenizer.readToken(&token);
+                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfchar") == 0)) {
+//                    tokenizer->PutBack(token);
+//                    tokenizer->readToken(&token);
                     int from = skstoi(token.fObject->asString());
-                    tokenizer.readToken(&token);
+                    tokenizer->readToken(&token);
                     int to = skstoi(token.fObject->asString());
 
                     fCMapEncodingFlag[from] |= 2;
@@ -346,19 +342,19 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
             }
 
             if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "beginbfrange") == 0) {
-                while (tokenizer.readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfrange") == 0)) {
-//                    tokenizer.PutBack(token);
-//                    tokenizer.readToken(&token);
+                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfrange") == 0)) {
+//                    tokenizer->PutBack(token);
+//                    tokenizer->readToken(&token);
                     int start = skstoi(token.fObject->asString());
-                    tokenizer.readToken(&token);
+                    tokenizer->readToken(&token);
                     int end = skstoi(token.fObject->asString());
 
 
-                    tokenizer.readToken(&token); // [ or just an array directly?
-//                    tokenizer.PutBack(token);
+                    tokenizer->readToken(&token); // [ or just an array directly?
+//                    tokenizer->PutBack(token);
 
                     if (token.fType == kObject_TokenType && token.fObject->asString()) {
-//                        tokenizer.readToken(&token);
+//                        tokenizer->readToken(&token);
                         int value = skstoi(token.fObject->asString());
 
                         for (int i = start; i <= end; i++) {
@@ -370,7 +366,7 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
 
                         // read one string
                     } else if (token.fType == kObject_TokenType && token.fObject->asArray()) {
-//                        tokenizer.readToken(&token);
+//                        tokenizer->readToken(&token);
                         for (int i = 0; i < token.fObject->asArray()->size(); i++) {
                             fCMapEncodingFlag[start + i] |= 2;
                             fCMapEncoding[start + i] = skstoi((*token.fObject->asArray())[i]->asString());

@@ -292,7 +292,7 @@ def fix(val):
   
   return ret
   
-def commitRow():
+def commitRow(fspecPy):
   global columnValues
   global emitedDitionaryName
   global table
@@ -393,27 +393,27 @@ def commitRow():
     comment = fix(tableToClassName[tableKey][1])
     
     if len(tableToClassName[tableKey]) >= 3 and tableToClassName[tableKey][2] != '':
-      print('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'' + tableToClassName[tableKey][2] + '\', \'' + comment + '\')\\')
+      fspecPy.write('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'' + tableToClassName[tableKey][2] + '\', \'' + comment + '\')\\\n')
     else:
-      print('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'Dictionary\', \'' + comment + '\')\\')
+      fspecPy.write('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'Dictionary\', \'' + comment + '\')\\\n')
 
   if len(tableToClassName[tableKey]) >= 4 and columnValues[0] in tableToClassName[tableKey][3]:
     required = True
 
   if required:
-    print('      .required(\'NULL\')\\')
+    fspecPy.write('      .required(\'NULL\')\\\n')
   else:
-    print('      .optional()\\')
+    fspecPy.write('      .optional()\\\n')
     
-  print('          .field(\'' + columnValues[0] + '\')\\')
-  print('          .name(\'' + columnValues[0] + '\')\\')
-  print('          .type(\'' + columnValues[1] + '\')\\')
-  print('          .comment(\'' + columnValues[2] + '\')\\')
+  fspecPy.write('          .field(\'' + columnValues[0] + '\')\\\n')
+  fspecPy.write('          .name(\'' + columnValues[0] + '\')\\\n')
+  fspecPy.write('          .type(\'' + columnValues[1] + '\')\\\n')
+  fspecPy.write('          .comment(\'' + columnValues[2] + '\')\\\n')
 
   if len(tableToClassName[tableKey]) >= 4 and columnValues[0] in tableToClassName[tableKey][3]:
-    print('          .must(' + tableToClassName[tableKey][3][columnValues[0]] + ')\\')
+    fspecPy.write('          .must(' + tableToClassName[tableKey][3][columnValues[0]] + ')\\\n')
 
-  print('          .done().done()\\')
+  fspecPy.write('          .done().done()\\\n')
   
   
   columnValues = None
@@ -429,7 +429,7 @@ def appendRow(second, third):
   if third.rstrip() != '':
     columnValues[2] = columnValues[2] + '\n' + third.rstrip()
 
-def rebaseTable(line):
+def rebaseTable(fspecPy, line):
   global knownTypes
   global columnWidth
   
@@ -445,7 +445,7 @@ def rebaseTable(line):
     i = i + 1
     
   if words[i].startswith('(Optional') or words[i].startswith('(Required'):
-    commitRow()
+    commitRow(fspecPy)
     
     columnWidth[0] = line.find(words[1])
     
@@ -458,24 +458,24 @@ def rebaseTable(line):
   return False
     
     
-def stopTable():
+def stopTable(fspecPy):
   global tableHeaderFound
   global emitedDitionaryName
 
   if not inTable():
     return
   
-  commitRow()
+  commitRow(fspecPy)
   tableHeaderFound = False
   emitedDitionaryName = ''
-  print('      .done()')
-  print
+  fspecPy.write('      .done()\n')
+  fspecPy.write('\n')
     
 
 def killTable():
   return
 
-def processLineCore(line):
+def processLineCore(fspecPy, line):
   global lines
   global tableLine
   global tableRow
@@ -483,7 +483,7 @@ def processLineCore(line):
   global columnValues
   global mustFollowTableHeader
   
-  global fnewspec
+  #global fnewspec
   
   lines = lines + 1
   
@@ -493,12 +493,12 @@ def processLineCore(line):
   
   words = line.split()
   if len(words) == 0:
-    stopTable()
+    stopTable(fspecPy)
     return False
         
   isTableHeader = re.search('^[\s]*(TABLE [0-9].[0-9][0-9]?)', striped)
   if isTableHeader:
-    stopTable()
+    stopTable(fspecPy)
     tableDescriptionFound(striped)
     mustFollowTableHeader = True
     return False
@@ -535,7 +535,7 @@ def processLineCore(line):
       newRow(first, second, third)
       return True
     
-    if rebaseTable(striped):
+    if rebaseTable(fspecPy, striped):
       first = striped[0 : columnWidth[0]]
       second = striped[columnWidth[0] : columnWidth[0] + columnWidth[1]]
       third = striped[columnWidth[0] + columnWidth[1] :]
@@ -549,15 +549,15 @@ def processLineCore(line):
       return True
       
     if len(first.split()) > 1:
-      stopTable()
+      stopTable(fspecPy)
       return False
 
     if first != '' and first[0] == ' ':
-      stopTable()
+      stopTable(fspecPy)
       return False
 
     if first != '' and second != '' and third == '':
-      stopTable()
+      stopTable(fspecPy)
       return False
 
     if first == '' and second != '' and second[0] != ' ':
@@ -565,7 +565,7 @@ def processLineCore(line):
         appendRow(second, third)
         return True
       else:
-        stopTable()
+        stopTable(fspecPy)
         return False
 
     if first != '' and second != '' and third[0] != '(':
@@ -573,61 +573,65 @@ def processLineCore(line):
       return False
       
     if first == '' and second != '' and second[0] == ' ':
-      stopTable()
+      stopTable(fspecPy)
       return False
 
     if first != '' and second != '' and third[0] == '(':
-      commitRow()
+      commitRow(fspecPy)
       newRow(first, second, third)
       return True
     
     return False
   return False
   
-def processLine(line):
-  global fnewspec
+def processLine(fspecPy, line):
+  #global fnewspec
   
-  inSpec = processLineCore(line)
+  inSpec = processLineCore(fspecPy, line)
   
   #just return, use the next lines if you wish to rewrite spec
-  #return
+  return
   
   if inSpec:
     #resize colum with types
     line = line[:columnWidth[0] + columnWidth[1]] + (' ' * (60 - columnWidth[1])) + line[columnWidth[0] + columnWidth[1]:]
     line = line[:columnWidth[0]] + (' ' * (40 - columnWidth[0])) + line[columnWidth[0]:]
   
-  fnewspec.write(line)
+  #fnewspec.write(line)
   
 
 def generateDef():
   global lines
-  global fnewspec
+  #global fnewspec
   
-  fnewspec = open('PdfReference-okular-2.txt', 'w')
+  #fnewspec = open('PdfReference-okular-2.txt', 'w')
   
-  print 'import datatypes'
-  print
+  # pdf spec in text format
+  fspecText = open(sys.argv[1], 'r')
+  
+  # pdf spec in python directives 
+  fspecPy = open(sys.argv[2], 'w')
+  
+  fspecPy.write('import datatypes\n')
+  fspecPy.write('\n')
 
-  print 'def buildPdfSpec(pdfspec):'
+  fspecPy.write('def buildPdfSpec(pdfspec):\n')
   
-  for line in sys.stdin:
-    processLine(line)
+  for line in fspecText:
+    processLine(fspecPy, line)
    
   # close last table if it was not closed already 
-  stopTable()
+  stopTable(fspecPy)
   
-  print
+  fspecPy.write('\n')
 
-  print 'def addDictionaryTypesTo(knowTypes):'  
+  fspecPy.write('def addDictionaryTypesTo(knowTypes):\n')  
   for e in tableToClassName:
-    print('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'' + tableToClassName[e][0] + 'FromDictionary\', datatypes.CppNull(), \'ret->podofo()->GetDataType() == ePdfDataType_Dictionary\']')
-  print
-  print
-
+    fspecPy.write('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'SkPdf' + tableToClassName[e][0] + 'FromDictionary\', datatypes.CppNull(), \'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Dictionary\', \'A_DICTIONARY\']\n')
+  fspecPy.write('\n')
   
   #print lines
-  fnewspec.close()
+  #fnewspec.close()
 
 if '__main__' == __name__:
   sys.exit(generateDef())
