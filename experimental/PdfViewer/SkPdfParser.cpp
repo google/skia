@@ -37,19 +37,23 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 // TODO(edisonn): put drawtext in #ifdefs, so comparations will ignore minor changes in text positioning and font
 // this way, we look more at other features and layout in diffs
 
+// TODO(edisonn): move trace dump in the get functions, and mapper ones too so it ghappens automatically
+/*
+#ifdef PDF_TRACE
+    std::string str;
+    pdfContext->fGraphicsState.fResources->podofo()->ToString(str);
+    printf("Print Tf Resources: %s\n", str.c_str());
+#endif
+ */
+
 #include "SkPdfHeaders_autogen.h"
-#include "SkPdfPodofoMapper_autogen.h"
+#include "SkPdfMapper_autogen.h"
 #include "SkPdfParser.h"
 
 #include "SkPdfBasics.h"
 #include "SkPdfUtils.h"
 
 #include "SkPdfFont.h"
-
-bool skpdfmap(const PdfMemDocument& podofoDoc, const PdfObject& podofoObj, SkPdfObject** out) {
-    return mapObject(podofoDoc, podofoObj, out);
-}
-
 
 /*
  * TODO(edisonn):
@@ -97,25 +101,7 @@ int GetColorSpaceComponents(const std::string& colorSpace) {
     }
 }
 
-const PdfObject* resolveReferenceObject(const PdfMemDocument* pdfDoc,
-                                  const PdfObject* obj,
-                                  bool resolveOneElementArrays) {
-    while (obj && (obj->IsReference() || (resolveOneElementArrays &&
-                                          obj->IsArray() &&
-                                          obj->GetArray().GetSize() == 1))) {
-        if (obj->IsReference()) {
-            // We need to force the non const, the only update we will do is for recurssion checks.
-            PdfReference& ref = (PdfReference&)obj->GetReference();
-            obj = pdfDoc->GetObjects().GetObject(ref);
-        } else {
-            obj = &obj->GetArray()[0];
-        }
-    }
-
-    return obj;
-}
-
-static SkMatrix SkMatrixFromPdfMatrix(double array[6]) {
+SkMatrix SkMatrixFromPdfMatrix(double array[6]) {
     SkMatrix matrix;
     matrix.setAll(SkDoubleToScalar(array[0]),
                   SkDoubleToScalar(array[2]),
@@ -135,17 +121,16 @@ SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray) {
 
     // TODO(edisonn): security issue, ret if size() != 6
     for (int i = 0; i < 6; i++) {
-        const PdfObject* elem = resolveReferenceObject(pdfArray->doc(), (*pdfArray)[i]->podofo());
-        if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
+        const SkPdfObject* elem = pdfArray->operator [](i);
+        if (elem == NULL || (!elem->asNumber() && !elem->asInteger())) {
             return SkMatrix::I();  // TODO(edisonn): report issue
         }
-        array[i] = elem->GetReal();
+        array[i] = elem->asNumber() ? elem->asNumber()->value() : elem->asInteger()->value();
     }
 
     return SkMatrixFromPdfMatrix(array);
 }
 
-PdfContext* gPdfContext = NULL;
 SkBitmap* gDumpBitmap = NULL;
 SkCanvas* gDumpCanvas = NULL;
 char gLastKeyword[100] = "";
@@ -167,7 +152,7 @@ bool hasVisualEffect(const char* pdfOp) {
 }
 
 // TODO(edisonn): Pass PdfContext and SkCanvasd only with the define for instrumentation.
-static bool readToken(SkPdfTokenizer* fTokenizer, PdfToken* token) {
+static bool readToken(SkPdfPodofoTokenizer* fTokenizer, PdfToken* token) {
     bool ret = fTokenizer->readToken(token);
 
     gReadOp++;
@@ -333,13 +318,20 @@ static SkTypeface* SkTypefaceFromPdfFont(PdfFont* font) {
 }
 
 PdfResult DrawText(PdfContext* pdfContext,
-                   const SkPdfObject* str,
+                   const SkPdfObject* _str,
                    SkCanvas* canvas)
 {
 
     SkPdfFont* skfont = pdfContext->fGraphicsState.fSkFont;
     if (skfont == NULL) {
         skfont = SkPdfFont::Default();
+    }
+
+    const SkPdfString* str = _str->asString();
+
+    if (str == NULL) {
+        // TODO(edisonn): report warning
+        return kIgnoreError_PdfResult;
     }
 
     SkUnencodedText binary(str);
@@ -399,260 +391,6 @@ PdfResult PdfOp_q(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
 PdfResult PdfOp_Q(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
 PdfResult PdfOp_Tw(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
 PdfResult PdfOp_Tc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
-
-// TODO(edisonn): deal with synonyms (/BPC == /BitsPerComponent), here or in GetKey?
-// Always pass long form in key, and have a map of long -> short key
-bool LongFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        long* data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)));
-
-    if (value == NULL || !value->IsNumber()) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    *data = value->GetNumber();
-    return true;
-}
-
-bool LongFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        long* data) {
-    if (LongFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return LongFromDictionary(pdfDoc, dict, abr, data);
-}
-
-bool DoubleFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          double* data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)));
-
-    if (value == NULL || (!value->IsReal() && !value->IsNumber())) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    *data = value->GetReal();
-    return true;
-}
-
-bool DoubleFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          const char* abr,
-                          double* data) {
-    if (DoubleFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return DoubleFromDictionary(pdfDoc, dict, abr, data);
-}
-
-
-bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        bool* data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)));
-
-    if (value == NULL || !value->IsBool()) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    *data = value->GetBool();
-    return true;
-}
-
-bool BoolFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        bool* data) {
-    if (BoolFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return BoolFromDictionary(pdfDoc, dict, abr, data);
-}
-
-bool NameFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        std::string* data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL || !value->IsName()) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    *data = value->GetName().GetName();
-    return true;
-}
-
-bool NameFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        std::string* data) {
-    if (NameFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return NameFromDictionary(pdfDoc, dict, abr, data);
-}
-
-bool StringFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          std::string* data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL || (!value->IsString() && !value->IsHexString())) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    *data = value->GetString().GetString();
-    return true;
-}
-
-bool StringFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          const char* abr,
-                          std::string* data) {
-    if (StringFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return StringFromDictionary(pdfDoc, dict, abr, data);
-}
-
-/*
-bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
-                              const PdfDictionary& dict,
-                              const char* key,
-                              SkPdfArray** data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL || !value->IsArray()) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    return mapArray(*pdfDoc, *value, data);
-}
-
-
-bool ArrayFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfArray** data) {
-    if (ArrayFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return ArrayFromDictionary(pdfDoc, dict, abr, data);
-}
-
-
-bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
-                              const PdfDictionary& dict,
-                              const char* key,
-                              SkPdfDictionary** data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL || !value->IsDictionary()) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-
-    return mapDictionary(*pdfDoc, *value, data);
-}
-
-bool DictionaryFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfDictionary** data) {
-    if (DictionaryFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return DictionaryFromDictionary(pdfDoc, dict, abr, data);
-}
-
-
-bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          SkPdfObject** data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-    return mapObject(*pdfDoc, *value, data);
-}
-
-bool ObjectFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfObject** data) {
-    if (ObjectFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return ObjectFromDictionary(pdfDoc, dict, abr, data);
-}
-
-bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          SkPdfStream** data) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                              dict.GetKey(PdfName(key)),
-                                              true);
-    if (value == NULL) {
-        return false;
-    }
-    if (data == NULL) {
-        return true;
-    }
-    return mapStream(*pdfDoc, *value, data);
-}
-
-bool StreamFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkPdfStream** data) {
-    if (StreamFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return StreamFromDictionary(pdfDoc, dict, abr, data);
-}
-*/
 
 // TODO(edisonn): perf!!!
 
@@ -781,7 +519,7 @@ bool transferImageStreamToARGB(unsigned char* uncompressedStream, pdf_long uncom
 // this functions returns the image, it does not look at the smask.
 
 SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* image, bool transparencyMask) {
-    if (image == NULL || !image->valid()) {
+    if (image == NULL) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
@@ -820,16 +558,15 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
     }
 */
 
-    const PdfObject* obj = image->podofo();
-
     char* uncompressedStream = NULL;
     pdf_long uncompressedStreamLength = 0;
 
     PdfResult ret = kPartial_PdfResult;
-    // TODO(edisonn): get rid of try/catch exceptions! We should not throw on user data!
-    try {
-        obj->GetStream()->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength);
-    } catch (PdfError& e) {
+    SkPdfStream* stream = NULL;
+    image->doc()->mapper()->mapStream(image, &stream);
+
+    if (!stream || !stream->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength) ||
+            uncompressedStream == NULL || uncompressedStreamLength == 0) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
     }
@@ -853,20 +590,10 @@ SkBitmap getImageFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 }
 
 SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* obj) {
-    const PdfObject* sMask = resolveReferenceObject(&pdfContext->fPdfDoc->podofo(),
-                                              obj->podofo()->GetDictionary().GetKey(PdfName("SMask")));
-
-#ifdef PDF_TRACE
-    std::string str;
-    if (sMask) {
-        sMask->ToString(str);
-        printf("/SMask of /Subtype /Image: %s\n", str.c_str());
-    }
-#endif
+    const SkPdfImageDictionary* sMask = obj->SMask();
 
     if (sMask) {
-        SkPdfImageDictionary skxobjmask(&pdfContext->fPdfDoc->podofo(), sMask);
-        return getImageFromObject(pdfContext, &skxobjmask, true);
+        return getImageFromObject(pdfContext, sMask, true);
     }
 
     // TODO(edisonn): implement GS SMask. Default to empty right now.
@@ -874,7 +601,7 @@ SkBitmap getSmaskFromObject(PdfContext* pdfContext, const SkPdfImageDictionary* 
 }
 
 PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfImageDictionary* skpdfimage) {
-    if (skpdfimage == NULL || !skpdfimage->valid()) {
+    if (skpdfimage == NULL) {
         return kIgnoreError_PdfResult;
     }
 
@@ -902,103 +629,12 @@ PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfI
     return kPartial_PdfResult;
 }
 
-bool SkMatrixFromDictionary(const PdfMemDocument* pdfDoc,
-                            const PdfDictionary& dict,
-                            const char* key,
-                            SkMatrix** matrix) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                                    dict.GetKey(PdfName(key)));
-
-    if (value == NULL || !value->IsArray()) {
-        return false;
-    }
-
-    if (value->GetArray().GetSize() != 6) {
-        return false;
-    }
-
-    double array[6];
-    for (int i = 0; i < 6; i++) {
-        const PdfObject* elem = resolveReferenceObject(pdfDoc, &value->GetArray()[i]);
-        if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
-            return false;
-        }
-        array[i] = elem->GetReal();
-    }
-
-    *matrix = new SkMatrix();
-    **matrix = SkMatrixFromPdfMatrix(array);
-    return true;
-}
-
-bool SkMatrixFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkMatrix** data) {
-    if (SkMatrixFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return SkMatrixFromDictionary(pdfDoc, dict, abr, data);
-
-}
-
-bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
-                          const PdfDictionary& dict,
-                          const char* key,
-                          SkRect** rect) {
-    const PdfObject* value = resolveReferenceObject(pdfDoc,
-                                                    dict.GetKey(PdfName(key)));
-
-    if (value == NULL || !value->IsArray()) {
-        return false;
-    }
-
-    if (value->GetArray().GetSize() != 4) {
-        return false;
-    }
-
-    double array[4];
-    for (int i = 0; i < 4; i++) {
-        const PdfObject* elem = resolveReferenceObject(pdfDoc, &value->GetArray()[i]);
-        if (elem == NULL || (!elem->IsReal() && !elem->IsNumber())) {
-            return false;
-        }
-        array[i] = elem->GetReal();
-    }
-
-    *rect = new SkRect();
-    **rect = SkRect::MakeLTRB(SkDoubleToScalar(array[0]),
-                              SkDoubleToScalar(array[1]),
-                              SkDoubleToScalar(array[2]),
-                              SkDoubleToScalar(array[3]));
-    return true;
-}
-
-bool SkRectFromDictionary(const PdfMemDocument* pdfDoc,
-                        const PdfDictionary& dict,
-                        const char* key,
-                        const char* abr,
-                        SkRect** data) {
-    if (SkRectFromDictionary(pdfDoc, dict, key, data)) return true;
-    if (abr == NULL || *abr == '\0') return false;
-    return SkRectFromDictionary(pdfDoc, dict, abr, data);
-
-}
 
 
-SkPdfObject* get(const SkPdfObject* obj, const char* key, const char* abr = "") {
-    SkPdfObject* ret = NULL;
-    if (obj == NULL) return NULL;
-    const SkPdfDictionary* dict = obj->asDictionary();
-    if (dict == NULL) return NULL;
-    if (!dict->podofo()->IsDictionary()) return NULL;
-    ObjectFromDictionary(dict->doc(), dict->podofo()->GetDictionary(), key, abr, &ret);
-    return ret;
-}
 
 PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
-    if (!skobj || !skobj->podofo() || !skobj->podofo()->HasStream() || skobj->podofo()->GetStream() == NULL || skobj->podofo()->GetStream()->GetLength() == 0) {
-        return kOK_PdfResult;
+    if (!skobj) {
+        return kIgnoreError_PdfResult;
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
@@ -1029,16 +665,21 @@ PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1For
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
     // For this PdfContentsTokenizer needs to be extended.
 
-    PdfResult ret = kPartial_PdfResult;
-    SkPdfTokenizer tokenizer(skobj);
-    PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
-    looper.loop();
+    SkPdfStream* stream = NULL;
+    skobj->doc()->mapper()->mapStream(skobj, &stream);
+
+    SkPdfPodofoTokenizer* tokenizer = skobj->doc()->tokenizerOfStream(stream);
+    if (tokenizer != NULL) {
+        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
+        looper.loop();
+        delete tokenizer;
+    }
 
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
     canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
-    return ret;
+    return kPartial_PdfResult;
 }
 
 PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject& obj) {
@@ -1046,8 +687,8 @@ PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const PdfObject
 }
 
 PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, SkPdfObject* skobj, SkRect bBox, SkMatrix matrix, double textSize) {
-    if (!skobj || !skobj->podofo() || !skobj->podofo()->HasStream() || skobj->podofo()->GetStream() == NULL || skobj->podofo()->GetStream()->GetLength() == 0) {
-        return kOK_PdfResult;
+    if (!skobj) {
+        return kIgnoreError_PdfResult;
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
@@ -1073,52 +714,58 @@ PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, SkPdfObject* sko
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
     // For this PdfContentsTokenizer needs to be extended.
 
-    PdfResult ret = kPartial_PdfResult;
-    SkPdfTokenizer tokenizer(skobj);
-    PdfMainLooper looper(NULL, &tokenizer, pdfContext, canvas);
-    looper.loop();
+    SkPdfStream* stream = NULL;
+    skobj->doc()->mapper()->mapStream(skobj, &stream);
+
+    SkPdfPodofoTokenizer* tokenizer = skobj->doc()->tokenizerOfStream(stream);
+    if (tokenizer != NULL) {
+        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
+        looper.loop();
+        delete tokenizer;
+    }
 
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
     canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
-    return ret;
+
+    return kPartial_PdfResult;
 }
 
 
 // TODO(edisonn): faster, have the property on the SkPdfObject itself?
-std::set<const PdfObject*> gInRendering;
+std::set<const void*> gInRendering;
 
 class CheckRecursiveRendering {
-    const PdfObject& fObj;
+    const void* fUniqueData;
 public:
-    CheckRecursiveRendering(const PdfObject& obj) : fObj(obj) {
-        gInRendering.insert(&obj);
+    CheckRecursiveRendering(const SkPdfObject* obj) : fUniqueData(obj->data()) {
+        gInRendering.insert(obj);
     }
 
     ~CheckRecursiveRendering() {
         //SkASSERT(fObj.fInRendering);
-        gInRendering.erase(&fObj);
+        gInRendering.erase(fUniqueData);
     }
 
-    static bool IsInRendering(const PdfObject& obj) {
-        return gInRendering.find(&obj) != gInRendering.end();
+    static bool IsInRendering(const SkPdfObject* obj) {
+        return gInRendering.find(obj->data()) != gInRendering.end();
     }
 };
 
 PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObject& obj) {
-    if (CheckRecursiveRendering::IsInRendering(*obj.podofo())) {
+    if (CheckRecursiveRendering::IsInRendering(&obj)) {
         // Oops, corrupt PDF!
         return kIgnoreError_PdfResult;
     }
 
-    CheckRecursiveRendering checkRecursion(*obj.podofo());
+    CheckRecursiveRendering checkRecursion(&obj);
 
     // TODO(edisonn): check type
     SkPdfXObjectDictionary* skobj = NULL;
-    if (!mapXObjectDictionary(obj, &skobj)) return kIgnoreError_PdfResult;
+    if (!obj.doc()->mapper()->mapXObjectDictionary(&obj, &skobj)) return kIgnoreError_PdfResult;
 
-    if (!skobj || !skobj->valid()) return kIgnoreError_PdfResult;
+    if (!skobj) return kIgnoreError_PdfResult;
 
     PdfResult ret = kIgnoreError_PdfResult;
     switch (skobj->getType())
@@ -1178,7 +825,7 @@ PdfResult PdfOp_cm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
         printf("%f ", array[i]);
     }
     printf("\n");
-    SkTraceMatrix(pdfContext->fGraphicsState.fMatrix);
+    SkTraceMatrix(pdfContext->fGraphicsState.fMatrix, "cm");
 #endif
 
     return kOK_PdfResult;
@@ -1213,18 +860,26 @@ PdfResult PdfOp_TD(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     double tx = pdfContext->fObjectStack.top()->asNumber()->value(); pdfContext->fObjectStack.pop();
 
     // TODO(edisonn): Create factory methods or constructors so podofo is hidden
-    PdfObject _ty(PdfVariant(-ty));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &_ty));
+    SkPdfNumber* _ty = pdfContext->fPdfDoc->createNumber(-ty);
+    pdfContext->fObjectStack.push(_ty);
 
     PdfOp_TL(pdfContext, canvas, looper);
 
-    PdfObject vtx(PdfVariant(-(-tx)));  // TODO(edisonn): Hmm, the compiler thinks I have here a function pointer if we use (tx), but not -(-tx)
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &vtx));
+    SkPdfNumber* vtx = pdfContext->fPdfDoc->createNumber(tx);
+    pdfContext->fObjectStack.push(vtx);
 
-    PdfObject vty(PdfVariant(-(-ty)));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &vty));
+    SkPdfNumber* vty = pdfContext->fPdfDoc->createNumber(ty);
+    pdfContext->fObjectStack.push(vty);
 
-    return PdfOp_Td(pdfContext, canvas, looper);
+    PdfResult ret = PdfOp_Td(pdfContext, canvas, looper);
+
+    // TODO(edisonn): delete all the objects after rendering was complete, in this way pdf is rendered faster
+    // and the cleanup can happen while the user looks at the image
+    delete _ty;
+    delete vtx;
+    delete vty;
+
+    return ret;
 }
 
 PdfResult PdfOp_Tm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
@@ -1257,12 +912,18 @@ PdfResult PdfOp_Tm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 //0 Tl Td
 //where Tl is the current leading parameter in the text state
 PdfResult PdfOp_T_star(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    PdfObject zero(PdfVariant(0.0));
-    PdfObject tl(PdfVariant(-(-pdfContext->fGraphicsState.fTextLeading)));
+    SkPdfNumber* zero = pdfContext->fPdfDoc->createNumber(0.0);
+    SkPdfNumber* tl = pdfContext->fPdfDoc->createNumber(pdfContext->fGraphicsState.fTextLeading);
 
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &zero));
-    pdfContext->fObjectStack.push(new SkPdfNumber(&pdfContext->fPdfDoc->podofo(), &tl));
-    return PdfOp_Td(pdfContext, canvas, looper);
+    pdfContext->fObjectStack.push(zero);
+    pdfContext->fObjectStack.push(tl);
+
+    PdfResult ret = PdfOp_Td(pdfContext, canvas, looper);
+
+    delete zero;  // TODO(edisonn): do not alocate and delete constants!
+    delete tl;
+
+    return ret;
 }
 
 PdfResult PdfOp_m(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
@@ -1525,25 +1186,12 @@ PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
 #ifdef PDF_TRACE
     printf("font name: %s\n", fontName.c_str());
-    std::string str;
-    pdfContext->fGraphicsState.fResources->podofo()->ToString(str);
-    printf("Print Tf Resources: %s\n", str.c_str());
-    pdfContext->fGraphicsState.fResources->Font()->podofo()->ToString(str);
-    printf("Print Tf Resources/Font: %s\n", str.c_str());
 #endif
 
     SkPdfFontDictionary* fd = NULL;
     if (pdfContext->fGraphicsState.fResources->Font()) {
         SkPdfObject* objFont = pdfContext->fGraphicsState.fResources->Font()->get(fontName.c_str());
-        mapFontDictionary(*objFont, &fd);
-
-#ifdef PDF_TRACE
-        objFont->podofo()->ToString(str);
-        printf("Print Font loaded: %s\n", str.c_str());
-        fd->podofo()->ToString(str);
-        printf("Print Font loaded and resolved and upgraded: %s\n", str.c_str());
-#endif
-
+        objFont->doc()->mapper()->mapFontDictionary(objFont, &fd);
     }
 
     SkPdfFont* skfont = SkPdfFont::fontFromPdfDictionary(fd);
@@ -1638,7 +1286,7 @@ PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     return kPartial_PdfResult;  // TODO(edisonn): Implement fully DrawText before returing OK.
 }
 
-PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     colorOperator->fColorSpace = pdfContext->fObjectStack.top()->asName()->value();    pdfContext->fObjectStack.pop();
     return kOK_PdfResult;
 }
@@ -1651,7 +1299,7 @@ PdfResult PdfOp_cs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     return PdfOp_CS_cs(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     double c[4];
     pdf_int64 v[4];
 
@@ -1668,9 +1316,9 @@ PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator
 
     for (int i = n - 1; i >= 0 ; i--) {
         if (doubles) {
-            c[i] = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
+            c[i] = pdfContext->fObjectStack.top()->asNumber()->value();         pdfContext->fObjectStack.pop();
         } else {
-            v[i] = pdfContext->fObjectStack.top()->asInteger()->value();   pdfContext->fObjectStack.pop();
+            v[i] = pdfContext->fObjectStack.top()->asInteger()->value();        pdfContext->fObjectStack.pop();
         }
     }
 
@@ -1689,7 +1337,7 @@ PdfResult PdfOp_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     return PdfOp_SC_sc(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-PdfResult PdfOp_SCN_scn(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_SCN_scn(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     PdfString name;
 
     if (pdfContext->fObjectStack.top()->asName()) {
@@ -1710,7 +1358,7 @@ PdfResult PdfOp_scn(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** l
     return PdfOp_SCN_scn(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-PdfResult PdfOp_G_g(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_G_g(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     double gray = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     return kNYI_PdfResult;
 }
@@ -1723,7 +1371,7 @@ PdfResult PdfOp_g(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** loo
     return PdfOp_G_g(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-PdfResult PdfOp_RG_rg(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_RG_rg(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     double b = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     double g = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     double r = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
@@ -1741,7 +1389,7 @@ PdfResult PdfOp_rg(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
     return PdfOp_RG_rg(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-PdfResult PdfOp_K_k(PdfContext* pdfContext, SkCanvas* canvas, PdfColorOperator* colorOperator) {
+PdfResult PdfOp_K_k(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     // TODO(edisonn): spec has some rules about overprint, implement them.
     double k = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
     double y = pdfContext->fObjectStack.top()->asNumber()->value();     pdfContext->fObjectStack.pop();
@@ -1896,13 +1544,8 @@ PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** lo
 
     SkPdfObject* value = extGStateDictionary->get(name.c_str());
 
-#ifdef PDF_TRACE
-//    value->ToString(str);
-//    printf("gs object value: %s\n", str.c_str());
-#endif
-
     SkPdfGraphicsStateDictionary* gs = NULL;
-    mapGraphicsStateDictionary(*value, &gs);
+    value->doc()->mapper()->mapGraphicsStateDictionary(value, &gs);
 
     // TODO(edisonn): now load all those properties in graphic state.
     if (gs == NULL) {
@@ -2300,60 +1943,52 @@ void PdfCompatibilitySectionLooper::loop() {
 // references automatically.
 
 bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
-    try
+    std::cout << "Init: " << inputFileName.c_str() << std::endl;
+
+    SkPodofoParsedPDF* doc = new SkPodofoParsedPDF(inputFileName.c_str());
+    if (!doc->pages())
     {
-        std::cout << "Init: " << inputFileName.c_str() << std::endl;
-
-        SkPdfDoc doc(inputFileName.c_str());
-        if (!doc.pages())
-        {
-            std::cout << "ERROR: Empty Document" << inputFileName.c_str() << std::endl;
-            return false;
-        } else {
-
-            for (int pn = 0; pn < doc.pages(); ++pn) {
-                // TODO(edisonn): implement inheritance properties as per PDF spec
-                //SkRect rect = page->MediaBox();
-                SkRect rect = doc.MediaBox(pn);
-
-    #ifdef PDF_TRACE
-                printf("Page Width: %f, Page Height: %f\n", SkScalarToDouble(rect.width()), SkScalarToDouble(rect.height()));
-    #endif
-
-                // TODO(edisonn): page->GetCropBox(), page->GetTrimBox() ... how to use?
-
-                SkBitmap bitmap;
-    #ifdef PDF_DEBUG_3X
-                setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
-    #else
-                setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
-    #endif
-                SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
-                SkCanvas canvas(device);
-
-                gDumpBitmap = &bitmap;
-
-                doc.drawPage(pn, &canvas);
-
-                SkString out;
-                if (doc.pages() > 1) {
-                    out.appendf("%s-%i.png", inputFileName.c_str(), pn);
-                } else {
-                    out = inputFileName;
-                    // .pdf -> .png
-                    out[out.size() - 2] = 'n';
-                    out[out.size() - 1] = 'g';
-                }
-                SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-            }
-            return true;
-        }
-    }
-    catch( PdfError & e )
-    {
-        e.PrintErrorMsg();
-        std::cout << "ERROR: PDF can't be parsed!" << inputFileName.c_str() << std::endl;
+        std::cout << "ERROR: Empty Document" << inputFileName.c_str() << std::endl;
         return false;
+    } else {
+
+        for (int pn = 0; pn < doc->pages(); ++pn) {
+            // TODO(edisonn): implement inheritance properties as per PDF spec
+            //SkRect rect = page->MediaBox();
+            SkRect rect = doc->MediaBox(pn);
+
+#ifdef PDF_TRACE
+            printf("Page Width: %f, Page Height: %f\n", SkScalarToDouble(rect.width()), SkScalarToDouble(rect.height()));
+#endif
+
+            // TODO(edisonn): page->GetCropBox(), page->GetTrimBox() ... how to use?
+
+            SkBitmap bitmap;
+#ifdef PDF_DEBUG_3X
+            setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
+#else
+            setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
+#endif
+            SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+            SkCanvas canvas(device);
+
+            gDumpBitmap = &bitmap;
+
+            gDumpCanvas = &canvas;
+            doc->drawPage(pn, &canvas);
+
+            SkString out;
+            if (doc->pages() > 1) {
+                out.appendf("%s-%i.png", inputFileName.c_str(), pn);
+            } else {
+                out = inputFileName;
+                // .pdf -> .png
+                out[out.size() - 2] = 'n';
+                out[out.size() - 1] = 'g';
+            }
+            SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
+        }
+        return true;
     }
 
     return true;
