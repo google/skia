@@ -172,6 +172,24 @@ SkStream* SkTypeface::openStream(int* ttcIndex) const {
     return this->onOpenStream(ttcIndex);
 }
 
+int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
+                              uint16_t glyphs[], int glyphCount) const {
+    if (glyphCount <= 0) {
+        return 0;
+    }
+    if (NULL == chars || (unsigned)encoding > kUTF32_Encoding) {
+        if (glyphs) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
+    }
+    return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+}
+
+int SkTypeface::countGlyphs() const {
+    return this->onCountGlyphs();
+}
+
 int SkTypeface::getUnitsPerEm() const {
     // should we try to cache this in the base-class?
     return this->onGetUPEM();
@@ -186,6 +204,20 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                uint16_t glyphs[], int glyphCount) const {
+    SkDebugf("onCharsToGlyphs unimplemented\n");
+    if (glyphs && glyphCount > 0) {
+        sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+    }
+    return 0;
+}
+
+int SkTypeface::onCountGlyphs() const {
+    SkDebugf("onCountGlyphs unimplemented\n");
+    return 0;
+}
 
 int SkTypeface::onGetUPEM() const {
     int upem = 0;

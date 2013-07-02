@@ -42,6 +42,7 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 #include "SkFontMgr.h"
+#include "SkUtils.h"
 
 //#define HACK_COLORGLYPHS
 
@@ -461,6 +462,9 @@ protected:
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
+    virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
+                                int glyphCount) const SK_OVERRIDE;
+    virtual int onCountGlyphs() const SK_OVERRIDE;
 
 private:
 
@@ -1898,6 +1902,61 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef), &tmpStr));
     // TODO: need to add support for local-streams (here and openStream)
     *isLocalStream = false;
+}
+
+int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                    uint16_t glyphs[], int glyphCount) const {
+    // UniChar is utf16
+    SkAutoSTMalloc<1024, UniChar> charStorage;
+    const UniChar* src;
+    switch (encoding) {
+        case kUTF8_Encoding: {
+            const char* u8 = (const char*)chars;
+            const UniChar* u16 = src = charStorage.reset(2 * glyphCount);
+            for (int i = 0; i < glyphCount; ++i) {
+                SkUnichar uni = SkUTF8_NextUnichar(&u8);
+                int n = SkUTF16_FromUnichar(uni, (uint16_t*)u16);
+                u16 += n;
+            }
+            break;
+        }
+        case kUTF16_Encoding:
+            src = (const UniChar*)chars;
+            break;
+        case kUTF32_Encoding: {
+            const SkUnichar* u32 = (const SkUnichar*)chars;
+            const UniChar* u16 = src = charStorage.reset(2 * glyphCount);
+            for (int i = 0; i < glyphCount; ++i) {
+                int n = SkUTF16_FromUnichar(u32[i], (uint16_t*)u16);
+                u16 += n;
+            }
+            break;
+        }
+    }
+
+    // Our caller may not want glyphs for output, but we need to give that
+    // storage to CT, so we can walk it looking for the first non-zero.
+    SkAutoSTMalloc<1024, uint16_t> glyphStorage;
+    uint16_t* macGlyphs = glyphs;
+    if (NULL == macGlyphs) {
+        macGlyphs = glyphStorage.reset(glyphCount);
+    }
+
+    if (CTFontGetGlyphsForCharacters(fFontRef, src, macGlyphs, glyphCount)) {
+        return glyphCount;
+    }
+    // If we got false, then we need to manually look for first failure
+    for (int i = 0; i < glyphCount; ++i) {
+        if (0 == macGlyphs[i]) {
+            return i;
+        }
+    }
+    // odd to get here, as we expected CT to have returned true up front.
+    return glyphCount;
+}
+
+int SkTypeface_Mac::onCountGlyphs() const {
+    return CTFontGetGlyphCount(fFontRef);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
