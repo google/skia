@@ -27,7 +27,7 @@ static void FillRandomBits( int chars, char* bits ){
         bits[i] = rand.nextU();
     }
 }OA
-*/    
+*/
 
 static int GetBit( const char* buffer, int x ) {
     int byte = x >> 3;
@@ -117,11 +117,11 @@ void SkPathUtils::BitsToPath_Region(SkPath* path,
         bool inRun = 0;
         int start = 1;
         const char* line = &bitmap[y * stride];
-        
-        // loop for each pixel 
+
+        // loop for each pixel
         for (int i = 0; i < w; ++i) {
             int curPixel = GetBit(line,i);
-            
+
             if ( (curPixel!=0) != inRun ) { // if transition
                 if (curPixel) { // if transition on
                     inRun = 1;
@@ -140,7 +140,7 @@ void SkPathUtils::BitsToPath_Region(SkPath* path,
             // add the thing here
             region.op(SkIRect::MakeXYWH(start, y, w-1-start+end, 1),
                       SkRegion::kUnion_Op );
-            
+
         } else if ( GetBit(line,w-1) ) { // if last pixel on add rect
             // add the thing here
             region.op(SkIRect::MakeXYWH(w-1, y, 1, 1),

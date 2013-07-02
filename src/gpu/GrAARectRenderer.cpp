@@ -473,10 +473,10 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         innerColor = GrColorPackRGBA(scale, scale, scale, scale);
     } else {
         if (0xff == scale) {
-            innerColor = target->getDrawState().getColor();	
-        } else {	
-            innerColor = SkAlphaMulQ(target->getDrawState().getColor(), scale);	
-        }	
+            innerColor = target->getDrawState().getColor();
+        } else {
+            innerColor = SkAlphaMulQ(target->getDrawState().getColor(), scale);
+        }
     }
 
     verts += 4 * vsize;
@@ -768,8 +768,8 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
         innerColor = GrColorPackRGBA(scale, scale, scale, scale);
     } else {
         if (0xff == scale) {
-            innerColor = target->getDrawState().getColor();	
-        } else {	
+            innerColor = target->getDrawState().getColor();
+        } else {
             innerColor = SkAlphaMulQ(target->getDrawState().getColor(), scale);
         }
     }

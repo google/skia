@@ -16,12 +16,12 @@
 
 #define NUM_IT 1000
 #define ON  0xFF000000 // black pixel
-#define OFF 0x00000000 // transparent pixel    
+#define OFF 0x00000000 // transparent pixel
 
 class SkBitmap;
 
 //this function is redefined for sample, test, and bench. is there anywhere
-// I can put it to avoid code duplcation?           
+// I can put it to avoid code duplcation?
 static void fillRandomBits( int chars, char* bits ){
     SkMWCRandom rand(SkTime::GetMSecs());
 
@@ -77,7 +77,7 @@ static void test_path_eq(skiatest::Reporter* reporter, const SkPath* path,
     bmpPaint.setAntiAlias(true);  // Black paint for bitmap
     bmpPaint.setStyle(SkPaint::kFill_Style);
     bmpPaint.setColor(SK_ColorBLACK);
-    
+
     // make bmp
     SkBitmap bmp;
     bmp.setConfig(SkBitmap::kARGB_8888_Config, w, h);
@@ -93,7 +93,7 @@ static void test_path(skiatest::Reporter* reporter, const SkBitmap* truth,
     // make path
     SkPath path;
     SkPathUtils::BitsToPath_Path(&path, bin_bmp, h, w, stride);
-    
+
     //test for correctness
     test_path_eq(reporter, &path, truth, h, w);
 }
@@ -103,7 +103,7 @@ static void test_region(skiatest::Reporter* reporter, const SkBitmap* truth,
     //generate bitmap
     SkPath path;
     SkPathUtils::BitsToPath_Region(&path, bin_bmp, h, w, stride);
-    
+
     //test for correctness
     test_path_eq(reporter, &path, truth, h, w);
 }
@@ -121,8 +121,8 @@ static void TestPathUtils(skiatest::Reporter* reporter) {
     for (int it = 0; it < NUM_IT; ++it)
     {
         // generate a random binary bitmap
-        fillRandomBits( h * stride, bin_bmp); // generate random bitmap    
-    
+        fillRandomBits( h * stride, bin_bmp); // generate random bitmap
+
         // for each bitmap width, use subset of binary bitmap
         for (int i = 0; i < W_tests; ++i) {
             // generate truth bitmap
