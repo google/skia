@@ -69,6 +69,8 @@ SUBDIR_MAPPING = {
     'Test-Android-Xoom-Tegra2-Arm7-Release',
    'base-android-nexus-10':
     'Test-Android-Nexus10-MaliT604-Arm7-Release',
+   'base-android-nexus-4':
+    'Test-Android-Nexus4-Adreno320-Arm7-Release',
 }
 
 
