@@ -48,7 +48,9 @@ private:
 class SkTypeface_FreeType : public SkTypeface {
 protected:
     SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedPitch)
-        : INHERITED(style, uniqueID, isFixedPitch) {}
+        : INHERITED(style, uniqueID, isFixedPitch)
+        , fGlyphCount(-1)
+    {}
 
     virtual SkScalerContext* onCreateScalerContext(
                                         const SkDescriptor*) const SK_OVERRIDE;
@@ -58,7 +60,13 @@ protected:
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
 
+    virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
+                                int glyphCount) const SK_OVERRIDE;
+    virtual int onCountGlyphs() const SK_OVERRIDE;
+
 private:
+    mutable int fGlyphCount;
+
     typedef SkTypeface INHERITED;
 };
 

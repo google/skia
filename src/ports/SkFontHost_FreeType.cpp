@@ -338,6 +338,39 @@ static void unref_ft_face(FT_Face face) {
     SkDEBUGFAIL("shouldn't get here, face not in list");
 }
 
+class AutoFTAccess {
+public:
+    AutoFTAccess(const SkTypeface* tf) : fRec(NULL), fFace(NULL) {
+        gFTMutex.acquire();
+        if (1 == ++gFTCount) {
+            if (!InitFreetype()) {
+                sk_throw();
+            }
+        }
+        fRec = ref_ft_face(tf);
+        if (fRec) {
+            fFace = fRec->fFace;
+        }
+    }
+
+    ~AutoFTAccess() {
+        if (fFace) {
+            unref_ft_face(fFace);
+        }
+        if (0 == --gFTCount) {
+            FT_Done_FreeType(gFTLibrary);
+        }
+        gFTMutex.release();
+    }
+
+    SkFaceRec* rec() { return fRec; }
+    FT_Face face() { return fFace; }
+
+private:
+    SkFaceRec*  fRec;
+    FT_Face     fFace;
+};
+
 ///////////////////////////////////////////////////////////////////////////
 
 // Work around for old versions of freetype.
@@ -455,18 +488,11 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
 #if defined(SK_BUILD_FOR_MAC)
     return NULL;
 #else
-    SkAutoMutexAcquire ac(gFTMutex);
-    FT_Library libInit = NULL;
-    if (gFTCount == 0) {
-        if (!InitFreetype())
-            sk_throw();
-        libInit = gFTLibrary;
-    }
-    SkAutoTCallIProc<struct FT_LibraryRec_, FT_Done_FreeType> ftLib(libInit);
-    SkFaceRec* rec = ref_ft_face(this);
-    if (NULL == rec)
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
         return NULL;
-    FT_Face face = rec->fFace;
+    }
 
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(FT_Get_Postscript_Name(face));
@@ -628,7 +654,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
     if (!canEmbed(face))
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
 
-    unref_ft_face(face);
     return info;
 #endif
 }
@@ -700,23 +725,9 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
 }
 
 int SkTypeface_FreeType::onGetUPEM() const {
-    SkAutoMutexAcquire ac(gFTMutex);
-    FT_Library libInit = NULL;
-    if (gFTCount == 0) {
-        if (!InitFreetype())
-            sk_throw();
-        libInit = gFTLibrary;
-    }
-    SkAutoTCallIProc<struct FT_LibraryRec_, FT_Done_FreeType> ftLib(libInit);
-    SkFaceRec *rec = ref_ft_face(this);
-    int unitsPerEm = 0;
-
-    if (rec != NULL && rec->fFace != NULL) {
-        unitsPerEm = rec->fFace->units_per_EM;
-        unref_ft_face(rec->fFace);
-    }
-
-    return unitsPerEm;
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    return face ? face->units_per_EM : 0;
 }
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
@@ -1320,8 +1331,81 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
 }
 
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkUtils.h"
+
+static SkUnichar next_utf8(const void** chars) {
+    return SkUTF8_NextUnichar((const char**)chars);
+}
+
+static SkUnichar next_utf16(const void** chars) {
+    return SkUTF16_NextUnichar((const uint16_t**)chars);
+}
+
+static SkUnichar next_utf32(const void** chars) {
+    const SkUnichar** uniChars = (const SkUnichar**)chars;
+    SkUnichar uni = **uniChars;
+    *uniChars += 1;
+    return uni;
+}
+
+typedef SkUnichar (*EncodingProc)(const void**);
+
+static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
+    static const EncodingProc gProcs[] = {
+        next_utf8, next_utf16, next_utf32
+    };
+    SkASSERT((size_t)enc < SK_ARRAY_COUNT(gProcs));
+    return gProcs[enc];
+}
+
+int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                      uint16_t glyphs[], int glyphCount) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        if (glyphs) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
+    }
+
+    EncodingProc next_uni_proc = find_encoding_proc(encoding);
+
+    if (NULL == glyphs) {
+        for (int i = 0; i < glyphCount; ++i) {
+            if (0 == FT_Get_Char_Index(face, next_uni_proc(&chars))) {
+                return i;
+            }
+        }
+        return glyphCount;
+    } else {
+        int first = glyphCount;
+        for (int i = 0; i < glyphCount; ++i) {
+            unsigned id = FT_Get_Char_Index(face, next_uni_proc(&chars));
+            glyphs[i] = SkToU16(id);
+            if (0 == id && i < first) {
+                first = i;
+            }
+        }
+        return first;
+    }
+}
+
+int SkTypeface_FreeType::onCountGlyphs() const {
+    // we cache this value, using -1 as a sentinel for "not computed"
+    if (fGlyphCount < 0) {
+        AutoFTAccess fta(this);
+        FT_Face face = fta.face();
+        // if the face failed, we still assign a non-negative value
+        fGlyphCount = face ? face->num_glyphs : 0;
+    }
+    return fGlyphCount;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /*  Export this so that other parts of our FonttHost port can make use of our
     ability to extract the name+style from a stream, using FreeType's api.
