@@ -23,6 +23,12 @@ JSONKEY_ACTUALRESULTS_FAILUREIGNORED = 'failure-ignored'
 JSONKEY_ACTUALRESULTS_NOCOMPARISON = 'no-comparison'
 JSONKEY_ACTUALRESULTS_SUCCEEDED = 'succeeded'
 
+JSONKEY_EXPECTEDRESULTS = 'expected-results'
+JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS = 'allowed-digests'
+JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE = 'ignore-failure'
+
+JSONKEY_HASHTYPE_BITMAP_64BITMD5 = 'bitmap-64bitMD5'
+
 def LoadFromString(file_contents):
   """Loads the JSON summary written out by the GM tool.
      Returns a dictionary keyed by the values listed as JSONKEY_ constants

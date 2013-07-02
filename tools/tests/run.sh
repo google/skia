@@ -150,6 +150,27 @@ function rebaseline_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
+# Run jsondiff.py with arguments in $1, recording its output.
+# Then compare that output to the content of $2/output-expected.
+function jsondiff_test {
+  if [ $# != 2 ]; then
+    echo "jsondiff_test requires exactly 2 parameters, got $#"
+    exit 1
+  fi
+  ARGS="$1"
+  ACTUAL_OUTPUT_DIR="$2/output-actual"
+  EXPECTED_OUTPUT_DIR="$2/output-expected"
+
+  rm -rf $ACTUAL_OUTPUT_DIR
+  mkdir -p $ACTUAL_OUTPUT_DIR
+  COMMAND="python tools/jsondiff.py $ARGS"
+  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
+  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  echo $? >$ACTUAL_OUTPUT_DIR/return_value
+
+  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+}
+
 
 
 #
@@ -214,5 +235,14 @@ rebaseline_test "--json-base-url file:nonexistent-path --tests test1 test2" "$RE
 rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
 rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
 rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --expectations-root $REBASELINE_INPUT/json1" "$REBASELINE_OUTPUT/using-json1-expectations"
+
+#
+# Test jsondiff.py ...
+#
+
+JSONDIFF_INPUT=tools/tests/jsondiff/input
+JSONDIFF_OUTPUT=tools/tests/jsondiff/output
+jsondiff_test "$JSONDIFF_INPUT/old.json $JSONDIFF_INPUT/new.json" "$JSONDIFF_OUTPUT/old-vs-new"
+
 
 echo "All tests passed."
