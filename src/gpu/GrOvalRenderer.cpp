@@ -221,7 +221,12 @@ public:
             builder->fsCodeAppendf("\tvec2 scaledOffset = %s*%s.xy;\n", fsOffsetName, fsRadiiName);
             builder->fsCodeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
             builder->fsCodeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
-            builder->fsCodeAppend("\tfloat invlen = inversesqrt(dot(grad, grad));\n");
+            builder->fsCodeAppend("\tfloat grad_dot = dot(grad, grad);\n");
+            // we need to clamp the length^2 of the gradiant vector to a non-zero value, because
+            // on the Nexus 4 the undefined result of inversesqrt(0) drops out an entire tile
+            // TODO: restrict this to Adreno-only
+            builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+            builder->fsCodeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
             builder->fsCodeAppend("\tfloat edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);\n");
 
             // for inner curve
@@ -808,7 +813,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.fBottom
         };
         SkScalar yOuterOffsets[4] = {
-            -yOuterRadius,
+            yOuterRadius,
             SK_ScalarNearlyZero, // we're using inversesqrt() in the shader, so can't be exactly 0
             SK_ScalarNearlyZero,
             yOuterRadius
@@ -816,7 +821,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 
         for (int i = 0; i < 4; ++i) {
             verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
-            verts->fOffset = SkPoint::Make(-xOuterRadius, yOuterOffsets[i]);
+            verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
             verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
             verts++;
