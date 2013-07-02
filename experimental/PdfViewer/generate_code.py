@@ -639,8 +639,8 @@ def generateCode():
   manager.addClass('Reference').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Reference')
   
   manager.addClass('Array').check('podofoObj->GetDataType() == PoDoFo::ePdfDataType_Array')\
-                             .carbonCopyPublicPodofo('const int size() const;')\
-                             .carbonCopyPublicPodofoCpp('const int SkPdfArray::size() const {return podofo()->GetArray().GetSize();}')\
+                             .carbonCopyPublicPodofo('int size() const;')\
+                             .carbonCopyPublicPodofoCpp('int SkPdfArray::size() const {return podofo()->GetArray().GetSize();}')\
                              .carbonCopyPublicPodofo('SkPdfObject* operator[](int i) const;')\
                              .carbonCopyPublicPodofoCpp('SkPdfObject* SkPdfArray::operator[](int i) const { SkPdfObject* ret = NULL;  fParsedDoc->mapper()->mapObject(&podofo()->GetArray()[i], &ret);  return ret; }')
   
