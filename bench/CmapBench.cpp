@@ -53,6 +53,16 @@ static void charsToGlyphs_proc(const SkPaint& paint, const void* text,
     }
 }
 
+static void charsToGlyphsNull_proc(const SkPaint& paint, const void* text,
+                                   size_t len, int glyphCount) {
+    SkTypeface::Encoding encoding = paint2Encoding(paint);
+    
+    SkTypeface* face = paint.getTypeface();
+    for (int i = 0; i < LOOP; ++i) {
+        face->charsToGlyphs(text, encoding, NULL, glyphCount);
+    }
+}
+
 class CMAPBench : public SkBenchmark {
     TypefaceProc fProc;
     SkString     fName;
@@ -66,7 +76,7 @@ public:
         
         for (int i = 0; i < NGLYPHS; ++i) {
             // we're just jamming values into utf8, so we must keep it legal
-            fText[i] = i;
+            fText[i] = 'A' + i;
         }
         fPaint.setTypeface(SkTypeface::RefDefault())->unref();
     }
@@ -90,4 +100,5 @@ private:
 DEF_BENCH( return new CMAPBench(p, containsText_proc, "paint_containsText"); )
 DEF_BENCH( return new CMAPBench(p, textToGlyphs_proc, "paint_textToGlyphs"); )
 DEF_BENCH( return new CMAPBench(p, charsToGlyphs_proc, "face_charsToGlyphs"); )
+DEF_BENCH( return new CMAPBench(p, charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )
 
