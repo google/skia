@@ -80,7 +80,7 @@ cd $(dirname $0)
 
 ./run.sh
 SELFTEST_RESULT=$?
-SUBDIRS="skdiff benchgraphs rebaseline/output"
+SUBDIRS="skdiff benchgraphs rebaseline/output jsondiff/output"
 echo
 if [ "$SELFTEST_RESULT" != "0" ]; then
   for SUBDIR in $SUBDIRS; do
