@@ -20,3 +20,77 @@
     obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
     fun:_mesa_readpixels
 }
+{
+    FcConfig
+    Memcheck:Addr4
+    fun:FcConfigFileExists
+}
+{
+    Mesa_add_symbol_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:strdup
+    fun:_mesa_symbol_table_add_symbol
+}
+{
+    Mesa_add_global_symbol_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:strdup
+    fun:_mesa_symbol_table_add_global_symbol
+}
+{
+    Mesa_symbol_table_push_scope_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:_mesa_symbol_table_push_scope
+}
+{
+    Mesa_bindAttribLocation_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:strdup
+    fun:_mesa_BindAttribLocationARB
+}
+{
+    Mesa_init_shader_program_leak
+    Memcheck:Leak
+    fun:_Znwm
+    fun:string_to_uint_map_ctor
+    fun:_mesa_init_shader_program
+}
+{
+    Mesa_fix_func_fragment_program_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:_mesa_get_fixed_func_fragment_program
+}
+{
+    Mesa_link_shader_leak
+    Memcheck:Leak
+    fun:_Znwm
+    fun:_Z29link_assign_uniform_locationsP17gl_shader_program
+    fun:_Z12link_shadersP10gl_contextP17gl_shader_program
+    fun:_mesa_glsl_link_shader
+}
+{
+    Mesa_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:_mesa_realloc
+    obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
+}
+{
+    lib_png_inflate
+    Memcheck:Cond
+    fun:inflateReset2
+    fun:inflateInit2_
+    fun:png_create_read_struct_2
+    fun:png_create_read_struct
+}
+{
+    Mesa_ReadPixels
+    Memcheck:Value8
+    obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
+    fun:_mesa_readpixels
+}
