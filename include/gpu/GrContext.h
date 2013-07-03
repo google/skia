@@ -477,14 +477,6 @@ public:
      */
     enum FlushBits {
         /**
-         * A client may want Gr to bind a GrRenderTarget in the 3D API so that
-         * it can be rendered to directly. However, Gr lazily sets state. Simply
-         * calling setRenderTarget() followed by flush() without flags may not
-         * bind the render target. This flag forces the context to bind the last
-         * set render target in the 3D API.
-         */
-        kForceCurrentRenderTarget_FlushBit   = 0x1,
-        /**
          * A client may reach a point where it has partially rendered a frame
          * through a GrContext that it knows the user will never see. This flag
          * causes the flush to skip submission of deferred content to the 3D API
@@ -902,8 +894,6 @@ private:
     bool init(GrBackend, GrBackendContext);
 
     void setupDrawBuffer();
-
-    void flushDrawBuffer();
 
     class AutoRestoreEffects;
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the

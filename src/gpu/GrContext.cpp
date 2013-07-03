@@ -1134,17 +1134,6 @@ void GrContext::flush(int flagsBitfield) {
     if (kDiscard_FlushBit & flagsBitfield) {
         fDrawBuffer->reset();
     } else {
-        this->flushDrawBuffer();
-    }
-    // TODO: Remove this flag
-    if (kForceCurrentRenderTarget_FlushBit & flagsBitfield) {
-        fGpu->drawState()->setRenderTarget(this->getRenderTarget());
-        fGpu->forceRenderTargetFlush();
-    }
-}
-
-void GrContext::flushDrawBuffer() {
-    if (NULL != fDrawBuffer && !fDrawBuffer->isFlushing()) {
         fDrawBuffer->flush();
     }
 }
@@ -1560,7 +1549,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
     GrAssert(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
 
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
-        this->flushDrawBuffer();
+        fDrawBuffer->flush();
         fLastDrawWasBuffered = kNo_BufferedDraw;
     }
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
