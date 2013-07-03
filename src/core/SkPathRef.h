@@ -411,17 +411,22 @@ private:
             case SkPath::kLine_Verb:
                 pCnt = 1;
                 break;
-            case SkPath::kConic_Verb:
             case SkPath::kQuad_Verb:
+                // fall through
+            case SkPath::kConic_Verb:
                 pCnt = 2;
                 break;
             case SkPath::kCubic_Verb:
                 pCnt = 3;
                 break;
+            case SkPath::kClose_Verb:
+                pCnt = 0;
+                break;
             case SkPath::kDone_Verb:
                 SkASSERT(!"growForVerb called for kDone");
                 // fall through
-            case SkPath::kClose_Verb:
+            default:
+                SkASSERT(!"default is not reached");
                 pCnt = 0;
         }
         size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
