@@ -191,4 +191,3 @@ void SkTraceRect(const SkRect& rect, const char* sz) {
     printf("\n");
 }
 #endif
-

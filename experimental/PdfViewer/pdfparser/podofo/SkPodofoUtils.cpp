@@ -412,5 +412,3 @@ bool StreamFromDictionary(const SkPodofoParsedPDF* pdfDoc,
     if (abr == NULL || *abr == '\0') return false;
     return StreamFromDictionary(pdfDoc, dict, abr, data);
 }
-
-
