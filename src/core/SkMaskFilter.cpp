@@ -11,7 +11,11 @@
 #include "SkBlitter.h"
 #include "SkBounder.h"
 #include "SkDraw.h"
+#include "SkGr.h"
+#include "SkGrPixelRef.h"
 #include "SkRasterClip.h"
+#include "SkTypes.h"
+#include "GrTexture.h"
 
 
 SK_DEFINE_INST_COUNT(SkMaskFilter)
@@ -266,8 +270,69 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
     return kUnimplemented_FilterReturn;
 }
 
-SkMaskFilter::BlurType SkMaskFilter::asABlur(BlurInfo*) const {
-    return kNone_BlurType;
+bool SkMaskFilter::asNewEffect(GrEffectRef** effect, GrTexture*) const {
+    return false;
+}
+
+bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds, 
+                                    const SkIRect& clipBounds,
+                                    const SkMatrix& ctm,
+                                    SkRect* maskRect) const {
+    return false;
+}
+
+bool SkMaskFilter::filterMaskGPU(GrContext* context,
+                                 const SkBitmap& srcBM, 
+                                 const SkRect& maskRect, 
+                                 SkBitmap* resultBM) const {
+    SkAutoTUnref<GrTexture> src;
+    bool canOverwriteSrc = false;
+    if (NULL == srcBM.getTexture()) {
+        GrTextureDesc desc;
+        // Needs to be a render target to be overwritten in filterMaskGPU
+        desc.fFlags     = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+        desc.fConfig    = SkBitmapConfig2GrPixelConfig(srcBM.config());
+        desc.fWidth     = srcBM.width();
+        desc.fHeight    = srcBM.height();
+
+        // TODO: right now this is exact to guard against out of bounds reads
+        // by the filter code. More thought needs to be devoted to the 
+        // "filterMaskGPU" contract and then enforced (i.e., clamp the code
+        // in "filterMaskGPU" so it never samples beyond maskRect)
+        GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);
+        if (NULL == ast.texture()) {
+            return false;
+        }
+
+        SkAutoLockPixels alp(srcBM);
+        ast.texture()->writePixels(0, 0, srcBM.width(), srcBM.height(),
+                                   desc.fConfig,
+                                   srcBM.getPixels(), srcBM.rowBytes());
+
+        src.reset(ast.detach());
+        canOverwriteSrc = true;
+    } else {
+        src.reset((GrTexture*) srcBM.getTexture());
+        src.get()->ref();
+    }
+    GrTexture* dst;
+
+    bool result = this->filterMaskGPU(src, maskRect, &dst, canOverwriteSrc);
+    if (!result) {
+        return false;
+    }
+
+    resultBM->setConfig(srcBM.config(), dst->width(), dst->height());
+    resultBM->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (dst)))->unref();
+    dst->unref();
+    return true;
+}
+
+bool SkMaskFilter::filterMaskGPU(GrTexture* src, 
+                                 const SkRect& maskRect, 
+                                 GrTexture** result,
+                                 bool canOverwriteSrc) const {
+    return false;
 }
 
 void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {

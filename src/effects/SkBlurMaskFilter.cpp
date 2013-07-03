@@ -10,10 +10,16 @@
 #include "SkBlurMask.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMaskFilter.h"
-#include "SkBounder.h"
-#include "SkRasterClip.h"
 #include "SkRTConf.h"
 #include "SkStringUtils.h"
+#include "SkStrokeRec.h"
+
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrTexture.h"
+#include "effects/GrSimpleTextureEffect.h"
+#include "SkGrPixelRef.h"
+#endif
 
 class SkBlurMaskFilterImpl : public SkMaskFilter {
 public:
@@ -25,7 +31,17 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const SK_OVERRIDE;
 
-    virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
+#if SK_SUPPORT_GPU
+    virtual bool canFilterMaskGPU(const SkRect& devBounds, 
+                                  const SkIRect& clipBounds,
+                                  const SkMatrix& ctm,
+                                  SkRect* maskRect) const SK_OVERRIDE;
+    virtual bool filterMaskGPU(GrTexture* src, 
+                               const SkRect& maskRect, 
+                               GrTexture** result,
+                               bool canOverwriteSrc) const;
+#endif
+
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
     SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
@@ -40,15 +56,40 @@ protected:
                         SkIPoint* margin, SkMask::CreateMode createMode) const;
 
 private:
+    // To avoid unseemly allocation requests (esp. for finite platforms like
+    // handset) we limit the radius so something manageable. (as opposed to
+    // a request like 10,000)
+    static const SkScalar kMAX_RADIUS;
+    // This constant approximates the scaling done in the software path's
+    // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
+    // IMHO, it actually should be 1:  we blur "less" than we should do
+    // according to the CSS and canvas specs, simply because Safari does the same.
+    // Firefox used to do the same too, until 4.0 where they fixed it.  So at some
+    // point we should probably get rid of these scaling constants and rebaseline
+    // all the blur tests.
+    static const SkScalar kBLUR_SIGMA_SCALE;
+
     SkScalar                    fRadius;
     SkBlurMaskFilter::BlurStyle fBlurStyle;
     uint32_t                    fBlurFlags;
 
     SkBlurMaskFilterImpl(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+#if SK_SUPPORT_GPU
+    SkScalar computeXformedRadius(const SkMatrix& ctm) const {
+        bool ignoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
+
+        SkScalar xformedRadius = ignoreTransform ? fRadius
+                                                 : ctm.mapRadius(fRadius);
+        return SkMinScalar(xformedRadius, kMAX_RADIUS);
+    }
+#endif
 
     typedef SkMaskFilter INHERITED;
 };
+
+const SkScalar SkBlurMaskFilterImpl::kMAX_RADIUS = SkIntToScalar(128);
+const SkScalar SkBlurMaskFilterImpl::kBLUR_SIGMA_SCALE = 0.6f;
 
 SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
                                        SkBlurMaskFilter::BlurStyle style,
@@ -97,11 +138,7 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
         radius = matrix.mapRadius(fRadius);
     }
 
-    // To avoid unseemly allocation requests (esp. for finite platforms like
-    // handset) we limit the radius so something manageable. (as opposed to
-    // a request like 10,000)
-    static const SkScalar MAX_RADIUS = SkIntToScalar(128);
-    radius = SkMinScalar(radius, MAX_RADIUS);
+    radius = SkMinScalar(radius, kMAX_RADIUS);
     SkBlurMask::Quality blurQuality =
         (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
@@ -120,11 +157,7 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
         radius = matrix.mapRadius(fRadius);
     }
 
-    // To avoid unseemly allocation requests (esp. for finite platforms like
-    // handset) we limit the radius so something manageable. (as opposed to
-    // a request like 10,000)
-    static const SkScalar MAX_RADIUS = SkIntToScalar(128);
-    radius = SkMinScalar(radius, MAX_RADIUS);
+    radius = SkMinScalar(radius, kMAX_RADIUS);
 
     return SkBlurMask::BlurRect(dst, r, radius, (SkBlurMask::Style)fBlurStyle,
                                 margin, createMode);
@@ -320,21 +353,98 @@ void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fBlurFlags);
 }
 
-static const SkMaskFilter::BlurType gBlurStyle2BlurType[] = {
-    SkMaskFilter::kNormal_BlurType,
-    SkMaskFilter::kSolid_BlurType,
-    SkMaskFilter::kOuter_BlurType,
-    SkMaskFilter::kInner_BlurType,
-};
+#if SK_SUPPORT_GPU
 
-SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) const {
-    if (info) {
-        info->fRadius = fRadius;
-        info->fIgnoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
-        info->fHighQuality = SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag);
+bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
+                                            const SkIRect& clipBounds,
+                                            const SkMatrix& ctm,
+                                            SkRect* maskRect) const {
+    SkScalar xformedRadius = this->computeXformedRadius(ctm);
+    if (xformedRadius <= 0) {
+        return false;
     }
-    return gBlurStyle2BlurType[fBlurStyle];
+
+    static const SkScalar kMIN_GPU_BLUR_SIZE = SkIntToScalar(64);
+    static const SkScalar kMIN_GPU_BLUR_RADIUS = SkIntToScalar(32);
+
+    if (srcBounds.width() <= kMIN_GPU_BLUR_SIZE &&
+        srcBounds.height() <= kMIN_GPU_BLUR_SIZE &&
+        xformedRadius <= kMIN_GPU_BLUR_RADIUS) {
+        // We prefer to blur small rect with small radius via CPU.
+        return false;
+    }
+
+    if (NULL == maskRect) {
+        // don't need to compute maskRect
+        return true;
+    }
+
+    float sigma3 = 3 * SkScalarToFloat(xformedRadius) * kBLUR_SIGMA_SCALE;
+
+    SkRect clipRect = SkRect::MakeFromIRect(clipBounds);
+    SkRect srcRect(srcBounds);
+
+    // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
+    srcRect.outset(SkFloatToScalar(sigma3), SkFloatToScalar(sigma3));
+    clipRect.outset(SkFloatToScalar(sigma3), SkFloatToScalar(sigma3));
+    srcRect.intersect(clipRect);
+    *maskRect = srcRect;
+    return true; 
 }
+
+bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src, 
+                                         const SkRect& maskRect, 
+                                         GrTexture** result,
+                                         bool canOverwriteSrc) const {
+    SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
+
+    GrContext* context = src->getContext();
+
+    GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
+
+    SkScalar xformedRadius = this->computeXformedRadius(context->getMatrix());
+    SkASSERT(xformedRadius > 0);
+
+    float sigma = SkScalarToFloat(xformedRadius) * kBLUR_SIGMA_SCALE;
+
+    // If we're doing a normal blur, we can clobber the pathTexture in the
+    // gaussianBlur.  Otherwise, we need to save it for later compositing.
+    bool isNormalBlur = (SkBlurMaskFilter::kNormal_BlurStyle == fBlurStyle);
+    *result = context->gaussianBlur(src, isNormalBlur && canOverwriteSrc,
+                                    clipRect, sigma, sigma);
+    if (NULL == result) {
+        return false;
+    }
+
+    if (!isNormalBlur) {
+        context->setIdentityMatrix();
+        GrPaint paint;
+        SkMatrix matrix;
+        matrix.setIDiv(src->width(), src->height());
+        // Blend pathTexture over blurTexture.
+        GrContext::AutoRenderTarget art(context, (*result)->asRenderTarget());
+        paint.colorStage(0)->setEffect(
+            GrSimpleTextureEffect::Create(src, matrix))->unref();
+        if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle) {
+            // inner:  dst = dst * src
+            paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
+        } else if (SkBlurMaskFilter::kSolid_BlurStyle == fBlurStyle) {
+            // solid:  dst = src + dst - src * dst
+            //             = (1 - dst) * src + 1 * dst
+            paint.setBlendFunc(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
+        } else if (SkBlurMaskFilter::kOuter_BlurStyle == fBlurStyle) {
+            // outer:  dst = dst * (1 - src)
+            //             = 0 * src + (1 - src) * dst
+            paint.setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
+        }
+        context->drawRect(paint, clipRect);
+    }
+
+    return true;
+}
+
+#endif // SK_SUPPORT_GPU
+
 
 #ifdef SK_DEVELOPER
 void SkBlurMaskFilterImpl::toString(SkString* str) const {

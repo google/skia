@@ -47,18 +47,6 @@ enum {
     kXfermodeEffectIdx = 2,
 };
 
-#define MAX_BLUR_SIGMA 4.0f
-// FIXME:  This value comes from from SkBlurMaskFilter.cpp.
-// Should probably be put in a common header someplace.
-#define MAX_BLUR_RADIUS SkIntToScalar(128)
-// This constant approximates the scaling done in the software path's
-// "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
-// IMHO, it actually should be 1:  we blur "less" than we should do
-// according to the CSS and canvas specs, simply because Safari does the same.
-// Firefox used to do the same too, until 4.0 where they fixed it.  So at some
-// point we should probably get rid of these scaling constants and rebaseline
-// all the blur tests.
-#define BLUR_SIGMA_SCALE 0.6f
 // This constant represents the screen alignment criterion in texels for
 // requiring texture domain clamping to prevent color bleeding when drawing
 // a sub region of a larger source image.
@@ -776,138 +764,11 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
 // helpers for applying mask filters
 namespace {
 
-// We prefer to blur small rect with small radius via CPU.
-#define MIN_GPU_BLUR_SIZE SkIntToScalar(64)
-#define MIN_GPU_BLUR_RADIUS SkIntToScalar(32)
-inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
-    if (rect.width() <= MIN_GPU_BLUR_SIZE &&
-        rect.height() <= MIN_GPU_BLUR_SIZE &&
-        radius <= MIN_GPU_BLUR_RADIUS) {
-        return true;
-    }
-    return false;
-}
-
-bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkStrokeRec& stroke,
-                           SkMaskFilter* filter, const SkRegion& clip,
-                           SkBounder* bounder, GrPaint* grp) {
-    SkMaskFilter::BlurInfo info;
-    SkMaskFilter::BlurType blurType = filter->asABlur(&info);
-    if (SkMaskFilter::kNone_BlurType == blurType) {
-        return false;
-    }
-    SkScalar radius = info.fIgnoreTransform ? info.fRadius
-                                            : context->getMatrix().mapRadius(info.fRadius);
-    radius = SkMinScalar(radius, MAX_BLUR_RADIUS);
-    if (radius <= 0) {
-        return false;
-    }
-
-    SkRect srcRect = devPath.getBounds();
-    if (shouldDrawBlurWithCPU(srcRect, radius)) {
-        return false;
-    }
-
-    float sigma = SkScalarToFloat(radius) * BLUR_SIGMA_SCALE;
-    float sigma3 = sigma * 3.0f;
-
-    SkRect clipRect;
-    clipRect.set(clip.getBounds());
-
-    // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
-    srcRect.inset(SkFloatToScalar(-sigma3), SkFloatToScalar(-sigma3));
-    clipRect.inset(SkFloatToScalar(-sigma3), SkFloatToScalar(-sigma3));
-    srcRect.intersect(clipRect);
-    SkRect finalRect = srcRect;
-    SkIRect finalIRect;
-    finalRect.roundOut(&finalIRect);
-    if (clip.quickReject(finalIRect)) {
-        return true;
-    }
-    if (bounder && !bounder->doIRect(finalIRect)) {
-        return true;
-    }
-    GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
-    srcRect.offset(offset);
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit;
-    desc.fWidth = SkScalarCeilToInt(srcRect.width());
-    desc.fHeight = SkScalarCeilToInt(srcRect.height());
-    // We actually only need A8, but it often isn't supported as a
-    // render target so default to RGBA_8888
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
-        desc.fConfig = kAlpha_8_GrPixelConfig;
-    }
-
-    GrAutoScratchTexture pathEntry(context, desc);
-    GrTexture* pathTexture = pathEntry.texture();
-    if (NULL == pathTexture) {
-        return false;
-    }
-
-    SkAutoTUnref<GrTexture> blurTexture;
-
-    {
-        GrContext::AutoRenderTarget art(context, pathTexture->asRenderTarget());
-        GrContext::AutoClip ac(context, srcRect);
-
-        context->clear(NULL, 0);
-
-        GrPaint tempPaint;
-        if (grp->isAntiAlias()) {
-            tempPaint.setAntiAlias(true);
-            // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
-            // blend coeff of zero requires dual source blending support in order
-            // to properly blend partially covered pixels. This means the AA
-            // code path may not be taken. So we use a dst blend coeff of ISA. We
-            // could special case AA draws to a dst surface with known alpha=0 to
-            // use a zero dst coeff when dual source blending isn't available.f
-            tempPaint.setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
-        }
-
-        GrContext::AutoMatrix am;
-
-        // Draw hard shadow to pathTexture with path top-left at origin using tempPaint.
-        SkMatrix translate;
-        translate.setTranslate(offset.fX, offset.fY);
-        am.set(context, translate);
-        context->drawPath(tempPaint, devPath, stroke);
-
-        // If we're doing a normal blur, we can clobber the pathTexture in the
-        // gaussianBlur.  Otherwise, we need to save it for later compositing.
-        bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
-        blurTexture.reset(context->gaussianBlur(pathTexture, isNormalBlur,
-                                                srcRect, sigma, sigma));
-        if (NULL == blurTexture) {
-            return false;
-        }
-
-        if (!isNormalBlur) {
-            context->setIdentityMatrix();
-            GrPaint paint;
-            SkMatrix matrix;
-            matrix.setIDiv(pathTexture->width(), pathTexture->height());
-            // Blend pathTexture over blurTexture.
-            context->setRenderTarget(blurTexture->asRenderTarget());
-            paint.colorStage(0)->setEffect(
-                GrSimpleTextureEffect::Create(pathTexture, matrix))->unref();
-            if (SkMaskFilter::kInner_BlurType == blurType) {
-                // inner:  dst = dst * src
-                paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
-            } else if (SkMaskFilter::kSolid_BlurType == blurType) {
-                // solid:  dst = src + dst - src * dst
-                //             = (1 - dst) * src + 1 * dst
-                paint.setBlendFunc(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
-            } else if (SkMaskFilter::kOuter_BlurType == blurType) {
-                // outer:  dst = dst * (1 - src)
-                //             = 0 * src + (1 - src) * dst
-                paint.setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
-            }
-            context->drawRect(paint, srcRect);
-        }
-    }
+// Draw a mask using the supplied paint. Since the coverage/geometry
+// is already burnt into the mask this boils down to a rect draw.
+// Return true if the mask was successfully drawn.
+bool draw_mask(GrContext* context, const SkRect& maskRect,
+               GrPaint* grp, GrTexture* mask) {
 
     GrContext::AutoMatrix am;
     if (!am.setIdentity(context, grp)) {
@@ -919,19 +780,18 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkSt
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
 
     SkMatrix matrix;
-    matrix.setTranslate(-finalRect.fLeft, -finalRect.fTop);
-    matrix.postIDiv(blurTexture->width(), blurTexture->height());
+    matrix.setTranslate(-maskRect.fLeft, -maskRect.fTop);
+    matrix.postIDiv(mask->width(), mask->height());
 
     grp->coverageStage(MASK_IDX)->reset();
-    grp->coverageStage(MASK_IDX)->setEffect(
-        GrSimpleTextureEffect::Create(blurTexture, matrix))->unref();
-    context->drawRect(*grp, finalRect);
+    grp->coverageStage(MASK_IDX)->setEffect(GrSimpleTextureEffect::Create(mask, matrix))->unref();
+    context->drawRect(*grp, maskRect);
     return true;
 }
 
-bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
-                        SkMaskFilter* filter, const SkRegion& clip, SkBounder* bounder,
-                        GrPaint* grp, SkPaint::Style style) {
+bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
+                           SkMaskFilter* filter, const SkRegion& clip, SkBounder* bounder,
+                           GrPaint* grp, SkPaint::Style style) {
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), filter, &context->getMatrix(), &srcM,
@@ -955,9 +815,6 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
 
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and GrPaint settings
-    GrContext::AutoMatrix am;
-    am.setIdentity(context, grp);
-
     GrTextureDesc desc;
     desc.fWidth = dstM.fBounds.width();
     desc.fHeight = dstM.fBounds.height();
@@ -972,28 +829,75 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
 
-    static const int MASK_IDX = GrPaint::kMaxCoverageStages - 1;
-    // we assume the last mask index is available for use
-    GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
+    SkRect maskRect = SkRect::MakeFromIRect(dstM.fBounds);
 
-    SkMatrix m;
-    m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1, -dstM.fBounds.fTop*SK_Scalar1);
-    m.postIDiv(texture->width(), texture->height());
+    return draw_mask(context, maskRect, grp, texture);
+}
 
-    grp->coverageStage(MASK_IDX)->setEffect(GrSimpleTextureEffect::Create(texture, m))->unref();
-    GrRect d;
-    d.setLTRB(SkIntToScalar(dstM.fBounds.fLeft),
-              SkIntToScalar(dstM.fBounds.fTop),
-              SkIntToScalar(dstM.fBounds.fRight),
-              SkIntToScalar(dstM.fBounds.fBottom));
+// Create a mask of 'devPath' and place the result in 'mask'. Return true on
+// success; false otherwise.
+bool create_mask_GPU(GrContext* context,
+                     const SkRect& maskRect,
+                     const SkPath& devPath,
+                     const SkStrokeRec& stroke,
+                     bool doAA,
+                     GrAutoScratchTexture* mask) {
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = SkScalarCeilToInt(maskRect.width());
+    desc.fHeight = SkScalarCeilToInt(maskRect.height());
+    // We actually only need A8, but it often isn't supported as a
+    // render target so default to RGBA_8888
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+    }
 
-    context->drawRect(*grp, d);
+    mask->set(context, desc);
+    if (NULL == mask->texture()) {
+        return false;
+    }
+
+    GrTexture* maskTexture = mask->texture();
+    SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
+
+    GrContext::AutoRenderTarget art(context, maskTexture->asRenderTarget());
+    GrContext::AutoClip ac(context, clipRect);
+
+    context->clear(NULL, 0x0);
+
+    GrPaint tempPaint;
+    if (doAA) {
+        tempPaint.setAntiAlias(true);
+        // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
+        // blend coeff of zero requires dual source blending support in order
+        // to properly blend partially covered pixels. This means the AA
+        // code path may not be taken. So we use a dst blend coeff of ISA. We
+        // could special case AA draws to a dst surface with known alpha=0 to
+        // use a zero dst coeff when dual source blending isn't available.
+        tempPaint.setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
+    }
+
+    GrContext::AutoMatrix am;
+
+    // Draw the mask into maskTexture with the path's top-left at the origin using tempPaint.
+    SkMatrix translate;
+    translate.setTranslate(-maskRect.fLeft, -maskRect.fTop);
+    am.set(context, translate);
+    context->drawPath(tempPaint, devPath, stroke);
     return true;
 }
 
+SkBitmap wrap_texture(GrTexture* texture) {
+    SkBitmap result;
+    bool dummy;
+    SkBitmap::Config config = grConfig2skConfig(texture->config(), &dummy);
+    result.setConfig(config, texture->width(), texture->height());
+    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
+    return result;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+};
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
@@ -1051,6 +955,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         if (!stroke.isHairlineStyle()) {
             if (stroke.applyToPath(&tmpPath, *pathPtr)) {
                 pathPtr = &tmpPath;
+                pathIsMutable = true;
                 stroke.setFillStyle();
             }
         }
@@ -1060,13 +965,46 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
-        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, stroke, paint.getMaskFilter(),
-                                   *draw.fClip, draw.fBounder, &grPaint)) {
-            SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
-                                                              SkPaint::kFill_Style;
-            drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
-                               *draw.fClip, draw.fBounder, &grPaint, style);
+
+        SkRect maskRect;
+        if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
+                                                    draw.fClip->getBounds(),
+                                                    fContext->getMatrix(),
+                                                    &maskRect)) {
+            SkIRect finalIRect;
+            maskRect.roundOut(&finalIRect);
+            if (draw.fClip->quickReject(finalIRect)) {
+                // clipped out
+                return;
+            }
+            if (NULL != draw.fBounder && !draw.fBounder->doIRect(finalIRect)) {
+                // nothing to draw
+                return;
+            }
+
+            GrAutoScratchTexture mask;
+
+            if (create_mask_GPU(fContext, maskRect, *devPathPtr, stroke, 
+                                grPaint.isAntiAlias(), &mask)) {
+                GrTexture* filtered;
+
+                if (paint.getMaskFilter()->filterMaskGPU(mask.texture(), maskRect, &filtered, true)) {
+                    SkAutoTUnref<GrTexture> atu(filtered);
+
+                    if (draw_mask(fContext, maskRect, &grPaint, filtered)) {
+                        // This path is completely drawn
+                        return;
+                    }
+                }
+            }
         }
+
+        // draw the mask on the CPU - this is a fallthrough path in case the
+        // GPU path fails
+        SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
+                                                          SkPaint::kFill_Style;
+        draw_with_mask_filter(fContext, *devPathPtr, paint.getMaskFilter(),
+                              *draw.fClip, draw.fBounder, &grPaint, style);
         return;
     }
 
@@ -1437,15 +1375,6 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }
 
-static SkBitmap wrap_texture(GrTexture* texture) {
-    SkBitmap result;
-    bool dummy;
-    SkBitmap::Config config = grConfig2skConfig(texture->config(), &dummy);
-    result.setConfig(config, texture->width(), texture->height());
-    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
-    return result;
-}
-
 static bool filter_texture(SkDevice* device, GrContext* context,
                            GrTexture* texture, SkImageFilter* filter,
                            int w, int h, SkBitmap* result) {
@@ -1607,8 +1536,6 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     if (!src.getTexture() && !src.readyToDraw()) {
         return false;
     }
-
-    GrPaint paint;
 
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
