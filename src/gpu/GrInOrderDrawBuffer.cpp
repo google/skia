@@ -445,15 +445,18 @@ void GrInOrderDrawBuffer::reset() {
     fClipSet = true;
 }
 
-bool GrInOrderDrawBuffer::flush() {
+void GrInOrderDrawBuffer::flush() {
+    if (fFlushing) {
+        return;
+    }
+
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
 
     int numCmds = fCmds.count();
     if (0 == numCmds) {
-        return false;
+        return;
     }
-    GrAssert(!fFlushing);
 
     GrAutoTRestore<bool> flushRestore(&fFlushing);
     fFlushing = true;
@@ -533,7 +536,6 @@ bool GrInOrderDrawBuffer::flush() {
     fDstGpu->setDrawState(prevDrawState);
     prevDrawState->unref();
     this->reset();
-    return true;
 }
 
 bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,

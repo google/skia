@@ -63,12 +63,8 @@ public:
      * is destructive). This buffer must not have an active reserved vertex or index source. Any
      * reserved geometry on the target will be finalized because it's geometry source will be pushed
      * before flushing and popped afterwards.
-     *
-     * @return false if the playback trivially drew nothing because nothing was recorded.
      */
-    bool flush();
-
-    bool isFlushing() const { return fFlushing; }
+    void flush();
 
     // overrides from GrDrawTarget
     virtual bool geometryHints(int* vertexCount,
