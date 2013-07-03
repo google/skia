@@ -64,10 +64,9 @@ public:
 
     virtual bool filter(SkPaint* paint, Type t) {
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
-        if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
+        if (PictureRenderer::kMaskFilter_DrawFilterFlag & fFlags[t]) {
             SkMaskFilter* maskFilter = paint->getMaskFilter();
-            SkMaskFilter::BlurInfo blurInfo;
-            if (maskFilter && maskFilter->asABlur(&blurInfo)) {
+            if (NULL != maskFilter) {
                 paint->setMaskFilter(NULL);
             }
         }

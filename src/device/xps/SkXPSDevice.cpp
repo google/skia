@@ -1542,21 +1542,6 @@ void SkXPSDevice::convertToPpm(const SkMaskFilter* filter,
                                SkMatrix* matrix,
                                SkVector* ppuScale,
                                const SkIRect& clip, SkIRect* clipIRect) {
-    //TODO: currently ignoring the ppm if blur ignoring transform.
-    if (filter) {
-        SkMaskFilter::BlurInfo blurInfo;
-        SkMaskFilter::BlurType blurType = filter->asABlur(&blurInfo);
-
-        if (SkMaskFilter::kNone_BlurType != blurType
-            && blurInfo.fIgnoreTransform) {
-
-            ppuScale->fX = SK_Scalar1;
-            ppuScale->fY = SK_Scalar1;
-            *clipIRect = clip;
-            return;
-        }
-    }
-
     //This action is in unit space, but the ppm is specified in physical space.
     ppuScale->fX = SkScalarDiv(this->fCurrentPixelsPerMeter.fX,
                                this->fCurrentUnitsPerMeter.fX);
