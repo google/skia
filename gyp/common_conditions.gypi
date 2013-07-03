@@ -210,6 +210,15 @@
               }],
             ],
           }],
+          [ 'skia_asan_build', {
+            'cflags': [
+              '-fsanitize=address',
+              '-fno-omit-frame-pointer',
+            ],
+            'ldflags': [
+              '-fsanitize=address',
+            ],
+          }],
         ],
       },
     ],
