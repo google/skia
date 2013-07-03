@@ -223,7 +223,7 @@ private:
     SkPaint::FontMetrics fFontMetrics;
 
     enum {
-        kHashBits   = 8,
+        kHashBits   = 12,
         kHashCount  = 1 << kHashBits,
         kHashMask   = kHashCount - 1
     };
