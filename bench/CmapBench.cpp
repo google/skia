@@ -46,7 +46,7 @@ static void charsToGlyphs_proc(const SkPaint& paint, const void* text,
     SkTypeface::Encoding encoding = paint2Encoding(paint);
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
-    
+
     SkTypeface* face = paint.getTypeface();
     for (int i = 0; i < LOOP; ++i) {
         face->charsToGlyphs(text, encoding, glyphs, glyphCount);
@@ -56,7 +56,7 @@ static void charsToGlyphs_proc(const SkPaint& paint, const void* text,
 static void charsToGlyphsNull_proc(const SkPaint& paint, const void* text,
                                    size_t len, int glyphCount) {
     SkTypeface::Encoding encoding = paint2Encoding(paint);
-    
+
     SkTypeface* face = paint.getTypeface();
     for (int i = 0; i < LOOP; ++i) {
         face->charsToGlyphs(text, encoding, NULL, glyphCount);
@@ -73,7 +73,7 @@ public:
     CMAPBench(void* param, TypefaceProc proc, const char name[]) : SkBenchmark(param) {
         fProc = proc;
         fName.printf("cmap_%s", name);
-        
+
         for (int i = 0; i < NGLYPHS; ++i) {
             // we're jamming values into utf8, so we must keep it legal utf8
             fText[i] = 'A' + (i & 31);
@@ -101,4 +101,3 @@ DEF_BENCH( return new CMAPBench(p, containsText_proc, "paint_containsText"); )
 DEF_BENCH( return new CMAPBench(p, textToGlyphs_proc, "paint_textToGlyphs"); )
 DEF_BENCH( return new CMAPBench(p, charsToGlyphs_proc, "face_charsToGlyphs"); )
 DEF_BENCH( return new CMAPBench(p, charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )
-

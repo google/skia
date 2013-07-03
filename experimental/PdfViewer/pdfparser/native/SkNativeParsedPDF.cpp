@@ -9,4 +9,3 @@ SkNativeParsedPDF::SkNativeParsedPDF() {
 SkNativeParsedPDF::~SkNativeParsedPDF() {
     // TODO(edisonn): Auto-generated destructor stub
 }
-

@@ -82,14 +82,14 @@ static void test_cmap(skiatest::Reporter* reporter) {
         }
         // inject some random chars, to sometimes abort early
         src[rand.nextU() & 63] = rand.nextU() & 0xFFF;
-        
+
         for (size_t k = 0; k < SK_ARRAY_COUNT(gRec); ++k) {
             paint.setTextEncoding(gRec[k].fEncoding);
 
             size_t len = gRec[k].fSeedTextProc(src, dst, NGLYPHS);
-            
+
             uint16_t    glyphs0[NGLYPHS], glyphs1[NGLYPHS];
-    
+
             bool contains = paint.containsText(dst, len);
             int nglyphs = paint.textToGlyphs(dst, len, glyphs0);
             int first = face->charsToGlyphs(dst, paint2encoding(paint), glyphs1, NGLYPHS);
@@ -231,7 +231,7 @@ static void TestPaint(skiatest::Reporter* reporter) {
     regression_measureText(reporter);
 
     test_bicubic(reporter);
-    
+
     // need to implement charsToGlyphs on other backends (e.g. linux, win)
     // before we can run this tests everywhere
     if (false) {

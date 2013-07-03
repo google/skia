@@ -9,4 +9,3 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer() {
 SkPdfNativeTokenizer::~SkPdfNativeTokenizer() {
     // TODO(edisonn): Auto-generated destructor stub
 }
-
