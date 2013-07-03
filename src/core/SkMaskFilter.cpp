@@ -11,12 +11,14 @@
 #include "SkBlitter.h"
 #include "SkBounder.h"
 #include "SkDraw.h"
-#include "SkGr.h"
-#include "SkGrPixelRef.h"
 #include "SkRasterClip.h"
 #include "SkTypes.h"
-#include "GrTexture.h"
 
+#if SK_SUPPORT_GPU
+#include "GrTexture.h"
+#include "SkGr.h"
+#include "SkGrPixelRef.h"
+#endif
 
 SK_DEFINE_INST_COUNT(SkMaskFilter)
 
@@ -270,6 +272,7 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
     return kUnimplemented_FilterReturn;
 }
 
+#if SK_SUPPORT_GPU
 bool SkMaskFilter::asNewEffect(GrEffectRef** effect, GrTexture*) const {
     return false;
 }
@@ -334,6 +337,7 @@ bool SkMaskFilter::filterMaskGPU(GrTexture* src,
                                  bool canOverwriteSrc) const {
     return false;
 }
+#endif
 
 void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     SkMask  srcM, dstM;
