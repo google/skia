@@ -142,6 +142,7 @@
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
+    'skia_asan_build%': 0,
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
