@@ -135,6 +135,7 @@ SkAAClip::Iter::Iter(const SkAAClip& clip) {
         fDone = true;
         fTop = fBottom = clip.fBounds.fBottom;
         fData = NULL;
+        fCurrYOff = NULL;
         fStopYOff = NULL;
         return;
     }
