@@ -39,7 +39,7 @@ function compare_directories {
     echo "compare_directories requires exactly 2 parameters, got $#"
     exit 1
   fi
-  diff --exclude=.* $1 $2
+  diff --recursive --exclude=.* $1 $2
   if [ $? != 0 ]; then
     echo "failed in: compare_directories $1 $2"
     exit 1
@@ -129,9 +129,11 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
+# Test rebaseline.py's soon-to-disappear image file rebaselining capability.
+#
 # Run rebaseline.py with arguments in $1, recording its dry-run output.
 # Then compare that dry-run output to the content of $2/output-expected.
-function rebaseline_test {
+function rebaseline_images_test {
   if [ $# != 2 ]; then
     echo "rebaseline_test requires exactly 2 parameters, got $#"
     exit 1
@@ -143,6 +145,39 @@ function rebaseline_test {
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
   COMMAND="python tools/rebaseline.py --dry-run $ARGS"
+  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
+  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  echo $? >$ACTUAL_OUTPUT_DIR/return_value
+
+  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+}
+
+# Test rebaseline.py's new JSON-format expectations rebaselining capability.
+#
+# Copy expected-result.json files from $1 into a dir where they can be modified.
+# Run rebaseline.py with arguments in $2, recording its output.
+# Then compare the output (and modified expected-result.json files) to the
+# content of $2/output-expected.
+function rebaseline_test {
+  if [ $# != 3 ]; then
+    echo "rebaseline_test requires exactly 3 parameters, got $#"
+    exit 1
+  fi
+  COPY_EXPECTATIONS_FROM_DIR="$1"
+  ARGS="$2"
+  ACTUAL_OUTPUT_DIR="$3/output-actual"
+  EXPECTED_OUTPUT_DIR="$3/output-expected"
+
+  rm -rf $ACTUAL_OUTPUT_DIR
+  mkdir -p $ACTUAL_OUTPUT_DIR
+  EXPECTATIONS_TO_MODIFY_DIR="$ACTUAL_OUTPUT_DIR/gm-expectations"
+  SUBDIRS=$(ls $COPY_EXPECTATIONS_FROM_DIR)
+  for SUBDIR in $SUBDIRS; do
+    mkdir -p $EXPECTATIONS_TO_MODIFY_DIR/$SUBDIR
+    cp $COPY_EXPECTATIONS_FROM_DIR/$SUBDIR/expected-results.json \
+       $EXPECTATIONS_TO_MODIFY_DIR/$SUBDIR
+  done
+  COMMAND="python tools/rebaseline.py --expectations-root $EXPECTATIONS_TO_MODIFY_DIR $ARGS"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
@@ -230,11 +265,15 @@ fi
 
 REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
-rebaseline_test "--expectations-root fake/expectations/path --json-base-url file:$REBASELINE_INPUT/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
-rebaseline_test "--json-base-url file:nonexistent-path --tests test1 test2" "$REBASELINE_OUTPUT/all"
-rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
-rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
-rebaseline_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --expectations-root $REBASELINE_INPUT/json1" "$REBASELINE_OUTPUT/using-json1-expectations"
+
+# These test the old image-file expectations.
+rebaseline_images_test "--expectations-root fake/expectations/path --json-base-url file:$REBASELINE_INPUT/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
+rebaseline_images_test "--json-base-url file:nonexistent-path --tests test1 test2" "$REBASELINE_OUTPUT/all"
+rebaseline_images_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
+rebaseline_images_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
+
+# These test the new JSON-format expectations.
+rebaseline_test "$REBASELINE_INPUT/json1" "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"
 
 #
 # Test jsondiff.py ...

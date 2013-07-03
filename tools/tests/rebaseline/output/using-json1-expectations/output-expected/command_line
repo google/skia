@@ -1,1 +1,1 @@
-python tools/rebaseline.py --dry-run --json-base-url file:tools/tests/rebaseline/input/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --expectations-root tools/tests/rebaseline/input/json1
+python tools/rebaseline.py --expectations-root tools/tests/rebaseline/output/using-json1-expectations/output-actual/gm-expectations --json-base-url file:tools/tests/rebaseline/input/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float
