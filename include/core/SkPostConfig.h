@@ -321,7 +321,7 @@
 #ifndef SK_OVERRIDE
     #if defined(_MSC_VER)
         #define SK_OVERRIDE override
-    #elif defined(__clang__) && !defined(SK_BUILD_FOR_IOS)
+    #elif defined(__clang__)
         // Clang defaults to C++03 and warns about using override. Squelch that. Intentionally no
         // push/pop here so all users of SK_OVERRIDE ignore the warning too. This is like passing
         // -Wno-c++11-extensions, except that GCC won't die (because it won't see this pragma).
