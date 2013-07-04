@@ -1131,6 +1131,10 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::flush(int flagsBitfield) {
+    if (NULL == fDrawBuffer) {
+        return;
+    }
+
     if (kDiscard_FlushBit & flagsBitfield) {
         fDrawBuffer->reset();
     } else {
