@@ -981,7 +981,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     const char* stitchDataUni = NULL;
     if (fStitchTiles) {
         fStitchDataUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                             kVec4f_GrSLType, "stitchData");
+                                             kVec2f_GrSLType, "stitchData");
         stitchDataUni = builder->getUniformCStr(fStitchDataUni);
     }
 
@@ -1001,35 +1001,26 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     const char* ab          = "ab";
     const char* latticeIdx  = "latticeIdx";
     const char* lattice     = "lattice";
-    const char* perlinNoise = "4096.0";
     const char* inc8bit     = "0.00390625";  // 1.0 / 256.0
     // This is the math to convert the two 16bit integer packed into rgba 8 bit input into a
     // [-1,1] vector and perform a dot product between that vector and the provided vector.
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
-    // Android precision fix for NON Tegra devices, like, for example: Nexus 10 (ARM's Mali-T604)
-    // The value of perlinNoise is 4096.0, so we need a high precision float to store this
-    const GrGLShaderVar::Precision precision = GrGLShaderVar::kHigh_Precision;
-    const char* precisionString =
-        GrGLShaderVar::PrecisionString(precision, builder->ctxInfo().binding());
-
     // Add noise function
     static const GrGLShaderVar gPerlinNoiseArgs[] =  {
         GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType, GrGLShaderVar::kNonArray, precision)
+        GrGLShaderVar(noiseVec, kVec2f_GrSLType)
     };
 
     static const GrGLShaderVar gPerlinNoiseStitchArgs[] =  {
         GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType, GrGLShaderVar::kNonArray, precision),
-        GrGLShaderVar(stitchData, kVec4f_GrSLType, GrGLShaderVar::kNonArray, precision)
+        GrGLShaderVar(noiseVec, kVec2f_GrSLType),
+        GrGLShaderVar(stitchData, kVec2f_GrSLType)
     };
 
     SkString noiseCode;
 
-    noiseCode.appendf(
-        "\t%svec4 %s = vec4(floor(%s) + vec2(%s), fract(%s));",
-        precisionString, noiseXY, noiseVec, perlinNoise, noiseVec);
+    noiseCode.appendf("\tvec4 %s = vec4(floor(%s), fract(%s));", noiseXY, noiseVec, noiseVec);
 
     // smooth curve : t * t * (3 - 2 * t)
     noiseCode.appendf("\n\tvec2 %s = %s.zw * %s.zw * (vec2(3.0) - vec2(2.0) * %s.zw);",
@@ -1037,13 +1028,13 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     // Adjust frequencies if we're stitching tiles
     if (fStitchTiles) {
-        noiseCode.appendf("\n\tif(%s.x >= %s.y) { %s.x -= %s.x; }",
+        noiseCode.appendf("\n\tif(%s.x >= %s.x) { %s.x -= %s.x; }",
             noiseXY, stitchData, noiseXY, stitchData);
-        noiseCode.appendf("\n\tif(%s.x >= (%s.y - 1.0)) { %s.x -= (%s.x - 1.0); }",
+        noiseCode.appendf("\n\tif(%s.x >= (%s.x - 1.0)) { %s.x -= (%s.x - 1.0); }",
             noiseXY, stitchData, noiseXY, stitchData);
-        noiseCode.appendf("\n\tif(%s.y >= %s.w) { %s.y -= %s.z; }",
+        noiseCode.appendf("\n\tif(%s.y >= %s.y) { %s.y -= %s.y; }",
             noiseXY, stitchData, noiseXY, stitchData);
-        noiseCode.appendf("\n\tif(%s.y >= (%s.w - 1.0)) { %s.y -= (%s.z - 1.0); }",
+        noiseCode.appendf("\n\tif(%s.y >= (%s.y - 1.0)) { %s.y -= (%s.y - 1.0); }",
             noiseXY, stitchData, noiseXY, stitchData);
     }
 
@@ -1164,7 +1155,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     if (fStitchTiles) {
         // Set up TurbulenceInitial stitch values.
-        builder->fsCodeAppendf("\n\t\t%s vec4 %s = %s;", precisionString, stitchData, stitchDataUni);
+        builder->fsCodeAppendf("\n\t\tvec2 %s = %s;", stitchData, stitchDataUni);
     }
 
     builder->fsCodeAppendf("\n\t\tfloat %s = 1.0;", ratio);
@@ -1202,9 +1193,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\n\t\t\t%s *= 0.5;", ratio);
 
     if (fStitchTiles) {
-        builder->fsCodeAppendf("\n\t\t\t%s.xz *= vec2(2.0);", stitchData);
-        builder->fsCodeAppendf("\n\t\t\t%s.yw = %s.xz + vec2(%s);",
-                               stitchData, stitchData, perlinNoise);
+        builder->fsCodeAppendf("\n\t\t\t%s *= vec2(2.0);", stitchData);
     }
     builder->fsCodeAppend("\n\t\t}"); // end of the for loop on octaves
 
@@ -1291,10 +1280,8 @@ void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect
     const GrPerlinNoiseEffect& turbulence = drawEffect.castEffect<GrPerlinNoiseEffect>();
     if (turbulence.stitchTiles()) {
         const SkPerlinNoiseShader::StitchData& stitchData = turbulence.stitchData();
-        uman.set4f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
-                                   SkIntToScalar(stitchData.fWrapX),
-                                   SkIntToScalar(stitchData.fHeight),
-                                   SkIntToScalar(stitchData.fWrapY));
+        uman.set2f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
+                                   SkIntToScalar(stitchData.fHeight));
     }
 }
 
