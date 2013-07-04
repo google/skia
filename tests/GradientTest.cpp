@@ -126,6 +126,34 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     rec.gradCheck(reporter, s, &info, SkShader::kConical_GradientType);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, rec.fPoint, 2 * sizeof(SkPoint)));
     REPORTER_ASSERT(reporter, !memcmp(info.fRadius, rec.fRadius, 2 * sizeof(SkScalar)));
+    REPORTER_ASSERT(reporter, !s->isOpaque());
+}
+
+// 2-point radial gradient should behave as opaque when it extends to the entire plane
+static void conical_gradproc_opaque(skiatest::Reporter* reporter, const GradRec& rec) {
+    SkAutoTUnref<SkShader> s(SkGradientShader::CreateTwoPointConical(rec.fPoint[0],
+                                                                     rec.fRadius[0],
+                                                                     rec.fPoint[0],
+                                                                     rec.fRadius[1],
+                                                                     rec.fColors,
+                                                                     rec.fPos,
+                                                                     rec.fColorCount,
+                                                                     rec.fTileMode));
+    REPORTER_ASSERT(reporter, s->isOpaque());
+}
+
+// 2nd circle center lies on edge of first circle should not be considered opaque
+static void conical_gradproc_not_opaque(skiatest::Reporter* reporter, const GradRec& rec) {
+    SkScalar dist = SkPoint::Distance(rec.fPoint[0], rec.fPoint[1]);
+    SkAutoTUnref<SkShader> s(SkGradientShader::CreateTwoPointConical(rec.fPoint[0],
+                                                                     dist,
+                                                                     rec.fPoint[1],
+                                                                     rec.fRadius[1],
+                                                                     rec.fColors,
+                                                                     rec.fPos,
+                                                                     rec.fColorCount,
+                                                                     rec.fTileMode));
+    REPORTER_ASSERT(reporter, !s->isOpaque());
 }
 
 // Ensure that repeated color gradients behave like drawing a single color
@@ -185,6 +213,8 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
         radial2_gradproc,
         sweep_gradproc,
         conical_gradproc,
+        conical_gradproc_opaque,
+        conical_gradproc_not_opaque,
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
