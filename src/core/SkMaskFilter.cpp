@@ -277,7 +277,7 @@ bool SkMaskFilter::asNewEffect(GrEffectRef** effect, GrTexture*) const {
     return false;
 }
 
-bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds, 
+bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
                                     const SkIRect& clipBounds,
                                     const SkMatrix& ctm,
                                     SkRect* maskRect) const {
@@ -285,8 +285,8 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
 }
 
 bool SkMaskFilter::filterMaskGPU(GrContext* context,
-                                 const SkBitmap& srcBM, 
-                                 const SkRect& maskRect, 
+                                 const SkBitmap& srcBM,
+                                 const SkRect& maskRect,
                                  SkBitmap* resultBM) const {
     SkAutoTUnref<GrTexture> src;
     bool canOverwriteSrc = false;
@@ -299,7 +299,7 @@ bool SkMaskFilter::filterMaskGPU(GrContext* context,
         desc.fHeight    = srcBM.height();
 
         // TODO: right now this is exact to guard against out of bounds reads
-        // by the filter code. More thought needs to be devoted to the 
+        // by the filter code. More thought needs to be devoted to the
         // "filterMaskGPU" contract and then enforced (i.e., clamp the code
         // in "filterMaskGPU" so it never samples beyond maskRect)
         GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);
@@ -331,8 +331,8 @@ bool SkMaskFilter::filterMaskGPU(GrContext* context,
     return true;
 }
 
-bool SkMaskFilter::filterMaskGPU(GrTexture* src, 
-                                 const SkRect& maskRect, 
+bool SkMaskFilter::filterMaskGPU(GrTexture* src,
+                                 const SkRect& maskRect,
                                  GrTexture** result,
                                  bool canOverwriteSrc) const {
     return false;
