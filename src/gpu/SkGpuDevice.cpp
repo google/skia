@@ -984,7 +984,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
             GrAutoScratchTexture mask;
 
-            if (create_mask_GPU(fContext, maskRect, *devPathPtr, stroke, 
+            if (create_mask_GPU(fContext, maskRect, *devPathPtr, stroke,
                                 grPaint.isAntiAlias(), &mask)) {
                 GrTexture* filtered;
 

@@ -81,7 +81,7 @@ public:
      *  as 'maskRect' but be translated to the upper-left corner of the mask
      *  (i.e., (maskRect.fLeft, maskRect.fTop) appears at (0, 0) in the mask).
      */
-    virtual bool canFilterMaskGPU(const SkRect& devBounds, 
+    virtual bool canFilterMaskGPU(const SkRect& devBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const;
@@ -95,8 +95,8 @@ public:
      *  on success. 'maskRect' should be the rect returned from canFilterMaskGPU.
      */
     bool filterMaskGPU(GrContext* context,
-                       const SkBitmap& src, 
-                       const SkRect& maskRect, 
+                       const SkBitmap& src,
+                       const SkRect& maskRect,
                        SkBitmap* result) const;
 
     /**
@@ -104,8 +104,8 @@ public:
      *  the filtering capabilities. Setting 'canOverwriteSrc' can allow some
      *  filters to skip the allocation of an additional texture.
      */
-    virtual bool filterMaskGPU(GrTexture* src, 
-                               const SkRect& maskRect, 
+    virtual bool filterMaskGPU(GrTexture* src,
+                               const SkRect& maskRect,
                                GrTexture** result,
                                bool canOverwriteSrc) const;
 #endif

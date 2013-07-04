@@ -32,12 +32,12 @@ public:
                             SkIPoint* margin) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool canFilterMaskGPU(const SkRect& devBounds, 
+    virtual bool canFilterMaskGPU(const SkRect& devBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const SK_OVERRIDE;
-    virtual bool filterMaskGPU(GrTexture* src, 
-                               const SkRect& maskRect, 
+    virtual bool filterMaskGPU(GrTexture* src,
+                               const SkRect& maskRect,
                                GrTexture** result,
                                bool canOverwriteSrc) const;
 #endif
@@ -389,11 +389,11 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
     clipRect.outset(SkFloatToScalar(sigma3), SkFloatToScalar(sigma3));
     srcRect.intersect(clipRect);
     *maskRect = srcRect;
-    return true; 
+    return true;
 }
 
-bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src, 
-                                         const SkRect& maskRect, 
+bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
+                                         const SkRect& maskRect,
                                          GrTexture** result,
                                          bool canOverwriteSrc) const {
     SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
