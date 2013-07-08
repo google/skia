@@ -267,13 +267,13 @@ REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
 
 # These test the old image-file expectations.
-rebaseline_images_test "--expectations-root fake/expectations/path --json-base-url file:$REBASELINE_INPUT/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
-rebaseline_images_test "--json-base-url file:nonexistent-path --tests test1 test2" "$REBASELINE_OUTPUT/all"
-rebaseline_images_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
-rebaseline_images_test "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
+rebaseline_images_test "--expectations-root fake/expectations/path --actuals-base-url file:$REBASELINE_INPUT/json1 --tests test1 test2 --configs 565 8888 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
+rebaseline_images_test "--actuals-base-url file:nonexistent-path --tests test1 test2" "$REBASELINE_OUTPUT/all"
+rebaseline_images_test "--actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
+rebaseline_images_test "--actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
 
 # These test the new JSON-format expectations.
-rebaseline_test "$REBASELINE_INPUT/json1" "--json-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"
+rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"
 
 #
 # Test jsondiff.py ...
