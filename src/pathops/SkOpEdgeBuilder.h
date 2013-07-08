@@ -43,6 +43,7 @@ public:
     void init();
 
 private:
+    void closeContour(const SkPoint& curveEnd, const SkPoint& curveStart);
     bool close();
     int preFetch();
     bool walk();
@@ -52,11 +53,7 @@ private:
     SkTArray<uint8_t, true> fPathVerbs;
     SkOpContour* fCurrentContour;
     SkTArray<SkOpContour>& fContours;
-    SkTArray<SkPoint, true> fReducePts;  // segments created on the fly
-    SkTArray<int, true> fExtra;  // -1 marks new contour, > 0 offsets into contour
     SkPathOpsMask fXorMask[2];
-    const SkPoint* fFinalCurveStart;
-    const SkPoint* fFinalCurveEnd;
     int fSecondHalf;
     bool fOperand;
     bool fAllowOpenContours;

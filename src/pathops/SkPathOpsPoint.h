@@ -111,14 +111,8 @@ struct SkDPoint {
     }
 
     bool approximatelyEqual(const SkPoint& a) const {
-        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
-                SkScalarToDouble(SkTMax(fabsf(a.fX), fabsf(a.fY)))));
-        if (denom == 0) {
-            return true;
-        }
-        double inv = 1 / denom;
-        return approximately_equal_double(fX * inv, a.fX * inv)
-                && approximately_equal_double(fY * inv, a.fY * inv);
+        return AlmostEqualUlps(SkDoubleToScalar(fX), a.fX)
+                && AlmostEqualUlps(SkDoubleToScalar(fY), a.fY);
     }
 
     bool approximatelyEqualHalf(const SkDPoint& a) const {

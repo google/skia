@@ -25,7 +25,7 @@ struct PathOpsThreadState {
     unsigned char fD;
     char* fPathStr;
     const char* fKey;
-    char fSerialNo[9];
+    char fSerialNo[64];
     skiatest::Reporter* fReporter;
     SkBitmap* fBitmap;
 };
@@ -55,6 +55,14 @@ public:
         fState.fB = b;
         fState.fC = c;
         fState.fD = d;
+        fState.fReporter = runner->fReporter;
+        fTestFun = testFun;
+    }
+
+    PathOpsThreadedRunnable(void (*testFun)(PathOpsThreadState*), const char* str,
+            PathOpsThreadedTestRunner* runner) {
+        SkASSERT(strlen(str) < sizeof(fState.fSerialNo) - 1);
+        strcpy(fState.fSerialNo, str);
         fState.fReporter = runner->fReporter;
         fTestFun = testFun;
     }

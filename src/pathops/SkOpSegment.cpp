@@ -861,7 +861,7 @@ int SkOpSegment::computeSum(int startIndex, int endIndex, bool binary) {
     // FIXME?: Not sure if this sort must be ordered or if the relaxed ordering is OK ...
     bool sortable = SortAngles(angles, &sorted, SkOpSegment::kMustBeOrdered_SortAngleKind);
 #if DEBUG_SORT
-    sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0);
+    sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0, sortable);
 #endif
     if (!sortable) {
         return SK_MinS32;
@@ -896,7 +896,7 @@ int SkOpSegment::computeSum(int startIndex, int endIndex, bool binary) {
         winding += spanWinding;
     }
 #if DEBUG_SORT
-    base->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oWinding);
+    base->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oWinding, sortable);
 #endif
     int nextIndex = firstIndex + 1;
     int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
@@ -1134,6 +1134,7 @@ SkOpSegment* SkOpSegment::findNextOp(SkTDArray<SkOpSpan*>* chase, int* nextStart
         while (precisely_zero(startT - other->fTs[*nextEnd].fT));
         SkASSERT(step < 0 ? *nextEnd >= 0 : *nextEnd < other->fTs.count());
         if (other->isTiny(SkMin32(*nextStart, *nextEnd))) {
+            *unsortable = true;
             return NULL;
         }
         return other;
@@ -1150,7 +1151,7 @@ SkOpSegment* SkOpSegment::findNextOp(SkTDArray<SkOpSpan*>* chase, int* nextStart
     int firstIndex = findStartingEdge(sorted, startIndex, end);
     SkASSERT(firstIndex >= 0);
 #if DEBUG_SORT
-    debugShowSort(__FUNCTION__, sorted, firstIndex);
+    debugShowSort(__FUNCTION__, sorted, firstIndex, sortable);
 #endif
     if (!sortable) {
         *unsortable = true;
@@ -1272,7 +1273,7 @@ SkOpSegment* SkOpSegment::findNextWinding(SkTDArray<SkOpSpan*>* chase, int* next
     int firstIndex = findStartingEdge(sorted, startIndex, end);
     SkASSERT(firstIndex >= 0);
 #if DEBUG_SORT
-    debugShowSort(__FUNCTION__, sorted, firstIndex);
+    debugShowSort(__FUNCTION__, sorted, firstIndex, sortable);
 #endif
     if (!sortable) {
         *unsortable = true;
@@ -1400,7 +1401,8 @@ SkOpSegment* SkOpSegment::findNextXor(int* nextStart, int* nextEnd, bool* unsort
     if (!sortable) {
         *unsortable = true;
 #if DEBUG_SORT
-        debugShowSort(__FUNCTION__, sorted, findStartingEdge(sorted, startIndex, end), 0, 0);
+        debugShowSort(__FUNCTION__, sorted, findStartingEdge(sorted, startIndex, end), 0, 0,
+                sortable);
 #endif
         return NULL;
     }
@@ -1408,7 +1410,7 @@ SkOpSegment* SkOpSegment::findNextXor(int* nextStart, int* nextEnd, bool* unsort
     int firstIndex = findStartingEdge(sorted, startIndex, end);
     SkASSERT(firstIndex >= 0);
 #if DEBUG_SORT
-    debugShowSort(__FUNCTION__, sorted, firstIndex, 0, 0);
+    debugShowSort(__FUNCTION__, sorted, firstIndex, 0, 0, sortable);
 #endif
     SkASSERT(sorted[firstIndex]->segment() == this);
     int nextIndex = firstIndex + 1;
@@ -1654,7 +1656,7 @@ SkOpSegment* SkOpSegment::findTop(int* tIndexPtr, int* endIndexPtr, bool* unsort
     }
     SkASSERT(first < SK_MaxS32);
 #if DEBUG_SORT  // || DEBUG_SWAP_TOP
-    sorted[first]->segment()->debugShowSort(__FUNCTION__, sorted, first, 0, 0);
+    sorted[first]->segment()->debugShowSort(__FUNCTION__, sorted, first, 0, 0, sortable);
 #endif
     if (onlySortable && !sortable) {
         *unsortable = true;
@@ -2565,6 +2567,9 @@ int SkOpSegment::windingAtT(double tHit, int tIndex, bool crossOpp, SkScalar* dx
 #endif
         return SK_MinS32;
     }
+    if (windVal < 0) {  // reverse sign if opp contour traveled in reverse 
+            *dx = -*dx;
+    }
     if (winding * *dx > 0) {  // if same signs, result is negative
         winding += *dx > 0 ? -windVal : windVal;
     }
@@ -2769,12 +2774,12 @@ void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan& span, int
 #if DEBUG_SORT || DEBUG_SWAP_TOP
 void SkOpSegment::debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true>& angles,
                                 int first, const int contourWinding,
-                                const int oppContourWinding) const {
+                                const int oppContourWinding, bool sortable) const {
     if (--gDebugSortCount < 0) {
         return;
     }
     SkASSERT(angles[first]->segment() == this);
-    SkASSERT(angles.count() > 1);
+    SkASSERT(!sortable || angles.count() > 1);
     int lastSum = contourWinding;
     int oppLastSum = oppContourWinding;
     const SkOpAngle* firstAngle = angles[first];
@@ -2878,12 +2883,12 @@ void SkOpSegment::debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true
 }
 
 void SkOpSegment::debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true>& angles,
-                                int first) {
+                                int first, bool sortable) {
     const SkOpAngle* firstAngle = angles[first];
     const SkOpSegment* segment = firstAngle->segment();
     int winding = segment->updateWinding(firstAngle);
     int oppWinding = segment->updateOppWinding(firstAngle);
-    debugShowSort(fun, angles, first, winding, oppWinding);
+    debugShowSort(fun, angles, first, winding, oppWinding, sortable);
 }
 
 #endif

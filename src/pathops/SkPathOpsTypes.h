@@ -28,6 +28,11 @@ inline bool AlmostEqualUlps(double A, double B) {
     return AlmostEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
 }
 
+bool RoughlyEqualUlps(float A, float B);
+inline bool RoughlyEqualUlps(double A, double B) {
+    return RoughlyEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
+}
+
 // FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)
 // DBL_EPSILON == 2.22045e-16
 const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;

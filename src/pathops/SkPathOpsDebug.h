@@ -56,7 +56,6 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
-#define DEBUG_SHOW_PATH 0
 #define DEBUG_SHOW_TEST_NAME 0
 #define DEBUG_SHOW_TEST_PROGRESS 0
 #define DEBUG_SHOW_WINDING 0
@@ -86,7 +85,6 @@ extern int gDebugMaxWindValue;
 #define DEBUG_FLOW 1
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
-#define DEBUG_SHOW_PATH 0
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SHOW_TEST_PROGRESS 1
 #define DEBUG_SHOW_WINDING 0
@@ -141,14 +139,20 @@ void winding_printf(int winding);
 extern const char* kPathOpStr[];
 #endif
 
-#ifndef DEBUG_TEST
-#define DEBUG_TEST 0
+#if DEBUG_SHOW_TEST_NAME
+#include "SkTLS.h"
+
+extern void* PathOpsDebugCreateNameStr();
+extern void PathOpsDebugDeleteNameStr(void* v);
+#define DEBUG_FILENAME_STRING_LENGTH 64
+#define DEBUG_FILENAME_STRING \
+    (reinterpret_cast<char* >(SkTLS::Get(PathOpsDebugCreateNameStr, PathOpsDebugDeleteNameStr)))
+extern void DebugBumpTestName(char* );
+extern void DebugShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
 #endif
 
-#if DEBUG_SHOW_PATH
-void ShowFunctionHeader();
-void ShowPath(const SkPath& path, const char* pathName);
-void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo);
+#ifndef DEBUG_TEST
+#define DEBUG_TEST 0
 #endif
 
 #endif

@@ -96,6 +96,14 @@ public:
         }
     }
 
+    int insertSwap(double one, double two, double x, double y) {
+        if (fSwap) {
+            return insert(two, one, x, y);
+        } else {
+            return insert(one, two, x, y);
+        }
+    }
+
     bool isCoincident(int index) {
         return (fIsCoincident[0] & 1 << index) != 0;
     }
@@ -196,6 +204,7 @@ public:
     int horizontal(const SkDCubic&, double left, double right, double y, double tRange[3]);
     // FIXME : does not respect swap
     int insert(double one, double two, const SkDPoint& pt);
+    int insert(double one, double two, double x, double y);
     // start if index == 0 : end if index == 1
     void insertCoincident(double one, double two, const SkDPoint& pt);
     void insertCoincidentPair(double s1, double e1, double s2, double e2,
@@ -233,7 +242,7 @@ public:
 private:
     int computePoints(const SkDLine& line, int used);
     // used by addCoincident to remove ordinary intersections in range
-    void remove(double one, double two, const SkDPoint& startPt, const SkDPoint& endPt);
+ //   void remove(double one, double two, const SkDPoint& startPt, const SkDPoint& endPt);
 
     SkDPoint fPt[9];
     double fT[2][9];

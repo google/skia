@@ -28,6 +28,7 @@ static const SkPoint cubics[][4] = {
 /* 15 */   {{808,11417}, {808,11418.1044921875f}, {807.10455322265625f,11419}, {806,11419}},
 /* 16 */   {{132,11419}, {130.89543151855469f,11419}, {130,11418.1044921875f}, {130,11417}},
 /* 17 */   {{130.04275512695312f,11417.4130859375f}, {130.23312377929687f,11418.3193359375f}, {131.03707885742187f,11419}, {132,11419}},
+/* 18 */   {{1006.6951293945312f,291}, {1023.263671875f,291}, {1033.8402099609375f,304.43145751953125f}, {1030.318359375f,321}},
 };
 
 static const SkPoint quads[][3] = {
@@ -49,6 +50,7 @@ static const SkPoint lines[][2] = {
 /* 8 */    {{4,3}, {0,1}},
 /* 9 */    {{3,2}, {1,2}},
 /* 10 */   {{6,4}, {3,4}},
+/* 11 */   {{979.30487060546875f,561}, {1036.695068359375f,291}},
 };
 
 struct SortSet {
@@ -192,6 +194,13 @@ static const SortSet set16[] = {
     {cubics[17], 4, 0.0682619216, 1, {132,11419}},
 };
 
+static const SortSet set17[] = {
+    {lines[11], 2, 0.888889581, 1, {0, 0}},
+    {cubics[18], 4, 0.999996241, 0, {0, 0}},
+    {lines[11], 2, 0.888889581, 0, {0, 0}},
+    {cubics[18], 4, 0.999996241, 1, {0, 0}},
+};
+
 struct SortSetTests {
     const char* name;
     const SortSet* set;
@@ -202,6 +211,7 @@ struct SortSetTests {
 #define TEST_ENTRY(name) #name, name, SK_ARRAY_COUNT(name)
 
 static const SortSetTests tests[] = {
+    { TEST_ENTRY(set17), {0, 0}},
     { TEST_ENTRY(set16), {130.090179f,11417.5957f} },
 //    { TEST_ENTRY(set15), {0, 0}},
     { TEST_ENTRY(set14), {0, 0}},
@@ -294,88 +304,98 @@ static void setup(const SortSet* set, const size_t idx,
     } while (++tIndex);
 }
 
-static void PathOpsAngleTest(skiatest::Reporter* reporter) {
-    for (size_t index = 0; index < SK_ARRAY_COUNT(tests); ++index) {
-        const SortSetTests& test = tests[index];
-        SkTDArray<SkOpAngle> angles;
-        bool unsortable = false;
-        bool unorderable = false;
-        SkTArray<SkOpSegment> segs;
-        for (size_t idx = 0; idx < test.count; ++idx) {
-            int ts[2];
-            const SortSet* set = test.set;
-            SkOpSegment& seg = segs.push_back();
-            setup(set, idx, &seg, ts, test.startPt);
-            SkOpAngle* angle = angles.append();
-            angle->set(&seg, ts[0], ts[1]);
+static void testOne(skiatest::Reporter* reporter, const SortSetTests& test) {
+    SkTDArray<SkOpAngle> angles;
+    bool unsortable = false;
+    bool unorderable = false;
+    SkTArray<SkOpSegment> segs;
+    for (size_t idx = 0; idx < test.count; ++idx) {
+        int ts[2];
+        const SortSet* set = test.set;
+        SkOpSegment& seg = segs.push_back();
+        setup(set, idx, &seg, ts, test.startPt);
+        SkOpAngle* angle = angles.append();
+        angle->set(&seg, ts[0], ts[1]);
 #if DEBUG_ANGLE
-            angle->setID(idx);
+        angle->setID(idx);
 #endif
-           if (angle->unsortable()) {
+        if (angle->unsortable()) {
 #if DEBUG_ANGLE
-                SkDebugf("%s test[%s]:  angle[%d] unsortable\n", __FUNCTION__, test.name, idx);
+            SkDebugf("%s test[%s]:  angle[%d] unsortable\n", __FUNCTION__, test.name, idx);
 #endif
-                unsortable = true;
-            }
-            if (angle->unorderable()) {
-#if DEBUG_ANGLE
-                SkDebugf("%s test[%s]:  angle[%d] unorderable\n", __FUNCTION__, test.name, idx);
-#endif
-                unorderable = true;
-            }
-            reporter->bumpTestCount();
+            unsortable = true;
         }
-        if (unsortable || unorderable) {
-            continue;
-        }
+        if (angle->unorderable()) {
 #if DEBUG_ANGLE
-        SkDebugf("%s test[%s]\n", __FUNCTION__, test.name);
+            SkDebugf("%s test[%s]:  angle[%d] unorderable\n", __FUNCTION__, test.name, idx);
 #endif
-        for (size_t idxL = 0; idxL < test.count; ++idxL) {
-            const SkOpAngle& first = angles[idxL];
-            for (size_t idxG = 0; idxG < test.count; ++idxG) {
-                if (idxL == idxG) {
-                    continue;
-                }
-                const SkOpAngle& second = angles[idxG];
-                bool compare = first < second;
-                if (idxL < idxG) {
-                    if (!compare) {
-                        SkDebugf("%s test[%s]:  first[%d] > second[%d]\n", __FUNCTION__,
-                                test.name,  idxL,  idxG);
-                        compare = first < second;
-                    }
-                    REPORTER_ASSERT(reporter, compare);
-                } else {
-                    SkASSERT(idxL > idxG);
-                    if (compare) {
-                        SkDebugf("%s test[%s]:  first[%d] < second[%d]\n", __FUNCTION__,
-                                test.name,  idxL,  idxG);
-                        compare = first < second;
-                    }
-                    REPORTER_ASSERT(reporter, !compare);
-                }
-                compare = second < first;
-                if (idxL < idxG) {
-                    if (compare) {
-                        SkDebugf("%s test[%s]:  second[%d] < first[%d]\n", __FUNCTION__,
-                                test.name,  idxL,  idxG);
-                        compare = second < first;
-                    }
-                    REPORTER_ASSERT(reporter, !compare);
-                } else {
-                    SkASSERT(idxL > idxG);
-                    if (!compare) {
-                        SkDebugf("%s test[%s]:  second[%d] > first[%d]\n", __FUNCTION__,
-                                test.name,  idxL,  idxG);
-                        compare = second < first;
-                    }
-                    REPORTER_ASSERT(reporter, compare);
-                }
-            }
+            unorderable = true;
         }
         reporter->bumpTestCount();
     }
+    if (unsortable || unorderable) {
+        return;
+    }
+#if DEBUG_ANGLE
+    SkDebugf("%s test[%s]\n", __FUNCTION__, test.name);
+#endif
+    for (size_t idxL = 0; idxL < test.count; ++idxL) {
+        const SkOpAngle& first = angles[idxL];
+        for (size_t idxG = 0; idxG < test.count; ++idxG) {
+            if (idxL == idxG) {
+                continue;
+            }
+            const SkOpAngle& second = angles[idxG];
+            bool compare = first < second;
+            if (idxL < idxG) {
+                if (!compare) {
+                    SkDebugf("%s test[%s]:  first[%d] > second[%d]\n", __FUNCTION__,
+                            test.name,  idxL,  idxG);
+                    compare = first < second;
+                }
+                REPORTER_ASSERT(reporter, compare);
+            } else {
+                SkASSERT(idxL > idxG);
+                if (compare) {
+                    SkDebugf("%s test[%s]:  first[%d] < second[%d]\n", __FUNCTION__,
+                            test.name,  idxL,  idxG);
+                    compare = first < second;
+                }
+                REPORTER_ASSERT(reporter, !compare);
+            }
+            compare = second < first;
+            if (idxL < idxG) {
+                if (compare) {
+                    SkDebugf("%s test[%s]:  second[%d] < first[%d]\n", __FUNCTION__,
+                            test.name,  idxL,  idxG);
+                    compare = second < first;
+                }
+                REPORTER_ASSERT(reporter, !compare);
+            } else {
+                SkASSERT(idxL > idxG);
+                if (!compare) {
+                    SkDebugf("%s test[%s]:  second[%d] > first[%d]\n", __FUNCTION__,
+                            test.name,  idxL,  idxG);
+                    compare = second < first;
+                }
+                REPORTER_ASSERT(reporter, compare);
+            }
+        }
+    }
+}
+
+static void PathOpsAngleTest(skiatest::Reporter* reporter) {
+    for (size_t index = 0; index < SK_ARRAY_COUNT(tests); ++index) {
+        const SortSetTests& test = tests[index];
+        testOne(reporter, test);
+        reporter->bumpTestCount();
+    }
+}
+
+static void PathOpsAngleTestOne(skiatest::Reporter* reporter) {
+    size_t index = 0;
+    const SortSetTests& test = tests[index];
+    testOne(reporter, test);
 }
 
 #if 0
@@ -445,5 +465,7 @@ static void PathOpsAngleFindSlop(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsAngleTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsAngleTestOne)
 
 // DEFINE_TESTCLASS_SHORT(PathOpsAngleFindSlop)

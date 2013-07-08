@@ -7,11 +7,11 @@
 #include "SkFloatBits.h"
 #include "SkPathOpsTypes.h"
 
-const int UlpsEpsilon = 16;
+
 
 // from http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 // FIXME: move to SkFloatBits.h
-bool AlmostEqualUlps(float A, float B) {
+static bool equal_ulps(float A, float B, int epsilon) {
     SkFloatIntUnion floatIntA, floatIntB;
     floatIntA.fFloat = A;
     floatIntB.fFloat = B;
@@ -23,7 +23,17 @@ bool AlmostEqualUlps(float A, float B) {
     }
     // Find the difference in ULPs.
     int ulpsDiff = abs(floatIntA.fSignBitInt - floatIntB.fSignBitInt);
-    return ulpsDiff <= UlpsEpsilon;
+    return ulpsDiff <= epsilon;
+}
+
+bool AlmostEqualUlps(float A, float B) {
+    const int UlpsEpsilon = 16;
+    return equal_ulps(A, B, UlpsEpsilon);
+}
+
+bool RoughlyEqualUlps(float A, float B) {
+    const int UlpsEpsilon = 256;
+    return equal_ulps(A, B, UlpsEpsilon);
 }
 
 // cube root approximation using bit hack for 64-bit float

@@ -41,7 +41,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int& nextStart, int
                 SkOpSegment::kMayBeUnordered_SortAngleKind);
         int angleCount = sorted.count();
 #if DEBUG_SORT
-        sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0);
+        sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, sortable);
 #endif
         if (!sortable) {
             continue;
@@ -54,7 +54,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int& nextStart, int
             segment = angle->segment();
         } while (segment->windSum(angle) == SK_MinS32);
     #if DEBUG_SORT
-        segment->debugShowSort(__FUNCTION__, sorted, firstIndex);
+        segment->debugShowSort(__FUNCTION__, sorted, firstIndex, sortable);
     #endif
         int sumMiWinding = segment->updateWindingReverse(angle);
         int sumSuWinding = segment->updateOppWindingReverse(angle);
@@ -232,11 +232,12 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
 };
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-#if DEBUG_SHOW_PATH
-    ShowFunctionHeader();
-    ShowPath(one, "path");
-    ShowPath(two, "pathB");
-    ShowOp(op, "path", "pathB");
+#if DEBUG_SHOW_TEST_NAME
+    char* debugName = DEBUG_FILENAME_STRING;
+    if (debugName && debugName[0]) {
+        DebugBumpTestName(debugName);
+        DebugShowPath(one, two, op, debugName);
+    }
 #endif
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
     SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]

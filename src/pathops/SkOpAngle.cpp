@@ -22,7 +22,7 @@ static const int bugChar = strlen(funcName) + 1;
 
 #if DEBUG_ANGLE
     static bool CompareResult(SkString* bugOut, const char* append, bool compare) {
-        bugOut->appendf(append);
+        bugOut->appendf("%s", append);
         bugOut->writable_str()[bugChar] = "><"[compare];
         SkDebugf("%s\n", bugOut->c_str());
         return compare;
@@ -141,7 +141,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
         }
     }
     if (fSide * rh.fSide == 0) {
-        SkASSERT(fSide + rh.fSide != 0);
+        SkASSERT(fSide + rh.fSide != 0); // hitting this assert means coincidence was undetected
         return COMPARE_RESULT("9 fSide * rh.fSide == 0 ...", fSide < rh.fSide);
     }
     // at this point, the initial tangent line is nearly coincident

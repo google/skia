@@ -318,8 +318,9 @@ public:
 #endif
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     void debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true>& angles, int first,
-            const int contourWinding, const int oppContourWinding) const;
-    void debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true>& angles, int first);
+            const int contourWinding, const int oppContourWinding, bool sortable) const;
+    void debugShowSort(const char* fun, const SkTArray<SkOpAngle*, true>& angles, int first,
+            bool sortable);
 #endif
 #if DEBUG_CONCIDENT
     void debugShowTs() const;

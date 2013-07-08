@@ -200,38 +200,57 @@ protected:
     // add endpoints first to get zero and one t values exactly
     void addEndPoints() {
         for (int qIndex = 0; qIndex < 3; qIndex += 2) {
+            bool foundEnd = false;
             for (int lIndex = 0; lIndex < 2; lIndex++) {
                 if (quad[qIndex] == line[lIndex]) {
                     intersections->insert(qIndex >> 1, lIndex, line[lIndex]);
+                    foundEnd = true;
                 }
+            }
+            if (foundEnd) {
+                continue;
+            }
+            // See if the quad end touches the line. 
+            double dist = line.isLeft(quad[qIndex]); // this distance isn't cartesian
+            SkDVector lineLen = line[1] - line[0]; // the x/y magnitudes of the line
+            // compute the ULPS of the larger of the x/y deltas
+            double larger = SkTMax(SkTAbs(lineLen.fX), SkTAbs(lineLen.fY));
+            if (!RoughlyEqualUlps(larger, larger + dist)) { // is the dist within ULPS tolerance?
+                continue;
+            }
+            double lineT = findLineT(qIndex >> 1);
+            if (!between(0, lineT, 1)) {
+                continue;
+            }
+            SkDPoint linePt = line.xyAtT(lineT);
+            if (linePt.approximatelyEqual(quad[qIndex])) {
+                intersections->insert(qIndex >> 1, lineT, quad[qIndex]);
             }
         }
     }
 
     void addHorizontalEndPoints(double left, double right, double y) {
         for (int qIndex = 0; qIndex < 3; qIndex += 2) {
-            if (quad[qIndex].fY != y) {
+            if (!AlmostEqualUlps(quad[qIndex].fY, y)) {
                 continue;
             }
-            if (quad[qIndex].fX == left) {
-                intersections->insert(qIndex >> 1, 0, quad[qIndex]);
-            }
-            if (quad[qIndex].fX == right) {
-                intersections->insert(qIndex >> 1, 1, quad[qIndex]);
+            double x = quad[qIndex].fX;
+            if (between(left, x, right)) {
+                double t = (x - left) / (right - left);
+                intersections->insert(qIndex >> 1, t, quad[qIndex]);
             }
         }
     }
 
     void addVerticalEndPoints(double top, double bottom, double x) {
         for (int qIndex = 0; qIndex < 3; qIndex += 2) {
-            if (quad[qIndex].fX != x) {
+            if (!AlmostEqualUlps(quad[qIndex].fX, x)) {
                 continue;
             }
-            if (quad[qIndex].fY == top) {
-                intersections->insert(qIndex >> 1, 0, quad[qIndex]);
-            }
-            if (quad[qIndex].fY == bottom) {
-                intersections->insert(qIndex >> 1, 1, quad[qIndex]);
+            double y = quad[qIndex].fY;
+            if (between(top, y, bottom)) {
+                double t = (y - top) / (bottom - top);
+                intersections->insert(qIndex >> 1, t, quad[qIndex]);
             }
         }
     }
@@ -240,10 +259,22 @@ protected:
         SkDPoint xy = quad.xyAtT(t);
         double dx = line[1].fX - line[0].fX;
         double dy = line[1].fY - line[0].fY;
+#if 0
         if (fabs(dx) > fabs(dy)) {
             return (xy.fX - line[0].fX) / dx;
         }
         return (xy.fY - line[0].fY) / dy;
+#else
+        double dxT = (xy.fX - line[0].fX) / dx;
+        double dyT = (xy.fY - line[0].fY) / dy;
+        if (!between(FLT_EPSILON, dxT, 1 - FLT_EPSILON) && between(0, dyT, 1)) {
+            return dyT;
+        }
+        if (!between(FLT_EPSILON, dyT, 1 - FLT_EPSILON) && between(0, dxT, 1)) {
+            return dxT;
+        }
+        return fabs(dx) > fabs(dy) ? dxT : dyT;
+#endif
     }
 
     static bool PinTs(double* quadT, double* lineT) {
