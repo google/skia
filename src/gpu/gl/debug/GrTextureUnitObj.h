@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTextreUnitObj_DEFINED
+#ifndef GrTextureUnitObj_DEFINED
 #define GrTextureUnitObj_DEFINED
 
 #include "GrFakeRefObj.h"

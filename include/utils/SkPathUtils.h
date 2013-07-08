@@ -7,7 +7,7 @@
  */
 
 #ifndef SkPathUtils_DEFINED
-#define SKPathUtils_DEFINED
+#define SkPathUtils_DEFINED
 
 #include "SkPath.h"
 
