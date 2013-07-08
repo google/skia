@@ -11,14 +11,13 @@
 
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
 
-// These constants must be kept in sync with the JSONKEY_ constants in
-// gm_json.py !
+// See gm_json.py for descriptions of each of these JSON keys.
+// These constants must be kept in sync with the ones in that Python file!
 const static char kJsonKey_ActualResults[]   = "actual-results";
 const static char kJsonKey_ActualResults_Failed[]        = "failed";
 const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
 const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
 const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-
 const static char kJsonKey_ExpectedResults[] = "expected-results";
 const static char kJsonKey_ExpectedResults_AllowedDigests[] = "allowed-digests";
 const static char kJsonKey_ExpectedResults_IgnoreFailure[]  = "ignore-failure";
