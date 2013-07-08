@@ -82,11 +82,11 @@ class ImageRebaseliner(object):
             'http://chromium-skia-gm.commondatastorage.googleapis.com/gm')
         self._testname_pattern = re.compile('(\S+)_(\S+).png')
         self._is_svn_checkout = (
-            os.path.exists('.svn') or
-            os.path.exists(os.path.join(os.pardir, '.svn')))
+            os.path.exists(os.path.join(expectations_root, '.svn')) or
+            os.path.exists(os.path.join(expectations_root, os.pardir, '.svn')))
         self._is_git_checkout = (
-            os.path.exists('.git') or
-            os.path.exists(os.path.join(os.pardir, '.git')))
+            os.path.exists(os.path.join(expectations_root, '.git')) or
+            os.path.exists(os.path.join(expectations_root, os.pardir, '.git')))
 
     # If dry_run is False, execute subprocess.call(cmd).
     # If dry_run is True, print the command we would have otherwise run.
