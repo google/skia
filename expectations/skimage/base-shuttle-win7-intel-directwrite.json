@@ -6,6 +6,12 @@
       "succeeded" : null
    },
    "expected-results" : {
+      "Softskin-Series-Folder-Folder-TV-DEXTER-2.ico" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 15513164475782874663 ]
+         ],
+         "ignore-failure" : true
+      },
       "01_original.jpg" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 6357612266670593419 ]
@@ -21,6 +27,48 @@
       "03_none_filter.JPG" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 6388620656649963843 ]
+         ],
+         "ignore-failure" : false
+      },
+      "1.bmp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 3196238483932704104 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 2589463703907036000 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp_[103,149,154,207]" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 12604103674453802403 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp_[110,45,267,119]" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 10993479620469649955 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp_[194,120,303,142]" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 896969226539617906 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp_[223,42,242,84]" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 15689397369237750677 ]
+         ],
+         "ignore-failure" : false
+      },
+      "5.sm.webp_[67,3,262,9]" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 13985179766273397720 ]
          ],
          "ignore-failure" : false
       },
@@ -60,9 +108,21 @@
          ],
          "ignore-failure" : false
       },
+      "friend.wbmp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 8444311348702753929 ]
+         ],
+         "ignore-failure" : false
+      },
       "kokteylogo.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 168800254427225818 ]
+         ],
+         "ignore-failure" : false
+      },
+      "pac2.wbmp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 16120779150350061767 ]
          ],
          "ignore-failure" : false
       },
