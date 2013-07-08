@@ -33,6 +33,12 @@
     fun:_mesa_symbol_table_add_symbol
 }
 {
+    Mesa_symbol_table_add_symbol_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:_mesa_symbol_table_add_symbol
+}
+{
     Mesa_add_global_symbol_leak
     Memcheck:Leak
     fun:malloc
@@ -93,4 +99,45 @@
     Memcheck:Value8
     obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
     fun:_mesa_readpixels
+}
+{
+    Mesa_compile_shader
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_strdup
+    ...
+    fun:_mesa_glsl_compile_shader
+}
+{
+    Mesa_compile_shader_2
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    ...
+    fun:_mesa_glsl_compile_shader
+}
+{
+    Mesa_link_shader
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    ...
+    fun:_mesa_glsl_link_shader
+}
+{
+    Mesa_link_shader2
+    Memcheck:Leak
+    fun:calloc
+    obj:/usr/lib/x86_64-linux-gnu/dri/libgallium.so
+    fun:st_link_shader
+    fun:_mesa_glsl_link_shader
+}
+{
+    Mesa_update_state
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    ...
+    fun:_mesa_update_state
 }
