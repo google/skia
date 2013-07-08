@@ -18,6 +18,10 @@
 
 class SkBitmap;
 
+#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
+    #define DEBUG_NON_DETERMINISTIC_ASSERT
+#endif
+
 class SkOrderedReadBuffer : public SkFlattenableReadBuffer {
 public:
     SkOrderedReadBuffer();
@@ -121,6 +125,12 @@ private:
     int                     fFactoryCount;
 
     SkPicture::InstallPixelRefProc fBitmapDecoder;
+
+#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
+    // Debugging counter to keep track of how many bitmaps we
+    // have decoded.
+    int fDecodedBitmapIndex;
+#endif // DEBUG_NON_DETERMINISTIC_ASSERT
 
     typedef SkFlattenableReadBuffer INHERITED;
 };
