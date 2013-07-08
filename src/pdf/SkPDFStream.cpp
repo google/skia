@@ -25,9 +25,7 @@ SkPDFStream::SkPDFStream(SkStream* stream)
 }
 
 SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
-    SkMemoryStream* stream = new SkMemoryStream;
-    stream->setData(data);
-    fData.reset(stream);  // Transfer ownership.
+    setData(data);
 }
 
 SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
@@ -83,6 +81,12 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 SkPDFStream::SkPDFStream() : fState(kUnused_State) {}
+
+void SkPDFStream::setData(SkData* data) {
+    SkMemoryStream* stream = new SkMemoryStream;
+    stream->setData(data);
+    fData.reset(stream);  // Transfer ownership.
+}
 
 void SkPDFStream::setData(SkStream* stream) {
     fData.reset(stream);
