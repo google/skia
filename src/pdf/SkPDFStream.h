@@ -68,6 +68,7 @@ protected:
         return fSubstitute.get();
     }
 
+    void setData(SkData* data);
     void setData(SkStream* stream);
 
     SkStream* getData() {
