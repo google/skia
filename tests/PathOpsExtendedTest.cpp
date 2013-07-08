@@ -45,27 +45,34 @@ static bool gComparePaths = true;
 static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 
-static void showPathContours(SkPath::Iter& iter, const char* suffix) {
+static const char* gFillTypeStr[] = {
+    "kWinding_FillType",
+    "kEvenOdd_FillType",
+    "kInverseWinding_FillType",
+    "kInverseEvenOdd_FillType"
+};
+
+static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkDebugf("    path%s.moveTo(%1.9g,%1.9g);\n", suffix, pts[0].fX, pts[0].fY);
+                SkDebugf("    %s.moveTo(%#1.9gf, %#1.9gf);\n", pathName, pts[0].fX, pts[0].fY);
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("    path%s.lineTo(%1.9g,%1.9g);\n", suffix, pts[1].fX, pts[1].fY);
+                SkDebugf("    %s.lineTo(%#1.9gf, %#1.9gf);\n", pathName, pts[1].fX, pts[1].fY);
                 break;
             case SkPath::kQuad_Verb:
-                SkDebugf("    path%s.quadTo(%1.9g,%1.9g, %1.9g,%1.9g);\n", suffix,
+                SkDebugf("    %s.quadTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n", pathName,
                     pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPath::kCubic_Verb:
-                SkDebugf("    path%s.cubicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g,%1.9g);\n", suffix,
-                    pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                SkDebugf("    %s.cubicTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n",
+                    pathName, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
                 break;
             case SkPath::kClose_Verb:
-                SkDebugf("    path%s.close();\n", suffix);
+                SkDebugf("    %s.close();\n", pathName);
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
@@ -74,15 +81,8 @@ static void showPathContours(SkPath::Iter& iter, const char* suffix) {
     }
 }
 
-static const char* fillTypeStr[] = {
-    "kWinding_FillType",
-    "kEvenOdd_FillType",
-    "kInverseWinding_FillType",
-    "kInverseEvenOdd_FillType"
-};
-
-static void showPath(const SkPath& path, const char* suffix) {
-    SkPath::Iter iter(path, true);
+static void showPath(const SkPath& path, const char* pathName, bool includeDeclaration) {
+    SkPath::RawIter iter(path);
 #define SUPPORT_RECT_CONTOUR_DETECTION 0
 #if SUPPORT_RECT_CONTOUR_DETECTION
     int rectCount = path.isRectContours() ? path.rectContours(NULL, NULL) : 0;
@@ -103,14 +103,17 @@ static void showPath(const SkPath& path, const char* suffix) {
 #endif
     SkPath::FillType fillType = path.getFillType();
     SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
-    SkDebugf("    path%s.setFillType(SkPath::%s);\n", suffix, fillTypeStr[fillType]);
-    iter.setPath(path, true);
-    showPathContours(iter, suffix);
+    if (includeDeclaration) {
+        SkDebugf("    SkPath %s;\n", pathName);
+    }
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", pathName, gFillTypeStr[fillType]);
+    iter.setPath(path);
+    showPathContours(iter, pathName);
 }
 
 #if DEBUG_SHOW_TEST_NAME
 static void showPathData(const SkPath& path) {
-    SkPath::Iter iter(path, true);
+    SkPath::RawIter iter(path);
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
@@ -162,16 +165,26 @@ void showOp(const SkPathOp op) {
     }
 }
 
-#if 0
-static void showPath(const SkPath& path, const char* str, const SkMatrix& scale) {
-    SkPath scaled;
-    SkMatrix inverse;
-    bool success = scale.invert(&inverse);
-    if (!success) {
-        SkASSERT(0);
+#if DEBUG_SHOW_TEST_NAME
+
+void ShowFunctionHeader(const char* functionName) {
+    SkDebugf("\nstatic void %s(skiatest::Reporter* reporter) {\n", functionName);
+    if (strcmp("skphealth_com76", functionName) == 0) {
+        SkDebugf("found it\n");
     }
-    path.transform(inverse, &scaled);
-    showPath(scaled, str);
+}
+
+static const char* gOpStrs[] = {
+    "kDifference_PathOp",
+    "kIntersect_PathOp",
+    "kUnion_PathOp",
+    "kXor_PathOp",
+    "kReverseDifference_PathOp",
+};
+
+void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo) {
+    SkDebugf("    testPathOp(reporter, %s, %s, %s);\n", pathOne, pathTwo, gOpStrs[op]);
+    SkDebugf("}\n");
 }
 #endif
 
@@ -325,8 +338,7 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
 
 static void showSimplifiedPath(const SkPath& one, const SkPath& two,
         const SkPath& scaledOne, const SkPath& scaledTwo) {
-    showPath(one, "");
- //   showPath(two, "simplified:");
+    showPath(one, "path", false);
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
@@ -356,13 +368,10 @@ static void showPathOpPath(const SkPath& one, const SkPath& two, const SkPath& a
     SkASSERT((unsigned) shapeOp < SK_ARRAY_COUNT(opStrs));
     SkDebugf("static void xOp#%s(skiatest::Reporter* reporter) {\n", opSuffixes[shapeOp]);
     SkDebugf("    SkPath path, pathB;\n");
-    showPath(a, "");
-    showPath(b, "B");
+    showPath(a, "path", false);
+    showPath(b, "pathB", false);
     SkDebugf("    testPathOp(reporter, path, pathB, %s);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
-    // the region often isn't very helpful since it approximates curves with a lot of line-tos
- //   if (0) showPath(scaledOne, "region:", scale);
- //   showPath(two, "op result:");
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
@@ -450,7 +459,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     SkPath::FillType fillType = useXor ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
     path.setFillType(fillType);
     if (gShowPath) {
-        showPath(path, "");
+        showPath(path, "path", false);
     }
     if (!Simplify(path, &out)) {
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
@@ -499,12 +508,25 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
     return result == 0;
 }
 
-bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                 const SkPathOp shapeOp) {
 #if DEBUG_SHOW_TEST_NAME
-    showPathData(a);
-    showOp(shapeOp);
-    showPathData(b);
+void DebugShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp, const char* testName) {
+        ShowFunctionHeader(testName);
+        showPath(a, "path", true);
+        showPath(b, "pathB", true);
+        ShowOp(shapeOp, "path", "pathB");
+}
+#endif
+
+bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                 const SkPathOp shapeOp, const char* testName) {
+#if DEBUG_SHOW_TEST_NAME
+    if (testName == NULL) {
+        showPathData(a);
+        showOp(shapeOp);
+        showPathData(b);
+    } else {
+        DebugShowPath(a, b, shapeOp, testName);
+    }
 #endif
     SkPath out;
     if (!Op(a, b, shapeOp, &out) ) {
@@ -566,7 +588,7 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
             testNumber = atoi(numLoc) + 1;
         }
     }
-    return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 0;
+    return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
 }
 
 void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType pathFillType) {

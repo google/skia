@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkGeometry.h"
 #include "SkOpEdgeBuilder.h"
 #include "SkReduceOrder.h"
 
@@ -37,70 +38,114 @@ bool SkOpEdgeBuilder::finish() {
     if (fCurrentContour && !fCurrentContour->segments().count()) {
         fContours.pop_back();
     }
-    // correct pointers in contours since fReducePts may have moved as it grew
-    int cIndex = 0;
-    int extraCount = fExtra.count();
-    SkASSERT(extraCount == 0 || fExtra[0] == -1);
-    int eIndex = 0;
-    int rIndex = 0;
-    while (++eIndex < extraCount) {
-        int offset = fExtra[eIndex];
-        if (offset < 0) {
-            ++cIndex;
-            continue;
-        }
-        fCurrentContour = &fContours[cIndex];
-        rIndex += fCurrentContour->updateSegment(offset - 1,
-                &fReducePts[rIndex]);
-    }
-    fExtra.reset();  // we're done with this
     return true;
 }
 
-// Note that copying the points here avoids copying the resulting path later.
-// To allow Op() to take one of the input paths as an output parameter, either the source data
-// must be copied (as implemented below) or the result must be copied.
-// OPTIMIZATION: This copies both sets of input points every time. If the input data was read
-// directly, the output path would only need to be copied if it was also one of the input paths.
+void SkOpEdgeBuilder::closeContour(const SkPoint& curveEnd, const SkPoint& curveStart) {
+    if ((!AlmostEqualUlps(curveEnd.fX, curveStart.fX)
+            || !AlmostEqualUlps(curveEnd.fY, curveStart.fY))) {
+        fPathVerbs.push_back(SkPath::kLine_Verb);
+        fPathPts.push_back_n(1, &curveStart);    
+    } else {
+        if (curveEnd.fX != curveStart.fX || curveEnd.fY != curveStart.fY) {
+            fPathPts[fPathPts.count() - 1] = curveStart;
+        } else {
+            fPathPts[fPathPts.count() - 1] = curveStart;
+        }
+    }
+    fPathVerbs.push_back(SkPath::kClose_Verb);
+}
+
 int SkOpEdgeBuilder::preFetch() {
     if (!fPath->isFinite()) {
         fUnparseable = true;
         return 0;
     }
+    SkAutoConicToQuads quadder;
+    const SkScalar quadderTol = SK_Scalar1 / 16;
     SkPath::RawIter iter(*fPath);
+    SkPoint curveStart;
+    SkPoint curve[4];
     SkPoint pts[4];
     SkPath::Verb verb;
+    bool lastCurve = false;
     do {
         verb = iter.next(pts);
-        fPathVerbs.push_back(verb);
-        if (verb == SkPath::kMove_Verb) {
-            fPathPts.push_back(pts[0]);
-        } else if (verb >= SkPath::kLine_Verb && verb <= SkPath::kCubic_Verb) {
-            fPathPts.push_back_n(SkPathOpsVerbToPoints(verb), &pts[1]);
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                if (!fAllowOpenContours && lastCurve) {
+                    closeContour(curve[0], curveStart);
+                }
+                fPathVerbs.push_back(verb);
+                fPathPts.push_back(pts[0]);
+                curveStart = curve[0] = pts[0];
+                lastCurve = false;
+                continue;
+            case SkPath::kLine_Verb:
+                if (AlmostEqualUlps(curve[0].fX, pts[1].fX)
+                        && AlmostEqualUlps(curve[0].fY, pts[1].fY)) {
+                    continue;  // skip degenerate points
+                }
+                break;
+            case SkPath::kQuad_Verb:
+                curve[1] = pts[1];
+                curve[2] = pts[2];
+                verb = SkReduceOrder::Quad(curve, pts);
+                if (verb == SkPath::kMove_Verb) {
+                    continue;  // skip degenerate points
+                }
+                break;
+            case SkPath::kConic_Verb: {
+                    const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(),
+                            quadderTol);
+                    const int nQuads = quadder.countQuads();
+                    for (int i = 0; i < nQuads; ++i) {
+                       fPathVerbs.push_back(SkPath::kQuad_Verb);
+                    }
+                    fPathPts.push_back_n(nQuads * 2, quadPts);
+                    curve[0] = quadPts[nQuads * 2 - 1];
+                    lastCurve = true;
+                }
+                continue;
+            case SkPath::kCubic_Verb:
+                curve[1] = pts[1];
+                curve[2] = pts[2];
+                curve[3] = pts[3];
+                verb = SkReduceOrder::Cubic(curve, pts);
+                if (verb == SkPath::kMove_Verb) {
+                    continue;  // skip degenerate points
+                }
+                break;
+            case SkPath::kClose_Verb:
+                closeContour(curve[0], curveStart);
+                lastCurve = false;
+                continue;
+            case SkPath::kDone_Verb:
+                continue;
         }
+        fPathVerbs.push_back(verb);
+        int ptCount = SkPathOpsVerbToPoints(verb);
+        fPathPts.push_back_n(ptCount, &pts[1]);
+        curve[0] = pts[ptCount];
+        lastCurve = true;
     } while (verb != SkPath::kDone_Verb);
+    if (!fAllowOpenContours && lastCurve) {
+        closeContour(curve[0], curveStart);
+    }
+    fPathVerbs.push_back(SkPath::kDone_Verb);
     return fPathVerbs.count() - 1;
 }
 
 bool SkOpEdgeBuilder::close() {
-    if (fFinalCurveStart && fFinalCurveEnd && *fFinalCurveStart != *fFinalCurveEnd) {
-        fReducePts.push_back(*fFinalCurveStart);
-        fReducePts.push_back(*fFinalCurveEnd);
-        const SkPoint* lineStart = fReducePts.end() - 2;
-        fExtra.push_back(fCurrentContour->addLine(lineStart));
-    }
     complete();
     return true;
 }
 
 bool SkOpEdgeBuilder::walk() {
-    SkPath::Verb reducedVerb;
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
-    const SkPoint* pointsPtr = fPathPts.begin();
+    const SkPoint* pointsPtr = fPathPts.begin() - 1;
     SkPath::Verb verb;
-    fFinalCurveStart = NULL;
-    fFinalCurveEnd = NULL;
     while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
         if (verbPtr == endOfFirstHalf) {
             fOperand = true;
@@ -119,49 +164,18 @@ bool SkOpEdgeBuilder::walk() {
                     fCurrentContour = fContours.push_back_n(1);
                     fCurrentContour->setOperand(fOperand);
                     fCurrentContour->setXor(fXorMask[fOperand] == kEvenOdd_PathOpsMask);
-                    fExtra.push_back(-1);  // start new contour
                 }
-                fFinalCurveEnd = pointsPtr++;
+                pointsPtr += 1;
                 continue;
-            case SkPath::kLine_Verb: {
-                const SkPoint& lineEnd = pointsPtr[0];
-                const SkPoint& lineStart = pointsPtr[-1];
-                // skip degenerate points
-                if (lineStart.fX != lineEnd.fX || lineStart.fY != lineEnd.fY) {
-                    fCurrentContour->addLine(&lineStart);
-                }
-                } break;
-            case SkPath::kQuad_Verb: {
-                const SkPoint* quadStart = &pointsPtr[-1];
-                reducedVerb = SkReduceOrder::Quad(quadStart, &fReducePts);
-                if (reducedVerb == 0) {
-                    break;  // skip degenerate points
-                }
-                if (reducedVerb == SkPath::kLine_Verb) {
-                    const SkPoint* lineStart = fReducePts.end() - 2;
-                    fExtra.push_back(fCurrentContour->addLine(lineStart));
-                    break;
-                }
-                fCurrentContour->addQuad(quadStart);
-                } break;
-            case SkPath::kCubic_Verb: {
-                const SkPoint* cubicStart = &pointsPtr[-1];
-                reducedVerb = SkReduceOrder::Cubic(cubicStart, &fReducePts);
-                if (reducedVerb == 0) {
-                    break;  // skip degenerate points
-                }
-                if (reducedVerb == SkPath::kLine_Verb) {
-                    const SkPoint* lineStart = fReducePts.end() - 2;
-                    fExtra.push_back(fCurrentContour->addLine(lineStart));
-                    break;
-                }
-                if (reducedVerb == SkPath::kQuad_Verb) {
-                    const SkPoint* quadStart = fReducePts.end() - 3;
-                    fExtra.push_back(fCurrentContour->addQuad(quadStart));
-                    break;
-                }
-                fCurrentContour->addCubic(cubicStart);
-                } break;
+            case SkPath::kLine_Verb:
+                fCurrentContour->addLine(pointsPtr);
+                break;
+            case SkPath::kQuad_Verb:
+                fCurrentContour->addQuad(pointsPtr);
+                break;
+            case SkPath::kCubic_Verb:
+                fCurrentContour->addCubic(pointsPtr);
+                break;
             case SkPath::kClose_Verb:
                 SkASSERT(fCurrentContour);
                 if (!close()) {
@@ -172,7 +186,6 @@ bool SkOpEdgeBuilder::walk() {
                 SkDEBUGFAIL("bad verb");
                 return false;
         }
-        fFinalCurveStart = &pointsPtr[SkPathOpsVerbToPoints(verb) - 1];
         pointsPtr += SkPathOpsVerbToPoints(verb);
         SkASSERT(fCurrentContour);
     }

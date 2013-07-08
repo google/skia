@@ -27,8 +27,8 @@ union SkReduceOrder {
     int reduce(const SkDLine& line);
     int reduce(const SkDQuad& quad, Style);
 
-    static SkPath::Verb Cubic(const SkPoint pts[4], SkTArray<SkPoint, true>* reducePts);
-    static SkPath::Verb Quad(const SkPoint pts[3], SkTArray<SkPoint, true>* reducePts);
+    static SkPath::Verb Cubic(const SkPoint pts[4], SkPoint* reducePts);
+    static SkPath::Verb Quad(const SkPoint pts[3], SkPoint* reducePts);
 
     SkDLine fLine;
     SkDQuad fQuad;

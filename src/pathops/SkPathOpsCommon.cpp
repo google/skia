@@ -138,7 +138,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
                 SkOpSegment::kMayBeUnordered_SortAngleKind);
         int angleCount = sorted.count();
 #if DEBUG_SORT
-        sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0);
+        sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0, sortable);
 #endif
         if (!sortable) {
             continue;
@@ -162,7 +162,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex) 
             winding += spanWinding;
         }
     #if DEBUG_SORT
-        segment->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, 0);
+        segment->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, 0, sortable);
     #endif
         // we care about first sign and whether wind sum indicates this
         // edge is inside or outside. Maybe need to pass span winding

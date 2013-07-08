@@ -27,7 +27,7 @@ extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp );
+                        const SkPathOp , const char* testName = NULL);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path);
@@ -40,5 +40,8 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
                 void (*firstTest)(skiatest::Reporter* ),
                 void (*stopTest)(skiatest::Reporter* ), bool reverse);
 void ShowTestName(PathOpsThreadState* data, int a, int b, int c, int d);
+void ShowFunctionHeader(const char* name);
+void ShowPath(const SkPath& path, const char* pathName);
+void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo);
 
 #endif

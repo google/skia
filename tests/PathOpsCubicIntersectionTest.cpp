@@ -490,8 +490,8 @@ static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
             SkDebugf("%s max[%d]=%1.9g (%1.9g, %1.9g)\n", __FUNCTION__, idx2,
                     max[idx2], cubic.xyAtT(max[idx2]).fX, cubic.xyAtT(max[idx2]).fY);
         }
-        SkTDArray<double> ts1;
-        SkTDArray<SkDQuad> quads1;
+        SkTArray<double, true> ts1;
+        SkTArray<SkDQuad, true> quads1;
         cubic.toQuadraticTs(cubic.calcPrecision(), &ts1);
         for (idx2 = 0; idx2 < ts1.count(); ++idx2) {
             SkDebugf("%s t[%d]=%1.9g\n", __FUNCTION__, idx2, ts1[idx2]);

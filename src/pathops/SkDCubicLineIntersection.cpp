@@ -105,6 +105,11 @@ int intersect() {
         double lineT = findLineT(cubicT);
         if (pinTs(&cubicT, &lineT)) {
             SkDPoint pt = line.xyAtT(lineT);
+#if ONE_OFF_DEBUG
+            SkDPoint cPt = cubic.xyAtT(cubicT);
+            SkDebugf("%s pt=(%1.9g,%1.9g) cPt=(%1.9g,%1.9g)\n", __FUNCTION__, pt.fX, pt.fY,
+                    cPt.fX, cPt.fY);
+#endif
             intersections.insert(cubicT, lineT, pt);
         }
     }
@@ -165,10 +170,33 @@ protected:
 
 void addEndPoints() {
     for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        bool foundEnd = false;
         for (int lIndex = 0; lIndex < 2; lIndex++) {
             if (cubic[cIndex] == line[lIndex]) {
                 intersections.insert(cIndex >> 1, lIndex, line[lIndex]);
+                foundEnd = true;
             }
+        }
+        // for the test case this was written for, the dist / error ratio was 170.6667
+        // it looks like the cubic stops short of touching the line, but this fixed it.
+        if (foundEnd) {
+            continue;
+        }
+        // See if the cubic end touches the line. 
+        double dist = line.isLeft(cubic[cIndex]); // this distance isn't cartesian
+        SkDVector lineLen = line[1] - line[0]; // the x/y magnitudes of the line
+        // compute the ULPS of the larger of the x/y deltas
+        double larger = SkTMax(SkTAbs(lineLen.fX), SkTAbs(lineLen.fY));
+        if (!RoughlyEqualUlps(larger, larger + dist)) { // is the dist within ULPS tolerance?
+            continue;
+        }
+        double lineT = findLineT(cIndex >> 1);
+        if (!between(0, lineT, 1)) {
+            continue;
+        }
+        SkDPoint linePt = line.xyAtT(lineT);
+        if (linePt.approximatelyEqual(cubic[cIndex])) {
+            intersections.insert(cIndex >> 1, lineT, cubic[cIndex]);
         }
     }
 }

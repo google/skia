@@ -2859,33 +2859,33 @@ path.close();
 
 static void testQuadratic58(skiatest::Reporter* reporter) {
     SkPath path;
-path.moveTo(283.714233f, 240);
-path.lineTo(283.714233f, 141.299606f);
-path.lineTo(303.12088f, 141.299606f);
-path.lineTo(330.463562f, 217.659027f);
-path.lineTo(358.606506f, 141.299606f);
-path.lineTo(362.874634f, 159.705902f);
-path.lineTo(335.665344f, 233.397751f);
-path.lineTo(322.12738f, 233.397751f);
-path.lineTo(295.718353f, 159.505829f);
-path.lineTo(295.718353f, 240);
-path.lineTo(283.714233f, 240);
-path.close();
-path.moveTo(322.935669f, 231.030273f);
-path.quadTo(312.832214f, 220.393295f, 312.832214f, 203.454178f);
-path.quadTo(312.832214f, 186.981888f, 321.73526f, 176.444946f);
-path.quadTo(330.638306f, 165.90802f, 344.509705f, 165.90802f);
-path.quadTo(357.647522f, 165.90802f, 364.81665f, 175.244537f);
-path.lineTo(371.919067f, 205.854996f);
-path.lineTo(326.236786f, 205.854996f);
-path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
-path.lineTo(322.935669f, 231.030273f);
-path.close();
-path.moveTo(326.837006f, 195.984955f);
-path.lineTo(358.78125f, 195.984955f);
-path.quadTo(358.78125f, 175.778046f, 343.709442f, 175.778046f);
-path.quadTo(328.570923f, 175.778046f, 326.837006f, 195.984955f);
-path.close();
+    path.moveTo(283.714233f, 240);
+    path.lineTo(283.714233f, 141.299606f);
+    path.lineTo(303.12088f, 141.299606f);
+    path.lineTo(330.463562f, 217.659027f);
+    path.lineTo(358.606506f, 141.299606f);
+    path.lineTo(362.874634f, 159.705902f);
+    path.lineTo(335.665344f, 233.397751f);
+    path.lineTo(322.12738f, 233.397751f);
+    path.lineTo(295.718353f, 159.505829f);
+    path.lineTo(295.718353f, 240);
+    path.lineTo(283.714233f, 240);
+    path.close();
+    path.moveTo(322.935669f, 231.030273f);
+    path.quadTo(312.832214f, 220.393295f, 312.832214f, 203.454178f);
+    path.quadTo(312.832214f, 186.981888f, 321.73526f, 176.444946f);
+    path.quadTo(330.638306f, 165.90802f, 344.509705f, 165.90802f);
+    path.quadTo(357.647522f, 165.90802f, 364.81665f, 175.244537f);
+    path.lineTo(371.919067f, 205.854996f);
+    path.lineTo(326.236786f, 205.854996f);
+    path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
+    path.lineTo(322.935669f, 231.030273f);
+    path.close();
+    path.moveTo(326.837006f, 195.984955f);
+    path.lineTo(358.78125f, 195.984955f);
+    path.quadTo(358.78125f, 175.778046f, 343.709442f, 175.778046f);
+    path.quadTo(328.570923f, 175.778046f, 326.837006f, 195.984955f);
+    path.close();
     testSimplify(reporter, path);
 }
 
@@ -3557,7 +3557,6 @@ static void testCubic2(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-#if 01  // FIXME: enable and fix
 static void testQuad1(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0,0);
@@ -3569,7 +3568,6 @@ static void testQuad1(skiatest::Reporter* reporter) {
     path.close();
     testSimplify(reporter, path);
 }
-#endif
 
 static void testQuadralateral2(skiatest::Reporter* reporter) {
     SkPath path;
@@ -3811,9 +3809,29 @@ static void testQuadLineIntersect3(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+static void skphealth_com76(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(708.099182f, 7.09919119f);
+    path.lineTo(708.099182f, 7.09920025f);
+    path.quadTo(704.000000f, 11.2010098f, 704.000000f, 17.0000000f);
+    path.lineTo(704.000000f, 33.0000000f);
+    path.lineTo(705.000000f, 33.0000000f);
+    path.lineTo(705.000000f, 17.0000000f);
+    path.cubicTo(705.000000f, 13.4101496f, 706.455078f, 10.1601505f, 708.807617f, 7.80761385f);
+    path.lineTo(708.099182f, 7.09919119f);
+    path.close();
+    path.moveTo(704.000000f, 3.00000000f);
+    path.lineTo(704.000000f, 33.0000000f);
+    path.lineTo(705.000000f, 33.0000000f);
+    path.lineTo(719.500000f, 3.00000000f);
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(skphealth_com76),
     TEST(testQuadLineIntersect1),
     TEST(testQuadLineIntersect2),
     TEST(testQuadLineIntersect3),

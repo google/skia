@@ -57,12 +57,13 @@ private:
 
 class DebugfReporter : public Reporter {
 public:
-    DebugfReporter(bool allowExtendedTest, bool allowThreaded)
+    DebugfReporter(bool allowExtendedTest, bool allowThreaded, bool verbose)
         : fNextIndex(0)
         , fPending(0)
         , fTotal(0)
         , fAllowExtendedTest(allowExtendedTest)
-        , fAllowThreaded(allowThreaded) {
+        , fAllowThreaded(allowThreaded)
+        , fVerbose(verbose) {
     }
 
     void setTotal(int total) {
@@ -75,6 +76,10 @@ public:
 
     virtual bool allowThreaded() const SK_OVERRIDE {
         return fAllowThreaded;
+    }
+
+    virtual bool verbose() const SK_OVERRIDE {
+        return fVerbose;
     }
 
 protected:
@@ -106,6 +111,7 @@ private:
     int fTotal;
     bool fAllowExtendedTest;
     bool fAllowThreaded;
+    bool fVerbose;
 };
 
 DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n" \
@@ -231,7 +237,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%s\n", header.c_str());
     }
 
-    DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded);
+    DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded, FLAGS_verbose);
     Iter iter(&reporter);
 
     // Count tests first.

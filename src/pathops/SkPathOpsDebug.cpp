@@ -61,68 +61,29 @@ int gDebugSortCount;
 const char* kPathOpStr[] = {"diff", "sect", "union", "xor"};
 #endif
 
-#if DEBUG_SHOW_PATH
-static void showPathContours(SkPath::Iter& iter, const char* pathName) {
-    uint8_t verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                SkDebugf("    %s.moveTo(%#1.9gf, %#1.9gf);\n", pathName, pts[0].fX, pts[0].fY);
-                continue;
-            case SkPath::kLine_Verb:
-                SkDebugf("    %s.lineTo(%#1.9gf, %#1.9gf);\n", pathName, pts[1].fX, pts[1].fY);
-                break;
-            case SkPath::kQuad_Verb:
-                SkDebugf("    %s.quadTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n", pathName,
-                    pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
-                break;
-            case SkPath::kCubic_Verb:
-                SkDebugf("    %s.cubicTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n",
-                    pathName, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
-                break;
-            case SkPath::kClose_Verb:
-                SkDebugf("    %s.close();\n", pathName);
-                break;
-            default:
-                SkDEBUGFAIL("bad verb");
-                return;
-        }
+#if DEBUG_SHOW_TEST_NAME
+void* PathOpsDebugCreateNameStr() {
+    return SkNEW_ARRAY(char, DEBUG_FILENAME_STRING_LENGTH);
+}
+
+void PathOpsDebugDeleteNameStr(void* v) {
+    SkDELETE_ARRAY(reinterpret_cast<char* >(v));
+}
+
+void DebugBumpTestName(char* test) {
+    char* num = test + strlen(test);
+    while (num[-1] >= '0' && num[-1] <= '9') {
+        --num;
     }
-}
-
-static const char* gFillTypeStr[] = {
-    "kWinding_FillType",
-    "kEvenOdd_FillType",
-    "kInverseWinding_FillType",
-    "kInverseEvenOdd_FillType"
-};
-
-
-void ShowFunctionHeader() {
-    SkDebugf("\nstatic void test#(skiatest::Reporter* reporter) {\n");
-}
-
-void ShowPath(const SkPath& path, const char* pathName) {
-    SkPath::Iter iter(path, true);
-    SkPath::FillType fillType = path.getFillType();
-    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
-    SkDebugf("    SkPath %s;\n", pathName);
-    SkDebugf("    %s.setFillType(SkPath::%s);\n", pathName, gFillTypeStr[fillType]);
-    iter.setPath(path, true);
-    showPathContours(iter, pathName);
-}
-
-static const char* gOpStrs[] = {
-    "kDifference_PathOp",
-    "kIntersect_PathOp",
-    "kUnion_PathOp",
-    "kXor_PathOp",
-    "kReverseDifference_PathOp",
-};
-
-void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo) {
-    SkDebugf("    testPathOp(reporter, %s, %s, %s);\n", pathOne, pathTwo, gOpStrs[op]);
-    SkDebugf("}\n");
+    if (num[0] == '\0') {
+        return;
+    }
+    int dec = atoi(num);
+    if (dec == 0) {
+        return;
+    }
+    ++dec;
+    SK_SNPRINTF(num, DEBUG_FILENAME_STRING_LENGTH - (num - test), "%d", dec);
 }
 #endif
+

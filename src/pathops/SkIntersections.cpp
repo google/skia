@@ -56,10 +56,31 @@ void SkIntersections::flip() {
 
 void SkIntersections::insertCoincidentPair(double s1, double e1, double s2, double e2,
         const SkDPoint& startPt, const SkDPoint& endPt) {
-    if (fSwap) {
-        remove(s2, e2, startPt, endPt);
-    } else {
-        remove(s1, e1, startPt, endPt);
+    SkASSERT(s1 < e1);
+    SkASSERT(s2 != e2);
+    if (coincidentUsed() != fUsed) { // if the curve is partially coincident, treat it as fully so
+        for (int index = fUsed - 1; index >= 0; --index) {
+            if (fIsCoincident[0] & (1 << index)) {
+                continue;
+            }
+            double nonCoinT = fT[0][index];
+            if (!between(s1, nonCoinT, e1)) {
+                if (s1 > nonCoinT) {
+                    s1 = nonCoinT;
+                } else {
+                    e1 = nonCoinT;
+                }
+            }
+            nonCoinT = fT[1][index];
+            if (!between(s2, nonCoinT, e2)) {
+                if ((s2 > nonCoinT) ^ (s2 > e2)) {
+                    s2 = nonCoinT;
+                } else {
+                    e2 = nonCoinT;
+                }
+            }
+            removeOne(index);
+        }
     }
     SkASSERT(coincidentUsed() == fUsed);
     SkASSERT((coincidentUsed() & 1) != 1);
@@ -135,7 +156,7 @@ void SkIntersections::insertCoincidentPair(double s1, double e1, double s2, doub
     insertCoincident(e1, e2, endPt);
 }
 
-int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
+int SkIntersections::insert(double one, double two, double x, double y) {
     if (fIsCoincident[0] == 3 && between(fT[0][0], one, fT[0][1])) {
         // For now, don't allow a mix of coincident and non-coincident intersections
         return -1;
@@ -152,7 +173,8 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
                     || (precisely_equal(two, 1) && !precisely_equal(oldTwo, 1))) {
                 fT[0][index] = one;
                 fT[1][index] = two;
-                fPt[index] = pt;
+                fPt[index].fX = x;
+                fPt[index].fY = y;
             }
             return -1;
         }
@@ -174,11 +196,16 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         fIsCoincident[0] += fIsCoincident[0] & ~((1 << index) - 1);
         fIsCoincident[1] += fIsCoincident[1] & ~((1 << index) - 1);
     }
-    fPt[index] = pt;
+    fPt[index].fX = x;
+    fPt[index].fY = y;
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
     return index;
+}
+
+int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
+    return insert(one, two, pt.fX, pt.fY);
 }
 
 void SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {
@@ -209,6 +236,7 @@ void SkIntersections::quickRemoveOne(int index, int replace) {
     }
 }
 
+#if 0
 void SkIntersections::remove(double one, double two, const SkDPoint& startPt,
         const SkDPoint& endPt) {
     for (int index = fUsed - 1; index >= 0; --index) {
@@ -220,6 +248,7 @@ void SkIntersections::remove(double one, double two, const SkDPoint& startPt,
         }
     }
 }
+#endif
 
 void SkIntersections::removeOne(int index) {
     int remaining = --fUsed - index;
