@@ -29,6 +29,7 @@ DEFINE_string2(differs, d, "", "The names of the differs to use or all of them b
 DEFINE_string2(folders, f, "", "Compare two folders with identical subfile names: <baseline folder> <test folder>");
 DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> <test>");
 DEFINE_string2(output, o, "skpdiff_output.json", "Writes the output of these diffs to output: <output>");
+DEFINE_bool(jsonp, true, "Output JSON with padding");
 
 /// A callback for any OpenCL errors
 CL_CALLBACK void error_notify(const char* errorInfo, const void* privateInfoSize, ::size_t cb, void* userData) {
@@ -181,7 +182,7 @@ int main(int argc, char** argv) {
     // Output to the file specified
     if (!FLAGS_output.isEmpty()) {
         SkFILEWStream outputStream(FLAGS_output[0]);
-        ctx.outputRecords(outputStream);
+        ctx.outputRecords(outputStream, FLAGS_jsonp);
     }
 
     return 0;

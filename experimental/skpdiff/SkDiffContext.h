@@ -85,9 +85,10 @@ public:
      *     ]
      * }
      *
-     * @param stream The stream to output the diff to
+     * @param stream   The stream to output the diff to
+     * @param useJSONP True to adding padding to the JSON output to make it cross-site requestable.
      */
-    void outputRecords(SkWStream& stream);
+    void outputRecords(SkWStream& stream, bool useJSONP);
 
 private:
     struct DiffData {

@@ -147,9 +147,15 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
     }
 }
 
-void SkDiffContext::outputRecords(SkWStream& stream) {
+void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     DiffRecord* currentRecord = fRecords;
-    stream.writeText("{\n");
+    if (useJSONP) {
+        stream.writeText("var SkPDiffRecords = {\n");
+    }
+    else
+    {
+        stream.writeText("{\n");
+    }
     stream.writeText("    \"records\": [\n");
     while (NULL != currentRecord) {
         stream.writeText("        {\n");
@@ -214,5 +220,11 @@ void SkDiffContext::outputRecords(SkWStream& stream) {
         currentRecord = currentRecord->fNext;
     }
     stream.writeText("    ]\n");
-    stream.writeText("}\n");
+    if (useJSONP) {
+        stream.writeText("};\n");
+    }
+    else
+    {
+        stream.writeText("}\n");
+    }
 }
