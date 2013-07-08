@@ -108,6 +108,9 @@ function gm_test {
   for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.png); do
     echo "[contents of $IMAGEFILE]" >$IMAGEFILE
   done
+  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.pdf); do
+    echo "[contents of $IMAGEFILE]" >$IMAGEFILE
+  done
 
   # Add a file to any empty subdirectories.
   for DIR in $(find $ACTUAL_OUTPUT_DIR -mindepth 1 -type d); do
@@ -198,6 +201,9 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r ../path/to/nowhere"
 
 # Compare generated image against an empty "expected image" dir, but NOT in verbose mode.
 gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/nonverbose"
+
+# Add pdf to the list of configs.
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS pdf -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/add-config-pdf"
 
 # If run without "-r", the JSON's "actual-results" section should contain
 # actual checksums marked as "failure-ignored", but the "expected-results"
