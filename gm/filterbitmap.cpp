@@ -35,7 +35,7 @@ static void draw_col(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat,
     canvas->translate(dx, 0);
     canvas->drawBitmapMatrix(bm, mat, &paint);
 
-    paint.setFlags(paint.getFlags() | SkPaint::kBicubicFilterBitmap_Flag);
+    paint.setFlags(paint.getFlags() | SkPaint::kHighQualityFilterBitmap_Flag);
     canvas->translate(dx, 0);
     canvas->drawBitmapMatrix(bm, mat, &paint);
 }
@@ -64,7 +64,7 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    void setName( const char name[] ) {
+    void setName(const char name[]) {
         fName.set(name);
     }
 
@@ -99,12 +99,12 @@ private:
 
 class FilterBitmapTextGM: public FilterBitmapGM {
   public:
-      FilterBitmapTextGM( float textSize )
-      : fTextSize( textSize )
+      FilterBitmapTextGM(float textSize)
+      : fTextSize(textSize)
         {
             char name[1024];
-            sprintf( name, "filterbitmap_text_%.2fpt", fTextSize );
-            setName( name );
+            sprintf(name, "filterbitmap_text_%.2fpt", fTextSize);
+            setName(name);
         }
 
   protected:
@@ -140,12 +140,12 @@ class FilterBitmapTextGM: public FilterBitmapGM {
 
 class FilterBitmapCheckerboardGM: public FilterBitmapGM {
   public:
-      FilterBitmapCheckerboardGM( int size, int num_checks )
-      : fSize( size ), fNumChecks( num_checks )
+      FilterBitmapCheckerboardGM(int size, int num_checks)
+      : fSize(size), fNumChecks(num_checks)
         {
             char name[1024];
-            sprintf( name, "filterbitmap_checkerboard_%d_%d", fSize, fNumChecks );
-            setName( name );
+            sprintf(name, "filterbitmap_checkerboard_%d_%d", fSize, fNumChecks);
+            setName(name);
         }
 
   protected:
@@ -179,12 +179,12 @@ class FilterBitmapCheckerboardGM: public FilterBitmapGM {
 
 class FilterBitmapImageGM: public FilterBitmapGM {
   public:
-      FilterBitmapImageGM( const char filename[] )
-      : fFilename( filename )
+      FilterBitmapImageGM(const char filename[])
+      : fFilename(filename)
         {
             char name[1024];
-            sprintf( name, "filterbitmap_image_%s", filename );
-            setName( name );
+            sprintf(name, "filterbitmap_image_%s", filename);
+            setName(name);
         }
 
   protected:
@@ -197,7 +197,7 @@ class FilterBitmapImageGM: public FilterBitmapGM {
 
       void make_bitmap() SK_OVERRIDE {
           SkString path(skiagm::GM::gResourcePath);
-          path.append( "/" );
+          path.append("/");
           path.append(fFilename);
 
           SkImageDecoder *codec = NULL;

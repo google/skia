@@ -538,7 +538,7 @@ public:
         by calling copyTo().
      */
     bool canCopyTo(Config newConfig) const;
-
+    
     /**
      *  DEPRECATED -- will be replaced with API on SkPaint
      */
@@ -702,6 +702,18 @@ private:
     int extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy);
     bool hasMipMap() const;
     void freeMipMap();
+    
+    /** Make a scaled copy of this bitmap into the provided destination.
+      * The caller is responsible for having set the width and height of the
+      * provided destination bitmap, and also having allocated its pixel 
+      * memory.
+      * 
+      * This function is temporary and for testing purposes only; it will 
+      * likely move once it has been properly plumbed into the bitmap 
+      * shader infrastructure.
+      */
+      
+    void scale(SkBitmap *dst) const;
 
     friend struct SkBitmapProcState;
 };
