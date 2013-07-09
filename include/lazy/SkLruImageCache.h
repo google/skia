@@ -25,7 +25,7 @@ public:
     virtual ~SkLruImageCache();
 
 #ifdef SK_DEBUG
-    virtual MemoryStatus getMemoryStatus(intptr_t ID) const SK_OVERRIDE;
+    virtual MemoryStatus getMemoryStatus(ID) const SK_OVERRIDE;
     virtual void purgeAllUnpinnedCaches() SK_OVERRIDE;
 #endif
 
@@ -45,10 +45,10 @@ public:
      */
     size_t getImageCacheUsed() const { return fRamUsed; }
 
-    virtual void* allocAndPinCache(size_t bytes, intptr_t* ID) SK_OVERRIDE;
-    virtual void* pinCache(intptr_t ID, SkImageCache::DataStatus*) SK_OVERRIDE;
-    virtual void releaseCache(intptr_t ID) SK_OVERRIDE;
-    virtual void throwAwayCache(intptr_t ID) SK_OVERRIDE;
+    virtual void* allocAndPinCache(size_t bytes, ID*) SK_OVERRIDE;
+    virtual void* pinCache(ID, SkImageCache::DataStatus*) SK_OVERRIDE;
+    virtual void releaseCache(ID) SK_OVERRIDE;
+    virtual void throwAwayCache(ID) SK_OVERRIDE;
 
 private:
     // Linked list of recently used. Head is the most recently used, and tail is the least.
@@ -67,7 +67,7 @@ private:
      *  Find the CachedPixels represented by ID, or NULL if not in the cache. Mutex must be locked
      *  before calling.
      */
-    CachedPixels* findByID(intptr_t ID) const;
+    CachedPixels* findByID(ID) const;
 
     /**
      *  If over budget, throw away pixels which are not currently in use until below budget or there

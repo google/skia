@@ -17,6 +17,8 @@
 class SkImageCache : public SkRefCnt {
 
 public:
+    typedef intptr_t ID;
+
     /**
      *  Allocate memory whose lifetime is managed by the cache. On success, MUST be balanced with a
      *  call to releaseCache and a call to throwAwayCache.
@@ -27,7 +29,7 @@ public:
      *  @return Pointer to the newly allocated memory, or NULL. This memory is safe to use until
      *      releaseCache is called with ID.
      */
-    virtual void* allocAndPinCache(size_t bytes, intptr_t* ID) = 0;
+    virtual void* allocAndPinCache(size_t bytes, ID*) = 0;
 
     /**
      *  Output parameter for pinCache, stating whether the memory still contains the data it held
@@ -60,7 +62,7 @@ public:
      *      this call must be balanced with a call to releaseCache. If NULL, the memory
      *      has been reclaimed, and throwAwayCache MUST NOT be called.
      */
-    virtual void* pinCache(intptr_t ID, DataStatus* status) = 0;
+    virtual void* pinCache(ID, DataStatus* status) = 0;
 
     /**
      *  Inform the cache that it is safe to free the block of memory corresponding to ID. After
@@ -69,19 +71,19 @@ public:
      *  the same ID.
      *  @param ID Unique ID for the memory block which is now safe to age out of the cache.
      */
-    virtual void releaseCache(intptr_t ID) = 0;
+    virtual void releaseCache(ID) = 0;
 
     /**
      *  Inform the cache that the block of memory associated with ID will not be asked for again.
      *  After this call, ID is no longer valid. Must not be called while the associated memory is
      *  pinned. Must be called to balance a successful allocAndPinCache.
      */
-    virtual void throwAwayCache(intptr_t ID) = 0;
+    virtual void throwAwayCache(ID) = 0;
 
     /**
      *  ID which does not correspond to any valid cache.
      */
-    static const intptr_t UNINITIALIZED_ID = 0;
+    static const ID UNINITIALIZED_ID = 0;
 
 #ifdef SK_DEBUG
     /**
