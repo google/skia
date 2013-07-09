@@ -74,8 +74,6 @@ void TwoPtRadial::init(const SkPoint& center0, SkScalar rad0,
     fA = sqr(fDCenterX) + sqr(fDCenterY) - sqr(fDRadius);
     fRadius2 = sqr(fRadius);
     fRDR = fRadius * fDRadius;
-
-    fConeFillsPlane = rad0 != rad1 && SkMaxScalar(rad0, rad1) > SkPoint::Distance(center0, center1);
 }
 
 void TwoPtRadial::setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy) {
@@ -191,7 +189,10 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
 }
 
 bool SkTwoPointConicalGradient::isOpaque() const {
-    return INHERITED::isOpaque() && this->fRec.fConeFillsPlane;
+    // Because areas outside the cone are left untouched, we cannot treat the
+    // shader as opaque even if the gradient itself is opaque.
+    // TODO(junov): Compute whether the cone fills the plane crbug.com/222380
+    return false;
 }
 
 void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
