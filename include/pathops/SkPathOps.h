@@ -7,6 +7,8 @@
 #ifndef SkPathOps_DEFINED
 #define SkPathOps_DEFINED
 
+#include "SkPreConfig.h"
+
 class SkPath;
 
 // FIXME: move everything below into the SkPath class
@@ -36,7 +38,7 @@ enum SkPathOp {
                   inputs.
     @return True if operation succeeded.
   */
-bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
+bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
 
 /** Set this path to a set of non-overlapping contours that describe the
     same area as the original path.
@@ -50,6 +52,6 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
     @param result The simplified path. The result may be the input.
     @return True if simplification succeeded.
   */
-bool Simplify(const SkPath& path, SkPath* result);
+bool SK_API Simplify(const SkPath& path, SkPath* result);
 
 #endif
