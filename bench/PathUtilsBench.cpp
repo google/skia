@@ -38,7 +38,6 @@ class PathUtilsBench : public SkBenchmark {
     typedef void (*Proc)(char*, SkPath*);
 
     Proc fProc;
-    int fH, fW, fStride;
     SkString fName;
     char* bits[H * STRIDE];
 
