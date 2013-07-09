@@ -181,6 +181,7 @@ private:
     bool fNClip;
     bool fAnimating;
     bool fRotate;
+    SkScalar fRotateAnimTime;
     bool fPerspAnim;
     SkScalar fPerspAnimTime;
     bool fRequestGrabImage;
