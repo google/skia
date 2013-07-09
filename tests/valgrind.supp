@@ -39,6 +39,13 @@
     fun:_mesa_symbol_table_add_symbol
 }
 {
+    Mesa_symbol_table_add_symbol_hash_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:hash_table_insert
+    fun:_mesa_symbol_table_add_symbol
+}
+{
     Mesa_add_global_symbol_leak
     Memcheck:Leak
     fun:malloc
@@ -46,10 +53,29 @@
     fun:_mesa_symbol_table_add_global_symbol
 }
 {
+    Mesa_add_global_symbol_calloc_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:_mesa_symbol_table_add_global_symbol
+}
+{
+    Mesa_add_global_symbol_hash_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:hash_table_insert
+    fun:_mesa_symbol_table_add_global_symbol
+}
+{
     Mesa_symbol_table_push_scope_leak
     Memcheck:Leak
     fun:calloc
     fun:_mesa_symbol_table_push_scope
+}
+{
+    Mesa_symbol_table_ctor_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:_mesa_symbol_table_ctor
 }
 {
     Mesa_bindAttribLocation_leak
@@ -77,6 +103,13 @@
     fun:_Znwm
     fun:_Z29link_assign_uniform_locationsP17gl_shader_program
     fun:_Z12link_shadersP10gl_contextP17gl_shader_program
+    fun:_mesa_glsl_link_shader
+}
+{
+    Mesa_link_shader_leak_2
+    Memcheck:Leak
+    fun:calloc
+    fun:st_link_shader
     fun:_mesa_glsl_link_shader
 }
 {
@@ -140,4 +173,12 @@
     fun:ralloc_size
     ...
     fun:_mesa_update_state
+}
+{
+    Mesa_associate_uniform_storage
+    Memcheck:Leak
+    fun:malloc
+    fun:realloc
+    fun:_mesa_uniform_attach_driver_storage
+    fun:_mesa_associate_uniform_storage
 }
