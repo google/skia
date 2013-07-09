@@ -87,8 +87,8 @@ static void PathOpsCubicLineIntersectionTestOne(skiatest::Reporter* reporter) {
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prevL.fX, prevL.fY, i.pt(0).fX, i.pt(0).fY);
     SkDPoint nextL = line.xyAtT(i[1][0] + 0.0000007);
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", i.pt(0).fX, i.pt(0).fY, nextL.fX, nextL.fY);
-    SkDebugf("prevD=%1.9g dist=%1.9g nextD=%1.9g\n", prev.distance(nextL), 
-            sect.distance(i.pt(0)), cubic[3].distance(prevL)); 
+    SkDebugf("prevD=%1.9g dist=%1.9g nextD=%1.9g\n", prev.distance(nextL),
+            sect.distance(i.pt(0)), cubic[3].distance(prevL));
 #endif
 }
 
