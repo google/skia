@@ -27,7 +27,7 @@ bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkBitmap::Config,
     return false;
 }
 
-bool SkImageDecoder::decode(SkStream*, SkBitmap*, SkBitmap::Config, Mode, bool) {
+bool SkImageDecoder::decode(SkStream*, SkBitmap*, SkBitmap::Config, Mode) {
     return false;
 }
 

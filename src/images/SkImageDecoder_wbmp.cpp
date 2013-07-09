@@ -111,19 +111,12 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
     int width = head.fWidth;
     int height = head.fHeight;
 
-    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-        decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
-        decodedBitmap->setIsOpaque(true);
-        return true;
-    }
-
-    // No Bitmap reuse supported for this format
-    if (!decodedBitmap->isNull()) {
-        return false;
-    }
-
     decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
     decodedBitmap->setIsOpaque(true);
+
+    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+        return true;
+    }
 
     const SkPMColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
     SkColorTable* ct = SkNEW_ARGS(SkColorTable, (colors, 2));

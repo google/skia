@@ -130,18 +130,12 @@ bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     SkScaledBitmapSampler sampler(width, height, getSampleSize());
 
-    if (justBounds) {
-        bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-        bm->setIsOpaque(true);
-        return true;
-    }
-    // No Bitmap reuse supported for this format
-    if (!bm->isNull()) {
-        return false;
-    }
-
     bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
     bm->setIsOpaque(true);
+
+    if (justBounds) {
+        return true;
+    }
 
     if (!this->allocPixelRef(bm, NULL)) {
         return false;
