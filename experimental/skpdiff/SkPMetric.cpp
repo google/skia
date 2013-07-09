@@ -379,7 +379,7 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
     SkDELETE_ARRAY(cyclesPerDegree);
     SkDELETE_ARRAY(contrast);
     SkDELETE_ARRAY(thresholdFactorFrequency);
-    return (double)failures;
+    return 1.0 - (double)failures / (width * height);
 }
 
 const char* SkPMetric::getName() {
