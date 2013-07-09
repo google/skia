@@ -22,6 +22,8 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream*) {
     return NULL;
 }
 
+void SkImageDecoder::copyFieldsToOther(SkImageDecoder* ) {}
+
 bool SkImageDecoder::DecodeFile(const char[], SkBitmap*, SkBitmap::Config,
                                 SkImageDecoder::Mode, SkImageDecoder::Format*) {
     return false;

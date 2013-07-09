@@ -50,6 +50,23 @@ SkImageDecoder::~SkImageDecoder() {
     SkSafeUnref(fAllocator);
 }
 
+void SkImageDecoder::copyFieldsToOther(SkImageDecoder* other) {
+    if (NULL == other) {
+        return;
+    }
+    other->setPeeker(fPeeker);
+    other->setChooser(fChooser);
+    other->setAllocator(fAllocator);
+    other->setSampleSize(fSampleSize);
+    if (fUsePrefTable) {
+        other->setPrefConfigTable(fPrefTable);
+    } else {
+        other->fDefaultPref = fDefaultPref;
+    }
+    other->setPreferQualityOverSpeed(fPreferQualityOverSpeed);
+    other->setRequireUnpremultipliedColors(fRequireUnpremultipliedColors);
+}
+
 SkImageDecoder::Format SkImageDecoder::getFormat() const {
     return kUnknown_Format;
 }

@@ -404,7 +404,17 @@ protected:
                     int dstX, int dstY, int width, int height,
                     int srcX, int srcY);
 
+    /**
+     *  Copy all fields on this decoder to the other decoder. Used by subclasses
+     *  to decode a subimage using a different decoder, but with the same settings.
+     */
+    void copyFieldsToOther(SkImageDecoder* other);
 
+    /**
+     *  Return the default preference being used by the current or latest call to
+     *  decode.
+     */
+    SkBitmap::Config getDefaultPref() { return fDefaultPref; }
 
     /** Can be queried from within onDecode, to see if the user (possibly in
         a different thread) has requested the decode to cancel. If this returns
