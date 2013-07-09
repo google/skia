@@ -23,7 +23,6 @@ struct TwoPtRadial {
     float   fA;
     float   fRadius2;
     float   fRDR;
-    bool    fConeFillsPlane;
 
     void init(const SkPoint& center0, SkScalar rad0,
               const SkPoint& center1, SkScalar rad1);
