@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+    <script type="text/javascript" src="skpdiff_output.json"></script>
+    <script type="text/javascript" src="diff_viewer.js"></script>
+    <link rel="stylesheet" type="text/css" href="viewer_style.css">
+    <title>SkPDiff</title>
+  </head>
+  <body>
+    <div ng-app ng-controller="DiffViewController">
+      <div style="margin:8px">
+        Show me the worst by metric:
+        <button ng-repeat="differ in differs" ng-click="setSortIndex($index)">
+          <span class="result-{{ $index }}" style="padding-left:12px;">&nbsp;</span>
+          {{ differ.title }}
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <td>Baseline Image</td>
+            <td>Actual Image</td>
+            <td>Results</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="record in records | orderBy:sortingDiffer | limitTo:500">
+            <td><img src="{{ record.baselinePath }}" class="gm-image baseline-image" /></td>
+            <td><img src="{{ record.testPath }}" class="gm-image test-image" /></td>
+            <td>
+              <div ng-repeat="diff in record.diffs"
+                   ng-mouseover="highlight(diff.differName)"
+                   class="result result-{{$index}}">
+                <span class="result-button">{{ diff.result }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
