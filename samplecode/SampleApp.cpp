@@ -782,6 +782,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fNClip = false;
     fAnimating = false;
     fRotate = false;
+    fRotateAnimTime = 0;
     fPerspAnim = false;
     fPerspAnimTime = 0;
     fRequestGrabImage = false;
@@ -1411,12 +1412,15 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fRotate) {
+        fRotateAnimTime += SampleCode::GetAnimSecondsDelta();
+
         SkScalar cx = this->width() / 2;
         SkScalar cy = this->height() / 2;
         canvas->translate(cx, cy);
-        canvas->rotate(SkIntToScalar(30));
+        canvas->rotate(fRotateAnimTime * 10);
         canvas->translate(-cx, -cy);
     }
+
     if (fPerspAnim) {
         fPerspAnimTime += SampleCode::GetAnimSecondsDelta();
 
@@ -1443,7 +1447,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
-    if (fPerspAnim) {
+    if (fPerspAnim || fRotate) {
         this->inval(NULL);
     }
 }
@@ -1766,6 +1770,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'r':
             fRotate = !fRotate;
+            fRotateAnimTime = 0;
             this->inval(NULL);
             this->updateTitle();
             return true;
