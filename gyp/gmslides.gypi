@@ -4,6 +4,7 @@
     '../gm/aaclip.cpp',
     '../gm/aarectmodes.cpp',
     '../gm/alphagradients.cpp',
+    '../gm/arcofzorro.cpp',
     '../gm/arithmode.cpp',
     '../gm/bicubicfilter.cpp',
     '../gm/bigmatrix.cpp',

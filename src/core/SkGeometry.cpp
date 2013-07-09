@@ -1205,11 +1205,13 @@ static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
     return count == 1 ? roots[0] : 0;
 }
 
-/*  given a quad-curve and a point (x,y), chop the quad at that point and return
-    the new quad's offCurve point. Should only return false if the computed pos
-    is the start of the curve (i.e. root == 0)
+/*  given a quad-curve and a point (x,y), chop the quad at that point and place
+    the new off-curve point and endpoint into 'dest'. The new end point is used
+    (rather than (x,y)) to compensate for numerical inaccuracies.
+    Should only return false if the computed pos is the start of the curve 
+    (i.e. root == 0)
 */
-static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPoint* offCurve)
+static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPoint* dest)
 {
     const SkScalar* base;
     SkScalar        value;
@@ -1230,7 +1232,8 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
     {
         SkPoint tmp[5];
         SkChopQuadAt(quad, tmp, t);
-        *offCurve = tmp[1];
+        dest[0] = tmp[1];
+        dest[1] = tmp[2];
         return true;
     } else {
         /*  t == 0 means either the value triggered a root outside of [0, 1)
@@ -1247,7 +1250,8 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
         if ((base[0] < base[4] && value > base[2]) ||
             (base[0] > base[4] && value < base[2]))   // should root have been 1
         {
-            *offCurve = quad[1];
+            dest[0] = quad[1];
+            dest[1].set(x, y);
             return true;
         }
     }
@@ -1360,9 +1364,8 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
         memcpy(quadPoints, gQuadCirclePts, (wholeCount + 1) * sizeof(SkPoint));
 
         const SkPoint* arc = &gQuadCirclePts[wholeCount];
-        if (quad_pt2OffCurve(arc, x, y, &quadPoints[wholeCount + 1]))
+        if (truncate_last_curve(arc, x, y, &quadPoints[wholeCount + 1]))
         {
-            quadPoints[wholeCount + 2].set(x, y);
             wholeCount += 2;
         }
         pointCount = wholeCount + 1;
