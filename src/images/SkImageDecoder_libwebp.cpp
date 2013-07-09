@@ -412,23 +412,14 @@ bool SkWEBPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
-
-    // If only bounds are requested, done
-    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-        if (!setDecodeConfig(decodedBitmap, sampler.scaledWidth(),
-                             sampler.scaledHeight())) {
-            return false;
-        }
-        return true;
-    }
-
-    // No Bitmap reuse supported for this format
-    if (!decodedBitmap->isNull()) {
-        return false;
-    }
     if (!setDecodeConfig(decodedBitmap, sampler.scaledWidth(),
                          sampler.scaledHeight())) {
         return false;
+    }
+
+    // If only bounds are requested, done
+    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+        return true;
     }
 
     if (!this->allocPixelRef(decodedBitmap, NULL)) {

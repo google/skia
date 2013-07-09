@@ -117,10 +117,10 @@ public:
     Peeker* getPeeker() const { return fPeeker; }
     Peeker* setPeeker(Peeker*);
 
-    /** \class Peeker
+    /** \class Chooser
 
-        Base class for optional callbacks to retrieve meta/chunk data out of
-        an image as it is being decoded.
+        Base class for optional callbacks to choose an image from a format that
+        contains multiple images.
     */
     class Chooser : public SkRefCnt {
     public:
@@ -219,11 +219,20 @@ public:
     *   to pref if possible. Whether a conversion is feasible is
     *   tested by Bitmap::canCopyTo(pref).
 
-        note: document use of Allocator, Peeker and Chooser
+        If an SkBitmap::Allocator is installed via setAllocator, it will be
+        used to allocate the pixel memory. A clever allocator can be used
+        to allocate the memory from a cache, volatile memory, or even from
+        an existing bitmap's memory.
+
+        If a Peeker is installed via setPeeker, it may be used to peek into
+        meta data during the decode.
+
+        If a Chooser is installed via setChooser, it may be used to select
+        which image to return from a format that contains multiple images.
     */
-    bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode, bool reuseBitmap = false);
-    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode, bool reuseBitmap = false) {
-        return this->decode(stream, bitmap, SkBitmap::kNo_Config, mode, reuseBitmap);
+    bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode);
+    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
+        return this->decode(stream, bitmap, SkBitmap::kNo_Config, mode);
     }
 
     /**

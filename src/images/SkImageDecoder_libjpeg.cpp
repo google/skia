@@ -357,29 +357,13 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
 
     SkScaledBitmapSampler sampler(cinfo.output_width, cinfo.output_height, sampleSize);
-
-    bm->lockPixels();
-    JSAMPLE* rowptr = (JSAMPLE*)bm->getPixels();
-    bm->unlockPixels();
-    bool reuseBitmap = (rowptr != NULL);
-
-    if (reuseBitmap) {
-        if (sampler.scaledWidth() != bm->width() ||
-            sampler.scaledHeight() != bm->height()) {
-            // Dimensions must match
-            return false;
-        } else if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-            return true;
-        }
-    } else {
-        bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-        bm->setIsOpaque(true);
-        if (SkImageDecoder::kDecodeBounds_Mode == mode) {
-            return true;
-        }
-        if (!this->allocPixelRef(bm, NULL)) {
-            return return_false(cinfo, *bm, "allocPixelRef");
-        }
+    bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
+    bm->setIsOpaque(true);
+    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+        return true;
+    }
+    if (!this->allocPixelRef(bm, NULL)) {
+        return return_false(cinfo, *bm, "allocPixelRef");
     }
 
     SkAutoLockPixels alp(*bm);
@@ -394,7 +378,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         (config == SkBitmap::kRGB_565_Config &&
                 cinfo.out_color_space == JCS_RGB_565)))
     {
-        rowptr = (JSAMPLE*)bm->getPixels();
+        JSAMPLE* rowptr = (JSAMPLE*)bm->getPixels();
         INT32 const bpr =  bm->rowBytes();
 
         while (cinfo.output_scanline < cinfo.output_height) {
@@ -408,9 +392,6 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
                 return return_false(cinfo, *bm, "shouldCancelDecode");
             }
             rowptr += bpr;
-        }
-        if (reuseBitmap) {
-            bm->notifyPixelsChanged();
         }
         jpeg_finish_decompress(&cinfo);
         return true;
@@ -480,9 +461,6 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     if (!skip_src_rows(&cinfo, srcRow,
                        cinfo.output_height - cinfo.output_scanline)) {
         return return_false(cinfo, *bm, "skip rows");
-    }
-    if (reuseBitmap) {
-        bm->notifyPixelsChanged();
     }
     jpeg_finish_decompress(&cinfo);
 

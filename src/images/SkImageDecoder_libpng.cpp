@@ -299,21 +299,8 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
+    decodedBitmap->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
 
-    decodedBitmap->lockPixels();
-    void* rowptr = (void*) decodedBitmap->getPixels();
-    bool reuseBitmap = (rowptr != NULL);
-    decodedBitmap->unlockPixels();
-    if (reuseBitmap && (sampler.scaledWidth() != decodedBitmap->width() ||
-                        sampler.scaledHeight() != decodedBitmap->height())) {
-        // Dimensions must match
-        return false;
-    }
-
-    if (!reuseBitmap) {
-        decodedBitmap->setConfig(config, sampler.scaledWidth(),
-                                 sampler.scaledHeight());
-    }
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
@@ -332,11 +319,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
     SkAutoUnref aur(colorTable);
 
-    if (!reuseBitmap) {
-        if (!this->allocPixelRef(decodedBitmap,
-                                 SkBitmap::kIndex8_Config == config ? colorTable : NULL)) {
-            return false;
-        }
+    if (!this->allocPixelRef(decodedBitmap,
+                             SkBitmap::kIndex8_Config == config ? colorTable : NULL)) {
+        return false;
     }
 
     SkAutoLockPixels alp(*decodedBitmap);
@@ -445,9 +430,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         return false;
     }
     decodedBitmap->setIsOpaque(!reallyHasAlpha);
-    if (reuseBitmap) {
-        decodedBitmap->notifyPixelsChanged();
-    }
     return true;
 }
 
