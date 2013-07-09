@@ -97,19 +97,19 @@ static void Line2path_span(SkPath* path, const char* line,
 
 void SkPathUtils::BitsToPath_Path(SkPath* path,
                         const char* bitmap,
-                        int h, int w, int stride) {
+                        int w, int h, int stride) {
     // loop for every line in bitmap
     for (int i = 0; i < h; ++i) {
         // fn ptr handles each line separately
         //l2p_fn(path, &bitmap[i*stride], i, w);
         Line2path_span(path, &bitmap[i*stride], i, w);
     }
-    Simplify(*path, path); // simplify resulting bitmap
+    Simplify(*path, path); // simplify resulting path.
 }
 
 void SkPathUtils::BitsToPath_Region(SkPath* path,
                                const char* bitmap,
-                               int h, int w, int stride) {
+                               int w, int h, int stride) {
     SkRegion region;
 
     // loop for each line
