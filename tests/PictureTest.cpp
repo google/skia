@@ -189,9 +189,11 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             r.offset(pos[i].fX, pos[i].fY);
             SkAutoDataUnref data(SkPictureUtils::GatherPixelRefs(pic, r));
             REPORTER_ASSERT(reporter, data);
-            int count = data->size() / sizeof(SkPixelRef*);
-            REPORTER_ASSERT(reporter, 1 == count);
-            REPORTER_ASSERT(reporter, *(SkPixelRef**)data->data() == refs[i]);
+            if (data) {
+                int count = data->size() / sizeof(SkPixelRef*);
+                REPORTER_ASSERT(reporter, 1 == count);
+                REPORTER_ASSERT(reporter, *(SkPixelRef**)data->data() == refs[i]);
+            }
         }
 
         // Test a bunch of random (mostly) rects, and compare the gather results
