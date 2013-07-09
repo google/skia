@@ -54,7 +54,7 @@ protected:
 #define SK_CONF_DECLARE(confType, varName, confName, defaultValue, description) static SkRTConf<confType> varName(confName, defaultValue, description)
 #define SK_CONF_SET(confname, value) skRTConfRegistry().set(confname, value)
 #else
-#define SK_CONF_DECLARE(confType, varName, confName, defaultValue, description) static const confType varName = defaultValue
+#define SK_CONF_DECLARE(confType, varName, confName, defaultValue, description) static confType varName = defaultValue
 #define SK_CONF_SET(confname, value) (void) confname, (void) value
 #endif
 
