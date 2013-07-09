@@ -185,7 +185,8 @@ public:
     };
 
 private:
-    SkGlyphCache(SkTypeface*, const SkDescriptor*);
+    // we take ownership of the scalercontext
+    SkGlyphCache(SkTypeface*, const SkDescriptor*, SkScalerContext*);
     ~SkGlyphCache();
 
     enum MetricsType {
