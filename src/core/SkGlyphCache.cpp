@@ -53,14 +53,15 @@ bool gSkSuppressFontCachePurgeSpew;
 #define kMinGlyphImageSize  (16*2)
 #define kMinAllocAmount     ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount)
 
-SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
-        : fGlyphAlloc(kMinAllocAmount) {
+SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkScalerContext* ctx)
+        : fScalerContext(ctx), fGlyphAlloc(kMinAllocAmount) {
     SkASSERT(typeface);
+    SkASSERT(desc);
+    SkASSERT(ctx);
 
     fPrev = fNext = NULL;
 
     fDesc = desc->copy();
-    fScalerContext = typeface->createScalerContext(desc);
     fScalerContext->getFontMetrics(&fFontMetrics);
 
     // init to 0 so that all of the pointers will be null
@@ -589,7 +590,20 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     ac.release();           // release the mutex now
     insideMutex = false;    // can't use globals anymore
 
-    cache = SkNEW_ARGS(SkGlyphCache, (typeface, desc));
+    // Check if we can create a scaler-context before creating the glyphcache.
+    // If not, we may have exhausted OS/font resources, so try purging the
+    // cache once and try again.
+    {
+        SkScalerContext* ctx = typeface->createScalerContext(desc);
+        if (!ctx) {
+            getSharedGlobals().purgeAll();
+            ctx = typeface->createScalerContext(desc);
+            if (!ctx) {
+                sk_throw();
+            }
+        }
+        cache = SkNEW_ARGS(SkGlyphCache, (typeface, desc, ctx));
+    }
 
 FOUND_IT:
 
