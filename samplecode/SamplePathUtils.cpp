@@ -64,7 +64,7 @@ protected:
     /////////////////////////////////////////////////////////////
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        SkScalar intervals[8] = {.5, .3, .5, .3, .5, .3, .5, .3};
+        SkScalar intervals[8] = { .5f, .3f, .5f, .3f, .5f, .3f, .5f, .3f };
         SkDashPathEffect dash(intervals, 2, fPhase);
         SkCornerPathEffect corner(.25f);
         SkComposePathEffect compose(&dash, &corner);
@@ -93,7 +93,7 @@ protected:
         }
 
         // for animated pathEffect
-        fPhase += .01;
+        fPhase += .01f;
         this->inval(NULL);
     }
 
