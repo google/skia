@@ -2567,7 +2567,7 @@ int SkOpSegment::windingAtT(double tHit, int tIndex, bool crossOpp, SkScalar* dx
 #endif
         return SK_MinS32;
     }
-    if (windVal < 0) {  // reverse sign if opp contour traveled in reverse 
+    if (windVal < 0) {  // reverse sign if opp contour traveled in reverse
             *dx = -*dx;
     }
     if (winding * *dx > 0) {  // if same signs, result is negative

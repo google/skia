@@ -45,7 +45,7 @@ void SkOpEdgeBuilder::closeContour(const SkPoint& curveEnd, const SkPoint& curve
     if ((!AlmostEqualUlps(curveEnd.fX, curveStart.fX)
             || !AlmostEqualUlps(curveEnd.fY, curveStart.fY))) {
         fPathVerbs.push_back(SkPath::kLine_Verb);
-        fPathPts.push_back_n(1, &curveStart);    
+        fPathPts.push_back_n(1, &curveStart);
     } else {
         if (curveEnd.fX != curveStart.fX || curveEnd.fY != curveStart.fY) {
             fPathPts[fPathPts.count() - 1] = curveStart;

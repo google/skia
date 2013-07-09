@@ -182,7 +182,7 @@ void addEndPoints() {
         if (foundEnd) {
             continue;
         }
-        // See if the cubic end touches the line. 
+        // See if the cubic end touches the line.
         double dist = line.isLeft(cubic[cIndex]); // this distance isn't cartesian
         SkDVector lineLen = line[1] - line[0]; // the x/y magnitudes of the line
         // compute the ULPS of the larger of the x/y deltas

@@ -210,7 +210,7 @@ protected:
             if (foundEnd) {
                 continue;
             }
-            // See if the quad end touches the line. 
+            // See if the quad end touches the line.
             double dist = line.isLeft(quad[qIndex]); // this distance isn't cartesian
             SkDVector lineLen = line[1] - line[0]; // the x/y magnitudes of the line
             // compute the ULPS of the larger of the x/y deltas
