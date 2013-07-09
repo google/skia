@@ -50,6 +50,7 @@
     '../gm/getpostextpath.cpp',
     '../gm/giantbitmap.cpp',
     '../gm/gradients.cpp',
+    '../gm/gradientDirtyLaundry.cpp',
     '../gm/gradient_matrix.cpp',
     '../gm/gradtext.cpp',
     '../gm/hairlines.cpp',
