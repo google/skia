@@ -43,14 +43,11 @@ typedef const SkGlyph& (*SkDrawCacheProc)(SkGlyphCache*, const char**,
 
 typedef const SkGlyph& (*SkMeasureCacheProc)(SkGlyphCache*, const char**);
 
-#define kBicubicFilterBitmap_Flag kHighQualityFilterBitmap_Flag
-
 /** \class SkPaint
 
     The SkPaint class holds the style and color information about how to draw
     geometries, text and bitmaps.
 */
-
 class SK_API SkPaint {
 public:
     SkPaint();
@@ -111,7 +108,7 @@ public:
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
-        kHighQualityFilterBitmap_Flag = 0x4000, // temporary flag
+        kBicubicFilterBitmap_Flag = 0x4000, // temporary flag
         kHighQualityDownsampleBitmap_Flag = 0x8000, // temporary flag
 
         // when adding extra flags, note that the fFlags member is specified

@@ -149,7 +149,7 @@ protected:
         int count = N;
 #ifdef SK_RELEASE
         // in DEBUG, N is always 1
-        if (paint.getFlags() & SkPaint::kHighQualityFilterBitmap_Flag) {
+        if (paint.getFlags() & SkPaint::kBicubicFilterBitmap_Flag) {
             count /= BICUBIC_DUR_SCALE;
         }
 #endif
@@ -170,7 +170,7 @@ protected:
 #ifdef SK_DEBUG
         return 1;
 #else
-        return (paint.getFlags() & SkPaint::kHighQualityFilterBitmap_Flag) ?
+        return (paint.getFlags() & SkPaint::kBicubicFilterBitmap_Flag) ?
                 (float)BICUBIC_DUR_SCALE : 1;
 #endif
     }
@@ -266,12 +266,12 @@ protected:
         }
 
         uint32_t orMask = 0;
-        uint32_t clearMask = SkPaint::kFilterBitmap_Flag | SkPaint::kHighQualityFilterBitmap_Flag;
+        uint32_t clearMask = SkPaint::kFilterBitmap_Flag | SkPaint::kBicubicFilterBitmap_Flag;
         if (fFlags & kBilerp_Flag) {
             orMask |= SkPaint::kFilterBitmap_Flag;
         }
         if (fFlags & kBicubic_Flag) {
-            orMask |= SkPaint::kHighQualityFilterBitmap_Flag;
+            orMask |= SkPaint::kBicubicFilterBitmap_Flag;
         }
         this->setPaintMasks(orMask, clearMask);
 

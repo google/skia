@@ -11,7 +11,6 @@
 #define SkBitmapProcState_DEFINED
 
 #include "SkBitmap.h"
-#include "SkBitmapFilter.h"
 #include "SkMatrix.h"
 
 #define FractionalInt_IS_64BIT
@@ -114,8 +113,6 @@ struct SkBitmapProcState {
     // are ignored
     ShaderProc32 getShaderProc32() const { return fShaderProc32; }
     ShaderProc16 getShaderProc16() const { return fShaderProc16; }
-    
-    SkBitmapFilter* getBitmapFilter() const { return fBitmapFilter; }
 
 #ifdef SK_DEBUG
     MatrixProc getMatrixProc() const;
@@ -142,11 +139,12 @@ private:
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
-    
-    void buildFilterCoefficients(SkFixed dst[4], float t) const;
-    SkBitmapFilter *fBitmapFilter;
 
-    ShaderProc32 chooseBitmapFilterProc(const SkPaint &paint);
+
+    /** test method for choosing a bicubic shading filter
+      */
+
+    ShaderProc32 chooseBicubicFilterProc(const SkPaint &paint);
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
@@ -201,11 +199,5 @@ void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y);
 void S32_D16_filter_DX(const SkBitmapProcState& s,
                                    const uint32_t* xy, int count, uint16_t* colors);
-
-void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
-                             SkPMColor *SK_RESTRICT colors, int count);
-void highQualityFilter(const SkBitmapProcState &s, int x, int y,
-                   SkPMColor *SK_RESTRICT colors, int count);
-                              
 
 #endif

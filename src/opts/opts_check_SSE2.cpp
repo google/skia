@@ -7,15 +7,12 @@
 
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkBitmapFilter_opts_SSE2.h"
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
-
-#include "SkRTConf.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
@@ -105,8 +102,6 @@ static bool cachedHasSSSE3() {
     return gHasSSSE3;
 }
 
-SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
-
 void SkBitmapProcState::platformProcs() {
     if (cachedHasSSSE3()) {
 #if !defined(SK_BUILD_FOR_ANDROID)
@@ -146,14 +141,6 @@ void SkBitmapProcState::platformProcs() {
             fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
         } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
             fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
-        }
-        if (c_hqfilter_sse) {
-            if (fShaderProc32 == highQualityFilter) {
-                fShaderProc32 = highQualityFilter_SSE2;
-            }
-            if (fShaderProc32 == highQualityFilter_ScaleOnly) {
-                fShaderProc32 = highQualityFilter_ScaleOnly_SSE2;
-            }
         }
     }
 }
