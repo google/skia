@@ -137,7 +137,7 @@ class SkSincFilter: public SkBitmapFilter {
           x = sk_float_abs(x * fInvWidth);
           if (x < 1e-5f) return 1.f;
           if (x > 1.f)   return 0.f;
-          x *= (float) M_PI;
+          x *= SK_ScalarPI;
           float sinc = sk_float_sin(x) / x;
           float lanczos = sk_float_sin(x * tau) / (x * tau);
           return sinc * lanczos;
