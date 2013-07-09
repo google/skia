@@ -89,6 +89,7 @@
     '../gm/rrects.cpp',
     '../gm/roundrects.cpp',
     '../gm/samplerstress.cpp',
+    # '../gm/scalebitmap.cpp',
     '../gm/shaderbounds.cpp',
     '../gm/selftest.cpp',
     '../gm/shadertext.cpp',
