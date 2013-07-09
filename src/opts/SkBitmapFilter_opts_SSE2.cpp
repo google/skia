@@ -148,10 +148,10 @@ void highQualityFilter_ScaleOnly_SSE2(const SkBitmapProcState &s, int x, int y,
         
                 SkPMColor color = *s.fBitmap->getAddr32(src_x, src_y);
         
-                __m128 c = _mm_set_ps(SkGetPackedB32(color), 
-                                      SkGetPackedG32(color),
-                                      SkGetPackedR32(color),
-                                      SkGetPackedA32(color));
+                __m128 c = _mm_set_ps((float)SkGetPackedB32(color), 
+                                      (float)SkGetPackedG32(color),
+                                      (float)SkGetPackedR32(color),
+                                      (float)SkGetPackedA32(color));
         
                 __m128 weightVector = _mm_set1_ps(combined_weight);
         
