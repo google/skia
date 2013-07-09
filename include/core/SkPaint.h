@@ -109,11 +109,12 @@ public:
         kVerticalText_Flag    = 0x1000,
         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
         kBicubicFilterBitmap_Flag = 0x4000, // temporary flag
+        kHighQualityDownsampleBitmap_Flag = 0x8000, // temporary flag
 
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x7FFF
+        kAllFlags = 0xFFFF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
