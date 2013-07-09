@@ -5,7 +5,6 @@
     '../bench/benchmain.cpp',
     '../bench/SkBenchmark.h',
     '../bench/SkBenchmark.cpp',
-
     '../bench/AAClipBench.cpp',
     '../bench/BicubicBench.cpp',
     '../bench/BitmapBench.cpp',
