@@ -6,28 +6,52 @@
  */
 
 #include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPathUtils.h"
-#include "SkView.h"
-//#include "SkPathOps.h" // loads fine here, won't in PathUtils src files
-#include "SkRandom.h"
-//#include "SkTime.h"
 
-class samplePathUtils : public SampleView {
+#include "SkCanvas.h"
+#include "SkCornerPathEffect.h"
+#include "SkDashPathEffect.h"
+#include "SkPathUtils.h"
+#include "SkRandom.h"
+#include "SkView.h"
+
+typedef void (*BitsToPath)(SkPath*, const char*, int, int, int);
+
+static const BitsToPath gBitsToPath_fns[] = {
+    SkPathUtils::BitsToPath_Path,
+    SkPathUtils::BitsToPath_Region,
+};
+
+// hardcoded bitmap patterns
+static const uint8_t gBits[][16] = {
+    { 0x18, 0x00, 0x3c, 0x00, 0x7e, 0x00, 0xdb, 0x00,
+      0xff, 0x00, 0x24, 0x00, 0x5a, 0x00, 0xa5, 0x00 },
+    
+    { 0x20, 0x80, 0x91, 0x20, 0xbf, 0xa0, 0xee, 0xe0,
+      0xff, 0xe0, 0x7f, 0xc0, 0x20, 0x80, 0x40, 0x40 },
+    
+    { 0x0f, 0x00, 0x7f, 0xe0, 0xff, 0xf0, 0xe6, 0x70,
+      0xff, 0xf0, 0x19, 0x80, 0x36, 0xc0, 0xc0, 0x30 }
+};
+
+
+class SamplePathUtils : public SampleView {
 public:
-    samplePathUtils() {
-        bmp_paint.setAntiAlias(true);  // Black paint for bitmap
-    bmp_paint.setStyle(SkPaint::kFill_Style);
-        bmp_paint.setColor(SK_ColorBLACK);
+    static const int fNumBits = 3;
+    static const int fH = 8, fW = 12;
+    static const size_t fRowBytes = 2; 
+    static const int fNumChars = fH * fRowBytes; 
+
+    SkPaint fBmpPaint;
+    SkScalar fPhase;
+
+    SamplePathUtils() {
+        fBmpPaint.setAntiAlias(true);  // Black paint for bitmap
+        fBmpPaint.setStyle(SkPaint::kFill_Style);
+        
+        fPhase = 0.0f; // to animate the dashed path
     }
 
 protected:
-    static const int numModes = 3;
-    static const int h=8, w=12, stride=2; // stride is in bytes
-    static const int numChars = h * stride; // number of chars in entire array
-
-    SkPaint bmp_paint;
-
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
@@ -40,41 +64,37 @@ protected:
     /////////////////////////////////////////////////////////////
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        // bitmap definitions
-        const uint8_t bits[numModes][numChars] = {
-            { 0x18, 0x00, 0x3c, 0x00, 0x7e, 0x00, 0xdb, 0x00,
-               0xff, 0x00, 0x24, 0x00, 0x5a, 0x00, 0xa5, 0x00 },
+        SkScalar intervals[8] = {.5, .3, .5, .3, .5, .3, .5, .3};
+        SkDashPathEffect dash(intervals, 2, fPhase);
+        SkCornerPathEffect corner(.25f);
+        SkComposePathEffect compose(&dash, &corner);
 
-            { 0x20, 0x80, 0x91, 0x20, 0xbf, 0xa0, 0xee, 0xe0,
-              0xff, 0xe0, 0x7f, 0xc0, 0x20, 0x80, 0x40, 0x40 },
+        SkPaint outlinePaint;
+        outlinePaint.setAntiAlias(true);  // dashed paint for bitmap
+        outlinePaint.setStyle(SkPaint::kStroke_Style);
+        outlinePaint.setPathEffect(&compose);
 
-            { 0x0f, 0x00, 0x7f, 0xe0, 0xff, 0xf0, 0xe6, 0x70,
-              0xff, 0xf0, 0x19, 0x80, 0x36, 0xc0, 0xc0, 0x30 }
-        };
+        canvas->scale(10.0f, 10.0f);  // scales up
 
-        static const SkScalar kScale = 10.0f;
+        for (int i = 0; i < fNumBits; ++i) {
+            canvas->save(); 
+            for (size_t j = 0; j < SK_ARRAY_COUNT(gBitsToPath_fns); ++j) {
+                SkPath path;
+                gBitsToPath_fns[j](&path, (char*) &gBits[i], fW, fH, fRowBytes);
 
-        for (int i = 0; i < numModes; ++i) {
-            SkPath path; // generate and simplify each path
-            SkPathUtils::BitsToPath_Path(&path, (char*) &bits[i], h, w, stride);
-
-            canvas->save(); // DRAWING
-            canvas->scale(kScale, kScale);  // scales up each bitmap
-            canvas->translate(0, 1.5f * h * i);
-            canvas->drawPath(path, bmp_paint); // draw bitmap
+                //draw skPath and outline
+                canvas->drawPath(path, fBmpPaint); 
+                canvas->translate(1.5f * fW, 0); // translates past previous bitmap
+                canvas->drawPath(path, outlinePaint);
+                canvas->translate(1.5f * fW, 0); // translates past previous bitmap
+            }
             canvas->restore();
-
-            // use the SkRegion method
-            SkPath pathR;
-            SkPathUtils::BitsToPath_Region(&pathR, (char*) &bits[i], h, w, stride);
-
-            canvas->save();
-
-            canvas->scale(kScale, kScale);  // scales up each bitmap
-            canvas->translate(1.5f * w, 1.5f * h * i); // translates past previous bitmap
-            canvas->drawPath(pathR, bmp_paint); // draw bitmap
-            canvas->restore();
+            canvas->translate(0, 1.5f * fH); //translate to next row
         }
+
+        // for animated pathEffect
+        fPhase += .01;
+        this->inval(NULL);
     }
 
 private:
@@ -83,6 +103,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new samplePathUtils; }
+static SkView* MyFactory() { return new SamplePathUtils; }
 static SkViewRegister reg(MyFactory)
 ;

@@ -25,7 +25,7 @@ public:
        all binary data the path is simplified using the PathOps::Simplify() method.
     */
     static void BitsToPath_Path(SkPath* path, const char* bitmap,
-                            int h, int w, int stride);
+                            int w, int h, int rowBytes);
 
     /**
        This variation utilizes the SkRegion class to generate paths, adding
@@ -33,7 +33,7 @@ public:
        of the binary the SkRegion is converted to a Path via getBoundaryPath().
     */
     static void BitsToPath_Region(SkPath* path, const char* bitmap,
-                                   int h, int w, int stride);
+                                   int w, int h, int rowBytes);
 
 };
 
