@@ -22,20 +22,11 @@ struct GradData {
 };
 
 static const SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK
-};
-static const SkScalar gPos0[] = { 0, SK_Scalar1 };
-static const SkScalar gPos1[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
-static const SkScalar gPos2[] = {
-    0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
+    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
 };
 
 static const GradData gGradData[] = {
     { 2, gColors, NULL },
-    { 2, gColors, gPos0 },
-    { 2, gColors, gPos1 },
-    { 5, gColors, NULL },
-    { 5, gColors, gPos2 }
 };
 
 /// Ignores scale
