@@ -103,13 +103,16 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
 
     if (fRootCatalogRef) {
         fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
-        SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
-
-        fillPages(tree);
-    } else {
-        // TODO(edisonn): corrupted pdf, read it from beginning and rebuild (xref, trailer, or just reall all objects)
-        // 0 pages
+        if (fRootCatalog->isDictionary() && fRootCatalog->valid()) {
+            SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
+            if (tree && tree->isDictionary() && tree->valid()) {
+                fillPages(tree);
+            }
+        }
     }
+
+    // TODO(edisonn): corrupted pdf, read it from beginning and rebuild (xref, trailer, or just reall all objects)
+    // 0 pages
 
     // now actually read all objects if we want, or do it lazyly
     // and resolve references?... or not ...
