@@ -102,7 +102,8 @@ public:
     }
 };
 
-unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator);
+class SkNativeParsedPDF;
+unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
 
 enum SkPdfTokenType {
     kKeyword_TokenType,
@@ -120,8 +121,8 @@ struct PdfToken {
 
 class SkPdfNativeTokenizer {
 public:
-    SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator);
-    SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator);
+    SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
+    SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
 
     virtual ~SkPdfNativeTokenizer();
 
@@ -130,6 +131,7 @@ public:
     void PutBack(PdfToken token);
 
 private:
+    SkNativeParsedPDF* fDoc;
     const SkPdfMapper* fMapper;
     SkPdfAllocator* fAllocator;
 

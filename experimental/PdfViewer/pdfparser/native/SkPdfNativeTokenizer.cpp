@@ -40,7 +40,7 @@ static unsigned char* endOfPdfToken(unsigned char* start, unsigned char* end) {
 }
 
 // last elem has to be ]
-static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* array, SkPdfAllocator* allocator) {
+static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* array, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
     while (start < end) {
         // skip white spaces
         start = skipPdfWhiteSpaces(start, end);
@@ -57,7 +57,7 @@ static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfO
         }
 
         SkPdfObject* newObj = allocator->allocObject();
-        start = nextObject(start, end, newObj, allocator);
+        start = nextObject(start, end, newObj, allocator, doc);
         // TODO(edisonn): perf/memory: put the variables on the stack, and flush them on the array only when
         // we are sure they are not references!
         if (newObj->isKeywordReference() && array->size() >= 2 && array->objAtAIndex(array->size() - 1)->isInteger() && array->objAtAIndex(array->size() - 2)->isInteger()) {
@@ -443,7 +443,7 @@ and it could get worse, with multiple object like this
 // right now implement the silly algorithm that assumes endstream is finishing the stream
 
 
-static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject* dict) {
+static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkNativeParsedPDF* doc) {
     start = skipPdfWhiteSpaces(start, end);
     if (!(start[0] == 's' && start[1] == 't' && start[2] == 'r' && start[3] == 'e' && start[4] == 'a' && start[5] == 'm')) {
         // no stream. return.
@@ -462,8 +462,8 @@ static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdf
     int64_t length = -1;
 
     // TODO(edisonn): very basic implementation
-    if (stream->has_Length() && stream->Length(NULL) > 0) {
-        length = stream->Length(NULL);
+    if (stream->has_Length() && stream->Length(doc) > 0) {
+        length = stream->Length(doc);
     }
 
     // TODO(edisonn): laod external streams
@@ -504,7 +504,7 @@ static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdf
     return start;
 }
 
-static unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator) {
+static unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
     SkPdfObject::makeEmptyDictionary(dict);
 
     start = skipPdfWhiteSpaces(start, end);
@@ -518,7 +518,7 @@ static unsigned char* readDictionary(unsigned char* start, unsigned char* end, S
 
         if (start < end) {
             SkPdfObject* value = allocator->allocObject();
-            start = nextObject(start, end, value, allocator);
+            start = nextObject(start, end, value, allocator, doc);
 
             start = skipPdfWhiteSpaces(start, end);
 
@@ -526,10 +526,10 @@ static unsigned char* readDictionary(unsigned char* start, unsigned char* end, S
                 // seems we have an indirect reference
                 if (isPdfDigit(*start)) {
                     SkPdfObject generation;
-                    start = nextObject(start, end, &generation, allocator);
+                    start = nextObject(start, end, &generation, allocator, doc);
 
                     SkPdfObject keywordR;
-                    start = nextObject(start, end, &keywordR, allocator);
+                    start = nextObject(start, end, &keywordR, allocator, doc);
 
                     if (value->isInteger() && generation.isInteger() && keywordR.isKeywordReference()) {
                         int64_t id = value->intValue();
@@ -566,12 +566,12 @@ static unsigned char* readDictionary(unsigned char* start, unsigned char* end, S
     // TODO(edisonn): read stream ... put dict and stream in a struct, and have a pointer to struct ...
     // or alocate 2 objects, and if there is no stream, free it to be used by someone else? or just leave it ?
 
-    start = readStream(start, end, dict);
+    start = readStream(start, end, dict, doc);
 
     return start;
 }
 
-unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator) {
+unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
     unsigned char* current;
 
     // skip white spaces
@@ -592,7 +592,7 @@ unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject*
             case kOpenedSquareBracket_PdfDelimiter:
                 *start = '\0';
                 SkPdfObject::makeEmptyArray(token);
-                return readArray(current, end, token, allocator);
+                return readArray(current, end, token, allocator, doc);
 
             case kOpenedRoundBracket_PdfDelimiter:
                 *start = '\0';
@@ -602,7 +602,7 @@ unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject*
                 *start = '\0';
                 if (end > start + 1 && start[1] == kOpenedInequityBracket_PdfDelimiter) {
                     // TODO(edisonn): pass here the length somehow?
-                    return readDictionary(start + 2, end, token, allocator);  // skip <<
+                    return readDictionary(start + 2, end, token, allocator, doc);  // skip <<
                 } else {
                     return readHexString(start + 1, end, token);  // skip <
                 }
@@ -678,7 +678,7 @@ SkPdfObject* SkPdfAllocator::allocObject() {
 }
 
 // TODO(edisonn): perf: do no copy the buffers, but use them, and mark cache the result, so there is no need of a second pass
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator) : fMapper(mapper), fAllocator(allocator), fUncompressedStream(NULL), fUncompressedStreamEnd(NULL), fEmpty(false), fHasPutBack(false) {
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) : fDoc(doc), fMapper(mapper), fAllocator(allocator), fUncompressedStream(NULL), fUncompressedStreamEnd(NULL), fEmpty(false), fHasPutBack(false) {
     unsigned char* buffer = NULL;
     size_t len = 0;
     objWithStream->GetFilteredStreamRef(&buffer, &len, fAllocator);
@@ -692,7 +692,7 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkP
     memcpy(fUncompressedStream, buffer, len);
 }
 
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator) : fMapper(mapper), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) : fDoc(doc), fMapper(mapper), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
     // TODO(edisonn): hack, find end of object
     char* endobj = strstr((char*)buffer, "endobj");
     if (endobj) {
@@ -716,7 +716,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
     }
 
     SkPdfObject obj;
-    fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, &obj, fAllocator);
+    fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, &obj, fAllocator, fDoc);
 
     // If it is a keyword, we will only get the pointer of the string
     if (obj.type() == SkPdfObject::kKeyword_PdfObjectType) {
