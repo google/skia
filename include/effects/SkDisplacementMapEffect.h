@@ -22,7 +22,10 @@ public:
         kKeyBits = 3 // Max value is 4, so 3 bits are required at most
     };
 
-    SkDisplacementMapEffect(ChannelSelectorType xChannelSelector, ChannelSelectorType yChannelSelector, SkScalar scale, SkImageFilter* displacement, SkImageFilter* color = NULL);
+    SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
+                            ChannelSelectorType yChannelSelector,
+                            SkScalar scale, SkImageFilter* displacement,
+                            SkImageFilter* color = NULL);
 
     ~SkDisplacementMapEffect();
 
@@ -35,7 +38,8 @@ public:
                                SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) SK_OVERRIDE;
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                SkIPoint* offset) SK_OVERRIDE;
 #endif
 
 protected:

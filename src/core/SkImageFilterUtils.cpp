@@ -20,15 +20,16 @@ bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, 
     return true;
 }
 
-bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter::Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter::Proxy* proxy,
+                                           const SkBitmap& src, SkBitmap* result,
+                                           SkIPoint* offset) {
     if (!filter) {
         *result = src;
         return true;
     } else if (filter->canFilterImageGPU()) {
-        return filter->filterImageGPU(proxy, src, result);
+        return filter->filterImageGPU(proxy, src, result, offset);
     } else {
-        SkIPoint offset;
-        if (filter->filterImage(proxy, src, SkMatrix(), result, &offset)) {
+        if (filter->filterImage(proxy, src, SkMatrix(), result, offset)) {
             if (!result->getTexture()) {
                 GrContext* context = ((GrTexture *) src.getTexture())->getContext();
                 GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context,

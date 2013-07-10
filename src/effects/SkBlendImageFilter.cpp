@@ -68,10 +68,13 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     SkImageFilter* backgroundInput = getBackgroundInput();
     SkImageFilter* foregroundInput = getForegroundInput();
     SkASSERT(NULL != backgroundInput);
-    if (!backgroundInput->filterImage(proxy, src, ctm, &background, offset)) {
+    SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
+    if (!backgroundInput->filterImage(proxy, src, ctm, &background, &backgroundOffset)) {
         return false;
     }
-    if (foregroundInput && !foregroundInput->filterImage(proxy, src, ctm, &foreground, offset)) {
+    SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
+    if (foregroundInput &&
+        !foregroundInput->filterImage(proxy, src, ctm, &foreground, &foregroundOffset)) {
         return false;
     }
     SkAutoLockPixels alp_foreground(foreground), alp_background(background);
@@ -83,9 +86,9 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     SkCanvas canvas(*dst);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    canvas.drawBitmap(background, 0, 0, &paint);
+    canvas.drawBitmap(background, backgroundOffset.fX, backgroundOffset.fY, &paint);
     paint.setXfermodeMode(modeToXfermode(fMode));
-    canvas.drawBitmap(foreground, 0, 0, &paint);
+    canvas.drawBitmap(foreground, foregroundOffset.fX, foregroundOffset.fY, &paint);
     return true;
 }
 
@@ -124,8 +127,11 @@ class GrBlendEffect : public GrEffect {
 public:
     static GrEffectRef* Create(SkBlendImageFilter::Mode mode,
                                GrTexture* foreground,
-                               GrTexture* background) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, background)));
+                               const SkIPoint& foregroundOffset,
+                               GrTexture* background,
+                               const SkIPoint& backgroundOffset) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, foregroundOffset,
+                                                          background, backgroundOffset)));
         return CreateEffectRef(effect);
     }
 
@@ -133,6 +139,8 @@ public:
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     SkBlendImageFilter::Mode mode() const { return fMode; }
+    const SkMatrix& foregroundMatrix() const { return fForegroundMatrix; }
+    const SkMatrix& backgroundMatrix() const { return fBackgroundMatrix; }
 
     typedef GrGLBlendEffect GLEffect;
     static const char* Name() { return "Blend"; }
@@ -142,22 +150,31 @@ public:
 private:
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
-    GrBlendEffect(SkBlendImageFilter::Mode mode, GrTexture* foreground, GrTexture* background);
+    GrBlendEffect(SkBlendImageFilter::Mode mode,
+                  GrTexture* foreground, const SkIPoint& foregroundOffset,
+                  GrTexture* background, const SkIPoint& backgroundOffset);
     GrTextureAccess             fForegroundAccess;
+    SkMatrix                    fForegroundMatrix;
     GrTextureAccess             fBackgroundAccess;
+    SkMatrix                    fBackgroundMatrix;
     SkBlendImageFilter::Mode    fMode;
 
     typedef GrEffect INHERITED;
 };
 
-bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                        SkIPoint* offset) {
     SkBitmap backgroundBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getBackgroundInput(), proxy, src, &backgroundBM)) {
+    SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(getBackgroundInput(), proxy, src, &backgroundBM,
+                                               &backgroundOffset)) {
         return false;
     }
     GrTexture* background = backgroundBM.getTexture();
     SkBitmap foregroundBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getForegroundInput(), proxy, src, &foregroundBM)) {
+    SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(getForegroundInput(), proxy, src, &foregroundBM,
+                                               &foregroundOffset)) {
         return false;
     }
     GrTexture* foreground = foregroundBM.getTexture();
@@ -176,7 +193,7 @@ bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBit
 
     GrPaint paint;
     paint.colorStage(0)->setEffect(
-        GrBlendEffect::Create(fMode, foreground, background))->unref();
+        GrBlendEffect::Create(fMode, foreground, foregroundOffset, background, backgroundOffset))->unref();
     SkRect srcRect;
     src.getBounds(&srcRect);
     context->drawRect(paint, srcRect);
@@ -187,12 +204,20 @@ bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBit
 
 GrBlendEffect::GrBlendEffect(SkBlendImageFilter::Mode mode,
                              GrTexture* foreground,
-                             GrTexture* background)
+                             const SkIPoint& foregroundOffset,
+                             GrTexture* background,
+                             const SkIPoint& backgroundOffset)
     : fForegroundAccess(foreground)
     , fBackgroundAccess(background)
     , fMode(mode) {
     this->addTextureAccess(&fForegroundAccess);
     this->addTextureAccess(&fBackgroundAccess);
+    fForegroundMatrix = GrEffect::MakeDivByTextureWHMatrix(foreground);
+    fForegroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
+                                   SkIntToScalar(-foregroundOffset.fY));
+    fBackgroundMatrix = GrEffect::MakeDivByTextureWHMatrix(background);
+    fBackgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
+                                   SkIntToScalar(-backgroundOffset.fY));
 }
 
 GrBlendEffect::~GrBlendEffect() {
@@ -288,11 +313,11 @@ void GrGLBlendEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect
     GrTexture* fgTex = blend.texture(0);
     GrTexture* bgTex = blend.texture(1);
     fForegroundEffectMatrix.setData(uman,
-                                    GrEffect::MakeDivByTextureWHMatrix(fgTex),
+                                    blend.foregroundMatrix(),
                                     drawEffect,
                                     fgTex);
     fBackgroundEffectMatrix.setData(uman,
-                                    GrEffect::MakeDivByTextureWHMatrix(bgTex),
+                                    blend.backgroundMatrix(),
                                     drawEffect,
                                     bgTex);
 

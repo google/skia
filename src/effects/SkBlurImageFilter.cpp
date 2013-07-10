@@ -119,7 +119,8 @@ static void boxBlurY(const SkBitmap& src, SkBitmap* dst, int kernelSize,
     }
 }
 
-static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lowOffset, int *highOffset)
+static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lowOffset,
+                          int *highOffset)
 {
     float pi = SkScalarToFloat(SK_ScalarPI);
     int d = static_cast<int>(floorf(SkScalarToFloat(s) * 3.0f * sqrtf(2.0f * pi) / 4.0f + 0.5f));
@@ -192,10 +193,11 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
-bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                       SkIPoint* offset) {
 #if SK_SUPPORT_GPU
     SkBitmap input;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &input)) {
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &input, offset)) {
         return false;
     }
     GrTexture* source = input.getTexture();
