@@ -842,9 +842,6 @@ static PdfResult PdfOp_TD(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 
     // TODO(edisonn): delete all the objects after rendering was complete, in this way pdf is rendered faster
     // and the cleanup can happen while the user looks at the image
-    delete _ty;
-    delete vtx;
-    delete vty;
 
     return ret;
 }
@@ -886,9 +883,6 @@ static PdfResult PdfOp_T_star(PdfContext* pdfContext, SkCanvas* canvas, PdfToken
     pdfContext->fObjectStack.push(tl);
 
     PdfResult ret = PdfOp_Td(pdfContext, canvas, looper);
-
-    delete zero;  // TODO(edisonn): do not alocate and delete constants!
-    delete tl;
 
     return ret;
 }
