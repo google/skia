@@ -55,9 +55,9 @@ class ImageRebaseliner(object):
     #                 summary of results; typically "actual-results.json"
     #  tests: list of tests to rebaseline, or None if we should rebaseline
     #         whatever files the JSON results summary file tells us to
-    #  configs: which configs to run for each test; this should only be
-    #           specified if the list of tests was also specified (otherwise,
-    #           the JSON file will give us test names and configs)
+    #  configs: which configs to run for each test, or None if we should
+    #           rebaseline whatever configs the JSON results summary file tells
+    #           us to
     #  dry_run: if True, instead of actually downloading files or adding
     #           files to checkout, display a list of operations that
     #           we would normally perform
@@ -67,9 +67,6 @@ class ImageRebaseliner(object):
     def __init__(self, expectations_root, json_base_url, json_filename,
                  tests=None, configs=None, dry_run=False,
                  add_new=False, missing_json_is_fatal=False):
-        if configs and not tests:
-            raise ValueError('configs should only be specified if tests ' +
-                             'were specified also')
         self._expectations_root = expectations_root
         self._tests = tests
         self._configs = configs
@@ -123,20 +120,6 @@ class ImageRebaseliner(object):
             return True
         except CommandFailedException:
             print '# Couldn\'t fetch gs_url %s' % url
-            return False
-
-    # Download a single actual result from skia-autogen, returning True if it
-    # succeeded.
-    def _DownloadFromAutogen(self, infilename, outfilename,
-                             expectations_subdir, builder_name):
-        url = ('http://skia-autogen.googlecode.com/svn/gm-actual/' +
-               expectations_subdir + '/' + builder_name + '/' +
-               expectations_subdir + '/' + infilename)
-        try:
-            self._DownloadFile(source_url=url, dest_filename=outfilename)
-            return True
-        except CommandFailedException:
-            print '# Couldn\'t fetch autogen_url %s' % url
             return False
 
     # Download a single file, raising a CommandFailedException if it fails.
@@ -247,28 +230,14 @@ class ImageRebaseliner(object):
             print ''
         print '# ' + infilename
 
-        # First try to download this result image from Google Storage.
-        # If that fails, try skia-autogen.
-        # If that fails too, just go on to the next file.
-        #
-        # This not treated as a fatal failure because not all
-        # platforms generate all configs (e.g., Android does not
-        # generate PDF).
-        #
-        # TODO(epoger): Once we are downloading only files that the
-        # actual-results.json file told us to, this should become a
-        # fatal error.  (If the actual-results.json file told us that
-        # the test failed with XXX results, we should be able to download
-        # those results every time.)
+        # Download this result image from Google Storage; if that fails,
+        # raise an exception (because if actual-results.json told us that
+        # a particular image version is available for download, we should
+        # always be able to get it!)
         if not self._DownloadFromGoogleStorage(infilename=infilename,
                                                outfilename=outfilename,
                                                all_results=all_results):
-            if not self._DownloadFromAutogen(infilename=infilename,
-                                             outfilename=outfilename,
-                                             expectations_subdir=expectations_subdir,
-                                             builder_name=builder_name):
-                print '# Couldn\'t fetch infilename ' + infilename
-                return
+            raise Exception('# Couldn\'t fetch infilename ' + infilename)
 
         # Add this file to version control (if appropriate).
         if self._add_new:
@@ -282,36 +251,6 @@ class ImageRebaseliner(object):
                 cmd = [ 'git', 'add', outfilename ]
                 self._Call(cmd)
 
-    # Rebaseline the given configs for a single test.
-    #
-    # params:
-    #  expectations_subdir
-    #  builder_name
-    #  test: a single test to rebaseline
-    #  all_results: a dictionary of all actual results
-    def _RebaselineOneTest(self, expectations_subdir, builder_name, test,
-                           all_results):
-        if self._configs:
-            configs = self._configs
-        else:
-            if (expectations_subdir == 'base-shuttle-win7-intel-angle'):
-                configs = [ 'angle', 'anglemsaa16' ]
-            else:
-                configs = [ '565', '8888', 'gpu', 'pdf', 'mesa', 'msaa16',
-                            'msaa4' ]
-        if self._dry_run:
-            print ''
-        print '# ' + expectations_subdir + ':'
-        for config in configs:
-            infilename = test + '_' + config + '.png'
-            outfilename = os.path.join(self._expectations_root,
-                                       expectations_subdir, infilename);
-            self._RebaselineOneFile(expectations_subdir=expectations_subdir,
-                                    builder_name=builder_name,
-                                    infilename=infilename,
-                                    outfilename=outfilename,
-                                    all_results=all_results)
-
     # Rebaseline all tests/types we specified in the constructor,
     # within this gm-expectations subdir.
     #
@@ -323,19 +262,26 @@ class ImageRebaseliner(object):
                              subdir, builder, subdir,
                              self._json_filename])
         all_results = self._GetActualResults(json_url=json_url)
+        filenames = self._GetFilesToRebaseline(json_url=json_url,
+                                               add_new=self._add_new)
+        skipped_files = []
+        for filename in filenames:
+            (test, config) = self._testname_pattern.match(filename).groups()
+            if self._tests:
+                if test not in self._tests:
+                    skipped_files.append(filename)
+                    continue
+            if self._configs:
+                if config not in self._configs:
+                    skipped_files.append(filename)
+                    continue
+            outfilename = os.path.join(subdir, filename);
+            self._RebaselineOneFile(expectations_subdir=subdir,
+                                    builder_name=builder,
+                                    infilename=filename,
+                                    outfilename=outfilename,
+                                    all_results=all_results)
 
-        if self._tests:
-            for test in self._tests:
-                self._RebaselineOneTest(expectations_subdir=subdir,
-                                        builder_name=builder,
-                                        test=test, all_results=all_results)
-        else:  # get the raw list of files that need rebaselining from JSON
-            filenames = self._GetFilesToRebaseline(json_url=json_url,
-                                                   add_new=self._add_new)
-            for filename in filenames:
-                outfilename = os.path.join(subdir, filename);
-                self._RebaselineOneFile(expectations_subdir=subdir,
-                                        builder_name=builder,
-                                        infilename=filename,
-                                        outfilename=outfilename,
-                                        all_results=all_results)
+        if skipped_files:
+            print ('Skipped these files due to test/config filters: %s' %
+                   skipped_files)
