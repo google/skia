@@ -92,20 +92,6 @@ bool SkRasterClip::setPath(const SkPath& path, const SkIRect& clip, bool doAA) {
     return this->setPath(path, tmp, doAA);
 }
 
-bool SkRasterClip::setPath(const SkPath& path, const SkRasterClip& clip,
-                           bool doAA) {
-    if (clip.isBW()) {
-        return this->setPath(path, clip.bwRgn(), doAA);
-    } else {
-        SkRegion tmp;
-        tmp.setRect(clip.getBounds());
-        if (!this->setPath(path, clip, doAA)) {
-            return false;
-        }
-        return this->op(clip, SkRegion::kIntersect_Op);
-    }
-}
-
 bool SkRasterClip::op(const SkIRect& rect, SkRegion::Op op) {
     AUTO_RASTERCLIP_VALIDATE(*this);
 
