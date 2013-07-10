@@ -1,1 +1,0 @@
-python tools/rebaseline.py --dry-run --actuals-base-url file:nonexistent-path --tests test1 test2

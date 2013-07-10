@@ -1,48 +1,15 @@
 
-# base-android-galaxy-nexus:
+#
+# Getting files to rebaseline from JSON summary URL file:tools/tests/rebaseline/input/json1/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/actual-results.json ...
+# ... found files_to_rebaseline [u'imageblur_565.png', u'imageblur_8888.png', u'shadertext3_8888.png']
+#
 
-# test1_565.png
-# unable to find filename test1_565.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_565.png --output fake/expectations/path/base-android-galaxy-nexus/.temp-test1_565.png
-mv fake/expectations/path/base-android-galaxy-nexus/.temp-test1_565.png fake/expectations/path/base-android-galaxy-nexus/test1_565.png
+# imageblur_8888.png
+curl --fail --silent http://chromium-skia-gm.commondatastorage.googleapis.com/gm/bitmap-64bitMD5/imageblur/4217923806027861152.png --output base-android-galaxy-nexus/.temp-imageblur_8888.png
+mv base-android-galaxy-nexus/.temp-imageblur_8888.png base-android-galaxy-nexus/imageblur_8888.png
+Skipped these files due to test/config filters: [u'imageblur_565.png', u'shadertext3_8888.png']
 
-# test1_8888.png
-# unable to find filename test1_8888.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test1_8888.png --output fake/expectations/path/base-android-galaxy-nexus/.temp-test1_8888.png
-mv fake/expectations/path/base-android-galaxy-nexus/.temp-test1_8888.png fake/expectations/path/base-android-galaxy-nexus/test1_8888.png
-
-# base-android-galaxy-nexus:
-
-# test2_565.png
-# unable to find filename test2_565.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_565.png --output fake/expectations/path/base-android-galaxy-nexus/.temp-test2_565.png
-mv fake/expectations/path/base-android-galaxy-nexus/.temp-test2_565.png fake/expectations/path/base-android-galaxy-nexus/test2_565.png
-
-# test2_8888.png
-# unable to find filename test2_8888.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-android-galaxy-nexus/Test-Android-GalaxyNexus-SGX540-Arm7-Debug/base-android-galaxy-nexus/test2_8888.png --output fake/expectations/path/base-android-galaxy-nexus/.temp-test2_8888.png
-mv fake/expectations/path/base-android-galaxy-nexus/.temp-test2_8888.png fake/expectations/path/base-android-galaxy-nexus/test2_8888.png
-
-# base-shuttle-win7-intel-float:
-
-# test1_565.png
-# unable to find filename test1_565.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_565.png --output fake/expectations/path/base-shuttle-win7-intel-float/.temp-test1_565.png
-mv fake/expectations/path/base-shuttle-win7-intel-float/.temp-test1_565.png fake/expectations/path/base-shuttle-win7-intel-float/test1_565.png
-
-# test1_8888.png
-# unable to find filename test1_8888.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test1_8888.png --output fake/expectations/path/base-shuttle-win7-intel-float/.temp-test1_8888.png
-mv fake/expectations/path/base-shuttle-win7-intel-float/.temp-test1_8888.png fake/expectations/path/base-shuttle-win7-intel-float/test1_8888.png
-
-# base-shuttle-win7-intel-float:
-
-# test2_565.png
-# unable to find filename test2_565.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_565.png --output fake/expectations/path/base-shuttle-win7-intel-float/.temp-test2_565.png
-mv fake/expectations/path/base-shuttle-win7-intel-float/.temp-test2_565.png fake/expectations/path/base-shuttle-win7-intel-float/test2_565.png
-
-# test2_8888.png
-# unable to find filename test2_8888.png in all_results dict
-curl --fail --silent http://skia-autogen.googlecode.com/svn/gm-actual/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/test2_8888.png --output fake/expectations/path/base-shuttle-win7-intel-float/.temp-test2_8888.png
-mv fake/expectations/path/base-shuttle-win7-intel-float/.temp-test2_8888.png fake/expectations/path/base-shuttle-win7-intel-float/test2_8888.png
+#
+# Getting files to rebaseline from JSON summary URL file:tools/tests/rebaseline/input/json1/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/actual-results.json ...
+# ... found files_to_rebaseline []
+#

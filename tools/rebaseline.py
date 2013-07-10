@@ -87,16 +87,13 @@ class JsonRebaseliner(object):
     #                    summary of results; typically "actual-results.json"
     #  tests: list of tests to rebaseline, or None if we should rebaseline
     #         whatever files the JSON results summary file tells us to
-    #  configs: which configs to run for each test; this should only be
-    #           specified if the list of tests was also specified (otherwise,
-    #           the JSON file will give us test names and configs)
+    #  configs: which configs to run for each test, or None if we should
+    #           rebaseline whatever configs the JSON results summary file tells
+    #           us to
     #  add_new: if True, add expectations for tests which don't have any yet
     def __init__(self, expectations_root, expectations_filename,
                  actuals_base_url, actuals_filename,
                  tests=None, configs=None, add_new=False):
-        if configs and not tests:
-            raise ValueError('configs should only be specified if tests ' +
-                             'were specified also')
         self._expectations_root = expectations_root
         self._expectations_filename = expectations_filename
         self._tests = tests
@@ -215,15 +212,11 @@ parser.add_argument('--add-new', action='store_true',
                     'expectations for tests which don\'t have expectations ' +
                     'yet.')
 # TODO(epoger): Add test that exercises --configs argument.
-# TODO(epoger): Once we are only rebaselining JSON files, update the helpstring
-# to indicate that this is a *filter* over the config names that
-# actual-results.json tells us need to be rebaselined.
-# You don't need to specify tests also, etc.
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help='which configurations to rebaseline, e.g. ' +
-                    '"--configs 565 8888"; if unspecified, run a default ' +
-                    'set of configs. This should ONLY be specified if ' +
-                    '--tests has also been specified.')
+                    '"--configs 565 8888", as a filter over the full set of ' +
+                    'results in ACTUALS_FILENAME; if unspecified, rebaseline ' +
+                    '*all* configs that are available.')
 # TODO(epoger): The --dry-run argument will no longer be needed once we
 # are only rebaselining JSON files.
 parser.add_argument('--dry-run', action='store_true',
@@ -245,14 +238,11 @@ parser.add_argument('--subdirs', metavar='SUBDIR', nargs='+',
                     'if unspecified, rebaseline all subdirs, same as ' +
                     '"--subdirs %s"' % ' '.join(sorted(SUBDIR_MAPPING.keys())))
 # TODO(epoger): Add test that exercises --tests argument.
-# TODO(epoger): Once we are only rebaselining JSON files, update the helpstring
-# to indicate that this is a *filter* over the test names that
-# actual-results.json tells us need to be rebaselined.
 parser.add_argument('--tests', metavar='TEST', nargs='+',
                     help='which tests to rebaseline, e.g. ' +
-                    '"--tests aaclip bigmatrix"; if unspecified, then all ' +
-                    'failing tests (according to the actual-results.json ' +
-                    'file) will be rebaselined.')
+                    '"--tests aaclip bigmatrix", as a filter over the full ' +
+                    'set of results in ACTUALS_FILENAME; if unspecified, ' +
+                    'rebaseline *all* tests that are available.')
 args = parser.parse_args()
 if args.subdirs:
     subdirs = args.subdirs
