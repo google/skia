@@ -22,6 +22,10 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     return NULL;
 }
 
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
+    return NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
