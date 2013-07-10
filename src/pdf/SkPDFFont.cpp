@@ -226,7 +226,7 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
         uint8_t dataByte = 0;  // To hush compiler.
         bool highNibble = true;
         for (; hexData < trailer; hexData++) {
-            char curNibble = hexToBin(*hexData);
+            int8_t curNibble = hexToBin(*hexData);
             if (curNibble < 0) {
                 continue;
             }
