@@ -42,11 +42,11 @@ public:
 
     int pages() const;
     SkPdfResourceDictionary* pageResources(int page);
-    SkRect MediaBox(int page) const;
-    SkPdfNativeTokenizer* tokenizerOfPage(int n) const;
+    SkRect MediaBox(int page);
+    SkPdfNativeTokenizer* tokenizerOfPage(int n);
 
-    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfObject* stream) const;
-    SkPdfNativeTokenizer* tokenizerOfBuffer(unsigned char* buffer, size_t len) const;
+    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfObject* stream);
+    SkPdfNativeTokenizer* tokenizerOfBuffer(unsigned char* buffer, size_t len);
 
     size_t objects() const;
     SkPdfObject* object(int i);
@@ -61,8 +61,7 @@ public:
 
     void drawPage(int page, SkCanvas* canvas);
 
-    SkPdfObject* resolveReference(SkPdfObject* ref) const;
-    SkPdfObject* resolveReference(const SkPdfObject* ref) const;
+    SkPdfObject* resolveReference(const SkPdfObject* ref);
 
 private:
 
@@ -77,7 +76,7 @@ private:
         obj->fOffset = -1;
     }
 
-    SkPdfObject* readObject(int id/*, int generation*/) const;
+    SkPdfObject* readObject(int id/*, int generation*/);
 
     void fillPages(SkPdfPageTreeNodeDictionary* tree);
 

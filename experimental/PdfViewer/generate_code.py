@@ -374,8 +374,8 @@ class PdfClassManager:
           if len(prop.fTypes.split()) == 1:
             t = prop.fTypes.strip()
 
-            nativeFileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '(const SkNativeParsedPDF* doc);\n')
-            nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '(const SkNativeParsedPDF* doc) {\n')
+            nativeFileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '(SkNativeParsedPDF* doc);\n')
+            nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '(SkNativeParsedPDF* doc) {\n')
             nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
             nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
             nativeFileClassCpp.write('  if ((ret != NULL && ' + knowTypes[t][3] + ') || (doc == NULL && ret != NULL && ret->isReference())) return ' + knowTypes[t][1] + ';\n')
@@ -395,17 +395,17 @@ class PdfClassManager:
             for type in prop.fTypes.split():
               t = type.strip()
               
-              nativeFileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '(const SkNativeParsedPDF* doc);\n')
+              nativeFileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '(SkNativeParsedPDF* doc);\n')
 
-              nativeFileClassCpp.write('bool SkPdf' + cls.fName + '::is' + prop.fCppName + 'A' + t.title() + '(const SkNativeParsedPDF* doc) {\n')
+              nativeFileClassCpp.write('bool SkPdf' + cls.fName + '::is' + prop.fCppName + 'A' + t.title() + '(SkNativeParsedPDF* doc) {\n')
               nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
               nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
               nativeFileClassCpp.write('  return ret != NULL && ' + knowTypes[t][3] + ';\n')
               nativeFileClassCpp.write('}\n')
               nativeFileClassCpp.write('\n')
 
-              nativeFileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '(const SkNativeParsedPDF* doc);\n')
-              nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '(const SkNativeParsedPDF* doc) {\n')
+              nativeFileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '(SkNativeParsedPDF* doc);\n')
+              nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '(SkNativeParsedPDF* doc) {\n')
 
               nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
               nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
@@ -468,11 +468,11 @@ class PdfClassManager:
     
     fileMapperNative.write('class SkPdfMapper {\n')
 
-    fileMapperNative.write('  const SkNativeParsedPDF* fParsedDoc;\n')
+    fileMapperNative.write('  SkNativeParsedPDF* fParsedDoc;\n')
     
     fileMapperNative.write('public:\n')
     
-    fileMapperNative.write('  SkPdfMapper(const SkNativeParsedPDF* doc) : fParsedDoc(doc) {}\n')
+    fileMapperNative.write('  SkPdfMapper(SkNativeParsedPDF* doc) : fParsedDoc(doc) {}\n')
     fileMapperNative.write('\n')
     
     for name in self.fClassesNamesInOrder:
