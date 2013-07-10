@@ -700,7 +700,9 @@ SkPdfNativeTokenizer::~SkPdfNativeTokenizer() {
     // free the unparsed stream, we don't need it.
     // the parsed one is locked as it contains the strings and keywords referenced in objects
     if (fUncompressedStream) {
-        realloc(fUncompressedStreamStart, fUncompressedStream - fUncompressedStreamStart);
+        void* dummy = realloc(fUncompressedStreamStart, fUncompressedStream - fUncompressedStreamStart);
+        SkASSERT(dummy == fUncompressedStreamStart);
+        fUncompressedStreamStart = (unsigned char*)dummy;  // suporess compiler warning
     } else {
         SkASSERT(false);
     }

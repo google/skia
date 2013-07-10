@@ -48,6 +48,7 @@ static void usage(const char* argv0) {
  * @returns false if the file did not has the expected extension.
  *  if false is returned, contents of path are undefined.
  */
+/*
 static bool replace_filename_extension(SkString* path,
                                        const char old_extension[],
                                        const char new_extension[]) {
@@ -62,7 +63,7 @@ static bool replace_filename_extension(SkString* path,
     }
     return false;
 }
-
+*/
 /** Builds the output filename. path = dir/name, and it replaces expected
  * .skp extension with .pdf extention.
  * @param path Output filename.
@@ -70,6 +71,8 @@ static bool replace_filename_extension(SkString* path,
  * @returns false if the file did not has the expected extension.
  *  if false is returned, contents of path are undefined.
  */
+
+/*
 static bool make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name) {
     sk_tools::make_filepath(path, dir, name);
@@ -77,12 +80,13 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
                                       PDF_FILE_EXTENSION,
                                       PNG_FILE_EXTENSION);
 }
-
+*/
 /** Write the output of pdf renderer to a file.
  * @param outputDir Output dir.
  * @param inputFilename The skp file that was read.
  * @param renderer The object responsible to write the pdf file.
  */
+/*
 static bool write_output(const SkString& outputDir,
                          const SkString& inputFilename,
                          const SkPdfViewer& renderer) {
@@ -106,7 +110,7 @@ static bool write_output(const SkString& outputDir,
 
     return true;
 }
-
+*/
 /** Reads an skp file, renders it to pdf and writes the output to a pdf file
  * @param inputPath The skp file to be read.
  * @param outputDir Output dir.

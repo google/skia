@@ -20,11 +20,20 @@ class SkPdfTrueTypeFont;
 class SkPdfMultiMasterFont;
 class SkPdfFont;
 
-
 struct SkPdfStandardFontEntry {
+    // We don't own this pointer!
     const char* fName;
     bool fIsBold;
     bool fIsItalic;
+    SkPdfStandardFontEntry()
+    : fName(NULL),
+      fIsBold(false),
+      fIsItalic(false) {}
+
+    SkPdfStandardFontEntry(const char* name, bool bold, bool italic)
+        : fName(name),
+          fIsBold(bold),
+          fIsItalic(italic) {}
 };
 
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts();
