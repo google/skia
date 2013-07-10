@@ -128,6 +128,11 @@ static void setfield_number(lua_State* L, const char key[], double value) {
     lua_setfield(L, -2, key);
 }
 
+static void setfield_boolean(lua_State* L, const char key[], bool value) {
+    lua_pushboolean(L, value);
+    lua_setfield(L, -2, key);
+}
+
 static void setfield_scalar(lua_State* L, const char key[], SkScalar value) {
     setfield_number(L, key, SkScalarToLua(value));
 }
@@ -648,6 +653,24 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lmatrix_getType(lua_State* L) {
+    SkMatrix::TypeMask mask = get_obj<SkMatrix>(L, 1)->getType();
+    
+    lua_newtable(L);
+    setfield_boolean(L, "translate",   SkToBool(mask & SkMatrix::kTranslate_Mask));
+    setfield_boolean(L, "scale",       SkToBool(mask & SkMatrix::kScale_Mask));
+    setfield_boolean(L, "affine",      SkToBool(mask & SkMatrix::kAffine_Mask));
+    setfield_boolean(L, "perspective", SkToBool(mask & SkMatrix::kPerspective_Mask));
+    return 1;
+}
+
+static const struct luaL_Reg gSkMatrix_Methods[] = {
+    { "getType", lmatrix_getType },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 static int lpath_getBounds(lua_State* L) {
     SkLua(L).pushRect(get_obj<SkPath>(L, 1)->getBounds());
     return 1;
@@ -971,6 +994,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkRRect);
     REG_CLASS(L, SkTypeface);
+    REG_CLASS(L, SkMatrix);
 }
 
 extern "C" int luaopen_skia(lua_State* L);
