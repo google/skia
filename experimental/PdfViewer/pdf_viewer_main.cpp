@@ -97,6 +97,7 @@ static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color 
  * @param outputDir Output dir.
  * @param inputFilename The skp file that was read.
  * @param renderer The object responsible to write the pdf file.
+ * @param page -1 means there is only one page (0), and render in a file without page extension
  */
 
 static bool render_page(const SkString& outputDir,
@@ -130,7 +131,7 @@ static bool render_page(const SkString& outputDir,
     gDumpBitmap = &bitmap;
 
     gDumpCanvas = &canvas;
-    renderer.renderPage(page, &canvas);
+    renderer.renderPage(page < 0 ? 0 : page, &canvas);
 
     SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 
