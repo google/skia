@@ -86,9 +86,11 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     SkCanvas canvas(*dst);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    canvas.drawBitmap(background, backgroundOffset.fX, backgroundOffset.fY, &paint);
+    canvas.drawBitmap(background, SkIntToScalar(backgroundOffset.fX),
+                      SkIntToScalar(backgroundOffset.fY), &paint);
     paint.setXfermodeMode(modeToXfermode(fMode));
-    canvas.drawBitmap(foreground, foregroundOffset.fX, foregroundOffset.fY, &paint);
+    canvas.drawBitmap(foreground, SkIntToScalar(foregroundOffset.fX),
+                      SkIntToScalar(foregroundOffset.fY), &paint);
     return true;
 }
 
