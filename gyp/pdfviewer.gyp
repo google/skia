@@ -4,9 +4,6 @@
 #  ./gyp_skia pdfviewer.gyp && make pdfviewer
 #
 {
-  'variables': {
-    'skia_warnings_as_errors': 0,
-  },
   'includes': [
     'apptype_console.gypi',
   ],

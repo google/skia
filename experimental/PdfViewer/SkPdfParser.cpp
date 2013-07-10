@@ -1905,12 +1905,12 @@ void PdfCompatibilitySectionLooper::loop() {
 // references automatically.
 
 bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
-    std::cout << "Init: " << inputFileName.c_str() << std::endl;
+    std::cout << "PDF Loaded: " << inputFileName.c_str() << std::endl;
 
     SkNativeParsedPDF* doc = new SkNativeParsedPDF(inputFileName.c_str());
     if (!doc->pages())
     {
-        std::cout << "ERROR: Empty Document" << inputFileName.c_str() << std::endl;
+        std::cout << "ERROR: Empty PDF Document" << inputFileName.c_str() << std::endl;
         return false;
     } else {
 
