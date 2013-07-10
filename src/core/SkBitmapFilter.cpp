@@ -29,23 +29,23 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
 
         int sx = SkScalarFloorToInt(srcPt.fX);
         int sy = SkScalarFloorToInt(srcPt.fY);
-        
+
         SkFixed weight = 0;
         SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
-        
+
         int y0 = SkClampMax(int(ceil(sy-s.getBitmapFilter()->width() + 0.5f)), maxY);
         int y1 = SkClampMax(int(floor(sy+s.getBitmapFilter()->width() + 0.5f)), maxY);
         int x0 = SkClampMax(int(ceil(sx-s.getBitmapFilter()->width() + 0.5f)), maxX);
         int x1 = SkClampMax(int(floor(sx+s.getBitmapFilter()->width() + 0.5f)), maxX);
-        
+
         for (int src_y = y0; src_y <= y1; src_y++) {
             SkFixed yweight = s.getBitmapFilter()->lookup((srcPt.fY - src_y));
-            
+
             for (int src_x = x0; src_x <= x1 ; src_x++) {
                 SkFixed xweight = s.getBitmapFilter()->lookup((srcPt.fX - src_x));
-                
+
                 SkFixed combined_weight = SkFixedMul(xweight, yweight);
-                
+
                 SkPMColor c = *s.fBitmap->getAddr32(src_x, src_y);
                 fr += combined_weight * SkGetPackedR32(c);
                 fg += combined_weight * SkGetPackedG32(c);
@@ -75,9 +75,9 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
                              SkPMColor *SK_RESTRICT colors, int count) {
      const int maxX = s.fBitmap->width() - 1;
      const int maxY = s.fBitmap->height() - 1;
-     
+
      SkPoint srcPt;
-     
+
      s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
                  SkIntToScalar(y), &srcPt);
      srcPt.fY -= SK_ScalarHalf;
@@ -129,7 +129,7 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
          *colors++ = SkPackARGB32(a, r, g, b);
 
          x++;
-     }                                 
+     }
 }
 
 SK_CONF_DECLARE(const char *, c_bitmapFilter, "bitmap.filter", "mitchell", "Which bitmap filter to use [mitchell, sinc, gaussian, triangle, box]");
@@ -148,7 +148,7 @@ static SkBitmapFilter *allocateBitmapFilter() {
     } else {
         SkASSERT(!!!"Unknown filter type");
     }
-    
+
     return NULL;
 }
 
@@ -176,11 +176,11 @@ SkBitmapProcState::chooseBitmapFilterProc(const SkPaint& paint) {
     if (0xFF != paint.getAlpha()) {
         return NULL;
     }
-    
+
     if (fInvType & (SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask)) {
         fBitmapFilter = allocateBitmapFilter();
     }
-    
+
     if (fInvType & SkMatrix::kAffine_Mask) {
         return highQualityFilter;
     } else if (fInvType & SkMatrix::kScale_Mask) {
@@ -213,10 +213,10 @@ static void upScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitm
             float sx = x / scale - 0.5f;
             int x0 = SkClampMax(int(ceil(sx-filter->width() + 0.5f)), src->width()-1);
             int x1 = SkClampMax(int(floor(sx+filter->width() + 0.5f)), src->width()-1);
-            
+
             SkFixed total_weight = 0;
             SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
-            
+
             for (int src_x = x0 ; src_x <= x1 ; src_x++) {
                 SkFixed weight = filter->lookup(sx - src_x);
                 SkPMColor c = *src->getAddr32(src_x,y);
@@ -244,22 +244,22 @@ static void upScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitm
 static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
     SkFixed *sums = SkNEW_ARRAY(SkFixed, dst->width() * dst->height() * 4);
     SkFixed *weights = SkNEW_ARRAY(SkFixed, dst->width() * dst->height());
-    
+
     SkAutoTDeleteArray<SkFixed> ada1(sums);
     SkAutoTDeleteArray<SkFixed> ada2(weights);
 
     memset(sums, 0, dst->width() * dst->height() * sizeof(SkFixed) * 4);
     memset(weights, 0, dst->width() * dst->height() * sizeof(SkFixed));
-    
+
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < src->width() ; x++) {
             // splat each source pixel into the destination image
             float dx = (x + 0.5f) * scale;
             int x0 = SkClampMax(int(ceil(dx-filter->width() + 0.5f)), dst->width()-1);
             int x1 = SkClampMax(int(floor(dx+filter->width() + 0.5f)), dst->width()-1);
-            
+
             SkPMColor c = *src->getAddr32(x,y);
-            
+
             for (int dst_x = x0 ; dst_x <= x1 ; dst_x++) {
                 SkFixed weight = filter->lookup(dx - dst_x);
                 sums[4*(y*dst->width() + dst_x) + 0] += weight*SkGetPackedR32(c);
@@ -270,7 +270,7 @@ static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBi
             }
         }
     }
-    
+
     divideByWeights(sums, weights, dst);
 }
 
@@ -280,10 +280,10 @@ static void upScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitma
             float sy = y / scale - 0.5f;
             int y0 = SkClampMax(int(ceil(sy-filter->width() + 0.5f)), src->height()-1);
             int y1 = SkClampMax(int(floor(sy+filter->width() + 0.5f)), src->height()-1);
-            
+
             SkFixed total_weight = 0;
             SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
-            
+
             for (int src_y = y0 ; src_y <= y1 ; src_y++) {
                 SkFixed weight = filter->lookup(sy - src_y);
                 SkPMColor c = *src->getAddr32(x,src_y);
@@ -311,7 +311,7 @@ static void upScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitma
 static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
     SkFixed *sums = SkNEW_ARRAY(SkFixed, dst->width() * dst->height() * 4);
     SkFixed *weights = SkNEW_ARRAY(SkFixed, dst->width() * dst->height());
-    
+
     SkAutoTDeleteArray<SkFixed> ada1(sums);
     SkAutoTDeleteArray<SkFixed> ada2(weights);
 
@@ -337,21 +337,21 @@ static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBit
             }
         }
     }
-    
+
     divideByWeights(sums, weights, dst);
 }
 
 void SkBitmap::scale(SkBitmap *dst) const {
-    
+
     SkBitmap horiz_temp;
-    
+
     horiz_temp.setConfig(SkBitmap::kARGB_8888_Config, dst->width(), height());
     horiz_temp.allocPixels();
-    
+
     SkBitmapFilter *filter = allocateBitmapFilter();
-    
+
     float horiz_scale = float(dst->width()) / width();
-    
+
     if (horiz_scale == 1) {
         this->copyPixelsTo(horiz_temp.getPixels(), getSize());
     } else if (horiz_scale > 1) {
@@ -359,9 +359,9 @@ void SkBitmap::scale(SkBitmap *dst) const {
     } else if (horiz_scale < 1) {
         downScaleHoriz(this, &horiz_temp, horiz_scale, filter);
     }
-    
+
     float vert_scale = float(dst->height()) / height();
-    
+
     if (vert_scale == 1) {
         horiz_temp.copyPixelsTo(dst->getPixels(), dst->getSize());
     } else if (vert_scale > 1) {
@@ -369,6 +369,6 @@ void SkBitmap::scale(SkBitmap *dst) const {
     } else if (vert_scale < 1) {
         downScaleVert(&horiz_temp, dst, vert_scale, filter);
     }
-    
+
     SkDELETE(filter);
 }

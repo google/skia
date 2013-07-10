@@ -10,7 +10,7 @@
 
 namespace skiagm {
 
-// This GM draws a lot of arcs in a 'Z' shape. It particularly exercises 
+// This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
 // the 'drawArc' code near a singularly of its processing (i.e., near the
 // edge of one of its underlying quads).
 class ArcOfZorroGM : public GM {

@@ -28,10 +28,10 @@ public:
     }
 
 protected:
-    
+
     SkBitmap fInputBitmap, fOutputBitmap;
     SkMatrix fMatrix;
-    
+
     virtual const char* onGetName() {
         return fName.c_str();
     }
@@ -39,15 +39,15 @@ protected:
     int inputSize() const {
         return fInputSize;
     }
-    
+
     int outputSize() const {
         return fOutputSize;
     }
-    
+
     float scale() const {
         return float(outputSize())/inputSize();
     }
-    
+
     SkIPoint onGetSize() SK_OVERRIDE {
         return SkIPoint::Make( fOutputSize, fOutputSize );
     }
@@ -55,17 +55,17 @@ protected:
     void setName(const char * name) {
         fName.printf( "bitmap_scale_%s_%d_%d", name, fInputSize, fOutputSize );
     }
-    
+
     virtual void onPreDraw() {
         fInputBitmap.setConfig(SkBitmap::kARGB_8888_Config, fInputSize, fInputSize);
         fInputBitmap.allocPixels();
         fInputBitmap.eraseColor(SK_ColorWHITE);
         fInputBitmap.setIsOpaque(true);
-        
+
         fOutputBitmap.setConfig(SkBitmap::kARGB_8888_Config, fOutputSize, fOutputSize);
         fOutputBitmap.allocPixels();
         fOutputBitmap.setIsOpaque(true);
-        
+
         fMatrix.setScale( scale(), scale() );
     }
 
@@ -95,9 +95,9 @@ protected:
     virtual void doScaleImage() SK_OVERRIDE {
         SkCanvas canvas( fOutputBitmap );
         SkPaint paint;
-        
+
         paint.setFlags( SkPaint::kHighQualityFilterBitmap_Flag | SkPaint::kFilterBitmap_Flag );
-        
+
         canvas.drawBitmapMatrix( fInputBitmap, fMatrix, &paint );
     }
 private:
