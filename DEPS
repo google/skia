@@ -19,7 +19,6 @@ deps = {
   # Move to a webp version newer than 0.3.0 to pickup NEON fix for iOS
   "third_party/externals/jsoncpp-chromium" : "https://chromium.googlesource.com/chromium/src/third_party/jsoncpp.git@41239939c0c60481f34887d52c038facf05f5533",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@3fe91635df8734b23f3c1b9d1f0c4fa8cfaf4e39",
-  "third_party/externals/podofo" : "https://skia.googlesource.com/third_party/podofo.git@skia_ext",
 }
 
 deps_os = {
