@@ -1208,7 +1208,7 @@ static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
 /*  given a quad-curve and a point (x,y), chop the quad at that point and place
     the new off-curve point and endpoint into 'dest'. The new end point is used
     (rather than (x,y)) to compensate for numerical inaccuracies.
-    Should only return false if the computed pos is the start of the curve 
+    Should only return false if the computed pos is the start of the curve
     (i.e. root == 0)
 */
 static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPoint* dest)

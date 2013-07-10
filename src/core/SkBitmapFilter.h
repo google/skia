@@ -24,23 +24,23 @@ class SkBitmapFilter {
       : fWidth(width), fInvWidth(1.f/width) {
           precomputed = false;
       }
-      
+
       SkFixed lookup( float x ) const {
           if (!precomputed) {
               precomputeTable();
           }
           int filter_idx = int(fabsf(x * invWidth() * SKBITMAP_FILTER_TABLE_SIZE));
           return fFilterTable[ SkTMin(filter_idx, SKBITMAP_FILTER_TABLE_SIZE-1) ];
-      }      
-      
+      }
+
       float lookupFloat( float x ) const {
           if (!precomputed) {
               precomputeTable();
           }
           int filter_idx = int(fabsf(x * invWidth() * SKBITMAP_FILTER_TABLE_SIZE));
           return fFilterTableFloat[ SkTMin(filter_idx, SKBITMAP_FILTER_TABLE_SIZE-1) ];
-      }      
-      
+      }
+
       float width() const { return fWidth; }
       float invWidth() const { return fInvWidth; }
       virtual float evaluate(float x) const = 0;
@@ -48,7 +48,7 @@ class SkBitmapFilter {
   protected:
       float fWidth;
       float fInvWidth;
-      
+
       mutable bool precomputed;
       mutable SkFixed fFilterTable[SKBITMAP_FILTER_TABLE_SIZE];
       mutable float fFilterTableFloat[SKBITMAP_FILTER_TABLE_SIZE];
@@ -69,9 +69,9 @@ class SkBitmapFilter {
 class SkMitchellFilter: public SkBitmapFilter {
   public:
       SkMitchellFilter(float b, float c, float width=2.0f)
-      : SkBitmapFilter(width), B(b), C(c) { 
+      : SkBitmapFilter(width), B(b), C(c) {
       }
-      
+
       virtual float evaluate(float x) const SK_OVERRIDE {
           x = fabsf(x);
           if (x > 2.f) {
@@ -92,9 +92,9 @@ class SkMitchellFilter: public SkBitmapFilter {
 class SkGaussianFilter: public SkBitmapFilter {
   public:
       SkGaussianFilter(float a, float width=2.0f)
-      : SkBitmapFilter(width), alpha(a), expWidth(expf(-alpha * width * width)) { 
+      : SkBitmapFilter(width), alpha(a), expWidth(expf(-alpha * width * width)) {
       }
-      
+
       virtual float evaluate(float x) const SK_OVERRIDE {
           return SkTMax(0.f, float(expf(-alpha*x*x) - expWidth));
       }
@@ -105,9 +105,9 @@ class SkGaussianFilter: public SkBitmapFilter {
 class SkTriangleFilter: public SkBitmapFilter {
   public:
       SkTriangleFilter(float width=1)
-      : SkBitmapFilter(width) { 
+      : SkBitmapFilter(width) {
       }
-      
+
       virtual float evaluate(float x) const SK_OVERRIDE {
           return SkTMax(0.f, fWidth - fabsf(x));
       }
@@ -117,9 +117,9 @@ class SkTriangleFilter: public SkBitmapFilter {
 class SkBoxFilter: public SkBitmapFilter {
   public:
       SkBoxFilter(float width=0.5f)
-      : SkBitmapFilter(width) { 
+      : SkBitmapFilter(width) {
       }
-      
+
       virtual float evaluate(float x) const SK_OVERRIDE {
           return 1;
       }
@@ -130,9 +130,9 @@ class SkBoxFilter: public SkBitmapFilter {
 class SkSincFilter: public SkBitmapFilter {
   public:
       SkSincFilter(float t, float width=3.f)
-      : SkBitmapFilter(width), tau(t) { 
+      : SkBitmapFilter(width), tau(t) {
       }
-      
+
       virtual float evaluate(float x) const SK_OVERRIDE {
           x = sk_float_abs(x * fInvWidth);
           if (x < 1e-5f) return 1.f;

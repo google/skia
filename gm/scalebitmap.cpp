@@ -11,15 +11,15 @@
 #include "SkStream.h"
 
 class ScaleBitmapGM : public skiagm::GM {
-    
+
 public:
-    
+
     ScaleBitmapGM(const char filename[], float scale)
         : fFilename(filename), fScale(scale)
     {
         this->setBGColor(0xFFDDDDDD);
         fName.printf("scalebitmap_%s_%f", filename, scale);
-        
+
         SkString path(skiagm::GM::gResourcePath);
         path.append("/");
         path.append(fFilename);
@@ -43,15 +43,15 @@ public:
     }
 
 protected:
-    
-    
+
+
     SkBitmap    fBM;
     SkString    fName;
     SkString    fFilename;
     int         fSize;
     float       fScale;
-    
-    
+
+
     virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }
@@ -65,7 +65,7 @@ protected:
         dst.setConfig(SkBitmap::kARGB_8888_Config, fBM.width() * fScale, fBM.height() * fScale);
         dst.allocPixels();
         fBM.scale(&dst);
-        
+
         canvas->drawBitmap(dst, 0, 0);
     }
 
@@ -75,7 +75,7 @@ private:
 
 class ScaleBitmapMipmapGM: public ScaleBitmapGM {
     SkMatrix fMatrix;
-    
+
 public:
     ScaleBitmapMipmapGM(const char filename[], float scale)
         : INHERITED(filename, scale)
@@ -87,12 +87,12 @@ public:
 protected:
     virtual void onDraw(SkCanvas *canvas) SK_OVERRIDE {
         SkPaint paint;
-        
+
         paint.setFilterBitmap(true);
         canvas->drawBitmapMatrix(fBM, fMatrix, &paint);
     }
 private:
-     typedef ScaleBitmapGM INHERITED;  
+     typedef ScaleBitmapGM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,4 +111,3 @@ DEF_GM( return new ScaleBitmapMipmapGM("nature.jpg", 0.5f); )
 DEF_GM( return new ScaleBitmapMipmapGM("nature.jpg", 0.25f); )
 DEF_GM( return new ScaleBitmapMipmapGM("nature.jpg", 0.125f); )
 DEF_GM( return new ScaleBitmapMipmapGM("nature.jpg", 0.0625f); )
-

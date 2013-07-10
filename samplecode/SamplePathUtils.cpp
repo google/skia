@@ -25,10 +25,10 @@ static const BitsToPath gBitsToPath_fns[] = {
 static const uint8_t gBits[][16] = {
     { 0x18, 0x00, 0x3c, 0x00, 0x7e, 0x00, 0xdb, 0x00,
       0xff, 0x00, 0x24, 0x00, 0x5a, 0x00, 0xa5, 0x00 },
-    
+
     { 0x20, 0x80, 0x91, 0x20, 0xbf, 0xa0, 0xee, 0xe0,
       0xff, 0xe0, 0x7f, 0xc0, 0x20, 0x80, 0x40, 0x40 },
-    
+
     { 0x0f, 0x00, 0x7f, 0xe0, 0xff, 0xf0, 0xe6, 0x70,
       0xff, 0xf0, 0x19, 0x80, 0x36, 0xc0, 0xc0, 0x30 }
 };
@@ -38,8 +38,8 @@ class SamplePathUtils : public SampleView {
 public:
     static const int fNumBits = 3;
     static const int fH = 8, fW = 12;
-    static const size_t fRowBytes = 2; 
-    static const int fNumChars = fH * fRowBytes; 
+    static const size_t fRowBytes = 2;
+    static const int fNumChars = fH * fRowBytes;
 
     SkPaint fBmpPaint;
     SkScalar fPhase;
@@ -47,7 +47,7 @@ public:
     SamplePathUtils() {
         fBmpPaint.setAntiAlias(true);  // Black paint for bitmap
         fBmpPaint.setStyle(SkPaint::kFill_Style);
-        
+
         fPhase = 0.0f; // to animate the dashed path
     }
 
@@ -77,13 +77,13 @@ protected:
         canvas->scale(10.0f, 10.0f);  // scales up
 
         for (int i = 0; i < fNumBits; ++i) {
-            canvas->save(); 
+            canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gBitsToPath_fns); ++j) {
                 SkPath path;
                 gBitsToPath_fns[j](&path, (char*) &gBits[i], fW, fH, fRowBytes);
 
                 //draw skPath and outline
-                canvas->drawPath(path, fBmpPaint); 
+                canvas->drawPath(path, fBmpPaint);
                 canvas->translate(1.5f * fW, 0); // translates past previous bitmap
                 canvas->drawPath(path, outlinePaint);
                 canvas->translate(1.5f * fW, 0); // translates past previous bitmap

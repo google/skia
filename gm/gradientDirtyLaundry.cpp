@@ -63,7 +63,7 @@ static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
                                SkShader::TileMode tm, SkUnitMapper* mapper);
 static const GradMaker gGradMakers[] = {
-    MakeLinear, MakeRadial, MakeSweep, 
+    MakeLinear, MakeRadial, MakeSweep,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -114,7 +114,7 @@ struct SkBitmapProcState {
     // are ignored
     ShaderProc32 getShaderProc32() const { return fShaderProc32; }
     ShaderProc16 getShaderProc16() const { return fShaderProc16; }
-    
+
     SkBitmapFilter* getBitmapFilter() const { return fBitmapFilter; }
 
 #ifdef SK_DEBUG
@@ -142,7 +142,7 @@ private:
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
-    
+
     void buildFilterCoefficients(SkFixed dst[4], float t) const;
     SkBitmapFilter *fBitmapFilter;
 
@@ -206,6 +206,6 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
                              SkPMColor *SK_RESTRICT colors, int count);
 void highQualityFilter(const SkBitmapProcState &s, int x, int y,
                    SkPMColor *SK_RESTRICT colors, int count);
-                              
+
 
 #endif
