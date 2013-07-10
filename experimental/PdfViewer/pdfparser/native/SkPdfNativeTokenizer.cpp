@@ -656,7 +656,13 @@ SkPdfAllocator::~SkPdfAllocator() {
         free(fHandles[i]);
     }
     for (int i = 0 ; i < fHistory.count(); i++) {
+        for (int j = 0 ; j < BUFFER_SIZE; j++) {
+            fHistory[i][j].reset();
+        }
         delete[] fHistory[i];
+    }
+    for (int j = 0 ; j < BUFFER_SIZE; j++) {
+        fCurrent[j].reset();
     }
     delete[] fCurrent;
 }
@@ -667,7 +673,6 @@ SkPdfObject* SkPdfAllocator::allocObject() {
         fCurrent = allocBlock();
         fCurrentUsed = 0;
     }
-
     fCurrentUsed++;
     return &fCurrent[fCurrentUsed - 1];
 }
@@ -677,26 +682,28 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkP
     unsigned char* buffer = NULL;
     size_t len = 0;
     objWithStream->GetFilteredStreamRef(&buffer, &len, fAllocator);
+    // TODO(edisonn): hack, find end of object
+    char* endobj = strstr((char*)buffer, "endobj");
+    if (endobj) {
+        len = endobj - (char*)buffer + strlen("endobj");
+    }
     fUncompressedStreamStart = fUncompressedStream = (unsigned char*)fAllocator->alloc(len);
     fUncompressedStreamEnd = fUncompressedStream + len;
-    memcpy(fUncompressedStream, buffer, len);}
+    memcpy(fUncompressedStream, buffer, len);
+}
 
 SkPdfNativeTokenizer::SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator) : fMapper(mapper), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
+    // TODO(edisonn): hack, find end of object
+    char* endobj = strstr((char*)buffer, "endobj");
+    if (endobj) {
+        len = endobj - (char*)buffer + strlen("endobj");
+    }
     fUncompressedStreamStart = fUncompressedStream = (unsigned char*)fAllocator->alloc(len);
     fUncompressedStreamEnd = fUncompressedStream + len;
     memcpy(fUncompressedStream, buffer, len);
 }
 
 SkPdfNativeTokenizer::~SkPdfNativeTokenizer() {
-    // free the unparsed stream, we don't need it.
-    // the parsed one is locked as it contains the strings and keywords referenced in objects
-    if (fUncompressedStream) {
-        void* dummy = realloc(fUncompressedStreamStart, fUncompressedStream - fUncompressedStreamStart);
-        //SkASSERT(dummy == fUncompressedStreamStart);
-        fUncompressedStreamStart = (unsigned char*)dummy;  // suppress compiler warning
-    } else {
-        SkASSERT(false);
-    }
 }
 
 bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
@@ -726,7 +733,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
 #ifdef PDF_TRACE
     static int read_op = 0;
     read_op++;
-    if (182749 == read_op) {
+    if (548 == read_op) {
         printf("break;\n");
     }
     printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? std::string(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
@@ -763,3 +770,4 @@ bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
 
     return readTokenCore(token);
 }
+

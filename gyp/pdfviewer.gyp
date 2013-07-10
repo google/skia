@@ -18,7 +18,7 @@
       'sources': [
         '../experimental/PdfViewer/SkPdfBasics.cpp',
         '../experimental/PdfViewer/SkPdfFont.cpp',
-        '../experimental/PdfViewer/SkPdfParser.cpp',
+        '../experimental/PdfViewer/SkPdfRenderer.cpp',
         '../experimental/PdfViewer/SkPdfUtils.cpp',
         #'../experimental/PdfViewer/SkPdfNYI.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfObject.cpp',

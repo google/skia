@@ -45,7 +45,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfMapper_autogen.h"
-#include "SkPdfParser.h"
+#include "SkPdfRenderer.h"
 
 #include "SkPdfBasics.h"
 #include "SkPdfUtils.h"
@@ -71,6 +71,67 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 */
 
 using namespace std;
+
+
+
+// TODO(edisonn): Document PdfTokenLooper and subclasses.
+class PdfTokenLooper {
+protected:
+    PdfTokenLooper* fParent;
+    SkPdfNativeTokenizer* fTokenizer;
+    PdfContext* fPdfContext;
+    SkCanvas* fCanvas;
+
+public:
+    PdfTokenLooper(PdfTokenLooper* parent,
+                   SkPdfNativeTokenizer* tokenizer,
+                   PdfContext* pdfContext,
+                   SkCanvas* canvas)
+        : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
+
+    virtual ~PdfTokenLooper() {}
+
+    virtual PdfResult consumeToken(PdfToken& token) = 0;
+    virtual void loop() = 0;
+
+    void setUp(PdfTokenLooper* parent) {
+        fParent = parent;
+        fTokenizer = parent->fTokenizer;
+        fPdfContext = parent->fPdfContext;
+        fCanvas = parent->fCanvas;
+    }
+};
+
+class PdfMainLooper : public PdfTokenLooper {
+public:
+    PdfMainLooper(PdfTokenLooper* parent,
+                  SkPdfNativeTokenizer* tokenizer,
+                  PdfContext* pdfContext,
+                  SkCanvas* canvas)
+        : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+};
+
+class PdfInlineImageLooper : public PdfTokenLooper {
+public:
+    PdfInlineImageLooper()
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+    PdfResult done();
+};
+
+class PdfCompatibilitySectionLooper : public PdfTokenLooper {
+public:
+    PdfCompatibilitySectionLooper()
+        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+
+    virtual PdfResult consumeToken(PdfToken& token);
+    virtual void loop();
+};
 
 // Utilities
 static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorWHITE) {
@@ -127,6 +188,8 @@ SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray) {
     return SkMatrixFromPdfMatrix(array);
 }
 
+
+extern "C" SkNativeParsedPDF* gDoc;
 SkBitmap* gDumpBitmap = NULL;
 SkCanvas* gDumpCanvas = NULL;
 char gLastKeyword[100] = "";
@@ -147,6 +210,8 @@ static bool hasVisualEffect(const char* pdfOp) {
     return (strstr(allOpWithVisualEffects, markedPdfOp) != NULL);
 }
 #endif  // PDF_TRACE_DIFF_IN_PNG
+
+
 
 // TODO(edisonn): Pass PdfContext and SkCanvasd only with the define for instrumentation.
 static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
@@ -1856,54 +1921,101 @@ void PdfCompatibilitySectionLooper::loop() {
 // TODO (edisonn): hide parser/tokenizer behind and interface and a query language, and resolve
 // references automatically.
 
-bool SkPdfViewer::load(const SkString inputFileName, SkPicture* out) {
-    std::cout << "PDF Loaded: " << inputFileName.c_str() << std::endl;
+PdfContext* gPdfContext = NULL;
 
-    SkNativeParsedPDF* doc = new SkNativeParsedPDF(inputFileName.c_str());
-    if (!doc->pages())
-    {
-        std::cout << "ERROR: Empty PDF Document" << inputFileName.c_str() << std::endl;
+bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas) const {
+    if (!fPdfDoc) {
         return false;
-    } else {
-
-        for (int pn = 0; pn < doc->pages(); ++pn) {
-            // TODO(edisonn): implement inheritance properties as per PDF spec
-            //SkRect rect = page->MediaBox();
-            SkRect rect = doc->MediaBox(pn);
-
-#ifdef PDF_TRACE
-            printf("Page Width: %f, Page Height: %f\n", SkScalarToDouble(rect.width()), SkScalarToDouble(rect.height()));
-#endif
-
-            // TODO(edisonn): page->GetCropBox(), page->GetTrimBox() ... how to use?
-
-            SkBitmap bitmap;
-#ifdef PDF_DEBUG_3X
-            setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
-#else
-            setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
-#endif
-            SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
-            SkCanvas canvas(device);
-
-            gDumpBitmap = &bitmap;
-
-            gDumpCanvas = &canvas;
-            doc->drawPage(pn, &canvas);
-
-            SkString out;
-            if (doc->pages() > 1) {
-                out.appendf("%s-%i.png", inputFileName.c_str(), pn);
-            } else {
-                out = inputFileName;
-                // .pdf -> .png
-                out[out.size() - 2] = 'n';
-                out[out.size() - 1] = 'g';
-            }
-            SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-        }
-        return true;
     }
 
+    if (page < 0 || page >= pages()) {
+        return false;
+    }
+
+    SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfPage(page);
+
+    PdfContext pdfContext(fPdfDoc);
+    pdfContext.fOriginalMatrix = SkMatrix::I();
+    pdfContext.fGraphicsState.fResources = fPdfDoc->pageResources(page);
+
+    gPdfContext = &pdfContext;
+
+    // TODO(edisonn): get matrix stuff right.
+    // TODO(edisonn): add DPI/scale/zoom.
+    SkScalar z = SkIntToScalar(0);
+    SkRect rect = fPdfDoc->MediaBox(page);
+    SkScalar w = rect.width();
+    SkScalar h = rect.height();
+
+    SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(w, z), SkPoint::Make(w, h), SkPoint::Make(z, h)};
+//                SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
+
+    // TODO(edisonn): add flag for this app to create sourunding buffer zone
+    // TODO(edisonn): add flagg for no clipping.
+    // Use larger image to make sure we do not draw anything outside of page
+    // could be used in tests.
+
+#ifdef PDF_DEBUG_3X
+    SkPoint skiaSpace[4] = {SkPoint::Make(w+z, h+h), SkPoint::Make(w+w, h+h), SkPoint::Make(w+w, h+z), SkPoint::Make(w+z, h+z)};
+#else
+    SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
+#endif
+    //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(w, h)};
+    //SkPoint skiaSpace[2] = {SkPoint::Make(w, z), SkPoint::Make(z, h)};
+
+    //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(z, h)};
+    //SkPoint skiaSpace[2] = {SkPoint::Make(z, h), SkPoint::Make(z, z)};
+
+    //SkPoint pdfSpace[3] = {SkPoint::Make(z, z), SkPoint::Make(z, h), SkPoint::Make(w, h)};
+    //SkPoint skiaSpace[3] = {SkPoint::Make(z, h), SkPoint::Make(z, z), SkPoint::Make(w, 0)};
+
+    SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
+    SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
+
+
+    pdfContext.fGraphicsState.fMatrix = pdfContext.fOriginalMatrix;
+    pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fMatrix;
+    pdfContext.fGraphicsState.fMatrixTlm = pdfContext.fGraphicsState.fMatrix;
+
+    canvas->setMatrix(pdfContext.fOriginalMatrix);
+
+#ifndef PDF_DEBUG_NO_PAGE_CLIPING
+    canvas->clipRect(SkRect::MakeXYWH(z, z, w, h), SkRegion::kIntersect_Op, true);
+#endif
+
+// erase with red before?
+//        SkPaint paint;
+//        paint.setColor(SK_ColorRED);
+//        canvas->drawRect(rect, paint);
+
+    PdfMainLooper looper(NULL, tokenizer, &pdfContext, canvas);
+    looper.loop();
+
+    delete tokenizer;
+
+    canvas->flush();
     return true;
+}
+
+bool SkPdfRenderer::load(const SkString inputFileName) {
+    unload();
+
+    // TODO(edisonn): create static function that could return NULL if there are errors
+    fPdfDoc = new SkNativeParsedPDF(inputFileName.c_str());
+
+    return fPdfDoc != NULL;
+}
+
+int SkPdfRenderer::pages() const {
+    return fPdfDoc != NULL ? fPdfDoc->pages() : 0;
+}
+
+void SkPdfRenderer::unload() {
+    delete fPdfDoc;
+    fPdfDoc = NULL;
+}
+
+SkRect SkPdfRenderer::MediaBox(int page) const {
+    SkASSERT(fPdfDoc);
+    return fPdfDoc->MediaBox(page);
 }

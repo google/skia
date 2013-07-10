@@ -86,7 +86,7 @@ private:
 
 public:
 
-    SkPdfObject() : fObjectType(kInvalid_PdfObjectType), fData(NULL) {}
+    SkPdfObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL) {}
 
     inline void* data() {
         return fData;
@@ -96,9 +96,9 @@ public:
         fData = data;
     }
 
-    ~SkPdfObject() {
-        reset();
-    }
+//    ~SkPdfObject() {
+//        //reset();  must be called manually!
+//    }
 
     void reset() {
         switch (fObjectType) {
