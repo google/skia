@@ -22,8 +22,8 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
 
     while (count-- > 0) {
         SkPoint srcPt;
-        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
-                    SkIntToScalar(y), &srcPt);
+        s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5),
+                    SkFloatToScalar(y + 0.5), &srcPt);
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
 
@@ -33,10 +33,10 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
         SkFixed weight = 0;
         SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
-        int y0 = SkClampMax(int(ceil(sy-s.getBitmapFilter()->width() + 0.5f)), maxY);
-        int y1 = SkClampMax(int(floor(sy+s.getBitmapFilter()->width() + 0.5f)), maxY);
-        int x0 = SkClampMax(int(ceil(sx-s.getBitmapFilter()->width() + 0.5f)), maxX);
-        int x1 = SkClampMax(int(floor(sx+s.getBitmapFilter()->width() + 0.5f)), maxX);
+        int y0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fY)-s.getBitmapFilter()->width()), maxY);
+        int y1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fY)+s.getBitmapFilter()->width()), maxY);
+        int x0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fX)-s.getBitmapFilter()->width()), maxX);
+        int x1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fX)+s.getBitmapFilter()->width()), maxX);
 
         for (int src_y = y0; src_y <= y1; src_y++) {
             SkFixed yweight = s.getBitmapFilter()->lookup((srcPt.fY - src_y));
@@ -78,16 +78,16 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
 
      SkPoint srcPt;
 
-     s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
-                 SkIntToScalar(y), &srcPt);
+     s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5),
+                 SkFloatToScalar(y + 0.5), &srcPt);
      srcPt.fY -= SK_ScalarHalf;
      int sy = SkScalarFloorToInt(srcPt.fY);
-     int y0 = SkClampMax(int(ceil(sy-s.getBitmapFilter()->width() + 0.5f)), maxY);
-     int y1 = SkClampMax(int(floor(sy+s.getBitmapFilter()->width() + 0.5f)), maxY);
+     int y0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fY)-s.getBitmapFilter()->width()), maxY);
+     int y1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fY)+s.getBitmapFilter()->width()), maxY);
 
      while (count-- > 0) {
-         s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
-                     SkIntToScalar(y), &srcPt);
+         s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5),
+                     SkFloatToScalar(y + 0.5), &srcPt);
          srcPt.fX -= SK_ScalarHalf;
          srcPt.fY -= SK_ScalarHalf;
 
@@ -96,8 +96,8 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
          SkFixed weight = 0;
          SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
-         int x0 = SkClampMax(int(ceil(sx-s.getBitmapFilter()->width() + 0.5f)), maxX);
-         int x1 = SkClampMax(int(floor(sx+s.getBitmapFilter()->width() + 0.5f)), maxX);
+         int x0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fX)-s.getBitmapFilter()->width()), maxX);
+         int x1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fX)+s.getBitmapFilter()->width()), maxX);
 
          for (int src_y = y0; src_y <= y1; src_y++) {
              SkFixed yweight = s.getBitmapFilter()->lookup((srcPt.fY - src_y));
@@ -210,9 +210,9 @@ static void divideByWeights(SkFixed *sums, SkFixed *weights, SkBitmap *dst) {
 static void upScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < dst->width() ; x++) {
-            float sx = x / scale - 0.5f;
-            int x0 = SkClampMax(int(ceil(sx-filter->width() + 0.5f)), src->width()-1);
-            int x1 = SkClampMax(int(floor(sx+filter->width() + 0.5f)), src->width()-1);
+            float sx = (x + 0.5f) / scale - 0.5f;
+            int x0 = SkClampMax(sk_float_ceil2int(sx-filter->width()), src->width()-1);
+            int x1 = SkClampMax(sk_float_floor2int(sx+filter->width()), src->width()-1);
 
             SkFixed total_weight = 0;
             SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
@@ -254,9 +254,9 @@ static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBi
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < src->width() ; x++) {
             // splat each source pixel into the destination image
-            float dx = (x + 0.5f) * scale;
-            int x0 = SkClampMax(int(ceil(dx-filter->width() + 0.5f)), dst->width()-1);
-            int x1 = SkClampMax(int(floor(dx+filter->width() + 0.5f)), dst->width()-1);
+            float dx = (x + 0.5f) * scale - 0.5f;
+            int x0 = SkClampMax(sk_float_ceil2int(dx-filter->width()), dst->width()-1);
+            int x1 = SkClampMax(sk_float_floor2int(dx+filter->width()), dst->width()-1);
 
             SkPMColor c = *src->getAddr32(x,y);
 
@@ -277,9 +277,9 @@ static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBi
 static void upScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
     for (int y = 0 ; y < dst->height() ; y++) {
         for (int x = 0 ; x < dst->width() ; x++) {
-            float sy = y / scale - 0.5f;
-            int y0 = SkClampMax(int(ceil(sy-filter->width() + 0.5f)), src->height()-1);
-            int y1 = SkClampMax(int(floor(sy+filter->width() + 0.5f)), src->height()-1);
+            float sy = (y + 0.5f) / scale - 0.5f;
+            int y0 = SkClampMax(sk_float_ceil2int(sy-filter->width()), src->height()-1);
+            int y1 = SkClampMax(sk_float_floor2int(sy+filter->width()), src->height()-1);
 
             SkFixed total_weight = 0;
             SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
@@ -321,9 +321,9 @@ static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBit
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < src->width() ; x++) {
             // splat each source pixel into the destination image
-            float dy = (y + 0.5f) * scale;
-            int y0 = SkClampMax(int(ceil(dy-filter->width() + 0.5f)), dst->height()-1);
-            int y1 = SkClampMax(int(floor(dy+filter->width() + 0.5f)), dst->height()-1);
+            float dy = (y + 0.5f) * scale - 0.5f;
+            int y0 = SkClampMax(sk_float_ceil2int(dy-filter->width()), dst->height()-1);
+            int y1 = SkClampMax(sk_float_ceil2int(dy+filter->width()), dst->height()-1);
 
             SkPMColor c = *src->getAddr32(x,y);
 

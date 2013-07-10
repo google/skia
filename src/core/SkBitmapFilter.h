@@ -16,7 +16,7 @@
 // Used to precompute the shape of the filter kernel.
 // Table size chosen from experiments to see where I could start to see a difference.
 
-#define SKBITMAP_FILTER_TABLE_SIZE 32
+#define SKBITMAP_FILTER_TABLE_SIZE 128
 
 class SkBitmapFilter {
   public:
