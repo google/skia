@@ -34,6 +34,11 @@ class SkPaint;
 
 struct SkBitmapProcState {
 
+    SkBitmapProcState(): fBitmapFilter(NULL) {}
+    ~SkBitmapProcState() {
+        SkDELETE(fBitmapFilter);
+    }
+
     typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
                                  SkPMColor[], int count);
 
