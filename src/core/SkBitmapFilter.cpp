@@ -27,9 +27,6 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
 
-        int sx = SkScalarFloorToInt(srcPt.fX);
-        int sy = SkScalarFloorToInt(srcPt.fY);
-
         SkFixed weight = 0;
         SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
@@ -81,7 +78,6 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
      s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5),
                  SkFloatToScalar(y + 0.5), &srcPt);
      srcPt.fY -= SK_ScalarHalf;
-     int sy = SkScalarFloorToInt(srcPt.fY);
      int y0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fY)-s.getBitmapFilter()->width()), maxY);
      int y1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fY)+s.getBitmapFilter()->width()), maxY);
 
@@ -90,8 +86,6 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
                      SkFloatToScalar(y + 0.5), &srcPt);
          srcPt.fX -= SK_ScalarHalf;
          srcPt.fY -= SK_ScalarHalf;
-
-         int sx = SkScalarFloorToInt(srcPt.fX);
 
          SkFixed weight = 0;
          SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
