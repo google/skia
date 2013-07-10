@@ -238,6 +238,25 @@ public:
     void setLimits(int maxResource, size_t maxResourceBytes);
 
     /**
+     *  The callback function used by the cache when it is still over budget
+     *  after a purge. The passed in 'data' is the same 'data' handed to 
+     *  setOverbudgetCallback. The callback returns true if some resources
+     *  have been freed.
+     */
+    typedef bool (*PFOverbudgetCB)(void* data);
+
+    /**
+     *  Set the callback the cache should use when it is still over budget
+     *  after a purge. The 'data' provided here will be passed back to the 
+     *  callback. The cache will attempt to purge any resources newly freed
+     *  by the callback.
+     */
+    void setOverbudgetCallback(PFOverbudgetCB overbudgetCB, void* data) {
+        fOverbudgetCB = overbudgetCB;
+        fOverbudgetData = data;
+    }
+
+    /**
      * Returns the number of bytes consumed by cached resources.
      */
     size_t getCachedResourceBytes() const { return fEntryBytes; }
@@ -360,7 +379,12 @@ private:
     size_t fClientDetachedBytes;
 
     // prevents recursive purging
-    bool fPurging;
+    bool           fPurging;
+
+    PFOverbudgetCB fOverbudgetCB;
+    void*          fOverbudgetData;
+
+    void internalPurge();
 
 #if GR_DEBUG
     static size_t countBytes(const SkTInternalLList<GrResourceEntry>& list);

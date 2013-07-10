@@ -541,6 +541,20 @@ void GrContext::purgeCache() {
     }
 }
 
+bool GrContext::OverbudgetCB(void* data) {
+    GrAssert(NULL != data);
+
+    GrContext* context = reinterpret_cast<GrContext*>(data);
+
+    // Flush the InOrderDrawBuffer to possibly free up some textures
+    context->flush();
+
+    // TODO: actually track flush's behavior rather than always just
+    // returning true.
+    return true;
+}
+
+
 GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
                                             void* srcData,
                                             size_t rowBytes) {

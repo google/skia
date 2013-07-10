@@ -62,7 +62,10 @@ GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
     fClientDetachedCount          = 0;
     fClientDetachedBytes          = 0;
 
-    fPurging = false;
+    fPurging                      = false;
+
+    fOverbudgetCB                 = NULL;
+    fOverbudgetData               = NULL;
 }
 
 GrResourceCache::~GrResourceCache() {
@@ -275,48 +278,66 @@ void GrResourceCache::makeNonExclusive(GrResourceEntry* entry) {
  * potentially make purgeAsNeeded loop infinitely.
  */
 void GrResourceCache::purgeAsNeeded() {
-    if (!fPurging) {
-        fPurging = true;
-        bool withinBudget = false;
-        bool changed = false;
-
-        // The purging process is repeated several times since one pass
-        // may free up other resources
-        do {
-            EntryList::Iter iter;
-
-            changed = false;
-
-            // Note: the following code relies on the fact that the
-            // doubly linked list doesn't invalidate its data/pointers
-            // outside of the specific area where a deletion occurs (e.g.,
-            // in internalDetach)
-            GrResourceEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
-
-            while (NULL != entry) {
-                GrAutoResourceCacheValidate atcv(this);
-
-                if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
-                    withinBudget = true;
-                    break;
-                }
-
-                GrResourceEntry* prev = iter.prev();
-                if (1 == entry->fResource->getRefCnt()) {
-                    changed = true;
-
-                    // remove from our cache
-                    fCache.remove(entry->key(), entry);
-
-                    // remove from our llist
-                    this->internalDetach(entry);
-                    delete entry;
-                }
-                entry = prev;
-            }
-        } while (!withinBudget && changed);
-        fPurging = false;
+    if (fPurging) {
+        return;
     }
+
+    fPurging = true;
+
+    this->internalPurge();
+    if ((fEntryCount > fMaxCount || fEntryBytes > fMaxBytes) &&
+        NULL != fOverbudgetCB) {
+        // Despite the purge we're still over budget. See if Ganesh can
+        // release some resources and purge again.
+        if ((*fOverbudgetCB)(fOverbudgetData)) {
+            this->internalPurge();
+        }
+    }
+
+    fPurging = false;
+}
+
+void GrResourceCache::internalPurge() {
+    SkASSERT(fPurging);
+
+    bool withinBudget = false;
+    bool changed = false;
+
+    // The purging process is repeated several times since one pass
+    // may free up other resources
+    do {
+        EntryList::Iter iter;
+
+        changed = false;
+
+        // Note: the following code relies on the fact that the
+        // doubly linked list doesn't invalidate its data/pointers
+        // outside of the specific area where a deletion occurs (e.g.,
+        // in internalDetach)
+        GrResourceEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
+
+        while (NULL != entry) {
+            GrAutoResourceCacheValidate atcv(this);
+
+            if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
+                withinBudget = true;
+                break;
+            }
+
+            GrResourceEntry* prev = iter.prev();
+            if (1 == entry->fResource->getRefCnt()) {
+                changed = true;
+
+                // remove from our cache
+                fCache.remove(entry->key(), entry);
+
+                // remove from our llist
+                this->internalDetach(entry);
+                delete entry;
+            }
+            entry = prev;
+        }
+    } while (!withinBudget && changed);
 }
 
 void GrResourceCache::purgeAllUnlocked() {
