@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 
 #include "SkPaintOptionsAndroid.h"
+#include "SkString.h"
 #include "SkTDArray.h"
 
 struct FontFileInfo {
@@ -53,12 +54,7 @@ void GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
                          const char* testMainConfigFile,
                          const char* testFallbackConfigFile);
 
-struct AndroidLocale {
-    char language[3];
-    char region[3];
-};
-
-void GetLocale(AndroidLocale &locale);
+SkString GetLocale();
 
 } // SkFontConfigParser namespace
 

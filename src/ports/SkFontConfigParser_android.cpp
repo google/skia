@@ -254,7 +254,7 @@ void SkFontConfigParser::GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilie
 /**
  * Read the persistent locale.
  */
-void SkFontConfigParser::GetLocale(AndroidLocale &locale)
+SkString SkFontConfigParser::GetLocale()
 {
     char propLang[PROP_VALUE_MAX], propRegn[PROP_VALUE_MAX];
     __system_property_get("persist.sys.language", propLang);
@@ -269,8 +269,14 @@ void SkFontConfigParser::GetLocale(AndroidLocale &locale)
             strcpy(propRegn, "US");
         }
     }
-    strncpy(locale.language, propLang, 2);
-    locale.language[2] = '\0';
-    strncpy(locale.region, propRegn, 2);
-    locale.region[2] = '\0';
+
+    SkString locale(6);
+    char* localeCStr = locale.writable_str();
+
+    strncpy(localeCStr, propLang, 2);
+    localeCStr[2] = '-';
+    strncpy(&localeCStr[3], propRegn, 2);
+    localeCStr[5] = '\0';
+
+    return locale;
 }
