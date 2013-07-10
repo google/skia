@@ -231,7 +231,14 @@ public:
      *  collection.
      */
     SkStream* openStream(int* ttcIndex) const;
-    SkScalerContext* createScalerContext(const SkDescriptor*) const;
+
+    /**
+     *  Return a scalercontext for the given descriptor. If this fails, then
+     *  if allowFailure is true, this returns NULL, else it returns a
+     *  dummy scalercontext that will not crash, but will draw nothing.
+     */
+    SkScalerContext* createScalerContext(const SkDescriptor*,
+                                         bool allowFailure = false) const;
 
     // PRIVATE / EXPERIMENTAL -- do not call
     void filterRec(SkScalerContextRec* rec) const {

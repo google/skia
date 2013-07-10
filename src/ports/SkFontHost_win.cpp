@@ -429,6 +429,8 @@ private:
 
 const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
                                size_t* srcRBPtr) {
+    // Can we share the scalercontext's fDDC, so we don't need to create
+    // a separate fDC here?
     if (0 == fDC) {
         fDC = CreateCompatibleDC(0);
         if (0 == fDC) {
@@ -508,6 +510,10 @@ public:
     SkScalerContext_Windows(SkTypeface*, const SkDescriptor* desc);
     virtual ~SkScalerContext_Windows();
 
+    // Returns true if the constructor was able to complete all of its
+    // initializations (which may include calling GDI).
+    bool isValid() const;
+
 protected:
     virtual unsigned generateGlyphCount() SK_OVERRIDE;
     virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
@@ -525,10 +531,10 @@ private:
     HDC          fDDC;
     HFONT        fSavefont;
     HFONT        fFont;
+    HFONT        fHiResFont;
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
 
-    HFONT        fHiResFont;
     MAT2         fMat22Identity;
     SkMatrix     fHiResMatrix;
     enum Type {
@@ -575,14 +581,19 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
                                                  const SkDescriptor* desc)
         : SkScalerContext(rawTypeface, desc)
         , fDDC(0)
-        , fFont(0)
         , fSavefont(0)
+        , fFont(0)
+        , fHiResFont(0)
         , fSC(0)
         , fGlyphCount(-1)
 {
     LogFontTypeface* typeface = reinterpret_cast<LogFontTypeface*>(rawTypeface);
 
     fDDC = ::CreateCompatibleDC(NULL);
+    if (!fDDC) {
+        return;
+    }
+
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
 
@@ -592,12 +603,17 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
     lf.lfHeight = -gCanonicalTextSize;
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
+    if (!fFont) {
+        return;
+    }
 
     // if we're rotated, or want fractional widths, create a hires font
-    fHiResFont = 0;
     if (needHiResMetrics(fRec.fPost2x2)) {
         lf.lfHeight = -HIRES_TEXTSIZE;
         fHiResFont = CreateFontIndirect(&lf);
+        if (!fHiResFont) {
+            return;
+        }
 
         fMat22Identity.eM11 = fMat22Identity.eM22 = SkFixedToFIXED(SK_Fixed1);
         fMat22Identity.eM12 = fMat22Identity.eM21 = SkFixedToFIXED(0);
@@ -700,6 +716,10 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
     if (fSC) {
         ::ScriptFreeCache(&fSC);
     }
+}
+
+bool SkScalerContext_Windows::isValid() const {
+    return fDDC && fFont;
 }
 
 unsigned SkScalerContext_Windows::generateGlyphCount() {
@@ -1665,7 +1685,13 @@ SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
 }
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<LogFontTypeface*>(this), desc));
+    SkScalerContext_Windows* ctx = SkNEW_ARGS(SkScalerContext_Windows,
+                                                (const_cast<LogFontTypeface*>(this), desc));
+    if (!ctx->isValid()) {
+        SkDELETE(ctx);
+        ctx = NULL;
+    }
+    return ctx;
 }
 
 /** Return the closest matching typeface given either an existing family
