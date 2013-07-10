@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPdfHeaders_autogen.h"
-#include "SkPdfMapper_autogen.h"
 
 #ifndef SkPdfParser_DEFINED
 #define SkPdfParser_DEFINED
 
 #include "SkPdfBasics.h"
-#include "SkPdfPodofoTokenizer.h"
+#include "SkPdfNativeTokenizer.h"
 
 extern "C" PdfContext* gPdfContext;
 extern "C" SkBitmap* gDumpBitmap;
@@ -22,13 +20,13 @@ extern "C" SkCanvas* gDumpCanvas;
 class PdfTokenLooper {
 protected:
     PdfTokenLooper* fParent;
-    SkPdfPodofoTokenizer* fTokenizer;
+    SkPdfNativeTokenizer* fTokenizer;
     PdfContext* fPdfContext;
     SkCanvas* fCanvas;
 
 public:
     PdfTokenLooper(PdfTokenLooper* parent,
-                   SkPdfPodofoTokenizer* tokenizer,
+                   SkPdfNativeTokenizer* tokenizer,
                    PdfContext* pdfContext,
                    SkCanvas* canvas)
         : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
@@ -47,7 +45,7 @@ public:
 class PdfMainLooper : public PdfTokenLooper {
 public:
     PdfMainLooper(PdfTokenLooper* parent,
-                  SkPdfPodofoTokenizer* tokenizer,
+                  SkPdfNativeTokenizer* tokenizer,
                   PdfContext* pdfContext,
                   SkCanvas* canvas)
         : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}

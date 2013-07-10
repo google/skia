@@ -54,9 +54,13 @@ class FileSpecNone:
   def toCpp(self):
     return 'SkPdfFileSpec()'
 
-class PdfEmptyRect:
+class EmptyRect:
   def toCpp(self):
-    return 'SkRect()'
+    return 'SkRect::MakeEmpty()'
+
+class IdentityMatrix:
+  def toCpp(self):
+    return 'SkMatrix::I()'
     
 class PdfEmptyStream:
   def toCpp(self):
@@ -70,5 +74,6 @@ class PdfFunctionNone:
   def toCpp(self):
     return 'SkPdfFunction()'
     
-
-    
+class EmptyTree:
+  def toCpp(self):
+    return 'SkPdfTree()'

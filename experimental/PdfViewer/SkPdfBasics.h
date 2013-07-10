@@ -15,11 +15,12 @@ class SkPdfDoc;
 class SkPdfObject;
 class SkPdfResourceDictionary;
 
-class SkPodofoParsedPDF;
+class SkNativeParsedPDF;
 
 // TODO(edisonn): better class design.
 struct SkPdfColorOperator {
-    std::string fColorSpace;  // TODO(edisonn): use SkString
+    // does not own the char*
+    const char* fColorSpace;  // TODO(edisonn): use SkString, or even char*
     SkColor fColor;
     double fOpacity;  // ca or CA
     // TODO(edisonn): add here other color space options.
@@ -29,7 +30,7 @@ struct SkPdfColorOperator {
         fColor = color;
     }
     // TODO(edisonn): double check the default values for all fields.
-    SkPdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {}
+    SkPdfColorOperator() : fColorSpace(NULL), fColor(SK_ColorBLACK), fOpacity(1) {}
 
     void applyGraphicsState(SkPaint* paint) {
         paint->setColor(SkColorSetA(fColor, fOpacity * 255));
@@ -63,7 +64,7 @@ struct SkPdfGraphicsState {
     double              fWordSpace;
     double              fCharSpace;
 
-    const SkPdfResourceDictionary* fResources;
+    SkPdfResourceDictionary* fResources;
 
     SkBitmap            fSMask;
 
@@ -115,12 +116,12 @@ struct PdfContext {
     std::stack<SkPdfObject*>        fObjectStack;
     std::stack<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
-    const SkPodofoParsedPDF*        fPdfDoc;
+    SkNativeParsedPDF*              fPdfDoc;
     SkMatrix                        fOriginalMatrix;
 
     SkPdfInlineImage                fInlineImage;
 
-    PdfContext(const SkPodofoParsedPDF* doc) :  fPdfDoc(doc) {}
+    PdfContext(SkNativeParsedPDF* doc) :  fPdfDoc(doc) {}
 
 };
 

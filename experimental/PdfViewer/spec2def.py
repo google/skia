@@ -627,7 +627,9 @@ def generateDef():
 
   fspecPy.write('def addDictionaryTypesTo(knowTypes):\n')  
   for e in tableToClassName:
-    fspecPy.write('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'SkPdf' + tableToClassName[e][0] + 'FromDictionary\', datatypes.CppNull(), \'ret->podofo()->GetDataType() == PoDoFo::ePdfDataType_Dictionary\', \'A_DICTIONARY\']\n')
+    #TODO(edisonn): build this map
+    
+    fspecPy.write('  knowTypes[\'' + tableToClassName[e][0] + '\'] = [\'SkPdf' + tableToClassName[e][0] + '*\', \'(SkPdf' + tableToClassName[e][0] + '*)ret\', datatypes.CppNull(), \'ret->isDictionary() && ((SkPdf' + tableToClassName[e][0] + '*)ret)->valid()\', \'A_DICTIONARY\']\n')
   fspecPy.write('\n')
   
   #print lines
