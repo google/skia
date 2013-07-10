@@ -25,7 +25,8 @@ protected:
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 
     bool canFilterImageGPU() const SK_OVERRIDE { return true; }
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) SK_OVERRIDE;
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                SkIPoint* offset) SK_OVERRIDE;
 
 private:
     SkSize   fSigma;

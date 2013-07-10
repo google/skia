@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkArithmeticMode.h"
+#include "SkOffsetImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 #include "SkBitmapSource.h"
 
@@ -68,7 +69,8 @@ protected:
         return make_isize(WIDTH, HEIGHT);
     }
 
-    void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint, SkScalar x, SkScalar y) {
+    void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint,
+                           SkScalar x, SkScalar y) {
         canvas->save();
         canvas->clipRect(SkRect::MakeXYWH(x, y,
             SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
@@ -125,7 +127,8 @@ protected:
         SkAutoTUnref<SkImageFilter> background(SkNEW_ARGS(SkBitmapSource, (fCheckerboard)));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
             SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(gModes[i].fMode));
-            SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(SkXfermodeImageFilter, (mode, background)));
+            SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
+                SkXfermodeImageFilter, (mode, background)));
             paint.setImageFilter(filter);
             drawClippedBitmap(canvas, fBitmap, paint, SkIntToScalar(x), SkIntToScalar(y));
             x += fBitmap.width() + MARGIN;
@@ -148,6 +151,40 @@ protected:
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter, (NULL, background)));
         paint.setImageFilter(filter);
         drawClippedBitmap(canvas, fBitmap, paint, SkIntToScalar(x), SkIntToScalar(y));
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
+        }
+        // Test offsets on SrcMode (uses fixed-function blend)
+        SkAutoTUnref<SkImageFilter> foreground(SkNEW_ARGS(SkBitmapSource, (fBitmap)));
+        SkAutoTUnref<SkImageFilter> offsetForeground(SkNEW_ARGS(SkOffsetImageFilter,
+            (SkIntToScalar(4), SkIntToScalar(-4), foreground)));
+        SkAutoTUnref<SkImageFilter> offsetBackground(SkNEW_ARGS(SkOffsetImageFilter,
+            (SkIntToScalar(4), SkIntToScalar(4), background)));
+        mode.reset(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
+        filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
+            (mode, offsetBackground, offsetForeground)));
+        paint.setImageFilter(filter);
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(x, y,
+            SkIntToScalar(fBitmap.width() + 4), SkIntToScalar(fBitmap.height() + 4)));
+        canvas->drawPaint(paint);
+        canvas->restore();
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
+        }
+        // Test offsets on Darken (uses shader blend)
+        mode.reset(SkXfermode::Create(SkXfermode::kDarken_Mode));
+        filter.reset(SkNEW_ARGS(SkXfermodeImageFilter, (mode, offsetBackground, offsetForeground)));
+        paint.setImageFilter(filter);
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(x, y,
+            SkIntToScalar(fBitmap.width() + 4), SkIntToScalar(fBitmap.height() + 4)));
+        canvas->drawPaint(paint);
+        canvas->restore();
     }
 private:
     typedef GM INHERITED;

@@ -275,14 +275,19 @@ private:
     typedef GrEffect INHERITED;
 };
 
-bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                             SkIPoint* offset) {
     SkBitmap colorBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, &colorBM)) {
+    SkIPoint colorOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, &colorBM,
+                                               &colorOffset)) {
         return false;
     }
     GrTexture* color = colorBM.getTexture();
     SkBitmap displacementBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, &displacementBM)) {
+    SkIPoint displacementOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, &displacementBM,
+                                               &displacementOffset)) {
         return false;
     }
     GrTexture* displacement = displacementBM.getTexture();
@@ -308,7 +313,9 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                         color))->unref();
     SkRect srcRect;
     src.getBounds(&srcRect);
-    context->drawRect(paint, srcRect);
+    SkRect dstRect = srcRect;
+    dstRect.offset(SkIntToScalar(colorOffset.fX), SkIntToScalar(colorOffset.fY));
+    context->drawRectToRect(paint, srcRect, dstRect);
     return SkImageFilterUtils::WrapTexture(dst, src.width(), src.height(), result);
 }
 

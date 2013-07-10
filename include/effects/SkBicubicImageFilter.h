@@ -27,7 +27,8 @@ public:
                             passed to filterImage() is used instead.
     */
 
-    SkBicubicImageFilter(const SkSize& scale, const SkScalar coefficients[16], SkImageFilter* input = NULL);
+    SkBicubicImageFilter(const SkSize& scale, const SkScalar coefficients[16],
+                         SkImageFilter* input = NULL);
     static SkBicubicImageFilter* CreateMitchell(const SkSize& scale, SkImageFilter* input = NULL);
     virtual ~SkBicubicImageFilter();
 
@@ -42,7 +43,8 @@ protected:
 
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) SK_OVERRIDE;
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
+                                SkIPoint* offset) SK_OVERRIDE;
 #endif
 
 private:

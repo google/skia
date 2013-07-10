@@ -1377,7 +1377,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
 static bool filter_texture(SkDevice* device, GrContext* context,
                            GrTexture* texture, SkImageFilter* filter,
-                           int w, int h, SkBitmap* result) {
+                           int w, int h, SkBitmap* result, SkIPoint* offset) {
     GrAssert(filter);
     SkDeviceImageFilterProxy proxy(device);
 
@@ -1385,7 +1385,7 @@ static bool filter_texture(SkDevice* device, GrContext* context,
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
-        return filter->filterImageGPU(&proxy, wrap_texture(texture), result);
+        return filter->filterImageGPU(&proxy, wrap_texture(texture), result, offset);
     } else {
         return false;
     }
@@ -1419,9 +1419,10 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         GrSimpleTextureEffect::Create(texture, SkMatrix::I()))->unref();
 
     SkImageFilter* filter = paint.getImageFilter();
+    SkIPoint offset = SkIPoint::Make(0, 0);
     if (NULL != filter) {
         SkBitmap filterBitmap;
-        if (filter_texture(this, fContext, texture, filter, w, h, &filterBitmap)) {
+        if (filter_texture(this, fContext, texture, filter, w, h, &filterBitmap, &offset)) {
             grPaint.colorStage(kBitmapEffectIdx)->setEffect(
                 GrSimpleTextureEffect::Create(filterBitmap.getTexture(), SkMatrix::I()))->unref();
             texture = filterBitmap.getTexture();
@@ -1435,8 +1436,10 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                             SkIntToScalar(top),
                                             SkIntToScalar(w),
                                             SkIntToScalar(h)),
-                            GrRect::MakeWH(SK_Scalar1 * w / texture->width(),
-                                        SK_Scalar1 * h / texture->height()));
+                            GrRect::MakeXYWH(offset.fX,
+                                             offset.fY,
+                                             SK_Scalar1 * w / texture->width(),
+                                             SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1498,12 +1501,15 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
         SkBitmap filterBitmap;
-        if (filter_texture(this, fContext, devTex, filter, w, h, &filterBitmap)) {
+        SkIPoint offset = SkIPoint::Make(0, 0);
+        if (filter_texture(this, fContext, devTex, filter, w, h, &filterBitmap, &offset)) {
             grPaint.colorStage(kBitmapEffectIdx)->setEffect(
                 GrSimpleTextureEffect::Create(filterBitmap.getTexture(), SkMatrix::I()))->unref();
             devTex = filterBitmap.getTexture();
             w = filterBitmap.width();
             h = filterBitmap.height();
+            x += offset.fX;
+            y += offset.fY;
         }
     }
 
@@ -1542,7 +1548,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     SkAutoCachedTexture act(this, src, NULL, &texture);
 
-    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), result);
+    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), result, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
