@@ -1144,7 +1144,10 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
         // bounds, than just using the device. However, if currRgn is complex,
         // our region blitter may hork, so we do that case in two steps.
         if (currClip->isRect()) {
-            return currClip->setPath(devPath, *currClip, doAA);
+            // FIXME: we should also be able to do this when currClip->isBW(),
+            // but relaxing the test above triggers GM asserts in
+            // SkRgnBuilder::blitH(). We need to investigate what's going on.
+            return currClip->setPath(devPath, currClip->bwRgn(), doAA);
         } else {
             base.setRect(currClip->getBounds());
             SkRasterClip clip;

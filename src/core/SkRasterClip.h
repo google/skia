@@ -41,7 +41,6 @@ public:
 
     bool setPath(const SkPath& path, const SkRegion& clip, bool doAA);
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
-    bool setPath(const SkPath& path, const SkRasterClip&, bool doAA);
 
     bool op(const SkIRect&, SkRegion::Op);
     bool op(const SkRegion&, SkRegion::Op);
