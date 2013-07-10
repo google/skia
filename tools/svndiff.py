@@ -1,3 +1,4 @@
+#!/usr/bin/python
 '''
 Generates a visual diff of all pending changes in the local SVN checkout.
 
