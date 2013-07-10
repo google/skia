@@ -66,6 +66,12 @@
     fun:_mesa_symbol_table_add_global_symbol
 }
 {
+    Mesa_hash_table_replace
+    Memcheck:Leak
+    fun:calloc
+    fun:hash_table_replace
+}
+{
     Mesa_symbol_table_push_scope_leak
     Memcheck:Leak
     fun:calloc
@@ -181,4 +187,36 @@
     fun:realloc
     fun:_mesa_uniform_attach_driver_storage
     fun:_mesa_associate_uniform_storage
+}
+{
+    Mesa_init_ralloc_type
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_autofree_context
+    fun:_ZN9glsl_type20init_ralloc_type_ctxEv
+}
+{
+    Mesa_glsl_parse_state
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    ...
+    fun:_ZN23ast_function_expression3hirEP9exec_listP22_mesa_glsl_parse_state
+}
+{
+    Mesa_ir_variable
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_strdup
+    fun:_ZN11ir_variableC1EPK9glsl_typePKc16ir_variable_mode
+}
+{
+    Mesa_glsl_to_tgsi_visitor
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:rzalloc_size
+    fun:_ZN20glsl_to_tgsi_visitor4emitEP14ir_instructionj10st_dst_reg10st_src_regS3_S3_
 }
