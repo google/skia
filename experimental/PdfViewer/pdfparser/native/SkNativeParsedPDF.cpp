@@ -1,7 +1,6 @@
 #include "SkNativeParsedPDF.h"
 #include "SkPdfNativeTokenizer.h"
 #include "SkPdfBasics.h"
-#include "SkPdfParser.h"
 #include "SkPdfObject.h"
 
 #include <stdio.h>
@@ -59,6 +58,7 @@ static unsigned char* ignoreLine(unsigned char* current, unsigned char* end) {
     return current;
 }
 
+SkNativeParsedPDF* gDoc = NULL;
 
 // TODO(edisonn): NYI
 // TODO(edisonn): 3 constructuctors from URL, from stream, from file ...
@@ -68,10 +68,12 @@ static unsigned char* ignoreLine(unsigned char* current, unsigned char* end) {
 // 2) recoverable corupt file: remove endobj, endsteam, remove other keywords, use other white spaces, insert comments randomly, ...
 // 3) irrecoverable corrupt file
 SkNativeParsedPDF::SkNativeParsedPDF(const char* path) : fAllocator(new SkPdfAllocator()) {
+    gDoc = this;
     FILE* file = fopen(path, "r");
     fContentLength = getFileSize(path);
-    fFileContent = new unsigned char[fContentLength];
+    fFileContent = new unsigned char[fContentLength + 1];
     fread(fFileContent, fContentLength, 1, file);
+    fFileContent[fContentLength] = '\0';
     fclose(file);
     file = NULL;
 
@@ -353,73 +355,6 @@ SkPdfString* SkNativeParsedPDF::createString(unsigned char* sz, size_t len) cons
     SkPdfObject* obj = fAllocator->allocObject();
     SkPdfObject::makeString(sz, len, obj);
     return (SkPdfString*)obj;
-}
-
-PdfContext* gPdfContext = NULL;
-
-void SkNativeParsedPDF::drawPage(int page, SkCanvas* canvas) {
-    SkPdfNativeTokenizer* tokenizer = tokenizerOfPage(page);
-
-    PdfContext pdfContext(this);
-    pdfContext.fOriginalMatrix = SkMatrix::I();
-    pdfContext.fGraphicsState.fResources = pageResources(page);
-
-    gPdfContext = &pdfContext;
-
-    // TODO(edisonn): get matrix stuff right.
-    // TODO(edisonn): add DPI/scale/zoom.
-    SkScalar z = SkIntToScalar(0);
-    SkRect rect = MediaBox(page);
-    SkScalar w = rect.width();
-    SkScalar h = rect.height();
-
-    SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(w, z), SkPoint::Make(w, h), SkPoint::Make(z, h)};
-//                SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
-
-    // TODO(edisonn): add flag for this app to create sourunding buffer zone
-    // TODO(edisonn): add flagg for no clipping.
-    // Use larger image to make sure we do not draw anything outside of page
-    // could be used in tests.
-
-#ifdef PDF_DEBUG_3X
-    SkPoint skiaSpace[4] = {SkPoint::Make(w+z, h+h), SkPoint::Make(w+w, h+h), SkPoint::Make(w+w, h+z), SkPoint::Make(w+z, h+z)};
-#else
-    SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
-#endif
-    //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(w, h)};
-    //SkPoint skiaSpace[2] = {SkPoint::Make(w, z), SkPoint::Make(z, h)};
-
-    //SkPoint pdfSpace[2] = {SkPoint::Make(z, z), SkPoint::Make(z, h)};
-    //SkPoint skiaSpace[2] = {SkPoint::Make(z, h), SkPoint::Make(z, z)};
-
-    //SkPoint pdfSpace[3] = {SkPoint::Make(z, z), SkPoint::Make(z, h), SkPoint::Make(w, h)};
-    //SkPoint skiaSpace[3] = {SkPoint::Make(z, h), SkPoint::Make(z, z), SkPoint::Make(w, 0)};
-
-    SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
-    SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
-
-
-    pdfContext.fGraphicsState.fMatrix = pdfContext.fOriginalMatrix;
-    pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fMatrix;
-    pdfContext.fGraphicsState.fMatrixTlm = pdfContext.fGraphicsState.fMatrix;
-
-    canvas->setMatrix(pdfContext.fOriginalMatrix);
-
-#ifndef PDF_DEBUG_NO_PAGE_CLIPING
-    canvas->clipRect(SkRect::MakeXYWH(z, z, w, h), SkRegion::kIntersect_Op, true);
-#endif
-
-// erase with red before?
-//        SkPaint paint;
-//        paint.setColor(SK_ColorRED);
-//        canvas->drawRect(rect, paint);
-
-    PdfMainLooper looper(NULL, tokenizer, &pdfContext, canvas);
-    looper.loop();
-
-    delete tokenizer;
-
-    canvas->flush();
 }
 
 SkPdfAllocator* SkNativeParsedPDF::allocator() const {

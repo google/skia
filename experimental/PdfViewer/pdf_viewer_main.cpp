@@ -11,7 +11,7 @@
 #include "SkTArray.h"
 #include "picture_utils.h"
 
-#include "SkPdfParser.h"
+#include "SkPdfRenderer.h"
 
 /**
  * Given list of directories and files to use as input, expects to find .pdf
@@ -30,7 +30,7 @@ static void usage(const char* argv0) {
     SkDebugf("PDF to PNG rendering tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <input>... -w <outputDir> \n"
+"     %s <input>... [-w <outputDir>] [-n | --no-page-ext] \n"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -38,6 +38,8 @@ static void usage(const char* argv0) {
 "                expected to have the .skp extension.\n\n");
     SkDebugf(
 "     outputDir: directory to write the rendered pdfs.\n\n");
+    SkDebugf(
+"     -n:        no page extension if only one page.\n\n");
     SkDebugf("\n");
 }
 
@@ -48,8 +50,7 @@ static void usage(const char* argv0) {
  * @returns false if the file did not has the expected extension.
  *  if false is returned, contents of path are undefined.
  */
-/*
-static bool replace_filename_extension(SkString* path,
+static bool add_page_and_replace_filename_extension(SkString* path, int page,
                                        const char old_extension[],
                                        const char new_extension[]) {
     if (path->endsWith(old_extension)) {
@@ -58,12 +59,15 @@ static bool replace_filename_extension(SkString* path,
         if (!path->endsWith(".")) {
             return false;
         }
+        if (page >= 0) {
+            path->appendf("%i.", page);
+        }
         path->append(new_extension);
         return true;
     }
     return false;
 }
-*/
+
 /** Builds the output filename. path = dir/name, and it replaces expected
  * .skp extension with .pdf extention.
  * @param path Output filename.
@@ -72,52 +76,76 @@ static bool replace_filename_extension(SkString* path,
  *  if false is returned, contents of path are undefined.
  */
 
-/*
+
 static bool make_output_filepath(SkString* path, const SkString& dir,
-                                 const SkString& name) {
+                                 const SkString& name,
+                                 int page) {
     sk_tools::make_filepath(path, dir, name);
-    return replace_filename_extension(path,
-                                      PDF_FILE_EXTENSION,
-                                      PNG_FILE_EXTENSION);
+    return add_page_and_replace_filename_extension(path, page,
+                                                   PDF_FILE_EXTENSION,
+                                                   PNG_FILE_EXTENSION);
 }
-*/
+
+static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorWHITE) {
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+
+    bitmap->allocPixels();
+    bitmap->eraseColor(color);
+}
+
 /** Write the output of pdf renderer to a file.
  * @param outputDir Output dir.
  * @param inputFilename The skp file that was read.
  * @param renderer The object responsible to write the pdf file.
  */
-/*
-static bool write_output(const SkString& outputDir,
+
+static bool render_page(const SkString& outputDir,
                          const SkString& inputFilename,
-                         const SkPdfViewer& renderer) {
+                         const SkPdfRenderer& renderer,
+                         int page) {
     if (outputDir.isEmpty()) {
-        SkDynamicMemoryWStream stream;
-        renderer.write(&stream);
-        return true;
+        SkBitmap bitmap;
+        setup_bitmap(&bitmap, 1, 1);
+        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+        SkCanvas canvas(device);
+        return renderer.renderPage(page < 0 ? 0 : page, &canvas);
     }
 
     SkString outputPath;
-    if (!make_output_filepath(&outputPath, outputDir, inputFilename)) {
+    if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
         return false;
     }
 
-    SkFILEWStream stream(outputPath.c_str());
-    if (!stream.isValid()) {
-        SkDebugf("Could not write to file %s\n", outputPath.c_str());
-        return false;
-    }
-    renderer.write(&stream);
+    SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
+
+    SkBitmap bitmap;
+#ifdef PDF_DEBUG_3X
+    setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
+#else
+    setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
+#endif
+    SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+    SkCanvas canvas(device);
+
+    gDumpBitmap = &bitmap;
+
+    gDumpCanvas = &canvas;
+    renderer.renderPage(page, &canvas);
+
+    SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 
     return true;
 }
-*/
+
 /** Reads an skp file, renders it to pdf and writes the output to a pdf file
  * @param inputPath The skp file to be read.
  * @param outputDir Output dir.
  * @param renderer The object responsible to render the skp object into pdf.
  */
-static bool parse_pdf(const SkString& inputPath, const SkString& outputDir,
-                       SkPdfViewer& renderer) {
+static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
+                        SkPdfRenderer& renderer, bool noPageExt) {
+    SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
+
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
 
@@ -130,12 +158,20 @@ static bool parse_pdf(const SkString& inputPath, const SkString& outputDir,
 
     bool success = false;
 
-    success = renderer.load(inputPath, NULL);
+    success = renderer.load(inputPath);
 
+    if (success) {
+        if (!renderer.pages())
+        {
+            SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
+            return false;
+        } else {
+            for (int pn = 0; pn < renderer.pages(); ++pn) {
+                success = render_page(outputDir, inputFilename, renderer, noPageExt && renderer.pages() == 1 ? -1 : pn) && success;
+            }
+        }
+    }
 
-//    success = write_output(outputDir, inputFilename, renderer);
-
-    //renderer.end();
     return success;
 }
 
@@ -146,7 +182,7 @@ static bool parse_pdf(const SkString& inputPath, const SkString& outputDir,
  * @param renderer The object responsible to render the skp object into pdf.
  */
 static int process_input(const SkString& input, const SkString& outputDir,
-                         SkPdfViewer& renderer) {
+                         SkPdfRenderer& renderer, bool noPageExt) {
     int failures = 0;
     if (sk_isdir(input.c_str())) {
         SkOSFile::Iter iter(input.c_str(), PDF_FILE_EXTENSION);
@@ -154,13 +190,13 @@ static int process_input(const SkString& input, const SkString& outputDir,
         while (iter.next(&inputFilename)) {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            if (!parse_pdf(inputPath, outputDir, renderer)) {
+            if (!process_pdf(inputPath, outputDir, renderer, noPageExt)) {
                 ++failures;
             }
         }
     } else {
         SkString inputPath(input);
-        if (!parse_pdf(inputPath, outputDir, renderer)) {
+        if (!process_pdf(inputPath, outputDir, renderer, noPageExt)) {
             ++failures;
         }
     }
@@ -169,7 +205,7 @@ static int process_input(const SkString& input, const SkString& outputDir,
 
 static void parse_commandline(int argc, char* const argv[],
                               SkTArray<SkString>* inputs,
-                              SkString* outputDir) {
+                              SkString* outputDir, bool* noPageExt) {
     const char* argv0 = argv[0];
     char* const* stop = argv + argc;
 
@@ -177,6 +213,8 @@ static void parse_commandline(int argc, char* const argv[],
         if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             usage(argv0);
             exit(-1);
+        } else if ((0 == strcmp(*argv, "-n")) || (0 == strcmp(*argv, "--no-page-ext"))) {
+            *noPageExt = true;
         } else if (0 == strcmp(*argv, "-w")) {
             ++argv;
             if (argv >= stop) {
@@ -201,16 +239,16 @@ int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTArray<SkString> inputs;
 
-    SkAutoTUnref<SkPdfViewer>
-        renderer(SkNEW(SkPdfViewer));
-    SkASSERT(renderer.get());
+    SkPdfRenderer renderer;
 
     SkString outputDir;
-    parse_commandline(argc, argv, &inputs, &outputDir);
+    bool noPageExt = false;
+    parse_commandline(argc, argv, &inputs, &outputDir, &noPageExt);
 
     int failures = 0;
     for (int i = 0; i < inputs.count(); i ++) {
-        failures += process_input(inputs[i], outputDir, *renderer);
+        failures += process_input(inputs[i], outputDir, renderer, noPageExt);
+        renderer.unload();
     }
 
     reportPdfRenderStats();
