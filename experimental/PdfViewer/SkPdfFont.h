@@ -351,8 +351,8 @@ public:
             fToUnicode = new SkPdfToUnicode(parsed, dict->ToUnicode(parsed));
         }
 
-        fFirstChar = dict->FirstChar(parsed);
-        fLastChar = dict->LastChar(parsed);
+        fFirstChar = (unsigned int)dict->FirstChar(parsed);
+        fLastChar = (unsigned int)dict->LastChar(parsed);
         fFonMatrix = dict->has_FontMatrix() ? dict->FontMatrix(parsed) : SkMatrix::I();
 
         if (dict->has_FontBBox()) {
@@ -376,7 +376,7 @@ public:
         unsigned int j = fFirstChar;
         for (unsigned int i = 0 ; i < diffs->size(); i++) {
             if ((*diffs)[i]->isInteger()) {
-                j = (*diffs)[i]->intValue();
+                j = (unsigned int)(*diffs)[i]->intValue();
             } else if ((*diffs)[i]->isName()) {
                 if (j < fFirstChar || j > fLastChar) {
                     printf("break; error 2\n");

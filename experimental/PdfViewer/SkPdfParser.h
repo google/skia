@@ -31,6 +31,8 @@ public:
                    SkCanvas* canvas)
         : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
 
+    virtual ~PdfTokenLooper() {}
+
     virtual PdfResult consumeToken(PdfToken& token) = 0;
     virtual void loop() = 0;
 

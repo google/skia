@@ -17,21 +17,21 @@
 
 
 
-long getFileSize(const char* filename)
+static long getFileSize(const char* filename)
 {
     struct stat stat_buf;
     int rc = stat(filename, &stat_buf);
-    return rc == 0 ? stat_buf.st_size : -1;
+    return rc == 0 ? (long)stat_buf.st_size : -1;
 }
 
-unsigned char* lineHome(unsigned char* start, unsigned char* current) {
+static unsigned char* lineHome(unsigned char* start, unsigned char* current) {
     while (current > start && !isPdfEOL(*(current - 1))) {
         current--;
     }
     return current;
 }
 
-unsigned char* previousLineHome(unsigned char* start, unsigned char* current) {
+static unsigned char* previousLineHome(unsigned char* start, unsigned char* current) {
     if (current > start && isPdfEOL(*(current - 1))) {
         current--;
     }
@@ -48,7 +48,7 @@ unsigned char* previousLineHome(unsigned char* start, unsigned char* current) {
     return current;
 }
 
-unsigned char* ignoreLine(unsigned char* current, unsigned char* end) {
+static unsigned char* ignoreLine(unsigned char* current, unsigned char* end) {
     while (current < end && !isPdfEOL(*current)) {
         current++;
     }
@@ -122,7 +122,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
             return previous;
         }
 
-        int startId = token.intValue();
+        int startId = (int)token.intValue();
         token.reset();
         current = nextObject(current, trailerEnd, &token, NULL);
 
@@ -131,7 +131,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
             return current;
         }
 
-        int entries = token.intValue();
+        int entries = (int)token.intValue();
 
         for (int i = 0; i < entries; i++) {
             token.reset();
@@ -140,7 +140,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
                 // TODO(edisonn): report/warning
                 return current;
             }
-            int offset = token.intValue();
+            int offset = (int)token.intValue();
 
             token.reset();
             current = nextObject(current, trailerEnd, &token, NULL);
@@ -148,7 +148,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
                 // TODO(edisonn): report/warning
                 return current;
             }
-            int generation = token.intValue();
+            int generation = (int)token.intValue();
 
             token.reset();
             current = nextObject(current, trailerEnd, &token, NULL);
@@ -181,7 +181,7 @@ long SkNativeParsedPDF::readTrailer(unsigned char* trailerStart, unsigned char* 
     }
 
     if (trailer->has_Prev()) {
-        return trailer->Prev(NULL);
+        return (long)trailer->Prev(NULL);
     }
 
     return -1;
