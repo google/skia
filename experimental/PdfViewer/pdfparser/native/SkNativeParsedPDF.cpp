@@ -67,7 +67,10 @@ SkNativeParsedPDF* gDoc = NULL;
 // 1) run on a lot of file
 // 2) recoverable corupt file: remove endobj, endsteam, remove other keywords, use other white spaces, insert comments randomly, ...
 // 3) irrecoverable corrupt file
-SkNativeParsedPDF::SkNativeParsedPDF(const char* path) : fAllocator(new SkPdfAllocator()) {
+SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
+        : fAllocator(new SkPdfAllocator())
+        , fRootCatalogRef(NULL)
+        , fRootCatalog(NULL) {
     gDoc = this;
     FILE* file = fopen(path, "r");
     fContentLength = getFileSize(path);
@@ -97,10 +100,16 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path) : fAllocator(new SkPdfAll
     // TODO(edisonn): warn/error expect fObjects[fRefCatalogId].fGeneration == fRefCatalogGeneration
     // TODO(edisonn): security, verify that SkPdfCatalogDictionary is indeed using mapper
     // load catalog
-    fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
-    SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
 
-    fillPages(tree);
+    if (fRootCatalogRef) {
+        fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
+        SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
+
+        fillPages(tree);
+    } else {
+        // TODO(edisonn): corrupted pdf, read it from beginning and rebuild (xref, trailer, or just reall all objects)
+        // 0 pages
+    }
 
     // now actually read all objects if we want, or do it lazyly
     // and resolve references?... or not ...
@@ -171,7 +180,13 @@ long SkNativeParsedPDF::readTrailer(unsigned char* trailerStart, unsigned char* 
 
     SkPdfObject token;
     current = nextObject(current, trailerEnd, &token, fAllocator);
+    if (!token.isDictionary()) {
+        return -1;
+    }
     SkPdfFileTrailerDictionary* trailer = (SkPdfFileTrailerDictionary*)&token;
+    if (!trailer->valid()) {
+        return -1;
+    }
 
     if (storeCatalog) {
         const SkPdfObject* ref = trailer->Root(NULL);
