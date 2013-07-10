@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkRasterWidget.h"
 
 SkRasterWidget::SkRasterWidget(SkDebugger *debugger) : QWidget() {
@@ -49,7 +48,11 @@ void SkRasterWidget::paintEvent(QPaintEvent* event) {
         QImage image((uchar *)fBitmap.getPixels(), fBitmap.width(),
                 fBitmap.height(), QImage::Format_ARGB32_Premultiplied);
 
+#if SK_R32_SHIFT == 0
+        painter.drawImage(origin, image.rgbSwapped());
+#else
         painter.drawImage(origin, image);
+#endif
         painter.end();
         emit drawComplete();
     }
