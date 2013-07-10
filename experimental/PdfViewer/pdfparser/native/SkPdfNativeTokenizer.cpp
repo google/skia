@@ -5,7 +5,7 @@
 
 #include "SkPdfStreamCommonDictionary_autogen.h"
 
-unsigned char* skipPdfWhiteSpaces(unsigned char* start, unsigned char* end) {
+static unsigned char* skipPdfWhiteSpaces(unsigned char* start, unsigned char* end) {
     while (start < end && isPdfWhiteSpace(*start)) {
         if (*start == kComment_PdfDelimiter) {
             // skip the comment until end of line
@@ -22,7 +22,7 @@ unsigned char* skipPdfWhiteSpaces(unsigned char* start, unsigned char* end) {
 }
 
 // TODO(edisonn) '(' can be used, will it break the string a delimiter or space inside () ?
-unsigned char* endOfPdfToken(unsigned char* start, unsigned char* end) {
+static unsigned char* endOfPdfToken(unsigned char* start, unsigned char* end) {
     //int opened brackets
     //TODO(edisonn): what out for special chars, like \n, \032
 
@@ -39,17 +39,8 @@ unsigned char* endOfPdfToken(unsigned char* start, unsigned char* end) {
     return start;
 }
 
-unsigned char* skipPdfComment(unsigned char* start, unsigned char* end) {
-    SkASSERT(start == end || *start == kComment_PdfDelimiter);
-    while (start < end && isPdfEOL(*start)) {
-        *start = '\0';
-        start++;
-    }
-    return start;
-}
-
 // last elem has to be ]
-unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* array, SkPdfAllocator* allocator) {
+static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* array, SkPdfAllocator* allocator) {
     while (start < end) {
         // skip white spaces
         start = skipPdfWhiteSpaces(start, end);
@@ -73,7 +64,7 @@ unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* 
             SkPdfObject* gen = array->removeLastInArray();
             SkPdfObject* id = array->removeLastInArray();
             newObj->reset();
-            SkPdfObject::makeReference(id->intValue(), gen->intValue(), newObj);
+            SkPdfObject::makeReference((unsigned int)id->intValue(), (unsigned int)gen->intValue(), newObj);
         }
         array->appendInArray(newObj);
     }
@@ -84,7 +75,7 @@ unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfObject* 
 
 // When we read strings we will rewrite the string so we will reuse the memory
 // when we start to read the string, we already consumed the opened bracket
-unsigned char* readString(unsigned char* start, unsigned char* end, SkPdfObject* str) {
+static unsigned char* readString(unsigned char* start, unsigned char* end, SkPdfObject* str) {
     unsigned char* out = start;
     unsigned char* in = start;
 
@@ -195,7 +186,7 @@ unsigned char* readString(unsigned char* start, unsigned char* end, SkPdfObject*
     return in + 1;  // consume ) at the end of the string
 }
 
-unsigned char* readHexString(unsigned char* start, unsigned char* end, SkPdfObject* str) {
+static unsigned char* readHexString(unsigned char* start, unsigned char* end, SkPdfObject* str) {
     unsigned char* out = start;
     unsigned char* in = start;
 
@@ -325,7 +316,7 @@ unsigned char* readHexString(unsigned char* start, unsigned char* end, SkPdfObje
 }
 
 // TODO(edisonn): before PDF 1.2 name could not have special characters, add version parameter
-unsigned char* readName(unsigned char* start, unsigned char* end, SkPdfObject* name) {
+static unsigned char* readName(unsigned char* start, unsigned char* end, SkPdfObject* name) {
     unsigned char* out = start;
     unsigned char* in = start;
 
@@ -452,7 +443,7 @@ and it could get worse, with multiple object like this
 // right now implement the silly algorithm that assumes endstream is finishing the stream
 
 
-unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject* dict) {
+static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject* dict) {
     start = skipPdfWhiteSpaces(start, end);
     if (!(start[0] == 's' && start[1] == 't' && start[2] == 'r' && start[3] == 'e' && start[4] == 'a' && start[5] == 'm')) {
         // no stream. return.
@@ -468,7 +459,7 @@ unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject*
 
     SkPdfStreamCommonDictionary* stream = (SkPdfStreamCommonDictionary*) dict;
     // TODO(edisonn): load Length
-    int length = -1;
+    int64_t length = -1;
 
     // TODO(edisonn): very basic implementation
     if (stream->has_Length() && stream->Length(NULL) > 0) {
@@ -507,13 +498,13 @@ unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdfObject*
 
         endstream += strlen("endstream");
         // TODO(edisonn): Assert? report error/warning?
-        dict->addStream(start, length);
+        dict->addStream(start, (size_t)length);
         return endstream;
     }
     return start;
 }
 
-unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator) {
+static unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator) {
     SkPdfObject::makeEmptyDictionary(dict);
 
     start = skipPdfWhiteSpaces(start, end);
@@ -543,7 +534,7 @@ unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObj
                     if (value->isInteger() && generation.isInteger() && keywordR.isKeywordReference()) {
                         int64_t id = value->intValue();
                         value->reset();
-                        SkPdfObject::makeReference(id, generation.intValue(), value);
+                        SkPdfObject::makeReference((unsigned int)id, (unsigned int)generation.intValue(), value);
                         dict->set(&key, value);
                     } else {
                         // error, ignore
