@@ -3090,7 +3090,7 @@ Version                                 name                                    
                                                                                                     Note: The value of this entry is a name object, not a number, and so must
                                                                                                     be preceded by a slash character (/) when written in the PDF ﬁle (for ex-
                                                                                                     ample, /1.4).
-Pages                                   dictionary                                                  (Required; must be an indirect reference) The page tree node that is the
+Pages                                   PageTreeNodeDictionary                                      (Required; must be an indirect reference) The page tree node that is the
                                                                                                     root of the document’s page tree (see Section 3.6.2, “Page Tree”).
 PageLabels                              number tree                                                 (Optional; PDF 1.3) A number tree (see Section 3.8.5, “Number Trees”)
                                                                                                     deﬁning the page labeling for the document. The keys in this tree are

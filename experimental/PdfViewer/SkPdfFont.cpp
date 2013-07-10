@@ -3,7 +3,7 @@
 
 #include "SkStream.h"
 #include "SkTypeface.h"
-#include "SkPdfPodofoTokenizer.h"
+#include "SkPdfNativeTokenizer.h"
 
 std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts() {
     static std::map<std::string, SkPdfStandardFontEntry> gPdfStandardFonts;
@@ -149,28 +149,28 @@ SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool 
     return typeface;
 }
 
-SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd, bool loadFromName) {
-    // TODO(edisonn): partial implementation
+SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkNativeParsedPDF* doc, SkPdfFontDescriptorDictionary* fd, bool loadFromName) {
+    // TODO(edisonn): partial implementation ... also const handling ...
     // Only one, at most be available
     SkPdfStream* pdfStream = NULL;
     if (fd->has_FontFile()) {
-        pdfStream = fd->FontFile();
+        pdfStream = fd->FontFile(doc);
     } else if (fd->has_FontFile2()) {
-        pdfStream = fd->FontFile2();
+        pdfStream = fd->FontFile2(doc);
     } if (fd->has_FontFile3()) {
-        pdfStream = fd->FontFile3();
+        pdfStream = fd->FontFile3(doc);
     } else {
         if (loadFromName) {
-            return fontFromName(fd, fd->FontName().c_str());
+            return fontFromName(doc, fd, fd->FontName(doc).c_str());
         }
     }
 
-    char* uncompressedStream = NULL;
-    long uncompressedStreamLength = 0;
+    unsigned char* uncompressedStream = NULL;
+    size_t uncompressedStreamLength = 0;
 
     // TODO(edisonn): report warning to be used in testing.
     if (!pdfStream ||
-            !pdfStream->GetFilteredCopy(&uncompressedStream, &uncompressedStreamLength) ||
+            !pdfStream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength, doc->allocator()) ||
             !uncompressedStream ||
             !uncompressedStreamLength) {
         return NULL;
@@ -189,26 +189,32 @@ SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkPdfFontDescriptorDictionary* fd, 
     return new SkPdfStandardFont(face);
 }
 
-SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName) {
+SkPdfFont* fontFromName(SkNativeParsedPDF* doc, SkPdfObject* obj, const char* fontName) {
     SkTypeface* typeface = SkTypefaceFromPdfStandardFont(fontName, false, false);
     if (typeface != NULL) {
         return new SkPdfStandardFont(typeface);
     }
 
     // TODO(edisonn): perf - make a map
-    for (int i = 0 ; i < obj->doc()->objects(); i++) {
-        const SkPdfObject* podofoFont = obj->doc()->object(i);
-        SkPdfFontDescriptorDictionary* fd = NULL;
+    for (unsigned int i = 0 ; i < doc->objects(); i++) {
+        SkPdfObject* obj = doc->object(i);
+        if (!obj->isDictionary()) {
+            continue;
+        }
 
-        if (obj->doc()->mapper()->mapFontDescriptorDictionary(podofoFont, &fd)) {
-            if (fd->has_FontName() && fd->FontName() == fontName) {
-                SkPdfFont* font = SkPdfFont::fontFromFontDescriptor(fd, false);
-                if (font) {
-                    return font;
-                } else {
-                    // failed to load font descriptor
-                    break;
-                }
+        SkPdfFontDescriptorDictionary* fd = obj->asDictionary()->asFontDescriptorDictionary();
+
+        if (!fd->valid()) {
+            continue;
+        }
+
+        if (fd->has_FontName() && fd->FontName(doc) == fontName) {
+            SkPdfFont* font = SkPdfFont::fontFromFontDescriptor(doc, fd, false);
+            if (font) {
+                return font;
+            } else {
+                // failed to load font descriptor
+                break;
             }
         }
     }
@@ -217,86 +223,106 @@ SkPdfFont* fontFromName(SkPdfObject* obj, const char* fontName) {
     return SkPdfFont::Default();
 }
 
-SkPdfFont* SkPdfFont::fontFromPdfDictionary(SkPdfFontDictionary* dict) {
+SkPdfFont* SkPdfFont::fontFromPdfDictionaryOnce(SkNativeParsedPDF* doc, SkPdfFontDictionary* dict) {
+    // TODO(edisonn): keep the type in a smart way in the SkPdfObject
+    // 1) flag, isResolved (1bit): reset at reset, add/remove/update (array) and set(dict)
+    // in a tree like structure, 3-4 bits for all the datatypes inheriting from obj (int, real, ...)
+    // if is a dict, reserveve a few bytes to encode type of dict, and so on like in a tree
+    // issue: type can be determined from context! atribute night be missing/wrong
+    switch (doc->mapper()->mapFontDictionary(dict)) {
+        case kType0FontDictionary_SkPdfObjectType:
+            return fontFromType0FontDictionary(doc, dict->asType0FontDictionary());
+
+        case kTrueTypeFontDictionary_SkPdfObjectType:
+            return fontFromTrueTypeFontDictionary(doc, dict->asTrueTypeFontDictionary());
+
+        case kType1FontDictionary_SkPdfObjectType:
+            return fontFromType1FontDictionary(doc, dict->asType1FontDictionary());
+
+        case kMultiMasterFontDictionary_SkPdfObjectType:
+            return fontFromMultiMasterFontDictionary(doc, dict->asMultiMasterFontDictionary());
+
+        case kType3FontDictionary_SkPdfObjectType:
+            return fontFromType3FontDictionary(doc, dict->asType3FontDictionary());
+
+        default:
+            // TODO(edisonn): report error?
+            return NULL;
+    }
+}
+
+SkPdfFont* SkPdfFont::fontFromPdfDictionary(SkNativeParsedPDF* doc, SkPdfFontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // TODO(edisonn): report default one?
     }
 
-    switch (dict->getType()) {
-        case kType0FontDictionary_SkPdfObjectType:
-            return fontFromType0FontDictionary(dict->asType0FontDictionary());
-
-        case kTrueTypeFontDictionary_SkPdfObjectType:
-            return fontFromTrueTypeFontDictionary(dict->asTrueTypeFontDictionary());
-
-        case kType1FontDictionary_SkPdfObjectType:
-            return fontFromType1FontDictionary(dict->asType1FontDictionary());
-
-        case kMultiMasterFontDictionary_SkPdfObjectType:
-            return fontFromMultiMasterFontDictionary(dict->asMultiMasterFontDictionary());
-
-        case kType3FontDictionary_SkPdfObjectType:
-            return fontFromType3FontDictionary(dict->asType3FontDictionary());
+    if (dict->data() == NULL) {
+        dict->setData(fontFromPdfDictionaryOnce(doc, dict));
     }
-    return NULL;  // TODO(edisonn): report error?
+    return (SkPdfFont*)dict->data();
 }
 
-SkPdfType0Font* SkPdfFont::fontFromType0FontDictionary(SkPdfType0FontDictionary* dict) {
+
+
+SkPdfType0Font* SkPdfFont::fontFromType0FontDictionary(SkNativeParsedPDF* doc, SkPdfType0FontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // default one?
     }
 
-    return new SkPdfType0Font(dict);
+    return new SkPdfType0Font(doc, dict);
 }
 
-SkPdfType1Font* SkPdfFont:: fontFromType1FontDictionary(SkPdfType1FontDictionary* dict) {
+SkPdfType1Font* SkPdfFont:: fontFromType1FontDictionary(SkNativeParsedPDF* doc, SkPdfType1FontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // default one?
     }
 
-    return new SkPdfType1Font(dict);
+    return new SkPdfType1Font(doc, dict);
 }
 
-SkPdfType3Font* SkPdfFont::fontFromType3FontDictionary(SkPdfType3FontDictionary* dict) {
+SkPdfType3Font* SkPdfFont::fontFromType3FontDictionary(SkNativeParsedPDF* doc, SkPdfType3FontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // default one?
     }
 
 
 
-    return new SkPdfType3Font(dict);
+    return new SkPdfType3Font(doc, dict);
 }
 
-SkPdfTrueTypeFont* SkPdfFont::fontFromTrueTypeFontDictionary(SkPdfTrueTypeFontDictionary* dict) {
+SkPdfTrueTypeFont* SkPdfFont::fontFromTrueTypeFontDictionary(SkNativeParsedPDF* doc, SkPdfTrueTypeFontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // default one?
     }
 
-    return new SkPdfTrueTypeFont(dict);
+    return new SkPdfTrueTypeFont(doc, dict);
 }
 
-SkPdfMultiMasterFont* SkPdfFont::fontFromMultiMasterFontDictionary(SkPdfMultiMasterFontDictionary* dict) {
+SkPdfMultiMasterFont* SkPdfFont::fontFromMultiMasterFontDictionary(SkNativeParsedPDF* doc, SkPdfMultiMasterFontDictionary* dict) {
     if (dict == NULL) {
         return NULL;  // default one?
     }
 
-    return new SkPdfMultiMasterFont(dict);
+    return new SkPdfMultiMasterFont(doc, dict);
 }
 
-static int skstoi(const SkPdfString* str) {
+static int skstoi(const SkPdfObject* str) {
+    // TODO(edisonn): report err of it is not a (hex) string
     int ret = 0;
-    for (int i = 0 ; i < str->len(); i++) {
+    for (unsigned int i = 0 ; i < str->len(); i++) {
         ret = (ret << 8) + ((unsigned char*)str->c_str())[i];
     }
     return ret;
 }
 
-SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
+#define tokenIsKeyword(token,keyword) (token.fType == kKeyword_TokenType && token.fKeywordLength==sizeof(keyword)-1 && strncmp(token.fKeyword, keyword, sizeof(keyword)-1) == 0)
+
+SkPdfToUnicode::SkPdfToUnicode(SkNativeParsedPDF* parsed, SkPdfStream* stream) : fParsed(parsed) {
     fCMapEncoding = NULL;
     fCMapEncodingFlag = NULL;
 
     if (stream) {
-        SkPdfPodofoTokenizer* tokenizer = stream->doc()->tokenizerOfStream(stream);
+        SkPdfNativeTokenizer* tokenizer = fParsed->tokenizerOfStream(stream);
         PdfToken token;
 
         fCMapEncoding = new unsigned short[256 * 256];
@@ -314,48 +340,50 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
 
         while (tokenizer->readToken(&token)) {
 
-            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "begincodespacerange") == 0) {
-                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endcodespacerange") == 0)) {
+            // TODO(edisonn): perf, macro that would make equal first for token.fKeywordLength with sizeof(keyword), instead od strlen, make sure it is keyword, not a char*
+            if (tokenIsKeyword(token, "begincodespacerange")) {
+                while (tokenizer->readToken(&token) && !tokenIsKeyword(token, "endcodespacerange")) {
 //                    tokenizer->PutBack(token);
 //                    tokenizer->readToken(&token);
                     // TODO(edisonn): check token type! ignore/report errors.
-                    int start = skstoi(token.fObject->asString());
+                    int start = skstoi(token.fObject);
                     tokenizer->readToken(&token);
-                    int end = skstoi(token.fObject->asString());
+                    int end = skstoi(token.fObject);
                     for (int i = start; i <= end; i++) {
                         fCMapEncodingFlag[i] |= 1;
                     }
                 }
             }
 
-            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "beginbfchar") == 0) {
-                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfchar") == 0)) {
+            if (tokenIsKeyword(token, "beginbfchar")) {
+                while (tokenizer->readToken(&token) && !tokenIsKeyword(token, "endbfchar")) {
 //                    tokenizer->PutBack(token);
 //                    tokenizer->readToken(&token);
-                    int from = skstoi(token.fObject->asString());
+                    int from = skstoi(token.fObject);
                     tokenizer->readToken(&token);
-                    int to = skstoi(token.fObject->asString());
+                    int to = skstoi(token.fObject);
 
                     fCMapEncodingFlag[from] |= 2;
                     fCMapEncoding[from] = to;
                 }
             }
 
-            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "beginbfrange") == 0) {
-                while (tokenizer->readToken(&token) && !(token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "endbfrange") == 0)) {
+            if (tokenIsKeyword(token, "beginbfrange")) {
+                while (tokenizer->readToken(&token) && !tokenIsKeyword(token, "endbfrange")) {
 //                    tokenizer->PutBack(token);
 //                    tokenizer->readToken(&token);
-                    int start = skstoi(token.fObject->asString());
+                    int start = skstoi(token.fObject);
                     tokenizer->readToken(&token);
-                    int end = skstoi(token.fObject->asString());
+                    int end = skstoi(token.fObject);
 
 
                     tokenizer->readToken(&token); // [ or just an array directly?
 //                    tokenizer->PutBack(token);
 
-                    if (token.fType == kObject_TokenType && token.fObject->asString()) {
+                    // TODO(edisonn): read spec: any string or only hex string?
+                    if (token.fType == kObject_TokenType && token.fObject->isAnyString()) {
 //                        tokenizer->readToken(&token);
-                        int value = skstoi(token.fObject->asString());
+                        int value = skstoi(token.fObject);
 
                         for (int i = start; i <= end; i++) {
                             fCMapEncodingFlag[i] |= 2;
@@ -365,11 +393,11 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
                         }
 
                         // read one string
-                    } else if (token.fType == kObject_TokenType && token.fObject->asArray()) {
+                    } else if (token.fType == kObject_TokenType && token.fObject->isArray()) {
 //                        tokenizer->readToken(&token);
-                        for (int i = 0; i < token.fObject->asArray()->size(); i++) {
+                        for (unsigned int i = 0; i < token.fObject->size(); i++) {
                             fCMapEncodingFlag[start + i] |= 2;
-                            fCMapEncoding[start + i] = skstoi((*token.fObject->asArray())[i]->asString());
+                            fCMapEncoding[start + i] = skstoi((*token.fObject)[i]);
                         }
                         // read array
                     }
@@ -383,14 +411,14 @@ SkPdfToUnicode::SkPdfToUnicode(const SkPdfStream* stream) {
 }
 
 
-SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
-    fBaseFont = fontFromName(dict, dict->BaseFont().c_str());
+SkPdfType0Font::SkPdfType0Font(SkNativeParsedPDF* doc, SkPdfType0FontDictionary* dict) {
+    fBaseFont = fontFromName(doc, dict, dict->BaseFont(doc).c_str());
     fEncoding = NULL;
 
     if (dict->has_Encoding()) {
-        if (dict->isEncodingAName()) {
-            fEncoding = SkPdfEncoding::fromName(dict->getEncodingAsName().c_str());
-        } else if (dict->isEncodingAStream()) {
+        if (dict->isEncodingAName(doc)) {
+            fEncoding = SkPdfEncoding::fromName(dict->getEncodingAsName(doc).c_str());
+        } else if (dict->isEncodingAStream(doc)) {
             //fEncoding = loadEncodingFromStream(dict->getEncodingAsStream());
         } else {
             // TODO(edisonn): error ... warning .. assert?
@@ -398,7 +426,7 @@ SkPdfType0Font::SkPdfType0Font(SkPdfType0FontDictionary* dict) {
     }
 
     if (dict->has_ToUnicode()) {
-        fToUnicode = new SkPdfToUnicode(dict->ToUnicode());
+        fToUnicode = new SkPdfToUnicode(doc, dict->ToUnicode(doc));
     }
 }
 
