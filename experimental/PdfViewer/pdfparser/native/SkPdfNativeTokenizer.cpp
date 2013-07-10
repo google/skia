@@ -69,7 +69,8 @@ static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfO
         array->appendInArray(newObj);
     }
     // TODO(edisonn): report not reached, we should never get here
-    SkASSERT(false);
+    // TODO(edisonn): there might be a bug here, enable an assert and run it on files
+    // or it might be that the files were actually corrupted
     return start;
 }
 
@@ -170,6 +171,8 @@ static unsigned char* readString(unsigned char* start, unsigned char* end, SkPdf
                         in++;
                         break;
                 }
+            } else {
+                in++;
             }
         } else {
             // TODO(edisonn): perf, avoid copy into itself, maybe first do a simple scan until found backslash ?
