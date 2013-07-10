@@ -188,10 +188,6 @@ class JsonRebaseliner(object):
         # Write out updated expectations.
         gm_json.WriteToFile(expectations_dict, expectations_json_filepath)
 
-        if skipped_images:
-            print ('Skipped these tests due to test/config filters: %s' %
-                   skipped_images)
-
 
 # main...
 
@@ -275,6 +271,12 @@ for subdir in subdirs:
             actuals_filename=args.actuals_filename,
             add_new=args.add_new)
     else:
+        # TODO(epoger): When we get rid of the ImageRebaseliner implementation,
+        # we should raise an Exception in this case (no JSON expectations file
+        # found to update), to prevent a recurrence of
+        # https://code.google.com/p/skia/issues/detail?id=1403 ('rebaseline.py
+        # script fails with misleading output when run outside of gm-expected
+        # dir')
         rebaseliner = rebaseline_imagefiles.ImageRebaseliner(
             expectations_root=args.expectations_root,
             tests=args.tests, configs=args.configs,

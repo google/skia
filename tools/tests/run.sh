@@ -267,9 +267,10 @@ REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
 
 # These test the old image-file expectations.
-rebaseline_images_test "--expectations-root fake/expectations/path --actuals-base-url file:$REBASELINE_INPUT/json1 --tests nonexistenttest1 imageblur nonexistenttest2 --configs nonexistentconfig1 8888 nonexistentconfig2 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
-rebaseline_images_test "--actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
-rebaseline_images_test "--actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
+rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --tests nonexistenttest1 imageblur nonexistenttest2 --configs nonexistentconfig1 8888 nonexistentconfig2 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
+rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
+rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
+rebaseline_images_test "--expectations-root $REBASELINE_INPUT --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/exercise-bug1403"
 
 # These test the new JSON-format expectations.
 rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"

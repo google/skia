@@ -96,31 +96,29 @@ class ImageRebaseliner(object):
             raise CommandFailedException('error running command: ' +
                                          ' '.join(cmd))
 
-    # Download a single actual result from GoogleStorage, returning True if it
-    # succeeded.
+    # Download a single actual result from GoogleStorage.
+    # Raises an exception if it fails.
     def _DownloadFromGoogleStorage(self, infilename, outfilename, all_results):
         test_name = self._testname_pattern.match(infilename).group(1)
         if not test_name:
-            print '# unable to find test_name for infilename %s' % infilename
-            return False
+            raise Exception('unable to find test_name for infilename %s' %
+                            infilename)
         try:
             hash_type, hash_value = all_results[infilename]
         except KeyError:
-            print ('# unable to find filename %s in all_results dict' %
-                   infilename)
-            return False
+            raise Exception('unable to find filename %s in all_results dict' %
+                            infilename)
         except ValueError as e:
-            print '# ValueError reading filename %s from all_results dict: %s'%(
-                infilename, e)
-            return False
+            raise Exception(
+                'ValueError reading filename %s from all_results dict: %s' % (
+                    infilename, e))
         url = '%s/%s/%s/%s.png' % (self._googlestorage_gm_actuals_root,
                                    hash_type, test_name, hash_value)
         try:
             self._DownloadFile(source_url=url, dest_filename=outfilename)
-            return True
         except CommandFailedException:
-            print '# Couldn\'t fetch gs_url %s' % url
-            return False
+            raise Exception('Couldn\'t fetch gs_url %s as outfile %s' % (
+                url, outfilename))
 
     # Download a single file, raising a CommandFailedException if it fails.
     def _DownloadFile(self, source_url, dest_filename):
@@ -230,14 +228,11 @@ class ImageRebaseliner(object):
             print ''
         print '# ' + infilename
 
-        # Download this result image from Google Storage; if that fails,
-        # raise an exception (because if actual-results.json told us that
-        # a particular image version is available for download, we should
-        # always be able to get it!)
-        if not self._DownloadFromGoogleStorage(infilename=infilename,
-                                               outfilename=outfilename,
-                                               all_results=all_results):
-            raise Exception('# Couldn\'t fetch infilename ' + infilename)
+        # Download this result image from Google Storage.
+        # If it fails, an exception will be raised.
+        self._DownloadFromGoogleStorage(infilename=infilename,
+                                        outfilename=outfilename,
+                                        all_results=all_results)
 
         # Add this file to version control (if appropriate).
         if self._add_new:
@@ -258,6 +253,12 @@ class ImageRebaseliner(object):
     #  subdir : e.g. 'base-shuttle-win7-intel-float'
     #  builder : e.g. 'Test-Win7-ShuttleA-HD2000-x86-Release'
     def RebaselineSubdir(self, subdir, builder):
+        if not os.path.isdir(os.path.join(self._expectations_root, subdir)):
+            raise Exception((
+                'Could not find "%s" subdir within expectations_root "%s".  ' +
+                'Are you sure --expectations-root is pointing at a valid ' +
+                'gm-expected directory?') % (subdir, self._expectations_root))
+
         json_url = '/'.join([self._json_base_url,
                              subdir, builder, subdir,
                              self._json_filename])
@@ -275,13 +276,10 @@ class ImageRebaseliner(object):
                 if config not in self._configs:
                     skipped_files.append(filename)
                     continue
-            outfilename = os.path.join(subdir, filename);
+            outfilename = os.path.join(self._expectations_root, subdir,
+                                       filename);
             self._RebaselineOneFile(expectations_subdir=subdir,
                                     builder_name=builder,
                                     infilename=filename,
                                     outfilename=outfilename,
                                     all_results=all_results)
-
-        if skipped_files:
-            print ('Skipped these files due to test/config filters: %s' %
-                   skipped_files)

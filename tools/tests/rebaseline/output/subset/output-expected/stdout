@@ -5,9 +5,8 @@
 #
 
 # imageblur_8888.png
-curl --fail --silent http://chromium-skia-gm.commondatastorage.googleapis.com/gm/bitmap-64bitMD5/imageblur/4217923806027861152.png --output base-android-galaxy-nexus/.temp-imageblur_8888.png
-mv base-android-galaxy-nexus/.temp-imageblur_8888.png base-android-galaxy-nexus/imageblur_8888.png
-Skipped these files due to test/config filters: [u'imageblur_565.png', u'shadertext3_8888.png']
+curl --fail --silent http://chromium-skia-gm.commondatastorage.googleapis.com/gm/bitmap-64bitMD5/imageblur/4217923806027861152.png --output tools/tests/rebaseline/input/fake-gm-expected-dir/base-android-galaxy-nexus/.temp-imageblur_8888.png
+mv tools/tests/rebaseline/input/fake-gm-expected-dir/base-android-galaxy-nexus/.temp-imageblur_8888.png tools/tests/rebaseline/input/fake-gm-expected-dir/base-android-galaxy-nexus/imageblur_8888.png
 
 #
 # Getting files to rebaseline from JSON summary URL file:tools/tests/rebaseline/input/json1/base-shuttle-win7-intel-float/Test-Win7-ShuttleA-HD2000-x86-Release/base-shuttle-win7-intel-float/actual-results.json ...
