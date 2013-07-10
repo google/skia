@@ -929,6 +929,12 @@ private:
                                            bool swapRAndB,
                                            const SkMatrix& matrix);
 
+    /**
+     *  This callback allows the resource cache to callback into the GrContext
+     *  when the cache is still overbudget after a purge.
+     */
+    static bool OverbudgetCB(void* data);
+
     typedef GrRefCnt INHERITED;
 };
 
