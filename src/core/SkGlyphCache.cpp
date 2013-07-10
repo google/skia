@@ -594,13 +594,13 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     // If not, we may have exhausted OS/font resources, so try purging the
     // cache once and try again.
     {
-        SkScalerContext* ctx = typeface->createScalerContext(desc);
+        // pass true the first time, to notice if the scalercontext failed,
+        // so we can try the purge.
+        SkScalerContext* ctx = typeface->createScalerContext(desc, true);
         if (!ctx) {
             getSharedGlobals().purgeAll();
-            ctx = typeface->createScalerContext(desc);
-            if (!ctx) {
-                sk_throw();
-            }
+            ctx = typeface->createScalerContext(desc, false);
+            SkASSERT(ctx);
         }
         cache = SkNEW_ARGS(SkGlyphCache, (typeface, desc, ctx));
     }
