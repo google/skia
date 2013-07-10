@@ -47,7 +47,7 @@ static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
                  "vst1.32        {d0[0]}, [%[dst]]       \n\t"   // store result
                  :
                  : [x] "r" (x), [y] "r" (y), [a00] "r" (a00), [a01] "r" (a01), [a10] "r" (a10), [a11] "r" (a11), [dst] "r" (dst)
-                 : "cc", "memory", "r4", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d16"
+                 : "cc", "memory", "d0", "d1", "d3", "d4", "d5", "d6", "d7", "d16"
                  );
 }
 
@@ -83,6 +83,7 @@ static inline void Filter_32_alpha_neon(unsigned x, unsigned y,
                  "vst1.32        {d0[0]}, [%[dst]]       \n\t"   // store result
                  :
                  : [x] "r" (x), [y] "r" (y), [a00] "r" (a00), [a01] "r" (a01), [a10] "r" (a10), [a11] "r" (a11), [dst] "r" (dst), [scale] "r" (scale)
-                 : "cc", "memory", "r4", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d16"
+                 : "cc", "memory", "d0", "d1", "d3", "d4", "d5", "d6", "d7", "d16"
                  );
 }
+
