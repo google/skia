@@ -111,6 +111,13 @@ bool SkLua::runCode(const void* code, size_t size) {
 
 #define CHECK_SETFIELD(key) do if (key) lua_setfield(fL, -2, key); while (0)
 
+static void setfield_bool_if(lua_State* L, const char key[], bool pred) {
+    if (pred) {
+        lua_pushboolean(L, true);
+        lua_setfield(L, -2, key);
+    }
+}
+
 static void setfield_string(lua_State* L, const char key[], const char value[]) {
     lua_pushstring(L, value);
     lua_setfield(L, -2, key);
@@ -596,6 +603,21 @@ static int lpaint_getFontMetrics(lua_State* L) {
     return 2;
 }
 
+static int lpaint_getEffects(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    
+    lua_newtable(L);
+    setfield_bool_if(L, "looper", !!paint->getLooper());
+    setfield_bool_if(L, "pathEffect", !!paint->getPathEffect());
+    setfield_bool_if(L, "rasterizer", !!paint->getRasterizer());
+    setfield_bool_if(L, "maskFilter", !!paint->getMaskFilter());
+    setfield_bool_if(L, "shader", !!paint->getShader());
+    setfield_bool_if(L, "colorFilter", !!paint->getColorFilter());
+    setfield_bool_if(L, "imageFilter", !!paint->getImageFilter());
+    setfield_bool_if(L, "xfermode", !!paint->getXfermode());
+    return 1;
+}
+
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -619,6 +641,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setStrokeWidth", lpaint_setStrokeWidth },
     { "measureText", lpaint_measureText },
     { "getFontMetrics", lpaint_getFontMetrics },
+    { "getEffects", lpaint_getEffects },
     { "__gc", lpaint_gc },
     { NULL, NULL }
 };
