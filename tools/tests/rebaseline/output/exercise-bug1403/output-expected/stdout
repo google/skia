@@ -1,6 +1,1 @@
-Traceback (most recent call last):
-  File "tools/rebaseline.py", line 288, in <module>
-    rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
-  File "/usr/local/google/home/epoger/src/skia/white/trunk/tools/rebaseline_imagefiles.py", line 260, in RebaselineSubdir
-    'gm-expected directory?') % (subdir, self._expectations_root))
-Exception: Could not find "base-android-galaxy-nexus" subdir within expectations_root "tools/tests/rebaseline/input".  Are you sure --expectations-root is pointing at a valid gm-expected directory?
+Could not find "base-android-galaxy-nexus" subdir within expectations_root "tools/tests/rebaseline/input".  Are you sure --expectations-root is pointing at a valid gm-expected directory?

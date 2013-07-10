@@ -285,4 +285,8 @@ for subdir in subdirs:
             json_filename=args.actuals_filename,
             add_new=args.add_new,
             missing_json_is_fatal=missing_json_is_fatal)
-    rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
+    try:
+        rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
+    except BaseException as e:
+        print >> sys.stderr, e
+        sys.exit(1)
