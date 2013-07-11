@@ -773,4 +773,3 @@ bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
 
     return readTokenCore(token);
 }
-

@@ -86,4 +86,3 @@ static inline void Filter_32_alpha_neon(unsigned x, unsigned y,
                  : "cc", "memory", "d0", "d1", "d3", "d4", "d5", "d6", "d7", "d16"
                  );
 }
-

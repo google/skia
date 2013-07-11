@@ -109,7 +109,7 @@ public:
      *  textures.  For single-pass effects, use asNewEffect().  src is the
      *  source image for processing, as a texture-backed bitmap.  result is
      *  the destination bitmap, which should contain a texture-backed pixelref
-     *  on success.  offset is the amount to translate the resulting image 
+     *  on success.  offset is the amount to translate the resulting image
      *  relative to the src when it is drawn. The default implementation does
      *  single-pass processing using asNewEffect().
      */
