@@ -157,12 +157,21 @@ private:
 
 /*
  *  Populates the SkPaint dictionary with a number of unique paint
- *  objects that get reused repeatedly
+ *  objects that get reused repeatedly.
+ *
+ *  Re-creating the paint objects in the inner loop slows the benchmark down 10%.
+ *  Using setColor(i % objCount) instead of a random color creates a very high rate
+ *  of hash conflicts, slowing us down 12%.
  */
 class RecurringPaintDictionaryRecordBench : public PictureRecordBench {
 public:
     RecurringPaintDictionaryRecordBench(void* param)
-        : INHERITED(param, "recurring_paint_dictionary") { }
+        : INHERITED(param, "recurring_paint_dictionary") {
+        SkRandom rand;
+        for (int i = 0; i < ObjCount; i++) {
+            fPaint[i].setColor(rand.nextU());
+        }
+    }
 
     enum {
         ObjCount = 100,           // number of unique paint objects
@@ -173,13 +182,12 @@ protected:
     virtual void recordCanvas(SkCanvas* canvas) {
 
         for (int i = 0; i < M; i++) {
-            SkPaint paint;
-            paint.setColor(i % ObjCount);
-            canvas->drawPaint(paint);
+            canvas->drawPaint(fPaint[i % ObjCount]);
         }
     }
 
 private:
+    SkPaint fPaint [ObjCount];
     typedef PictureRecordBench INHERITED;
 };
 
