@@ -66,6 +66,7 @@ function sk_scrape_summarize()
             ", translated = ", num_translated_bitmaps, 
             ", scaled = ", num_scaled_bitmaps,
             ", affine = ", num_affine_bitmaps,
-            ", perspective = ", num_perspective_bitmaps)
+            ", perspective = ", num_perspective_bitmaps,
+            "\n")
 end
 
