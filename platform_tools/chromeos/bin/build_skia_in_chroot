@@ -38,3 +38,5 @@ if [ $returnVal != 0 ]
 then
   exit 1;
 fi
+
+echo > .cros_build_successful
