@@ -33,7 +33,7 @@ solutions = [
       "src/third_party/skia/src": None,
       "src/third_party/skia/include": None,
     },
-    "safesync_url": "",
+    "safesync_url": "http://chromium-status.appspot.com/lkgr",
   },
 ]
 ' > .gclient
