@@ -17,10 +17,17 @@
 #include "SkTypeface.h"
 #include "SkTArray.h"
 
+#include "SkPdfBasics.h"
+#include "SkPdfNativeTokenizer.h"
+
 #include <iostream>
 #include <cstdio>
 #include <stack>
 #include <set>
+
+extern "C" PdfContext* gPdfContext;
+extern "C" SkBitmap* gDumpBitmap;
+extern "C" SkCanvas* gDumpCanvas;
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 

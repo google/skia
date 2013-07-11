@@ -24,6 +24,9 @@ DEFINE_string2(pages, p, "all", "What pages to render and how:\n"
                                 "\tlast - last page\n"
                                 "\tnumber - a specific page number\n"
                );
+DEFINE_double(DPI, 72, "DPI to be used for rendering (scale).");
+// TODO(edisonn): add config for device target(gpu, raster, pdf), + ability not to render at all
+// TODO(edisonn): add ability to do the op N times, bench (either load N times, render n times or load + render n times)
 
 
 /**
