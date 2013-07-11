@@ -725,7 +725,7 @@ static SkString getSampleTitle(const SkViewFactory* sampleFactory) {
     return title;
 }
 
-bool compareSampleTitle(const SkViewFactory* first, const SkViewFactory* second) {
+static bool compareSampleTitle(const SkViewFactory* first, const SkViewFactory* second) {
     return strcmp(getSampleTitle(first).c_str(), getSampleTitle(second).c_str()) < 0;
 }
 
