@@ -150,7 +150,6 @@
             ],
             'cflags': [
               '-march=armv7-a',
-              '-mfloat-abi=softfp',
             ],
             'conditions': [
               [ 'arm_neon == 1', {
@@ -168,6 +167,11 @@
               [ 'arm_neon_optional == 1', {
                 'defines': [
                   '__ARM_HAVE_OPTIONAL_NEON_SUPPORT',
+                ],
+              }],
+              [ 'skia_os != "chromeos"', {
+                'cflags': [
+                  '-mfloat-abi=softfp',
                 ],
               }],
             ],
