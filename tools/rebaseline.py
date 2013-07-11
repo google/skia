@@ -71,7 +71,7 @@ SUBDIR_MAPPING = {
 }
 
 
-class CommandFailedException(Exception):
+class _InternalException(Exception):
     pass
 
 # Object that rebaselines a JSON expectations file (not individual image files).
@@ -106,9 +106,15 @@ class JsonRebaseliner(object):
     # Returns the full contents of filepath, as a single string.
     # If filepath looks like a URL, try to read it that way instead of as
     # a path on local storage.
+    #
+    # Raises _InternalException if there is a problem.
     def _GetFileContents(self, filepath):
         if filepath.startswith('http:') or filepath.startswith('https:'):
-            return urllib2.urlopen(filepath).read()
+            try:
+                return urllib2.urlopen(filepath).read()
+            except urllib2.HTTPError as e:
+                raise _InternalException('unable to read URL %s: %s' % (
+                    filepath, e))
         else:
             return open(filepath, 'r').read()
 
@@ -121,8 +127,10 @@ class JsonRebaseliner(object):
     #  u'shadertext3_8888.png': [u'bitmap-64bitMD5', 3713708307125704716]
     # }
     #
-    # If the JSON actual result summary file cannot be loaded, raise an
-    # exception.
+    # If the JSON actual result summary file cannot be loaded, logs a warning
+    # message and returns None.
+    # If the JSON actual result summary file can be loaded, but we have
+    # trouble parsing it, raises an Exception.
     #
     # params:
     #  json_url: URL pointing to a JSON actual result summary file
@@ -131,7 +139,13 @@ class JsonRebaseliner(object):
     #             gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON] ;
     #            if None, then include ALL sections.
     def _GetActualResults(self, json_url, sections=None):
-        json_contents = self._GetFileContents(json_url)
+        try:
+            json_contents = self._GetFileContents(json_url)
+        except _InternalException:
+            print >> sys.stderr, (
+                'could not read json_url %s ; skipping this platform.' %
+                json_url)
+            return None
         json_dict = gm_json.LoadFromString(json_contents)
         results_to_return = {}
         actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
