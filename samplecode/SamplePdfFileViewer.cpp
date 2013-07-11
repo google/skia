@@ -29,7 +29,7 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
-#include "SkPodofoParsedPDF.h"
+#include "SkPdfRenderer.h"
 
 class PdfFileViewer : public SampleView {
 private:
@@ -39,11 +39,14 @@ private:
     static SkPicture* LoadPdf(const char path[]) {
         SkPicture* pic = NULL;
 
-        SkPodofoParsedPDF doc(path);
-        if (doc.pages()) {
+        SkPdfRenderer renderer;
+        SkString skpath;
+        skpath.append(path);
+        renderer.load(skpath);
+        if (renderer.loaded()) {
             pic = SkNEW(SkPicture);
-            SkCanvas* canvas = pic->beginRecording((int)doc.width(0), (int)doc.height(0));
-            doc.drawPage(0, canvas);
+            SkCanvas* canvas = pic->beginRecording((int)renderer.MediaBox(0).width(), (int)renderer.MediaBox(0).height());
+            renderer.renderPage(0, canvas);
             pic->endRecording();
         }
         return pic;

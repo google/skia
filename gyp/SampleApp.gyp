@@ -165,7 +165,7 @@
            'pdfviewer.gyp:libpdfviewer',
          ],
          'include_dirs' : [
-           '../experimental/PdfViewer/pdfparser/podofo',
+           '../experimental/PdfViewer/',
          ],
          'sources': [
            '../samplecode/SamplePdfFileViewer.cpp',
