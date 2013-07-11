@@ -298,24 +298,20 @@ SkString* SkObjectParser::RegionToString(const SkRegion& region) {
 
 SkString* SkObjectParser::SaveFlagsToString(SkCanvas::SaveFlags flags) {
     SkString* mFlags = new SkString("SkCanvas::SaveFlags: ");
-    if(flags == SkCanvas::kMatrixClip_SaveFlag) {
-        mFlags->append("kMatrixClip_SaveFlag");
-    } else if (flags == SkCanvas::kClip_SaveFlag) {
-        mFlags->append("kClip_SaveFlag");
-    } else if (flags == SkCanvas::kHasAlphaLayer_SaveFlag) {
-        mFlags->append("kHasAlphaLayer_SaveFlag");
-    } else if (flags == SkCanvas::kFullColorLayer_SaveFlag) {
-        mFlags->append("kFullColorLayer_SaveFlag");
-    } else if (flags == SkCanvas::kClipToLayer_SaveFlag) {
-        mFlags->append("kClipToLayer_SaveFlag");
-    } else if (flags == SkCanvas::kMatrixClip_SaveFlag) {
-        mFlags->append("kMatrixClip_SaveFlag");
-    } else if (flags == SkCanvas::kARGB_NoClipLayer_SaveFlag) {
-        mFlags->append("kARGB_NoClipLayer_SaveFlag");
-    } else if (flags == SkCanvas::kARGB_ClipLayer_SaveFlag) {
-        mFlags->append("kARGB_ClipLayer_SaveFlag");
-    } else {
-        mFlags->append("Data Unavailable");
+    if (flags & SkCanvas::kMatrix_SaveFlag) {
+        mFlags->append("kMatrix_SaveFlag ");
+    }
+    if (flags & SkCanvas::kClip_SaveFlag) {
+        mFlags->append("kClip_SaveFlag ");
+    }
+    if (flags & SkCanvas::kHasAlphaLayer_SaveFlag) {
+        mFlags->append("kHasAlphaLayer_SaveFlag ");
+    }
+    if (flags & SkCanvas::kFullColorLayer_SaveFlag) {
+        mFlags->append("kFullColorLayer_SaveFlag ");
+    }
+    if (flags & SkCanvas::kClipToLayer_SaveFlag) {
+        mFlags->append("kClipToLayer_SaveFlag ");
     }
     return mFlags;
 }
