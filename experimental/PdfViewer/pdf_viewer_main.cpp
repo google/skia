@@ -28,7 +28,6 @@ DEFINE_double(DPI, 72, "DPI to be used for rendering (scale).");
 // TODO(edisonn): add config for device target(gpu, raster, pdf), + ability not to render at all
 // TODO(edisonn): add ability to do the op N times, bench (either load N times, render n times or load + render n times)
 
-
 /**
  * Given list of directories and files to use as input, expects to find .pdf
  * files and it will convert them to .png files writing them in the same directory
@@ -98,23 +97,13 @@ static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color 
  * @param page -1 means there is only one page (0), and render in a file without page extension
  */
 
+extern "C" SkBitmap* gDumpBitmap;
+extern "C" SkCanvas* gDumpCanvas;
+
 static bool render_page(const SkString& outputDir,
                          const SkString& inputFilename,
                          const SkPdfRenderer& renderer,
                          int page) {
-    if (outputDir.isEmpty()) {
-        SkBitmap bitmap;
-        setup_bitmap(&bitmap, 1, 1);
-        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
-        SkCanvas canvas(device);
-        return renderer.renderPage(page < 0 ? 0 : page, &canvas);
-    }
-
-    SkString outputPath;
-    if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
-        return false;
-    }
-
     SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
 
     SkBitmap bitmap;
@@ -131,6 +120,10 @@ static bool render_page(const SkString& outputDir,
     gDumpCanvas = &canvas;
     renderer.renderPage(page < 0 ? 0 : page, &canvas);
 
+    SkString outputPath;
+    if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
+        return false;
+    }
     SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 
     if (FLAGS_showMemoryUsage) {
