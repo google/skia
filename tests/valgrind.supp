@@ -220,3 +220,34 @@
     fun:rzalloc_size
     fun:_ZN20glsl_to_tgsi_visitor4emitEP14ir_instructionj10st_dst_reg10st_src_regS3_S3_
 }
+{
+    LLVMModuleCreateWithNameInContext_Leak
+    Memcheck:Leak
+    fun:_Znwm
+    fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+    fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+}
+{
+    glsl_type_glsl_base_type_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_strdup
+    fun:_ZN9glsl_typeC1Ej14glsl_base_typejjPKc
+}
+{
+    glsl_type_glsl_struct_field_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_strdup
+    fun:_ZN9glsl_typeC1EPK17glsl_struct_fieldjPKc
+}
+{
+    glsl_type_glsl_sampler_dim_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:ralloc_strdup
+    fun:_ZN9glsl_typeC1Ej16glsl_sampler_dimbbjPKc
+}
