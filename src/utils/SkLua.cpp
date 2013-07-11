@@ -610,7 +610,7 @@ static int lpaint_getFontMetrics(lua_State* L) {
 
 static int lpaint_getEffects(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
-    
+
     lua_newtable(L);
     setfield_bool_if(L, "looper", !!paint->getLooper());
     setfield_bool_if(L, "pathEffect", !!paint->getPathEffect());
@@ -655,7 +655,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
 
 static int lmatrix_getType(lua_State* L) {
     SkMatrix::TypeMask mask = get_obj<SkMatrix>(L, 1)->getType();
-    
+
     lua_newtable(L);
     setfield_boolean(L, "translate",   SkToBool(mask & SkMatrix::kTranslate_Mask));
     setfield_boolean(L, "scale",       SkToBool(mask & SkMatrix::kScale_Mask));

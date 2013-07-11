@@ -239,7 +239,7 @@ public:
 
     /**
      *  The callback function used by the cache when it is still over budget
-     *  after a purge. The passed in 'data' is the same 'data' handed to 
+     *  after a purge. The passed in 'data' is the same 'data' handed to
      *  setOverbudgetCallback. The callback returns true if some resources
      *  have been freed.
      */
@@ -247,7 +247,7 @@ public:
 
     /**
      *  Set the callback the cache should use when it is still over budget
-     *  after a purge. The 'data' provided here will be passed back to the 
+     *  after a purge. The 'data' provided here will be passed back to the
      *  callback. The cache will attempt to purge any resources newly freed
      *  by the callback.
      */

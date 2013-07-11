@@ -167,9 +167,9 @@ protected:
             (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
         canvas->save();
-        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), 
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
                                           SkIntToScalar(y),
-                                          SkIntToScalar(fBitmap.width() + 4), 
+                                          SkIntToScalar(fBitmap.width() + 4),
                                           SkIntToScalar(fBitmap.height() + 4)));
         canvas->drawPaint(paint);
         canvas->restore();
@@ -183,9 +183,9 @@ protected:
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter, (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
         canvas->save();
-        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), 
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
                                           SkIntToScalar(y),
-                                          SkIntToScalar(fBitmap.width() + 4), 
+                                          SkIntToScalar(fBitmap.width() + 4),
                                           SkIntToScalar(fBitmap.height() + 4)));
         canvas->drawPaint(paint);
         canvas->restore();

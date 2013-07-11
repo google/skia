@@ -862,4 +862,3 @@ SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc,
     }
     return c;
 }
-

@@ -16,4 +16,3 @@ SkMemset16Proc SkMemset16GetPlatformProc() {
 SkMemset32Proc SkMemset32GetPlatformProc() {
     return NULL;
 }
-
