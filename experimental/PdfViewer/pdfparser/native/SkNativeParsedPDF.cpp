@@ -416,3 +416,11 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
     // TODO(edisonn): fix the mess with const, probably we need to remove it pretty much everywhere
     return (SkPdfObject*)ref;
 }
+
+size_t SkNativeParsedPDF::bytesUsed() {
+    return fAllocator->bytesUsed() +
+           fContentLength +
+           fObjects.count() * sizeof(PublicObjectEntry) +
+           fPages.count() * sizeof(SkPdfPageObjectDictionary*) +
+           sizeof(*this);
+}

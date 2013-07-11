@@ -17,8 +17,6 @@ class SkPdfCatalogDictionary;
 class SkPdfPageObjectDictionary;
 class SkPdfPageTreeNodeDictionary;
 
-
-
 class SkPdfNativeTokenizer;
 
 class SkNativeParsedPDF {
@@ -62,6 +60,9 @@ public:
     void drawPage(int page, SkCanvas* canvas);
 
     SkPdfObject* resolveReference(const SkPdfObject* ref);
+
+    // Reports an approximation of all the memory usage.
+    size_t bytesUsed();
 
 private:
 

@@ -1,6 +1,6 @@
 #include "SkCanvas.h"
+#include "SkCommandLineFlags.h"
 #include "SkDevice.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -13,6 +13,11 @@
 
 #include "SkPdfRenderer.h"
 
+DEFINE_string2(readPath, r, "", "pdf files or directories of pdf files to process.");
+DEFINE_string2(writePath, w, "", "Directory to write the rendered pages.");
+DEFINE_bool2(noExtensionForOnePagePdf, n, false, "No page extension if only one page.");
+DEFINE_bool2(showMemoryUsage, m, false, "Show Memory usage.");
+
 /**
  * Given list of directories and files to use as input, expects to find .pdf
  * files and it will convert them to .png files writing them in the same directory
@@ -24,24 +29,6 @@
 
 static const char PDF_FILE_EXTENSION[] = "pdf";
 static const char PNG_FILE_EXTENSION[] = "png";
-
-// TODO(edisonn): add ability to write to a new directory.
-static void usage(const char* argv0) {
-    SkDebugf("PDF to PNG rendering tool\n");
-    SkDebugf("\n"
-"Usage: \n"
-"     %s <input>... [-w <outputDir>] [-n | --no-page-ext] \n"
-, argv0);
-    SkDebugf("\n\n");
-    SkDebugf(
-"     input:     A list of directories and files to use as input. Files are\n"
-"                expected to have the .skp extension.\n\n");
-    SkDebugf(
-"     outputDir: directory to write the rendered pdfs.\n\n");
-    SkDebugf(
-"     -n:        no page extension if only one page.\n\n");
-    SkDebugf("\n");
-}
 
 /** Replaces the extension of a file.
  * @param path File name whose extension will be changed.
@@ -144,7 +131,7 @@ static bool render_page(const SkString& outputDir,
  * @param renderer The object responsible to render the skp object into pdf.
  */
 static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
-                        SkPdfRenderer& renderer, bool noPageExt) {
+                        SkPdfRenderer& renderer, bool noPageExt, bool showMemoryUsage) {
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
     SkString inputFilename;
@@ -162,6 +149,9 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     success = renderer.load(inputPath);
 
     if (success) {
+        if (showMemoryUsage) {
+            SkDebugf("Memory usage after load: %u\n", (unsigned int)renderer.bytesUsed());
+        }
         if (!renderer.pages())
         {
             SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
@@ -169,6 +159,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
         } else {
             for (int pn = 0; pn < renderer.pages(); ++pn) {
                 success = render_page(outputDir, inputFilename, renderer, noPageExt && renderer.pages() == 1 ? -1 : pn) && success;
+                SkDebugf("Memory usage after page %i rendered: %u\n", pn, (unsigned int)renderer.bytesUsed());
             }
         }
     }
@@ -182,73 +173,52 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
  * @param outputDir Output dir.
  * @param renderer The object responsible to render the skp object into pdf.
  */
-static int process_input(const SkString& input, const SkString& outputDir,
-                         SkPdfRenderer& renderer, bool noPageExt) {
+static int process_input(const char* input, const SkString& outputDir,
+                         SkPdfRenderer& renderer, bool noPageExt, bool showMemoryUsage) {
     int failures = 0;
-    if (sk_isdir(input.c_str())) {
-        SkOSFile::Iter iter(input.c_str(), PDF_FILE_EXTENSION);
+    if (sk_isdir(input)) {
+        SkOSFile::Iter iter(input, PDF_FILE_EXTENSION);
         SkString inputFilename;
         while (iter.next(&inputFilename)) {
             SkString inputPath;
-            sk_tools::make_filepath(&inputPath, input, inputFilename);
-            if (!process_pdf(inputPath, outputDir, renderer, noPageExt)) {
+            SkString _input;
+            _input.append(input);
+            sk_tools::make_filepath(&inputPath, _input, inputFilename);
+            if (!process_pdf(inputPath, outputDir, renderer, noPageExt, showMemoryUsage)) {
                 ++failures;
             }
         }
     } else {
         SkString inputPath(input);
-        if (!process_pdf(inputPath, outputDir, renderer, noPageExt)) {
+        if (!process_pdf(inputPath, outputDir, renderer, noPageExt, showMemoryUsage)) {
             ++failures;
         }
     }
     return failures;
 }
 
-static void parse_commandline(int argc, char* const argv[],
-                              SkTArray<SkString>* inputs,
-                              SkString* outputDir, bool* noPageExt) {
-    const char* argv0 = argv[0];
-    char* const* stop = argv + argc;
-
-    for (++argv; argv < stop; ++argv) {
-        if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
-            usage(argv0);
-            exit(-1);
-        } else if ((0 == strcmp(*argv, "-n")) || (0 == strcmp(*argv, "--no-page-ext"))) {
-            *noPageExt = true;
-        } else if (0 == strcmp(*argv, "-w")) {
-            ++argv;
-            if (argv >= stop) {
-                SkDebugf("Missing outputDir for -w\n");
-                usage(argv0);
-                exit(-1);
-            }
-            *outputDir = SkString(*argv);
-        } else {
-            inputs->push_back(SkString(*argv));
-        }
-    }
-
-    if (inputs->count() < 1) {
-        usage(argv0);
-        exit(-1);
-    }
-}
-
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-    SkAutoGraphics ag;
-    SkTArray<SkString> inputs;
+    SkCommandLineFlags::SetUsage("Parse and Render .pdf files (pdf viewer).");
+    SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_readPath.isEmpty()) {
+        SkDebugf(".pdf files or directories are required.\n");
+        exit(-1);
+    }
 
     SkPdfRenderer renderer;
 
     SkString outputDir;
-    bool noPageExt = false;
-    parse_commandline(argc, argv, &inputs, &outputDir, &noPageExt);
+    if (FLAGS_writePath.count() == 1) {
+        outputDir.set(FLAGS_writePath[0]);
+    }
 
     int failures = 0;
-    for (int i = 0; i < inputs.count(); i ++) {
-        failures += process_input(inputs[i], outputDir, renderer, noPageExt);
+    for (int i = 0; i < FLAGS_readPath.count(); i ++) {
+        failures += process_input(FLAGS_readPath[i], outputDir, renderer,
+                                  FLAGS_noExtensionForOnePagePdf,
+                                  FLAGS_showMemoryUsage);
         renderer.unload();
     }
 

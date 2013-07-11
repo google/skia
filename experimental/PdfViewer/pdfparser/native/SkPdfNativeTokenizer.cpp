@@ -651,6 +651,7 @@ unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject*
 }
 
 SkPdfObject* SkPdfAllocator::allocBlock() {
+    fSizeInBytes += BUFFER_SIZE * sizeof(SkPdfObject);
     return new SkPdfObject[BUFFER_SIZE];
 }
 
@@ -675,6 +676,7 @@ SkPdfObject* SkPdfAllocator::allocObject() {
         fHistory.push(fCurrent);
         fCurrent = allocBlock();
         fCurrentUsed = 0;
+        fSizeInBytes += sizeof(SkPdfObject*);
     }
     fCurrentUsed++;
     return &fCurrent[fCurrentUsed - 1];

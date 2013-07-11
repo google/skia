@@ -83,9 +83,11 @@ class SkPdfAllocator {
     int fCurrentUsed;
 
     SkPdfObject* allocBlock();
+    size_t fSizeInBytes;
 
 public:
     SkPdfAllocator() {
+        fSizeInBytes = sizeof(*this);
         fCurrent = allocBlock();
         fCurrentUsed = 0;
     }
@@ -98,7 +100,12 @@ public:
     void* alloc(size_t bytes) {
         void* data = malloc(bytes);
         fHandles.push(data);
+        fSizeInBytes += bytes;
         return data;
+    }
+
+    size_t bytesUsed() {
+        return fSizeInBytes;
     }
 };
 
