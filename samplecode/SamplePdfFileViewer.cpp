@@ -46,7 +46,7 @@ private:
         if (renderer.loaded()) {
             pic = SkNEW(SkPicture);
             SkCanvas* canvas = pic->beginRecording((int)renderer.MediaBox(0).width(), (int)renderer.MediaBox(0).height());
-            renderer.renderPage(0, canvas);
+            renderer.renderPage(0, canvas, renderer.MediaBox(0));
             pic->endRecording();
         }
         return pic;

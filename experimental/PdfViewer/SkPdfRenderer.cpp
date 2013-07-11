@@ -1923,7 +1923,7 @@ void PdfCompatibilitySectionLooper::loop() {
 
 PdfContext* gPdfContext = NULL;
 
-bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas) const {
+bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) const {
     if (!fPdfDoc) {
         return false;
     }
@@ -1941,13 +1941,14 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas) const {
     gPdfContext = &pdfContext;
 
     // TODO(edisonn): get matrix stuff right.
-    // TODO(edisonn): add DPI/scale/zoom.
     SkScalar z = SkIntToScalar(0);
-    SkRect rect = fPdfDoc->MediaBox(page);
-    SkScalar w = rect.width();
-    SkScalar h = rect.height();
+    SkScalar w = dst.width();
+    SkScalar h = dst.height();
 
-    SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(w, z), SkPoint::Make(w, h), SkPoint::Make(z, h)};
+    SkScalar wp = fPdfDoc->MediaBox(page).width();
+    SkScalar hp = fPdfDoc->MediaBox(page).height();
+
+    SkPoint pdfSpace[4] = {SkPoint::Make(z, z), SkPoint::Make(wp, z), SkPoint::Make(wp, hp), SkPoint::Make(z, hp)};
 //                SkPoint skiaSpace[4] = {SkPoint::Make(z, h), SkPoint::Make(w, h), SkPoint::Make(w, z), SkPoint::Make(z, z)};
 
     // TODO(edisonn): add flag for this app to create sourunding buffer zone
@@ -1977,11 +1978,11 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas) const {
     pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fMatrix;
     pdfContext.fGraphicsState.fMatrixTlm = pdfContext.fGraphicsState.fMatrix;
 
-    canvas->setMatrix(pdfContext.fOriginalMatrix);
-
 #ifndef PDF_DEBUG_NO_PAGE_CLIPING
-    canvas->clipRect(SkRect::MakeXYWH(z, z, w, h), SkRegion::kIntersect_Op, true);
+    canvas->clipRect(dst, SkRegion::kIntersect_Op, true);
 #endif
+
+    canvas->setMatrix(pdfContext.fOriginalMatrix);
 
 // erase with red before?
 //        SkPaint paint;

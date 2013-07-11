@@ -101,16 +101,21 @@ extern "C" SkBitmap* gDumpBitmap;
 extern "C" SkCanvas* gDumpCanvas;
 
 static bool render_page(const SkString& outputDir,
-                         const SkString& inputFilename,
-                         const SkPdfRenderer& renderer,
-                         int page) {
+                        const SkString& inputFilename,
+                        const SkPdfRenderer& renderer,
+                        int page) {
     SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
 
     SkBitmap bitmap;
+    SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+    SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+
+    rect = SkRect::MakeWH(width, height);
+
 #ifdef PDF_DEBUG_3X
-    setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(rect.width()), 3 * (int)SkScalarToDouble(rect.height()));
+    setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(width), 3 * (int)SkScalarToDouble(height));
 #else
-    setup_bitmap(&bitmap, (int)SkScalarToDouble(rect.width()), (int)SkScalarToDouble(rect.height()));
+    setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
 #endif
     SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
     SkCanvas canvas(device);
@@ -118,7 +123,7 @@ static bool render_page(const SkString& outputDir,
     gDumpBitmap = &bitmap;
 
     gDumpCanvas = &canvas;
-    renderer.renderPage(page < 0 ? 0 : page, &canvas);
+    renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
 
     SkString outputPath;
     if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
