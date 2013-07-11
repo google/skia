@@ -6,15 +6,8 @@
  */
 
 
-#ifndef SkPdfParser_DEFINED
-#define SkPdfParser_DEFINED
-
-#include "SkPdfBasics.h"
-#include "SkPdfNativeTokenizer.h"
-
-extern "C" PdfContext* gPdfContext;
-extern "C" SkBitmap* gDumpBitmap;
-extern "C" SkCanvas* gDumpCanvas;
+#ifndef SkPdfRenderer_DEFINED
+#define SkPdfRenderer_DEFINED
 
 class SkCanvas;
 class SkNativeParsedPDF;
@@ -39,4 +32,4 @@ public:
 
 void reportPdfRenderStats();
 
-#endif  // SkPdfParser_DEFINED
+#endif  // SkPdfRenderer_DEFINED
