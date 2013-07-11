@@ -1,4 +1,8 @@
 {
+  'variables': {
+    #manaully set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
+    'sample_pdf_file_viewer%': 0,
+  },
   'targets': [
     {
       'target_name': 'SampleApp',
@@ -152,7 +156,21 @@
         'views_animated.gyp:views_animated',
         'lua.gyp:lua',
       ],
-      'conditions' : [
+     'conditions' : [
+       [ 'sample_pdf_file_viewer == 1', {
+         'defines': [
+           'SAMPLE_PDF_FILE_VIEWER',
+         ],
+         'dependencies': [
+           'pdfviewer.gyp:libpdfviewer',
+         ],
+         'include_dirs' : [
+           '../experimental/PdfViewer/pdfparser/podofo',
+         ],
+         'sources': [
+           '../samplecode/SamplePdfFileViewer.cpp',
+         ]
+       }],      
        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
          'sources!': [
             '../samplecode/SampleDecode.cpp',

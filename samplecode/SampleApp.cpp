@@ -15,6 +15,7 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkStream.h"
+#include "SkTSort.h"
 #include "SkTime.h"
 #include "SkWindow.h"
 
@@ -53,6 +54,19 @@ public:
         return CreateSamplePictFileView(fFilename.c_str());
     }
 };
+
+#ifdef SAMPLE_PDF_FILE_VIEWER
+extern SampleView* CreateSamplePdfFileViewer(const char filename[]);
+
+class PdfFileViewerFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    PdfFileViewerFactory(const SkString& filename) : fFilename(filename) {}
+    virtual SkView* operator() () const SK_OVERRIDE {
+        return CreateSamplePdfFileViewer(fFilename.c_str());
+    }
+};
+#endif  // SAMPLE_PDF_FILE_VIEWER
 
 #define PIPE_FILEx
 #ifdef  PIPE_FILE
@@ -690,12 +704,29 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 }
 
 static void usage(const char * argv0) {
-    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir dirPath] [--picture path]\n", argv0);
+    SkDebugf("%s [--slide sampleName] [-i resourcePath] [--msaa sampleCount] [--pictureDir dirPath] [--picture path] [--sort]\n", argv0);
+#ifdef SAMPLE_PDF_FILE_VIEWER
+    SkDebugf("                [--pdfDir pdfPath]\n");
+    SkDebugf("    pdfPath: path to directory pdf files are read from\n");
+#endif  // SAMPLE_PDF_FILE_VIEWER
     SkDebugf("    sampleName: sample at which to start.\n");
     SkDebugf("    resourcePath: directory that stores image resources.\n");
     SkDebugf("    msaa: request multisampling with the given sample count.\n");
     SkDebugf("    dirPath: path to directory skia pictures are read from\n");
     SkDebugf("    path: path to skia picture\n");
+    SkDebugf("    --sort: sort samples by title, this would help to compare pdf rendering (P:foo.pdf) with skp rendering (P:foo.pdf)\n");
+}
+
+static SkString getSampleTitle(const SkViewFactory* sampleFactory) {
+    SkView* view = (*sampleFactory)();
+    SkString title;
+    SampleCode::RequestTitle(view, &title);
+    view->unref();
+    return title;
+}
+
+bool compareSampleTitle(const SkViewFactory* first, const SkViewFactory* second) {
+    return strcmp(getSampleTitle(first).c_str(), getSampleTitle(second).c_str()) < 0;
 }
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
@@ -706,6 +737,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     this->registerPictFileSamples(argv, argc);
     this->registerPictFileSample(argv, argc);
+#ifdef SAMPLE_PDF_FILE_VIEWER
+    this->registerPdfFileViewerSamples(argv, argc);
+#endif  // SAMPLE_PDF_FILE_VIEWER
     SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -713,6 +747,20 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             *fSamples.append() = reg->factory();
             reg = reg->next();
         }
+    }
+
+    bool sort = false;
+    for (int i = 0; i < argc; ++i) {
+        if (!strcmp(argv[i], "--sort")) {
+            sort = true;
+            break;
+        }
+    }
+
+    if (sort) {
+        // Sort samples, so foo.skp and foo.pdf are consecutive and we can quickly spot where
+        // skp -> pdf -> png fails.
+        SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : NULL, compareSampleTitle);
     }
 
     const char* resourcePath = NULL;
@@ -969,6 +1017,32 @@ void SampleWindow::registerPictFileSamples(char** argv, int argc) {
         }
     }
 }
+
+#ifdef SAMPLE_PDF_FILE_VIEWER
+void SampleWindow::registerPdfFileViewerSamples(char** argv, int argc) {
+    const char* pdfDir = NULL;
+
+    for (int i = 0; i < argc; ++i) {
+        if (!strcmp(argv[i], "--pdfDir")) {
+            i += 1;
+            if (i < argc) {
+                pdfDir = argv[i];
+                break;
+            }
+        }
+    }
+    if (pdfDir) {
+        SkOSFile::Iter iter(pdfDir, "pdf");
+        SkString filename;
+        while (iter.next(&filename)) {
+            SkString path;
+            make_filepath(&path, pdfDir, filename);
+            *fSamples.append() = new PdfFileViewerFactory(path);
+        }
+    }
+}
+#endif  // SAMPLE_PDF_FILE_VIEWER
+
 
 int SampleWindow::findByTitle(const char title[]) {
     int i, count = fSamples.count();
@@ -1540,11 +1614,7 @@ bool SampleWindow::goToSample(int i) {
 }
 
 SkString SampleWindow::getSampleTitle(int i) {
-    SkView* view = (*fSamples[i])();
-    SkString title;
-    SampleCode::RequestTitle(view, &title);
-    view->unref();
-    return title;
+    return ::getSampleTitle(fSamples[i]);
 }
 
 int SampleWindow::sampleCount() {
