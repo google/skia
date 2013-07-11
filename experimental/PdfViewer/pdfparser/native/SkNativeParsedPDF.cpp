@@ -417,7 +417,7 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
     return (SkPdfObject*)ref;
 }
 
-size_t SkNativeParsedPDF::bytesUsed() {
+size_t SkNativeParsedPDF::bytesUsed() const {
     return fAllocator->bytesUsed() +
            fContentLength +
            fObjects.count() * sizeof(PublicObjectEntry) +

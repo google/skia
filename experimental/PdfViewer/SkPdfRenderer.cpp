@@ -2013,7 +2013,7 @@ SkRect SkPdfRenderer::MediaBox(int page) const {
     return fPdfDoc->MediaBox(page);
 }
 
-size_t SkPdfRenderer::bytesUsed() {
+size_t SkPdfRenderer::bytesUsed() const {
     return fPdfDoc ? fPdfDoc->bytesUsed() : 0;
 }
 

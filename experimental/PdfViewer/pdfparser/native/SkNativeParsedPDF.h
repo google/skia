@@ -62,7 +62,7 @@ public:
     SkPdfObject* resolveReference(const SkPdfObject* ref);
 
     // Reports an approximation of all the memory usage.
-    size_t bytesUsed();
+    size_t bytesUsed() const;
 
 private:
 
