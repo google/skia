@@ -7,6 +7,9 @@
 
 #include "SkLruImageCache.h"
 
+SK_DEFINE_INST_COUNT(SkImageCache)
+SK_DEFINE_INST_COUNT(SkLruImageCache)
+
 static intptr_t NextGenerationID() {
     static intptr_t gNextID;
     do {

@@ -198,6 +198,7 @@ void GrContext::contextDestroyed() {
     fDrawBufferIBAllocPool = NULL;
 
     fAARectRenderer->reset();
+    fOvalRenderer->reset();
 
     fTextureCache->purgeAllUnlocked();
     fFontCache->freeAll();
@@ -214,6 +215,7 @@ void GrContext::freeGpuResources() {
     fGpu->purgeResources();
 
     fAARectRenderer->reset();
+    fOvalRenderer->reset();
 
     fTextureCache->purgeAllUnlocked();
     fFontCache->freeAll();

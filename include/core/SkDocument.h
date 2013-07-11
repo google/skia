@@ -26,6 +26,8 @@ class SkWStream;
  */
 class SkDocument : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkDocument)
+
     /**
      *  Create a PDF-backed document, writing the results into a file.
      *  If there is an error trying to create the doc, returns NULL.
@@ -89,6 +91,8 @@ private:
     SkWStream* fStream;
     void       (*fDoneProc)(SkWStream*);
     State      fState;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

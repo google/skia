@@ -72,12 +72,16 @@ public:
     class CacheSelector : public SkRefCnt {
 
     public:
+        SK_DECLARE_INST_COUNT(CacheSelector)
         /**
          *  Return an SkImageCache to use based on the provided SkImage::Info. If the caller decides
          *  to hang on to the result, it will call ref, so the implementation should not add a ref
          *  as a result of this call.
          */
         virtual SkImageCache* selectCache(const SkImage::Info&) = 0;
+
+    private:
+        typedef SkRefCnt INHERITED;
     };
 
     /**

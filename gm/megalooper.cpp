@@ -131,7 +131,7 @@ private:
         for (int i = 0; i < 4; ++i) {
             SkPaint loopPaint;
 
-            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]));
+            loopPaint.setLooper(create1Looper(-kOffsetToOutsideClip, 0, gColors[i]))->unref();
             loopPaint.setAntiAlias(true);
 
             SkRect outerClip = {
@@ -194,7 +194,7 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0));
+        paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0))->unref();
 
         canvas->save();
             canvas->clipRect(outerClip, SkRegion::kIntersect_Op);

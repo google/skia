@@ -22,6 +22,8 @@
  */
 class SK_API SkFontConfigInterface : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(SkFontConfigInterface)
+
     /**
      *  Returns the global SkFontConfigInterface instance, and if it is not
      *  NULL, calls ref() on it. The caller must balance this with a call to
