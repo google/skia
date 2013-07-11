@@ -426,6 +426,13 @@ void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
         uint8x8_t src_raw, dst_raw, dst_final;
         uint8x8_t src_raw_2, dst_raw_2, dst_final_2;
 
+        /* The two prefetches below may make the code slighlty
+         * slower for small values of count but are worth having
+         * in the general case.
+         */
+        __builtin_prefetch(src+32);
+        __builtin_prefetch(dst+32);
+
         /* get the source */
         src_raw = vreinterpret_u8_u32(vld1_u32(src));
 #if    UNROLL > 2
@@ -447,14 +454,7 @@ void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 
         /* get the alphas spread out properly */
         alpha_narrow = vtbl1_u8(src_raw, alpha_mask);
-#if 1
-        /* reflect SkAlpha255To256() semantics a+1 vs a+a>>7 */
-        /* we collapsed (255-a)+1 ... */
         alpha_wide = vsubw_u8(vdupq_n_u16(256), alpha_narrow);
-#else
-        alpha_wide = vsubw_u8(vdupq_n_u16(255), alpha_narrow);
-        alpha_wide = vaddq_u16(alpha_wide, vshrq_n_u16(alpha_wide,7));
-#endif
 
         /* spread the dest */
         dst_wide = vmovl_u8(dst_raw);
@@ -476,14 +476,7 @@ void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
         uint16x8_t alpha_wide;
 
         alpha_narrow = vtbl1_u8(src_raw_2, alpha_mask);
-#if 1
-        /* reflect SkAlpha255To256() semantics a+1 vs a+a>>7 */
-        /* we collapsed (255-a)+1 ... */
         alpha_wide = vsubw_u8(vdupq_n_u16(256), alpha_narrow);
-#else
-        alpha_wide = vsubw_u8(vdupq_n_u16(255), alpha_narrow);
-        alpha_wide = vaddq_u16(alpha_wide, vshrq_n_u16(alpha_wide,7));
-#endif
 
         /* spread the dest */
         dst_wide = vmovl_u8(dst_raw_2);
