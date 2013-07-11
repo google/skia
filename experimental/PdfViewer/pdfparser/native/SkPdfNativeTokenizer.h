@@ -104,7 +104,7 @@ public:
         return data;
     }
 
-    size_t bytesUsed() {
+    size_t bytesUsed() const {
         return fSizeInBytes;
     }
 };

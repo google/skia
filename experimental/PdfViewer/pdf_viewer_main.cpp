@@ -17,6 +17,14 @@ DEFINE_string2(readPath, r, "", "pdf files or directories of pdf files to proces
 DEFINE_string2(writePath, w, "", "Directory to write the rendered pages.");
 DEFINE_bool2(noExtensionForOnePagePdf, n, false, "No page extension if only one page.");
 DEFINE_bool2(showMemoryUsage, m, false, "Show Memory usage.");
+DEFINE_string2(pages, p, "all", "What pages to render and how:\n"
+                                "\tall - all pages\n"
+                                "\treverse - all pages, in reverse order\n"
+                                "\tfirst - first page\n"
+                                "\tlast - last page\n"
+                                "\tnumber - a specific page number\n"
+               );
+
 
 /**
  * Given list of directories and files to use as input, expects to find .pdf
@@ -122,6 +130,10 @@ static bool render_page(const SkString& outputDir,
 
     SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 
+    if (FLAGS_showMemoryUsage) {
+        SkDebugf("Memory usage after page %i rendered: %u\n", page < 0 ? 0 : page, (unsigned int)renderer.bytesUsed());
+    }
+
     return true;
 }
 
@@ -131,7 +143,7 @@ static bool render_page(const SkString& outputDir,
  * @param renderer The object responsible to render the skp object into pdf.
  */
 static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
-                        SkPdfRenderer& renderer, bool noPageExt, bool showMemoryUsage) {
+                        SkPdfRenderer& renderer) {
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
     SkString inputFilename;
@@ -149,7 +161,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     success = renderer.load(inputPath);
 
     if (success) {
-        if (showMemoryUsage) {
+        if (FLAGS_showMemoryUsage) {
             SkDebugf("Memory usage after load: %u\n", (unsigned int)renderer.bytesUsed());
         }
         if (!renderer.pages())
@@ -157,9 +169,21 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
             SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
             return false;
         } else {
-            for (int pn = 0; pn < renderer.pages(); ++pn) {
-                success = render_page(outputDir, inputFilename, renderer, noPageExt && renderer.pages() == 1 ? -1 : pn) && success;
-                SkDebugf("Memory usage after page %i rendered: %u\n", pn, (unsigned int)renderer.bytesUsed());
+            if (strcmp(FLAGS_pages[0], "all") == 0) {
+                for (int pn = 0; pn < renderer.pages(); ++pn) {
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
+                }
+            } else if (strcmp(FLAGS_pages[0], "reverse") == 0) {
+                for (int pn = renderer.pages() - 1; pn >= 0; --pn) {
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
+                }
+            } else if (strcmp(FLAGS_pages[0], "first") == 0) {
+                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : 0) && success;
+            } else if (strcmp(FLAGS_pages[0], "last") == 0) {
+                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && success;
+            } else {
+                int pn = atoi(FLAGS_pages[0]);
+                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && pn;
             }
         }
     }
@@ -174,7 +198,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
  * @param renderer The object responsible to render the skp object into pdf.
  */
 static int process_input(const char* input, const SkString& outputDir,
-                         SkPdfRenderer& renderer, bool noPageExt, bool showMemoryUsage) {
+                         SkPdfRenderer& renderer) {
     int failures = 0;
     if (sk_isdir(input)) {
         SkOSFile::Iter iter(input, PDF_FILE_EXTENSION);
@@ -184,13 +208,13 @@ static int process_input(const char* input, const SkString& outputDir,
             SkString _input;
             _input.append(input);
             sk_tools::make_filepath(&inputPath, _input, inputFilename);
-            if (!process_pdf(inputPath, outputDir, renderer, noPageExt, showMemoryUsage)) {
+            if (!process_pdf(inputPath, outputDir, renderer)) {
                 ++failures;
             }
         }
     } else {
         SkString inputPath(input);
-        if (!process_pdf(inputPath, outputDir, renderer, noPageExt, showMemoryUsage)) {
+        if (!process_pdf(inputPath, outputDir, renderer)) {
             ++failures;
         }
     }
@@ -216,9 +240,7 @@ int tool_main(int argc, char** argv) {
 
     int failures = 0;
     for (int i = 0; i < FLAGS_readPath.count(); i ++) {
-        failures += process_input(FLAGS_readPath[i], outputDir, renderer,
-                                  FLAGS_noExtensionForOnePagePdf,
-                                  FLAGS_showMemoryUsage);
+        failures += process_input(FLAGS_readPath[i], outputDir, renderer);
         renderer.unload();
     }
 

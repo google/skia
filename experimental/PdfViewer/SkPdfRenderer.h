@@ -34,6 +34,7 @@ public:
     int pages() const;
     void unload();
     SkRect MediaBox(int page) const;
+    size_t bytesUsed() const;
 };
 
 void reportPdfRenderStats();
