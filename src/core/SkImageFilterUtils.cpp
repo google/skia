@@ -29,7 +29,9 @@ bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter:
     } else if (filter->canFilterImageGPU()) {
         return filter->filterImageGPU(proxy, src, result, offset);
     } else {
-        if (filter->filterImage(proxy, src, SkMatrix(), result, offset)) {
+        SkMatrix matrix;
+        matrix.reset();
+        if (filter->filterImage(proxy, src, matrix, result, offset)) {
             if (!result->getTexture()) {
                 GrContext* context = ((GrTexture *) src.getTexture())->getContext();
                 GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context,
