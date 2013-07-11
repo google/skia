@@ -24,7 +24,7 @@ public:
         fInputSize = is;
         fOutputSize = os;
 
-        fLoopCount = 100;
+        fLoopCount = 20;
     }
 
 protected:
@@ -104,32 +104,12 @@ private:
     typedef BitmapScaleBench INHERITED;
 };
 
-class BitmapDirectScaleBench: public BitmapScaleBench {
- public:
-    BitmapDirectScaleBench(void *param, int is, int os) : INHERITED(param, is, os) {
-        setName( "direct" );
-    }
-protected:
-    virtual void doScaleImage() SK_OVERRIDE {
-        fInputBitmap.scale( &fOutputBitmap );
-    }
-private:
-    typedef BitmapScaleBench INHERITED;
-};
-
-
 DEF_BENCH(return new BitmapFilterScaleBench(p, 10, 90);)
 DEF_BENCH(return new BitmapFilterScaleBench(p, 30, 90);)
 DEF_BENCH(return new BitmapFilterScaleBench(p, 80, 90);)
-// DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 90);)
-// DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 80);)
-// DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 30);)
-// DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 10);)
-
-DEF_BENCH(return new BitmapDirectScaleBench(p, 10, 90);)
-DEF_BENCH(return new BitmapDirectScaleBench(p, 30, 90);)
-DEF_BENCH(return new BitmapDirectScaleBench(p, 80, 90);)
-// DEF_BENCH(return new BitmapDirectScaleBench(p, 90, 90);)
-// DEF_BENCH(return new BitmapDirectScaleBench(p, 90, 80);)
-// DEF_BENCH(return new BitmapDirectScaleBench(p, 90, 30);)
-// DEF_BENCH(return new BitmapDirectScaleBench(p, 90, 10);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 90);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 80);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 30);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 90, 10);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 256, 64);)
+DEF_BENCH(return new BitmapFilterScaleBench(p, 64, 256);)
