@@ -11,6 +11,7 @@
 
 class SkCanvas;
 class SkNativeParsedPDF;
+class SkRect;
 
 // TODO(edisonn): move in another file
 class SkPdfRenderer : public SkRefCnt {
@@ -20,7 +21,7 @@ public:
     virtual ~SkPdfRenderer() {unload();}
 
     // TODO(edisonn): add options to render forms, or not
-    bool renderPage(int page, SkCanvas* canvas) const;
+    bool renderPage(int page, SkCanvas* canvas, const SkRect& dst) const;
 
     bool load(const SkString inputFileName);
     bool loaded() const {return fPdfDoc != NULL;}
