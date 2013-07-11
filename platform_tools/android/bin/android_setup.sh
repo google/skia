@@ -69,10 +69,10 @@ if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
   if [ ! -d "$TOOLCHAIN_DIR" ]; then
     mkdir $TOOLCHAIN_DIR
   fi
-  # enter the toolchain directory then download, unpack, and remove the tarball 
+  # enter the toolchain directory then download, unpack, and remove the tarball
   pushd $TOOLCHAIN_DIR
   TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
-  
+
   echo "Downloading $TARBALL ..."
   ${SCRIPT_DIR}/download_toolchains.py http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL $TOOLCHAIN_DIR/$TARBALL
   if [[ "$?" != "0" ]]; then
@@ -144,14 +144,28 @@ setup_device() {
         DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=0"
         DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
         ;;
+    nexus_s_thumb)
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
+        ;;
     nexus_4 | nexus_7 | nexus_10)
         DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=0"
+        ;;
+    nexus_4_thumb | nexus_7_thumb | nexus_10_thumb)
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
         ;;
     xoom)
         DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 armv7=1 arm_thumb=0"
         ;;
+    xoom_thumb)
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 armv7=1 arm_thumb=1"
+        ;;
     galaxy_nexus)
         DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=0"
+        DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+        ;;
+    galaxy_nexus_thumb)
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
         DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
         ;;
     razr_i)
@@ -203,8 +217,8 @@ adb_pull_if_needed() {
   fi
 
   echo "HOST: $HOST_DST"
-  
-  if [ -f $HOST_DST ]; 
+
+  if [ -f $HOST_DST ];
   then
     #get the MD5 for dst and src
     ANDROID_MD5=`$ADB shell md5 $ANDROID_SRC`
