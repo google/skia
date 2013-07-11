@@ -1237,12 +1237,14 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
     // 0.01% of glyphs require more than 8KB.
     // 8KB is less than 1% of the normal 1MB stack on Windows.
     // Note that some web fonts glyphs require more than 20KB.
-    static const uint16_t BUFFERSIZE = (1 << 13);
+    static const DWORD BUFFERSIZE = (1 << 13);
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
 
     const UINT flags = GGO_NATIVE | GGO_GLYPH_INDEX;
     DWORD total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, BUFFERSIZE, glyphbuf, &fMat22);
-    if (GDI_ERROR == total_size) {
+    // Sometimes GetGlyphOutlineW returns a number larger than BUFFERSIZE even if BUFFERSIZE > 0.
+    // It has been verified that this does not involve a buffer overrun.
+    if (GDI_ERROR == total_size || total_size > BUFFERSIZE) {
         // GDI_ERROR because the BUFFERSIZE was too small, or because the data was not accessible.
         // When the data is not accessable GetGlyphOutlineW fails rather quickly,
         // so just try to get the size. If that fails then ensure the data is accessible.
