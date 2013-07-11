@@ -27,6 +27,7 @@ const static char kJsonKey_Hashtype_Bitmap_64bitMD5[]  = "bitmap-64bitMD5";
 
 
 namespace skiagm {
+    SK_DEFINE_INST_COUNT(ExpectationsSource)
 
     void gm_fprintf(FILE *stream, const char format[], ...) {
         va_list args;

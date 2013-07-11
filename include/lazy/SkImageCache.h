@@ -17,6 +17,8 @@
 class SkImageCache : public SkRefCnt {
 
 public:
+    SK_DECLARE_INST_COUNT(SkImageCache)
+
     typedef intptr_t ID;
 
     /**
@@ -123,5 +125,8 @@ public:
      */
     virtual void purgeAllUnpinnedCaches() = 0;
 #endif
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 #endif // SkImageCache_DEFINED

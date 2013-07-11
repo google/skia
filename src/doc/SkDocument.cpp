@@ -8,6 +8,8 @@
 #include "SkDocument.h"
 #include "SkStream.h"
 
+SK_DEFINE_INST_COUNT(SkDocument)
+
 SkDocument::SkDocument(SkWStream* stream, void (*doneProc)(SkWStream*)) {
     fStream = stream;   // we do not own this object.
     fDoneProc = doneProc;

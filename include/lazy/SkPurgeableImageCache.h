@@ -20,6 +20,8 @@
 class SkPurgeableImageCache : public SkImageCache {
 
 public:
+    SK_DECLARE_INST_COUNT(SkPurgeableImageCache)
+
     static SkImageCache* Create();
 
     virtual void* allocAndPinCache(size_t bytes, ID*) SK_OVERRIDE;

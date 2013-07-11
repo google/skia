@@ -20,6 +20,8 @@ class CachedPixels;
 class SkLruImageCache : public SkImageCache {
 
 public:
+    SK_DECLARE_INST_COUNT(SkLruImageCache)
+
     SkLruImageCache(size_t budget);
 
     virtual ~SkLruImageCache();

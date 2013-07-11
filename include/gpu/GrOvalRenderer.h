@@ -27,7 +27,11 @@ public:
     SK_DECLARE_INST_COUNT(GrOvalRenderer)
 
     GrOvalRenderer() : fRRectIndexBuffer(NULL) {}
-    ~GrOvalRenderer() {}
+    ~GrOvalRenderer() {
+        this->reset();
+    }
+
+    void reset();
 
     bool drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
                   const GrRect& oval, const SkStrokeRec& stroke);

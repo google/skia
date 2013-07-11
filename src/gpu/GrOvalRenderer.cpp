@@ -286,6 +286,10 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrOvalRenderer::reset() {
+    GrSafeSetNull(fRRectIndexBuffer);
+}
+
 bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
                               const GrRect& oval, const SkStrokeRec& stroke)
 {

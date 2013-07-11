@@ -13,6 +13,8 @@
 #include "SkImagePriv.h"
 #include "SkLazyPixelRef.h"
 
+SK_DEFINE_INST_COUNT(SkBitmapFactory::CacheSelector)
+
 SkBitmapFactory::SkBitmapFactory(SkBitmapFactory::DecodeProc proc)
     : fDecodeProc(proc)
     , fImageCache(NULL)

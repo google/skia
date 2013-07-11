@@ -68,6 +68,9 @@ SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
 
 #include "SkFontMgr.h"
 
+
+SK_DEFINE_INST_COUNT(SkFontStyleSet)
+
 class SkEmptyFontStyleSet : public SkFontStyleSet {
 public:
     virtual int count() SK_OVERRIDE { return 0; }
@@ -88,6 +91,8 @@ SkFontStyleSet* SkFontStyleSet::CreateEmpty() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SK_DEFINE_INST_COUNT(SkFontMgr)
 
 class SkEmptyFontMgr : public SkFontMgr {
 protected:
