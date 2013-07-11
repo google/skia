@@ -68,13 +68,14 @@ SKIA_TOP_DIR="${SCRIPT_DIR}/../../.."
 
 pushd ${CHROMEOS_CHROOT}
 cros chrome-sdk --nogoma --board ${deviceID} --debug -- /bin/sh -c "cd ${SKIA_TOP_DIR}; platform_tools/chromeos/bin/build_skia_in_chroot ${makeVars}"
-returnVal=$?
 popd > /dev/null
 
 # Clean up
 rm ${CHROMEOS_CHROOT}/.gclient
 
-if [ "${returnVal}" != "0" ]
-then
-  exit 1;
+if [ -f .cros_build_successful ]; then
+  rm -rf .cros_build_successful
+  exit 0
 fi
+
+exit 1
