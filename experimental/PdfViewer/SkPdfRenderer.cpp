@@ -2003,6 +2003,10 @@ bool SkPdfRenderer::load(const SkString inputFileName) {
 
     // TODO(edisonn): create static function that could return NULL if there are errors
     fPdfDoc = new SkNativeParsedPDF(inputFileName.c_str());
+    if (fPdfDoc->pages() == 0) {
+        delete fPdfDoc;
+        fPdfDoc = NULL;
+    }
 
     return fPdfDoc != NULL;
 }
@@ -2024,4 +2028,3 @@ SkRect SkPdfRenderer::MediaBox(int page) const {
 size_t SkPdfRenderer::bytesUsed() const {
     return fPdfDoc ? fPdfDoc->bytesUsed() : 0;
 }
-

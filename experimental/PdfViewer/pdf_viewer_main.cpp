@@ -25,8 +25,12 @@ DEFINE_string2(pages, p, "all", "What pages to render and how:\n"
                                 "\tnumber - a specific page number\n"
                );
 DEFINE_double(DPI, 72, "DPI to be used for rendering (scale).");
+DEFINE_int32(benchLoad, 0, "Load the pdf file minimally N times, without any rendering and \n"
+             "\tminimal parsing to ensure correctness. Default 0 (disabled).");
+DEFINE_int32(benchRender, 0, "Render the pdf content N times. Default 0 (disabled)");
+
+
 // TODO(edisonn): add config for device target(gpu, raster, pdf), + ability not to render at all
-// TODO(edisonn): add ability to do the op N times, bench (either load N times, render n times or load + render n times)
 
 /**
  * Given list of directories and files to use as input, expects to find .pdf
@@ -160,31 +164,44 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     bool success = false;
 
     success = renderer.load(inputPath);
+    if (FLAGS_showMemoryUsage) {
+        SkDebugf("Memory usage after load: %u\n", (unsigned int)renderer.bytesUsed());
+    }
+
+    // TODO(edisonn): bench timers
+    if (FLAGS_benchLoad > 0) {
+        for (int i = 0 ; i < FLAGS_benchLoad; i++) {
+            success = renderer.load(inputPath);
+            if (FLAGS_showMemoryUsage) {
+                SkDebugf("Memory usage after load %i number : %u\n", i, (unsigned int)renderer.bytesUsed());
+            }
+        }
+    }
 
     if (success) {
-        if (FLAGS_showMemoryUsage) {
-            SkDebugf("Memory usage after load: %u\n", (unsigned int)renderer.bytesUsed());
-        }
         if (!renderer.pages())
         {
             SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
             return false;
         } else {
-            if (strcmp(FLAGS_pages[0], "all") == 0) {
-                for (int pn = 0; pn < renderer.pages(); ++pn) {
-                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
+            for (int i = 0; i < FLAGS_benchRender + 1; i++) {
+                // TODO(edisonn) if (i == 1) start timer
+                if (strcmp(FLAGS_pages[0], "all") == 0) {
+                    for (int pn = 0; pn < renderer.pages(); ++pn) {
+                        success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
+                    }
+                } else if (strcmp(FLAGS_pages[0], "reverse") == 0) {
+                    for (int pn = renderer.pages() - 1; pn >= 0; --pn) {
+                        success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
+                    }
+                } else if (strcmp(FLAGS_pages[0], "first") == 0) {
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : 0) && success;
+                } else if (strcmp(FLAGS_pages[0], "last") == 0) {
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && success;
+                } else {
+                    int pn = atoi(FLAGS_pages[0]);
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && pn;
                 }
-            } else if (strcmp(FLAGS_pages[0], "reverse") == 0) {
-                for (int pn = renderer.pages() - 1; pn >= 0; --pn) {
-                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
-                }
-            } else if (strcmp(FLAGS_pages[0], "first") == 0) {
-                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : 0) && success;
-            } else if (strcmp(FLAGS_pages[0], "last") == 0) {
-                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && success;
-            } else {
-                int pn = atoi(FLAGS_pages[0]);
-                success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && pn;
             }
         }
     }
