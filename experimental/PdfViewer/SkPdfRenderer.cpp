@@ -16,7 +16,6 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkTArray.h"
-#include "picture_utils.h"
 
 #include <iostream>
 #include <cstdio>
@@ -2013,3 +2012,8 @@ SkRect SkPdfRenderer::MediaBox(int page) const {
     SkASSERT(fPdfDoc);
     return fPdfDoc->MediaBox(page);
 }
+
+size_t SkPdfRenderer::bytesUsed() {
+    return fPdfDoc ? fPdfDoc->bytesUsed() : 0;
+}
+
