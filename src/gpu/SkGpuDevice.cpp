@@ -1432,14 +1432,14 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     fContext->drawRectToRect(grPaint,
-                            GrRect::MakeXYWH(SkIntToScalar(left),
-                                            SkIntToScalar(top),
-                                            SkIntToScalar(w),
-                                            SkIntToScalar(h)),
-                            GrRect::MakeXYWH(offset.fX,
-                                             offset.fY,
-                                             SK_Scalar1 * w / texture->width(),
-                                             SK_Scalar1 * h / texture->height()));
+                             GrRect::MakeXYWH(SkIntToScalar(left),
+                                              SkIntToScalar(top),
+                                              SkIntToScalar(w),
+                                              SkIntToScalar(h)),
+                             GrRect::MakeXYWH(SkIntToScalar(offset.fX),
+                                              SkIntToScalar(offset.fY),
+                                              SK_Scalar1 * w / texture->width(),
+                                              SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
