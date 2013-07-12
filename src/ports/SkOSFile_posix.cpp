@@ -7,7 +7,7 @@
 
 #include "SkOSFile.h"
 
-#include "SkTemplates.h"
+#include "SkTFitsIn.h"
 
 #include <stdio.h>
 #include <sys/mman.h>

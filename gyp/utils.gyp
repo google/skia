@@ -96,6 +96,8 @@
         '../src/utils/SkThreadUtils_pthread_other.cpp',
         '../src/utils/SkThreadUtils_win.cpp',
         '../src/utils/SkThreadUtils_win.h',
+        '../src/utils/SkTFitsIn.h',
+        '../src/utils/SkTLogic.h',
         '../src/utils/SkUnitMappers.cpp',
 
         #mac

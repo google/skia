@@ -9,10 +9,10 @@
 #include "SkDWriteFontFileStream.h"
 #include "SkHRESULT.h"
 #include "SkTemplates.h"
+#include "SkTFitsIn.h"
 #include "SkTScopedComPtr.h"
 
 #include <dwrite.h>
-#include <limits>
 
 ///////////////////////////////////////////////////////////////////////////////
 //  SkIDWriteFontFileStream
@@ -183,7 +183,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
         return E_FAIL;
     }
 
-    if (fileOffset + fragmentSize > (std::numeric_limits<size_t>::max)()) {
+    if (!SkTFitsIn<size_t>(fileOffset + fragmentSize)) {
         return E_FAIL;
     }
 

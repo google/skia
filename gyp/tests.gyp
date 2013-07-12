@@ -51,6 +51,7 @@
         '../tests/EmptyPathTest.cpp',
         '../tests/ErrorTest.cpp',
         '../tests/FillPathTest.cpp',
+        '../tests/FitsInTest.cpp',
         '../tests/FlatDataTest.cpp',
         '../tests/FlateTest.cpp',
         '../tests/FontHostStreamTest.cpp',
