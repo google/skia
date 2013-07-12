@@ -35,6 +35,7 @@
     '../gm/deviceproperties.cpp',
     '../gm/distantclip.cpp',
     '../gm/displacement.cpp',
+    '../gm/downsamplebitmap.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/drawlooper.cpp',
     '../gm/extractbitmap.cpp',

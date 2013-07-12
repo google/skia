@@ -33,7 +33,7 @@
 class SkPaint;
 
 struct SkBitmapProcState {
-
+    
     SkBitmapProcState(): fBitmapFilter(NULL) {}
     ~SkBitmapProcState() {
         SkDELETE(fBitmapFilter);
@@ -64,8 +64,8 @@ struct SkBitmapProcState {
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    const SkBitmap*     fBitmap;            // chooseProcs - orig or mip
-    const SkMatrix*     fInvMatrix;         // chooseProcs
+    const SkBitmap*     fBitmap;            // chooseProcs - orig or scaled
+    SkMatrix            fInvMatrix;         // chooseProcs
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
 
     SkFractionalInt     fInvSxFractionalInt;
@@ -86,7 +86,18 @@ struct SkBitmapProcState {
     uint8_t             fInvType;           // chooseProcs
     uint8_t             fTileModeX;         // CONSTRUCTOR
     uint8_t             fTileModeY;         // CONSTRUCTOR
-    SkBool8             fDoFilter;          // chooseProcs
+    
+    enum { 
+        kNone_BitmapFilter, 
+        kBilerp_BitmapFilter, 
+        kHQ_BitmapFilter
+    } fFilterQuality;          // chooseProcs
+
+    /** The shader will let us know when we can release some of our resources
+      * like scaled bitmaps.
+      */
+
+    void endContext();
 
     /** Platforms implement this, and can optionally overwrite only the
         following fields:
@@ -140,18 +151,18 @@ private:
     SampleProc32        fSampleProc32;      // chooseProcs
     SampleProc16        fSampleProc16;      // chooseProcs
 
-    SkMatrix            fUnitInvMatrix;     // chooseProcs
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
-    SkBitmap            fMipBitmap;
+    SkBitmap            fScaledBitmap;      // chooseProcs
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
+    
+    void possiblyScaleImage();
 
-    void buildFilterCoefficients(SkFixed dst[4], float t) const;
     SkBitmapFilter *fBitmapFilter;
 
-    ShaderProc32 chooseBitmapFilterProc(const SkPaint &paint);
+    ShaderProc32 chooseBitmapFilterProc();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
