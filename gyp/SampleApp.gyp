@@ -170,7 +170,7 @@
          'sources': [
            '../samplecode/SamplePdfFileViewer.cpp',
          ]
-       }],      
+       }],
        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
          'sources!': [
             '../samplecode/SampleDecode.cpp',
