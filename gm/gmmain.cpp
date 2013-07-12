@@ -926,6 +926,14 @@ public:
             // version of the output.
             RecordTestResults(ErrorCombination(kIntentionallySkipped_ErrorType),
                               shortNamePlusConfig, "");
+        } else if (!(gRec.fFlags & kWrite_ConfigFlag)) {
+            // We don't record the results for this test or compare them
+            // against any expectations, because the output image isn't
+            // meaningful.
+            // See https://code.google.com/p/skia/issues/detail?id=1410 ('some
+            // GM result images not available for download from Google Storage')
+            RecordTestResults(ErrorCombination(kIntentionallySkipped_ErrorType),
+                              shortNamePlusConfig, "");
         } else {
             ExpectationsSource *expectationsSource = this->fExpectationsSource.get();
             if (expectationsSource && (gRec.fFlags & kRead_ConfigFlag)) {
@@ -1247,7 +1255,8 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu",          true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       false},
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
-    /* The debug context does not generate images */
+    /* The gpudebug context does not generate meaningful images, so don't record
+     * the images it generates!  We only run it to look for asserts. */
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     GR_DEBUG},
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
