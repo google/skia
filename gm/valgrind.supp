@@ -309,7 +309,6 @@
     fun:_ZN17glsl_symbol_table12add_variableEP11ir_variable
 }
 {
-{
     glsl_to_tgsi_visitor_add_constant_leak
     Memcheck:Leak
     fun:calloc
