@@ -1,5 +1,6 @@
 <!doctype html>
-<html>
+<!-- This whole page uses the module -->
+<html ng-app="diff_viewer">
   <head>
     <script type="text/javascript"
             src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
@@ -9,7 +10,12 @@
     <title>SkPDiff</title>
   </head>
   <body>
-    <div ng-app ng-controller="DiffViewController">
+    <!--
+      All templates are being included with the main page to avoid using AJAX, which would force
+      us to use a webserver.
+    -->
+    <script type="text/ng-template" id="/diff_list.html">
+      <!-- Give a choice of how to order the differs -->
       <div style="margin:8px">
         Show me the worst by metric:
         <button ng-repeat="differ in differs" ng-click="setSortIndex($index)">
@@ -17,6 +23,7 @@
           {{ differ.title }}
         </button>
       </div>
+      <!-- Begin list of differences -->
       <table>
         <thead>
           <tr>
@@ -26,9 +33,19 @@
           </tr>
         </thead>
         <tbody>
+          <!--
+            Loops through every record and crates a row for it. This sorts based on the whichever
+            metric the user chose, and places a limit on the max number of records to show.
+          -->
           <tr ng-repeat="record in records | orderBy:sortingDiffer | limitTo:500">
-            <td><img src="{{ record.baselinePath }}" class="gm-image baseline-image" /></td>
-            <td><img src="{{ record.testPath }}" class="gm-image test-image" /></td>
+            <td><swap-img left-src="{{ record.baselinePath }}"
+                         right-src="{{ record.testPath }}"
+                         side="left"
+                         class="gm-image left-image" /></td>
+            <td><swap-img left-src="{{ record.baselinePath }}"
+                         right-src="{{ record.testPath }}"
+                         side="right"
+                         class="gm-image right-image" /></td>
             <td>
               <div ng-repeat="diff in record.diffs"
                    ng-mouseover="highlight(diff.differName)"
@@ -39,6 +56,8 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </script>
+    <!-- Whatever template is used is rendered in the following div -->
+    <div ng-view></div>
   </body>
 </html>
