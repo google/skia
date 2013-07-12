@@ -48,6 +48,75 @@ static void test_autounref(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());
 }
 
+static void test_autostarray(skiatest::Reporter* reporter) {
+    RefClass obj0(0);
+    RefClass obj1(1);
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+
+    {
+        SkAutoSTArray<2, SkRefPtr<RefClass> > tmp;
+        REPORTER_ASSERT(reporter, 0 == tmp.count());
+
+        tmp.reset(0);   // test out reset(0) when already at 0
+        tmp.reset(4);   // this should force a new allocation
+        REPORTER_ASSERT(reporter, 4 == tmp.count());
+        tmp[0] = &obj0;
+        tmp[1] = &obj1;
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
+
+        // test out reset with data in the array (and a new allocation)
+        tmp.reset(0);
+        REPORTER_ASSERT(reporter, 0 == tmp.count());
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+        
+        tmp.reset(2);   // this should use the preexisting allocation
+        REPORTER_ASSERT(reporter, 2 == tmp.count());
+        tmp[0] = &obj0;
+        tmp[1] = &obj1;
+    }
+
+    // test out destructor with data in the array (and using existing allocation)
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+
+    {
+        // test out allocating ctor (this should allocate new memory)
+        SkAutoSTArray<2, SkRefPtr<RefClass> > tmp(4);
+        REPORTER_ASSERT(reporter, 4 == tmp.count());
+
+        tmp[0] = &obj0;
+        tmp[1] = &obj1;
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
+
+        // Test out resut with data in the array and malloced storage
+        tmp.reset(0);
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+
+        tmp.reset(2);   // this should use the preexisting storage
+        tmp[0] = &obj0;
+        tmp[1] = &obj1;
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
+
+        tmp.reset(4);   // this should force a new malloc
+        REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+
+        tmp[0] = &obj0;
+        tmp[1] = &obj1;
+        REPORTER_ASSERT(reporter, 2 == obj0.getRefCnt());
+        REPORTER_ASSERT(reporter, 2 == obj1.getRefCnt());
+    }
+
+    REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 #define kSEARCH_COUNT   91
@@ -150,6 +219,7 @@ static void TestUTF(skiatest::Reporter* reporter) {
     test_utf16(reporter);
     test_search(reporter);
     test_autounref(reporter);
+    test_autostarray(reporter);
 }
 
 #include "TestClassDef.h"
