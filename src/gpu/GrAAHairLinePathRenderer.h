@@ -37,6 +37,7 @@ private:
                     GrDrawTarget* target,
                     int* lineCnt,
                     int* quadCnt,
+                    int* conicCnt,
                     GrDrawTarget::AutoReleaseGeometry* arg,
                     SkRect* devBounds   );
 
