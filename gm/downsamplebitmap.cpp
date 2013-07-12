@@ -74,7 +74,7 @@ protected:
             
             curWidth = (int) (fBM.width() * curScale + 2);
             curX += curWidth;
-            curScale *= 0.75;
+            curScale *= 0.75f;
         } while (curX < 4*fBM.width());
     }
 
