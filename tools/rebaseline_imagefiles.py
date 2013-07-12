@@ -278,8 +278,15 @@ class ImageRebaseliner(object):
                     continue
             outfilename = os.path.join(self._expectations_root, subdir,
                                        filename);
-            self._RebaselineOneFile(expectations_subdir=subdir,
-                                    builder_name=builder,
-                                    infilename=filename,
-                                    outfilename=outfilename,
-                                    all_results=all_results)
+            # TODO(epoger): Until we resolve
+            # https://code.google.com/p/skia/issues/detail?id=1410 ('some GM
+            # result images not available for download from Google Storage'),
+            # keep going in the face of missing results for any one test.
+            try:
+                self._RebaselineOneFile(expectations_subdir=subdir,
+                                        builder_name=builder,
+                                        infilename=filename,
+                                        outfilename=outfilename,
+                                        all_results=all_results)
+            except Exception as e:
+                print 'WARNING: swallowing exception %s' % e
