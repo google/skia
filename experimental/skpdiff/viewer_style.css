@@ -20,14 +20,18 @@ thead > tr > td {
 }
 
 .gm-image {
-    width:300px;
+    border: 1px dotted black;
 }
 
-.baseline-image {
+.gm-image:hover {
+    border: 1px dashed black;
+}
+
+.left-image {
     float: right;
 }
 
-.test-image {
+.right-image {
     text-align: right;
 }
 
