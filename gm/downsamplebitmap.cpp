@@ -68,7 +68,7 @@ protected:
             paint.setFlags( paint.getFlags() | SkPaint::kHighQualityFilterBitmap_Flag );
 
             canvas->save();
-            canvas->translate( curX, 0 );
+            canvas->translate( (SkScalar) curX, 0.f );
             canvas->drawBitmapMatrix( fBM, matrix, &paint );
             canvas->restore();
             
