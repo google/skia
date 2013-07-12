@@ -205,9 +205,16 @@ Can also use the following aliases to run on groups of builders-
               Error('Cannot specify "%s" with additional builder names or '
                     'aliases.' % bot)
             if bot == ALL_BUILDERS:
-              using_bots = trybots
+              are_you_sure = raw_input('Running a try on every bot is very '
+                                       'expensive. You may be able to get '
+                                       'enough information by running on a '
+                                       'smaller set of bots. Are you sure you '
+                                       'want to run your try job on all of the '
+                                       'trybots? [y,n]: ')
+              if are_you_sure == 'y':
+                using_bots = trybots
             elif bot == COMPILE_BUILDERS:
-              using_bots = [t for t in trybots if '_Compile_' in t]
+              using_bots = [t for t in trybots if t.startswith('Build')]
             elif bot == CQ_BUILDERS:
               using_bots = RetrieveTrybotList(json_filename='cqtrybots')
             elif bot == REGEX:
