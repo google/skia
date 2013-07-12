@@ -7,7 +7,7 @@
 
 #include "SkOSFile.h"
 
-#include "SkTemplates.h"
+#include "SkTFitsIn.h"
 
 #include <io.h>
 #include <stdio.h>
