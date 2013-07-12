@@ -104,6 +104,13 @@
     fun:_mesa_get_fixed_func_fragment_program
 }
 {
+    Mega_get_fixed_func_fragment_program_leak
+    Memcheck:Leak
+    fun:realloc
+    ...
+    fun:_mesa_get_fixed_func_fragment_program
+}
+{
     Mesa_link_shader_leak
     Memcheck:Leak
     fun:_Znwm
@@ -240,7 +247,7 @@
     Memcheck:Leak
     fun:calloc
     fun:ralloc_size
-    fun:ralloc_strdup
+    ...
     fun:_ZN9glsl_typeC1EPK17glsl_struct_fieldjPKc
 }
 {
@@ -250,4 +257,62 @@
     fun:ralloc_size
     fun:ralloc_strdup
     fun:_ZN9glsl_typeC1Ej16glsl_sampler_dimbbjPKc
+}
+{
+    Mesa_glsl_parse_state
+    Memcheck:Leak
+    fun:malloc
+    fun:strdup
+    fun:_Z14_mesa_glsl_lexP7YYSTYPEP7YYLTYPEPv
+    fun:_Z16_mesa_glsl_parseP22_mesa_glsl_parse_state
+}
+{
+    st_get_fp_variant_calloc_leak
+    Memcheck:Leak
+    fun:calloc
+    ...
+    fun:st_get_fp_variant
+}
+{
+    st_get_fp_variant_reall_leak
+    Memcheck:Leak
+    fun:realloc
+    ...
+    fun:st_get_fp_variant
+}
+{
+    st_validate_state_leak
+    Memcheck:Leak
+    fun:calloc
+    obj:/usr/lib/x86_64-linux-gnu/dri/libgallium.so
+    fun:st_get_fp_variant
+    obj:/usr/lib/x86_64-linux-gnu/dri/libgallium.so
+    fun:st_validate_state
+}
+{
+    tgsi_dup_tokens_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:tgsi_dup_tokens
+}
+{
+    llvm_registerclassinfo_leak
+    Memcheck:Leak
+    fun:_Znam
+    fun:_ZNK4llvm17RegisterClassInfo7computeEPKNS_19TargetRegisterClassE
+}
+{
+    add_variable_ir_variable_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN17glsl_symbol_table12add_variableEP11ir_variable
+}
+{
+{
+    glsl_to_tgsi_visitor_add_constant_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN20glsl_to_tgsi_visitor12add_constantE16gl_register_fileP17gl_constant_valueiiPj
 }
