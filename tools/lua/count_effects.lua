@@ -33,15 +33,10 @@ end
 local total_paints = 0;
 
 function sk_scrape_accumulate(t)
-    -- dump the params in t, specifically showing the verb first, which we
-    -- then nil out so it doesn't appear in tostr()
-    io.write(t.verb, " ")
-    t.verb = nil
     if (t.paint) then
         total_paints = total_paints + 1
         count_fields(t.paint:getEffects())
     end
-    io.write(tostr(t), "\n")
 end
 
 function sk_scrape_summarize()
