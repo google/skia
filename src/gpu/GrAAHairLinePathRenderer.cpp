@@ -26,7 +26,7 @@
 namespace {
 // quadratics are rendered as 5-sided polys in order to bound the
 // AA stroke around the center-curve. See comments in push_quad_index_buffer and
-// bloat_quad.
+// bloat_quad. Quadratics and conics share an index buffer
 static const int kVertsPerQuad = 5;
 static const int kIdxsPerQuad = 9;
 
@@ -117,6 +117,7 @@ namespace {
 typedef SkTArray<SkPoint, true> PtArray;
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 typedef SkTArray<int, true> IntArray;
+typedef SkTArray<float, true> FloatArray;
 
 // Takes 178th time of logf on Z600 / VC2010
 int get_float_exp(float x) {
@@ -140,6 +141,52 @@ int get_float_exp(float x) {
 #endif
     const int* iptr = (const int*)&x;
     return (((*iptr) & 0x7f800000) >> 23) - 127;
+}
+
+// Uses the max curvature function for quads to estimate
+// where to chop the conic. If the max curvature is not
+// found along the curve segment it will return 1 and
+// dst[0] is the orginal conic. If it returns 2 the dst[0]
+// and dst[1] are the two new conics.
+int chop_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
+    SkScalar t = SkFindQuadMaxCurvature(src);
+    if (t == 0) {
+        if (dst) {
+            dst[0].set(src, weight);
+        }
+        return 1;
+    } else {
+        if (dst) {
+            SkConic conic;
+            conic.set(src, weight);
+            conic.chopAt(t, dst);
+        }
+        return 2;
+    }
+}
+
+// returns 0 if quad/conic is degen or close to it
+// in this case approx the path with lines
+// otherwise returns 1
+int is_degen_quad_or_conic(const SkPoint p[3]) {
+    static const SkScalar gDegenerateToLineTol = SK_Scalar1;
+    static const SkScalar gDegenerateToLineTolSqd =
+        SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
+
+    if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
+        p[1].distanceToSqd(p[2]) < gDegenerateToLineTolSqd) {
+        return 1;
+    }
+
+    SkScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
+    if (dsqd < gDegenerateToLineTolSqd) {
+        return 1;
+    }
+
+    if (p[2].distanceToLineBetweenSqd(p[1], p[0]) < gDegenerateToLineTolSqd) {
+        return 1;
+    }
+    return 0;
 }
 
 // we subdivide the quads to avoid huge overfill
@@ -207,7 +254,9 @@ int generate_lines_and_quads(const SkPath& path,
                              const GrIRect& devClipBounds,
                              PtArray* lines,
                              PtArray* quads,
-                             IntArray* quadSubdivCnts) {
+                             PtArray* conics,
+                             IntArray* quadSubdivCnts,
+                             FloatArray* conicWeights) {
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
@@ -221,10 +270,36 @@ int generate_lines_and_quads(const SkPath& path,
         GrPoint devPts[4];
         SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
-             case SkPath::kConic_Verb:
-                SkASSERT(0);
+            case SkPath::kConic_Verb: {
+                SkConic dst[2];
+                int conicCnt = chop_conic(pathPts, dst, iter.conicWeight());
+                for (int i = 0; i < conicCnt; ++i) {
+                    SkPoint* chopPnts = dst[i].fPts;
+                    m.mapPoints(devPts, chopPnts, 3);
+                    bounds.setBounds(devPts, 3);
+                    bounds.outset(SK_Scalar1, SK_Scalar1);
+                    bounds.roundOut(&ibounds);
+                    if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                        if (is_degen_quad_or_conic(devPts)) {
+                            SkPoint* pts = lines->push_back_n(4);
+                            pts[0] = devPts[0];
+                            pts[1] = devPts[1];
+                            pts[2] = devPts[1];
+                            pts[3] = devPts[2];
+                        } else {
+                            // when in perspective keep conics in src space
+                            SkPoint* cPts = persp ? chopPnts : devPts;
+                            SkPoint* pts = conics->push_back_n(3);
+                            pts[0] = cPts[0];
+                            pts[1] = cPts[1];
+                            pts[2] = cPts[2];
+                            conicWeights->push_back() = dst[i].fW;
+                        }
+                    }
+                }
                 break;
-           case SkPath::kMove_Verb:
+            }
+            case SkPath::kMove_Verb:
                 break;
             case SkPath::kLine_Verb:
                 m.mapPoints(devPts, pathPts, 2);
@@ -348,13 +423,22 @@ struct Vertex {
             SkScalar fB;
             SkScalar fC;
         } fLine;
+        struct {
+            SkScalar fA;
+            SkScalar fB;
+            SkScalar fC;
+            SkScalar fD;
+            SkScalar fE;
+            SkScalar fF;
+        } fConic;
         GrVec   fQuadCoord;
         struct {
-            SkScalar fBogus[4];
+            SkScalar fBogus[6];
         };
     };
 };
-GR_STATIC_ASSERT(sizeof(Vertex) == 3 * sizeof(GrPoint));
+
+GR_STATIC_ASSERT(sizeof(Vertex) == 4 * sizeof(GrPoint));
 
 void intersect_lines(const SkPoint& ptA, const SkVector& normA,
                      const SkPoint& ptB, const SkVector& normB,
@@ -364,7 +448,7 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     SkScalar lineBW = -normB.dot(ptB);
 
     SkScalar wInv = SkScalarMul(normA.fX, normB.fY) -
-                    SkScalarMul(normA.fY, normB.fX);
+        SkScalarMul(normA.fY, normB.fX);
     wInv = SkScalarInvert(wInv);
 
     result->fX = SkScalarMul(normA.fY, lineBW) - SkScalarMul(lineAW, normB.fY);
@@ -454,6 +538,57 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
 }
 
+
+// Input Parametric:
+// P(t) = (P0*(1-t)^2 + 2*w*P1*t*(1-t) + P2*t^2) / (1-t)^2 + 2*w*t*(1-t) + t^2)
+// Output Implicit:
+// Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
+// A = 4w^2*(y0-y1)(y1-y2)-(y0-y2)^2
+// B = 4w^2*((x0-x1)(y2-y1)+(x1-x2)(y1-y0)) + 2(x0-x2)(y0-y2)
+// C = 4w^2(x0-x1)(x1-x2) - (x0-x2)^2
+// D = 4w^2((x0y1-x1y0)(y1-y2)+(x1y2-x2y1)(y0-y1)) + 2(y2-y0)(x0y2-x2y0)
+// E = 4w^2((y0x1-y1x0)(x1-x2)+(y1x2-y2x1)(x0-x1)) + 2(x2-x0)(y0x2-y2x0)
+// F = 4w^2(x1y2-x2y1)(x0y1-x1y0) - (x2y0-x0y2)^2
+
+void set_conic_coeffs(const SkPoint p[3], Vertex verts[kVertsPerQuad], const float weight) {
+    const float ww4 = 4 * weight * weight;
+    const float x0Mx1 = p[0].fX - p[1].fX;
+    const float x1Mx2 = p[1].fX - p[2].fX;
+    const float x0Mx2 = p[0].fX - p[2].fX;
+    const float y0My1 = p[0].fY - p[1].fY;
+    const float y1My2 = p[1].fY - p[2].fY;
+    const float y0My2 = p[0].fY - p[2].fY;
+    const float x0y1Mx1y0 = p[0].fX*p[1].fY - p[1].fX*p[0].fY;
+    const float x1y2Mx2y1 = p[1].fX*p[2].fY - p[2].fX*p[1].fY;
+    const float x0y2Mx2y0 = p[0].fX*p[2].fY - p[2].fX*p[0].fY;
+    const float a = ww4 * y0My1 * y1My2 - y0My2 * y0My2;
+    const float b = -ww4 * (x0Mx1 * y1My2 + x1Mx2 * y0My1) + 2 * x0Mx2 * y0My2;
+    const float c = ww4 * x0Mx1 * x1Mx2 - x0Mx2 * x0Mx2;
+    const float d = ww4 * (x0y1Mx1y0 * y1My2 + x1y2Mx2y1 * y0My1) - 2 * y0My2 * x0y2Mx2y0;
+    const float e = -ww4 * (x0y1Mx1y0 * x1Mx2 + x1y2Mx2y1 * x0Mx1) + 2 * x0Mx2 * x0y2Mx2y0;
+    const float f = ww4 * x1y2Mx2y1 * x0y1Mx1y0 - x0y2Mx2y0 * x0y2Mx2y0;
+
+    for (int i = 0; i < kVertsPerQuad; ++i) {
+        verts[i].fConic.fA = a/f;
+        verts[i].fConic.fB = b/f;
+        verts[i].fConic.fC = c/f;
+        verts[i].fConic.fD = d/f;
+        verts[i].fConic.fE = e/f;
+        verts[i].fConic.fF = f/f;
+    }
+}
+
+void add_conics(const SkPoint p[3],
+                float weight,
+                const SkMatrix* toDevice,
+                const SkMatrix* toSrc,
+                Vertex** vert,
+                SkRect* devBounds) {
+    bloat_quad(p, toDevice, toSrc, *vert, devBounds);
+    set_conic_coeffs(p, *vert, weight);
+    *vert += kVertsPerQuad;
+}
+
 void add_quads(const SkPoint p[3],
                int subdiv,
                const SkMatrix* toDevice,
@@ -515,6 +650,119 @@ void add_line(const SkPoint p[2],
 
 }
 
+/**
+ * The output of this effect is a hairline edge for conics.
+ * Conics specified by implicit equation Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0.
+ * A, B, C, D are the first vec4 of vertex attributes and
+ * E and F are the vec2 attached to 2nd vertex attrribute.
+ * Coverage is max(0, 1-distance).
+ */
+class HairConicEdgeEffect : public GrEffect {
+public:
+    static GrEffectRef* Create() {
+        GR_CREATE_STATIC_EFFECT(gHairConicEdgeEffect, HairConicEdgeEffect, ());
+        gHairConicEdgeEffect->ref();
+        return gHairConicEdgeEffect;
+    }
+
+    virtual ~HairConicEdgeEffect() {}
+
+    static const char* Name() { return "HairConicEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<HairConicEdgeEffect>::getInstance();
+    }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+            : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const char *vsCoeffABCDName, *fsCoeffABCDName;
+            const char *vsCoeffEFName, *fsCoeffEFName;
+
+            SkAssertResult(builder->enableFeature(
+                    GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            builder->addVarying(kVec4f_GrSLType, "ConicCoeffsABCD",
+                                &vsCoeffABCDName, &fsCoeffABCDName);
+            const SkString* attr0Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsCoeffABCDName, attr0Name->c_str());
+
+            builder->addVarying(kVec2f_GrSLType, "ConicCoeffsEF",
+                                &vsCoeffEFName, &fsCoeffEFName);
+            const SkString* attr1Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsCoeffEFName, attr1Name->c_str());
+
+            // Based on Gustavson 2006: "Beyond the Pixel: towards infinite resolution textures"
+            builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
+
+            builder->fsCodeAppendf("\t\tvec3 uv1 = vec3(%s.xy, 1);\n", builder->fragmentPosition());
+            builder->fsCodeAppend("\t\tvec3 u2uvv2 = uv1.xxy * uv1.xyy;\n");
+            builder->fsCodeAppendf("\t\tvec3 ABC = %s.xyz;\n", fsCoeffABCDName);
+            builder->fsCodeAppendf("\t\tvec3 DEF = vec3(%s.w, %s.xy);\n",
+                                   fsCoeffABCDName, fsCoeffEFName);
+
+            builder->fsCodeAppend("\t\tfloat dfdx = dot(uv1,vec3(2.0*ABC.x,ABC.y,DEF.x));\n");
+            builder->fsCodeAppend("\t\tfloat dfdy = dot(uv1,vec3(ABC.y, 2.0*ABC.z,DEF.y));\n");
+            builder->fsCodeAppend("\t\tfloat gF = dfdx*dfdx + dfdy*dfdy;\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = dot(ABC,u2uvv2) + dot(DEF,uv1);\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / gF);\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = max((1.0 - edgeAlpha), 0.0);\n");
+            // Add line below for smooth cubic ramp
+            // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
+
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+private:
+    HairConicEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+        this->addVertexAttrib(kVec2f_GrSLType);
+        this->setWillReadFragmentPosition();
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        return true;
+    }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(HairConicEdgeEffect);
+
+GrEffectRef* HairConicEdgeEffect::TestCreate(SkMWCRandom* random,
+                                             GrContext*,
+                                             const GrDrawTargetCaps& caps,
+                                             GrTexture*[]) {
+    return HairConicEdgeEffect::Create();
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -563,7 +811,7 @@ public:
             builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
 
             SkAssertResult(builder->enableFeature(
-                                              GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+                    GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
             builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -614,7 +862,8 @@ GrEffectRef* HairQuadEdgeEffect::TestCreate(SkMWCRandom* random,
                                             const GrDrawTargetCaps& caps,
                                             GrTexture*[]) {
     // Doesn't work without derivative instructions.
-    return caps.shaderDerivativeSupport() ? HairQuadEdgeEffect::Create() : NULL;}
+    return caps.shaderDerivativeSupport() ? HairQuadEdgeEffect::Create() : NULL;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -717,6 +966,13 @@ extern const GrVertexAttrib gHairlineAttribs[] = {
     {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
 };
 
+// Conic
+// position + ABCD + EF
+extern const GrVertexAttrib gConicVertexAttribs[] = {
+    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
+    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
+};
 };
 
 bool GrAAHairLinePathRenderer::createGeom(
@@ -724,6 +980,7 @@ bool GrAAHairLinePathRenderer::createGeom(
             GrDrawTarget* target,
             int* lineCnt,
             int* quadCnt,
+            int* conicCnt,
             GrDrawTarget::AutoReleaseGeometry* arg,
             SkRect* devBounds) {
     GrDrawState* drawState = target->drawState();
@@ -743,14 +1000,18 @@ bool GrAAHairLinePathRenderer::createGeom(
 
     PREALLOC_PTARRAY(128) lines;
     PREALLOC_PTARRAY(128) quads;
+    PREALLOC_PTARRAY(128) conics;
     IntArray qSubdivs;
+    FloatArray cWeights;
     *quadCnt = generate_lines_and_quads(path, viewM, devClipBounds,
-                                        &lines, &quads, &qSubdivs);
+                                        &lines, &quads, &conics, &qSubdivs, &cWeights);
 
     *lineCnt = lines.count() / 2;
-    int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
+    *conicCnt = conics.count() / 3;
+    int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt +
+        kVertsPerQuad * *conicCnt;
 
-    target->drawState()->setVertexAttribs<gHairlineAttribs>(SK_ARRAY_COUNT(gHairlineAttribs));
+    target->drawState()->setVertexAttribs<gConicVertexAttribs>(SK_ARRAY_COUNT(gConicVertexAttribs));
     GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
@@ -780,6 +1041,10 @@ bool GrAAHairLinePathRenderer::createGeom(
         add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts, devBounds);
     }
 
+    // Start Conics
+    for (int i = 0; i < *conicCnt; ++i) {
+        add_conics(&conics[3*i], cWeights[i], toDevice, toSrc, &verts, devBounds);
+    }
     return true;
 }
 
@@ -807,6 +1072,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     int lineCnt;
     int quadCnt;
+    int conicCnt;
     GrDrawTarget::AutoReleaseGeometry arg;
     SkRect devBounds;
 
@@ -814,6 +1080,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                           target,
                           &lineCnt,
                           &quadCnt,
+                          &conicCnt,
                           &arg,
                           &devBounds)) {
         return false;
@@ -843,6 +1110,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     GrEffectRef* hairLineEffect = HairLineEdgeEffect::Create();
     GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
+    GrEffectRef* hairConicEffect = HairConicEdgeEffect::Create();
 
     // Check devBounds
 #if GR_DEBUG
@@ -850,7 +1118,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
     SkRect actualBounds;
     Vertex* verts = reinterpret_cast<Vertex*>(arg.vertices());
-    int vCount = kVertsPerLineSeg * lineCnt + kVertsPerQuad * quadCnt;
+    int vCount = kVertsPerLineSeg * lineCnt + kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
     bool first = true;
     for (int i = 0; i < vCount; ++i) {
         SkPoint pos = verts[i].fPos;
@@ -889,20 +1157,41 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         }
     }
 
-    target->setIndexSourceToBuffer(fQuadsIndexBuffer);
-    int quads = 0;
-    drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
-    while (quads < quadCnt) {
-        int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
-        target->drawIndexed(kTriangles_GrPrimitiveType,
-                            4 * lineCnt + kVertsPerQuad*quads, // startV
-                            0,                                 // startI
-                            kVertsPerQuad*n,                   // vCount
-                            kIdxsPerQuad*n,                    // iCount
-                            &devBounds);
-        quads += n;
+    {
+        GrDrawState::AutoRestoreEffects are(drawState);
+        target->setIndexSourceToBuffer(fQuadsIndexBuffer);
+        int quads = 0;
+        drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
+        while (quads < quadCnt) {
+            int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
+            target->drawIndexed(kTriangles_GrPrimitiveType,
+                                kVertsPerLineSeg * lineCnt + kVertsPerQuad*quads,  // startV
+                                0,                                                 // startI
+                                kVertsPerQuad*n,                                   // vCount
+                                kIdxsPerQuad*n,                                    // iCount
+                                &devBounds);
+            quads += n;
+        }
+    }
+
+    {
+        GrDrawState::AutoRestoreEffects are(drawState);
+        int conics = 0;
+        drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
+        while (conics < conicCnt) {
+            int n = GrMin(conicCnt - conics, kNumQuadsInIdxBuffer);
+            target->drawIndexed(kTriangles_GrPrimitiveType,
+                                kVertsPerLineSeg*lineCnt +
+                                kVertsPerQuad*(quadCnt + conics),  // startV
+                                0,                                 // startI
+                                kVertsPerQuad*n,                   // vCount
+                                kIdxsPerQuad*n,                    // iCount
+                                &devBounds);
+            conics += n;
+        }
     }
     target->resetIndexSource();
 
     return true;
 }
+

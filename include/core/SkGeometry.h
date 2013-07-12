@@ -72,6 +72,12 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValues[1]);
 int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5]);
 int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]);
 
+/** Given 3 points on a quadratic bezier, if the point of maximum
+    curvature exists on the segment, returns the t value for this
+    point along the curve. Otherwise it will return a value of 0.
+*/
+float SkFindQuadMaxCurvature(const SkPoint src[3]);
+
 /** Given 3 points on a quadratic bezier, divide it into 2 quadratics
     if the point of maximum curvature exists on the quad segment.
     Depending on what is returned, dst[] is treated as follows

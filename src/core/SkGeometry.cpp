@@ -394,8 +394,7 @@ int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5])
 //
 //  t = - (Ax Bx + Ay By) / (Bx ^ 2 + By ^ 2)
 //
-int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
-{
+float SkFindQuadMaxCurvature(const SkPoint src[3]) {
     SkScalar    Ax = src[1].fX - src[0].fX;
     SkScalar    Ay = src[1].fY - src[0].fY;
     SkScalar    Bx = src[0].fX - src[1].fX - src[1].fX + src[2].fX;
@@ -427,14 +426,16 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
         }
     }
 #endif
+    return t;
+}
 
-    if (t == 0)
-    {
+int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
+{
+    SkScalar t = SkFindQuadMaxCurvature(src);
+    if (t == 0) {
         memcpy(dst, src, 3 * sizeof(SkPoint));
         return 1;
-    }
-    else
-    {
+    } else {
         SkChopQuadAt(src, dst, t);
         return 2;
     }
@@ -1061,8 +1062,7 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tV
 
     int count = SkFindCubicMaxCurvature(src, tValues);
 
-    if (dst)
-    {
+    if (dst) {
         if (count == 0)
             memcpy(dst, src, 4 * sizeof(SkPoint));
         else
@@ -1185,7 +1185,6 @@ int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* a
     }
     return num_crossings;
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /*  Find t value for quadratic [a, b, c] = d.
