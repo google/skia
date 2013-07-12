@@ -55,7 +55,7 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     SkFractionalInt fx;
     {
         SkPoint pt;
-        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
         fx = SkScalarToFractionalInt(pt.fY);
         const unsigned maxY = s.fBitmap->height() - 1;
@@ -116,7 +116,7 @@ void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 
     PREAMBLE(s);
     SkPoint srcPt;
-    s.fInvProc(*s.fInvMatrix,
+    s.fInvProc(s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
 
@@ -143,7 +143,7 @@ void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
 
-    SkPerspIter   iter(*s.fInvMatrix,
+    SkPerspIter   iter(s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
 
@@ -188,7 +188,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 
     {
         SkPoint pt;
-        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
         const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
         const unsigned maxY = s.fBitmap->height() - 1;
@@ -222,7 +222,7 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
 
     PREAMBLE(s);
     SkPoint srcPt;
-    s.fInvProc(*s.fInvMatrix,
+    s.fInvProc(s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
 
@@ -254,7 +254,7 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
 
-    SkPerspIter   iter(*s.fInvMatrix,
+    SkPerspIter   iter(s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
 
