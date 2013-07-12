@@ -250,7 +250,9 @@ public:
         }
 
         if (fCount != count) {
-            if (count > N) {
+            if (fCount > N) {
+                // 'fArray' was allocated last time so free it now
+                SkASSERT((T*) fStorage != fArray);
                 sk_free(fArray);
             }
 
@@ -260,7 +262,6 @@ public:
                 fArray = (T*) fStorage;
             } else {
                 fArray = NULL;
-                return;
             }
 
             fCount = count;
