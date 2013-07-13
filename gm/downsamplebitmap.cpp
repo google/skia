@@ -22,7 +22,7 @@ public:
     SkBitmap    fBM;
     SkString    fName;
     bool        fBitmapMade;
-    
+
     DownsampleBitmapGM()
     {
         this->setBGColor(0xFFDDDDDD);
@@ -42,7 +42,7 @@ protected:
         make_bitmap_wrapper();
         return SkISize::Make(4 * fBM.width(), fBM.height());
     }
-    
+
     void make_bitmap_wrapper() {
         if (!fBitmapMade) {
             fBitmapMade = true;
@@ -54,15 +54,15 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         make_bitmap_wrapper();
-        
+
         int curX = 0;
         int curWidth;
         float curScale = 1;
         do {
-            
+
             SkMatrix matrix;
             matrix.setScale( curScale, curScale );
-            
+
             SkPaint paint;
             paint.setFilterBitmap(true);
             paint.setFlags( paint.getFlags() | SkPaint::kHighQualityFilterBitmap_Flag );
@@ -71,7 +71,7 @@ protected:
             canvas->translate( (SkScalar) curX, 0.f );
             canvas->drawBitmapMatrix( fBM, matrix, &paint );
             canvas->restore();
-            
+
             curWidth = (int) (fBM.width() * curScale + 2);
             curX += curWidth;
             curScale *= 0.75f;

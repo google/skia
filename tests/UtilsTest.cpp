@@ -71,7 +71,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 0 == tmp.count());
         REPORTER_ASSERT(reporter, 1 == obj0.getRefCnt());
         REPORTER_ASSERT(reporter, 1 == obj1.getRefCnt());
-        
+
         tmp.reset(2);   // this should use the preexisting allocation
         REPORTER_ASSERT(reporter, 2 == tmp.count());
         tmp[0] = &obj0;

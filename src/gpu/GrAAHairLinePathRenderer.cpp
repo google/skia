@@ -1194,4 +1194,3 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     return true;
 }
-

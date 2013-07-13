@@ -51,7 +51,7 @@ class SkBitmapFilter {
   protected:
       float fWidth;
       float fInvWidth;
-      
+
       float fLookupMultiplier;
 
       mutable bool fPrecomputed;
