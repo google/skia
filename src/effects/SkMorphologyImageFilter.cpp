@@ -452,10 +452,10 @@ void apply_morphology_pass(GrContext* context,
                            GrMorphologyEffect::MorphologyType morphType,
                            Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.colorStage(0)->setEffect(GrMorphologyEffect::Create(texture,
-                                                              direction,
-                                                              radius,
-                                                              morphType))->unref();
+    paint.addColorEffect(GrMorphologyEffect::Create(texture,
+                                                    direction,
+                                                    radius,
+                                                    morphType))->unref();
     context->drawRect(paint, SkRect::MakeFromIRect(rect));
 }
 

@@ -219,7 +219,6 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
         // We then verify that two reads produced the same values.
 
-        GrPaint paint;
         AutoEffectUnref pmToUPM1(SkNEW_ARGS(GrConfigConversionEffect, (dataTex,
                                                                        false,
                                                                        *pmToUPMRule,
@@ -238,17 +237,21 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         SkAutoTUnref<GrEffectRef> pmToUPMEffect2(CreateEffectRef(pmToUPM2));
 
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorStage(0)->setEffect(pmToUPMEffect1);
-        context->drawRectToRect(paint, kDstRect, kSrcRect);
+        GrPaint paint1;
+        paint1.addColorEffect(pmToUPMEffect1);
+        context->drawRectToRect(paint1, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
-        paint.colorStage(0)->setEffect(upmToPMEffect);
-        context->drawRectToRect(paint, kDstRect, kSrcRect);
+        GrPaint paint2;
+        paint2.addColorEffect(upmToPMEffect);
+        context->drawRectToRect(paint2, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorStage(0)->setEffect(pmToUPMEffect2);
-        context->drawRectToRect(paint, kDstRect, kSrcRect);
+
+        GrPaint paint3;
+        paint3.addColorEffect(pmToUPMEffect2);
+        context->drawRectToRect(paint3, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

@@ -43,7 +43,7 @@ void GrTextContext::flushGlyphs() {
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
                 kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||
-                fPaint.hasColorStage()) {
+                fPaint.numColorStages()) {
                 GrPrintf("LCD Text will not draw correctly.\n");
             }
             // setup blend so that we get mask * paintColor + (1-mask)*dstColor

@@ -305,7 +305,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
     GrPaint paint;
-    paint.colorStage(0)->setEffect(
+    paint.addColorEffect(
         GrDisplacementMapEffect::Create(fXChannelSelector,
                                         fYChannelSelector,
                                         fScale,

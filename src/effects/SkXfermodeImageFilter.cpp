@@ -119,23 +119,23 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                   SkIntToScalar(backgroundOffset.fY-foregroundOffset.fY));
 
 
-    GrPaint paint;
     SkRect srcRect;
     src.getBounds(&srcRect);
     if (NULL != xferEffect) {
-        paint.colorStage(0)->setEffect(
-            GrSimpleTextureEffect::Create(foregroundTex, foregroundMatrix))->unref();
-        paint.colorStage(1)->setEffect(xferEffect)->unref();
+        GrPaint paint;
+        paint.addColorTextureEffect(foregroundTex, foregroundMatrix);
+        paint.addColorEffect(xferEffect)->unref();
         context->drawRect(paint, srcRect);
     } else {
+        GrPaint backgroundPaint;
         SkMatrix backgroundMatrix = GrEffect::MakeDivByTextureWHMatrix(backgroundTex);
-        paint.colorStage(0)->setEffect(
-            GrSimpleTextureEffect::Create(backgroundTex, backgroundMatrix))->unref();
-        context->drawRect(paint, srcRect);
-        paint.setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
-        paint.colorStage(0)->setEffect(
-            GrSimpleTextureEffect::Create(foregroundTex, foregroundMatrix))->unref();
-        context->drawRect(paint, srcRect);
+        backgroundPaint.addColorTextureEffect(backgroundTex, backgroundMatrix);
+        context->drawRect(backgroundPaint, srcRect);
+
+        GrPaint foregroundPaint;
+        foregroundPaint.setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
+        foregroundPaint.addColorTextureEffect(foregroundTex, foregroundMatrix);
+        context->drawRect(foregroundPaint, srcRect);
     }
     offset->fX += backgroundOffset.fX;
     offset->fY += backgroundOffset.fY;

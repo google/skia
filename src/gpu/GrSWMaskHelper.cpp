@@ -192,12 +192,6 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
         return;
     }
     GrDrawState::AutoRestoreEffects are(drawState);
-    enum {
-        // the SW path renderer shares this stage with glyph
-        // rendering (kGlyphMaskStage in GrTextContext)
-        // && edge rendering (kEdgeEffectStage in GrContext)
-        kPathMaskStage = GrPaint::kTotalStages,
-    };
 
     GrRect dstRect = GrRect::MakeLTRB(
                             SK_Scalar1 * rect.fLeft,

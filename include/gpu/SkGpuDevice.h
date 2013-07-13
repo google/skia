@@ -152,7 +152,6 @@ private:
                                                Usage usage) SK_OVERRIDE;
 
     SkDrawProcs* initDrawForText(GrTextContext*);
-    bool bindDeviceAsTexture(GrPaint* paint);
 
     // sets the render target, clip, and matrix on GrContext. Use forceIdenity to override
     // SkDraw's matrix and draw in device coords.
@@ -178,12 +177,12 @@ private:
                             const SkRect&,
                             const SkMatrix&,
                             const GrTextureParams& params,
-                            GrPaint* grPaint);
+                            const SkPaint& paint);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
                          const SkMatrix& m,
                          const GrTextureParams& params,
-                         GrPaint* grPaint);
+                         const SkPaint& paint);
 
     /**
      * Returns non-initialized instance.

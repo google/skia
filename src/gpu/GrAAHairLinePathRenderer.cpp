@@ -1100,12 +1100,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     // TODO: See whether rendering lines as degenerate quads improves perf
     // when we have a mix
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
     static const int kEdgeAttrIndex = 1;
 
     GrEffectRef* hairLineEffect = HairLineEdgeEffect::Create();

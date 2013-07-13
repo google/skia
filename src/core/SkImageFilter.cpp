@@ -127,7 +127,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* 
     SkASSERT(effect);
     SkAutoUnref effectRef(effect);
     GrPaint paint;
-    paint.colorStage(0)->setEffect(effect);
+    paint.addColorEffect(effect);
     context->drawRect(paint, rect);
     SkAutoTUnref<GrTexture> resultTex(dst.detach());
     SkImageFilterUtils::WrapTexture(resultTex, input.width(), input.height(), result);

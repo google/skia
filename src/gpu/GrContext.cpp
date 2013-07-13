@@ -1766,20 +1766,16 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         return NULL;
     }
 
-    GrPaint paint;
-    paint.reset();
-
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
+        GrPaint paint;
         SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
-
-        paint.colorStage(0)->setEffect(GrSimpleTextureEffect::Create(srcTexture,
-                                                                     matrix,
-                                                                     true))->unref();
+        GrTextureParams params(SkShader::kClamp_TileMode, true);
+        paint.addColorTextureEffect(srcTexture, matrix, params);
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1797,7 +1793,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                           radiusX, srcIRect.height());
             this->clear(&clearRect, 0x0);
         }
-
+        GrPaint paint;
         this->setRenderTarget(dstTexture->asRenderTarget());
         AutoRestoreEffects are;
         GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
@@ -1817,6 +1813,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
+        GrPaint paint;
         AutoRestoreEffects are;
         GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
         convolve_gaussian(target, srcTexture, srcRect, sigmaY, radiusY,
@@ -1835,12 +1832,14 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         SkMatrix matrix;
-        // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.colorStage(0)->setEffect(GrSimpleTextureEffect::Create(srcTexture,
-                                                                     matrix,
-                                                                     true))->unref();
+
+        GrPaint paint;
+        // FIXME:  This should be mitchell, not bilinear.
+        GrTextureParams params(SkShader::kClamp_TileMode, true);
+        paint.addColorTextureEffect(srcTexture, matrix, params);
+
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);
