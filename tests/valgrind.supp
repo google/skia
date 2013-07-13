@@ -357,3 +357,100 @@
     fun:ralloc_size
     fun:_ZN10ir_swizzle6createEP9ir_rvaluePKcj
 }
+{
+    ir_swizzle_clone_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZNK23ir_dereference_variable5cloneEPvP10hash_table
+    fun:_ZNK10ir_swizzle5cloneEPvP10hash_table
+}
+{
+    ir_call_generate_inline_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN7ir_call15generate_inlineEP14ir_instruction
+}
+{
+    ir_dereference_variable_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZNK23ir_dereference_variable5cloneEPvP10hash_table
+}
+{
+    ir_copy_propagation_elements_visitor
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN36ir_copy_propagation_elements_visitor13handle_rvalueEPP9ir_rvalue
+}
+{
+    ir_reader_read_assignement
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader15read_assignmentEP12s_expression
+}
+{
+    ir_reader_read_expression
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader15read_expressionEP12s_expression
+}
+{
+    ir_reader_read_call
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader9read_callEP12s_expression
+}
+{
+    ir_reader_read_if
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader7read_ifEP12s_expressionP7ir_loop
+}
+{
+    ir_reader_read_constant
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader13read_constantEP12s_expression
+}
+{
+    ir_call_generate_inline
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN7ir_call15generate_inlineEP14ir_instruction
+}
+{
+    draw_llvw_create_variant
+    Memcheck:Leak
+    fun:malloc
+    fun:draw_llvm_create_variant
+}
+{
+    llvmpipe_update_setup
+    Memcheck:Leak
+    fun:calloc
+    obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
+    fun:llvmpipe_update_setup
+}
+{
+    do_assignment
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_Z13do_assignmentP9exec_listP22_mesa_glsl_parse_statePKcP9ir_rvalueS6_b7YYLTYPE
+}
+{
+    Mesa_shadersourceARB
+    Memcheck:Leak
+    fun:malloc
+    fun:_mesa_ShaderSourceARB
+}
