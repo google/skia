@@ -92,7 +92,7 @@ static bool valid_for_filtering(unsigned dimension) {
 
 // TODO -- we may want to pass the clip into this function so we only scale
 // the portion of the image that we're going to need.  This will complicate
-// the interface to the cache, but might be well worth it.  
+// the interface to the cache, but might be well worth it.
 
 void SkBitmapProcState::possiblyScaleImage() {
 
@@ -102,68 +102,68 @@ void SkBitmapProcState::possiblyScaleImage() {
 
     // STEP 1: UPSAMPLE?
 
-    // Check to see if the transformation matrix is scaling up, and if 
-    // the matrix is simple, and if we're doing high quality scaling.  
+    // Check to see if the transformation matrix is scaling up, and if
+    // the matrix is simple, and if we're doing high quality scaling.
     // If so, do the bitmap scale here and remove the scaling component from the matrix.
-    
+
     if (fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
         (fInvMatrix.getScaleX() < 1 || fInvMatrix.getScaleY() < 1) &&
         fOrigBitmap.config() == SkBitmap::kARGB_8888_Config) {
-            
+
         // All the criteria are met; let's make a new bitmap.
-        fScaledBitmap.setConfig(SkBitmap::kARGB_8888_Config, 
-                                (int)(fOrigBitmap.width() / fInvMatrix.getScaleX()), 
+        fScaledBitmap.setConfig(SkBitmap::kARGB_8888_Config,
+                                (int)(fOrigBitmap.width() / fInvMatrix.getScaleX()),
                                 (int)(fOrigBitmap.height() / fInvMatrix.getScaleY()));
         fScaledBitmap.allocPixels();
         fOrigBitmap.scale(&fScaledBitmap);
         fBitmap = &fScaledBitmap;
-        
+
         // set the inv matrix type to translate-only;
 
-        fInvMatrix.setTranslate( 1/fInvMatrix.getScaleX() * fInvMatrix.getTranslateX(), 
+        fInvMatrix.setTranslate( 1/fInvMatrix.getScaleX() * fInvMatrix.getTranslateX(),
                                  1/fInvMatrix.getScaleY() * fInvMatrix.getTranslateY() );
-        
+
         // no need for any further filtering; we just did it!
-                                     
+
         fFilterQuality = kNone_BitmapFilter;
-        
+
         return;
-    } 
-    
-    if (!fOrigBitmap.hasMipMap()) {        
-        
+    }
+
+    if (!fOrigBitmap.hasMipMap()) {
+
         // STEP 2: DOWNSAMPLE
-        
+
         // Check to see if the transformation matrix is scaling *down*.
-        // If so, automatically build mipmaps. 
-    
+        // If so, automatically build mipmaps.
+
         SkPoint v1, v2;
-    
-        // conservatively estimate if the matrix is scaling down by seeing 
+
+        // conservatively estimate if the matrix is scaling down by seeing
         // what its upper left 2x2 portion does to two unit vectors.
-    
+
         v1.fX = fInvMatrix.getScaleX();
         v1.fY = fInvMatrix.getSkewY();
-                
+
         v2.fX = fInvMatrix.getSkewX();
         v2.fY = fInvMatrix.getScaleY();
-        
+
         if (v1.fX * v1.fX + v1.fY * v1.fY > 1 ||
             v2.fX * v2.fX + v2.fY * v2.fY > 1) {
             fOrigBitmap.buildMipMap();
 
             // Now that we've built the mipmaps and we know we're downsampling,
             // downgrade to bilinear interpolation for the mip level.
-        
+
             fFilterQuality = kBilerp_BitmapFilter;
-        }        
-    } 
-    
+        }
+    }
+
     if (fOrigBitmap.hasMipMap()) {
-        
+
         // STEP 3: We've got mipmaps, let's choose the closest level as our render
         // source and adjust the matrix accordingly.
-        
+
         int shift = fOrigBitmap.extractMipLevel(&fScaledBitmap,
                                                 SkScalarToFixed(fInvMatrix.getScaleX()),
                                                 SkScalarToFixed(fInvMatrix.getSkewY()));
@@ -197,11 +197,11 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
 
     fBitmap = &fOrigBitmap;
-    
+
     // initialize our filter quality to the one requested by the caller.
     // We may downgrade it later if we determine that we either don't need
     // or can't provide as high a quality filtering as the user requested.
-    
+
     fFilterQuality = kNone_BitmapFilter;
     if (paint.isFilterBitmap()) {
         if (paint.getFlags() & SkPaint::kHighQualityFilterBitmap_Flag) {
@@ -213,19 +213,19 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
 #ifndef SK_IGNORE_IMAGE_PRESCALE
     // possiblyScaleImage will look to see if it can rescale the image as a
-    // preprocess; either by scaling up to the target size, or by selecting 
+    // preprocess; either by scaling up to the target size, or by selecting
     // a nearby mipmap level.  If it does, it will adjust the working
     // matrix as well as the working bitmap.  It may also adjust the filter
     // quality to avoid re-filtering an already perfectly scaled image.
-    
+
     this->possiblyScaleImage();
 #endif
-    
+
     // Now that all possible changes to the matrix have taken place, check
     // to see if we're really close to a no-scale matrix.  If so, explicitly
     // set it to be so.  Subsequent code may inspect this matrix to choose
     // a faster path in this case.
-    
+
     // This code will only execute if the matrix has some scale component;
     // if it's already pure translate then we won't do this inversion.
 
@@ -237,7 +237,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
                 SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
                 fInvMatrix.setTranslate(tx, ty);
-                
+
             }
         }
     }
@@ -250,15 +250,15 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvKyFractionalInt = SkScalarToFractionalInt(fInvMatrix.getSkewY());
 
     fAlphaScale = SkAlpha255To256(paint.getAlpha());
-    
+
     fShaderProc32 = NULL;
     fShaderProc16 = NULL;
     fSampleProc32 = NULL;
     fSampleProc16 = NULL;
-    
+
     // recompute the triviality of the matrix here because we may have
     // changed it!
-    
+
     trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
 
     if (kHQ_BitmapFilter == fFilterQuality) {
@@ -266,31 +266,31 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         // but couldn't do it as a preprocess.  Let's try to install
         // the scanline version of the HQ sampler.  If that process fails,
         // downgrade to bilerp.
-        
+
         // NOTE: Might need to be careful here in the future when we want
         // to have the platform proc have a shot at this; it's possible that
-        // the chooseBitmapFilterProc will fail to install a shader but a 
-        // platform-specific one might succeed, so it might be premature here 
+        // the chooseBitmapFilterProc will fail to install a shader but a
+        // platform-specific one might succeed, so it might be premature here
         // to fall back to bilerp.  This needs thought.
-        
+
         SkASSERT(fInvType > SkMatrix::kTranslate_Mask);
 
         fShaderProc32 = this->chooseBitmapFilterProc();
         if (!fShaderProc32) {
             fFilterQuality = kBilerp_BitmapFilter;
-        }        
+        }
     }
-    
+
     if (kBilerp_BitmapFilter == fFilterQuality) {
         // Only try bilerp if the matrix is "interesting" and
         // the image has a suitable size.
-            
+
         if (fInvType < SkMatrix::kTranslate_Mask ||
             !valid_for_filtering(fBitmap->width() | fBitmap->height())) {
                  fFilterQuality = kNone_BitmapFilter;
         }
     }
-    
+
     // At this point, we know exactly what kind of sampling the per-scanline
     // shader will perform.
 
@@ -301,12 +301,12 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     ///////////////////////////////////////////////////////////////////////
 
-    // No need to do this if we're doing HQ sampling; if filter quality is 
-    // still set to HQ by the time we get here, then we must have installed 
+    // No need to do this if we're doing HQ sampling; if filter quality is
+    // still set to HQ by the time we get here, then we must have installed
     // the shader proc above and can skip all this.
 
     if (fFilterQuality < kHQ_BitmapFilter) {
-        
+
         int index = 0;
         if (fAlphaScale < 256) {  // note: this distinction is not used for D16
             index |= 1;
@@ -702,8 +702,8 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
     static const unsigned kMask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
 
     if (1 == fBitmap->width() && 0 == (fInvType & ~kMask)) {
-        if (kNone_BitmapFilter == fFilterQuality && 
-            fInvType <= SkMatrix::kTranslate_Mask && 
+        if (kNone_BitmapFilter == fFilterQuality &&
+            fInvType <= SkMatrix::kTranslate_Mask &&
             !this->setupForTranslate()) {
             return DoNothing_shaderproc;
         }

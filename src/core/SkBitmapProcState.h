@@ -33,7 +33,7 @@
 class SkPaint;
 
 struct SkBitmapProcState {
-    
+
     SkBitmapProcState(): fBitmapFilter(NULL) {}
     ~SkBitmapProcState() {
         SkDELETE(fBitmapFilter);
@@ -86,10 +86,10 @@ struct SkBitmapProcState {
     uint8_t             fInvType;           // chooseProcs
     uint8_t             fTileModeX;         // CONSTRUCTOR
     uint8_t             fTileModeY;         // CONSTRUCTOR
-    
-    enum { 
-        kNone_BitmapFilter, 
-        kBilerp_BitmapFilter, 
+
+    enum {
+        kNone_BitmapFilter,
+        kBilerp_BitmapFilter,
         kHQ_BitmapFilter
     } fFilterQuality;          // chooseProcs
 
@@ -157,7 +157,7 @@ private:
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
-    
+
     void possiblyScaleImage();
 
     SkBitmapFilter *fBitmapFilter;

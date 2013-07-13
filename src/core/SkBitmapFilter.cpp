@@ -152,7 +152,7 @@ SkBitmapProcState::chooseBitmapFilterProc() {
     if (fFilterQuality != kHQ_BitmapFilter) {
         return NULL;
     }
-    
+
     if (fAlphaScale != 256) {
         return NULL;
     }
@@ -200,7 +200,7 @@ static void divideByWeights(SkScalar *sums, SkScalar *weights, SkBitmap *dst) {
 static void upScaleHorizTranspose(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
     for (int y = 0 ; y < dst->height() ; y++) {
         for (int x = 0 ; x < dst->width() ; x++) {
-            float sx = (y + 0.5f) / scale - 0.5f;                
+            float sx = (y + 0.5f) / scale - 0.5f;
             int x0 = SkClampMax(sk_float_ceil2int(sx-filter->width()), src->width()-1);
             int x1 = SkClampMax(sk_float_floor2int(sx+filter->width()), src->width()-1);
 
@@ -226,7 +226,7 @@ static void upScaleHorizTranspose(const SkBitmap *src, SkBitmap *dst, float scal
             int g = SkClampMax(SkScalarRoundToInt(fg), a);
             int b = SkClampMax(SkScalarRoundToInt(fb), a);
 
-            *dst->getAddr32(x,y) = SkPackARGB32(a, r, g, b);                   
+            *dst->getAddr32(x,y) = SkPackARGB32(a, r, g, b);
         }
     }
 }
