@@ -74,3 +74,4 @@ static void FitsInTest(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("FitsIn", FitsInTestClass, FitsInTest)
+

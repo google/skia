@@ -23,7 +23,7 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
                              int count, uint16_t* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    SkASSERT(SkBitmapProcState::kNone_BitmapFilter == s.fFilterQuality);
+    SkASSERT(s.fDoFilter == false);
 
     const uint16_t* SK_RESTRICT table = s.fBitmap->getColorTable()->lock16BitCache();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
@@ -114,7 +114,7 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
                                     int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    SkASSERT(SkBitmapProcState::kNone_BitmapFilter == s.fFilterQuality);
+    SkASSERT(s.fDoFilter == false);
 
     const SkPMColor* SK_RESTRICT table = s.fBitmap->getColorTable()->lockColors();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
@@ -190,6 +190,7 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
     otherwise the shader won't even look at the matrix/sampler
  */
 void SkBitmapProcState::platformProcs() {
+    bool doFilter = fDoFilter;
     bool isOpaque = 256 == fAlphaScale;
     bool justDx = false;
 
@@ -200,7 +201,7 @@ void SkBitmapProcState::platformProcs() {
     switch (fBitmap->config()) {
         case SkBitmap::kIndex8_Config:
 #if SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
-            if (justDx && kNone_BitmapFilter == fFilterQuality) {
+            if (justDx && !doFilter) {
 #if 0   /* crashing on android device */
                 fSampleProc16 = SI8_D16_nofilter_DX_arm;
                 fShaderProc16 = NULL;

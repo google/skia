@@ -311,7 +311,7 @@ static void fill_sequential(uint16_t xptr[], int start, int count) {
 static int nofilter_trans_preamble(const SkBitmapProcState& s, uint32_t** xy,
                                    int x, int y) {
     SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+    s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &pt);
     **xy = s.fIntTileProcY(SkScalarToFixed(pt.fY) >> 16,
                            s.fBitmap->height());
@@ -472,7 +472,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective
     if (trivial_matrix) {
-        SkASSERT(kNone_BitmapFilter == fFilterQuality);
+        SkASSERT(!fDoFilter);
         fIntTileProcY = choose_int_tile_proc(fTileModeY);
         switch (fTileModeX) {
             case SkShader::kClamp_TileMode:
@@ -485,7 +485,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     }
 
     int index = 0;
-    if (fFilterQuality != kNone_BitmapFilter) {
+    if (fDoFilter) {
         index = 1;
     }
     if (fInvType & SkMatrix::kPerspective_Mask) {
