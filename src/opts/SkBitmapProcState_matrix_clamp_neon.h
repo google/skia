@@ -67,8 +67,8 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     SkFixed fx;
     {
         SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                 SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
         fx = SkScalarToFixed(pt.fY);
         const unsigned maxY = s.fBitmap->height() - 1;
         *xy++ = TILEY_PROCF(fx, maxY);
@@ -169,7 +169,7 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 
     PREAMBLE(s);
     SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
+    s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
 
@@ -282,7 +282,7 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
 
-    SkPerspIter   iter(s.fInvMatrix,
+    SkPerspIter   iter(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
 
@@ -492,8 +492,8 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 
     {
         SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                 SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
         const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
         const unsigned maxY = s.fBitmap->height() - 1;
         // compute our two Y values up front
@@ -596,7 +596,7 @@ static void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
 
     PREAMBLE(s);
     SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
+    s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
 
@@ -757,7 +757,7 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
 
-    SkPerspIter   iter(s.fInvMatrix,
+    SkPerspIter   iter(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
 

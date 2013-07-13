@@ -55,7 +55,7 @@ void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
 
     while (count-- > 0) {
         SkPoint srcPt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x),
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
                     SkIntToScalar(y), &srcPt);
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
@@ -72,10 +72,10 @@ void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
         int x1 = SkTMin(maxX, int(floor(sx+s.getBitmapFilter()->width() + 0.5f)));
 
         for (int src_y = y0; src_y <= y1; src_y++) {
-            float yweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fY - src_y));
+            float yweight = s.getBitmapFilter()->lookupFloat( (srcPt.fY - src_y) );
 
             for (int src_x = x0; src_x <= x1 ; src_x++) {
-                float xweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fX - src_x));
+                float xweight = s.getBitmapFilter()->lookupFloat( (srcPt.fX - src_x) );
 
                 float combined_weight = xweight * yweight;
 
@@ -118,7 +118,7 @@ void highQualityFilter_ScaleOnly_SSE2(const SkBitmapProcState &s, int x, int y,
     const int maxY = s.fBitmap->height() - 1;
 
     SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x),
+    s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
                 SkIntToScalar(y), &srcPt);
     srcPt.fY -= SK_ScalarHalf;
     int sy = SkScalarFloorToInt(srcPt.fY);
@@ -139,10 +139,10 @@ void highQualityFilter_ScaleOnly_SSE2(const SkBitmapProcState &s, int x, int y,
         int x1 = SkTMin(maxX, int(floor(sx+s.getBitmapFilter()->width() + 0.5f)));
 
         for (int src_y = y0; src_y <= y1; src_y++) {
-            float yweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fY - src_y));
+            float yweight = s.getBitmapFilter()->lookupFloat( (srcPt.fY - src_y) );
 
             for (int src_x = x0; src_x <= x1 ; src_x++) {
-                float xweight = SkScalarToFloat(s.getBitmapFilter()->lookupScalar(srcPt.fX - src_x));
+                float xweight = s.getBitmapFilter()->lookupFloat( (srcPt.fX - src_x) );
 
                 float combined_weight = xweight * yweight;
 
@@ -175,7 +175,7 @@ void highQualityFilter_ScaleOnly_SSE2(const SkBitmapProcState &s, int x, int y,
 
         x++;
 
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x),
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x),
                     SkIntToScalar(y), &srcPt);
 
     }

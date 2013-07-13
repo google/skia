@@ -142,7 +142,6 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
 void SkBitmapProcShader::endContext() {
     fState.fOrigBitmap.unlockPixels();
-    fState.endContext();
     this->INHERITED::endContext();
 }
 

@@ -22,28 +22,28 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
 
     while (count-- > 0) {
         SkPoint srcPt;
-        s.fInvProc(s.fInvMatrix, SkFloatToScalar(x + 0.5f),
+        s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5f),
                     SkFloatToScalar(y + 0.5f), &srcPt);
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
 
-        SkScalar weight = 0;
-        SkScalar fr = 0, fg = 0, fb = 0, fa = 0;
+        SkFixed weight = 0;
+        SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
-        int y0 = SkClampMax(SkScalarCeilToInt(srcPt.fY-s.getBitmapFilter()->width()), maxY);
-        int y1 = SkClampMax(SkScalarFloorToInt(srcPt.fY+s.getBitmapFilter()->width()), maxY);
-        int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX-s.getBitmapFilter()->width()), maxX);
-        int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX+s.getBitmapFilter()->width()), maxX);
+        int y0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fY)-s.getBitmapFilter()->width()), maxY);
+        int y1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fY)+s.getBitmapFilter()->width()), maxY);
+        int x0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fX)-s.getBitmapFilter()->width()), maxX);
+        int x1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fX)+s.getBitmapFilter()->width()), maxX);
 
-        for (int srcY = y0; srcY <= y1; srcY++) {
-            SkScalar yWeight = s.getBitmapFilter()->lookupScalar((srcPt.fY - srcY));
+        for (int src_y = y0; src_y <= y1; src_y++) {
+            SkFixed yweight = s.getBitmapFilter()->lookup((srcPt.fY - src_y));
 
-            for (int srcX = x0; srcX <= x1 ; srcX++) {
-                SkScalar xWeight = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+            for (int src_x = x0; src_x <= x1 ; src_x++) {
+                SkFixed xweight = s.getBitmapFilter()->lookup((srcPt.fX - src_x));
 
-                SkScalar combined_weight = SkScalarMul(xWeight, yWeight);
+                SkFixed combined_weight = SkFixedMul(xweight, yweight);
 
-                SkPMColor c = *s.fBitmap->getAddr32(srcX, srcY);
+                SkPMColor c = *s.fBitmap->getAddr32(src_x, src_y);
                 fr += combined_weight * SkGetPackedR32(c);
                 fg += combined_weight * SkGetPackedG32(c);
                 fb += combined_weight * SkGetPackedB32(c);
@@ -52,15 +52,15 @@ void highQualityFilter(const SkBitmapProcState& s, int x, int y,
             }
         }
 
-        fr = SkScalarDiv(fr, weight);
-        fg = SkScalarDiv(fg, weight);
-        fb = SkScalarDiv(fb, weight);
-        fa = SkScalarDiv(fa, weight);
+        fr = SkFixedDiv(fr, weight);
+        fg = SkFixedDiv(fg, weight);
+        fb = SkFixedDiv(fb, weight);
+        fa = SkFixedDiv(fa, weight);
 
-        int a = SkClampMax(SkScalarRoundToInt(fa), 255);
-        int r = SkClampMax(SkScalarRoundToInt(fr), a);
-        int g = SkClampMax(SkScalarRoundToInt(fg), a);
-        int b = SkClampMax(SkScalarRoundToInt(fb), a);
+        int a = SkClampMax(SkFixedRoundToInt(fa), 255);
+        int r = SkClampMax(SkFixedRoundToInt(fr), a);
+        int g = SkClampMax(SkFixedRoundToInt(fg), a);
+        int b = SkClampMax(SkFixedRoundToInt(fb), a);
 
         *colors++ = SkPackARGB32(a, r, g, b);
 
@@ -75,33 +75,33 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
 
      SkPoint srcPt;
 
-     s.fInvProc(s.fInvMatrix, SkFloatToScalar(x + 0.5f),
+     s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5f),
                  SkFloatToScalar(y + 0.5f), &srcPt);
      srcPt.fY -= SK_ScalarHalf;
-     int y0 = SkClampMax(SkScalarCeilToInt(srcPt.fY-s.getBitmapFilter()->width()), maxY);
-     int y1 = SkClampMax(SkScalarFloorToInt(srcPt.fY+s.getBitmapFilter()->width()), maxY);
+     int y0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fY)-s.getBitmapFilter()->width()), maxY);
+     int y1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fY)+s.getBitmapFilter()->width()), maxY);
 
      while (count-- > 0) {
-         s.fInvProc(s.fInvMatrix, SkFloatToScalar(x + 0.5f),
+         s.fInvProc(*s.fInvMatrix, SkFloatToScalar(x + 0.5f),
                      SkFloatToScalar(y + 0.5f), &srcPt);
          srcPt.fX -= SK_ScalarHalf;
          srcPt.fY -= SK_ScalarHalf;
 
-         SkScalar weight = 0;
-         SkScalar fr = 0, fg = 0, fb = 0, fa = 0;
+         SkFixed weight = 0;
+         SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
-         int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX-s.getBitmapFilter()->width()), maxX);
-         int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX+s.getBitmapFilter()->width()), maxX);
+         int x0 = SkClampMax(sk_float_ceil2int(SkScalarToFloat(srcPt.fX)-s.getBitmapFilter()->width()), maxX);
+         int x1 = SkClampMax(sk_float_floor2int(SkScalarToFloat(srcPt.fX)+s.getBitmapFilter()->width()), maxX);
 
-         for (int srcY = y0; srcY <= y1; srcY++) {
-             SkScalar yWeight = s.getBitmapFilter()->lookupScalar((srcPt.fY - srcY));
+         for (int src_y = y0; src_y <= y1; src_y++) {
+             SkFixed yweight = s.getBitmapFilter()->lookup((srcPt.fY - src_y));
 
-             for (int srcX = x0; srcX <= x1 ; srcX++) {
-                 SkScalar xWeight = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+             for (int src_x = x0; src_x <= x1 ; src_x++) {
+                 SkFixed xweight = s.getBitmapFilter()->lookup((srcPt.fX - src_x));
 
-                 SkScalar combined_weight = SkScalarMul(xWeight, yWeight);
+                 SkFixed combined_weight = SkFixedMul(xweight, yweight);
 
-                 SkPMColor c = *s.fBitmap->getAddr32(srcX, srcY);
+                 SkPMColor c = *s.fBitmap->getAddr32(src_x, src_y);
                  fr += combined_weight * SkGetPackedR32(c);
                  fg += combined_weight * SkGetPackedG32(c);
                  fb += combined_weight * SkGetPackedB32(c);
@@ -110,15 +110,15 @@ void highQualityFilter_ScaleOnly(const SkBitmapProcState &s, int x, int y,
              }
          }
 
-         fr = SkScalarDiv(fr, weight);
-         fg = SkScalarDiv(fg, weight);
-         fb = SkScalarDiv(fb, weight);
-         fa = SkScalarDiv(fa, weight);
+         fr = SkFixedDiv(fr, weight);
+         fg = SkFixedDiv(fg, weight);
+         fb = SkFixedDiv(fb, weight);
+         fa = SkFixedDiv(fa, weight);
 
-         int a = SkClampMax(SkScalarRoundToInt(fa), 255);
-         int r = SkClampMax(SkScalarRoundToInt(fr), a);
-         int g = SkClampMax(SkScalarRoundToInt(fg), a);
-         int b = SkClampMax(SkScalarRoundToInt(fb), a);
+         int a = SkClampMax(SkFixedRoundToInt(fa), 255);
+         int r = SkClampMax(SkFixedRoundToInt(fr), a);
+         int g = SkClampMax(SkFixedRoundToInt(fg), a);
+         int b = SkClampMax(SkFixedRoundToInt(fb), a);
 
          *colors++ = SkPackARGB32(a, r, g, b);
 
@@ -147,13 +147,12 @@ static SkBitmapFilter *allocateBitmapFilter() {
 }
 
 SkBitmapProcState::ShaderProc32
-SkBitmapProcState::chooseBitmapFilterProc() {
-
-    if (fFilterQuality != kHQ_BitmapFilter) {
-        return NULL;
-    }
-
-    if (fAlphaScale != 256) {
+SkBitmapProcState::chooseBitmapFilterProc(const SkPaint& paint) {
+    // we need to be requested
+    uint32_t mask = SkPaint::kFilterBitmap_Flag
+                  | SkPaint::kHighQualityFilterBitmap_Flag
+                  ;
+    if ((paint.getFlags() & mask) != mask) {
         return NULL;
     }
 
@@ -164,6 +163,11 @@ SkBitmapProcState::chooseBitmapFilterProc() {
 
     // TODO: consider supporting repeat and mirror
     if (SkShader::kClamp_TileMode != fTileModeX || SkShader::kClamp_TileMode != fTileModeY) {
+        return NULL;
+    }
+
+    // TODO: support blending inside our procs
+    if (0xFF != paint.getAlpha()) {
         return NULL;
     }
 
@@ -180,51 +184,51 @@ SkBitmapProcState::chooseBitmapFilterProc() {
     }
 }
 
-static void divideByWeights(SkScalar *sums, SkScalar *weights, SkBitmap *dst) {
+static void divideByWeights(SkFixed *sums, SkFixed *weights, SkBitmap *dst) {
     for (int y = 0 ; y < dst->height() ; y++) {
         for (int x = 0 ; x < dst->width() ; x++) {
-            SkScalar fr = SkScalarDiv(sums[4*(y*dst->width() + x) + 0], weights[y*dst->width() + x]);
-            SkScalar fg = SkScalarDiv(sums[4*(y*dst->width() + x) + 1], weights[y*dst->width() + x]);
-            SkScalar fb = SkScalarDiv(sums[4*(y*dst->width() + x) + 2], weights[y*dst->width() + x]);
-            SkScalar fa = SkScalarDiv(sums[4*(y*dst->width() + x) + 3], weights[y*dst->width() + x]);
-            int a = SkClampMax(SkScalarRoundToInt(fa), 255);
-            int r = SkClampMax(SkScalarRoundToInt(fr), a);
-            int g = SkClampMax(SkScalarRoundToInt(fg), a);
-            int b = SkClampMax(SkScalarRoundToInt(fb), a);
+            SkFixed fr = SkFixedDiv(sums[4*(y*dst->width() + x) + 0], weights[y*dst->width() + x]);
+            SkFixed fg = SkFixedDiv(sums[4*(y*dst->width() + x) + 1], weights[y*dst->width() + x]);
+            SkFixed fb = SkFixedDiv(sums[4*(y*dst->width() + x) + 2], weights[y*dst->width() + x]);
+            SkFixed fa = SkFixedDiv(sums[4*(y*dst->width() + x) + 3], weights[y*dst->width() + x]);
+            int a = SkClampMax(SkFixedRoundToInt(fa), 255);
+            int r = SkClampMax(SkFixedRoundToInt(fr), a);
+            int g = SkClampMax(SkFixedRoundToInt(fg), a);
+            int b = SkClampMax(SkFixedRoundToInt(fb), a);
 
             *dst->getAddr32(x,y) = SkPackARGB32(a, r, g, b);
         }
     }
 }
 
-static void upScaleHorizTranspose(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
-    for (int y = 0 ; y < dst->height() ; y++) {
+static void upScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
+    for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < dst->width() ; x++) {
-            float sx = (y + 0.5f) / scale - 0.5f;
+            float sx = (x + 0.5f) / scale - 0.5f;
             int x0 = SkClampMax(sk_float_ceil2int(sx-filter->width()), src->width()-1);
             int x1 = SkClampMax(sk_float_floor2int(sx+filter->width()), src->width()-1);
 
-            SkScalar totalWeight = 0;
-            SkScalar fr = 0, fg = 0, fb = 0, fa = 0;
+            SkFixed total_weight = 0;
+            SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
 
-            for (int srcX = x0 ; srcX <= x1 ; srcX++) {
-                SkScalar weight = filter->lookupScalar(sx - srcX);
-                SkPMColor c = *src->getAddr32(srcX, x);
-                fr += SkScalarMul(weight,SkGetPackedR32(c));
-                fg += SkScalarMul(weight,SkGetPackedG32(c));
-                fb += SkScalarMul(weight,SkGetPackedB32(c));
-                fa += SkScalarMul(weight,SkGetPackedA32(c));
-                totalWeight += weight;
+            for (int src_x = x0 ; src_x <= x1 ; src_x++) {
+                SkFixed weight = filter->lookup(sx - src_x);
+                SkPMColor c = *src->getAddr32(src_x,y);
+                fr += weight * SkGetPackedR32(c);
+                fg += weight * SkGetPackedG32(c);
+                fb += weight * SkGetPackedB32(c);
+                fa += weight * SkGetPackedA32(c);
+                total_weight += weight;
             }
-            fr = SkScalarDiv(fr,totalWeight);
-            fg = SkScalarDiv(fg,totalWeight);
-            fb = SkScalarDiv(fb,totalWeight);
-            fa = SkScalarDiv(fa,totalWeight);
+            fr = SkFixedDiv(fr, total_weight);
+            fg = SkFixedDiv(fg, total_weight);
+            fb = SkFixedDiv(fb, total_weight);
+            fa = SkFixedDiv(fa, total_weight);
 
-            int a = SkClampMax(SkScalarRoundToInt(fa), 255);
-            int r = SkClampMax(SkScalarRoundToInt(fr), a);
-            int g = SkClampMax(SkScalarRoundToInt(fg), a);
-            int b = SkClampMax(SkScalarRoundToInt(fb), a);
+            int a = SkClampMax(SkFixedRoundToInt(fa), 255);
+            int r = SkClampMax(SkFixedRoundToInt(fr), a);
+            int g = SkClampMax(SkFixedRoundToInt(fg), a);
+            int b = SkClampMax(SkFixedRoundToInt(fb), a);
 
             *dst->getAddr32(x,y) = SkPackARGB32(a, r, g, b);
         }
@@ -232,14 +236,14 @@ static void upScaleHorizTranspose(const SkBitmap *src, SkBitmap *dst, float scal
 }
 
 static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
-    SkScalar *sums = SkNEW_ARRAY(SkScalar, dst->width() * dst->height() * 4);
-    SkScalar *weights = SkNEW_ARRAY(SkScalar, dst->width() * dst->height());
+    SkFixed *sums = SkNEW_ARRAY(SkFixed, dst->width() * dst->height() * 4);
+    SkFixed *weights = SkNEW_ARRAY(SkFixed, dst->width() * dst->height());
 
-    SkAutoTDeleteArray<SkScalar> ada1(sums);
-    SkAutoTDeleteArray<SkScalar> ada2(weights);
+    SkAutoTDeleteArray<SkFixed> ada1(sums);
+    SkAutoTDeleteArray<SkFixed> ada2(weights);
 
-    memset(sums, 0, dst->width() * dst->height() * sizeof(SkScalar) * 4);
-    memset(weights, 0, dst->width() * dst->height() * sizeof(SkScalar));
+    memset(sums, 0, dst->width() * dst->height() * sizeof(SkFixed) * 4);
+    memset(weights, 0, dst->width() * dst->height() * sizeof(SkFixed));
 
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < src->width() ; x++) {
@@ -251,7 +255,7 @@ static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBi
             SkPMColor c = *src->getAddr32(x,y);
 
             for (int dst_x = x0 ; dst_x <= x1 ; dst_x++) {
-                SkScalar weight = filter->lookup(dx - dst_x);
+                SkFixed weight = filter->lookup(dx - dst_x);
                 sums[4*(y*dst->width() + dst_x) + 0] += weight*SkGetPackedR32(c);
                 sums[4*(y*dst->width() + dst_x) + 1] += weight*SkGetPackedG32(c);
                 sums[4*(y*dst->width() + dst_x) + 2] += weight*SkGetPackedB32(c);
@@ -264,15 +268,49 @@ static void downScaleHoriz(const SkBitmap *src, SkBitmap *dst, float scale, SkBi
     divideByWeights(sums, weights, dst);
 }
 
+static void upScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
+    for (int y = 0 ; y < dst->height() ; y++) {
+        for (int x = 0 ; x < dst->width() ; x++) {
+            float sy = (y + 0.5f) / scale - 0.5f;
+            int y0 = SkClampMax(sk_float_ceil2int(sy-filter->width()), src->height()-1);
+            int y1 = SkClampMax(sk_float_floor2int(sy+filter->width()), src->height()-1);
+
+            SkFixed total_weight = 0;
+            SkFixed fr = 0, fg = 0, fb = 0, fa = 0;
+
+            for (int src_y = y0 ; src_y <= y1 ; src_y++) {
+                SkFixed weight = filter->lookup(sy - src_y);
+                SkPMColor c = *src->getAddr32(x,src_y);
+                fr += weight * SkGetPackedR32(c);
+                fg += weight * SkGetPackedG32(c);
+                fb += weight * SkGetPackedB32(c);
+                fa += weight * SkGetPackedA32(c);
+                total_weight += weight;
+            }
+            fr = SkFixedDiv(fr, total_weight);
+            fg = SkFixedDiv(fg, total_weight);
+            fb = SkFixedDiv(fb, total_weight);
+            fa = SkFixedDiv(fa, total_weight);
+
+            int a = SkClampMax(SkFixedRoundToInt(fa), 255);
+            int r = SkClampMax(SkFixedRoundToInt(fr), a);
+            int g = SkClampMax(SkFixedRoundToInt(fg), a);
+            int b = SkClampMax(SkFixedRoundToInt(fb), a);
+
+            *dst->getAddr32(x,y) = SkPackARGB32(a, r, g, b);
+        }
+    }
+}
+
 static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBitmapFilter *filter) {
-    SkScalar *sums = SkNEW_ARRAY(SkScalar, dst->width() * dst->height() * 4);
-    SkScalar *weights = SkNEW_ARRAY(SkScalar, dst->width() * dst->height());
+    SkFixed *sums = SkNEW_ARRAY(SkFixed, dst->width() * dst->height() * 4);
+    SkFixed *weights = SkNEW_ARRAY(SkFixed, dst->width() * dst->height());
 
-    SkAutoTDeleteArray<SkScalar> ada1(sums);
-    SkAutoTDeleteArray<SkScalar> ada2(weights);
+    SkAutoTDeleteArray<SkFixed> ada1(sums);
+    SkAutoTDeleteArray<SkFixed> ada2(weights);
 
-    memset(sums, 0, dst->width() * dst->height() * sizeof(SkScalar) * 4);
-    memset(weights, 0, dst->width() * dst->height() * sizeof(SkScalar));
+    memset(sums, 0, dst->width() * dst->height() * sizeof(SkFixed) * 4);
+    memset(weights, 0, dst->width() * dst->height() * sizeof(SkFixed));
 
     for (int y = 0 ; y < src->height() ; y++) {
         for (int x = 0 ; x < src->width() ; x++) {
@@ -284,7 +322,7 @@ static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBit
             SkPMColor c = *src->getAddr32(x,y);
 
             for (int dst_y = y0 ; dst_y <= y1 ; dst_y++) {
-                SkScalar weight = filter->lookupScalar(dy - dst_y);
+                SkFixed weight = filter->lookup(dy - dst_y);
                 sums[4*(dst_y*dst->width() + x) + 0] += weight*SkGetPackedR32(c);
                 sums[4*(dst_y*dst->width() + x) + 1] += weight*SkGetPackedG32(c);
                 sums[4*(dst_y*dst->width() + x) + 2] += weight*SkGetPackedB32(c);
@@ -299,27 +337,31 @@ static void downScaleVert(const SkBitmap *src, SkBitmap *dst, float scale, SkBit
 
 void SkBitmap::scale(SkBitmap *dst) const {
 
-    SkBitmap horizTemp;
+    SkBitmap horiz_temp;
 
-    horizTemp.setConfig(SkBitmap::kARGB_8888_Config, height(), dst->width());
-    horizTemp.allocPixels();
+    horiz_temp.setConfig(SkBitmap::kARGB_8888_Config, dst->width(), height());
+    horiz_temp.allocPixels();
 
     SkBitmapFilter *filter = allocateBitmapFilter();
 
-    float horizScale = float(dst->width()) / width();
+    float horiz_scale = float(dst->width()) / width();
 
-    if (horizScale >= 1) {
-        upScaleHorizTranspose(this, &horizTemp, horizScale, filter);
-    } else if (horizScale < 1) {
-        downScaleHoriz(this, &horizTemp, horizScale, filter);
+    if (horiz_scale == 1) {
+        this->copyPixelsTo(horiz_temp.getPixels(), getSize());
+    } else if (horiz_scale > 1) {
+        upScaleHoriz(this, &horiz_temp, horiz_scale, filter);
+    } else if (horiz_scale < 1) {
+        downScaleHoriz(this, &horiz_temp, horiz_scale, filter);
     }
 
-    float vertScale = float(dst->height()) / height();
+    float vert_scale = float(dst->height()) / height();
 
-    if (vertScale >= 1) {
-        upScaleHorizTranspose(&horizTemp, dst, vertScale, filter);
-    } else if (vertScale < 1) {
-        downScaleVert(&horizTemp, dst, vertScale, filter);
+    if (vert_scale == 1) {
+        horiz_temp.copyPixelsTo(dst->getPixels(), dst->getSize());
+    } else if (vert_scale > 1) {
+        upScaleVert(&horiz_temp, dst, vert_scale, filter);
+    } else if (vert_scale < 1) {
+        downScaleVert(&horiz_temp, dst, vert_scale, filter);
     }
 
     SkDELETE(filter);
