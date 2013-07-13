@@ -365,7 +365,7 @@ bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkB
     }
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
     GrPaint paint;
-    paint.colorStage(0)->setEffect(GrBicubicEffect::Create(srcTexture, fCoefficients))->unref();
+    paint.addColorEffect(GrBicubicEffect::Create(srcTexture, fCoefficients))->unref();
     SkRect srcRect;
     srcBM.getBounds(&srcRect);
     context->drawRectToRect(paint, dstRect, srcRect);

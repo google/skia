@@ -84,6 +84,7 @@
       '<(skia_src_path)/gpu/GrMemoryPool.cpp',
       '<(skia_src_path)/gpu/GrMemoryPool.h',
       '<(skia_src_path)/gpu/GrOvalRenderer.cpp',
+      '<(skia_src_path)/gpu/GrPaint.cpp',
       '<(skia_src_path)/gpu/GrPath.cpp',
       '<(skia_src_path)/gpu/GrPath.h',
       '<(skia_src_path)/gpu/GrPathRendererChain.cpp',

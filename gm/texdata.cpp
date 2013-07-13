@@ -113,7 +113,7 @@ protected:
                 SkMatrix tm;
                 tm = vm;
                 tm.postIDiv(2*S, 2*S);
-                paint.colorStage(0)->setEffect(GrSimpleTextureEffect::Create(texture, tm))->unref();
+                paint.addColorTextureEffect(texture, tm);
 
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
 

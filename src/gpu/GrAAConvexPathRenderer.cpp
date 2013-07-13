@@ -637,12 +637,6 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs));
 
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
     static const int kEdgeAttrIndex = 1;
     GrEffectRef* quadEffect = QuadEdgeEffect::Create();
     drawState->addCoverageEffect(quadEffect, kEdgeAttrIndex)->unref();

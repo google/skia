@@ -194,8 +194,9 @@ bool SkBlendImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBit
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
     GrPaint paint;
-    paint.colorStage(0)->setEffect(
-        GrBlendEffect::Create(fMode, foreground, foregroundOffset, background, backgroundOffset))->unref();
+    paint.addColorEffect(GrBlendEffect::Create(fMode,
+                                               foreground, foregroundOffset,
+                                               background, backgroundOffset))->unref();
     SkRect srcRect;
     src.getBounds(&srcRect);
     context->drawRect(paint, srcRect);

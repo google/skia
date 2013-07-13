@@ -423,8 +423,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
         matrix.setIDiv(src->width(), src->height());
         // Blend pathTexture over blurTexture.
         GrContext::AutoRenderTarget art(context, (*result)->asRenderTarget());
-        paint.colorStage(0)->setEffect(
-            GrSimpleTextureEffect::Create(src, matrix))->unref();
+        paint.addColorEffect(GrSimpleTextureEffect::Create(src, matrix))->unref();
         if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);

@@ -32,16 +32,12 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fColorStages.reset();
     fCoverageStages.reset();
 
-    for (int i = 0; i < GrPaint::kMaxColorStages; ++i) {
-        if (paint.isColorStageEnabled(i)) {
-            fColorStages.push_back(paint.getColorStage(i));
-        }
+    for (int i = 0; i < paint.numColorStages(); ++i) {
+        fColorStages.push_back(paint.getColorStage(i));
     }
 
-    for (int i = 0; i < GrPaint::kMaxCoverageStages; ++i) {
-        if (paint.isCoverageStageEnabled(i)) {
-            fCoverageStages.push_back(paint.getCoverageStage(i));
-        }
+    for (int i = 0; i < paint.numCoverageStages(); ++i) {
+        fCoverageStages.push_back(paint.getCoverageStage(i));
     }
 
     this->setRenderTarget(rt);
