@@ -315,3 +315,45 @@
     fun:ralloc_size
     fun:_ZN20glsl_to_tgsi_visitor12add_constantE16gl_register_fileP17gl_constant_valueiiPj
 }
+{
+    glsl_symbol_table_add_type_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN17glsl_symbol_table8add_typeEPKcPK9glsl_type
+}
+{
+    llvm_constant_creator
+    Memcheck:Leak
+    fun:_Znwm
+    fun:_ZN4llvm4UsernwEmj
+    fun:_ZN4llvm15ConstantCreatorINS_12ConstantExprENS_4TypeENS_14ExprMapKeyTypeEE6createEPS2_RKS3_t
+}
+{
+    ir_reader_read_dereference_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN9ir_reader16read_dereferenceEP12s_expression
+}
+{
+    ast_expression_hir_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN14ast_expression3hirEP9exec_listP22_mesa_glsl_parse_state
+}
+{
+    ir_return_close_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZNK9ir_return5cloneEPvP10hash_table
+}
+{
+    ir_swizzle_create_leak
+    Memcheck:Leak
+    fun:calloc
+    fun:ralloc_size
+    fun:_ZN10ir_swizzle6createEP9ir_rvaluePKcj
+}
