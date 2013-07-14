@@ -646,7 +646,7 @@ desk_pokemonwiki.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Ar
 desk_pokemonwiki.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12.780,1.502,24.058
 desk_pokemonwiki.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,167.830,141.047,204.613
 desk_pokemonwiki.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,208.760,177.884,259.636
-desk_pokemonwiki.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,581.590,513.431,659.749
+desk_pokemonwiki.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,581.590,513.431,679.749
 desk_pokemonwiki.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,711.080,629.972,832.188
 desk_pokemonwiki.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,5691.880,5112.692,6571.068
 desk_pokemonwiki.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,372.990,325.691,480.289
@@ -1258,7 +1258,7 @@ tabl_cuteoverload.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-A
 tabl_cuteoverload.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,102.660,72.394,122.926
 tabl_cuteoverload.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,39.090,25.181,62.999
 tabl_cuteoverload.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,40.420,26.378,54.462
-tabl_cuteoverload.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,79.090,61.181,96.999
+tabl_cuteoverload.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,79.090,61.181,99.999
 tabl_cuteoverload.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,79.370,61.433,97.307
 tabl_cuteoverload.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1452.200,1246.980,1607.420
 tabl_cuteoverload.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,60.970,44.873,87.067
