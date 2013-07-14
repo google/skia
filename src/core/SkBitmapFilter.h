@@ -22,23 +22,26 @@ class SkBitmapFilter {
   public:
       SkBitmapFilter(float width)
       : fWidth(width), fInvWidth(1.f/width) {
-          precomputed = false;
+          fPrecomputed = false;
+          fLookupMultiplier = this->invWidth() * (SKBITMAP_FILTER_TABLE_SIZE-1);
       }
 
       SkFixed lookup( float x ) const {
-          if (!precomputed) {
+          if (!fPrecomputed) {
               precomputeTable();
           }
-          int filter_idx = int(fabsf(x * invWidth() * SKBITMAP_FILTER_TABLE_SIZE));
-          return fFilterTable[ SkTMin(filter_idx, SKBITMAP_FILTER_TABLE_SIZE-1) ];
+          int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
+          SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
+          return fFilterTable[ filter_idx ];
       }
 
-      float lookupFloat( float x ) const {
-          if (!precomputed) {
+      SkScalar lookupScalar( float x ) const {
+          if (!fPrecomputed) {
               precomputeTable();
           }
-          int filter_idx = int(fabsf(x * invWidth() * SKBITMAP_FILTER_TABLE_SIZE));
-          return fFilterTableFloat[ SkTMin(filter_idx, SKBITMAP_FILTER_TABLE_SIZE-1) ];
+          int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
+          SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
+          return fFilterTableScalar[ filter_idx ];
       }
 
       float width() const { return fWidth; }
@@ -49,18 +52,20 @@ class SkBitmapFilter {
       float fWidth;
       float fInvWidth;
 
-      mutable bool precomputed;
+      float fLookupMultiplier;
+
+      mutable bool fPrecomputed;
       mutable SkFixed fFilterTable[SKBITMAP_FILTER_TABLE_SIZE];
-      mutable float fFilterTableFloat[SKBITMAP_FILTER_TABLE_SIZE];
+      mutable SkScalar fFilterTableScalar[SKBITMAP_FILTER_TABLE_SIZE];
   private:
       void precomputeTable() const {
-          precomputed = true;
+          fPrecomputed = true;
           SkFixed *ftp = fFilterTable;
-          float *ftp_float = fFilterTableFloat;
+          SkScalar *ftpScalar = fFilterTableScalar;
           for (int x = 0; x < SKBITMAP_FILTER_TABLE_SIZE; ++x) {
               float fx = ((float)x + .5f) * this->width() / SKBITMAP_FILTER_TABLE_SIZE;
               float filter_value = evaluate(fx);
-              *ftp_float++ = filter_value;
+              *ftpScalar++ = SkFloatToScalar(filter_value);
               *ftp++ = SkFloatToFixed(filter_value);
           }
       }
