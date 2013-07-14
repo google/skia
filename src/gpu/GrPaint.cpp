@@ -33,4 +33,3 @@ void GrPaint::addCoverageTextureEffect(GrTexture* texture,
     GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
     this->addCoverageEffect(effect)->unref();
 }
-
