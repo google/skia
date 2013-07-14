@@ -21,7 +21,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fDoFilter);
+    SkASSERT(s.fFilterQuality != SkBitmapProcState::kNone_BitmapFilter);
     SkDEBUGCODE(CHECKSTATE(s);)
 
     const unsigned maxX = s.fBitmap->width() - 1;
@@ -34,7 +34,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 
     {
         SkPoint pt;
-        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
         SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
         const unsigned maxY = s.fBitmap->height() - 1;
