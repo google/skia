@@ -344,6 +344,16 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bo
     return current;
 }
 
+void CheckEnds(SkTArray<SkOpContour*, true>* contourList) {
+    // it's hard to determine if the end of a cubic or conic nearly intersects another curve.
+    // instead, look to see if the connecting curve intersected at that same end.
+    int contourCount = (*contourList).count();
+    for (int cTest = 0; cTest < contourCount; ++cTest) {
+        SkOpContour* contour = (*contourList)[cTest];
+        contour->checkEnds();
+    }
+}
+
 void FixOtherTIndex(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {

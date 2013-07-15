@@ -254,6 +254,7 @@ public:
                   const SkPoint& oPt);
     int addUnsortableT(SkOpSegment* other, bool start, const SkPoint& pt, double newT);
     bool betweenTs(int lesser, double testT, int greater) const;
+    void checkEnds();
     int computeSum(int startIndex, int endIndex, bool binary);
     int crossedSpanY(const SkPoint& basePt, SkScalar* bestY, double* hitT, bool* hitSomething,
                      double mid, bool opp, bool current) const;

@@ -68,7 +68,7 @@ static void PathOpsLineParametersTest(skiatest::Reporter* reporter) {
             if (AlmostEqualUlps(fabs(normalizedDistance[inner]), answers[index][inner])) {
                 continue;
             }
-            SkDebugf("%s [%d,%d] normalizedDistance:%1.10g != answer:%g\n",
+            SkDebugf("%s [%d,%d] normalizedDistance:%1.9g != answer:%g\n",
                     __FUNCTION__, static_cast<int>(index), (int)inner,
                     normalizedDistance[inner], answers[index][inner]);
             REPORTER_ASSERT(reporter, 0);

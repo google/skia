@@ -185,6 +185,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     // eat through coincident edges
     CoincidenceCheck(&contourList, 0);
     FixOtherTIndex(&contourList);
+    CheckEnds(&contourList);
     SortSegments(&contourList);
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     DebugShowActiveSpans(contourList);

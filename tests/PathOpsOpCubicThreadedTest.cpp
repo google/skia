@@ -9,6 +9,9 @@
 
 static void testOpCubicsMain(PathOpsThreadState* data)
 {
+#if DEBUG_SHOW_TEST_NAME
+    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
+#endif
     SkASSERT(data);
     PathOpsThreadState& state = *data;
     char pathStr[1024];  // gdb: set print elements 400

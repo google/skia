@@ -80,7 +80,12 @@ public:
 LineCubicIntersections(const SkDCubic& c, const SkDLine& l, SkIntersections& i)
     : cubic(c)
     , line(l)
-    , intersections(i) {
+    , intersections(i)
+    , fAllowNear(true) {
+}
+
+void allowNear(bool allow) {
+    fAllowNear = allow;
 }
 
 // see parallel routine in line quadratic intersections
@@ -97,7 +102,7 @@ int intersectRay(double roots[3]) {
 }
 
 int intersect() {
-    addEndPoints();
+    addExactEndPoints();
     double rootVals[3];
     int roots = intersectRay(rootVals);
     for (int index = 0; index < roots; ++index) {
@@ -113,6 +118,9 @@ int intersect() {
             intersections.insert(cubicT, lineT, pt);
         }
     }
+    if (fAllowNear) {
+        addNearEndPoints();
+    }
     return intersections.used();
 }
 
@@ -124,7 +132,7 @@ int horizontalIntersect(double axisIntercept, double roots[3]) {
 }
 
 int horizontalIntersect(double axisIntercept, double left, double right, bool flipped) {
-    addHorizontalEndPoints(left, right, axisIntercept);
+    addExactHorizontalEndPoints(left, right, axisIntercept);
     double rootVals[3];
     int roots = horizontalIntersect(axisIntercept, rootVals);
     for (int index = 0; index < roots; ++index) {
@@ -134,6 +142,9 @@ int horizontalIntersect(double axisIntercept, double left, double right, bool fl
         if (pinTs(&cubicT, &lineT)) {
             intersections.insert(cubicT, lineT, pt);
         }
+    }
+    if (fAllowNear) {
+        addNearHorizontalEndPoints(left, right, axisIntercept);
     }
     if (flipped) {
         intersections.flip();
@@ -149,7 +160,7 @@ int verticalIntersect(double axisIntercept, double roots[3]) {
 }
 
 int verticalIntersect(double axisIntercept, double top, double bottom, bool flipped) {
-    addVerticalEndPoints(top, bottom, axisIntercept);
+    addExactVerticalEndPoints(top, bottom, axisIntercept);
     double rootVals[3];
     int roots = verticalIntersect(axisIntercept, rootVals);
     for (int index = 0; index < roots; ++index) {
@@ -160,6 +171,9 @@ int verticalIntersect(double axisIntercept, double top, double bottom, bool flip
             intersections.insert(cubicT, lineT, pt);
         }
     }
+    if (fAllowNear) {
+        addNearVerticalEndPoints(top, bottom, axisIntercept);
+    }
     if (flipped) {
         intersections.flip();
     }
@@ -168,65 +182,81 @@ int verticalIntersect(double axisIntercept, double top, double bottom, bool flip
 
 protected:
 
-void addEndPoints() {
+void addExactEndPoints() {
     for (int cIndex = 0; cIndex < 4; cIndex += 3) {
-        bool foundEnd = false;
-        for (int lIndex = 0; lIndex < 2; lIndex++) {
-            if (cubic[cIndex] == line[lIndex]) {
-                intersections.insert(cIndex >> 1, lIndex, line[lIndex]);
-                foundEnd = true;
-            }
-        }
-        // for the test case this was written for, the dist / error ratio was 170.6667
-        // it looks like the cubic stops short of touching the line, but this fixed it.
-        if (foundEnd) {
+        double lineT = line.exactPoint(cubic[cIndex]);
+        if (lineT < 0) {
             continue;
         }
-        // See if the cubic end touches the line.
-        double dist = line.isLeft(cubic[cIndex]); // this distance isn't cartesian
-        SkDVector lineLen = line[1] - line[0]; // the x/y magnitudes of the line
-        // compute the ULPS of the larger of the x/y deltas
-        double larger = SkTMax(SkTAbs(lineLen.fX), SkTAbs(lineLen.fY));
-        if (!RoughlyEqualUlps(larger, larger + dist)) { // is the dist within ULPS tolerance?
-            continue;
-        }
-        double lineT = findLineT(cIndex >> 1);
-        if (!between(0, lineT, 1)) {
-            continue;
-        }
-        SkDPoint linePt = line.xyAtT(lineT);
-        if (linePt.approximatelyEqual(cubic[cIndex])) {
-            intersections.insert(cIndex >> 1, lineT, cubic[cIndex]);
-        }
+        double cubicT = (double) (cIndex >> 1);
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
     }
 }
 
-void addHorizontalEndPoints(double left, double right, double y) {
+void addNearEndPoints() {
     for (int cIndex = 0; cIndex < 4; cIndex += 3) {
-        if (cubic[cIndex].fY != y) {
+        double cubicT = (double) (cIndex >> 1);
+        if (intersections.hasT(cubicT)) {
             continue;
         }
-        if (cubic[cIndex].fX == left) {
-            intersections.insert(cIndex >> 1, 0, cubic[cIndex]);
+        double lineT = line.nearPoint(cubic[cIndex]);
+        if (lineT < 0) {
+            continue;
         }
-        if (cubic[cIndex].fX == right) {
-            intersections.insert(cIndex >> 1, 1, cubic[cIndex]);
-        }
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
     }
 }
 
-void addVerticalEndPoints(double top, double bottom, double x) {
+void addExactHorizontalEndPoints(double left, double right, double y) {
     for (int cIndex = 0; cIndex < 4; cIndex += 3) {
-        if (cubic[cIndex].fX != x) {
+        double lineT = SkDLine::ExactPointH(cubic[cIndex], left, right, y);
+        if (lineT < 0) {
             continue;
         }
-        if (cubic[cIndex].fY == top) {
-            intersections.insert(cIndex >> 1, 0, cubic[cIndex]);
-        }
-        if (cubic[cIndex].fY == bottom) {
-            intersections.insert(cIndex >> 1, 1, cubic[cIndex]);
-        }
+        double cubicT = (double) (cIndex >> 1);
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
     }
+}
+
+void addNearHorizontalEndPoints(double left, double right, double y) {
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        double cubicT = (double) (cIndex >> 1);
+        if (intersections.hasT(cubicT)) {
+            continue;
+        }
+        double lineT = SkDLine::NearPointH(cubic[cIndex], left, right, y);
+        if (lineT < 0) {
+            continue;
+        }
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
+    }
+    // FIXME: see if line end is nearly on cubic
+}
+
+void addExactVerticalEndPoints(double top, double bottom, double x) {
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        double lineT = SkDLine::ExactPointV(cubic[cIndex], top, bottom, x);
+        if (lineT < 0) {
+            continue;
+        }
+        double cubicT = (double) (cIndex >> 1);
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
+    }
+}
+
+void addNearVerticalEndPoints(double top, double bottom, double x) {
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        double cubicT = (double) (cIndex >> 1);
+        if (intersections.hasT(cubicT)) {
+            continue;
+        }
+        double lineT = SkDLine::NearPointV(cubic[cIndex], top, bottom, x);
+        if (lineT < 0) {
+            continue;
+        }
+        intersections.insert(cubicT, lineT, cubic[cIndex]);
+    }
+    // FIXME: see if line end is nearly on cubic
 }
 
 double findLineT(double t) {
@@ -264,6 +294,7 @@ private:
 const SkDCubic& cubic;
 const SkDLine& line;
 SkIntersections& intersections;
+bool fAllowNear;
 };
 
 int SkIntersections::horizontal(const SkDCubic& cubic, double left, double right, double y,
@@ -280,6 +311,7 @@ int SkIntersections::vertical(const SkDCubic& cubic, double top, double bottom, 
 
 int SkIntersections::intersect(const SkDCubic& cubic, const SkDLine& line) {
     LineCubicIntersections c(cubic, line, *this);
+    c.allowNear(fAllowNear);
     return c.intersect();
 }
 

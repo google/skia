@@ -209,7 +209,7 @@ bool SkOpSegment::activeWinding(int index, int endIndex, int* maxWinding, int* s
 void SkOpSegment::addAngle(SkTArray<SkOpAngle, true>* anglesPtr, int start, int end) const {
     SkASSERT(start != end);
     SkOpAngle& angle = anglesPtr->push_back();
-#if DEBUG_ANGLE
+#if 0 && DEBUG_ANGLE // computed pt and actual pt may differ by more than approx eq
     SkTArray<SkOpAngle, true>& angles = *anglesPtr;
     if (angles.count() > 1) {
         const SkOpSegment* aSeg = angles[0].segment();
@@ -1078,6 +1078,86 @@ bool SkOpSegment::bumpSpan(SkOpSpan* span, int windDelta, int oppDelta) {
         return true;
     }
     return false;
+}
+
+// look to see if the curve end intersects an intermediary that intersects the other
+void SkOpSegment::checkEnds() {
+#if 1
+    return;  // FIXME: suspect we will need the code below to make intersections consistent
+#else
+    SkTDArray<SkOpSpan> missingSpans;
+    int count = fTs.count();
+    for (int index = 0; index < count; ++index) {
+        const SkOpSpan& span = fTs[index];
+        const SkOpSegment* other = span.fOther;
+        const SkOpSpan* otherSpan = &other->fTs[span.fOtherIndex];
+        double otherT = otherSpan->fT;
+        if (otherT != 0 && otherT != 1) {
+            continue;
+        }
+        int peekStart = span.fOtherIndex;
+        while (peekStart > 0) {
+            const SkOpSpan* peeker = &other->fTs[peekStart - 1];
+            if (peeker->fT != otherT) {
+                break;
+            }
+            --peekStart;
+        }
+        int otherLast = other->fTs.count() - 1;
+        int peekLast = span.fOtherIndex;
+        while (peekLast < otherLast) {
+            const SkOpSpan* peeker = &other->fTs[peekLast + 1];
+            if (peeker->fT != otherT) {
+                break;
+            }
+            ++peekLast;
+        }
+        if (peekStart == peekLast) {
+            continue;
+        }
+        double t = span.fT;
+        int tStart = index;
+        while (tStart > 0 && t == fTs[tStart - 1].fT) {
+            --tStart;
+        }
+        int tLast = index;
+        int last = count - 1;
+        while (tLast < last && t == fTs[tLast + 1].fT) {
+            ++tLast;
+        }
+        for (int peekIndex = peekStart; peekIndex <= peekLast; ++peekIndex) {
+            if (peekIndex == span.fOtherIndex) {
+                continue;
+            }
+            const SkOpSpan& peekSpan = other->fTs[peekIndex];
+            SkOpSegment* match = peekSpan.fOther;
+            const double matchT = peekSpan.fOtherT;
+            for (int tIndex = tStart; tIndex <= tLast; ++tIndex) {
+                const SkOpSpan& tSpan = fTs[tIndex];
+                if (tSpan.fOther == match && tSpan.fOtherT == matchT) {
+                    goto nextPeeker;
+                }
+            }
+            // this segment is missing a entry that the other contains
+            // remember so we can add the missing one and recompute the indices
+            SkOpSpan* missing = missingSpans.append();
+            missing->fT = t;
+            missing->fOther = match;
+            missing->fOtherT = matchT;
+            missing->fPt = peekSpan.fPt;
+        }
+nextPeeker:
+        ;
+    }
+    int missingCount = missingSpans.count();
+    for (int index = 0; index < missingCount; ++index)  {
+        const SkOpSpan& missing = missingSpans[index];
+        addTPair(missing.fT, missing.fOther, missing.fOtherT, false, missing.fPt);
+    }
+    if (missingCount > 0) {
+        fixOtherTIndex();
+    }
+#endif
 }
 
 bool SkOpSegment::equalPoints(int greaterTIndex, int lesserTIndex) {

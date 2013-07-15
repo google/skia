@@ -88,7 +88,7 @@ static void testOne(const SkString& filename) {
     SkDELETE(pic);
 }
 
-const char skipBefore[] = "http___health_com.skp";
+const char skipBefore[] = "http___kkiste_to.skp";
 
 static void PathOpsSkpClipTest(skiatest::Reporter* reporter) {
     SkOSFile::Iter iter(pictDir, "skp");
@@ -138,7 +138,7 @@ static void PathOpsSkpClipThreadedTest(skiatest::Reporter* reporter) {
     testRunner.render();
 }
 
-static void PathOpsSkpClipTestOne(skiatest::Reporter* reporter) {
+static void PathOpsSkpClipOneOffTest(skiatest::Reporter* reporter) {
     SkString filename(skipBefore);
     testOne(filename);
 }
@@ -146,6 +146,6 @@ static void PathOpsSkpClipTestOne(skiatest::Reporter* reporter) {
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsSkpClipTest)
 
-DEFINE_TESTCLASS_SHORT(PathOpsSkpClipTestOne)
+DEFINE_TESTCLASS_SHORT(PathOpsSkpClipOneOffTest)
 
 DEFINE_TESTCLASS_SHORT(PathOpsSkpClipThreadedTest)

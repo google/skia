@@ -58,11 +58,13 @@ static struct oneLineQuad {
     SkDQuad quad;
     SkDLine line;
 } oneOffs[] = {
+    {{{{1101, 10}, {1101, 8.3431453704833984}, {1099.828857421875, 7.1711997985839844}}},
+        {{{1099.828857421875,7.1711711883544922}, {1099.121337890625,7.8786783218383789}}}},
     {{{{973, 507}, {973, 508.24264526367187}, {972.12158203125, 509.12161254882812}}},
         {{{930, 467}, {973, 510}}}},
     {{{{369.848602, 145.680267}, {382.360413, 121.298294}, {406.207703, 121.298294}}},
-        {{{406.207703, 121.298294}, {348.781738, 123.864815}}}}
-    };
+        {{{406.207703, 121.298294}, {348.781738, 123.864815}}}},
+};
 
 static size_t oneOffs_count = SK_ARRAY_COUNT(oneOffs);
 
@@ -83,8 +85,11 @@ static void testOneOffs(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
+static void PathOpsQuadLineIntersectionTestOne(skiatest::Reporter* reporter) {
     testOneOffs(reporter);
+}
+
+static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < lineQuadTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDQuad& quad = lineQuadTests[index].quad;
@@ -131,3 +136,5 @@ static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionTestOne)

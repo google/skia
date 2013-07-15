@@ -45,6 +45,10 @@ public:
         SkDEBUGCODE(fDepth = i.fDepth);
     }
 
+    void allowNear(bool nearAllowed) {
+        fAllowNear = nearAllowed;
+    }
+
     int cubic(const SkPoint a[4]) {
         SkDCubic cubic;
         cubic.set(a);
@@ -88,19 +92,16 @@ public:
         return intersect(cubic, quad);
     }
 
+    bool hasT(double t) const {
+        SkASSERT(t == 0 || t == 1);
+        return fUsed > 0 && (t == 0 ? fT[0][0] == 0 : fT[0][fUsed - 1] == 1);
+    }
+
     int insertSwap(double one, double two, const SkDPoint& pt) {
         if (fSwap) {
             return insert(two, one, pt);
         } else {
             return insert(one, two, pt);
-        }
-    }
-
-    int insertSwap(double one, double two, double x, double y) {
-        if (fSwap) {
-            return insert(two, one, x, y);
-        } else {
-            return insert(one, two, x, y);
         }
     }
 
@@ -166,6 +167,7 @@ public:
 
     // leaves flip, swap alone
     void reset() {
+        fAllowNear = true;
         fUsed = 0;
     }
 
@@ -204,7 +206,6 @@ public:
     int horizontal(const SkDCubic&, double left, double right, double y, double tRange[3]);
     // FIXME : does not respect swap
     int insert(double one, double two, const SkDPoint& pt);
-    int insert(double one, double two, double x, double y);
     // start if index == 0 : end if index == 1
     void insertCoincident(double one, double two, const SkDPoint& pt);
     void insertCoincidentPair(double s1, double e1, double s2, double e2,
@@ -248,6 +249,7 @@ private:
     double fT[2][9];
     uint16_t fIsCoincident[2];  // bit arrays, one bit set for each coincident T
     unsigned char fUsed;
+    bool fAllowNear;
     bool fSwap;
 #ifdef SK_DEBUG
     int fDepth;

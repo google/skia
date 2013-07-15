@@ -156,7 +156,7 @@ void SkIntersections::insertCoincidentPair(double s1, double e1, double s2, doub
     insertCoincident(e1, e2, endPt);
 }
 
-int SkIntersections::insert(double one, double two, double x, double y) {
+int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     if (fIsCoincident[0] == 3 && between(fT[0][0], one, fT[0][1])) {
         // For now, don't allow a mix of coincident and non-coincident intersections
         return -1;
@@ -166,15 +166,17 @@ int SkIntersections::insert(double one, double two, double x, double y) {
     for (index = 0; index < fUsed; ++index) {
         double oldOne = fT[0][index];
         double oldTwo = fT[1][index];
-        if (roughly_equal(oldOne, one) && roughly_equal(oldTwo, two)) {
+        if (one == oldOne && two == oldTwo) {
+            return -1;
+        }
+        if (more_roughly_equal(oldOne, one) && more_roughly_equal(oldTwo, two)) {
             if ((precisely_zero(one) && !precisely_zero(oldOne))
                     || (precisely_equal(one, 1) && !precisely_equal(oldOne, 1))
                     || (precisely_zero(two) && !precisely_zero(oldTwo))
                     || (precisely_equal(two, 1) && !precisely_equal(oldTwo, 1))) {
                 fT[0][index] = one;
                 fT[1][index] = two;
-                fPt[index].fX = x;
-                fPt[index].fY = y;
+                fPt[index] = pt;
             }
             return -1;
         }
@@ -196,16 +198,11 @@ int SkIntersections::insert(double one, double two, double x, double y) {
         fIsCoincident[0] += fIsCoincident[0] & ~((1 << index) - 1);
         fIsCoincident[1] += fIsCoincident[1] & ~((1 << index) - 1);
     }
-    fPt[index].fX = x;
-    fPt[index].fY = y;
+    fPt[index] = pt;
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
     return index;
-}
-
-int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
-    return insert(one, two, pt.fX, pt.fY);
 }
 
 void SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {

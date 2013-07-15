@@ -90,6 +90,20 @@ public:
 
     void calcCoincidentWinding();
 
+    void checkEnds() {
+        if (!fContainsCurves) {
+            return;
+        }
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment* segment = &fSegments[sIndex];
+            if (segment->verb() == SkPath::kLine_Verb) {
+                continue;
+            }
+            fSegments[sIndex].checkEnds();
+        }
+    }
+
     void complete() {
         setBounds();
         fContainsIntercepts = false;

@@ -164,6 +164,7 @@ SkDVector SkDQuad::dxdyAtT(double t) const {
     return result;
 }
 
+// OPTIMIZE: assert if caller passes in t == 0 / t == 1 ?
 SkDPoint SkDQuad::xyAtT(double t) const {
     double one_t = 1 - t;
     double a = one_t * one_t;
