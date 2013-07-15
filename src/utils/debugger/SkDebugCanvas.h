@@ -120,7 +120,7 @@ public:
     /**
         Returns length of draw command vector.
      */
-    int getSize() {
+    int getSize() const {
         return fCommandVector.count();
     }
 
