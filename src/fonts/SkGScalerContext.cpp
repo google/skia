@@ -194,6 +194,10 @@ void SkGTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
+int SkGTypeface::onCountGlyphs() const {
+    return fProxy->countGlyphs();
+}
+
 int SkGTypeface::onGetUPEM() const {
     return fProxy->getUnitsPerEm();
 }
