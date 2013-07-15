@@ -9308,22 +9308,20 @@ DecodeParms                            DP
 Filter                                 F
 Height                                 H
 ImageMask                              IM
-Intent (PDF 1.1)                       No abbreviation
-Interpolate                            I (uppercase I)
+Intent                                 (PDF 1.1)
+Interpolate                            I
 Width                                  W
-            TABLE 4.40 Additional abbreviations in an inline image object
-FULL NAME                                ABBREVIATION
-DeviceGray                               G
-DeviceRGB                                RGB
-DeviceCMYK                               CMYK
-Indexed                                  I (uppercase I)
-ASCIIHexDecode                           AHx
-ASCII85Decode                            A85
-LZWDecode                                LZW
-FlateDecode (PDF 1.2)                    Fl (uppercase F, lowercase L)
-RunLengthDecode                          RL
-CCITTFaxDecode                           CCF
-DCTDecode                                DCT
+DeviceGray                             G
+DeviceRGB                              RGB
+DeviceCMYK                             CMYK
+Indexed                                I
+ASCIIHexDecode                         AHx
+ASCII85Decode                          A85
+LZWDecode                              LZW
+FlateDecode                            (PDF 1.2)Fl
+RunLengthDecode                        RL
+CCITTFaxDecode                         CCF
+DCTDecode                              DCT
 The color space speciﬁed by the ColorSpace (or CS) entry may be any of the stan-
 dard device color spaces (DeviceGray, DeviceRGB, or DeviceCMYK). It may not be
 a CIE-based color space or a special color space, with the exception of a limited

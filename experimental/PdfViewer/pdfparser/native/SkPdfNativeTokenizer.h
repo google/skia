@@ -8,6 +8,7 @@
 
 class SkPdfMapper;
 class SkPdfDictionary;
+class SkPdfImageDictionary;
 
 // White Spaces
 #define kNUL_PdfWhiteSpace '\x00'
@@ -136,6 +137,7 @@ public:
     bool readToken(PdfToken* token);
     bool readTokenCore(PdfToken* token);
     void PutBack(PdfToken token);
+    SkPdfImageDictionary* readInlineImage();
 
 private:
     SkNativeParsedPDF* fDoc;

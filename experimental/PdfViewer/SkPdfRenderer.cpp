@@ -106,6 +106,8 @@ public:
         fPdfContext = parent->fPdfContext;
         fCanvas = parent->fCanvas;
     }
+
+    SkPdfNativeTokenizer* tokenizer() { return fTokenizer; }
 };
 
 class PdfMainLooper : public PdfTokenLooper {
@@ -1844,27 +1846,12 @@ void PdfMainLooper::loop() {
 }
 
 PdfResult PdfInlineImageLooper::consumeToken(PdfToken& token) {
-    //pdfContext.fInlineImage.fKeyValuePairs[key] = value;
-    return kNYI_PdfResult;
+    SkASSERT(false);
+    return kIgnoreError_PdfResult;
 }
 
 void PdfInlineImageLooper::loop() {
-    PdfToken token;
-    while (readToken(fTokenizer, &token)) {
-        if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "BX") == 0) {
-            PdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
-            looper->setUp(this);
-            looper->loop();
-        } else {
-            if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "EI") == 0) {
-                done();
-                return;
-            }
-
-            consumeToken(token);
-        }
-    }
-    // TODO(edisonn): report error/warning, EOF without EI.
+    doXObject_Image(fPdfContext, fCanvas, fTokenizer->readInlineImage());
 }
 
 PdfResult PdfInlineImageLooper::done() {
