@@ -15,6 +15,7 @@
 #include "SkFontHost.h"
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
+#include "SkOTTable_maxp.h"
 #include "SkOTUtils.h"
 #include "SkPath.h"
 #include "SkStream.h"
@@ -140,12 +141,21 @@ static inline FIXED SkScalarToFIXED(SkScalar x) {
     return SkFixedToFIXED(SkScalarToFixed(x));
 }
 
-static unsigned calculateOutlineGlyphCount(HDC hdc) {
+static unsigned calculateGlyphCount(HDC hdc, const LOGFONT& lf) {
+    TEXTMETRIC textMetric;
+    if (0 == GetTextMetrics(hdc, &textMetric)) {
+        textMetric.tmPitchAndFamily = TMPF_VECTOR;
+        call_ensure_accessible(lf);
+        GetTextMetrics(hdc, &textMetric);
+    }
+
+    if (!(textMetric.tmPitchAndFamily & TMPF_VECTOR)) {
+        return textMetric.tmLastChar;
+    }
+
     // The 'maxp' table stores the number of glyphs at offset 4, in 2 bytes.
-    const DWORD maxpTag =
-        SkEndian_SwapBE32(SkSetFourByteTag('m', 'a', 'x', 'p'));
     uint16_t glyphs;
-    if (GetFontData(hdc, maxpTag, 4, &glyphs, sizeof(glyphs)) != GDI_ERROR) {
+    if (GDI_ERROR != GetFontData(hdc, SkOTTableMaximumProfile::TAG, 4, &glyphs, sizeof(glyphs))) {
         return SkEndian_SwapBE16(glyphs);
     }
 
@@ -165,6 +175,28 @@ static unsigned calculateOutlineGlyphCount(HDC hdc) {
     }
     SkASSERT(min == max);
     return min;
+}
+
+static unsigned calculateUPEM(HDC hdc, const LOGFONT& lf) {
+    TEXTMETRIC textMetric;
+    if (0 == GetTextMetrics(hdc, &textMetric)) {
+        textMetric.tmPitchAndFamily = TMPF_VECTOR;
+        call_ensure_accessible(lf);
+        GetTextMetrics(hdc, &textMetric);
+    }
+
+    if (!(textMetric.tmPitchAndFamily & TMPF_VECTOR)) {
+        return textMetric.tmMaxCharWidth;
+    }
+
+    OUTLINETEXTMETRIC otm;
+    unsigned int otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
+    if (0 == otmRet) {
+        call_ensure_accessible(lf);
+        otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
+    }
+
+    return (0 == otmRet) ? 0 : otm.otmEMSquare;
 }
 
 class LogFontTypeface : public SkTypeface {
@@ -228,6 +260,8 @@ protected:
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    virtual int onCountGlyphs() const SK_OVERRIDE;
+    virtual int onGetUPEM() const SK_OVERRIDE;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -724,10 +758,8 @@ bool SkScalerContext_Windows::isValid() const {
 
 unsigned SkScalerContext_Windows::generateGlyphCount() {
     if (fGlyphCount < 0) {
-        if (fType == SkScalerContext_Windows::kBitmap_Type) {
-           return fTM.tmLastChar;
-        }
-        fGlyphCount = calculateOutlineGlyphCount(fDDC);
+        fGlyphCount = calculateGlyphCount(
+                          fDDC, static_cast<const LogFontTypeface*>(this->getTypeface())->fLogFont);
     }
     return fGlyphCount;
 }
@@ -1446,7 +1478,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
         goto Error;
     }
-    glyphCount = calculateOutlineGlyphCount(hdc);
+    glyphCount = calculateGlyphCount(hdc, fLogFont);
 
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = otm.otmEMSquare;
@@ -1682,6 +1714,34 @@ SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
     DeleteDC(hdc);
 
     return stream;
+}
+
+int LogFontTypeface::onCountGlyphs() const {
+    HDC hdc = ::CreateCompatibleDC(NULL);
+    HFONT font = CreateFontIndirect(&fLogFont);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+
+    unsigned int glyphCount = calculateGlyphCount(hdc, fLogFont);
+
+    SelectObject(hdc, savefont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return glyphCount;
+}
+
+int LogFontTypeface::onGetUPEM() const {
+    HDC hdc = ::CreateCompatibleDC(NULL);
+    HFONT font = CreateFontIndirect(&fLogFont);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+
+    unsigned int upem = calculateUPEM(hdc, fLogFont);
+
+    SelectObject(hdc, savefont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return upem;
 }
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {

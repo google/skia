@@ -492,6 +492,8 @@ protected:
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    virtual int onCountGlyphs() const SK_OVERRIDE;
+    virtual int onGetUPEM() const SK_OVERRIDE;
 };
 
 class SkScalerContext_Windows : public SkScalerContext {
@@ -1069,6 +1071,16 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
 
     desc->setFamilyName(utf8FamilyName.c_str());
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
+}
+
+int DWriteFontTypeface::onCountGlyphs() const {
+    return fDWriteFontFace->GetGlyphCount();
+}
+
+int DWriteFontTypeface::onGetUPEM() const {
+    DWRITE_FONT_METRICS metrics;
+    fDWriteFontFace->GetMetrics(&metrics);
+    return metrics.designUnitsPerEm;
 }
 
 template <typename T> class SkAutoIDWriteUnregister {

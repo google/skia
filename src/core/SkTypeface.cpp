@@ -214,11 +214,6 @@ int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     return 0;
 }
 
-int SkTypeface::onCountGlyphs() const {
-    SkDebugf("onCountGlyphs unimplemented\n");
-    return 0;
-}
-
 int SkTypeface::onGetUPEM() const {
     int upem = 0;
 

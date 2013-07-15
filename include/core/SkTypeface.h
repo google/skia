@@ -272,9 +272,9 @@ protected:
 
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                                 int glyphCount) const;
-    virtual int onCountGlyphs() const;
+    virtual int onCountGlyphs() const = 0;
 
-    virtual int onGetUPEM() const;
+    virtual int onGetUPEM() const = 0;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
