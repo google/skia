@@ -31,6 +31,8 @@
     '<(skia_src_path)/effects/SkEmbossMask.h',
     '<(skia_src_path)/effects/SkEmbossMask_Table.h',
     '<(skia_src_path)/effects/SkEmbossMaskFilter.cpp',
+    '<(skia_src_path)/effects/SkGpuBlurUtils.h',
+    '<(skia_src_path)/effects/SkGpuBlurUtils.cpp',
     '<(skia_src_path)/effects/SkKernel33MaskFilter.cpp',
     '<(skia_src_path)/effects/SkLayerDrawLooper.cpp',
     '<(skia_src_path)/effects/SkLayerRasterizer.cpp',

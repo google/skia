@@ -9,6 +9,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkGpuBlurUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "SkImageFilterUtils.h"
@@ -203,8 +204,9 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitm
     GrTexture* source = input.getTexture();
     SkRect rect;
     src.getBounds(&rect);
-    SkAutoTUnref<GrTexture> tex(source->getContext()->gaussianBlur(source, false, rect,
-        fSigma.width(), fSigma.height()));
+    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(), 
+                                                             source, false, rect,
+                                                             fSigma.width(), fSigma.height()));
     return SkImageFilterUtils::WrapTexture(tex, src.width(), src.height(), result);
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");

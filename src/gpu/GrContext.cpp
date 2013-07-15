@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 
-#include "effects/GrConvolutionEffect.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrConfigConversionEffect.h"
 
@@ -41,8 +40,6 @@ SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true,
                 "Defers rendering in GrContext via GrInOrderDrawBuffer.");
 
 #define BUFFERED_DRAW (c_Defer ? kYes_BufferedDraw : kNo_BufferedDraw)
-
-#define MAX_BLUR_SIGMA 4.0f
 
 // When we're using coverage AA but the blend is incompatible (given gpu
 // limitations) should we disable AA or draw wrong?
@@ -226,48 +223,6 @@ void GrContext::freeGpuResources() {
 
 size_t GrContext::getGpuTextureCacheBytes() const {
   return fTextureCache->getCachedResourceBytes();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-void scale_rect(SkRect* rect, float xScale, float yScale) {
-    rect->fLeft = SkScalarMul(rect->fLeft, SkFloatToScalar(xScale));
-    rect->fTop = SkScalarMul(rect->fTop, SkFloatToScalar(yScale));
-    rect->fRight = SkScalarMul(rect->fRight, SkFloatToScalar(xScale));
-    rect->fBottom = SkScalarMul(rect->fBottom, SkFloatToScalar(yScale));
-}
-
-float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
-    *scaleFactor = 1;
-    while (sigma > MAX_BLUR_SIGMA) {
-        *scaleFactor *= 2;
-        sigma *= 0.5f;
-    }
-    *radius = static_cast<int>(ceilf(sigma * 3.0f));
-    GrAssert(*radius <= GrConvolutionEffect::kMaxKernelRadius);
-    return sigma;
-}
-
-void convolve_gaussian(GrDrawTarget* target,
-                       GrTexture* texture,
-                       const SkRect& rect,
-                       float sigma,
-                       int radius,
-                       Gr1DKernelEffect::Direction direction) {
-    GrRenderTarget* rt = target->drawState()->getRenderTarget();
-    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
-    GrDrawState* drawState = target->drawState();
-    drawState->setRenderTarget(rt);
-    SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::CreateGaussian(texture,
-                                                                       direction,
-                                                                       radius,
-                                                                       sigma));
-    drawState->addColorEffect(conv);
-    target->drawSimpleRect(rect, NULL);
-}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1721,139 +1676,6 @@ const GrEffectRef* GrContext::createUPMToPMEffect(GrTexture* texture,
         return GrConfigConversionEffect::Create(texture, swapRAndB, upmToPM, matrix);
     } else {
         return NULL;
-    }
-}
-
-GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
-                                   bool canClobberSrc,
-                                   const SkRect& rect,
-                                   float sigmaX, float sigmaY) {
-    ASSERT_OWNED_RESOURCE(srcTexture);
-
-    AutoRenderTarget art(this);
-
-    AutoMatrix am;
-    am.setIdentity(this);
-
-    SkIRect clearRect;
-    int scaleFactorX, radiusX;
-    int scaleFactorY, radiusY;
-    sigmaX = adjust_sigma(sigmaX, &scaleFactorX, &radiusX);
-    sigmaY = adjust_sigma(sigmaY, &scaleFactorY, &radiusY);
-
-    SkRect srcRect(rect);
-    scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
-    srcRect.roundOut();
-    scale_rect(&srcRect, static_cast<float>(scaleFactorX),
-                         static_cast<float>(scaleFactorY));
-
-    AutoClip acs(this, srcRect);
-
-    GrAssert(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
-             kRGBA_8888_GrPixelConfig == srcTexture->config() ||
-             kAlpha_8_GrPixelConfig == srcTexture->config());
-
-    GrTextureDesc desc;
-    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fWidth = SkScalarFloorToInt(srcRect.width());
-    desc.fHeight = SkScalarFloorToInt(srcRect.height());
-    desc.fConfig = srcTexture->config();
-
-    GrAutoScratchTexture temp1, temp2;
-    GrTexture* dstTexture = temp1.set(this, desc);
-    GrTexture* tempTexture = canClobberSrc ? srcTexture : temp2.set(this, desc);
-    if (NULL == dstTexture || NULL == tempTexture) {
-        return NULL;
-    }
-
-    for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        GrPaint paint;
-        SkMatrix matrix;
-        matrix.setIDiv(srcTexture->width(), srcTexture->height());
-        this->setRenderTarget(dstTexture->asRenderTarget());
-        SkRect dstRect(srcRect);
-        scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
-                             i < scaleFactorY ? 0.5f : 1.0f);
-        GrTextureParams params(SkShader::kClamp_TileMode, true);
-        paint.addColorTextureEffect(srcTexture, matrix, params);
-        this->drawRectToRect(paint, dstRect, srcRect);
-        srcRect = dstRect;
-        srcTexture = dstTexture;
-        SkTSwap(dstTexture, tempTexture);
-    }
-
-    SkIRect srcIRect;
-    srcRect.roundOut(&srcIRect);
-
-    if (sigmaX > 0.0f) {
-        if (scaleFactorX > 1) {
-            // Clear out a radius to the right of the srcRect to prevent the
-            // X convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
-                                          radiusX, srcIRect.height());
-            this->clear(&clearRect, 0x0);
-        }
-        GrPaint paint;
-        this->setRenderTarget(dstTexture->asRenderTarget());
-        AutoRestoreEffects are;
-        GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
-        convolve_gaussian(target, srcTexture, srcRect, sigmaX, radiusX,
-                          Gr1DKernelEffect::kX_Direction);
-        srcTexture = dstTexture;
-        SkTSwap(dstTexture, tempTexture);
-    }
-
-    if (sigmaY > 0.0f) {
-        if (scaleFactorY > 1 || sigmaX > 0.0f) {
-            // Clear out a radius below the srcRect to prevent the Y
-            // convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
-                                          srcIRect.width(), radiusY);
-            this->clear(&clearRect, 0x0);
-        }
-
-        this->setRenderTarget(dstTexture->asRenderTarget());
-        GrPaint paint;
-        AutoRestoreEffects are;
-        GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
-        convolve_gaussian(target, srcTexture, srcRect, sigmaY, radiusY,
-                          Gr1DKernelEffect::kY_Direction);
-        srcTexture = dstTexture;
-        SkTSwap(dstTexture, tempTexture);
-    }
-
-    if (scaleFactorX > 1 || scaleFactorY > 1) {
-        // Clear one pixel to the right and below, to accommodate bilinear
-        // upsampling.
-        clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
-                                      srcIRect.width() + 1, 1);
-        this->clear(&clearRect, 0x0);
-        clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
-                                      1, srcIRect.height());
-        this->clear(&clearRect, 0x0);
-        SkMatrix matrix;
-        matrix.setIDiv(srcTexture->width(), srcTexture->height());
-        this->setRenderTarget(dstTexture->asRenderTarget());
-
-        GrPaint paint;
-        // FIXME:  This should be mitchell, not bilinear.
-        GrTextureParams params(SkShader::kClamp_TileMode, true);
-        paint.addColorTextureEffect(srcTexture, matrix, params);
-
-        SkRect dstRect(srcRect);
-        scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
-        this->drawRectToRect(paint, dstRect, srcRect);
-        srcRect = dstRect;
-        srcTexture = dstTexture;
-        SkTSwap(dstTexture, tempTexture);
-    }
-    if (srcTexture == temp1.texture()) {
-        return temp1.detach();
-    } else if (srcTexture == temp2.texture()) {
-        return temp2.detach();
-    } else {
-        srcTexture->ref();
-        return srcTexture;
     }
 }
 
