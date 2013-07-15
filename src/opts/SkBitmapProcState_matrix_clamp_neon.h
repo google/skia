@@ -37,12 +37,12 @@
 
 /* SkClampMax(val,max) -- bound to 0..max */
 
-#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale_neon)
-#define SCALE_FILTER_NAME       MAKENAME(_filter_scale_neon)
-#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine_neon)
-#define AFFINE_FILTER_NAME      MAKENAME(_filter_affine_neon)
-#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp_neon)
-#define PERSP_FILTER_NAME       MAKENAME(_filter_persp_neon)
+#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
+#define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
+#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
+#define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
+#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp)
+#define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
 #define PACK_FILTER_Y_NAME  MAKENAME(_pack_filter_y)

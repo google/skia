@@ -318,9 +318,9 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
 static inline
 SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
-    SkA32Assert(r);
-    SkA32Assert(g);
-    SkA32Assert(b);
+    SkR32Assert(r);
+    SkG32Assert(g);
+    SkB32Assert(b);
 
     if (a != 255) {
         r = SkMulDiv255Round(r, a);
@@ -334,7 +334,6 @@ SK_API extern const uint32_t gMask_00FF00FF;
 
 static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
     uint32_t mask = gMask_00FF00FF;
-//    uint32_t mask = 0xFF00FF;
 
     uint32_t rb = ((c & mask) * scale) >> 8;
     uint32_t ag = ((c >> 8) & mask) * scale;

@@ -166,7 +166,6 @@ static void test_00_FF(skiatest::Reporter* reporter) {
 
 struct Mesh {
     SkPoint     fPts[4];
-    uint16_t    fIndices[6];
 
     Mesh(const SkBitmap& bm, SkPaint* paint) {
         const SkScalar w = SkIntToScalar(bm.width());
