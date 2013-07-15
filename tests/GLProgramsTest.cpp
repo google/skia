@@ -172,8 +172,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             for (int i = 0; i < numAttribs; ++i) {
                 attribIndices[i] = currAttribIndex++;
             }
-            GrEffectStage* stage = SkNEW(GrEffectStage);
-            stage->setEffect(effect.get(), attribIndices[0], attribIndices[1]);
+            GrEffectStage* stage = SkNEW_ARGS(GrEffectStage,
+                                              (effect.get(), attribIndices[0], attribIndices[1]));
             stages[s] = stage;
         }
         const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
