@@ -179,7 +179,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     }
     inline SkFract SkFractMul_longlong(SkFract a, SkFract b)
     {
-        return (SkFixed)((SkLONGLONG)a * b >> 30);
+        return (SkFract)((SkLONGLONG)a * b >> 30);
     }
     inline SkFixed SkFixedSquare_longlong(SkFixed value)
     {

@@ -102,13 +102,13 @@ static void assert_ifDrawnTo(skiatest::Reporter* reporter,
     for (int y = 0; y < bm.height(); ++y) {
         for (int x = 0; x < bm.width(); ++x) {
             if (shouldBeDrawn) {
-                if (0 == *bm.getAddr32(x, y)) {
+                if (SK_ColorTRANSPARENT == *bm.getAddr32(x, y)) {
                     REPORTER_ASSERT(reporter, false);
                     return;
                 }
             } else {
                 // should not be drawn
-                if (*bm.getAddr32(x, y)) {
+                if (SK_ColorTRANSPARENT != *bm.getAddr32(x, y)) {
                     REPORTER_ASSERT(reporter, false);
                     return;
                 }

@@ -826,7 +826,7 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkBitmap& device,
     // shaders take care of global alpha, so we never set it in SkBlitRow
     if (!(shaderFlags & SkShader::kOpaqueAlpha_Flag)) {
         flags |= SkBlitRow::kSrcPixelAlpha_Flag;
-        }
+    }
     // don't dither if the shader is really 16bit
     if (paint.isDither() && !(shaderFlags & SkShader::kIntrinsicly16_Flag)) {
         flags |= SkBlitRow::kDither_Flag;
