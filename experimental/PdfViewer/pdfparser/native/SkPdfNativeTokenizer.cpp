@@ -4,6 +4,30 @@
 #include "SkPdfConfig.h"
 
 #include "SkPdfStreamCommonDictionary_autogen.h"
+#include "SkPdfImageDictionary_autogen.h"
+
+// TODO(edisonn): perf!!!
+// there could be 0s between start and end! but not in the needle.
+static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
+    int needleLen = strlen(needle);
+    if ((isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) || (hayStart+needleLen == hayEnd)) &&
+            strncmp(hayStart, needle, needleLen) == 0) {
+        return hayStart;
+    }
+
+    hayStart++;
+
+    while (hayStart < hayEnd) {
+        if (isPdfWhiteSpaceOrPdfDelimiter(*(hayStart-1)) &&
+                (isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) || (hayStart+needleLen == hayEnd)) &&
+                strncmp(hayStart, needle, needleLen) == 0) {
+            return hayStart;
+        }
+        hayStart++;
+    }
+    return NULL;
+}
+
 
 static unsigned char* skipPdfWhiteSpaces(unsigned char* start, unsigned char* end) {
     while (start < end && isPdfWhiteSpace(*start)) {
@@ -68,6 +92,7 @@ static unsigned char* readArray(unsigned char* start, unsigned char* end, SkPdfO
         }
         array->appendInArray(newObj);
     }
+    printf("break;\n");  // DO NOT SUBMIT!
     // TODO(edisonn): report not reached, we should never get here
     // TODO(edisonn): there might be a bug here, enable an assert and run it on files
     // or it might be that the files were actually corrupted
@@ -458,6 +483,11 @@ static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdf
         start += 2;
     } else if (start[0] == kLF_PdfWhiteSpace) {
         start += 1;
+    } else if (isPdfWhiteSpace(start[0])) {
+        start += 1;
+    } else {
+        // TODO(edisonn): warn it should be isPdfDelimiter(start[0])) ?
+        // TODO(edisonn): warning?
     }
 
     SkPdfStreamCommonDictionary* stream = (SkPdfStreamCommonDictionary*) dict;
@@ -475,17 +505,12 @@ static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdf
     if (length < 0) {
         // scan the buffer, until we find first endstream
         // TODO(edisonn): all buffers must have a 0 at the end now,
-        // TODO(edisonn): hack (mark end of content with 0)
-        unsigned char lastCh = *end;
-        *end = '\0';
-        //SkASSERT(*end == '\0');
-        unsigned char* endstream = (unsigned char*)strstr((const char*)start, "endstream");
-        *end = lastCh;
+        unsigned char* endstream = (unsigned char*)strrstrk((char*)start, (char*)end, "endstream");
 
         if (endstream) {
             length = endstream - start;
             if (*(endstream-1) == kLF_PdfWhiteSpace) length--;
-            if (*(endstream-1) == kCR_PdfWhiteSpace) length--;
+            if (*(endstream-2) == kCR_PdfWhiteSpace) length--;
         }
     }
     if (length >= 0) {
@@ -505,6 +530,37 @@ static unsigned char* readStream(unsigned char* start, unsigned char* end, SkPdf
         return endstream;
     }
     return start;
+}
+
+static unsigned char* readInlineImageStream(unsigned char* start, unsigned char* end, SkPdfImageDictionary* inlineImage, SkNativeParsedPDF* doc) {
+    // We already processed ID keyword, and we should be positioned immediately after it
+
+    // TODO(edisonn): security: read after end check, or make buffers with extra 2 bytes
+    if (start[0] == kCR_PdfWhiteSpace && start[1] == kLF_PdfWhiteSpace) {
+        start += 2;
+    } else if (start[0] == kLF_PdfWhiteSpace) {
+        start += 1;
+    } else if (isPdfWhiteSpace(start[0])) {
+        start += 1;
+    } else {
+        SkASSERT(isPdfDelimiter(start[0]));
+        // TODO(edisonn): warning?
+    }
+
+    unsigned char* endstream = (unsigned char*)strrstrk((char*)start, (char*)end, "EI");
+    unsigned char* endEI = endstream ? endstream + 2 : NULL;  // 2 == strlen("EI")
+
+    if (endstream) {
+        int length = endstream - start;
+        if (*(endstream-1) == kLF_PdfWhiteSpace) length--;
+        if (*(endstream-2) == kCR_PdfWhiteSpace) length--;
+        inlineImage->addStream(start, (size_t)length);
+    } else {
+        // TODO(edisonn): report error in inline image stream (ID-EI) section
+        // TODO(edisonn): based on filter, try to ignore a missing EI, and read data properly
+        return end;
+    }
+    return endEI;
 }
 
 static unsigned char* readDictionary(unsigned char* start, unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
@@ -563,11 +619,16 @@ static unsigned char* readDictionary(unsigned char* start, unsigned char* end, S
 
     // now we should expect >>
     start = skipPdfWhiteSpaces(start, end);
-    start = endOfPdfToken(start, end);  // >
-    start = endOfPdfToken(start, end);  // >
-
-    // TODO(edisonn): read stream ... put dict and stream in a struct, and have a pointer to struct ...
-    // or alocate 2 objects, and if there is no stream, free it to be used by someone else? or just leave it ?
+    if (*start != kClosedInequityBracket_PdfDelimiter) {
+        // TODO(edisonn): report/warning
+    }
+    *start = '\0';
+    start++;  // skip >
+    if (*start != kClosedInequityBracket_PdfDelimiter) {
+        // TODO(edisonn): report/warning
+    }
+    *start = '\0';
+    start++;  // skip >
 
     start = readStream(start, end, dict, doc);
 
@@ -604,6 +665,7 @@ unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject*
             case kOpenedInequityBracket_PdfDelimiter:
                 *start = '\0';
                 if (end > start + 1 && start[1] == kOpenedInequityBracket_PdfDelimiter) {
+                    start[1] = '\0';  // optional
                     // TODO(edisonn): pass here the length somehow?
                     return readDictionary(start + 2, end, token, allocator, doc);  // skip <<
                 } else {
@@ -688,7 +750,7 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkP
     size_t len = 0;
     objWithStream->GetFilteredStreamRef(&buffer, &len, fAllocator);
     // TODO(edisonn): hack, find end of object
-    char* endobj = strstr((char*)buffer, "endobj");
+    char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {
         len = endobj - (char*)buffer + strlen("endobj");
     }
@@ -699,7 +761,7 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkP
 
 SkPdfNativeTokenizer::SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) : fDoc(doc), fMapper(mapper), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
     // TODO(edisonn): hack, find end of object
-    char* endobj = strstr((char*)buffer, "endobj");
+    char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {
         len = endobj - (char*)buffer + strlen("endobj");
     }
@@ -774,4 +836,104 @@ bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
     }
 
     return readTokenCore(token);
+}
+
+#define DECLARE_PDF_NAME(longName) SkPdfName longName((char*)#longName)
+
+// keys
+DECLARE_PDF_NAME(BitsPerComponent);
+DECLARE_PDF_NAME(ColorSpace);
+DECLARE_PDF_NAME(Decode);
+DECLARE_PDF_NAME(DecodeParms);
+DECLARE_PDF_NAME(Filter);
+DECLARE_PDF_NAME(Height);
+DECLARE_PDF_NAME(ImageMask);
+DECLARE_PDF_NAME(Intent); // PDF 1.1 - the key, or the abreviations?
+DECLARE_PDF_NAME(Interpolate);
+DECLARE_PDF_NAME(Width);
+
+// values
+DECLARE_PDF_NAME(DeviceGray);
+DECLARE_PDF_NAME(DeviceRGB);
+DECLARE_PDF_NAME(DeviceCMYK);
+DECLARE_PDF_NAME(Indexed);
+DECLARE_PDF_NAME(ASCIIHexDecode);
+DECLARE_PDF_NAME(ASCII85Decode);
+DECLARE_PDF_NAME(LZWDecode);
+DECLARE_PDF_NAME(FlateDecode);  // PDF 1.2
+DECLARE_PDF_NAME(RunLengthDecode);
+DECLARE_PDF_NAME(CCITTFaxDecode);
+DECLARE_PDF_NAME(DCTDecode);
+
+#define HANDLE_NAME_ABBR(obj,longName,shortName) if (obj->isName(#shortName)) return &longName;
+
+
+static SkPdfObject* inlineImageKeyAbbreviationExpand(SkPdfObject* key) {
+    if (!key || !key->isName()) {
+        return key;
+    }
+
+    // TODO(edisonn): use autogenerated code!
+    HANDLE_NAME_ABBR(key, BitsPerComponent, BPC);
+    HANDLE_NAME_ABBR(key, ColorSpace, CS);
+    HANDLE_NAME_ABBR(key, Decode, D);
+    HANDLE_NAME_ABBR(key, DecodeParms, DP);
+    HANDLE_NAME_ABBR(key, Filter, F);
+    HANDLE_NAME_ABBR(key, Height, H);
+    HANDLE_NAME_ABBR(key, ImageMask, IM);
+//    HANDLE_NAME_ABBR(key, Intent, );
+    HANDLE_NAME_ABBR(key, Interpolate, I);
+    HANDLE_NAME_ABBR(key, Width, W);
+
+    return key;
+}
+
+static SkPdfObject* inlineImageValueAbbreviationExpand(SkPdfObject* value) {
+    if (!value || !value->isName()) {
+        return value;
+    }
+
+    // TODO(edisonn): use autogenerated code!
+    HANDLE_NAME_ABBR(value, DeviceGray, G);
+    HANDLE_NAME_ABBR(value, DeviceRGB, RGB);
+    HANDLE_NAME_ABBR(value, DeviceCMYK, CMYK);
+    HANDLE_NAME_ABBR(value, Indexed, I);
+    HANDLE_NAME_ABBR(value, ASCIIHexDecode, AHx);
+    HANDLE_NAME_ABBR(value, ASCII85Decode, A85);
+    HANDLE_NAME_ABBR(value, LZWDecode, LZW);
+    HANDLE_NAME_ABBR(value, FlateDecode, Fl);  // (PDF 1.2)
+    HANDLE_NAME_ABBR(value, RunLengthDecode, RL);
+    HANDLE_NAME_ABBR(value, CCITTFaxDecode, CCF);
+    HANDLE_NAME_ABBR(value, DCTDecode, DCT);
+
+    return value;
+}
+
+SkPdfImageDictionary* SkPdfNativeTokenizer::readInlineImage() {
+    // BI already processed
+    fUncompressedStream = skipPdfWhiteSpaces(fUncompressedStream, fUncompressedStreamEnd);
+    if (fUncompressedStream >= fUncompressedStreamEnd) {
+        return NULL;
+    }
+
+    SkPdfImageDictionary* inlineImage = (SkPdfImageDictionary*)fAllocator->allocObject();
+    SkPdfObject::makeEmptyDictionary(inlineImage);
+
+    while (fUncompressedStream < fUncompressedStreamEnd) {
+        SkPdfObject* key = fAllocator->allocObject();
+        fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, key, fAllocator, fDoc);
+
+        if (key->isKeyword() && key->len() == 2 && key->c_str()[0] == 'I' && key->c_str()[1] == 'D') { // ID
+            fUncompressedStream = readInlineImageStream(fUncompressedStream, fUncompressedStreamEnd, inlineImage, fDoc);
+            return inlineImage;
+        } else {
+            SkPdfObject* obj = fAllocator->allocObject();
+            fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, obj, fAllocator, fDoc);
+            // TODO(edisonn): perf maybe we should not expand abreviation like this
+            inlineImage->set(inlineImageKeyAbbreviationExpand(key),
+                             inlineImageValueAbbreviationExpand(obj));
+        }
+    }
+    // TODO(edisonn): report end of data with inline image without an EI
+    return inlineImage;
 }

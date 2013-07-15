@@ -520,6 +520,10 @@ public:
         return fObjectType == kName_PdfObjectType;
     }
 
+    bool isName(const char* name) const {
+        return fObjectType == kName_PdfObjectType && fStr.fBytes == strlen(name) && strncmp((const char*)fStr.fBuffer, name, fStr.fBytes) == 0;
+    }
+
     bool isArray() const {
         return fObjectType == kArray_PdfObjectType;
     }
@@ -862,5 +866,15 @@ class SkPdfHexString : public SkPdfObject {};
 class SkPdfInteger : public SkPdfObject {};
 class SkPdfReal : public SkPdfObject {};
 class SkPdfNumber : public SkPdfObject {};
+
+class SkPdfName : public SkPdfObject {
+    SkPdfName() : SkPdfObject() {
+        SkPdfObject::makeName((unsigned char*)"", this);
+    }
+public:
+    SkPdfName(char* name) : SkPdfObject() {
+        this->makeName((unsigned char*)name, this);
+    }
+};
 
 #endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFOBJECT_H_
