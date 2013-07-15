@@ -60,9 +60,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        int veryBig = 100*1024; // 64K < size
+        int veryBig = 70*1024; // 64K < size
         int big = 60*1024;      // 32K < size < 64K
-        int small = 300;
+        int small = 150;
 
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
         show_bm(canvas, small, small, SK_ColorRED);
