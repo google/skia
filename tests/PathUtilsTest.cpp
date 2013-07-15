@@ -148,7 +148,7 @@ static void TestPathUtils(skiatest::Reporter* reporter) {
         fillRandomBits( h * rowBytes, bin_bmp); // generate random bitmap
 
         // for each bitmap width, use subset of binary bitmap
-        for (uint i = 0; i < SK_ARRAY_COUNT(w); ++i) {
+        for (unsigned int i = 0; i < SK_ARRAY_COUNT(w); ++i) {
             // generate truth bitmap
             SkBitmap bmpTruth;
             bin2SkBitmap(bin_bmp, &bmpTruth, h, w[i], rowBytes);
