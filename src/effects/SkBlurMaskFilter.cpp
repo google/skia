@@ -8,6 +8,7 @@
 
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
+#include "SkGpuBlurUtils.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMaskFilter.h"
 #include "SkRTConf.h"
@@ -410,8 +411,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (SkBlurMaskFilter::kNormal_BlurStyle == fBlurStyle);
-    *result = context->gaussianBlur(src, isNormalBlur && canOverwriteSrc,
-                                    clipRect, sigma, sigma);
+    *result = SkGpuBlurUtils::GaussianBlur(context, src, isNormalBlur && canOverwriteSrc,
+                                           clipRect, sigma, sigma);
     if (NULL == *result) {
         return false;
     }
