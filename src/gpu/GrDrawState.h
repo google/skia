@@ -1024,14 +1024,15 @@ public:
             drawState->fCommon = fCommon;
             drawState->setRenderTarget(fRenderTarget);
             // reinflate color/cov stage arrays.
-            drawState->fColorStages.reset(fColorStageCnt);
+            drawState->fColorStages.reset();
             for (int i = 0; i < fColorStageCnt; ++i) {
-                fStages[i].restoreTo(&drawState->fColorStages[i]);
+                SkNEW_APPEND_TO_TARRAY(&drawState->fColorStages, GrEffectStage, (fStages[i]));
             }
             int coverageStageCnt = fStages.count() - fColorStageCnt;
-            drawState->fCoverageStages.reset(coverageStageCnt);
+            drawState->fCoverageStages.reset();
             for (int i = 0; i < coverageStageCnt; ++i) {
-                fStages[fColorStageCnt + i].restoreTo(&drawState->fCoverageStages[i]);
+                SkNEW_APPEND_TO_TARRAY(&drawState->fCoverageStages,
+                                        GrEffectStage, (fStages[i + fColorStageCnt]));
             }
         }
 
