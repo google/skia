@@ -11,7 +11,7 @@
 
 #include "SkCanvas.h"
 
-class SkNWayCanvas : public SkCanvas {
+class SK_API SkNWayCanvas : public SkCanvas {
 public:
     SkNWayCanvas(int width, int height);
     virtual ~SkNWayCanvas();
