@@ -29,26 +29,46 @@ static const struct TagSize {
 };
 
 // Test that getUnitsPerEm() agrees with a direct lookup in the 'head' table
-// (if that table is available.
+// (if that table is available).
 static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
-    int nativeUPEM = face->getUnitsPerEm();;
+    int nativeUPEM = face->getUnitsPerEm();
 
     int tableUPEM = -1;
     size_t size = face->getTableSize(kFontTableTag_head);
     if (size) {
-        SkAutoMalloc storage(size);
-        char* ptr = (char*)storage.get();
-        face->getTableData(kFontTableTag_head, 0, size, ptr);
         // unitsPerEm is at offset 18 into the 'head' table.
-        tableUPEM = SkEndian_SwapBE16(*(uint16_t*)&ptr[18]);
+        uint16_t rawUPEM;
+        face->getTableData(kFontTableTag_head, 18, sizeof(rawUPEM), &rawUPEM);
+        tableUPEM = SkEndian_SwapBE16(rawUPEM);
     }
-//    SkDebugf("--- typeface returned %d upem [%X]\n", nativeUPEM, face->uniqueID());
 
     if (tableUPEM >= 0) {
         REPORTER_ASSERT(reporter, tableUPEM == nativeUPEM);
     } else {
         // not sure this is a bug, but lets report it for now as info.
         SkDebugf("--- typeface returned 0 upem [%X]\n", face->uniqueID());
+    }
+}
+
+// Test that countGlyphs() agrees with a direct lookup in the 'maxp' table
+// (if that table is available).
+static void test_countGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
+    int nativeGlyphs = face->countGlyphs();
+
+    int tableGlyphs = -1;
+    size_t size = face->getTableSize(kFontTableTag_maxp);
+    if (size) {
+        // glyphs is at offset 4 into the 'maxp' table.
+        uint16_t rawGlyphs;
+        face->getTableData(kFontTableTag_maxp, 4, sizeof(rawGlyphs), &rawGlyphs);
+        tableGlyphs = SkEndian_SwapBE16(rawGlyphs);
+    }
+
+    if (tableGlyphs >= 0) {
+        REPORTER_ASSERT(reporter, tableGlyphs == nativeGlyphs);
+    } else {
+        // not sure this is a bug, but lets report it for now as info.
+        SkDebugf("--- typeface returned 0 glyphs [%X]\n", face->uniqueID());
     }
 }
 
@@ -157,6 +177,7 @@ static void test_tables(skiatest::Reporter* reporter) {
 #endif
             test_tables(reporter, face);
             test_unitsPerEm(reporter, face);
+            test_countGlyphs(reporter, face);
             face->unref();
         }
     }
