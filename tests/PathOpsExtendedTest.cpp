@@ -52,24 +52,54 @@ static const char* gFillTypeStr[] = {
     "kInverseEvenOdd_FillType"
 };
 
+static void output_scalar(SkScalar num) {
+    if (num == (int) num) {
+        SkDebugf("%d", (int) num);
+    } else {
+        SkString str;
+        str.printf("%1.9g", num);
+        int width = str.size();
+        const char* cStr = str.c_str();
+        while (cStr[width - 1] == '0') {
+            --width;
+        }
+        str.resize(width);
+        SkDebugf("%sf", str.c_str());
+    }
+}
+
+static void output_points(const SkPoint* pts, int count) {
+    for (int index = 0; index < count; ++index) {
+        output_scalar(pts[index].fX);
+        SkDebugf(", ");
+        output_scalar(pts[index].fY);
+        if (index + 1 < count) {
+            SkDebugf(", ");
+        }
+    }
+    SkDebugf(");\n");
+}
+
 static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkDebugf("    %s.moveTo(%#1.9gf, %#1.9gf);\n", pathName, pts[0].fX, pts[0].fY);
+                SkDebugf("    %s.moveTo(", pathName);
+                output_points(&pts[0], 1);
                 continue;
             case SkPath::kLine_Verb:
-                SkDebugf("    %s.lineTo(%#1.9gf, %#1.9gf);\n", pathName, pts[1].fX, pts[1].fY);
+                SkDebugf("    %s.lineTo(", pathName);
+                output_points(&pts[1], 1);
                 break;
             case SkPath::kQuad_Verb:
-                SkDebugf("    %s.quadTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n", pathName,
-                    pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                SkDebugf("    %s.quadTo(", pathName);
+                output_points(&pts[1], 2);
                 break;
             case SkPath::kCubic_Verb:
-                SkDebugf("    %s.cubicTo(%#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf, %#1.9gf);\n",
-                    pathName, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                SkDebugf("    %s.cubicTo(", pathName);
+                output_points(&pts[1], 3);
                 break;
             case SkPath::kClose_Verb:
                 SkDebugf("    %s.close();\n", pathName);
@@ -116,24 +146,40 @@ static void showPathData(const SkPath& path) {
     SkPath::RawIter iter(path);
     uint8_t verb;
     SkPoint pts[4];
+    SkPoint firstPt, lastPt;
+    bool firstPtSet = false;
+    bool lastPtSet = true;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
+                firstPt = pts[0];
+                firstPtSet = true;
                 continue;
             case SkPath::kLine_Verb:
                 SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", pts[0].fX, pts[0].fY,
                         pts[1].fX, pts[1].fY);
+                lastPt = pts[1];
+                lastPtSet = true;
                 break;
             case SkPath::kQuad_Verb:
                 SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
                         pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                lastPt = pts[2];
+                lastPtSet = true;
                 break;
             case SkPath::kCubic_Verb:
                 SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
                         pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
                         pts[3].fX, pts[3].fY);
+                lastPt = pts[3];
+                lastPtSet = true;
                 break;
             case SkPath::kClose_Verb:
+                if (firstPtSet && lastPtSet && firstPt != lastPt) {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
+                            firstPt.fX, firstPt.fY);
+                }
+                firstPtSet = lastPtSet = false;
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
@@ -521,6 +567,7 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
 #if DEBUG_SHOW_TEST_NAME
     if (testName == NULL) {
+        SkDebugf("\n");
         showPathData(a);
         showOp(shapeOp);
         showPathData(b);

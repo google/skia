@@ -16,14 +16,25 @@ static bool equal_ulps(float A, float B, int epsilon) {
     floatIntA.fFloat = A;
     floatIntB.fFloat = B;
     // Different signs means they do not match.
-    if ((floatIntA.fSignBitInt < 0) != (floatIntB.fSignBitInt < 0))
-    {
+    if ((floatIntA.fSignBitInt < 0) != (floatIntB.fSignBitInt < 0)) {
         // Check for equality to make sure +0 == -0
         return A == B;
     }
     // Find the difference in ULPs.
     int ulpsDiff = abs(floatIntA.fSignBitInt - floatIntB.fSignBitInt);
     return ulpsDiff <= epsilon;
+}
+
+static bool less_ulps(float A, float B, int epsilon) {
+    SkFloatIntUnion floatIntA, floatIntB;
+    floatIntA.fFloat = A;
+    floatIntB.fFloat = B;
+    // Check different signs with float epsilon since we only care if they're both close to 0.
+    if ((floatIntA.fSignBitInt < 0) != (floatIntB.fSignBitInt < 0)) {
+        return A <= B + FLT_EPSILON * epsilon;
+    }
+    // Find the difference in ULPs.
+    return floatIntA.fSignBitInt <= floatIntB.fSignBitInt + epsilon;
 }
 
 bool AlmostEqualUlps(float A, float B) {
@@ -34,6 +45,12 @@ bool AlmostEqualUlps(float A, float B) {
 bool RoughlyEqualUlps(float A, float B) {
     const int UlpsEpsilon = 256;
     return equal_ulps(A, B, UlpsEpsilon);
+}
+
+bool AlmostBetweenUlps(float a, float b, float c) {
+    const int UlpsEpsilon = 1;
+    return a <= c ? less_ulps(a, b, UlpsEpsilon) && less_ulps(b, c, UlpsEpsilon)
+        : less_ulps(b, a, UlpsEpsilon) && less_ulps(c, b, UlpsEpsilon);
 }
 
 // cube root approximation using bit hack for 64-bit float

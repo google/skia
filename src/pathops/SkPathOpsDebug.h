@@ -103,10 +103,10 @@ extern int gDebugMaxWindValue;
         DEBUG_SORT_SINGLE | DEBUG_PATH_CONSTRUCTION)
 
 #if DEBUG_AS_C_CODE
-#define CUBIC_DEBUG_STR "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define QUAD_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define LINE_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define PT_DEBUG_STR "{{%1.17g,%1.17g}}"
+#define CUBIC_DEBUG_STR "{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}"
+#define QUAD_DEBUG_STR  "{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}"
+#define LINE_DEBUG_STR  "{{%1.9g,%1.9g}, {%1.9g,%1.9g}}"
+#define PT_DEBUG_STR "{{%1.9g,%1.9g}}"
 #else
 #define CUBIC_DEBUG_STR "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
 #define QUAD_DEBUG_STR  "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"

@@ -41,8 +41,99 @@ double SkDLine::isLeft(const SkDPoint& pt) const {
     return p0.cross(p2);
 }
 
+// OPTIMIZE: assert if t is 0 or 1 (caller shouldn't pass only 0/1)
 SkDPoint SkDLine::xyAtT(double t) const {
     double one_t = 1 - t;
     SkDPoint result = { one_t * fPts[0].fX + t * fPts[1].fX, one_t * fPts[0].fY + t * fPts[1].fY };
     return result;
+}
+
+double SkDLine::exactPoint(const SkDPoint& xy) const {
+    if (xy == fPts[0]) {  // do cheapest test first
+        return 0;
+    }
+    if (xy == fPts[1]) {
+        return 1;
+    }
+    return -1;
+}
+
+double SkDLine::nearPoint(const SkDPoint& xy) const {
+    if (!AlmostBetweenUlps(fPts[0].fX, xy.fX, fPts[1].fX)
+            || !AlmostBetweenUlps(fPts[0].fY, xy.fY, fPts[1].fY)) {
+        return -1;
+    }
+    // project a perpendicular ray from the point to the line; find the T on the line
+    SkDVector len = fPts[1] - fPts[0]; // the x/y magnitudes of the line
+    double denom = len.fX * len.fX + len.fY * len.fY;  // see DLine intersectRay
+    SkDVector ab0 = xy - fPts[0];
+    double numer = len.fX * ab0.fX + ab0.fY * len.fY;
+    if (!between(0, numer, denom)) {
+        return -1;
+    }
+    double t = numer / denom;
+    SkDPoint realPt = xyAtT(t);
+    SkDVector distU = xy - realPt;
+    double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
+    double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?
+    // find the ordinal in the original line with the largest unsigned exponent
+    double tiniest = SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    double largest = SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    largest = SkTMax(largest, -tiniest);
+    if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
+        return -1;
+    }
+    t = SkPinT(t);
+    SkASSERT(between(0, t, 1));
+    return t;
+}
+
+double SkDLine::ExactPointH(const SkDPoint& xy, double left, double right, double y) {
+    if (xy.fY == y) {
+        if (xy.fX == left) {
+            return 0;
+        }
+        if (xy.fX == right) {
+            return 1;
+        }
+    }
+    return -1;
+}
+
+double SkDLine::NearPointH(const SkDPoint& xy, double left, double right, double y) {
+    if (!AlmostEqualUlps(xy.fY, y)) {
+        return -1;
+    }
+    if (!AlmostBetweenUlps(left, xy.fX, right)) {
+        return -1;
+    }
+    double t = (xy.fX - left) / (right - left);
+    t = SkPinT(t);
+    SkASSERT(between(0, t, 1));
+    return t;
+}
+
+double SkDLine::ExactPointV(const SkDPoint& xy, double top, double bottom, double x) {
+    if (xy.fX == x) {
+        if (xy.fY == top) {
+            return 0;
+        }
+        if (xy.fY == bottom) {
+            return 1;
+        }
+    }
+    return -1;
+}
+
+double SkDLine::NearPointV(const SkDPoint& xy, double top, double bottom, double x) {
+    if (!AlmostEqualUlps(xy.fX, x)) {
+        return -1;
+    }
+    if (!AlmostBetweenUlps(top, xy.fY, bottom)) {
+        return -1;
+    }
+    double t = (xy.fY - top) / (bottom - top);
+    t = SkPinT(t);
+    SkASSERT(between(0, t, 1));
+    return t;
 }

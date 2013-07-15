@@ -14,6 +14,10 @@ static struct lineCubic {
     SkDCubic cubic;
     SkDLine line;
 } lineCubicTests[] = {
+#if 0
+    {{{{258, 122}, {260.761414, 122}, { 263, 124.238579}, {263, 127}}},
+            {{{259.82843, 125.17157}, {261.535522, 123.46447}}}},
+#endif
     {{{{1006.6951293945312,291}, {1023.263671875,291}, {1033.8402099609375,304.43145751953125},
             {1030.318359375,321}}},
             {{{979.30487060546875,561}, {1036.695068359375,291}}}},
@@ -67,7 +71,7 @@ static void PathOpsCubicLineIntersectionTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsCubicLineIntersectionTestOne(skiatest::Reporter* reporter) {
+static void PathOpsCubicLineIntersectionOneOffTest(skiatest::Reporter* reporter) {
     int iIndex = 0;
     testOne(reporter, iIndex);
     const SkDCubic& cubic = lineCubicTests[iIndex].cubic;
@@ -95,4 +99,4 @@ static void PathOpsCubicLineIntersectionTestOne(skiatest::Reporter* reporter) {
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsCubicLineIntersectionTest)
 
-DEFINE_TESTCLASS_SHORT(PathOpsCubicLineIntersectionTestOne)
+DEFINE_TESTCLASS_SHORT(PathOpsCubicLineIntersectionOneOffTest)

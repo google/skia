@@ -50,6 +50,9 @@ static void standardTestCases(skiatest::Reporter* reporter) {
 }
 
 static const SkDQuad testSet[] = {
+    {{{0.647069409,2.97691634}, {0.946860918,3.17625612}, {1.46875407,2.65105457}}},
+    {{{0,1}, {0.723699095,2.82756208}, {1.08907197,2.97497449}}},
+
     {{{131.37418,11414.9825}, {130.28798,11415.9328}, {130.042755,11417.4131}}},
     {{{130.585787,11418.4142}, {130.021447,11417.8498}, {130,11417}}},
 
@@ -264,7 +267,7 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
     }
 }
 
-static void QuadraticIntersection_OneOffTest(skiatest::Reporter* reporter) {
+static void PathOpsQuadIntersectionOneOffTest(skiatest::Reporter* reporter) {
     oneOffTest1(reporter, 0, 1);
 }
 
@@ -471,10 +474,10 @@ static void PathOpsQuadIntersectionTest(skiatest::Reporter* reporter) {
     standardTestCases(reporter);
     if (false) QuadraticIntersection_IntersectionFinder();
     if (false) QuadraticIntersection_PointFinder();
-    if (false) QuadraticIntersection_OneOffTest(reporter);
 }
 
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionTest)
-DEFINE_TESTCLASS_SHORT(QuadraticIntersection_OneOffTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionOneOffTest)

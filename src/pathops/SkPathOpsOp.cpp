@@ -299,6 +299,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkOpContour::debugShowWindingValues(contourList);
 #endif
     FixOtherTIndex(&contourList);
+    CheckEnds(&contourList);
     SortSegments(&contourList);
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     DebugShowActiveSpans(contourList);

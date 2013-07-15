@@ -163,6 +163,39 @@ static const SkDCubic testSet[] = {
 const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static const SkDCubic newTestSet[] = {
+{{{1.0516976506771041, 2.9684399028541346 },
+    {1.0604363140895228, 2.9633503074444141 },
+    {1.0692548215065762, 2.9580354426587459 },
+    {1.0781560339512140, 2.9525043684031349 }}},
+
+{{{1.0523038101345104, 2.9523755204833737 },
+    {1.0607035288264237, 2.9580853881628375 },
+    {1.0690530472271964, 2.9633896794787749 },
+    {1.0773566568712512, 2.9682969775000219 }}},
+
+{{{1.0386522625066592, 2.9759024812329078 },
+    {1.0559713690392631, 2.9661782500838885 },
+    {1.0736041309019990, 2.9555348259177858 },
+    {1.0915734362784633, 2.9440446879826569 }}},
+
+{{{1.0396670794879301, 2.9435062123457261 },
+    {1.0565690546812769, 2.9557413250983462 },
+    {1.0732616463413533, 2.9663369676594282 },
+    {1.0897791867435489, 2.9753618045797472 }}},
+
+{{{0.8685656183311091, 3.0409266475785208 },
+    {0.99189542936395292, 3.0212163698184424 },
+    {1.1302108367493320, 2.9265646471747306 },
+    {1.2952305904872474, 2.7940808546473788 }}},
+
+{{{0.85437872843682727, 2.7536036928549055 },
+    {1.0045584590592620, 2.9493041024831705 },
+    {1.1336998329885613, 3.0248027987251747 },
+    {1.2593809752247314, 3.0152560315809107 }}},
+
+{{{0, 1}, {1, 6}, {1, 0}, {6, 2}}},
+{{{0, 1}, {2, 6}, {1, 0}, {6, 1}}},
+
 {{{134,11414}, {131.990234375,11414}, {130.32666015625,11415.482421875}, {130.04275512695312,11417.4130859375}}},
 {{{132,11419}, {130.89543151855469,11419}, {130,11418.1044921875}, {130,11417}}},
 
@@ -295,11 +328,6 @@ static void newOneOff(skiatest::Reporter* reporter, int outer, int inner) {
     const SkDCubic& cubic1 = newTestSet[outer];
     const SkDCubic& cubic2 = newTestSet[inner];
     oneOff(reporter, cubic1, cubic2);
-}
-
-static void oneOffTest(skiatest::Reporter* reporter) {
-    newOneOff(reporter, 0, 1);
-    oneOff(reporter, 14, 16);
 }
 
 static void oneOffTests(skiatest::Reporter* reporter) {
@@ -515,8 +543,11 @@ static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
     }
 }
 
+static void PathOpsCubicIntersectionOneOffTest(skiatest::Reporter* reporter) {
+    newOneOff(reporter, 6, 7);
+}
+
 static void PathOpsCubicIntersectionTest(skiatest::Reporter* reporter) {
-    oneOffTest(reporter);
     oneOffTests(reporter);
     cubicIntersectionSelfTest(reporter);
     standardTestCases(reporter);
@@ -526,3 +557,5 @@ static void PathOpsCubicIntersectionTest(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsCubicIntersectionTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsCubicIntersectionOneOffTest)

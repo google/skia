@@ -127,6 +127,7 @@ static bool add_intercept(const SkDQuad& q1, const SkDQuad& q2, double tMin, dou
     line[0] -= dxdy;
     line[1] += dxdy;
     SkIntersections rootTs;
+    rootTs.allowNear(false);
     int roots = rootTs.intersect(q1, line);
     if (roots == 0) {
         if (subDivide) {
@@ -154,6 +155,7 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
     SkSTArray<kTestCount * 2, double, true> tsFound;
     for (size_t index = 0; index < kTestCount; ++index) {
         SkIntersections rootTs;
+        rootTs.allowNear(false);
         int roots = rootTs.intersect(q2, *testLines[index]);
         for (int idx2 = 0; idx2 < roots; ++idx2) {
             double t = rootTs[0][idx2];

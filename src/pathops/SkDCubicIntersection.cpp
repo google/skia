@@ -15,11 +15,12 @@
 #include "SkTSort.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits1[2][2] = {{0.36, 0.37}, {0.63, 0.64}};
+static const double tLimits1[2][2] = {{0.388600450, 0.388600452}, {0.245852802, 0.245852804}};
 static const double tLimits2[2][2] = {{-0.865211397, -0.865215212}, {-0.865207696, -0.865208078}};
 #endif
 
-#define DEBUG_QUAD_PART 0
+#define DEBUG_QUAD_PART ONE_OFF_DEBUG && 1
+#define DEBUG_QUAD_PART_SHOW_SIMPLE DEBUG_QUAD_PART && 0
 #define SWAP_TOP_DEBUG 0
 
 static const int kCubicToQuadSubdivisionDepth = 8; // slots reserved for cubic to quads subdivision
@@ -31,24 +32,26 @@ static int quadPart(const SkDCubic& cubic, double tStart, double tEnd, SkReduceO
     // extremely shallow quadratic?
     int order = reducer->reduce(quad, SkReduceOrder::kFill_Style);
 #if DEBUG_QUAD_PART
-    SkDebugf("%s cubic=(%1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g)"
-            " t=(%1.17g,%1.17g)\n", __FUNCTION__, cubic[0].fX, cubic[0].fY,
+    SkDebugf("%s cubic=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+            " t=(%1.9g,%1.9g)\n", __FUNCTION__, cubic[0].fX, cubic[0].fY,
             cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
             cubic[3].fX, cubic[3].fY, tStart, tEnd);
-    SkDebugf("%s part=(%1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g)"
-            " quad=(%1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g)\n", __FUNCTION__,
+    SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n"
+             "  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
             part[0].fX, part[0].fY, part[1].fX, part[1].fY, part[2].fX, part[2].fY,
             part[3].fX, part[3].fY, quad[0].fX, quad[0].fY,
             quad[1].fX, quad[1].fY, quad[2].fX, quad[2].fY);
-    SkDebugf("%s simple=(%1.17g,%1.17g", __FUNCTION__, reducer->fQuad[0].fX, reducer->fQuad[0].fY);
+#if DEBUG_QUAD_PART_SHOW_SIMPLE
+    SkDebugf("%s simple=(%1.9g,%1.9g", __FUNCTION__, reducer->fQuad[0].fX, reducer->fQuad[0].fY);
     if (order > 1) {
-        SkDebugf(" %1.17g,%1.17g", reducer->fQuad[1].fX, reducer->fQuad[1].fY);
+        SkDebugf(" %1.9g,%1.9g", reducer->fQuad[1].fX, reducer->fQuad[1].fY);
     }
     if (order > 2) {
-        SkDebugf(" %1.17g,%1.17g", reducer->fQuad[2].fX, reducer->fQuad[2].fY);
+        SkDebugf(" %1.9g,%1.9g", reducer->fQuad[2].fX, reducer->fQuad[2].fY);
     }
     SkDebugf(")\n");
     SkASSERT(order < 4 && order > 0);
+#endif
 #endif
     return order;
 }
@@ -240,7 +243,7 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
                             i.used(), i.used() > 0 ? i[0][i.used() - 1] : -1);
                 #endif
                     }
-                    intersect(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
+          //          intersect(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
                     // FIXME: if no intersection is found, either quadratics intersected where
                     // cubics did not, or the intersection was missed. In the former case, expect
                     // the quadratics to be nearly parallel at the point of intersection, and check

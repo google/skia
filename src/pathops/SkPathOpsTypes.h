@@ -33,6 +33,11 @@ inline bool RoughlyEqualUlps(double A, double B) {
     return RoughlyEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
 }
 
+bool AlmostBetweenUlps(float a, float b, float c);
+inline bool AlmostBetweenUlps(double A, double B, double C) {
+    return AlmostBetweenUlps(SkDoubleToScalar(A), SkDoubleToScalar(B), SkDoubleToScalar(C));
+}
+
 // FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)
 // DBL_EPSILON == 2.22045e-16
 const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;
@@ -258,6 +263,10 @@ inline int SKDSide(double x) {
 */
 inline int SkDSideBit(double x) {
     return 1 << SKDSide(x);
+}
+
+inline double SkPinT(double t) {
+    return precisely_less_than_zero(t) ? 0 : precisely_greater_than_one(t) ? 1 : t;
 }
 
 #endif

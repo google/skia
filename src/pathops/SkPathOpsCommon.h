@@ -13,6 +13,7 @@
 class SkPathWriter;
 
 void Assemble(const SkPathWriter& path, SkPathWriter* simple);
+void CheckEnds(SkTArray<SkOpContour*, true>* contourList);
 // FIXME: find chase uses insert, so it can't be converted to SkTArray yet
 SkOpSegment* FindChase(SkTDArray<SkOpSpan*>& chase, int& tIndex, int& endIndex);
 SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bool* firstContour,

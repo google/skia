@@ -12,21 +12,28 @@
 struct SkDLine {
     SkDPoint fPts[2];
 
+    const SkDPoint& operator[](int n) const { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
+    SkDPoint& operator[](int n) { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
+
     void set(const SkPoint pts[2]) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
     }
 
-    const SkDPoint& operator[](int n) const { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
-    SkDPoint& operator[](int n) { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
-
-    double isLeft(const SkDPoint& pt) const;
-    SkDLine subDivide(double t1, double t2) const;
     static SkDLine SubDivide(const SkPoint a[2], double t1, double t2) {
         SkDLine line;
         line.set(a);
         return line.subDivide(t1, t2);
     }
+
+    double exactPoint(const SkDPoint& xy) const;
+    static double ExactPointH(const SkDPoint& xy, double left, double right, double y);
+    static double ExactPointV(const SkDPoint& xy, double top, double bottom, double x);
+    double isLeft(const SkDPoint& pt) const;
+    double nearPoint(const SkDPoint& xy) const;
+    static double NearPointH(const SkDPoint& xy, double left, double right, double y);
+    static double NearPointV(const SkDPoint& xy, double top, double bottom, double x);
+    SkDLine subDivide(double t1, double t2) const;
     SkDPoint xyAtT(double t) const;
 private:
     SkDVector tangent() const { return fPts[0] - fPts[1]; }
