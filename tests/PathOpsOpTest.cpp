@@ -1836,9 +1836,155 @@ static void skpkkiste_to98(skiatest::Reporter* reporter) {
 }
 #endif
 
+#if 0  // https://code.google.com/p/skia/issues/detail?id=1417
+static void issue1417(skiatest::Reporter* reporter) {
+    SkPath path1;
+    path1.moveTo(122.589f, 82.2836f);
+    path1.quadTo(129.822f, 80, 138, 80);
+    path1.quadTo(147.157f, 80, 155.128f, 82.8628f);
+    path1.lineTo(161.176f, 100);
+    path1.lineTo(161.176f, 100);
+    path1.lineTo(115.294f, 100);
+    path1.lineTo(115.294f, 100);
+    path1.lineTo(122.589f, 82.2836f);
+    path1.lineTo(122.589f, 82.2836f);
+    path1.close();
+    path1.moveTo(98.6819f, 140.344f);
+    path1.lineTo(115.294f, 100);
+    path1.lineTo(115.294f, 100);
+    path1.lineTo(97.9338f, 100);
+    path1.lineTo(97.9338f, 100);
+    path1.quadTo(88, 112.943f, 88, 130);
+    path1.quadTo(88, 131.545f, 88.0815f, 133.056f);
+    path1.lineTo(98.6819f, 140.344f);
+    path1.lineTo(98.6819f, 140.344f);
+    path1.close();
+    path1.moveTo(136.97f, 166.667f);
+    path1.lineTo(98.6819f, 140.344f);
+    path1.lineTo(98.6819f, 140.344f);
+    path1.lineTo(93.4589f, 153.028f);
+    path1.lineTo(93.4589f, 153.028f);
+    path1.quadTo(96.9412f, 159.652f, 102.645f, 165.355f);
+    path1.quadTo(110.792f, 173.503f, 120.818f, 177.118f);
+    path1.lineTo(136.97f, 166.667f);
+    path1.lineTo(136.97f, 166.667f);
+    path1.close();
+    path1.moveTo(175.831f, 141.521f);
+    path1.lineTo(136.97f, 166.667f);
+    path1.lineTo(136.97f, 166.667f);
+    path1.lineTo(153.157f, 177.796f);
+    path1.lineTo(153.157f, 177.796f);
+    path1.quadTo(164.392f, 174.318f, 173.355f, 165.355f);
+    path1.quadTo(177.806f, 160.905f, 180.904f, 155.894f);
+    path1.lineTo(175.831f, 141.521f);
+    path1.lineTo(175.831f, 141.521f);
+    path1.close();
+    path1.moveTo(175.831f, 141.521f);
+    path1.lineTo(187.878f, 133.726f);
+    path1.lineTo(187.878f, 133.726f);
+    path1.quadTo(188, 131.888f, 188, 130);
+    path1.quadTo(188, 112.943f, 178.066f, 100);
+    path1.lineTo(161.176f, 100);
+    path1.lineTo(161.176f, 100);
+    path1.lineTo(175.831f, 141.521f);
+    path1.lineTo(175.831f, 141.521f);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(174.118f, 100);
+    path2.lineTo(161.176f, 100);
+    path2.lineTo(161.176f, 100);
+    path2.lineTo(155.128f, 82.8628f);
+    path2.lineTo(155.128f, 82.8628f);
+    path2.quadTo(153.15f, 82.1523f, 151.098f, 81.6181f);
+    path2.lineTo(143.529f, 100);
+    path2.lineTo(143.529f, 100);
+    path2.lineTo(161.176f, 100);
+    path2.lineTo(161.176f, 100);
+    path2.lineTo(168.235f, 120);
+    path2.lineTo(168.235f, 120);
+    path2.lineTo(181.176f, 120);
+    path2.lineTo(181.176f, 120);
+    path2.lineTo(186.366f, 134.704f);
+    path2.lineTo(186.366f, 134.704f);
+    path2.lineTo(187.878f, 133.726f);
+    path2.lineTo(187.878f, 133.726f);
+    path2.quadTo(188, 131.888f, 188, 130);
+    path2.quadTo(188, 124.809f, 187.08f, 120);
+    path2.lineTo(181.176f, 120);
+    path2.lineTo(181.176f, 120);
+    path2.lineTo(174.118f, 100);
+    path2.lineTo(174.118f, 100);
+    path2.close();
+    path2.moveTo(88.9198f, 120);
+    path2.lineTo(107.059f, 120);
+    path2.lineTo(107.059f, 120);
+    path2.lineTo(98.6819f, 140.344f);
+    path2.lineTo(98.6819f, 140.344f);
+    path2.lineTo(88.0815f, 133.056f);
+    path2.lineTo(88.0815f, 133.056f);
+    path2.quadTo(88, 131.545f, 88, 130);
+    path2.quadTo(88, 124.81f, 88.9198f, 120);
+    path2.close();
+    path2.moveTo(96.6762f, 145.215f);
+    path2.lineTo(98.6819f, 140.344f);
+    path2.lineTo(98.6819f, 140.344f);
+    path2.lineTo(120.688f, 155.473f);
+    path2.lineTo(120.688f, 155.473f);
+    path2.lineTo(118.682f, 160.344f);
+    path2.lineTo(118.682f, 160.344f);
+    path2.lineTo(96.6762f, 145.215f);
+    path2.lineTo(96.6762f, 145.215f);
+    path2.close();
+    path2.moveTo(113.232f, 173.579f);
+    path2.quadTo(116.88f, 175.698f, 120.818f, 177.118f);
+    path2.lineTo(132.286f, 169.697f);
+    path2.lineTo(132.286f, 169.697f);
+    path2.lineTo(118.682f, 160.344f);
+    path2.lineTo(118.682f, 160.344f);
+    path2.lineTo(113.232f, 173.579f);
+    path2.lineTo(113.232f, 173.579f);
+    path2.close();
+
+    testPathOp(reporter, path1, path2, kUnion_PathOp);
+}
+#endif
+
+#if 0  // https://code.google.com/p/skia/issues/detail?id=1418
+static void issue1418(skiatest::Reporter* reporter) {
+    SkPath path1;
+    path1.moveTo(0, 0);
+    path1.lineTo(1, 0);
+    path1.lineTo(1, 0);
+    path1.lineTo(1, 1);
+    path1.lineTo(1, 1);
+    path1.lineTo(0, 1);
+    path1.lineTo(0, 1);
+    path1.lineTo(0, 0);
+    path1.lineTo(0, 0);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(0.646447f, -0.353553f);
+    path2.quadTo(0.792893f, -0.5f, 1, -0.5f);
+    path2.quadTo(1.20711f, -0.5f, 1.35355f, -0.353553f);
+    path2.quadTo(1.5f, -0.207107f, 1.5f, 0);
+    path2.quadTo(1.5f, 0.207107f, 1.35355f, 0.353553f);
+    path2.quadTo(1.20711f, 0.5f, 1, 0.5f);
+    path2.quadTo(0.792893f, 0.5f, 0.646447f, 0.353553f);
+    path2.quadTo(0.5f, 0.207107f, 0.5f, 0);
+    path2.quadTo(0.5f, -0.207107f, 0.646447f, -0.353553f);
+    path2.close();
+
+    testPathOp(reporter, path1, path2, kIntersect_PathOp);
+}
+#endif
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
+//    TEST(issue1418),
+//    TEST(issue1417),
 //    TEST(skpkkiste_to98),
     TEST(skpahrefs_com29),
     TEST(cubicOp85d),
