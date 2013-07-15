@@ -400,9 +400,12 @@ static SkPMColor difference_modeproc(SkPMColor src, SkPMColor dst) {
 }
 
 // kExclusion_Mode
-static inline int exclusion_byte(int sc, int dc, int sa, int da) {
+static inline int exclusion_byte(int sc, int dc, int, int) {
     // this equations is wacky, wait for SVG to confirm it
-    int r = sc * da + dc * sa - 2 * sc * dc + sc * (255 - da) + dc * (255 - sa);
+    //int r = sc * da + dc * sa - 2 * sc * dc + sc * (255 - da) + dc * (255 - sa);
+
+    // The above equation can be simplified as follows
+    int r = 255*(sc + dc) - 2 * sc * dc;
     return clamp_div255round(r);
 }
 static SkPMColor exclusion_modeproc(SkPMColor src, SkPMColor dst) {
