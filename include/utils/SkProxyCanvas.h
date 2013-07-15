@@ -17,7 +17,7 @@
     There must be a proxy installed before the proxycanvas can be used (i.e.
     before its virtual methods can be called).
  */
-class SkProxyCanvas : public SkCanvas {
+class SK_API SkProxyCanvas : public SkCanvas {
 public:
     SkProxyCanvas() : fProxy(NULL) {}
     SkProxyCanvas(SkCanvas* proxy);
