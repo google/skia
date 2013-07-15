@@ -306,17 +306,15 @@ static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const S
         xy1 = cubic1.xyAtT(tt1);
         tt2 = intersections[1][pt3];
         xy2 = cubic2.xyAtT(tt2);
+        const SkDPoint& iPt = intersections.pt(pt3);
 #if ONE_OFF_DEBUG
-        DEBUGCODE(const SkDPoint& iPt = intersections.pt(pt3);)
         SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
                 __FUNCTION__, tt1, xy1.fX, xy1.fY, iPt.fX,
                 iPt.fY, xy2.fX, xy2.fY, tt2);
 #endif
-#if 0
        REPORTER_ASSERT(reporter, xy1.approximatelyEqual(iPt));
        REPORTER_ASSERT(reporter, xy2.approximatelyEqual(iPt));
        REPORTER_ASSERT(reporter, xy1.approximatelyEqual(xy2));
-#endif
     }
 }
 
@@ -340,7 +338,7 @@ static void oneOffTests(skiatest::Reporter* reporter) {
     }
     for (size_t outer = 0; outer < newTestSetCount - 1; ++outer) {
         for (size_t inner = outer + 1; inner < newTestSetCount; ++inner) {
-            oneOff(reporter, outer, inner);
+            newOneOff(reporter, outer, inner);
         }
     }
 }
