@@ -3828,7 +3828,7 @@ static void skphealth_com76(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = 0;
+static void (*firstTest)(skiatest::Reporter* ) = testLine24a;
 
 static TestDesc tests[] = {
     TEST(skphealth_com76),
@@ -4194,7 +4194,7 @@ static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 static void (*firstSubTest)(skiatest::Reporter* ) = 0;
 
 static bool runSubTestsFirst = false;
-static bool runReverse = false;
+static bool runReverse = true;
 static void (*stopTest)(skiatest::Reporter* ) = 0;
 
 static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {

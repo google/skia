@@ -102,7 +102,7 @@ struct SkDPoint {
     bool approximatelyEqual(const SkDPoint& a) const {
         double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
                 SkTMax(fabs(a.fX), fabs(a.fY))));
-        if (denom == 0) {
+        if (precisely_zero(denom)) {
             return true;
         }
         double inv = 1 / denom;
