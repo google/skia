@@ -306,8 +306,8 @@ static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const S
         xy1 = cubic1.xyAtT(tt1);
         tt2 = intersections[1][pt3];
         xy2 = cubic2.xyAtT(tt2);
-        const SkDPoint& iPt = intersections.pt(pt3);
 #if ONE_OFF_DEBUG
+        DEBUGCODE(const SkDPoint& iPt = intersections.pt(pt3);)
         SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
                 __FUNCTION__, tt1, xy1.fX, xy1.fY, iPt.fX,
                 iPt.fY, xy2.fX, xy2.fY, tt2);
