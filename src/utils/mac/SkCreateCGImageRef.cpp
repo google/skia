@@ -14,10 +14,6 @@ static void SkBitmap_ReleaseInfo(void* info, const void* pixelData, size_t size)
     delete bitmap;
 }
 
-#define HAS_ARGB_SHIFTS(a, r, g, b) \
-    (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
-    && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
-
 static bool getBitmapInfo(const SkBitmap& bm,
                           size_t* bitsPerComponent,
                           CGBitmapInfo* info,
@@ -34,16 +30,14 @@ static bool getBitmapInfo(const SkBitmap& bm,
             // fall through
         case SkBitmap::kARGB_8888_Config:
             *bitsPerComponent = 8;
-#if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
-|| defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
+#if SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
             *info = kCGBitmapByteOrder32Big;
             if (bm.isOpaque()) {
                 *info |= kCGImageAlphaNoneSkipLast;
             } else {
                 *info |= kCGImageAlphaPremultipliedLast;
             }
-#elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
-|| defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
+#elif SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
             // Matches the CGBitmapInfo that Apple recommends for best
             // performance, used by google chrome.
             *info = kCGBitmapByteOrder32Little;
@@ -107,8 +101,6 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
     }
     return copy;
 }
-
-#undef HAS_ARGB_SHIFTS
 
 CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
                                             CGColorSpaceRef colorSpace) {

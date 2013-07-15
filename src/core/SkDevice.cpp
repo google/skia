@@ -219,32 +219,15 @@ bool SkDevice::readPixels(SkBitmap* bitmap, int x, int y,
     return result;
 }
 
-#ifdef SK_CPU_LENDIAN
-    #if   24 == SK_A32_SHIFT && 16 == SK_R32_SHIFT && \
-           8 == SK_G32_SHIFT &&  0 == SK_B32_SHIFT
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            SkCanvas::kBGRA_Premul_Config8888;
-    #elif 24 == SK_A32_SHIFT &&  0 == SK_R32_SHIFT && \
-           8 == SK_G32_SHIFT && 16 == SK_B32_SHIFT
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            SkCanvas::kRGBA_Premul_Config8888;
-    #else
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            (SkCanvas::Config8888) -1;
-    #endif
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+    const SkCanvas::Config8888 SkDevice::kPMColorAlias =
+        SkCanvas::kBGRA_Premul_Config8888;
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+    const SkCanvas::Config8888 SkDevice::kPMColorAlias =
+        SkCanvas::kRGBA_Premul_Config8888;
 #else
-    #if    0 == SK_A32_SHIFT &&   8 == SK_R32_SHIFT && \
-          16 == SK_G32_SHIFT &&  24 == SK_B32_SHIFT
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            SkCanvas::kBGRA_Premul_Config8888;
-    #elif  0 == SK_A32_SHIFT &&  24 == SK_R32_SHIFT && \
-          16 == SK_G32_SHIFT &&   8 == SK_B32_SHIFT
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            SkCanvas::kRGBA_Premul_Config8888;
-    #else
-        const SkCanvas::Config8888 SkDevice::kPMColorAlias =
-            (SkCanvas::Config8888) -1;
-    #endif
+    const SkCanvas::Config8888 SkDevice::kPMColorAlias =
+        (SkCanvas::Config8888) -1;
 #endif
 
 #include <SkConfig8888.h>
