@@ -383,13 +383,9 @@ static int upscale31To255(int value) {
     return value;
 }
 
-static int mul(int a, int b) {
-    return a * b >> 8;
-}
-
 static int src_alpha_blend(int src, int dst, int srcA, int mask) {
 
-    return dst + mul(src - mul(srcA, dst), mask);
+    return dst + SkAlphaMul(src - SkAlphaMul(srcA, dst), mask);
 }
 
 static void LCD16_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
