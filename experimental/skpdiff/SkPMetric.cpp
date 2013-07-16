@@ -38,6 +38,10 @@ struct Image2D {
         *pixel = image[y * width + x];
     }
 
+    T* getRow(int y) const {
+        return &image[y * width];
+    }
+
     void writePixel(int x, int y, const T& pixel) {
         SkASSERT(x >= 0);
         SkASSERT(y >= 0);
@@ -191,15 +195,25 @@ static void lab_to_l(const ImageLAB* imageLAB, ImageL* outImageL) {
 }
 
 /// Convolves an image with the given filter in one direction and saves it to the output image
-static void convolve(const ImageL* imageL,
-                     bool vertical, const float* matrix, int radius,
-                     ImageL* outImageL) {
+static void convolve(const ImageL* imageL, bool vertical, ImageL* outImageL) {
     SkASSERT(imageL->width == outImageL->width);
     SkASSERT(imageL->height == outImageL->height);
+
+    const float matrix[] = { 0.05f, 0.25f, 0.4f, 0.25f, 0.05f };
+    const int matrixCount = sizeof(matrix) / sizeof(float);
+    const int radius = matrixCount / 2;
+
+    // Keep track of what rows are being operated on for quick access.
+    float* rowPtrs[matrixCount]; // Because matrixCount is constant, this won't create a VLA
+    for (int y = radius; y < matrixCount; y++) {
+        rowPtrs[y] = imageL->getRow(y - radius);
+    }
+    float* writeRow = outImageL->getRow(0);
+
+
     for (int y = 0; y < imageL->height; y++) {
         for (int x = 0; x < imageL->width; x++) {
             float lSum = 0.0f;
-            float l;
             for (int xx = -radius; xx <= radius; xx++) {
                 int nx = x;
                 int ny = y;
@@ -224,12 +238,18 @@ static void convolve(const ImageL* imageL,
                     }
                 }
 
-                imageL->readPixel(nx, ny, &l);
                 float weight = matrix[xx + radius];
-                lSum += l * weight;
+                lSum += rowPtrs[ny - y + radius][nx] * weight;
             }
-            outImageL->writePixel(x, y, lSum);
+            writeRow[x] = lSum;
         }
+        // As we move down, scroll the row pointers down with us
+        for (int y = 0; y < matrixCount - 1; y++)
+        {
+            rowPtrs[y] = rowPtrs[y + 1];
+        }
+        rowPtrs[matrixCount - 1] += imageL->width;
+        writeRow += imageL->width;
     }
 }
 
@@ -258,15 +278,14 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
         cyclesPerDegree[levelIndex] = cyclesPerDegree[levelIndex - 1] * 0.5f;
     }
 
-    const float filterMatrix[] = { 0.05f, 0.25f, 0.4f, 0.25f, 0.05f };
     // Compute G - The convolved lum for the baseline
     for (int levelIndex = 1; levelIndex < maxLevels; levelIndex++) {
-        convolve(baselineL.getLayer(levelIndex - 1), false, filterMatrix, 2, &scratchImageL);
-        convolve(&scratchImageL, true, filterMatrix, 2, baselineL.getLayer(levelIndex));
+        convolve(baselineL.getLayer(levelIndex - 1), false, &scratchImageL);
+        convolve(&scratchImageL, true, baselineL.getLayer(levelIndex));
     }
     for (int levelIndex = 1; levelIndex < maxLevels; levelIndex++) {
-        convolve(testL.getLayer(levelIndex - 1), false, filterMatrix, 2, &scratchImageL);
-        convolve(&scratchImageL, true, filterMatrix, 2, testL.getLayer(levelIndex));
+        convolve(testL.getLayer(levelIndex - 1), false, &scratchImageL);
+        convolve(&scratchImageL, true, testL.getLayer(levelIndex));
     }
 
     // Compute F_freq - The elevation f

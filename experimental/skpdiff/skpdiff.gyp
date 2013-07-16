@@ -23,6 +23,9 @@
       'dependencies': [
         '../../gyp/skia_lib.gyp:skia_lib',
       ],
+      'cflags': [
+        '-O3',
+      ],
       'link_settings': {
         'libraries': [
           '-lOpenCL',
