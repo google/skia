@@ -119,6 +119,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fTextureCache = SkNEW_ARGS(GrResourceCache,
                                (MAX_TEXTURE_CACHE_COUNT,
                                 MAX_TEXTURE_CACHE_BYTES));
+    fTextureCache->setOverbudgetCallback(OverbudgetCB, this);
+
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
     fLastDrawWasBuffered = kNo_BufferedDraw;
