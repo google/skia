@@ -226,6 +226,7 @@ class JsonRebaseliner(object):
         expectations_json_filepath = os.path.join(
             self._expectations_root, subdir, self._expectations_filename)
         expectations_dict = gm_json.LoadFromFile(expectations_json_filepath)
+        expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
 
         # Update the expectations in memory, skipping any tests/configs that
         # the caller asked to exclude.
@@ -242,9 +243,9 @@ class JsonRebaseliner(object):
                     if config not in self._configs:
                         skipped_images.append(image_name)
                         continue
-                expectations_dict \
-                    [gm_json.JSONKEY_EXPECTEDRESULTS] \
-                    [image_name] \
+                if not expected_results.get(image_name):
+                    expected_results[image_name] = {}
+                expected_results[image_name] \
                     [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
                         [image_results]
 
