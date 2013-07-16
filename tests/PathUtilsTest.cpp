@@ -6,17 +6,17 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkPathUtils.h"
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkPathUtils.h"
 #include "SkRandom.h"
 #include "SkTime.h"
-
-#define SK_NUM_IT 100
+#include "Test.h"
 
 class SkBitmap;
+
+const int kNumIt = 100;
 
 static void fill_random_bits( int chars, char* bits ){
     SkMWCRandom rand(SkTime::GetMSecs());
@@ -32,6 +32,7 @@ static int get_bit( const char* buffer, int x ) {
 
     return buffer[byte] & (128 >> bit);
 }
+
 /* // useful for debugging errors
    #include <iostream>
 static void print_bits( const char* bits, int w, int h) {
@@ -57,7 +58,7 @@ static void print_bmp( SkBitmap* bmp, int w, int h){
         }
         std::cout << std::endl;
     }
-    }
+}
 */
 
 static void binary_to_skbitmap(const char* bin_bmp, SkBitmap* sk_bmp,
@@ -139,7 +140,7 @@ static void TestPathUtils(skiatest::Reporter* reporter) {
     static char* binBmp = &bits[0];
 
     //loop to run randomized test lots of times
-    for (int it = 0; it < SK_NUM_IT; ++it)
+    for (int it = 0; it < kNumIt; ++it)
     {
         // generate a random binary bitmap
         fill_random_bits( h * rowBytes, binBmp); // generate random bitmap
