@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsQuadIntersectionTestData.h"
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
@@ -14,7 +15,9 @@ static void standardTestCases(skiatest::Reporter* reporter) {
     bool showSkipped = false;
     for (size_t index = 0; index < quadraticTests_count; ++index) {
         const SkDQuad& quad1 = quadraticTests[index][0];
+        SkASSERT(ValidQuad(quad1));
         const SkDQuad& quad2 = quadraticTests[index][1];
+        SkASSERT(ValidQuad(quad2));
         SkReduceOrder reduce1, reduce2;
         int order1 = reduce1.reduce(quad1, SkReduceOrder::kFill_Style);
         int order2 = reduce2.reduce(quad2, SkReduceOrder::kFill_Style);
@@ -246,7 +249,9 @@ const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner) {
     const SkDQuad& quad1 = testSet[outer];
+    SkASSERT(ValidQuad(quad1));
     const SkDQuad& quad2 = testSet[inner];
+    SkASSERT(ValidQuad(quad2));
     SkIntersections intersections2;
     intersections2.intersect(quad1, quad2);
     for (int pt = 0; pt < intersections2.used(); ++pt) {
@@ -291,7 +296,9 @@ const size_t coincidentTestSetCount = SK_ARRAY_COUNT(coincidentTestSet);
 static void coincidentTest(skiatest::Reporter* reporter) {
     for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
         const SkDQuad& quad1 = coincidentTestSet[testIndex];
+        SkASSERT(ValidQuad(quad1));
         const SkDQuad& quad2 = coincidentTestSet[testIndex + 1];
+        SkASSERT(ValidQuad(quad2));
         SkIntersections intersections2;
         intersections2.intersect(quad1, quad2);
         REPORTER_ASSERT(reporter, intersections2.coincidentUsed() == 2);

@@ -125,7 +125,7 @@ DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n"
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(threaded, z, false, "allow tests to use multiple threads internally.");
+DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
              "Run threadsafe tests on a threadpool with this many threads.");
@@ -237,7 +237,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%s\n", header.c_str());
     }
 
-    DebugfReporter reporter(FLAGS_extendedTest, FLAGS_threaded, FLAGS_verbose);
+    DebugfReporter reporter(FLAGS_extendedTest, !FLAGS_single, FLAGS_verbose);
     Iter iter(&reporter);
 
     // Count tests first.

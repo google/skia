@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -72,7 +73,9 @@ static void testOneOffs(skiatest::Reporter* reporter) {
     bool flipped = false;
     for (size_t index = 0; index < oneOffs_count; ++index) {
         const SkDQuad& quad = oneOffs[index].quad;
+        SkASSERT(ValidQuad(quad));
         const SkDLine& line = oneOffs[index].line;
+        SkASSERT(ValidLine(line));
         SkIntersections intersections;
         int result = doIntersect(intersections, quad, line, flipped);
         for (int inner = 0; inner < result; ++inner) {
@@ -93,7 +96,9 @@ static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < lineQuadTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDQuad& quad = lineQuadTests[index].quad;
+        SkASSERT(ValidQuad(quad));
         const SkDLine& line = lineQuadTests[index].line;
+        SkASSERT(ValidLine(line));
         SkReduceOrder reducer1, reducer2;
         int order1 = reducer1.reduce(quad, SkReduceOrder::kFill_Style);
         int order2 = reducer2.reduce(line);

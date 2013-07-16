@@ -28,6 +28,8 @@ extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths)
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                         const SkPathOp , const char* testName = NULL);
+extern bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                        const SkPathOp , const char* testName = NULL);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path);

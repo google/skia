@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkLineParameters.h"
 #include "Test.h"
 
@@ -40,6 +41,7 @@ static void PathOpsLineParametersTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         SkLineParameters lineParameters;
         const SkDCubic& cubic = tests[index];
+        SkASSERT(ValidCubic(cubic));
         lineParameters.cubicEndPoints(cubic, 0, 3);
         double denormalizedDistance[2];
         denormalizedDistance[0] = lineParameters.controlPtDistance(cubic, 1);

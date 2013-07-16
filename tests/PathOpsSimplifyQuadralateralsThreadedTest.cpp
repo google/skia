@@ -12,7 +12,10 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
     SkASSERT(data);
     PathOpsThreadState& state = *data;
     char pathStr[1024];
-    sk_bzero(pathStr, sizeof(pathStr));
+    bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
+    if (progress) {
+        sk_bzero(pathStr, sizeof(pathStr));
+    }
     int ax = state.fA & 0x03;
     int ay = state.fA >> 2;
     int bx = state.fB & 0x03;
@@ -45,22 +48,26 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
                     path.lineTo(SkIntToScalar(gx), SkIntToScalar(gy));
                     path.lineTo(SkIntToScalar(hx), SkIntToScalar(hy));
                     path.close();
-                   // gdb: set print elements 400
-                    char* str = pathStr;
-                    str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", bx, by);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", cx, cy);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", dx, dy);
-                    str += sprintf(str, "    path.close();\n");
-                    str += sprintf(str, "    path.moveTo(%d, %d);\n", ex, ey);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", gx, gy);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", hx, hy);
-                    str += sprintf(str, "    path.close();\n");
-                    outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
+                    if (progress) {
+                       // gdb: set print elements 400
+                        char* str = pathStr;
+                        str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", bx, by);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", cx, cy);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", dx, dy);
+                        str += sprintf(str, "    path.close();\n");
+                        str += sprintf(str, "    path.moveTo(%d, %d);\n", ex, ey);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", gx, gy);
+                        str += sprintf(str, "    path.lineTo(%d, %d);\n", hx, hy);
+                        str += sprintf(str, "    path.close();\n");
+                        outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
+                    }
                     testSimplify(path, false, out, state, pathStr);
                     path.setFillType(SkPath::kEvenOdd_FillType);
-                    outputProgress(state.fPathStr, pathStr, SkPath::kEvenOdd_FillType);
+                    if (progress) {
+                        outputProgress(state.fPathStr, pathStr, SkPath::kEvenOdd_FillType);
+                    }
                     testSimplify(path, true, out, state, pathStr);
                 }
             }

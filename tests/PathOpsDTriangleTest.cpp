@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsTriangle.h"
 #include "Test.h"
 
@@ -30,6 +31,7 @@ static const size_t tests_count = SK_ARRAY_COUNT(tests);
 static void PathOpsTriangleUtilitiesTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDTriangle& triangle = tests[index];
+        SkASSERT(ValidTriangle(triangle));
         bool result = triangle.contains(inPoint[index]);
         if (!result) {
             SkDebugf("%s [%d] expected point in triangle\n", __FUNCTION__, index);

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsBounds.h"
 #include "Test.h"
 
@@ -48,13 +49,17 @@ static const size_t notEmptyTestsCount = SK_ARRAY_COUNT(notReallyEmpty);
 static void PathOpsBoundsTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < sectTestsCount; ++index) {
         const SkPathOpsBounds& bounds1 = static_cast<const SkPathOpsBounds&>(sectTests[index][0]);
+        SkASSERT(ValidBounds(bounds1));
         const SkPathOpsBounds& bounds2 = static_cast<const SkPathOpsBounds&>(sectTests[index][1]);
+        SkASSERT(ValidBounds(bounds2));
         bool touches = SkPathOpsBounds::Intersects(bounds1, bounds2);
         REPORTER_ASSERT(reporter, touches);
     }
     for (size_t index = 0; index < noSectTestsCount; ++index) {
         const SkPathOpsBounds& bounds1 = static_cast<const SkPathOpsBounds&>(noSectTests[index][0]);
+        SkASSERT(ValidBounds(bounds1));
         const SkPathOpsBounds& bounds2 = static_cast<const SkPathOpsBounds&>(noSectTests[index][1]);
+        SkASSERT(ValidBounds(bounds2));
         bool touches = SkPathOpsBounds::Intersects(bounds1, bounds2);
         REPORTER_ASSERT(reporter, !touches);
     }
@@ -76,11 +81,13 @@ static void PathOpsBoundsTest(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, bounds == expected);
     for (size_t index = 0; index < emptyTestsCount; ++index) {
         const SkPathOpsBounds& bounds = static_cast<const SkPathOpsBounds&>(reallyEmpty[index]);
+        // SkASSERT(ValidBounds(bounds));  // don't check because test may contain nan
         bool empty = bounds.isReallyEmpty();
         REPORTER_ASSERT(reporter, empty);
     }
     for (size_t index = 0; index < notEmptyTestsCount; ++index) {
         const SkPathOpsBounds& bounds = static_cast<const SkPathOpsBounds&>(notReallyEmpty[index]);
+        SkASSERT(ValidBounds(bounds));
         bool empty = bounds.isReallyEmpty();
         REPORTER_ASSERT(reporter, !empty);
     }

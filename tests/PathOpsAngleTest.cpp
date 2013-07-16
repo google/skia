@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkOpSegment.h"
 #include "SkTArray.h"
 #include "Test.h"
@@ -248,9 +249,11 @@ static void setup(const SortSet* set, const size_t idx,
     }
     switch(set[idx].ptCount) {
         case 2: {
+            SkASSERT(ValidPoints(data, 2));
             seg->addLine(data, false, false);
             SkDLine dLine;
             dLine.set(set[idx].ptData);
+            SkASSERT(ValidLine(dLine));
             if (useIntersectPt) {
                 break;
             }
@@ -258,9 +261,11 @@ static void setup(const SortSet* set, const size_t idx,
             end = dLine.xyAtT(set[idx].tEnd).asSkPoint();
             } break;
         case 3: {
+            SkASSERT(ValidPoints(data, 3));
             seg->addQuad(data, false, false);
             SkDQuad dQuad;
             dQuad.set(set[idx].ptData);
+            SkASSERT(ValidQuad(dQuad));
              if (useIntersectPt) {
                 break;
             }
@@ -268,9 +273,11 @@ static void setup(const SortSet* set, const size_t idx,
             end = dQuad.xyAtT(set[idx].tEnd).asSkPoint();
             } break;
         case 4: {
+            SkASSERT(ValidPoints(data, 4));
             seg->addCubic(data, false, false);
             SkDCubic dCubic;
             dCubic.set(set[idx].ptData);
+            SkASSERT(ValidCubic(dCubic));
             if (useIntersectPt) {
                 break;
             }

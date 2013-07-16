@@ -17,6 +17,7 @@ static void test(skiatest::Reporter* reporter, const SkDCubic* cubics, const cha
                  int firstTest, size_t testCount) {
     for (size_t index = firstTest; index < testCount; ++index) {
         const SkDCubic& cubic = cubics[index];
+        SkASSERT(ValidCubic(cubic));
         double precision = cubic.calcPrecision();
         SkTArray<SkDQuad, true> quads;
         CubicToQuads(cubic, precision, quads);
@@ -32,6 +33,7 @@ static void test(skiatest::Reporter* reporter, const SkDQuad* quadTests, const c
                  int firstTest, size_t testCount) {
     for (size_t index = firstTest; index < testCount; ++index) {
         const SkDQuad& quad = quadTests[index];
+        SkASSERT(ValidQuad(quad));
         SkDCubic cubic = quad.toCubic();
         double precision = cubic.calcPrecision();
         SkTArray<SkDQuad, true> quads;
@@ -49,6 +51,7 @@ static void testC(skiatest::Reporter* reporter, const SkDCubic* cubics, const ch
     // test if computed line end points are valid
     for (size_t index = firstTest; index < testCount; ++index) {
         const SkDCubic& cubic = cubics[index];
+        SkASSERT(ValidCubic(cubic));
         double precision = cubic.calcPrecision();
         SkTArray<SkDQuad, true> quads;
         CubicToQuads(cubic, precision, quads);
@@ -71,6 +74,7 @@ static void testC(skiatest::Reporter* reporter, const SkDCubic(* cubics)[2], con
     for (size_t index = firstTest; index < testCount; ++index) {
         for (int idx2 = 0; idx2 < 2; ++idx2) {
             const SkDCubic& cubic = cubics[index][idx2];
+            SkASSERT(ValidCubic(cubic));
             double precision = cubic.calcPrecision();
             SkTArray<SkDQuad, true> quads;
             CubicToQuads(cubic, precision, quads);
@@ -168,6 +172,7 @@ extern const bool AVERAGE_END_POINTS;
 
 static void oneOff(skiatest::Reporter* reporter, size_t x) {
     const SkDCubic& cubic = locals[x];
+    SkASSERT(ValidCubic(cubic));
     const SkPoint skcubic[4] = {
             {static_cast<float>(cubic[0].fX), static_cast<float>(cubic[0].fY)},
             {static_cast<float>(cubic[1].fX), static_cast<float>(cubic[1].fY)},

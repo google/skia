@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsPoint.h"
 #include "Test.h"
 
@@ -22,6 +23,7 @@ static const size_t tests_count = SK_ARRAY_COUNT(tests);
 static void PathOpsDPointTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDPoint& pt = tests[index];
+        SkASSERT(ValidPoint(pt));
         SkDPoint p = pt;
         REPORTER_ASSERT(reporter, p == pt);
         REPORTER_ASSERT(reporter, !(pt != pt));
