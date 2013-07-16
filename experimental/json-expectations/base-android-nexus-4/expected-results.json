@@ -1008,9 +1008,15 @@
          ],
          "ignore-failure" : false
       },
-      "xfermodeimagefilter_gpu.png" : {
+      "xfermodeimagefilter_565.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 5927078721214492033 ]
+            [ "bitmap-64bitMD5", 18285403550986146407 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 17728923405020117084 ]
          ],
          "ignore-failure" : false
       },
