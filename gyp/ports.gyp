@@ -27,15 +27,19 @@
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkFontHost_win_dw.cpp',
         '../src/ports/SkGlobalInitialization_default.cpp',
-        '../src/ports/SkPurgeableMemoryBlock_none.cpp',
-        '../src/ports/SkThread_win.cpp',
-
         '../src/ports/SkMemory_malloc.cpp',
         '../src/ports/SkOSFile_posix.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',
+        '../src/ports/SkPurgeableMemoryBlock_none.cpp',
+       #'../src/ports/SkThread_none.cpp',
+        '../src/ports/SkThread_pthread.cpp',
+        '../src/ports/SkThread_win.cpp',
         '../src/ports/SkTime_Unix.cpp',
         '../src/ports/SkTime_win.cpp',
+       #'../src/ports/SkTLS_none.cpp',
+        '../src/ports/SkTLS_pthread.cpp',
+        '../src/ports/SkTLS_win.cpp',
         '../src/ports/SkXMLParser_empty.cpp',
       ],
       'conditions': [
@@ -58,7 +62,6 @@
             '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',
             '../src/ports/SkFontConfigInterface_direct.cpp',
-            '../src/ports/SkThread_pthread.cpp',
           ],
         }],
         [ 'skia_os == "nacl"', {
@@ -79,7 +82,6 @@
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_linux.cpp',
-            '../src/ports/SkThread_pthread.cpp',
           ],
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
@@ -99,7 +101,6 @@
 #            '../src/ports/SkFontHost_FreeType.cpp',
 #            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
-            '../src/ports/SkThread_pthread.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
@@ -115,7 +116,6 @@
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
             '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
-            '../src/ports/SkThread_pthread.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
@@ -141,8 +141,10 @@
           ],
           'sources!': [ # these are used everywhere but windows
             '../src/ports/SkDebug_stdio.cpp',
-            '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkOSFile_posix.cpp',
+            '../src/ports/SkThread_pthread.cpp',
+            '../src/ports/SkTime_Unix.cpp',
+            '../src/ports/SkTLS_pthread.cpp',
           ],
         }, { # else !win
           'sources!': [
@@ -152,6 +154,7 @@
             '../src/ports/SkOSFile_win.cpp',
             '../src/ports/SkThread_win.cpp',
             '../src/ports/SkTime_win.cpp',
+            '../src/ports/SkTLS_win.cpp',
           ],
         }],
         [ 'skia_os == "android"', {

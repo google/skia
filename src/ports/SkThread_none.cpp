@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkThread.h"
-#include "SkTLS.h"
 
 int32_t sk_atomic_inc(int32_t* addr) {
     int32_t value = *addr;
@@ -44,15 +41,3 @@ SkMutex::~SkMutex() {}
 void SkMutex::acquire() {}
 void SkMutex::release() {}
 #endif
-
-//////////////////////////////////////////////////////////////////////////
-
-static void* gSpecific;
-
-void* SkTLS::PlatformGetSpecific(bool) {
-    return gSpecific;
-}
-
-void SkTLS::PlatformSetSpecific(void* ptr) {
-    gSpecific = ptr;
-}
