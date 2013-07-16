@@ -204,7 +204,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitm
     GrTexture* source = input.getTexture();
     SkRect rect;
     src.getBounds(&rect);
-    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(), 
+    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source, false, rect,
                                                              fSigma.width(), fSigma.height()));
     return SkImageFilterUtils::WrapTexture(tex, src.width(), src.height(), result);

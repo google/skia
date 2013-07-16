@@ -58,7 +58,7 @@ GrTexture* GaussianBlur(GrContext* context,
                         GrTexture* srcTexture,
                         bool canClobberSrc,
                         const SkRect& rect,
-                        float sigmaX, 
+                        float sigmaX,
                         float sigmaY) {
     GrAssert(NULL != context);
 
