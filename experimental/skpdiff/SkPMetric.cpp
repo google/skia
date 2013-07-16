@@ -3,6 +3,7 @@
 #include "SkBitmap.h"
 #include "skpdiff_util.h"
 #include "SkPMetric.h"
+#include "SkPMetricUtil_generated.h"
 
 struct RGB {
     float r, g, b;
@@ -112,7 +113,7 @@ void adobergb_to_cielab(float r, float g, float b, LAB* lab) {
     // http://en.wikipedia.org/wiki/CIELAB#Forward_transformation
     for (int i = 0; i < 3; i++) {
         if (f[i] >= 0.008856f) {
-            f[i] = powf(f[i], 1.0f / 3.0f);
+            f[i] = SkPMetricUtil::get_cube_root(f[i]);
         } else {
             f[i] = 7.787f * f[i] + 4.0f / 29.0f;
         }
@@ -138,9 +139,9 @@ static void bitmap_to_cielab(const SkBitmap* bitmap, ImageLAB* outImageLAB) {
         unsigned char* row = (unsigned char*)bitmap->getAddr(0, y);
         for (int x = 0; x < width; x++) {
             // Perform gamma correction which is assumed to be 2.2
-            rgb.r = powf(row[x * 4 + 2] / 255.0f, 2.2f);
-            rgb.g = powf(row[x * 4 + 1] / 255.0f, 2.2f);
-            rgb.b = powf(row[x * 4 + 0] / 255.0f, 2.2f);
+            rgb.r = SkPMetricUtil::get_gamma(row[x * 4 + 2]);
+            rgb.g = SkPMetricUtil::get_gamma(row[x * 4 + 1]);
+            rgb.b = SkPMetricUtil::get_gamma(row[x * 4 + 0]);
             adobergb_to_cielab(rgb.r, rgb.g, rgb.b, &lab);
             outImageLAB->writePixel(x, y, lab);
         }
@@ -158,8 +159,12 @@ static float contrast_sensitivity(float cyclesPerDegree, float luminance) {
            sqrtf(1.0f + 0.06f * expf(b * cyclesPerDegree));
 }
 
+#if 0
+// We're keeping these around for reference and in case the lookup tables are no longer desired.
+// They are no longer called by any code in this file.
+
 // From Daly 1993
-static float visual_mask(float contrast) {
+ static float visual_mask(float contrast) {
     float x = powf(392.498f * contrast, 0.7f);
     x = powf(0.0153f * x, 4.0f);
     return powf(1.0f + x, 0.25f);
@@ -182,6 +187,8 @@ static float threshold_vs_intensity(float adaptationLuminance) {
     }
     return powf(10.0f, x);
 }
+
+#endif
 
 /// Simply takes the L channel from the input and puts it into the output
 static void lab_to_l(const ImageLAB* imageLAB, ImageL* outImageL) {
@@ -209,7 +216,6 @@ static void convolve(const ImageL* imageL, bool vertical, ImageL* outImageL) {
         rowPtrs[y] = imageL->getRow(y - radius);
     }
     float* writeRow = outImageL->getRow(0);
-
 
     for (int y = 0; y < imageL->height; y++) {
         for (int x = 0; x < imageL->width; x++) {
@@ -278,6 +284,16 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
         cyclesPerDegree[levelIndex] = cyclesPerDegree[levelIndex - 1] * 0.5f;
     }
 
+    // Contrast sensitivity is based on image dimensions. Therefore it cannot be statically
+    // generated.
+    float* contrastSensitivityTable = SkNEW_ARRAY(float, maxLevels * 1000);
+    for (int levelIndex = 0; levelIndex < maxLevels; levelIndex++) {
+        for (int csLum = 0; csLum < 1000; csLum++) {
+           contrastSensitivityTable[levelIndex * 1000 + csLum] =
+           contrast_sensitivity(cyclesPerDegree[levelIndex], (float)csLum / 10.0f + 1e-5f);
+       }
+    }
+
     // Compute G - The convolved lum for the baseline
     for (int levelIndex = 1; levelIndex < maxLevels; levelIndex++) {
         convolve(baselineL.getLayer(levelIndex - 1), false, &scratchImageL);
@@ -339,7 +355,6 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
                 if (denominator < 1e-5) {
                     denominator = 1e-5;
                 }
-
                 contrast[levelIndex] = numerator / denominator;
                 contrastSum += contrast[levelIndex];
             }
@@ -350,8 +365,10 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
 
             float F = 0.0f;
             for (int levelIndex = 0; levelIndex < maxLevels - 2; levelIndex++) {
-                float mask = visual_mask(contrast[levelIndex] *
-                             contrast_sensitivity(cyclesPerDegree[levelIndex], lAdapt));
+                float contrastSensitivity = contrastSensitivityTable[levelIndex * 1000 +
+                                                                     (int)(lAdapt * 10.0)];
+                float mask = SkPMetricUtil::get_visual_mask(contrast[levelIndex] *
+                                                            contrastSensitivity);
 
                 F += contrast[levelIndex] +
                      thresholdFactorFrequency[levelIndex] * mask / contrastSum;
@@ -367,7 +384,7 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
 
 
             bool isFailure = false;
-            if (fabsf(lBaseline - lTest) > F * threshold_vs_intensity(lAdapt)) {
+            if (fabsf(lBaseline - lTest) > F * SkPMetricUtil::get_threshold_vs_intensity(lAdapt)) {
                 isFailure = true;
             } else {
                 LAB baselineColor;
@@ -398,6 +415,7 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
     SkDELETE_ARRAY(cyclesPerDegree);
     SkDELETE_ARRAY(contrast);
     SkDELETE_ARRAY(thresholdFactorFrequency);
+    SkDELETE_ARRAY(contrastSensitivityTable);
     return 1.0 - (double)failures / (width * height);
 }
 
@@ -406,8 +424,8 @@ const char* SkPMetric::getName() {
 }
 
 int SkPMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
-    int diffID = fQueuedDiffs.count();
     double startTime = get_seconds();
+    int diffID = fQueuedDiffs.count();
     QueuedDiff& diff = fQueuedDiffs.push_back();
     diff.result = 0.0;
 
@@ -433,7 +451,7 @@ int SkPMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
 
 
 void SkPMetric::deleteDiff(int id) {
-   fQueuedDiffs[id].poi.reset();
+
 }
 
 bool SkPMetric::isFinished(int id) {
