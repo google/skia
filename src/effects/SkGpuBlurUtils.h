@@ -34,7 +34,7 @@ namespace SkGpuBlurUtils {
                             GrTexture* srcTexture,
                             bool canClobberSrc,
                             const SkRect& rect,
-                            float sigmaX, 
+                            float sigmaX,
                             float sigmaY);
 #endif
 
