@@ -1986,12 +1986,6 @@
          ],
          "ignore-failure" : false
       },
-      "perlinnoise_msaa4.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 9445858459664344679 ]
-         ],
-         "ignore-failure" : false
-      },
       "points_565.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 9418063666161005464 ]
@@ -2396,7 +2390,7 @@
       },
       "strokes_round_msaa4.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 4027063125569595661 ]
+            [ "bitmap-64bitMD5", 17258287345365497349 ]
          ],
          "ignore-failure" : false
       },
@@ -2577,6 +2571,24 @@
       "verttext_gpu.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 2368904957639524149 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 18285403550986146407 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 17728923405020117084 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_gpu.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 17748042100952635690 ]
          ],
          "ignore-failure" : false
       },

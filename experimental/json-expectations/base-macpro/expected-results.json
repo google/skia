@@ -5220,30 +5220,6 @@
          ],
          "ignore-failure" : false
       },
-      "xfermodeimagefilter_565.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 6206951979175401319 ]
-         ],
-         "ignore-failure" : false
-      },
-      "xfermodeimagefilter_8888.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 903796030758541433 ]
-         ],
-         "ignore-failure" : false
-      },
-      "xfermodeimagefilter_gpu.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 10621454621594633594 ]
-         ],
-         "ignore-failure" : false
-      },
-      "xfermodeimagefilter_pdf.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 5917216770549549299 ]
-         ],
-         "ignore-failure" : false
-      },
       "xfermodes2_565.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 12108513795501142465 ]

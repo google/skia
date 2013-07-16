@@ -4212,6 +4212,18 @@
          ],
          "ignore-failure" : false
       },
+      "xfermodeimagefilter_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 16044031134515745627 ]
+         ],
+         "ignore-failure" : false
+      },
+      "xfermodeimagefilter_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 7031894771730398600 ]
+         ],
+         "ignore-failure" : false
+      },
       "xfermodes2_565.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 16105120026836608128 ]
