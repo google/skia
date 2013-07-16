@@ -80,6 +80,7 @@
         '<(skia_src_path)/core/SkFP.h',
         '<(skia_src_path)/core/SkFilterProc.cpp',
         '<(skia_src_path)/core/SkFilterProc.h',
+        '<(skia_src_path)/core/SkFilterShader.cpp',
         '<(skia_src_path)/core/SkFlattenable.cpp',
         '<(skia_src_path)/core/SkFlattenableBuffers.cpp',
         '<(skia_src_path)/core/SkFloat.cpp',
