@@ -939,7 +939,7 @@ desk_yahoogames.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,110
 desk_yahoogames.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,928.570,825.713,1151.427
 desk_yahoogames.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,71.610,54.449,88.771
 desk_yahoogames.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,85.900,67.310,104.490
-desk_yahoogames.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1478.390,1320.551,1646.229
+desk_yahoogames.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1478.390,1320.551,1666.229
 desk_yahoogames.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,197.310,167.579,227.041
 desk_yahoogames.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,177.060,149.354,204.766
 desk_yahoogames.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,398.070,348.263,447.877
