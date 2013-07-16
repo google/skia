@@ -7,11 +7,11 @@
 
 #include "BenchTimer.h"
 #include "CopyTilesRenderer.h"
+#include "LazyDecodeBitmap.h"
 #include "PictureBenchmark.h"
 #include "PictureRenderingFlags.h"
 #include "SkBenchLogger.h"
 #include "SkCommandLineFlags.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #if LAZY_CACHE_STATS
@@ -23,8 +23,6 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "picture_utils.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 SkBenchLogger gLogger;
 
@@ -145,9 +143,8 @@ static SkString filterFlagsUsage() {
     return result;
 }
 
-// These are defined in PictureRenderingFlags.cpp
+// Defined in LazyDecodeBitmap.cpp
 extern SkLruImageCache gLruImageCache;
-extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 #if LAZY_CACHE_STATS
 static int32_t gTotalCacheHits;
@@ -170,12 +167,12 @@ static bool run_single_benchmark(const SkString& inputPath,
     SkASSERT(gLruImageCache.getImageCacheUsed() == 0);
     if (FLAGS_countRAM) {
         // Set the limit to zero, so all pixels will be kept
-        gLruImageCache.setImageCacheLimit(0);
+      gLruImageCache.setImageCacheLimit(0);
     }
 
     SkPicture::InstallPixelRefProc proc;
     if (FLAGS_deferImageDecoding) {
-        proc = &lazy_decode_bitmap;
+        proc = &sk_tools::LazyDecodeBitmap;
     } else {
         proc = &SkImageDecoder::DecodeMemory;
     }

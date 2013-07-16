@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "LazyDecodeBitmap.h"
 #include "CopyTilesRenderer.h"
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkCommandLineFlags.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -21,9 +21,6 @@
 #include "PictureRenderer.h"
 #include "PictureRenderingFlags.h"
 #include "picture_utils.h"
-
-// Required to ensure that image decoders get linked correctly.
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 // Flags used by this file, alphabetically:
 DEFINE_int32(clone, 0, "Clone the picture n times before rendering.");
@@ -48,9 +45,6 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     // Remove ".skp"
     path->remove(path->size() - 4, 4);
 }
-
-// Defined in PictureRenderingFlags.cpp
-extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -151,7 +145,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
 
     SkPicture::InstallPixelRefProc proc;
     if (FLAGS_deferImageDecoding) {
-        proc = &lazy_decode_bitmap;
+        proc = &sk_tools::LazyDecodeBitmap;
     } else if (FLAGS_writeEncodedImages) {
         SkASSERT(!FLAGS_writePath.isEmpty());
         reset_image_file_base_name(inputFilename);

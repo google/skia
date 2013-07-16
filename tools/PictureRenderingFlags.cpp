@@ -10,14 +10,11 @@
 #include "CopyTilesRenderer.h"
 #include "PictureRenderer.h"
 #include "picture_utils.h"
-
 #include "SkBitmapFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageDecoder.h"
-#include "SkLruImageCache.h"
-#include "SkPurgeableImageCache.h"
 #include "SkString.h"
 
 // Alphabetized list of flags used by this file or bench_ and render_pictures.
@@ -64,9 +61,6 @@ DEFINE_string2(readPath, r, "", "skp files or directories of skp files to proces
 DEFINE_double(scale, 1, "Set the scale factor.");
 DEFINE_string(tiles, "", "Used with --mode copyTile to specify number of tiles per larger tile "
               "in the x and y directions.");
-DEFINE_bool(useVolatileCache, false, "Use a volatile cache for deferred image decoding pixels. "
-            "Only meaningful if --deferImageDecoding is set to true and the platform has an "
-            "implementation.");
 DEFINE_string(viewport, "", "width height: Set the viewport.");
 
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
@@ -341,51 +335,3 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     return renderer.detach();
 }
 
-SkLruImageCache gLruImageCache(1024*1024);
-
-// Simple cache selector to choose between a purgeable cache for large images and the standard one
-// for smaller images.
-class MyCacheSelector : public SkBitmapFactory::CacheSelector {
-
-public:
-    MyCacheSelector() {
-        fPurgeableImageCache = SkPurgeableImageCache::Create();
-    }
-
-    ~MyCacheSelector() {
-        SkSafeUnref(fPurgeableImageCache);
-    }
-
-    virtual SkImageCache* selectCache(const SkImage::Info& info) SK_OVERRIDE {
-        if (info.fWidth * info.fHeight > 32 * 1024 && fPurgeableImageCache != NULL) {
-            return fPurgeableImageCache;
-        }
-        return &gLruImageCache;
-    }
-private:
-    SkImageCache* fPurgeableImageCache;
-};
-
-static MyCacheSelector gCacheSelector;
-static SkBitmapFactory gFactory(&SkImageDecoder::DecodeMemoryToTarget);
-
-bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
-bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap) {
-    void* copiedBuffer = sk_malloc_throw(size);
-    memcpy(copiedBuffer, buffer, size);
-    SkAutoDataUnref data(SkData::NewFromMalloc(copiedBuffer, size));
-
-    static bool gOnce;
-    if (!gOnce) {
-        // Only use the cache selector if there is a purgeable image cache to use for large
-        // images.
-        if (FLAGS_useVolatileCache && SkAutoTUnref<SkImageCache>(
-                SkPurgeableImageCache::Create()).get() != NULL) {
-            gFactory.setCacheSelector(&gCacheSelector);
-        } else {
-            gFactory.setImageCache(&gLruImageCache);
-        }
-        gOnce = true;
-    }
-    return gFactory.installPixelRef(data, bitmap);
-}

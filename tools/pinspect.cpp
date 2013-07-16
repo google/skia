@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "LazyDecodeBitmap.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
@@ -14,12 +15,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkDumpCanvas.h"
-#include "SkForceLinking.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
-
-// Defined in PictureRenderingFlags.cpp
-extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 static SkPicture* inspect(const char path[]) {
     SkFILEStream stream(path);
@@ -40,7 +35,7 @@ static SkPicture* inspect(const char path[]) {
     }
 
     stream.rewind();
-    SkPicture* pic = SkPicture::CreateFromStream(&stream, &lazy_decode_bitmap);
+    SkPicture* pic = SkPicture::CreateFromStream(&stream, &sk_tools::LazyDecodeBitmap);
     if (NULL == pic) {
         SkDebugf("Could not create SkPicture: %s\n", path);
         return NULL;
