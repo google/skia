@@ -14,11 +14,9 @@
 #include "SkTime.h"
 #include "Test.h"
 
-class SkBitmap;
-
 const int kNumIt = 100;
 
-static void fill_random_bits( int chars, char* bits ){
+static void fill_random_bits(int chars, char* bits){
     SkMWCRandom rand(SkTime::GetMSecs());
 
     for (int i = 0; i < chars; ++i){
@@ -26,7 +24,7 @@ static void fill_random_bits( int chars, char* bits ){
     }
 }
 
-static int get_bit( const char* buffer, int x ) {
+static int get_bit(const char* buffer, int x) {
     int byte = x >> 3;
     int bit = x & 7;
 
