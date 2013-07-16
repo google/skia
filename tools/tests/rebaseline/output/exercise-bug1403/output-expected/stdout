@@ -1,1 +1,2 @@
 Could not find "base-android-galaxy-nexus" subdir within expectations_root "tools/tests/rebaseline/input".  Are you sure --expectations-root is pointing at a valid gm-expected directory?
+Halting at first exception; to keep going, re-run with the --keep-going-on-failure option set.

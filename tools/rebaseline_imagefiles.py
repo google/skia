@@ -53,6 +53,7 @@ class ImageRebaseliner(object):
     #  json_base_url: base URL from which to read json_filename
     #  json_filename: filename (under json_base_url) from which to read a
     #                 summary of results; typically "actual-results.json"
+    #  exception_handler: reference to rebaseline.ExceptionHandler object
     #  tests: list of tests to rebaseline, or None if we should rebaseline
     #         whatever files the JSON results summary file tells us to
     #  configs: which configs to run for each test, or None if we should
@@ -65,13 +66,14 @@ class ImageRebaseliner(object):
     #  missing_json_is_fatal: whether to halt execution if we cannot read a
     #                         JSON actual result summary file
     def __init__(self, expectations_root, json_base_url, json_filename,
-                 tests=None, configs=None, dry_run=False,
+                 exception_handler, tests=None, configs=None, dry_run=False,
                  add_new=False, missing_json_is_fatal=False):
         self._expectations_root = expectations_root
         self._tests = tests
         self._configs = configs
         self._json_base_url = json_base_url
         self._json_filename = json_filename
+        self._exception_handler = exception_handler
         self._dry_run = dry_run
         self._add_new = add_new
         self._missing_json_is_fatal = missing_json_is_fatal
@@ -254,10 +256,11 @@ class ImageRebaseliner(object):
     #  builder : e.g. 'Test-Win7-ShuttleA-HD2000-x86-Release'
     def RebaselineSubdir(self, subdir, builder):
         if not os.path.isdir(os.path.join(self._expectations_root, subdir)):
-            raise Exception((
+            self._exception_handler.RaiseExceptionOrContinue(Exception((
                 'Could not find "%s" subdir within expectations_root "%s".  ' +
                 'Are you sure --expectations-root is pointing at a valid ' +
-                'gm-expected directory?') % (subdir, self._expectations_root))
+                'gm-expected directory?') % (subdir, self._expectations_root)))
+            return
 
         json_url = '/'.join([self._json_base_url,
                              subdir, builder, subdir,
@@ -278,15 +281,11 @@ class ImageRebaseliner(object):
                     continue
             outfilename = os.path.join(self._expectations_root, subdir,
                                        filename);
-            # TODO(epoger): Until we resolve
-            # https://code.google.com/p/skia/issues/detail?id=1410 ('some GM
-            # result images not available for download from Google Storage'),
-            # keep going in the face of missing results for any one test.
             try:
                 self._RebaselineOneFile(expectations_subdir=subdir,
                                         builder_name=builder,
                                         infilename=filename,
                                         outfilename=outfilename,
                                         all_results=all_results)
-            except Exception as e:
-                print 'WARNING: swallowing exception %s' % e
+            except BaseException as e:
+                self._exception_handler.RaiseExceptionOrContinue(e)

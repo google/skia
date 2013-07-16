@@ -74,6 +74,49 @@ SUBDIR_MAPPING = {
 class _InternalException(Exception):
     pass
 
+# Object that handles exceptions, either raising them immediately or collecting
+# them to display later on.
+class ExceptionHandler(object):
+
+    # params:
+    #  keep_going_on_failure: if False, report failures and quit right away;
+    #                         if True, collect failures until
+    #                         ReportAllFailures() is called
+    def __init__(self, keep_going_on_failure=False):
+        self._keep_going_on_failure = keep_going_on_failure
+        self._failures_encountered = []
+        self._exiting = False
+
+    # Exit the program with the given status value.
+    def _Exit(self, status=1):
+        self._exiting = True
+        sys.exit(status)
+
+    # We have encountered an exception; either collect the info and keep going,
+    # or exit the program right away.
+    def RaiseExceptionOrContinue(self, e):
+        # If we are already quitting the program, propagate any exceptions
+        # so that the proper exit status will be communicated to the shell.
+        if self._exiting:
+            raise e
+
+        if self._keep_going_on_failure:
+            print >> sys.stderr, 'WARNING: swallowing exception %s' % e
+            self._failures_encountered.append(e)
+        else:
+            print >> sys.stderr, e
+            print >> sys.stderr, (
+                'Halting at first exception; to keep going, re-run ' +
+                'with the --keep-going-on-failure option set.')
+            self._Exit()
+
+    def ReportAllFailures(self):
+        if self._failures_encountered:
+            print >> sys.stderr, ('Encountered %d failures (see above).' %
+                                  len(self._failures_encountered))
+            self._Exit()
+
+
 # Object that rebaselines a JSON expectations file (not individual image files).
 class JsonRebaseliner(object):
 
@@ -85,6 +128,7 @@ class JsonRebaseliner(object):
     #  actuals_base_url: base URL from which to read actual-result JSON files
     #  actuals_filename: filename (under actuals_base_url) from which to read a
     #                    summary of results; typically "actual-results.json"
+    #  exception_handler: reference to rebaseline.ExceptionHandler object
     #  tests: list of tests to rebaseline, or None if we should rebaseline
     #         whatever files the JSON results summary file tells us to
     #  configs: which configs to run for each test, or None if we should
@@ -92,7 +136,7 @@ class JsonRebaseliner(object):
     #           us to
     #  add_new: if True, add expectations for tests which don't have any yet
     def __init__(self, expectations_root, expectations_filename,
-                 actuals_base_url, actuals_filename,
+                 actuals_base_url, actuals_filename, exception_handler,
                  tests=None, configs=None, add_new=False):
         self._expectations_root = expectations_root
         self._expectations_filename = expectations_filename
@@ -100,6 +144,7 @@ class JsonRebaseliner(object):
         self._configs = configs
         self._actuals_base_url = actuals_base_url
         self._actuals_filename = actuals_filename
+        self._exception_handler = exception_handler
         self._add_new = add_new
         self._testname_pattern = re.compile('(\S+)_(\S+).png')
 
@@ -243,6 +288,10 @@ parser.add_argument('--expectations-root',
                     'contain one or more base-* subdirectories. Defaults to ' +
                     '%(default)s',
                     default='.')
+parser.add_argument('--keep-going-on-failure', action='store_true',
+                    help='instead of halting at the first error encountered, ' +
+                    'keep going and rebaseline as many tests as possible, ' +
+                    'and then report the full set of errors at the end')
 parser.add_argument('--subdirs', metavar='SUBDIR', nargs='+',
                     help='which platform subdirectories to rebaseline; ' +
                     'if unspecified, rebaseline all subdirs, same as ' +
@@ -254,6 +303,8 @@ parser.add_argument('--tests', metavar='TEST', nargs='+',
                     'set of results in ACTUALS_FILENAME; if unspecified, ' +
                     'rebaseline *all* tests that are available.')
 args = parser.parse_args()
+exception_handler = ExceptionHandler(
+    keep_going_on_failure=args.keep_going_on_failure)
 if args.subdirs:
     subdirs = args.subdirs
     missing_json_is_fatal = True
@@ -283,6 +334,7 @@ for subdir in subdirs:
             tests=args.tests, configs=args.configs,
             actuals_base_url=args.actuals_base_url,
             actuals_filename=args.actuals_filename,
+            exception_handler=exception_handler,
             add_new=args.add_new)
     else:
         # TODO(epoger): When we get rid of the ImageRebaseliner implementation,
@@ -297,10 +349,13 @@ for subdir in subdirs:
             dry_run=args.dry_run,
             json_base_url=args.actuals_base_url,
             json_filename=args.actuals_filename,
+            exception_handler=exception_handler,
             add_new=args.add_new,
             missing_json_is_fatal=missing_json_is_fatal)
+
     try:
         rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
     except BaseException as e:
-        print >> sys.stderr, e
-        sys.exit(1)
+        exception_handler.RaiseExceptionOrContinue(e)
+
+exception_handler.ReportAllFailures()
