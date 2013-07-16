@@ -188,6 +188,7 @@
       'target_name': 'picture_renderer',
       'type': 'static_library',
       'sources': [
+        '../tools/LazyDecodeBitmap.cpp',
         '../tools/PictureRenderer.h',
         '../tools/PictureRenderer.cpp',
         '../tools/PictureRenderingFlags.h',
@@ -295,6 +296,7 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_renderer',
+        'flags.gyp:flags',
       ],
     },
     {
