@@ -49,6 +49,30 @@ JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE = 'ignore-failure'
 # Allowed hash types for test expectations.
 JSONKEY_HASHTYPE_BITMAP_64BITMD5 = 'bitmap-64bitMD5'
 
+# Root directory where the buildbots store their actually-generated images...
+#  as a publicly readable HTTP URL:
+GM_ACTUALS_ROOT_HTTP_URL = (
+    'http://chromium-skia-gm.commondatastorage.googleapis.com/gm')
+#  as a GS URL that allows credential-protected write access:
+GM_ACTUALS_ROOT_GS_URL = 'gs://chromium-skia-gm/gm'
+
+# Pattern used to assemble each image's filename
+IMAGE_FILENAME_PATTERN = '(\S+)_(\S+).png'  # matches (testname, config)
+
+def CreateGmActualUrl(test_name, hash_type, hash_digest,
+                      gm_actuals_root_url=GM_ACTUALS_ROOT_HTTP_URL):
+  """Return the URL we can use to download a particular version of
+  the actually-generated image for this particular GM test.
+
+  test_name: name of the test, e.g. 'perlinnoise'
+  hash_type: string indicating the hash type used to generate hash_digest,
+             e.g. JSONKEY_HASHTYPE_BITMAP_64BITMD5
+  hash_digest: the hash digest of the image to retrieve
+  gm_actuals_root_url: root url where actual images are stored
+  """
+  return '%s/%s/%s/%s.png' % (gm_actuals_root_url, hash_type, test_name,
+                              hash_digest)
+
 def LoadFromString(file_contents):
   """Loads the JSON summary written out by the GM tool.
      Returns a dictionary keyed by the values listed as JSONKEY_ constants

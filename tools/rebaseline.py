@@ -11,6 +11,8 @@ found in the LICENSE file.
 Rebaselines the given GM tests, on all bots and all configurations.
 Must be run from the gm-expected directory.  If run from a git or SVN
 checkout, the files will be added to the staging area for commit.
+
+TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
 # System-level imports
@@ -146,7 +148,7 @@ class JsonRebaseliner(object):
         self._actuals_filename = actuals_filename
         self._exception_handler = exception_handler
         self._add_new = add_new
-        self._testname_pattern = re.compile('(\S+)_(\S+).png')
+        self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 
     # Returns the full contents of filepath, as a single string.
     # If filepath looks like a URL, try to read it that way instead of as
@@ -230,7 +232,8 @@ class JsonRebaseliner(object):
         skipped_images = []
         if results_to_update:
             for (image_name, image_results) in results_to_update.iteritems():
-                (test, config) = self._testname_pattern.match(image_name).groups()
+                (test, config) = \
+                    self._image_filename_re.match(image_name).groups()
                 if self._tests:
                     if test not in self._tests:
                         skipped_images.append(image_name)
@@ -239,10 +242,11 @@ class JsonRebaseliner(object):
                     if config not in self._configs:
                         skipped_images.append(image_name)
                         continue
-                expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS] \
-                                 [image_name] \
-                                 [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
-                                     [image_results]
+                expectations_dict \
+                    [gm_json.JSONKEY_EXPECTEDRESULTS] \
+                    [image_name] \
+                    [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
+                        [image_results]
 
         # Write out updated expectations.
         gm_json.WriteToFile(expectations_dict, expectations_json_filepath)
