@@ -16,6 +16,8 @@ we can delete this file.
 
 There is a lot of code duplicated between here and rebaseline.py, but
 that's fine because we will delete this file soon.
+
+TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
 # System-level imports
@@ -77,9 +79,7 @@ class ImageRebaseliner(object):
         self._dry_run = dry_run
         self._add_new = add_new
         self._missing_json_is_fatal = missing_json_is_fatal
-        self._googlestorage_gm_actuals_root = (
-            'http://chromium-skia-gm.commondatastorage.googleapis.com/gm')
-        self._testname_pattern = re.compile('(\S+)_(\S+).png')
+        self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
         self._is_svn_checkout = (
             os.path.exists(os.path.join(expectations_root, '.svn')) or
             os.path.exists(os.path.join(expectations_root, os.pardir, '.svn')))
@@ -101,7 +101,7 @@ class ImageRebaseliner(object):
     # Download a single actual result from GoogleStorage.
     # Raises an exception if it fails.
     def _DownloadFromGoogleStorage(self, infilename, outfilename, all_results):
-        test_name = self._testname_pattern.match(infilename).group(1)
+        test_name = self._image_filename_re.match(infilename).group(1)
         if not test_name:
             raise Exception('unable to find test_name for infilename %s' %
                             infilename)
@@ -114,8 +114,8 @@ class ImageRebaseliner(object):
             raise Exception(
                 'ValueError reading filename %s from all_results dict: %s' % (
                     infilename, e))
-        url = '%s/%s/%s/%s.png' % (self._googlestorage_gm_actuals_root,
-                                   hash_type, test_name, hash_value)
+        url = gm_json.CreateGmActualUrl(
+            test_name=test_name, hash_type=hash_type, hash_digest=hash_value)
         try:
             self._DownloadFile(source_url=url, dest_filename=outfilename)
         except CommandFailedException:
@@ -270,7 +270,7 @@ class ImageRebaseliner(object):
                                                add_new=self._add_new)
         skipped_files = []
         for filename in filenames:
-            (test, config) = self._testname_pattern.match(filename).groups()
+            (test, config) = self._image_filename_re.match(filename).groups()
             if self._tests:
                 if test not in self._tests:
                     skipped_files.append(filename)

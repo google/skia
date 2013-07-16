@@ -1,14 +1,17 @@
 #!/usr/bin/python
 '''
-Generates a visual diff of all pending changes in the local SVN checkout.
-
-Launch with --help to see more information.
-
-
 Copyright 2012 Google Inc.
 
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
+'''
+
+'''
+Generates a visual diff of all pending changes in the local SVN checkout.
+
+Launch with --help to see more information.
+
+TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
 # common Python modules
@@ -16,9 +19,27 @@ import optparse
 import os
 import re
 import shutil
+import sys
 import tempfile
+import urllib2
 
-# modules declared within this same directory
+# Imports from within Skia
+#
+# We need to add the 'gm' directory, so that we can import gm_json.py within
+# that directory.  That script allows us to parse the actual-results.json file
+# written out by the GM tool.
+# Make sure that the 'gm' dir is in the PYTHONPATH, but add it at the *end*
+# so any dirs that are already in the PYTHONPATH will be preferred.
+#
+# This assumes that the 'gm' directory has been checked out as a sibling of
+# the 'tools' directory containing this script, which will be the case if
+# 'trunk' was checked out as a single unit.
+GM_DIRECTORY = os.path.realpath(
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
+if GM_DIRECTORY not in sys.path:
+    sys.path.append(GM_DIRECTORY)
+import gm_json
+import jsondiff
 import svn
 
 USAGE_STRING = 'Usage: %s [options]'
@@ -32,12 +53,13 @@ be generated.
 
 '''
 
+IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+
 TRUNK_PATH = os.path.join(os.path.dirname(__file__), os.pardir)
 
 OPTION_DEST_DIR = '--dest-dir'
-# default DEST_DIR is determined at runtime
 OPTION_PATH_TO_SKDIFF = '--path-to-skdiff'
-# default PATH_TO_SKDIFF is determined at runtime
+OPTION_SOURCE_DIR = '--source-dir'
 
 def RunCommand(command):
     """Run a command, raising an exception if it fails.
@@ -71,16 +93,77 @@ def FindPathToSkDiff(user_set_path=None):
                     'specify the %s option or build skdiff?' % (
                         possible_paths, OPTION_PATH_TO_SKDIFF))
 
-def SvnDiff(path_to_skdiff, dest_dir):
-    """Generates a visual diff of all pending changes in the local SVN checkout.
+def _DownloadUrlToFile(source_url, dest_path):
+    """Download source_url, and save its contents to dest_path.
+    Raises an exception if there were any problems."""
+    reader = urllib2.urlopen(source_url)
+    writer = open(dest_path, 'wb')
+    writer.write(reader.read())
+    writer.close()
+
+def _CreateGSUrl(imagename, hash_type, hash_digest):
+    """Return the HTTP URL we can use to download this particular version of
+    the actually-generated GM image with this imagename.
+
+    imagename: name of the test image, e.g. 'perlinnoise_msaa4.png'
+    hash_type: string indicating the hash type used to generate hash_digest,
+               e.g. gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5
+    hash_digest: the hash digest of the image to retrieve
+    """
+    return gm_json.CreateGmActualUrl(
+        test_name=IMAGE_FILENAME_RE.match(imagename).group(1),
+        hash_type=hash_type,
+        hash_digest=hash_digest)
+
+def _CallJsonDiff(old_json_path, new_json_path,
+                  old_flattened_dir, new_flattened_dir,
+                  filename_prefix):
+    """Using jsondiff.py, write the images that differ between two GM
+    expectations summary files (old and new) into old_flattened_dir and
+    new_flattened_dir.
+
+    filename_prefix: prefix to prepend to filenames of all images we write
+        into the flattened directories
+    """
+    json_differ = jsondiff.GMDiffer()
+    diff_dict = json_differ.GenerateDiffDict(oldfile=old_json_path,
+                                             newfile=new_json_path)
+    for (imagename, results) in diff_dict.iteritems():
+        old_checksum = results['old']
+        new_checksum = results['new']
+        # TODO(epoger): Currently, this assumes that all images have been
+        # checksummed using gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5
+        old_image_url = _CreateGSUrl(
+            imagename=imagename,
+            hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
+            hash_digest=old_checksum)
+        new_image_url = _CreateGSUrl(
+            imagename=imagename,
+            hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
+            hash_digest=new_checksum)
+        _DownloadUrlToFile(
+            source_url=old_image_url,
+            dest_path=os.path.join(old_flattened_dir,
+                                   filename_prefix + imagename))
+        _DownloadUrlToFile(
+            source_url=new_image_url,
+            dest_path=os.path.join(new_flattened_dir,
+                                   filename_prefix + imagename))
+
+def SvnDiff(path_to_skdiff, dest_dir, source_dir):
+    """Generates a visual diff of all pending changes in source_dir.
 
     @param path_to_skdiff
     @param dest_dir existing directory within which to write results
+    @param source_dir
     """
     # Validate parameters, filling in default values if necessary and possible.
-    path_to_skdiff = FindPathToSkDiff(path_to_skdiff)
+    path_to_skdiff = os.path.abspath(FindPathToSkDiff(path_to_skdiff))
     if not dest_dir:
         dest_dir = tempfile.mkdtemp()
+    dest_dir = os.path.abspath(dest_dir)
+
+    os.chdir(source_dir)
 
     # Prepare temporary directories.
     modified_flattened_dir = os.path.join(dest_dir, 'modified_flattened')
@@ -100,14 +183,29 @@ def SvnDiff(path_to_skdiff, dest_dir):
     # 1. copy its current contents into modified_flattened_dir
     # 2. copy its original contents into original_flattened_dir
     for modified_file_path in modified_file_paths:
-        dest_filename = re.sub(os.sep, '__', modified_file_path)
-        # If the file had STATUS_DELETED, it won't exist anymore...
-        if os.path.isfile(modified_file_path):
-            shutil.copyfile(modified_file_path,
-                            os.path.join(modified_flattened_dir, dest_filename))
-        svn_repo.ExportBaseVersionOfFile(
-            modified_file_path,
-            os.path.join(original_flattened_dir, dest_filename))
+        if modified_file_path.endswith('.json'):
+            # Special handling for JSON files, in the hopes that they
+            # contain GM result summaries.
+            (_unused, original_file_path) = tempfile.mkstemp()
+            svn_repo.ExportBaseVersionOfFile(modified_file_path,
+                                             original_file_path)
+            platform_prefix = re.sub(os.sep, '__',
+                                     os.path.dirname(modified_file_path)) + '__'
+            _CallJsonDiff(old_json_path=original_file_path,
+                          new_json_path=modified_file_path,
+                          old_flattened_dir=original_flattened_dir,
+                          new_flattened_dir=modified_flattened_dir,
+                          filename_prefix=platform_prefix)
+            os.remove(original_file_path)
+        else:
+            dest_filename = re.sub(os.sep, '__', modified_file_path)
+            # If the file had STATUS_DELETED, it won't exist anymore...
+            if os.path.isfile(modified_file_path):
+                shutil.copyfile(modified_file_path,
+                                os.path.join(modified_flattened_dir, dest_filename))
+            svn_repo.ExportBaseVersionOfFile(
+                modified_file_path,
+                os.path.join(original_flattened_dir, dest_filename))
 
     # Run skdiff: compare original_flattened_dir against modified_flattened_dir
     RunCommand('%s %s %s %s' % (path_to_skdiff, original_flattened_dir,
@@ -124,7 +222,8 @@ def Main(options, args):
     num_args = len(args)
     if num_args != 0:
         RaiseUsageException()
-    SvnDiff(path_to_skdiff=options.path_to_skdiff, dest_dir=options.dest_dir)
+    SvnDiff(path_to_skdiff=options.path_to_skdiff, dest_dir=options.dest_dir,
+            source_dir=options.source_dir)
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(USAGE_STRING % '%prog' + HELP_STRING)
@@ -138,5 +237,9 @@ if __name__ == '__main__':
                       help='path to already-built skdiff tool; if not set, '
                       'will search for it in typical directories near this '
                       'script')
+    parser.add_option(OPTION_SOURCE_DIR,
+                      action='store', type='string', default='.',
+                      help='root directory within which to compare all ' +
+                      'files; defaults to "%default"')
     (options, args) = parser.parse_args()
     Main(options, args)

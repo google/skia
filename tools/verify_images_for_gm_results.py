@@ -16,6 +16,7 @@ import subprocess
 import sys
 
 
+# TODO(borenet): Replace some/all of these with constants from gm/gm_json.py
 AUTOGEN_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 GS_URL = 'gs://chromium-skia-gm/gm'
 TEST_NAME_PATTERN = re.compile('(\S+)_(\S+).png')

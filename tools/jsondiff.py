@@ -11,6 +11,8 @@ found in the LICENSE file.
 Gathers diffs between 2 JSON expectations files, or between actual and
 expected results within a single JSON actual-results file,
 and generates an old-vs-new diff dictionary.
+
+TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
 # System-level imports
@@ -158,18 +160,24 @@ class GMDiffer(object):
         return self._DictionaryDiff(old_results, new_results)
 
 
-# main...
-parser = argparse.ArgumentParser()
-parser.add_argument('old',
-                    help='Path to JSON file whose expectations to display on ' +
-                    'the "old" side of the diff. This can be a filepath on ' +
-                    'local storage, or a URL.')
-parser.add_argument('new', nargs='?',
-                    help='Path to JSON file whose expectations to display on ' +
-                    'the "new" side of the diff; if not specified, uses the ' +
-                    'ACTUAL results from the "old" JSON file. This can be a ' +
-                    'filepath on local storage, or a URL.')
-args = parser.parse_args()
-differ = GMDiffer()
-diffs = differ.GenerateDiffDict(oldfile=args.old, newfile=args.new)
-json.dump(diffs, sys.stdout, sort_keys=True, indent=2)
+def _Main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'old',
+        help='Path to JSON file whose expectations to display on ' +
+        'the "old" side of the diff. This can be a filepath on ' +
+        'local storage, or a URL.')
+    parser.add_argument(
+        'new', nargs='?',
+        help='Path to JSON file whose expectations to display on ' +
+        'the "new" side of the diff; if not specified, uses the ' +
+        'ACTUAL results from the "old" JSON file. This can be a ' +
+        'filepath on local storage, or a URL.')
+    args = parser.parse_args()
+    differ = GMDiffer()
+    diffs = differ.GenerateDiffDict(oldfile=args.old, newfile=args.new)
+    json.dump(diffs, sys.stdout, sort_keys=True, indent=2)
+
+
+if __name__ == '__main__':
+    _Main()
