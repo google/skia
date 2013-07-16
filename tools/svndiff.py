@@ -96,10 +96,15 @@ def FindPathToSkDiff(user_set_path=None):
 def _DownloadUrlToFile(source_url, dest_path):
     """Download source_url, and save its contents to dest_path.
     Raises an exception if there were any problems."""
-    reader = urllib2.urlopen(source_url)
-    writer = open(dest_path, 'wb')
-    writer.write(reader.read())
-    writer.close()
+    try:
+        reader = urllib2.urlopen(source_url)
+        writer = open(dest_path, 'wb')
+        writer.write(reader.read())
+        writer.close()
+    except BaseException as e:
+        raise Exception(
+            '%s: unable to download source_url %s to dest_path %s' % (
+                e, source_url, dest_path))
 
 def _CreateGSUrl(imagename, hash_type, hash_digest):
     """Return the HTTP URL we can use to download this particular version of
@@ -128,27 +133,32 @@ def _CallJsonDiff(old_json_path, new_json_path,
     json_differ = jsondiff.GMDiffer()
     diff_dict = json_differ.GenerateDiffDict(oldfile=old_json_path,
                                              newfile=new_json_path)
+    print 'Downloading %d before-and-after image pairs...' % len(diff_dict)
     for (imagename, results) in diff_dict.iteritems():
-        old_checksum = results['old']
-        new_checksum = results['new']
         # TODO(epoger): Currently, this assumes that all images have been
         # checksummed using gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5
-        old_image_url = _CreateGSUrl(
-            imagename=imagename,
-            hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
-            hash_digest=old_checksum)
-        new_image_url = _CreateGSUrl(
-            imagename=imagename,
-            hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
-            hash_digest=new_checksum)
-        _DownloadUrlToFile(
-            source_url=old_image_url,
-            dest_path=os.path.join(old_flattened_dir,
-                                   filename_prefix + imagename))
-        _DownloadUrlToFile(
-            source_url=new_image_url,
-            dest_path=os.path.join(new_flattened_dir,
-                                   filename_prefix + imagename))
+
+        old_checksum = results['old']
+        if old_checksum:
+            old_image_url = _CreateGSUrl(
+                imagename=imagename,
+                hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
+                hash_digest=old_checksum)
+            _DownloadUrlToFile(
+                source_url=old_image_url,
+                dest_path=os.path.join(old_flattened_dir,
+                                       filename_prefix + imagename))
+
+        new_checksum = results['new']
+        if new_checksum:
+            new_image_url = _CreateGSUrl(
+                imagename=imagename,
+                hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
+                hash_digest=new_checksum)
+            _DownloadUrlToFile(
+                source_url=new_image_url,
+                dest_path=os.path.join(new_flattened_dir,
+                                       filename_prefix + imagename))
 
 def SvnDiff(path_to_skdiff, dest_dir, source_dir):
     """Generates a visual diff of all pending changes in source_dir.
@@ -202,7 +212,8 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
             # If the file had STATUS_DELETED, it won't exist anymore...
             if os.path.isfile(modified_file_path):
                 shutil.copyfile(modified_file_path,
-                                os.path.join(modified_flattened_dir, dest_filename))
+                                os.path.join(modified_flattened_dir,
+                                             dest_filename))
             svn_repo.ExportBaseVersionOfFile(
                 modified_file_path,
                 os.path.join(original_flattened_dir, dest_filename))
