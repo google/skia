@@ -41,7 +41,6 @@ static const char* opSuffixes[] = {
 };
 
 static bool gShowPath = false;
-static bool gComparePaths = true;
 static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 
@@ -512,7 +511,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
         REPORTER_ASSERT(state.fReporter, 0);
         return false;
     }
-    if (!gComparePaths) {
+    if (!state.fReporter->verbose()) {
         return true;
     }
     int result = comparePaths(state.fReporter, path, out, *state.fBitmap);
@@ -563,8 +562,8 @@ void DebugShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp, const cha
 }
 #endif
 
-bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                 const SkPathOp shapeOp, const char* testName) {
+static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                 const SkPathOp shapeOp, const char* testName, bool threaded) {
 #if DEBUG_SHOW_TEST_NAME
     if (testName == NULL) {
         SkDebugf("\n");
@@ -580,6 +579,9 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;
+    }
+    if (threaded && !reporter->verbose()) {
+        return true;
     }
     SkPath pathOut, scaledPathOut;
     SkRegion rgnA, rgnB, openClip, rgnOut;
@@ -612,6 +614,16 @@ bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
     }
     reporter->bumpTestCount();
     return result == 0;
+}
+
+bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                 const SkPathOp shapeOp, const char* testName) {
+    return innerPathOp(reporter, a, b, shapeOp, testName, false);
+}
+
+bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                 const SkPathOp shapeOp, const char* testName) {
+    return innerPathOp(reporter, a, b, shapeOp, testName, true);
 }
 
 int initializeTests(skiatest::Reporter* reporter, const char* test) {

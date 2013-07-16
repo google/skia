@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "Test.h"
@@ -61,6 +62,8 @@ static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, co
 }
 
 static void testOne(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2) {
+    SkASSERT(ValidLine(line1));
+    SkASSERT(ValidLine(line2));
     SkIntersections i;
     int pts = i.intersect(line1, line2);
     REPORTER_ASSERT(reporter, pts);
@@ -101,6 +104,8 @@ static void testOne(skiatest::Reporter* reporter, const SkDLine& line1, const Sk
 
 static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1,
                               const SkDLine& line2) {
+    SkASSERT(ValidLine(line1));
+    SkASSERT(ValidLine(line2));
     SkIntersections ts2;
     int pts2 = ts2.intersect(line1, line2);
     REPORTER_ASSERT(reporter, pts2 == 2);

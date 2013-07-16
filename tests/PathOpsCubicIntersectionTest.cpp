@@ -268,6 +268,8 @@ static const SkDCubic newTestSet[] = {
 const size_t newTestSetCount = SK_ARRAY_COUNT(newTestSet);
 
 static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const SkDCubic& cubic2) {
+    SkASSERT(ValidCubic(cubic1));
+    SkASSERT(ValidCubic(cubic2));
 #if ONE_OFF_DEBUG
     SkDebugf("computed quadratics given\n");
     SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",

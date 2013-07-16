@@ -84,6 +84,10 @@ namespace {
             fReporter->bumpTestCount();
         }
 
+        virtual bool verbose() const SK_OVERRIDE {
+            return fReporter->verbose();
+        }
+
     private:
         Reporter* fReporter;  // Unowned.
         SkTArray<SkString> fFailures;

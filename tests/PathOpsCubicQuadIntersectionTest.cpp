@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsQuad.h"
@@ -30,7 +31,9 @@ static void PathOpsCubicQuadIntersectionTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < quadCubicTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDCubic& cubic = quadCubicTests[index].cubic;
+        SkASSERT(ValidCubic(cubic));
         const SkDQuad& quad = quadCubicTests[index].quad;
+        SkASSERT(ValidQuad(quad));
         SkReduceOrder reduce1;
         SkReduceOrder reduce2;
         int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics,

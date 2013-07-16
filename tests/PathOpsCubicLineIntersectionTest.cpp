@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
@@ -32,7 +33,9 @@ static const size_t lineCubicTests_count = SK_ARRAY_COUNT(lineCubicTests);
 
 static void testOne(skiatest::Reporter* reporter, int iIndex) {
     const SkDCubic& cubic = lineCubicTests[iIndex].cubic;
+    SkASSERT(ValidCubic(cubic));
     const SkDLine& line = lineCubicTests[iIndex].line;
+    SkASSERT(ValidLine(line));
     SkReduceOrder reduce1;
     SkReduceOrder reduce2;
     int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics,

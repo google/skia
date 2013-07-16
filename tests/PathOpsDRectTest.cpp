@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -42,6 +43,7 @@ static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     SkDRect rect, rect2;
     for (index = 0; index < lineTests_count; ++index) {
         const SkDLine& line = lineTests[index];
+        SkASSERT(ValidLine(line));
         rect.setBounds(line);
         REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(line[0].fX, line[1].fX));
         REPORTER_ASSERT(reporter, rect.fTop == SkTMin(line[0].fY, line[1].fY));
@@ -58,6 +60,7 @@ static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     }
     for (index = 0; index < quadTests_count; ++index) {
         const SkDQuad& quad = quadTests[index];
+        SkASSERT(ValidQuad(quad));
         rect.setRawBounds(quad);
         REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(quad[0].fX,
                 SkTMin(quad[1].fX, quad[2].fX)));
@@ -77,6 +80,7 @@ static void PathOpsDRectTest(skiatest::Reporter* reporter) {
     }
     for (index = 0; index < cubicTests_count; ++index) {
         const SkDCubic& cubic = cubicTests[index];
+        SkASSERT(ValidCubic(cubic));
         rect.setRawBounds(cubic);
         REPORTER_ASSERT(reporter, rect.fLeft == SkTMin(cubic[0].fX,
                 SkTMin(cubic[1].fX, SkTMin(cubic[2].fX, cubic[3].fX))));

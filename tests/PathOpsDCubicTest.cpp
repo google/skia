@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsCubic.h"
 #include "Test.h"
 
@@ -18,6 +19,7 @@ static const size_t tests_count = SK_ARRAY_COUNT(tests);
 static void PathOpsDCubicTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDCubic& cubic = tests[index];
+        SkASSERT(ValidCubic(cubic));
         bool result = cubic.clockwise();
         if (!result) {
             SkDebugf("%s [%d] expected clockwise\n", __FUNCTION__, index);

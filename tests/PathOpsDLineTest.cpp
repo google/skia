@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkPathOpsLine.h"
 #include "Test.h"
 
@@ -30,11 +31,13 @@ static const size_t tests_count = SK_ARRAY_COUNT(tests);
 static void PathOpsLineUtilitiesTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDLine& line = tests[index];
+        SkASSERT(ValidLine(line));
         SkDLine line2;
         SkPoint pts[2] = {line[0].asSkPoint(), line[1].asSkPoint()};
         line2.set(pts);
         REPORTER_ASSERT(reporter, line[0] == line2[0] && line[1] == line2[1]);
         const SkDPoint& pt = left[index];
+        SkASSERT(ValidPoint(pt));
         double result = line.isLeft(pt);
         if ((result <= 0 && index >= 1) || (result < 0 && index == 0)) {
             SkDebugf("%s [%d] expected left\n", __FUNCTION__, index);
