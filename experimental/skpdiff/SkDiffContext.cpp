@@ -101,6 +101,7 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
     }
 
     for (int baselineIndex = 0; baselineIndex < baselineEntries.count(); baselineIndex++) {
+        SkDebugf("[%i/%i] ", baselineIndex, baselineEntries.count());
         const char* baseFilename = baselineEntries[baselineIndex].c_str();
 
         // Find the real location of each file to compare
@@ -140,6 +141,7 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
     }
 
     for (int entryIndex = 0; entryIndex < baselineEntries.count(); entryIndex++) {
+        SkDebugf("[%i/%i] ", entryIndex, baselineEntries.count());
         const char* baselineFilename = baselineEntries[entryIndex].c_str();
         const char* testFilename     = testEntries    [entryIndex].c_str();
 
