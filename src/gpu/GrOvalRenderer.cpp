@@ -291,7 +291,7 @@ void GrOvalRenderer::reset() {
 }
 
 bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
-                              const GrRect& oval, const SkStrokeRec& stroke)
+                              const SkRect& oval, const SkStrokeRec& stroke)
 {
     if (!useAA) {
         return false;
@@ -329,7 +329,7 @@ extern const GrVertexAttrib gCircleVertexAttribs[] = {
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 bool useAA,
-                                const GrRect& circle,
+                                const SkRect& circle,
                                 const SkStrokeRec& stroke)
 {
     GrDrawState* drawState = target->drawState();
@@ -432,7 +432,7 @@ extern const GrVertexAttrib gEllipseVertexAttribs[] = {
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  bool useAA,
-                                 const GrRect& ellipse,
+                                 const SkRect& ellipse,
                                  const SkStrokeRec& stroke)
 {
     GrDrawState* drawState = target->drawState();

@@ -69,7 +69,7 @@ public:
     // overrides from GrDrawTarget
     virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
-    virtual void clear(const GrIRect* rect,
+    virtual void clear(const SkIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
@@ -108,7 +108,7 @@ private:
         Clear() : fRenderTarget(NULL) {}
         ~Clear() { GrSafeUnref(fRenderTarget); }
 
-        GrIRect         fRect;
+        SkIRect         fRect;
         GrColor         fColor;
         GrRenderTarget* fRenderTarget;
     };
@@ -122,9 +122,9 @@ private:
 
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
-    virtual void onDrawRect(const GrRect& rect,
+    virtual void onDrawRect(const SkRect& rect,
                             const SkMatrix* matrix,
-                            const GrRect* localRect,
+                            const SkRect* localRect,
                             const SkMatrix* localMatrix) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(size_t vertexSize,

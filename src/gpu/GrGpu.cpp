@@ -203,7 +203,7 @@ GrPath* GrGpu::createPath(const SkPath& path) {
     return this->onCreatePath(path);
 }
 
-void GrGpu::clear(const GrIRect* rect,
+void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   GrRenderTarget* renderTarget) {
     GrDrawState::AutoRenderTargetRestore art;

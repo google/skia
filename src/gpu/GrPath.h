@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -10,7 +9,7 @@
 #define GrPath_DEFINED
 
 #include "GrResource.h"
-#include "GrRect.h"
+#include "SkRect.h"
 
 class GrPath : public GrResource {
 public:
@@ -18,10 +17,10 @@ public:
 
     GrPath(GrGpu* gpu, bool isWrapped) : INHERITED(gpu, isWrapped) {}
 
-    const GrRect& getBounds() const { return fBounds; }
+    const SkRect& getBounds() const { return fBounds; }
 
 protected:
-    GrRect fBounds;
+    SkRect fBounds;
 
 private:
     typedef GrResource INHERITED;

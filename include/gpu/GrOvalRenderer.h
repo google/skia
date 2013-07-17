@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrOvalRenderer_DEFINED
 #define GrOvalRenderer_DEFINED
 
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRefCnt.h"
-#include "GrRect.h"
 
 class GrContext;
 class GrDrawTarget;
 class GrPaint;
+struct SkRect;
 class SkStrokeRec;
 
 /*
@@ -34,16 +33,16 @@ public:
     void reset();
 
     bool drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
-                  const GrRect& oval, const SkStrokeRec& stroke);
+                  const SkRect& oval, const SkStrokeRec& stroke);
     bool drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA,
                          const SkRRect& rrect, const SkStrokeRec& stroke);
 
 private:
     bool drawEllipse(GrDrawTarget* target, bool useAA,
-                     const GrRect& ellipse,
+                     const SkRect& ellipse,
                      const SkStrokeRec& stroke);
     void drawCircle(GrDrawTarget* target, bool useAA,
-                    const GrRect& circle,
+                    const SkRect& circle,
                     const SkStrokeRec& stroke);
 
     GrIndexBuffer* rRectIndexBuffer(GrGpu* gpu);

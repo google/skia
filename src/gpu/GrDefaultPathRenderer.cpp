@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -461,7 +460,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             if (!colorWritesWereDisabled) {
                 drawState->disableState(GrDrawState::kNoColorWrites_StateBit);
             }
-            GrRect bounds;
+            SkRect bounds;
             GrDrawState::AutoViewMatrixRestore avmr;
             if (reverse) {
                 GrAssert(NULL != drawState->getRenderTarget());

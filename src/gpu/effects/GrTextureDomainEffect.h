@@ -9,9 +9,9 @@
 #define GrTextureDomainEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "GrRect.h"
 
 class GrGLTextureDomainEffect;
+struct SkRect;
 
 /**
  * Limits a texture's lookup coordinates to a domain. Samples outside the domain are either clamped
@@ -74,7 +74,7 @@ protected:
 private:
     GrTextureDomainEffect(GrTexture*,
                           const SkMatrix&,
-                          const GrRect& domain,
+                          const SkRect& domain,
                           WrapMode,
                           bool bilerp,
                           CoordsType type);

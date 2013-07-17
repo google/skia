@@ -105,13 +105,13 @@ static void check_state(skiatest::Reporter* reporter,
                         const GrClipMaskCache& cache,
                         const SkClipStack& clip,
                         GrTexture* mask,
-                        const GrIRect& bound) {
+                        const SkIRect& bound) {
     SkClipStack cacheClip;
     REPORTER_ASSERT(reporter, clip.getTopmostGenID() == cache.getLastClipGenID());
 
     REPORTER_ASSERT(reporter, mask == cache.getLastMask());
 
-    GrIRect cacheBound;
+    SkIRect cacheBound;
     cache.getLastBound(&cacheBound);
     REPORTER_ASSERT(reporter, bound == cacheBound);
 }
@@ -131,14 +131,14 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     SkClipStack emptyClip;
     emptyClip.reset();
 
-    GrIRect emptyBound;
+    SkIRect emptyBound;
     emptyBound.setEmpty();
 
     // check initial state
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
 
     // set the current state
-    GrIRect bound1;
+    SkIRect bound1;
     bound1.set(0, 0, 100, 100);
 
     SkClipStack clip1(bound1);
@@ -169,7 +169,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // modify the new state
-    GrIRect bound2;
+    SkIRect bound2;
     bound2.set(-10, -10, 10, 10);
 
     SkClipStack clip2(bound2);

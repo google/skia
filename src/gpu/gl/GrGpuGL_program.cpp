@@ -317,8 +317,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     this->flushScissor();
     this->flushAAState(type);
 
-    GrIRect* devRect = NULL;
-    GrIRect devClipBounds;
+    SkIRect* devRect = NULL;
+    SkIRect devClipBounds;
     if (drawState.isClipState()) {
         this->getClip()->getConservativeBounds(drawState.getRenderTarget(), &devClipBounds);
         devRect = &devClipBounds;

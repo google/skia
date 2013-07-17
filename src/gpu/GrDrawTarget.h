@@ -343,9 +343,9 @@ public:
      *                    then srcRect will be transformed by srcMatrix.
      *                    srcMatrix can be NULL when no srcMatrix is desired.
      */
-    void drawRect(const GrRect& rect,
+    void drawRect(const SkRect& rect,
                   const SkMatrix* matrix,
-                  const GrRect* localRect,
+                  const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
         this->onDrawRect(rect, matrix, localRect, localMatrix);
@@ -354,10 +354,10 @@ public:
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(const GrRect& rect, const SkMatrix* matrix = NULL) {
+    void drawSimpleRect(const SkRect& rect, const SkMatrix* matrix = NULL) {
         this->drawRect(rect, matrix, NULL, NULL);
     }
-    void drawSimpleRect(const GrIRect& irect, const SkMatrix* matrix = NULL) {
+    void drawSimpleRect(const SkIRect& irect, const SkMatrix* matrix = NULL) {
         SkRect rect = SkRect::MakeFromIRect(irect);
         this->drawRect(rect, matrix, NULL, NULL);
     }
@@ -403,7 +403,7 @@ public:
      * clip and all other draw state (blend mode, stages, etc). Clears the
      * whole thing if rect is NULL, otherwise just the rect.
      */
-    virtual void clear(const GrIRect* rect,
+    virtual void clear(const SkIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) = 0;
 
@@ -814,9 +814,9 @@ private:
     // one of the public GrDrawTarget draw methods (e.g. drawNonIndexed,
     // drawIndexedInstances, ...). The base class draws a two triangle fan using
     // drawNonIndexed from reserved vertex space.
-    virtual void onDrawRect(const GrRect& rect,
+    virtual void onDrawRect(const SkRect& rect,
                             const SkMatrix* matrix,
-                            const GrRect* localRect,
+                            const SkRect* localRect,
                             const SkMatrix* localMatrix);
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
 

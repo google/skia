@@ -12,7 +12,6 @@
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrNoncopyable.h"
-#include "GrRect.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
@@ -142,13 +141,13 @@ private:
     void mergeMask(GrTexture* dstMask,
                    GrTexture* srcMask,
                    SkRegion::Op op,
-                   const GrIRect& dstBound,
-                   const GrIRect& srcBound);
+                   const SkIRect& dstBound,
+                   const SkIRect& srcBound);
 
     void getTemp(int width, int height, GrAutoScratchTexture* temp);
 
     void setupCache(const SkClipStack& clip,
-                    const GrIRect& bounds);
+                    const SkIRect& bounds);
 
     /**
      * Called prior to return control back the GrGpu in setupClipping. It

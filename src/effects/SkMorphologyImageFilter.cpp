@@ -469,7 +469,7 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
     GrContext::AutoMatrix am;
     am.setIdentity(context);
 
-    GrContext::AutoClip acs(context, GrRect::MakeWH(SkIntToScalar(srcTexture->width()),
+    GrContext::AutoClip acs(context, SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
                                                     SkIntToScalar(srcTexture->height())));
 
     GrTextureDesc desc;

@@ -118,7 +118,7 @@ public:
 
     void acquireMask(int32_t clipGenID,
                      const GrTextureDesc& desc,
-                     const GrIRect& bound) {
+                     const SkIRect& bound) {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -162,7 +162,7 @@ public:
         return back->fLastMask.texture()->height();
     }
 
-    void getLastBound(GrIRect* bound) const {
+    void getLastBound(SkIRect* bound) const {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -203,7 +203,7 @@ private:
         void acquireMask(GrContext* context,
                          int32_t clipGenID,
                          const GrTextureDesc& desc,
-                         const GrIRect& bound) {
+                         const SkIRect& bound) {
 
             fLastClipGenID = clipGenID;
 
@@ -227,7 +227,7 @@ private:
         GrAutoScratchTexture    fLastMask;
         // fLastBound stores the bounding box of the clip mask in clip-stack space. This rect is
         // used by GrClipMaskManager to position a rect and compute texture coords for the mask.
-        GrIRect                 fLastBound;
+        SkIRect                 fLastBound;
     };
 
     GrContext*   fContext;

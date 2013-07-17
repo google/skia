@@ -8,8 +8,8 @@
 #ifndef GrRenderTarget_DEFINED
 #define GrRenderTarget_DEFINED
 
-#include "GrRect.h"
 #include "GrSurface.h"
+#include "SkRect.h"
 
 class GrStencilBuffer;
 class GrTexture;
@@ -90,12 +90,12 @@ public:
      * @param rect  a rect bounding the area needing resolve. NULL indicates
      *              the whole RT needs resolving.
      */
-    void flagAsNeedingResolve(const GrIRect* rect = NULL);
+    void flagAsNeedingResolve(const SkIRect* rect = NULL);
 
     /**
      * Call to override the region that needs to be resolved.
      */
-    void overrideResolveRect(const GrIRect rect);
+    void overrideResolveRect(const SkIRect rect);
 
     /**
      * Call to indicate that GrRenderTarget was externally resolved. This may
@@ -111,7 +111,7 @@ public:
     /**
      * Returns a rect bounding the region needing resolving.
      */
-    const GrIRect& getResolveRect() const { return fResolveRect; }
+    const SkIRect& getResolveRect() const { return fResolveRect; }
 
     /**
      * If the render target is multisampled this will perform a multisample
@@ -163,7 +163,7 @@ private:
     GrStencilBuffer*  fStencilBuffer;
     GrTexture*        fTexture; // not ref'ed
 
-    GrIRect           fResolveRect;
+    SkIRect           fResolveRect;
 
     typedef GrSurface INHERITED;
 };

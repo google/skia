@@ -542,8 +542,8 @@ bool adjust_pixel_ops_params(int surfaceWidth,
         *rowBytes = *width * bpp;
     }
 
-    GrIRect subRect = GrIRect::MakeXYWH(*left, *top, *width, *height);
-    GrIRect bounds = GrIRect::MakeWH(surfaceWidth, surfaceHeight);
+    SkIRect subRect = SkIRect::MakeXYWH(*left, *top, *width, *height);
+    SkIRect bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
 
     if (!subRect.intersect(bounds)) {
         return false;
@@ -1269,17 +1269,17 @@ void GrGpuGL::flushScissor() {
     }
 }
 
-void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
+void GrGpuGL::onClear(const SkIRect* rect, GrColor color) {
     const GrDrawState& drawState = this->getDrawState();
     const GrRenderTarget* rt = drawState.getRenderTarget();
     // parent class should never let us get here with no RT
     GrAssert(NULL != rt);
 
-    GrIRect clippedRect;
+    SkIRect clippedRect;
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.
         clippedRect = *rect;
-        GrIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
+        SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
         if (clippedRect.intersect(rtRect)) {
             rect = &clippedRect;
         } else {
@@ -1313,7 +1313,7 @@ void GrGpuGL::clearStencil() {
         return;
     }
 
-    this->flushRenderTarget(&GrIRect::EmptyIRect());
+    this->flushRenderTarget(&SkIRect::EmptyIRect());
 
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = false;
@@ -1325,7 +1325,7 @@ void GrGpuGL::clearStencil() {
     fHWStencilSettings.invalidate();
 }
 
-void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
+void GrGpuGL::clearStencilClip(const SkIRect& rect, bool insideClip) {
     const GrDrawState& drawState = this->getDrawState();
     const GrRenderTarget* rt = drawState.getRenderTarget();
     GrAssert(NULL != rt);
@@ -1351,7 +1351,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     } else {
         value = 0;
     }
-    this->flushRenderTarget(&GrIRect::EmptyIRect());
+    this->flushRenderTarget(&SkIRect::EmptyIRect());
 
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = true;
@@ -1365,7 +1365,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
 }
 
 void GrGpuGL::onForceRenderTargetFlush() {
-    this->flushRenderTarget(&GrIRect::EmptyIRect());
+    this->flushRenderTarget(&SkIRect::EmptyIRect());
 }
 
 bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
@@ -1427,7 +1427,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
             artr.set(this->drawState(), target);
-            this->flushRenderTarget(&GrIRect::EmptyIRect());
+            this->flushRenderTarget(&SkIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
             this->onResolveRenderTarget(tgt);
@@ -1522,7 +1522,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     return true;
 }
 
-void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
+void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
 
     GrGLRenderTarget* rt =
         static_cast<GrGLRenderTarget*>(this->drawState()->getRenderTarget());
@@ -1701,7 +1701,7 @@ void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
             // the bound DRAW FBO ID.
             fHWBoundRenderTarget = NULL;
             const GrGLIRect& vp = rt->getViewport();
-            const GrIRect dirtyRect = rt->getResolveRect();
+            const SkIRect dirtyRect = rt->getResolveRect();
             GrGLIRect r;
             r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
                             dirtyRect.width(), dirtyRect.height(), target->origin());

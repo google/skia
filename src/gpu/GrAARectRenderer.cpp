@@ -277,7 +277,7 @@ static void set_aa_rect_vertex_attributes(GrDrawState* drawState, bool useCovera
 }
 
 static void set_inset_fan(GrPoint* pts, size_t stride,
-                          const GrRect& r, SkScalar dx, SkScalar dy) {
+                          const SkRect& r, SkScalar dx, SkScalar dy) {
     pts->setRectFan(r.fLeft + dx, r.fTop + dy,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
@@ -376,9 +376,9 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
 
 void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
                                           GrDrawTarget* target,
-                                          const GrRect& rect,
+                                          const SkRect& rect,
                                           const SkMatrix& combinedMatrix,
-                                          const GrRect& devRect,
+                                          const SkRect& devRect,
                                           bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
 
@@ -525,7 +525,7 @@ extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
 
 void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
                                         GrDrawTarget* target,
-                                        const GrRect& rect,
+                                        const SkRect& rect,
                                         const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
 
@@ -589,7 +589,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
 
 void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
                                                GrDrawTarget* target,
-                                               const GrRect& rect,
+                                               const SkRect& rect,
                                                const SkMatrix& combinedMatrix) {
     GrDrawState* drawState = target->drawState();
     SkASSERT(combinedMatrix.rectStaysRect());
@@ -647,9 +647,9 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
 
 void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     GrDrawTarget* target,
-                                    const GrRect& rect,
+                                    const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
-                                    const GrRect& devRect,
+                                    const SkRect& devRect,
                                     SkScalar width,
                                     bool useVertexCoverage) {
     GrVec devStrokeSize;
@@ -681,7 +681,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         spare = GrMin(w, h);
     }
 
-    GrRect devOutside(devRect);
+    SkRect devOutside(devRect);
     devOutside.outset(rx, ry);
 
     if (spare <= 0) {

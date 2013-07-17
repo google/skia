@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -7,8 +6,9 @@
  */
 
 #include "GrClipData.h"
+
 #include "GrSurface.h"
-#include "GrRect.h"
+#include "SkRect.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -19,9 +19,9 @@
  * isIntersectionOfRects will be set to true.
  */
 void GrClipData::getConservativeBounds(const GrSurface* surface,
-                                       GrIRect* devResult,
+                                       SkIRect* devResult,
                                        bool* isIntersectionOfRects) const {
-    GrRect devBounds;
+    SkRect devBounds;
 
     fClipStack->getConservativeBounds(-fOrigin.fX,
                                       -fOrigin.fY,

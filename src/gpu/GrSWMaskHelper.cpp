@@ -37,7 +37,7 @@ SkXfermode::Mode op_to_mode(SkRegion::Op op) {
 /**
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op,
+void GrSWMaskHelper::draw(const SkRect& rect, SkRegion::Op op,
                           bool antiAlias, uint8_t alpha) {
     SkPaint paint;
 
@@ -84,7 +84,7 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     SkSafeUnref(mode);
 }
 
-bool GrSWMaskHelper::init(const GrIRect& resultBounds,
+bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                           const SkMatrix* matrix) {
     if (NULL != matrix) {
         fMatrix = *matrix;
@@ -95,7 +95,7 @@ bool GrSWMaskHelper::init(const GrIRect& resultBounds,
     // Now translate so the bound's UL corner is at the origin
     fMatrix.postTranslate(-resultBounds.fLeft * SK_Scalar1,
                           -resultBounds.fTop * SK_Scalar1);
-    GrIRect bounds = GrIRect::MakeWH(resultBounds.width(),
+    SkIRect bounds = SkIRect::MakeWH(resultBounds.width(),
                                      resultBounds.height());
 
     fBM.setConfig(SkBitmap::kA8_Config, bounds.fRight, bounds.fBottom);
@@ -160,7 +160,7 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
 GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkPath& path,
                                                  const SkStrokeRec& stroke,
-                                                 const GrIRect& resultBounds,
+                                                 const SkIRect& resultBounds,
                                                  bool antiAlias,
                                                  SkMatrix* matrix) {
     GrAutoScratchTexture ast;
@@ -184,7 +184,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               GrDrawTarget* target,
-                                              const GrIRect& rect) {
+                                              const SkIRect& rect) {
     GrDrawState* drawState = target->drawState();
 
     GrDrawState::AutoViewMatrixRestore avmr;
@@ -193,11 +193,10 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     }
     GrDrawState::AutoRestoreEffects are(drawState);
 
-    GrRect dstRect = GrRect::MakeLTRB(
-                            SK_Scalar1 * rect.fLeft,
-                            SK_Scalar1 * rect.fTop,
-                            SK_Scalar1 * rect.fRight,
-                            SK_Scalar1 * rect.fBottom);
+    SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
+                                      SK_Scalar1 * rect.fTop,
+                                      SK_Scalar1 * rect.fRight,
+                                      SK_Scalar1 * rect.fBottom);
 
     // We want to use device coords to compute the texture coordinates. We set our matrix to be
     // equal to the view matrix followed by a translation so that the top-left of the device bounds

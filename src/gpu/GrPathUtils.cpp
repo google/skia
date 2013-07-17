@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrPathUtils.h"
+
 #include "GrPoint.h"
 #include "SkGeometry.h"
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const SkMatrix& viewM,
-                                          const GrRect& pathBounds) {
+                                          const SkRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
     SkScalar stretch = viewM.getMaxStretch();

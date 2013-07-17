@@ -48,10 +48,10 @@ public:
     // may be accumulated in the helper during creation, "resultBounds"
     // allows the caller to specify the region of interest - to limit the
     // amount of work.
-    bool init(const GrIRect& resultBounds, const SkMatrix* matrix);
+    bool init(const SkIRect& resultBounds, const SkMatrix* matrix);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void draw(const GrRect& rect, SkRegion::Op op,
+    void draw(const SkRect& rect, SkRegion::Op op,
               bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
@@ -76,7 +76,7 @@ public:
     static GrTexture* DrawPathMaskToTexture(GrContext* context,
                                             const SkPath& path,
                                             const SkStrokeRec& stroke,
-                                            const GrIRect& resultBounds,
+                                            const SkIRect& resultBounds,
                                             bool antiAlias,
                                             SkMatrix* matrix);
 
@@ -92,7 +92,7 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
-                                         const GrIRect& rect);
+                                         const SkIRect& rect);
 
 protected:
 private:

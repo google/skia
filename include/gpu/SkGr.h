@@ -85,7 +85,7 @@ public:
     // overrides
     virtual const GrKey* getKey();
     virtual GrMaskFormat getMaskFormat();
-    virtual bool getPackedGlyphBounds(GrGlyph::PackedID, GrIRect* bounds);
+    virtual bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds);
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image);
     virtual bool getGlyphPath(uint16_t glyphID, SkPath*);

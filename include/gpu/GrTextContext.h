@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
@@ -53,7 +50,7 @@ private:
     GrTexture*              fCurrTexture;
     int                     fCurrVertex;
 
-    GrIRect                 fClipRect;
+    SkIRect                 fClipRect;
     GrContext::AutoMatrix   fAutoMatrix;
 };
 

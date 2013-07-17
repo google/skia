@@ -29,9 +29,9 @@ bool GrSoftwarePathRenderer::canDrawPath(const SkPath&,
 }
 
 GrPathRenderer::StencilSupport GrSoftwarePathRenderer::onGetStencilSupport(
-                                                                        const SkPath&,
-                                                                        const SkStrokeRec&,
-                                                                        const GrDrawTarget*) const {
+    const SkPath&,
+    const SkStrokeRec&,
+    const GrDrawTarget*) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
@@ -44,14 +44,14 @@ namespace {
 bool get_path_and_clip_bounds(const GrDrawTarget* target,
                               const SkPath& path,
                               const SkMatrix& matrix,
-                              GrIRect* devPathBounds,
-                              GrIRect* devClipBounds) {
+                              SkIRect* devPathBounds,
+                              SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
     const GrRenderTarget* rt = target->getDrawState().getRenderTarget();
     if (NULL == rt) {
         return false;
     }
-    *devPathBounds = GrIRect::MakeWH(rt->width(), rt->height());
+    *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());
 
     target->getClip()->getConservativeBounds(rt, devClipBounds);
 
@@ -62,9 +62,9 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
     }
 
     if (!path.getBounds().isEmpty()) {
-        GrRect pathSBounds;
+        SkRect pathSBounds;
         matrix.mapRect(&pathSBounds, path.getBounds());
-        GrIRect pathIBounds;
+        SkIRect pathIBounds;
         pathSBounds.roundOut(&pathIBounds);
         if (!devPathBounds->intersect(pathIBounds)) {
             // set the correct path bounds, as this would be used later.
@@ -72,7 +72,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
             return false;
         }
     } else {
-        *devPathBounds = GrIRect::EmptyIRect();
+        *devPathBounds = SkIRect::EmptyIRect();
         return false;
     }
     return true;
@@ -80,13 +80,13 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 void draw_around_inv_path(GrDrawTarget* target,
-                          const GrIRect& devClipBounds,
-                          const GrIRect& devPathBounds) {
+                          const SkIRect& devClipBounds,
+                          const SkIRect& devPathBounds) {
     GrDrawState::AutoViewMatrixRestore avmr;
     if (!avmr.setIdentity(target->drawState())) {
         return;
     }
-    GrRect rect;
+    SkRect rect;
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
@@ -126,7 +126,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
 
     SkMatrix vm = drawState->getViewMatrix();
 
-    GrIRect devPathBounds, devClipBounds;
+    SkIRect devPathBounds, devClipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,
                                   &devPathBounds, &devClipBounds)) {
         if (path.isInverseFillType()) {

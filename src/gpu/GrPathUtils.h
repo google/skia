@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
-#include "GrRect.h"
+#include "GrPoint.h"
+#include "SkRect.h"
 #include "SkPath.h"
 #include "SkTArray.h"
 
@@ -22,7 +21,7 @@ class SkMatrix;
 namespace GrPathUtils {
     SkScalar scaleToleranceToSrc(SkScalar devTol,
                                  const SkMatrix& viewM,
-                                 const GrRect& pathBounds);
+                                 const SkRect& pathBounds);
 
     /// Since we divide by tol if we're computing exact worst-case bounds,
     /// very small tolerances will be increased to gMinCurveTol.
