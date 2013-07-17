@@ -8,16 +8,18 @@
 #ifndef skpdiff_util_DEFINED
 #define skpdiff_util_DEFINED
 
-#include <CL/cl.h>
 #include "SkString.h"
 #include "SkTArray.h"
 
+#if SK_SUPPORT_OPENCL
+#include <CL/cl.h>
 /**
  * Converts an OpenCL error number into the string of its enumeration name.
  * @param  err The OpenCL error number
  * @return The string of the name of the error; "UNKOWN" if the error number is invalid
  */
 const char* cl_error_to_string(cl_int err);
+#endif
 
 /**
  * Get a positive monotonic real-time measure of the amount of seconds since some undefined epoch.
