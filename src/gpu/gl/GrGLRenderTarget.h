@@ -97,7 +97,7 @@ private:
     GrGLIRect fViewport;
 
     // non-NULL if this RT was created by Gr with an associated GrGLTexture.
-    GrGLTexID* fTexIDObj;
+    SkAutoTUnref<GrGLTexID> fTexIDObj;
 
     void init(const Desc& desc, const GrGLIRect& viewport, GrGLTexID* texID);
 

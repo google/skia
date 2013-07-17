@@ -22,10 +22,9 @@ void GrGLTexture::init(GrGpuGL* gpu,
 
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
-    fTexIDObj           = SkNEW_ARGS(GrGLTexID,
-                                     (GPUGL->glInterface(),
-                                      textureDesc.fTextureID,
-                                      textureDesc.fIsWrapped));
+    fTexIDObj.reset(SkNEW_ARGS(GrGLTexID, (GPUGL->glInterface(),
+                                           textureDesc.fTextureID,
+                                           textureDesc.fIsWrapped)));
 
     if (NULL != rtDesc) {
         GrGLIRect vp;
@@ -53,22 +52,19 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 
 void GrGLTexture::onRelease() {
     GPUGL->notifyTextureDelete(this);
-    if (NULL != fTexIDObj) {
-        fTexIDObj->unref();
-        fTexIDObj = NULL;
-    }
-
+    fTexIDObj.reset(NULL);
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
-    if (NULL != fTexIDObj) {
+    if (NULL != fTexIDObj.get()) {
         fTexIDObj->abandon();
+        fTexIDObj.reset(NULL);
     }
 
     INHERITED::onAbandon();
 }
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
-    return fTexIDObj->id();
+    return static_cast<GrBackendObject>(this->textureID());
 }

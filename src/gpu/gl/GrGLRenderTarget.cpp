@@ -20,8 +20,7 @@ void GrGLRenderTarget::init(const Desc& desc,
     fTexFBOID               = desc.fTexFBOID;
     fMSColorRenderbufferID  = desc.fMSColorRenderbufferID;
     fViewport               = viewport;
-    fTexIDObj               = texID;
-    GrSafeRef(fTexIDObj);
+    fTexIDObj.reset(SkSafeRef(texID));
 }
 
 namespace {
@@ -95,8 +94,7 @@ void GrGLRenderTarget::onRelease() {
     fRTFBOID                = 0;
     fTexFBOID               = 0;
     fMSColorRenderbufferID  = 0;
-    GrSafeUnref(fTexIDObj);
-    fTexIDObj = NULL;
+    fTexIDObj.reset(NULL);
     INHERITED::onRelease();
 }
 
@@ -104,9 +102,9 @@ void GrGLRenderTarget::onAbandon() {
     fRTFBOID                = 0;
     fTexFBOID               = 0;
     fMSColorRenderbufferID  = 0;
-    if (NULL != fTexIDObj) {
+    if (NULL != fTexIDObj.get()) {
         fTexIDObj->abandon();
-        fTexIDObj = NULL;
+        fTexIDObj.reset(NULL);
     }
     INHERITED::onAbandon();
 }
