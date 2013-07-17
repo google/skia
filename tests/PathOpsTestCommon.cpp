@@ -68,7 +68,7 @@ bool ValidPoint(const SkDPoint& pt) {
     if (SkDoubleIsNaN(pt.fX)) {
         return false;
     }
-    return !SkDoubleIsNaN(pt.fY);  
+    return !SkDoubleIsNaN(pt.fY);
 }
 
 bool ValidPoints(const SkPoint* pts, int count) {
@@ -105,5 +105,5 @@ bool ValidVector(const SkDVector& v) {
     if (SkDoubleIsNaN(v.fX)) {
         return false;
     }
-    return !SkDoubleIsNaN(v.fY);  
+    return !SkDoubleIsNaN(v.fY);
 }
