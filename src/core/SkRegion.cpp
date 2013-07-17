@@ -124,6 +124,15 @@ void SkRegion::swap(SkRegion& other) {
     SkTSwap<RunHead*>(fRunHead, other.fRunHead);
 }
 
+int SkRegion::computeRegionComplexity() const {
+  if (this->isEmpty()) {
+    return 0;
+  } else if (this->isRect()) {
+    return 1;
+  }
+  return fRunHead->getIntervalCount();
+}
+    
 bool SkRegion::setEmpty() {
     this->freeRuns();
     fBounds.set(0, 0, 0, 0);
