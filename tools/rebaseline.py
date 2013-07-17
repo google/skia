@@ -216,7 +216,11 @@ class JsonRebaseliner(object):
         actuals_url = '/'.join([self._actuals_base_url,
                                 subdir, builder, subdir,
                                 self._actuals_filename])
-        sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
+        # In most cases, we won't need to re-record results that are already
+        # succeeding, but including the SUCCEEDED results will allow us to
+        # re-record expectations if they somehow get out of sync.
+        sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
+                    gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED]
         if self._add_new:
             sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
         results_to_update = self._GetActualResults(json_url=actuals_url,
