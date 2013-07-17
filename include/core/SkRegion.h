@@ -86,6 +86,16 @@ public:
     const SkIRect& getBounds() const { return fBounds; }
 
     /**
+     *  Returns a value that grows approximately linearly with the number of
+     *  intervals comprised in the region. Empty region will return 0, Rect
+     *  will return 1, Complex will return a value > 1.
+     *
+     *  Use this to compare two regions, where the larger count likely
+     *  indicates a more complex region.
+     */
+    int computeRegionComplexity() const;
+
+    /**
      *  Returns true if the region is non-empty, and if so, appends the
      *  boundary(s) of the region to the specified path.
      *  If the region is empty, returns false, and path is left unmodified.
