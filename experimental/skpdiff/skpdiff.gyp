@@ -12,7 +12,6 @@
         'main.cpp',
         'SkDiffContext.cpp',
         'SkImageDiffer.cpp',
-        'SkCLImageDiffer.cpp',
         'SkPMetric.cpp',
         'skpdiff_util.cpp',
         '../../tools/flags/SkCommandLineFlags.cpp',
@@ -26,14 +25,24 @@
       'cflags': [
         '-O3',
       ],
-      'link_settings': {
-        'libraries': [
-          '-lOpenCL',
-        ],
-      },
+      'conditions': [
+        ['skia_opencl', {
+          'sources': [
+            'SkCLImageDiffer.cpp',
+            'SkDifferentPixelsMetric_opencl.cpp',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lOpenCL',
+            ],
+          },
+        }, {
+          'sources': [
+            'SkDifferentPixelsMetric_cpu.cpp',
+          ],
+        }],
+      ],
     },
-  ],
-  'conditions': [
   ],
 }
 

@@ -5,16 +5,18 @@
  * found in the LICENSE file.
  */
 
+#if SK_SUPPORT_OPENCL
 #define __NO_STD_VECTOR // Uses cl::vectpr instead of std::vectpr
 #define __NO_STD_STRING // Uses cl::STRING_CLASS instead of std::string
 #include <CL/cl.hpp>
+#endif
 
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 
-#include "SkCLImageDiffer.h"
+#include "SkDifferentPixelsMetric.h"
 #include "SkDiffContext.h"
 #include "SkImageDiffer.h"
 #include "SkPMetric.h"
@@ -31,6 +33,7 @@ DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> 
 DEFINE_string2(output, o, "skpdiff_output.json", "Writes the output of these diffs to output: <output>");
 DEFINE_bool(jsonp, true, "Output JSON with padding");
 
+#if SK_SUPPORT_OPENCL
 /// A callback for any OpenCL errors
 CL_CALLBACK void error_notify(const char* errorInfo, const void* privateInfoSize, ::size_t cb, void* userData) {
     SkDebugf("OpenCL error notify: %s\n", errorInfo);
@@ -72,8 +75,6 @@ static bool init_device_and_context(cl::Device* device, cl::Context* context) {
     return true;
 }
 
-
-
 static bool init_cl_diff(SkImageDiffer* differ) {
     // Setup OpenCL
     cl::Device device;
@@ -86,28 +87,17 @@ static bool init_cl_diff(SkImageDiffer* differ) {
     SkCLImageDiffer* clDiffer = (SkCLImageDiffer*)differ;
     return clDiffer->init(device(), context());
 }
-
-static bool init_dummy(SkImageDiffer* differ) {
-    return true;
-}
-
+#endif
 
 // TODO Find a better home for the diff registry. One possibility is to have the differs self
 // register.
 
 // List here every differ
-SkDifferentPixelsImageDiffer gDiffPixel;
+SkDifferentPixelsMetric gDiffPixel;
 SkPMetric gPDiff;
 
 // A null terminated array of pointer to every differ declared above
 SkImageDiffer* gDiffers[] = { &gDiffPixel, &gPDiff, NULL };
-
-// A parallel array of functions to initialize the above differs. The reason we don't initialize
-// everything immediately is that certain differs may require special initialization, but we still
-// want to construct all of them globally so they can be queried for things like their name and
-// description.
-bool (*gDiffInits[])(SkImageDiffer*) = { init_cl_diff, init_dummy, NULL };
-
 
 int main(int argc, char** argv) {
     // Setup command line parsing
@@ -133,13 +123,26 @@ int main(int argc, char** argv) {
         // Check if this differ was chosen by any of the flags. Initialize them if they were chosen.
         if (FLAGS_differs.isEmpty()) {
             // If no differs were chosen, they all get added
-            chosenDiffers.push(differ);
-            gDiffInits[differIndex](differ);
+            if (differ->requiresOpenCL()) {
+#if SK_SUPPORT_OPENCL
+                init_cl_diff(differ);
+                chosenDiffers.push(differ);
+#endif
+            } else {
+                chosenDiffers.push(differ);
+            }
         } else {
             for (int flagIndex = 0; flagIndex < FLAGS_differs.count(); flagIndex++) {
                 if (SkString(FLAGS_differs[flagIndex]).equals(differ->getName())) {
-                    chosenDiffers.push(differ);
-                    gDiffInits[differIndex](differ);
+                    // Initialize OpenCL for the differ if it needs it and support was compiled in.
+                    if (differ->requiresOpenCL()) {
+#if SK_SUPPORT_OPENCL
+                        init_cl_diff(differ);
+                        chosenDiffers.push(differ);
+#endif
+                    } else {
+                        chosenDiffers.push(differ);
+                    }
                     break;
                 }
             }

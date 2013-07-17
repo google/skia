@@ -17,7 +17,17 @@
         ],
       },
     ],
-
+    [ 'skia_opencl == 1',
+      {
+        'defines': [
+          'SK_SUPPORT_OPENCL=1',
+        ],
+      }, {
+        'defines': [
+          'SK_SUPPORT_OPENCL=0',
+        ],
+      },
+    ],
     [ 'skia_os == "win"',
       {
         'defines': [

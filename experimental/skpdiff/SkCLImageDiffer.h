@@ -22,6 +22,8 @@ class SkCLImageDiffer : public SkImageDiffer {
 public:
     SkCLImageDiffer();
 
+    virtual bool requiresOpenCL() SK_OVERRIDE { return true; }
+
     /**
      * Initializes the OpenCL resources this differ needs to work
      * @param  device  An OpenCL device
@@ -83,32 +85,6 @@ protected:
 private:
 
     typedef SkImageDiffer INHERITED;
-};
-
-/**
- * A OpenCL differ that measures the percentage of different corresponding pixels. If the two images
- * are not the same size or have no pixels, the result will always be zero.
- */
-class SkDifferentPixelsImageDiffer : public SkCLImageDiffer {
-public:
-    virtual const char* getName() SK_OVERRIDE;
-    virtual int queueDiff(SkBitmap* baseline, SkBitmap* test) SK_OVERRIDE;
-    virtual void deleteDiff(int id) SK_OVERRIDE;
-    virtual bool isFinished(int id) SK_OVERRIDE;
-    virtual double getResult(int id) SK_OVERRIDE;
-    virtual int getPointsOfInterestCount(int id) SK_OVERRIDE;
-    virtual SkIPoint* getPointsOfInterest(int id) SK_OVERRIDE;
-
-protected:
-    virtual bool onInit() SK_OVERRIDE;
-
-private:
-    struct QueuedDiff;
-
-    SkTDArray<QueuedDiff> fQueuedDiffs;
-    cl_kernel fKernel;
-
-    typedef SkCLImageDiffer INHERITED;
 };
 
 #endif

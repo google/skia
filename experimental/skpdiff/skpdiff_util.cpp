@@ -11,6 +11,7 @@
 #include "SkOSFile.h"
 #include "skpdiff_util.h"
 
+#if SK_SUPPORT_OPENCL
 const char* cl_error_to_string(cl_int err) {
     switch (err) {
         case CL_SUCCESS:                         return "CL_SUCCESS";
@@ -63,6 +64,7 @@ const char* cl_error_to_string(cl_int err) {
     }
     return "UNKNOWN";
 }
+#endif
 
 
 double get_seconds() {

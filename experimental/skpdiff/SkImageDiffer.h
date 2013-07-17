@@ -32,6 +32,11 @@ public:
     bool isGood() { return fIsGood; }
 
     /**
+     * Gets if this differ needs to be initialized with and OpenCL device and context.
+     */
+    virtual bool requiresOpenCL() { return false; }
+
+    /**
      * Wraps a call to queueDiff by loading the given filenames into SkBitmaps
      * @param  baseline The file path of the baseline image
      * @param  test     The file path of the test image
