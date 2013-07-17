@@ -2178,7 +2178,6 @@ void SkPath::dump(bool forceClose, const char title[]) const {
                 break;
             case kLine_Verb:
                 append_params(&builder, "path.lineTo", &pts[1], 1);
-                append_params(&builder, "path.lineTo", &pts[1], 1);
                 break;
             case kQuad_Verb:
                 append_params(&builder, "path.quadTo", &pts[1], 2);
