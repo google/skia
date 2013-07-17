@@ -7469,44 +7469,44 @@ PaintType                               integer                                 
                                                                                                              fy any color information. Instead, the entire pattern cell is painted
                                                                                                              with a separately speciﬁed color each time the pattern is used. Essen-
                                                                                                              tially, the content stream describes a stencil through which the cur-
-                              rent color is to be poured. The content stream must not invoke
-                              operators that specify colors or other color-related parameters in the
-                              graphics state; otherwise, an error will occur (see Section 4.5.7,
-                              “Color Operators”). The content stream may paint an image mask,
-                              however, since it does not specify any color information (see “Stencil
-                              Masking” on page 276).
-TilingType integer    (Required) A code that controls adjustments to the spacing of tiles relative to
-                      the device pixel grid:
-                          1   Constant spacing. Pattern cells are spaced consistently—that is, by a
-                              multiple of a device pixel. To achieve this, the viewer application may
-                              need to distort the pattern cell slightly by making small adjustments
-                              to XStep, YStep, and the transformation matrix. The amount of dis-
-                              tortion does not exceed 1 device pixel.
-                          2   No distortion. The pattern cell is not distorted, but the spacing
-                              between pattern cells may vary by as much as 1 device pixel, both
-                              horizontally and vertically, when the pattern is painted. This achieves
-                              the spacing requested by XStep and YStep on average, but not neces-
-                              sarily for each individual pattern cell.
-                          3   Constant spacing and faster tiling. Pattern cells are spaced consistently
-                              as in tiling type 1, but with additional distortion permitted to enable
-                              a more efﬁcient implementation.
-BBox       rectangle  (Required) An array of four numbers in the pattern coordinate system giving
-                      the coordinates of the left, bottom, right, and top edges, respectively, of the
-                      pattern cell’s bounding box. These boundaries are used to clip the pattern
-                      cell.
-XStep      number     (Required) The desired horizontal spacing between pattern cells, measured in
-                      the pattern coordinate system.
-YStep      number     (Required) The desired vertical spacing between pattern cells, measured in
-                      the pattern coordinate system. Note that XStep and YStep may differ from
-                      the dimensions of the pattern cell implied by the BBox entry. This allows
-                      tiling with irregularly shaped ﬁgures. XStep and YStep may be either positive
-                      or negative, but not zero.
-Resources  dictionary (Required) A resource dictionary containing all of the named resources
-                      required by the pattern’s content stream (see Section 3.7.2, “Resource Dic-
-                      tionaries”).
-Matrix     array      (Optional) An array of six numbers specifying the pattern matrix (see Section
-                      4.6.1, “General Properties of Patterns”). Default value: the identity matrix
-                      [1 0 0 1 0 0].
+                                                                                                      rent color is to be poured. The content stream must not invoke
+                                                                                                      operators that specify colors or other color-related parameters in the
+                                                                                                      graphics state; otherwise, an error will occur (see Section 4.5.7,
+                                                                                                      “Color Operators”). The content stream may paint an image mask,
+                                                                                                      however, since it does not specify any color information (see “Stencil
+                                                                                                      Masking” on page 276).
+TilingType                              integer                                                     (Required) A code that controls adjustments to the spacing of tiles relative to
+                                                                                                      the device pixel grid:
+                                                                                                          1   Constant spacing. Pattern cells are spaced consistently—that is, by a
+                                                                                                              multiple of a device pixel. To achieve this, the viewer application may
+                                                                                                              need to distort the pattern cell slightly by making small adjustments
+                                                                                                              to XStep, YStep, and the transformation matrix. The amount of dis-
+                                                                                                              tortion does not exceed 1 device pixel.
+                                                                                                          2   No distortion. The pattern cell is not distorted, but the spacing
+                                                                                                              between pattern cells may vary by as much as 1 device pixel, both
+                                                                                                              horizontally and vertically, when the pattern is painted. This achieves
+                                                                                                              the spacing requested by XStep and YStep on average, but not neces-
+                                                                                                              sarily for each individual pattern cell.
+                                                                                                          3   Constant spacing and faster tiling. Pattern cells are spaced consistently
+                                                                                                              as in tiling type 1, but with additional distortion permitted to enable
+                                                                                                              a more efﬁcient implementation.
+BBox                                    rectangle                                                   (Required) An array of four numbers in the pattern coordinate system giving
+                                                                                                      the coordinates of the left, bottom, right, and top edges, respectively, of the
+                                                                                                      pattern cell’s bounding box. These boundaries are used to clip the pattern
+                                                                                                      cell.
+XStep                                   number                                                      (Required) The desired horizontal spacing between pattern cells, measured in
+                                                                                                    the pattern coordinate system.
+YStep                                   number                                                      (Required) The desired vertical spacing between pattern cells, measured in
+                                                                                                      the pattern coordinate system. Note that XStep and YStep may differ from
+                                                                                                      the dimensions of the pattern cell implied by the BBox entry. This allows
+                                                                                                      tiling with irregularly shaped ﬁgures. XStep and YStep may be either positive
+                                                                                                      or negative, but not zero.
+Resources                               dictionary                                                  (Required) A resource dictionary containing all of the named resources
+                                                                                                      required by the pattern’s content stream (see Section 3.7.2, “Resource Dic-
+                                                                                                      tionaries”).
+Matrix                                  array                                                       (Optional) An array of six numbers specifying the pattern matrix (see Section
+                                                                                                      4.6.1, “General Properties of Patterns”). Default value: the identity matrix
+                                                                                                      [1 0 0 1 0 0].
 The pattern dictionary’s BBox, XStep, and YStep values are interpreted in the pat-
 tern coordinate system, and the graphics objects in the pattern’s content stream
 are deﬁned with respect to that coordinate system. The placement of pattern cells
