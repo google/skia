@@ -105,18 +105,7 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 static size_t max_glyphid_for_typeface(SkTypeface* typeface) {
     SkAutoResolveDefaultTypeface autoResolve(typeface);
     typeface = autoResolve.get();
-
-    SkAdvancedTypefaceMetrics* metrics;
-    metrics = typeface->getAdvancedTypefaceMetrics(
-            SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
-            NULL, 0);
-
-    int lastGlyphID = 0;
-    if (metrics) {
-        lastGlyphID = metrics->fLastGlyphID;
-        metrics->unref();
-    }
-    return lastGlyphID;
+    return typeface->countGlyphs() - 1;
 }
 
 typedef SkAutoSTMalloc<128, uint16_t> SkGlyphStorage;
