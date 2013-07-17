@@ -31,7 +31,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(-1);
+        paint.setStrokeWidth(0);
         canvas->save();
         canvas->scale(1000 * SK_Scalar1, 1000 * SK_Scalar1);
         SkRandom rand;

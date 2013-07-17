@@ -31,6 +31,7 @@
     '../bench/GrMemoryPoolBench.cpp',
     '../bench/ImageDecodeBench.cpp',
     '../bench/InterpBench.cpp',
+    '../bench/HairlinePathBench.cpp',
     '../bench/LineBench.cpp',
     '../bench/LightingBench.cpp',
     '../bench/MagnifierBench.cpp',
