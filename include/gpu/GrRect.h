@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,16 +5,11 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrRect_DEFINED
 #define GrRect_DEFINED
 
-#include "GrPoint.h"
+#include "SkTypes.h"
 #include "SkRect.h"
-
-typedef SkIRect GrIRect;
-typedef SkRect  GrRect;
 
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
@@ -25,7 +19,7 @@ struct GrIRect16 {
     int area() const { return this->width() * this->height(); }
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
 
-    void set(const GrIRect& r) {
+    void set(const SkIRect& r) {
         fLeft   = SkToS16(r.fLeft);
         fTop    = SkToS16(r.fTop);
         fRight  = SkToS16(r.fRight);

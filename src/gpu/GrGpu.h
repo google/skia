@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,15 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrRect.h"
 #include "GrRefCnt.h"
 #include "GrClipMaskManager.h"
-
 #include "SkPath.h"
 
 class GrContext;
@@ -27,7 +23,6 @@ class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
 class GrGpu : public GrDrawTarget {
-
 public:
 
     /**
@@ -269,7 +264,7 @@ public:
     void removeResource(GrResource* resource);
 
     // GrDrawTarget overrides
-    virtual void clear(const GrIRect* rect,
+    virtual void clear(const SkIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
@@ -310,7 +305,7 @@ public:
      * onStencilPath member functions.) The GrGpu subclass should flush the
      * stencil state to the 3D API in its implementation of flushGraphicsState.
      */
-    void enableScissor(const GrIRect& rect) {
+    void enableScissor(const SkIRect& rect) {
         fScissorState.fEnabled = true;
         fScissorState.fRect = rect;
     }
@@ -331,7 +326,7 @@ public:
     // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
     // free to clear the remaining bits to zero if masked clears are more
     // expensive than clearing all bits.
-    virtual void clearStencilClip(const GrIRect& rect, bool insideClip) = 0;
+    virtual void clearStencilClip(const SkIRect& rect, bool insideClip) = 0;
 
     enum PrivateDrawStateStateBits {
         kFirstBit = (GrDrawState::kLastPublicStateBit << 1),
@@ -398,7 +393,7 @@ protected:
     // The state of the scissor is controlled by the clip manager
     struct ScissorState {
         bool    fEnabled;
-        GrIRect fRect;
+        SkIRect fRect;
     } fScissorState;
 
     // The final stencil settings to use as determined by the clip manager.
@@ -442,7 +437,7 @@ private:
 
     // overridden by backend-specific derived class to perform the clear and
     // clearRect. NULL rect means clear whole target.
-    virtual void onClear(const GrIRect* rect, GrColor color) = 0;
+    virtual void onClear(const SkIRect* rect, GrColor color) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onGpuDraw(const DrawInfo&) = 0;

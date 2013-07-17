@@ -575,7 +575,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::clear(const GrIRect* rect,
+void GrContext::clear(const SkIRect* rect,
                       const GrColor color,
                       GrRenderTarget* target) {
     AutoRestoreEffects are;
@@ -585,7 +585,7 @@ void GrContext::clear(const GrIRect* rect,
 void GrContext::drawPaint(const GrPaint& origPaint) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
-    GrRect r;
+    SkRect r;
     r.setLTRB(0, 0,
               SkIntToScalar(getRenderTarget()->width()),
               SkIntToScalar(getRenderTarget()->height()));
@@ -630,7 +630,7 @@ inline bool disable_coverage_aa_for_blend(GrDrawTarget* target) {
  could use an indices array, and then only send 8 verts, but not sure that
  would be faster.
  */
-static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
+static void setStrokeRectStrip(GrPoint verts[10], SkRect rect,
                                SkScalar width) {
     const SkScalar rad = SkScalarHalf(width);
     rect.sort();
@@ -647,17 +647,17 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
     verts[9] = verts[1];
 }
 
-static bool isIRect(const GrRect& r) {
+static bool isIRect(const SkRect& r) {
     return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
            SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
-                             const GrRect& rect,
+                             const SkRect& rect,
                              SkScalar strokeWidth,
                              const SkMatrix* matrix,
                              SkMatrix* combinedMatrix,
-                             GrRect* devRect,
+                             SkRect* devRect,
                              bool* useVertexCoverage) {
     // we use a simple coverage ramp to do aa on axis-aligned rects
     // we check if the rect will be axis-aligned, and the rect won't land on
@@ -737,7 +737,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 }
 
 void GrContext::drawRect(const GrPaint& paint,
-                         const GrRect& rect,
+                         const SkRect& rect,
                          SkScalar width,
                          const SkMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
@@ -745,7 +745,7 @@ void GrContext::drawRect(const GrPaint& paint,
     AutoRestoreEffects are;
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
-    GrRect devRect;
+    SkRect devRect;
     SkMatrix combinedMatrix;
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
@@ -818,8 +818,8 @@ void GrContext::drawRect(const GrPaint& paint,
 }
 
 void GrContext::drawRectToRect(const GrPaint& paint,
-                               const GrRect& dstRect,
-                               const GrRect& localRect,
+                               const SkRect& dstRect,
+                               const SkRect& localRect,
                                const SkMatrix* dstMatrix,
                                const SkMatrix* localMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
@@ -945,7 +945,7 @@ void GrContext::drawRRect(const GrPaint& paint,
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawOval(const GrPaint& paint,
-                         const GrRect& oval,
+                         const SkRect& oval,
                          const SkStrokeRec& stroke) {
 
     AutoRestoreEffects are;
@@ -1319,7 +1319,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 drawState->addColorEffect(effect);
 
                 drawState->setRenderTarget(texture->asRenderTarget());
-                GrRect rect = GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+                SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
                 left = 0;
@@ -1513,7 +1513,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
 
     drawState->setRenderTarget(target);
 
-    fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
+    fGpu->drawSimpleRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////

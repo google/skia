@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrInOrderDrawBuffer.h"
+
 #include "GrBufferAllocPool.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPath.h"
+#include "GrPoint.h"
 #include "GrRenderTarget.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"
@@ -117,9 +117,9 @@ static void set_vertex_attributes(GrDrawState* drawState,
 
 };
 
-void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
+void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
                                      const SkMatrix* matrix,
-                                     const GrRect* localRect,
+                                     const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoColorRestore acr;
 
@@ -401,8 +401,8 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStrokeRec& s
     sp->fStroke = stroke;
 }
 
-void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color, GrRenderTarget* renderTarget) {
-    GrIRect r;
+void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color, GrRenderTarget* renderTarget) {
+    SkIRect r;
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
         GrAssert(NULL != renderTarget);

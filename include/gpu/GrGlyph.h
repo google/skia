@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
@@ -31,7 +28,7 @@ struct GrGlyph {
     GrIRect16   fBounds;
     GrIPoint16  fAtlasLocation;
 
-    void init(GrGlyph::PackedID packed, const GrIRect& bounds) {
+    void init(GrGlyph::PackedID packed, const SkIRect& bounds) {
         fAtlas = NULL;
         fPath = NULL;
         fPackedID = packed;

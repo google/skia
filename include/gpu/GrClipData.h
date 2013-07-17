@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,15 +5,13 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrRect.h"
 #include "SkClipStack.h"
 
 class GrSurface;
+struct SkIRect;
 
 /**
  * GrClipData encapsulates the information required to construct the clip
@@ -50,7 +47,7 @@ public:
     }
 
     void getConservativeBounds(const GrSurface* surface,
-                               GrIRect* devResult,
+                               SkIRect* devResult,
                                bool* isIntersectionOfRects = NULL) const;
 };
 

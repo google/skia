@@ -80,7 +80,7 @@ GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(
 
     const GrClipData* clipData = context->getClip();
 
-    GrRect devConservativeBound;
+    SkRect devConservativeBound;
     clipData->fClipStack->getConservativeBounds(
                                      -clipData->fOrigin.fX,
                                      -clipData->fOrigin.fY,

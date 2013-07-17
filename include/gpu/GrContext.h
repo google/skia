@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
@@ -16,6 +14,7 @@
 #include "SkMatrix.h"
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
+#include "GrPoint.h"
 #include "GrRenderTarget.h"
 #include "GrRefCnt.h"
 #include "GrTexture.h"
@@ -370,7 +369,7 @@ public:
      * @param target if non-NULL, the render target to clear otherwise clear
      *               the current render target
      */
-    void clear(const GrIRect* rect, GrColor color,
+    void clear(const SkIRect* rect, GrColor color,
                GrRenderTarget* target = NULL);
 
     /**
@@ -390,7 +389,7 @@ public:
      *  The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(const GrPaint& paint,
-                  const GrRect&,
+                  const SkRect&,
                   SkScalar strokeWidth = -1,
                   const SkMatrix* matrix = NULL);
 
@@ -408,8 +407,8 @@ public:
      * @param localMatrix   Optional matrix to transform localRect.
      */
     void drawRectToRect(const GrPaint& paint,
-                        const GrRect& dstRect,
-                        const GrRect& localRect,
+                        const SkRect& dstRect,
+                        const SkRect& localRect,
                         const SkMatrix* dstMatrix = NULL,
                         const SkMatrix* localMatrix = NULL);
 
@@ -466,7 +465,7 @@ public:
      * @param stroke        the stroke information (width, style)
      */
     void drawOval(const GrPaint& paint,
-                  const GrRect& oval,
+                  const SkRect& oval,
                   const SkStrokeRec& stroke);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -771,7 +770,7 @@ public:
             context->setClip(&fNewClipData);
         }
 
-        AutoClip(GrContext* context, const GrRect& newClipRect)
+        AutoClip(GrContext* context, const SkRect& newClipRect)
         : fContext(context)
         , fNewClipStack(newClipRect) {
             fNewClipData.fClipStack = &fNewClipStack;

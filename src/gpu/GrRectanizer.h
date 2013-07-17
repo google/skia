@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrRectanizer_DEFINED
 #define GrRectanizer_DEFINED
 
-#include "GrRect.h"
+#include "GrPoint.h"
 
 class GrRectanizerPurgeListener {
 public:

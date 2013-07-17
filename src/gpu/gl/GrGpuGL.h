@@ -5,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
-
 
 #include "GrBinHashKey.h"
 #include "GrDrawState.h"
@@ -121,7 +118,7 @@ private:
         GrStencilBuffer* sb,
         GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onClear(const GrIRect* rect, GrColor color) SK_OVERRIDE;
+    virtual void onClear(const SkIRect* rect, GrColor color) SK_OVERRIDE;
 
     virtual void onForceRenderTargetFlush() SK_OVERRIDE;
 
@@ -148,7 +145,7 @@ private:
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
-    virtual void clearStencilClip(const GrIRect& rect,
+    virtual void clearStencilClip(const SkIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
@@ -235,7 +232,7 @@ private:
 
     // bound is region that may be modified and therefore has to be resolved.
     // NULL means whole target. Can be an empty rect.
-    void flushRenderTarget(const GrIRect* bound);
+    void flushRenderTarget(const SkIRect* bound);
     void flushStencil(DrawType);
     void flushAAState(DrawType);
 

@@ -9,9 +9,9 @@
 #ifndef GrAARectRenderer_DEFINED
 #define GrAARectRenderer_DEFINED
 
-#include "GrRect.h"
 #include "GrRefCnt.h"
 #include "SkMatrix.h"
+#include "SkRect.h"
 
 class GrGpu;
 class GrDrawTarget;
@@ -40,9 +40,9 @@ public:
 
     void fillAARect(GrGpu* gpu,
                     GrDrawTarget* target,
-                    const GrRect& rect,
+                    const SkRect& rect,
                     const SkMatrix& combinedMatrix,
-                    const GrRect& devRect,
+                    const SkRect& devRect,
                     bool useVertexCoverage) {
 #ifdef SHADER_AA_FILL_RECT
         if (combinedMatrix.rectStaysRect()) {
@@ -61,9 +61,9 @@ public:
 
     void strokeAARect(GrGpu* gpu,
                       GrDrawTarget* target,
-                      const GrRect& rect,
+                      const SkRect& rect,
                       const SkMatrix& combinedMatrix,
-                      const GrRect& devRect,
+                      const SkRect& devRect,
                       SkScalar width,
                       bool useVertexCoverage);
 
@@ -87,19 +87,19 @@ private:
     // since we now have a coverage vertex attribute
     void geometryFillAARect(GrGpu* gpu,
                             GrDrawTarget* target,
-                            const GrRect& rect,
+                            const SkRect& rect,
                             const SkMatrix& combinedMatrix,
-                            const GrRect& devRect,
+                            const SkRect& devRect,
                             bool useVertexCoverage);
 
     void shaderFillAARect(GrGpu* gpu,
                           GrDrawTarget* target,
-                          const GrRect& rect,
+                          const SkRect& rect,
                           const SkMatrix& combinedMatrix);
 
     void shaderFillAlignedAARect(GrGpu* gpu,
                                  GrDrawTarget* target,
-                                 const GrRect& rect,
+                                 const SkRect& rect,
                                  const SkMatrix& combinedMatrix);
 
     void geometryStrokeAARect(GrGpu* gpu,

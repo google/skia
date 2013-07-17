@@ -420,7 +420,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
 
     const GrClipData* clip = this->getClip();
-    GrIRect copyRect;
+    SkIRect copyRect;
     clip->getConservativeBounds(this->getDrawState().getRenderTarget(), &copyRect);
     SkIRect drawIBounds;
     if (info->getDevIBounds(&drawIBounds)) {
@@ -615,9 +615,9 @@ void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
 
 };
 
-void GrDrawTarget::onDrawRect(const GrRect& rect,
+void GrDrawTarget::onDrawRect(const SkRect& rect,
                               const SkMatrix* matrix,
-                              const GrRect* localRect,
+                              const SkRect* localRect,
                               const SkMatrix* localMatrix) {
 
     GrDrawState::AutoViewMatrixRestore avmr;

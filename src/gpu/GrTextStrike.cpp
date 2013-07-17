@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,14 +5,11 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "GrAtlas.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
-#include "GrRect.h"
 
 SK_DEFINE_INST_COUNT(GrFontScaler)
 SK_DEFINE_INST_COUNT(GrKey)
@@ -159,7 +155,7 @@ GrTextStrike::~GrTextStrike() {
 
 GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
                                      GrFontScaler* scaler) {
-    GrIRect bounds;
+    SkIRect bounds;
     if (!scaler->getPackedGlyphBounds(packed, &bounds)) {
         return NULL;
     }

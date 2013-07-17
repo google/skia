@@ -101,7 +101,7 @@ const GrKey* SkGrFontScaler::getKey() {
 }
 
 bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed,
-                                          GrIRect* bounds) {
+                                          SkIRect* bounds) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
                                               GrGlyph::UnpackFixedX(packed),
                                               GrGlyph::UnpackFixedY(packed));

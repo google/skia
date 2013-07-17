@@ -251,7 +251,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
  */
 int generate_lines_and_quads(const SkPath& path,
                              const SkMatrix& m,
-                             const GrIRect& devClipBounds,
+                             const SkIRect& devClipBounds,
                              PtArray* lines,
                              PtArray* quads,
                              PtArray* conics,
@@ -260,8 +260,8 @@ int generate_lines_and_quads(const SkPath& path,
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
-    GrRect bounds;
-    GrIRect ibounds;
+    SkRect bounds;
+    SkIRect ibounds;
 
     bool persp = m.hasPerspective();
 
@@ -986,7 +986,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     GrDrawState* drawState = target->drawState();
     int rtHeight = drawState->getRenderTarget()->height();
 
-    GrIRect devClipBounds;
+    SkIRect devClipBounds;
     target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
 
     SkMatrix viewM = drawState->getViewMatrix();

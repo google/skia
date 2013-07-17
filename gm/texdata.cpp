@@ -95,7 +95,7 @@ protected:
                 }
                 GrAutoUnref au(texture);
 
-                GrContext::AutoClip acs(ctx, GrRect::MakeWH(2*S, 2*S));
+                GrContext::AutoClip acs(ctx, SkRect::MakeWH(2*S, 2*S));
 
                 ctx->setRenderTarget(target);
 
@@ -115,7 +115,7 @@ protected:
                 tm.postIDiv(2*S, 2*S);
                 paint.addColorTextureEffect(texture, tm);
 
-                ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
+                ctx->drawRect(paint, SkRect::MakeWH(2*S, 2*S));
 
                 // now update the lower right of the texture in first pass
                 // or upper right in second pass
@@ -129,7 +129,7 @@ protected:
                 texture->writePixels(S, (i ? 0 : S), S, S,
                                      texture->config(), gTextureData,
                                      4 * stride);
-                ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
+                ctx->drawRect(paint, SkRect::MakeWH(2*S, 2*S));
             }
         }
     }
