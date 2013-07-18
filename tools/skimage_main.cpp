@@ -327,6 +327,22 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         return;
     }
 
+    // Test decoding just the bounds. The bounds should always match.
+    {
+        stream.rewind();
+        SkBitmap dim;
+        if (!codec->decode(&stream, &dim, SkImageDecoder::kDecodeBounds_Mode)) {
+            SkString failure = SkStringPrintf("failed to decode bounds for %s", srcPath);
+            gDecodeFailures.push_back() = failure;
+        } else {
+            // Now check that the bounds match:
+            if (dim.width() != bitmap.width() || dim.height() != bitmap.height()) {
+                SkString failure = SkStringPrintf("bounds do not match for %s", srcPath);
+                gDecodeFailures.push_back() = failure;
+            }
+        }
+    }
+
     if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
                                               bitmap.height());
