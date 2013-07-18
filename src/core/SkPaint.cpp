@@ -205,6 +205,29 @@ void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
 }
 #endif
 
+SkPaint::FilterLevel SkPaint::getFilterLevel() const {
+    int level = 0;
+    if (fFlags & kFilterBitmap_Flag) {
+        level |= 1;
+    }
+    if (fFlags & kHighQualityFilterBitmap_Flag) {
+        level |= 2;
+    }
+    return (FilterLevel)level;
+}
+
+void SkPaint::setFilterLevel(FilterLevel level) {
+    unsigned mask = kFilterBitmap_Flag | kHighQualityFilterBitmap_Flag;
+    unsigned flags = 0;
+    if (level & 1) {
+        flags |= kFilterBitmap_Flag;
+    }
+    if (level & 2) {
+        flags |= kHighQualityFilterBitmap_Flag;
+    }
+    this->setFlags((fFlags & ~mask) | flags);
+}
+
 void SkPaint::setHinting(Hinting hintingLevel) {
     GEN_ID_INC_EVAL((unsigned) hintingLevel != fHinting);
     fHinting = hintingLevel;
@@ -261,10 +284,6 @@ void SkPaint::setFakeBoldText(bool doFakeBold) {
 
 void SkPaint::setDevKernText(bool doDevKern) {
     this->setFlags(SkSetClearMask(fFlags, doDevKern, kDevKernText_Flag));
-}
-
-void SkPaint::setFilterBitmap(bool doFilter) {
-    this->setFlags(SkSetClearMask(fFlags, doFilter, kFilterBitmap_Flag));
 }
 
 void SkPaint::setStyle(Style style) {
