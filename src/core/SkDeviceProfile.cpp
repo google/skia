@@ -7,6 +7,7 @@
 
 
 #include "SkDeviceProfile.h"
+#include "SkThread.h"
 
 SK_DEFINE_INST_COUNT(SkDeviceProfile)
 
@@ -45,7 +46,7 @@ SkDeviceProfile* SkDeviceProfile::Create(float gammaExp,
     return SkNEW_ARGS(SkDeviceProfile, (gammaExp, contrast, config, level));
 }
 
-static SkMutex gMutex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkDeviceProfile* gDefaultProfile;
 static SkDeviceProfile* gGlobalProfile;
 
