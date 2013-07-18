@@ -280,7 +280,7 @@ public:
 
     virtual size_t getLength() const SK_OVERRIDE;
 
-    const void* getMemoryBase() SK_OVERRIDE;
+    virtual const void* getMemoryBase() SK_OVERRIDE;
 
 private:
     SkFILE*     fFILE;
@@ -423,7 +423,10 @@ public:
      */
     SkData* copyToData() const;
 
-    // reset the stream to its original state
+    /** Reset, returning a reader stream with the current content. */
+    SkStreamAsset* detatchAsStream();
+
+    /** Reset the stream to its original, empty, state. */
     void reset();
     void padToAlign4();
 private:
@@ -434,6 +437,10 @@ private:
     mutable SkData* fCopy;  // is invalidated if we write after it is created
 
     void invalidateCopy();
+
+    // For access to the Block type.
+    friend class SkBlockMemoryStream;
+    friend class SkBlockMemoryRefCnt;
 
     typedef SkWStream INHERITED;
 };
