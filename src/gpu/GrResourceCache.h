@@ -326,8 +326,12 @@ public:
      * Allow cache to purge unused resources to obey resource limitations
      * Note: this entry point will be hidden (again) once totally ref-driven
      * cache maintenance is implemented
+     *
+     * extraCount and extraBytes are added to the current resource allocation
+     * to make sure enough room is available for future additions (e.g,
+     * 10MB across 10 textures is about to be added).
      */
-    void purgeAsNeeded();
+    void purgeAsNeeded(int extraCount = 0, size_t extraBytes = 0);
 
 #if GR_DEBUG
     void validate() const;
@@ -384,7 +388,7 @@ private:
     PFOverbudgetCB fOverbudgetCB;
     void*          fOverbudgetData;
 
-    void internalPurge();
+    void internalPurge(int extraCount, size_t extraBytes);
 
 #if GR_DEBUG
     static size_t countBytes(const SkTInternalLList<GrResourceEntry>& list);

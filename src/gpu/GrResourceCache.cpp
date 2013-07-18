@@ -276,28 +276,33 @@ void GrResourceCache::makeNonExclusive(GrResourceEntry* entry) {
  * resource's destructor inserting new resources into the cache. If these
  * new resources were unlocked before purgeAsNeeded completed it could
  * potentially make purgeAsNeeded loop infinitely.
+ *
+ * extraCount and extraBytes are added to the current resource totals to account
+ * for incoming resources (e.g., GrContext is about to add 10MB split between
+ * 10 textures).
  */
-void GrResourceCache::purgeAsNeeded() {
+void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
     if (fPurging) {
         return;
     }
 
     fPurging = true;
 
-    this->internalPurge();
-    if ((fEntryCount > fMaxCount || fEntryBytes > fMaxBytes) &&
+    this->internalPurge(extraCount, extraBytes);
+    if (((fEntryCount+extraCount) > fMaxCount || 
+        (fEntryBytes+extraBytes) > fMaxBytes) &&
         NULL != fOverbudgetCB) {
         // Despite the purge we're still over budget. See if Ganesh can
         // release some resources and purge again.
         if ((*fOverbudgetCB)(fOverbudgetData)) {
-            this->internalPurge();
+            this->internalPurge(extraCount, extraBytes);
         }
     }
 
     fPurging = false;
 }
 
-void GrResourceCache::internalPurge() {
+void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
     SkASSERT(fPurging);
 
     bool withinBudget = false;
@@ -319,7 +324,8 @@ void GrResourceCache::internalPurge() {
         while (NULL != entry) {
             GrAutoResourceCacheValidate atcv(this);
 
-            if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
+            if ((fEntryCount+extraCount) <= fMaxCount && 
+                (fEntryBytes+extraBytes) <= fMaxBytes) {
                 withinBudget = true;
                 break;
             }
