@@ -8,7 +8,7 @@
 
 #include "GrBufferObj.h"
 
-void GrBufferObj::allocate(GrGLint size, const GrGLchar *dataPtr) {
+void GrBufferObj::allocate(GrGLsizeiptr size, const GrGLchar *dataPtr) {
     GrAlwaysAssert(size >= 0);
 
     // delete pre-existing data
