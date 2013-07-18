@@ -390,6 +390,9 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     }
 
     if (NULL != texture) {
+        // Adding a resource could put us overbudget. Try to free up the
+        // necessary space before adding it.
+        fTextureCache->purgeAsNeeded(1, texture->sizeInBytes());
         fTextureCache->addResource(resourceKey, texture);
     }
 
@@ -449,6 +452,9 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
         if (NULL != texture) {
             GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
+            // Adding a resource could put us overbudget. Try to free up the
+            // necessary space before adding it.
+            fTextureCache->purgeAsNeeded(1, texture->sizeInBytes());
             // Make the resource exclusive so future 'find' calls don't return it
             fTextureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
             resource = texture;
@@ -489,9 +495,9 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
     // the same texture).
     if (texture->getCacheEntry()->key().isScratch()) {
         fTextureCache->makeNonExclusive(texture->getCacheEntry());
+        this->purgeCache();
     }
 
-    this->purgeCache();
 }
 
 void GrContext::purgeCache() {
