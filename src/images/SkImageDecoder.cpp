@@ -160,7 +160,7 @@ void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
 
 SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
                                                bool srcHasAlpha) const {
-    SkBitmap::Config config;
+    SkBitmap::Config config = SkBitmap::kNo_Config;
 
     if (fUsePrefTable) {
         switch (srcDepth) {
