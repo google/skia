@@ -950,6 +950,8 @@ void GrDrawTargetCaps::reset() {
     fDualSourceBlendingSupport = false;
     fBufferLockSupport = false;
     fPathStencilingSupport = false;
+    fDstReadInShaderSupport = false;
+    fReuseScratchTextures = true;
 
     fMaxRenderTargetSize = 0;
     fMaxTextureSize = 0;
@@ -967,6 +969,8 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
     fBufferLockSupport = other.fBufferLockSupport;
     fPathStencilingSupport = other.fPathStencilingSupport;
+    fDstReadInShaderSupport = other.fDstReadInShaderSupport;
+    fReuseScratchTextures = other.fReuseScratchTextures;
 
     fMaxRenderTargetSize = other.fMaxRenderTargetSize;
     fMaxTextureSize = other.fMaxTextureSize;
@@ -988,6 +992,7 @@ void GrDrawTargetCaps::print() const {
     GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
     GrPrintf("Path Stenciling Support     : %s\n", gNY[fPathStencilingSupport]);
     GrPrintf("Dst Read In Shader Support  : %s\n", gNY[fDstReadInShaderSupport]);
+    GrPrintf("Reuse Scratch Textures      : %s\n", gNY[fReuseScratchTextures]);
     GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
     GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
     GrPrintf("Max Sample Count            : %d\n", fMaxSampleCount);
