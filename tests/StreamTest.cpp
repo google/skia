@@ -30,7 +30,6 @@ static void test_loop_stream(skiatest::Reporter* reporter, SkStream* stream,
     }
 
     // expect EOF
-    REPORTER_ASSERT(reporter, stream->isAtEnd());
     size_t bytes = stream->read(tmp, 1);
     REPORTER_ASSERT(reporter, 0 == bytes);
 }
@@ -82,7 +81,6 @@ static void TestWStream(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, ds.write(s, 26));
     }
     REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
-
     char* dst = new char[100 * 26 + 1];
     dst[100*26] = '*';
     ds.copyTo(dst);
@@ -92,42 +90,10 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
 
     {
-        SkAutoTUnref<SkStreamAsset> stream(ds.detatchAsStream());
-        REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
-        REPORTER_ASSERT(reporter, ds.getOffset() == 0);
-        test_loop_stream(reporter, stream.get(), s, 26, 100);
-
-        SkAutoTUnref<SkStreamAsset> stream2(stream->duplicate());
-        test_loop_stream(reporter, stream2.get(), s, 26, 100);
-
-        SkAutoTUnref<SkStreamAsset> stream3(stream->fork());
-        REPORTER_ASSERT(reporter, stream3->isAtEnd());
-        char tmp;
-        size_t bytes = stream->read(&tmp, 1);
-        REPORTER_ASSERT(reporter, 0 == bytes);
-        stream3->rewind();
-        test_loop_stream(reporter, stream3.get(), s, 26, 100);
-    }
-
-    for (i = 0; i < 100; i++) {
-        REPORTER_ASSERT(reporter, ds.write(s, 26));
-    }
-    REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
-
-    {
-        SkAutoTUnref<SkData> data(ds.copyToData());
+        SkData* data = ds.copyToData();
         REPORTER_ASSERT(reporter, 100 * 26 == data->size());
         REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
-    }
-
-    {
-        // Test that this works after a copyToData.
-        SkAutoTUnref<SkStreamAsset> stream(ds.detatchAsStream());
-        REPORTER_ASSERT(reporter, ds.getOffset() == 0);
-        test_loop_stream(reporter, stream.get(), s, 26, 100);
-
-        SkAutoTUnref<SkStreamAsset> stream2(stream->duplicate());
-        test_loop_stream(reporter, stream2.get(), s, 26, 100);
+        data->unref();
     }
     delete[] dst;
 
