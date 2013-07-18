@@ -145,8 +145,17 @@ void SkImageDecoder::setPrefConfigTable(const SkBitmap::Config pref[6]) {
         fUsePrefTable = false;
     } else {
         fUsePrefTable = true;
-        memcpy(fPrefTable, pref, sizeof(fPrefTable));
+        fPrefTable.fPrefFor_8Index_NoAlpha_src = pref[0];
+        fPrefTable.fPrefFor_8Index_YesAlpha_src = pref[1];
+        fPrefTable.fPrefFor_8Gray_src = SkBitmap::kNo_Config;
+        fPrefTable.fPrefFor_8bpc_NoAlpha_src = pref[4];
+        fPrefTable.fPrefFor_8bpc_YesAlpha_src = pref[5];
     }
+}
+
+void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
+    fUsePrefTable = true;
+    fPrefTable = prefTable;
 }
 
 SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
@@ -154,22 +163,19 @@ SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
     SkBitmap::Config config;
 
     if (fUsePrefTable) {
-        int index = 0;
         switch (srcDepth) {
             case kIndex_SrcDepth:
-                index = 0;
+                config = srcHasAlpha ? fPrefTable.fPrefFor_8Index_YesAlpha_src
+                                     : fPrefTable.fPrefFor_8Index_NoAlpha_src;
                 break;
-            case k16Bit_SrcDepth:
-                index = 2;
+            case k8BitGray_SrcDepth:
+                config = fPrefTable.fPrefFor_8Gray_src;
                 break;
             case k32Bit_SrcDepth:
-                index = 4;
+                config = srcHasAlpha ? fPrefTable.fPrefFor_8bpc_YesAlpha_src
+                                     : fPrefTable.fPrefFor_8bpc_NoAlpha_src;
                 break;
         }
-        if (srcHasAlpha) {
-            index += 1;
-        }
-        config = fPrefTable[index];
     } else {
         config = fDefaultPref;
     }

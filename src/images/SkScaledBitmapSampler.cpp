@@ -289,6 +289,15 @@ static bool Sample_Index_DI(void* SK_RESTRICT dstRow,
     return false;
 }
 
+// A8
+static bool Sample_Gray_DA8(void* SK_RESTRICT dstRow,
+                            const uint8_t* SK_RESTRICT src,
+                            int width, int deltaSrc, int,
+                            const SkPMColor[]) {
+    memcpy(dstRow, src, width);
+    return true;
+}
+
 // 8888 Unpremul
 
 static bool Sample_Gray_D8888_Unpremul(void* SK_RESTRICT dstRow,
@@ -396,6 +405,12 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
         NULL,                           NULL,
         Sample_Index_DI,                Sample_Index_DI,
         NULL,                           NULL,
+        // A8
+        Sample_Gray_DA8,                Sample_Gray_DA8,
+        NULL,                           NULL,
+        NULL,                           NULL,
+        NULL,                           NULL,
+        NULL,                           NULL,
         // 8888 Unpremul (no dither distinction)
         Sample_Gray_D8888_Unpremul,     Sample_Gray_D8888_Unpremul,
         Sample_RGBx_D8888,              Sample_RGBx_D8888,
@@ -405,7 +420,7 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
     };
     // The jump between dst configs in the table
     static const int gProcDstConfigSpan = 10;
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gProcs) == 5 * gProcDstConfigSpan,
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gProcs) == 6 * gProcDstConfigSpan,
                       gProcs_has_the_wrong_number_of_entries);
 
     fCTable = ctable;
@@ -456,6 +471,9 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
         case SkBitmap::kIndex8_Config:
             index += 3 * gProcDstConfigSpan;
             break;
+        case SkBitmap::kA8_Config:
+            index += 4 * gProcDstConfigSpan;
+            break;
         default:
             return false;
     }
@@ -464,7 +482,7 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
         if (dst->config() != SkBitmap::kARGB_8888_Config) {
             return false;
         }
-        index += 4 * gProcDstConfigSpan;
+        index += 5 * gProcDstConfigSpan;
     }
 
     fRowProc = gProcs[index];
