@@ -203,7 +203,7 @@ void SkCordic_UnitTest()
     float val;
     for (float angle = -720; angle < 720; angle += 30) {
         float radian = angle * 3.1415925358f / 180.0f;
-        SkFixed f_angle = (int) (radian * 65536.0f);
+        SkFixed f_angle = SkFloatToFixed(radian);
     // sincos
         float sine = sinf(radian);
         float cosine = cosf(radian);
@@ -226,7 +226,7 @@ void SkCordic_UnitTest()
             SkDebugf("tan error : angle = %g ; tan = %g ; cordic = %g\n", angle, _tan, tan2);
     }
     for (val = -1; val <= 1; val += .1f) {
-        SkFixed f_val = (int) (val * 65536.0f);
+        SkFixed f_val = SkFloatToFixed(val);
     // asin
         float arcsine = asinf(val);
         SkFixed f_arcsine = SkCordicASin(f_val);
@@ -240,7 +240,7 @@ void SkCordic_UnitTest()
 #else
     val = .5; {
 #endif
-        SkFixed f_val = (int) (val * 65536.0f);
+        SkFixed f_val = SkFloatToFixed(val);
     // acos
         float arccos = acosf(val);
         SkFixed f_arccos = SkCordicACos(f_val);
@@ -257,8 +257,8 @@ void SkCordic_UnitTest()
             val = 0; {
             float val2 = -1000; {
 #endif
-            SkFixed f_val = (int) (val * 65536.0f);
-            SkFixed f_val2 = (int) (val2 * 65536.0f);
+            SkFixed f_val = SkFloatToFixed(val);
+            SkFixed f_val2 = SkFloatToFixed(val2);
             float arctan = atan2f(val, val2);
             SkFixed f_arctan = SkCordicATan2(f_val, f_val2);
             float arctan2 = (float) f_arctan / 65536.0f;
@@ -273,7 +273,7 @@ void SkCordic_UnitTest()
 #else
     val = .5; {
 #endif
-        SkFixed f_val = (int) (val * 65536.0f);
+        SkFixed f_val = SkFloatToFixed(val);
     // acos
         float log = logf(val);
         SkFixed f_log = SkCordicLog(f_val);
