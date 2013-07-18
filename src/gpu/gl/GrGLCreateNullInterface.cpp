@@ -15,13 +15,124 @@
 
 namespace { // added to suppress 'no previous prototype' warning
 
+class GrBufferObj {
+public:
+    GrBufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {
+    }
+    ~GrBufferObj() { SkDELETE_ARRAY(fDataPtr); }
+
+    void allocate(GrGLint size, const GrGLchar* dataPtr) {
+        if (NULL != fDataPtr) {
+            GrAssert(0 != fSize);
+            SkDELETE_ARRAY(fDataPtr);
+        }
+
+        fSize = size;
+        fDataPtr = SkNEW_ARRAY(char, size);
+    }
+
+    GrGLuint id() const          { return fID; }
+    GrGLchar* dataPtr()          { return fDataPtr; }
+    GrGLint size() const         { return fSize; }
+
+    void setMapped(bool mapped)  { fMapped = mapped; }
+    bool mapped() const          { return fMapped; }
+
+private:
+    GrGLuint     fID;
+    GrGLchar*    fDataPtr;
+    GrGLint      fSize;         // size in bytes
+    bool         fMapped;
+};
+
+// In debug builds we do asserts that ensure we agree with GL about when a buffer
+// is mapped.
+static SkTDArray<GrBufferObj*> gBuffers;  // slot 0 is reserved for head of free list
+static GrGLuint gCurrArrayBuffer;
+static GrGLuint gCurrElementArrayBuffer;
+
+static GrBufferObj* look_up(GrGLuint id) {
+    GrBufferObj* buffer = gBuffers[id];
+    GrAssert(NULL != buffer && buffer->id() == id);
+    return buffer;
+}
+
+static GrBufferObj* create_buffer() {
+    if (0 == gBuffers.count()) {
+        // slot zero is reserved for the head of the free list
+        *gBuffers.append() = NULL;
+    }
+
+    GrGLuint id;
+    GrBufferObj* buffer;
+
+    if (NULL == gBuffers[0]) {
+        // no free slots - create a new one
+        id = gBuffers.count();
+        buffer = SkNEW_ARGS(GrBufferObj, (id));
+        gBuffers.append(1, &buffer);
+    } else {
+        // recycle a slot from the free list
+        id = (GrGLuint) gBuffers[0];
+        gBuffers[0] = gBuffers[id];
+
+        buffer = SkNEW_ARGS(GrBufferObj, (id));
+        gBuffers[id] = buffer;
+    }
+
+    return buffer;
+}
+
+static void delete_buffer(GrBufferObj* buffer) {
+    GrAssert(gBuffers.count() > 0);
+
+    GrGLuint id = buffer->id();
+    SkDELETE(buffer);
+
+    // Add this slot to the free list
+    gBuffers[id] = gBuffers[0];
+    gBuffers[0] = (GrBufferObj*) id;
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {}
+
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
+
+    for (int i = 0; i < n; ++i) {
+        GrBufferObj* buffer = create_buffer();
+        ids[i] = buffer->id();
+    }
+}
+
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target, 
+                                              GrGLsizeiptr size, 
+                                              const GrGLvoid* data, 
+                                              GrGLenum usage) {
+    GrGLuint id = 0;
+
+    switch (target) {
+    case GR_GL_ARRAY_BUFFER:
+        id = gCurrArrayBuffer;
+        break;
+    case GR_GL_ELEMENT_ARRAY_BUFFER:
+        id = gCurrElementArrayBuffer;
+        break;
+    default:
+        GrCrash("Unexpected target to nullGLBufferData");
+        break;
+    }
+
+    if (id > 0) {
+        GrBufferObj* buffer = look_up(id);
+        buffer->allocate(size, (const GrGLchar*) data);
+    }
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLPixelStorei(GrGLenum pname, GrGLint param) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLUseProgram(GrGLuint program) {}
@@ -34,24 +145,18 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferRenderbuffer(GrGLenum target, GrGL
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLFramebufferTexture2D(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level) {}
 
 GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateProgram() {
-    static int gCurrID = 0;
+    static GrGLuint gCurrID = 0;
     return ++gCurrID;
 }
 
 GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateShader(GrGLenum type) {
-    static int gCurrID = 0;
+    static GrGLuint gCurrID = 0;
     return ++gCurrID;
 }
 
 // same delete used for shaders and programs
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDelete(GrGLuint program) {
 }
-
-// In debug builds we do asserts that ensure we agree with GL about when a buffer
-// is mapped.
-static SkTDArray<GrGLuint> gMappedBuffers;
-static GrGLuint gCurrArrayBuffer;
-static GrGLuint gCurrElementArrayBuffer;
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindBuffer(GrGLenum target, GrGLuint buffer) {
     switch (target) {
@@ -73,75 +178,73 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteBuffers(GrGLsizei n, const GrGLuint* id
         if (ids[i] == gCurrElementArrayBuffer) {
             gCurrElementArrayBuffer = 0;
         }
-        for (int j = 0; j < gMappedBuffers.count(); ++j) {
-            if (gMappedBuffers[j] == ids[i]) {
-                gMappedBuffers.remove(j);
-                // don't break b/c we didn't check for dupes on insert
-                --j;
-            }
-        }
+
+        GrBufferObj* buffer = look_up(ids[i]);
+        delete_buffer(buffer);
     }
 }
 
 GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
-    // We just reserve 32MB of RAM for all locks and hope its big enough
-    static SkAutoMalloc gBufferData(32 * (1 << 20));
-    GrGLuint buf = 0;
+
+    GrGLuint id = 0;
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
-            buf = gCurrArrayBuffer;
+            id = gCurrArrayBuffer;
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
-            buf = gCurrElementArrayBuffer;
+            id = gCurrElementArrayBuffer;
             break;
     }
-    if (buf) {
-        *gMappedBuffers.append() = buf;
+
+    if (id > 0) {
+        GrBufferObj* buffer = look_up(id);
+        GrAssert(!buffer->mapped());
+        buffer->setMapped(true);
+        return buffer->dataPtr();
     }
-    return gBufferData.get();
+
+    GrAssert(false);
+    return NULL;            // no buffer bound to target
 }
 
 GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
-    GrGLuint buf = 0;
+    GrGLuint id = 0;
     switch (target) {
     case GR_GL_ARRAY_BUFFER:
-        buf = gCurrArrayBuffer;
+        id = gCurrArrayBuffer;
         break;
     case GR_GL_ELEMENT_ARRAY_BUFFER:
-        buf = gCurrElementArrayBuffer;
+        id = gCurrElementArrayBuffer;
         break;
     }
-    if (buf) {
-        for (int i = 0; i < gMappedBuffers.count(); ++i) {
-            if (gMappedBuffers[i] == buf) {
-                gMappedBuffers.remove(i);
-                // don't break b/c we didn't check for dupes on insert
-                --i;
-            }
-        }
+    if (id > 0) {
+        GrBufferObj* buffer = look_up(id);
+        GrAssert(buffer->mapped());
+        buffer->setMapped(false);
+        return GR_GL_TRUE;
     }
-    return GR_GL_TRUE;
+
+    GrAlwaysAssert(false);
+    return GR_GL_FALSE; // GR_GL_INVALID_OPERATION;
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {
     switch (pname) {
         case GR_GL_BUFFER_MAPPED: {
             *params = GR_GL_FALSE;
-            GrGLuint buf = 0;
+            GrGLuint id = 0;
             switch (target) {
                 case GR_GL_ARRAY_BUFFER:
-                    buf = gCurrArrayBuffer;
+                    id = gCurrArrayBuffer;
                     break;
                 case GR_GL_ELEMENT_ARRAY_BUFFER:
-                    buf = gCurrElementArrayBuffer;
+                    id = gCurrElementArrayBuffer;
                     break;
             }
-            if (buf) {
-                for (int i = 0; i < gMappedBuffers.count(); ++i) {
-                    if (gMappedBuffers[i] == buf) {
-                        *params = GR_GL_TRUE;
-                        break;
-                    }
+            if (id > 0) {
+                GrBufferObj* buffer = look_up(id);
+                if (buffer->mapped()) {
+                    *params = GR_GL_TRUE;
                 }
             }
             break; }
@@ -202,7 +305,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fFinish = noOpGLFinish;
         interface->fFlush = noOpGLFlush;
         interface->fFrontFace = noOpGLFrontFace;
-        interface->fGenBuffers = noOpGLGenIds;
+        interface->fGenBuffers = nullGLGenBuffers;
         interface->fGenQueries = noOpGLGenIds;
         interface->fGenTextures = noOpGLGenIds;
         interface->fGenVertexArrays = noOpGLGenIds;

@@ -1258,6 +1258,11 @@ static const ConfigData gRec[] = {
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     GR_DEBUG},
+    /* The gpunull context does the least amount of work possible and doesn't
+       generate meaninful images, so don't record them!. It can be run to
+       isolate the CPU-side processing expense from the GPU-side.
+      */
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNull_GLContextType,    0, kNone_ConfigFlag,  "gpunull",      GR_DEBUG},
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },
