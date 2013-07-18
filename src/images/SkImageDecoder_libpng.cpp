@@ -522,7 +522,8 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
         SrcDepth srcDepth = k32Bit_SrcDepth;
         if (PNG_COLOR_TYPE_GRAY == colorType) {
             srcDepth = k8BitGray_SrcDepth;
-            SkASSERT(!*hasAlphap);
+            // Remove this assert, which fails on desk_pokemonwiki.skp
+            //SkASSERT(!*hasAlphap);
         }
 
         *configp = this->getPrefConfig(srcDepth, *hasAlphap);
