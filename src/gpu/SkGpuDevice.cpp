@@ -1388,12 +1388,14 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     SkImageFilter* filter = paint.getImageFilter();
     SkIPoint offset = SkIPoint::Make(0, 0);
+    // This bitmap will own the filtered result as a texture.
+    SkBitmap filteredBitmap;
+
     if (NULL != filter) {
-        SkBitmap filterBitmap;
-        if (filter_texture(this, fContext, texture, filter, w, h, &filterBitmap, &offset)) {
-            texture = (GrTexture*) filterBitmap.getTexture();
-            w = filterBitmap.width();
-            h = filterBitmap.height();
+        if (filter_texture(this, fContext, texture, filter, w, h, &filteredBitmap, &offset)) {
+            texture = (GrTexture*) filteredBitmap.getTexture();
+            w = filteredBitmap.width();
+            h = filteredBitmap.height();
         }
     }
 
@@ -1468,14 +1470,15 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     int h = bm.height();
 
     SkImageFilter* filter = paint.getImageFilter();
+    // This bitmap will own the filtered result as a texture.
+    SkBitmap filteredBitmap;
 
     if (NULL != filter) {
-        SkBitmap filterBitmap;
         SkIPoint offset = SkIPoint::Make(0, 0);
-        if (filter_texture(this, fContext, devTex, filter, w, h, &filterBitmap, &offset)) {
-            devTex = filterBitmap.getTexture();
-            w = filterBitmap.width();
-            h = filterBitmap.height();
+        if (filter_texture(this, fContext, devTex, filter, w, h, &filteredBitmap, &offset)) {
+            devTex = filteredBitmap.getTexture();
+            w = filteredBitmap.width();
+            h = filteredBitmap.height();
             x += offset.fX;
             y += offset.fY;
         }
