@@ -97,7 +97,6 @@ protected:
 
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
-    static SkMutex* Mutex();        // implemented by porting layer
 
     typedef SkRefCnt INHERITED;
 };
