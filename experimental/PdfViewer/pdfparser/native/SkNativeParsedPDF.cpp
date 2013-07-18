@@ -75,10 +75,15 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
     FILE* file = fopen(path, "r");
     fContentLength = getFileSize(path);
     fFileContent = new unsigned char[fContentLength + 1];
-    fread(fFileContent, fContentLength, 1, file);
+    bool ok = (0 != fread(fFileContent, fContentLength, 1, file));
     fFileContent[fContentLength] = '\0';
     fclose(file);
     file = NULL;
+
+    if (!ok) {
+        // TODO(edisonn): report read error
+        return;  // Doc will have 0 pages
+    }
 
     unsigned char* eofLine = lineHome(fFileContent, fFileContent + fContentLength - 1);
     unsigned char* xrefByteOffsetLine = previousLineHome(fFileContent, eofLine);
