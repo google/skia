@@ -31,8 +31,7 @@ static void TestMipMap(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, NULL));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, NULL));
         
-        SkMipMap::Level prevLevel = { 0 };  // make warnings happy
-        prevLevel.fPixels = NULL;   // sentinel
+        SkMipMap::Level prevLevel = { 0, 0, 0, 0 };
 
         SkScalar scale = SK_Scalar1;
         for (int j = 0; j < 30; ++j) {
