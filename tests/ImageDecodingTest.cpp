@@ -132,7 +132,41 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
     }
 }
 
-static void test_imageDecodingTests(skiatest::Reporter* reporter) {
+// Create a fake ImageDecoder to test setPrefConfigTable for
+// backwards compatibility.
+class PrefConfigTestingImageDecoder : public SkImageDecoder {
+public:
+    void testPrefConfigTable(skiatest::Reporter* reporter) {
+        // Arbitrary list of Configs. The important thing about
+        // the list is that each one is different, so we can test
+        // to make sure the correct config is chosen.
+        const SkBitmap::Config configs[] = {
+            SkBitmap::kA1_Config,
+            SkBitmap::kA8_Config,
+            SkBitmap::kIndex8_Config,
+            SkBitmap::kRGB_565_Config,
+            SkBitmap::kARGB_4444_Config,
+            SkBitmap::kARGB_8888_Config,
+        };
+        this->setPrefConfigTable(configs);
+        REPORTER_ASSERT(reporter, configs[0] == this->getPrefConfig(kIndex_SrcDepth, false));
+        REPORTER_ASSERT(reporter, configs[1] == this->getPrefConfig(kIndex_SrcDepth, true));
+        REPORTER_ASSERT(reporter, configs[4] == this->getPrefConfig(k32Bit_SrcDepth, false));
+        REPORTER_ASSERT(reporter, configs[5] == this->getPrefConfig(k32Bit_SrcDepth, true));
+    }
+
+protected:
+    virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) SK_OVERRIDE {
+        return false;
+    }
+};
+
+static void test_pref_config_table(skiatest::Reporter* reporter) {
+    PrefConfigTestingImageDecoder decoder;
+    decoder.testPrefConfigTable(reporter);
+}
+
+static void test_unpremul(skiatest::Reporter* reporter) {
     // This test cannot run if there is no resource path.
     SkString resourcePath = skiatest::Test::GetResourcePath();
     if (resourcePath.isEmpty()) {
@@ -149,6 +183,11 @@ static void test_imageDecodingTests(skiatest::Reporter* reporter) {
     } else {
         SkDebugf("Failed to find any files :(\n");
     }
+}
+
+static void test_imageDecodingTests(skiatest::Reporter* reporter) {
+    test_unpremul(reporter);
+    test_pref_config_table(reporter);
 }
 
 #include "TestClassDef.h"
