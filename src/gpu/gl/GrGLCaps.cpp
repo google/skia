@@ -289,6 +289,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 
+    fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
+
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == binding) {
         fDualSourceBlendingSupport = ctxInfo.version() >= GR_GL_VER(3,3) ||
