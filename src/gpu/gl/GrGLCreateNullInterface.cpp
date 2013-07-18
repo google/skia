@@ -21,7 +21,7 @@ public:
     }
     ~GrBufferObj() { SkDELETE_ARRAY(fDataPtr); }
 
-    void allocate(GrGLint size, const GrGLchar* dataPtr) {
+    void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (NULL != fDataPtr) {
             GrAssert(0 != fSize);
             SkDELETE_ARRAY(fDataPtr);
@@ -33,7 +33,7 @@ public:
 
     GrGLuint id() const          { return fID; }
     GrGLchar* dataPtr()          { return fDataPtr; }
-    GrGLint size() const         { return fSize; }
+    GrGLsizeiptr size() const    { return fSize; }
 
     void setMapped(bool mapped)  { fMapped = mapped; }
     bool mapped() const          { return fMapped; }
@@ -41,7 +41,7 @@ public:
 private:
     GrGLuint     fID;
     GrGLchar*    fDataPtr;
-    GrGLint      fSize;         // size in bytes
+    GrGLsizeiptr fSize;         // size in bytes
     bool         fMapped;
 };
 
@@ -73,7 +73,7 @@ static GrBufferObj* create_buffer() {
         gBuffers.append(1, &buffer);
     } else {
         // recycle a slot from the free list
-        id = (GrGLuint) gBuffers[0];
+        id = SkTCast<GrGLuint>(gBuffers[0]);
         gBuffers[0] = gBuffers[id];
 
         buffer = SkNEW_ARGS(GrBufferObj, (id));
