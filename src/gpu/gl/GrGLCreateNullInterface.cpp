@@ -91,7 +91,7 @@ static void delete_buffer(GrBufferObj* buffer) {
 
     // Add this slot to the free list
     gBuffers[id] = gBuffers[0];
-    gBuffers[0] = (GrBufferObj*) id;
+    gBuffers[0] = SkTCast<GrBufferObj*>((const void*) id);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
