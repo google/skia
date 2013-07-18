@@ -333,7 +333,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     if (1 == sampleSize && SkImageDecoder::kDecodeBounds_Mode == mode) {
         bm->setConfig(config, cinfo.image_width, cinfo.image_height);
-        bm->setIsOpaque(true);
+        bm->setIsOpaque(config != SkBitmap::kA8_Config);
         return true;
     }
 
@@ -355,7 +355,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
             SkScaledBitmapSampler smpl(cinfo.output_width, cinfo.output_height,
                                        recompute_sampleSize(sampleSize, cinfo));
             bm->setConfig(config, smpl.scaledWidth(), smpl.scaledHeight());
-            bm->setIsOpaque(true);
+            bm->setIsOpaque(config != SkBitmap::kA8_Config);
             return true;
         } else {
             return return_false(cinfo, *bm, "start_decompress");
@@ -370,7 +370,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     SkScaledBitmapSampler sampler(cinfo.output_width, cinfo.output_height, sampleSize);
     bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-    bm->setIsOpaque(true);
+    bm->setIsOpaque(config != SkBitmap::kA8_Config);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
