@@ -416,6 +416,10 @@ DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, true); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, false); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, true); )
 
+/* Disable the GiantDashBench for Android devices until we can better control
+ * the memory usage. (https://code.google.com/p/skia/issues/detail?id=1430)
+ */
+#ifndef SK_BUILD_FOR_ANDROID
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 0); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType, 0); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 0); )
@@ -426,3 +430,4 @@ DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 0); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 2); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType, 2); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 2); )
+#endif
