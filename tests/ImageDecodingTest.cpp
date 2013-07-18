@@ -6,10 +6,17 @@
  */
 
 #include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkForceLinking.h"
+#include "SkGradientShader.h"
 #include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkPoint.h"
+#include "SkShader.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "Test.h"
@@ -185,9 +192,79 @@ static void test_unpremul(skiatest::Reporter* reporter) {
     }
 }
 
+#ifdef SK_DEBUG
+// Create a stream containing a bitmap encoded to Type type.
+static SkStream* create_image_stream(SkImageEncoder::Type type) {
+    SkBitmap bm;
+    const int size = 50;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, size, size);
+    bm.allocPixels();
+    SkCanvas canvas(bm);
+    SkPoint points[2] = {
+        { SkIntToScalar(0), SkIntToScalar(0) },
+        { SkIntToScalar(size), SkIntToScalar(size) }
+    };
+    SkColor colors[2] = { SK_ColorWHITE, SK_ColorBLUE };
+    SkShader* shader = SkGradientShader::CreateLinear(points, colors, NULL,
+                                                      SK_ARRAY_COUNT(colors),
+                                                      SkShader::kClamp_TileMode);
+    SkPaint paint;
+    paint.setShader(shader)->unref();
+    canvas.drawPaint(paint);
+    // Now encode it to a stream.
+    SkAutoTUnref<SkData> data(SkImageEncoder::EncodeData(bm, type, 100));
+    if (NULL == data.get()) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkMemoryStream, (data.get()));
+}
+
+// For every format that supports tile based decoding, ensure that
+// calling decodeSubset will not fail if the caller has unreffed the
+// stream provided in buildTileIndex.
+// Only runs in debug mode since we are testing for a crash.
+static void test_stream_life() {
+    const SkImageEncoder::Type gTypes[] = {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        SkImageEncoder::kJPEG_Type,
+#endif
+#ifdef SK_BUILD_FOR_ANDROID
+        SkImageEncoder::kPNG_Type,
+#endif
+        SkImageEncoder::kWEBP_Type,
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTypes); ++i) {
+        SkDebugf("encoding to %i\n", i);
+        SkAutoTUnref<SkStream> stream(create_image_stream(gTypes[i]));
+        if (NULL == stream.get()) {
+            SkDebugf("no stream\n");
+            continue;
+        }
+        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+        if (NULL == decoder.get()) {
+            SkDebugf("no decoder\n");
+            continue;
+        }
+        int width, height;
+        if (!decoder->buildTileIndex(stream.get(), &width, &height)) {
+            SkDebugf("could not build a tile index\n");
+            continue;
+        }
+        // Now unref the stream to make sure it survives
+        stream.reset(NULL);
+        SkBitmap bm;
+        decoder->decodeSubset(&bm, SkIRect::MakeWH(width, height),
+                              SkBitmap::kARGB_8888_Config);
+    }
+}
+#endif
+
 static void test_imageDecodingTests(skiatest::Reporter* reporter) {
     test_unpremul(reporter);
     test_pref_config_table(reporter);
+#ifdef SK_DEBUG
+    test_stream_life();
+#endif
 }
 
 #include "TestClassDef.h"
