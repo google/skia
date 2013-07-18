@@ -132,7 +132,7 @@ int SkRegion::computeRegionComplexity() const {
   }
   return fRunHead->getIntervalCount();
 }
-    
+
 bool SkRegion::setEmpty() {
     this->freeRuns();
     fBounds.set(0, 0, 0, 0);

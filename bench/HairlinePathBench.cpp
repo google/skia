@@ -54,7 +54,7 @@ protected:
         this->setupPaint(&paint);
 
         paint.setAntiAlias(fFlags & kAA_Flag ? true : false);
-        
+
         SkPath path;
         this->makePath(&path);
         if (fFlags & kBig_Flag) {
