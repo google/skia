@@ -7,10 +7,12 @@ found in the LICENSE file.
 '''
 
 '''
-Generates a visual diff of all pending changes in the local SVN checkout.
+Generates a visual diff of all pending changes in the local SVN (or git!)
+checkout.
 
 Launch with --help to see more information.
 
+TODO(epoger): Now that this tool supports either git or svn, rename it.
 TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
@@ -19,6 +21,7 @@ import optparse
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import urllib2
@@ -45,10 +48,10 @@ import svn
 USAGE_STRING = 'Usage: %s [options]'
 HELP_STRING = '''
 
-Generates a visual diff of all pending changes in the local SVN checkout.
+Generates a visual diff of all pending changes in the local SVN/git checkout.
 
 This includes a list of all files that have been added, deleted, or modified
-(as far as SVN knows about).  For any image modifications, pixel diffs will
+(as far as SVN/git knows about).  For any image modifications, pixel diffs will
 be generated.
 
 '''
@@ -160,6 +163,52 @@ def _CallJsonDiff(old_json_path, new_json_path,
                 dest_path=os.path.join(new_flattened_dir,
                                        filename_prefix + imagename))
 
+def _RunCommand(args):
+    """Run a command (from self._directory) and return stdout as a single
+    string.
+
+    @param args a list of arguments
+    """
+    proc = subprocess.Popen(args,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    (stdout, stderr) = proc.communicate()
+    if proc.returncode is not 0:
+        raise Exception('command "%s" failed: %s' % (args, stderr))
+    return stdout
+
+def _GitGetModifiedFiles():
+    """Returns a list of locally modified files within the current working dir.
+
+    TODO(epoger): Move this into a git utility package?
+    """
+    return _RunCommand(['git', 'ls-files', '-m']).splitlines()
+
+def _GitExportBaseVersionOfFile(file_within_repo, dest_path):
+    """Retrieves a copy of the base version of a file within the repository.
+
+    @param file_within_repo path to the file within the repo whose base
+           version you wish to obtain
+    @param dest_path destination to which to write the base content
+
+    TODO(epoger): Move this into a git utility package?
+    """
+    # TODO(epoger): Replace use of "git show" command with lower-level git
+    # commands?  senorblanco points out that "git show" is a "porcelain"
+    # command, intended for human use, as opposed to the "plumbing" commands
+    # generally more suitable for scripting.  (See
+    # http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain )
+    #
+    # For now, though, "git show" is the most straightforward implementation
+    # I could come up with.  I tried using "git cat-file", but I had trouble
+    # getting it to work as desired.
+    args = ['git', 'show', os.path.join('HEAD:.', file_within_repo)]
+    with open(dest_path, 'wb') as outfile:
+        proc = subprocess.Popen(args, stdout=outfile)
+        proc.communicate()
+        if proc.returncode is not 0:
+            raise Exception('command "%s" failed' % args)
+
 def SvnDiff(path_to_skdiff, dest_dir, source_dir):
     """Generates a visual diff of all pending changes in source_dir.
 
@@ -174,6 +223,7 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
     dest_dir = os.path.abspath(dest_dir)
 
     os.chdir(source_dir)
+    using_svn = os.path.isdir('.svn')
 
     # Prepare temporary directories.
     modified_flattened_dir = os.path.join(dest_dir, 'modified_flattened')
@@ -185,9 +235,12 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
 
     # Get a list of all locally modified (including added/deleted) files,
     # descending subdirectories.
-    svn_repo = svn.Svn('.')
-    modified_file_paths = svn_repo.GetFilesWithStatus(
-        svn.STATUS_ADDED | svn.STATUS_DELETED | svn.STATUS_MODIFIED)
+    if using_svn:
+        svn_repo = svn.Svn('.')
+        modified_file_paths = svn_repo.GetFilesWithStatus(
+            svn.STATUS_ADDED | svn.STATUS_DELETED | svn.STATUS_MODIFIED)
+    else:
+        modified_file_paths = _GitGetModifiedFiles()
 
     # For each modified file:
     # 1. copy its current contents into modified_flattened_dir
@@ -197,8 +250,12 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
             # Special handling for JSON files, in the hopes that they
             # contain GM result summaries.
             (_unused, original_file_path) = tempfile.mkstemp()
-            svn_repo.ExportBaseVersionOfFile(modified_file_path,
-                                             original_file_path)
+            if using_svn:
+                svn_repo.ExportBaseVersionOfFile(
+                    modified_file_path, original_file_path)
+            else:
+                _GitExportBaseVersionOfFile(
+                    modified_file_path, original_file_path)
             platform_prefix = re.sub(os.sep, '__',
                                      os.path.dirname(modified_file_path)) + '__'
             _CallJsonDiff(old_json_path=original_file_path,
@@ -214,9 +271,14 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
                 shutil.copyfile(modified_file_path,
                                 os.path.join(modified_flattened_dir,
                                              dest_filename))
-            svn_repo.ExportBaseVersionOfFile(
-                modified_file_path,
-                os.path.join(original_flattened_dir, dest_filename))
+            if using_svn:
+                svn_repo.ExportBaseVersionOfFile(
+                    modified_file_path,
+                    os.path.join(original_flattened_dir, dest_filename))
+            else:
+                _GitExportBaseVersionOfFile(
+                    modified_file_path,
+                    os.path.join(original_flattened_dir, dest_filename))
 
     # Run skdiff: compare original_flattened_dir against modified_flattened_dir
     RunCommand('%s %s %s %s' % (path_to_skdiff, original_flattened_dir,
