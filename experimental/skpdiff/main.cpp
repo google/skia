@@ -32,6 +32,7 @@ DEFINE_string2(folders, f, "", "Compare two folders with identical subfile names
 DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> <test>");
 DEFINE_string2(output, o, "skpdiff_output.json", "Writes the output of these diffs to output: <output>");
 DEFINE_bool(jsonp, true, "Output JSON with padding");
+DEFINE_string(csv, "", "Writes the output of these diffs to a csv file");
 
 #if SK_SUPPORT_OPENCL
 /// A callback for any OpenCL errors
@@ -165,6 +166,13 @@ int main(int argc, char** argv) {
     if (!FLAGS_patterns.isEmpty()) {
         if (2 != FLAGS_patterns.count()) {
             SkDebugf("Patterns flag expects two arguments: <baseline pattern> <test pattern>\n");
+            return 1;
+        }
+    }
+
+    if (!FLAGS_csv.isEmpty()) {
+        if (1 != FLAGS_csv.count()) {
+            SkDebugf("csv flag expects one argument: <csv file>\n");
             return 1;
         }
     }
