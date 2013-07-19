@@ -20,18 +20,6 @@ namespace {
         return 255;
     }
 
-    // Takes the value produced by accumulating element-wise product of image with
-    // a kernel and brings it back into range.
-    // All of the filter scaling factors are in fixed point with kShiftBits bits of
-    // fractional part.
-    inline unsigned char BringBackTo8(int a, bool takeAbsolute) {
-        a >>= SkConvolutionFilter1D::kShiftBits;
-        if (takeAbsolute) {
-            a = abs(a);
-        }
-        return ClampTo8(a);
-    }
-
     // Stores a list of rows in a circular buffer. The usage is you write into it
     // by calling AdvanceRow. It will keep track of which row in the buffer it
     // should use next, and the total number of rows added.
