@@ -217,3 +217,7 @@ void SkBitmapProcState::platformProcs() {
             break;
     }
 }
+
+void SkBitmapProcState::platformConvolutionProcs() {
+    // no specialization for ARM here yet.
+}

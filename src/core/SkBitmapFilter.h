@@ -12,10 +12,6 @@
 
 #include "SkMath.h"
 
-
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 // size of the precomputed bitmap filter tables for high quality filtering.
 // Used to precompute the shape of the filter kernel.
 // Table size chosen from experiments to see where I could start to see a difference.
@@ -149,7 +145,7 @@ public:
         if (x > -FLT_EPSILON && x < FLT_EPSILON) {
             return 1.0f;  // Special case the sinc discontinuity at the origin.
         }
-        const float xpi = x * static_cast<float>(M_PI);
+        const float xpi = x * static_cast<float>(SK_ScalarPI);
 
         return ((sk_float_sin(xpi) / xpi) *  // sinc(x)
                 (0.54f + 0.46f * sk_float_cos(xpi / fWidth)));  // hamming(x)
@@ -169,7 +165,7 @@ class SkLanczosFilter: public SkBitmapFilter {
           if (x > -FLT_EPSILON && x < FLT_EPSILON) {              
               return 1.0f;  // Special case the discontinuity at the origin.
           }
-          float xpi = x * static_cast<float>(M_PI);
+          float xpi = x * static_cast<float>(SK_ScalarPI);
           return (sk_float_sin(xpi) / xpi) *  // sinc(x)
                   sk_float_sin(xpi / fWidth) / (xpi / fWidth);  // sinc(x/fWidth)
       }      
