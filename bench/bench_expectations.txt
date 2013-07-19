@@ -1726,7 +1726,7 @@ tabl_mozilla.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-R
 tabl_mozilla.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,62.670,46.403,78.937
 tabl_mozilla.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,338.710,294.839,402.581
 tabl_mozilla.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,418.100,366.290,469.910
-tabl_mozilla.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1151.640,950.0,1276.804
+tabl_mozilla.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1151.640,930.0,1276.804
 tabl_mozilla.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1285.570,1147.013,1454.127
 tabl_mozilla.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12525.510,11262.959,14788.061
 tabl_mozilla.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,733.360,650.024,836.696
@@ -1740,7 +1740,7 @@ tabl_mozilla.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1
 tabl_mozilla.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,2316.740,2075.066,2558.414
 tabl_mozilla.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,132.670,109.403,155.937
 tabl_mozilla.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,154.620,129.158,180.082
-tabl_mozilla.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,312.250,271.025,353.475
+tabl_mozilla.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,312.250,251.025,353.475
 tabl_mozilla.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,359.670,313.703,405.637
 tabl_nofolo.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.660,-3.106,18.426
 tabl_nofolo.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,8.660,-2.206,19.526
