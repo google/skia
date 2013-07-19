@@ -107,6 +107,16 @@ static bool cachedHasSSSE3() {
 
 SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
 
+void SkBitmapProcState::platformConvolutionProcs() {
+    if (cachedHasSSE2()) {
+        fConvolutionProcs->fExtraHorizontalReads = 3;
+        fConvolutionProcs->fConvolveVertically = &convolveVertically_SSE2;
+        fConvolutionProcs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_SSE2;
+        fConvolutionProcs->fConvolveHorizontally = &convolveHorizontally_SSE2;
+        fConvolutionProcs->fApplySIMDPadding = &applySIMDPadding_SSE2;
+    }
+}
+
 void SkBitmapProcState::platformProcs() {
     if (cachedHasSSSE3()) {
 #if !defined(SK_BUILD_FOR_ANDROID)
@@ -150,9 +160,6 @@ void SkBitmapProcState::platformProcs() {
         if (c_hqfilter_sse) {
             if (fShaderProc32 == highQualityFilter) {
                 fShaderProc32 = highQualityFilter_SSE2;
-            }
-            if (fShaderProc32 == highQualityFilter_ScaleOnly) {
-                fShaderProc32 = highQualityFilter_ScaleOnly_SSE2;
             }
         }
     }

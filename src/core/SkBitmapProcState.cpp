@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
+#include "SkBitmapScaler.h"
 
 #if !SK_ARM_NEON_IS_NONE
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
@@ -99,23 +100,45 @@ void SkBitmapProcState::possiblyScaleImage() {
     if (fFilterQuality != kHQ_BitmapFilter) {
         return;
     }
+    
+    // see if our platform has any specialized convolution code.
+    
+    
+    // Set up a pointer to a local (instead of storing the structure in the
+    // proc state) to avoid introducing a header dependency; this makes 
+    // recompiles a lot less painful.
+    
+    SkConvolutionProcs simd;
+    fConvolutionProcs = &simd;
+    
+    fConvolutionProcs->fExtraHorizontalReads = 0;
+    fConvolutionProcs->fConvolveVertically = NULL;
+    fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
+    fConvolutionProcs->fConvolveHorizontally = NULL;
+    fConvolutionProcs->fApplySIMDPadding = NULL;
+    
+    this->platformConvolutionProcs();
 
-    // STEP 1: UPSAMPLE?
+    // STEP 1: Highest quality direct scale?
 
-    // Check to see if the transformation matrix is scaling up, and if
-    // the matrix is simple, and if we're doing high quality scaling.
-    // If so, do the bitmap scale here and remove the scaling component from the matrix.
+    // Check to see if the transformation matrix is simple, and if we're 
+    // doing high quality scaling.  If so, do the bitmap scale here and 
+    // remove the scaling component from the matrix.
 
-    if (fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
-        (fInvMatrix.getScaleX() < 1 || fInvMatrix.getScaleY() < 1) &&
+    if (fFilterQuality == kHQ_BitmapFilter &&
+        fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
         fOrigBitmap.config() == SkBitmap::kARGB_8888_Config) {
-
+            
+        int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / fInvMatrix.getScaleX());
+        int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / fInvMatrix.getScaleY());
+        
         // All the criteria are met; let's make a new bitmap.
-        fScaledBitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                                (int)(fOrigBitmap.width() / fInvMatrix.getScaleX()),
-                                (int)(fOrigBitmap.height() / fInvMatrix.getScaleY()));
-        fScaledBitmap.allocPixels();
-        fOrigBitmap.scale(&fScaledBitmap);
+
+        fScaledBitmap = SkBitmapScaler::Resize( fOrigBitmap, SkBitmapScaler::RESIZE_BEST,
+                                                dest_width, dest_height, fConvolutionProcs );
+            
+        fScaledBitmap.lockPixels();
+            
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;
@@ -130,9 +153,9 @@ void SkBitmapProcState::possiblyScaleImage() {
         return;
     }
 
-    if (!fOrigBitmap.hasMipMap()) {
+    if (!fOrigBitmap.hasMipMap() && fFilterQuality != kNone_BitmapFilter) {
 
-        // STEP 2: DOWNSAMPLE
+        // STEP 2: MIPMAP DOWNSAMPLE?
 
         // Check to see if the transformation matrix is scaling *down*.
         // If so, automatically build mipmaps.

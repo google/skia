@@ -26,28 +26,30 @@ class SkBitmapFilter {
           fLookupMultiplier = this->invWidth() * (SKBITMAP_FILTER_TABLE_SIZE-1);
       }
 
-      SkFixed lookup( float x ) const {
+      SkFixed lookup(float x) const {
           if (!fPrecomputed) {
               precomputeTable();
           }
           int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
           SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
-          return fFilterTable[ filter_idx ];
+          return fFilterTable[filter_idx];
       }
 
-      SkScalar lookupScalar( float x ) const {
+      SkScalar lookupScalar(float x) const {
           if (!fPrecomputed) {
               precomputeTable();
           }
           int filter_idx = int(sk_float_abs(x * fLookupMultiplier));
           SkASSERT(filter_idx < SKBITMAP_FILTER_TABLE_SIZE);
-          return fFilterTableScalar[ filter_idx ];
+          return fFilterTableScalar[filter_idx];
       }
 
       float width() const { return fWidth; }
       float invWidth() const { return fInvWidth; }
       virtual float evaluate(float x) const = 0;
       virtual ~SkBitmapFilter() {}
+      
+      static SkBitmapFilter* Allocate();
   protected:
       float fWidth;
       float fInvWidth;
@@ -126,29 +128,47 @@ class SkBoxFilter: public SkBitmapFilter {
       }
 
       virtual float evaluate(float x) const SK_OVERRIDE {
-          return 1;
+          return (x >= -fWidth && x < fWidth) ? 1.0f : 0.0f;
       }
   protected:
 };
 
+class SkHammingFilter: public SkBitmapFilter {
+public:
+    SkHammingFilter(float width=1.f)
+    : SkBitmapFilter(width) {
+    }
+    virtual float evaluate(float x) const SK_OVERRIDE {
+        if (x <= -fWidth || x >= fWidth) {
+            return 0.0f;  // Outside of the window.
+        }
+        if (x > -FLT_EPSILON && x < FLT_EPSILON) {
+            return 1.0f;  // Special case the sinc discontinuity at the origin.
+        }
+        const float xpi = x * static_cast<float>(M_PI);
 
-class SkSincFilter: public SkBitmapFilter {
+        return ((sk_float_sin(xpi) / xpi) *  // sinc(x)
+                (0.54f + 0.46f * sk_float_cos(xpi / fWidth)));  // hamming(x)
+    }
+};
+
+class SkLanczosFilter: public SkBitmapFilter {
   public:
-      SkSincFilter(float t, float width=3.f)
-      : SkBitmapFilter(width), tau(t) {
+      SkLanczosFilter(float width=3.f)
+      : SkBitmapFilter(width) {
       }
 
       virtual float evaluate(float x) const SK_OVERRIDE {
-          x = sk_float_abs(x * fInvWidth);
-          if (x < 1e-5f) return 1.f;
-          if (x > 1.f)   return 0.f;
-          x *= SK_ScalarPI;
-          float sinc = sk_float_sin(x) / x;
-          float lanczos = sk_float_sin(x * tau) / (x * tau);
-          return sinc * lanczos;
-      }
-  protected:
-      float tau;
+          if (x <= -fWidth || x >= fWidth) {
+              return 0.0f;  // Outside of the window.
+          }
+          if (x > -FLT_EPSILON && x < FLT_EPSILON) {              
+              return 1.0f;  // Special case the discontinuity at the origin.
+          }
+          float xpi = x * static_cast<float>(M_PI);
+          return (sk_float_sin(xpi) / xpi) *  // sinc(x)
+                  sk_float_sin(xpi / fWidth) / (xpi / fWidth);  // sinc(x/fWidth)
+      }      
 };
 
 
