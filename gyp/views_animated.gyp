@@ -7,7 +7,7 @@
       'type': 'static_library',
       'dependencies': [
         'angle.gyp:*',
-        'animator.gyp:*',
+        #'animator.gyp:*', #commented out until Android is fixed
         'core.gyp:*',
         'effects.gyp:*',
         'images.gyp:*',
@@ -16,6 +16,8 @@
         'xml.gyp:*',
       ],
       'include_dirs': [
+        '../include/animator',
+
         '../include/views/animated',
         '../include/views/unix',
       ],
