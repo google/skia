@@ -37,15 +37,16 @@ public:
     public:
         Editor(SkAutoTUnref<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
-               int incReservePoints = 0) {
-            if (pathRef->get()->getRefCnt() > 1) {
-                SkPathRef* copy = SkNEW(SkPathRef);
-                copy->copy(*pathRef->get(), incReserveVerbs, incReservePoints);
-                pathRef->reset(copy);
-            } else {
+               int incReservePoints = 0)
+        {
+            if ((*pathRef)->unique()) {
                 (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
+            } else {
+                SkPathRef* copy = SkNEW(SkPathRef);
+                copy->copy(**pathRef, incReserveVerbs, incReservePoints);
+                pathRef->reset(copy);
             }
-            fPathRef = pathRef->get();
+            fPathRef = *pathRef;
             fPathRef->fGenerationID = 0;
             SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
         }
@@ -135,18 +136,18 @@ public:
                                       const SkMatrix& matrix) {
         src.validate();
         if (matrix.isIdentity()) {
-            if (dst->get() != &src) {
+            if (*dst != &src) {
                 src.ref();
                 dst->reset(const_cast<SkPathRef*>(&src));
                 (*dst)->validate();
             }
             return;
         }
-        int32_t rcnt = dst->get()->getRefCnt();
-        if (&src == dst->get() && 1 == rcnt) {
+        bool dstUnique = (*dst)->unique();
+        if (&src == *dst && dstUnique) {
             matrix.mapPoints((*dst)->fPoints, (*dst)->fPointCnt);
             return;
-        } else if (rcnt > 1) {
+        } else if (!dstUnique) {
             dst->reset(SkNEW(SkPathRef));
         }
         (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
@@ -179,7 +180,7 @@ public:
      * only if necessary.
      */
     static void Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
-        if (1 == (*pathRef)->getRefCnt()) {
+        if ((*pathRef)->unique()) {
             (*pathRef)->validate();
             (*pathRef)->fVerbCnt = 0;
             (*pathRef)->fPointCnt = 0;
