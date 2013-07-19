@@ -265,7 +265,7 @@ static bool benchmark_loop(
         int argc,
         char **argv,
         const BenchmarkControl& benchControl,
-        Histogram** histogram) {
+        Histogram* histogram) {
 
     static const SkString timeFormat("%f");
     TimerData timerData(timeFormat, timeFormat);
@@ -280,8 +280,8 @@ static bool benchmark_loop(
         benchControl.fFunction(benchControl.fType, benchControl.fTileSize, path, pic, &timer);
         timerData.appendTimes(&timer, argc - 1 == index);
 
-        histogram[index - 1]->fPath = path;
-        histogram[index - 1]->fCpuTime = SkDoubleToScalar(timer.fCpu);
+        histogram[index - 1].fPath = path;
+        histogram[index - 1].fCpuTime = SkDoubleToScalar(timer.fCpu);
     }
 
     const SkString timerResult = timerData.getResult(
@@ -321,14 +321,13 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
-    Histogram* histograms[kNumBenchmarks];
+    Histogram histograms[argc - 1][kNumBenchmarks];
 
     for (size_t i = 0; i < kNumBenchmarks; ++i) {
-        histograms[i] = SkNEW_ARRAY(Histogram, argc - 1);
         bool success = benchmark_loop(
                 argc, argv,
                 BenchmarkControl::Make(i),
-                &histograms[i]);
+                histograms[i]);
         if (!success) {
             SkDebugf("benchmark_loop failed at index %d", i);
         }
