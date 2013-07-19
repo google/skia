@@ -15,7 +15,7 @@
       'dependencies': [
         'bench_pictures',
         'filter',
-        'bbh_shootout',
+        'lua_pictures',
         'lua_app',
         'pinspect',
         'render_pdfs',
@@ -295,28 +295,6 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
-        'flags.gyp:flags',
-      ],
-    },
-    {
-      'target_name': 'bbh_shootout',
-      'type': 'executable',
-      'include_dirs': [
-        '../bench',
-        '../tools/'
-      ],
-      'sources': [
-        '../tools/bbh_shootout.cpp',
-
-        # Bench code:
-        '../bench/TimerData.h',
-        '../bench/TimerData.cpp',
-      ],
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-        'bench.gyp:bench_timer',
-        'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
         'flags.gyp:flags',
       ],
