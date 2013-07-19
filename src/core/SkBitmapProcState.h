@@ -31,7 +31,7 @@
 #endif
 
 class SkPaint;
-class SkConvolutionProcs;
+struct SkConvolutionProcs;
 
 struct SkBitmapProcState {
 
