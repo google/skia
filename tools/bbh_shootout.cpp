@@ -310,7 +310,8 @@ static bool benchmark_loop(
     return true;
 }
 
-static int tool_main(int argc, char** argv) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkString usage;
     usage.printf("Usage: filename [filename]*\n");
