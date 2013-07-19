@@ -222,7 +222,7 @@ public:
      *  @param maxResource If non-null, returns maximum number of resources
      *                     that can be held in the cache.
      *  @param maxBytes    If non-null, returns maximum number of bytes of
-     *                         gpu memory that can be held in the cache.
+     *                     gpu memory that can be held in the cache.
      */
     void getLimits(int* maxResources, size_t* maxBytes) const;
 
@@ -235,7 +235,7 @@ public:
      *  @param maxBytes     The maximum number of bytes of resource memory that
      *                      can be held in the cache.
      */
-    void setLimits(int maxResource, size_t maxResourceBytes);
+    void setLimits(int maxResources, size_t maxResourceBytes);
 
     /**
      *  The callback function used by the cache when it is still over budget
@@ -248,8 +248,8 @@ public:
     /**
      *  Set the callback the cache should use when it is still over budget
      *  after a purge. The 'data' provided here will be passed back to the
-     *  callback. The cache will attempt to purge any resources newly freed
-     *  by the callback.
+     *  callback. Note that the cache will attempt to purge any resources newly 
+     *  freed by the callback.
      */
     void setOverbudgetCallback(PFOverbudgetCB overbudgetCB, void* data) {
         fOverbudgetCB = overbudgetCB;
@@ -301,7 +301,7 @@ public:
      * Determines if the cache contains an entry matching a key. If a matching
      * entry exists but was detached then it will not be found.
      */
-    bool hasKey(const GrResourceKey& key) const;
+    bool hasKey(const GrResourceKey& key) const { return NULL != fCache.find(key); }
 
     /**
      * Hide 'entry' so that future searches will not find it. Such
@@ -318,6 +318,11 @@ public:
     void makeNonExclusive(GrResourceEntry* entry);
 
     /**
+     * Remove a resource from the cache and delete it!
+     */
+    void deleteResource(GrResourceEntry* entry);
+
+    /**
      * Removes every resource in the cache that isn't locked.
      */
     void purgeAllUnlocked();
@@ -325,7 +330,9 @@ public:
     /**
      * Allow cache to purge unused resources to obey resource limitations
      * Note: this entry point will be hidden (again) once totally ref-driven
-     * cache maintenance is implemented
+     * cache maintenance is implemented. Note that the overbudget callback
+     * will be called if the initial purge doesn't get the cache under
+     * its budget.
      *
      * extraCount and extraBytes are added to the current resource allocation
      * to make sure enough room is available for future additions (e.g,
@@ -358,29 +365,29 @@ private:
 
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceEntry> EntryList;
-    EntryList    fList;
+    EntryList      fList;
 
 #if GR_DEBUG
     // These objects cannot be returned by a search
-    EntryList    fExclusiveList;
+    EntryList      fExclusiveList;
 #endif
 
     // our budget, used in purgeAsNeeded()
-    int fMaxCount;
-    size_t fMaxBytes;
+    int            fMaxCount;
+    size_t         fMaxBytes;
 
     // our current stats, related to our budget
 #if GR_CACHE_STATS
-    int fHighWaterEntryCount;
-    size_t fHighWaterEntryBytes;
-    int fHighWaterClientDetachedCount;
-    size_t fHighWaterClientDetachedBytes;
+    int            fHighWaterEntryCount;
+    size_t         fHighWaterEntryBytes;
+    int            fHighWaterClientDetachedCount;
+    size_t         fHighWaterClientDetachedBytes;
 #endif
 
-    int fEntryCount;
-    size_t fEntryBytes;
-    int fClientDetachedCount;
-    size_t fClientDetachedBytes;
+    int            fEntryCount;
+    size_t         fEntryBytes;
+    int            fClientDetachedCount;
+    size_t         fClientDetachedBytes;
 
     // prevents recursive purging
     bool           fPurging;

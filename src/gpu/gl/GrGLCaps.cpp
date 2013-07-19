@@ -289,7 +289,15 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 
+#if 0
+    // This has to be temporarily disabled. On Android it causes the texture
+    // usage to become front loaded and the OS kills the process. It can
+    // be re-enabled once the more dynamic (ref-driven) cache clearing
+    // system is in place.
     fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
+#else
+    fReuseScratchTextures = true;
+#endif
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == binding) {
