@@ -6,15 +6,16 @@
       'product_name': 'skia_effects',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'core.gyp:*',
+        'images.gyp:*',
+        'utils.gyp:*',
+      ],
       'includes': [
         'effects.gypi',
       ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/effects',
-        '../include/lazy',
-        '../include/utils',
         '../src/core',
       ],
       'direct_dependent_settings': {
