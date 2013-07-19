@@ -96,6 +96,7 @@
         [ '(skia_arch_type == "arm" and armv7 == 0) or (skia_os == "ios")', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
+            '../src/opts/SkBitmapFilter_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
           ],
