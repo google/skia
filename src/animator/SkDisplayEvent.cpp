@@ -280,8 +280,8 @@ bool SkMetaData::findPtr(char const*, void**, PtrProc* ) const {return false;}
 bool SkMetaData::findS32(char const*, int* ) const {return false;}
 bool SkEvent::isType(char const*, size_t ) const { return false; }
 void SkMetaData::setString(char const*, char const* ) {}
-const char* SkParse::FindNamedColor(char const*, size_t, SkColor* ) {return false; }
-const char* SkMetaData::Iter::next(SkMetaData::Type*, int* ) { return false; }
+const char* SkParse::FindNamedColor(char const*, size_t, SkColor* ) {return NULL; }
+const char* SkMetaData::Iter::next(SkMetaData::Type*, int* ) { return NULL; }
 SkMetaData::Iter::Iter(SkMetaData const& ) {}
 bool SkMetaData::findScalar(char const*, SkScalar* ) const {return false;}
 void SkMetaData::reset( ) {}
