@@ -22,7 +22,7 @@ public:
         uint32_t    fRowBytes;
         uint32_t    fWidth, fHeight;
     };
-    
+
     bool extractLevel(SkScalar scale, Level*) const;
 
 private:

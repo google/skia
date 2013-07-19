@@ -289,7 +289,7 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
     fPurging = true;
 
     this->internalPurge(extraCount, extraBytes);
-    if (((fEntryCount+extraCount) > fMaxCount || 
+    if (((fEntryCount+extraCount) > fMaxCount ||
         (fEntryBytes+extraBytes) > fMaxBytes) &&
         NULL != fOverbudgetCB) {
         // Despite the purge we're still over budget. See if Ganesh can
@@ -324,7 +324,7 @@ void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
         while (NULL != entry) {
             GrAutoResourceCacheValidate atcv(this);
 
-            if ((fEntryCount+extraCount) <= fMaxCount && 
+            if ((fEntryCount+extraCount) <= fMaxCount &&
                 (fEntryBytes+extraBytes) <= fMaxBytes) {
                 withinBudget = true;
                 break;
