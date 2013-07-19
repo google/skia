@@ -211,6 +211,7 @@ void GrGpu::clear(const SkIRect* rect,
         art.set(this->drawState(), renderTarget);
     }
     if (NULL == this->getDrawState().getRenderTarget()) {
+        GrAssert(0);
         return;
     }
     this->handleDirtyContext();
