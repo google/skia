@@ -5,18 +5,19 @@
     {
       'target_name': 'views_animated',
       'type': 'static_library',
+      'dependencies': [
+        'angle.gyp:*',
+        'animator.gyp:*',
+        'core.gyp:*',
+        'effects.gyp:*',
+        'images.gyp:*',
+        'utils.gyp:*',
+        'views.gyp:*',
+        'xml.gyp:*',
+      ],
       'include_dirs': [
-        '../include/animator',
-        '../include/config',
-        '../include/core',
-        '../include/effects',
-        '../include/images',
-        '../include/lazy',
-        '../include/utils',
-        '../include/views',
         '../include/views/animated',
         '../include/views/unix',
-        '../include/xml',
       ],
       'sources': [
         '../include/views/animated/SkBorderView.h',

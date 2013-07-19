@@ -3,9 +3,8 @@
     {
       'target_name': 'zlib',
       'type': 'static_library',
-      'include_dirs': [
-        '../include/config',
-        '../include/core',
+      'dependencies': [
+        'core.gyp:*',
       ],
       'sources': [
         '../include/core/SkFlate.h',

@@ -7,6 +7,7 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
+        'core.gyp:*',
         'libjpeg.gyp:*',
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
@@ -15,8 +16,6 @@
         'libjpeg.gyp:*',
       ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/images',
         '../include/lazy',
         # for access to SkErrorInternals.h
