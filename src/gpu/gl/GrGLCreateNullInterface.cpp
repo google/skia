@@ -109,9 +109,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
     }
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target, 
-                                              GrGLsizeiptr size, 
-                                              const GrGLvoid* data, 
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
+                                              GrGLsizeiptr size,
+                                              const GrGLvoid* data,
                                               GrGLenum usage) {
     GrGLuint id = 0;
 

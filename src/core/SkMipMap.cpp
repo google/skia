@@ -16,13 +16,13 @@ static void downsampleby2_proc32(SkBitmap* dst, int x, int y,
     const SkPMColor* p = src.getAddr32(x, y);
     const SkPMColor* baseP = p;
     SkPMColor c, ag, rb;
-    
+
     c = *p; ag = (c >> 8) & 0xFF00FF; rb = c & 0xFF00FF;
     if (x < src.width() - 1) {
         p += 1;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
-    
+
     p = baseP;
     if (y < src.height() - 1) {
         p += src.rowBytes() >> 2;
@@ -32,7 +32,7 @@ static void downsampleby2_proc32(SkBitmap* dst, int x, int y,
         p += 1;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
-    
+
     *dst->getAddr32(x >> 1, y >> 1) =
     ((rb >> 2) & 0xFF00FF) | ((ag << 6) & 0xFF00FF00);
 }
@@ -54,13 +54,13 @@ static void downsampleby2_proc16(SkBitmap* dst, int x, int y,
     const uint16_t* p = src.getAddr16(x, y);
     const uint16_t* baseP = p;
     SkPMColor       c;
-    
+
     c = expand16(*p);
     if (x < src.width() - 1) {
         p += 1;
     }
     c += expand16(*p);
-    
+
     p = baseP;
     if (y < src.height() - 1) {
         p += src.rowBytes() >> 1;
@@ -70,7 +70,7 @@ static void downsampleby2_proc16(SkBitmap* dst, int x, int y,
         p += 1;
     }
     c += expand16(*p);
-    
+
     *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)pack16(c >> 2);
 }
 
@@ -89,13 +89,13 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
     const uint16_t* p = src.getAddr16(x, y);
     const uint16_t* baseP = p;
     uint32_t        c;
-    
+
     c = expand4444(*p);
     if (x < src.width() - 1) {
         p += 1;
     }
     c += expand4444(*p);
-    
+
     p = baseP;
     if (y < src.height() - 1) {
         p += src.rowBytes() >> 1;
@@ -105,7 +105,7 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
         p += 1;
     }
     c += expand4444(*p);
-    
+
     *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)collaps4444(c >> 2);
 }
 
@@ -145,7 +145,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
         default:
             return NULL; // don't build mipmaps for these configs
     }
-    
+
     SkAutoLockPixels alp(src);
     if (!src.readyToDraw()) {
         return NULL;
@@ -170,7 +170,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     if (0 == countLevels) {
         return NULL;
     }
-    
+
     Level* levels = SkMipMap::AllocLevels(countLevels, size);
     if (NULL == levels) {
         return NULL;
@@ -182,17 +182,17 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     int         height = src.height();
     uint32_t    rowBytes;
     SkBitmap    srcBM(src);
-    
+
     for (int i = 0; i < countLevels; ++i) {
         width >>= 1;
         height >>= 1;
         rowBytes = SkToU32(SkBitmap::ComputeRowBytes(config, width));
-        
+
         levels[i].fPixels   = addr;
         levels[i].fWidth    = width;
         levels[i].fHeight   = height;
         levels[i].fRowBytes = rowBytes;
-        
+
         SkBitmap dstBM;
         dstBM.setConfig(config, width, height, rowBytes);
         dstBM.setPixels(addr);
@@ -204,7 +204,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
             }
         }
         srcBM.unlockPixels();
-        
+
         srcBM = dstBM;
         addr += height * rowBytes;
     }
@@ -243,4 +243,3 @@ bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
     }
     return true;
 }
-

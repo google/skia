@@ -114,7 +114,7 @@ public:
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
-        
+
         // DEPRECATED -- use setFilterLevel instead
         kHighQualityFilterBitmap_Flag = 0x4000, // temporary flag
         // DEPRECATED -- use setFilterLevel instead

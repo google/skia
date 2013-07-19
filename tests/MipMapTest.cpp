@@ -27,10 +27,10 @@ static void TestMipMap(skiatest::Reporter* reporter) {
     for (int i = 0; i < 500; ++i) {
         make_bitmap(&bm, rand);
         SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm));
-        
+
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, NULL));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, NULL));
-        
+
         SkMipMap::Level prevLevel = { 0, 0, 0, 0 };
 
         SkScalar scale = SK_Scalar1;
@@ -43,7 +43,7 @@ static void TestMipMap(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, level.fWidth > 0);
                 REPORTER_ASSERT(reporter, level.fHeight > 0);
                 REPORTER_ASSERT(reporter, level.fRowBytes >= level.fWidth * 4);
-                
+
                 if (prevLevel.fPixels) {
                     REPORTER_ASSERT(reporter, level.fWidth <= prevLevel.fWidth);
                     REPORTER_ASSERT(reporter, level.fHeight <= prevLevel.fHeight);
