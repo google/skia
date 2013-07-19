@@ -6,7 +6,6 @@
  */
 
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -14,8 +13,6 @@
 #include "SkDiffContext.h"
 #include "SkImageDiffer.h"
 #include "skpdiff_util.h"
-
-DECLARE_string(csv);
 
 SkDiffContext::SkDiffContext() {
     fRecords = NULL;
@@ -71,28 +68,6 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     newRecord->fNext = fRecords;
     fRecords = newRecord;
 
-    FILE* csvFile = NULL;
-    if (!FLAGS_csv.isEmpty()) {
-        csvFile = fopen(FLAGS_csv[0], "a");
-        SkASSERT(csvFile);
-        if (ftell(csvFile) == 0) {
-            fprintf(csvFile, "%s", "skp");
-            for (int differIndex = 0; differIndex < fDifferCount; differIndex++) {
-                SkImageDiffer* differ = fDiffers[differIndex];
-                fprintf(csvFile, ", %s", differ->getName());
-            }
-            fprintf(csvFile, "\n");
-        }
-    }
-
-    if (csvFile) {
-        const char* filename = baselinePath + strlen(baselinePath) - 1;
-        while (filename > baselinePath && *(filename - 1) != '/') {
-            filename--;
-        }
-        fprintf(csvFile, "%s", filename);
-    }
-
     // Perform each diff
     for (int differIndex = 0; differIndex < fDifferCount; differIndex++) {
         SkImageDiffer* differ = fDiffers[differIndex];
@@ -105,10 +80,6 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             diffData.fDiffName = differ->getName();
             diffData.fResult = differ->getResult(diffID);
 
-            if (csvFile) {
-                fprintf(csvFile, ", %f", diffData.fResult);
-            }
-
             int poiCount = differ->getPointsOfInterestCount(diffID);
             SkIPoint* poi = differ->getPointsOfInterest(diffID);
             diffData.fPointsOfInterest.append(poiCount, poi);
@@ -116,16 +87,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             // Because we are doing everything synchronously for now, we are done with the diff
             // after reading it.
             differ->deleteDiff(diffID);
-        } else {
-            if (csvFile) {
-                fprintf(csvFile, ", -1");
-            }
         }
-    }
-
-    if (csvFile) {
-        fprintf(csvFile, "\n");
-        fclose(csvFile);
     }
 }
 
