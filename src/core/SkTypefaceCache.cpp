@@ -69,9 +69,7 @@ void SkTypefaceCache::purge(int numToPurge) {
     while (i < count) {
         SkTypeface* face = fArray[i].fFace;
         bool strong = fArray[i].fStrong;
-        if ((strong && face->getRefCnt() == 1) ||
-            (!strong && face->weak_expired()))
-        {
+        if ((strong && face->unique()) || (!strong && face->weak_expired())) {
             if (strong) {
                 face->unref();
             } else {

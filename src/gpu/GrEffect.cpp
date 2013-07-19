@@ -63,7 +63,7 @@ int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIl
 SK_DEFINE_INST_COUNT(GrEffectRef)
 
 GrEffectRef::~GrEffectRef() {
-    GrAssert(1 == this->getRefCnt());
+    GrAssert(this->unique());
     fEffect->EffectRefDestroyed();
     fEffect->unref();
 }

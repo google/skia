@@ -164,7 +164,7 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
 class GrTFindUnreffedFunctor {
 public:
     bool operator()(const GrResourceEntry* entry) const {
-        return 1 == entry->resource()->getRefCnt();
+        return entry->resource()->unique();
     }
 };
 
@@ -338,7 +338,7 @@ void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
             }
 
             GrResourceEntry* prev = iter.prev();
-            if (1 == entry->fResource->getRefCnt()) {
+            if (entry->fResource->unique()) {
                 changed = true;
                 this->deleteResource(entry);
             }

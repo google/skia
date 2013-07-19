@@ -74,7 +74,7 @@ public:
     // call these, since other owners are not informed if we change an element.
 
     T* writableBegin() {
-        SkASSERT(1 == this->getRefCnt());
+        SkASSERT(this->unique());
         return (T*)(this + 1);
     }
     T* writableEnd() {

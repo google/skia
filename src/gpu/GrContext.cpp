@@ -488,7 +488,7 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 
     // Conceptually, the cache entry is going to assume responsibility
     // for the creation ref.
-    GrAssert(1 == texture->getRefCnt());
+    GrAssert(texture->unique());
 
     // Since this texture came from an AutoScratchTexture it should
     // still be in the exclusive pile

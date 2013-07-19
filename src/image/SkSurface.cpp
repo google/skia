@@ -50,7 +50,7 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
         // the surface may need to fork its backend, if its sharing it with
         // the cached image. Note: we only call if there is an outstanding owner
         // on the image (besides us).
-        if (fCachedImage->getRefCnt() > 1) {
+        if (!fCachedImage->unique()) {
             this->onCopyOnWrite(mode);
         }
 
