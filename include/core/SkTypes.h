@@ -184,12 +184,12 @@ typedef int SkBool;
 typedef uint8_t SkBool8;
 
 #ifdef SK_DEBUG
-    SK_API int8_t      SkToS8(long);
-    SK_API uint8_t     SkToU8(size_t);
-    SK_API int16_t     SkToS16(long);
-    SK_API uint16_t    SkToU16(size_t);
-    SK_API int32_t     SkToS32(long);
-    SK_API uint32_t    SkToU32(size_t);
+    SK_API int8_t      SkToS8(intmax_t);
+    SK_API uint8_t     SkToU8(uintmax_t);
+    SK_API int16_t     SkToS16(intmax_t);
+    SK_API uint16_t    SkToU16(uintmax_t);
+    SK_API int32_t     SkToS32(intmax_t);
+    SK_API uint32_t    SkToU32(uintmax_t);
 #else
     #define SkToS8(x)   ((int8_t)(x))
     #define SkToU8(x)   ((uint8_t)(x))
