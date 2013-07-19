@@ -52,7 +52,7 @@ public:
      *  If buffer != NULL, copy size bytes into buffer, return how many were copied.
      *  @param buffer when NULL skip size bytes, otherwise copy size bytes into buffer
      *  @param size the number of bytes to skip or copy
-     *  @return bytes read on success
+     *  @return the number of bytes actually read.
      */
     virtual size_t read(void* buffer, size_t size) = 0;
 
@@ -65,7 +65,10 @@ public:
         return 0 == size ? 0 : this->read(NULL, size);
     }
 
-    /** Returns true if there are no more bytes to be read.
+    /** Returns true when all the bytes in the stream have been read.
+     *  This may return true early (when there are no more bytes to be read)
+     *  or late (after the first unsuccessful read).
+     *
      *  In Progress: do not use until all implementations are updated.
      *  TODO: after this is implemented everywhere, make pure virtual.
      */
@@ -280,7 +283,7 @@ public:
 
     virtual size_t getLength() const SK_OVERRIDE;
 
-    const void* getMemoryBase() SK_OVERRIDE;
+    virtual const void* getMemoryBase() SK_OVERRIDE;
 
 private:
     SkFILE*     fFILE;
@@ -423,7 +426,10 @@ public:
      */
     SkData* copyToData() const;
 
-    // reset the stream to its original state
+    /** Reset, returning a reader stream with the current content. */
+    SkStreamAsset* detatchAsStream();
+
+    /** Reset the stream to its original, empty, state. */
     void reset();
     void padToAlign4();
 private:
@@ -434,6 +440,10 @@ private:
     mutable SkData* fCopy;  // is invalidated if we write after it is created
 
     void invalidateCopy();
+
+    // For access to the Block type.
+    friend class SkBlockMemoryStream;
+    friend class SkBlockMemoryRefCnt;
 
     typedef SkWStream INHERITED;
 };

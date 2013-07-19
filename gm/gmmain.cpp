@@ -410,11 +410,9 @@ public:
         gm_fprintf(stdout, "(results marked with [*] will cause nonzero return value)\n");
     }
 
-    static bool write_document(const SkString& path,
-                               const SkDynamicMemoryWStream& document) {
+    static bool write_document(const SkString& path, SkStreamAsset* asset) {
         SkFILEWStream stream(path.c_str());
-        SkAutoDataUnref data(document.copyToData());
-        return stream.write(data->data(), data->size());
+        return stream.writeStream(asset, asset->getLength());
     }
 
     /**
@@ -665,7 +663,7 @@ public:
                                            const char renderModeDescriptor [],
                                            const char *shortName,
                                            const BitmapAndDigest* bitmapAndDigest,
-                                           SkDynamicMemoryWStream* document) {
+                                           SkStreamAsset* document) {
         SkString path;
         bool success = false;
         if (gRec.fBackend == kRaster_Backend ||
@@ -679,12 +677,12 @@ public:
         if (kPDF_Backend == gRec.fBackend) {
             path = make_filename(writePath, shortName, gRec.fName, renderModeDescriptor,
                                  "pdf");
-            success = write_document(path, *document);
+            success = write_document(path, document);
         }
         if (kXPS_Backend == gRec.fBackend) {
             path = make_filename(writePath, shortName, gRec.fName, renderModeDescriptor,
                                  "xps");
-            success = write_document(path, *document);
+            success = write_document(path, document);
         }
         if (success) {
             return kEmpty_ErrorCombination;
@@ -911,7 +909,7 @@ public:
      */
     ErrorCombination compare_test_results_to_stored_expectations(
         GM* gm, const ConfigData& gRec, const char writePath[],
-        const BitmapAndDigest* actualBitmapAndDigest, SkDynamicMemoryWStream* document) {
+        const BitmapAndDigest* actualBitmapAndDigest, SkStreamAsset* document) {
 
         SkString shortNamePlusConfig = make_shortname_plus_config(gm->shortName(), gRec.fName);
         SkString nameWithExtension(shortNamePlusConfig);
@@ -1025,24 +1023,10 @@ public:
     }
 
     static SkPicture* stream_to_new_picture(const SkPicture& src) {
-
-        // To do in-memory commiunications with a stream, we need to:
-        // * create a dynamic memory stream
-        // * copy it into a buffer
-        // * create a read stream from it
-        // ?!?!
-
         SkDynamicMemoryWStream storage;
         src.serialize(&storage);
-
-        size_t streamSize = storage.getOffset();
-        SkAutoMalloc dstStorage(streamSize);
-        void* dst = dstStorage.get();
-        //char* dst = new char [streamSize];
-        //@todo thudson 22 April 2011 when can we safely delete [] dst?
-        storage.copyTo(dst);
-        SkMemoryStream pictReadback(dst, streamSize);
-        SkPicture* retval = SkPicture::CreateFromStream(&pictReadback);
+        SkAutoTUnref<SkStreamAsset> pictReadback(storage.detatchAsStream());
+        SkPicture* retval = SkPicture::CreateFromStream(pictReadback);
         return retval;
     }
 
@@ -1079,13 +1063,14 @@ public:
             bitmap = NULL;  // we don't generate a bitmap rendering of the XPS file
         }
 
+        SkAutoTUnref<SkStreamAsset> documentStream(document.detatchAsStream());
         if (NULL == bitmap) {
             return compare_test_results_to_stored_expectations(
-                gm, gRec, writePath, NULL, &document);
+                gm, gRec, writePath, NULL, documentStream);
         } else {
             BitmapAndDigest bitmapAndDigest(*bitmap);
             return compare_test_results_to_stored_expectations(
-                gm, gRec, writePath, &bitmapAndDigest, &document);
+                gm, gRec, writePath, &bitmapAndDigest, documentStream);
         }
     }
 
@@ -1093,8 +1078,6 @@ public:
                                            const ConfigData& gRec,
                                            const SkBitmap& referenceBitmap,
                                            GrSurface* gpuTarget) {
-        SkDynamicMemoryWStream document;
-
         if (gRec.fBackend == kRaster_Backend ||
             gRec.fBackend == kGPU_Backend) {
             const char renderModeDescriptor[] = "-deferred";
