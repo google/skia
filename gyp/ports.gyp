@@ -170,7 +170,6 @@
           ],
           'sources': [
             '../src/ports/SkDebug_android.cpp',
-            '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontConfigInterface_android.cpp',
             '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
