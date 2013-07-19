@@ -115,7 +115,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fDrawState = SkNEW(GrDrawState);
     fGpu->setDrawState(fDrawState);
 
-
     fTextureCache = SkNEW_ARGS(GrResourceCache,
                                (MAX_TEXTURE_CACHE_COUNT,
                                 MAX_TEXTURE_CACHE_BYTES));
@@ -399,11 +398,38 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     return texture;
 }
 
-GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
-    GrTextureDesc desc = inDesc;
+static GrTexture* create_scratch_texture(GrGpu* gpu, 
+                                         GrResourceCache* textureCache, 
+                                         const GrTextureDesc& desc) {
+    GrTexture* texture = gpu->createTexture(desc, NULL, 0);
+    if (NULL != texture) {
+        GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
+        // Adding a resource could put us overbudget. Try to free up the
+        // necessary space before adding it.
+        textureCache->purgeAsNeeded(1, texture->sizeInBytes());
+        // Make the resource exclusive so future 'find' calls don't return it
+        textureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
+    }
+    return texture;
+}
 
-    GrAssert((desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
-             !(desc.fFlags & kNoStencil_GrTextureFlagBit));
+GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
+
+    GrAssert((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+             !(inDesc.fFlags & kNoStencil_GrTextureFlagBit));
+
+    // Renderable A8 targets are not universally supported (e.g., not on ANGLE)
+    GrAssert(this->isConfigRenderable(kAlpha_8_GrPixelConfig) ||
+             !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+             (inDesc.fConfig != kAlpha_8_GrPixelConfig));
+
+    if (!fGpu->caps()->reuseScratchTextures()) {
+        // If we're never recycling scratch textures we can
+        // always make them the right size
+        return create_scratch_texture(fGpu, fTextureCache, inDesc);
+    }
+
+    GrTextureDesc desc = inDesc;
 
     if (kApprox_ScratchTexMatch == match) {
         // bin by pow2 with a reasonable min
@@ -411,11 +437,6 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         desc.fWidth  = GrMax(MIN_SIZE, GrNextPow2(desc.fWidth));
         desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
-
-    // Renderable A8 targets are not universally supported (e.g., not on ANGLE)
-    GrAssert(this->isConfigRenderable(kAlpha_8_GrPixelConfig) ||
-             !(desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
-             (desc.fConfig != kAlpha_8_GrPixelConfig));
 
     GrResource* resource = NULL;
     int origWidth = desc.fWidth;
@@ -449,16 +470,7 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         desc.fFlags = inDesc.fFlags;
         desc.fWidth = origWidth;
         desc.fHeight = origHeight;
-        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
-        if (NULL != texture) {
-            GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
-            // Adding a resource could put us overbudget. Try to free up the
-            // necessary space before adding it.
-            fTextureCache->purgeAsNeeded(1, texture->sizeInBytes());
-            // Make the resource exclusive so future 'find' calls don't return it
-            fTextureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
-            resource = texture;
-        }
+        resource = create_scratch_texture(fGpu, fTextureCache, desc);
     }
 
     return static_cast<GrTexture*>(resource);
@@ -482,7 +494,13 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
     // still be in the exclusive pile
     fTextureCache->makeNonExclusive(texture->getCacheEntry());
 
-    this->purgeCache();
+    if (fGpu->caps()->reuseScratchTextures()) {
+        this->purgeCache();
+    } else {
+        // When we aren't reusing textures we know this scratch texture
+        // will never be reused and would be just wasting time in the cache
+        fTextureCache->deleteResource(texture->getCacheEntry());
+    }
 }
 
 
@@ -497,7 +515,6 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
         fTextureCache->makeNonExclusive(texture->getCacheEntry());
         this->purgeCache();
     }
-
 }
 
 void GrContext::purgeCache() {

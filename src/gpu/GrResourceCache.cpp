@@ -88,10 +88,10 @@ GrResourceCache::~GrResourceCache() {
 }
 
 void GrResourceCache::getLimits(int* maxResources, size_t* maxResourceBytes) const{
-    if (maxResources) {
+    if (NULL != maxResources) {
         *maxResources = fMaxCount;
     }
-    if (maxResourceBytes) {
+    if (NULL != maxResourceBytes) {
         *maxResourceBytes = fMaxBytes;
     }
 }
@@ -196,10 +196,6 @@ GrResource* GrResourceCache::find(const GrResourceKey& key, uint32_t ownershipFl
     return entry->fResource;
 }
 
-bool GrResourceCache::hasKey(const GrResourceKey& key) const {
-    return NULL != fCache.find(key);
-}
-
 void GrResourceCache::addResource(const GrResourceKey& key,
                                   GrResource* resource,
                                   uint32_t ownershipFlags) {
@@ -302,6 +298,17 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
     fPurging = false;
 }
 
+void GrResourceCache::deleteResource(GrResourceEntry* entry) {
+    GrAssert(1 == entry->fResource->getRefCnt());
+
+    // remove from our cache
+    fCache.remove(entry->key(), entry);
+
+    // remove from our llist
+    this->internalDetach(entry);
+    delete entry;
+}
+
 void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
     SkASSERT(fPurging);
 
@@ -333,13 +340,7 @@ void GrResourceCache::internalPurge(int extraCount, size_t extraBytes) {
             GrResourceEntry* prev = iter.prev();
             if (1 == entry->fResource->getRefCnt()) {
                 changed = true;
-
-                // remove from our cache
-                fCache.remove(entry->key(), entry);
-
-                // remove from our llist
-                this->internalDetach(entry);
-                delete entry;
+                this->deleteResource(entry);
             }
             entry = prev;
         }
