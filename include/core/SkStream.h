@@ -427,7 +427,7 @@ public:
     SkData* copyToData() const;
 
     /** Reset, returning a reader stream with the current content. */
-    SkStreamAsset* detatchAsStream();
+    SkStreamAsset* detachAsStream();
 
     /** Reset the stream to its original, empty, state. */
     void reset();

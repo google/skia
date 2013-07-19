@@ -1025,7 +1025,7 @@ public:
     static SkPicture* stream_to_new_picture(const SkPicture& src) {
         SkDynamicMemoryWStream storage;
         src.serialize(&storage);
-        SkAutoTUnref<SkStreamAsset> pictReadback(storage.detatchAsStream());
+        SkAutoTUnref<SkStreamAsset> pictReadback(storage.detachAsStream());
         SkPicture* retval = SkPicture::CreateFromStream(pictReadback);
         return retval;
     }
@@ -1063,7 +1063,7 @@ public:
             bitmap = NULL;  // we don't generate a bitmap rendering of the XPS file
         }
 
-        SkAutoTUnref<SkStreamAsset> documentStream(document.detatchAsStream());
+        SkAutoTUnref<SkStreamAsset> documentStream(document.detachAsStream());
         if (NULL == bitmap) {
             return compare_test_results_to_stored_expectations(
                 gm, gRec, writePath, NULL, documentStream);

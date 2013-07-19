@@ -93,7 +93,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
 
     {
-        SkAutoTUnref<SkStreamAsset> stream(ds.detatchAsStream());
+        SkAutoTUnref<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
@@ -123,7 +123,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
 
     {
         // Test that this works after a copyToData.
-        SkAutoTUnref<SkStreamAsset> stream(ds.detatchAsStream());
+        SkAutoTUnref<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
