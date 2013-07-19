@@ -63,8 +63,7 @@ public:
     bool getTexture(GrAutoScratchTexture* texture);
 
     // Move the mask generation results from the internal bitmap to the gpu.
-    // The space outside of the mask is cleared using "alpha"
-    void toTexture(GrTexture* texture, uint8_t alpha);
+    void toTexture(GrTexture* texture);
 
     // Reset the internal bitmap
     void clear(uint8_t alpha) {

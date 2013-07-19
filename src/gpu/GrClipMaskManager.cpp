@@ -993,7 +993,7 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
         }
     }
 
-    helper.toTexture(result, kAllIn_InitialState == initialState ? 0xFF : 0x00);
+    helper.toTexture(result);
 
     fCurrClipMaskType = kAlpha_ClipMaskType;
     return result;

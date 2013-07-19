@@ -130,21 +130,8 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
 /**
  * Move the result of the software mask generation back to the gpu
  */
-void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
+void GrSWMaskHelper::toTexture(GrTexture *texture) {
     SkAutoLockPixels alp(fBM);
-
-    // The destination texture is almost always larger than "fBM". Clear
-    // it appropriately so we don't get mask artifacts outside of the path's
-    // bounding box
-
-    // "texture" needs to be installed as the render target for the clear
-    // and the texture upload but cannot remain the render target upon
-    // return. Callers typically use it as a texture and it would then
-    // be both source and dest.
-    GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(),
-                                              texture->asRenderTarget());
-
-    fContext->getGpu()->clear(NULL, GrColorPackRGBA(alpha, alpha, alpha, alpha));
 
     texture->writePixels(0, 0, fBM.width(), fBM.height(),
                          kAlpha_8_GrPixelConfig,
@@ -177,7 +164,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
         return NULL;
     }
 
-    helper.toTexture(ast.texture(), 0x00);
+    helper.toTexture(ast.texture());
 
     return ast.detach();
 }
