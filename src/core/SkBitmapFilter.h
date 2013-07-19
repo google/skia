@@ -12,6 +12,10 @@
 
 #include "SkMath.h"
 
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 // size of the precomputed bitmap filter tables for high quality filtering.
 // Used to precompute the shape of the filter kernel.
 // Table size chosen from experiments to see where I could start to see a difference.
