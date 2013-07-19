@@ -73,6 +73,9 @@ static inline SkColor SkColorSetA(SkColor c, U8CPU a) {
 
 // common colors
 
+#define SK_AlphaTRANSPARENT 0x00        //!< transparent SkAlpha value
+#define SK_AlphaOPAQUE      0xFF        //!< opaque SkAlpha value
+
 #define SK_ColorTRANSPARENT 0x00000000  //!< transparent SkColor value
 
 #define SK_ColorBLACK       0xFF000000  //!< black SkColor value
