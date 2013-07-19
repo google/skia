@@ -781,7 +781,7 @@ private:
     size_t fCurrentOffset;
 };
 
-SkStreamAsset* SkDynamicMemoryWStream::detatchAsStream() {
+SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
     if (fCopy) {
         SkMemoryStream* stream = SkNEW_ARGS(SkMemoryStream, (fCopy));
         this->reset();
