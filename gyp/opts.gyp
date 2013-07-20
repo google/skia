@@ -23,10 +23,9 @@
       'product_name': 'skia_opts',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'core.gyp:*',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../src/core',
         '../src/opts',
       ],
@@ -112,10 +111,9 @@
       'product_name': 'skia_opts_ssse3',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'core.gyp:*',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../src/core',
       ],
       'conditions': [
@@ -148,10 +146,9 @@
       'product_name': 'skia_opts_neon',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'core.gyp:*',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../src/core',
         '../src/opts',
       ],
