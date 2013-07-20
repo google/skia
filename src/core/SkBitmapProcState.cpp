@@ -100,45 +100,45 @@ void SkBitmapProcState::possiblyScaleImage() {
     if (fFilterQuality != kHQ_BitmapFilter) {
         return;
     }
-    
+
     // see if our platform has any specialized convolution code.
-    
-    
+
+
     // Set up a pointer to a local (instead of storing the structure in the
-    // proc state) to avoid introducing a header dependency; this makes 
+    // proc state) to avoid introducing a header dependency; this makes
     // recompiles a lot less painful.
-    
+
     SkConvolutionProcs simd;
     fConvolutionProcs = &simd;
-    
+
     fConvolutionProcs->fExtraHorizontalReads = 0;
     fConvolutionProcs->fConvolveVertically = NULL;
     fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
     fConvolutionProcs->fConvolveHorizontally = NULL;
     fConvolutionProcs->fApplySIMDPadding = NULL;
-    
+
     this->platformConvolutionProcs();
 
     // STEP 1: Highest quality direct scale?
 
-    // Check to see if the transformation matrix is simple, and if we're 
-    // doing high quality scaling.  If so, do the bitmap scale here and 
+    // Check to see if the transformation matrix is simple, and if we're
+    // doing high quality scaling.  If so, do the bitmap scale here and
     // remove the scaling component from the matrix.
 
     if (fFilterQuality == kHQ_BitmapFilter &&
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
         fOrigBitmap.config() == SkBitmap::kARGB_8888_Config) {
-            
+
         int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / fInvMatrix.getScaleX());
         int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / fInvMatrix.getScaleY());
-        
+
         // All the criteria are met; let's make a new bitmap.
 
         fScaledBitmap = SkBitmapScaler::Resize( fOrigBitmap, SkBitmapScaler::RESIZE_BEST,
                                                 dest_width, dest_height, fConvolutionProcs );
-            
+
         fScaledBitmap.lockPixels();
-            
+
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;

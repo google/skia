@@ -213,7 +213,7 @@ template<bool hasAlpha>
                 //
                 // We only need to do this when generating the final output row (here).
                 int maxColorChannel = SkTMax(outRow[byteOffset + 0],
-                                               SkTMax(outRow[byteOffset + 1], 
+                                               SkTMax(outRow[byteOffset + 1],
                                                       outRow[byteOffset + 2]));
                 if (alpha < maxColorChannel) {
                     outRow[byteOffset + 3] = maxColorChannel;

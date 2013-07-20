@@ -702,7 +702,7 @@ private:
     int extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy);
     bool hasMipMap() const;
     void freeMipMap();
-    
+
     friend struct SkBitmapProcState;
 };
 

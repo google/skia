@@ -385,5 +385,3 @@ int main(int argc, char** argv) {
     return tool_main(argc, argv);
 }
 #endif
-
-

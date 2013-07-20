@@ -398,8 +398,8 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     return texture;
 }
 
-static GrTexture* create_scratch_texture(GrGpu* gpu, 
-                                         GrResourceCache* textureCache, 
+static GrTexture* create_scratch_texture(GrGpu* gpu,
+                                         GrResourceCache* textureCache,
                                          const GrTextureDesc& desc) {
     GrTexture* texture = gpu->createTexture(desc, NULL, 0);
     if (NULL != texture) {

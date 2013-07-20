@@ -248,7 +248,7 @@ public:
     /**
      *  Set the callback the cache should use when it is still over budget
      *  after a purge. The 'data' provided here will be passed back to the
-     *  callback. Note that the cache will attempt to purge any resources newly 
+     *  callback. Note that the cache will attempt to purge any resources newly
      *  freed by the callback.
      */
     void setOverbudgetCallback(PFOverbudgetCB overbudgetCB, void* data) {

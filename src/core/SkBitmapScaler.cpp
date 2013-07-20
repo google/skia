@@ -16,16 +16,16 @@ public:
                    int destWidth, int destHeight,
                    const SkIRect& destSubset,
                    SkConvolutionProcs* convolveProcs);
-    ~SkResizeFilter() { 
-        SkDELETE( fBitmapFilter ); 
+    ~SkResizeFilter() {
+        SkDELETE( fBitmapFilter );
     }
-    
+
     // Returns the filled filter values.
     const SkConvolutionFilter1D& xFilter() { return fXFilter; }
     const SkConvolutionFilter1D& yFilter() { return fYFilter; }
 
 private:
-    
+
     SkBitmapFilter* fBitmapFilter;
 
     // Computes one set of filters either horizontally or vertically. The caller
@@ -38,7 +38,7 @@ private:
     //
     // Likewise, the range of destination values to compute and the scale factor
     // for the transform is also specified.
-    
+
     void computeFilters(int srcSize,
                         int destSubsetLo, int destSubsetSize,
                         float scale,
@@ -58,7 +58,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                                const SkIRect& destSubset,
                                SkConvolutionProcs* convolveProcs)
                        : fOutBounds(destSubset) {
-    
+
     // method will only ever refer to an "algorithm method".
     SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
              (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
@@ -84,7 +84,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
             fBitmapFilter = SkNEW_ARGS(SkMitchellFilter, (1.f/3.f, 1.f/3.f));
             break;
     }
-    
+
 
     float scaleX = static_cast<float>(destWidth) /
                    static_cast<float>(srcFullWidth);

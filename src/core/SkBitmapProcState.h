@@ -60,7 +60,7 @@ struct SkBitmapProcState {
                                  const uint32_t[],
                                  int count,
                                  uint16_t colors[]);
-                                 
+
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
@@ -79,7 +79,7 @@ struct SkBitmapProcState {
     IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
-    
+
     SkConvolutionProcs* fConvolutionProcs;         // possiblyScaleImage
 
     SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
@@ -116,11 +116,11 @@ struct SkBitmapProcState {
         implementation can do nothing (see SkBitmapProcState_opts_none.cpp)
      */
     void platformProcs();
-    
+
     /** Platforms can also optionally overwrite the convolution functions
         if we have SIMD versions of them.
       */
-      
+
     void platformConvolutionProcs();
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,
