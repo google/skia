@@ -11,17 +11,19 @@
       'product_name': 'skia_views',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'angle.gyp:*',
-        'core.gyp:*',
-        'effects.gyp:*',
-        'images.gyp:*',
-        'utils.gyp:*',
-        'xml.gyp:*',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
+        '../include/effects',
+        '../include/images',
+        '../include/lazy',
+        '../include/utils',
         '../include/views',
         '../include/views/unix',
+        '../include/xml',
+      ],
+      'dependencies': [
+        'angle.gyp:*',
       ],
       'sources': [
         '../include/views/SkApplication.h',

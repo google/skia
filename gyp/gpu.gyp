@@ -121,18 +121,19 @@
       'product_name': 'skia_skgpu',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'angle.gyp:*',
-        'core.gyp:*',
-        'utils.gyp:*',
-      ],
       'includes': [
         'gpu.gypi',
       ],
       'include_dirs': [
-        '../include/gpu',
+        '../include/config',
+        '../include/core',
+        '../include/utils',
         '../src/core',
+        '../include/gpu',
         '../src/gpu',
+      ],
+      'dependencies': [
+        'angle.gyp:*',
       ],
       'export_dependent_settings': [
         'angle.gyp:*',

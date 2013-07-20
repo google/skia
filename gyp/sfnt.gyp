@@ -5,10 +5,9 @@
       'product_name': 'skia_sfnt',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'dependencies': [
-        'core.gyp:*',
-      ],
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../src/sfnt',
       ],
       'sources': [
