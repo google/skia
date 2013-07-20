@@ -82,7 +82,7 @@ public:
     // filter values are put into the corresponding out arguments (see AddFilter
     // above for what these mean), and a pointer to the first scaling factor is
     // returned. There will be |filterLength| values in this array.
-    inline const ConvolutionFixed* FilterForValue(int valueOffset, 
+    inline const ConvolutionFixed* FilterForValue(int valueOffset,
                                        int* filterOffset,
                                        int* filterLength) const {
         const FilterInstance& filter = fFilters[valueOffset];
@@ -106,9 +106,9 @@ public:
         int* filterOffset,
         int* filterLength) const;
 
-    // Add another value to the fFilterValues array -- useful for 
+    // Add another value to the fFilterValues array -- useful for
     // SIMD padding which happens outside of this class.
-    
+
     void addFilterValue( ConvolutionFixed val ) {
         fFilterValues.push_back( val );
     }

@@ -4,20 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SkBitmapScaler_DEFINED
 #define SkBitmapScaler_DEFINED
 
 #include "SkBitmap.h"
 #include "SkConvolver.h"
- 
+
 /** \class SkBitmapScaler
 
     Provides the interface for high quality image resampling.
  */
-    
+
 class SK_API SkBitmapScaler {
-public:    
+public:
     enum ResizeMethod {
         // Quality Methods
         //
@@ -26,7 +26,7 @@ public:
         // on the capabilities (CPU, GPU) of the underlying platform.
         // It is possible for all three methods to be mapped to the same
         // algorithm on a given platform.
-        
+
         // Good quality resizing. Fastest resizing with acceptable visual quality.
         // This is typically intended for use during interactive layouts
         // where slower platforms may want to trade image quality for large
@@ -56,11 +56,11 @@ public:
 
         // High quality resizing. The algorithm is picked to favor image quality.
         RESIZE_BEST,
-        
+
         //
         // Algorithm-specific enumerations
         //
-        
+
         // Box filter. This is a weighted average of all of the pixels touching
         // the destination pixel. For enlargement, this is nearest neighbor.
         //
@@ -71,14 +71,14 @@ public:
         RESIZE_LANCZOS3,
         RESIZE_HAMMING,
         RESIZE_MITCHELL,
-        
+
         // enum aliases for first and last methods by algorithm or by quality.
         RESIZE_FIRST_QUALITY_METHOD = RESIZE_GOOD,
         RESIZE_LAST_QUALITY_METHOD = RESIZE_BEST,
         RESIZE_FIRST_ALGORITHM_METHOD = RESIZE_BOX,
         RESIZE_LAST_ALGORITHM_METHOD = RESIZE_MITCHELL,
     };
-    
+
     // Resizes the given source bitmap using the specified resize method, so that
     // the entire image is (dest_size) big. The dest_subset is the rectangle in
     // this destination image that should actually be returned.

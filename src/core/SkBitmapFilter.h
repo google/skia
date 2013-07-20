@@ -48,7 +48,7 @@ class SkBitmapFilter {
       float invWidth() const { return fInvWidth; }
       virtual float evaluate(float x) const = 0;
       virtual ~SkBitmapFilter() {}
-      
+
       static SkBitmapFilter* Allocate();
   protected:
       float fWidth;
@@ -162,13 +162,13 @@ class SkLanczosFilter: public SkBitmapFilter {
           if (x <= -fWidth || x >= fWidth) {
               return 0.0f;  // Outside of the window.
           }
-          if (x > -FLT_EPSILON && x < FLT_EPSILON) {              
+          if (x > -FLT_EPSILON && x < FLT_EPSILON) {
               return 1.0f;  // Special case the discontinuity at the origin.
           }
           float xpi = x * static_cast<float>(SK_ScalarPI);
           return (sk_float_sin(xpi) / xpi) *  // sinc(x)
                   sk_float_sin(xpi / fWidth) / (xpi / fWidth);  // sinc(x/fWidth)
-      }      
+      }
 };
 
 
