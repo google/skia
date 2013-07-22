@@ -180,7 +180,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
                     stream.writeText("\",\n");
 
                     stream.writeText("                    \"result\": ");
-                    stream.writeScalarAsText((SkScalar)data.fResult);
+                    stream.writeScalarAsText(data.fResult);
                     stream.writeText(",\n");
 
                     stream.writeText("                    \"pointsOfInterest\": [\n");

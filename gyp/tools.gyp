@@ -21,7 +21,6 @@
         'render_pdfs',
         'render_pictures',
         'skdiff',
-        'skpdiff',
         'skhello',
         'skimage',
       ],
@@ -49,54 +48,6 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'skpdiff',
-      'type': 'executable',
-      'sources': [
-        '../tools/skpdiff/skpdiff_main.cpp',
-        '../tools/skpdiff/SkDiffContext.cpp',
-        '../tools/skpdiff/SkImageDiffer.cpp',
-        '../tools/skpdiff/SkPMetric.cpp',
-        '../tools/skpdiff/skpdiff_util.cpp',
-        '../tools/flags/SkCommandLineFlags.cpp',
-      ],
-      'include_dirs': [
-        '../tools/flags'
-      ],
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-      ],
-      'cflags': [
-        '-O3',
-      ],
-      'conditions': [
-        ['skia_opencl', {
-          'sources': [
-            '../tools/skpdiff/SkCLImageDiffer.cpp',
-            '../tools/skpdiff/SkDifferentPixelsMetric_opencl.cpp',
-          ],
-          'conditions': [
-            [ 'skia_os == "mac"', {
-              'link_settings': {
-                'libraries': [
-                  '$(SDKROOT)/System/Library/Frameworks/OpenCL.framework',
-                ]
-              }
-            }, {
-              'link_settings': {
-                'libraries': [
-                  '-lOpenCL',
-                ],
-              },
-            }],
-          ],
-        }, { # !skia_opencl
-          'sources': [
-            '../tools/skpdiff/SkDifferentPixelsMetric_cpu.cpp',
-          ],
-        }],
       ],
     },
     {

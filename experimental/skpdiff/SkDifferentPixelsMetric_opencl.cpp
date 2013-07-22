@@ -22,6 +22,7 @@ static const char kDifferentPixelsKernelSource[] =
     "    int2 coord = (int2)(get_global_id(0), get_global_id(1));               \n"
     "    uint4 baselinePixel = read_imageui(baseline, gInSampler, coord);       \n"
     "    uint4 testPixel = read_imageui(test, gInSampler, coord);               \n"
+    "    int4 pixelCompare = baselinePixel == testPixel;                        \n"
     "    if (baselinePixel.x != testPixel.x ||                                  \n"
     "        baselinePixel.y != testPixel.y ||                                  \n"
     "        baselinePixel.z != testPixel.z ||                                  \n"
@@ -119,12 +120,9 @@ int SkDifferentPixelsMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
     diff->result *= (double)diff->numDiffPixels;
     diff->result = (1.0 - diff->result);
 
-    // Reading a buffer of size zero can cause issues on some (Mac) OpenCL platforms.
-    if (diff->numDiffPixels > 0) {
-        diff->poi = SkNEW_ARRAY(SkIPoint, diff->numDiffPixels);
-        clEnqueueReadBuffer(fCommandQueue, diff->poiBuffer, CL_TRUE, 0,
+    diff->poi = SkNEW_ARRAY(SkIPoint, diff->numDiffPixels);
+    clEnqueueReadBuffer(fCommandQueue, diff->poiBuffer, CL_TRUE, 0,
                         sizeof(SkIPoint) * diff->numDiffPixels, diff->poi, 0, NULL, NULL);
-    }
 
     // Release all the buffers created
     clReleaseMemObject(diff->poiBuffer);
