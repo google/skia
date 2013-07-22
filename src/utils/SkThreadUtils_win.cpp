@@ -108,7 +108,7 @@ static unsigned int num_bits_set(DWORD_PTR mask) {
 static unsigned int nth_set_bit(unsigned int n, DWORD_PTR mask) {
     n %= num_bits_set(mask);
     for (unsigned int setBitsSeen = 0, currentBit = 0; true; ++currentBit) {
-        if (mask & (1 << currentBit)) {
+        if (mask & (static_cast<DWORD_PTR>(1) << currentBit)) {
             ++setBitsSeen;
             if (setBitsSeen > n) {
                 return currentBit;

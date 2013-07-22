@@ -2245,7 +2245,7 @@ static void text_draw_init(const SkPaint& paint,
                            SkBitSet& glyphsUsed,
                            SkDraw& myDraw, SkXPSDrawProcs& procs) {
     procs.fD1GProc = xps_draw_1_glyph;
-    int numGlyphGuess;
+    size_t numGlyphGuess;
     switch (paint.getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding:
             numGlyphGuess = SkUTF8_CountUnichars(

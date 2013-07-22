@@ -213,7 +213,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
     if (SUCCEEDED(hr)) {
         SkAutoLockPixels alp(*bm);
         bm->eraseColor(SK_ColorTRANSPARENT);
-        const int stride = bm->rowBytes();
+        const UINT stride = bm->rowBytes();
         hr = piBitmapSourceConverted->CopyPixels(
             NULL,                             //Get all the pixels
             stride,
@@ -396,10 +396,11 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     //Write the pixels into the frame.
     if (SUCCEEDED(hr)) {
         SkAutoLockPixels alp(*bitmap);
+        const UINT stride = bitmap->rowBytes();
         hr = piBitmapFrameEncode->WritePixels(
             height
-            , bitmap->rowBytes()
-            , bitmap->rowBytes()*height
+            , stride
+            , stride * height
             , reinterpret_cast<BYTE*>(bitmap->getPixels()));
     }
 
