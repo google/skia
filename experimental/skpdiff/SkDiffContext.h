@@ -90,6 +90,12 @@ public:
      */
     void outputRecords(SkWStream& stream, bool useJSONP);
 
+    /**
+     * Output the records score in csv format.
+     */
+    void outputCsv(SkWStream& stream);
+
+
 private:
     struct DiffData {
         const char* fDiffName;

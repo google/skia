@@ -9,6 +9,7 @@
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
+#include "SkTDict.h"
 
 #include "SkDiffContext.h"
 #include "SkImageDiffer.h"
@@ -228,5 +229,64 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     else
     {
         stream.writeText("}\n");
+    }
+}
+
+void SkDiffContext::outputCsv(SkWStream& stream) {
+    SkTDict<int> columns(2);
+    int cntColumns = 0;
+
+    stream.writeText("key");
+
+    DiffRecord* currentRecord = fRecords;
+
+    // Write CSV header and create a dictionary of all columns.
+    while (NULL != currentRecord) {
+        for (int diffIndex = 0; diffIndex < currentRecord->fDiffs.count(); diffIndex++) {
+            DiffData& data = currentRecord->fDiffs[diffIndex];
+            if (!columns.find(data.fDiffName)) {
+                columns.set(data.fDiffName, cntColumns);
+                stream.writeText(", ");
+                stream.writeText(data.fDiffName);
+                cntColumns++;
+            }
+        }
+        currentRecord = currentRecord->fNext;
+    }
+    stream.writeText("\n");
+
+    double values[100];
+    SkASSERT(cntColumns < 100);  // Make the array larger, if we ever have so many diff types.
+
+    currentRecord = fRecords;
+    while (NULL != currentRecord) {
+        for (int i = 0; i < cntColumns; i++) {
+            values[i] = -1;
+        }
+
+        for (int diffIndex = 0; diffIndex < currentRecord->fDiffs.count(); diffIndex++) {
+            DiffData& data = currentRecord->fDiffs[diffIndex];
+            int index = -1;
+            SkAssertResult(columns.find(data.fDiffName, &index));
+            SkASSERT(index >= 0 && index < cntColumns);
+            values[index] = data.fResult;
+        }
+
+        const char* filename = currentRecord->fBaselinePath.c_str() +
+                strlen(currentRecord->fBaselinePath.c_str()) - 1;
+        while (filename > currentRecord->fBaselinePath.c_str() && *(filename - 1) != '/') {
+            filename--;
+        }
+
+        stream.writeText(filename);
+
+        for (int i = 0; i < cntColumns; i++) {
+            SkString str;
+            str.printf(", %f", values[i]);
+            stream.writeText(str.c_str());
+        }
+        stream.writeText("\n");
+
+        currentRecord = currentRecord->fNext;
     }
 }
