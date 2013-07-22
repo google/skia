@@ -563,13 +563,20 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
     SkAutoMutexAcquire ac(mutex_);
 
     FcPattern* pat = FcPatternCreate();
-    FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, (char *) 0);
+    SkAutoTCallVProc<FcPattern, FcPatternDestroy> autoDestroyPat(pat);
+    if (NULL == pat) {
+        return NULL;
+    }
+
+    FcObjectSet* os = FcObjectSetBuild(FC_FAMILY, (char *)0);
+    SkAutoTCallVProc<FcObjectSet, FcObjectSetDestroy> autoDestroyOs(os);
     if (NULL == os) {
         return NULL;
     }
+
     FcFontSet* fs = FcFontList(NULL, pat, os);
+    SkAutoTCallVProc<FcFontSet, FcFontSetDestroy> autoDestroyFs(fs);
     if (NULL == fs) {
-        FcObjectSetDestroy(os);
         return NULL;
     }
 
@@ -583,10 +590,6 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
             *sizes.append() = strlen(famName) + 1;
         }
     }
-
-    FcFontSetDestroy(fs);
-    FcObjectSetDestroy(os);
-    FcPatternDestroy(pat);
 
     return SkDataTable::NewCopyArrays((const void*const*)names.begin(),
                                       sizes.begin(), names.count());
