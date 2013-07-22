@@ -404,7 +404,7 @@ public:
 
         if (key->fObjectType != kName_PdfObjectType || fObjectType != kDictionary_PdfObjectType) {
             // TODO(edisonn): report err
-            return false;
+            return NULL;
         }
 
         SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
@@ -430,7 +430,7 @@ public:
 
         if (key->fObjectType != kName_PdfObjectType || fObjectType != kDictionary_PdfObjectType) {
             // TODO(edisonn): report err
-            return false;
+            return NULL;
         }
 
         SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
