@@ -9,16 +9,13 @@
       'product_name': 'skia_animator',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'views.gyp:*',
+        'xml.gyp:*',
+      ],
       'include_dirs': [
         '../include/animator',
-        '../include/config',
-        '../include/core',
-        '../include/effects',
-        '../include/images',
-        '../include/lazy',
-        '../include/utils',
-        '../include/views',
-        '../include/xml',
         '../src/utils',
       ],
       'sources': [

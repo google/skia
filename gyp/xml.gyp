@@ -5,11 +5,11 @@
       'product_name': 'skia_xml',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
         '../include/xml',
-        '../include/utils',
       ],
       'sources': [
         '../include/xml/SkBML_WXMLParser.h',

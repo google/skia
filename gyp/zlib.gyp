@@ -3,9 +3,8 @@
     {
       'target_name': 'zlib',
       'type': 'static_library',
-      'include_dirs': [
-        '../include/config',
-        '../include/core',
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
       ],
       'sources': [
         '../include/core/SkFlate.h',

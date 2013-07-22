@@ -8,7 +8,6 @@
       'target_name': 'gm_expectations',
       'type': 'static_library',
       'include_dirs' : [
-        '../include/core/',
         '../src/utils/',
       ],
       'sources': [

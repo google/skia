@@ -5,11 +5,11 @@
       'product_name': 'skia_svg',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'xml.gyp:*',
+      ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
-        '../include/xml',
-        '../include/utils',
         '../include/svg',
       ],
       'sources': [
