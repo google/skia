@@ -179,7 +179,7 @@ static float gCubeRootTable[] = {
     0.9967341374f,0.9970616873f,0.9973890221f,0.9977161421f,0.9980430478f,0.9983697395f,
     0.9986962176f,0.9990224823f,0.9993485340f,0.9996743731f,
 };
-float get_cube_root(float value) {
+static float get_cube_root(float value) {
     SkASSERT(value >= 0.0f);
     SkASSERT(value * 1023.0f < 1024.0f);
     return gCubeRootTable[(int)(value * 1023.0f)];
@@ -230,7 +230,7 @@ static float gGammaTable[] = {
     0.9239933353f,0.9322768503f,0.9406007070f,0.9489649382f,0.9573695762f,0.9658146535f,
     0.9743002024f,0.9828262551f,0.9913928436f,1.0000000000f,
 };
-float get_gamma(unsigned char value) {
+static float get_gamma(unsigned char value) {
     return gGammaTable[value];
 }
 
@@ -1903,7 +1903,7 @@ static float gTVITable[] = {
     5.5534835301f,5.5540394344f,5.5545953386f,5.5551512429f,5.5557071472f,5.5562630514f,
     5.5568189557f,5.5573748599f,5.5579307642f,5.5584866684f,
 };
-float get_threshold_vs_intensity(float value) {
+static float get_threshold_vs_intensity(float value) {
     SkASSERT(value >= 0.0f);
     SkASSERT(value < 100.0f);
     return gTVITable[(int)(value * 100.0f)];
@@ -2578,7 +2578,7 @@ static float gVisualMaskTable[] = {
     331.9392982234f,331.9975309989f,332.0557593973f,332.1139834200f,332.1722030684f,332.2304183439f,
     332.2886292480f,332.3468357821f,332.4050379475f,332.4632357458f,
 };
-float get_visual_mask(float value) {
+static float get_visual_mask(float value) {
     SkASSERT(value >= 0.0f);
     SkASSERT(value < 4000.0f);
     return gVisualMaskTable[(int)value];
