@@ -11,7 +11,6 @@
 #include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -207,18 +206,14 @@ void SkPDFUtils::StrokePath(SkWStream* content) {
 
 // static
 void SkPDFUtils::DrawFormXObject(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kXObject_ResourceType,
-            objectIndex).c_str());
+    content->writeText("/X");
+    content->writeDecAsText(objectIndex);
     content->writeText(" Do\n");
 }
 
 // static
 void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kExtGState_ResourceType,
-            objectIndex).c_str());
+    content->writeText("/G");
+    content->writeDecAsText(objectIndex);
     content->writeText(" gs\n");
 }
