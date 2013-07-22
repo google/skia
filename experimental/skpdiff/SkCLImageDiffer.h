@@ -8,7 +8,11 @@
 #ifndef SkCLImageDiffer_DEFINED
 #define SkCLImageDiffer_DEFINED
 
-#include <CL/cl.h>
+#if SK_BUILD_FOR_MAC
+#   include <OpenCL/cl.h>
+#else
+#   include <CL/cl.h>
+#endif
 #include "SkTDArray.h"
 
 #include "SkImageDiffer.h"

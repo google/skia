@@ -60,7 +60,7 @@ def visual_mask(contrast):
 
 # float gCubeRootTable[]
 CUBE_ROOT_ACCESS_FUNCTION = '''
-float get_cube_root(float value) {
+static float get_cube_root(float value) {
     SkASSERT(value >= 0.0f);
     SkASSERT(value * 1023.0f < 1024.0f);
     return gCubeRootTable[(int)(value * 1023.0f)];
@@ -78,7 +78,7 @@ def generate_cube_root_table(stream):
 
 # float gGammaTable[]
 GAMMA_ACCESS_FUNCTION = '''
-float get_gamma(unsigned char value) {
+static float get_gamma(unsigned char value) {
     return gGammaTable[value];
 }
 '''
@@ -94,7 +94,7 @@ def generate_gamma_table(stream):
 
 # float gTVITable[]
 TVI_ACCESS_FUNCTION = '''
-float get_threshold_vs_intensity(float value) {
+static float get_threshold_vs_intensity(float value) {
     SkASSERT(value >= 0.0f);
     SkASSERT(value < 100.0f);
     return gTVITable[(int)(value * 100.0f)];
@@ -113,7 +113,7 @@ def generate_tvi_table(stream):
 # float gVisualMaskTable[]
 VISUAL_MASK_DOMAIN = 4000
 VISUAL_MASK_ACCESS_FUNCTION = '''
-float get_visual_mask(float value) {{
+static float get_visual_mask(float value) {{
     SkASSERT(value >= 0.0f);
     SkASSERT(value < {}.0f);
     return gVisualMaskTable[(int)value];
