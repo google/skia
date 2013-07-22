@@ -27,7 +27,8 @@ public:
                             passed to filterImage() is used instead.
     */
 
-    SkBicubicImageFilter(const SkSize& scale, const SkScalar coefficients[16],
+    SkBicubicImageFilter(const SkSize& scale,
+                         const SkScalar coefficients[16],
                          SkImageFilter* input = NULL);
     static SkBicubicImageFilter* CreateMitchell(const SkSize& scale, SkImageFilter* input = NULL);
     virtual ~SkBicubicImageFilter();
