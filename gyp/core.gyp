@@ -39,7 +39,6 @@
         [ 'skia_os == "mac"', {
           'include_dirs': [
             '../include/utils/mac',
-            '../third_party/freetype/include/**',
           ],
           'sources': [
             '../include/utils/mac/SkCGUtils.h',
@@ -110,7 +109,6 @@
           [ 'skia_os == "mac"', {
             'include_dirs': [
               '../include/utils/mac',
-              '../third_party/freetype/include/**',
             ],
           }],
           [ 'skia_os == "ios"', {

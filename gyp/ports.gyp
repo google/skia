@@ -43,44 +43,30 @@
         '../src/ports/SkXMLParser_empty.cpp',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'defines': [
-            #The font host requires at least FreeType 2.3.0 at runtime.
-            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',\
-            'SK_CAN_USE_DLOPEN=1',
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "nacl", "android"]', {
+          'sources': [
+            '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/SkFontHost_FreeType_common.cpp',
           ],
+          'dependencies': [
+            'freetype.gyp:freetype',
+          ],
+        }],
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'link_settings': {
             'libraries': [
-              '-lfreetype',
               '-lfontconfig',
               '-ldl',
             ],
           },
           'sources': [
             '../src/fonts/SkFontMgr_fontconfig.cpp',
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',
             '../src/ports/SkFontConfigInterface_direct.cpp',
           ],
         }],
         [ 'skia_os == "nacl"', {
-          'dependencies': [
-            # On other OS, we can dynamically link against freetype.  For nacl,
-            # we have to include our own version since the naclports version is
-            # too old (<0x020300) to provide the functionality we need.
-            'freetype.gyp:freetype',
-          ],
-          'export_dependent_settings': [
-            'freetype.gyp:freetype',
-          ],
-          'defines': [
-            # We use Android's repo, which provides at least FreeType 2.4.0
-            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',\
-          ],
           'sources': [
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_linux.cpp',
           ],
           'sources!': [
@@ -94,12 +80,9 @@
         [ 'skia_os == "mac"', {
           'include_dirs': [
             '../include/utils/mac',
-            '../third_party/freetype/include/**',
           ],
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
-#            '../src/ports/SkFontHost_FreeType.cpp',
-#            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
           ],
@@ -158,12 +141,6 @@
           ],
         }],
         [ 'skia_os == "android"', {
-          'defines': [
-            #Android provides at least FreeType 2.4.0 at runtime.
-            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
-            #Skia should not use dlopen on Android.
-            'SK_CAN_USE_DLOPEN=0',
-          ],
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
             '../src/ports/SkPurgeableMemoryBlock_none.cpp',
@@ -172,13 +149,10 @@
             '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkFontConfigInterface_android.cpp',
             '../src/ports/SkFontConfigParser_android.cpp',
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',
             '../src/ports/SkPurgeableMemoryBlock_android.cpp',
           ],
           'dependencies': [
-             'freetype.gyp:freetype',
              'android_deps.gyp:expat',
           ],
         }],
