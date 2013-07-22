@@ -21,6 +21,8 @@
         '../experimental/PdfViewer/SkPdfRenderer.cpp',
         '../experimental/PdfViewer/SkPdfUtils.cpp',
         #'../experimental/PdfViewer/SkPdfNYI.cpp',
+        '../experimental/PdfViewer/SkTrackDevice.cpp',
+        '../experimental/PdfViewer/SkTracker.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfObject.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfNativeTokenizer.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkNativeParsedPDF.cpp',

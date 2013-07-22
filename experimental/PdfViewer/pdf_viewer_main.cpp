@@ -10,6 +10,7 @@
 #include "SkTypeface.h"
 #include "SkTArray.h"
 #include "picture_utils.h"
+#include "SkNulCanvas.h"
 
 #include "SkPdfRenderer.h"
 
@@ -28,6 +29,10 @@ DEFINE_double(DPI, 72, "DPI to be used for rendering (scale).");
 DEFINE_int32(benchLoad, 0, "Load the pdf file minimally N times, without any rendering and \n"
              "\tminimal parsing to ensure correctness. Default 0 (disabled).");
 DEFINE_int32(benchRender, 0, "Render the pdf content N times. Default 0 (disabled)");
+DEFINE_string2(config, c, "8888", "Canvas to render:\n"
+                                  "\t8888 - all pages\n"
+                                  "\tnul - all pages, in reverse order\n"
+               );
 
 
 // TODO(edisonn): add config for device target(gpu, raster, pdf), + ability not to render at all
@@ -110,35 +115,45 @@ static bool render_page(const SkString& outputDir,
                         int page) {
     SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
 
-    SkBitmap bitmap;
-    SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
-    SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+    // Exercise all pdf codepaths as in normal rendering, but no actual bits are changed.
+    if (!FLAGS_config.isEmpty() && strcmp(FLAGS_config[0], "nul") == 0) {
+        SkBitmap bitmap;
+        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+        SkNulCanvas canvas(device);
+        renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
+    } else {
+        // 8888
+        SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
 
-    rect = SkRect::MakeWH(width, height);
+        SkBitmap bitmap;
+        SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+        SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+
+        rect = SkRect::MakeWH(width, height);
 
 #ifdef PDF_DEBUG_3X
-    setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(width), 3 * (int)SkScalarToDouble(height));
+        setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(width), 3 * (int)SkScalarToDouble(height));
 #else
-    setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
+        setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
 #endif
-    SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
-    SkCanvas canvas(device);
+        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+        SkCanvas canvas(device);
 
-    gDumpBitmap = &bitmap;
+        gDumpBitmap = &bitmap;
 
-    gDumpCanvas = &canvas;
-    renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
+        gDumpCanvas = &canvas;
+        renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
 
-    SkString outputPath;
-    if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
-        return false;
+        SkString outputPath;
+        if (!make_output_filepath(&outputPath, outputDir, inputFilename, page)) {
+            return false;
+        }
+        SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
+
+        if (FLAGS_showMemoryUsage) {
+            SkDebugf("Memory usage after page %i rendered: %u\n", page < 0 ? 0 : page, (unsigned int)renderer.bytesUsed());
+        }
     }
-    SkImageEncoder::EncodeFile(outputPath.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-
-    if (FLAGS_showMemoryUsage) {
-        SkDebugf("Memory usage after page %i rendered: %u\n", page < 0 ? 0 : page, (unsigned int)renderer.bytesUsed());
-    }
-
     return true;
 }
 
