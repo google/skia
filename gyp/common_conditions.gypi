@@ -240,10 +240,6 @@
                 '-pthread',
               ],
             },
-          }, { # skia_os != "nacl"
-            'include_dirs' : [
-              '/usr/include/freetype2',
-            ],
           }],
           [ 'skia_os == "chromeos"', {
             'ldflags': [
