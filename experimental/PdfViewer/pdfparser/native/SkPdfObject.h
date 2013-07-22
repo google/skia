@@ -384,10 +384,14 @@ public:
         // we rewrite all delimiters and white spaces with '\0', so we expect the end of name to be '\0'
         SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
-        return set((char*)key->fStr.fBuffer, value);
+        return set(key->fStr.fBuffer, key->fStr.fBytes, value);
     }
 
     bool set(const char* key, SkPdfObject* value) {
+        return set((const unsigned char*)key, strlen(key), value);
+    }
+
+    bool set(const unsigned char* key, size_t len, SkPdfObject* value) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
 
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -395,7 +399,7 @@ public:
             return false;
         }
 
-        return fMap->set(key, value);
+        return fMap->set((const char*)key, len, value);
     }
 
     SkPdfObject* get(SkPdfObject* key) {
@@ -409,10 +413,14 @@ public:
 
         SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
-        return get((char*)key->fStr.fBuffer);
+        return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
     SkPdfObject* get(const char* key) {
+        return get((const unsigned char*)key, strlen(key));
+    }
+
+    SkPdfObject* get(const unsigned char* key, size_t len) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -420,7 +428,7 @@ public:
             return NULL;
         }
         SkPdfObject* ret = NULL;
-        fMap->find(key, &ret);
+        fMap->find((const char*)key, len, &ret);
         return ret;
     }
 
@@ -435,11 +443,14 @@ public:
 
         SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
-        return get((char*)key->fStr.fBuffer);
+        return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
-
     const SkPdfObject* get(const char* key) const {
+        return get((const unsigned char*)key, strlen(key));
+    }
+
+    const SkPdfObject* get(const unsigned char* key, size_t len) const {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -447,7 +458,7 @@ public:
             return NULL;
         }
         SkPdfObject* ret = NULL;
-        fMap->find(key, &ret);
+        fMap->find((const char*)key, len, &ret);
         return ret;
     }
 
