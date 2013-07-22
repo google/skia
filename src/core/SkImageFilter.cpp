@@ -18,22 +18,27 @@
 
 SK_DEFINE_INST_COUNT(SkImageFilter)
 
-SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs)
-  : fInputCount(inputCount), fInputs(new SkImageFilter*[inputCount]) {
+SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const SkIRect* cropRect)
+  : fInputCount(inputCount),
+    fInputs(new SkImageFilter*[inputCount]),
+    fCropRect(cropRect ? *cropRect : SkIRect::MakeLargest()) {
     for (int i = 0; i < inputCount; ++i) {
         fInputs[i] = inputs[i];
         SkSafeRef(fInputs[i]);
     }
 }
 
-SkImageFilter::SkImageFilter(SkImageFilter* input)
-  : fInputCount(1), fInputs(new SkImageFilter*[1]) {
+SkImageFilter::SkImageFilter(SkImageFilter* input, const SkIRect* cropRect)
+  : fInputCount(1),
+    fInputs(new SkImageFilter*[1]),
+    fCropRect(cropRect ? *cropRect : SkIRect::MakeLargest()) {
     fInputs[0] = input;
     SkSafeRef(fInputs[0]);
 }
 
-SkImageFilter::SkImageFilter(SkImageFilter* input1, SkImageFilter* input2)
-  : fInputCount(2), fInputs(new SkImageFilter*[2]) {
+SkImageFilter::SkImageFilter(SkImageFilter* input1, SkImageFilter* input2, const SkIRect* cropRect)
+  : fInputCount(2), fInputs(new SkImageFilter*[2]),
+  fCropRect(cropRect ? *cropRect : SkIRect::MakeLargest()) {
     fInputs[0] = input1;
     fInputs[1] = input2;
     SkSafeRef(fInputs[0]);
@@ -56,6 +61,7 @@ SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
             fInputs[i] = NULL;
         }
     }
+    buffer.readIRect(&fCropRect);
 }
 
 void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -67,6 +73,7 @@ void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
             buffer.writeFlattenable(input);
         }
     }
+    buffer.writeIRect(fCropRect);
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
@@ -135,6 +142,10 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* 
 #else
     return false;
 #endif
+}
+
+bool SkImageFilter::applyCropRect(SkIRect* rect) const {
+    return rect->intersect(fCropRect);
 }
 
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
