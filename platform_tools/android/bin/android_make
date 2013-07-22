@@ -1,6 +1,5 @@
 #!/bin/bash
 
-makeVars=""
 deviceID=""
 
 while (( "$#" )); do
@@ -16,7 +15,7 @@ while (( "$#" )); do
       ANDROID_MAKE_CCACHE=$(which ccache)
     fi
   else
-    makeVars="$makeVars $1"
+    makeVars=("${makeVars[@]}" "$1")
   fi
 
 shift
@@ -50,7 +49,7 @@ fi
 # write the out directory into the .android_config file
 echo $SKIA_OUT > .android_config
 
-make $makeVars
+make ${makeVars[@]}
 if [ $? != 0 ]
 then
   exit 1;
