@@ -36,11 +36,6 @@ void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
     as_IB(this)->onDraw(canvas, x, y, paint);
 }
 
-void SkImage::draw(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
-                   const SkPaint* paint) {
-    as_IB(this)->onDrawRectToRect(canvas, src, dst, paint);
-}
-
 GrTexture* SkImage::getTexture() {
     return as_IB(this)->onGetTexture();
 }

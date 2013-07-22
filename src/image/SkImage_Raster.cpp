@@ -55,7 +55,6 @@ public:
     virtual ~SkImage_Raster();
 
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
-    virtual void onDrawRectToRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) SK_OVERRIDE;
     virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -108,10 +107,6 @@ SkImage_Raster::~SkImage_Raster() {}
 
 void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
     canvas->drawBitmap(fBitmap, x, y, paint);
-}
-
-void SkImage_Raster::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst, const SkPaint* paint) {
-    canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
 }
 
 bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
