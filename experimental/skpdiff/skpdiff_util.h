@@ -12,12 +12,7 @@
 #include "SkTArray.h"
 
 #if SK_SUPPORT_OPENCL
-#if SK_BUILD_FOR_MAC
-#   include <OpenCL/cl.h>
-#else
-#   include <CL/cl.h>
-#endif
-
+#include <CL/cl.h>
 /**
  * Converts an OpenCL error number into the string of its enumeration name.
  * @param  err The OpenCL error number

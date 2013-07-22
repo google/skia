@@ -6,16 +6,9 @@
  */
 
 #if SK_SUPPORT_OPENCL
-
 #define __NO_STD_VECTOR // Uses cl::vectpr instead of std::vectpr
 #define __NO_STD_STRING // Uses cl::STRING_CLASS instead of std::string
-#if SK_BUILD_FOR_MAC
-// Note that some macs don't have this header and it can be downloaded from the Khronos registry
-#   include <OpenCL/cl.hpp>
-#else
-#   include <CL/cl.hpp>
-#endif
-
+#include <CL/cl.hpp>
 #endif
 
 #include "SkCommandLineFlags.h"
@@ -42,7 +35,7 @@ DEFINE_bool(jsonp, true, "Output JSON with padding");
 
 #if SK_SUPPORT_OPENCL
 /// A callback for any OpenCL errors
-static void CL_CALLBACK error_notify(const char* errorInfo, const void* privateInfoSize, ::size_t cb, void* userData) {
+CL_CALLBACK void error_notify(const char* errorInfo, const void* privateInfoSize, ::size_t cb, void* userData) {
     SkDebugf("OpenCL error notify: %s\n", errorInfo);
     exit(1);
 }
@@ -62,8 +55,8 @@ static bool init_device_and_context(cl::Device* device, cl::Context* context) {
 
     // Query for a device
     cl::vector<cl::Device> deviceList;
-    platform.getDevices(CL_DEVICE_TYPE_ALL, &deviceList);
-    SkDebugf("The number of devices is %u\n", deviceList.size());
+    platform.getDevices(CL_DEVICE_TYPE_GPU, &deviceList);
+    SkDebugf("The number of GPU devices is %u\n", deviceList.size());
 
     // Print some information about the device for debugging
     *device = deviceList[0];
