@@ -9,13 +9,14 @@
 
 #include <emmintrin.h>
 #include "SkBitmapProcState_opts_SSE2.h"
+#include "SkPaint.h"
 #include "SkUtils.h"
 
 void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    const uint32_t* xy,
                                    int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterQuality != SkBitmapProcState::kNone_BitmapFilter);
+    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
     SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
     SkASSERT(s.fAlphaScale == 256);
 
@@ -121,7 +122,7 @@ void S32_alpha_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                   const uint32_t* xy,
                                   int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterQuality != SkBitmapProcState::kNone_BitmapFilter);
+    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
     SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
     SkASSERT(s.fAlphaScale < 256);
 
@@ -641,7 +642,7 @@ void S32_D16_filter_DX_SSE2(const SkBitmapProcState& s,
                                    const uint32_t* xy,
                                    int count, uint16_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterQuality != SkBitmapProcState::kNone_BitmapFilter);
+    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
     SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
     SkASSERT(s.fBitmap->isOpaque());
 

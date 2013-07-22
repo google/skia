@@ -392,7 +392,8 @@ protected:
 
         canvas->save();
         canvas->translate(SkIntToScalar(0), SkIntToScalar(5));
-        paint.setFlags(SkPaint::kAntiAlias_Flag | SkPaint::kFilterBitmap_Flag);
+        paint.setAntiAlias(true);
+        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
         // !!! draw through a clip
         paint.setColor(SK_ColorLTGRAY);
         paint.setStyle(SkPaint::kFill_Style);

@@ -52,6 +52,14 @@ typedef const SkGlyph& (*SkMeasureCacheProc)(SkGlyphCache*, const char**);
 */
 
 class SK_API SkPaint {
+    enum {
+        // DEPRECATED -- use setFilterLevel instead
+        kFilterBitmap_Flag    = 0x02, // temporary flag
+        // DEPRECATED -- use setFilterLevel instead
+        kHighQualityFilterBitmap_Flag = 0x4000, // temporary flag
+        // DEPRECATED -- use setFilterLevel instead
+        kHighQualityDownsampleBitmap_Flag = 0x8000, // temporary flag
+    };
 public:
     SkPaint();
     SkPaint(const SkPaint& paint);
@@ -98,10 +106,6 @@ public:
     */
     enum Flags {
         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
-
-        // DEPRECATED -- use setFilterLevel instead
-        kFilterBitmap_Flag    = 0x02, // temporary flag
-
         kDither_Flag          = 0x04,   //!< mask to enable dithering
         kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
         kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
@@ -114,12 +118,6 @@ public:
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
-
-        // DEPRECATED -- use setFilterLevel instead
-        kHighQualityFilterBitmap_Flag = 0x4000, // temporary flag
-        // DEPRECATED -- use setFilterLevel instead
-        kHighQualityDownsampleBitmap_Flag = 0x8000, // temporary flag
-
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 

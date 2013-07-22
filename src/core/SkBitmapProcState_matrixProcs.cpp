@@ -472,7 +472,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective
     if (trivial_matrix) {
-        SkASSERT(kNone_BitmapFilter == fFilterQuality);
+        SkASSERT(SkPaint::kNone_FilterLevel == fFilterLevel);
         fIntTileProcY = choose_int_tile_proc(fTileModeY);
         switch (fTileModeX) {
             case SkShader::kClamp_TileMode:
@@ -485,7 +485,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     }
 
     int index = 0;
-    if (fFilterQuality != kNone_BitmapFilter) {
+    if (fFilterLevel != SkPaint::kNone_FilterLevel) {
         index = 1;
     }
     if (fInvType & SkMatrix::kPerspective_Mask) {

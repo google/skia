@@ -64,8 +64,7 @@ protected:
             matrix.setScale( curScale, curScale );
 
             SkPaint paint;
-            paint.setFilterBitmap(true);
-            paint.setFlags( paint.getFlags() | SkPaint::kHighQualityFilterBitmap_Flag );
+            paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
 
             canvas->save();
             canvas->translate( (SkScalar) curX, 0.f );
