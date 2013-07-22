@@ -90,8 +90,7 @@ typedef ImageArray<float> ImageL3D;
 
 #define MAT_ROW_MULT(rc,gc,bc) r*rc + g*gc + b*bc
 
-
-void adobergb_to_cielab(float r, float g, float b, LAB* lab) {
+static void adobergb_to_cielab(float r, float g, float b, LAB* lab) {
     // Conversion of Adobe RGB to XYZ taken from from "Adobe RGB (1998) ColorImage Encoding"
     // URL:http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf
     // Section: 4.3.5.3
@@ -152,7 +151,7 @@ static void bitmap_to_cielab(const SkBitmap* bitmap, ImageLAB* outImageLAB) {
 // From Barten SPIE 1989
 static float contrast_sensitivity(float cyclesPerDegree, float luminance) {
     float a = 440.0f * powf(1.0f + 0.7f / luminance, -0.2f);
-    float b = 0.3f * powf(1 + 100.0 / luminance, 0.15f);
+    float b = 0.3f * powf(1.0f + 100.0f / luminance, 0.15f);
     return a *
            cyclesPerDegree *
            expf(-b * cyclesPerDegree) *
@@ -259,14 +258,20 @@ static void convolve(const ImageL* imageL, bool vertical, ImageL* outImageL) {
     }
 }
 
-float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<SkIPoint>* poi) {
+static double pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<SkIPoint>* poi) {
     int width = baselineLAB->width;
     int height = baselineLAB->height;
-    int maxLevels = (int)log2(width < height ? width : height);
+    int maxLevels = 0;
 
-    const float fov = M_PI / 180.0f * 45.0f;
+    // Calculates how many levels to make by how many times the image can be divided in two
+    int smallerDimension = width < height ? width : height;
+    for ( ; smallerDimension > 1; smallerDimension /= 2) {
+        maxLevels++;
+    }
+
+    const float fov = SK_ScalarPI / 180.0f * 45.0f;
     float contrastSensitivityMax = contrast_sensitivity(3.248f, 100.0f);
-    float pixelsPerDegree = width / (2.0f * tanf(fov * 0.5f) * 180.0f / M_PI);
+    float pixelsPerDegree = width / (2.0f * tanf(fov * 0.5f) * 180.0f / SK_ScalarPI);
 
     ImageL3D baselineL(width, height, maxLevels);
     ImageL3D testL(width, height, maxLevels);
@@ -326,8 +331,8 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
             testL.getLayer(maxLevels - 1)->readPixel(x, y, &avgLTest);
 
             float lAdapt = 0.5f * (avgLBaseline + avgLTest);
-            if (lAdapt < 1e-5) {
-                lAdapt = 1e-5;
+            if (lAdapt < 1e-5f) {
+                lAdapt = 1e-5f;
             }
 
             float contrastSum = 0.0f;
@@ -352,15 +357,15 @@ float pmetric(const ImageLAB* baselineLAB, const ImageLAB* testLAB, SkTDArray<Sk
                                     baselineContrast2 : testContrast2;
 
                 // Avoid divides by close to zero
-                if (denominator < 1e-5) {
-                    denominator = 1e-5;
+                if (denominator < 1e-5f) {
+                    denominator = 1e-5f;
                 }
                 contrast[levelIndex] = numerator / denominator;
                 contrastSum += contrast[levelIndex];
             }
 
-            if (contrastSum < 1e-5) {
-                contrastSum = 1e-5;
+            if (contrastSum < 1e-5f) {
+                contrastSum = 1e-5f;
             }
 
             float F = 0.0f;

@@ -26,17 +26,34 @@
         '-O3',
       ],
       'conditions': [
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
+          'link_settings': {
+            'libraries': [
+              '-lrt',
+            ],
+          },
+        }],
         ['skia_opencl', {
           'sources': [
             'SkCLImageDiffer.cpp',
             'SkDifferentPixelsMetric_opencl.cpp',
           ],
-          'link_settings': {
-            'libraries': [
-              '-lOpenCL',
-            ],
-          },
-        }, {
+          'conditions': [
+            [ 'skia_os == "mac"', {
+              'link_settings': {
+                'libraries': [
+                  '$(SDKROOT)/System/Library/Frameworks/OpenCL.framework',
+                ]
+              }
+            }, {
+              'link_settings': {
+                'libraries': [
+                  '-lOpenCL',
+                ],
+              },
+            }],
+          ],
+        }, { # !skia_opencl
           'sources': [
             'SkDifferentPixelsMetric_cpu.cpp',
           ],

@@ -5,9 +5,21 @@
  * found in the LICENSE file.
  */
 
+#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+#   include <unistd.h>
+#   include <sys/time.h>
+#   include <dirent.h>
+#endif
+
+#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX
+#   include <glob.h>
+#endif
+
+#if SK_BUILD_FOR_WIN32
+#   include <windows.h>
+#endif
+
 #include <time.h>
-#include <dirent.h>
-#include <glob.h>
 #include "SkOSFile.h"
 #include "skpdiff_util.h"
 
@@ -66,14 +78,29 @@ const char* cl_error_to_string(cl_int err) {
 }
 #endif
 
-
+// TODO refactor BenchTimer to be used here
 double get_seconds() {
+#if SK_BUILD_FOR_WIN32
+    LARGE_INTEGER currentTime;
+    LARGE_INTEGER frequency;
+    QueryPerformanceCounter(&currentTime);
+    QueryPerformanceFrequency(&frequency);
+    return (double)currentTime.QuadPart / (double)frequency.QuadPart;
+#elif _POSIX_TIMERS > 0 && defined(CLOCK_REALTIME)
     struct timespec currentTime;
     clock_gettime(CLOCK_REALTIME, &currentTime);
     return currentTime.tv_sec + (double)currentTime.tv_nsec / 1e9;
+#elif SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
+    struct timeval currentTime;
+    gettimeofday(&currentTime, NULL);
+    return currentTime.tv_sec + (double)currentTime.tv_usec / 1e6;
+#else
+    return clock() / (double)CLOCKS_PER_SEC;
+#endif
 }
 
 bool get_directory(const char path[], SkTArray<SkString>* entries) {
+#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX || SK_BUILD_FOR_ANDROID
     // Open the directory and check for success
     DIR* dir = opendir(path);
     if (NULL == dir) {
@@ -96,9 +123,43 @@ bool get_directory(const char path[], SkTArray<SkString>* entries) {
     closedir(dir);
 
     return true;
+#elif SK_BUILD_FOR_WIN32
+    char pathDirGlob[MAX_PATH];
+    char pathLength = strlen(path);
+    strncpy(pathDirGlob, path, pathLength);
+
+    if (path[pathLength - 1] == '/' || path[pathLength - 1] == '\\') {
+        SkASSERT(pathLength + 2 <= MAX_PATH);
+        pathDirGlob[pathLength] = '*';
+        pathDirGlob[pathLength + 1] = '\0';
+    } else {
+        SkASSERT(pathLength + 3 <= MAX_PATH);
+        pathDirGlob[pathLength] = '\\';
+        pathDirGlob[pathLength + 1] = '*';
+        pathDirGlob[pathLength + 2] = '\0';
+    }
+
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile(pathDirGlob, &findFileData);
+    if (INVALID_HANDLE_VALUE == hFind) {
+        return false;
+    }
+
+    do {
+        if ((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+            entries->push_back(SkString(findFileData.cFileName));
+        }
+    } while (FindNextFile(hFind, &findFileData) != 0);
+
+    FindClose(hFind);
+    return true;
+#else
+    return false;
+#endif
 }
 
 bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
+#if SK_BUILD_FOR_MAC || SK_BUILD_FOR_UNIX
     // TODO Make sure this works on windows. This may require use of FindNextFile windows function.
     glob_t globBuffer;
     if (glob(globPattern, 0, NULL, &globBuffer) != 0) {
@@ -116,4 +177,7 @@ bool glob_files(const char globPattern[], SkTArray<SkString>* entries) {
     globfree(&globBuffer);
 
     return true;
+#else
+    return false;
+#endif
 }
