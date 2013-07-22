@@ -10,9 +10,6 @@
         'zlib.gyp:zlib',
       ],
       'include_dirs': [
-        '../include/config',
-        '../include/core',
-        '../include/images',
         '../include/pdf',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
         '../src/utils', # needed to get SkBitSet.h
