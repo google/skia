@@ -89,12 +89,7 @@ struct SkBitmapProcState {
     uint8_t             fInvType;           // chooseProcs
     uint8_t             fTileModeX;         // CONSTRUCTOR
     uint8_t             fTileModeY;         // CONSTRUCTOR
-
-    enum {
-        kNone_BitmapFilter,
-        kBilerp_BitmapFilter,
-        kHQ_BitmapFilter
-    } fFilterQuality;          // chooseProcs
+    uint8_t             fFilterLevel;       // chooseProcs
 
     /** The shader will let us know when we can release some of our resources
       * like scaled bitmaps.

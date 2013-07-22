@@ -149,7 +149,7 @@ protected:
         int count = N;
 #ifdef SK_RELEASE
         // in DEBUG, N is always 1
-        if (paint.getFlags() & SkPaint::kHighQualityFilterBitmap_Flag) {
+        if (SkPaint::kHigh_FilterLevel == paint.getFilterLevel()) {
             count /= BICUBIC_DUR_SCALE;
         }
 #endif
@@ -170,7 +170,7 @@ protected:
 #ifdef SK_DEBUG
         return 1;
 #else
-        return (paint.getFlags() & SkPaint::kHighQualityFilterBitmap_Flag) ?
+        return SkPaint::kHigh_FilterLevel == paint.getFilterLevel() ?
                 (float)BICUBIC_DUR_SCALE : 1;
 #endif
     }
@@ -264,19 +264,27 @@ protected:
             canvas->rotate(SkIntToScalar(35));
             canvas->translate(-x, -y);
         }
-
-        uint32_t orMask = 0;
-        uint32_t clearMask = SkPaint::kFilterBitmap_Flag | SkPaint::kHighQualityFilterBitmap_Flag;
-        if (fFlags & kBilerp_Flag) {
-            orMask |= SkPaint::kFilterBitmap_Flag;
-        }
-        if (fFlags & kBicubic_Flag) {
-            orMask |= SkPaint::kHighQualityFilterBitmap_Flag;
-        }
-        this->setPaintMasks(orMask, clearMask);
-
         INHERITED::onDraw(canvas);
     }
+
+    virtual void setupPaint(SkPaint* paint) SK_OVERRIDE {
+        this->INHERITED::setupPaint(paint);
+
+        int index = 0;
+        if (fFlags & kBilerp_Flag) {
+            index |= 1;
+        }
+        if (fFlags & kBicubic_Flag) {
+            index |= 2;
+        }
+        static const SkPaint::FilterLevel gLevels[] = {
+            SkPaint::kNone_FilterLevel,
+            SkPaint::kLow_FilterLevel,
+            SkPaint::kMedium_FilterLevel,
+            SkPaint::kHigh_FilterLevel
+        };
+        paint->setFilterLevel(gLevels[index]);
+}
 
 private:
     typedef BitmapBench INHERITED;

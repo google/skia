@@ -96,8 +96,7 @@ protected:
         SkCanvas canvas( fOutputBitmap );
         SkPaint paint;
 
-        paint.setFlags( SkPaint::kHighQualityFilterBitmap_Flag | SkPaint::kFilterBitmap_Flag );
-
+        paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
         canvas.drawBitmapMatrix( fInputBitmap, fMatrix, &paint );
     }
 private:

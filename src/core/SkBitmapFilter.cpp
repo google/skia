@@ -101,7 +101,7 @@ SkBitmapFilter *SkBitmapFilter::Allocate() {
 SkBitmapProcState::ShaderProc32
 SkBitmapProcState::chooseBitmapFilterProc() {
 
-    if (fFilterQuality != kHQ_BitmapFilter) {
+    if (fFilterLevel != SkPaint::kHigh_FilterLevel) {
         return NULL;
     }
 

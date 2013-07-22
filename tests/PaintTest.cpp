@@ -109,17 +109,28 @@ static void test_cmap(skiatest::Reporter* reporter) {
 }
 
 // temparary api for bicubic, just be sure we can set/clear it
-static void test_bicubic(skiatest::Reporter* reporter) {
-    SkPaint p0;
-    REPORTER_ASSERT(reporter, 0 == (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
-    p0.setFlags(p0.getFlags() | SkPaint::kBicubicFilterBitmap_Flag);
-    REPORTER_ASSERT(reporter, 0 != (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
-    SkPaint p1(p0);
-    REPORTER_ASSERT(reporter, 0 != (p1.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
-    p0.reset();
-    REPORTER_ASSERT(reporter, 0 == (p0.getFlags() & SkPaint::kBicubicFilterBitmap_Flag));
-    p0 = p1;
-    p0.setFlags(p0.getFlags() | SkPaint::kBicubicFilterBitmap_Flag);
+static void test_filterlevel(skiatest::Reporter* reporter) {
+    SkPaint p0, p1;
+    
+    REPORTER_ASSERT(reporter,
+                    SkPaint::kNone_FilterLevel == p0.getFilterLevel());
+    
+    static const SkPaint::FilterLevel gLevels[] = {
+        SkPaint::kNone_FilterLevel,
+        SkPaint::kLow_FilterLevel,
+        SkPaint::kMedium_FilterLevel,
+        SkPaint::kHigh_FilterLevel
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gLevels); ++i) {
+        p0.setFilterLevel(gLevels[i]);
+        REPORTER_ASSERT(reporter, gLevels[i] == p0.getFilterLevel());
+        p1 = p0;
+        REPORTER_ASSERT(reporter, gLevels[i] == p1.getFilterLevel());
+
+        p0.reset();
+        REPORTER_ASSERT(reporter,
+                        SkPaint::kNone_FilterLevel == p0.getFilterLevel());
+    }
 }
 
 static void test_copy(skiatest::Reporter* reporter) {
@@ -230,7 +241,7 @@ static void TestPaint(skiatest::Reporter* reporter) {
     regression_cubic(reporter);
     regression_measureText(reporter);
 
-    test_bicubic(reporter);
+    test_filterlevel(reporter);
 
     // need to implement charsToGlyphs on other backends (e.g. linux, win)
     // before we can run this tests everywhere

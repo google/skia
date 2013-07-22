@@ -31,11 +31,11 @@ static void draw_col(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat,
 
     canvas->drawBitmapMatrix(bm, mat, &paint);
 
-    paint.setFilterBitmap(true);
+    paint.setFilterLevel(SkPaint::kLow_FilterLevel);
     canvas->translate(dx, 0);
     canvas->drawBitmapMatrix(bm, mat, &paint);
 
-    paint.setFlags(paint.getFlags() | SkPaint::kHighQualityFilterBitmap_Flag);
+    paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
     canvas->translate(dx, 0);
     canvas->drawBitmapMatrix(bm, mat, &paint);
 }

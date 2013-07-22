@@ -269,8 +269,7 @@ void SkLayerDrawLooper::toString(SkString* str) const {
             bool needSeparator = false;
             SkAddFlagToString(str, SkToBool(SkPaint::kAntiAlias_Flag & rec->fInfo.fFlagsMask),
                               "AntiAlias", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kFilterBitmap_Flag & rec->fInfo.fFlagsMask),
-                              "FilterBitmap", &needSeparator);
+//            SkAddFlagToString(str, SkToBool(SkPaint::kFilterBitmap_Flag & rec->fInfo.fFlagsMask), "FilterBitmap", &needSeparator);
             SkAddFlagToString(str, SkToBool(SkPaint::kDither_Flag & rec->fInfo.fFlagsMask),
                               "Dither", &needSeparator);
             SkAddFlagToString(str, SkToBool(SkPaint::kUnderlineText_Flag & rec->fInfo.fFlagsMask),
