@@ -14,7 +14,6 @@
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFTypes.h"
-#include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkScalar.h"
 #include "SkStream.h"
@@ -839,8 +838,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     // Put the canvas into the pattern stream (fContent).
     SkAutoTUnref<SkStream> content(pattern.content());
     setData(content.get());
-    SkPDFResourceDict* resourceDict = pattern.getResourceDict();
-    resourceDict->getResources(fResources, &fResources, false);
+    pattern.getResources(fResources, &fResources, false);
 
     insertName("Type", "Pattern");
     insertInt("PatternType", 1);
@@ -849,7 +847,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     insert("BBox", patternBBoxArray.get());
     insertScalar("XStep", patternBBox.width());
     insertScalar("YStep", patternBBox.height());
-    insert("Resources", resourceDict);
+    insert("Resources", pattern.getResourceDict());
     insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
 
     fState.get()->fImage.unlockPixels();

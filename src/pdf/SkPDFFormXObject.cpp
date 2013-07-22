@@ -12,7 +12,6 @@
 #include "SkMatrix.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
-#include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -22,8 +21,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // of content, so reference or copy everything we need (content and
     // resources).
     SkTSet<SkPDFObject*> emptySet;
-    SkPDFResourceDict* resourceDict = device->getResourceDict();
-    resourceDict->getResources(emptySet, &fResources, false);
+    device->getResources(emptySet, &fResources, false);
 
     SkAutoTUnref<SkStream> content(device->content());
     setData(content.get());
@@ -31,7 +29,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     insertName("Type", "XObject");
     insertName("Subtype", "Form");
     SkSafeUnref(this->insert("BBox", device->copyMediaBox()));
-    insert("Resources", resourceDict);
+    insert("Resources", device->getResourceDict());
 
     // We invert the initial transform and apply that to the xobject so that
     // it doesn't get applied twice. We can't just undo it because it's

@@ -35,8 +35,6 @@
         '../src/pdf/SkPDFImageStream.h',
         '../src/pdf/SkPDFPage.cpp',
         '../src/pdf/SkPDFPage.h',
-        '../src/pdf/SkPDFResourceDict.cpp',
-        '../src/pdf/SkPDFResourceDict.h',
         '../src/pdf/SkPDFShader.cpp',
         '../src/pdf/SkPDFShader.h',
         '../src/pdf/SkPDFStream.cpp',
