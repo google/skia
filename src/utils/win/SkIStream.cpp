@@ -128,7 +128,7 @@ HRESULT SkIStream::CreateFromSkStream(SkStream* stream
 
 // ISequentialStream Interface
 HRESULT STDMETHODCALLTYPE SkIStream::Read(void* pv, ULONG cb, ULONG* pcbRead) {
-    *pcbRead = this->fSkStream->read(pv, cb);
+    *pcbRead = static_cast<ULONG>(this->fSkStream->read(pv, cb));
     this->fLocation.QuadPart += *pcbRead;
     return (*pcbRead == cb) ? S_OK : S_FALSE;
 }

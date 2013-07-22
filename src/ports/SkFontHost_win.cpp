@@ -1075,7 +1075,7 @@ static int is_not_black_or_white(SkGdiRGB c) {
     return (c + (c & 1)) & 0x00FFFFFF;
 }
 
-static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, int srcRB) {
+static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, size_t srcRB) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             if (is_not_black_or_white(src[x])) {
@@ -1634,7 +1634,7 @@ static HANDLE activate_font(SkData* fontData) {
     DWORD numFonts = 0;
     //AddFontMemResourceEx just copies the data, but does not specify const.
     HANDLE fontHandle = AddFontMemResourceEx(const_cast<void*>(fontData->data()),
-                                             fontData->size(),
+                                             static_cast<DWORD>(fontData->size()),
                                              0,
                                              &numFonts);
 
@@ -1692,15 +1692,14 @@ SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
     SkMemoryStream* stream = NULL;
     DWORD tables[2] = {kTTCTag, 0};
     for (int i = 0; i < SK_ARRAY_COUNT(tables); i++) {
-        size_t bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
+        DWORD bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
         if (bufferSize == GDI_ERROR) {
             call_ensure_accessible(lf);
             bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
         }
         if (bufferSize != GDI_ERROR) {
             stream = new SkMemoryStream(bufferSize);
-            if (GetFontData(hdc, tables[i], 0, (void*)stream->getMemoryBase(),
-                            bufferSize)) {
+            if (GetFontData(hdc, tables[i], 0, (void*)stream->getMemoryBase(), bufferSize)) {
                 break;
             } else {
                 delete stream;
