@@ -8,6 +8,7 @@
 
 #include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
+#include "SkPaint.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 
