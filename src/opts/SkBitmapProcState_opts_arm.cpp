@@ -200,7 +200,7 @@ void SkBitmapProcState::platformProcs() {
     switch (fBitmap->config()) {
         case SkBitmap::kIndex8_Config:
 #if SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
-            if (justDx && SkPaint::kNone_FilterLevel == s.fFilterLevel) {
+            if (justDx && SkPaint::kNone_FilterLevel == fFilterLevel) {
 #if 0   /* crashing on android device */
                 fSampleProc16 = SI8_D16_nofilter_DX_arm;
                 fShaderProc16 = NULL;
