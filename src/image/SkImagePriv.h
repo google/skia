@@ -39,6 +39,9 @@ extern SkImage* SkNewImageFromBitmap(const SkBitmap&, bool canSharePixelRef);
 extern void SkImagePrivDrawPicture(SkCanvas*, SkPicture*,
                                    SkScalar x, SkScalar y, const SkPaint*);
 
+extern void SkImagePrivDrawPicture(SkCanvas*, SkPicture*,
+                                   const SkRect*, const SkRect&, const SkPaint*);
+
 /**
  *  Return an SkImage whose contents are those of the specified picture. Note:
  *  The picture itself is unmodified, and may continue to be used for recording
