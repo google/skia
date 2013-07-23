@@ -28,6 +28,7 @@ class SkPDFFormXObject;
 class SkPDFGlyphSetMap;
 class SkPDFGraphicState;
 class SkPDFObject;
+class SkPDFResourceDict;
 class SkPDFShader;
 class SkPDFStream;
 template <typename T> class SkTSet;
@@ -147,23 +148,7 @@ public:
 
     /** Returns the resource dictionary for this device.
      */
-    SK_API SkPDFDict* getResourceDict();
-
-    /** Get the list of resources (PDF objects) used on this page.
-     *  This method will add to newResourceObjects any objects that this method
-     *  depends on, but not already in knownResourceObjects. This might operate
-     *  recursively so if this object depends on another object and that object
-     *  depends on two more, all three objects will be added.
-     *
-     *  @param knownResourceObjects  The set of resources to be ignored.
-     *  @param newResourceObjects  The set to append dependant resources to.
-     *  @param recursive    If recursive is true, get the resources of the
-     *                      device's resources recursively. (Useful for adding
-     *                      objects to the catalog.)
-     */
-    SK_API void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                             SkTSet<SkPDFObject*>* newResourceObjects,
-                             bool recursive) const;
+    SK_API SkPDFResourceDict* getResourceDict();
 
     /** Get the fonts used on this device.
      */
@@ -223,7 +208,7 @@ private:
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
     SkPDFArray* fAnnotations;
-    SkPDFDict* fResourceDict;
+    SkPDFResourceDict* fResourceDict;
     SkTDArray<NamedDestination*> fNamedDestinations;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
