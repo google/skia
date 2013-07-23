@@ -444,7 +444,9 @@ class SkPDFImageShader : public SkPDFStream, public SkPDFShader {
 public:
     explicit SkPDFImageShader(SkPDFShader::State* state);
     virtual ~SkPDFImageShader() {
-        RemoveShader(this);
+        if (isValid()) {
+            RemoveShader(this);
+        }
         fResources.unrefAll();
     }
 
