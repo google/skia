@@ -57,7 +57,6 @@
         '../samplecode/SampleComplexClip.cpp',
         '../samplecode/SampleConcavePaths.cpp',
         '../samplecode/SampleCull.cpp',
-        '../samplecode/SampleDecode.cpp',
         '../samplecode/SampleDegenerateTwoPtRadials.cpp',
         '../samplecode/SampleDither.cpp',
         '../samplecode/SampleDitherBitmap.cpp',
@@ -171,11 +170,6 @@
            '../samplecode/SamplePdfFileViewer.cpp',
          ]
        }],
-       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-         'sources!': [
-            '../samplecode/SampleDecode.cpp',
-         ],
-        }],
         [ 'skia_os == "win"', {
           'sources!': [
             # require UNIX functions
@@ -183,9 +177,6 @@
           ],
         }],
         [ 'skia_os == "mac"', {
-          'sources!': [
-            '../samplecode/SampleDecode.cpp',
-          ],
           'sources': [
             # Sample App specific files
             '../src/views/mac/SampleApp-Info.plist',
