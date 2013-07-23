@@ -159,44 +159,6 @@ private:
     int32_t* fFailCount;
 };
 
-/* Takes a list of the form [~][^]match[$]
-   ~ causes a matching test to always be skipped
-   ^ requires the start of the test to match
-   $ requires the end of the test to match
-   ^ and $ requires an exact match
-   If a test does not match any list entry, it is skipped unless some list entry starts with ~
- */
-static bool shouldSkip(const char* testName) {
-    int count = FLAGS_match.count();
-    size_t testLen = strlen(testName);
-    bool anyExclude = count == 0;
-    for (int index = 0; index < count; ++index) {
-        const char* matchName = FLAGS_match[index];
-        size_t matchLen = strlen(matchName);
-        bool matchExclude, matchStart, matchEnd;
-        if ((matchExclude = matchName[0] == '~')) {
-            anyExclude = true;
-            matchName++;
-            matchLen--;
-        }
-        if ((matchStart = matchName[0] == '^')) {
-            matchName++;
-            matchLen--;
-        }
-        if ((matchEnd = matchName[matchLen - 1] == '$')) {
-            matchLen--;
-        }
-        if (matchStart ? (!matchEnd || matchLen == testLen)
-                && strncmp(testName, matchName, matchLen) == 0
-                : matchEnd ? matchLen <= testLen
-                && strncmp(testName + testLen - matchLen, matchName, matchLen) == 0
-                : strstr(testName, matchName) != 0) {
-            return matchExclude;
-        }
-    }
-    return !anyExclude;
-}
-
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
@@ -244,9 +206,16 @@ int tool_main(int argc, char** argv) {
     int total = 0;
     int toRun = 0;
     Test* test;
+
+    SkTDArray<const char*> matchStrs;
+    for(int i = 0; i < FLAGS_match.count(); ++i) {
+        matchStrs.push(FLAGS_match[i]);
+    }
+
     while ((test = iter.next()) != NULL) {
         SkAutoTDelete<Test> owned(test);
-        if(!shouldSkip(test->getName())) {
+
+        if(!SkCommandLineFlags::ShouldSkip(matchStrs, test->getName())) {
             toRun++;
         }
         total++;
@@ -262,7 +231,7 @@ int tool_main(int argc, char** argv) {
     SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
     for (int i = 0; i < total; i++) {
         SkAutoTDelete<Test> test(iter.next());
-        if (shouldSkip(test->getName())) {
+        if (SkCommandLineFlags::ShouldSkip(matchStrs, test->getName())) {
             ++skipCount;
         } else if (!test->isThreadsafe()) {
             unsafeTests.push_back() = test.detach();
