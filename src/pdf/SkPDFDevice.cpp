@@ -425,14 +425,7 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     // PDF treats a shader as a color, so we only set one or the other.
     if (state.fShaderIndex >= 0) {
         if (state.fShaderIndex != currentEntry()->fShaderIndex) {
-            SkString resourceName = SkPDFResourceDict::getResourceName(
-                    SkPDFResourceDict::kPattern_ResourceType,
-                    state.fShaderIndex);
-            fContentStream->writeText("/Pattern CS /Pattern cs /");
-            fContentStream->writeText(resourceName.c_str());
-            fContentStream->writeText(" SCN /");
-            fContentStream->writeText(resourceName.c_str());
-            fContentStream->writeText(" scn\n");
+            SkPDFUtils::ApplyPattern(state.fShaderIndex, fContentStream);
             currentEntry()->fShaderIndex = state.fShaderIndex;
         }
     } else {
@@ -1407,7 +1400,8 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     this->drawPaint(draw, stockPaint);
     SkAutoTUnref<SkPDFFormXObject> maskFormXObject(createFormXObjectFromDevice());
     SkAutoTUnref<SkPDFGraphicState> sMaskGS(
-        SkPDFGraphicState::GetSMaskGraphicState(maskFormXObject, invertClip));
+        SkPDFGraphicState::GetSMaskGraphicState(maskFormXObject, invertClip,
+                                                SkPDFGraphicState::kAlpha_SMaskMode));
 
     // Draw the xobject with the clip as a mask.
     ScopedContentEntry content(this, &fExistingClipStack, fExistingClipRegion,
@@ -1563,12 +1557,16 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
     if (xfermode == SkXfermode::kSrcIn_Mode ||
             xfermode == SkXfermode::kSrcOut_Mode) {
         sMaskGS.reset(SkPDFGraphicState::GetSMaskGraphicState(
-                dst, xfermode == SkXfermode::kSrcOut_Mode));
+                dst,
+                xfermode == SkXfermode::kSrcOut_Mode,
+                SkPDFGraphicState::kAlpha_SMaskMode));
         fXObjectResources.push(srcFormXObject.get());
         srcFormXObject.get()->ref();
     } else {
         sMaskGS.reset(SkPDFGraphicState::GetSMaskGraphicState(
-                srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode));
+                srcFormXObject.get(),
+                xfermode == SkXfermode::kDstOut_Mode,
+                SkPDFGraphicState::kAlpha_SMaskMode));
         // dst already added to fXObjectResources in drawFormXObjectWithClip.
     }
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),

@@ -57,6 +57,11 @@ protected:
     // This should be made a hash table if performance is a problem.
     static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
     static SkBaseMutex& CanonicalShadersMutex();
+
+    // This is an internal method.
+    // CanonicalShadersMutex() should already be acquired.
+    // This also takes ownership of shaderState.
+    static SkPDFObject* GetPDFShaderByState(State* shaderState);
     static void RemoveShader(SkPDFObject* shader);
 
     SkPDFShader();

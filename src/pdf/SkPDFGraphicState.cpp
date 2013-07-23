@@ -138,13 +138,17 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
-        SkPDFFormXObject* sMask, bool invert) {
+        SkPDFFormXObject* sMask, bool invert, SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
     SkAutoMutexAcquire lock(CanonicalPaintsMutex());
 
     SkAutoTUnref<SkPDFDict> sMaskDict(new SkPDFDict("Mask"));
-    sMaskDict->insertName("S", "Alpha");
+    if (sMaskMode == kAlpha_SMaskMode) {
+        sMaskDict->insertName("S", "Alpha");
+    } else if (sMaskMode == kLuminosity_SMaskMode) {
+        sMaskDict->insertName("S", "Luminosity");
+    }
     sMaskDict->insert("G", new SkPDFObjRef(sMask))->unref();
 
     SkPDFGraphicState* result = new SkPDFGraphicState;
