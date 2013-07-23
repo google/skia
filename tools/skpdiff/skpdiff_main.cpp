@@ -37,7 +37,7 @@ DEFINE_bool2(list, l, false, "List out available differs");
 DEFINE_string2(differs, d, "", "The names of the differs to use or all of them by default");
 DEFINE_string2(folders, f, "", "Compare two folders with identical subfile names: <baseline folder> <test folder>");
 DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> <test>");
-DEFINE_string2(output, o, "skpdiff_output.json", "Writes the output of these diffs to output: <output>");
+DEFINE_string2(output, o, "", "Writes the output of these diffs to output: <output>");
 DEFINE_bool(jsonp, true, "Output JSON with padding");
 DEFINE_string(csv, "", "Writes the output of these diffs to a csv file");
 
