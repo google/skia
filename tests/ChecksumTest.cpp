@@ -24,7 +24,8 @@ namespace skiatest {
         }
     private:
         enum Algorithm {
-            kSkChecksum
+            kSkChecksum,
+            kMurmur3,
         };
 
         // Call Compute(data, size) on the appropriate checksum algorithm,
@@ -38,6 +39,13 @@ namespace skiatest {
                 REPORTER_ASSERT_MESSAGE(fReporter, SkIsAlign4(size),
                                         "test data size is not 32-bit aligned");
                 return SkChecksum::Compute(reinterpret_cast<const uint32_t *>(data), size);
+            case kMurmur3:
+                REPORTER_ASSERT_MESSAGE(fReporter,
+                                        reinterpret_cast<uintptr_t>(data) % 4 == 0,
+                                        "test data pointer is not 32-bit aligned");
+                REPORTER_ASSERT_MESSAGE(fReporter, SkIsAlign4(size),
+                                        "test data size is not 32-bit aligned");
+                return SkChecksum::Murmur3(reinterpret_cast<const uint32_t *>(data), size);
             default:
                 SkString message("fWhichAlgorithm has unknown value ");
                 message.appendf("%d", fWhichAlgorithm);
@@ -98,25 +106,32 @@ namespace skiatest {
         }
 
         void RunTest() {
-            // Test self-consistency of checksum algorithms.
-            fWhichAlgorithm = kSkChecksum;
-            TestChecksumSelfConsistency(128);
+            const Algorithm algorithms[] = { kSkChecksum, kMurmur3 };
+            for (size_t i = 0; i < SK_ARRAY_COUNT(algorithms); i++) {
+                fWhichAlgorithm = algorithms[i];
 
-            // Test checksum results that should be consistent across
-            // versions and platforms.
-            fWhichAlgorithm = kSkChecksum;
-            REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0);
+                // Test self-consistency of checksum algorithms.
+                TestChecksumSelfConsistency(128);
 
-            // TODO: note the weakness exposed by these collisions...
-            // We need to improve the SkChecksum algorithm.
-            // We would prefer that these asserts FAIL!
-            // Filed as https://code.google.com/p/skia/issues/detail?id=981
-            // ('SkChecksum algorithm allows for way too many collisions')
-            fWhichAlgorithm = kSkChecksum;
-            REPORTER_ASSERT(fReporter,
-                GetTestDataChecksum(128) == GetTestDataChecksum(256));
-            REPORTER_ASSERT(fReporter,
-                GetTestDataChecksum(132) == GetTestDataChecksum(260));
+                // Test checksum results that should be consistent across
+                // versions and platforms.
+                REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0);
+
+                const bool colision1 = GetTestDataChecksum(128) == GetTestDataChecksum(256);
+                const bool colision2 = GetTestDataChecksum(132) == GetTestDataChecksum(260);
+                if (fWhichAlgorithm == kSkChecksum) {
+                    // TODO: note the weakness exposed by these collisions...
+                    // We need to improve the SkChecksum algorithm.
+                    // We would prefer that these asserts FAIL!
+                    // Filed as https://code.google.com/p/skia/issues/detail?id=981
+                    // ('SkChecksum algorithm allows for way too many collisions')
+                    REPORTER_ASSERT(fReporter, colision1);
+                    REPORTER_ASSERT(fReporter, colision2);
+                } else {
+                    REPORTER_ASSERT(fReporter, !colision1);
+                    REPORTER_ASSERT(fReporter, !colision2);
+                }
+            }
         }
 
         Reporter* fReporter;
