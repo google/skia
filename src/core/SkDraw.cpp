@@ -1260,13 +1260,6 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-#ifndef SK_ALLOW_OVER_32K_BITMAPS
-    // run away on too-big bitmaps for now (exceed 16.16)
-    if (bitmap.width() > 32767 || bitmap.height() > 32767) {
-        return;
-    }
-#endif
-
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
