@@ -136,6 +136,9 @@
              'android_deps.gyp:gif',
              'android_deps.gyp:png',
           ],
+          'export_dependent_settings': [
+            'android_deps.gyp:png'
+          ],
         },{ #else if skia_os != android
           'sources!': [
             '../src/images/SkImageRef_ashmem.h',

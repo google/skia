@@ -79,12 +79,11 @@
 
         # auxiliary modules (optional)
         '../third_party/externals/freetype/src/autofit/autofit.c',   # auto hinting module
-        '../third_party/externals/freetype/src/psaux/psaux.c',       # PostScript Type 1 parsing
         '../third_party/externals/freetype/src/pshinter/pshinter.c', # PS hinting module
         '../third_party/externals/freetype/src/psnames/psnames.c',   # PostScript glyph names support
       ],
       'include_dirs': [
-        '../third_party/freetype',
+        '../third_party/freetype/include_overrides',
         '../third_party/externals/freetype/internal',
         '../third_party/externals/freetype/builds',
         '../third_party/externals/freetype/include',
@@ -95,6 +94,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
+          '../third_party/freetype/include_overrides',
           '../third_party/externals/freetype/include',
         ],
       },
