@@ -311,7 +311,8 @@ if __name__ == '__main__':
                       'will search for it in typical directories near this '
                       'script')
     parser.add_option(OPTION_SOURCE_DIR,
-                      action='store', type='string', default='.',
+                      action='store', type='string',
+                      default=os.path.join('expectations', 'gm'),
                       help='root directory within which to compare all ' +
                       'files; defaults to "%default"')
     (options, args) = parser.parse_args()
