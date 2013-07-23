@@ -53,6 +53,7 @@ struct SkDCubic {
     int findMaxCurvature(double tValues[]) const;
     bool isLinear(int startIndex, int endIndex) const;
     bool monotonicInY() const;
+    SkDPoint ptAtT(double t) const;
     static int RootsReal(double A, double B, double C, double D, double t[3]);
     static int RootsValidT(const double A, const double B, const double C, double D, double s[3]);
     bool serpentine() const;
@@ -76,7 +77,6 @@ struct SkDCubic {
     SkDPoint top(double startT, double endT) const;
     void toQuadraticTs(double precision, SkTArray<double, true>* ts) const;
     SkDQuad toQuad() const;
-    SkDPoint xyAtT(double t) const;
 };
 
 #endif

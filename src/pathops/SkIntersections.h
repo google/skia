@@ -208,8 +208,6 @@ public:
     int insert(double one, double two, const SkDPoint& pt);
     // start if index == 0 : end if index == 1
     void insertCoincident(double one, double two, const SkDPoint& pt);
-    void insertCoincidentPair(double s1, double e1, double s2, double e2,
-            const SkDPoint& startPt, const SkDPoint& endPt);
     int intersect(const SkDLine&, const SkDLine&);
     int intersect(const SkDQuad&, const SkDLine&);
     int intersect(const SkDQuad&, const SkDQuad&);

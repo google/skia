@@ -54,9 +54,9 @@ static void testOne(skiatest::Reporter* reporter, int iIndex) {
         int roots = i.intersect(cubic, line);
         for (int pt = 0; pt < roots; ++pt) {
             double tt1 = i[0][pt];
-            SkDPoint xy1 = cubic.xyAtT(tt1);
+            SkDPoint xy1 = cubic.ptAtT(tt1);
             double tt2 = i[1][pt];
-            SkDPoint xy2 = line.xyAtT(tt2);
+            SkDPoint xy2 = line.ptAtT(tt2);
             if (!xy1.approximatelyEqual(xy2)) {
                 SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                     __FUNCTION__, iIndex, pt, tt1, xy1.fX, xy1.fY, tt2, xy2.fX, xy2.fY);
@@ -84,15 +84,15 @@ static void PathOpsCubicLineIntersectionOneOffTest(skiatest::Reporter* reporter)
     SkASSERT(i.used() == 1);
 #if ONE_OFF_DEBUG
     double cubicT = i[0][0];
-    SkDPoint prev = cubic.xyAtT(cubicT * 2 - 1);
-    SkDPoint sect = cubic.xyAtT(cubicT);
+    SkDPoint prev = cubic.ptAtT(cubicT * 2 - 1);
+    SkDPoint sect = cubic.ptAtT(cubicT);
     double left[3] = { line.isLeft(prev), line.isLeft(sect), line.isLeft(cubic[3]) };
     SkDebugf("cubic=(%1.9g, %1.9g, %1.9g)\n", left[0], left[1], left[2]);
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prev.fX, prev.fY, sect.fX, sect.fY);
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", sect.fX, sect.fY, cubic[3].fX, cubic[3].fY);
-    SkDPoint prevL = line.xyAtT(i[1][0] - 0.0000007);
+    SkDPoint prevL = line.ptAtT(i[1][0] - 0.0000007);
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prevL.fX, prevL.fY, i.pt(0).fX, i.pt(0).fY);
-    SkDPoint nextL = line.xyAtT(i[1][0] + 0.0000007);
+    SkDPoint nextL = line.ptAtT(i[1][0] + 0.0000007);
     SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", i.pt(0).fX, i.pt(0).fY, nextL.fX, nextL.fY);
     SkDebugf("prevD=%1.9g dist=%1.9g nextD=%1.9g\n", prev.distance(nextL),
             sect.distance(i.pt(0)), cubic[3].distance(prevL));

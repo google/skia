@@ -23,19 +23,24 @@ enum SkPathOpsMask {
 };
 
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
-bool AlmostEqualUlps(float A, float B);
-inline bool AlmostEqualUlps(double A, double B) {
-    return AlmostEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
+bool AlmostEqualUlps(float a, float b);
+inline bool AlmostEqualUlps(double a, double b) {
+    return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
-bool RoughlyEqualUlps(float A, float B);
-inline bool RoughlyEqualUlps(double A, double B) {
-    return RoughlyEqualUlps(SkDoubleToScalar(A), SkDoubleToScalar(B));
+bool RoughlyEqualUlps(float a, float b);
+inline bool RoughlyEqualUlps(double a, double b) {
+    return RoughlyEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 bool AlmostBetweenUlps(float a, float b, float c);
-inline bool AlmostBetweenUlps(double A, double B, double C) {
-    return AlmostBetweenUlps(SkDoubleToScalar(A), SkDoubleToScalar(B), SkDoubleToScalar(C));
+inline bool AlmostBetweenUlps(double a, double b, double c) {
+    return AlmostBetweenUlps(SkDoubleToScalar(a), SkDoubleToScalar(b), SkDoubleToScalar(c));
+}
+
+int UlpsDistance(float a, float b);
+inline int UlpsDistance(double a, double b) {
+    return UlpsDistance(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 // FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)

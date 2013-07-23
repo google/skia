@@ -130,6 +130,11 @@ public:
         return fTs[index].fOther;
     }
 
+    // was used only by right angle winding finding
+    SkPoint ptAtT(double mid) const {
+        return (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
+    }
+
     const SkPoint* pts() const {
         return fPts;
     }
@@ -212,11 +217,6 @@ public:
 
     const SkPoint& xyAtT(const SkOpSpan* span) const {
         return span->fPt;
-    }
-
-    // used only by right angle winding finding
-    SkPoint xyAtT(double mid) const {
-        return (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
     }
 
     const SkPoint& xyAtT(int index) const {
@@ -394,6 +394,7 @@ private:
         return value < 0 ? '?' : value <= 9 ? '0' + value : '+';
     }
 #endif
+    void debugValidate() const;
 
     const SkPoint* fPts;
     SkPathOpsBounds fBounds;

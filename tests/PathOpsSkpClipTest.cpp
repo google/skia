@@ -58,9 +58,8 @@ static void testOne(const SkString& filename) {
     if (!stream.isValid()) {
         return;
     }
-    bool success;
-    SkPicture* pic = SkNEW_ARGS(SkPicture, (&stream, &success, &SkImageDecoder::DecodeMemory));
-    if (!success) {
+    SkPicture* pic = SkPicture::CreateFromStream(&stream, &SkImageDecoder::DecodeMemory);
+    if (!pic) {
         SkDebugf("unable to decode %s\n", filename.c_str());
         return;
     }
@@ -68,7 +67,7 @@ static void testOne(const SkString& filename) {
     int height = pic->height();
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    success = bitmap.allocPixels();
+    bool success = bitmap.allocPixels();
     if (!success) {
         SkDebugf("unable to allocate bitmap for %s\n", filename.c_str());
         return;

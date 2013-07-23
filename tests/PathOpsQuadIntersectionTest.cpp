@@ -37,9 +37,9 @@ static void standardTestCases(skiatest::Reporter* reporter) {
             if (intersections.used() > 0) {
                 for (int pt = 0; pt < intersections.used(); ++pt) {
                     double tt1 = intersections[0][pt];
-                    SkDPoint xy1 = quad1.xyAtT(tt1);
+                    SkDPoint xy1 = quad1.ptAtT(tt1);
                     double tt2 = intersections[1][pt];
-                    SkDPoint xy2 = quad2.xyAtT(tt2);
+                    SkDPoint xy2 = quad2.ptAtT(tt2);
                     if (!xy1.approximatelyEqual(xy2)) {
                         SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                                 __FUNCTION__, static_cast<int>(index), pt, tt1, xy1.fX, xy1.fY,
@@ -256,9 +256,9 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
     intersections2.intersect(quad1, quad2);
     for (int pt = 0; pt < intersections2.used(); ++pt) {
         double tt1 = intersections2[0][pt];
-        SkDPoint xy1 = quad1.xyAtT(tt1);
+        SkDPoint xy1 = quad1.ptAtT(tt1);
         double tt2 = intersections2[1][pt];
-        SkDPoint xy2 = quad2.xyAtT(tt2);
+        SkDPoint xy2 = quad2.ptAtT(tt2);
         if (!xy1.approximatelyEqual(xy2)) {
             SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                     __FUNCTION__, static_cast<int>(outer), static_cast<int>(inner),
@@ -285,6 +285,8 @@ static void oneOffTests(skiatest::Reporter* reporter) {
 }
 
 static const SkDQuad coincidentTestSet[] = {
+    {{{97.9337615966796875,100}, {88,112.94264984130859375}, {88,130}}},
+    {{{88,130}, {88,124.80951690673828125}, {88.91983795166015625,120}}},
     {{{369.850525, 145.675964}, {382.362915, 121.29287}, {406.211273, 121.29287}}},
     {{{369.850525, 145.675964}, {382.362915, 121.29287}, {406.211273, 121.29287}}},
     {{{8, 8}, {10, 10}, {8, -10}}},
@@ -293,23 +295,32 @@ static const SkDQuad coincidentTestSet[] = {
 
 const size_t coincidentTestSetCount = SK_ARRAY_COUNT(coincidentTestSet);
 
+static void coincidentTestOne(skiatest::Reporter* reporter, int test1, int test2) {
+    const SkDQuad& quad1 = coincidentTestSet[test1];
+    SkASSERT(ValidQuad(quad1));
+    const SkDQuad& quad2 = coincidentTestSet[test2];
+    SkASSERT(ValidQuad(quad2));
+    SkIntersections intersections2;
+    intersections2.intersect(quad1, quad2);
+    REPORTER_ASSERT(reporter, intersections2.coincidentUsed() == 2);
+    REPORTER_ASSERT(reporter, intersections2.used() == 2);
+    for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
+        double tt1 = intersections2[0][pt];
+        double tt2 = intersections2[1][pt];
+        SkDPoint pt1 = quad1.ptAtT(tt1);
+        SkDPoint pt2 = quad2.ptAtT(tt2);
+        REPORTER_ASSERT(reporter, pt1.approximatelyEqual(pt2));
+    }
+}
+
 static void coincidentTest(skiatest::Reporter* reporter) {
     for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
-        const SkDQuad& quad1 = coincidentTestSet[testIndex];
-        SkASSERT(ValidQuad(quad1));
-        const SkDQuad& quad2 = coincidentTestSet[testIndex + 1];
-        SkASSERT(ValidQuad(quad2));
-        SkIntersections intersections2;
-        intersections2.intersect(quad1, quad2);
-        REPORTER_ASSERT(reporter, intersections2.coincidentUsed() == 2);
-        REPORTER_ASSERT(reporter, intersections2.used() == 2);
-        for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
-            double tt1 = intersections2[0][pt];
-            double tt2 = intersections2[1][pt];
-            REPORTER_ASSERT(reporter, approximately_equal(1, tt1) || approximately_zero(tt1));
-            REPORTER_ASSERT(reporter, approximately_equal(1, tt2) || approximately_zero(tt2));
-        }
+        coincidentTestOne(reporter, testIndex, testIndex + 1);
     }
+}
+
+static void PathOpsQuadIntersectionCoincidenceOneOffTest(skiatest::Reporter* reporter) {
+    coincidentTestOne(reporter, 0, 1);
 }
 
 static int floatSign(double x) {
@@ -338,7 +349,7 @@ static const SkDQuad pointFinderTestSet[] = {
 static void pointFinder(const SkDQuad& q1, const SkDQuad& q2) {
     for (int index = 0; index < 3; ++index) {
         double t = q1.nearestT(q2[index]);
-        SkDPoint onQuad = q1.xyAtT(t);
+        SkDPoint onQuad = q1.ptAtT(t);
         SkDebugf("%s t=%1.9g (%1.9g,%1.9g) dist=%1.9g\n", __FUNCTION__, t, onQuad.fX, onQuad.fY,
                 onQuad.distance(q2[index]));
         double left[3];
@@ -388,12 +399,12 @@ static void intersectionFinder(int test1, int test2) {
     SkDPoint t1[3], t2[3];
     bool toggle = true;
     do {
-        t1[0] = quad1.xyAtT(t1Seed - t1Step);
-        t1[1] = quad1.xyAtT(t1Seed);
-        t1[2] = quad1.xyAtT(t1Seed + t1Step);
-        t2[0] = quad2.xyAtT(t2Seed - t2Step);
-        t2[1] = quad2.xyAtT(t2Seed);
-        t2[2] = quad2.xyAtT(t2Seed + t2Step);
+        t1[0] = quad1.ptAtT(t1Seed - t1Step);
+        t1[1] = quad1.ptAtT(t1Seed);
+        t1[2] = quad1.ptAtT(t1Seed + t1Step);
+        t2[0] = quad2.ptAtT(t2Seed - t2Step);
+        t2[1] = quad2.ptAtT(t2Seed);
+        t2[2] = quad2.ptAtT(t2Seed + t2Step);
         double dist[3][3];
         dist[1][1] = t1[1].distance(t2[1]);
         int best_i = 1, best_j = 1;
@@ -434,38 +445,38 @@ static void intersectionFinder(int test1, int test2) {
     double t22 = t2Seed + t2Step * 2;
     SkDPoint test;
     while (!approximately_zero(t1Step)) {
-        test = quad1.xyAtT(t10);
+        test = quad1.ptAtT(t10);
         t10 += t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
         t1Step /= 2;
     }
     t1Step = 0.1;
     while (!approximately_zero(t1Step)) {
-        test = quad1.xyAtT(t12);
+        test = quad1.ptAtT(t12);
         t12 -= t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
         t1Step /= 2;
     }
     while (!approximately_zero(t2Step)) {
-        test = quad2.xyAtT(t20);
+        test = quad2.ptAtT(t20);
         t20 += t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
         t2Step /= 2;
     }
     t2Step = 0.1;
     while (!approximately_zero(t2Step)) {
-        test = quad2.xyAtT(t22);
+        test = quad2.ptAtT(t22);
         t22 -= t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
         t2Step /= 2;
     }
 #if ONE_OFF_DEBUG
     SkDebugf("%s t1=(%1.9g<%1.9g<%1.9g) t2=(%1.9g<%1.9g<%1.9g)\n", __FUNCTION__,
         t10, t1Seed, t12, t20, t2Seed, t22);
-    SkDPoint p10 = quad1.xyAtT(t10);
-    SkDPoint p1Seed = quad1.xyAtT(t1Seed);
-    SkDPoint p12 = quad1.xyAtT(t12);
+    SkDPoint p10 = quad1.ptAtT(t10);
+    SkDPoint p1Seed = quad1.ptAtT(t1Seed);
+    SkDPoint p12 = quad1.ptAtT(t12);
     SkDebugf("%s p1=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p10.fX, p10.fY, p1Seed.fX, p1Seed.fY, p12.fX, p12.fY);
-    SkDPoint p20 = quad2.xyAtT(t20);
-    SkDPoint p2Seed = quad2.xyAtT(t2Seed);
-    SkDPoint p22 = quad2.xyAtT(t22);
+    SkDPoint p20 = quad2.ptAtT(t20);
+    SkDPoint p2Seed = quad2.ptAtT(t2Seed);
+    SkDPoint p22 = quad2.ptAtT(t22);
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.fX, p20.fY, p2Seed.fX, p2Seed.fY, p22.fX, p22.fY);
 #endif
@@ -488,3 +499,5 @@ static void PathOpsQuadIntersectionTest(skiatest::Reporter* reporter) {
 DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionTest)
 
 DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionOneOffTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionCoincidenceOneOffTest)

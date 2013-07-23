@@ -33,8 +33,8 @@ struct SkDLine {
     double nearPoint(const SkDPoint& xy) const;
     static double NearPointH(const SkDPoint& xy, double left, double right, double y);
     static double NearPointV(const SkDPoint& xy, double top, double bottom, double x);
+    SkDPoint ptAtT(double t) const;
     SkDLine subDivide(double t1, double t2) const;
-    SkDPoint xyAtT(double t) const;
 private:
     SkDVector tangent() const { return fPts[0] - fPts[1]; }
 };

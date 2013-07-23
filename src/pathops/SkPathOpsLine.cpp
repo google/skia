@@ -41,8 +41,13 @@ double SkDLine::isLeft(const SkDPoint& pt) const {
     return p0.cross(p2);
 }
 
-// OPTIMIZE: assert if t is 0 or 1 (caller shouldn't pass only 0/1)
-SkDPoint SkDLine::xyAtT(double t) const {
+SkDPoint SkDLine::ptAtT(double t) const {
+    if (0 == t) {
+        return fPts[0];
+    }
+    if (1 == t) {
+        return fPts[1];
+    }
     double one_t = 1 - t;
     SkDPoint result = { one_t * fPts[0].fX + t * fPts[1].fX, one_t * fPts[0].fY + t * fPts[1].fY };
     return result;
@@ -72,7 +77,7 @@ double SkDLine::nearPoint(const SkDPoint& xy) const {
         return -1;
     }
     double t = numer / denom;
-    SkDPoint realPt = xyAtT(t);
+    SkDPoint realPt = ptAtT(t);
     SkDVector distU = xy - realPt;
     double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
     double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?

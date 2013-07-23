@@ -30,7 +30,7 @@ double SkDQuad::nearestT(const SkDPoint& pt) const {
     double distMin = SkTMin(d0, d2);
     int bestIndex = -1;
     for (int index = 0; index < roots; ++index) {
-        SkDPoint onQuad = xyAtT(ts[index]);
+        SkDPoint onQuad = ptAtT(ts[index]);
         double dist = pt.distanceSquared(onQuad);
         if (distMin > dist) {
             distMin = dist;
@@ -57,7 +57,7 @@ SkDPoint SkDQuad::top(double startT, double endT) const {
         double extremeT;
         if (FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, &extremeT)) {
             extremeT = startT + (endT - startT) * extremeT;
-            SkDPoint test = xyAtT(extremeT);
+            SkDPoint test = ptAtT(extremeT);
             if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
                 topPt = test;
             }
@@ -165,7 +165,13 @@ SkDVector SkDQuad::dxdyAtT(double t) const {
 }
 
 // OPTIMIZE: assert if caller passes in t == 0 / t == 1 ?
-SkDPoint SkDQuad::xyAtT(double t) const {
+SkDPoint SkDQuad::ptAtT(double t) const {
+    if (0 == t) {
+        return fPts[0];
+    }
+    if (1 == t) {
+        return fPts[2];
+    }
     double one_t = 1 - t;
     double a = one_t * one_t;
     double b = 2 * one_t * t;

@@ -80,9 +80,9 @@ static void testOneOffs(skiatest::Reporter* reporter) {
         int result = doIntersect(intersections, quad, line, flipped);
         for (int inner = 0; inner < result; ++inner) {
             double quadT = intersections[0][inner];
-            SkDPoint quadXY = quad.xyAtT(quadT);
+            SkDPoint quadXY = quad.ptAtT(quadT);
             double lineT = intersections[1][inner];
-            SkDPoint lineXY = line.xyAtT(lineT);
+            SkDPoint lineXY = line.ptAtT(lineT);
             REPORTER_ASSERT(reporter, quadXY.approximatelyEqual(lineXY));
         }
     }
@@ -120,10 +120,10 @@ static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
         for (int pt = 0; pt < result; ++pt) {
             double tt1 = intersections[0][pt];
             REPORTER_ASSERT(reporter, tt1 >= 0 && tt1 <= 1);
-            SkDPoint t1 = quad.xyAtT(tt1);
+            SkDPoint t1 = quad.ptAtT(tt1);
             double tt2 = intersections[1][pt];
             REPORTER_ASSERT(reporter, tt2 >= 0 && tt2 <= 1);
-            SkDPoint t2 = line.xyAtT(tt2);
+            SkDPoint t2 = line.ptAtT(tt2);
             if (!t1.approximatelyEqual(t2)) {
                 SkDebugf("%s [%d,%d] x!= t1=%1.9g (%1.9g,%1.9g) t2=%1.9g (%1.9g,%1.9g)\n",
                     __FUNCTION__, iIndex, pt, tt1, t1.fX, t1.fY, tt2, t2.fX, t2.fY);

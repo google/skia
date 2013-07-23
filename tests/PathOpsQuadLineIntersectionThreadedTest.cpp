@@ -55,9 +55,9 @@ static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
     bool found = false;
     for (int index = 0; index < result; ++index) {
         double quadT = intersections[0][index];
-        SkDPoint quadXY = quad.xyAtT(quadT);
+        SkDPoint quadXY = quad.ptAtT(quadT);
         double lineT = intersections[1][index];
-        SkDPoint lineXY = line.xyAtT(lineT);
+        SkDPoint lineXY = line.ptAtT(lineT);
         if (quadXY.approximatelyEqual(lineXY)) {
             found = true;
         }
@@ -89,7 +89,7 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
         return;
     }
     for (int tIndex = 0; tIndex <= 4; ++tIndex) {
-        SkDPoint xy = quad.xyAtT(tIndex / 4.0);
+        SkDPoint xy = quad.ptAtT(tIndex / 4.0);
         for (int h = -2; h <= 2; ++h) {
             for (int v = -2; v <= 2; ++v) {
                 if (h == v && abs(h) != 1) {
