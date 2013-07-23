@@ -197,7 +197,7 @@ SkPdfFont* fontFromName(SkNativeParsedPDF* doc, SkPdfObject* obj, const char* fo
     // TODO(edisonn): perf - make a map
     for (unsigned int i = 0 ; i < doc->objects(); i++) {
         SkPdfObject* obj = doc->object(i);
-        if (!obj->isDictionary()) {
+        if (!obj || !obj->isDictionary()) {
             continue;
         }
 
