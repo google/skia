@@ -125,6 +125,11 @@ static const unsigned char* endOfPdfToken(int level, const unsigned char* start,
 
 // last elem has to be ]
 static const unsigned char* readArray(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* array, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
+    if (allocator == NULL) {
+        // TODO(edisonn): report/warning error
+        return end;
+    }
+
     TRACE_INDENT(level, "Array");
     while (start < end) {
         // skip white spaces
@@ -208,7 +213,7 @@ static const unsigned char* readString(int level, const unsigned char* start, co
                         break;
 
                     case 'f':
-                        *out = kFF_PdfWhiteSpace;
+                        if (hasOut) { *out = kFF_PdfWhiteSpace; }
                         out++;
                         in += 2;
                         break;
@@ -693,6 +698,10 @@ static const unsigned char* readInlineImageStream(int level, const unsigned char
 }
 
 static const unsigned char* readDictionary(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* dict, SkPdfAllocator* allocator, SkNativeParsedPDF* doc) {
+    if (allocator == NULL) {
+        // TODO(edisonn): report/warning error
+        return end;
+    }
     TRACE_INDENT(level, "Dictionary");
     SkPdfObject::makeEmptyDictionary(dict);
 

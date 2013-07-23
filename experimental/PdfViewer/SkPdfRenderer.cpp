@@ -1949,6 +1949,10 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     PdfContext pdfContext(fPdfDoc);
 
     SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfPage(page, pdfContext.fTmpPageAllocator);
+    if (!tokenizer) {
+        // TODO(edisonn): report/warning/debug
+        return false;
+    }
 
     pdfContext.fOriginalMatrix = SkMatrix::I();
     pdfContext.fGraphicsState.fResources = fPdfDoc->pageResources(page);
