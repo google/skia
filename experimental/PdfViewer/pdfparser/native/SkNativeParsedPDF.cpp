@@ -189,9 +189,9 @@ long SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const uns
     // TODO(edisonn): use null allocator, and let it just fail if memory
     // needs allocated (but no crash)!
     const unsigned char* current =
-            nextObject(0, trailerStart, trailerEnd, &trailerKeyword, fAllocator, NULL);
+            nextObject(0, trailerStart, trailerEnd, &trailerKeyword, NULL, NULL);
 
-    if (strlen("trailer") != trailerKeyword.len() &&
+    if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.len() ||
         strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
         // TODO(edisonn): report warning, rebuild trailer from objects.
         return -1;
