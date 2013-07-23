@@ -13,7 +13,7 @@ deps = {
   # NOTE: Angle has been reverted to http://angleproject.googlecode.com/svn/trunk@1268
   "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git@e574e26f48223a6718feab841b4a7720785b497a",
   "third_party/externals/freetype" : "https://android.googlesource.com/platform/external/freetype.git@android-4.2.2_r1.2",
-  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@8f42386eafcd7ddf1947cab2808a76c315ff30cc",
+  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@e5179456241c17cb6cdd106e4744882d32081df5",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@ab1e40f3bce061ea6f9bdc60351d6cde2a4f872b",
   # Move to a webp version newer than 0.3.0 to pickup NEON fix for iOS
