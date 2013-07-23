@@ -29,6 +29,7 @@
     '../bench/GameBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
+    '../bench/ImageCacheBench.cpp',
     '../bench/ImageDecodeBench.cpp',
     '../bench/InterpBench.cpp',
     '../bench/HairlinePathBench.cpp',

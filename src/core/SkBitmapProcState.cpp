@@ -12,6 +12,7 @@
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
 #include "SkBitmapScaler.h"
+#include "SkScaledImageCache.h"
 
 #if !SK_ARM_NEON_IS_NONE
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
@@ -142,14 +143,29 @@ void SkBitmapProcState::possiblyScaleImage() {
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
         fOrigBitmap.config() == SkBitmap::kARGB_8888_Config) {
 
-        int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / fInvMatrix.getScaleX());
-        int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / fInvMatrix.getScaleY());
+        SkScalar invScaleX = fInvMatrix.getScaleX();
+        SkScalar invScaleY = fInvMatrix.getScaleY();
+        
+        SkASSERT(NULL == fScaledCacheID);
+        fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
+                                                         invScaleX, invScaleY,
+                                                         &fScaledBitmap);
+        if (NULL == fScaledCacheID) {
+            int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / invScaleX);
+            int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / invScaleY);
 
-        // All the criteria are met; let's make a new bitmap.
+            // All the criteria are met; let's make a new bitmap.
 
-        fScaledBitmap = SkBitmapScaler::Resize( fOrigBitmap, SkBitmapScaler::RESIZE_BEST,
-                                                dest_width, dest_height, fConvolutionProcs );
-
+            fScaledBitmap = SkBitmapScaler::Resize(fOrigBitmap,
+                                                   SkBitmapScaler::RESIZE_BEST,
+                                                   dest_width,
+                                                   dest_height,
+                                                   fConvolutionProcs);
+            fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
+                                                            invScaleX,
+                                                            invScaleY,
+                                                            fScaledBitmap);
+        }
         fScaledBitmap.lockPixels();
 
         fBitmap = &fScaledBitmap;
@@ -234,6 +250,11 @@ void SkBitmapProcState::endContext() {
     SkDELETE(fBitmapFilter);
     fBitmapFilter = NULL;
     fScaledBitmap.reset();
+    
+    if (fScaledCacheID) {
+        SkScaledImageCache::Unlock(fScaledCacheID);
+        fScaledCacheID = NULL;
+    }
 }
 
 bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {

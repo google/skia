@@ -13,6 +13,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapFilter.h"
 #include "SkMatrix.h"
+#include "SkScaledImageCache.h"
 
 #define FractionalInt_IS_64BIT
 
@@ -35,8 +36,9 @@ struct SkConvolutionProcs;
 
 struct SkBitmapProcState {
 
-    SkBitmapProcState(): fBitmapFilter(NULL) {}
+    SkBitmapProcState(): fScaledCacheID(NULL), fBitmapFilter(NULL) {}
     ~SkBitmapProcState() {
+        SkASSERT(NULL == fScaledCacheID);
         SkDELETE(fBitmapFilter);
     }
 
@@ -156,6 +158,8 @@ private:
 
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
     SkBitmap            fScaledBitmap;      // chooseProcs
+
+    SkScaledImageCache::ID* fScaledCacheID;
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);

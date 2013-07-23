@@ -60,6 +60,10 @@ public:
      */
     static void PurgeFontCache();
 
+    static size_t GetImageCacheBytesUsed();
+    static size_t GetImageCacheByteLimit();
+    static size_t SetImageCacheByteLimit(size_t newLimit);
+
     /**
      *  Applications with command line options may pass optional state, such
      *  as cache sizes, here, for instance:
