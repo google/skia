@@ -337,8 +337,8 @@ public:
             if (dict->isEncodingAName(parsed)) {
                  fEncoding = SkPdfEncoding::fromName(dict->getEncodingAsName(parsed).c_str());
             } else if (dict->isEncodingAEncodingdictionary(parsed)) {
-                 // technically, there is no encoding.
-                 fEncoding = SkPdfCIDToGIDMapIdentityEncoding::instance();
+                 // No encoding.
+                 fEncoding = SkPdfDefaultEncoding::instance();
                  fEncodingDict = dict->getEncodingAsEncodingdictionary(parsed);
             }
         }
@@ -381,7 +381,7 @@ public:
                 if (j < fFirstChar || j > fLastChar) {
                     printf("break; error 2\n");
                 }
-                fChars[j - fFirstChar].fObj = fCharProcs->get((*diffs)[i]->nameValue());
+                fChars[j - fFirstChar].fObj = fCharProcs->get((*diffs)[i]);
                 j++;
             } else {
                 // err
