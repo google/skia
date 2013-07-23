@@ -42,6 +42,10 @@
       'target_name': 'freetype_static',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        # we are dependent upon PNG for color emoji glyphs
+        'images.gyp:images'
+      ],
       'sources': [
         # base components (required)
         '../third_party/externals/freetype/src/base/ftsystem.c',
@@ -80,6 +84,7 @@
         '../third_party/externals/freetype/src/psnames/psnames.c',   # PostScript glyph names support
       ],
       'include_dirs': [
+        '../third_party/freetype',
         '../third_party/externals/freetype/internal',
         '../third_party/externals/freetype/builds',
         '../third_party/externals/freetype/include',
@@ -94,6 +99,11 @@
         ],
       },
       'conditions': [
+        [ 'skia_warnings_as_errors', {
+          'cflags!': [
+            '-Werror',
+          ],
+        }],
         [ 'skia_os == "mac"', {
           'sources': [
             '../third_party/externals/freetype/src/base/ftmac.c',        # only on the Macintosh
