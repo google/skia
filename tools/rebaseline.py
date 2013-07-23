@@ -9,6 +9,8 @@ found in the LICENSE file.
 
 '''
 Rebaselines the given GM tests, on all bots and all configurations.
+Must be run from the gm-expected directory.  If run from a git or SVN
+checkout, the files will be added to the staging area for commit.
 
 TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
@@ -40,8 +42,8 @@ if GM_DIRECTORY not in sys.path:
     sys.path.append(GM_DIRECTORY)
 import gm_json
 
-# Mapping of expectations/gm subdir (under
-# https://skia.googlecode.com/svn/trunk/expectations/gm/ )
+# Mapping of gm-expectations subdir (under
+# https://skia.googlecode.com/svn/gm-expected/ )
 # to builder name (see list at http://108.170.217.252:10117/builders )
 SUBDIR_MAPPING = {
    'base-shuttle-win7-intel-float':
@@ -203,7 +205,7 @@ class JsonRebaseliner(object):
         return results_to_return
 
     # Rebaseline all tests/types we specified in the constructor,
-    # within this expectations/gm subdir.
+    # within this gm-expectations subdir.
     #
     # params:
     #  subdir : e.g. 'base-shuttle-win7-intel-float'
@@ -294,7 +296,7 @@ parser.add_argument('--expectations-root',
                     help='root of expectations directory to update-- should ' +
                     'contain one or more base-* subdirectories. Defaults to ' +
                     '%(default)s',
-                    default='expectations/gm')
+                    default='.')
 parser.add_argument('--keep-going-on-failure', action='store_true',
                     help='instead of halting at the first error encountered, ' +
                     'keep going and rebaseline as many tests as possible, ' +
@@ -327,7 +329,7 @@ for subdir in subdirs:
 
     # We instantiate different Rebaseliner objects depending
     # on whether we are rebaselining an expected-results.json file, or
-    # individual image files.  Different expectations/gm subdirectories may move
+    # individual image files.  Different gm-expected subdirectories may move
     # from individual image files to JSON-format expectations at different
     # times, so we need to make this determination per subdirectory.
     #
