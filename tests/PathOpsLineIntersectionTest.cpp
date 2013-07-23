@@ -11,6 +11,8 @@
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {
+    {{{{181.1764678955078125f, 120}, {186.3661956787109375f, 134.7042236328125f}}},
+     {{{175.8309783935546875f, 141.5211334228515625f}, {187.8782806396484375f, 133.7258148193359375f}}}},
 #if 0  // FIXME: these fail because one line is too short and appears quasi-coincident
     {{{{158.000000, 926.000000}, {1108.00000, 926.000000}}},
             {{{1108.00000, 926.000000}, {1108.00000, 925.999634}}}},
@@ -41,8 +43,11 @@ static const SkDLine noIntersect[][2] = {
 static const size_t noIntersect_count = SK_ARRAY_COUNT(noIntersect);
 
 static const SkDLine coincidentTests[][2] = {
+    {{{{186.3661956787109375f, 134.7042236328125f}, {187.8782806396484375f, 133.7258148193359375f}}},
+     {{{175.8309783935546875f, 141.5211334228515625f}, {187.8782806396484375f, 133.7258148193359375f}}}},
+
     {{{{235.681549, 531.000000}, {280.318420, 321.000000}}},
-            {{{286.695129, 291.000000}, {229.304855, 561.000000}}}},
+     {{{286.695129, 291.000000}, {229.304855, 561.000000}}}},
 };
 
 static const size_t coincidentTests_count = SK_ARRAY_COUNT(coincidentTests);
@@ -50,11 +55,11 @@ static const size_t coincidentTests_count = SK_ARRAY_COUNT(coincidentTests);
 static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2,
                           const SkIntersections& ts) {
     for (int i = 0; i < ts.used(); ++i) {
-        SkDPoint result1 = line1.xyAtT(ts[0][i]);
-        SkDPoint result2 = line2.xyAtT(ts[1][i]);
+        SkDPoint result1 = line1.ptAtT(ts[0][i]);
+        SkDPoint result2 = line2.ptAtT(ts[1][i]);
         if (!result1.approximatelyEqual(result2)) {
             REPORTER_ASSERT(reporter, ts.used() != 1);
-            result2 = line2.xyAtT(ts[1][i ^ 1]);
+            result2 = line2.ptAtT(ts[1][i ^ 1]);
             REPORTER_ASSERT(reporter, result1.approximatelyEqual(result2));
             REPORTER_ASSERT(reporter, result1.approximatelyEqual(ts.pt(i).asSkPoint()));
         }
@@ -146,7 +151,7 @@ static void PathOpsLineIntersectionTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsLineIntersectionTestOne(skiatest::Reporter* reporter) {
+static void PathOpsLineIntersectionOneOffTest(skiatest::Reporter* reporter) {
     int index = 0;
     SkASSERT(index < (int) tests_count);
     const SkDLine& line1 = tests[index][0];
@@ -154,7 +159,7 @@ static void PathOpsLineIntersectionTestOne(skiatest::Reporter* reporter) {
     testOne(reporter, line1, line2);
 }
 
-static void PathOpsLineIntersectionTestOneCoincident(skiatest::Reporter* reporter) {
+static void PathOpsLineIntersectionOneCoincidentTest(skiatest::Reporter* reporter) {
     int index = 0;
     SkASSERT(index < (int) coincidentTests_count);
     const SkDLine& line1 = coincidentTests[index][0];
@@ -165,6 +170,6 @@ static void PathOpsLineIntersectionTestOneCoincident(skiatest::Reporter* reporte
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionTest)
 
-DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionTestOne)
+DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionOneOffTest)
 
-DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionTestOneCoincident)
+DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionOneCoincidentTest)

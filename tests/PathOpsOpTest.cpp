@@ -1803,7 +1803,6 @@ static void cubicOp85d(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kDifference_PathOp);
 }
 
-#if 0 // FIXME
 // this fails because the pair of nearly coincident cubics intersect at the ends
 // but the line connected to one of the cubics at the same point does not intersect
 // the other
@@ -1834,123 +1833,121 @@ static void skpkkiste_to98(skiatest::Reporter* reporter) {
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
-#endif
 
-#if 0  // https://code.google.com/p/skia/issues/detail?id=1417
+#if 01
 static void issue1417(skiatest::Reporter* reporter) {
     SkPath path1;
-    path1.moveTo(122.589f, 82.2836f);
-    path1.quadTo(129.822f, 80, 138, 80);
-    path1.quadTo(147.157f, 80, 155.128f, 82.8628f);
-    path1.lineTo(161.176f, 100);
-    path1.lineTo(161.176f, 100);
-    path1.lineTo(115.294f, 100);
-    path1.lineTo(115.294f, 100);
-    path1.lineTo(122.589f, 82.2836f);
-    path1.lineTo(122.589f, 82.2836f);
+    path1.moveTo(122.58908843994140625f, 82.2836456298828125f);
+    path1.quadTo(129.8215789794921875f, 80, 138, 80);
+    path1.quadTo(147.15692138671875f, 80, 155.1280364990234375f, 82.86279296875f);
+    path1.lineTo(161.1764678955078125f, 100);
+    path1.lineTo(161.1764678955078125f, 100);
+    path1.lineTo(115.29412078857421875f, 100);
+    path1.lineTo(115.29412078857421875f, 100);
+    path1.lineTo(122.58908843994140625f, 82.2836456298828125f);
+    path1.lineTo(122.58908843994140625f, 82.2836456298828125f);
     path1.close();
-    path1.moveTo(98.6819f, 140.344f);
-    path1.lineTo(115.294f, 100);
-    path1.lineTo(115.294f, 100);
-    path1.lineTo(97.9338f, 100);
-    path1.lineTo(97.9338f, 100);
-    path1.quadTo(88, 112.943f, 88, 130);
-    path1.quadTo(88, 131.545f, 88.0815f, 133.056f);
-    path1.lineTo(98.6819f, 140.344f);
-    path1.lineTo(98.6819f, 140.344f);
+    path1.moveTo(98.68194580078125f, 140.343841552734375f);
+    path1.lineTo(115.29412078857421875f, 100);
+    path1.lineTo(115.29412078857421875f, 100);
+    path1.lineTo(97.9337615966796875f, 100);
+    path1.lineTo(97.9337615966796875f, 100);
+    path1.quadTo(88, 112.94264984130859375f, 88, 130);
+    path1.quadTo(88, 131.544830322265625f, 88.08148956298828125f, 133.0560302734375f);
+    path1.lineTo(98.68194580078125f, 140.343841552734375f);
+    path1.lineTo(98.68194580078125f, 140.343841552734375f);
     path1.close();
-    path1.moveTo(136.97f, 166.667f);
-    path1.lineTo(98.6819f, 140.344f);
-    path1.lineTo(98.6819f, 140.344f);
-    path1.lineTo(93.4589f, 153.028f);
-    path1.lineTo(93.4589f, 153.028f);
-    path1.quadTo(96.9412f, 159.652f, 102.645f, 165.355f);
-    path1.quadTo(110.792f, 173.503f, 120.818f, 177.118f);
-    path1.lineTo(136.97f, 166.667f);
-    path1.lineTo(136.97f, 166.667f);
+    path1.moveTo(136.969696044921875f, 166.6666717529296875f);
+    path1.lineTo(98.68194580078125f, 140.343841552734375f);
+    path1.lineTo(98.68194580078125f, 140.343841552734375f);
+    path1.lineTo(93.45894622802734375f, 153.02825927734375f);
+    path1.lineTo(93.45894622802734375f, 153.02825927734375f);
+    path1.quadTo(96.94116973876953125f, 159.65185546875f, 102.64466094970703125f, 165.3553466796875f);
+    path1.quadTo(110.7924652099609375f, 173.503143310546875f, 120.8179779052734375f, 177.1177825927734375f);
+    path1.lineTo(136.969696044921875f, 166.6666717529296875f);
+    path1.lineTo(136.969696044921875f, 166.6666717529296875f);
     path1.close();
-    path1.moveTo(175.831f, 141.521f);
-    path1.lineTo(136.97f, 166.667f);
-    path1.lineTo(136.97f, 166.667f);
-    path1.lineTo(153.157f, 177.796f);
-    path1.lineTo(153.157f, 177.796f);
-    path1.quadTo(164.392f, 174.318f, 173.355f, 165.355f);
-    path1.quadTo(177.806f, 160.905f, 180.904f, 155.894f);
-    path1.lineTo(175.831f, 141.521f);
-    path1.lineTo(175.831f, 141.521f);
+    path1.moveTo(175.8309783935546875f, 141.5211334228515625f);
+    path1.lineTo(136.969696044921875f, 166.6666717529296875f);
+    path1.lineTo(136.969696044921875f, 166.6666717529296875f);
+    path1.lineTo(153.15728759765625f, 177.7956390380859375f);
+    path1.lineTo(153.15728759765625f, 177.7956390380859375f);
+    path1.quadTo(164.392425537109375f, 174.318267822265625f, 173.3553466796875f, 165.3553466796875f);
+    path1.quadTo(177.805816650390625f, 160.9048614501953125f, 180.90380859375f, 155.8941650390625f);
+    path1.lineTo(175.8309783935546875f, 141.5211334228515625f);
+    path1.lineTo(175.8309783935546875f, 141.5211334228515625f);
     path1.close();
-    path1.moveTo(175.831f, 141.521f);
-    path1.lineTo(187.878f, 133.726f);
-    path1.lineTo(187.878f, 133.726f);
-    path1.quadTo(188, 131.888f, 188, 130);
-    path1.quadTo(188, 112.943f, 178.066f, 100);
-    path1.lineTo(161.176f, 100);
-    path1.lineTo(161.176f, 100);
-    path1.lineTo(175.831f, 141.521f);
-    path1.lineTo(175.831f, 141.521f);
+    path1.moveTo(175.8309783935546875f, 141.5211334228515625f);
+    path1.lineTo(187.8782806396484375f, 133.7258148193359375f);
+    path1.lineTo(187.8782806396484375f, 133.7258148193359375f);
+    path1.quadTo(188, 131.8880615234375f, 188, 130);
+    path1.quadTo(188, 112.942657470703125f, 178.0662384033203125f, 100);
+    path1.lineTo(161.1764678955078125f, 100);
+    path1.lineTo(161.1764678955078125f, 100);
+    path1.lineTo(175.8309783935546875f, 141.5211334228515625f);
+    path1.lineTo(175.8309783935546875f, 141.5211334228515625f);
     path1.close();
 
     SkPath path2;
-    path2.moveTo(174.118f, 100);
-    path2.lineTo(161.176f, 100);
-    path2.lineTo(161.176f, 100);
-    path2.lineTo(155.128f, 82.8628f);
-    path2.lineTo(155.128f, 82.8628f);
-    path2.quadTo(153.15f, 82.1523f, 151.098f, 81.6181f);
-    path2.lineTo(143.529f, 100);
-    path2.lineTo(143.529f, 100);
-    path2.lineTo(161.176f, 100);
-    path2.lineTo(161.176f, 100);
-    path2.lineTo(168.235f, 120);
-    path2.lineTo(168.235f, 120);
-    path2.lineTo(181.176f, 120);
-    path2.lineTo(181.176f, 120);
-    path2.lineTo(186.366f, 134.704f);
-    path2.lineTo(186.366f, 134.704f);
-    path2.lineTo(187.878f, 133.726f);
-    path2.lineTo(187.878f, 133.726f);
-    path2.quadTo(188, 131.888f, 188, 130);
-    path2.quadTo(188, 124.809f, 187.08f, 120);
-    path2.lineTo(181.176f, 120);
-    path2.lineTo(181.176f, 120);
-    path2.lineTo(174.118f, 100);
-    path2.lineTo(174.118f, 100);
+    path2.moveTo(174.117645263671875f, 100);
+    path2.lineTo(161.1764678955078125f, 100);
+    path2.lineTo(161.1764678955078125f, 100);
+    path2.lineTo(155.1280364990234375f, 82.86279296875f);
+    path2.lineTo(155.1280364990234375f, 82.86279296875f);
+    path2.quadTo(153.14971923828125f, 82.15229034423828125f, 151.098419189453125f, 81.618133544921875f);
+    path2.lineTo(143.5294189453125f, 100);
+    path2.lineTo(143.5294189453125f, 100);
+    path2.lineTo(161.1764678955078125f, 100);
+    path2.lineTo(161.1764678955078125f, 100);
+    path2.lineTo(168.23529052734375f, 120);
+    path2.lineTo(168.23529052734375f, 120);
+    path2.lineTo(181.1764678955078125f, 120);
+    path2.lineTo(181.1764678955078125f, 120);
+    path2.lineTo(186.3661956787109375f, 134.7042236328125f);
+    path2.lineTo(186.3661956787109375f, 134.7042236328125f);
+    path2.lineTo(187.8782806396484375f, 133.7258148193359375f);
+    path2.lineTo(187.8782806396484375f, 133.7258148193359375f);
+    path2.quadTo(188, 131.8880615234375f, 188, 130);
+    path2.quadTo(188, 124.80947113037109375f, 187.080169677734375f, 120);
+    path2.lineTo(181.1764678955078125f, 120);
+    path2.lineTo(181.1764678955078125f, 120);
+    path2.lineTo(174.117645263671875f, 100);
+    path2.lineTo(174.117645263671875f, 100);
     path2.close();
-    path2.moveTo(88.9198f, 120);
-    path2.lineTo(107.059f, 120);
-    path2.lineTo(107.059f, 120);
-    path2.lineTo(98.6819f, 140.344f);
-    path2.lineTo(98.6819f, 140.344f);
-    path2.lineTo(88.0815f, 133.056f);
-    path2.lineTo(88.0815f, 133.056f);
-    path2.quadTo(88, 131.545f, 88, 130);
-    path2.quadTo(88, 124.81f, 88.9198f, 120);
+    path2.moveTo(88.91983795166015625f, 120);
+    path2.lineTo(107.0588226318359375f, 120);
+    path2.lineTo(107.0588226318359375f, 120);
+    path2.lineTo(98.68194580078125f, 140.343841552734375f);
+    path2.lineTo(98.68194580078125f, 140.343841552734375f);
+    path2.lineTo(88.08148956298828125f, 133.0560302734375f);
+    path2.lineTo(88.08148956298828125f, 133.0560302734375f);
+    path2.quadTo(88, 131.544830322265625f, 88, 130);
+    path2.quadTo(88, 124.80951690673828125f, 88.91983795166015625f, 120);
     path2.close();
-    path2.moveTo(96.6762f, 145.215f);
-    path2.lineTo(98.6819f, 140.344f);
-    path2.lineTo(98.6819f, 140.344f);
-    path2.lineTo(120.688f, 155.473f);
-    path2.lineTo(120.688f, 155.473f);
-    path2.lineTo(118.682f, 160.344f);
-    path2.lineTo(118.682f, 160.344f);
-    path2.lineTo(96.6762f, 145.215f);
-    path2.lineTo(96.6762f, 145.215f);
+    path2.moveTo(96.67621612548828125f, 145.21490478515625f);
+    path2.lineTo(98.68194580078125f, 140.343841552734375f);
+    path2.lineTo(98.68194580078125f, 140.343841552734375f);
+    path2.lineTo(120.68767547607421875f, 155.4727783203125f);
+    path2.lineTo(120.68767547607421875f, 155.4727783203125f);
+    path2.lineTo(118.68194580078125f, 160.343841552734375f);
+    path2.lineTo(118.68194580078125f, 160.343841552734375f);
+    path2.lineTo(96.67621612548828125f, 145.21490478515625f);
+    path2.lineTo(96.67621612548828125f, 145.21490478515625f);
     path2.close();
-    path2.moveTo(113.232f, 173.579f);
-    path2.quadTo(116.88f, 175.698f, 120.818f, 177.118f);
-    path2.lineTo(132.286f, 169.697f);
-    path2.lineTo(132.286f, 169.697f);
-    path2.lineTo(118.682f, 160.344f);
-    path2.lineTo(118.682f, 160.344f);
-    path2.lineTo(113.232f, 173.579f);
-    path2.lineTo(113.232f, 173.579f);
+    path2.moveTo(113.232177734375f, 173.5789947509765625f);
+    path2.quadTo(116.8802642822265625f, 175.69805908203125f, 120.8179779052734375f, 177.1177825927734375f);
+    path2.lineTo(132.2864990234375f, 169.6969757080078125f);
+    path2.lineTo(132.2864990234375f, 169.6969757080078125f);
+    path2.lineTo(118.68194580078125f, 160.343841552734375f);
+    path2.lineTo(118.68194580078125f, 160.343841552734375f);
+    path2.lineTo(113.232177734375f, 173.5789947509765625f);
+    path2.lineTo(113.232177734375f, 173.5789947509765625f);
     path2.close();
 
     testPathOp(reporter, path1, path2, kUnion_PathOp);
 }
 #endif
 
-#if 0  // https://code.google.com/p/skia/issues/detail?id=1418
 static void issue1418(skiatest::Reporter* reporter) {
     SkPath path1;
     path1.moveTo(0, 0);
@@ -1965,27 +1962,65 @@ static void issue1418(skiatest::Reporter* reporter) {
     path1.close();
 
     SkPath path2;
-    path2.moveTo(0.646447f, -0.353553f);
-    path2.quadTo(0.792893f, -0.5f, 1, -0.5f);
-    path2.quadTo(1.20711f, -0.5f, 1.35355f, -0.353553f);
-    path2.quadTo(1.5f, -0.207107f, 1.5f, 0);
-    path2.quadTo(1.5f, 0.207107f, 1.35355f, 0.353553f);
-    path2.quadTo(1.20711f, 0.5f, 1, 0.5f);
-    path2.quadTo(0.792893f, 0.5f, 0.646447f, 0.353553f);
-    path2.quadTo(0.5f, 0.207107f, 0.5f, 0);
-    path2.quadTo(0.5f, -0.207107f, 0.646447f, -0.353553f);
-    path2.close();
-
+    path2.moveTo(0.64644664525985717773f, -0.35355341434478759766f);
+    path2.quadTo(0.79289329051971435547f, -0.50000005960464477539f, 1.0000001192092895508f, -0.50000005960464477539f);
+    path2.quadTo(1.2071068286895751953f, -0.50000005960464477539f, 1.3535535335540771484f, -0.35355341434478759766f);
+    path2.quadTo(1.5000001192092895508f, -0.20710679888725280762f, 1.5000001192092895508f, 0);
+    path2.quadTo(1.5000001192092895508f, 0.20710679888725280762f, 1.3535535335540771484f, 0.35355341434478759766f);
+    path2.quadTo(1.2071068286895751953f, 0.50000005960464477539f, 1.0000001192092895508f, 0.50000005960464477539f);
+    path2.quadTo(0.79289329051971435547f, 0.50000005960464477539f, 0.64644664525985717773f, 0.35355341434478759766f);
+    path2.quadTo(0.50000005960464477539f, 0.20710679888725280762f, 0.50000005960464477539f, 0);
+    path2.quadTo(0.50000005960464477539f, -0.20710679888725280762f, 0.64644664525985717773f, -0.35355341434478759766f);
     testPathOp(reporter, path1, path2, kIntersect_PathOp);
+}
+
+static void cubicOp85i(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(3, 4);
+    path.cubicTo(1, 5, 4, 3, 6, 4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3, 4);
+    pathB.cubicTo(4, 6, 4, 3, 5, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+#if 0
+static void skpkkiste_to716(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(1173, 284);
+    path.cubicTo(1173, 285.125824f, 1173.37207f, 286.164734f, 1174, 287.000488f);
+    path.lineTo(1174, 123.999496f);
+    path.cubicTo(1173.37207f, 124.835243f, 1173, 125.874168f, 1173, 127);
+    path.lineTo(1173, 284);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1340, 122);
+    pathB.cubicTo(1342.76147f, 122, 1345, 124.238579f, 1345, 127);
+    pathB.lineTo(1345, 284);
+    pathB.cubicTo(1345, 286.761414f, 1342.76147f, 289, 1340, 289);
+    pathB.lineTo(1178, 289);
+    pathB.cubicTo(1175.23853f, 289, 1173, 286.761414f, 1173, 284);
+    pathB.lineTo(1173, 127);
+    pathB.cubicTo(1173, 124.238579f, 1175.23853f, 122, 1178, 122);
+    pathB.lineTo(1340, 122);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
 #endif
 
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
-//    TEST(issue1418),
-//    TEST(issue1417),
-//    TEST(skpkkiste_to98),
+ //   TEST(skpkkiste_to716),
+    TEST(cubicOp85i),
+    TEST(issue1417),
+    TEST(issue1418),
+    TEST(skpkkiste_to98),
     TEST(skpahrefs_com29),
     TEST(cubicOp85d),
     TEST(skpahrefs_com88),

@@ -52,9 +52,9 @@ static void PathOpsCubicQuadIntersectionTest(skiatest::Reporter* reporter) {
         SkASSERT(roots == quadCubicTests[index].answerCount);
         for (int pt = 0; pt < roots; ++pt) {
             double tt1 = i[0][pt];
-            SkDPoint xy1 = cubic.xyAtT(tt1);
+            SkDPoint xy1 = cubic.ptAtT(tt1);
             double tt2 = i[1][pt];
-            SkDPoint xy2 = quad.xyAtT(tt2);
+            SkDPoint xy2 = quad.ptAtT(tt2);
             if (!xy1.approximatelyEqual(xy2)) {
                 SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                     __FUNCTION__, iIndex, pt, tt1, xy1.fX, xy1.fY, tt2, xy2.fX, xy2.fY);

@@ -64,6 +64,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 0
 #define DEBUG_UNSORTABLE 0
+#define DEBUG_VALIDATE 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
 #define DEBUG_WINDING_AT_T 0
@@ -93,6 +94,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
+#define DEBUG_VALIDATE 1
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 1
 #define DEBUG_WINDING_AT_T 1

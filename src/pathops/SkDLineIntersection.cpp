@@ -27,9 +27,9 @@ SkDPoint SkIntersections::Line(const SkDLine& a, const SkDLine& b) {
 }
 
 int SkIntersections::computePoints(const SkDLine& line, int used) {
-    fPt[0] = line.xyAtT(fT[0][0]);
+    fPt[0] = line.ptAtT(fT[0][0]);
     if ((fUsed = used) == 2) {
-        fPt[1] = line.xyAtT(fT[0][1]);
+        fPt[1] = line.ptAtT(fT[0][1]);
     }
     return fUsed;
 }
@@ -102,19 +102,24 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
              byLen  * axLen         ==  ayLen          * bxLen
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
-    double denom = byLen * axLen - ayLen * bxLen;
-    if (0 != denom) {
+    double axByLen = axLen * byLen;
+    double ayBxLen = ayLen * bxLen;
+    // detect parallel lines the same way here and in SkOpAngle operator <
+    // so that non-parallel means they are also sortable
+    bool parallel = AlmostEqualUlps(axByLen, ayBxLen);
+    if (!parallel) {
         double ab0y = a[0].fY - b[0].fY;
         double ab0x = a[0].fX - b[0].fX;
         double numerA = ab0y * bxLen - byLen * ab0x;
         double numerB = ab0y * axLen - ayLen * ab0x;
+        double denom = axByLen - ayBxLen;
         if (between(0, numerA, denom) && between(0, numerB, denom)) {
             fT[0][0] = numerA / denom;
             fT[1][0] = numerB / denom;
-            return computePoints(a, 1);
+            computePoints(a, 1);
         }
     }
-    if (fAllowNear || 0 == denom) {
+    if (fAllowNear || parallel) {
         for (int iA = 0; iA < 2; ++iA) {
             if ((t = b.nearPoint(a[iA])) >= 0) {
                 insert(iA, t, a[iA]);

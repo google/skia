@@ -26,7 +26,7 @@ void SkDRect::setBounds(const SkDQuad& quad) {
         roots += SkDQuad::FindExtrema(quad[0].fY, quad[1].fY, quad[2].fY, &tValues[roots]);
     }
     for (int x = 0; x < roots; ++x) {
-        add(quad.xyAtT(tValues[x]));
+        add(quad.ptAtT(tValues[x]));
     }
 }
 
@@ -53,7 +53,7 @@ void SkDRect::setBounds(const SkDCubic& c) {
         roots += SkDCubic::FindExtrema(c[0].fY, c[1].fY, c[2].fY, c[3].fY, &tValues[roots]);
     }
     for (int x = 0; x < roots; ++x) {
-        add(c.xyAtT(tValues[x]));
+        add(c.ptAtT(tValues[x]));
     }
 }
 

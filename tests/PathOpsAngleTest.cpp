@@ -257,8 +257,8 @@ static void setup(const SortSet* set, const size_t idx,
             if (useIntersectPt) {
                 break;
             }
-            start = dLine.xyAtT(set[idx].tStart).asSkPoint();
-            end = dLine.xyAtT(set[idx].tEnd).asSkPoint();
+            start = dLine.ptAtT(set[idx].tStart).asSkPoint();
+            end = dLine.ptAtT(set[idx].tEnd).asSkPoint();
             } break;
         case 3: {
             SkASSERT(ValidPoints(data, 3));
@@ -269,8 +269,8 @@ static void setup(const SortSet* set, const size_t idx,
              if (useIntersectPt) {
                 break;
             }
-            start = dQuad.xyAtT(set[idx].tStart).asSkPoint();
-            end = dQuad.xyAtT(set[idx].tEnd).asSkPoint();
+            start = dQuad.ptAtT(set[idx].tStart).asSkPoint();
+            end = dQuad.ptAtT(set[idx].tEnd).asSkPoint();
             } break;
         case 4: {
             SkASSERT(ValidPoints(data, 4));
@@ -281,8 +281,8 @@ static void setup(const SortSet* set, const size_t idx,
             if (useIntersectPt) {
                 break;
             }
-            start = dCubic.xyAtT(set[idx].tStart).asSkPoint();
-            end = dCubic.xyAtT(set[idx].tEnd).asSkPoint();
+            start = dCubic.ptAtT(set[idx].tStart).asSkPoint();
+            end = dCubic.ptAtT(set[idx].tEnd).asSkPoint();
             } break;
     }
     double tStart = set[idx].tStart;

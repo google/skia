@@ -87,8 +87,8 @@ static bool only_end_pts_in_common(const SkDQuad& q1, const SkDQuad& q2) {
     for (int oddMan = 0; oddMan < 3; ++oddMan) {
         const SkDPoint* endPt[2];
         for (int opp = 1; opp < 3; ++opp) {
-            int end = oddMan ^ opp;
-            if (end == 3) {
+            int end = oddMan ^ opp;  // choose a value not equal to oddMan
+            if (3 == end) {  // and correct so that largest value is 1 or 2
                 end = opp;
             }
             endPt[opp - 1] = &q1[end];
@@ -120,7 +120,7 @@ tryNextHalfPlane:
 static bool add_intercept(const SkDQuad& q1, const SkDQuad& q2, double tMin, double tMax,
                           SkIntersections* i, bool* subDivide) {
     double tMid = (tMin + tMax) / 2;
-    SkDPoint mid = q2.xyAtT(tMid);
+    SkDPoint mid = q2.ptAtT(tMid);
     SkDLine line;
     line[0] = line[1] = mid;
     SkDVector dxdy = q2.dxdyAtT(tMid);
@@ -138,7 +138,7 @@ static bool add_intercept(const SkDQuad& q1, const SkDQuad& q2, double tMin, dou
     if (roots == 2) {
         return false;
     }
-    SkDPoint pt2 = q1.xyAtT(rootTs[0][0]);
+    SkDPoint pt2 = q1.ptAtT(rootTs[0][0]);
     if (!pt2.approximatelyEqualHalf(mid)) {
         return false;
     }
@@ -160,8 +160,8 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
         for (int idx2 = 0; idx2 < roots; ++idx2) {
             double t = rootTs[0][idx2];
 #ifdef SK_DEBUG
-            SkDPoint qPt = q2.xyAtT(t);
-            SkDPoint lPt = testLines[index]->xyAtT(rootTs[1][idx2]);
+            SkDPoint qPt = q2.ptAtT(t);
+            SkDPoint lPt = testLines[index]->ptAtT(rootTs[1][idx2]);
             SkASSERT(qPt.approximatelyEqual(lPt));
 #endif
             if (approximately_negative(t - t2s) || approximately_positive(t - t2e)) {
@@ -183,12 +183,12 @@ static bool is_linear_inner(const SkDQuad& q1, double t1s, double t1e, const SkD
         tMin = tsFound[0];
         tMax = tsFound[tsFound.count() - 1];
     }
-    SkDPoint end = q2.xyAtT(t2s);
+    SkDPoint end = q2.ptAtT(t2s);
     bool startInTriangle = hull.pointInHull(end);
     if (startInTriangle) {
         tMin = t2s;
     }
-    end = q2.xyAtT(t2e);
+    end = q2.ptAtT(t2e);
     bool endInTriangle = hull.pointInHull(end);
     if (endInTriangle) {
         tMax = t2e;
@@ -290,8 +290,8 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
     SkDPoint t1[3], t2[3];
     int calcMask = ~0;
     do {
-        if (calcMask & (1 << 1)) t1[1] = quad1.xyAtT(*t1Seed);
-        if (calcMask & (1 << 4)) t2[1] = quad2.xyAtT(*t2Seed);
+        if (calcMask & (1 << 1)) t1[1] = quad1.ptAtT(*t1Seed);
+        if (calcMask & (1 << 4)) t2[1] = quad2.ptAtT(*t2Seed);
         if (t1[1].approximatelyEqual(t2[1])) {
             *pt = t1[1];
     #if ONE_OFF_DEBUG
@@ -300,10 +300,10 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
     #endif
             return true;
         }
-        if (calcMask & (1 << 0)) t1[0] = quad1.xyAtT(*t1Seed - tStep);
-        if (calcMask & (1 << 2)) t1[2] = quad1.xyAtT(*t1Seed + tStep);
-        if (calcMask & (1 << 3)) t2[0] = quad2.xyAtT(*t2Seed - tStep);
-        if (calcMask & (1 << 5)) t2[2] = quad2.xyAtT(*t2Seed + tStep);
+        if (calcMask & (1 << 0)) t1[0] = quad1.ptAtT(*t1Seed - tStep);
+        if (calcMask & (1 << 2)) t1[2] = quad1.ptAtT(*t1Seed + tStep);
+        if (calcMask & (1 << 3)) t2[0] = quad2.ptAtT(*t2Seed - tStep);
+        if (calcMask & (1 << 5)) t2[2] = quad2.ptAtT(*t2Seed + tStep);
         double dist[3][3];
         // OPTIMIZE: using calcMask value permits skipping some distance calcuations
         //   if prior loop's results are moved to correct slot for reuse
@@ -361,6 +361,34 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
     return false;
 }
 
+static void lookNearEnd(const SkDQuad& q1, const SkDQuad& q2, int testT,
+        const SkIntersections& orig, bool swap, SkIntersections* i) {
+    if (orig.used() == 1 && orig[!swap][0] == testT) {
+        return;
+    }
+    if (orig.used() == 2 && orig[!swap][1] == testT) {
+        return;
+    }
+    SkDLine tmpLine;
+    int testTIndex = testT << 1;
+    tmpLine[0] = tmpLine[1] = q2[testTIndex];
+    tmpLine[1].fX += q2[1].fY - q2[testTIndex].fY;
+    tmpLine[1].fY -= q2[1].fX - q2[testTIndex].fX;
+    SkIntersections impTs;
+    impTs.intersectRay(q1, tmpLine);
+    for (int index = 0; index < impTs.used(); ++index) {
+        SkDPoint realPt = impTs.pt(index);
+        if (!tmpLine[0].approximatelyEqualHalf(realPt)) {
+            continue;
+        }
+        if (swap) {
+            i->insert(testT, impTs[0][index], tmpLine[0]);
+        } else {
+            i->insert(impTs[0][index], testT, tmpLine[0]);
+        }
+    }
+}
+
 int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     // if the quads share an end point, check to see if they overlap
 
@@ -379,6 +407,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         return fUsed;
     }
     // see if either quad is really a line
+    // FIXME: figure out why reduce step didn't find this earlier
     if (is_linear(q1, q2, this)) {
         return fUsed;
     }
@@ -388,30 +417,42 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         set(swapped);
         return fUsed;
     }
-    SkDQuadImplicit i1(q1);
-    SkDQuadImplicit i2(q2);
-    if (i1.match(i2)) {
-        // FIXME: compute T values
-        // compute the intersections of the ends to find the coincident span
+    SkIntersections copyI(*this);
+    lookNearEnd(q1, q2, 0, *this, false, &copyI);
+    lookNearEnd(q1, q2, 1, *this, false, &copyI);
+    lookNearEnd(q2, q1, 0, *this, true, &copyI);
+    lookNearEnd(q2, q1, 1, *this, true, &copyI);
+    int innerEqual = 0;
+    if (copyI.fUsed >= 2) {
+        SkASSERT(copyI.fUsed <= 4);
+        double width = copyI[0][1] - copyI[0][0];
+        int midEnd = 1;
+        for (int index = 2; index < copyI.fUsed; ++index) {
+            double testWidth = copyI[0][index] - copyI[0][index - 1];
+            if (testWidth <= width) {
+                continue;
+            }
+            midEnd = index;
+        }
+        for (int index = 0; index < 2; ++index) {
+            double testT = (copyI[0][midEnd] * (index + 1)
+                    + copyI[0][midEnd - 1] * (2 - index)) / 3;
+            SkDPoint testPt1 = q1.ptAtT(testT);
+            testT = (copyI[1][midEnd] * (index + 1) + copyI[1][midEnd - 1] * (2 - index)) / 3;
+            SkDPoint testPt2 = q2.ptAtT(testT);
+            innerEqual += testPt1.approximatelyEqual(testPt2);
+        }
+    }
+    bool expectCoincident = copyI.fUsed >= 2 && innerEqual == 2;
+    if (expectCoincident) {
         reset();
-        bool useVertical = fabs(q1[0].fX - q1[2].fX) < fabs(q1[0].fY - q1[2].fY);
-        double t;
-        if ((t = SkIntersections::Axial(q1, q2[0], useVertical)) >= 0) {
-            insertCoincident(t, 0, q2[0]);
-        }
-        if ((t = SkIntersections::Axial(q1, q2[2], useVertical)) >= 0) {
-            insertCoincident(t, 1, q2[2]);
-        }
-        useVertical = fabs(q2[0].fX - q2[2].fX) < fabs(q2[0].fY - q2[2].fY);
-        if ((t = SkIntersections::Axial(q2, q1[0], useVertical)) >= 0) {
-            insertCoincident(0, t, q1[0]);
-        }
-        if ((t = SkIntersections::Axial(q2, q1[2], useVertical)) >= 0) {
-            insertCoincident(1, t, q1[2]);
-        }
-        SkASSERT(coincidentUsed() <= 2);
+        insertCoincident(copyI[0][0], copyI[1][0], copyI.fPt[0]);
+        int last = copyI.fUsed - 1;
+        insertCoincident(copyI[0][last], copyI[1][last], copyI.fPt[last]);
         return fUsed;
     }
+    SkDQuadImplicit i1(q1);
+    SkDQuadImplicit i2(q2);
     int index;
     bool flip1 = q1[2] == q2[0];
     bool flip2 = q1[0] == q2[2];
@@ -423,7 +464,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     int r1Count = addValidRoots(roots1, rootCount, roots1Copy);
     SkDPoint pts1[4];
     for (index = 0; index < r1Count; ++index) {
-        pts1[index] = q1.xyAtT(roots1Copy[index]);
+        pts1[index] = q1.ptAtT(roots1Copy[index]);
     }
     double roots2[4];
     int rootCount2 = findRoots(i1, q2, roots2, useCubic, flip2, 0);
@@ -431,7 +472,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     int r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
     SkDPoint pts2[4];
     for (index = 0; index < r2Count; ++index) {
-        pts2[index] = q2.xyAtT(roots2Copy[index]);
+        pts2[index] = q2.ptAtT(roots2Copy[index]);
     }
     if (r1Count == r2Count && r1Count <= 1) {
         if (r1Count == 1) {

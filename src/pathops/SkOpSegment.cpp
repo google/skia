@@ -1082,9 +1082,7 @@ bool SkOpSegment::bumpSpan(SkOpSpan* span, int windDelta, int oppDelta) {
 
 // look to see if the curve end intersects an intermediary that intersects the other
 void SkOpSegment::checkEnds() {
-#if 1
-    return;  // FIXME: suspect we will need the code below to make intersections consistent
-#else
+    debugValidate();
     SkTDArray<SkOpSpan> missingSpans;
     int count = fTs.count();
     for (int index = 0; index < count; ++index) {
@@ -1150,14 +1148,20 @@ nextPeeker:
         ;
     }
     int missingCount = missingSpans.count();
+    if (missingCount == 0) {
+        return;
+    }
+    debugValidate();
     for (int index = 0; index < missingCount; ++index)  {
         const SkOpSpan& missing = missingSpans[index];
         addTPair(missing.fT, missing.fOther, missing.fOtherT, false, missing.fPt);
     }
-    if (missingCount > 0) {
-        fixOtherTIndex();
+    fixOtherTIndex();
+    for (int index = 0; index < missingCount; ++index)  {
+        const SkOpSpan& missing = missingSpans[index];
+        missing.fOther->fixOtherTIndex();
     }
-#endif
+    debugValidate();
 }
 
 bool SkOpSegment::equalPoints(int greaterTIndex, int lesserTIndex) {
@@ -1792,13 +1796,16 @@ void SkOpSegment::fixOtherTIndex() {
         double oT = iSpan.fOtherT;
         SkOpSegment* other = iSpan.fOther;
         int oCount = other->fTs.count();
+        SkDEBUGCODE(iSpan.fOtherIndex = -1);
         for (int o = 0; o < oCount; ++o) {
             SkOpSpan& oSpan = other->fTs[o];
             if (oT == oSpan.fT && this == oSpan.fOther && oSpan.fOtherT == iSpan.fT) {
                 iSpan.fOtherIndex = o;
+                oSpan.fOtherIndex = i;
                 break;
             }
         }
+        SkASSERT(iSpan.fOtherIndex >= 0);
     }
 }
 
@@ -2755,6 +2762,7 @@ void SkOpSegment::debugShowTs() const {
 
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
 void SkOpSegment::debugShowActiveSpans() const {
+    debugValidate();
     if (done()) {
         return;
     }
@@ -2763,8 +2771,6 @@ void SkOpSegment::debugShowActiveSpans() const {
     double lastT = -1;
 #endif
     for (int i = 0; i < fTs.count(); ++i) {
-        SkASSERT(&fTs[i] == &fTs[i].fOther->fTs[fTs[i].fOtherIndex].fOther->
-                fTs[fTs[i].fOther->fTs[fTs[i].fOtherIndex].fOtherIndex]);
         if (fTs[i].fDone) {
             continue;
         }
@@ -2995,3 +3001,27 @@ int SkOpSegment::debugShowWindingValues(int slotCount, int ofInterest) const {
     return sum;
 }
 #endif
+
+void SkOpSegment::debugValidate() const {
+#if DEBUG_VALIDATE
+    int count = fTs.count();
+    SkASSERT(count >= 2);
+    SkASSERT(fTs[0].fT == 0);
+    SkASSERT(fTs[count - 1].fT == 1);
+    int done = 0;
+    double t = -1;
+    for (int i = 0; i < count; ++i) {
+        const SkOpSpan& span = fTs[i];
+        SkASSERT(t <= span.fT);
+        t = span.fT;
+        int otherIndex = span.fOtherIndex;
+        const SkOpSegment* other = span.fOther;
+        const SkOpSpan& otherSpan = other->fTs[otherIndex];
+        SkASSERT(otherSpan.fPt == span.fPt);
+        SkASSERT(otherSpan.fOtherT == t);
+        SkASSERT(&fTs[i] == &otherSpan.fOther->fTs[otherSpan.fOtherIndex]);
+        done += span.fDone;
+    }
+    SkASSERT(done == fDoneSpans);
+#endif
+}

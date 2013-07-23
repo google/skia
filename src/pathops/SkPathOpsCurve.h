@@ -14,19 +14,19 @@
 static SkDPoint dline_xy_at_t(const SkPoint a[2], double t) {
     SkDLine line;
     line.set(a);
-    return line.xyAtT(t);
+    return line.ptAtT(t);
 }
 
 static SkDPoint dquad_xy_at_t(const SkPoint a[3], double t) {
     SkDQuad quad;
     quad.set(a);
-    return quad.xyAtT(t);
+    return quad.ptAtT(t);
 }
 
 static SkDPoint dcubic_xy_at_t(const SkPoint a[4], double t) {
     SkDCubic cubic;
     cubic.set(a);
-    return cubic.xyAtT(t);
+    return cubic.ptAtT(t);
 }
 
 static SkDPoint (* const CurveDPointAtT[])(const SkPoint[], double ) = {
@@ -123,7 +123,7 @@ static SkPoint (* const CurveTop[])(const SkPoint[], double , double ) = {
 static bool line_is_vertical(const SkPoint a[2], double startT, double endT) {
     SkDLine line;
     line.set(a);
-    SkDPoint dst[2] = { line.xyAtT(startT), line.xyAtT(endT) };
+    SkDPoint dst[2] = { line.ptAtT(startT), line.ptAtT(endT) };
     return AlmostEqualUlps(dst[0].fX, dst[1].fX);
 }
 

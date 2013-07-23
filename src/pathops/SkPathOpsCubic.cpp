@@ -304,7 +304,7 @@ SkDPoint SkDCubic::top(double startT, double endT) const {
         int roots = FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, sub[3].fY, extremeTs);
         for (int index = 0; index < roots; ++index) {
             double t = startT + (endT - startT) * extremeTs[index];
-            SkDPoint mid = xyAtT(t);
+            SkDPoint mid = ptAtT(t);
             if (topPt.fY > mid.fY || (topPt.fY == mid.fY && topPt.fX > mid.fX)) {
                 topPt = mid;
             }
@@ -313,7 +313,13 @@ SkDPoint SkDCubic::top(double startT, double endT) const {
     return topPt;
 }
 
-SkDPoint SkDCubic::xyAtT(double t) const {
+SkDPoint SkDCubic::ptAtT(double t) const {
+    if (0 == t) {
+        return fPts[0];
+    }
+    if (1 == t) {
+        return fPts[3];
+    }
     double one_t = 1 - t;
     double one_t2 = one_t * one_t;
     double a = one_t2 * one_t;

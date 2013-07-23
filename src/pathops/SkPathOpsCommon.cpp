@@ -17,7 +17,7 @@ static int contourRangeCheckY(const SkTArray<SkOpContour*, true>& contourList, S
     const double mid = *midPtr;
     const SkOpSegment* current = *currentPtr;
     double tAtMid = current->tAtMid(index, endIndex, mid);
-    SkPoint basePt = current->xyAtT(tAtMid);
+    SkPoint basePt = current->ptAtT(tAtMid);
     int contourCount = contourList.count();
     SkScalar bestY = SK_ScalarMin;
     SkOpSegment* bestSeg = NULL;
