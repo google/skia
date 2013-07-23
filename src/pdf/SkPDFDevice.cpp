@@ -20,6 +20,7 @@
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFImage.h"
+#include "SkPDFResourceDict.h"
 #include "SkPDFShader.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
@@ -424,10 +425,13 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     // PDF treats a shader as a color, so we only set one or the other.
     if (state.fShaderIndex >= 0) {
         if (state.fShaderIndex != currentEntry()->fShaderIndex) {
-            fContentStream->writeText("/Pattern CS /Pattern cs /P");
-            fContentStream->writeDecAsText(state.fShaderIndex);
-            fContentStream->writeText(" SCN /P");
-            fContentStream->writeDecAsText(state.fShaderIndex);
+            SkString resourceName = SkPDFResourceDict::getResourceName(
+                    SkPDFResourceDict::kPattern_ResourceType,
+                    state.fShaderIndex);
+            fContentStream->writeText("/Pattern CS /Pattern cs /");
+            fContentStream->writeText(resourceName.c_str());
+            fContentStream->writeText(" SCN /");
+            fContentStream->writeText(resourceName.c_str());
             fContentStream->writeText(" scn\n");
             currentEntry()->fShaderIndex = state.fShaderIndex;
         }
@@ -1123,121 +1127,44 @@ void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
     fDrawingArea = drawingArea;
 }
 
-SkPDFDict* SkPDFDevice::getResourceDict() {
+SkPDFResourceDict* SkPDFDevice::getResourceDict() {
     if (NULL == fResourceDict) {
-        fResourceDict = SkNEW(SkPDFDict);
+        fResourceDict = SkNEW(SkPDFResourceDict);
 
         if (fGraphicStateResources.count()) {
-            SkAutoTUnref<SkPDFDict> extGState(new SkPDFDict());
             for (int i = 0; i < fGraphicStateResources.count(); i++) {
-                SkString nameString("G");
-                nameString.appendS32(i);
-                extGState->insert(
-                        nameString.c_str(),
-                        new SkPDFObjRef(fGraphicStateResources[i]))->unref();
+                fResourceDict->insertResourceAsReference(
+                        SkPDFResourceDict::kExtGState_ResourceType,
+                        i, fGraphicStateResources[i]);
             }
-            fResourceDict->insert("ExtGState", extGState.get());
         }
 
         if (fXObjectResources.count()) {
-            SkAutoTUnref<SkPDFDict> xObjects(new SkPDFDict());
             for (int i = 0; i < fXObjectResources.count(); i++) {
-                SkString nameString("X");
-                nameString.appendS32(i);
-                xObjects->insert(
-                        nameString.c_str(),
-                        new SkPDFObjRef(fXObjectResources[i]))->unref();
+                fResourceDict->insertResourceAsReference(
+                        SkPDFResourceDict::kXObject_ResourceType,
+                        i, fXObjectResources[i]);
             }
-            fResourceDict->insert("XObject", xObjects.get());
         }
 
         if (fFontResources.count()) {
-            SkAutoTUnref<SkPDFDict> fonts(new SkPDFDict());
             for (int i = 0; i < fFontResources.count(); i++) {
-                SkString nameString("F");
-                nameString.appendS32(i);
-                fonts->insert(nameString.c_str(),
-                              new SkPDFObjRef(fFontResources[i]))->unref();
+                fResourceDict->insertResourceAsReference(
+                        SkPDFResourceDict::kFont_ResourceType,
+                        i, fFontResources[i]);
             }
-            fResourceDict->insert("Font", fonts.get());
         }
 
         if (fShaderResources.count()) {
             SkAutoTUnref<SkPDFDict> patterns(new SkPDFDict());
             for (int i = 0; i < fShaderResources.count(); i++) {
-                SkString nameString("P");
-                nameString.appendS32(i);
-                patterns->insert(nameString.c_str(),
-                                 new SkPDFObjRef(fShaderResources[i]))->unref();
+                fResourceDict->insertResourceAsReference(
+                        SkPDFResourceDict::kPattern_ResourceType,
+                        i, fShaderResources[i]);
             }
-            fResourceDict->insert("Pattern", patterns.get());
         }
-
-        // For compatibility, add all proc sets (only used for output to PS
-        // devices).
-        const char procs[][7] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
-        SkAutoTUnref<SkPDFArray> procSets(new SkPDFArray());
-        procSets->reserve(SK_ARRAY_COUNT(procs));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++)
-            procSets->appendName(procs[i]);
-        fResourceDict->insert("ProcSet", procSets.get());
     }
     return fResourceDict;
-}
-
-void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                               SkTSet<SkPDFObject*>* newResourceObjects,
-                               bool recursive) const {
-    // TODO: reserve not correct if we need to recursively explore.
-    newResourceObjects->setReserve(newResourceObjects->count() +
-                                   fGraphicStateResources.count() +
-                                   fXObjectResources.count() +
-                                   fFontResources.count() +
-                                   fShaderResources.count());
-    for (int i = 0; i < fGraphicStateResources.count(); i++) {
-        if (!knownResourceObjects.contains(fGraphicStateResources[i]) &&
-                !newResourceObjects->contains(fGraphicStateResources[i])) {
-            newResourceObjects->add(fGraphicStateResources[i]);
-            fGraphicStateResources[i]->ref();
-            if (recursive) {
-                fGraphicStateResources[i]->getResources(knownResourceObjects,
-                                                        newResourceObjects);
-            }
-        }
-    }
-    for (int i = 0; i < fXObjectResources.count(); i++) {
-        if (!knownResourceObjects.contains(fXObjectResources[i]) &&
-                !newResourceObjects->contains(fXObjectResources[i])) {
-            newResourceObjects->add(fXObjectResources[i]);
-            fXObjectResources[i]->ref();
-            if (recursive) {
-                fXObjectResources[i]->getResources(knownResourceObjects,
-                                                   newResourceObjects);
-            }
-        }
-    }
-    for (int i = 0; i < fFontResources.count(); i++) {
-        if (!knownResourceObjects.contains(fFontResources[i]) &&
-                !newResourceObjects->contains(fFontResources[i])) {
-            newResourceObjects->add(fFontResources[i]);
-            fFontResources[i]->ref();
-            if (recursive) {
-                fFontResources[i]->getResources(knownResourceObjects,
-                                                newResourceObjects);
-            }
-        }
-    }
-    for (int i = 0; i < fShaderResources.count(); i++) {
-        if (!knownResourceObjects.contains(fShaderResources[i]) &&
-                !newResourceObjects->contains(fShaderResources[i])) {
-            newResourceObjects->add(fShaderResources[i]);
-            fShaderResources[i]->ref();
-            if (recursive) {
-                fShaderResources[i]->getResources(knownResourceObjects,
-                                                  newResourceObjects);
-            }
-        }
-    }
 }
 
 const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
@@ -1771,8 +1698,10 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
             contentEntry->fState.fTextSize != paint.getTextSize() ||
             !contentEntry->fState.fFont->hasGlyph(glyphID)) {
         int fontIndex = getFontResourceIndex(typeface, glyphID);
-        contentEntry->fContent.writeText("/F");
-        contentEntry->fContent.writeDecAsText(fontIndex);
+        contentEntry->fContent.writeText("/");
+        contentEntry->fContent.writeText(SkPDFResourceDict::getResourceName(
+                SkPDFResourceDict::kFont_ResourceType,
+                fontIndex).c_str());
         contentEntry->fContent.writeText(" ");
         SkPDFScalar::Append(paint.getTextSize(), &contentEntry->fContent);
         contentEntry->fContent.writeText(" Tf\n");
