@@ -72,7 +72,7 @@ protected:
                 SkPath::Verb verb;
                 SkPoint      pts[4];
 
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb);
+                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
             }
         } else {
             for (int i = 0; i < N; ++i) {
@@ -80,7 +80,7 @@ protected:
                 SkPath::Verb verb;
                 SkPoint      pts[4];
 
-                while ((verb = iter.next(pts)) != SkPath::kDone_Verb);
+                while ((verb = iter.next(pts)) != SkPath::kDone_Verb) { }
             }
         }
     }

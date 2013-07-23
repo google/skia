@@ -56,8 +56,8 @@
 }
 
 - (void)updateMenu:(const SkOSMenu*)menu {
-    // the first menu is always assumed to be the static, the second is 
-    // repopulated every time over and over again 
+    // the first menu is always assumed to be the static, the second is
+    // repopulated every time over and over again
 
     // seems pretty weird that we have to get rid of the const'ness here,
     // but trying to propagate the const'ness through all the way to the fMenus
@@ -91,7 +91,7 @@
         const SkOSMenu::Item* item = menuitems[i];
         SkOptionItem* option = [[SkOptionItem alloc] init];
         option.fItem = item;
-        
+
         if (SkOSMenu::kList_Type == item->getType()) {
             int index = 0, count = 0;
             SkOSMenu::FindListItemCount(*item->getEvent(), &count);
@@ -118,10 +118,10 @@
                     SkOSMenu::FindSliderValue(*item->getEvent(), item->getSlotName(), &value);
                     SkOSMenu::FindSliderMin(*item->getEvent(), &min);
                     SkOSMenu::FindSliderMax(*item->getEvent(), &max);
-                    option.fCell = [self createSlider:value 
-                                                  min:min 
+                    option.fCell = [self createSlider:value
+                                                  min:min
                                                   max:max];
-                    break;                    
+                    break;
                 case SkOSMenu::kSwitch_Type:
                     SkOSMenu::FindSwitchState(*item->getEvent(), item->getSlotName(), &state);
                     option.fCell = [self createSwitch:(BOOL)state];
@@ -152,9 +152,9 @@
     if (columnIndex == 0) {
         const SkOSMenu::Item* item = ((SkOptionItem*)[fItems objectAtIndex:row]).fItem;
         NSString* label = [NSString stringWithUTF8String:item->getLabel()];
-        if (fShowKeys) 
+        if (fShowKeys)
             return [NSString stringWithFormat:@"%@ (%c)", label, item->getKeyEquivalent()];
-        else 
+        else
             return label;
     }
     else
@@ -164,7 +164,7 @@
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if (tableColumn) {
         int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
-        if (columnIndex == 1) 
+        if (columnIndex == 1)
             return [((SkOptionItem*)[fItems objectAtIndex:row]).fCell copy];
         else
             return [[[SkTextFieldCell alloc] init] autorelease];
@@ -180,7 +180,7 @@
         const SkOSMenu::Item* item = option.fItem;
         switch (item->getType()) {
             case SkOSMenu::kAction_Type:
-                break;                
+                break;
             case SkOSMenu::kList_Type:
                 [cell selectItemAtIndex:[(NSPopUpButtonCell*)storedCell indexOfSelectedItem]];
                 break;
@@ -259,7 +259,7 @@
     [cell selectItemAtIndex:index];
     [cell setArrowPosition:NSPopUpArrowAtBottom];
     [cell setBezelStyle:NSSmallSquareBezelStyle];
-    return cell; 
+    return cell;
 }
 
 - (NSCell*)createSlider:(float)value min:(float)min max:(float)max {
@@ -278,7 +278,7 @@
     return cell;
 }
 
-- (NSCell*)createTextField:(NSString*)placeHolder; {
+- (NSCell*)createTextField:(NSString*)placeHolder {
     SkTextFieldCell* cell = [[[SkTextFieldCell alloc] init] autorelease];
     [cell setEditable:YES];
     [cell setStringValue:@""];

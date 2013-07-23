@@ -45,9 +45,6 @@ private:
                         SkConvolutionFilter1D* output,
                         SkConvolutionProcs* convolveProcs);
 
-    // Subset of scaled destination bitmap to compute.
-    SkIRect fOutBounds;
-
     SkConvolutionFilter1D fXFilter;
     SkConvolutionFilter1D fYFilter;
 };
@@ -56,8 +53,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                                int srcFullWidth, int srcFullHeight,
                                int destWidth, int destHeight,
                                const SkIRect& destSubset,
-                               SkConvolutionProcs* convolveProcs)
-                       : fOutBounds(destSubset) {
+                               SkConvolutionProcs* convolveProcs) {
 
     // method will only ever refer to an "algorithm method".
     SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&

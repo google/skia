@@ -121,7 +121,7 @@ SkPicture::SkPicture() {
     fWidth = fHeight = 0;
 }
 
-SkPicture::SkPicture(const SkPicture& src) {
+SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
     fWidth = src.fWidth;
     fHeight = src.fHeight;
     fRecord = NULL;

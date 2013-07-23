@@ -302,6 +302,9 @@
             'xcode_settings': {
               'OTHER_CPLUSPLUSFLAGS': [
                 '-Werror',
+                '-Wall',
+                '-Wextra',
+                '-Wno-unused-parameter',
               ],
             },
           }],
