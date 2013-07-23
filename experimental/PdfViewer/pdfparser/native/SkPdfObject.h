@@ -372,7 +372,7 @@ public:
     // which will be used in code
     // add function SkPdfFastNameKey key(const char* key);
     // TODO(edisonn): setting the same key twike, will make the value undefined!
-    bool set(SkPdfObject* key, SkPdfObject* value) {
+    bool set(const SkPdfObject* key, SkPdfObject* value) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -402,7 +402,7 @@ public:
         return fMap->set((const char*)key, len, value);
     }
 
-    SkPdfObject* get(SkPdfObject* key) {
+    SkPdfObject* get(const SkPdfObject* key) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -432,7 +432,7 @@ public:
         return ret;
     }
 
-    const SkPdfObject* get(SkPdfObject* key) const {
+    const SkPdfObject* get(const SkPdfObject* key) const {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
