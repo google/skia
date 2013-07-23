@@ -10,7 +10,6 @@
 
 #include "SkString.h"
 #include "SkTArray.h"
-#include "SkTDArray.h"
 
 /**
  *  Including this file (and compiling SkCommandLineFlags.cpp) provides command line
@@ -91,6 +90,7 @@
  *  strings) so that a flag can be followed by multiple parameters.
  */
 
+
 class SkFlagInfo;
 
 class SkCommandLineFlags {
@@ -107,15 +107,6 @@ public:
      *  Must only be called once.
      */
     static void Parse(int argc, char** argv);
-
-    /* Takes a list of the form [~][^]match[$]
-     ~ causes a matching test to always be skipped
-     ^ requires the start of the test to match
-     $ requires the end of the test to match
-     ^ and $ requires an exact match
-     If a test does not match any list entry, it is skipped unless some list entry starts with ~
-    */
-    static bool ShouldSkip(const SkTDArray<const char*>& strings, const char* name);
 
     /**
      *  Custom class for holding the arguments for a string flag.
