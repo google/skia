@@ -291,6 +291,9 @@ static int readStringLength(int level, const unsigned char* start, const unsigne
 }
 
 static const unsigned char* readString(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* str, SkPdfAllocator* allocator) {
+    if (!allocator) {
+        return end;
+    }
     int outLength = readStringLength(level, start, end);
     // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
@@ -434,6 +437,9 @@ static int readHexStringLength(int level, const unsigned char* start, const unsi
 }
 
 static const unsigned char* readHexString(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* str, SkPdfAllocator* allocator) {
+    if (!allocator) {
+        return end;
+    }
     int outLength = readHexStringLength(level, start, end);
     // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
@@ -556,6 +562,9 @@ static int readNameLength(int level, const unsigned char* start, const unsigned 
 }
 
 static const unsigned char* readName(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* name, SkPdfAllocator* allocator) {
+    if (!allocator) {
+        return end;
+    }
     int outLength = readNameLength(level, start, end);
     // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
