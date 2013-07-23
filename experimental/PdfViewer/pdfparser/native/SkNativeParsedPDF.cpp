@@ -23,14 +23,14 @@ static long getFileSize(const char* filename)
     return rc == 0 ? (long)stat_buf.st_size : -1;
 }
 
-static unsigned char* lineHome(unsigned char* start, unsigned char* current) {
+static const unsigned char* lineHome(const unsigned char* start, const unsigned char* current) {
     while (current > start && !isPdfEOL(*(current - 1))) {
         current--;
     }
     return current;
 }
 
-static unsigned char* previousLineHome(unsigned char* start, unsigned char* current) {
+static const unsigned char* previousLineHome(const unsigned char* start, const unsigned char* current) {
     if (current > start && isPdfEOL(*(current - 1))) {
         current--;
     }
@@ -47,7 +47,7 @@ static unsigned char* previousLineHome(unsigned char* start, unsigned char* curr
     return current;
 }
 
-static unsigned char* ignoreLine(unsigned char* current, unsigned char* end) {
+static const unsigned char* ignoreLine(const unsigned char* current, const unsigned char* end) {
     while (current < end && !isPdfEOL(*current)) {
         current++;
     }
@@ -74,9 +74,10 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
     gDoc = this;
     FILE* file = fopen(path, "r");
     fContentLength = getFileSize(path);
-    fFileContent = new unsigned char[fContentLength + 1];
-    bool ok = (0 != fread(fFileContent, fContentLength, 1, file));
-    fFileContent[fContentLength] = '\0';
+    unsigned char* content = new unsigned char[fContentLength + 1];
+    bool ok = (0 != fread(content, fContentLength, 1, file));
+    content[fContentLength] = '\0';
+    fFileContent = content;
     fclose(file);
     file = NULL;
 
@@ -85,9 +86,9 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
         return;  // Doc will have 0 pages
     }
 
-    unsigned char* eofLine = lineHome(fFileContent, fFileContent + fContentLength - 1);
-    unsigned char* xrefByteOffsetLine = previousLineHome(fFileContent, eofLine);
-    unsigned char* xrefstartKeywordLine = previousLineHome(fFileContent, xrefByteOffsetLine);
+    const unsigned char* eofLine = lineHome(fFileContent, fFileContent + fContentLength - 1);
+    const unsigned char* xrefByteOffsetLine = previousLineHome(fFileContent, eofLine);
+    const unsigned char* xrefstartKeywordLine = previousLineHome(fFileContent, xrefByteOffsetLine);
 
     if (strcmp((char*)xrefstartKeywordLine, "startxref") != 0) {
         // TODO(edisonn): report/issue
@@ -97,7 +98,7 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
 
     bool storeCatalog = true;
     while (xrefByteOffset >= 0) {
-        unsigned char* trailerStart = readCrossReferenceSection(fFileContent + xrefByteOffset, xrefstartKeywordLine);
+        const unsigned char* trailerStart = readCrossReferenceSection(fFileContent + xrefByteOffset, xrefstartKeywordLine);
         xrefByteOffset = readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog);
         storeCatalog = false;
     }
@@ -129,21 +130,21 @@ SkNativeParsedPDF::~SkNativeParsedPDF() {
     delete fAllocator;
 }
 
-unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefStart, unsigned char* trailerEnd) {
-    unsigned char* current = ignoreLine(xrefStart, trailerEnd);  // TODO(edisonn): verify next keyord is "xref", use nextObject here
+const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd) {
+    const unsigned char* current = ignoreLine(xrefStart, trailerEnd);  // TODO(edisonn): verify next keyord is "xref", use nextObject here
 
     SkPdfObject token;
     while (current < trailerEnd) {
         token.reset();
-        unsigned char* previous = current;
-        current = nextObject(current, trailerEnd, &token, NULL, NULL);
+        const unsigned char* previous = current;
+        current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
         if (!token.isInteger()) {
             return previous;
         }
 
         int startId = (int)token.intValue();
         token.reset();
-        current = nextObject(current, trailerEnd, &token, NULL, NULL);
+        current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
 
         if (!token.isInteger()) {
             // TODO(edisonn): report/warning
@@ -154,7 +155,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
 
         for (int i = 0; i < entries; i++) {
             token.reset();
-            current = nextObject(current, trailerEnd, &token, NULL, NULL);
+            current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
             if (!token.isInteger()) {
                 // TODO(edisonn): report/warning
                 return current;
@@ -162,7 +163,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
             int offset = (int)token.intValue();
 
             token.reset();
-            current = nextObject(current, trailerEnd, &token, NULL, NULL);
+            current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
             if (!token.isInteger()) {
                 // TODO(edisonn): report/warning
                 return current;
@@ -170,7 +171,7 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
             int generation = (int)token.intValue();
 
             token.reset();
-            current = nextObject(current, trailerEnd, &token, NULL, NULL);
+            current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
             if (!token.isKeyword() || token.len() != 1 || (*token.c_str() != 'f' && *token.c_str() != 'n')) {
                 // TODO(edisonn): report/warning
                 return current;
@@ -183,11 +184,21 @@ unsigned char* SkNativeParsedPDF::readCrossReferenceSection(unsigned char* xrefS
     return current;
 }
 
-long SkNativeParsedPDF::readTrailer(unsigned char* trailerStart, unsigned char* trailerEnd, bool storeCatalog) {
-    unsigned char* current = ignoreLine(trailerStart, trailerEnd);  // TODO(edisonn): verify next keyord is "trailer" use nextObject here
+long SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog) {
+    SkPdfObject trailerKeyword;
+    // TODO(edisonn): use null allocator, and let it just fail if memory
+    // needs allocated (but no crash)!
+    const unsigned char* current =
+            nextObject(0, trailerStart, trailerEnd, &trailerKeyword, fAllocator, NULL);
+
+    if (strlen("trailer") != trailerKeyword.len() &&
+        strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
+        // TODO(edisonn): report warning, rebuild trailer from objects.
+        return -1;
+    }
 
     SkPdfObject token;
-    current = nextObject(current, trailerEnd, &token, fAllocator, NULL);
+    current = nextObject(0, current, trailerEnd, &token, fAllocator, NULL);
     if (!token.isDictionary()) {
         return -1;
     }
@@ -230,8 +241,8 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
     // to decrease memory usage, we wither need to be smart and know where objects end, and we will
     // alocate only the chancks needed, or the tokenizer will not make copies, but then it needs to
     // cache the results so it does not go twice on the same buffer
-    unsigned char* current = fFileContent + startOffset;
-    unsigned char* end = fFileContent + fContentLength;
+    const unsigned char* current = fFileContent + startOffset;
+    const unsigned char* end = fFileContent + fContentLength;
 
     SkPdfNativeTokenizer tokenizer(current, end - current, fMapper, fAllocator, this);
 
@@ -240,19 +251,19 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
     SkPdfObject objKeyword;
     SkPdfObject* dict = fAllocator->allocObject();
 
-    current = nextObject(current, end, &idObj, NULL, NULL);
+    current = nextObject(0, current, end, &idObj, NULL, NULL);
     if (current >= end) {
         // TODO(edisonn): report warning/error
         return NULL;
     }
 
-    current = nextObject(current, end, &generationObj, NULL, NULL);
+    current = nextObject(0, current, end, &generationObj, NULL, NULL);
     if (current >= end) {
         // TODO(edisonn): report warning/error
         return NULL;
     }
 
-    current = nextObject(current, end, &objKeyword, NULL, NULL);
+    current = nextObject(0, current, end, &objKeyword, NULL, NULL);
     if (current >= end) {
         // TODO(edisonn): report warning/error
         return NULL;
@@ -266,7 +277,7 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
         // TODO(edisonn): report warning/error
     }
 
-    current = nextObject(current, end, dict, fAllocator, this);
+    current = nextObject(1, current, end, dict, fAllocator, this);
 
     // TODO(edisonn): report warning/error - verify last token is endobj
 
@@ -313,9 +324,10 @@ SkRect SkNativeParsedPDF::MediaBox(int page) {
 }
 
 // TODO(edisonn): stream or array ... ? for now only array
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfPage(int page) {
+SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfPage(int page,
+                                                         SkPdfAllocator* allocator) {
     if (fPages[page]->isContentsAStream(this)) {
-        return tokenizerOfStream(fPages[page]->getContentsAsStream(this));
+        return tokenizerOfStream(fPages[page]->getContentsAsStream(this), allocator);
     } else {
         // TODO(edisonn): NYI, we need to concatenate all streams in the array or make the tokenizer smart
         // so we don't allocate new memory
@@ -323,19 +335,21 @@ SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfPage(int page) {
     }
 }
 
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfStream(SkPdfObject* stream) {
+SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfStream(SkPdfObject* stream,
+                                                           SkPdfAllocator* allocator) {
     if (stream == NULL) {
         return NULL;
     }
 
-    return new SkPdfNativeTokenizer(stream, fMapper, fAllocator, this);
+    return new SkPdfNativeTokenizer(stream, fMapper, allocator, this);
 }
 
 // TODO(edisonn): NYI
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfBuffer(unsigned char* buffer, size_t len) {
+SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfBuffer(const unsigned char* buffer, size_t len,
+                                                           SkPdfAllocator* allocator) {
     // warning does not track two calls in the same buffer! the buffer is updated!
     // make a clean copy if needed!
-    return new SkPdfNativeTokenizer(buffer, len, fMapper, fAllocator, this);
+    return new SkPdfNativeTokenizer(buffer, len, fMapper, allocator, this);
 }
 
 size_t SkNativeParsedPDF::objects() const {
@@ -374,7 +388,7 @@ SkPdfInteger* SkNativeParsedPDF::createInteger(int value) const {
     return (SkPdfInteger*)obj;
 }
 
-SkPdfString* SkNativeParsedPDF::createString(unsigned char* sz, size_t len) const {
+SkPdfString* SkNativeParsedPDF::createString(const unsigned char* sz, size_t len) const {
     SkPdfObject* obj = fAllocator->allocObject();
     SkPdfObject::makeString(sz, len, obj);
     return (SkPdfString*)obj;

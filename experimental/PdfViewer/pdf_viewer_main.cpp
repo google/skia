@@ -199,6 +199,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
             SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
             return false;
         } else {
+            printf("renders = %i\n", FLAGS_benchRender);
             for (int i = 0; i < FLAGS_benchRender + 1; i++) {
                 // TODO(edisonn) if (i == 1) start timer
                 if (strcmp(FLAGS_pages[0], "all") == 0) {

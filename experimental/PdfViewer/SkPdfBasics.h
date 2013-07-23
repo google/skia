@@ -16,11 +16,12 @@ class SkPdfObject;
 class SkPdfResourceDictionary;
 
 class SkNativeParsedPDF;
+class SkPdfAllocator;
 
 // TODO(edisonn): better class design.
 struct SkPdfColorOperator {
     // does not own the char*
-    const char* fColorSpace;  // TODO(edisonn): use SkString, or even char*
+    NotOwnedString fColorSpace;
     SkColor fColor;
     double fOpacity;  // ca or CA
     // TODO(edisonn): add here other color space options.
@@ -30,7 +31,9 @@ struct SkPdfColorOperator {
         fColor = color;
     }
     // TODO(edisonn): double check the default values for all fields.
-    SkPdfColorOperator() : fColorSpace(NULL), fColor(SK_ColorBLACK), fOpacity(1) {}
+    SkPdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {
+        NotOwnedString::init(&fColorSpace);
+    }
 
     void applyGraphicsState(SkPaint* paint) {
         paint->setColor(SkColorSetA(fColor, fOpacity * 255));
@@ -117,12 +120,14 @@ struct PdfContext {
     std::stack<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
     SkNativeParsedPDF*              fPdfDoc;
+    // TODO(edisonn): the allocator, could be freed after the page is done drawing.
+    SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;
 
     SkPdfInlineImage                fInlineImage;
 
-    PdfContext(SkNativeParsedPDF* doc) :  fPdfDoc(doc) {}
-
+    PdfContext(SkNativeParsedPDF* doc);
+    ~PdfContext();
 };
 
 // TODO(edisonn): temporary code, to report how much of the PDF we actually think we rendered.

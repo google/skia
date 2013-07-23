@@ -23,7 +23,7 @@ SkMatrix SkMatrixFromPdfMatrix(double array[6]);
 
 #define kFilteredStreamBit 0
 #define kUnfilteredStreamBit 1
-
+#define kOwnedStreamBit 2
 
 class SkPdfObject {
  public:
@@ -50,11 +50,6 @@ class SkPdfObject {
      };
 
 private:
-    struct NotOwnedString {
-        unsigned char* fBuffer;
-        size_t fBytes;
-    };
-
     struct Reference {
         unsigned int fId;
         unsigned int fGen;
@@ -108,6 +103,11 @@ public:
 
             case kDictionary_PdfObjectType:
                 delete fMap;
+                if (isStreamOwned()) {
+                    delete[] fStr.fBuffer;
+                    fStr.fBuffer = NULL;
+                    fStr.fBytes = 0;
+                }
                 break;
 
             default:
@@ -212,13 +212,13 @@ public:
 
     static SkPdfObject kNull;
 
-    static void makeNumeric(unsigned char* start, unsigned char* end, SkPdfObject* obj) {
+    static void makeNumeric(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         // TODO(edisonn): NYI properly
         // if has dot (impl), or exceeds max int, is real, otherwise is int
         bool isInt = true;
-        for (unsigned char* current = start; current < end; current++) {
+        for (const unsigned char* current = start; current < end; current++) {
             if (*current == '.') {
                 isInt = false;
                 break;
@@ -241,54 +241,54 @@ public:
     }
 
 
-    static void makeString(unsigned char* start, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, SkPdfObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kString_PdfObjectType);
     }
 
-    static void makeString(unsigned char* start, unsigned char* end, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
         makeStringCore(start, end - start, obj, kString_PdfObjectType);
     }
 
-    static void makeString(unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
         makeStringCore(start, bytes, obj, kString_PdfObjectType);
     }
 
 
-    static void makeHexString(unsigned char* start, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, SkPdfObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kHexString_PdfObjectType);
     }
 
-    static void makeHexString(unsigned char* start, unsigned char* end, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
         makeStringCore(start, end - start, obj, kHexString_PdfObjectType);
     }
 
-    static void makeHexString(unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
         makeStringCore(start, bytes, obj, kHexString_PdfObjectType);
     }
 
 
-    static void makeName(unsigned char* start, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, SkPdfObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kName_PdfObjectType);
     }
 
-    static void makeName(unsigned char* start, unsigned char* end, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
         makeStringCore(start, end - start, obj, kName_PdfObjectType);
     }
 
-    static void makeName(unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
         makeStringCore(start, bytes, obj, kName_PdfObjectType);
     }
 
 
-    static void makeKeyword(unsigned char* start, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, SkPdfObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kKeyword_PdfObjectType);
     }
 
-    static void makeKeyword(unsigned char* start, unsigned char* end, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
         makeStringCore(start, end - start, obj, kKeyword_PdfObjectType);
     }
 
-    static void makeKeyword(unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
         makeStringCore(start, bytes, obj, kKeyword_PdfObjectType);
     }
 
@@ -381,8 +381,8 @@ public:
             return false;
         }
 
-        // we rewrite all delimiters and white spaces with '\0', so we expect the end of name to be '\0'
-        SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
+        //// we rewrite all delimiters and white spaces with '\0', so we expect the end of name to be '\0'
+        //SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
         return set(key->fStr.fBuffer, key->fStr.fBytes, value);
     }
@@ -411,7 +411,7 @@ public:
             return NULL;
         }
 
-        SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
+        //SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
@@ -441,7 +441,7 @@ public:
             return NULL;
         }
 
-        SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
+        //SkASSERT(key->fStr.fBuffer[key->fStr.fBytes] == '\0');
 
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
@@ -637,6 +637,19 @@ public:
         return (const char*)fStr.fBuffer;
     }
 
+    inline NotOwnedString strRef() {
+        switch (fObjectType) {
+            case kString_PdfObjectType:
+            case kHexString_PdfObjectType:
+            case kKeyword_PdfObjectType:
+                return fStr;
+
+            default:
+                // TODO(edisonn): report/warning
+                return NotOwnedString();
+        }
+    }
+
     // TODO(edisonn): nameValue2 and stringValue2 are used to make code generation easy,
     // but it is not a performat way to do it, since it will create an extra copy
     // remove these functions and make code generated faster
@@ -647,7 +660,7 @@ public:
             // TODO(edisonn): log err
             return "";
         }
-        return (const char*)fStr.fBuffer;
+        return std::string((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
     inline std::string stringValue2() const {
@@ -657,7 +670,7 @@ public:
             // TODO(edisonn): log err
             return "";
         }
-        return (const char*)fStr.fBuffer;
+        return std::string((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
     inline bool boolValue() const {
@@ -713,23 +726,23 @@ public:
         return SkMatrixFromPdfMatrix(array);
     }
 
-    bool filterStream(SkPdfAllocator* allocator);
+    bool filterStream();
 
 
-    bool GetFilteredStreamRef(unsigned char** buffer, size_t* len, SkPdfAllocator* allocator) {
+    bool GetFilteredStreamRef(unsigned char const** buffer, size_t* len) {
         // TODO(edisonn): add params that couls let the last filter in place if it is jpeg or png to fast load images
         if (!hasStream()) {
             return false;
         }
 
-        filterStream(allocator);
+        filterStream();
 
         if (buffer) {
             *buffer = fStr.fBuffer;
         }
 
         if (len) {
-            *len = fStr.fBytes >> 1;  // last bit
+            *len = fStr.fBytes >> 2;  // last 2 bits
         }
 
         return true;
@@ -739,7 +752,11 @@ public:
         return hasStream() && ((fStr.fBytes & 1) == kFilteredStreamBit);
     }
 
-    bool GetUnfilteredStreamRef(unsigned char** buffer, size_t* len) const {
+    bool isStreamOwned() const {
+        return hasStream() && ((fStr.fBytes & 2) == kOwnedStreamBit);
+    }
+
+    bool GetUnfilteredStreamRef(unsigned char const** buffer, size_t* len) const {
         if (isStreamFiltered()) {
             return false;
         }
@@ -753,13 +770,13 @@ public:
         }
 
         if (len) {
-            *len = fStr.fBytes >> 1;  // remove slast bit
+            *len = fStr.fBytes >> 2;  // remove last 2 bits
         }
 
         return true;
     }
 
-    bool addStream(unsigned char* buffer, size_t len) {
+    bool addStream(const unsigned char* buffer, size_t len) {
         SkASSERT(!hasStream());
         SkASSERT(isDictionary());
 
@@ -849,15 +866,15 @@ public:
     }
 
 private:
-    static void makeStringCore(unsigned char* start, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, SkPdfObject* obj, ObjectType type) {
         makeStringCore(start, strlen((const char*)start), obj, type);
     }
 
-    static void makeStringCore(unsigned char* start, unsigned char* end, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, const unsigned char* end, SkPdfObject* obj, ObjectType type) {
         makeStringCore(start, end - start, obj, type);
     }
 
-    static void makeStringCore(unsigned char* start, size_t bytes, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, size_t bytes, SkPdfObject* obj, ObjectType type) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = type;
@@ -865,9 +882,9 @@ private:
         obj->fStr.fBytes = bytes;
     }
 
-    bool applyFilter(const char* name, SkPdfAllocator* allocator);
-    bool applyFlateDecodeFilter(SkPdfAllocator* allocator);
-    bool applyDCTDecodeFilter(SkPdfAllocator* allocator);
+    bool applyFilter(const char* name);
+    bool applyFlateDecodeFilter();
+    bool applyDCTDecodeFilter();
 };
 
 class SkPdfStream : public SkPdfObject {};
@@ -880,11 +897,11 @@ class SkPdfNumber : public SkPdfObject {};
 
 class SkPdfName : public SkPdfObject {
     SkPdfName() : SkPdfObject() {
-        SkPdfObject::makeName((unsigned char*)"", this);
+        SkPdfObject::makeName((const unsigned char*)"", this);
     }
 public:
     SkPdfName(char* name) : SkPdfObject() {
-        this->makeName((unsigned char*)name, this);
+        this->makeName((const unsigned char*)name, this);
     }
 };
 
