@@ -17,6 +17,17 @@
 #include "SkString.h"
 #include "SkPDFTypes.h"
 
+//static
+SkPDFArray* SkPDFUtils::RectToArray(const SkRect& rect) {
+    SkPDFArray* result = new SkPDFArray();
+    result->reserve(4);
+    result->appendScalar(rect.fLeft);
+    result->appendScalar(rect.fTop);
+    result->appendScalar(rect.fRight);
+    result->appendScalar(rect.fBottom);
+    return result;
+}
+
 // static
 SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkScalar values[6];
@@ -221,4 +232,18 @@ void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
             SkPDFResourceDict::kExtGState_ResourceType,
             objectIndex).c_str());
     content->writeText(" gs\n");
+}
+
+// static
+void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
+    // Select Pattern color space (CS, cs) and set pattern object as current
+    // color (SCN, scn)
+    SkString resourceName = SkPDFResourceDict::getResourceName(
+            SkPDFResourceDict::kPattern_ResourceType,
+            objectIndex);
+    content->writeText("/Pattern CS/Pattern cs/");
+    content->writeText(resourceName.c_str());
+    content->writeText(" SCN/");
+    content->writeText(resourceName.c_str());
+    content->writeText(" scn\n");
 }

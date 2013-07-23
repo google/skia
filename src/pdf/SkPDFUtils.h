@@ -35,6 +35,7 @@ class SkWStream;
 
 class SkPDFUtils {
 public:
+    static SkPDFArray* RectToArray(const SkRect& rect);
     static SkPDFArray* MatrixToArray(const SkMatrix& matrix);
     static void AppendTransform(const SkMatrix& matrix, SkWStream* content);
 
@@ -52,6 +53,7 @@ public:
     static void StrokePath(SkWStream* content);
     static void DrawFormXObject(int objectIndex, SkWStream* content);
     static void ApplyGraphicState(int objectIndex, SkWStream* content);
+    static void ApplyPattern(int objectIndex, SkWStream* content);
 };
 
 #endif
