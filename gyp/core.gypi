@@ -150,6 +150,7 @@
         '<(skia_src_path)/core/SkRRect.cpp',
         '<(skia_src_path)/core/SkRTree.h',
         '<(skia_src_path)/core/SkRTree.cpp',
+        '<(skia_src_path)/core/SkScaledImageCache.cpp',
         '<(skia_src_path)/core/SkScalar.cpp',
         '<(skia_src_path)/core/SkScalerContext.cpp',
         '<(skia_src_path)/core/SkScalerContext.h',

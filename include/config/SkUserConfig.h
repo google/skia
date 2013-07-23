@@ -122,6 +122,13 @@
  */
 //#define SK_DEFAULT_FONT_CACHE_LIMIT   (1024 * 1024)
 
+/*
+ *  To specify the default size of the image cache, undefine this and set it to
+ *  the desired value (in bytes). SkGraphics.h as a runtime API to set this
+ *  value as well. If this is undefined, a built-in value will be used.
+ */
+//#define SK_DEFAULT_IMAGE_CACHE_LIMIT (1024 * 1024)
+
 /* If defined, use CoreText instead of ATSUI on OS X.
 */
 //#define SK_USE_MAC_CORE_TEXT

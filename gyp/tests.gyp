@@ -67,6 +67,7 @@
         '../tests/GrMemoryPoolTest.cpp',
         '../tests/GrSurfaceTest.cpp',
         '../tests/HashCacheTest.cpp',
+        '../tests/ImageCacheTest.cpp',
         '../tests/ImageDecodingTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/LListTest.cpp',
