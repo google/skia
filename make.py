@@ -26,7 +26,7 @@ TARGET_DEFAULT = 'most'
 TARGET_GYP     = 'gyp'
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-OUT_SUBDIR = 'out'
+OUT_SUBDIR = os.environ.get('SKIA_OUT', 'out')
 GYP_SUBDIR = 'gyp'
 
 
