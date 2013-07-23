@@ -62,9 +62,9 @@ class SkPdfImageDictionary;
 #define isPdfDigit(ch) ((ch)>='0'&&(ch)<='9')
 #define isPdfNumeric(ch) (isPdfDigit(ch)||(ch)=='+'||(ch)=='-')
 
-unsigned char* skipPdfWhiteSpaces(unsigned char* buffer, size_t len);
-unsigned char* endOfPdfToken(unsigned char* start, size_t len);
-unsigned char* skipPdfComment(unsigned char* start, size_t len);
+const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* buffer, size_t len);
+const unsigned char* endOfPdfToken(int level, const unsigned char* start, size_t len);
+const unsigned char* skipPdfComment(int level, const unsigned char* start, size_t len);
 
 // TODO(edisonn): typedef read and integer tyepes? make less readable...
 //typedef double SkPdfReal;
@@ -111,7 +111,7 @@ public:
 };
 
 class SkNativeParsedPDF;
-unsigned char* nextObject(unsigned char* start, unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
+const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
 
 enum SkPdfTokenType {
     kKeyword_TokenType,
@@ -130,7 +130,7 @@ struct PdfToken {
 class SkPdfNativeTokenizer {
 public:
     SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
-    SkPdfNativeTokenizer(unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
+    SkPdfNativeTokenizer(const unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
 
     virtual ~SkPdfNativeTokenizer();
 
@@ -144,9 +144,9 @@ private:
     const SkPdfMapper* fMapper;
     SkPdfAllocator* fAllocator;
 
-    unsigned char* fUncompressedStreamStart;
-    unsigned char* fUncompressedStream;
-    unsigned char* fUncompressedStreamEnd;
+    const unsigned char* fUncompressedStreamStart;
+    const unsigned char* fUncompressedStream;
+    const unsigned char* fUncompressedStreamEnd;
 
     bool fEmpty;
     bool fHasPutBack;

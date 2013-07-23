@@ -41,10 +41,11 @@ public:
     int pages() const;
     SkPdfResourceDictionary* pageResources(int page);
     SkRect MediaBox(int page);
-    SkPdfNativeTokenizer* tokenizerOfPage(int n);
+    SkPdfNativeTokenizer* tokenizerOfPage(int n, SkPdfAllocator* allocator);
 
-    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfObject* stream);
-    SkPdfNativeTokenizer* tokenizerOfBuffer(unsigned char* buffer, size_t len);
+    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfObject* stream, SkPdfAllocator* allocator);
+    SkPdfNativeTokenizer* tokenizerOfBuffer(const unsigned char* buffer, size_t len,
+                                            SkPdfAllocator* allocator);
 
     size_t objects() const;
     SkPdfObject* object(int i);
@@ -55,9 +56,7 @@ public:
     SkPdfReal* createReal(double value) const;
     SkPdfInteger* createInteger(int value) const;
     // the string does not own the char*
-    SkPdfString* createString(unsigned char* sz, size_t len) const;
-
-    void drawPage(int page, SkCanvas* canvas);
+    SkPdfString* createString(const unsigned char* sz, size_t len) const;
 
     SkPdfObject* resolveReference(const SkPdfObject* ref);
 
@@ -66,8 +65,8 @@ public:
 
 private:
 
-    unsigned char* readCrossReferenceSection(unsigned char* xrefStart, unsigned char* trailerEnd);
-    long readTrailer(unsigned char* trailerStart, unsigned char* trailerEnd, bool storeCatalog);
+    const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd);
+    long readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog);
 
     // TODO(edisonn): updates not supported right now, generation ignored
     void addCrossSectionInfo(int id, int generation, int offset, bool isFreed);
@@ -84,7 +83,7 @@ private:
     // private fields
     SkPdfAllocator* fAllocator;
     SkPdfMapper* fMapper;
-    unsigned char* fFileContent;
+    const unsigned char* fFileContent;
     size_t fContentLength;
     const SkPdfObject* fRootCatalogRef;
     SkPdfCatalogDictionary* fRootCatalog;

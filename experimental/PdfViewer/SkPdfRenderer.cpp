@@ -16,11 +16,10 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkTArray.h"
+#include "SkTDict.h"
 
 #include "SkPdfBasics.h"
 #include "SkPdfNativeTokenizer.h"
-
-#include <iostream>
 #include <cstdio>
 #include <stack>
 #include <set>
@@ -78,7 +77,18 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 using namespace std;
 
+NotOwnedString strings_DeviceRGB;
+NotOwnedString strings_DeviceCMYK;
 
+class StringsInit {
+public:
+    StringsInit() {
+        NotOwnedString::init(&strings_DeviceRGB, "DeviceRGB");
+        NotOwnedString::init(&strings_DeviceCMYK, "DeviceCMYK");
+    }
+};
+
+StringsInit gStringsInit;
 
 // TODO(edisonn): Document PdfTokenLooper and subclasses.
 class PdfTokenLooper {
@@ -150,16 +160,16 @@ static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color 
 }
 
 // TODO(edisonn): synonyms? DeviceRGB and RGB ...
-static int GetColorSpaceComponents(const std::string& colorSpace) {
-    if (colorSpace == "DeviceCMYK") {
+static int GetColorSpaceComponents(NotOwnedString& colorSpace) {
+    if (colorSpace.equals("DeviceCMYK")) {
         return 4;
-    } else if (colorSpace == "DeviceGray" ||
-            colorSpace == "CalGray" ||
-            colorSpace == "Indexed") {
+    } else if (colorSpace.equals("DeviceGray") ||
+            colorSpace.equals("CalGray") ||
+            colorSpace.equals("Indexed")) {
         return 1;
-    } else if (colorSpace == "DeviceRGB" ||
-            colorSpace == "CalRGB" ||
-            colorSpace == "Lab") {
+    } else if (colorSpace.equals("DeviceRGB") ||
+            colorSpace.equals("CalRGB") ||
+            colorSpace.equals("Lab")) {
         return 3;
     } else {
         return 0;
@@ -317,9 +327,15 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
 
 typedef PdfResult (*PdfOperatorRenderer)(PdfContext*, SkCanvas*, PdfTokenLooper**);
 
-map<std::string, PdfOperatorRenderer> gPdfOps;
+SkTDict<PdfOperatorRenderer> gPdfOps(100);
 
-map<std::string, int> gRenderStats[kCount_PdfResult];
+
+template <typename T> class SkTDictWithDefaultConstructor : public SkTDict<T> {
+public:
+    SkTDictWithDefaultConstructor() : SkTDict<T>(10) {}
+};
+
+SkTDictWithDefaultConstructor<int> gRenderStats[kCount_PdfResult];
 
 const char* gRenderStatsNames[kCount_PdfResult] = {
     "Success",
@@ -419,7 +435,7 @@ static SkColorTable* getGrayColortable() {
     return grayColortable;
 }
 
-static SkBitmap transferImageStreamToBitmap(unsigned char* uncompressedStream, size_t uncompressedStreamLength,
+static SkBitmap transferImageStreamToBitmap(const unsigned char* uncompressedStream, size_t uncompressedStreamLength,
                                      int width, int height, int bytesPerLine,
                                      int bpc, const std::string& colorSpace,
                                      bool transparencyMask) {
@@ -508,12 +524,12 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
     }
 */
 
-    unsigned char* uncompressedStream = NULL;
+    const unsigned char* uncompressedStream = NULL;
     size_t uncompressedStreamLength = 0;
 
     SkPdfStream* stream = (SkPdfStream*)image;
 
-    if (!stream || !stream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength, pdfContext->fPdfDoc->allocator()) ||
+    if (!stream || !stream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength) ||
             uncompressedStream == NULL || uncompressedStreamLength == 0) {
         // TODO(edisonn): report warning to be used in testing.
         return SkBitmap();
@@ -654,7 +670,8 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
-    SkPdfNativeTokenizer* tokenizer = pdfContext->fPdfDoc->tokenizerOfStream(stream);
+    SkPdfNativeTokenizer* tokenizer =
+            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
     if (tokenizer != NULL) {
         PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
         looper.loop();
@@ -702,7 +719,8 @@ PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObjec
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
-    SkPdfNativeTokenizer* tokenizer = pdfContext->fPdfDoc->tokenizerOfStream(stream);
+    SkPdfNativeTokenizer* tokenizer =
+            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
     if (tokenizer != NULL) {
         PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
         looper.loop();
@@ -1151,10 +1169,10 @@ static PdfResult PdfOp_ET(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 //size; they must be speciﬁed explicitly using Tf before any text is shown.
 static PdfResult PdfOp_Tf(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fCurFontSize = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    const char* fontName = pdfContext->fObjectStack.top()->nameValue();                           pdfContext->fObjectStack.pop();
+    SkPdfObject* fontName = pdfContext->fObjectStack.top();                           pdfContext->fObjectStack.pop();
 
 #ifdef PDF_TRACE
-    printf("font name: %s\n", fontName);
+    printf("font name: %s\n", fontName->nameValue2().c_str());
 #endif
 
     if (pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)) {
@@ -1263,7 +1281,7 @@ static PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 }
 
 static PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    colorOperator->fColorSpace = pdfContext->fObjectStack.top()->nameValue();    pdfContext->fObjectStack.pop();
+    colorOperator->fColorSpace = pdfContext->fObjectStack.top()->strRef();    pdfContext->fObjectStack.pop();
     return kOK_PdfResult;
 }
 
@@ -1282,12 +1300,12 @@ static PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     int n = GetColorSpaceComponents(colorOperator->fColorSpace);
 
     bool doubles = true;
-    if (strcmp(colorOperator->fColorSpace, "Indexed") == 0) {
+    if (colorOperator->fColorSpace.equals("Indexed")) {
         doubles = false;
     }
 
 #ifdef PDF_TRACE
-    printf("color space = %s, N = %i\n", colorOperator->fColorSpace, n);
+    printf("color space = %s, N = %i\n", colorOperator->fColorSpace.fBuffer, n);
 #endif
 
     for (int i = n - 1; i >= 0 ; i--) {
@@ -1301,7 +1319,7 @@ static PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     // TODO(edisonn): Now, set that color. Only DeviceRGB supported.
     // TODO(edisonn): do possible field values to enum at parsing time!
     // TODO(edisonn): support also abreviations /DeviceRGB == /RGB
-    if (strcmp(colorOperator->fColorSpace, "DeviceRGB") == 0 || strcmp(colorOperator->fColorSpace, "RGB") == 0) {
+    if (colorOperator->fColorSpace.equals("DeviceRGB") || colorOperator->fColorSpace.equals("RGB")) {
         colorOperator->setRGBColor(SkColorSetRGB(255*c[0], 255*c[1], 255*c[2]));
     }
     return kPartial_PdfResult;
@@ -1354,7 +1372,7 @@ static PdfResult PdfOp_RG_rg(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     double g = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
     double r = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
 
-    colorOperator->fColorSpace = "DeviceRGB";
+    colorOperator->fColorSpace = strings_DeviceRGB;
     colorOperator->setRGBColor(SkColorSetRGB(255*r, 255*g, 255*b));
     return kOK_PdfResult;
 }
@@ -1374,7 +1392,7 @@ static PdfResult PdfOp_K_k(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorO
     /*double m = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
     /*double c = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
 
-    colorOperator->fColorSpace = "DeviceCMYK";
+    colorOperator->fColorSpace = strings_DeviceCMYK;
     // TODO(edisonn): Set color.
     return kNYI_PdfResult;
 }
@@ -1504,7 +1522,7 @@ static PdfResult PdfOp_i(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoope
 //dictName gs (PDF 1.2) Set the speciﬁed parameters in the graphics state. dictName is
 //the name of a graphics state parameter dictionary in the ExtGState subdictionary of the current resource dictionary (see the next section).
 static PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    const char* name = pdfContext->fObjectStack.top()->nameValue();    pdfContext->fObjectStack.pop();
+    SkPdfObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
 
 #ifdef PDF_TRACE
     std::string str;
@@ -1622,7 +1640,7 @@ static PdfResult PdfOp_sh(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 
 //name Do
 static PdfResult PdfOp_Do(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    const char* name = pdfContext->fObjectStack.top()->nameValue();    pdfContext->fObjectStack.pop();
+    SkPdfObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
 
     SkPdfDictionary* xObject =  pdfContext->fGraphicsState.fResources->XObject(pdfContext->fPdfDoc);
 
@@ -1693,94 +1711,94 @@ static void initPdfOperatorRenderes() {
         return;
     }
 
-    gPdfOps["q"] =      PdfOp_q;
-    gPdfOps["Q"] =      PdfOp_Q;
-    gPdfOps["cm"] =     PdfOp_cm;
+    gPdfOps.set("q", PdfOp_q);
+    gPdfOps.set("Q", PdfOp_Q);
+    gPdfOps.set("cm", PdfOp_cm);
 
-    gPdfOps["TD"] =     PdfOp_TD;
-    gPdfOps["Td"] =     PdfOp_Td;
-    gPdfOps["Tm"] =     PdfOp_Tm;
-    gPdfOps["T*"] =     PdfOp_T_star;
+    gPdfOps.set("TD", PdfOp_TD);
+    gPdfOps.set("Td", PdfOp_Td);
+    gPdfOps.set("Tm", PdfOp_Tm);
+    gPdfOps.set("T*", PdfOp_T_star);
 
-    gPdfOps["m"] =      PdfOp_m;
-    gPdfOps["l"] =      PdfOp_l;
-    gPdfOps["c"] =      PdfOp_c;
-    gPdfOps["v"] =      PdfOp_v;
-    gPdfOps["y"] =      PdfOp_y;
-    gPdfOps["h"] =      PdfOp_h;
-    gPdfOps["re"] =     PdfOp_re;
+    gPdfOps.set("m", PdfOp_m);
+    gPdfOps.set("l", PdfOp_l);
+    gPdfOps.set("c", PdfOp_c);
+    gPdfOps.set("v", PdfOp_v);
+    gPdfOps.set("y", PdfOp_y);
+    gPdfOps.set("h", PdfOp_h);
+    gPdfOps.set("re", PdfOp_re);
 
-    gPdfOps["S"] =      PdfOp_S;
-    gPdfOps["s"] =      PdfOp_s;
-    gPdfOps["f"] =      PdfOp_f;
-    gPdfOps["F"] =      PdfOp_F;
-    gPdfOps["f*"] =     PdfOp_f_star;
-    gPdfOps["B"] =      PdfOp_B;
-    gPdfOps["B*"] =     PdfOp_B_star;
-    gPdfOps["b"] =      PdfOp_b;
-    gPdfOps["b*"] =     PdfOp_b_star;
-    gPdfOps["n"] =      PdfOp_n;
+    gPdfOps.set("S", PdfOp_S);
+    gPdfOps.set("s", PdfOp_s);
+    gPdfOps.set("f", PdfOp_f);
+    gPdfOps.set("F", PdfOp_F);
+    gPdfOps.set("f*", PdfOp_f_star);
+    gPdfOps.set("B", PdfOp_B);
+    gPdfOps.set("B*", PdfOp_B_star);
+    gPdfOps.set("b", PdfOp_b);
+    gPdfOps.set("b*", PdfOp_b_star);
+    gPdfOps.set("n", PdfOp_n);
 
-    gPdfOps["BT"] =     PdfOp_BT;
-    gPdfOps["ET"] =     PdfOp_ET;
+    gPdfOps.set("BT", PdfOp_BT);
+    gPdfOps.set("ET", PdfOp_ET);
 
-    gPdfOps["Tj"] =     PdfOp_Tj;
-    gPdfOps["'"] =      PdfOp_quote;
-    gPdfOps["\""] =     PdfOp_doublequote;
-    gPdfOps["TJ"] =     PdfOp_TJ;
+    gPdfOps.set("Tj", PdfOp_Tj);
+    gPdfOps.set("'", PdfOp_quote);
+    gPdfOps.set("\"", PdfOp_doublequote);
+    gPdfOps.set("TJ", PdfOp_TJ);
 
-    gPdfOps["CS"] =     PdfOp_CS;
-    gPdfOps["cs"] =     PdfOp_cs;
-    gPdfOps["SC"] =     PdfOp_SC;
-    gPdfOps["SCN"] =    PdfOp_SCN;
-    gPdfOps["sc"] =     PdfOp_sc;
-    gPdfOps["scn"] =    PdfOp_scn;
-    gPdfOps["G"] =      PdfOp_G;
-    gPdfOps["g"] =      PdfOp_g;
-    gPdfOps["RG"] =     PdfOp_RG;
-    gPdfOps["rg"] =     PdfOp_rg;
-    gPdfOps["K"] =      PdfOp_K;
-    gPdfOps["k"] =      PdfOp_k;
+    gPdfOps.set("CS", PdfOp_CS);
+    gPdfOps.set("cs", PdfOp_cs);
+    gPdfOps.set("SC", PdfOp_SC);
+    gPdfOps.set("SCN", PdfOp_SCN);
+    gPdfOps.set("sc", PdfOp_sc);
+    gPdfOps.set("scn", PdfOp_scn);
+    gPdfOps.set("G", PdfOp_G);
+    gPdfOps.set("g", PdfOp_g);
+    gPdfOps.set("RG", PdfOp_RG);
+    gPdfOps.set("rg", PdfOp_rg);
+    gPdfOps.set("K", PdfOp_K);
+    gPdfOps.set("k", PdfOp_k);
 
-    gPdfOps["W"] =      PdfOp_W;
-    gPdfOps["W*"] =     PdfOp_W_star;
+    gPdfOps.set("W", PdfOp_W);
+    gPdfOps.set("W*", PdfOp_W_star);
 
-    gPdfOps["BX"] =     PdfOp_BX;
-    gPdfOps["EX"] =     PdfOp_EX;
+    gPdfOps.set("BX", PdfOp_BX);
+    gPdfOps.set("EX", PdfOp_EX);
 
-    gPdfOps["BI"] =     PdfOp_BI;
-    gPdfOps["ID"] =     PdfOp_ID;
-    gPdfOps["EI"] =     PdfOp_EI;
+    gPdfOps.set("BI", PdfOp_BI);
+    gPdfOps.set("ID", PdfOp_ID);
+    gPdfOps.set("EI", PdfOp_EI);
 
-    gPdfOps["w"] =      PdfOp_w;
-    gPdfOps["J"] =      PdfOp_J;
-    gPdfOps["j"] =      PdfOp_j;
-    gPdfOps["M"] =      PdfOp_M;
-    gPdfOps["d"] =      PdfOp_d;
-    gPdfOps["ri"] =     PdfOp_ri;
-    gPdfOps["i"] =      PdfOp_i;
-    gPdfOps["gs"] =     PdfOp_gs;
+    gPdfOps.set("w", PdfOp_w);
+    gPdfOps.set("J", PdfOp_J);
+    gPdfOps.set("j", PdfOp_j);
+    gPdfOps.set("M", PdfOp_M);
+    gPdfOps.set("d", PdfOp_d);
+    gPdfOps.set("ri", PdfOp_ri);
+    gPdfOps.set("i", PdfOp_i);
+    gPdfOps.set("gs", PdfOp_gs);
 
-    gPdfOps["Tc"] =     PdfOp_Tc;
-    gPdfOps["Tw"] =     PdfOp_Tw;
-    gPdfOps["Tz"] =     PdfOp_Tz;
-    gPdfOps["TL"] =     PdfOp_TL;
-    gPdfOps["Tf"] =     PdfOp_Tf;
-    gPdfOps["Tr"] =     PdfOp_Tr;
-    gPdfOps["Ts"] =     PdfOp_Ts;
+    gPdfOps.set("Tc", PdfOp_Tc);
+    gPdfOps.set("Tw", PdfOp_Tw);
+    gPdfOps.set("Tz", PdfOp_Tz);
+    gPdfOps.set("TL", PdfOp_TL);
+    gPdfOps.set("Tf", PdfOp_Tf);
+    gPdfOps.set("Tr", PdfOp_Tr);
+    gPdfOps.set("Ts", PdfOp_Ts);
 
-    gPdfOps["d0"] =     PdfOp_d0;
-    gPdfOps["d1"] =     PdfOp_d1;
+    gPdfOps.set("d0", PdfOp_d0);
+    gPdfOps.set("d1", PdfOp_d1);
 
-    gPdfOps["sh"] =     PdfOp_sh;
+    gPdfOps.set("sh", PdfOp_sh);
 
-    gPdfOps["Do"] =     PdfOp_Do;
+    gPdfOps.set("Do", PdfOp_Do);
 
-    gPdfOps["MP"] =     PdfOp_MP;
-    gPdfOps["DP"] =     PdfOp_DP;
-    gPdfOps["BMC"] =    PdfOp_BMC;
-    gPdfOps["BDC"] =    PdfOp_BDC;
-    gPdfOps["EMC"] =    PdfOp_EMC;
+    gPdfOps.set("MP", PdfOp_MP);
+    gPdfOps.set("DP", PdfOp_DP);
+    gPdfOps.set("BMC", PdfOp_BMC);
+    gPdfOps.set("BDC", PdfOp_BDC);
+    gPdfOps.set("EMC", PdfOp_EMC);
 
     gInitialized = true;
 }
@@ -1798,8 +1816,11 @@ void reportPdfRenderStats() {
     std::map<std::string, int>::iterator iter;
 
     for (int i = 0 ; i < kCount_PdfResult; i++) {
-        for (iter = gRenderStats[i].begin(); iter != gRenderStats[i].end(); ++iter) {
-            printf("%s: %s -> count %i\n", gRenderStatsNames[i], iter->first.c_str(), iter->second);
+        SkTDict<int>::Iter iter(gRenderStats[i]);
+        const char* key;
+        int value = 0;
+        while ((key = iter.next(&value)) != NULL) {
+            printf("%s: %s -> count %i\n", gRenderStatsNames[i], key, value);
         }
     }
 }
@@ -1812,11 +1833,15 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
         strncpy(keyword, token.fKeyword, token.fKeywordLength);
         keyword[token.fKeywordLength] = '\0';
         // TODO(edisonn): log trace flag (verbose, error, info, warning, ...)
-        PdfOperatorRenderer pdfOperatorRenderer = gPdfOps[keyword];
-        if (pdfOperatorRenderer) {
+        PdfOperatorRenderer pdfOperatorRenderer = NULL;
+        if (gPdfOps.find(keyword, &pdfOperatorRenderer) && pdfOperatorRenderer) {
             // caller, main work is done by pdfOperatorRenderer(...)
             PdfTokenLooper* childLooper = NULL;
-            gRenderStats[pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper)][keyword]++;
+            PdfResult result = pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper);
+
+            int cnt = 0;
+            gRenderStats[result].find(keyword, &cnt);
+            gRenderStats[result].set(keyword, cnt + 1);
 
             if (childLooper) {
                 childLooper->setUp(this);
@@ -1824,7 +1849,9 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
                 delete childLooper;
             }
         } else {
-            gRenderStats[kUnsupported_PdfResult][keyword]++;
+            int cnt = 0;
+            gRenderStats[kUnsupported_PdfResult].find(keyword, &cnt);
+            gRenderStats[kUnsupported_PdfResult].set(keyword, cnt + 1);
         }
     }
     else if (token.fType == kObject_TokenType)
@@ -1919,9 +1946,10 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
         return false;
     }
 
-    SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfPage(page);
-
     PdfContext pdfContext(fPdfDoc);
+
+    SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfPage(page, pdfContext.fTmpPageAllocator);
+
     pdfContext.fOriginalMatrix = SkMatrix::I();
     pdfContext.fGraphicsState.fResources = fPdfDoc->pageResources(page);
 

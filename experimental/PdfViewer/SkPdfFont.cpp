@@ -164,12 +164,12 @@ SkPdfFont* SkPdfFont::fontFromFontDescriptor(SkNativeParsedPDF* doc, SkPdfFontDe
         }
     }
 
-    unsigned char* uncompressedStream = NULL;
+    const unsigned char* uncompressedStream = NULL;
     size_t uncompressedStreamLength = 0;
 
     // TODO(edisonn): report warning to be used in testing.
     if (!pdfStream ||
-            !pdfStream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength, doc->allocator()) ||
+            !pdfStream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength) ||
             !uncompressedStream ||
             !uncompressedStreamLength) {
         return NULL;
@@ -321,7 +321,9 @@ SkPdfToUnicode::SkPdfToUnicode(SkNativeParsedPDF* parsed, SkPdfStream* stream) :
     fCMapEncodingFlag = NULL;
 
     if (stream) {
-        SkPdfNativeTokenizer* tokenizer = fParsed->tokenizerOfStream(stream);
+        // Since font will be cached, the font has to sit in the per doc allocator, not to be
+        // freed after the page is done drawing.
+        SkPdfNativeTokenizer* tokenizer = fParsed->tokenizerOfStream(stream, parsed->allocator());
         PdfToken token;
 
         fCMapEncoding = new unsigned short[256 * 256];
