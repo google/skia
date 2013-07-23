@@ -15,7 +15,8 @@
 enum ChecksumType {
     kChecksum_ChecksumType,
     kMD5_ChecksumType,
-    kSHA1_ChecksumType
+    kSHA1_ChecksumType,
+    kMurmur3_ChecksumType,
 };
 
 class ComputeChecksumBench : public SkBenchmark {
@@ -42,6 +43,8 @@ protected:
             case kChecksum_ChecksumType: return "compute_checksum";
             case kMD5_ChecksumType: return "compute_md5";
             case kSHA1_ChecksumType: return "compute_sha1";
+            case kMurmur3_ChecksumType: return "compute_murmur3";
+
             default: SK_CRASH(); return "";
         }
     }
@@ -70,6 +73,12 @@ protected:
                     sha1.finish(digest);
                 }
             } break;
+            case kMurmur3_ChecksumType: {
+                for (int i = 0; i < N; i++) {
+                    volatile uint32_t result = SkChecksum::Murmur3(fData, sizeof(fData));
+                    sk_ignore_unused_variable(result);
+                }
+            }break;
         }
 
     }
@@ -83,7 +92,11 @@ private:
 static SkBenchmark* Fact0(void* p) { return new ComputeChecksumBench(p, kChecksum_ChecksumType); }
 static SkBenchmark* Fact1(void* p) { return new ComputeChecksumBench(p, kMD5_ChecksumType); }
 static SkBenchmark* Fact2(void* p) { return new ComputeChecksumBench(p, kSHA1_ChecksumType); }
+static SkBenchmark* Fact3(void* p) { return new ComputeChecksumBench(p, kMurmur3_ChecksumType); }
+
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
+static BenchRegistry gReg3(Fact3);
+
