@@ -41,7 +41,7 @@ public:
     /**
      * Copies another draw state.
      **/
-    GrDrawState(const GrDrawState& state) {
+    GrDrawState(const GrDrawState& state) : INHERITED() {
         GR_DEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
     }

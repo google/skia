@@ -19,7 +19,7 @@ public:
     SK_DECLARE_INST_COUNT(Caps)
 
     GrDrawTargetCaps() { this->reset(); }
-    GrDrawTargetCaps(const GrDrawTargetCaps& other) { *this = other; }
+    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() { *this = other; }
     GrDrawTargetCaps& operator= (const GrDrawTargetCaps&);
 
     virtual void reset();
