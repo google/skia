@@ -82,7 +82,7 @@ static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     bm.allocPixels();
     bm.eraseColor(SK_ColorRED);
     SkCanvas c(bm);
-    
+
     SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
     paint.setColor(SK_ColorGREEN);
     c.drawRect(SkRect::Make(cropRect), paint);

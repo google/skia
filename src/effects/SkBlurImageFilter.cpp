@@ -219,7 +219,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitm
     if (!this->applyCropRect(&rect)) {
         return false;
     }
-    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(), 
+    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source, false, SkRect::Make(rect),
                                                              fSigma.width(), fSigma.height()));
     offset->fX += rect.fLeft;
