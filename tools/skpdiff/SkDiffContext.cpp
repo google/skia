@@ -15,6 +15,9 @@
 #include "SkImageDiffer.h"
 #include "skpdiff_util.h"
 
+// Truncates the number of points of interests in JSON output to not freeze the parser
+static const int kMaxPOI = 100;
+
 SkDiffContext::SkDiffContext() {
     fRecords = NULL;
     fDiffers = NULL;
@@ -185,7 +188,8 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
                     stream.writeText(",\n");
 
                     stream.writeText("                    \"pointsOfInterest\": [\n");
-                    for (int poiIndex = 0; poiIndex < data.fPointsOfInterest.count(); poiIndex++) {
+                    for (int poiIndex = 0; poiIndex < data.fPointsOfInterest.count() &&
+                                           poiIndex < kMaxPOI; poiIndex++) {
                         SkIPoint poi = data.fPointsOfInterest[poiIndex];
                         stream.writeText("                        [");
                         stream.writeDecAsText(poi.x());
