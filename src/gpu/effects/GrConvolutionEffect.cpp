@@ -33,10 +33,13 @@ public:
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
+    bool useCropRect() const { return fUseCropRect; }
 
     int                 fRadius;
+    bool                fUseCropRect;
     UniformHandle       fKernelUni;
     UniformHandle       fImageIncrementUni;
+    UniformHandle       fCropRectUni;
     GrGLEffectMatrix    fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
@@ -47,9 +50,11 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
     : INHERITED(factory)
     , fKernelUni(kInvalidUniformHandle)
     , fImageIncrementUni(kInvalidUniformHandle)
+    , fCropRectUni(kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrConvolutionEffect>().coordsType()) {
     const GrConvolutionEffect& c = drawEffect.castEffect<GrConvolutionEffect>();
     fRadius = c.radius();
+    fUseCropRect = c.useCropRect();
 }
 
 void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
@@ -62,12 +67,16 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
+    if (this->useCropRect()) {
+        fCropRectUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                           kVec4f_GrSLType, "CropRect");
+    }
     fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
                                           kFloat_GrSLType, "Kernel", this->width());
 
     builder->fsCodeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
-    int width = this ->width();
+    int width = this->width();
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
@@ -81,9 +90,15 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         builder->fsCodeAppendf("\t\t%s += ", outputColor);
         builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "coord");
+        if (this->useCropRect()) {
+            const char* cropRect = builder->getUniformCStr(fCropRectUni);
+            builder->fsCodeAppendf(" * float(coord.x >= %s.x && coord.x <= %s.y && coord.y >= %s.z && coord.y <= %s.w)",
+            cropRect, cropRect, cropRect, cropRect);
+        }
         builder->fsCodeAppendf(" * %s;\n", kernelIndex.c_str());
         builder->fsCodeAppendf("\t\tcoord += %s;\n", imgInc);
     }
+
     SkString modulate;
     GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
     builder->fsCodeAppend(modulate.c_str());
@@ -96,17 +111,28 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
     // the code we generated was for a specific kernel radius
     GrAssert(conv.radius() == fRadius);
     float imageIncrement[2] = { 0 };
+    float ySign = texture.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     switch (conv.direction()) {
         case Gr1DKernelEffect::kX_Direction:
             imageIncrement[0] = 1.0f / texture.width();
             break;
         case Gr1DKernelEffect::kY_Direction:
-            imageIncrement[1] = 1.0f / texture.height();
+            imageIncrement[1] = ySign / texture.height();
             break;
         default:
             GrCrash("Unknown filter direction.");
     }
     uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
+    if (conv.useCropRect()) {
+        float c[4];
+        memcpy(c, conv.cropRect(), sizeof(c));
+        if (texture.origin() != kTopLeft_GrSurfaceOrigin) {
+            float tmp = 1.0f - c[2];
+            c[2] = 1.0f - c[3];
+            c[3] = tmp;
+        }
+        uman.set4fv(fCropRectUni, 0, 1, c);
+    }
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
     fEffectMatrix.setData(uman, conv.getMatrix(), drawEffect, conv.texture(0));
 }
@@ -114,7 +140,8 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
 GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,
                                                     const GrGLCaps&) {
     const GrConvolutionEffect& conv = drawEffect.castEffect<GrConvolutionEffect>();
-    EffectKey key = conv.radius();
+    EffectKey key = conv.radius() << 1;
+    key |= conv.useCropRect() ? 0x1 : 0x0;
     key <<= GrGLEffectMatrix::kKeyBits;
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(conv.getMatrix(),
                                                    drawEffect,
@@ -128,21 +155,26 @@ GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffe
 GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
                                          Direction direction,
                                          int radius,
-                                         const float* kernel)
-    : Gr1DKernelEffect(texture, direction, radius) {
+                                         const float* kernel,
+                                         bool useCropRect,
+                                         float cropRect[4])
+    : Gr1DKernelEffect(texture, direction, radius), fUseCropRect(useCropRect) {
     GrAssert(radius <= kMaxKernelRadius);
     GrAssert(NULL != kernel);
     int width = this->width();
     for (int i = 0; i < width; i++) {
         fKernel[i] = kernel[i];
     }
+    memcpy(fCropRect, cropRect, sizeof(fCropRect));
 }
 
 GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
                                          Direction direction,
                                          int radius,
-                                         float gaussianSigma)
-    : Gr1DKernelEffect(texture, direction, radius) {
+                                         float gaussianSigma,
+                                         bool useCropRect,
+                                         float cropRect[4])
+    : Gr1DKernelEffect(texture, direction, radius), fUseCropRect(useCropRect) {
     GrAssert(radius <= kMaxKernelRadius);
     int width = this->width();
 
@@ -160,6 +192,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
     for (int i = 0; i < width; ++i) {
         fKernel[i] *= scale;
     }
+    memcpy(fCropRect, cropRect, sizeof(fCropRect));
 }
 
 GrConvolutionEffect::~GrConvolutionEffect() {
@@ -174,6 +207,7 @@ bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&
+            0 == memcmp(fCropRect, s.fCropRect, sizeof(fCropRect)) &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
 
@@ -190,9 +224,19 @@ GrEffectRef* GrConvolutionEffect::TestCreate(SkMWCRandom* random,
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     int radius = random->nextRangeU(1, kMaxKernelRadius);
     float kernel[kMaxKernelRadius];
+    float cropRect[4];
     for (int i = 0; i < kMaxKernelRadius; ++i) {
         kernel[i] = random->nextSScalar1();
     }
+    for (int i = 0; i < 4; ++i) {
+        cropRect[i] = random->nextF();
+    }
 
-    return GrConvolutionEffect::Create(textures[texIdx], dir, radius,kernel);
+    bool useCropRect = random->nextBool();
+    return GrConvolutionEffect::Create(textures[texIdx],
+                                       dir,
+                                       radius,
+                                       kernel,
+                                       useCropRect,
+                                       cropRect);
 }
