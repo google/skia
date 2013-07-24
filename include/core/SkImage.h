@@ -84,14 +84,14 @@ public:
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 
     /**
-     *  Draw the image, cropped to the src rect, to the dst rect of a canvas. 
-     *  If src is larger than the bounds of the image, the rest of the image is 
-     *  filled with transparent black pixels. 
+     *  Draw the image, cropped to the src rect, to the dst rect of a canvas.
+     *  If src is larger than the bounds of the image, the rest of the image is
+     *  filled with transparent black pixels.
      *
      *  See SkCanvas::drawBitmapRectToRect for similar behavior.
      */
     void draw(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*);
-    
+
     /**
      *  Encode the image's pixels and return the result as a new SkData, which
      *  the caller must manage (i.e. call unref() when they are done).

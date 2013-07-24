@@ -145,7 +145,7 @@ void SkBitmapProcState::possiblyScaleImage() {
 
         SkScalar invScaleX = fInvMatrix.getScaleX();
         SkScalar invScaleY = fInvMatrix.getScaleY();
-        
+
         SkASSERT(NULL == fScaledCacheID);
         fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
                                                          invScaleX, invScaleY,
@@ -250,7 +250,7 @@ void SkBitmapProcState::endContext() {
     SkDELETE(fBitmapFilter);
     fBitmapFilter = NULL;
     fScaledBitmap.reset();
-    
+
     if (fScaledCacheID) {
         SkScaledImageCache::Unlock(fScaledCacheID);
         fScaledCacheID = NULL;

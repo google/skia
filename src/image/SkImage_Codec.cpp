@@ -49,7 +49,7 @@ void SkImage_Codec::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-void SkImage_Codec::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, 
+void SkImage_Codec::onDrawRectToRect(SkCanvas* canvas, const SkRect* src,
                                      const SkRect& dst, const SkPaint* paint) {
     if (!fBitmap.pixelRef()) {
         if (!SkImageDecoder::DecodeMemory(fEncodedData->bytes(), fEncodedData->size(),

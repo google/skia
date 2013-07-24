@@ -17,26 +17,26 @@
  // Implemented from en.wikipedia.org/wiki/MurmurHash.
 static uint32_t compute_hash(const uint32_t data[], int count) {
     uint32_t hash = 0;
-    
+
     for (int i = 0; i < count; ++i) {
         uint32_t k = data[i];
         k *= 0xcc9e2d51;
         k = (k << 15) | (k >> 17);
         k *= 0x1b873593;
-        
+
         hash ^= k;
         hash = (hash << 13) | (hash >> 19);
         hash *= 5;
         hash += 0xe6546b64;
     }
-    
+
     //    hash ^= size;
     hash ^= hash >> 16;
     hash *= 0x85ebca6b;
     hash ^= hash >> 13;
     hash *= 0xc2b2ae35;
     hash ^= hash >> 16;
-    
+
     return hash;
 }
 #else
@@ -46,7 +46,7 @@ static uint32_t mix(uint32_t a, uint32_t b) {
 
 static uint32_t compute_hash(const uint32_t data[], int count) {
     uint32_t hash = 0;
-    
+
     for (int i = 0; i < count; ++i) {
         hash = mix(hash, data[i]);
     }
@@ -219,7 +219,7 @@ void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {
 void SkScaledImageCache::purgeAsNeeded() {
     size_t byteLimit = fByteLimit;
     size_t bytesUsed = fBytesUsed;
-    
+
     Rec* rec = fTail;
     while (rec) {
         if (bytesUsed < byteLimit) {
@@ -254,20 +254,20 @@ size_t SkScaledImageCache::setByteLimit(size_t newLimit) {
 void SkScaledImageCache::detach(Rec* rec) {
     Rec* prev = rec->fPrev;
     Rec* next = rec->fNext;
-    
+
     if (!prev) {
         SkASSERT(fHead == rec);
         fHead = next;
     } else {
         prev->fNext = next;
     }
-    
+
     if (!next) {
         fTail = prev;
     } else {
         next->fPrev = prev;
     }
-    
+
     rec->fNext = rec->fPrev = NULL;
 }
 
@@ -286,7 +286,7 @@ void SkScaledImageCache::moveToHead(Rec* rec) {
     fHead->fPrev = rec;
     rec->fNext = fHead;
     fHead = rec;
-    
+
     this->validate();
 }
 
@@ -347,7 +347,7 @@ void SkScaledImageCache::validate() const {
         used -= rec->bytesUsed();
         rec = rec->fPrev;
     }
-    
+
     SkASSERT(0 == count);
     SkASSERT(0 == used);
 }
@@ -418,4 +418,3 @@ size_t SkGraphics::GetImageCacheByteLimit() {
 size_t SkGraphics::SetImageCacheByteLimit(size_t newLimit) {
     return SkScaledImageCache::SetByteLimit(newLimit);
 }
-

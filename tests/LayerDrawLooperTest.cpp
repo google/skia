@@ -23,7 +23,7 @@ class FakeDevice : public SkDevice {
 public:
     FakeDevice() : SkDevice(SkBitmap::kARGB_8888_Config, 100, 100) { }
 
-    virtual void drawRect(const SkDraw& draw, const SkRect& r, 
+    virtual void drawRect(const SkDraw& draw, const SkRect& r,
                           const SkPaint& paint) SK_OVERRIDE {
         fLastMatrix = *draw.fMatrix;
         SkDevice::drawRect(draw, r, paint);

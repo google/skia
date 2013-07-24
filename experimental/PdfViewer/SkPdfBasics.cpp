@@ -9,4 +9,3 @@ PdfContext::PdfContext(SkNativeParsedPDF* doc)
 PdfContext::~PdfContext() {
     delete fTmpPageAllocator;
 }
-
