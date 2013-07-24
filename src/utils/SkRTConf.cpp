@@ -215,9 +215,10 @@ static inline void str_replace(char *s, char search, char replace) {
 template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
     SkString *str = NULL;
 
-    for (int i = 0 ; i < fConfigFileKeys.count() ; i++) {
+    for (int i = fConfigFileKeys.count() - 1 ; i >= 0; i--) {
         if (fConfigFileKeys[i]->equals(name)) {
             str = fConfigFileValues[i];
+            break;
         }
     }
 
