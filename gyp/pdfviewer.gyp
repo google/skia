@@ -33,9 +33,9 @@
             '../experimental/PdfViewer/PdfReference-okular-1.txt',
           ],
           'outputs': [
-            '../experimental/PdfViewer/autogen/pdfspec_autogen.py',
+            '<(skia_src_path)/../experimental/PdfViewer/autogen/pdfspec_autogen.py',
           ],
-          'action': ['python', '../experimental/PdfViewer/spec2def.py', '../experimental/PdfViewer/PdfReference-okular-1.txt', '../experimental/PdfViewer/autogen/pdfspec_autogen.py'],
+          'action': ['python', '<(skia_src_path)/../experimental/PdfViewer/spec2def.py', '<(skia_src_path)/../experimental/PdfViewer/PdfReference-okular-1.txt', '<(skia_src_path)/../experimental/PdfViewer/autogen/pdfspec_autogen.py'],
         },
         {
           'action_name': 'generate_code',
@@ -44,13 +44,13 @@
             '../experimental/PdfViewer/autogen/pdfspec_autogen.py',
           ],
           'outputs': [
-            '../experimental/PdfViewer/pdfparser/autogen/SkPdfEnums_autogen.h',
-            '../experimental/PdfViewer/pdfparser/native/autogen/SkPdfMapper_autogen.cpp',
-            '../experimental/PdfViewer/pdfparser/native/autogen/SkPdfHeaders_autogen.cpp',
+            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/autogen/SkPdfEnums_autogen.h',
+            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/native/autogen/SkPdfMapper_autogen.cpp',
+            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/native/autogen/SkPdfHeaders_autogen.cpp',
             # TODO(edisonn): ok, there are many more files here, which we should list but since
             # any change in the above should trigger a change here, we should be fine normally
           ],
-          'action': ['python', '../experimental/PdfViewer/generate_code.py', '../experimental/PdfViewer/pdfparser/'],
+          'action': ['python', '<(skia_src_path)/../experimental/PdfViewer/generate_code.py', '<(skia_src_path)/../experimental/PdfViewer/pdfparser/'],
         },
       ],
       'include_dirs': [
