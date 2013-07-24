@@ -917,11 +917,6 @@ protected:
         SkAutoTime atm("JPEG Encode");
 #endif
 
-        const WriteScanline writer = ChooseWriter(bm);
-        if (NULL == writer) {
-            return false;
-        }
-
         SkAutoLockPixels alp(bm);
         if (NULL == bm.getPixels()) {
             return false;
@@ -940,8 +935,14 @@ protected:
         if (setjmp(sk_err.fJmpBuf)) {
             return false;
         }
-        jpeg_create_compress(&cinfo);
 
+        // Keep after setjmp or mark volatile.
+        const WriteScanline writer = ChooseWriter(bm);
+        if (NULL == writer) {
+            return false;
+        }
+
+        jpeg_create_compress(&cinfo);
         cinfo.dest = &sk_wstream;
         cinfo.image_width = bm.width();
         cinfo.image_height = bm.height();
