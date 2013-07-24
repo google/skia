@@ -3,7 +3,6 @@
 
 import sys
 import re
-from sets import Set
 
 # TODO(edisonn): put processed part of file in a new file
 # put unprocessed part, in a new file, so we see what we miss
@@ -25,7 +24,7 @@ columnValues = None
 mustFollowTableHeader = False
 emitedDitionaryName = ''
 
-knownTypes = Set([
+knownTypes = set([
 '(any)',
 unicode('undeﬁned', 'utf8'),
 '(undefined)',
