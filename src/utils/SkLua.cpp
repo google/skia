@@ -13,6 +13,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
 #include "SkTypeface.h"
@@ -37,6 +38,7 @@ DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
+DEF_MTNAME(SkShader)
 DEF_MTNAME(SkTypeface)
 
 template <typename T> T* push_new(lua_State* L) {
@@ -623,6 +625,16 @@ static int lpaint_getEffects(lua_State* L) {
     return 1;
 }
 
+static int lpaint_getShader(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    SkShader* shader = paint->getShader();
+    if (shader) {
+        push_ref(L, shader);
+        return 1;
+    }
+    return 0;
+}
+
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -647,7 +659,81 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "measureText", lpaint_measureText },
     { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
+    { "getShader", lpaint_getShader },
     { "__gc", lpaint_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* mode2string(SkShader::TileMode mode) {
+    static const char* gNames[] = { "clamp", "repeat", "mirror" };
+    SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gNames));
+    return gNames[mode];
+}
+
+static const char* gradtype2string(SkShader::GradientType t) {
+    static const char* gNames[] = {
+        "none", "color", "linear", "radial", "radial2", "sweep", "conical"
+    };
+    SkASSERT((unsigned)t < SK_ARRAY_COUNT(gNames));
+    return gNames[t];
+}
+
+static int lshader_isOpaque(lua_State* L) {
+    SkShader* shader = get_ref<SkShader>(L, 1);
+    return shader && shader->isOpaque();
+}
+
+static int lshader_asABitmap(lua_State* L) {
+    SkShader* shader = get_ref<SkShader>(L, 1);
+    if (shader) {
+        SkBitmap bm;
+        SkMatrix matrix;
+        SkShader::TileMode modes[2];
+        switch (shader->asABitmap(&bm, &matrix, modes)) {
+            case SkShader::kDefault_BitmapType:
+                lua_newtable(L);
+                setfield_number(L, "genID", bm.pixelRef() ? bm.pixelRef()->getGenerationID() : 0);
+                setfield_number(L, "width", bm.width());
+                setfield_number(L, "height", bm.height());
+                setfield_string(L, "tileX", mode2string(modes[0]));
+                setfield_string(L, "tileY", mode2string(modes[1]));
+                return 1;
+            default:
+                break;
+        }
+    }
+    return 0;
+}
+
+static int lshader_asAGradient(lua_State* L) {
+    SkShader* shader = get_ref<SkShader>(L, 1);
+    if (shader) {
+        SkShader::GradientInfo info;
+        sk_bzero(&info, sizeof(info));
+        SkShader::GradientType t = shader->asAGradient(&info);
+        if (SkShader::kNone_GradientType != t) {
+            lua_newtable(L);
+            setfield_string(L, "type", gradtype2string(t));
+            setfield_number(L, "colorCount", info.fColorCount);
+            setfield_string(L, "tile", mode2string(info.fTileMode));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int lshader_gc(lua_State* L) {
+    get_ref<SkShader>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkShader_Methods[] = {
+    { "isOpaque",       lshader_isOpaque },
+    { "asABitmap",      lshader_asABitmap },
+    { "asAGradient",    lshader_asAGradient },
+    { "__gc",           lshader_gc },
     { NULL, NULL }
 };
 
@@ -993,6 +1079,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPaint);
     REG_CLASS(L, SkRRect);
+    REG_CLASS(L, SkShader);
     REG_CLASS(L, SkTypeface);
     REG_CLASS(L, SkMatrix);
 }
