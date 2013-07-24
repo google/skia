@@ -303,3 +303,34 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
         exit(0);
     }
 }
+
+bool SkCommandLineFlags::ShouldSkip(const SkTDArray<const char*>& strings, const char* name) {
+    int count = strings.count();
+    size_t testLen = strlen(name);
+    bool anyExclude = count == 0;
+    for (int i = 0; i < strings.count(); ++i) {
+        const char* matchName = strings[i];
+        size_t matchLen = strlen(matchName);
+        bool matchExclude, matchStart, matchEnd;
+        if ((matchExclude = matchName[0] == '~')) {
+            anyExclude = true;
+            matchName++;
+            matchLen--;
+        }
+        if ((matchStart = matchName[0] == '^')) {
+            matchName++;
+            matchLen--;
+        }
+        if ((matchEnd = matchName[matchLen - 1] == '$')) {
+            matchLen--;
+        }
+        if (matchStart ? (!matchEnd || matchLen == testLen)
+                && strncmp(name, matchName, matchLen) == 0
+                : matchEnd ? matchLen <= testLen
+                && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
+                : strstr(name, matchName) != 0) {
+            return matchExclude;
+        }
+    }
+    return !anyExclude;
+}

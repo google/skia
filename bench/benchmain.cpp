@@ -22,6 +22,7 @@ class GrContext;
 #include "SkBenchLogger.h"
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
+#include "SkCommandLineFlags.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkColorPriv.h"
@@ -268,38 +269,6 @@ static int findConfig(const char config[]) {
         }
     }
     return -1;
-}
-
-static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
-    // FIXME: this duplicates the logic in skia_test.cpp, gmmain.cpp -- consolidate
-    int count = array.count();
-    size_t testLen = strlen(name);
-    bool anyExclude = count == 0;
-    for (int i = 0; i < array.count(); ++i) {
-        const char* matchName = array[i];
-        size_t matchLen = strlen(matchName);
-        bool matchExclude, matchStart, matchEnd;
-        if ((matchExclude = matchName[0] == '~')) {
-            anyExclude = true;
-            matchName++;
-            matchLen--;
-        }
-        if ((matchStart = matchName[0] == '^')) {
-            matchName++;
-            matchLen--;
-        }
-        if ((matchEnd = matchName[matchLen - 1] == '$')) {
-            matchLen--;
-        }
-        if (matchStart ? (!matchEnd || matchLen == testLen)
-                && strncmp(name, matchName, matchLen) == 0
-                : matchEnd ? matchLen <= testLen
-                && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
-                : strstr(name, matchName) != 0) {
-            return matchExclude;
-        }
-    }
-    return !anyExclude;
 }
 
 static void help() {
@@ -771,7 +740,7 @@ int tool_main(int argc, char** argv) {
         }
 
         // only run benchmarks if their name contains matchStr
-        if (skip_name(fMatches, bench->getName())) {
+        if (SkCommandLineFlags::ShouldSkip(fMatches, bench->getName())) {
             continue;
         }
 
