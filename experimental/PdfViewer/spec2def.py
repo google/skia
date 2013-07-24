@@ -3,6 +3,7 @@
 
 import sys
 import re
+from sets import Set
 
 # TODO(edisonn): put processed part of file in a new file
 # put unprocessed part, in a new file, so we see what we miss
@@ -24,7 +25,7 @@ columnValues = None
 mustFollowTableHeader = False
 emitedDitionaryName = ''
 
-knownTypes = {
+knownTypes = Set([
 '(any)',
 unicode('undeﬁned', 'utf8'),
 '(undefined)',
@@ -49,7 +50,7 @@ unicode('speciﬁcation', 'utf8'),
 'text',
 ',',
 ' '
-}
+])
 
 # TODO(edisonn): add a third element in the vector, the base class, by default it is Dictionary
 # TODO(edisonn): add overrides for types map<field_name, type_name>
