@@ -417,7 +417,7 @@ void SkScaledImageCache::validate() const {
 
 #include "SkThread.h"
 
-static SkMutex gMutex;
+SK_DECLARE_STATIC_MUTEX(gMutex);
 
 static SkScaledImageCache* get_cache() {
     static SkScaledImageCache* gCache;
