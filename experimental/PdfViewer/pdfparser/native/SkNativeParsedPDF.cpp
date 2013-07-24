@@ -14,6 +14,7 @@
 #include "SkPdfPageTreeNodeDictionary_autogen.h"
 #include "SkPdfMapper_autogen.h"
 
+#include "SkStream.h"
 
 
 static long getFileSize(const char* filename)
@@ -67,25 +68,48 @@ SkNativeParsedPDF* gDoc = NULL;
 // 1) run on a lot of file
 // 2) recoverable corupt file: remove endobj, endsteam, remove other keywords, use other white spaces, insert comments randomly, ...
 // 3) irrecoverable corrupt file
+
+SkNativeParsedPDF::SkNativeParsedPDF(SkStream* stream)
+        : fAllocator(new SkPdfAllocator())
+        , fFileContent(NULL)
+        , fContentLength(0)
+        , fRootCatalogRef(NULL)
+        , fRootCatalog(NULL) {
+    size_t size = stream->getLength();
+    void* ptr = sk_malloc_throw(size);
+    stream->read(ptr, size);
+
+    init(ptr, size);
+}
+
 SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
         : fAllocator(new SkPdfAllocator())
+        , fFileContent(NULL)
+        , fContentLength(0)
         , fRootCatalogRef(NULL)
         , fRootCatalog(NULL) {
     gDoc = this;
     FILE* file = fopen(path, "r");
-    fContentLength = getFileSize(path);
-    unsigned char* content = new unsigned char[fContentLength + 1];
-    bool ok = (0 != fread(content, fContentLength, 1, file));
-    content[fContentLength] = '\0';
-    fFileContent = content;
+    size_t size = getFileSize(path);
+    void* content = sk_malloc_throw(size);
+    bool ok = (0 != fread(content, size, 1, file));
     fclose(file);
     file = NULL;
 
     if (!ok) {
+        sk_free(content);
         // TODO(edisonn): report read error
+        // TODO(edisonn): not nice to return like this from constructor, create a static
+        // function that can report NULL for failures.
         return;  // Doc will have 0 pages
     }
 
+    init(content, size);
+}
+
+void SkNativeParsedPDF::init(const void* bytes, size_t length) {
+    fFileContent = (const unsigned char*)bytes;
+    fContentLength = length;
     const unsigned char* eofLine = lineHome(fFileContent, fFileContent + fContentLength - 1);
     const unsigned char* xrefByteOffsetLine = previousLineHome(fFileContent, eofLine);
     const unsigned char* xrefstartKeywordLine = previousLineHome(fFileContent, xrefByteOffsetLine);
@@ -126,7 +150,7 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
 
 // TODO(edisonn): NYI
 SkNativeParsedPDF::~SkNativeParsedPDF() {
-    delete[] fFileContent;
+    sk_free((void*)fFileContent);
     delete fAllocator;
 }
 
