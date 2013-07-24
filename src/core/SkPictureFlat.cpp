@@ -94,6 +94,14 @@ SkNamedFactorySet* SkFlatController::setNamedFactorySet(SkNamedFactorySet* set) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkFlatData::stampHeaderAndSentinel(int index, int32_t size) {
+    fIndex    = index;
+    fFlatSize = size;
+    fChecksum = SkChecksum::Compute(this->data32(), size);
+    this->setTopBotUnwritten();
+    this->setSentinelAsCandidate();
+}
+
 SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
         int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*)) {
     // a buffer of 256 bytes should be sufficient for most paints, regions,
@@ -119,14 +127,9 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     size_t allocSize = sizeof(SkFlatData) + size + sizeof(uint32_t);
     SkFlatData* result = (SkFlatData*) controller->allocThrow(allocSize);
 
-    result->setIndex(index);
-    result->setTopBotUnwritten();
-    result->fFlatSize = size;
-
     // put the serialized contents into the data section of the new allocation
     buffer.writeToMemory(result->data());
-    result->fChecksum = SkChecksum::Compute(result->data32(), size);
-    result->setSentinelAsCandidate();
+    result->stampHeaderAndSentinel(index, size);
     return result;
 }
 

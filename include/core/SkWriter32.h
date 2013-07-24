@@ -46,10 +46,17 @@ public:
 
     // return the current offset (will always be a multiple of 4)
     uint32_t bytesWritten() const { return fSize; }
-    // DEPRECATED: use byetsWritten instead
+    // DEPRECATED: use bytesWritten instead  TODO(mtklein): clean up
     uint32_t  size() const { return this->bytesWritten(); }
 
-    void      reset();
+    // Returns true if we've written only into the storage passed into constructor or reset.
+    // (You may be able to use this to avoid a call to flatten.)
+    bool wroteOnlyToStorage() const {
+        return fHead == &fExternalBlock && this->bytesWritten() <= fExternalBlock.fSizeOfBlock;
+    }
+
+    void reset();
+    void reset(void* storage, size_t size);
 
     // size MUST be multiple of 4
     uint32_t* reserve(size_t size) {
@@ -62,8 +69,6 @@ public:
         fSize += size;
         return block->alloc(size);
     }
-
-    void reset(void* storage, size_t size);
 
     bool writeBool(bool value) {
         this->writeInt(value);
