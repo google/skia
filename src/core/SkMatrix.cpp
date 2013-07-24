@@ -1966,3 +1966,86 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
     dst.round(&idst);
     return isrc == idst;
 }
+
+bool SkDecomposeUpper2x2(const SkMatrix& matrix,
+                         SkScalar* rotation0, 
+                         SkScalar* xScale, SkScalar* yScale,
+                         SkScalar* rotation1) {
+
+    // borrowed from Jim Blinn's article "Consider the Lowly 2x2 Matrix"
+    // Note: he uses row vectors, so we have to do some swapping of terms
+    SkScalar A = matrix[SkMatrix::kMScaleX];
+    SkScalar B = matrix[SkMatrix::kMSkewX];
+    SkScalar C = matrix[SkMatrix::kMSkewY];
+    SkScalar D = matrix[SkMatrix::kMScaleY];
+
+    SkScalar E = SK_ScalarHalf*(A + D);
+    SkScalar F = SK_ScalarHalf*(A - D);
+    SkScalar G = SK_ScalarHalf*(C + B);
+    SkScalar H = SK_ScalarHalf*(C - B);
+
+    SkScalar sqrt0 = SkScalarSqrt(E*E + H*H);
+    SkScalar sqrt1 = SkScalarSqrt(F*F + G*G);
+
+    SkScalar xs, ys, r0, r1;
+
+    // can't have zero yScale, must be degenerate
+    if (SkScalarNearlyEqual(sqrt0, sqrt1)) {
+        return false;
+    }
+    xs = sqrt0 + sqrt1;
+    ys = sqrt0 - sqrt1;
+
+    // uniformly scaled rotation
+    if (SkScalarNearlyZero(F) && SkScalarNearlyZero(G)) {
+        SkASSERT(!SkScalarNearlyZero(E));
+        r0 = SkScalarATan2(H, E);
+        r1 = 0;
+    // uniformly scaled reflection
+    } else if (SkScalarNearlyZero(E) && SkScalarNearlyZero(H)) {
+        SkASSERT(!SkScalarNearlyZero(F));
+        r0 = -SkScalarATan2(G, F);
+        r1 = 0;
+    } else {
+        SkASSERT(!SkScalarNearlyZero(E));
+        SkASSERT(!SkScalarNearlyZero(F));
+
+        SkScalar arctan0 = SkScalarATan2(H, E);
+        SkScalar arctan1 = SkScalarATan2(G, F);
+        r0 = SK_ScalarHalf*(arctan0 - arctan1);
+        r1 = SK_ScalarHalf*(arctan0 + arctan1);
+        
+        // simplify the results
+        const SkScalar kHalfPI = SK_ScalarHalf*SK_ScalarPI;
+        if (SkScalarNearlyEqual(SkScalarAbs(r0), kHalfPI)) {
+            SkScalar tmp = xs;
+            xs = ys;
+            ys = tmp;
+
+            r1 += r0;
+            r0 = 0;
+        } else if (SkScalarNearlyEqual(SkScalarAbs(r1), kHalfPI)) {
+            SkScalar tmp = xs;
+            xs = ys;
+            ys = tmp;
+
+            r0 += r1;
+            r1 = 0;
+        }
+    }
+
+    if (NULL != xScale) {
+        *xScale = xs;
+    }
+    if (NULL != yScale) {
+        *yScale = ys;
+    }
+    if (NULL != rotation0) {
+        *rotation0 = r0;
+    }
+    if (NULL != rotation1) {
+        *rotation1 = r1;
+    }
+
+    return true;
+}

@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
+#include "SkMatrixUtils.h"
 #include "SkRandom.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
@@ -345,6 +346,252 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, mat.isSimilarity());
 }
 
+// For test_matrix_decomposition, below.
+static bool scalar_nearly_equal_relative(SkScalar a, SkScalar b, 
+                                         SkScalar tolerance = SK_ScalarNearlyZero) {
+    // from Bruce Dawson
+    SkScalar diff = SkScalarAbs(a - b);
+    if (diff < tolerance) {
+        return true;
+    }
+
+    a = SkScalarAbs(a);
+    b = SkScalarAbs(b);
+    SkScalar largest = (b > a) ? b : a;
+
+    if (diff <= largest*tolerance) {
+        return true;
+    }
+
+    return false;
+}
+
+static void test_matrix_decomposition(skiatest::Reporter* reporter) {
+    SkMatrix mat;
+    SkScalar rotation0, scaleX, scaleY, rotation1;
+
+    const float kRotation0 = 15.5f;
+    const float kRotation1 = -50.f;
+    const float kScale0 = 5000.f;
+    const float kScale1 = 0.001f;
+
+    // identity
+    mat.reset();
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+    // make sure it doesn't crash if we pass in NULLs
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, NULL, NULL, NULL, NULL));
+
+    // rotation only
+    mat.setRotate(kRotation0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(kRotation0)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // uniform scale only
+    mat.setScale(kScale0, kScale0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // anisotropic scale only
+    mat.setScale(kScale1, kScale0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // rotation then uniform scale
+    mat.setRotate(kRotation1);
+    mat.postScale(kScale0, kScale0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(kRotation1)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // uniform scale then rotation
+    mat.setScale(kScale0, kScale0);
+    mat.postRotate(kRotation1);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(kRotation1)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // rotation then uniform scale+reflection
+    mat.setRotate(kRotation0);
+    mat.postScale(kScale1, -kScale1);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(kRotation0)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, -kScale1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // uniform scale+reflection, then rotate
+    mat.setScale(kScale0, -kScale0);
+    mat.postRotate(kRotation1);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(-kRotation1)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, -kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // rotation then anisotropic scale
+    mat.setRotate(kRotation1);
+    mat.postScale(kScale1, kScale0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0, SkDegreesToRadians(kRotation1)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // anisotropic scale then rotation
+    mat.setScale(kScale1, kScale0);
+    mat.postRotate(kRotation0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation1, SkDegreesToRadians(kRotation0)));
+
+    // rotation, uniform scale, then different rotation
+    mat.setRotate(kRotation1);
+    mat.postScale(kScale0, kScale0);
+    mat.postRotate(kRotation0);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rotation0,
+                                                  SkDegreesToRadians(kRotation0 + kRotation1)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleX, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(scaleY, kScale0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(rotation1));
+
+    // rotation, anisotropic scale, then different rotation
+    mat.setRotate(kRotation0);
+    mat.postScale(kScale1, kScale0);
+    mat.postRotate(kRotation1);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    // Because of the shear/skew we won't get the same results, so we need to multiply it out.
+    // Generating the matrices requires doing a radian-to-degree calculation, then degree-to-radian
+    // calculation (in setRotate()), which adds error, so this just computes the matrix elements
+    // directly.
+    SkScalar c0;
+    SkScalar s0 = SkScalarSinCos(rotation0, &c0);
+    SkScalar c1;
+    SkScalar s1 = SkScalarSinCos(rotation1, &c1);
+    // We do a relative check here because large scale factors cause problems with an absolute check
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
+                                                           scaleX*c0*c1 - scaleY*s0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX],
+                                                           -scaleX*s0*c1 - scaleY*c0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY],
+                                                           scaleX*c0*s1 + scaleY*s0*c1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY],
+                                                           -scaleX*s0*s1 + scaleY*c0*c1));
+
+    // try some random matrices
+    SkMWCRandom rand;
+    for (int m = 0; m < 1000; ++m) {
+        SkScalar rot0 = rand.nextRangeF(-SK_ScalarPI, SK_ScalarPI);
+        SkScalar sx = rand.nextRangeF(-3000.f, 3000.f);
+        SkScalar sy = rand.nextRangeF(-3000.f, 3000.f);
+        SkScalar rot1 = rand.nextRangeF(-SK_ScalarPI, SK_ScalarPI);
+        mat.setRotate(rot0);
+        mat.postScale(sx, sy);
+        mat.postRotate(rot1);
+
+        if (SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1)) {
+            SkScalar c0;
+            SkScalar s0 = SkScalarSinCos(rotation0, &c0);
+            SkScalar c1;
+            SkScalar s1 = SkScalarSinCos(rotation1, &c1);
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
+                                                                   scaleX*c0*c1 - scaleY*s0*s1));
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX], 
+                                                                   -scaleX*s0*c1 - scaleY*c0*s1));
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY], 
+                                                                   scaleX*c0*s1 + scaleY*s0*c1));
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY], 
+                                                                   -scaleX*s0*s1 + scaleY*c0*c1));
+        } else {
+            // if the matrix is degenerate, the basis vectors should be near-parallel or near-zero
+            SkScalar perpdot = mat[SkMatrix::kMScaleX]*mat[SkMatrix::kMScaleY] -
+                               mat[SkMatrix::kMSkewX]*mat[SkMatrix::kMSkewY];
+            REPORTER_ASSERT(reporter, SkScalarNearlyZero(perpdot));
+        }
+    }
+
+    // translation shouldn't affect this
+    mat.postTranslate(-1000.f, 1000.f);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    s0 = SkScalarSinCos(rotation0, &c0);
+    s1 = SkScalarSinCos(rotation1, &c1);
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
+                                                           scaleX*c0*c1 - scaleY*s0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX],
+                                                           -scaleX*s0*c1 - scaleY*c0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY],
+                                                           scaleX*c0*s1 + scaleY*s0*c1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY],
+                                                           -scaleX*s0*s1 + scaleY*c0*c1));
+
+    // perspective shouldn't affect this
+    mat[SkMatrix::kMPersp0] = 12.0;
+    mat[SkMatrix::kMPersp1] = 4.0;
+    mat[SkMatrix::kMPersp2] = 1872.0;
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    s0 = SkScalarSinCos(rotation0, &c0);
+    s1 = SkScalarSinCos(rotation1, &c1);
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
+                                                           scaleX*c0*c1 - scaleY*s0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX],
+                                                           -scaleX*s0*c1 - scaleY*c0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY],
+                                                           scaleX*c0*s1 + scaleY*s0*c1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY],
+                                                           -scaleX*s0*s1 + scaleY*c0*c1));
+
+    // rotation, anisotropic scale + reflection, then different rotation
+    mat.setRotate(kRotation0);
+    mat.postScale(-kScale1, kScale0);
+    mat.postRotate(kRotation1);
+    REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    s0 = SkScalarSinCos(rotation0, &c0);
+    s1 = SkScalarSinCos(rotation1, &c1);
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
+                                                           scaleX*c0*c1 - scaleY*s0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX],
+                                                           -scaleX*s0*c1 - scaleY*c0*s1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY],
+                                                           scaleX*c0*s1 + scaleY*s0*c1));
+    REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY],
+                                                           -scaleX*s0*s1 + scaleY*c0*c1));
+
+    // degenerate matrices
+    // mostly zero entries
+    mat.reset();
+    mat[SkMatrix::kMScaleX] = 0.f;
+    REPORTER_ASSERT(reporter, !SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    mat.reset();
+    mat[SkMatrix::kMScaleY] = 0.f;
+    REPORTER_ASSERT(reporter, !SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+    mat.reset();
+    // linearly dependent entries
+    mat[SkMatrix::kMScaleX] = 1.f;
+    mat[SkMatrix::kMSkewX] = 2.f;
+    mat[SkMatrix::kMSkewY] = 4.f;
+    mat[SkMatrix::kMScaleY] = 8.f;
+    REPORTER_ASSERT(reporter, !SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
+}
+
 static void TestMatrix(skiatest::Reporter* reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
@@ -465,6 +712,7 @@ static void TestMatrix(skiatest::Reporter* reporter) {
     test_matrix_max_stretch(reporter);
     test_matrix_is_similarity(reporter);
     test_matrix_recttorect(reporter);
+    test_matrix_decomposition(reporter);
 }
 
 #include "TestClassDef.h"
