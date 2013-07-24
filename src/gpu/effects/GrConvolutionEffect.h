@@ -22,16 +22,11 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 public:
 
     /// Convolve with an arbitrary user-specified kernel
-    static GrEffectRef* Create(GrTexture* tex,
-                               Direction dir,
-                               int halfWidth,
-                               const float* kernel,
-                               float cropRect[4]) {
+    static GrEffectRef* Create(GrTexture* tex, Direction dir, int halfWidth, const float* kernel) {
         AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                                 dir,
                                                                 halfWidth,
-                                                                kernel,
-                                                                cropRect)));
+                                                                kernel)));
         return CreateEffectRef(effect);
     }
 
@@ -39,21 +34,17 @@ public:
     static GrEffectRef* CreateGaussian(GrTexture* tex,
                                        Direction dir,
                                        int halfWidth,
-                                       float gaussianSigma,
-                                       float cropRect[4]) {
+                                       float gaussianSigma) {
         AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                                 dir,
                                                                 halfWidth,
-                                                                gaussianSigma,
-                                                                cropRect)));
+                                                                gaussianSigma)));
         return CreateEffectRef(effect);
     }
 
     virtual ~GrConvolutionEffect();
 
     const float* kernel() const { return fKernel; }
-
-    const float* cropRect() const { return fCropRect; }
 
     static const char* Name() { return "Convolution"; }
 
@@ -81,17 +72,15 @@ public:
 protected:
 
     float fKernel[kMaxKernelWidth];
-    float fCropRect[4];
 
 private:
     GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth, const float* kernel, float cropRect[4]);
+                        int halfWidth, const float* kernel);
 
     /// Convolve with a Gaussian kernel
     GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
-                        float gaussianSigma,
-                        float cropRect[4]);
+                        float gaussianSigma);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 

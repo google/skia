@@ -94,13 +94,13 @@ static bool valid_for_filtering(unsigned dimension) {
 
 static bool effective_matrix_scale_sqrd(const SkMatrix& mat) {
     SkPoint v1, v2;
-
+    
     v1.fX = mat.getScaleX();
     v1.fY = mat.getSkewY();
-
+    
     v2.fX = mat.getSkewX();
     v2.fY = mat.getScaleY();
-
+    
     return SkMaxScalar(v1.lengthSqd(), v2.lengthSqd());
 }
 
@@ -216,7 +216,7 @@ void SkBitmapProcState::possiblyScaleImage() {
         // want to reqeust mipmaps
         fFilterLevel = SkPaint::kMedium_FilterLevel;
     }
-
+    
     SkASSERT(SkPaint::kMedium_FilterLevel == fFilterLevel);
 
     /**

@@ -111,10 +111,10 @@ static void test_cmap(skiatest::Reporter* reporter) {
 // temparary api for bicubic, just be sure we can set/clear it
 static void test_filterlevel(skiatest::Reporter* reporter) {
     SkPaint p0, p1;
-
+    
     REPORTER_ASSERT(reporter,
                     SkPaint::kNone_FilterLevel == p0.getFilterLevel());
-
+    
     static const SkPaint::FilterLevel gLevels[] = {
         SkPaint::kNone_FilterLevel,
         SkPaint::kLow_FilterLevel,

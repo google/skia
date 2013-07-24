@@ -13,10 +13,7 @@
 
 class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
-    SkBlurImageFilter(SkScalar sigmaX,
-                      SkScalar sigmaY,
-                      SkImageFilter* input = NULL,
-                      const SkIRect* cropRect = NULL);
+    SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = NULL);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 

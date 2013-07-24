@@ -63,7 +63,6 @@
     '../gm/lighting.cpp',
     '../gm/image.cpp',
     '../gm/imagefiltersbase.cpp',
-    '../gm/imagefilterscropped.cpp',
     '../gm/imagefiltersgraph.cpp',
     '../gm/internal_links.cpp',
     '../gm/lcdtext.cpp',
