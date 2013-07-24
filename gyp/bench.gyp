@@ -19,6 +19,7 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'bench_timer',
+        'flags.gyp:flags',
       ],
       'conditions': [
         ['skia_gpu == 1',

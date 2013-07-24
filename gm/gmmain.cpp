@@ -1410,38 +1410,6 @@ static int findConfig(const char config[]) {
     return -1;
 }
 
-static bool skip_name(SkCommandLineFlags::StringArray array, const char name[]) {
-    // FIXME: this duplicates the logic in test/skia_test.cpp -- consolidate
-    int count = array.count();
-    size_t testLen = strlen(name);
-    bool anyExclude = count == 0;
-    for (int i = 0; i < array.count(); ++i) {
-        const char* matchName = array[i];
-        size_t matchLen = strlen(matchName);
-        bool matchExclude, matchStart, matchEnd;
-        if ((matchExclude = matchName[0] == '~')) {
-            anyExclude = true;
-            matchName++;
-            matchLen--;
-        }
-        if ((matchStart = matchName[0] == '^')) {
-            matchName++;
-            matchLen--;
-        }
-        if ((matchEnd = matchName[matchLen - 1] == '$')) {
-            matchLen--;
-        }
-        if (matchStart ? (!matchEnd || matchLen == testLen)
-                && strncmp(name, matchName, matchLen) == 0
-                : matchEnd ? matchLen <= testLen
-                && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
-                : strstr(name, matchName) != 0) {
-            return matchExclude;
-        }
-    }
-    return !anyExclude;
-}
-
 namespace skiagm {
 #if SK_SUPPORT_GPU
 SkAutoTUnref<GrContext> gGrContext;
@@ -2076,7 +2044,12 @@ int tool_main(int argc, char** argv) {
         }
 
         const char* shortName = gm->shortName();
-        if (skip_name(FLAGS_match, shortName)) {
+
+        SkTDArray<const char*> matchStrs;
+        for (int i = 0; i < FLAGS_match.count(); ++i) {
+            matchStrs.push(FLAGS_match[i]);
+        }
+        if (SkCommandLineFlags::ShouldSkip(matchStrs, shortName)) {
             continue;
         }
 
