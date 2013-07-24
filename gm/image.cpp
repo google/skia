@@ -93,7 +93,7 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
 
     SkRect src1, src2, src3;
     src1.iset(0, 0, surf->width(), surf->height());
-    src2.iset(-surf->width() / 2, -surf->height() / 2, 
+    src2.iset(-surf->width() / 2, -surf->height() / 2,
              surf->width(), surf->height());
     src3.iset(0, 0, surf->width() / 2, surf->height() / 2);
 

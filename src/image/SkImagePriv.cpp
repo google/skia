@@ -143,8 +143,8 @@ void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
 }
 
 void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
-                            const SkRect* src,  const SkRect& dst, const SkPaint* paint) {  
-    int saveCount = canvas->getSaveCount();  
+                            const SkRect* src,  const SkRect& dst, const SkPaint* paint) {
+    int saveCount = canvas->getSaveCount();
 
     SkMatrix matrix;
     SkRect   tmpSrc;
@@ -167,7 +167,7 @@ void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
     if (!paint || !needs_layer(*paint)) {
         canvas->clipRect(tmpSrc);
     }
-    
+
     canvas->drawPicture(*picture);
     canvas->restoreToCount(saveCount);
 }

@@ -21,7 +21,7 @@ static void TestImageCache(skiatest::Reporter* reporter) {
     SkScaledImageCache::ID* id;
 
     SkBitmap bm[COUNT];
-    
+
     SkScalar scale = 2;
     for (int i = 0; i < COUNT; ++i) {
         SkBitmap tmp;
@@ -49,12 +49,12 @@ static void TestImageCache(skiatest::Reporter* reporter) {
     // stress test, should trigger purges
     for (size_t i = 0; i < COUNT * 100; ++i) {
         SkBitmap tmp;
-        
+
         make_bm(&tmp, DIM, DIM);
         id = cache.addAndLock(bm[0], scale, scale, tmp);
         REPORTER_ASSERT(reporter, NULL != id);
         cache.unlock(id);
-        
+
         scale += 1;
     }
 

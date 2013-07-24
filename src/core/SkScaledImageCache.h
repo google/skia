@@ -45,7 +45,7 @@ public:
 
     SkScaledImageCache(size_t byteLimit);
     ~SkScaledImageCache();
-    
+
     /**
      *  Search the cache for a scaled version of original. If found, return it
      *  in scaled, and return its ID pointer. Use the returned ptr to unlock
@@ -74,7 +74,7 @@ public:
 
     size_t getBytesUsed() const { return fBytesUsed; }
     size_t getByteLimit() const { return fByteLimit; }
-    
+
     /**
      *  Set the maximum number of bytes available to this cache. If the current
      *  cache exceeds this new value, it will be purged to try to fit within
