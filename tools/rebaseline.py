@@ -17,6 +17,7 @@ TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 import argparse
 import os
 import re
+import subprocess
 import sys
 import urllib2
 
@@ -147,6 +148,13 @@ class JsonRebaseliner(object):
         self._exception_handler = exception_handler
         self._add_new = add_new
         self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+        self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
+
+    # Executes subprocess.call(cmd).
+    # Raises an Exception if the command fails.
+    def _Call(self, cmd):
+        if subprocess.call(cmd) != 0:
+            raise _InternalException('error running command: ' + ' '.join(cmd))
 
     # Returns the full contents of filepath, as a single string.
     # If filepath looks like a URL, try to read it that way instead of as
@@ -254,6 +262,11 @@ class JsonRebaseliner(object):
         # Write out updated expectations.
         gm_json.WriteToFile(expectations_dict, expectations_json_filepath)
 
+        # Mark the JSON file as plaintext, so text-style diffs can be applied.
+        # Fixes https://code.google.com/p/skia/issues/detail?id=1442
+        if self._using_svn:
+            self._Call(['svn', 'propset', '--quiet', 'svn:mime-type',
+                        'text/x-json', expectations_json_filepath])
 
 # main...
 
