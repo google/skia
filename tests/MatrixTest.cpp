@@ -544,9 +544,9 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
                                                            -scaleX*s0*s1 + scaleY*c0*c1));
 
     // perspective shouldn't affect this
-    mat[SkMatrix::kMPersp0] = 12.0;
-    mat[SkMatrix::kMPersp1] = 4.0;
-    mat[SkMatrix::kMPersp2] = 1872.0;
+    mat[SkMatrix::kMPersp0] = 12.f;
+    mat[SkMatrix::kMPersp1] = 4.f;
+    mat[SkMatrix::kMPersp2] = 1872.f;
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation0, &scaleX, &scaleY, &rotation1));
     s0 = SkScalarSinCos(rotation0, &c0);
     s1 = SkScalarSinCos(rotation1, &c1);
