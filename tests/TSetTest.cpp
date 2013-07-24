@@ -41,7 +41,7 @@ static int f(int i) {
     return (long(i) * PRIME1) % PRIME2;
 }
 
-// Will expose contains() and find() too.
+// Will expose contains() too.
 static void TestTSet_advanced(skiatest::Reporter* reporter) {
     SkTSet<int> set0;
 
@@ -60,6 +60,11 @@ static void TestTSet_advanced(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !set0.add(f(i)));
     }
 
+    // Test deterministic output
+    for (int i = 0; i < COUNT; i++) {
+        REPORTER_ASSERT(reporter, set0[i] == f(i));
+    }
+
     // Test copy constructor too.
     SkTSet<int> set1 = set0;
 
@@ -68,6 +73,7 @@ static void TestTSet_advanced(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < COUNT; i++) {
         REPORTER_ASSERT(reporter, set1.contains(f(i)));
+        REPORTER_ASSERT(reporter, set1[i] == f(i));
     }
 
     // Test operator= too.
@@ -79,6 +85,7 @@ static void TestTSet_advanced(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < COUNT; i++) {
         REPORTER_ASSERT(reporter, set2.contains(f(i)));
+        REPORTER_ASSERT(reporter, set2[i] == f(i));
     }
 
 #ifdef SK_DEBUG
@@ -106,6 +113,12 @@ static void TestTSet_merge(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 2 * COUNT; i++) {
         REPORTER_ASSERT(reporter, set.contains(i));
+    }
+
+    // check deterministic output
+    for (int i = 0; i < COUNT; i++) {
+        REPORTER_ASSERT(reporter, set[i] == 2 * i);
+        REPORTER_ASSERT(reporter, set[COUNT + i] == 2 * i + 1);
     }
 
 #ifdef SK_DEBUG
