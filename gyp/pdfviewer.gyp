@@ -11,10 +11,6 @@
     {
       'target_name': 'libpdfviewer',
       'type': 'static_library',
-      'cflags': ['-fexceptions'],
-      'cflags_cc': ['-fexceptions'],
-      'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
       'sources': [
         '../experimental/PdfViewer/SkPdfBasics.cpp',
         '../experimental/PdfViewer/SkPdfFont.cpp',
@@ -91,7 +87,6 @@
         'core.gyp:core',
         'flags.gyp:flags',
         'libpdfviewer',
-        'tools.gyp:picture_utils',
       ],
     },
   ],

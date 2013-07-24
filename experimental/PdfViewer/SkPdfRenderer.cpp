@@ -2030,6 +2030,20 @@ bool SkPdfRenderer::load(const SkString inputFileName) {
     return fPdfDoc != NULL;
 }
 
+bool SkPdfRenderer::load(SkStream* stream) {
+    unload();
+
+    // TODO(edisonn): create static function that could return NULL if there are errors
+    fPdfDoc = new SkNativeParsedPDF(stream);
+    if (fPdfDoc->pages() == 0) {
+        delete fPdfDoc;
+        fPdfDoc = NULL;
+    }
+
+    return fPdfDoc != NULL;
+}
+
+
 int SkPdfRenderer::pages() const {
     return fPdfDoc != NULL ? fPdfDoc->pages() : 0;
 }
@@ -2046,4 +2060,31 @@ SkRect SkPdfRenderer::MediaBox(int page) const {
 
 size_t SkPdfRenderer::bytesUsed() const {
     return fPdfDoc ? fPdfDoc->bytesUsed() : 0;
+}
+
+bool SkPDFNativeRenderToBitmap(SkStream* stream,
+                               SkBitmap* output,
+                               int page,
+                               SkPdfContent content,
+                               double dpi) {
+    SkASSERT(page >= 0);
+    SkPdfRenderer renderer;
+    renderer.load(stream);
+    if (!renderer.loaded() || page >= renderer.pages() || page < 0) {
+        return false;
+    }
+
+    SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
+
+    SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(dpi / 72.0)));
+    SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(dpi / 72.0)));
+
+    rect = SkRect::MakeWH(width, height);
+
+    setup_bitmap(output, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
+
+    SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (*output)));
+    SkCanvas canvas(device);
+
+    return renderer.renderPage(page, &canvas, rect);
 }

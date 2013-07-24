@@ -19,6 +19,8 @@ class SkPdfPageTreeNodeDictionary;
 
 class SkPdfNativeTokenizer;
 
+class SkStream;
+
 class SkNativeParsedPDF {
 private:
     struct PublicObjectEntry {
@@ -35,7 +37,10 @@ public:
     // TODO(edisonn): read page N asap, read all file
     // TODO(edisonn): allow corruptions of file (e.g. missing endobj, missing stream length, ...)
     // TODO(edisonn): encryption
+
     SkNativeParsedPDF(const char* path);
+    SkNativeParsedPDF(SkStream* stream);
+
     ~SkNativeParsedPDF();
 
     int pages() const;
@@ -64,6 +69,9 @@ public:
     size_t bytesUsed() const;
 
 private:
+
+    // Takes ownership of bytes.
+    void init(const void* bytes, size_t length);
 
     const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd);
     long readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog);

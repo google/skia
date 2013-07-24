@@ -9,7 +9,6 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkTArray.h"
-#include "picture_utils.h"
 #include "SkNulCanvas.h"
 
 #include "SkPdfRenderer.h"
@@ -74,6 +73,56 @@ static bool add_page_and_replace_filename_extension(SkString* path, int page,
     return false;
 }
 
+void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
+    size_t len = dir.size();
+    path->set(dir);
+    if (0 < len  && '/' != dir[len - 1]) {
+        path->append("/");
+    }
+    path->append(name);
+}
+
+bool is_path_seperator(const char chr) {
+#if defined(SK_BUILD_FOR_WIN)
+    return chr == '\\' || chr == '/';
+#else
+    return chr == '/';
+#endif
+}
+
+void get_basename(SkString* basename, const SkString& path) {
+    if (path.size() == 0) {
+        basename->reset();
+        return;
+    }
+
+    size_t end = path.size() - 1;
+
+    // Paths pointing to directories often have a trailing slash,
+    // we remove it so the name is not empty
+    if (is_path_seperator(path[end])) {
+        if (end == 0) {
+            basename->reset();
+            return;
+        }
+
+        end -= 1;
+    }
+
+    size_t i = end;
+    do {
+        --i;
+        if (is_path_seperator(path[i])) {
+              const char* basenameStart = path.c_str() + i + 1;
+              size_t basenameLength = end - i;
+              basename->set(basenameStart, basenameLength);
+              return;
+        }
+    } while (i > 0);
+
+    basename->set(path.c_str(), end + 1);
+}
+
 /** Builds the output filename. path = dir/name, and it replaces expected
  * .skp extension with .pdf extention.
  * @param path Output filename.
@@ -81,12 +130,10 @@ static bool add_page_and_replace_filename_extension(SkString* path, int page,
  * @returns false if the file did not has the expected extension.
  *  if false is returned, contents of path are undefined.
  */
-
-
 static bool make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name,
                                  int page) {
-    sk_tools::make_filepath(path, dir, name);
+    make_filepath(path, dir, name);
     return add_page_and_replace_filename_extension(path, page,
                                                    PDF_FILE_EXTENSION,
                                                    PNG_FILE_EXTENSION);
@@ -167,7 +214,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
     SkString inputFilename;
-    sk_tools::get_basename(&inputFilename, inputPath);
+    get_basename(&inputFilename, inputPath);
 
     SkFILEStream inputStream;
     inputStream.setPath(inputPath.c_str());
@@ -241,7 +288,7 @@ static int process_input(const char* input, const SkString& outputDir,
             SkString inputPath;
             SkString _input;
             _input.append(input);
-            sk_tools::make_filepath(&inputPath, _input, inputFilename);
+            make_filepath(&inputPath, _input, inputFilename);
             if (!process_pdf(inputPath, outputDir, renderer)) {
                 ++failures;
             }
