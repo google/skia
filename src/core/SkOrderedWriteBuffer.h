@@ -26,25 +26,18 @@ class SkRefCntSet;
 class SkOrderedWriteBuffer : public SkFlattenableWriteBuffer {
 public:
     SkOrderedWriteBuffer(size_t minSize);
-    SkOrderedWriteBuffer(size_t minSize, void* initialStorage, size_t storageSize);
+    SkOrderedWriteBuffer(size_t minSize, void* initialStorage,
+                         size_t storageSize);
     virtual ~SkOrderedWriteBuffer();
 
     virtual bool isOrderedBinaryBuffer() SK_OVERRIDE { return true; }
     virtual SkOrderedWriteBuffer* getOrderedBinaryBuffer() SK_OVERRIDE { return this; }
 
     SkWriter32* getWriter32() { return &fWriter; }
-    void reset(void* storage, size_t storageSize) { fWriter.reset(storage, storageSize); }
-
-    // Returns true if we've written only into the storage passed into constructor or reset.
-    // (You may be able to use this to avoid a call to writeToMemory.)
-    bool wroteOnlyToStorage() const { return fWriter.wroteOnlyToStorage(); }
 
     void writeToMemory(void* dst) { fWriter.flatten(dst); }
     uint32_t* reserve(size_t size) { return fWriter.reserve(size); }
-
-    uint32_t bytesWritten() const { return fWriter.bytesWritten(); }
-    // Deprecated.  Please call bytesWritten instead.  TODO(mtklein): clean up
-    uint32_t size() const { return this->bytesWritten(); }
+    uint32_t size() { return fWriter.size(); }
 
     virtual void writeByteArray(const void* data, size_t size) SK_OVERRIDE;
     virtual void writeBool(bool value) SK_OVERRIDE;

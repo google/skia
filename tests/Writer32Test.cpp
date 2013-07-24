@@ -187,23 +187,18 @@ static void Tests(skiatest::Reporter* reporter) {
         SkWriter32 writer(0);
         uint32_t storage[256];
         writer.reset(storage, sizeof(storage));
-        // These three writes are small enough to fit in storage.
         test1(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
 
         writer.reset(storage, sizeof(storage));
         test2(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
 
         writer.reset(storage, sizeof(storage));
         testWritePad(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
 
-        // Try overflowing the storage-block.
+        // try overflowing the storage-block
         uint32_t smallStorage[8];
         writer.reset(smallStorage, sizeof(smallStorage));
         test2(reporter, &writer);
-        REPORTER_ASSERT(reporter, !writer.wroteOnlyToStorage());
     }
 
     // small storage
