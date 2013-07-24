@@ -123,9 +123,14 @@ class JsonRebaseliner(object):
 
     # params:
     #  expectations_root: root directory of all expectations JSON files
-    #  expectations_filename: filename (under expectations_root) of JSON
-    #                         expectations file; typically
-    #                         "expected-results.json"
+    #  expectations_input_filename: filename (under expectations_root) of JSON
+    #                               expectations file to read; typically
+    #                               "expected-results.json"
+    #  expectations_output_filename: filename (under expectations_root) to
+    #                                which updated expectations should be
+    #                                written; typically the same as
+    #                                expectations_input_filename, to overwrite
+    #                                the old content
     #  actuals_base_url: base URL from which to read actual-result JSON files
     #  actuals_filename: filename (under actuals_base_url) from which to read a
     #                    summary of results; typically "actual-results.json"
@@ -136,11 +141,13 @@ class JsonRebaseliner(object):
     #           rebaseline whatever configs the JSON results summary file tells
     #           us to
     #  add_new: if True, add expectations for tests which don't have any yet
-    def __init__(self, expectations_root, expectations_filename,
-                 actuals_base_url, actuals_filename, exception_handler,
+    def __init__(self, expectations_root, expectations_input_filename,
+                 expectations_output_filename, actuals_base_url,
+                 actuals_filename, exception_handler,
                  tests=None, configs=None, add_new=False):
         self._expectations_root = expectations_root
-        self._expectations_filename = expectations_filename
+        self._expectations_input_filename = expectations_input_filename
+        self._expectations_output_filename = expectations_output_filename
         self._tests = tests
         self._configs = configs
         self._actuals_base_url = actuals_base_url
@@ -233,9 +240,9 @@ class JsonRebaseliner(object):
                                                    sections=sections)
 
         # Read in current expectations.
-        expectations_json_filepath = os.path.join(
-            self._expectations_root, subdir, self._expectations_filename)
-        expectations_dict = gm_json.LoadFromFile(expectations_json_filepath)
+        expectations_input_filepath = os.path.join(
+            self._expectations_root, subdir, self._expectations_input_filename)
+        expectations_dict = gm_json.LoadFromFile(expectations_input_filepath)
         expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
 
         # Update the expectations in memory, skipping any tests/configs that
@@ -260,13 +267,15 @@ class JsonRebaseliner(object):
                         [image_results]
 
         # Write out updated expectations.
-        gm_json.WriteToFile(expectations_dict, expectations_json_filepath)
+        expectations_output_filepath = os.path.join(
+            self._expectations_root, subdir, self._expectations_output_filename)
+        gm_json.WriteToFile(expectations_dict, expectations_output_filepath)
 
         # Mark the JSON file as plaintext, so text-style diffs can be applied.
         # Fixes https://code.google.com/p/skia/issues/detail?id=1442
         if self._using_svn:
             self._Call(['svn', 'propset', '--quiet', 'svn:mime-type',
-                        'text/x-json', expectations_json_filepath])
+                        'text/x-json', expectations_output_filepath])
 
 # main...
 
@@ -301,8 +310,15 @@ parser.add_argument('--dry-run', action='store_true',
 parser.add_argument('--expectations-filename',
                     help='filename (under EXPECTATIONS_ROOT) to read ' +
                     'current expectations from, and to write new ' +
-                    'expectations into; defaults to %(default)s',
+                    'expectations into (unless a separate ' +
+                    'EXPECTATIONS_FILENAME_OUTPUT has been specified); ' +
+                    'defaults to %(default)s',
                     default='expected-results.json')
+parser.add_argument('--expectations-filename-output',
+                    help='filename (under EXPECTATIONS_ROOT) to write ' +
+                    'updated expectations into; by default, overwrites the ' +
+                    'input file (EXPECTATIONS_FILENAME)',
+                    default='')
 parser.add_argument('--expectations-root',
                     help='root of expectations directory to update-- should ' +
                     'contain one or more base-* subdirectories. Defaults to ' +
@@ -350,7 +366,9 @@ for subdir in subdirs:
     if os.path.isfile(expectations_json_file):
         rebaseliner = JsonRebaseliner(
             expectations_root=args.expectations_root,
-            expectations_filename=args.expectations_filename,
+            expectations_input_filename=args.expectations_filename,
+            expectations_output_filename=(args.expectations_filename_output or
+                                          args.expectations_filename),
             tests=args.tests, configs=args.configs,
             actuals_base_url=args.actuals_base_url,
             actuals_filename=args.actuals_filename,
