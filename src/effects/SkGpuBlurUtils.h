@@ -25,6 +25,8 @@ namespace SkGpuBlurUtils {
     * @param canClobberSrc   If true, srcTexture may be overwritten, and
     *                        may be returned as the result.
     * @param rect            The destination rectangle.
+    * @param cropToRect      If true, do not sample any pixels outside the
+    *                        source rect.
     * @param sigmaX          The blur's standard deviation in X.
     * @param sigmaY          The blur's standard deviation in Y.
     * @return the blurred texture, which may be srcTexture reffed, or a
@@ -34,6 +36,7 @@ namespace SkGpuBlurUtils {
                             GrTexture* srcTexture,
                             bool canClobberSrc,
                             const SkRect& rect,
+                            bool cropToRect,
                             float sigmaX,
                             float sigmaY);
 #endif

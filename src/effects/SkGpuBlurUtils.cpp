@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "effects/GrConvolutionEffect.h"
+#include "effects/GrTextureDomainEffect.h"
 #include "GrContext.h"
 #endif
 
@@ -40,24 +41,40 @@ static float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
 
 static void convolve_gaussian(GrContext* context,
                               GrTexture* texture,
-                              const SkRect& rect,
+                              const SkRect& srcRect,
+                              const SkRect& dstRect,
+                              bool cropToSrcRect,
                               float sigma,
                               int radius,
                               Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
+    paint.reset();
+    float cropRect[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+    if (cropToSrcRect) {
+        if (direction == Gr1DKernelEffect::kX_Direction) {
+            cropRect[0] = SkScalarToFloat(srcRect.left()) / texture->width();
+            cropRect[1] = SkScalarToFloat(srcRect.right()) / texture->width();
+        } else {
+            cropRect[2] = SkScalarToFloat(srcRect.top()) / texture->height();
+            cropRect[3] = SkScalarToFloat(srcRect.bottom()) / texture->height();
+        }
+    }
 
     SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::CreateGaussian(texture,
                                                                        direction,
                                                                        radius,
-                                                                       sigma));
+                                                                       sigma,
+                                                                       cropToSrcRect,
+                                                                       cropRect));
     paint.addColorEffect(conv);
-    context->drawRect(paint, rect);
+    context->drawRectToRect(paint, dstRect, srcRect);
 }
 
 GrTexture* GaussianBlur(GrContext* context,
                         GrTexture* srcTexture,
                         bool canClobberSrc,
                         const SkRect& rect,
+                        bool cropToRect,
                         float sigmaX,
                         float sigmaY) {
     GrAssert(NULL != context);
@@ -79,7 +96,7 @@ GrTexture* GaussianBlur(GrContext* context,
     scale_rect(&srcRect, static_cast<float>(scaleFactorX),
                          static_cast<float>(scaleFactorY));
 
-    GrContext::AutoClip acs(context, srcRect);
+    GrContext::AutoClip acs(context, SkRect::MakeWH(srcRect.width(), srcRect.height()));
 
     GrAssert(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
              kRGBA_8888_GrPixelConfig == srcTexture->config() ||
@@ -104,10 +121,25 @@ GrTexture* GaussianBlur(GrContext* context,
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
+        if (cropToRect && i == 1) {
+            dstRect.offset(-dstRect.fLeft, -dstRect.fTop);
+            SkRect domain;
+            matrix.mapRect(&domain, rect);
+            domain.inset(i < scaleFactorX ? SK_ScalarHalf / srcTexture->width() : 0.0f,
+                         i < scaleFactorY ? SK_ScalarHalf / srcTexture->height() : 0.0f);
+            SkAutoTUnref<GrEffectRef> effect(GrTextureDomainEffect::Create(
+                srcTexture,
+                matrix,
+                domain,
+                GrTextureDomainEffect::kDecal_WrapMode,
+                true));
+            paint.addColorEffect(effect);
+        } else {
+            GrTextureParams params(SkShader::kClamp_TileMode, true);
+            paint.addColorTextureEffect(srcTexture, matrix, params);
+        }
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
-        GrTextureParams params(SkShader::kClamp_TileMode, true);
-        paint.addColorTextureEffect(srcTexture, matrix, params);
         context->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -126,9 +158,11 @@ GrTexture* GaussianBlur(GrContext* context,
             context->clear(&clearRect, 0x0);
         }
         context->setRenderTarget(dstTexture->asRenderTarget());
-        convolve_gaussian(context, srcTexture, srcRect, sigmaX, radiusX,
-                          Gr1DKernelEffect::kX_Direction);
+        SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
+        convolve_gaussian(context, srcTexture, srcRect, dstRect, cropToRect,
+                          sigmaX, radiusX, Gr1DKernelEffect::kX_Direction);
         srcTexture = dstTexture;
+        srcRect = dstRect;
         SkTSwap(dstTexture, tempTexture);
     }
 
@@ -142,9 +176,11 @@ GrTexture* GaussianBlur(GrContext* context,
         }
 
         context->setRenderTarget(dstTexture->asRenderTarget());
-        convolve_gaussian(context, srcTexture, srcRect, sigmaY, radiusY,
-                          Gr1DKernelEffect::kY_Direction);
+        SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
+        convolve_gaussian(context, srcTexture, srcRect, dstRect, cropToRect,
+                          sigmaY, radiusY, Gr1DKernelEffect::kY_Direction);
         srcTexture = dstTexture;
+        srcRect = dstRect;
         SkTSwap(dstTexture, tempTexture);
     }
 

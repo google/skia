@@ -69,6 +69,7 @@
         '../tests/HashCacheTest.cpp',
         '../tests/ImageCacheTest.cpp',
         '../tests/ImageDecodingTest.cpp',
+        '../tests/ImageFilterTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/LListTest.cpp',
         '../tests/LayerDrawLooperTest.cpp',
