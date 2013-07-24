@@ -7,14 +7,24 @@
  *
  */
 
-#include "BaseExample.h"
+#include "SkExample.h"
 
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
 #include "SkApplication.h"
+#include "SkCommandLineFlags.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
+
+DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n" \
+                               "Multiple matches may be separated by spaces.\n" \
+                               "~ causes a matching test to always be skipped\n" \
+                               "^ requires the start of the test to match\n" \
+                               "$ requires the end of the test to match\n" \
+                               "^ and $ requires an exact match\n" \
+                               "If a test does not match any list entry,\n" \
+                               "it is skipped unless some list entry starts with ~");
 
 void application_init() {
     SkGraphics::Init();
@@ -26,10 +36,24 @@ void application_term() {
     SkGraphics::Term();
 }
 
-BaseExample::BaseExample(void* hWnd, int argc, char** argv)
-    : INHERITED(hWnd) {}
+SkExampleWindow::SkExampleWindow(void* hwnd)
+    : INHERITED(hwnd) {
+    fRegistry = SkExample::Registry::Head();
+    fCurrExample = fRegistry->factory()(this);
 
-void BaseExample::tearDownBackend() {
+    if (FLAGS_match.count()) {
+        for(int i = 0; i < FLAGS_match.count(); ++i) {
+            fMatchStrs.push(FLAGS_match[i]);
+        }
+        // Start with the a matching sample if possible.
+        bool found = this->findNextMatch();
+        if (!found) {
+            SkDebugf("No matching SkExample found.\n");
+        }
+    }
+}
+
+void SkExampleWindow::tearDownBackend() {
   if (kGPU_DeviceType == fType) {
         SkSafeUnref(fContext);
         fContext = NULL;
@@ -44,7 +68,7 @@ void BaseExample::tearDownBackend() {
     }
 }
 
-bool BaseExample::setupBackend(DeviceType type) {
+bool SkExampleWindow::setupBackend(DeviceType type) {
     fType = type;
 
     this->setConfig(SkBitmap::kARGB_8888_Config);
@@ -70,7 +94,7 @@ bool BaseExample::setupBackend(DeviceType type) {
     return true;
 }
 
-void BaseExample::setupRenderTarget() {
+void SkExampleWindow::setupRenderTarget() {
     GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRound(width());
     desc.fHeight = SkScalarRound(height());
@@ -88,7 +112,7 @@ void BaseExample::setupRenderTarget() {
     fContext->setRenderTarget(fRenderTarget);
 }
 
-SkCanvas* BaseExample::createCanvas() {
+SkCanvas* SkExampleWindow::createCanvas() {
     if (fType == kGPU_DeviceType) {
         if (NULL != fContext && NULL != fRenderTarget) {
             SkAutoTUnref<SkDevice> device(new SkGpuDevice(fContext, fRenderTarget));
@@ -100,7 +124,10 @@ SkCanvas* BaseExample::createCanvas() {
     return INHERITED::createCanvas();
 }
 
-void BaseExample::draw(SkCanvas* canvas) {
+void SkExampleWindow::draw(SkCanvas* canvas) {
+    if (NULL != fCurrExample) {
+        fCurrExample->draw(canvas);
+    }
     if (fType == kGPU_DeviceType) {
 
         SkASSERT(NULL != fContext);
@@ -118,12 +145,12 @@ void BaseExample::draw(SkCanvas* canvas) {
     INHERITED::present();
 }
 
-void BaseExample::onSizeChange() {
+void SkExampleWindow::onSizeChange() {
     setupRenderTarget();
 }
 
 #ifdef SK_BUILD_FOR_WIN
-void BaseExample::onHandleInval(const SkIRect& rect) {
+void SkExampleWindow::onHandleInval(const SkIRect& rect) {
     RECT winRect;
     winRect.top = rect.top();
     winRect.bottom = rect.bottom();
@@ -132,3 +159,39 @@ void BaseExample::onHandleInval(const SkIRect& rect) {
     InvalidateRect((HWND)this->getHWND(), &winRect, false);
 }
 #endif
+
+bool SkExampleWindow::findNextMatch() {
+    bool found = false;
+    // Avoid infinite loop by knowing where we started.
+    const SkExample::Registry* begin = fRegistry;
+    while (!found) {
+        fRegistry = fRegistry->next();
+        if (NULL == fRegistry) {  // Reached the end of the registered samples. GOTO head.
+            fRegistry = SkExample::Registry::Head();
+        }
+        SkExample* next = fRegistry->factory()(this);
+        if (!SkCommandLineFlags::ShouldSkip(fMatchStrs, next->getName().c_str())) {
+            fCurrExample = next;
+            found = true;
+        }
+        if (begin == fRegistry) {  // We looped through every sample without finding anything.
+            break;
+        }
+    }
+    return found;
+}
+
+bool SkExampleWindow::onHandleChar(SkUnichar unichar) {
+    if ('n' == unichar) {
+        bool found = findNextMatch();
+        if (!found) {
+            SkDebugf("No SkExample that matches your query\n");
+        }
+    }
+    return true;
+}
+
+SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+    return new SkExampleWindow(hwnd);
+}
