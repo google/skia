@@ -308,6 +308,14 @@
               ],
             },
           }],
+# This old compiler is really bad at figuring out when things are uninitialized, so ignore it.
+          [ '<(mac_sdk)==10.6', {
+            'xcode_settings': {
+              'OTHER_CPLUSPLUSFLAGS': [
+                '-Wno-uninitialized',
+              ],
+            },
+          }],
         ],
         'configurations': {
           'Debug': {
