@@ -12,6 +12,7 @@
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
 #include "SkBitmapScaler.h"
+#include "SkMipMap.h"
 #include "SkScaledImageCache.h"
 
 #if !SK_ARM_NEON_IS_NONE
@@ -92,7 +93,7 @@ static bool valid_for_filtering(unsigned dimension) {
     return (dimension & ~0x3FFF) == 0;
 }
 
-static bool effective_matrix_scale_sqrd(const SkMatrix& mat) {
+static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
     SkPoint v1, v2;
     
     v1.fX = mat.getScaleX();
@@ -225,24 +226,43 @@ void SkBitmapProcState::possiblyScaleImage() {
      *  a scale > 1 to indicate down scaling by the CTM.
      */
     if (scaleSqd > SK_Scalar1) {
-        if (!fOrigBitmap.hasMipMap()) {
-            fOrigBitmap.buildMipMap();
-            // build may fail, so we need to check again
+        const SkMipMap* mip = NULL;
+
+        SkASSERT(NULL == fScaledCacheID);
+        fScaledCacheID = SkScaledImageCache::FindAndLockMip(fOrigBitmap, &mip);
+        if (!fScaledCacheID) {
+            SkASSERT(NULL == mip);
+            mip = SkMipMap::Build(fOrigBitmap);
+            if (mip) {
+                fScaledCacheID = SkScaledImageCache::AddAndLockMip(fOrigBitmap,
+                                                                   mip);
+                mip->unref();   // the cache took a ref
+                SkASSERT(fScaledCacheID);
+            }
+        } else {
+            SkASSERT(mip);
         }
-        if (fOrigBitmap.hasMipMap()) {
-            int shift = fOrigBitmap.extractMipLevel(&fScaledBitmap,
-                                        SkScalarToFixed(fInvMatrix.getScaleX()),
-                                        SkScalarToFixed(fInvMatrix.getSkewY()));
-            if (shift > 0) {
-                SkScalar scale = SkFixedToScalar(SK_Fixed1 >> shift);
-                fInvMatrix.postScale(scale, scale);
+        
+        if (mip) {
+            SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
+            SkMipMap::Level level;
+            if (mip->extractLevel(levelScale, &level)) {
+                SkScalar invScaleFixup = level.fScale;
+                fInvMatrix.postScale(invScaleFixup, invScaleFixup);
+                
+                fScaledBitmap.setConfig(fOrigBitmap.config(),
+                                        level.fWidth, level.fHeight,
+                                        level.fRowBytes);
+                fScaledBitmap.setPixels(level.fPixels);
                 fBitmap = &fScaledBitmap;
             }
         }
     }
 
-    // Now that we've built the mipmaps (if applicable), we set the filter-level
-    // bilinear interpolation.
+    /*
+     *  At this point, we may or may not have built a mipmap. Regardless, we
+     *  now fall back on Low so will bilerp whatever fBitmap now points at.
+     */
     fFilterLevel = SkPaint::kLow_FilterLevel;
 }
 

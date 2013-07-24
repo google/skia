@@ -10,6 +10,8 @@
 
 #include "SkBitmap.h"
 
+class SkMipMap;
+
 /**
  *  Cache object for bitmaps (with possible scale in X Y as part of the key).
  *
@@ -31,10 +33,12 @@ public:
 
     static ID* FindAndLock(const SkBitmap& original, SkScalar scaleX,
                            SkScalar scaleY, SkBitmap* scaled);
-
+    static ID* FindAndLockMip(const SkBitmap& original, SkMipMap const**);
+    
     static ID* AddAndLock(const SkBitmap& original, SkScalar scaleX,
-                           SkScalar scaleY, const SkBitmap& scaled);
-
+                          SkScalar scaleY, const SkBitmap& scaled);
+    static ID* AddAndLockMip(const SkBitmap& original, const SkMipMap*);
+    
     static void Unlock(ID*);
 
     static size_t GetBytesUsed();
@@ -56,6 +60,7 @@ public:
      */
     ID* findAndLock(const SkBitmap& original, SkScalar scaleX,
                     SkScalar scaleY, SkBitmap* scaled);
+    ID* findAndLockMip(const SkBitmap& original, SkMipMap const**);
 
     /**
      *  To add a new (scaled) bitmap to the cache, call AddAndLock. Use the
@@ -63,6 +68,7 @@ public:
      */
     ID* addAndLock(const SkBitmap& original, SkScalar scaleX,
                    SkScalar scaleY, const SkBitmap& scaled);
+    ID* addAndLockMip(const SkBitmap& original, const SkMipMap*);
 
     /**
      *  Given a non-null ID ptr returned by either findAndLock or addAndLock,
@@ -90,6 +96,8 @@ private:
     size_t  fBytesUsed;
     size_t  fByteLimit;
     int     fCount;
+
+    Rec* findAndLock(const SkBitmap& original, SkScalar sx, SkScalar sy);
 
     void purgeAsNeeded();
 

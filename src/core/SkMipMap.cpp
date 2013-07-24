@@ -192,6 +192,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
         levels[i].fWidth    = width;
         levels[i].fHeight   = height;
         levels[i].fRowBytes = rowBytes;
+        levels[i].fScale    = (float)width / src.width();
 
         SkBitmap dstBM;
         dstBM.setConfig(config, width, height, rowBytes);
@@ -210,7 +211,23 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     }
     SkASSERT(addr == baseAddr + size);
 
-    return SkNEW_ARGS(SkMipMap, (levels, countLevels));
+    return SkNEW_ARGS(SkMipMap, (levels, countLevels, size));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+//static int gCounter;
+
+SkMipMap::SkMipMap(Level* levels, int count, size_t size)
+    : fSize(size), fLevels(levels), fCount(count) {
+    SkASSERT(levels);
+    SkASSERT(count > 0);
+//    SkDebugf("mips %d\n", ++gCounter);
+}
+
+SkMipMap::~SkMipMap() {
+    sk_free(fLevels);
+//    SkDebugf("mips %d\n", --gCounter);
 }
 
 static SkFixed compute_level(SkScalar scale) {

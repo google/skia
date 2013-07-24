@@ -21,23 +21,21 @@ public:
         void*       fPixels;
         uint32_t    fRowBytes;
         uint32_t    fWidth, fHeight;
+        float       fScale; // < 1.0
     };
 
     bool extractLevel(SkScalar scale, Level*) const;
 
+    size_t getSize() const { return fSize; }
+
 private:
+    size_t  fSize;
     Level*  fLevels;
     int     fCount;
 
     // we take ownership of levels, and will free it with sk_free()
-    SkMipMap(Level* levels, int count) : fLevels(levels), fCount(count) {
-        SkASSERT(levels);
-        SkASSERT(count > 0);
-    }
-
-    virtual ~SkMipMap() {
-        sk_free(fLevels);
-    }
+    SkMipMap(Level* levels, int count, size_t size);
+    virtual ~SkMipMap();
 
     static Level* AllocLevels(int levelCount, size_t pixelSize);
 };
