@@ -80,8 +80,8 @@ protected:
         SkPaint paint;
         
         for (size_t i = 0; i < SK_ARRAY_COUNT(gLevel); ++i) {
-            SkScalar x = 10 + i * 100;
-            SkScalar y = 10;
+            SkScalar x = 10.0f + i * 100;
+            SkScalar y = 10.0f;
             
             paint.setFilterLevel(gLevel[i]);
             
