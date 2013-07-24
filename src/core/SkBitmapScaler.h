@@ -87,20 +87,22 @@ public:
     // will save work if you do not need the entire bitmap.
     //
     // The destination subset must be smaller than the destination image.
-    static SkBitmap Resize(const SkBitmap& source,
-                           ResizeMethod method,
-                           int dest_width, int dest_height,
-                           const SkIRect& dest_subset,
-                           SkConvolutionProcs *convolveProcs = NULL,
-                           SkBitmap::Allocator* allocator = NULL);
+    static bool Resize(SkBitmap* result,
+                       const SkBitmap& source,
+                       ResizeMethod method,
+                       int dest_width, int dest_height,
+                       const SkIRect& dest_subset,
+                       SkConvolutionProcs *convolveProcs = NULL,
+                       SkBitmap::Allocator* allocator = NULL);
 
     // Alternate version for resizing and returning the entire bitmap rather than
     // a subset.
-    static SkBitmap Resize(const SkBitmap& source,
-                           ResizeMethod method,
-                           int dest_width, int dest_height,
-                           SkConvolutionProcs *convolveProcs = NULL,
-                           SkBitmap::Allocator* allocator = NULL);
+    static bool Resize(SkBitmap* result,
+                       const SkBitmap& source,
+                       ResizeMethod method,
+                       int dest_width, int dest_height,
+                       SkConvolutionProcs *convolveProcs = NULL,
+                       SkBitmap::Allocator* allocator = NULL);
 };
 
 #endif

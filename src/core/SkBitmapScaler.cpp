@@ -233,12 +233,13 @@ static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
 }
 
 // static
-SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
-                                ResizeMethod method,
-                                int destWidth, int destHeight,
-                                const SkIRect& destSubset,
-                                SkConvolutionProcs* convolveProcs,
-                                SkBitmap::Allocator* allocator) {
+bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
+                            const SkBitmap& source,
+                            ResizeMethod method,
+                            int destWidth, int destHeight,
+                            const SkIRect& destSubset,
+                            SkConvolutionProcs* convolveProcs,
+                            SkBitmap::Allocator* allocator) {
   // Ensure that the ResizeMethod enumeration is sound.
     SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
         (method <= RESIZE_LAST_QUALITY_METHOD)) ||
@@ -257,7 +258,9 @@ SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
     // return empty.
     if (source.width() < 1 || source.height() < 1 ||
         destWidth < 1 || destHeight < 1) {
-        return SkBitmap();
+        // todo: seems like we could handle negative dstWidth/Height, since that
+        // is just a negative scale (flip)
+        return false;
     }
 
     method = ResizeMethodToAlgorithmMethod(method);
@@ -267,8 +270,10 @@ SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
         (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
 
     SkAutoLockPixels locker(source);
-    if (!source.readyToDraw() || source.config() != SkBitmap::kARGB_8888_Config)
-        return SkBitmap();
+    if (!source.readyToDraw() ||
+        source.config() != SkBitmap::kARGB_8888_Config) {
+        return false;
+    }
 
     SkResizeFilter filter(method, source.width(), source.height(),
                           destWidth, destHeight, destSubset, convolveProcs);
@@ -284,8 +289,9 @@ SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
     result.setConfig(SkBitmap::kARGB_8888_Config,
         destSubset.width(), destSubset.height());
     result.allocPixels(allocator, NULL);
-    if (!result.readyToDraw())
-        return SkBitmap();
+    if (!result.readyToDraw()) {
+        return false;
+    }
 
     BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
         !source.isOpaque(), filter.xFilter(), filter.yFilter(),
@@ -295,17 +301,18 @@ SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
 
     // Preserve the "opaque" flag for use as an optimization later.
     result.setIsOpaque(source.isOpaque());
-
-    return result;
+    *resultPtr = result;
+    return true;
 }
 
 // static
-SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
-                                ResizeMethod method,
-                                int destWidth, int destHeight,
-                                SkConvolutionProcs* convolveProcs,
-                                SkBitmap::Allocator* allocator) {
+bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
+                            const SkBitmap& source,
+                            ResizeMethod method,
+                            int destWidth, int destHeight,
+                            SkConvolutionProcs* convolveProcs,
+                            SkBitmap::Allocator* allocator) {
     SkIRect destSubset = { 0, 0, destWidth, destHeight };
-    return Resize(source, method, destWidth, destHeight, destSubset,
+    return Resize(resultPtr, source, method, destWidth, destHeight, destSubset,
                   convolveProcs, allocator);
 }

@@ -37,10 +37,7 @@ struct SkConvolutionProcs;
 struct SkBitmapProcState {
 
     SkBitmapProcState(): fScaledCacheID(NULL), fBitmapFilter(NULL) {}
-    ~SkBitmapProcState() {
-        SkASSERT(NULL == fScaledCacheID);
-        SkDELETE(fBitmapFilter);
-    }
+    ~SkBitmapProcState();
 
     typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
                                  SkPMColor[], int count);

@@ -157,11 +157,17 @@ void SkBitmapProcState::possiblyScaleImage() {
 
             // All the criteria are met; let's make a new bitmap.
 
-            fScaledBitmap = SkBitmapScaler::Resize(fOrigBitmap,
-                                                   SkBitmapScaler::RESIZE_BEST,
-                                                   dest_width,
-                                                   dest_height,
-                                                   fConvolutionProcs);
+            if (!SkBitmapScaler::Resize(&fScaledBitmap,
+                                        fOrigBitmap,
+                                        SkBitmapScaler::RESIZE_BEST,
+                                        dest_width,
+                                        dest_height,
+                                        fConvolutionProcs)) {
+                // we failed to create fScaledBitmap, so just return and let
+                // the scanline proc handle it.
+                return;
+                
+            }
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
                                                             invScaleX,
                                                             invScaleY,
@@ -275,6 +281,13 @@ void SkBitmapProcState::endContext() {
         SkScaledImageCache::Unlock(fScaledCacheID);
         fScaledCacheID = NULL;
     }
+}
+
+SkBitmapProcState::~SkBitmapProcState() {
+    if (fScaledCacheID) {
+        SkScaledImageCache::Unlock(fScaledCacheID);
+    }
+    SkDELETE(fBitmapFilter);
 }
 
 bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
