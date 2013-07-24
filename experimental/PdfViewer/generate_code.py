@@ -1,5 +1,6 @@
 
 
+import os
 import sys
 
 import datatypes
@@ -274,7 +275,7 @@ class PdfClassManager:
     # write imports
     
     # write enums
-    fileEnums = open(sys.argv[1] + 'autogen/SkPdfEnums_autogen.h', 'w')
+    fileEnums = open(os.path.join(sys.argv[1], 'autogen', 'SkPdfEnums_autogen.h'), 'w')
     fileEnums.write('#ifndef __DEFINED__SkPdfEnums\n')
     fileEnums.write('#define __DEFINED__SkPdfEnums\n')
     fileEnums.write('\n')
@@ -298,8 +299,8 @@ class PdfClassManager:
       cls = self.fClasses[name]
       enum = cls.fEnum
       
-      nativeFileClass = open(sys.argv[1] + 'native/autogen/SkPdf' + cls.fName + '_autogen.h', 'w')
-      nativeFileClassCpp = open(sys.argv[1] + 'native/autogen/SkPdf' + cls.fName + '_autogen.cpp', 'w')
+      nativeFileClass = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdf' + cls.fName + '_autogen.h'), 'w')
+      nativeFileClassCpp = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdf' + cls.fName + '_autogen.cpp'), 'w')
 
       nativeFileClass.write('#ifndef __DEFINED__SkPdf' + cls.fName + '\n')
       nativeFileClass.write('#define __DEFINED__SkPdf' + cls.fName + '\n')
@@ -449,8 +450,8 @@ class PdfClassManager:
       
     # generate parser  
     # TODO(edisonn): fast recognition based on must attributes.
-    fileMapperNative = open(sys.argv[1] + 'native/autogen/SkPdfMapper_autogen.h', 'w')
-    fileMapperNativeCpp = open(sys.argv[1] + 'native/autogen/SkPdfMapper_autogen.cpp', 'w')
+    fileMapperNative = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfMapper_autogen.h'), 'w')
+    fileMapperNativeCpp = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfMapper_autogen.cpp'), 'w')
 
     fileMapperNative.write('#ifndef __DEFINED__SkPdfMapper\n')
     fileMapperNative.write('#define __DEFINED__SkPdfMapper\n')
@@ -574,8 +575,8 @@ def generateCode():
   global fileHeadersNativeCpp 
   global knowTypes
 
-  fileHeadersNative = open(sys.argv[1] + 'native/autogen/SkPdfHeaders_autogen.h', 'w')
-  fileHeadersNativeCpp = open(sys.argv[1] + 'native/autogen/SkPdfHeaders_autogen.cpp', 'w')
+  fileHeadersNative = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfHeaders_autogen.h'), 'w')
+  fileHeadersNativeCpp = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfHeaders_autogen.cpp'), 'w')
   
   fileHeadersNative.write('#ifndef __DEFINED__SkPdfHeaders\n')
   fileHeadersNative.write('#define __DEFINED__SkPdfHeaders\n')
