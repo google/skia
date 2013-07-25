@@ -127,7 +127,7 @@ public:
                                     const GrCacheID& cacheID);
     static GrResourceKey ComputeScratchKey(const GrTextureDesc& desc);
     static bool NeedsResizing(const GrResourceKey& key);
-    static bool NeedsFiltering(const GrResourceKey& key);
+    static bool NeedsBilerp(const GrResourceKey& key);
 
 protected:
     // A texture refs its rt representation but not vice-versa. It is up to

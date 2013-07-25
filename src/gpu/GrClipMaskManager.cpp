@@ -53,7 +53,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                                       mat,
                                       GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
                                       GrTextureDomainEffect::kDecal_WrapMode,
-                                      false,
+                                      GrTextureParams::kNone_FilterMode,
                                       GrEffect::kPosition_CoordsType))->unref();
 }
 
@@ -358,12 +358,13 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
 
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
+        
     drawState->addColorEffect(
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
                                       GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomainEffect::kDecal_WrapMode,
-                                      false))->unref();
+                                      GrTextureParams::kNone_FilterMode))->unref();
     fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
 }
 

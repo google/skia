@@ -113,10 +113,10 @@ enum TextureFlags {
      */
     kStretchToPOT_TextureFlag = 0x1,
     /**
-     * The kFilter bit can only be set when the kStretchToPOT flag is set and indicates whether the
-     * stretched texture should be bilerp filtered or point sampled.
+     * The kBilerp bit can only be set when the kStretchToPOT flag is set and indicates whether the
+     * stretched texture should be bilerped.
      */
-    kFilter_TextureFlag       = 0x2,
+     kBilerp_TextureFlag       = 0x2,
 };
 
 namespace {
@@ -128,8 +128,13 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
     if (tiled && !gpu->caps()->npotTextureTileSupport()) {
         if (!GrIsPow2(desc.fWidth) || !GrIsPow2(desc.fHeight)) {
             flags |= kStretchToPOT_TextureFlag;
-            if (params->isBilerp()) {
-                flags |= kFilter_TextureFlag;
+            switch(params->filterMode()) {
+                case GrTextureParams::kNone_FilterMode:
+                    break;
+                case GrTextureParams::kBilerp_FilterMode:
+                case GrTextureParams::kMipMap_FilterMode:
+                    flags |= kBilerp_TextureFlag;
+                    break;
             }
         }
     }
@@ -186,6 +191,6 @@ bool GrTexture::NeedsResizing(const GrResourceKey& key) {
     return SkToBool(key.getResourceFlags() & kStretchToPOT_TextureFlag);
 }
 
-bool GrTexture::NeedsFiltering(const GrResourceKey& key) {
-    return SkToBool(key.getResourceFlags() & kFilter_TextureFlag);
+bool GrTexture::NeedsBilerp(const GrResourceKey& key) {
+    return SkToBool(key.getResourceFlags() & kBilerp_TextureFlag);
 }

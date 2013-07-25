@@ -27,18 +27,18 @@ public:
                                const SkMatrix& matrix,
                                CoordsType coordsType = kLocal_CoordsType) {
         GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, false, coordsType)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode, coordsType)));
         return CreateEffectRef(effect);
     }
 
     /* clamp mode */
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
-                               bool bilerp,
+                               GrTextureParams::FilterMode filterMode,
                                CoordsType coordsType = kLocal_CoordsType) {
         GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(
-            SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, bilerp, coordsType)));
+            SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordsType)));
         return CreateEffectRef(effect);
     }
 
@@ -74,9 +74,9 @@ public:
 private:
     GrSimpleTextureEffect(GrTexture* texture,
                           const SkMatrix& matrix,
-                          bool bilerp,
+                          GrTextureParams::FilterMode filterMode,
                           CoordsType coordsType)
-        : GrSingleTextureEffect(texture, matrix, bilerp, coordsType) {
+        : GrSingleTextureEffect(texture, matrix, filterMode, coordsType) {
         GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
     }
 

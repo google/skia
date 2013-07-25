@@ -38,7 +38,7 @@ public:
                                const SkMatrix&,
                                const SkRect& domain,
                                WrapMode,
-                               bool bilerp,
+                               GrTextureParams::FilterMode filterMode,
                                CoordsType = kLocal_CoordsType);
 
     virtual ~GrTextureDomainEffect();
@@ -76,7 +76,7 @@ private:
                           const SkMatrix&,
                           const SkRect& domain,
                           WrapMode,
-                          bool bilerp,
+                          GrTextureParams::FilterMode filterMode,
                           CoordsType type);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;

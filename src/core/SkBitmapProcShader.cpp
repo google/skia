@@ -9,6 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkPixelRef.h"
+#include "SkErrorInternals.h"
 
 bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
     switch (bm.config()) {
@@ -353,7 +354,27 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     };
 
     // Must set wrap and filter on the sampler before requesting a texture.
-    GrTextureParams params(tm, paint.isFilterBitmap());
+    SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
+    GrTextureParams::FilterMode textureFilterMode;
+    switch(paintFilterLevel) {
+        case SkPaint::kNone_FilterLevel:
+            textureFilterMode = GrTextureParams::kNone_FilterMode;
+            break;
+        case SkPaint::kLow_FilterLevel:
+            textureFilterMode = GrTextureParams::kBilerp_FilterMode;
+            break;
+        case SkPaint::kMedium_FilterLevel:
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+        case SkPaint::kHigh_FilterLevel:
+            SkErrorInternals::SetError( kInvalidPaint_SkError,
+                                        "Sorry, I don't yet support high quality "
+                                        "filtering on the GPU; falling back to "
+                                        "MIPMaps.");
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+    }
+    GrTextureParams params(tm, textureFilterMode);
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fRawBitmap, &params);
 
     if (NULL == texture) {
