@@ -14,19 +14,22 @@ template <typename T, typename KEY, const KEY& (KEY_FROM_T)(const T&),
 uint32_t (HASH_FROM_KEY)(const Key&), bool (EQ_T_KEY)(const T&, const Key&)>
 class SkTDynamicHash {
 private:
-    T* fStorage[1];
+    T* fStorage[4];
     T** fArray;
     int fCapacity;
     int fCountUsed;
     int fCountDeleted;
     
-    unsigned hashMask() const { return fCapacity - 1; }
     const T* deletedValue() const { return reinterpret_cast<const T*>(-1); }
-    
+    uint32_t hashMask() const { return fCapacity - 1; }
+    int hashToIndex(uint32_t hash) const {
+        return ((hash >> 16) ^ hash) & (fCapacity - 1);
+    }
 public:
     SkTDynamicHash() {
+        sk_bzero(fStorage, sizeof(fStorage));
         fArray = fStorage;
-        fCapacity = 1;
+        fCapacity = SK_ARRAY_COUNT(fStorage);
         fCountUsed = fCountDeleted = 0;
     }
     ~SkTDynamicHash() {
@@ -38,8 +41,7 @@ public:
     T* find(const KEY& key) {
         const T* const deleted = this->deletedValue();
         const unsigned mask = this->hashMask();
-        int index = HASH_FROM_KEY(key) & mask;
-        const int origIndex = index;
+        int index = this->hashToIndex(HASH_FROM_KEY(key));
         int delta = 1;
         
         do {
@@ -52,7 +54,7 @@ public:
             }
             index = (index + delta) & mask;
             delta <<= 1;
-        } while (index != origIndex);
+        } while (delta <= fCapacity);
         return NULL;
     }
     
@@ -60,8 +62,7 @@ public:
         const T* const deleted = this->deletedValue();
         for (;;) {
             const unsigned mask = this->hashMask();
-            int index = HASH_FROM_KEY(key) & mask;
-            const int origIndex = index;
+            int index = this->hashToIndex(HASH_FROM_KEY(key));
             int delta = 1;
             
             do {
@@ -77,7 +78,7 @@ public:
                 }
                 index = (index + delta) & mask;
                 delta <<= 1;
-            } while (index != origIndex);
+            } while (delta <= fCapacity);
             if (autoGrow) {
                 this->grow();
             } else {
@@ -91,9 +92,7 @@ public:
     void remove(const KEY& key) {
         const T* const deleted = this->deletedValue();
         const unsigned mask = this->hashMask();
-        const uint32_t hash = HASH_FROM_KEY(key);
-        int index = hash & mask;
-        SkDEBUGCODE(const int origIndex = index;)
+        int index = this->hashToIndex(HASH_FROM_KEY(key));
         int delta = 1;
         
         for (;;) {
@@ -101,20 +100,51 @@ public:
             SkASSERT(candidate);
             if (deleted != candidate && EQ_T_KEY(*candidate, key)) {
                 fArray[index] = const_cast<T*>(deleted);
+                fCountUsed -= 1;
                 fCountDeleted += 1;
                 break;
             }
             index = (index + delta) & mask;
             delta <<= 1;
-            SkASSERT(index != origIndex);
+            SkASSERT(delta <= fCapacity);
         }
         this->checkStrink();
     }
     
 private:
+    int countCollisions(const Key& key) const {
+        const T* const deleted = this->deletedValue();
+        const unsigned mask = this->hashMask();
+        int index = this->hashToIndex(HASH_FROM_KEY(key));
+        int delta = 1;
+        int collisionCount = 0;
+
+        for (;;) {
+            const T* candidate = fArray[index];
+            SkASSERT(candidate);
+            if (deleted != candidate && EQ_T_KEY(*candidate, key)) {
+                break;
+            }
+            index = (index + delta) & mask;
+            delta <<= 1;
+            collisionCount += 1;
+            SkASSERT(delta <= fCapacity);
+        }
+        return collisionCount;
+    }
+
     void grow() {
         const T* const deleted = this->deletedValue();
-        
+#if 0
+        SkDebugf("growing from %d: used=%d\n", fCapacity, fCountUsed);
+        for (int i = 0; i < fCapacity; ++i) {
+            T* elem = fArray[i];
+            if (NULL == elem || deleted == elem) {
+                continue;
+            }
+            SkDebugf("    entry[%d] had %d collisions\n", i, countCollisions(KEY_FROM_T(*elem)));
+        }
+#endif
         int oldCapacity = fCapacity;
         T** oldArray = fArray;
         
@@ -137,10 +167,16 @@ private:
             SkASSERT(success);
         }
         SkASSERT(oldCountUsed == fCountUsed);
-        sk_free(oldArray);
+
+        if (oldArray != fStorage) {
+            sk_free(oldArray);
+        }
     }
     
-    void checkStrink() {}
+    void checkStrink() {
+        // todo: based on density and deadspace (fCountDeleted), consider
+        // shrinking fArray and repopulating it.
+    }
 };
 
 #endif
