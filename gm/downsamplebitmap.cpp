@@ -11,6 +11,7 @@
 #include "SkTypeface.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
+#include "SkPaint.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
     SkSafeUnref(paint->setTypeface(SkTypeface::CreateFromName(name, style)));
@@ -22,8 +23,10 @@ public:
     SkBitmap    fBM;
     SkString    fName;
     bool        fBitmapMade;
+    SkPaint::FilterLevel fFilterLevel;
 
-    DownsampleBitmapGM()
+    DownsampleBitmapGM(SkPaint::FilterLevel filterLevel)
+        : fFilterLevel(filterLevel)
     {
         this->setBGColor(0xFFDDDDDD);
         fBitmapMade = false;
@@ -31,6 +34,21 @@ public:
 
     void setName(const char name[]) {
         fName.set(name);
+    }
+    
+    const char *filterLevelToString() {
+        switch(fFilterLevel) {
+            case SkPaint::kNone_FilterLevel:
+                return "none";
+            case SkPaint::kLow_FilterLevel:
+                return "low";
+            case SkPaint::kMedium_FilterLevel:
+                return "medium";
+            case SkPaint::kHigh_FilterLevel:
+                return "high";
+            default:
+                return "unknown";
+        }
     }
 
 protected:
@@ -64,7 +82,7 @@ protected:
             matrix.setScale( curScale, curScale );
 
             SkPaint paint;
-            paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+            paint.setFilterLevel(fFilterLevel);
 
             canvas->save();
             canvas->translate( (SkScalar) curX, 0.f );
@@ -83,11 +101,11 @@ private:
 
 class DownsampleBitmapTextGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapTextGM(float textSize)
-      : fTextSize(textSize)
+      DownsampleBitmapTextGM(float textSize, SkPaint::FilterLevel filterLevel)
+      : INHERITED(filterLevel), fTextSize(textSize)
         {
             char name[1024];
-            sprintf(name, "downsamplebitmap_text_%.2fpt", fTextSize);
+            sprintf(name, "downsamplebitmap_text_%s_%.2fpt", this->filterLevelToString(), fTextSize);
             setName(name);
         }
 
@@ -120,11 +138,11 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
 
 class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapCheckerboardGM(int size, int numChecks)
-      : fSize(size), fNumChecks(numChecks)
+      DownsampleBitmapCheckerboardGM(int size, int numChecks, SkPaint::FilterLevel filterLevel)
+      : INHERITED(filterLevel), fSize(size), fNumChecks(numChecks)
         {
             char name[1024];
-            sprintf(name, "downsamplebitmap_checkerboard_%d_%d", fSize, fNumChecks);
+            sprintf(name, "downsamplebitmap_checkerboard_%s_%d_%d", this->filterLevelToString(), fSize, fNumChecks);
             setName(name);
         }
 
@@ -155,11 +173,11 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
 
 class DownsampleBitmapImageGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapImageGM(const char filename[])
-      : fFilename(filename)
+      DownsampleBitmapImageGM(const char filename[], SkPaint::FilterLevel filterLevel)
+      : INHERITED(filterLevel), fFilename(filename)
         {
             char name[1024];
-            sprintf(name, "downsamplebitmap_image_%s", filename);
+            sprintf(name, "downsamplebitmap_image_%s_%s", this->filterLevelToString(), filename);
             setName(name);
         }
 
@@ -195,6 +213,18 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new DownsampleBitmapTextGM(72); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png"); )
+DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kHigh_FilterLevel); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kHigh_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kHigh_FilterLevel); )
+
+DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kMedium_FilterLevel); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kMedium_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kMedium_FilterLevel); )
+
+DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kLow_FilterLevel); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kLow_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kLow_FilterLevel); )
+
+DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kNone_FilterLevel); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kNone_FilterLevel); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kNone_FilterLevel); )
