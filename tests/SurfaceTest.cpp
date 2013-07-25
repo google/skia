@@ -139,15 +139,48 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
     // This test succeeds by not triggering an assertion.
     // The test verifies that the surface remains writable (usable) after
     // acquiring and releasing a snapshot without triggering a copy on write.
-    SkSurface* surface = createSurface(surfaceType, context);
-    SkAutoTUnref<SkSurface> aur_surface(surface);
+    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(1);
     surface->newImageSnapshot()->unref();  // Create and destroy SkImage
-    canvas->clear(2);
+    canvas->clear(2);  // Must not assert internally
 }
 
 #if SK_SUPPORT_GPU
+static void Test_crbug263329(skiatest::Reporter* reporter,
+                             GrContext* context) {
+    // This is a regression test for crbug.com/263329
+    // Bug was caused by onCopyOnWrite releasing the old surface texture
+    // back to the scratch texture pool even though the texture is used
+    // by and active SkImage_Gpu.
+    SkAutoTUnref<SkSurface> surface1(createSurface(kGpu_SurfaceType, context));
+    SkAutoTUnref<SkSurface> surface2(createSurface(kGpu_SurfaceType, context));
+    SkCanvas* canvas1 = surface1->getCanvas();
+    SkCanvas* canvas2 = surface2->getCanvas();
+    canvas1->clear(1);
+    SkAutoTUnref<SkImage> image1(surface1->newImageSnapshot());
+    // Trigger copy on write, new backing is a scratch texture
+    canvas1->clear(2);
+    SkAutoTUnref<SkImage> image2(surface1->newImageSnapshot());
+    // Trigger copy on write, old backing should not be returned to scratch
+    // pool because it is held by image2
+    canvas1->clear(3);
+
+    canvas2->clear(4);
+    SkAutoTUnref<SkImage> image3(surface2->newImageSnapshot());
+    // Trigger copy on write on surface2. The new backing store should not
+    // be recycling a texture that is held by an existing image.
+    canvas2->clear(5);
+    SkAutoTUnref<SkImage> image4(surface2->newImageSnapshot());
+    REPORTER_ASSERT(reporter, image4->getTexture() != image3->getTexture());
+    // The following assertion checks crbug.com/263329
+    REPORTER_ASSERT(reporter, image4->getTexture() != image2->getTexture());
+    REPORTER_ASSERT(reporter, image4->getTexture() != image1->getTexture());
+    REPORTER_ASSERT(reporter, image3->getTexture() != image2->getTexture());
+    REPORTER_ASSERT(reporter, image3->getTexture() != image1->getTexture());
+    REPORTER_ASSERT(reporter, image2->getTexture() != image1->getTexture());
+}
+
 static void TestGetTexture(skiatest::Reporter* reporter,
                                  SurfaceType surfaceType,
                                  GrContext* context) {
@@ -209,6 +242,7 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
     TestGetTexture(reporter, kPicture_SurfaceType, NULL);
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        Test_crbug263329(reporter, context);
         TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
         TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
         TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
