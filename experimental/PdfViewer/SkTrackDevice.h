@@ -83,10 +83,9 @@ protected:
     }
 
     virtual void drawBitmap(const SkDraw& dummy1, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint) {
         before();
-        INHERITED::drawBitmap(dummy1, bitmap, srcRectOrNull, matrix, paint);
+        INHERITED::drawBitmap(dummy1, bitmap, matrix, paint);
         after();
     }
 

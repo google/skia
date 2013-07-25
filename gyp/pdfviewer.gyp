@@ -22,9 +22,18 @@
         '../experimental/PdfViewer/pdfparser/native/SkPdfObject.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfNativeTokenizer.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkNativeParsedPDF.cpp',
-        '../experimental/PdfViewer/pdfparser/native/autogen/SkPdfMapper_autogen.cpp',
-        '../experimental/PdfViewer/pdfparser/native/autogen/SkPdfHeaders_autogen.cpp',
+        '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
+        '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
       ],
+      'copies': [
+        {
+          'files': [
+            '../experimental/PdfViewer/datatypes.py',
+            '../experimental/PdfViewer/generate_code.py',
+          ],
+          'destination': '<(SHARED_INTERMEDIATE_DIR)',
+        },
+      ],        
       'actions': [
         {
           'action_name': 'spec2def',
@@ -33,32 +42,32 @@
             '../experimental/PdfViewer/PdfReference-okular-1.txt',
           ],
           'outputs': [
-            '<(skia_src_path)/../experimental/PdfViewer/autogen/pdfspec_autogen.py',
+            '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py',
           ],
-          'action': ['python', '<(skia_src_path)/../experimental/PdfViewer/spec2def.py', '<(skia_src_path)/../experimental/PdfViewer/PdfReference-okular-1.txt', '<(skia_src_path)/../experimental/PdfViewer/autogen/pdfspec_autogen.py'],
+          'action': ['python', '../experimental/PdfViewer/spec2def.py', '../experimental/PdfViewer/PdfReference-okular-1.txt', '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py'],
         },
         {
           'action_name': 'generate_code',
           'inputs': [
-            '../experimental/PdfViewer/generate_code.py',
-            '../experimental/PdfViewer/autogen/pdfspec_autogen.py',
+            '<(SHARED_INTERMEDIATE_DIR)/datatypes.py',
+            '<(SHARED_INTERMEDIATE_DIR)/generate_code.py',
+            '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py',
           ],
           'outputs': [
-            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/autogen/SkPdfEnums_autogen.h',
-            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/native/autogen/SkPdfMapper_autogen.cpp',
-            '<(skia_src_path)/../experimental/PdfViewer/pdfparser/native/autogen/SkPdfHeaders_autogen.cpp',
+            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfEnums_autogen.h',
+            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
+            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
             # TODO(edisonn): ok, there are many more files here, which we should list but since
             # any change in the above should trigger a change here, we should be fine normally
           ],
-          'action': ['python', '<(skia_src_path)/../experimental/PdfViewer/generate_code.py', '<(skia_src_path)/../experimental/PdfViewer/pdfparser/'],
+          'action': ['python', '<(SHARED_INTERMEDIATE_DIR)/generate_code.py', '<(SHARED_INTERMEDIATE_DIR)'],
         },
       ],
       'include_dirs': [
         '../experimental/PdfViewer',
         '../experimental/PdfViewer/pdfparser',
-        '../experimental/PdfViewer/pdfparser/autogen',
         '../experimental/PdfViewer/pdfparser/native',
-        '../experimental/PdfViewer/pdfparser/native/autogen',
+        '<(SHARED_INTERMEDIATE_DIR)/native/autogen',
       ],
       'dependencies': [
         'core.gyp:core',
