@@ -102,6 +102,7 @@ GrContext::GrContext() {
     fAARectRenderer = NULL;
     fOvalRenderer = NULL;
     fViewMatrix.reset();
+    fMaxTextureSizeOverride = 1 << 20;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
@@ -554,7 +555,7 @@ void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
 }
 
 int GrContext::getMaxTextureSize() const {
-    return fGpu->caps()->maxTextureSize();
+    return GrMin(fGpu->caps()->maxTextureSize(), fMaxTextureSizeOverride);
 }
 
 int GrContext::getMaxRenderTargetSize() const {
