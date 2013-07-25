@@ -32,23 +32,11 @@ public:
         fBitmapMade = false;
     }
 
-    void setName(const char name[]) {
-        fName.set(name);
-    }
-    
-    const char *filterLevelToString() {
-        switch(fFilterLevel) {
-            case SkPaint::kNone_FilterLevel:
-                return "none";
-            case SkPaint::kLow_FilterLevel:
-                return "low";
-            case SkPaint::kMedium_FilterLevel:
-                return "medium";
-            case SkPaint::kHigh_FilterLevel:
-                return "high";
-            default:
-                return "unknown";
-        }
+    const char* filterLevelToString() {
+        static const char *filterLevelNames[] = {
+            "none", "low", "medium", "high"
+        };
+        return filterLevelNames[fFilterLevel];
     }
 
 protected:
@@ -104,9 +92,7 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
       DownsampleBitmapTextGM(float textSize, SkPaint::FilterLevel filterLevel)
       : INHERITED(filterLevel), fTextSize(textSize)
         {
-            char name[1024];
-            sprintf(name, "downsamplebitmap_text_%s_%.2fpt", this->filterLevelToString(), fTextSize);
-            setName(name);
+            fName.printf("downsamplebitmap_text_%s_%.2fpt", this->filterLevelToString(), fTextSize);
         }
 
   protected:
@@ -141,9 +127,7 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
       DownsampleBitmapCheckerboardGM(int size, int numChecks, SkPaint::FilterLevel filterLevel)
       : INHERITED(filterLevel), fSize(size), fNumChecks(numChecks)
         {
-            char name[1024];
-            sprintf(name, "downsamplebitmap_checkerboard_%s_%d_%d", this->filterLevelToString(), fSize, fNumChecks);
-            setName(name);
+            fName.printf("downsamplebitmap_checkerboard_%s_%d_%d", this->filterLevelToString(), fSize, fNumChecks);
         }
 
   protected:
@@ -176,9 +160,7 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       DownsampleBitmapImageGM(const char filename[], SkPaint::FilterLevel filterLevel)
       : INHERITED(filterLevel), fFilename(filename)
         {
-            char name[1024];
-            sprintf(name, "downsamplebitmap_image_%s_%s", this->filterLevelToString(), filename);
-            setName(name);
+            fName.printf("downsamplebitmap_image_%s_%s", this->filterLevelToString(), filename);
         }
 
   protected:

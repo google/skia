@@ -64,10 +64,6 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    void setName(const char name[]) {
-        fName.set(name);
-    }
-
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
         return fName;
@@ -102,9 +98,7 @@ class FilterBitmapTextGM: public FilterBitmapGM {
       FilterBitmapTextGM(float textSize)
       : fTextSize(textSize)
         {
-            char name[1024];
-            sprintf(name, "filterbitmap_text_%.2fpt", fTextSize);
-            setName(name);
+            fName.printf("filterbitmap_text_%.2fpt", fTextSize);
         }
 
   protected:
@@ -143,9 +137,7 @@ class FilterBitmapCheckerboardGM: public FilterBitmapGM {
       FilterBitmapCheckerboardGM(int size, int num_checks)
       : fSize(size), fNumChecks(num_checks)
         {
-            char name[1024];
-            sprintf(name, "filterbitmap_checkerboard_%d_%d", fSize, fNumChecks);
-            setName(name);
+            fName.printf("filterbitmap_checkerboard_%d_%d", fSize, fNumChecks);
         }
 
   protected:
@@ -182,9 +174,7 @@ class FilterBitmapImageGM: public FilterBitmapGM {
       FilterBitmapImageGM(const char filename[])
       : fFilename(filename)
         {
-            char name[1024];
-            sprintf(name, "filterbitmap_image_%s", filename);
-            setName(name);
+            fName.printf("filterbitmap_image_%s", filename);
         }
 
   protected:
