@@ -373,6 +373,14 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
                                         "MIPMaps.");
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
+        default:
+            SkErrorInternals::SetError( kInvalidPaint_SkError,
+                                        "Sorry, I don't understand the filtering "
+                                        "mode you asked for.  Falling back to "
+                                        "MIPMaps.");
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+        
     }
     GrTextureParams params(tm, textureFilterMode);
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fRawBitmap, &params);
