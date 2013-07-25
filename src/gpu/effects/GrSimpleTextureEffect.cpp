@@ -110,7 +110,8 @@ GrEffectRef* GrSimpleTextureEffect::TestCreate(SkMWCRandom* random,
         kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, random->nextBool());
+    GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
+                                                           GrTextureParams::kNone_FilterMode);
 
     static const CoordsType kCoordsTypes[] = {
         kLocal_CoordsType,

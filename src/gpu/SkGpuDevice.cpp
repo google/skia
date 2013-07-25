@@ -24,6 +24,7 @@
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkUtils.h"
+#include "SkErrorInternals.h"
 
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
 
@@ -1134,7 +1135,28 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
 
     GrTextureParams params;
-    params.setBilerp(paint.isFilterBitmap());
+    SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
+    GrTextureParams::FilterMode textureFilterMode;
+    switch(paintFilterLevel) {
+        case SkPaint::kNone_FilterLevel:
+            textureFilterMode = GrTextureParams::kNone_FilterMode;
+            break;
+        case SkPaint::kLow_FilterLevel:
+            textureFilterMode = GrTextureParams::kBilerp_FilterMode;
+            break;
+        case SkPaint::kMedium_FilterLevel:
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+        case SkPaint::kHigh_FilterLevel:
+            SkErrorInternals::SetError( kInvalidPaint_SkError,
+                                        "Sorry, I don't yet support high quality "
+                                        "filtering on the GPU.  Falling back to "
+                                        "MIPMaps.");
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+    }
+    
+    params.setFilterMode(textureFilterMode);
 
     if (!this->shouldTileBitmap(bitmap, params, srcRectPtr)) {
         // take the simple case
@@ -1278,7 +1300,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fBottom, hInv));
 
     bool needsTextureDomain = false;
-    if (params.isBilerp()) {
+    if (params.filterMode() != GrTextureParams::kNone_FilterMode) {
         // Need texture domain if drawing a sub rect.
         needsTextureDomain = srcRect.width() < bitmap.width() ||
                              srcRect.height() < bitmap.height();
@@ -1323,7 +1345,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                    SkMatrix::I(),
                                                    textureDomain,
                                                    GrTextureDomainEffect::kClamp_WrapMode,
-                                                   params.isBilerp()));
+                                                   params.filterMode()));
     } else {
         effect.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }

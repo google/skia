@@ -132,10 +132,10 @@ GrTexture* GaussianBlur(GrContext* context,
                 matrix,
                 domain,
                 GrTextureDomainEffect::kDecal_WrapMode,
-                true));
+                GrTextureParams::kBilerp_FilterMode));
             paint.addColorEffect(effect);
         } else {
-            GrTextureParams params(SkShader::kClamp_TileMode, true);
+            GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
             paint.addColorTextureEffect(srcTexture, matrix, params);
         }
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
@@ -199,7 +199,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
         GrPaint paint;
         // FIXME:  this should be mitchell, not bilinear.
-        GrTextureParams params(SkShader::kClamp_TileMode, true);
+        GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         paint.addColorTextureEffect(srcTexture, matrix, params);
 
         SkRect dstRect(srcRect);

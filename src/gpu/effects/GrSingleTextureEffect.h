@@ -30,7 +30,8 @@ protected:
     /** unfiltered, clamp mode */
     GrSingleTextureEffect(GrTexture*, const SkMatrix&, CoordsType = kLocal_CoordsType);
     /** clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp, CoordsType = kLocal_CoordsType);
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrTextureParams::FilterMode filterMode, 
+                          CoordsType = kLocal_CoordsType);
     GrSingleTextureEffect(GrTexture*,
                           const SkMatrix&,
                           const GrTextureParams&,

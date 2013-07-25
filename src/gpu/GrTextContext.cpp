@@ -33,7 +33,7 @@ void GrTextContext::flushGlyphs() {
         // setup our sampler state for our text texture/atlas
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
-        GrTextureParams params(SkShader::kRepeat_TileMode, false);
+        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
 
         // This effect could be stored with one of the cache objects (atlas?)
         drawState->addCoverageEffect(

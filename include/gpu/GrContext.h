@@ -901,7 +901,7 @@ private:
                                     const GrCacheID& cacheID,
                                     void* srcData,
                                     size_t rowBytes,
-                                    bool needsFiltering);
+                                    bool filter);
 
     // Needed so GrTexture's returnToCache helper function can call
     // addExistingTextureToCache

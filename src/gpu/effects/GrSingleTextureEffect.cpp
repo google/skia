@@ -18,9 +18,9 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
-                                             bool bilerp,
+                                             GrTextureParams::FilterMode filterMode,
                                              CoordsType coordsType)
-    : fTextureAccess(texture, bilerp)
+    : fTextureAccess(texture, filterMode)
     , fMatrix(m)
     , fCoordsType(coordsType) {
     this->addTextureAccess(&fTextureAccess);

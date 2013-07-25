@@ -21,9 +21,9 @@ GrTextureAccess::GrTextureAccess(GrTexture* texture, const GrTextureParams& para
 }
 
 GrTextureAccess::GrTextureAccess(GrTexture* texture,
-                                 bool bilerp,
+                                 GrTextureParams::FilterMode filterMode,
                                  SkShader::TileMode tileXAndY) {
-    this->reset(texture, bilerp, tileXAndY);
+    this->reset(texture, filterMode, tileXAndY);
 }
 
 GrTextureAccess::GrTextureAccess(GrTexture* texture,
@@ -34,9 +34,9 @@ GrTextureAccess::GrTextureAccess(GrTexture* texture,
 
 GrTextureAccess::GrTextureAccess(GrTexture* texture,
                                  const char* swizzle,
-                                 bool bilerp,
+                                 GrTextureParams::FilterMode filterMode,
                                  SkShader::TileMode tileXAndY) {
-    this->reset(texture, swizzle, bilerp, tileXAndY);
+    this->reset(texture, swizzle, filterMode, tileXAndY);
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
@@ -52,12 +52,12 @@ void GrTextureAccess::reset(GrTexture* texture,
 
 void GrTextureAccess::reset(GrTexture* texture,
                             const char* swizzle,
-                            bool bilerp,
+                            GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY) {
     GrAssert(NULL != texture);
     GrAssert(strlen(swizzle) >= 1 && strlen(swizzle) <= 4);
 
-    fParams.reset(tileXAndY, bilerp);
+    fParams.reset(tileXAndY, filterMode);
     fTexture.reset(SkRef(texture));
     this->setSwizzle(swizzle);
 }
@@ -72,11 +72,11 @@ void GrTextureAccess::reset(GrTexture* texture,
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
-                            bool bilerp,
+                            GrTextureParams::FilterMode filterMode,
                             SkShader::TileMode tileXAndY) {
     GrAssert(NULL != texture);
     fTexture.reset(SkRef(texture));
-    fParams.reset(tileXAndY, bilerp);
+    fParams.reset(tileXAndY, filterMode);
     memcpy(fSwizzle, "rgba", 5);
     fSwizzleMask = kRGBA_GrColorComponentFlags;
 }

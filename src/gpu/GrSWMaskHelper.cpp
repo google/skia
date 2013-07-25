@@ -197,7 +197,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     drawState->addCoverageEffect(
                          GrSimpleTextureEffect::Create(texture,
                                                        maskMatrix,
-                                                       false,
+                                                       GrTextureParams::kNone_FilterMode,
                                                        GrEffect::kPosition_CoordsType))->unref();
 
     target->drawSimpleRect(dstRect);

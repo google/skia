@@ -306,7 +306,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            const GrCacheID& cacheID,
                                            void* srcData,
                                            size_t rowBytes,
-                                           bool needsFiltering) {
+                                           bool filter) {
     SkAutoTUnref<GrTexture> clampedTexture(this->findAndRefTexture(desc, cacheID, NULL));
     if (NULL == clampedTexture) {
         clampedTexture.reset(this->createTexture(NULL, desc, cacheID, srcData, rowBytes));
@@ -333,7 +333,8 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // if filtering is not desired then we want to ensure all
         // texels in the resampled image are copies of texels from
         // the original.
-        GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
+        GrTextureParams params(SkShader::kClamp_TileMode, filter ? GrTextureParams::kBilerp_FilterMode :
+                                                                   GrTextureParams::kNone_FilterMode);
         drawState->addColorTextureEffect(clampedTexture, SkMatrix::I(), params);
 
         drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs));
@@ -384,7 +385,7 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     if (GrTexture::NeedsResizing(resourceKey)) {
         texture = this->createResizedTexture(desc, cacheID,
                                              srcData, rowBytes,
-                                             GrTexture::NeedsFiltering(resourceKey));
+                                             GrTexture::NeedsBilerp(resourceKey));
     } else {
         texture= fGpu->createTexture(desc, srcData, rowBytes);
     }
