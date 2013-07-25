@@ -12,7 +12,6 @@
 #include "SkPicture.h"
 #include "SkString.h"
 #include "picture_utils.h"
-#include "TimerData.h"
 
 namespace sk_tools {
 
@@ -20,18 +19,26 @@ PictureBenchmark::PictureBenchmark()
 : fRepeats(1)
 , fLogger(NULL)
 , fRenderer(NULL)
-, fLogPerIter(false)
-, fPrintMin(false)
-, fShowWallTime(false)
-, fShowTruncatedWallTime(false)
-, fShowCpuTime(true)
-, fShowTruncatedCpuTime(false)
-, fShowGpuTime(false)
+, fTimerResult(TimerData::kAvg_Result)
+, fTimerTypes(0)
 , fTimeIndividualTiles(false)
 {}
 
 PictureBenchmark::~PictureBenchmark() {
     SkSafeUnref(fRenderer);
+}
+
+void PictureBenchmark::setTimersToShow(bool wall,
+                                       bool truncatedWall,
+                                       bool cpu,
+                                       bool truncatedCpu,
+                                       bool gpu) {
+    fTimerTypes = 0;
+    fTimerTypes |= wall ? TimerData::kWall_Flag : 0;
+    fTimerTypes |= truncatedWall ? TimerData::kTruncatedWall_Flag : 0;
+    fTimerTypes |= cpu ? TimerData::kCpu_Flag : 0;
+    fTimerTypes |= truncatedCpu ? TimerData::kTruncatedCpu_Flag : 0;
+    fTimerTypes |= gpu ? TimerData::kGpu_Flag : 0;
 }
 
 BenchTimer* PictureBenchmark::setupTimer(bool useGLTimer) {
@@ -77,6 +84,18 @@ void PictureBenchmark::run(SkPicture* pict) {
     usingGpu = fRenderer->isUsingGpuDevice();
 #endif
 
+    uint32_t timerTypes = fTimerTypes;
+    if (!usingGpu) {
+        timerTypes &= ~TimerData::kGpu_Flag;
+    }
+
+    const char* timeFormat;
+    if (TimerData::kPerIter_Result == fTimerResult) {
+        timeFormat = fRenderer->getPerIterTimeFormat().c_str();
+    } else {
+        timeFormat = fRenderer->getNormalTimeFormat().c_str();
+    }
+
     if (fTimeIndividualTiles) {
         TiledPictureRenderer* tiledRenderer = fRenderer->getTiledRenderer();
         SkASSERT(tiledRenderer && tiledRenderer->supportsTimingIndividualTiles());
@@ -110,11 +129,9 @@ void PictureBenchmark::run(SkPicture* pict) {
             // platforms. To work around this, we disable the gpu timer on the
             // long running timer.
             SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
-            TimerData longRunningTimerData(tiledRenderer->getPerIterTimeFormat(),
-                                           tiledRenderer->getNormalTimeFormat());
+            TimerData longRunningTimerData(1);
             SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer(false));
-            TimerData perTileTimerData(tiledRenderer->getPerIterTimeFormat(),
-                                       tiledRenderer->getNormalTimeFormat());
+            TimerData perTileTimerData(fRepeats);
             longRunningTimer->start();
             for (int i = 0; i < fRepeats; ++i) {
                 perTileTimer->start();
@@ -122,20 +139,18 @@ void PictureBenchmark::run(SkPicture* pict) {
                 perTileTimer->truncatedEnd();
                 tiledRenderer->resetState(false);
                 perTileTimer->end();
-                perTileTimerData.appendTimes(perTileTimer.get(), fRepeats - 1 == i);
+                perTileTimerData.appendTimes(perTileTimer.get());
             }
             longRunningTimer->truncatedEnd();
             tiledRenderer->resetState(true);
             longRunningTimer->end();
-            longRunningTimerData.appendTimes(longRunningTimer.get(), true);
+            longRunningTimerData.appendTimes(longRunningTimer.get());
 
             SkString configName = tiledRenderer->getConfigName();
             configName.appendf(": tile [%i,%i] out of [%i,%i]", x, y, xTiles, yTiles);
-            SkString result = perTileTimerData.getResult(fLogPerIter, fPrintMin, fRepeats,
-                                                         configName.c_str(), fShowWallTime,
-                                                         fShowTruncatedWallTime, fShowCpuTime,
-                                                         fShowTruncatedCpuTime,
-                                                         usingGpu && fShowGpuTime);
+
+            SkString result = perTileTimerData.getResult(timeFormat, fTimerResult,
+                                                         configName.c_str(), timerTypes);
             result.append("\n");
 
 // TODO(borenet): Turn off per-iteration tile time reporting for now.  Avoiding logging the time
@@ -147,15 +162,16 @@ void PictureBenchmark::run(SkPicture* pict) {
 #endif
 
             configName.append(" <averaged>");
-            SkString longRunningResult = longRunningTimerData.getResult(false, false, fRepeats,
-                    configName.c_str(), fShowWallTime, fShowTruncatedWallTime,
-                    fShowCpuTime, fShowTruncatedCpuTime, usingGpu && fShowGpuTime);
+            SkString longRunningResult = longRunningTimerData.getResult(
+                tiledRenderer->getNormalTimeFormat().c_str(),
+                TimerData::kAvg_Result,
+                configName.c_str(), timerTypes, fRepeats);
             longRunningResult.append("\n");
             this->logProgress(longRunningResult.c_str());
         }
     } else {
         SkAutoTDelete<BenchTimer> timer(this->setupTimer());
-        TimerData timerData(fRenderer->getPerIterTimeFormat(), fRenderer->getNormalTimeFormat());
+        TimerData timerData(fRepeats);
         for (int i = 0; i < fRepeats; ++i) {
             fRenderer->setup();
 
@@ -167,14 +183,15 @@ void PictureBenchmark::run(SkPicture* pict) {
             fRenderer->resetState(true);
             timer->end();
 
-            timerData.appendTimes(timer.get(), fRepeats - 1 == i);
+            timerData.appendTimes(timer.get());
         }
 
         SkString configName = fRenderer->getConfigName();
-        SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
-                                              configName.c_str(), fShowWallTime,
-                                              fShowTruncatedWallTime, fShowCpuTime,
-                                              fShowTruncatedCpuTime, usingGpu && fShowGpuTime);
+
+        SkString result = timerData.getResult(timeFormat,
+                                              fTimerResult,
+                                              configName.c_str(),
+                                              timerTypes);
         result.append("\n");
         this->logProgress(result.c_str());
     }

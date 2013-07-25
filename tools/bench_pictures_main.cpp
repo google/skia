@@ -349,8 +349,13 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
     }
 
     renderer->setDrawFilters(drawFilters, filtersName(drawFilters));
-    benchmark->setPrintMin(FLAGS_min);
-    benchmark->setLogPerIter(FLAGS_logPerIter);
+    if (FLAGS_logPerIter) {
+        benchmark->setTimerResultType(TimerData::kPerIter_Result);
+    } else if (FLAGS_min) {
+        benchmark->setTimerResultType(TimerData::kMin_Result);
+    } else {
+        benchmark->setTimerResultType(TimerData::kAvg_Result);
+    }
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(FLAGS_repeat);
     benchmark->setLogger(&gLogger);
