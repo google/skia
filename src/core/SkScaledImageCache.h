@@ -34,11 +34,11 @@ public:
     static ID* FindAndLock(const SkBitmap& original, SkScalar scaleX,
                            SkScalar scaleY, SkBitmap* scaled);
     static ID* FindAndLockMip(const SkBitmap& original, SkMipMap const**);
-    
+
     static ID* AddAndLock(const SkBitmap& original, SkScalar scaleX,
                           SkScalar scaleY, const SkBitmap& scaled);
     static ID* AddAndLockMip(const SkBitmap& original, const SkMipMap*);
-    
+
     static void Unlock(ID*);
 
     static size_t GetBytesUsed();

@@ -95,13 +95,13 @@ static bool valid_for_filtering(unsigned dimension) {
 
 static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
     SkPoint v1, v2;
-    
+
     v1.fX = mat.getScaleX();
     v1.fY = mat.getSkewY();
-    
+
     v2.fX = mat.getSkewX();
     v2.fY = mat.getScaleY();
-    
+
     return SkMaxScalar(v1.lengthSqd(), v2.lengthSqd());
 }
 
@@ -166,7 +166,7 @@ void SkBitmapProcState::possiblyScaleImage() {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
                 return;
-                
+
             }
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
                                                             invScaleX,
@@ -223,7 +223,7 @@ void SkBitmapProcState::possiblyScaleImage() {
         // want to reqeust mipmaps
         fFilterLevel = SkPaint::kMedium_FilterLevel;
     }
-    
+
     SkASSERT(SkPaint::kMedium_FilterLevel == fFilterLevel);
 
     /**
@@ -248,14 +248,14 @@ void SkBitmapProcState::possiblyScaleImage() {
         } else {
             SkASSERT(mip);
         }
-        
+
         if (mip) {
             SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
             SkMipMap::Level level;
             if (mip->extractLevel(levelScale, &level)) {
                 SkScalar invScaleFixup = level.fScale;
                 fInvMatrix.postScale(invScaleFixup, invScaleFixup);
-                
+
                 fScaledBitmap.setConfig(fOrigBitmap.config(),
                                         level.fWidth, level.fHeight,
                                         level.fRowBytes);
