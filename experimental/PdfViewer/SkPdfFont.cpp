@@ -311,7 +311,8 @@ static int skstoi(const SkPdfObject* str) {
     for (unsigned int i = 0 ; i < str->len(); i++) {
         ret = (ret << 8) + ((unsigned char*)str->c_str())[i];
     }
-    return ret;
+    // TODO(edisonn): character larger than 0x0000ffff not supported right now.
+    return ret & 0x0000ffff;
 }
 
 #define tokenIsKeyword(token,keyword) (token.fType == kKeyword_TokenType && token.fKeywordLength==sizeof(keyword)-1 && strncmp(token.fKeyword, keyword, sizeof(keyword)-1) == 0)

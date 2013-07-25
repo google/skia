@@ -385,6 +385,7 @@ static const unsigned char* readHexString(int level, const unsigned char* start,
         if (*in == kClosedInequityBracket_PdfDelimiter) {
             if (hasOut) { *out = code; }
             out++;
+            in++;
             break;
         }
 
