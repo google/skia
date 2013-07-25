@@ -908,20 +908,18 @@ void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             matrix.preTranslate(dx, dy);
         }
     }
-    this->drawBitmap(draw, *bitmapPtr, NULL, matrix, paint);
+    this->drawBitmap(draw, *bitmapPtr, matrix, paint);
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
-                             const SkIRect* srcRect, const SkMatrix& matrix,
-                             const SkPaint& paint) {
+                             const SkMatrix& matrix, const SkPaint& paint) {
     if (d.fClip->isEmpty()) {
         return;
     }
 
     SkMatrix transform = matrix;
     transform.postConcat(*d.fMatrix);
-    internalDrawBitmap(transform, d.fClipStack, *d.fClip, bitmap, srcRect,
-                       paint);
+    this->internalDrawBitmap(transform, d.fClipStack, *d.fClip, bitmap, NULL, paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
@@ -932,7 +930,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    internalDrawBitmap(matrix, d.fClipStack, *d.fClip, bitmap, NULL, paint);
+    this->internalDrawBitmap(matrix, d.fClipStack, *d.fClip, bitmap, NULL, paint);
 }
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,

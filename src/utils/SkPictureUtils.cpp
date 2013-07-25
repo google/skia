@@ -103,7 +103,6 @@ public:
         this->addBitmapFromPaint(paint);
     }
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix&, const SkPaint&) SK_OVERRIDE {
         this->addBitmap(bitmap);
     }

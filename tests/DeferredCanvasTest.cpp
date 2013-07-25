@@ -243,7 +243,6 @@ public:
         fDrawBitmapCallCount = 0;
     }
     virtual void drawBitmap(const SkDraw&, const SkBitmap&,
-                            const SkIRect*,
                             const SkMatrix&, const SkPaint&) SK_OVERRIDE {
         fDrawBitmapCallCount++;
     }

@@ -277,7 +277,6 @@ protected:
                           const SkMatrix* prePathMatrix = NULL,
                           bool pathIsMutable = false);
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint);
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);

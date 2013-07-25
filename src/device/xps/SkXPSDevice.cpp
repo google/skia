@@ -1949,25 +1949,13 @@ HRESULT SkXPSDevice::clipToPath(IXpsOMVisual* xpsVisual,
 }
 
 void SkXPSDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
-                             const SkIRect* srcRectOrNull,
                              const SkMatrix& matrix, const SkPaint& paint) {
     if (d.fClip->isEmpty()) {
         return;
     }
 
     SkIRect srcRect;
-    SkBitmap tmp;
-    const SkBitmap* bitmapPtr = &bitmap;
-    if (NULL == srcRectOrNull) {
-        srcRect.set(0, 0, bitmap.width(), bitmap.height());
-        bitmapPtr = &bitmap;
-    } else {
-        srcRect = *srcRectOrNull;
-        if (!bitmap.extractSubset(&tmp, srcRect)) {
-            return; // extraction failed
-        }
-        bitmapPtr = &tmp;
-    }
+    srcRect.set(0, 0, bitmap.width(), bitmap.height());
 
     //Create the new shaded path.
     SkTScopedComPtr<IXpsOMPath> shadedPath;
@@ -2007,7 +1995,7 @@ void SkXPSDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
             SkShader::kClamp_TileMode,
         };
         SkTScopedComPtr<IXpsOMTileBrush> xpsImageBrush;
-        HRV(this->createXpsImageBrush(*bitmapPtr,
+        HRV(this->createXpsImageBrush(bitmap,
                                       transform,
                                       xy,
                                       paint.getAlpha(),

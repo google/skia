@@ -90,7 +90,6 @@ public:
                                 const SkRect* src, const SkRect& dst,
                                 const SkPaint& paint) SK_OVERRIDE;
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint&) SK_OVERRIDE;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
                             const SkPaint& paint) SK_OVERRIDE;

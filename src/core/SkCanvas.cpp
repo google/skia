@@ -955,7 +955,7 @@ static bool reject_bitmap(const SkBitmap& bitmap) {
     return  bitmap.width() <= 0 || bitmap.height() <= 0;
 }
 
-void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect,
+void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint* paint) {
     if (reject_bitmap(bitmap)) {
         return;
@@ -965,7 +965,17 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect
     if (NULL == paint) {
         paint = lazy.init();
     }
-    this->commonDrawBitmap(bitmap, srcRect, matrix, *paint);
+
+    SkDEBUGCODE(bitmap.validate();)
+    CHECK_LOCKCOUNT_BALANCE(bitmap);
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
+
+    while (iter.next()) {
+        iter.fDevice->drawBitmap(iter, bitmap, matrix, looper.paint());
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
@@ -1733,7 +1743,7 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 
     SkMatrix matrix;
     matrix.setTranslate(x, y);
-    this->internalDrawBitmap(bitmap, NULL, matrix, paint);
+    this->internalDrawBitmap(bitmap, matrix, paint);
 }
 
 // this one is non-virtual, so it can be called safely by other canvas apis
@@ -1779,21 +1789,7 @@ void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
 void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                                 const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmap(bitmap, NULL, matrix, paint);
-}
-
-void SkCanvas::commonDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect,
-                                const SkMatrix& matrix, const SkPaint& paint) {
-    SkDEBUGCODE(bitmap.validate();)
-    CHECK_LOCKCOUNT_BALANCE(bitmap);
-
-    LOOPER_BEGIN(paint, SkDrawFilter::kBitmap_Type)
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmap(iter, bitmap, srcRect, matrix, looper.paint());
-    }
-
-    LOOPER_END
+    this->internalDrawBitmap(bitmap, matrix, paint);
 }
 
 void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
