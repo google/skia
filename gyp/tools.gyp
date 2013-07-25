@@ -15,6 +15,7 @@
       'dependencies': [
         'bench_pictures',
         'filter',
+        'lua_pictures',
         'bbh_shootout',
         'lua_app',
         'pinspect',
