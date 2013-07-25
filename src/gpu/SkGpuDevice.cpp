@@ -1154,6 +1154,14 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                         "MIPMaps.");
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
+        default:
+            SkErrorInternals::SetError( kInvalidPaint_SkError,
+                                        "Sorry, I don't understand the filtering "
+                                        "mode you asked for.  Falling back to "
+                                        "MIPMaps.");
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+    
     }
     
     params.setFilterMode(textureFilterMode);
