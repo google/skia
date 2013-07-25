@@ -363,13 +363,13 @@ public:
 
         memset(fChars, 0, sizeof(fChars[0]) * (fLastChar - fFirstChar + 1));
 
-
         const SkPdfArray* widths = dict->Widths(parsed);
         for (unsigned int i = 0 ; i < widths->size(); i++) {
-            if ((fFirstChar + i) < fFirstChar || (fFirstChar + i) > fLastChar) {
-                printf("break; error 1\n");
+            if ((fFirstChar + i) >= fFirstChar && (fFirstChar + i) <= fLastChar) {
+                fChars[i].fWidth = (*widths)[i]->numberValue();
+            } else {
+                // TODO(edisonn): report pdf corruption
             }
-            fChars[i].fWidth = (*widths)[i]->numberValue();
         }
 
         const SkPdfArray* diffs = fEncodingDict->Differences(parsed);
@@ -378,13 +378,14 @@ public:
             if ((*diffs)[i]->isInteger()) {
                 j = (unsigned int)(*diffs)[i]->intValue();
             } else if ((*diffs)[i]->isName()) {
-                if (j < fFirstChar || j > fLastChar) {
-                    printf("break; error 2\n");
+                if (j >= fFirstChar && j <= fLastChar) {
+                    fChars[j - fFirstChar].fObj = fCharProcs->get((*diffs)[i]);
+                } else {
+                    // TODO(edisonn): report pdf corruption
                 }
-                fChars[j - fFirstChar].fObj = fCharProcs->get((*diffs)[i]);
                 j++;
             } else {
-                // err
+                // TODO(edisonn): report bad pdf
             }
         }
     }

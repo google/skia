@@ -139,7 +139,7 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
                                                    PNG_FILE_EXTENSION);
 }
 
-static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorWHITE) {
+static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorTRANSPARENT) {
     bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
 
     bitmap->allocPixels();
