@@ -157,9 +157,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     DiffRecord* currentRecord = fRecords;
     if (useJSONP) {
         stream.writeText("var SkPDiffRecords = {\n");
-    }
-    else
-    {
+    } else {
         stream.writeText("{\n");
     }
     stream.writeText("    \"records\": [\n");
@@ -198,8 +196,8 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
                         stream.writeText("]");
 
                         // JSON does not allow trailing commas
-                        if (poiIndex + 1 < data.fPointsOfInterest.count())
-                        {
+                        if (poiIndex + 1 < data.fPointsOfInterest.count() &&
+                            poiIndex + 1 < kMaxPOI) {
                             stream.writeText(",");
                         }
                         stream.writeText("\n");
@@ -208,8 +206,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
                 stream.writeText("                }");
 
                 // JSON does not allow trailing commas
-                if (diffIndex + 1 < currentRecord->fDiffs.count())
-                {
+                if (diffIndex + 1 < currentRecord->fDiffs.count()) {
                     stream.writeText(",");
                 }
                 stream.writeText("                \n");
@@ -219,8 +216,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
         stream.writeText("        }");
 
         // JSON does not allow trailing commas
-        if (NULL != currentRecord->fNext)
-        {
+        if (NULL != currentRecord->fNext) {
             stream.writeText(",");
         }
         stream.writeText("\n");
@@ -229,9 +225,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     stream.writeText("    ]\n");
     if (useJSONP) {
         stream.writeText("};\n");
-    }
-    else
-    {
+    } else {
         stream.writeText("}\n");
     }
 }
