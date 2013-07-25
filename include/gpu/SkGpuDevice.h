@@ -81,7 +81,6 @@ public:
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) SK_OVERRIDE;
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix&, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,

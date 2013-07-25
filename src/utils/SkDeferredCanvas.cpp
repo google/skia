@@ -203,7 +203,6 @@ protected:
                             bool pathIsMutable = false) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
