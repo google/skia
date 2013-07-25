@@ -312,7 +312,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile) {
         unsigned int num;
         int formats[64];
         extensions.choosePixelFormat(dc, msaaIAttrs, fAttrs, 64, formats, &num);
-        num = SkTMin(num, 64U);
+        num = min(num,64);
         int formatToTry = extensions.selectFormat(formats,
                                                   num,
                                                   dc,

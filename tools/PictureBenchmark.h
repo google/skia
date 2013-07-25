@@ -10,7 +10,6 @@
 
 #include "SkTypes.h"
 #include "PictureRenderer.h"
-#include "TimerData.h"
 
 class BenchTimer;
 class SkBenchLogger;
@@ -46,19 +45,32 @@ public:
 
     PictureRenderer* setRenderer(PictureRenderer*);
 
-    void setTimerResultType(TimerData::Result resultType) { fTimerResult = resultType; }
+    void setLogPerIter(bool log) { fLogPerIter = log; }
 
-    void setTimersToShow(bool wall, bool truncatedWall, bool cpu, bool truncatedCpu, bool gpu);
+    void setPrintMin(bool min) { fPrintMin = min; }
+
+    void setTimersToShow(bool wall, bool truncatedWall, bool cpu, bool truncatedCpu, bool gpu) {
+        fShowWallTime = wall;
+        fShowTruncatedWallTime = truncatedWall;
+        fShowCpuTime = cpu;
+        fShowTruncatedCpuTime = truncatedCpu;
+        fShowGpuTime = gpu;
+    }
 
     void setLogger(SkBenchLogger* logger) { fLogger = logger; }
 
 private:
-    int               fRepeats;
-    SkBenchLogger*    fLogger;
-    PictureRenderer*  fRenderer;
-    TimerData::Result fTimerResult;
-    uint32_t          fTimerTypes; // bitfield of TimerData::TimerFlags values
-    bool              fTimeIndividualTiles;
+    int              fRepeats;
+    SkBenchLogger*   fLogger;
+    PictureRenderer* fRenderer;
+    bool             fLogPerIter;
+    bool             fPrintMin;
+    bool             fShowWallTime;
+    bool             fShowTruncatedWallTime;
+    bool             fShowCpuTime;
+    bool             fShowTruncatedCpuTime;
+    bool             fShowGpuTime;
+    bool             fTimeIndividualTiles;
 
     void logProgress(const char msg[]);
 

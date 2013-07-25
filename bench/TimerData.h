@@ -10,54 +10,37 @@
 #define TimerData_DEFINED
 
 #include "SkString.h"
-#include "SkTemplates.h"
-
 
 class BenchTimer;
 
 class TimerData {
 public:
-    /**
-     * Constructs a TimerData to hold at most maxNumTimings sets of elapsed timer values.
-     **/
-    explicit TimerData(int maxNumTimings);
+    TimerData(const SkString& perIterTimeFormat, const SkString& normalTimeFormat);
 
     /**
-     * Collect times from the BenchTimer for an iteration. It will fail if called more often than
-     * indicated in the constructor.
-     *
+     * Append the value from each timer in BenchTimer to our various strings, and update the
+     * minimum and sum times.
      * @param BenchTimer Must not be null.
+     * @param last True if this is the last set of times to add.
      */
-    bool appendTimes(BenchTimer*);
-
-    enum Result {
-        kMin_Result,
-        kAvg_Result,
-        kPerIter_Result
-    };
-
-    enum TimerFlags {
-        kWall_Flag              = 0x1,
-        kTruncatedWall_Flag     = 0x2,
-        kCpu_Flag               = 0x4,
-        kTruncatedCpu_Flag      = 0x8,
-        kGpu_Flag               = 0x10
-    };
-
-    SkString getResult(const char* doubleFormat,
-                       Result result,
-                       const char* configName,
-                       uint32_t timerFlags,
-                       int itersPerTiming = 1);
+    void appendTimes(BenchTimer*, bool last);
+    SkString getResult(bool logPerIter, bool printMin, int repeatDraw, const char* configName,
+                       bool showWallTime, bool showTruncatedWallTime, bool showCpuTime,
+                       bool showTruncatedCpuTime, bool showGpuTime);
 private:
-    int fMaxNumTimings;
-    int fCurrTiming;
+    SkString fWallStr;
+    SkString fTruncatedWallStr;
+    SkString fCpuStr;
+    SkString fTruncatedCpuStr;
+    SkString fGpuStr;
+    double fWallSum, fWallMin;
+    double fTruncatedWallSum, fTruncatedWallMin;
+    double fCpuSum, fCpuMin;
+    double fTruncatedCpuSum, fTruncatedCpuMin;
+    double fGpuSum, fGpuMin;
 
-    SkAutoTArray<double> fWallTimes;
-    SkAutoTArray<double> fTruncatedWallTimes;
-    SkAutoTArray<double> fCpuTimes;
-    SkAutoTArray<double> fTruncatedCpuTimes;
-    SkAutoTArray<double> fGpuTimes;
+    SkString fPerIterTimeFormat;
+    SkString fNormalTimeFormat;
 };
 
 #endif // TimerData_DEFINED
