@@ -72,10 +72,7 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImage::Info& info) {
 }
 
 SkImage* SkSurface_Gpu::onNewImageSnapshot() {
-
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
-
-    return SkImage::NewTexture(rt->asTexture());
+    return SkImage::NewTexture(fDevice->accessBitmap(false));
 }
 
 void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,

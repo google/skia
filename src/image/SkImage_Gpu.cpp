@@ -17,7 +17,7 @@ class SkImage_Gpu : public SkImage_Base {
 public:
     SK_DECLARE_INST_COUNT(SkImage_Gpu)
 
-    SkImage_Gpu(GrTexture*);
+    explicit SkImage_Gpu(const SkBitmap&);
     virtual ~SkImage_Gpu();
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) SK_OVERRIDE;
@@ -28,12 +28,9 @@ public:
         return false;
     }
 
-    GrTexture* getTexture() { return fTexture; }
-
-    void setTexture(GrTexture* texture);
+    GrTexture* getTexture() { return fBitmap.getTexture(); }
 
 private:
-    GrTexture*  fTexture;
     SkBitmap    fBitmap;
 
     typedef SkImage_Base INHERITED;
@@ -43,18 +40,13 @@ SK_DEFINE_INST_COUNT(SkImage_Gpu)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage_Gpu::SkImage_Gpu(GrTexture* texture)
-    : INHERITED(texture->width(), texture->height())
-    , fTexture(texture) {
-
-    SkASSERT(NULL != fTexture);
-    fTexture->ref();
-    fBitmap.setConfig(SkBitmap::kARGB_8888_Config, fTexture->width(), fTexture->height());
-    fBitmap.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (fTexture)))->unref();
+SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap)
+    : INHERITED(bitmap.width(), bitmap.height())
+    , fBitmap(bitmap) {
+    SkASSERT(NULL != fBitmap.getTexture());
 }
 
 SkImage_Gpu::~SkImage_Gpu() {
-    SkSafeUnref(fTexture);
 }
 
 void SkImage_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
@@ -68,33 +60,19 @@ void SkImage_Gpu::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const Sk
 }
 
 GrTexture* SkImage_Gpu::onGetTexture() {
-    return fTexture;
-}
-
-void SkImage_Gpu::setTexture(GrTexture* texture) {
-
-    if (texture == fTexture) {
-        return;
-    }
-
-    SkRefCnt_SafeAssign(fTexture, texture);
-    fBitmap.setPixelRef(new SkGrPixelRef(texture))->unref();
+    return fBitmap.getTexture();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkImage::NewTexture(GrTexture* texture) {
-    if (NULL == texture) {
+SkImage* SkImage::NewTexture(const SkBitmap& bitmap) {
+    if (NULL == bitmap.getTexture()) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkImage_Gpu, (texture));
+    return SkNEW_ARGS(SkImage_Gpu, (bitmap));
 }
 
 GrTexture* SkTextureImageGetTexture(SkImage* image) {
     return ((SkImage_Gpu*)image)->getTexture();
-}
-
-void SkTextureImageSetTexture(SkImage* image, GrTexture* texture) {
-    ((SkImage_Gpu*)image)->setTexture(texture);
 }
