@@ -268,7 +268,7 @@ static bool benchmark_loop(
         const BenchmarkControl& benchControl,
         SkTArray<Histogram>& histogram) {
     static const SkString timeFormat("%f");
-    TimerData timerData(argc - 1);
+    TimerData timerData(timeFormat, timeFormat);
     for (int index = 1; index < argc; ++index) {
         BenchTimer timer;
         SkString path(argv[index]);
@@ -278,17 +278,22 @@ static bool benchmark_loop(
             continue;
         }
         benchControl.fFunction(benchControl.fType, benchControl.fTileSize, path, pic, &timer);
-        timerData.appendTimes(&timer);
+        timerData.appendTimes(&timer, argc - 1 == index);
 
         histogram[index - 1].fPath = path;
         histogram[index - 1].fCpuTime = SkDoubleToScalar(timer.fCpu);
     }
 
     const SkString timerResult = timerData.getResult(
-            /*doubleFormat = */ timeFormat.c_str(),
-            /*result = */ TimerData::kAvg_Result,
+            /*logPerIter = */ false,
+            /*printMin = */ false,
+            /*repeatDraw = */ 1,
             /*configName = */ benchControl.fName.c_str(),
-            /*timerFlags = */ TimerData::kCpu_Flag);
+            /*showWallTime = */ false,
+            /*showTruncatedWallTime = */ false,
+            /*showCpuTime = */ true,
+            /*showTruncatedCpuTime = */ false,
+            /*showGpuTime = */ false);
 
     const char findStr[] = "= ";
     int pos = timerResult.find(findStr);
