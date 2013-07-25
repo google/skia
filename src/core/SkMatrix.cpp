@@ -1968,7 +1968,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
 }
 
 bool SkDecomposeUpper2x2(const SkMatrix& matrix,
-                         SkScalar* rotation0, 
+                         SkScalar* rotation0,
                          SkScalar* xScale, SkScalar* yScale,
                          SkScalar* rotation1) {
 
@@ -2014,7 +2014,7 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
         SkScalar arctan1 = SkScalarATan2(G, F);
         r0 = SK_ScalarHalf*(arctan0 - arctan1);
         r1 = SK_ScalarHalf*(arctan0 + arctan1);
-        
+
         // simplify the results
         const SkScalar kHalfPI = SK_ScalarHalf*SK_ScalarPI;
         if (SkScalarNearlyEqual(SkScalarAbs(r0), kHalfPI)) {

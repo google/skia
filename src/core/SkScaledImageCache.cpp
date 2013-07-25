@@ -113,17 +113,17 @@ struct SkScaledImageCache::Rec {
         fLockCount = 1;
         fMip = NULL;
     }
-    
+
     Rec(const Key& key, const SkMipMap* mip) : fKey(key) {
         fLockCount = 1;
         fMip = mip;
         mip->ref();
     }
-    
+
     ~Rec() {
         SkSafeUnref(fMip);
     }
-    
+
     size_t bytesUsed() const {
         return fMip ? fMip->getSize() : fBitmap.getSize();
     }
@@ -135,7 +135,7 @@ struct SkScaledImageCache::Rec {
     Key     fKey;
 
     int32_t fLockCount;
-    
+
     // we use either fBitmap or fMip, but not both
     SkBitmap fBitmap;
     const SkMipMap* fMip;
@@ -165,7 +165,7 @@ SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkBitmap& orig,
     if (!key.init(orig, scaleX, scaleY)) {
         return NULL;
     }
-    
+
     Rec* rec = fHead;
     while (rec != NULL) {
         if (rec->fKey == key) {
@@ -220,11 +220,11 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
     if (!key.init(orig, scaleX, scaleY)) {
         return NULL;
     }
-    
+
     Rec* rec = SkNEW_ARGS(Rec, (key, scaled));
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
-    
+
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
     return (ID*)rec;
@@ -236,11 +236,11 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
     if (!key.init(orig, 0, 0)) {
         return NULL;
     }
-    
+
     Rec* rec = SkNEW_ARGS(Rec, (key, mip));
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
-    
+
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
     return (ID*)rec;

@@ -347,7 +347,7 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
 }
 
 // For test_matrix_decomposition, below.
-static bool scalar_nearly_equal_relative(SkScalar a, SkScalar b, 
+static bool scalar_nearly_equal_relative(SkScalar a, SkScalar b,
                                          SkScalar tolerance = SK_ScalarNearlyZero) {
     // from Bruce Dawson
     SkScalar diff = SkScalarAbs(a - b);
@@ -515,11 +515,11 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
             SkScalar s1 = SkScalarSinCos(rotation1, &c1);
             REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
                                                                    scaleX*c0*c1 - scaleY*s0*s1));
-            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX], 
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewX],
                                                                    -scaleX*s0*c1 - scaleY*c0*s1));
-            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY], 
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMSkewY],
                                                                    scaleX*c0*s1 + scaleY*s0*c1));
-            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY], 
+            REPORTER_ASSERT(reporter, scalar_nearly_equal_relative(mat[SkMatrix::kMScaleY],
                                                                    -scaleX*s0*s1 + scaleY*c0*c1));
         } else {
             // if the matrix is degenerate, the basis vectors should be near-parallel or near-zero

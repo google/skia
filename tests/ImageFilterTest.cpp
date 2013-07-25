@@ -48,7 +48,7 @@ public:
             SkAutoTUnref<SkImageFilter> quarterBrightness(make_scale(0.5f, halfBrightness));
             REPORTER_ASSERT(reporter, NULL == quarterBrightness->getInput(0));
         }
-        
+
         {
             // Check that a clipping color matrix followed by a grayscale does not concatenate into a single filter.
             SkAutoTUnref<SkImageFilter> doubleBrightness(make_scale(2.0f));
