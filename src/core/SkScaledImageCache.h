@@ -88,10 +88,14 @@ public:
      */
     size_t setByteLimit(size_t newLimit);
 
-private:
+public:
     struct Rec;
+private:
     Rec*    fHead;
     Rec*    fTail;
+
+    class Hash;
+    Hash*   fHash;
 
     size_t  fBytesUsed;
     size_t  fByteLimit;

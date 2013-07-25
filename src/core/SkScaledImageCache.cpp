@@ -14,7 +14,7 @@
     #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
 
-#if 1
+
  // Implemented from en.wikipedia.org/wiki/MurmurHash.
 static uint32_t compute_hash(const uint32_t data[], int count) {
     uint32_t hash = 0;
@@ -40,20 +40,6 @@ static uint32_t compute_hash(const uint32_t data[], int count) {
 
     return hash;
 }
-#else
-static uint32_t mix(uint32_t a, uint32_t b) {
-    return ((a >> 1) | (a << 31)) ^ b;
-}
-
-static uint32_t compute_hash(const uint32_t data[], int count) {
-    uint32_t hash = 0;
-
-    for (int i = 0; i < count; ++i) {
-        hash = mix(hash, data[i]);
-    }
-    return hash;
-}
-#endif
 
 struct Key {
     bool init(const SkBitmap& bm, SkScalar scaleX, SkScalar scaleY) {
@@ -76,7 +62,7 @@ struct Key {
         return true;
     }
 
-    bool operator<(const Key& other) {
+    bool operator<(const Key& other) const {
         const uint32_t* a = &fGenID;
         const uint32_t* b = &other.fGenID;
         for (int i = 0; i < 7; ++i) {
@@ -90,7 +76,7 @@ struct Key {
         return false;
     }
 
-    bool operator==(const Key& other) {
+    bool operator==(const Key& other) const {
         const uint32_t* a = &fHash;
         const uint32_t* b = &other.fHash;
         for (int i = 0; i < 8; ++i) {
@@ -141,9 +127,36 @@ struct SkScaledImageCache::Rec {
     const SkMipMap* fMip;
 };
 
+#include "SkTDynamicHash.h"
+
+static const Key& key_from_rec(const SkScaledImageCache::Rec& rec) {
+    return rec.fKey;
+}
+
+static uint32_t hash_from_key(const Key& key) {
+    return key.fHash;
+}
+
+static bool eq_rec_key(const SkScaledImageCache::Rec& rec, const Key& key) {
+    return rec.fKey == key;
+}
+
+class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
+                                   Key, key_from_rec, hash_from_key,
+                                   eq_rec_key> {};
+
+///////////////////////////////////////////////////////////////////////////////
+
+//#define USE_HASH
+
 SkScaledImageCache::SkScaledImageCache(size_t byteLimit) {
     fHead = NULL;
     fTail = NULL;
+#ifdef USE_HASH
+    fHash = new Hash;
+#else
+    fHash = NULL;
+#endif
     fBytesUsed = 0;
     fByteLimit = byteLimit;
     fCount = 0;
@@ -156,6 +169,7 @@ SkScaledImageCache::~SkScaledImageCache() {
         SkDELETE(rec);
         rec = next;
     }
+    delete fHash;
 }
 
 SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkBitmap& orig,
@@ -166,16 +180,23 @@ SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkBitmap& orig,
         return NULL;
     }
 
+#ifdef USE_HASH
+    Rec* rec = fHash->find(key);
+#else
     Rec* rec = fHead;
     while (rec != NULL) {
         if (rec->fKey == key) {
-            this->moveToHead(rec);  // for our LRU
-            rec->fLockCount += 1;
-            return rec;
+            break;
         }
         rec = rec->fNext;
     }
-    return NULL;
+#endif
+
+    if (rec) {
+        this->moveToHead(rec);  // for our LRU
+        rec->fLockCount += 1;
+    }
+    return rec;
 }
 
 SkScaledImageCache::ID* SkScaledImageCache::findAndLock(const SkBitmap& orig,
@@ -225,6 +246,10 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
 
+#ifdef USE_HASH
+    fHash->add(key, rec);
+#endif
+
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
     return (ID*)rec;
@@ -240,6 +265,10 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
     Rec* rec = SkNEW_ARGS(Rec, (key, mip));
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
+
+#ifdef USE_HASH
+    fHash->add(key, rec);
+#endif
 
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
@@ -292,6 +321,10 @@ void SkScaledImageCache::purgeAsNeeded() {
             SkASSERT(used <= bytesUsed);
             bytesUsed -= used;
             this->detach(rec);
+#ifdef USE_HASH
+            fHash->remove(rec->fKey);
+#endif
+            
             SkDELETE(rec);
             fCount -= 1;
         }
