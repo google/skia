@@ -348,20 +348,20 @@ int tool_main(int argc, char** argv) {
 
     SkTDict<const char*> defineDict(1024);
     int repeatDraw = 1;
-    bool logPerIter = false;
+
     int forceAlpha = 0xFF;
     bool forceAA = true;
     bool forceFilter = false;
     SkTriState::State forceDither = SkTriState::kDefault;
-    bool timerWall = false;
-    bool truncatedTimerWall = false;
-    bool timerCpu = true;
-    bool truncatedTimerCpu = false;
-    bool timerGpu = true;
+
+    static const uint32_t kDefaultTimerTypes = TimerData::kCpu_Flag | TimerData::kGpu_Flag;
+    static const TimerData::Result kDefaultTimerResult = TimerData::kAvg_Result;
+    uint32_t timerTypes = kDefaultTimerTypes;
+    TimerData::Result timerResult = kDefaultTimerResult;
+
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
-    bool printMin = false;
     bool hasStrokeWidth = false;
 
 #if SK_SUPPORT_GPU
@@ -410,22 +410,18 @@ int tool_main(int argc, char** argv) {
                 return -1;
             }
         } else if (strcmp(*argv, "--logPerIter") == 0) {
-            logPerIter = true;
+            timerResult = TimerData::kPerIter_Result;
         } else if (strcmp(*argv, "--timers") == 0) {
             argv++;
             if (argv < stop) {
-                timerWall = false;
-                truncatedTimerWall = false;
-                timerCpu = false;
-                truncatedTimerCpu = false;
-                timerGpu = false;
+                timerTypes = 0;
                 for (char* t = *argv; *t; ++t) {
                     switch (*t) {
-                    case 'w': timerWall = true; break;
-                    case 'c': timerCpu = true; break;
-                    case 'W': truncatedTimerWall = true; break;
-                    case 'C': truncatedTimerCpu = true; break;
-                    case 'g': timerGpu = true; break;
+                    case 'w': timerTypes |= TimerData::kWall_Flag; break;
+                    case 'c': timerTypes |= TimerData::kCpu_Flag; break;
+                    case 'W': timerTypes |= TimerData::kTruncatedWall_Flag; break;
+                    case 'C': timerTypes |= TimerData::kTruncatedCpu_Flag; break;
+                    case 'g': timerTypes |= TimerData::kGpu_Flag; break;
                     }
                 }
             } else {
@@ -440,7 +436,7 @@ int tool_main(int argc, char** argv) {
         } else if (!strcmp(*argv, "--clip")) {
             doClip = true;
         } else if (!strcmp(*argv, "--min")) {
-            printMin = true;
+            timerResult = TimerData::kMin_Result;
         } else if (strcmp(*argv, "--forceAA") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceAA)) {
                 logger.logError("missing arg for --forceAA\n");
@@ -648,9 +644,9 @@ int tool_main(int argc, char** argv) {
         str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d "
                    "deferred=%s logperiter=%d",
                    forceAlpha, forceAA, forceFilter, deferredMode,
-                   logPerIter);
+                   TimerData::kPerIter_Result == timerResult);
         str.appendf(" rotate=%d scale=%d clip=%d min=%d",
-                   doRotate, doScale, doClip, printMin);
+                   doRotate, doScale, doClip, TimerData::kMin_Result == timerResult);
         str.appendf(" record=%d picturerecord=%d",
                     benchMode == kRecord_benchModes,
                     benchMode == kPictureRecord_benchModes);
@@ -883,7 +879,7 @@ int tool_main(int argc, char** argv) {
                 }
 
                 // record timer values for each repeat, and their sum
-                TimerData timerData(perIterTimeformat, normalTimeFormat);
+                TimerData timerData(repeatDraw);
                 for (int i = 0; i < repeatDraw; i++) {
                     if ((benchMode == kRecord_benchModes || benchMode == kPictureRecord_benchModes)) {
                         // This will clear the recorded commands so that they do not
@@ -925,15 +921,24 @@ int tool_main(int argc, char** argv) {
                     // have completed
                     timer->end();
 
-                    timerData.appendTimes(timer, repeatDraw - 1 == i);
+                    timerData.appendTimes(timer);
 
                 }
                 if (repeatDraw > 1) {
-                    SkString result = timerData.getResult(
-                                        logPerIter, printMin, repeatDraw, configName,
-                                        timerWall, truncatedTimerWall, timerCpu,
-                                        truncatedTimerCpu,
-                                        timerGpu && NULL != context);
+                    const char* timeFormat;
+                    if (TimerData::kPerIter_Result == timerResult) {
+                        timeFormat = perIterTimeformat.c_str();
+                    } else {
+                        timeFormat = normalTimeFormat.c_str();
+                    }
+                    uint32_t filteredTimerTypes = timerTypes;
+                    if (NULL == context) {
+                        filteredTimerTypes &= ~TimerData::kGpu_Flag;
+                    }
+                    SkString result = timerData.getResult(timeFormat,
+                                        timerResult,
+                                        configName,
+                                        filteredTimerTypes);
                     logger.logProgress(result);
                 }
                 if (outDir.size() > 0 && kNonRendering_Backend != backend) {
