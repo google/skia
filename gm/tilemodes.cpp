@@ -54,35 +54,46 @@ static const SkBitmap::Config gConfigs[] = {
     SkBitmap::kARGB_8888_Config,
     SkBitmap::kRGB_565_Config,
 };
-static const int gWidth = 32;
-static const int gHeight = 32;
 
 class TilingGM : public skiagm::GM {
     SkBlurDrawLooper    fLooper;
 public:
-    TilingGM()
-            : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2),
-                      0x88000000) {
+    TilingGM(bool powerOfTwoSize)
+            : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2), 0x88000000)
+            , fPowerOfTwoSize(powerOfTwoSize) {
     }
 
     SkBitmap    fTexture[SK_ARRAY_COUNT(gConfigs)];
 
 protected:
+
+    enum {
+        kPOTSize = 32,
+        kNPOTSize = 21,
+    };
+
     SkString onShortName() {
-        return SkString("tilemodes");
+        SkString name("tilemodes");
+        if (!fPowerOfTwoSize) {
+            name.append("_npot");
+        }
+        return name;
     }
 
     SkISize onISize() { return SkISize::Make(880, 560); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
-            makebm(&fTexture[i], gConfigs[i], gWidth, gHeight);
+            makebm(&fTexture[i], gConfigs[i], size, size);
         }
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
-        SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
+        int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
+
+        SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
         static const char* gConfigNames[] = { "8888", "565", "4444" };
 
@@ -145,8 +156,12 @@ protected:
     }
 
 private:
+    bool fPowerOfTwoSize;
     typedef skiagm::GM INHERITED;
 };
+
+static const int gWidth = 32;
+static const int gHeight = 32;
 
 static SkShader* make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkBitmap bm;
@@ -248,6 +263,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new TilingGM; )
+DEF_GM( return new TilingGM(true); )
+DEF_GM( return new TilingGM(false); )
 DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
 DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
