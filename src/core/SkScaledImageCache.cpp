@@ -129,16 +129,18 @@ struct SkScaledImageCache::Rec {
 
 #include "SkTDynamicHash.h"
 
-static const Key& key_from_rec(const SkScaledImageCache::Rec& rec) {
+namespace { // can't use static functions w/ template parameters
+const Key& key_from_rec(const SkScaledImageCache::Rec& rec) {
     return rec.fKey;
 }
 
-static uint32_t hash_from_key(const Key& key) {
+uint32_t hash_from_key(const Key& key) {
     return key.fHash;
 }
 
-static bool eq_rec_key(const SkScaledImageCache::Rec& rec, const Key& key) {
+bool eq_rec_key(const SkScaledImageCache::Rec& rec, const Key& key) {
     return rec.fKey == key;
+}
 }
 
 class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
