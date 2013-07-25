@@ -4,7 +4,7 @@ import os
 import sys
 
 import datatypes
-from autogen.pdfspec_autogen import *
+from pdfspec_autogen import *
 
 # TODO(edisonn): date and some other types are in fact strings, with a custom format!!!
 # TODO(edisonn): refer to page 99 (PDF data types)
@@ -275,7 +275,7 @@ class PdfClassManager:
     # write imports
     
     # write enums
-    fileEnums = open(os.path.join(sys.argv[1], 'autogen', 'SkPdfEnums_autogen.h'), 'w')
+    fileEnums = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfEnums_autogen.h'), 'w')
     fileEnums.write('#ifndef __DEFINED__SkPdfEnums\n')
     fileEnums.write('#define __DEFINED__SkPdfEnums\n')
     fileEnums.write('\n')
@@ -574,6 +574,10 @@ def generateCode():
   global fileHeadersNative 
   global fileHeadersNativeCpp 
   global knowTypes
+  
+  nativeAutogenPath = os.path.join(sys.argv[1], 'native', 'autogen')
+  if not os.path.exists(nativeAutogenPath):
+    os.makedirs(nativeAutogenPath)
 
   fileHeadersNative = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfHeaders_autogen.h'), 'w')
   fileHeadersNativeCpp = open(os.path.join(sys.argv[1], 'native', 'autogen', 'SkPdfHeaders_autogen.cpp'), 'w')
