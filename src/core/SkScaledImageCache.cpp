@@ -149,6 +149,7 @@ class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// experimental hash to speed things up
 //#define USE_HASH
 
 SkScaledImageCache::SkScaledImageCache(size_t byteLimit) {
@@ -298,8 +299,6 @@ void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {
     SkASSERT(rec->fLockCount > 0);
     rec->fLockCount -= 1;
 
-//    SkDebugf("Unlock: [%d %d] %d\n", rec->fBitmap.width(), rec->fBitmap.height(), rec->fLockCount);
-
     // we may have been over-budget, but now have released something, so check
     // if we should purge.
     if (0 == rec->fLockCount) {
@@ -318,7 +317,6 @@ void SkScaledImageCache::purgeAsNeeded() {
         }
         Rec* prev = rec->fPrev;
         if (0 == rec->fLockCount) {
-//            SkDebugf("Purge: [%d %d] %d\n", rec->fBitmap.width(), rec->fBitmap.height(), fCount);
             size_t used = rec->bytesUsed();
             SkASSERT(used <= bytesUsed);
             bytesUsed -= used;
