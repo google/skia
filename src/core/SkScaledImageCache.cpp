@@ -150,7 +150,7 @@ class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
 ///////////////////////////////////////////////////////////////////////////////
 
 // experimental hash to speed things up
-//#define USE_HASH
+#define USE_HASH
 
 SkScaledImageCache::SkScaledImageCache(size_t byteLimit) {
     fHead = NULL;
