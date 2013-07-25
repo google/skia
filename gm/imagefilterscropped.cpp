@@ -107,7 +107,7 @@ protected:
         return SkString("imagefilterscropped");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(700, 460); }
+    virtual SkISize onISize() { return SkISize::Make(400, 640); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -137,6 +137,7 @@ protected:
         SkImageFilter* filters[] = {
             NULL,
             SkColorFilterImageFilter::Create(cf, NULL, &cropRect),
+            new SkBlurImageFilter(1.0f, 1.0f, NULL, &cropRect),
             new SkBlurImageFilter(8.0f, 0.0f, NULL, &cropRect),
             new SkBlurImageFilter(0.0f, 8.0f, NULL, &cropRect),
             new SkBlurImageFilter(8.0f, 8.0f, NULL, &cropRect),
@@ -151,9 +152,9 @@ protected:
         SkScalar DY = r.height() + MARGIN;
 
         canvas->translate(MARGIN, MARGIN);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+        for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
             canvas->save();
-            for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
                 drawProc[j](canvas, r, filters[i]);
                 canvas->translate(0, DY);
             }
