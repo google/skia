@@ -2006,7 +2006,7 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
 
-    newTexParams.fFilter = (params.filterMode() == GrTextureParams::kNone_FilterMode) ? GR_GL_LINEAR : GR_GL_NEAREST;
+    newTexParams.fFilter = (params.filterMode() == GrTextureParams::kNone_FilterMode) ? GR_GL_NEAREST : GR_GL_LINEAR;
 
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
