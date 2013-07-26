@@ -91,9 +91,10 @@ public:
      *  caller to unref it.
      *
      *  The effect can assume its vertexCoords space maps 1-to-1 with texels
-     *  in the texture.
+     *  in the texture.  "offset" is the delta between the source and
+     *  destination rect's origins, when cropped processing is being performed.
      */
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*) const;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkIPoint& offset) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most

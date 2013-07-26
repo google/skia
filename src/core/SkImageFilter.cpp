@@ -102,7 +102,7 @@ bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
-    return this->asNewEffect(NULL, NULL);
+    return this->asNewEffect(NULL, NULL, SkIPoint::Make(0, 0));
 }
 
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
@@ -114,30 +114,38 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* 
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
-    SkRect rect;
-    src.getBounds(&rect);
+    SkIRect bounds;
+    src.getBounds(&bounds);
+    if (!this->applyCropRect(&bounds)) {
+        return false;
+    }
+    SkRect srcRect = SkRect::Make(bounds);
+    SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     GrContext* context = srcTexture->getContext();
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit,
-    desc.fWidth = input.width();
-    desc.fHeight = input.height();
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrAutoScratchTexture dst(context, desc);
     GrContext::AutoMatrix am;
     am.setIdentity(context);
     GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
-    GrContext::AutoClip acs(context, rect);
+    GrContext::AutoClip acs(context, dstRect);
     GrEffectRef* effect;
-    this->asNewEffect(&effect, srcTexture);
+    this->asNewEffect(&effect, srcTexture, SkIPoint::Make(bounds.left(), bounds.top()));
     SkASSERT(effect);
     SkAutoUnref effectRef(effect);
     GrPaint paint;
     paint.addColorEffect(effect);
-    context->drawRect(paint, rect);
+    context->drawRectToRect(paint, dstRect, srcRect);
+
     SkAutoTUnref<GrTexture> resultTex(dst.detach());
-    SkImageFilterUtils::WrapTexture(resultTex, input.width(), input.height(), result);
+    SkImageFilterUtils::WrapTexture(resultTex, bounds.width(), bounds.height(), result);
+    offset->fX += bounds.left();
+    offset->fY += bounds.top();
     return true;
 #else
     return false;
@@ -154,7 +162,7 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*) const {
+bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkIPoint& offset) const {
     return false;
 }
 
