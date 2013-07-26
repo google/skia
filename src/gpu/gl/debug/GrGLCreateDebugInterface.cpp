@@ -523,6 +523,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
     debugGenObjs(GrDebugGL::kBuffer_ObjTypes, n, ids);
 }
 
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenerateMipmap(GrGLenum level) {
+}
+
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenFramebuffers(GrGLsizei n,
                                                     GrGLuint* ids) {
     debugGenObjs(GrDebugGL::kFrameBuffer_ObjTypes, n, ids);
@@ -824,6 +827,7 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fFinish = noOpGLFinish;
     interface->fFlush = noOpGLFlush;
     interface->fFrontFace = noOpGLFrontFace;
+    interface->fGenerateMipmap = debugGLGenerateMipmap;
     interface->fGenBuffers = debugGLGenBuffers;
     interface->fGenQueries = noOpGLGenIds;
     interface->fGenTextures = debugGLGenTextures;

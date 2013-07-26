@@ -109,6 +109,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
     }
 }
 
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenerateMipmap(GrGLenum target) {}
+
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
                                               GrGLsizeiptr size,
                                               const GrGLvoid* data,
@@ -306,6 +308,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fFlush = noOpGLFlush;
         interface->fFrontFace = noOpGLFrontFace;
         interface->fGenBuffers = nullGLGenBuffers;
+        interface->fGenerateMipmap = nullGLGenerateMipmap;
         interface->fGenQueries = noOpGLGenIds;
         interface->fGenTextures = noOpGLGenIds;
         interface->fGenVertexArrays = noOpGLGenIds;

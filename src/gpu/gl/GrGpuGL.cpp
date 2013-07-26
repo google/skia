@@ -526,9 +526,14 @@ bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fTextureID = glTex->textureID();
     desc.fOrigin = glTex->origin();
 
-    return this->uploadTexData(desc, false,
-                               left, top, width, height,
-                               config, buffer, rowBytes);
+    if (this->uploadTexData(desc, false,
+                            left, top, width, height,
+                            config, buffer, rowBytes)) {
+        texture->dirtyMipMaps(true);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 namespace {
@@ -1547,6 +1552,11 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
     if (NULL == bound || !bound->isEmpty()) {
         rt->flagAsNeedingResolve(bound);
     }
+    
+    GrTexture *texture = rt->asTexture();
+    if (texture) {
+        texture->dirtyMipMaps(true);
+    }
 }
 
 GrGLenum gPrimitiveType2GLMode[] = {
@@ -2006,7 +2016,21 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
 
-    newTexParams.fFilter = (params.filterMode() == GrTextureParams::kNone_FilterMode) ? GR_GL_NEAREST : GR_GL_LINEAR;
+    static GrGLenum glFilterModes[] = {
+        GR_GL_NEAREST,
+        GR_GL_LINEAR,
+        GR_GL_LINEAR_MIPMAP_LINEAR
+    };
+    newTexParams.fFilter = glFilterModes[params.filterMode()];
+    
+#ifndef SKIA_IGNORE_GPU_MIPMAPS
+    if (params.filterMode() == GrTextureParams::kMipMap_FilterMode && 
+        texture->mipMapsAreDirty()) {
+//        GL_CALL(Hint(GR_GL_GENERATE_MIPMAP_HINT,GR_GL_NICEST));
+        GL_CALL(GenerateMipmap(GR_GL_TEXTURE_2D));
+        texture->dirtyMipMaps(false);
+    }
+#endif
 
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());

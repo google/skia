@@ -89,6 +89,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(Flush);
         GR_GL_GET_PROC(FrontFace);
         GR_GL_GET_PROC(GenBuffers);
+        GR_GL_GET_PROC(GenerateMipmap);
         GR_GL_GET_PROC(GenQueries);
         GR_GL_GET_PROC(GetBufferParameteriv);
         GR_GL_GET_PROC(GetError);

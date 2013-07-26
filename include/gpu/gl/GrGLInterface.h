@@ -189,6 +189,7 @@ public:
     GLPtr<GrGLFrontFaceProc> fFrontFace;
     GLPtr<GrGLGenBuffersProc> fGenBuffers;
     GLPtr<GrGLGenFramebuffersProc> fGenFramebuffers;
+    GLPtr<GrGLGenerateMipmapProc> fGenerateMipmap;
     GLPtr<GrGLGenQueriesProc> fGenQueries;
     GLPtr<GrGLGenRenderbuffersProc> fGenRenderbuffers;
     GLPtr<GrGLGenTexturesProc> fGenTextures;
