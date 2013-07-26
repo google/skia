@@ -3372,15 +3372,6 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokes3_gpu.png": {
-      "allowed-digests": [
-        [
-          "bitmap-64bitMD5", 
-          74227091383830983
-        ]
-      ], 
-      "ignore-failure": false
-    }, 
     "strokes3_msaa4.png": {
       "allowed-digests": [
         [
