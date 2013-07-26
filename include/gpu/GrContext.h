@@ -254,7 +254,7 @@ public:
     int getMaxTextureSize() const;
 
     /**
-     *  Temporarily override the true max texture size. Note: an override 
+     *  Temporarily override the true max texture size. Note: an override
      *  larger then the true max texture size will have no effect.
      *  This entry point is mainly meant for testing texture size dependent
      *  features and is only available if defined outside of Skia (see
@@ -882,7 +882,7 @@ private:
 
     SkTDArray<CleanUpData>          fCleanUpData;
 
-    int                             fMaxTextureSizeOverride;  
+    int                             fMaxTextureSizeOverride;
 
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext);

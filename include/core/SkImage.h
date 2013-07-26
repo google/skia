@@ -67,7 +67,7 @@ public:
     static SkImage* NewEncodedData(SkData*);
 
     /**
-     * GrTexture is a more logical parameter for this factory, but its 
+     * GrTexture is a more logical parameter for this factory, but its
      * interactions with scratch cache still has issues, so for now we take
      * SkBitmap instead. This will be changed in the future. skbug.com/1449
      */

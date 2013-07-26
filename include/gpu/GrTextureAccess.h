@@ -25,7 +25,7 @@ public:
     GrTextureParams() {
         this->reset();
     }
-    
+
     enum FilterMode {
         kNone_FilterMode,
         kBilerp_FilterMode,

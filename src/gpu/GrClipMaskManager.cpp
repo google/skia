@@ -358,7 +358,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
 
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
-        
+
     drawState->addColorEffect(
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,

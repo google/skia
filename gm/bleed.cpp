@@ -20,7 +20,7 @@ void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
 }
 #endif
 
-// Create a black&white checked texture with a 1-pixel red ring 
+// Create a black&white checked texture with a 1-pixel red ring
 // around the outside edge
 static void make_red_ringed_bitmap(SkBitmap* result, int width, int height) {
     SkASSERT(0 == width % 2 && 0 == width % 2);
@@ -29,7 +29,7 @@ static void make_red_ringed_bitmap(SkBitmap* result, int width, int height) {
     result->allocPixels();
     SkAutoLockPixels lock(*result);
 
-    SkPMColor* scanline = result->getAddr32(0, 0);    
+    SkPMColor* scanline = result->getAddr32(0, 0);
     for (int x = 0; x < width; ++x) {
         scanline[x] = SK_ColorRED;
     }
@@ -96,9 +96,9 @@ protected:
             // shrink the max texture size so all our textures can be reasonably sized
             oldMaxTextureSize = ctx->getMaxTextureSize();
             ctx->setMaxTextureSizeOverride(kMaxTextureSize);
-        }        
+        }
 #endif
-        
+
         canvas->clear(SK_ColorGRAY);
 
         SkPaint paint;
@@ -107,8 +107,8 @@ protected:
         paint.setFilterBitmap(true);
 
         // carve out the center of the small bitmap
-        SkRect src = SkRect::MakeXYWH(1, 1, 
-                                      kSmallTextureSize-2, 
+        SkRect src = SkRect::MakeXYWH(1, 1,
+                                      kSmallTextureSize-2,
                                       kSmallTextureSize-2);
         SkRect dst = SkRect::MakeXYWH(10, 10, 100, 100);
 
@@ -122,8 +122,8 @@ protected:
         // Next test out the GPU's tiling of large textures
 
         // first draw almost the whole thing
-        src = SkRect::MakeXYWH(1, 1, 
-                               SkIntToScalar(fBitmapBig.width()-2), 
+        src = SkRect::MakeXYWH(1, 1,
+                               SkIntToScalar(fBitmapBig.width()-2),
                                SkIntToScalar(fBitmapBig.height()-2));
         dst = SkRect::MakeXYWH(10, 120, 100, 100);
 
@@ -135,8 +135,8 @@ protected:
         canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint);
 
         // next draw ~1/4 of the bitmap
-        src = SkRect::MakeXYWH(1, 1, 
-                               SkIntToScalar(fBitmapBig.width()/2-1), 
+        src = SkRect::MakeXYWH(1, 1,
+                               SkIntToScalar(fBitmapBig.width()/2-1),
                                SkIntToScalar(fBitmapBig.height()/2-1));
         dst = SkRect::MakeXYWH(10, 230, 100, 100);
 
@@ -150,7 +150,7 @@ protected:
 #if SK_SUPPORT_GPU
         if (NULL != ctx) {
             ctx->setMaxTextureSizeOverride(oldMaxTextureSize);
-        }        
+        }
 #endif
     }
 

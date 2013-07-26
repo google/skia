@@ -1161,9 +1161,9 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                         "MIPMaps.");
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
-    
+
     }
-    
+
     params.setFilterMode(textureFilterMode);
 
     if (!this->shouldTileBitmap(bitmap, params, srcRectPtr)) {
@@ -1235,7 +1235,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
     }
 }
 
-static bool has_aligned_samples(const SkRect& srcRect, 
+static bool has_aligned_samples(const SkRect& srcRect,
                                 const SkRect& transformedRect) {
     // detect pixel disalignment
     if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) -
@@ -1251,7 +1251,7 @@ static bool has_aligned_samples(const SkRect& srcRect,
     return false;
 }
 
-static bool may_color_bleed(const SkRect& srcRect, 
+static bool may_color_bleed(const SkRect& srcRect,
                             const SkRect& transformedRect,
                             const SkMatrix& m) {
     // Only gets called if has_aligned_samples returned false.

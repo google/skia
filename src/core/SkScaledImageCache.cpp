@@ -324,7 +324,7 @@ void SkScaledImageCache::purgeAsNeeded() {
 #ifdef USE_HASH
             fHash->remove(rec->fKey);
 #endif
-            
+
             SkDELETE(rec);
             fCount -= 1;
         }
