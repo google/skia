@@ -750,8 +750,32 @@ static int lmatrix_getType(lua_State* L) {
     return 1;
 }
 
+static int lmatrix_getScaleX(lua_State* L) {
+    lua_pushnumber(L, get_obj<SkMatrix>(L,1)->getScaleX());
+    return 1;
+}
+
+static int lmatrix_getScaleY(lua_State* L) {
+    lua_pushnumber(L, get_obj<SkMatrix>(L,1)->getScaleY());
+    return 1;
+}
+
+static int lmatrix_getTranslateX(lua_State* L) {
+    lua_pushnumber(L, get_obj<SkMatrix>(L,1)->getTranslateX());
+    return 1;
+}
+
+static int lmatrix_getTranslateY(lua_State* L) {
+    lua_pushnumber(L, get_obj<SkMatrix>(L,1)->getTranslateY());
+    return 1;
+}
+
 static const struct luaL_Reg gSkMatrix_Methods[] = {
     { "getType", lmatrix_getType },
+    { "getScaleX", lmatrix_getScaleX },
+    { "getScaleY", lmatrix_getScaleY },
+    { "getTranslateX", lmatrix_getTranslateX },
+    { "getTranslateY", lmatrix_getTranslateY },
     { NULL, NULL }
 };
 
