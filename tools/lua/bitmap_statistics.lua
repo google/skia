@@ -6,32 +6,14 @@ function string.endsWith(String,End)
    return End=='' or string.sub(String,-string.len(End))==End
 end
 
-function tostr(t)
-    local str = ""
-    for k, v in next, t do
-        if #str > 0 then
-            str = str .. ", "
-        end
-        if type(k) == "number" then
-            str = str .. "[" .. k .. "] = "
-        else
-            str = str .. tostring(k) .. " = "
-        end
-        if type(v) == "table" then
-            str = str .. "{ " .. tostr(v) .. " }"
-        else
-            str = str .. tostring(v)
-        end
-    end
-    return str
-end
-
 local canvas = nil
 local num_perspective_bitmaps = 0
 local num_affine_bitmaps = 0
 local num_scaled_bitmaps = 0
 local num_translated_bitmaps = 0
 local num_identity_bitmaps = 0
+local num_scaled_up = 0
+local num_scaled_down = 0
 
 function sk_scrape_startcanvas(c, fileName) 
   canvas = c
@@ -53,6 +35,11 @@ function sk_scrape_accumulate(t)
         num_affine_bitmaps = num_affine_bitmaps + 1
       elseif matrixType.scale then 
         num_scaled_bitmaps = num_scaled_bitmaps + 1
+        if matrix:getScaleX() > 1 or matrix:getScaleY() > 1 then
+          num_scaled_up = num_scaled_up + 1
+        else
+          num_scaled_down = num_scaled_down + 1
+        end
       elseif matrixType.translate then
         num_translated_bitmaps = num_translated_bitmaps + 1
       else
@@ -64,7 +51,7 @@ end
 function sk_scrape_summarize()
   io.write( "identity = ", num_identity_bitmaps,
             ", translated = ", num_translated_bitmaps, 
-            ", scaled = ", num_scaled_bitmaps,
+            ", scaled = ", num_scaled_bitmaps, " (up = ", num_scaled_up, "; down = ", num_scaled_down, ")",
             ", affine = ", num_affine_bitmaps,
             ", perspective = ", num_perspective_bitmaps,
             "\n")
