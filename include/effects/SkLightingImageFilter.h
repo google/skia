@@ -51,30 +51,33 @@ class SK_API SkLightingImageFilter : public SkImageFilter {
 public:
     static SkImageFilter* CreateDistantLitDiffuse(const SkPoint3& direction,
         SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        SkImageFilter* input = NULL);
+        SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     static SkImageFilter* CreatePointLitDiffuse(const SkPoint3& location,
         SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        SkImageFilter* input = NULL);
+        SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     static SkImageFilter* CreateSpotLitDiffuse(const SkPoint3& location,
         const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
         SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        SkImageFilter* input = NULL);
+        SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     static SkImageFilter* CreateDistantLitSpecular(const SkPoint3& direction,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, SkImageFilter* input = NULL);
+        SkScalar shininess, SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     static SkImageFilter* CreatePointLitSpecular(const SkPoint3& location,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, SkImageFilter* input = NULL);
+        SkScalar shininess, SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     static SkImageFilter* CreateSpotLitSpecular(const SkPoint3& location,
         const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, SkImageFilter* input = NULL);
+        SkScalar shininess, SkImageFilter* input = NULL, const SkIRect* cropRect = NULL);
     ~SkLightingImageFilter();
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
-    SkLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkImageFilter* input);
+    SkLightingImageFilter(SkLight* light,
+                          SkScalar surfaceScale,
+                          SkImageFilter* input,
+                          const SkIRect* cropRect = NULL);
     explicit SkLightingImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     const SkLight* light() const { return fLight; }

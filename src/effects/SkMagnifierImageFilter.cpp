@@ -218,7 +218,7 @@ GrEffectRef* GrMagnifierEffect::TestCreate(SkMWCRandom* random,
                                  SkIntToScalar(width), SkIntToScalar(height)),
                 inset));
     GrEffectRef* effect;
-    filter->asNewEffect(&effect, textures[0]);
+    filter->asNewEffect(&effect, textures[0], SkIPoint::Make(0, 0));
     GrAssert(NULL != effect);
     return effect;
 }
@@ -264,7 +264,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
 }
 
 #if SK_SUPPORT_GPU
-bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture) const {
+bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkIPoint&) const {
     if (effect) {
         *effect = GrMagnifierEffect::Create(texture,
                                             fSrcRect.x() / texture->width(),
