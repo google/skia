@@ -49,7 +49,8 @@ class GrGLTexture : public GrTexture {
 
 public:
     struct TexParams {
-        GrGLenum fFilter;
+        GrGLenum fMinFilter;
+        GrGLenum fMagFilter;
         GrGLenum fWrapS;
         GrGLenum fWrapT;
         GrGLenum fSwizzleRGBA[4];
