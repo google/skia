@@ -19,7 +19,7 @@ private:
     int fCapacity;
     int fCountUsed;
     int fCountDeleted;
-    
+
     const T* deletedValue() const { return reinterpret_cast<const T*>(-1); }
     uint32_t hashMask() const { return fCapacity - 1; }
     int hashToIndex(uint32_t hash) const {
@@ -37,13 +37,13 @@ public:
             sk_free(fArray);
         }
     }
-    
+
     T* find(const KEY& key) {
         const T* const deleted = this->deletedValue();
         const unsigned mask = this->hashMask();
         int index = this->hashToIndex(HASH_FROM_KEY(key));
         int delta = 1;
-        
+
         do {
             T* candidate = fArray[index];
             if (NULL == candidate) {
@@ -57,14 +57,14 @@ public:
         } while (delta <= fCapacity);
         return NULL;
     }
-    
+
     bool add(const KEY& key, T* newElement, bool autoGrow = true) {
         const T* const deleted = this->deletedValue();
         for (;;) {
             const unsigned mask = this->hashMask();
             int index = this->hashToIndex(HASH_FROM_KEY(key));
             int delta = 1;
-            
+
             do {
                 const T* candidate = fArray[index];
                 if (NULL == candidate || deleted == candidate) {
@@ -88,13 +88,13 @@ public:
         SkASSERT(!"never get here");
         return false;
     }
-    
+
     void remove(const KEY& key) {
         const T* const deleted = this->deletedValue();
         const unsigned mask = this->hashMask();
         int index = this->hashToIndex(HASH_FROM_KEY(key));
         int delta = 1;
-        
+
         for (;;) {
             const T* candidate = fArray[index];
             SkASSERT(candidate);
@@ -110,7 +110,7 @@ public:
         }
         this->checkStrink();
     }
-    
+
 private:
     int countCollisions(const Key& key) const {
         const T* const deleted = this->deletedValue();
@@ -147,17 +147,17 @@ private:
 #endif
         int oldCapacity = fCapacity;
         T** oldArray = fArray;
-        
+
         int newCapacity = oldCapacity << 1;
         T** newArray = (T**)sk_malloc_throw(sizeof(T*) * newCapacity);
         sk_bzero(newArray, sizeof(T*) * newCapacity);
-        
+
         SkDEBUGCODE(int oldCountUsed = fCountUsed;)
         fArray = newArray;
         fCapacity = newCapacity;
         fCountUsed = 0;
         fCountDeleted = 0;
-        
+
         for (int i = 0; i < oldCapacity; ++i) {
             T* elem = oldArray[i];
             if (NULL == elem || deleted == elem) {
@@ -172,7 +172,7 @@ private:
             sk_free(oldArray);
         }
     }
-    
+
     void checkStrink() {
         // todo: based on density and deadspace (fCountDeleted), consider
         // shrinking fArray and repopulating it.

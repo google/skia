@@ -33,7 +33,7 @@
           ],
           'destination': '<(SHARED_INTERMEDIATE_DIR)',
         },
-      ],        
+      ],
       'actions': [
         {
           'action_name': 'spec2def',
