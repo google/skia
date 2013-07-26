@@ -78,6 +78,9 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fGenBuffers ||
         NULL == fGenTextures ||
         NULL == fGetBufferParameteriv ||
+#ifndef SKIA_IGNORE_GPU_MIPMAPS
+        NULL == fGenerateMipmap ||
+#endif
         NULL == fGetError ||
         NULL == fGetIntegerv ||
         NULL == fGetProgramInfoLog ||

@@ -152,6 +152,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(EnableVertexAttribArray);
         WGL_SET_PROC(EndQuery);
         WGL_SET_PROC(GenBuffers);
+        WGL_SET_PROC(GenerateMipmap);
         WGL_SET_PROC(GenQueries);
         WGL_SET_PROC(GetBufferParameteriv);
         WGL_SET_PROC(GetQueryiv);

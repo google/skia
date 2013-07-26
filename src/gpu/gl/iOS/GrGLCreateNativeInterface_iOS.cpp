@@ -54,6 +54,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fFlush = glFlush;
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
+        interface->fGenerateMipmap = glGenerateMipmap;
         interface->fGetBufferParameteriv = glGetBufferParameteriv;
         interface->fGetError = glGetError;
         interface->fGetIntegerv = glGetIntegerv;

@@ -94,6 +94,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFrontFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenerateMipmapProc)(GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenQueriesProc)(GrGLsizei n, GrGLuint *ids);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);

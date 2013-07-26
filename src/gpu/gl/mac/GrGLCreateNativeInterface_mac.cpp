@@ -110,6 +110,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GET_PROC(Flush);
         GET_PROC(FrontFace);
         GET_PROC(GenBuffers);
+        GET_PROC(GenerateMipmap);
         GET_PROC(GenQueries);
         GET_PROC(GetBufferParameteriv);
         GET_PROC(GetError);

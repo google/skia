@@ -77,6 +77,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GET_PROC(Flush);
         GET_PROC(FrontFace);
         GET_PROC(GenBuffers);
+        GET_PROC(GenerateMipmap);
         GET_PROC(GenTextures);
         interface->fGenVertexArrays =
             (GrGLGenVertexArraysProc) eglGetProcAddress("glGenVertexArraysOES");
