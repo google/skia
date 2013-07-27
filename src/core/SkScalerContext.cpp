@@ -340,6 +340,18 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             glyph->fTop     = ir.fTop;
             glyph->fWidth   = SkToU16(ir.width());
             glyph->fHeight  = SkToU16(ir.height());
+
+            if (glyph->fWidth > 0) {
+            switch (fRec.fMaskFormat) {
+            case SkMask::kLCD16_Format:
+            case SkMask::kLCD32_Format:
+                glyph->fWidth += 2;
+                glyph->fLeft -= 1;
+                break;
+            default:
+                break;
+            }
+    }
         }
     }
 
@@ -386,6 +398,7 @@ SK_ERROR:
     glyph->fMaskFormat = fRec.fMaskFormat;
 }
 
+#define SK_SHOW_TEXT_BLIT_COVERAGE 0
 
 static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
     uint8_t* SK_RESTRICT dst = (uint8_t*)mask.fImage;
@@ -400,30 +413,83 @@ static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
 }
 
 template<bool APPLY_PREBLEND>
-static void pack3xHToLCD16(const SkBitmap& src, const SkMask& dst,
+static void pack4xHToLCD16(const SkBitmap& src, const SkMask& dst,
                            const SkMaskGamma::PreBlend& maskPreBlend) {
+#define SAMPLES_PER_PIXEL 4
+#define LCD_PER_PIXEL 3
     SkASSERT(SkBitmap::kA8_Config == src.config());
     SkASSERT(SkMask::kLCD16_Format == dst.fFormat);
 
-    const int width = dst.fBounds.width();
-    const int height = dst.fBounds.height();
+    const int sample_width = src.width();
+    const int height = src.height();
+
     uint16_t* dstP = (uint16_t*)dst.fImage;
     size_t dstRB = dst.fRowBytes;
+    // An N tap FIR is defined by
+    // out[n] = coeff[0]*x[n] + coeff[1]*x[n-1] + ... + coeff[N]*x[n-N]
+    // or
+    // out[n] = sum(i, 0, N, coeff[i]*x[n-i])
+
+    // The strategy is to use one FIR (different coefficients) for each of r, g, and b.
+    // This means using every 4th FIR output value of each FIR and discarding the rest.
+    // The FIRs are aligned, and the coefficients reach 5 samples to each side of their 'center'.
+    // (For r and b this is technically incorrect, but the coeffs outside round to zero anyway.)
+    
+    // These are in some fixed point repesentation.
+    // Adding up to more than one simulates ink spread.
+    // For implementation reasons, these should never add up to more than two.
+
+    // Coefficients determined by a gausian where 5 samples = 3 std deviations (0x110 'contrast').
+    // Calculated using tools/generate_fir_coeff.py
+    // With this one almost no fringing is ever seen, but it is imperceptibly blurry.
+    // The lcd smoothed text is almost imperceptibly different from gray,
+    // but is still sharper on small stems and small rounded corners than gray.
+    // This also seems to be about as wide as one can get and only have a three pixel kernel.
+    // TODO: caculate these at runtime so parameters can be adjusted (esp contrast).
+    static const unsigned int coefficients[LCD_PER_PIXEL][SAMPLES_PER_PIXEL*3] = {
+        //The red subpixel is centered inside the first sample (at 1/6 pixel), and is shifted.
+        { 0x03, 0x0b, 0x1c, 0x33,  0x40, 0x39, 0x24, 0x10,  0x05, 0x01, 0x00, 0x00, },
+        //The green subpixel is centered between two samples (at 1/2 pixel), so is symetric
+        { 0x00, 0x02, 0x08, 0x16,  0x2b, 0x3d, 0x3d, 0x2b,  0x16, 0x08, 0x02, 0x00, },
+        //The blue subpixel is centered inside the last sample (at 5/6 pixel), and is shifted.
+        { 0x00, 0x00, 0x01, 0x05,  0x10, 0x24, 0x39, 0x40,  0x33, 0x1c, 0x0b, 0x03, },
+    };
 
     for (int y = 0; y < height; ++y) {
         const uint8_t* srcP = src.getAddr8(0, y);
-        for (int x = 0; x < width; ++x) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fB);
-            dstP[x] = SkPack888ToRGB16(r, g, b);
+
+        // TODO: this fir filter implementation is straight forward, but slow.
+        // It should be possible to make it much faster.
+        for (int sample_x = -4, pixel_x = 0; sample_x < sample_width + 4; sample_x += 4, ++pixel_x) {
+            int fir[LCD_PER_PIXEL] = { 0 };
+            for (int sample_index = SkMax32(0, sample_x - 4), coeff_index = sample_index - (sample_x - 4)
+                ; sample_index < SkMin32(sample_x + 8, sample_width)
+                ; ++sample_index, ++coeff_index)
+            {
+                int sample_value = srcP[sample_index];
+                for (int subpxl_index = 0; subpxl_index < LCD_PER_PIXEL; ++subpxl_index) {
+                    fir[subpxl_index] += coefficients[subpxl_index][coeff_index] * sample_value;
+                }
+            }
+            for (int subpxl_index = 0; subpxl_index < LCD_PER_PIXEL; ++subpxl_index) {
+                fir[subpxl_index] /= 0x100;
+                fir[subpxl_index] = SkMin32(fir[subpxl_index], 255);
+            }
+
+            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(fir[0], maskPreBlend.fR);
+            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(fir[1], maskPreBlend.fG);
+            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(fir[2], maskPreBlend.fB);
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+            r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+#endif
+            dstP[pixel_x] = SkPack888ToRGB16(r, g, b);
         }
         dstP = (uint16_t*)((char*)dstP + dstRB);
     }
 }
 
 template<bool APPLY_PREBLEND>
-static void pack3xHToLCD32(const SkBitmap& src, const SkMask& dst,
+static void pack4xHToLCD32(const SkBitmap& src, const SkMask& dst,
                            const SkMaskGamma::PreBlend& maskPreBlend) {
     SkASSERT(SkBitmap::kA8_Config == src.config());
     SkASSERT(SkMask::kLCD32_Format == dst.fFormat);
@@ -435,6 +501,8 @@ static void pack3xHToLCD32(const SkBitmap& src, const SkMask& dst,
 
     for (int y = 0; y < height; ++y) {
         const uint8_t* srcP = src.getAddr8(0, y);
+
+        // TODO: need to use fir filter here as well.
         for (int x = 0; x < width; ++x) {
             U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fR);
             U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fG);
@@ -472,8 +540,10 @@ static void generateMask(const SkMask& mask, const SkPath& path,
             case SkMask::kLCD16_Format:
             case SkMask::kLCD32_Format:
                 // TODO: trigger off LCD orientation
-                dstW *= 3;
-                matrix.postScale(SkIntToScalar(3), SK_Scalar1);
+                dstW = 4*dstW - 8;
+                matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft + 1),
+                                    -SkIntToScalar(mask.fBounds.fTop));
+                matrix.postScale(SkIntToScalar(4), SK_Scalar1);
                 dstRB = 0;  // signals we need a copy
                 break;
             default:
@@ -514,16 +584,16 @@ static void generateMask(const SkMask& mask, const SkPath& path,
             break;
         case SkMask::kLCD16_Format:
             if (maskPreBlend.isApplicable()) {
-                pack3xHToLCD16<true>(bm, mask, maskPreBlend);
+                pack4xHToLCD16<true>(bm, mask, maskPreBlend);
             } else {
-                pack3xHToLCD16<false>(bm, mask, maskPreBlend);
+                pack4xHToLCD16<false>(bm, mask, maskPreBlend);
             }
             break;
         case SkMask::kLCD32_Format:
             if (maskPreBlend.isApplicable()) {
-                pack3xHToLCD32<true>(bm, mask, maskPreBlend);
+                pack4xHToLCD32<true>(bm, mask, maskPreBlend);
             } else {
-                pack3xHToLCD32<false>(bm, mask, maskPreBlend);
+                pack4xHToLCD32<false>(bm, mask, maskPreBlend);
             }
             break;
         default:

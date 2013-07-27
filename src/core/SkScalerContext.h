@@ -134,13 +134,14 @@ public:
         kHintingBit1_Flag         = 0x0080,
         kHintingBit2_Flag         = 0x0100,
 
-        // these should only ever be set if fMaskFormat is LCD16 or LCD32
+        // Pixel geometry information.
+        // only meaningful if fMaskFormat is LCD16 or LCD32
         kLCD_Vertical_Flag        = 0x0200,    // else Horizontal
         kLCD_BGROrder_Flag        = 0x0400,    // else RGB order
 
-        // Generate A8 from LCD source (for GDI), only meaningful if fMaskFormat is kA8
-        // Perhaps we can store this (instead) in fMaskFormat, in hight bit?
-        kGenA8FromLCD_Flag        = 0x0800,
+        // Generate A8 from LCD source (for GDI and CoreGraphics).
+        // only meaningful if fMaskFormat is kA8
+        kGenA8FromLCD_Flag        = 0x0800, // could be 0x200 (bit meaning dependent on fMaskFormat)
     };
 
     // computed values

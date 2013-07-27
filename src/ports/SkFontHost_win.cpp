@@ -80,22 +80,10 @@ static bool needToRenderWithSkia(const SkScalerContext::Rec& rec) {
         return true;
     }
 #endif
-    // false means allow GDI to generate the bits
-    return false;
+    return rec.getHinting() == SkPaint::kNo_Hinting || rec.getHinting() == SkPaint::kSlight_Hinting;
 }
 
 using namespace skia_advanced_typeface_metrics_utils;
-
-/**
- *  Since LOGFONT wants its textsize as an int, and we support fractional sizes,
- *  and since we have a cache of LOGFONTs for our tyepfaces, we always set the
- *  lfHeight to a canonical size, and then we use the 2x2 matrix to achieve the
- *  actual requested size.
- *
- *  Not critical to match the font's upem, but we want it big enough to avoid
- *  precision loss for GDI calls that return ints (e.g. GetOutlineFontMetrics).
- */
-static const int gCanonicalTextSize = 2048;
 
 static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #ifdef UNICODE
@@ -108,7 +96,7 @@ static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 }
 
 static void make_canonical(LOGFONT* lf) {
-    lf->lfHeight = -gCanonicalTextSize;
+    lf->lfHeight = -2048;
     lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
     lf->lfCharSet = DEFAULT_CHARSET;
 //    lf->lfClipPrecision = 64;
@@ -453,12 +441,6 @@ private:
     int     fWidth;
     int     fHeight;
     bool    fIsBW;
-
-    enum {
-        // will always trigger us to reset the color, since we
-        // should only store 0 or 0x00FFFFFF or gray (0x007F7F7F)
-        kInvalid_Color = 12345
-    };
 };
 
 const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
@@ -538,6 +520,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 }
 
 //////////////////////////////////////////////////////////////////////////////
+#define BUFFERSIZE (1 << 13)
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
@@ -559,8 +542,14 @@ protected:
                                      SkPaint::FontMetrics* mY) SK_OVERRIDE;
 
 private:
+    DWORD getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
+                          SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
+
     HDCOffscreen fOffscreen;
-    SkScalar     fScale;  // to get from canonical size to real size
+    /** fGsA is the non-rotational part of total matrix without the text height scale.
+     *  Used to find the magnitude of advances.
+     */
+    MAT2         fGsA;
     MAT2         fMat22;
     HDC          fDDC;
     HFONT        fSavefont;
@@ -569,30 +558,19 @@ private:
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
 
-    MAT2         fMat22Identity;
     SkMatrix     fHiResMatrix;
+    /** fG_inv is the inverse of the rotational part of the total matrix.
+     *  Used to set the direction of advances.
+     */
+    SkMatrix     fG_inv;
     enum Type {
         kTrueType_Type, kBitmap_Type,
     } fType;
     TEXTMETRIC fTM;
 };
 
-static float mul2float(SkScalar a, SkScalar b) {
-    return SkScalarToFloat(SkScalarMul(a, b));
-}
-
 static FIXED float2FIXED(float x) {
     return SkFixedToFIXED(SkFloatToFixed(x));
-}
-
-#define HIRES_TEXTSIZE  2048
-#define HIRES_SHIFT     11
-static inline SkFixed HiResToFixed(int value) {
-    return value << (16 - HIRES_SHIFT);
-}
-
-static bool needHiResMetrics(const SkScalar mat[2][2]) {
-    return mat[1][0] || mat[0][1];
 }
 
 static BYTE compute_quality(const SkScalerContext::Rec& rec) {
@@ -627,36 +605,84 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
     if (!fDDC) {
         return;
     }
-
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
+    
+    SkPoint h = SkPoint::Make(SK_Scalar1, 0);
+    // A is the total matrix.
+    SkMatrix A;
+    fRec.getSingleMatrix(&A);
+    A.mapPoints(&h, 1);
 
-    // Scaling by the DPI is inconsistent with how Skia draws elsewhere
-    //SkScalar height = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
+    // Find the Given's matrix [[c, -s],[s, c]] which rotates the baseline vector h
+    // (where the baseline is mapped to) to the positive horizontal axis.
+    const SkScalar& a = h.fX;
+    const SkScalar& b = h.fY;
+    SkScalar c, s;
+    if (0 == b) {
+        c = SkDoubleToScalar(_copysign(SK_Scalar1, a));
+        s = 0;
+    } else if (0 == a) {
+        c = 0;
+        s = SkDoubleToScalar(-_copysign(SK_Scalar1, b));
+    } else if (SkScalarAbs(b) > SkScalarAbs(a)) {
+        SkScalar t = a / b;
+        SkScalar u = SkDoubleToScalar(_copysign(SkScalarSqrt(SK_Scalar1 + t*t), b));
+        s = -1 / u;
+        c = -s * t;
+    } else {
+        SkScalar t = b / a;
+        SkScalar u = SkDoubleToScalar(_copysign(SkScalarSqrt(SK_Scalar1 + t*t), a));
+        c = 1 / u;
+        s = -c * t;
+    }
+
+    // G is the Given's Matrix for A (rotational matrix such that GA[0][1] == 0).
+    SkMatrix G;
+    G.setAll(c, -s, 0,
+             s,  c, 0,
+             0,  0, SkScalarToPersp(SK_Scalar1));
+
+    // GA is the matrix A with rotation removed.
+    SkMatrix GA(G);
+    GA.preConcat(A);
+
+    // textSize is the actual device size we want (as opposed to the size the user requested).
+    // If the scale is negative, this means the matrix will do the flip anyway.
+    SkScalar textSize = SkScalarAbs(SkScalarRoundToScalar(GA.get(SkMatrix::kMScaleY)));
+    if (textSize == 0) {
+        textSize = SK_Scalar1;
+    }
+
+    // sA is the total matrix A without the textSize (so GDI knows the text size separately).
+    // When this matrix is used with GetGlyphOutline, no further processing is needed.
+    SkMatrix sA(A);
+    SkScalar scale = SkScalarInvert(textSize);
+    sA.preScale(scale, scale); //remove text size
+
+    // GsA is the non-rotational part of A without the text height scale.
+    // This is what is used to find the magnitude of advances.
+    SkMatrix GsA(GA);
+    GsA.preScale(scale, scale); //remove text size, G is rotational so reorders with the scale.
+
+    fGsA.eM11 = SkScalarToFIXED(GsA.get(SkMatrix::kMScaleX));
+    fGsA.eM12 = SkScalarToFIXED(-GsA.get(SkMatrix::kMSkewY)); // This should be ~0.
+    fGsA.eM21 = SkScalarToFIXED(-GsA.get(SkMatrix::kMSkewX));
+    fGsA.eM22 = SkScalarToFIXED(GsA.get(SkMatrix::kMScaleY));
+
+    // fG_inv is G inverse, which is fairly simple since G is 2x2 rotational.
+    fG_inv.setAll(G.get(SkMatrix::kMScaleX), -G.get(SkMatrix::kMSkewX), G.get(SkMatrix::kMTransX),
+                  -G.get(SkMatrix::kMSkewY), G.get(SkMatrix::kMScaleY), G.get(SkMatrix::kMTransY),
+                  G.get(SkMatrix::kMPersp0), G.get(SkMatrix::kMPersp1), G.get(SkMatrix::kMPersp2));
+
     LOGFONT lf = typeface->fLogFont;
-    lf.lfHeight = -gCanonicalTextSize;
+    lf.lfHeight = -SkScalarTruncToInt(textSize);
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
     if (!fFont) {
         return;
     }
 
-    // if we're rotated, or want fractional widths, create a hires font
-    if (needHiResMetrics(fRec.fPost2x2)) {
-        lf.lfHeight = -HIRES_TEXTSIZE;
-        fHiResFont = CreateFontIndirect(&lf);
-        if (!fHiResFont) {
-            return;
-        }
-
-        fMat22Identity.eM11 = fMat22Identity.eM22 = SkFixedToFIXED(SK_Fixed1);
-        fMat22Identity.eM12 = fMat22Identity.eM21 = SkFixedToFIXED(0);
-
-        // construct a matrix to go from HIRES logical units to our device units
-        fRec.getSingleMatrix(&fHiResMatrix);
-        SkScalar scale = SkScalarInvert(SkIntToScalar(HIRES_TEXTSIZE));
-        fHiResMatrix.preScale(scale, scale);
-    }
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
 
     if (0 == GetTextMetrics(fDDC, &fTM)) {
@@ -680,14 +706,13 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
         // Truetype or PostScript.
         // Stroked FON also gets here (TMPF_VECTOR), but we don't handle it.
         fType = SkScalerContext_Windows::kTrueType_Type;
-        fScale = fRec.fTextSize / gCanonicalTextSize;
 
         // fPost2x2 is column-major, left handed (y down).
         // XFORM 2x2 is row-major, left handed (y down).
-        xform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
-        xform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
-        xform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
-        xform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
+        xform.eM11 = SkScalarToFloat(sA.get(SkMatrix::kMScaleX));
+        xform.eM12 = SkScalarToFloat(sA.get(SkMatrix::kMSkewY));
+        xform.eM21 = SkScalarToFloat(sA.get(SkMatrix::kMSkewX));
+        xform.eM22 = SkScalarToFloat(sA.get(SkMatrix::kMScaleY));
         xform.eDx = 0;
         xform.eDy = 0;
 
@@ -701,10 +726,31 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
             this->forceGenerateImageFromPath();
         }
 
+        // Create a hires font if we need linear metrics.
+        if (this->isSubpixel()) {
+            OUTLINETEXTMETRIC otm;
+            UINT success = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
+            if (0 == success) {
+                call_ensure_accessible(lf);
+                success = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
+            }
+            if (0 != success) {
+                lf.lfHeight = -SkToS32(otm.otmEMSquare);
+                fHiResFont = CreateFontIndirect(&lf);
+                if (!fHiResFont) {
+                    return;
+                }
+
+                // construct a matrix to go from HIRES logical units to our device units
+                fRec.getSingleMatrix(&fHiResMatrix);
+                SkScalar scale = SkScalarInvert(SkIntToScalar(otm.otmEMSquare));
+                fHiResMatrix.preScale(scale, scale);
+            }
+        }
+
     } else {
         // Assume bitmap
         fType = SkScalerContext_Windows::kBitmap_Type;
-        fScale = SK_Scalar1;
 
         xform.eM11 = 1.0f;
         xform.eM12 = 0.0f;
@@ -719,18 +765,6 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
         fMat22.eM12 = SkScalarToFIXED(-fRec.fPost2x2[1][0]);
         fMat22.eM21 = SkScalarToFIXED(-fRec.fPost2x2[0][1]);
         fMat22.eM22 = SkScalarToFIXED(fRec.fPost2x2[1][1]);
-
-        lf.lfHeight = -SkScalarCeilToInt(fRec.fTextSize);
-        HFONT bitmapFont = CreateFontIndirect(&lf);
-        SelectObject(fDDC, bitmapFont);
-        ::DeleteObject(fFont);
-        fFont = bitmapFont;
-
-        if (0 == GetTextMetrics(fDDC, &fTM)) {
-            call_ensure_accessible(lf);
-            //if the following fails, we'll just draw at gCanonicalTextSize.
-            GetTextMetrics(fDDC, &fTM);
-        }
     }
 
     fOffscreen.init(fFont, xform);
@@ -793,6 +827,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
     this->generateMetrics(glyph);
 }
 
+static const MAT2 gMat2Identity = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
 void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     SkASSERT(fDDC);
 
@@ -866,7 +901,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     if (fHiResFont) {
         SelectObject(fDDC, fHiResFont);
         sk_bzero(&gm, sizeof(gm));
-        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22Identity);
+        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &gMat2Identity);
         if (GDI_ERROR != status) {
             SkPoint advance;
             fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
@@ -874,6 +909,14 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
             glyph->fAdvanceY = SkScalarToFixed(advance.fY);
         }
         SelectObject(fDDC, fFont);
+    } else if (!isAxisAligned(this->fRec)) {
+        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fGsA);
+        if (GDI_ERROR != status) {
+            SkPoint advance;
+            fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
+            glyph->fAdvanceX = SkScalarToFixed(advance.fX);
+            glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+        }
     }
 }
 
@@ -897,7 +940,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
         if (mx) {
             mx->fTop = SkIntToScalar(-fTM.tmAscent);
             mx->fAscent = SkIntToScalar(-fTM.tmAscent);
-            mx->fDescent = -SkIntToScalar(fTM.tmDescent);
+            mx->fDescent = SkIntToScalar(fTM.tmDescent);
             mx->fBottom = SkIntToScalar(fTM.tmDescent);
             mx->fLeading = SkIntToScalar(fTM.tmExternalLeading);
         }
@@ -905,7 +948,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
         if (my) {
             my->fTop = SkIntToScalar(-fTM.tmAscent);
             my->fAscent = SkIntToScalar(-fTM.tmAscent);
-            my->fDescent = SkIntToScalar(-fTM.tmDescent);
+            my->fDescent = SkIntToScalar(fTM.tmDescent);
             my->fBottom = SkIntToScalar(fTM.tmDescent);
             my->fLeading = SkIntToScalar(fTM.tmExternalLeading);
             my->fAvgCharWidth = SkIntToScalar(fTM.tmAveCharWidth);
@@ -922,39 +965,48 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     OUTLINETEXTMETRIC otm;
 
     uint32_t ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
-    if (GDI_ERROR == ret) {
+    if (0 == ret) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
     }
-    if (sizeof(otm) != ret) {
+    if (0 == ret) {
         return;
     }
 
     if (mx) {
-        mx->fTop = -fScale * otm.otmrcFontBox.left;
-        mx->fAscent = -fScale * otm.otmAscent;
-        mx->fDescent = -fScale * otm.otmDescent;
-        mx->fBottom = fScale * otm.otmrcFontBox.right;
-        mx->fLeading = fScale * otm.otmLineGap;
+        mx->fTop = SkIntToScalar(-otm.otmrcFontBox.left);
+        mx->fAscent = SkIntToScalar(-otm.otmAscent);
+        mx->fDescent = SkIntToScalar(-otm.otmDescent);
+        mx->fBottom = SkIntToScalar(otm.otmrcFontBox.right);
+        mx->fLeading = SkIntToScalar(otm.otmLineGap);
     }
 
     if (my) {
 #ifndef SK_GDI_ALWAYS_USE_TEXTMETRICS_FOR_FONT_METRICS
-        my->fTop = -fScale * otm.otmrcFontBox.top;
-        my->fAscent = -fScale * otm.otmAscent;
-        my->fDescent = -fScale * otm.otmDescent;
-        my->fBottom = -fScale * otm.otmrcFontBox.bottom;
-        my->fLeading = fScale * otm.otmLineGap;
-        my->fAvgCharWidth = fScale * otm.otmTextMetrics.tmAveCharWidth;
-        my->fMaxCharWidth = fScale * otm.otmTextMetrics.tmMaxCharWidth;
-        my->fXMin = fScale * otm.otmrcFontBox.left;
-        my->fXMax = fScale * otm.otmrcFontBox.right;
+        my->fTop = SkIntToScalar(-otm.otmrcFontBox.top);
+        my->fAscent = SkIntToScalar(-otm.otmAscent);
+        my->fDescent = SkIntToScalar(-otm.otmDescent);
+        my->fBottom = SkIntToScalar(-otm.otmrcFontBox.bottom);
+        my->fLeading = SkIntToScalar(otm.otmLineGap);
+        my->fAvgCharWidth = SkIntToScalar(otm.otmTextMetrics.tmAveCharWidth);
+        my->fMaxCharWidth = SkIntToScalar(otm.otmTextMetrics.tmMaxCharWidth);
+        my->fXMin = SkIntToScalar(otm.otmrcFontBox.left);
+        my->fXMax = SkIntToScalar(otm.otmrcFontBox.right);
 #endif
-        my->fXHeight = fScale * otm.otmsXHeight;
+        my->fXHeight = SkIntToScalar(otm.otmsXHeight);
+
+        GLYPHMETRICS gm;
+        sk_bzero(&gm, sizeof(gm));
+        DWORD len = GetGlyphOutlineW(fDDC, 'x', GGO_METRICS, &gm, 0, 0, &gMat2Identity);
+        if (len != GDI_ERROR && gm.gmBlackBoxY > 0) {
+            my->fXHeight = SkIntToScalar(gm.gmBlackBoxY);
+        }
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+
+#define SK_SHOW_TEXT_BLIT_COVERAGE 0
 
 static void build_power_table(uint8_t table[], float ee) {
     for (int i = 0; i < 256; i++) {
@@ -1050,6 +1102,9 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+    r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+#endif
     return SkPack888ToRGB16(r, g, b);
 }
 
@@ -1060,6 +1115,9 @@ static inline SkPMColor rgb_to_lcd32(SkGdiRGB rgb, const uint8_t* tableR,
     U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+    r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+#endif
     return SkPackARGB32(0xFF, r, g, b);
 }
 
@@ -1130,6 +1188,14 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
         dst -= dstRB;
     }
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+    if (glyph.fWidth > 0 && glyph.fHeight > 0) {
+        uint8_t* first = (uint8_t*)glyph.fImage;
+        uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
+        *first |= 1 << 7;
+        *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
+    }
+#endif
 }
 
 template<bool APPLY_PREBLEND>
@@ -1142,6 +1208,9 @@ static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+            dst[i] = SkMax32(dst[i], 10);
+#endif
         }
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
         dst -= dstRB;
@@ -1238,6 +1307,15 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
             src += srcRB;
             dst -= dstRB;
         }
+#if SK_SHOW_TEXT_BLIT_COVERAGE
+            if (glyph.fWidth > 0 && glyph.fHeight > 0) {
+                int bitCount = width & 7;
+                uint8_t* first = (uint8_t*)glyph.fImage;
+                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
+                *first |= 1 << 7;
+                *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
+            }
+#endif
     } else if (isAA) {
         // since the caller may require A8 for maskfilters, we can't check for BW
         // ... until we have the caller tell us that explicitly
@@ -1275,54 +1353,146 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
-    SkASSERT(&glyph && path);
-    SkASSERT(fDDC);
+class GDIGlyphbufferPointIter {
+public:
+    GDIGlyphbufferPointIter(const uint8_t* glyphbuf, DWORD total_size) 
+        : fHeaderIter(glyphbuf, total_size), fCurveIter(), fPointIter()
+    { }
 
-    path->reset();
-
-    GLYPHMETRICS gm;
-
-    // Out of all the fonts on a typical Windows box,
-    // 25% of glyphs require more than 2KB.
-    // 1% of glyphs require more than 4KB.
-    // 0.01% of glyphs require more than 8KB.
-    // 8KB is less than 1% of the normal 1MB stack on Windows.
-    // Note that some web fonts glyphs require more than 20KB.
-    static const DWORD BUFFERSIZE = (1 << 13);
-    SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
-
-    const UINT flags = GGO_NATIVE | GGO_GLYPH_INDEX;
-    DWORD total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, BUFFERSIZE, glyphbuf, &fMat22);
-    // Sometimes GetGlyphOutlineW returns a number larger than BUFFERSIZE even if BUFFERSIZE > 0.
-    // It has been verified that this does not involve a buffer overrun.
-    if (GDI_ERROR == total_size || total_size > BUFFERSIZE) {
-        // GDI_ERROR because the BUFFERSIZE was too small, or because the data was not accessible.
-        // When the data is not accessable GetGlyphOutlineW fails rather quickly,
-        // so just try to get the size. If that fails then ensure the data is accessible.
-        total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, 0, NULL, &fMat22);
-        if (GDI_ERROR == total_size) {
-            LogFontTypeface::EnsureAccessible(this->getTypeface());
-            total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, 0, NULL, &fMat22);
-            if (GDI_ERROR == total_size) {
-                SkASSERT(false);
-                return;
-            }
+    POINTFX next() {
+nextHeader:
+        if (!fCurveIter.isSet()) {
+            const TTPOLYGONHEADER* header = fHeaderIter.next();
+            SkASSERT(header);
+            fCurveIter.set(header);
+            const TTPOLYCURVE* curve = fCurveIter.next();
+            SkASSERT(curve);
+            fPointIter.set(curve);
+            return header->pfxStart;
         }
 
-        glyphbuf.reset(total_size);
-
-        DWORD ret = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, total_size, glyphbuf, &fMat22);
-        if (GDI_ERROR == ret) {
-            LogFontTypeface::EnsureAccessible(this->getTypeface());
-            ret = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, total_size, glyphbuf, &fMat22);
-            if (GDI_ERROR == ret) {
-                SkASSERT(false);
-                return;
+        const POINTFX* nextPoint = fPointIter.next();
+        if (NULL == nextPoint) {
+            const TTPOLYCURVE* curve = fCurveIter.next();
+            if (NULL == curve) {
+                fCurveIter.set();
+                goto nextHeader;
+            } else {
+                fPointIter.set(curve);
             }
+            nextPoint = fPointIter.next();
+            SkASSERT(nextPoint);
         }
+        return *nextPoint;
     }
 
+    WORD currentCurveType() {
+        return fPointIter.fCurveType;
+    }
+
+private:
+    /** Iterates over all of the polygon headers in a glyphbuf. */
+    class GDIPolygonHeaderIter {
+    public:
+        GDIPolygonHeaderIter(const uint8_t* glyphbuf, DWORD total_size) 
+            : fCurPolygon(reinterpret_cast<const TTPOLYGONHEADER*>(glyphbuf))
+            , fEndPolygon(SkTAddOffset<const TTPOLYGONHEADER>(glyphbuf, total_size))
+        { }
+
+        const TTPOLYGONHEADER* next() {
+            if (fCurPolygon >= fEndPolygon) {
+                return NULL;
+            }
+            const TTPOLYGONHEADER* thisPolygon = fCurPolygon;
+            fCurPolygon = SkTAddOffset<const TTPOLYGONHEADER>(fCurPolygon, fCurPolygon->cb);
+            return thisPolygon;
+        }
+    private:
+        const TTPOLYGONHEADER* fCurPolygon;
+        const TTPOLYGONHEADER* fEndPolygon;
+    };
+
+    /** Iterates over all of the polygon curves in a polygon header. */
+    class GDIPolygonCurveIter {
+    public:
+        GDIPolygonCurveIter() : fCurCurve(NULL), fEndCurve(NULL) { }
+
+        GDIPolygonCurveIter(const TTPOLYGONHEADER* curPolygon)
+            : fCurCurve(SkTAddOffset<const TTPOLYCURVE>(curPolygon, sizeof(TTPOLYGONHEADER)))
+            , fEndCurve(SkTAddOffset<const TTPOLYCURVE>(curPolygon, curPolygon->cb))
+        { }
+
+        bool isSet() { return fCurCurve != NULL; }
+
+        void set(const TTPOLYGONHEADER* curPolygon) {
+            fCurCurve = SkTAddOffset<const TTPOLYCURVE>(curPolygon, sizeof(TTPOLYGONHEADER));
+            fEndCurve = SkTAddOffset<const TTPOLYCURVE>(curPolygon, curPolygon->cb);
+        }
+        void set() {
+            fCurCurve = NULL;
+            fEndCurve = NULL;
+        }
+
+        const TTPOLYCURVE* next() {
+            if (fCurCurve >= fEndCurve) {
+                return NULL;
+            }
+            const TTPOLYCURVE* thisCurve = fCurCurve;
+            fCurCurve = SkTAddOffset<const TTPOLYCURVE>(fCurCurve, size_of_TTPOLYCURVE(*fCurCurve));
+            return thisCurve;
+        }
+    private:
+        size_t size_of_TTPOLYCURVE(const TTPOLYCURVE& curve) {
+            return 2*sizeof(WORD) + curve.cpfx*sizeof(POINTFX);
+        }
+        const TTPOLYCURVE* fCurCurve;
+        const TTPOLYCURVE* fEndCurve;
+    };
+
+    /** Iterates over all of the polygon points in a polygon curve. */
+    class GDIPolygonCurvePointIter {
+    public:
+        GDIPolygonCurvePointIter() : fCurveType(0), fCurPoint(NULL), fEndPoint(NULL) { }
+
+        GDIPolygonCurvePointIter(const TTPOLYCURVE* curPolygon)
+            : fCurveType(curPolygon->wType)
+            , fCurPoint(&curPolygon->apfx[0])
+            , fEndPoint(&curPolygon->apfx[curPolygon->cpfx])
+        { }
+
+        bool isSet() { return fCurPoint != NULL; }
+
+        void set(const TTPOLYCURVE* curPolygon) {
+            fCurveType = curPolygon->wType;
+            fCurPoint = &curPolygon->apfx[0];
+            fEndPoint = &curPolygon->apfx[curPolygon->cpfx];
+        }
+        void set() {
+            fCurPoint = NULL;
+            fEndPoint = NULL;
+        }
+
+        const POINTFX* next() {
+            if (fCurPoint >= fEndPoint) {
+                return NULL;
+            }
+            const POINTFX* thisPoint = fCurPoint;
+            ++fCurPoint;
+            return thisPoint;
+        }
+
+        WORD fCurveType;
+    private:
+        const POINTFX* fCurPoint;
+        const POINTFX* fEndPoint;
+    };
+
+    GDIPolygonHeaderIter fHeaderIter;
+    GDIPolygonCurveIter fCurveIter;
+    GDIPolygonCurvePointIter fPointIter;
+};
+
+static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD total_size) {
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
 
@@ -1368,6 +1538,148 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
         }
         cur_glyph += th->cb;
         path->close();
+    }
+}
+
+static void sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD total_size,
+                                   GDIGlyphbufferPointIter hintedYs) {
+    const uint8_t* cur_glyph = glyphbuf;
+    const uint8_t* end_glyph = glyphbuf + total_size;
+
+    while (cur_glyph < end_glyph) {
+        const TTPOLYGONHEADER* th = (TTPOLYGONHEADER*)cur_glyph;
+
+        const uint8_t* end_poly = cur_glyph + th->cb;
+        const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
+
+        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
+                     SkFixedToScalar(-SkFIXEDToFixed(hintedYs.next().y)));
+
+        while (cur_poly < end_poly) {
+            const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+
+            if (pc->wType == TT_PRIM_LINE) {
+                for (uint16_t i = 0; i < pc->cpfx; i++) {
+                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(hintedYs.next().y)));
+                }
+            }
+
+            if (pc->wType == TT_PRIM_QSPLINE) {
+                POINTFX currentPoint = pc->apfx[0];
+                POINTFX hintedY = hintedYs.next();
+                // only take the hinted y if it wasn't flipped
+                if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
+                    currentPoint.y = hintedY.y;
+                }
+                for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
+                    POINTFX pnt_b = currentPoint;//pc->apfx[u]; // B is always the current point
+                    POINTFX pnt_c = pc->apfx[u+1];
+                    POINTFX hintedY = hintedYs.next();
+                    // only take the hinted y if it wasn't flipped
+                    if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
+                        pnt_c.y = hintedY.y;
+                    }
+                    currentPoint.x = pnt_c.x;
+                    currentPoint.y = pnt_c.y;
+
+                    if (u < pc->cpfx - 2) {          // If not on last spline, compute C
+                        pnt_c.x = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.x),
+                                                            SkFIXEDToFixed(pnt_c.x)));
+                        pnt_c.y = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.y),
+                                                            SkFIXEDToFixed(pnt_c.y)));
+                    }
+
+                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
+                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+                }
+            }
+            // Advance past this TTPOLYCURVE.
+            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
+        }
+        cur_glyph += th->cb;
+        path->close();
+    }
+}
+
+DWORD SkScalerContext_Windows::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
+                                               SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
+{
+    GLYPHMETRICS gm;
+
+    DWORD total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, BUFFERSIZE, glyphbuf->get(), &fMat22);
+    // Sometimes GetGlyphOutlineW returns a number larger than BUFFERSIZE even if BUFFERSIZE > 0.
+    // It has been verified that this does not involve a buffer overrun.
+    if (GDI_ERROR == total_size || total_size > BUFFERSIZE) {
+        // GDI_ERROR because the BUFFERSIZE was too small, or because the data was not accessible.
+        // When the data is not accessable GetGlyphOutlineW fails rather quickly,
+        // so just try to get the size. If that fails then ensure the data is accessible.
+        total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, 0, NULL, &fMat22);
+        if (GDI_ERROR == total_size) {
+            LogFontTypeface::EnsureAccessible(this->getTypeface());
+            total_size = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, 0, NULL, &fMat22);
+            if (GDI_ERROR == total_size) {
+                SkASSERT(false);
+                return 0;
+            }
+        }
+
+        glyphbuf->reset(total_size);
+
+        DWORD ret = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, total_size, glyphbuf->get(), &fMat22);
+        if (GDI_ERROR == ret) {
+            LogFontTypeface::EnsureAccessible(this->getTypeface());
+            ret = GetGlyphOutlineW(fDDC, glyph.fID, flags, &gm, total_size, glyphbuf->get(), &fMat22);
+            if (GDI_ERROR == ret) {
+                SkASSERT(false);
+                return 0;
+            }
+        }
+    }
+    return total_size;
+}
+
+void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
+    SkASSERT(&glyph && path);
+    SkASSERT(fDDC);
+
+    path->reset();
+
+    // Out of all the fonts on a typical Windows box,
+    // 25% of glyphs require more than 2KB.
+    // 1% of glyphs require more than 4KB.
+    // 0.01% of glyphs require more than 8KB.
+    // 8KB is less than 1% of the normal 1MB stack on Windows.
+    // Note that some web fonts glyphs require more than 20KB.
+    //static const DWORD BUFFERSIZE = (1 << 13);
+
+    //GDI only uses hinted outlines when axis aligned.
+    UINT format = GGO_NATIVE | GGO_GLYPH_INDEX;
+    if (fRec.getHinting() == SkPaint::kNo_Hinting || fRec.getHinting() == SkPaint::kSlight_Hinting){
+        format |= GGO_UNHINTED;
+    }
+    SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
+    DWORD total_size = getGDIGlyphPath(glyph, format, &glyphbuf);
+    if (0 == total_size) {
+        return;
+    }
+
+    if (fRec.getHinting() != SkPaint::kSlight_Hinting) {
+        sk_path_from_gdi_path(path, glyphbuf, total_size);
+    } else {
+        //GDI only uses hinted outlines when axis aligned.
+        UINT format = GGO_NATIVE | GGO_GLYPH_INDEX;
+
+        SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
+        DWORD hinted_total_size = getGDIGlyphPath(glyph, format, &hintedGlyphbuf);
+        if (0 == hinted_total_size) {
+            return;
+        }
+
+        sk_path_from_gdi_paths(path, glyphbuf, total_size,
+                               GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size));
     }
 }
 
@@ -1795,31 +2107,31 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
                                   SkScalerContext::kEmbolden_Flag |
-                                  SkScalerContext::kSubpixelPositioning_Flag |
                                   SkScalerContext::kLCD_BGROrder_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;
     rec->fFlags &= ~flagsWeDontSupport;
 
     SkPaint::Hinting h = rec->getHinting();
-
-    // I think we can support no-hinting, if we get hires outlines and just
-    // use skia to rasterize into a gray-scale mask...
-#if 0
     switch (h) {
         case SkPaint::kNo_Hinting:
+            break;
         case SkPaint::kSlight_Hinting:
-            h = SkPaint::kNo_Hinting;
+            // Only do slight hinting when axis aligned.
+            if (!isAxisAligned(*rec)) {
+                h = SkPaint::kNo_Hinting;
+            }
             break;
         case SkPaint::kNormal_Hinting:
         case SkPaint::kFull_Hinting:
+            // TODO: need to be able to distinguish subpixel positioned glyphs
+            // and linear metrics.
+            //rec->fFlags &= ~SkScalerContext::kSubpixelPositioning_Flag;
             h = SkPaint::kNormal_Hinting;
             break;
         default:
             SkDEBUGFAIL("unknown hinting");
     }
-#else
-    h = SkPaint::kNormal_Hinting;
-#endif
+    //TODO: if this is a bitmap font, squash hinting and subpixel.
     rec->setHinting(h);
 
 // turn this off since GDI might turn A8 into BW! Need a bigger fix.
