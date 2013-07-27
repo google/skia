@@ -2117,9 +2117,10 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
             break;
         case SkPaint::kSlight_Hinting:
             // Only do slight hinting when axis aligned.
-            if (!isAxisAligned(*rec)) {
+            // TODO: re-enable slight hinting when FontHostTest can pass.
+            //if (!isAxisAligned(*rec)) {
                 h = SkPaint::kNo_Hinting;
-            }
+            //}
             break;
         case SkPaint::kNormal_Hinting:
         case SkPaint::kFull_Hinting:
