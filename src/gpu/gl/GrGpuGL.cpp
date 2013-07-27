@@ -1553,7 +1553,7 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
     if (NULL == bound || !bound->isEmpty()) {
         rt->flagAsNeedingResolve(bound);
     }
-    
+
     GrTexture *texture = rt->asTexture();
     if (texture) {
         texture->dirtyMipMaps(true);
@@ -2029,9 +2029,9 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     };
     newTexParams.fMinFilter = glMinFilterModes[params.filterMode()];
     newTexParams.fMagFilter = glMagFilterModes[params.filterMode()];
-    
+
 #ifndef SKIA_IGNORE_GPU_MIPMAPS
-    if (params.filterMode() == GrTextureParams::kMipMap_FilterMode && 
+    if (params.filterMode() == GrTextureParams::kMipMap_FilterMode &&
         texture->mipMapsAreDirty()) {
 //        GL_CALL(Hint(GR_GL_GENERATE_MIPMAP_HINT,GR_GL_NICEST));
         GL_CALL(GenerateMipmap(GR_GL_TEXTURE_2D));
