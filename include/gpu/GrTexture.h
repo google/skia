@@ -43,11 +43,11 @@ public:
     bool isSetFlag(GrTextureFlags flags) const {
         return 0 != (fDesc.fFlags & flags);
     }
-    
+
     void dirtyMipMaps(bool mipMapsDirty) {
         fMipMapsDirty = mipMapsDirty;
     }
-    
+
     bool mipMapsAreDirty() const {
         return fMipMapsDirty;
     }
@@ -144,7 +144,7 @@ protected:
 
     GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped, desc)
-    , fRenderTarget(NULL) 
+    , fRenderTarget(NULL)
     , fMipMapsDirty(true) {
 
         // only make sense if alloc size is pow2
@@ -164,7 +164,7 @@ private:
     // for this texture if the texture is power of two sized.
     int                 fShiftFixedX;
     int                 fShiftFixedY;
-    
+
     bool                fMipMapsDirty;
 
     virtual void internal_dispose() const SK_OVERRIDE;
