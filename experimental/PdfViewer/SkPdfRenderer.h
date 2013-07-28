@@ -12,7 +12,7 @@
 class SkBitmap;
 class SkCanvas;
 class SkNativeParsedPDF;
-class SkRect;
+struct SkRect;
 class SkStream;
 
 enum SkPdfContent {

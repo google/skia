@@ -412,7 +412,7 @@ static PdfResult DrawText(PdfContext* pdfContext,
     skfont->drawText(decoded, &paint, pdfContext, canvas);
     canvas->restore();
 
-    return kPartial_PdfResult;
+    return kOK_PdfResult;
 }
 
 // TODO(edisonn): create header files with declarations!
@@ -562,7 +562,7 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
 //        SkImageDecoder::Factory()
 //    }
 
-    int bytesPerLine = uncompressedStreamLength / height;
+    int bytesPerLine = (int)(uncompressedStreamLength / height);
 #ifdef PDF_TRACE
     if (uncompressedStreamLength % height != 0) {
         printf("Warning uncompressedStreamLength modulo height != 0 !!!\n");
@@ -1090,7 +1090,7 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
     //pdfContext->fGraphicsState.fClipPath.reset();
     pdfContext->fGraphicsState.fHasClipPathToApply = false;
 
-    return kPartial_PdfResult;
+    return kOK_PdfResult;
 
 }
 
@@ -1159,7 +1159,7 @@ static PdfResult PdfOp_ET(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
         return kIgnoreError_PdfResult;
     }
     // TODO(edisonn): anything else to be done once we are done with draw text? Like restore stack?
-    return kPartial_PdfResult;
+    return kOK_PdfResult;
 }
 
 PdfResult skpdfGraphicsStateApplyFontCore(PdfContext* pdfContext, const SkPdfObject* fontName, double fontSize) {
@@ -1167,23 +1167,27 @@ PdfResult skpdfGraphicsStateApplyFontCore(PdfContext* pdfContext, const SkPdfObj
     printf("font name: %s\n", fontName->nameValue2().c_str());
 #endif
 
-    if (pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)) {
-        SkPdfObject* objFont = pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)->get(fontName);
-        objFont = pdfContext->fPdfDoc->resolveReference(objFont);
-        if (kNone_SkPdfObjectType == pdfContext->fPdfDoc->mapper()->mapFontDictionary(objFont)) {
-            // TODO(edisonn): try to recover and draw it any way?
-            return kIgnoreError_PdfResult;
-        }
-        SkPdfFontDictionary* fd = (SkPdfFontDictionary*)objFont;
+    if (!pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)) {
+        // TODO(edisonn): try to recover and draw it any way?
+        return kIgnoreError_PdfResult;
+    }
 
-        SkPdfFont* skfont = SkPdfFont::fontFromPdfDictionary(pdfContext->fPdfDoc, fd);
+    SkPdfObject* objFont = pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)->get(fontName);
+    objFont = pdfContext->fPdfDoc->resolveReference(objFont);
+    if (kNone_SkPdfObjectType == pdfContext->fPdfDoc->mapper()->mapFontDictionary(objFont)) {
+        // TODO(edisonn): try to recover and draw it any way?
+        return kIgnoreError_PdfResult;
+    }
 
-        if (skfont) {
-            pdfContext->fGraphicsState.fSkFont = skfont;
-        }
+    SkPdfFontDictionary* fd = (SkPdfFontDictionary*)objFont;
+
+    SkPdfFont* skfont = SkPdfFont::fontFromPdfDictionary(pdfContext->fPdfDoc, fd);
+
+    if (skfont) {
+        pdfContext->fGraphicsState.fSkFont = skfont;
     }
     pdfContext->fGraphicsState.fCurFontSize = fontSize;
-    return kIgnoreError_PdfResult;
+    return kOK_PdfResult;
 }
 
 //font size Tf Set the text font, Tf
@@ -1324,7 +1328,7 @@ static PdfResult PdfOp_SC_sc(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     // TODO(edisonn): do possible field values to enum at parsing time!
     // TODO(edisonn): support also abreviations /DeviceRGB == /RGB
     if (colorOperator->fColorSpace.equals("DeviceRGB") || colorOperator->fColorSpace.equals("RGB")) {
-        colorOperator->setRGBColor(SkColorSetRGB(255*c[0], 255*c[1], 255*c[2]));
+        colorOperator->setRGBColor(SkColorSetRGB((U8CPU)(255*c[0]), (U8CPU)(255*c[1]), (U8CPU)(255*c[2])));
     }
     return kPartial_PdfResult;
 }
@@ -1377,7 +1381,7 @@ static PdfResult PdfOp_RG_rg(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     double r = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
 
     colorOperator->fColorSpace = strings_DeviceRGB;
-    colorOperator->setRGBColor(SkColorSetRGB(255*r, 255*g, 255*b));
+    colorOperator->setRGBColor(SkColorSetRGB((U8CPU)(255*r), (U8CPU)(255*g), (U8CPU)(255*b)));
     return kOK_PdfResult;
 }
 
@@ -1419,17 +1423,10 @@ static PdfResult PdfOp_W(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoope
 static PdfResult PdfOp_W_star(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fClipPath = pdfContext->fGraphicsState.fPath;
 
-#ifdef PDF_TRACE
-    if (pdfContext->fGraphicsState.fClipPath.isRect(NULL)) {
-        printf("CLIP IS RECT\n");
-    }
-#endif
-
-    // TODO(edisonn): there seem to be a bug with clipPath of a rect with even odd.
     pdfContext->fGraphicsState.fClipPath.setFillType(SkPath::kEvenOdd_FillType);
     pdfContext->fGraphicsState.fHasClipPathToApply = true;
 
-    return kPartial_PdfResult;
+    return kOK_PdfResult;
 }
 
 static PdfResult PdfOp_BX(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
