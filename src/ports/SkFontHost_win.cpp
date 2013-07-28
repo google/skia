@@ -607,7 +607,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
     }
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
-    
+
     SkPoint h = SkPoint::Make(SK_Scalar1, 0);
     // A is the total matrix.
     SkMatrix A;
@@ -1355,7 +1355,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
 class GDIGlyphbufferPointIter {
 public:
-    GDIGlyphbufferPointIter(const uint8_t* glyphbuf, DWORD total_size) 
+    GDIGlyphbufferPointIter(const uint8_t* glyphbuf, DWORD total_size)
         : fHeaderIter(glyphbuf, total_size), fCurveIter(), fPointIter()
     { }
 
@@ -1394,7 +1394,7 @@ private:
     /** Iterates over all of the polygon headers in a glyphbuf. */
     class GDIPolygonHeaderIter {
     public:
-        GDIPolygonHeaderIter(const uint8_t* glyphbuf, DWORD total_size) 
+        GDIPolygonHeaderIter(const uint8_t* glyphbuf, DWORD total_size)
             : fCurPolygon(reinterpret_cast<const TTPOLYGONHEADER*>(glyphbuf))
             , fEndPolygon(SkTAddOffset<const TTPOLYGONHEADER>(glyphbuf, total_size))
         { }
