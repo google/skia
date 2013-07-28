@@ -56,7 +56,7 @@ struct SkPdfColorOperator {
     }
 
     void applyGraphicsState(SkPaint* paint) {
-        paint->setColor(SkColorSetA(fColor, fOpacity * 255));
+        paint->setColor(SkColorSetA(fColor, (U8CPU)(fOpacity * 255)));
     }
 };
 
