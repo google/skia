@@ -71,6 +71,7 @@
       ],
       'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'images.gyp:images',
         'zlib.gyp:zlib',
       ],

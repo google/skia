@@ -607,6 +607,17 @@ public:
         return fObjectType == kReal_PdfObjectType ? fRealValue : fIntegerValue;
     }
 
+    inline SkScalar scalarValue() const {
+        SkASSERT(isNumber());
+
+        if (!isNumber()) {
+            // TODO(edisonn): log err
+            return SkIntToScalar(0);
+        }
+        return fObjectType == kReal_PdfObjectType ? SkDoubleToScalar(fRealValue) :
+                                                    SkIntToScalar(fIntegerValue);
+    }
+
     int referenceId() const {
         SkASSERT(fObjectType == kReference_PdfObjectType);
         return fRef.fId;
