@@ -434,7 +434,7 @@ static void pack4xHToLCD16(const SkBitmap& src, const SkMask& dst,
     // This means using every 4th FIR output value of each FIR and discarding the rest.
     // The FIRs are aligned, and the coefficients reach 5 samples to each side of their 'center'.
     // (For r and b this is technically incorrect, but the coeffs outside round to zero anyway.)
-    
+
     // These are in some fixed point repesentation.
     // Adding up to more than one simulates ink spread.
     // For implementation reasons, these should never add up to more than two.
