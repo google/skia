@@ -196,7 +196,7 @@ const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned
 
             token.reset();
             current = nextObject(0, current, trailerEnd, &token, NULL, NULL);
-            if (!token.isKeyword() || token.len() != 1 || (*token.c_str() != 'f' && *token.c_str() != 'n')) {
+            if (!token.isKeyword() || token.lenstr() != 1 || (*token.c_str() != 'f' && *token.c_str() != 'n')) {
                 // TODO(edisonn): report/warning
                 return current;
             }
@@ -215,7 +215,7 @@ long SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const uns
     const unsigned char* current =
             nextObject(0, trailerStart, trailerEnd, &trailerKeyword, NULL, NULL);
 
-    if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.len() ||
+    if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.lenstr() ||
         strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
         // TODO(edisonn): report warning, rebuild trailer from objects.
         return -1;

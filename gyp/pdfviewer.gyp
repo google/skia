@@ -55,6 +55,8 @@
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfEnums_autogen.h',
+            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.h',
+            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.h',
             '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
             '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
             # TODO(edisonn): ok, there are many more files here, which we should list but since

@@ -116,9 +116,9 @@ tableToClassName = {
 'TABLE 6.5': ['Type10HalftoneDictionary', 'Additional entries specific to a type 10 halftone dictionary'],
 'TABLE 6.6': ['Type16HalftoneDictionary', 'Additional entries specific to a type 16 halftone dictionary'],
 'TABLE 6.7': ['Type5HalftoneDictionary', 'Entries in a type 5 halftone dictionary'],
-'TABLE 7.10': ['SoftMaskDictionary', 'Entries in a soft-mask dictionary'],
-'TABLE 7.12': ['SoftMaskImageDictionary', 'Additional entry in a soft-mask image dictionary'],
-'TABLE 7.13': ['TransparencyGroupDictionary', 'Additional entries specific to a transparency group attributes dictionary'],
+'TABLE 7.10': ['SoftMaskDictionary', 'Entries in a soft-mask dictionary', '', {'S': '[datatypes.PdfName(\'Alpha\'), datatypes.PdfName(\'Luminosity\')]'}],
+'TABLE 7.12': ['SoftMaskImageDictionary', 'Additional entry in a soft-mask image dictionary', 'ImageDictionary', {'Subtype': '[datatypes.PdfName(\'Image\')]', 'ColorSpace': '[datatypes.PdfName(\'DeviceGray\'), datatypes.PdfName(\'Gray\')]'}],
+'TABLE 7.13': ['TransparencyGroupDictionary', 'Additional entries specific to a transparency group attributes dictionary', 'XObjectDictionary', {'S': '[datatypes.PdfName(\'Transparency\')]'}],
 'TABLE 8.1': ['ViewerPreferencesDictionary', 'Entries in a viewer preferences dictionary'],
 'TABLE 8.3': ['OutlineDictionary', 'Entries in the outline dictionary'],
 'TABLE 8.4': ['OutlineItemDictionary', 'Entries in an outline item dictionary'],
@@ -222,6 +222,9 @@ tableToClassName = {
 'TABLE 9.49': ['OpiVersionDictionary', 'Entry in an OPI version dictionary'],
 }
 
+classTree = {
+}
+
 def buildKnownDictionaries():
   global tableToClassName
   global knownTypes
@@ -297,6 +300,9 @@ def commitRow(fspecPy):
   global emitedDitionaryName
   global table
   global tableToClassName
+  global classTree
+  global tableKey
+  
   
   if columnValues == None:
     return
@@ -392,10 +398,13 @@ def commitRow(fspecPy):
     emitedDitionaryName = tableToClassName[tableKey][0]
     comment = fix(tableToClassName[tableKey][1])
     
+    
     if len(tableToClassName[tableKey]) >= 3 and tableToClassName[tableKey][2] != '':
       fspecPy.write('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'' + tableToClassName[tableKey][2] + '\', \'' + comment + '\')\\\n')
+      classTree[emitedDitionaryName] = [tableToClassName[tableKey][2], {}]
     else:
       fspecPy.write('  pdfspec.addClass(\'' + emitedDitionaryName + '\', \'Dictionary\', \'' + comment + '\')\\\n')
+      classTree[emitedDitionaryName] = ['Dictionary', {}]
 
   if len(tableToClassName[tableKey]) >= 4 and columnValues[0] in tableToClassName[tableKey][3]:
     required = True
@@ -409,6 +418,12 @@ def commitRow(fspecPy):
   fspecPy.write('          .name(\'' + columnValues[0] + '\')\\\n')
   fspecPy.write('          .type(\'' + columnValues[1] + '\')\\\n')
   fspecPy.write('          .comment(\'' + columnValues[2] + '\')\\\n')
+  
+  classTree[emitedDitionaryName][1][columnValues[0]] =   '          .field(\'' + columnValues[0] + '\')\\\n' + \
+  '          .name(\'' + columnValues[0] + '\')\\\n' + \
+  '          .type(\'' + columnValues[1] + '\')\\\n' + \
+  '          .comment(\'\')\\\n'
+    
 
   if len(tableToClassName[tableKey]) >= 4 and columnValues[0] in tableToClassName[tableKey][3]:
     fspecPy.write('          .must(' + tableToClassName[tableKey][3][columnValues[0]] + ')\\\n')
@@ -461,11 +476,39 @@ def rebaseTable(fspecPy, line):
 def stopTable(fspecPy):
   global tableHeaderFound
   global emitedDitionaryName
-
+  global tableKey
+  global classTree
+  
   if not inTable():
     return
   
   commitRow(fspecPy)
+  
+  #print tableKey
+  
+  # TODO(edisonn): iterate on all requited key in the def, and if not on the definition, get definition from parent and export them
+  if len(tableToClassName[tableKey]) >= 4:
+    for field in tableToClassName[tableKey][3]:
+      #print field
+      if not field in classTree[emitedDitionaryName][1]:
+        fieldDef = ''
+        searchKey = classTree[emitedDitionaryName][0]
+        while searchKey != 'Dictionary' and (not field in classTree[searchKey][1]):
+          searchKey = classTree[searchKey][0]
+        
+        if searchKey != 'Dictionary' and (field in classTree[searchKey][1]):
+          #print tableToClassName[tableKey][3][field]
+          #print classTree[searchKey][1][field]
+          # TODO(edisonns): hack - for required fields, they need to be downgraded to only a type
+          classTree[searchKey][1][field] = classTree[searchKey][1][field].replace(' or array', '')
+          classTree[searchKey][1][field] = classTree[searchKey][1][field].replace(' or distionary', '')
+          fspecPy.write('      .required(\'NULL\')\\\n')
+          fspecPy.write(classTree[searchKey][1][field])
+          fspecPy.write('          .must(' + tableToClassName[tableKey][3][field] + ')\\\n')
+          fspecPy.write('          .done().done()\\\n')
+        else:
+          print 'ERROR' + tableKey + '.' + field;
+  
   tableHeaderFound = False
   emitedDitionaryName = ''
   fspecPy.write('      .done()\n')
@@ -569,7 +612,7 @@ def processLineCore(fspecPy, line):
         return False
 
     if first != '' and second != '' and third[0] != '(':
-      stopTable()
+      stopTable(fspecPy)
       return False
       
     if first == '' and second != '' and second[0] == ' ':

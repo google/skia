@@ -47,7 +47,7 @@ struct SkUnencodedText {
 public:
     SkUnencodedText(const SkPdfString* obj) {
         text = (void*)obj->c_str();
-        len = obj->len();
+        len = obj->lenstr();
     }
 };
 

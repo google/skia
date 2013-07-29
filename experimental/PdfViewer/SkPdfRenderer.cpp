@@ -668,6 +668,11 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
     // For this PdfContentsTokenizer needs to be extended.
 
+    // This is a group?
+    if (skobj->has_Group()) {
+        //TransparencyGroupDictionary* ...
+    }
+
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
     SkPdfNativeTokenizer* tokenizer =
@@ -1582,20 +1587,112 @@ void skpdfGraphicsStateApplyFont(PdfContext* pdfContext, SkPdfArray* fontAndSize
     skpdfGraphicsStateApplyFontCore(pdfContext, fontAndSize->objAtAIndex(0), fontAndSize->objAtAIndex(1)->numberValue());
 }
 
+SkTDict<SkXfermode::Mode> gPdfBlendModes(20);
+
+class InitBlendModes {
+public:
+    InitBlendModes() {
+        // TODO(edisonn): use the python code generator?
+        // TABLE 7.2 Standard separable blend modes
+        gPdfBlendModes.set("Normal", SkXfermode::kSrc_Mode);
+        gPdfBlendModes.set("Multiply", SkXfermode::kMultiply_Mode);
+        gPdfBlendModes.set("Screen", SkXfermode::kScreen_Mode);
+        gPdfBlendModes.set("Overlay", SkXfermode::kOverlay_Mode);
+        gPdfBlendModes.set("Darken", SkXfermode::kDarken_Mode);
+        gPdfBlendModes.set("Lighten", SkXfermode::kLighten_Mode);
+        gPdfBlendModes.set("ColorDodge", SkXfermode::kColorDodge_Mode);
+        gPdfBlendModes.set("ColorBurn", SkXfermode::kColorBurn_Mode);
+        gPdfBlendModes.set("HardLight", SkXfermode::kHardLight_Mode);
+        gPdfBlendModes.set("SoftLight", SkXfermode::kSoftLight_Mode);
+        gPdfBlendModes.set("Difference", SkXfermode::kDifference_Mode);
+        gPdfBlendModes.set("Exclusion", SkXfermode::kExclusion_Mode);
+
+        // TABLE 7.3 Standard nonseparable blend modes
+        gPdfBlendModes.set("Hue", SkXfermode::kHue_Mode);
+        gPdfBlendModes.set("Saturation", SkXfermode::kSaturation_Mode);
+        gPdfBlendModes.set("Color", SkXfermode::kColor_Mode);
+        gPdfBlendModes.set("Luminosity", SkXfermode::kLuminosity_Mode);
+    }
+};
+
+InitBlendModes _gDummyInniter;
+
+SkXfermode::Mode xferModeFromBlendMode(const char* blendMode, size_t len) {
+    SkXfermode::Mode mode = (SkXfermode::Mode)(SkXfermode::kLastMode + 1);
+    if (gPdfBlendModes.find(blendMode, len, &mode)) {
+        return mode;
+    }
+
+    return (SkXfermode::Mode)(SkXfermode::kLastMode + 1);
+}
+
 void skpdfGraphicsStateApplyBM_name(PdfContext* pdfContext, const std::string& blendMode) {
-    // TODO(edisonn): verify input
+    SkXfermode::Mode mode = xferModeFromBlendMode(blendMode.c_str(), blendMode.length());
+    if (mode <= SkXfermode::kLastMode) {
+        pdfContext->fGraphicsState.fBlendModesLength = 1;
+        pdfContext->fGraphicsState.fBlendModes[0] = mode;
+    } else {
+        // TODO(edisonn): report unknown blend mode
+    }
 }
 
 void skpdfGraphicsStateApplyBM_array(PdfContext* pdfContext, SkPdfArray* blendModes) {
-    // TODO(edisonn): verify input
-}
+    if (!blendModes || blendModes->isArray() || blendModes->size() == 0 || blendModes->size() > 256) {
+        // TODO(edisonn): report error/warning
+        return;
+    }
+    SkXfermode::Mode modes[256];
+    int cnt = blendModes->size();
+    for (int i = 0; i < cnt; i++) {
+        SkPdfObject* name = blendModes->objAtAIndex(i);
+        if (!name->isName()) {
+            // TODO(edisonn): report error/warning
+            return;
+        }
+        SkXfermode::Mode mode = xferModeFromBlendMode(name->c_str(), name->lenstr());
+        if (mode > SkXfermode::kLastMode) {
+            // TODO(edisonn): report error/warning
+            return;
+        }
+    }
 
-void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string& sMask) {
-    // TODO(edisonn): verify input
+    pdfContext->fGraphicsState.fBlendModesLength = cnt;
+    for (int i = 0; i < cnt; i++) {
+        pdfContext->fGraphicsState.fBlendModes[i] = modes[i];
+    }
 }
 
 void skpdfGraphicsStateApplySMask_dict(PdfContext* pdfContext, SkPdfDictionary* sMask) {
     // TODO(edisonn): verify input
+    if (pdfContext->fPdfDoc->mapper()->mapSoftMaskDictionary(sMask)) {
+        //SkPdfSoftMaskDictionary* smd = (SkPdfSoftMaskDictionary*)sMask;
+        // TODO(edisonn): load soft mask
+    } else if (pdfContext->fPdfDoc->mapper()->mapSoftMaskImageDictionary(sMask)) {
+        SkPdfSoftMaskImageDictionary* smid = (SkPdfSoftMaskImageDictionary*)sMask;
+        pdfContext->fGraphicsState.fSMask = getImageFromObject(pdfContext, smid, true);
+    } else {
+        // TODO (edisonn): report error/warning
+    }
+}
+
+void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string& sMask) {
+    //Next, get the ExtGState Dictionary from the Resource Dictionary:
+    SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->ExtGState(pdfContext->fPdfDoc);
+
+    if (extGStateDictionary == NULL) {
+#ifdef PDF_TRACE
+        printf("ExtGState is NULL!\n");
+#endif
+        // TODO (edisonn): report error/warning
+        return;
+    }
+
+    SkPdfObject* obj = pdfContext->fPdfDoc->resolveReference(extGStateDictionary->get(sMask.c_str()));
+    if (!obj || !obj->isDictionary()) {
+        // TODO (edisonn): report error/warning
+        return;
+    }
+    skpdfGraphicsStateApplySMask_dict(pdfContext, obj->asDictionary());
 }
 
 void skpdfGraphicsStateApplyAIS(PdfContext* pdfContext, bool alphaSource) {

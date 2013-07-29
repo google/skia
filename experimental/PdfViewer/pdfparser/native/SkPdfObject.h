@@ -131,7 +131,7 @@ public:
         }
     }
 
-    size_t len() const {
+    size_t lenstr() const {
         switch (fObjectType) {
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
