@@ -49,14 +49,14 @@ static void convolve_gaussian(GrContext* context,
                               Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
     paint.reset();
-    float cropRect[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+    float bounds[2] = { 0.0f, 1.0f };
     if (cropToSrcRect) {
         if (direction == Gr1DKernelEffect::kX_Direction) {
-            cropRect[0] = SkScalarToFloat(srcRect.left()) / texture->width();
-            cropRect[1] = SkScalarToFloat(srcRect.right()) / texture->width();
+            bounds[0] = SkScalarToFloat(srcRect.left()) / texture->width();
+            bounds[1] = SkScalarToFloat(srcRect.right()) / texture->width();
         } else {
-            cropRect[2] = SkScalarToFloat(srcRect.top()) / texture->height();
-            cropRect[3] = SkScalarToFloat(srcRect.bottom()) / texture->height();
+            bounds[0] = SkScalarToFloat(srcRect.top()) / texture->height();
+            bounds[1] = SkScalarToFloat(srcRect.bottom()) / texture->height();
         }
     }
 
@@ -65,7 +65,7 @@ static void convolve_gaussian(GrContext* context,
                                                                        radius,
                                                                        sigma,
                                                                        cropToSrcRect,
-                                                                       cropRect));
+                                                                       bounds));
     paint.addColorEffect(conv);
     context->drawRectToRect(paint, dstRect, srcRect);
 }
