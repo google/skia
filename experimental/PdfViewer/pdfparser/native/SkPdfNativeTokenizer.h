@@ -60,11 +60,10 @@ class SkPdfImageDictionary;
 #define isPdfWhiteSpaceOrPdfDelimiter(ch) (isPdfWhiteSpace(ch)||isPdfDelimiter(ch))
 
 #define isPdfDigit(ch) ((ch)>='0'&&(ch)<='9')
-#define isPdfNumeric(ch) (isPdfDigit(ch)||(ch)=='+'||(ch)=='-')
+#define isPdfNumeric(ch) (isPdfDigit(ch)||(ch)=='+'||(ch)=='-'||(ch)=='.')
 
-const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* buffer, size_t len);
-const unsigned char* endOfPdfToken(int level, const unsigned char* start, size_t len);
-const unsigned char* skipPdfComment(int level, const unsigned char* start, size_t len);
+const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* buffer, const unsigned char* end);
+const unsigned char* endOfPdfToken(int level, const unsigned char* start, const unsigned char* end);
 
 // TODO(edisonn): typedef read and integer tyepes? make less readable...
 //typedef double SkPdfReal;

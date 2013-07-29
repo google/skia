@@ -527,6 +527,22 @@ public:
         return fObjectType == kKeyword_PdfObjectType;
     }
 
+    bool isKeyword(const char* keyword) const {
+        if (!isKeyword()) {
+            return false;
+        }
+
+        if (strlen(keyword) != fStr.fBytes) {
+            return false;
+        }
+
+        if (strncmp(keyword, (const char*)fStr.fBuffer, fStr.fBytes) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     bool isName() const {
         return fObjectType == kName_PdfObjectType;
     }

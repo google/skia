@@ -615,6 +615,7 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
 
     SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
 
+    // TODO(edisonn): soft mask type? alpha/luminosity.
     if (sMask.empty()) {
         canvas->drawBitmapRect(image, dst, NULL);
     } else {
@@ -622,6 +623,7 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
         canvas->drawBitmapRect(image, dst, NULL);
         SkPaint xfer;
         pdfContext->fGraphicsState.applyGraphicsState(&xfer, false);
+        // TODO(edisonn): is the blend mode specified already implicitly/explicitly in pdf?
         xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
         canvas->drawBitmapRect(sMask, dst, &xfer);
         canvas->restore();
@@ -632,15 +634,15 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     return kPartial_PdfResult;
 }
 
-
-
-
 static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
     if (!skobj || !skobj->hasStream()) {
         return kIgnoreError_PdfResult;
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
+
+
+
     canvas->save();
 
 
@@ -841,7 +843,12 @@ static PdfResult PdfOp_TL(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 }
 
 static PdfResult PdfOp_Td(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+#ifdef PDF_TRACE
+    printf("stack size = %i\n", (int)pdfContext->fObjectStack.size());
+#endif
     double ty = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
+    SkPdfObject* obj = pdfContext->fObjectStack.top();
+    obj = obj;
     double tx = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
 
     double array[6] = {1, 0, 0, 1, tx, ty};
@@ -1665,8 +1672,7 @@ void skpdfGraphicsStateApplyBM_array(PdfContext* pdfContext, SkPdfArray* blendMo
 void skpdfGraphicsStateApplySMask_dict(PdfContext* pdfContext, SkPdfDictionary* sMask) {
     // TODO(edisonn): verify input
     if (pdfContext->fPdfDoc->mapper()->mapSoftMaskDictionary(sMask)) {
-        //SkPdfSoftMaskDictionary* smd = (SkPdfSoftMaskDictionary*)sMask;
-        // TODO(edisonn): load soft mask
+        pdfContext->fGraphicsState.fSoftMaskDictionary = (SkPdfSoftMaskDictionary*)sMask;
     } else if (pdfContext->fPdfDoc->mapper()->mapSoftMaskImageDictionary(sMask)) {
         SkPdfSoftMaskImageDictionary* smid = (SkPdfSoftMaskImageDictionary*)sMask;
         pdfContext->fGraphicsState.fSMask = getImageFromObject(pdfContext, smid, true);
@@ -1676,6 +1682,12 @@ void skpdfGraphicsStateApplySMask_dict(PdfContext* pdfContext, SkPdfDictionary* 
 }
 
 void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string& sMask) {
+    if (sMask == "None") {
+        pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
+        pdfContext->fGraphicsState.fSMask = SkBitmap();
+        return;
+    }
+
     //Next, get the ExtGState Dictionary from the Resource Dictionary:
     SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->ExtGState(pdfContext->fPdfDoc);
 
@@ -1692,6 +1704,10 @@ void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string
         // TODO (edisonn): report error/warning
         return;
     }
+
+    pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
+    pdfContext->fGraphicsState.fSMask = SkBitmap();
+
     skpdfGraphicsStateApplySMask_dict(pdfContext, obj->asDictionary());
 }
 
@@ -2051,22 +2067,18 @@ void reportPdfRenderStats() {
 }
 
 PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
-    char keyword[256];
-
     if (token.fType == kKeyword_TokenType && token.fKeywordLength < 256)
     {
-        strncpy(keyword, token.fKeyword, token.fKeywordLength);
-        keyword[token.fKeywordLength] = '\0';
         // TODO(edisonn): log trace flag (verbose, error, info, warning, ...)
         PdfOperatorRenderer pdfOperatorRenderer = NULL;
-        if (gPdfOps.find(keyword, &pdfOperatorRenderer) && pdfOperatorRenderer) {
+        if (gPdfOps.find(token.fKeyword, token.fKeywordLength, &pdfOperatorRenderer) && pdfOperatorRenderer) {
             // caller, main work is done by pdfOperatorRenderer(...)
             PdfTokenLooper* childLooper = NULL;
             PdfResult result = pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper);
 
             int cnt = 0;
-            gRenderStats[result].find(keyword, &cnt);
-            gRenderStats[result].set(keyword, cnt + 1);
+            gRenderStats[result].find(token.fKeyword, token.fKeywordLength, &cnt);
+            gRenderStats[result].set(token.fKeyword, token.fKeywordLength, cnt + 1);
 
             if (childLooper) {
                 childLooper->setUp(this);
@@ -2075,8 +2087,8 @@ PdfResult PdfMainLooper::consumeToken(PdfToken& token) {
             }
         } else {
             int cnt = 0;
-            gRenderStats[kUnsupported_PdfResult].find(keyword, &cnt);
-            gRenderStats[kUnsupported_PdfResult].set(keyword, cnt + 1);
+            gRenderStats[kUnsupported_PdfResult].find(token.fKeyword, token.fKeywordLength, &cnt);
+            gRenderStats[kUnsupported_PdfResult].set(token.fKeyword, token.fKeywordLength, cnt + 1);
         }
     }
     else if (token.fType == kObject_TokenType)

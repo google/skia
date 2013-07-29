@@ -72,9 +72,10 @@ private:
 
     // Takes ownership of bytes.
     void init(const void* bytes, size_t length);
+    void loadWithoutXRef();
 
     const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd);
-    long readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog);
+    const unsigned char* readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog, long* prev, bool skipKeyword);
 
     // TODO(edisonn): updates not supported right now, generation ignored
     void addCrossSectionInfo(int id, int generation, int offset, bool isFreed);
