@@ -189,7 +189,8 @@ blend mode        name or array (PDF 1.4) The current blend mode to be used in t
                                 transparency group XObject (see Section 7.5.5, “Transparency
                                 Group XObjects”). Initial value: Normal.
  */
-    SkXfermode::Mode fBlendMode;
+    SkXfermode::Mode fBlendModes[256];
+    int fBlendModesLength;
 
 /*
 soft mask         dictionary    (PDF 1.4) A soft-mask dictionary (see “Soft-Mask Dictionaries” on
@@ -327,7 +328,8 @@ smoothness             number             (PDF 1.3) The precision with which col
         fAlphaSource  = false;
         fDashArrayLength = 0;
         fDashPhase    = 0;
-        fBlendMode    = SkXfermode::kSrc_Mode;  // PDF: Normal Blend mode
+        fBlendModesLength = 1;
+        fBlendModes[0] = SkXfermode::kSrc_Mode;  // PDF: Normal Blend mode
     }
 
     // TODO(edisonn): make two functons instead, stroking and non stoking, avoid branching

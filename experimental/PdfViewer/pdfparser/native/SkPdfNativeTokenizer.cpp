@@ -927,7 +927,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
     // If it is a keyword, we will only get the pointer of the string
     if (obj.type() == SkPdfObject::kKeyword_PdfObjectType) {
         token->fKeyword = obj.c_str();
-        token->fKeywordLength = obj.len();
+        token->fKeywordLength = obj.lenstr();
         token->fType = kKeyword_TokenType;
     } else {
         SkPdfObject* pobj = fAllocator->allocObject();
@@ -1062,7 +1062,7 @@ SkPdfImageDictionary* SkPdfNativeTokenizer::readInlineImage() {
         SkPdfObject* key = fAllocator->allocObject();
         fUncompressedStream = nextObject(0, fUncompressedStream, fUncompressedStreamEnd, key, fAllocator, fDoc);
 
-        if (key->isKeyword() && key->len() == 2 && key->c_str()[0] == 'I' && key->c_str()[1] == 'D') { // ID
+        if (key->isKeyword() && key->lenstr() == 2 && key->c_str()[0] == 'I' && key->c_str()[1] == 'D') { // ID
             fUncompressedStream = readInlineImageStream(0, fUncompressedStream, fUncompressedStreamEnd, inlineImage, fDoc);
             return inlineImage;
         } else {
