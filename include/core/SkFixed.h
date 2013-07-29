@@ -190,7 +190,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     #define SkFixedSquare(a)    SkFixedSquare_longlong(a)
 #endif
 
-#if defined(SK_CPU_ARM) && !defined(__thumb__)
+#if defined(SK_CPU_ARM)
     /* This guy does not handle NaN or other obscurities, but is faster than
        than (int)(x*65536)
     */
@@ -203,6 +203,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
             "mov     %2, %3, lsl #8         \n"
             "orr     %2, %2, #0x80000000    \n"
             "mov     %1, %2, lsr %1         \n"
+            "it cs                          \n"
             "rsbcs   %1, %1, #0             \n"
             : "=r"(x), "=&r"(y), "=&r"(z)
             : "r"(x)
