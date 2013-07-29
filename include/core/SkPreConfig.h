@@ -195,13 +195,8 @@
 
 //////////////////////////////////////////////////////////////////////
 
-/**
- *  THUMB is the only known config where we avoid small branches in
- *  favor of more complex math.
- */
-#if !(defined(__arm__) && defined(__thumb__))
-    #define SK_CPU_HAS_CONDITIONAL_INSTR
-#endif
+// TODO(mtklein): propagate this through the codebase and remove
+#define SK_CPU_HAS_CONDITIONAL_INSTR
 
 //////////////////////////////////////////////////////////////////////
 
