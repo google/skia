@@ -495,7 +495,7 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
         const SkOTTableName::Format1Ext* format1ext =
             SkTAfter<const SkOTTableName::Format1Ext>(nameRecords, nameRecordsCount);
 
-        if (languageTagRecordIndex < format1ext->langTagCount) {
+        if (languageTagRecordIndex < SkEndian_SwapBE16(format1ext->langTagCount)) {
             const SkOTTableName::Format1Ext::LangTagRecord* languageTagRecord =
                 SkTAfter<const SkOTTableName::Format1Ext::LangTagRecord>(format1ext);
 
