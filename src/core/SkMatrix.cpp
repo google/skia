@@ -170,6 +170,15 @@ bool operator==(const SkMatrix& a, const SkMatrix& b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// helper function to determine if upper-left 2x2 of matrix is degenerate
+static inline bool is_degenerate_2x2(SkScalar scaleX, SkScalar skewX, 
+                                     SkScalar skewY,  SkScalar scaleY) {
+    SkScalar perp_dot = scaleX*scaleY - skewX*skewY;
+    return SkScalarNearlyZero(perp_dot, SK_ScalarNearlyZero*SK_ScalarNearlyZero);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool SkMatrix::isSimilarity(SkScalar tol) const {
     // if identity or translate matrix
     TypeMask mask = this->getType();
@@ -189,10 +198,7 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
     SkScalar sx = fMat[kMSkewX];
     SkScalar sy = fMat[kMSkewY];
 
-    // TODO: I (rphillips) think there should be an || in here (see preservesRightAngles)
-    // degenerate matrix, non-similarity
-    if (SkScalarNearlyZero(mx) && SkScalarNearlyZero(my)
-        && SkScalarNearlyZero(sx) && SkScalarNearlyZero(sy)) {
+    if (is_degenerate_2x2(mx, sx, sy, my)) {
         return false;
     }
 
@@ -224,9 +230,7 @@ bool SkMatrix::preservesRightAngles(SkScalar tol) const {
     SkScalar sx = fMat[kMSkewX];
     SkScalar sy = fMat[kMSkewY];
 
-    if ((SkScalarNearlyZero(mx) && SkScalarNearlyZero(sx)) ||
-        (SkScalarNearlyZero(my) && SkScalarNearlyZero(sy))) {
-        // degenerate matrix
+    if (is_degenerate_2x2(mx, sx, sy, my)) {
         return false;
     }
 
@@ -1979,6 +1983,10 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
     SkScalar C = matrix[SkMatrix::kMSkewY];
     SkScalar D = matrix[SkMatrix::kMScaleY];
 
+    if (is_degenerate_2x2(A, B, C, D)) {
+        return false;
+    }
+
     SkScalar E = SK_ScalarHalf*(A + D);
     SkScalar F = SK_ScalarHalf*(A - D);
     SkScalar G = SK_ScalarHalf*(C + B);
@@ -1989,26 +1997,24 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
 
     SkScalar xs, ys, r0, r1;
 
-    // can't have zero yScale, must be degenerate
-    if (SkScalarNearlyEqual(sqrt0, sqrt1)) {
-        return false;
-    }
     xs = sqrt0 + sqrt1;
     ys = sqrt0 - sqrt1;
+    // can't have zero yScale, must be degenerate
+    SkASSERT(!SkScalarNearlyZero(ys));
 
     // uniformly scaled rotation
     if (SkScalarNearlyZero(F) && SkScalarNearlyZero(G)) {
-        SkASSERT(!SkScalarNearlyZero(E));
+        SkASSERT(!SkScalarNearlyZero(E) || !SkScalarNearlyZero(H));
         r0 = SkScalarATan2(H, E);
         r1 = 0;
     // uniformly scaled reflection
     } else if (SkScalarNearlyZero(E) && SkScalarNearlyZero(H)) {
-        SkASSERT(!SkScalarNearlyZero(F));
+        SkASSERT(!SkScalarNearlyZero(F) || !SkScalarNearlyZero(G));
         r0 = -SkScalarATan2(G, F);
         r1 = 0;
     } else {
-        SkASSERT(!SkScalarNearlyZero(E));
-        SkASSERT(!SkScalarNearlyZero(F));
+        SkASSERT(!SkScalarNearlyZero(E) || !SkScalarNearlyZero(H));
+        SkASSERT(!SkScalarNearlyZero(F) || !SkScalarNearlyZero(G));
 
         SkScalar arctan0 = SkScalarATan2(H, E);
         SkScalar arctan1 = SkScalarATan2(G, F);
