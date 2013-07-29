@@ -83,9 +83,9 @@ static void TRACE_HEXSTRING(const unsigned char* start, const unsigned char* end
 #define TRACE_HEXSTRING(start,end)
 #endif
 
-static const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* start, const unsigned char* end) {
+const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* start, const unsigned char* end) {
     TRACE_INDENT(level, "White Space");
-    while (start < end && isPdfWhiteSpace(*start)) {
+    while (start < end && (isPdfWhiteSpace(*start) || *start == kComment_PdfDelimiter)) {
         TRACE_COMMENT(*start);
         if (*start == kComment_PdfDelimiter) {
             // skip the comment until end of line
@@ -103,7 +103,7 @@ static const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* s
 }
 
 // TODO(edisonn) '(' can be used, will it break the string a delimiter or space inside () ?
-static const unsigned char* endOfPdfToken(int level, const unsigned char* start, const unsigned char* end) {
+const unsigned char* endOfPdfToken(int level, const unsigned char* start, const unsigned char* end) {
     //int opened brackets
     //TODO(edisonn): what out for special chars, like \n, \032
     TRACE_INDENT(level, "Token");
@@ -635,6 +635,21 @@ static const unsigned char* readStream(int level, const unsigned char* start, co
 
     // TODO(edisonn): laod external streams
     // TODO(edisonn): look at the last filter, to determione how to deal with possible issue
+
+
+    if (length >= 0) {
+        const unsigned char* endstream = start + length;
+
+        if (endstream[0] == kCR_PdfWhiteSpace && endstream[1] == kLF_PdfWhiteSpace) {
+            endstream += 2;
+        } else if (endstream[0] == kLF_PdfWhiteSpace) {
+            endstream += 1;
+        }
+
+        if (strncmp((const char*)endstream, "endstream", strlen("endstream")) != 0) {
+            length = -1;
+        }
+    }
 
     if (length < 0) {
         // scan the buffer, until we find first endstream

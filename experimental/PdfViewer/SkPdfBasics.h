@@ -14,6 +14,7 @@ class SkPdfFont;
 class SkPdfDoc;
 class SkPdfObject;
 class SkPdfResourceDictionary;
+class SkPdfSoftMaskDictionary;
 
 class SkNativeParsedPDF;
 class SkPdfAllocator;
@@ -202,7 +203,8 @@ soft mask         dictionary    (PDF 1.4) A soft-mask dictionary (see “Soft-Ma
                                 transparency group XObject (see Section 7.5.5, “Transparency
                                 Group XObjects”). Initial value: None.
  */
-    SkBitmap            fSMask;
+    SkPdfSoftMaskDictionary* fSoftMaskDictionary;
+    SkBitmap                 fSMask;
 
 
 /*

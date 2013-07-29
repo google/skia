@@ -123,7 +123,7 @@ void SkNativeParsedPDF::init(const void* bytes, size_t length) {
     bool storeCatalog = true;
     while (xrefByteOffset >= 0) {
         const unsigned char* trailerStart = readCrossReferenceSection(fFileContent + xrefByteOffset, xrefstartKeywordLine);
-        xrefByteOffset = readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog);
+        readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog, &xrefByteOffset, false);
         storeCatalog = false;
     }
 
@@ -141,11 +141,78 @@ void SkNativeParsedPDF::init(const void* bytes, size_t length) {
         }
     }
 
+    // TODO(edisonn): clean up this doc, or better, let the caller call again and build a new doc
+    // caller should be a static function.
+    if (pages() == 0) {
+        loadWithoutXRef();
+    }
+
     // TODO(edisonn): corrupted pdf, read it from beginning and rebuild (xref, trailer, or just reall all objects)
     // 0 pages
 
     // now actually read all objects if we want, or do it lazyly
     // and resolve references?... or not ...
+}
+
+void SkNativeParsedPDF::loadWithoutXRef() {
+    const unsigned char* current = fFileContent;
+    const unsigned char* end = fFileContent + fContentLength;
+
+    // TODO(edisonn): read pdf version
+    current = ignoreLine(current, end);
+
+    current = skipPdfWhiteSpaces(0, current, end);
+    while (current < end) {
+        SkPdfObject token;
+        current = nextObject(0, current, end, &token, NULL, NULL);
+        if (token.isInteger()) {
+            int id = (int)token.intValue();
+
+            token.reset();
+            current = nextObject(0, current, end, &token, NULL, NULL);
+            // int generation = (int)token.intValue();  // TODO(edisonn): ignored for now
+
+            token.reset();
+            current = nextObject(0, current, end, &token, NULL, NULL);
+            // TODO(edisonn): must be obj, return error if not? ignore ?
+            if (!token.isKeyword("obj")) {
+                continue;
+            }
+
+            while (fObjects.count() < id + 1) {
+                reset(fObjects.append());
+            }
+
+            fObjects[id].fOffset = current - fFileContent;
+
+            SkPdfObject* obj = fAllocator->allocObject();
+            current = nextObject(0, current, end, obj, fAllocator, this);
+
+            fObjects[id].fResolvedReference = obj;
+            fObjects[id].fObj = obj;
+
+            // set objects
+        } else if (token.isKeyword("trailer")) {
+            long dummy;
+            current = readTrailer(current, end, true, &dummy, true);
+        } else if (token.isKeyword("startxref")) {
+            token.reset();
+            current = nextObject(0, current, end, &token, NULL, NULL);  // ignore
+        }
+
+        current = skipPdfWhiteSpaces(0, current, end);
+    }
+
+    if (fRootCatalogRef) {
+        fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
+        if (fRootCatalog->isDictionary() && fRootCatalog->valid()) {
+            SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
+            if (tree && tree->isDictionary() && tree->valid()) {
+                fillPages(tree);
+            }
+        }
+    }
+
 }
 
 // TODO(edisonn): NYI
@@ -208,43 +275,47 @@ const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned
     return current;
 }
 
-long SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog) {
-    SkPdfObject trailerKeyword;
-    // TODO(edisonn): use null allocator, and let it just fail if memory
-    // needs allocated (but no crash)!
-    const unsigned char* current =
-            nextObject(0, trailerStart, trailerEnd, &trailerKeyword, NULL, NULL);
+const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog, long* prev, bool skipKeyword) {
+    *prev = -1;
 
-    if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.lenstr() ||
-        strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
-        // TODO(edisonn): report warning, rebuild trailer from objects.
-        return -1;
+    const unsigned char* current = trailerStart;
+    if (!skipKeyword) {
+        SkPdfObject trailerKeyword;
+        // TODO(edisonn): use null allocator, and let it just fail if memory
+        // needs allocated (but no crash)!
+        current = nextObject(0, current, trailerEnd, &trailerKeyword, NULL, NULL);
+
+        if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.lenstr() ||
+            strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
+            // TODO(edisonn): report warning, rebuild trailer from objects.
+            return current;
+        }
     }
 
     SkPdfObject token;
     current = nextObject(0, current, trailerEnd, &token, fAllocator, NULL);
     if (!token.isDictionary()) {
-        return -1;
+        return current;
     }
     SkPdfFileTrailerDictionary* trailer = (SkPdfFileTrailerDictionary*)&token;
     if (!trailer->valid()) {
-        return -1;
+        return current;
     }
 
     if (storeCatalog) {
         const SkPdfObject* ref = trailer->Root(NULL);
         if (ref == NULL || !ref->isReference()) {
             // TODO(edisonn): oops, we have to fix the corrup pdf file
-            return -1;
+            return current;
         }
         fRootCatalogRef = ref;
     }
 
     if (trailer->has_Prev()) {
-        return (long)trailer->Prev(NULL);
+        *prev = (long)trailer->Prev(NULL);
     }
 
-    return -1;
+    return current;
 }
 
 void SkNativeParsedPDF::addCrossSectionInfo(int id, int generation, int offset, bool isFreed) {
@@ -255,6 +326,7 @@ void SkNativeParsedPDF::addCrossSectionInfo(int id, int generation, int offset, 
 
     fObjects[id].fOffset = offset;
     fObjects[id].fObj = NULL;
+    fObjects[id].fResolvedReference = NULL;
 }
 
 SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
