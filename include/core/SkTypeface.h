@@ -225,6 +225,13 @@ public:
     int getUnitsPerEm() const;
 
     /**
+     *  Return the family name for this typeface. It will always be returned
+     *  encoded as UTF8, but the language of the name is whatever the host
+     *  platform chooses.
+     */
+    void getFamilyName(SkString* name) const;
+
+    /**
      *  Return a stream for the contents of the font data, or NULL on failure.
      *  If ttcIndex is not null, it is set to the TrueTypeCollection index
      *  of this typeface within the stream, or 0 if the stream is not a

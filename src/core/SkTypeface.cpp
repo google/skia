@@ -195,6 +195,13 @@ int SkTypeface::getUnitsPerEm() const {
     return this->onGetUPEM();
 }
 
+void SkTypeface::getFamilyName(SkString* name) const {
+    bool isLocal = false;
+    SkFontDescriptor desc(this->style());
+    this->onGetFontDescriptor(&desc, &isLocal);
+    name->set(desc.getFamilyName());
+}
+
 SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo info,
                                 const uint32_t* glyphIDs,
