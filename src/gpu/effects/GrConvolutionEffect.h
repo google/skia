@@ -26,14 +26,14 @@ public:
                                Direction dir,
                                int halfWidth,
                                const float* kernel,
-                               bool useCropRect,
-                               float cropRect[4]) {
+                               bool useBounds,
+                               float bounds[2]) {
         AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                                 dir,
                                                                 halfWidth,
                                                                 kernel,
-                                                                useCropRect,
-                                                                cropRect)));
+                                                                useBounds,
+                                                                bounds)));
         return CreateEffectRef(effect);
     }
 
@@ -42,14 +42,14 @@ public:
                                        Direction dir,
                                        int halfWidth,
                                        float gaussianSigma,
-                                       bool useCropRect,
-                                       float cropRect[4]) {
+                                       bool useBounds,
+                                       float bounds[2]) {
         AutoEffectUnref effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
                                                                 dir,
                                                                 halfWidth,
                                                                 gaussianSigma,
-                                                                useCropRect,
-                                                                cropRect)));
+                                                                useBounds,
+                                                                bounds)));
         return CreateEffectRef(effect);
     }
 
@@ -57,8 +57,8 @@ public:
 
     const float* kernel() const { return fKernel; }
 
-    const float* cropRect() const { return fCropRect; }
-    bool useCropRect() const { return fUseCropRect; }
+    const float* bounds() const { return fBounds; }
+    bool useBounds() const { return fUseBounds; }
 
     static const char* Name() { return "Convolution"; }
 
@@ -86,22 +86,22 @@ public:
 protected:
 
     float fKernel[kMaxKernelWidth];
-    bool fUseCropRect;
-    float fCropRect[4];
+    bool fUseBounds;
+    float fBounds[2];
 
 private:
     GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
                         const float* kernel,
-                        bool useCropRect,
-                        float cropRect[4]);
+                        bool useBounds,
+                        float bounds[2]);
 
     /// Convolve with a Gaussian kernel
     GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
                         float gaussianSigma,
-                        bool useCropRect,
-                        float cropRect[4]);
+                        bool useBounds,
+                        float bounds[2]);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
