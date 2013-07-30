@@ -60,7 +60,7 @@ private:
     // To avoid unseemly allocation requests (esp. for finite platforms like
     // handset) we limit the radius so something manageable. (as opposed to
     // a request like 10,000)
-    static const SkScalar kMAX_RADIUS;
+    static const SkScalar kMAX_BLUR_RADIUS;
     // This constant approximates the scaling done in the software path's
     // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
     // IMHO, it actually should be 1:  we blur "less" than we should do
@@ -82,15 +82,15 @@ private:
 
         SkScalar xformedRadius = ignoreTransform ? fRadius
                                                  : ctm.mapRadius(fRadius);
-        return SkMinScalar(xformedRadius, kMAX_RADIUS);
+        return SkMinScalar(xformedRadius, kMAX_BLUR_RADIUS);
     }
 #endif
 
     typedef SkMaskFilter INHERITED;
 };
 
-const SkScalar SkBlurMaskFilterImpl::kMAX_RADIUS = SkIntToScalar(128);
-const SkScalar SkBlurMaskFilterImpl::kBLUR_SIGMA_SCALE = 0.6f;
+const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_RADIUS = SkIntToScalar(128);
+const SkScalar SkBlurMaskFilterImpl::kBLUR_SIGMA_SCALE = SkFloatToScalar(0.6f);
 
 SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
                                        SkBlurMaskFilter::BlurStyle style,
@@ -139,7 +139,7 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
         radius = matrix.mapRadius(fRadius);
     }
 
-    radius = SkMinScalar(radius, kMAX_RADIUS);
+    radius = SkMinScalar(radius, kMAX_BLUR_RADIUS);
     SkBlurMask::Quality blurQuality =
         (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
@@ -158,7 +158,7 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
         radius = matrix.mapRadius(fRadius);
     }
 
-    radius = SkMinScalar(radius, kMAX_RADIUS);
+    radius = SkMinScalar(radius, kMAX_BLUR_RADIUS);
 
     return SkBlurMask::BlurRect(dst, r, radius, (SkBlurMask::Style)fBlurStyle,
                                 margin, createMode);
@@ -334,8 +334,27 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
 void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
                                              SkRect* dst) const {
-    dst->set(src.fLeft - fRadius, src.fTop - fRadius,
-             src.fRight + fRadius, src.fBottom + fRadius);
+    SkScalar gpuPad, rasterPad;
+
+    {
+        // GPU path
+        SkScalar sigma = SkScalarMul(fRadius, kBLUR_SIGMA_SCALE);
+        gpuPad = sigma * 3.0f;
+    }
+
+    {
+        // raster path
+        SkScalar radius = SkScalarMul(fRadius, SkBlurMask::kBlurRadiusFudgeFactor);
+ 
+        radius = (radius + .5f) * 2.f;
+
+        rasterPad = SkIntToScalar(SkScalarRoundToInt(radius * 3)/2);
+    }
+
+    SkScalar pad = SkMaxScalar(gpuPad, rasterPad);
+
+    dst->set(src.fLeft  - pad, src.fTop    - pad,
+             src.fRight + pad, src.fBottom + pad);
 }
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)

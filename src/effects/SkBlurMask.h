@@ -43,6 +43,13 @@ public:
     static bool BlurGroundTruth(SkMask* dst, const SkMask& src,
                            SkScalar provided_radius, Style style,
                            SkIPoint* margin = NULL);
+
+    // scale factor for the blur radius to match the behavior of the all existing blur
+    // code (both on the CPU and the GPU).  This magic constant is  1/sqrt(3).
+    // TODO: get rid of this fudge factor and move any required fudging up into
+    // the calling library
+    static const SkScalar kBlurRadiusFudgeFactor;
+
 };
 
 #endif
