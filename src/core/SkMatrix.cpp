@@ -171,7 +171,7 @@ bool operator==(const SkMatrix& a, const SkMatrix& b) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // helper function to determine if upper-left 2x2 of matrix is degenerate
-static inline bool is_degenerate_2x2(SkScalar scaleX, SkScalar skewX, 
+static inline bool is_degenerate_2x2(SkScalar scaleX, SkScalar skewX,
                                      SkScalar skewY,  SkScalar scaleY) {
     SkScalar perp_dot = scaleX*scaleY - skewX*skewY;
     return SkScalarNearlyZero(perp_dot, SK_ScalarNearlyZero*SK_ScalarNearlyZero);
