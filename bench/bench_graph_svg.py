@@ -376,12 +376,19 @@ def main():
                                          float(elements[-1]))
 
     def check_expectations(lines, expectations, newest_revision, key_suffix):
-        """Check if there are benches in latest rev outside expected range."""
+        """Check if there are benches in latest rev outside expected range.
+        For exceptions, also outputs URL link for the dashboard plot.
+        The link history token format here only works for single-line plots.
+        """
+        # The platform for this bot, to pass to the dashboard plot.
+        platform = key_suffix[ : key_suffix.rfind('-')]
+        # Starting revision for the dashboard plot.
+        start_rev = str(newest_revision - 100)  # Displays about 100 revisions.
         exceptions = []
         for line in lines:
             line_str = str(line)
-            bench_platform_key = (line_str[ : line_str.find('_{')] + ',' +
-                key_suffix)
+            line_str = line_str[ : line_str.find('_{')]
+            bench_platform_key = line_str + ',' + key_suffix
             this_revision, this_bench_value = lines[line][-1]
             if (this_revision != newest_revision or
                 bench_platform_key not in expectations):
@@ -389,8 +396,19 @@ def main():
                 continue
             this_min, this_max = expectations[bench_platform_key]
             if this_bench_value < this_min or this_bench_value > this_max:
-                exceptions.append('Bench %s value %s out of range [%s, %s].' %
-                    (bench_platform_key, this_bench_value, this_min, this_max))
+                link = ''
+                # For skp benches out of range, create dashboard plot link.
+                if line_str.find('.skp_') > 0:
+                    # Extract bench and config for dashboard plot.
+                    bench, config = line_str.strip('_').split('.skp_')
+                    link = ' <a href="'
+                    link += 'http://go/skpdash/SkpDash.html#%s~%s~%s~%s" ' % (
+                        start_rev, bench, platform, config)
+                    link += 'target="_blank">graph</a>'
+                exception = 'Bench %s value %s out of range [%s, %s].%s' % (
+                    bench_platform_key, this_bench_value, this_min, this_max,
+                    link)
+                exceptions.append(exception)
         if exceptions:
             raise Exception('Bench values out of range:\n' +
                             '\n'.join(exceptions))
