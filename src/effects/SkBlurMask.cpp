@@ -12,13 +12,7 @@
 #include "SkTemplates.h"
 #include "SkEndian.h"
 
-// scale factor for the blur radius to match the behavior of the all existing blur
-// code (both on the CPU and the GPU).  This magic constant is  1/sqrt(3).
-
-// TODO: get rid of this fudge factor and move any required fudging up into
-// the calling library
-
-#define kBlurRadiusFudgeFactor SkFloatToScalar( .57735f )
+const SkScalar SkBlurMask::kBlurRadiusFudgeFactor = SkFloatToScalar(.57735f);
 
 #define UNROLL_SEPARABLE_LOOPS
 

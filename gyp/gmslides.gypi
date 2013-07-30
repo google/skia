@@ -18,6 +18,7 @@
     '../gm/bleed.cpp',
     '../gm/blend.cpp',
     '../gm/blurs.cpp',
+    '../gm/blurquickreject.cpp',
     '../gm/blurrect.cpp',
     '../gm/circles.cpp',
     '../gm/colorfilterimagefilter.cpp',
