@@ -285,14 +285,10 @@ template <typename T> inline void SkTSwap(T& a, T& b) {
 }
 
 static inline int32_t SkAbs32(int32_t value) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (value < 0)
+    if (value < 0) {
         value = -value;
+    }
     return value;
-#else
-    int32_t mask = value >> 31;
-    return (value ^ mask) - mask;
-#endif
 }
 
 template <typename T> inline T SkTAbs(T value) {
@@ -327,32 +323,21 @@ static inline int32_t SkSign32(int32_t a) {
 }
 
 static inline int32_t SkFastMin32(int32_t value, int32_t max) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (value > max)
+    if (value > max) {
         value = max;
+    }
     return value;
-#else
-    int diff = max - value;
-    // clear diff if it is negative (clear if value > max)
-    diff &= (diff >> 31);
-    return value + diff;
-#endif
 }
 
 /** Returns signed 32 bit value pinned between min and max, inclusively
 */
 static inline int32_t SkPin32(int32_t value, int32_t min, int32_t max) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (value < min)
+    if (value < min) {
         value = min;
-    if (value > max)
+    }
+    if (value > max) {
         value = max;
-#else
-    if (value < min)
-        value = min;
-    else if (value > max)
-        value = max;
-#endif
+    }
     return value;
 }
 

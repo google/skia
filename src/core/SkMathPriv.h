@@ -33,18 +33,10 @@ static inline int32_t SkCopySign32(int32_t x, int32_t y) {
  @return max if value >= max, else value
  */
 static inline unsigned SkClampUMax(unsigned value, unsigned max) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (value > max) {
         value = max;
     }
     return value;
-#else
-    int diff = max - value;
-    // clear diff if diff is positive
-    diff &= diff >> 31;
-
-    return value + diff;
-#endif
 }
 
 /** Computes the 64bit product of a * b, and then shifts the answer down by

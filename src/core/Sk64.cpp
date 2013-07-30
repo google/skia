@@ -253,17 +253,11 @@ void Sk64::div(int32_t denom, DivOptions option)
 
     do {
         shift_left(rhi, rlo);
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
         if ((uint32_t)denom <= (uint32_t)hi)
         {
             hi -= denom;
             rlo |= 1;
         }
-#else
-        int32_t diff = (denom - hi - 1) >> 31;
-        hi -= denom & diff;
-        rlo -= diff;
-#endif
         shift_left(hi, lo);
     } while (--bits >= 0);
     SkASSERT(rhi >= 0);

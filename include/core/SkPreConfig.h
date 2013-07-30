@@ -195,11 +195,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-// TODO(mtklein): propagate this through the codebase and remove
-#define SK_CPU_HAS_CONDITIONAL_INSTR
-
-//////////////////////////////////////////////////////////////////////
-
 #if !defined(SKIA_IMPLEMENTATION)
     #define SKIA_IMPLEMENTATION 0
 #endif

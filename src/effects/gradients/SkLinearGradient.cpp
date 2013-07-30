@@ -23,26 +23,17 @@ static inline int repeat_8bits(int x) {
 #endif
 
 static inline int mirror_bits(int x, const int bits) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x & (1 << bits))
+    if (x & (1 << bits)) {
         x = ~x;
+    }
     return x & ((1 << bits) - 1);
-#else
-    int s = x << (31 - bits) >> 31;
-    return (x ^ s) & ((1 << bits) - 1);
-#endif
 }
 
 static inline int mirror_8bits(int x) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (x & 256) {
         x = ~x;
     }
     return x & 255;
-#else
-    int s = x << 23 >> 31;
-    return (x ^ s) & 0xFF;
-#endif
 }
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1600)
