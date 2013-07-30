@@ -123,8 +123,11 @@ void SkNativeParsedPDF::init(const void* bytes, size_t length) {
     bool storeCatalog = true;
     while (xrefByteOffset >= 0) {
         const unsigned char* trailerStart = readCrossReferenceSection(fFileContent + xrefByteOffset, xrefstartKeywordLine);
-        readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog, &xrefByteOffset, false);
-        storeCatalog = false;
+        xrefByteOffset = -1;
+        if (trailerStart < xrefstartKeywordLine) {
+            readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog, &xrefByteOffset, false);
+            storeCatalog = false;
+        }
     }
 
     // TODO(edisonn): warn/error expect fObjects[fRefCatalogId].fGeneration == fRefCatalogGeneration

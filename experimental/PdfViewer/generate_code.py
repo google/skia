@@ -482,7 +482,7 @@ class PdfClassManager:
       fileMapperNative.write('  SkPdfObjectType map' + name + '(const SkPdfObject* in) const;\n')
 
       fileMapperNativeCpp.write('SkPdfObjectType SkPdfMapper::map' + name + '(const SkPdfObject* in) const {\n')
-      fileMapperNativeCpp.write('  if (!is' + name + '(in)) return kNone_SkPdfObjectType;\n')
+      fileMapperNativeCpp.write('  if (in == NULL || !is' + name + '(in)) return kNone_SkPdfObjectType;\n')
       fileMapperNativeCpp.write('\n')
       if len(cls.fEnumSubclasses) > 0:
         fileMapperNativeCpp.write('  SkPdfObjectType ret;\n')

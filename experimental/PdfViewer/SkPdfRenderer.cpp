@@ -1526,45 +1526,130 @@ static PdfResult PdfOp_EI(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
     return kIgnoreError_PdfResult;
 }
 
-//lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
-static PdfResult PdfOp_w(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double lineWidth = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+
+// TODO(edisonn): security review here, make sure all parameters are valid, and safe.
+PdfResult skpdfGraphicsStateApply_ca(PdfContext* pdfContext, double ca) {
+    pdfContext->fGraphicsState.fNonStroking.fOpacity = ca;
+    return kOK_PdfResult;
+}
+
+PdfResult skpdfGraphicsStateApply_CA(PdfContext* pdfContext, double CA) {
+    pdfContext->fGraphicsState.fStroking.fOpacity = CA;
+    return kOK_PdfResult;
+}
+
+PdfResult skpdfGraphicsStateApplyLW(PdfContext* pdfContext, double lineWidth) {
     pdfContext->fGraphicsState.fLineWidth = lineWidth;
+    return kOK_PdfResult;
+}
+
+PdfResult skpdfGraphicsStateApplyLC(PdfContext* pdfContext, int64_t lineCap) {
+    pdfContext->fGraphicsState.fLineCap = (int)lineCap;
+    return kOK_PdfResult;
+}
+
+PdfResult skpdfGraphicsStateApplyLJ(PdfContext* pdfContext, int64_t lineJoin) {
+    pdfContext->fGraphicsState.fLineJoin = (int)lineJoin;
+    return kOK_PdfResult;
+}
+
+PdfResult skpdfGraphicsStateApplyML(PdfContext* pdfContext, double miterLimit) {
+    pdfContext->fGraphicsState.fMiterLimit = miterLimit;
+    return kOK_PdfResult;
+}
+
+// TODO(edisonn): implement all rules, as of now 3) and 5) and 6) do not seem suported by skia, but I am not sure
+/*
+1) [ ] 0 No dash; solid, unbroken lines
+2) [3] 0 3 units on, 3 units off, …
+3) [2] 1 1 on, 2 off, 2 on, 2 off, …
+4) [2 1] 0 2 on, 1 off, 2 on, 1 off, …
+5) [3 5] 6 2 off, 3 on, 5 off, 3 on, 5 off, …
+6) [2 3] 11 1 on, 3 off, 2 on, 3 off, 2 on, …
+ */
+
+PdfResult skpdfGraphicsStateApplyD(PdfContext* pdfContext, SkPdfArray* intervals, SkPdfObject* phase) {
+    int cnt = intervals->size();
+    if (cnt >= 256) {
+        // TODO(edisonn): report error/warning, unsuported;
+        // TODO(edisonn): alloc memory
+        return kIgnoreError_PdfResult;
+    }
+    for (int i = 0; i < cnt; i++) {
+        if (!intervals->objAtAIndex(i)->isNumber()) {
+            // TODO(edisonn): report error/warning
+            return kIgnoreError_PdfResult;
+        }
+    }
+
+    pdfContext->fGraphicsState.fDashArrayLength = cnt;
+    double total = 0;
+    for (int i = 0 ; i < cnt; i++) {
+        pdfContext->fGraphicsState.fDashArray[i] = intervals->objAtAIndex(i)->scalarValue();
+        total += pdfContext->fGraphicsState.fDashArray[i];
+    }
+    pdfContext->fGraphicsState.fDashPhase = phase->scalarValue();
+    if (pdfContext->fGraphicsState.fDashPhase == 0) {
+        // other rules, changes?
+        pdfContext->fGraphicsState.fDashPhase = total;
+    }
 
     return kOK_PdfResult;
 }
 
+PdfResult skpdfGraphicsStateApplyD(PdfContext* pdfContext, SkPdfArray* dash) {
+    // TODO(edisonn): verify input
+    if (!dash || dash->isArray() || dash->size() != 2 || !dash->objAtAIndex(0)->isArray() || !dash->objAtAIndex(1)->isNumber()) {
+        // TODO(edisonn): report error/warning
+        return kIgnoreError_PdfResult;
+    }
+    return skpdfGraphicsStateApplyD(pdfContext, (SkPdfArray*)dash->objAtAIndex(0), dash->objAtAIndex(1));
+}
+
+void skpdfGraphicsStateApplyFont(PdfContext* pdfContext, SkPdfArray* fontAndSize) {
+    if (!fontAndSize || fontAndSize->isArray() || fontAndSize->size() != 2 || !fontAndSize->objAtAIndex(0)->isName() || !fontAndSize->objAtAIndex(1)->isNumber()) {
+        // TODO(edisonn): report error/warning
+        return;
+    }
+    skpdfGraphicsStateApplyFontCore(pdfContext, fontAndSize->objAtAIndex(0), fontAndSize->objAtAIndex(1)->numberValue());
+}
+
+
+//lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
+static PdfResult PdfOp_w(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+    double lw = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    return skpdfGraphicsStateApplyLW(pdfContext, lw);
+}
+
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
 static PdfResult PdfOp_J(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    //double lineCap = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-
-    return kNYI_PdfResult;
+    int64_t lc = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    return skpdfGraphicsStateApplyLC(pdfContext, lc);
 }
 
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
 static PdfResult PdfOp_j(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    //double lineJoin = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-
-    return kNYI_PdfResult;
+    double lj = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    return skpdfGraphicsStateApplyLJ(pdfContext, lj);
 }
 
 //miterLimit M Set the miter limit in the graphics state (see “Miter Limit” on page 153).
 static PdfResult PdfOp_M(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    //double miterLimit = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-
-    return kNYI_PdfResult;
+    double ml = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    return skpdfGraphicsStateApplyML(pdfContext, ml);
 }
 
 //dashArray dashPhase d Set the line dash pattern in the graphics state (see “Line Dash Pattern” on
 //page 155).
 static PdfResult PdfOp_d(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
+    SkPdfObject* phase = pdfContext->fObjectStack.top();          pdfContext->fObjectStack.pop();
+    SkPdfObject* array = pdfContext->fObjectStack.top();          pdfContext->fObjectStack.pop();
 
-    return kNYI_PdfResult;
+    if (!array->isArray()) {
+        return kIgnoreError_PdfResult;
+    }
+
+    return skpdfGraphicsStateApplyD(pdfContext, (SkPdfArray*)array, phase);
 }
 
 //intent ri (PDF 1.1) Set the color rendering intent in the graphics state (see “Rendering Intents” on page 197).
@@ -1581,68 +1666,6 @@ static PdfResult PdfOp_i(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoope
     pdfContext->fObjectStack.pop();
 
     return kNYI_PdfResult;
-}
-
-
-// TODO(edisonn): security review here, make sure all parameters are valid, and safe.
-void skpdfGraphicsStateApply_ca(PdfContext* pdfContext, double ca) {
-    pdfContext->fGraphicsState.fNonStroking.fOpacity = ca;
-}
-
-void skpdfGraphicsStateApply_CA(PdfContext* pdfContext, double CA) {
-    pdfContext->fGraphicsState.fStroking.fOpacity = CA;
-}
-
-void skpdfGraphicsStateApplyLW(PdfContext* pdfContext, double lineWidth) {
-    pdfContext->fGraphicsState.fLineWidth = lineWidth;
-}
-
-void skpdfGraphicsStateApplyLC(PdfContext* pdfContext, int64_t lineCap) {
-    pdfContext->fGraphicsState.fLineCap = (int)lineCap;
-}
-
-void skpdfGraphicsStateApplyLJ(PdfContext* pdfContext, int64_t lineJoin) {
-    pdfContext->fGraphicsState.fLineJoin = (int)lineJoin;
-}
-
-void skpdfGraphicsStateApplyML(PdfContext* pdfContext, double miterLimit) {
-    pdfContext->fGraphicsState.fMiterLimit = miterLimit;
-}
-
-void skpdfGraphicsStateApplyD(PdfContext* pdfContext, SkPdfArray* dash) {
-    // TODO(edisonn): verify input
-    if (!dash || dash->isArray() || dash->size() != 2 || !dash->objAtAIndex(0)->isArray() || !dash->objAtAIndex(1)->isNumber()) {
-        // TODO(edisonn): report error/warning
-        return;
-    }
-
-    SkPdfArray* intervals = (SkPdfArray*)dash->objAtAIndex(0);
-    int cnt = intervals->size();
-    if (cnt >= 256) {
-        // TODO(edisonn): report error/warning, unsuported;
-        // TODO(edisonn): alloc memory
-        return;
-    }
-    for (int i = 0; i < cnt; i++) {
-        if (!intervals->objAtAIndex(i)->isNumber()) {
-            // TODO(edisonn): report error/warning
-            return;
-        }
-    }
-
-    pdfContext->fGraphicsState.fDashPhase = dash->objAtAIndex(1)->scalarValue();
-    pdfContext->fGraphicsState.fDashArrayLength = cnt;
-    for (int i = 0 ; i < cnt; i++) {
-        pdfContext->fGraphicsState.fDashArray[i] = intervals->objAtAIndex(i)->scalarValue();
-    }
-}
-
-void skpdfGraphicsStateApplyFont(PdfContext* pdfContext, SkPdfArray* fontAndSize) {
-    if (!fontAndSize || fontAndSize->isArray() || fontAndSize->size() != 2 || !fontAndSize->objAtAIndex(0)->isName() || !fontAndSize->objAtAIndex(1)->isNumber()) {
-        // TODO(edisonn): report error/warning
-        return;
-    }
-    skpdfGraphicsStateApplyFontCore(pdfContext, fontAndSize->objAtAIndex(0), fontAndSize->objAtAIndex(1)->numberValue());
 }
 
 SkTDict<SkXfermode::Mode> gPdfBlendModes(20);
