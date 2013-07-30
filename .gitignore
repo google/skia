@@ -3,7 +3,7 @@
 .DS_Store
 .gclient*
 *.pyc
-/gyp/build/
-/out/
-/third_party/externals/
-/xcodebuild/
+gyp/build/
+out/
+third_party/externals/
+xcodebuild/
