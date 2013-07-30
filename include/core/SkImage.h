@@ -65,7 +65,13 @@ public:
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
     static SkImage* NewEncodedData(SkData*);
-    static SkImage* NewTexture(GrTexture*);
+
+    /**
+     * GrTexture is a more logical parameter for this factory, but its 
+     * interactions with scratch cache still has issues, so for now we take
+     * SkBitmap instead. This will be changed in the future. skbug.com/1449
+     */
+    static SkImage* NewTexture(const SkBitmap&);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
