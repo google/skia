@@ -64,7 +64,7 @@ protected:
         canvas->translate(kBoxSize, kBoxSize);
         canvas->drawRect(clipRect, hairlinePaint);
         canvas->clipRect(clipRect);
-        for (int i = 0; i < SK_ARRAY_COUNT(blurRects); ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(blurRects); ++i) {
             blurPaint.setColor(colors[i]);
             canvas->drawRect(blurRects[i], blurPaint);
             canvas->drawRect(blurRects[i], hairlinePaint);
