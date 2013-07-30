@@ -42,7 +42,7 @@ API_LEVEL=14
 
 if [[ -z "$NDK_REV" ]];
 then
-    NDK_REV="8d"
+    NDK_REV="8e"
 fi
 
 if [[ -z "$ANDROID_ARCH" ]];
