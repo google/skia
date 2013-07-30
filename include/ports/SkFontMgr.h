@@ -31,6 +31,8 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+class SkTypeface;
+
 class SK_API SkFontMgr : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkFontMgr)
@@ -73,6 +75,9 @@ public:
      */
     SkTypeface* createFromFile(const char path[], int ttcIndex = 0);
 
+    SkTypeface* legacyCreateTypeface(const char familyName[],
+                                     unsigned typefaceStyleBits);
+
     /**
      *  Return a ref to the default fontmgr. The caller must call unref() on
      *  the returned object.
@@ -95,6 +100,9 @@ protected:
     virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) = 0;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) = 0;
 
+    // TODO: make this pure-virtual once all ports know about it
+    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
+                                               unsigned styleBits);
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
 

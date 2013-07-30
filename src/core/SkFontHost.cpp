@@ -68,7 +68,6 @@ SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
 
 #include "SkFontMgr.h"
 
-
 SK_DEFINE_INST_COUNT(SkFontStyleSet)
 
 class SkEmptyFontStyleSet : public SkFontStyleSet {
@@ -174,6 +173,17 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
     return this->onCreateFromFile(path, ttcIndex);
 }
 
+SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
+                                            unsigned styleBits) {
+    return this->onLegacyCreateTypeface(familyName, styleBits);
+}
+
+SkTypeface* SkFontMgr::onLegacyCreateTypeface(const char familyName[],
+                                              unsigned styleBits) {
+    SkASSERT(!"unimplemented");
+    return NULL;
+}
+
 SkFontMgr* SkFontMgr::RefDefault() {
     static SkFontMgr* gFM;
     if (NULL == gFM) {
@@ -185,3 +195,43 @@ SkFontMgr* SkFontMgr::RefDefault() {
     }
     return SkRef(gFM);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_FONTHOST_USES_FONTMGR
+
+#if 0
+static SkFontStyle TypefaceStyleBitsToFontStyle(SkTypeface::Style styleBits) {
+    SkFontStyle::Weight weight = (styleBits & SkTypeface::kBold) ?
+                                     SkFontStyle::kBold_Weight :
+                                     SkFontStyle::kNormal_Weight;
+    SkFontStyle::Width width = SkFontStyle::kNormal_Width;
+    SkFontStyle::Slant slant = (styleBits & SkTypeface::kItalic) ?
+                                     SkFontStyle::kUpright_Slant :
+                                     SkFontStyle::kItalic_Slant;
+    return SkFontStyle(weight, width, slant);
+}
+#endif
+
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style) {
+    if (familyFace) {
+        return familyFace->refMatchingStyle(style);
+    } else {
+        SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+        return fm->legacyCreateTypeface(familyName, style);
+    }
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    return fm->createFromFile(path);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    return fm->createFromStream(stream);
+}
+
+#endif
