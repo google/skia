@@ -727,7 +727,8 @@ class SkChunkFlatController : public SkFlatController {
 public:
     SkChunkFlatController(size_t minSize)
     : fHeap(minSize)
-    , fTypefaceSet(SkNEW(SkRefCntSet)) {
+    , fTypefaceSet(SkNEW(SkRefCntSet))
+    , fLastAllocated(NULL) {
         this->setTypefaceSet(fTypefaceSet);
         this->setTypefacePlayback(&fTypefacePlayback);
     }
