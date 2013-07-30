@@ -550,14 +550,17 @@ private:
      *  Used to find the magnitude of advances.
      */
     MAT2         fGsA;
+    /** The total matrix without the textSize. */
     MAT2         fMat22;
+    /** Scales font to EM size. */
+    MAT2         fHighResMat22;
     HDC          fDDC;
     HFONT        fSavefont;
     HFONT        fFont;
-    HFONT        fHiResFont;
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
 
+    /** The total matrix which also removes EM scale. */
     SkMatrix     fHiResMatrix;
     /** fG_inv is the inverse of the rotational part of the total matrix.
      *  Used to set the direction of advances.
@@ -595,7 +598,6 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
         , fDDC(0)
         , fSavefont(0)
         , fFont(0)
-        , fHiResFont(0)
         , fSC(0)
         , fGlyphCount(-1)
 {
@@ -735,16 +737,17 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
                 success = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
             }
             if (0 != success) {
-                lf.lfHeight = -SkToS32(otm.otmEMSquare);
-                fHiResFont = CreateFontIndirect(&lf);
-                if (!fHiResFont) {
-                    return;
-                }
+                SkScalar scale = SkIntToScalar(otm.otmEMSquare);
 
-                // construct a matrix to go from HIRES logical units to our device units
-                fRec.getSingleMatrix(&fHiResMatrix);
-                SkScalar scale = SkScalarInvert(SkIntToScalar(otm.otmEMSquare));
-                fHiResMatrix.preScale(scale, scale);
+                SkScalar textScale = scale / textSize;
+                fHighResMat22.eM11 = float2FIXED(textScale);
+                fHighResMat22.eM12 = float2FIXED(0);
+                fHighResMat22.eM21 = float2FIXED(0);
+                fHighResMat22.eM22 = float2FIXED(textScale);
+
+                SkScalar invScale = SkScalarInvert(scale);
+                fHiResMatrix = A;
+                fHiResMatrix.preScale(invScale, invScale);
             }
         }
 
@@ -777,9 +780,6 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
     }
     if (fFont) {
         ::DeleteObject(fFont);
-    }
-    if (fHiResFont) {
-        ::DeleteObject(fHiResFont);
     }
     if (fSC) {
         ::ScriptFreeCache(&fSC);
@@ -827,7 +827,6 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
     this->generateMetrics(glyph);
 }
 
-static const MAT2 gMat2Identity = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
 void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     SkASSERT(fDDC);
 
@@ -898,17 +897,15 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
 
-    if (fHiResFont) {
-        SelectObject(fDDC, fHiResFont);
+    if (this->isSubpixel()) {
         sk_bzero(&gm, sizeof(gm));
-        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &gMat2Identity);
+        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fHighResMat22);
         if (GDI_ERROR != status) {
             SkPoint advance;
             fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
             glyph->fAdvanceX = SkScalarToFixed(advance.fX);
             glyph->fAdvanceY = SkScalarToFixed(advance.fY);
         }
-        SelectObject(fDDC, fFont);
     } else if (!isAxisAligned(this->fRec)) {
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fGsA);
         if (GDI_ERROR != status) {
@@ -920,6 +917,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     }
 }
 
+static const MAT2 gMat2Identity = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
 void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my) {
     if (!(mx || my)) {
       return;
