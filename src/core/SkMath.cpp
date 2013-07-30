@@ -27,7 +27,6 @@ int SkCLZ_portable(uint32_t x) {
         return 32;
     }
 
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     int zeros = 31;
     if (x & 0xFFFF0000) {
         sub_shift(zeros, x, 16);
@@ -44,24 +43,6 @@ int SkCLZ_portable(uint32_t x) {
     if (x & 0x2) {
         sub_shift(zeros, x, 1);
     }
-#else
-    int zeros = ((x >> 16) - 1) >> 31 << 4;
-    x <<= zeros;
-
-    int nonzero = ((x >> 24) - 1) >> 31 << 3;
-    zeros += nonzero;
-    x <<= nonzero;
-
-    nonzero = ((x >> 28) - 1) >> 31 << 2;
-    zeros += nonzero;
-    x <<= nonzero;
-
-    nonzero = ((x >> 30) - 1) >> 31 << 1;
-    zeros += nonzero;
-    x <<= nonzero;
-
-    zeros += (~x) >> 31;
-#endif
 
     return zeros;
 }

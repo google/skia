@@ -112,24 +112,12 @@ extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
 static inline U16CPU fixed_clamp(SkFixed x)
 {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x < 0)
+    if (x < 0) {
         x = 0;
-    if (x >> 16)
-        x = 0xFFFF;
-#else
-    if (x >> 16)
-    {
-#if 0   // is this faster?
-        x = (~x >> 31) & 0xFFFF;
-#else
-        if (x < 0)
-            x = 0;
-        else
-            x = 0xFFFF;
-#endif
     }
-#endif
+    if (x >> 16) {
+        x = 0xFFFF;
+    }
     return x;
 }
 
@@ -185,20 +173,12 @@ static SkBitmapProcState::FixedTileLowBitsProc choose_tile_lowbits_proc(unsigned
 }
 
 static inline U16CPU int_clamp(int x, int n) {
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x >= n)
+    if (x >= n) {
         x = n - 1;
-    if (x < 0)
-        x = 0;
-#else
-    if ((unsigned)x >= (unsigned)n) {
-        if (x < 0) {
-            x = 0;
-        } else {
-            x = n - 1;
-        }
     }
-#endif
+    if (x < 0) {
+        x = 0;
+    }
     return x;
 }
 
