@@ -504,11 +504,11 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
 
         SkASSERT(!(id < 0 || id > fObjects.count()));
 
-        if (id < 0 || id > fObjects.count()) {
+        // TODO(edisonn): verify id and gen expected
+        if (id < 0 || id >= fObjects.count()) {
+            // TODO(edisonn): report error/warning
             return NULL;
         }
-
-        // TODO(edisonn): verify id and gen expected
 
         if (fObjects[id].fResolvedReference != NULL) {
             return fObjects[id].fResolvedReference;

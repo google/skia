@@ -518,7 +518,7 @@ class PdfClassManager:
             cntMust = cntMust + 1
             fileMapperNativeCpp.write('  if (!nativeObj->isDictionary()) return false;\n')
             fileMapperNativeCpp.write('  ret = nativeObj->get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
-            fileMapperNativeCpp.write('  if (ret == NULL) return false;\n')
+            fileMapperNativeCpp.write('  if (ret == NULL || !' + knowTypes[prop.fTypes.strip()][3] + ') return false;\n')
             
             eval = '';
             # TODO(edisonn): this could get out of hand, and could have poor performance if continued on this path
