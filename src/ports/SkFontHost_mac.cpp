@@ -465,6 +465,7 @@ protected:
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                                 int glyphCount) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
+    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 
 private:
 
@@ -597,27 +598,27 @@ static const char* map_css_names(const char* name) {
     return name;    // no change
 }
 
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style style) {
+static SkTypeface* create_typeface(const SkTypeface* familyFace,
+                                   const char familyName[],
+                                   SkTypeface::Style style) {
     if (familyName) {
         familyName = map_css_names(familyName);
     }
-
+    
     // Clone an existing typeface
     // TODO: only clone if style matches the familyFace's style...
     if (familyName == NULL && familyFace != NULL) {
         familyFace->ref();
         return const_cast<SkTypeface*>(familyFace);
     }
-
+    
     if (!familyName || !*familyName) {
         familyName = FONT_DEFAULT_NAME;
     }
-
+    
     NameStyleRec rec = { familyName, style };
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByNameStyle, &rec);
-
+    
     if (NULL == face) {
         face = NewFromName(familyName, style);
         if (face) {
@@ -628,6 +629,10 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         }
     }
     return face;
+}
+
+SkTypeface* SkTypeface_Mac::onRefMatchingStyle(Style styleBits) const {
+    return create_typeface(this, NULL, styleBits);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1437,22 +1442,6 @@ static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
     return cg ? SkCreateTypefaceFromCTFont(ct) : NULL;
 }
 
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(stream));
-    if (NULL == provider) {
-        return NULL;
-    }
-    return create_from_dataProvider(provider);
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    AutoCFRelease<CGDataProviderRef> provider(CGDataProviderCreateWithFilename(path));
-    if (NULL == provider) {
-        return NULL;
-    }
-    return create_from_dataProvider(provider);
-}
-
 // Web fonts added to the the CTFont registry do not return their character set.
 // Iterate through the font in this case. The existing caller caches the result,
 // so the performance impact isn't too bad.
@@ -2258,7 +2247,40 @@ protected:
         }
         return create_from_dataProvider(pr);
     }
+    
+    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
+                                               unsigned styleBits) SK_OVERRIDE {
+        return create_typeface(NULL, familyName, (SkTypeface::Style)styleBits);
+    }
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef SK_FONTHOST_USES_FONTMGR
+
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style) {
+    return create_typeface(familyFace, familyName, style);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+    AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(stream));
+    if (NULL == provider) {
+        return NULL;
+    }
+    return create_from_dataProvider(provider);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    AutoCFRelease<CGDataProviderRef> provider(CGDataProviderCreateWithFilename(path));
+    if (NULL == provider) {
+        return NULL;
+    }
+    return create_from_dataProvider(provider);
+}
+
+#endif
 
 SkFontMgr* SkFontMgr::Factory() {
     return SkNEW(SkFontMgr_Mac);
