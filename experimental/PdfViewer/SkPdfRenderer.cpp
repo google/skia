@@ -784,6 +784,57 @@ static PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const SkPdf
     }
 }
 
+static PdfResult doPage(PdfContext* pdfContext, SkCanvas* canvas, SkPdfPageObjectDictionary* skobj) {
+    if (!skobj) {
+        return kIgnoreError_PdfResult;
+    }
+
+    if (!skobj->isContentsAStream(pdfContext->fPdfDoc)) {
+        return kNYI_PdfResult;
+    }
+
+    SkPdfStream* stream = skobj->getContentsAsStream(pdfContext->fPdfDoc);
+
+    if (!stream) {
+        return kIgnoreError_PdfResult;
+    }
+
+    if (CheckRecursiveRendering::IsInRendering(skobj)) {
+        // Oops, corrupt PDF!
+        return kIgnoreError_PdfResult;
+    }
+    CheckRecursiveRendering checkRecursion(skobj);
+
+
+    PdfOp_q(pdfContext, canvas, NULL);
+
+    canvas->save();
+
+    if (skobj->Resources(pdfContext->fPdfDoc)) {
+        pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
+    }
+
+    // TODO(edisonn): refactor common path with doXObject()
+    // This is a group?
+    if (skobj->has_Group()) {
+        //TransparencyGroupDictionary* ...
+    }
+
+    SkPdfNativeTokenizer* tokenizer =
+            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
+    if (tokenizer != NULL) {
+        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
+        looper.loop();
+        delete tokenizer;
+    }
+
+    // TODO(edisonn): should we restore the variable stack at the same state?
+    // There could be operands left, that could be consumed by a parent tokenizer when we pop.
+    canvas->restore();
+    PdfOp_Q(pdfContext, canvas, NULL);
+    return kPartial_PdfResult;
+}
+
 PdfResult PdfOp_q(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fStateStack.push(pdfContext->fGraphicsState);
     canvas->save();
@@ -2185,12 +2236,6 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
 
     PdfContext pdfContext(fPdfDoc);
 
-    SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfPage(page, pdfContext.fTmpPageAllocator);
-    if (!tokenizer) {
-        // TODO(edisonn): report/warning/debug
-        return false;
-    }
-
     pdfContext.fOriginalMatrix = SkMatrix::I();
     pdfContext.fGraphicsState.fResources = fPdfDoc->pageResources(page);
 
@@ -2240,15 +2285,13 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
 
     canvas->setMatrix(pdfContext.fOriginalMatrix);
 
-// erase with red before?
+    doPage(&pdfContext, canvas, fPdfDoc->page(page));
+
+          // TODO(edisonn:) erase with white before draw?
 //        SkPaint paint;
-//        paint.setColor(SK_ColorRED);
+//        paint.setColor(SK_ColorWHITE);
 //        canvas->drawRect(rect, paint);
 
-    PdfMainLooper looper(NULL, tokenizer, &pdfContext, canvas);
-    looper.loop();
-
-    delete tokenizer;
 
     canvas->flush();
     return true;

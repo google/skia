@@ -54,6 +54,7 @@ public:
 
     size_t objects() const;
     SkPdfObject* object(int i);
+    SkPdfPageObjectDictionary* page(int page);
 
     const SkPdfMapper* mapper() const;
     SkPdfAllocator* allocator() const;

@@ -403,7 +403,14 @@ int SkNativeParsedPDF::pages() const {
     return fPages.count();
 }
 
+SkPdfPageObjectDictionary* SkNativeParsedPDF::page(int page) {
+    SkASSERT(page >= 0 && page < fPages.count());
+    return fPages[page];
+}
+
+
 SkPdfResourceDictionary* SkNativeParsedPDF::pageResources(int page) {
+    SkASSERT(page >= 0 && page < fPages.count());
     return fPages[page]->Resources(this);
 }
 
@@ -501,8 +508,6 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
         int id = ref->referenceId();
         // TODO(edisonn): generation/updates not supported now
         //int gen = ref->referenceGeneration();
-
-        SkASSERT(!(id < 0 || id > fObjects.count()));
 
         // TODO(edisonn): verify id and gen expected
         if (id < 0 || id >= fObjects.count()) {
