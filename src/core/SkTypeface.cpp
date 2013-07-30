@@ -209,6 +209,10 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
     return this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
 }
 
+SkTypeface* SkTypeface::refMatchingStyle(Style style) const {
+    return this->onRefMatchingStyle(style);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

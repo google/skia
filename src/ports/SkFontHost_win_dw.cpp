@@ -494,12 +494,13 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 };
 
-class SkScalerContext_Windows : public SkScalerContext {
+class SkScalerContext_DW : public SkScalerContext {
 public:
-    SkScalerContext_Windows(DWriteFontTypeface*, const SkDescriptor* desc);
-    virtual ~SkScalerContext_Windows();
+    SkScalerContext_DW(DWriteFontTypeface*, const SkDescriptor* desc);
+    virtual ~SkScalerContext_DW();
 
 protected:
     virtual unsigned generateGlyphCount() SK_OVERRIDE;
@@ -723,7 +724,7 @@ static DWriteFontTypeface* GetDWriteFontByID(SkFontID fontID) {
     return static_cast<DWriteFontTypeface*>(SkTypefaceCache::FindByID(fontID));
 }
 
-SkScalerContext_Windows::SkScalerContext_Windows(DWriteFontTypeface* typeface,
+SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
                                                  const SkDescriptor* desc)
         : SkScalerContext(typeface, desc)
         , fTypeface(SkRef(typeface))
@@ -740,23 +741,23 @@ SkScalerContext_Windows::SkScalerContext_Windows(DWriteFontTypeface* typeface,
     fOffscreen.init(fTypeface->fDWriteFontFace.get(), fXform, SkScalarToFloat(fRec.fTextSize));
 }
 
-SkScalerContext_Windows::~SkScalerContext_Windows() {
+SkScalerContext_DW::~SkScalerContext_DW() {
 }
 
-unsigned SkScalerContext_Windows::generateGlyphCount() {
+unsigned SkScalerContext_DW::generateGlyphCount() {
     if (fGlyphCount < 0) {
         fGlyphCount = fTypeface->fDWriteFontFace->GetGlyphCount();
     }
     return fGlyphCount;
 }
 
-uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {
+uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
     uint16_t index = 0;
     fTypeface->fDWriteFontFace->GetGlyphIndices(reinterpret_cast<UINT32*>(&uni), 1, &index);
     return index;
 }
 
-void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
+void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     //Delta is the difference between the right/left side bearing metric
     //and where the right/left side bearing ends up after hinting.
     //DirectWrite does not provide this information.
@@ -791,7 +792,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceY = SkScalarToFixed(vecs[0].fY);
 }
 
-void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     glyph->fWidth = 0;
 
     this->generateAdvance(glyph);
@@ -853,7 +854,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     glyph->fTop = SkToS16(bbox.top);
 }
 
-void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx,
+void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
                                                   SkPaint::FontMetrics* my) {
     if (!(mx || my))
       return;
@@ -987,7 +988,7 @@ static void rgb_to_lcd32(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
     }
 }
 
-void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
+void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire ac(gFTMutex);
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
@@ -1026,7 +1027,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkAutoMutexAcquire ac(gFTMutex);
 
     SkASSERT(&glyph && path);
@@ -1162,10 +1163,6 @@ static SkTypeface* create_from_stream(SkStream* stream, int ttcIndex) {
     return NULL;
 }
 
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    return create_from_stream(stream, 0);
-}
-
 SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     *ttcIndex = fDWriteFontFace->GetIndex();
 
@@ -1196,7 +1193,7 @@ SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
 }
 
 SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<DWriteFontTypeface*>(this), desc));
+    return SkNEW_ARGS(SkScalerContext_DW, (const_cast<DWriteFontTypeface*>(this), desc));
 }
 
 static HRESULT get_by_family_name(const char familyName[], IDWriteFontFamily** fontFamily) {
@@ -1218,55 +1215,6 @@ static HRESULT get_by_family_name(const char familyName[], IDWriteFontFamily** f
         return S_OK;
     }
     return S_FALSE;
-}
-
-/** Return the closest matching typeface given either an existing family
- (specified by a typeface in that family) or by a familyName, and a
- requested style.
- 1) If familyFace is null, use familyName.
- 2) If familyName is null, use familyFace.
- 3) If both are null, return the default font that best matches style
- This MUST not return NULL.
- */
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style style) {
-    HRESULT hr;
-    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    if (familyFace) {
-        const DWriteFontTypeface* face = static_cast<const DWriteFontTypeface*>(familyFace);
-        *(&fontFamily) = SkRefComPtr(face->fDWriteFontFamily.get());
-
-    } else if (familyName) {
-        hr = get_by_family_name(familyName, &fontFamily);
-    }
-
-    if (NULL == fontFamily.get()) {
-        //No good family found, go with default.
-        SkTScopedComPtr<IDWriteFont> font;
-        hr = get_default_font(&font);
-        hr = font->GetFontFamily(&fontFamily);
-    }
-
-    SkTScopedComPtr<IDWriteFont> font;
-    DWRITE_FONT_WEIGHT weight = (style & SkTypeface::kBold)
-                                 ? DWRITE_FONT_WEIGHT_BOLD
-                                 : DWRITE_FONT_WEIGHT_NORMAL;
-    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_UNDEFINED;
-    DWRITE_FONT_STYLE italic = (style & SkTypeface::kItalic)
-                                ? DWRITE_FONT_STYLE_ITALIC
-                                : DWRITE_FONT_STYLE_NORMAL;
-    hr = fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font);
-
-    SkTScopedComPtr<IDWriteFontFace> fontFace;
-    hr = font->CreateFontFace(&fontFace);
-
-    return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    printf("SkFontHost::CreateTypefaceFromFile unimplemented");
-    return NULL;
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
@@ -1564,6 +1512,46 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     return info;
 }
 
+static SkTypeface* create_typeface(const SkTypeface* familyFace,
+                                   const char familyName[],
+                                   unsigned style) {
+    HRESULT hr;
+    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+    if (familyFace) {
+        const DWriteFontTypeface* face = static_cast<const DWriteFontTypeface*>(familyFace);
+        *(&fontFamily) = SkRefComPtr(face->fDWriteFontFamily.get());
+
+    } else if (familyName) {
+        hr = get_by_family_name(familyName, &fontFamily);
+    }
+
+    if (NULL == fontFamily.get()) {
+        //No good family found, go with default.
+        SkTScopedComPtr<IDWriteFont> font;
+        hr = get_default_font(&font);
+        hr = font->GetFontFamily(&fontFamily);
+    }
+
+    SkTScopedComPtr<IDWriteFont> font;
+    DWRITE_FONT_WEIGHT weight = (style & SkTypeface::kBold)
+                                 ? DWRITE_FONT_WEIGHT_BOLD
+                                 : DWRITE_FONT_WEIGHT_NORMAL;
+    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_UNDEFINED;
+    DWRITE_FONT_STYLE italic = (style & SkTypeface::kItalic)
+                                ? DWRITE_FONT_STYLE_ITALIC
+                                : DWRITE_FONT_STYLE_NORMAL;
+    hr = fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font);
+
+    SkTScopedComPtr<IDWriteFontFace> fontFace;
+    hr = font->CreateFontFace(&fontFace);
+
+    return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
+}
+
+SkTypeface* DWriteFontTypeface::onRefMatchingStyle(Style style) const {
+    return create_typeface(this, NULL, style);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkFontMgr.h"
@@ -1720,6 +1708,11 @@ protected:
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return this->createFromStream(stream, ttcIndex);
     }
+
+    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
+                                               unsigned styleBits) SK_OVERRIDE {
+        return create_typeface(NULL, familyName, styleBits);
+    }
 };
 
 void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* styleName) {
@@ -1749,6 +1742,27 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
         get_locale_string(faceNames.get(), fFontMgr->fLocaleName.get(), styleName);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef SK_FONTHOST_USES_FONTMGR
+
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style) {
+    return create_typeface(familyFace, familyName, style);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    printf("SkFontHost::CreateTypefaceFromFile unimplemented");
+    return NULL;
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
+    return create_from_stream(stream, 0);
+}
+
+#endif
 
 SkFontMgr* SkFontMgr::Factory() {
     IDWriteFactory* factory;

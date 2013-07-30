@@ -240,6 +240,17 @@ public:
     SkStream* openStream(int* ttcIndex) const;
 
     /**
+     *  Search within this typeface's family for a best match to the
+     *  specified style, and return a ref to that typeface. Note: the
+     *  returned object could be this, if it is the best match, or it
+     *  could be a different typeface. Either way, the caller must balance
+     *  this call with unref() on the returned object.
+     *
+     *  Will never return NULL.
+     */
+    SkTypeface* refMatchingStyle(Style) const;
+
+    /**
      *  Return a scalercontext for the given descriptor. If this fails, then
      *  if allowFailure is true, this returns NULL, else it returns a
      *  dummy scalercontext that will not crash, but will draw nothing.
@@ -286,6 +297,13 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const;
+
+    // TODO: make this pure-virtual when all ports have overridden it
+    virtual SkTypeface* onRefMatchingStyle(Style styleBits) const {
+        SkASSERT(!"unimplemented");
+        this->ref();
+        return const_cast<SkTypeface*>(this);
+    }
 
 private:
     SkFontID    fUniqueID;
