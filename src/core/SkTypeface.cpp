@@ -225,20 +225,6 @@ int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     return 0;
 }
 
-int SkTypeface::onGetUPEM() const {
-    int upem = 0;
-
-    SkAdvancedTypefaceMetrics* metrics;
-    metrics = this->getAdvancedTypefaceMetrics(
-                             SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
-                             NULL, 0);
-    if (metrics) {
-        upem = metrics->fEmSize;
-        metrics->unref();
-    }
-    return upem;
-}
-
 int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     int ttcIndex;
     SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
