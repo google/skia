@@ -11,6 +11,9 @@
 #include "SkPaint.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
+#include "SkUtilsArm.h"
+
+#include "SkConvolver.h"
 
 #if SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
 void SI8_D16_nofilter_DX_arm(
@@ -219,6 +222,201 @@ void SkBitmapProcState::platformProcs() {
     }
 }
 
+/////////////////////////////////////
+
+/* FUNCTIONS BELOW ARE SCALAR STUBS INTENDED FOR ARM DEVELOPERS TO REPLACE */
+
+/////////////////////////////////////
+
+
+static inline unsigned char ClampTo8(int a) {
+    if (static_cast<unsigned>(a) < 256) {
+        return a;  // Avoid the extra check in the common case.
+    }
+    if (a < 0) {
+        return 0;
+    }
+    return 255;
+}
+
+// Convolves horizontally along a single row. The row data is given in
+// |srcData| and continues for the numValues() of the filter.
+void convolveHorizontally_arm(const unsigned char* srcData,
+                              const SkConvolutionFilter1D& filter,
+                              unsigned char* outRow,
+                              bool hasAlpha) {
+    // Loop over each pixel on this row in the output image.
+    int numValues = filter.numValues();
+    for (int outX = 0; outX < numValues; outX++) {
+        // Get the filter that determines the current output pixel.
+        int filterOffset, filterLength;
+        const SkConvolutionFilter1D::ConvolutionFixed* filterValues =
+            filter.FilterForValue(outX, &filterOffset, &filterLength);
+
+        // Compute the first pixel in this row that the filter affects. It will
+        // touch |filterLength| pixels (4 bytes each) after this.
+        const unsigned char* rowToFilter = &srcData[filterOffset * 4];
+
+        // Apply the filter to the row to get the destination pixel in |accum|.
+        int accum[4] = {0};
+        for (int filterX = 0; filterX < filterLength; filterX++) {
+            SkConvolutionFilter1D::ConvolutionFixed curFilter = filterValues[filterX];
+            accum[0] += curFilter * rowToFilter[filterX * 4 + 0];
+            accum[1] += curFilter * rowToFilter[filterX * 4 + 1];
+            accum[2] += curFilter * rowToFilter[filterX * 4 + 2];
+            if (hasAlpha) {
+                accum[3] += curFilter * rowToFilter[filterX * 4 + 3];
+            }
+        }
+
+        // Bring this value back in range. All of the filter scaling factors
+        // are in fixed point with kShiftBits bits of fractional part.
+        accum[0] >>= SkConvolutionFilter1D::kShiftBits;
+        accum[1] >>= SkConvolutionFilter1D::kShiftBits;
+        accum[2] >>= SkConvolutionFilter1D::kShiftBits;
+        if (hasAlpha) {
+            accum[3] >>= SkConvolutionFilter1D::kShiftBits;
+        }
+
+        // Store the new pixel.
+        outRow[outX * 4 + 0] = ClampTo8(accum[0]);
+        outRow[outX * 4 + 1] = ClampTo8(accum[1]);
+        outRow[outX * 4 + 2] = ClampTo8(accum[2]);
+        if (hasAlpha) {
+            outRow[outX * 4 + 3] = ClampTo8(accum[3]);
+        }
+    }
+}
+
+// Does vertical convolution to produce one output row. The filter values and
+// length are given in the first two parameters. These are applied to each
+// of the rows pointed to in the |sourceDataRows| array, with each row
+// being |pixelWidth| wide.
+//
+// The output must have room for |pixelWidth * 4| bytes.
+template<bool hasAlpha>
+    void convolveVertically_arm(const SkConvolutionFilter1D::ConvolutionFixed* filterValues,
+                            int filterLength,
+                            unsigned char* const* sourceDataRows,
+                            int pixelWidth,
+                            unsigned char* outRow) {
+        // We go through each column in the output and do a vertical convolution,
+        // generating one output pixel each time.
+        for (int outX = 0; outX < pixelWidth; outX++) {
+            // Compute the number of bytes over in each row that the current column
+            // we're convolving starts at. The pixel will cover the next 4 bytes.
+            int byteOffset = outX * 4;
+
+            // Apply the filter to one column of pixels.
+            int accum[4] = {0};
+            for (int filterY = 0; filterY < filterLength; filterY++) {
+                SkConvolutionFilter1D::ConvolutionFixed curFilter = filterValues[filterY];
+                accum[0] += curFilter * sourceDataRows[filterY][byteOffset + 0];
+                accum[1] += curFilter * sourceDataRows[filterY][byteOffset + 1];
+                accum[2] += curFilter * sourceDataRows[filterY][byteOffset + 2];
+                if (hasAlpha) {
+                    accum[3] += curFilter * sourceDataRows[filterY][byteOffset + 3];
+                }
+            }
+
+            // Bring this value back in range. All of the filter scaling factors
+            // are in fixed point with kShiftBits bits of precision.
+            accum[0] >>= SkConvolutionFilter1D::kShiftBits;
+            accum[1] >>= SkConvolutionFilter1D::kShiftBits;
+            accum[2] >>= SkConvolutionFilter1D::kShiftBits;
+            if (hasAlpha) {
+                accum[3] >>= SkConvolutionFilter1D::kShiftBits;
+            }
+
+            // Store the new pixel.
+            outRow[byteOffset + 0] = ClampTo8(accum[0]);
+            outRow[byteOffset + 1] = ClampTo8(accum[1]);
+            outRow[byteOffset + 2] = ClampTo8(accum[2]);
+            if (hasAlpha) {
+                unsigned char alpha = ClampTo8(accum[3]);
+
+                // Make sure the alpha channel doesn't come out smaller than any of the
+                // color channels. We use premultipled alpha channels, so this should
+                // never happen, but rounding errors will cause this from time to time.
+                // These "impossible" colors will cause overflows (and hence random pixel
+                // values) when the resulting bitmap is drawn to the screen.
+                //
+                // We only need to do this when generating the final output row (here).
+                int maxColorChannel = SkTMax(outRow[byteOffset + 0],
+                                               SkTMax(outRow[byteOffset + 1],
+                                                      outRow[byteOffset + 2]));
+                if (alpha < maxColorChannel) {
+                    outRow[byteOffset + 3] = maxColorChannel;
+                } else {
+                    outRow[byteOffset + 3] = alpha;
+                }
+            } else {
+                // No alpha channel, the image is opaque.
+                outRow[byteOffset + 3] = 0xff;
+            }
+        }
+    }
+
+void convolveVertically_arm(const SkConvolutionFilter1D::ConvolutionFixed* filterValues,
+                            int filterLength,
+                            unsigned char* const* sourceDataRows,
+                            int pixelWidth,
+                            unsigned char* outRow,
+                            bool sourceHasAlpha) {
+    if (sourceHasAlpha) {
+        convolveVertically_arm<true>(filterValues, filterLength,
+                                     sourceDataRows, pixelWidth,
+                                     outRow);
+    } else {
+        convolveVertically_arm<false>(filterValues, filterLength,
+                                      sourceDataRows, pixelWidth,
+                                      outRow);
+    }
+}
+
+// Convolves horizontally along four rows. The row data is given in
+// |src_data| and continues for the num_values() of the filter.
+// The algorithm is almost same as |ConvolveHorizontally_SSE2|. Please
+// refer to that function for detailed comments.
+void convolve4RowsHorizontally_arm(const unsigned char* src_data[4],
+                                   const SkConvolutionFilter1D& filter,
+                                   unsigned char* out_row[4]) {
+}
+
+///////////////////////////
+
+/* STOP REWRITING FUNCTIONS HERE, BUT DON'T FORGET TO EDIT THE
+   PLATFORM CONVOLUTION PROCS BELOW */
+   
+///////////////////////////
+
+void applySIMDPadding_arm(SkConvolutionFilter1D *filter) {
+    // Padding |paddingCount| of more dummy coefficients after the coefficients
+    // of last filter to prevent SIMD instructions which load 8 or 16 bytes
+    // together to access invalid memory areas. We are not trying to align the
+    // coefficients right now due to the opaqueness of <vector> implementation.
+    // This has to be done after all |AddFilter| calls.
+    for (int i = 0; i < 8; ++i) {
+        filter->addFilterValue(static_cast<SkConvolutionFilter1D::ConvolutionFixed>(0));
+    }
+}
+
 void SkBitmapProcState::platformConvolutionProcs() {
-    // no specialization for ARM here yet.
+    if (sk_cpu_arm_has_neon()) {
+        fConvolutionProcs->fExtraHorizontalReads = 3;
+        fConvolutionProcs->fConvolveVertically = &convolveVertically_arm;
+
+        // next line is commented out because the four-row convolution function above is 
+        // just a no-op.  Please see the comment above its definition, and the SSE implementation
+        // in SkBitmapProcState_opts_SSE2.cpp for guidance on its semantics.
+        // leaving it as NULL will just cause the convolution system to not attempt
+        // to operate on four rows at once, which is correct but not performance-optimal.
+
+        // fConvolutionProcs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_arm;
+
+        fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
+
+        fConvolutionProcs->fConvolveHorizontally = &convolveHorizontally_arm;
+        fConvolutionProcs->fApplySIMDPadding = &applySIMDPadding_arm;        
+    }
 }
