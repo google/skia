@@ -604,21 +604,21 @@ static SkTypeface* create_typeface(const SkTypeface* familyFace,
     if (familyName) {
         familyName = map_css_names(familyName);
     }
-    
+
     // Clone an existing typeface
     // TODO: only clone if style matches the familyFace's style...
     if (familyName == NULL && familyFace != NULL) {
         familyFace->ref();
         return const_cast<SkTypeface*>(familyFace);
     }
-    
+
     if (!familyName || !*familyName) {
         familyName = FONT_DEFAULT_NAME;
     }
-    
+
     NameStyleRec rec = { familyName, style };
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByNameStyle, &rec);
-    
+
     if (NULL == face) {
         face = NewFromName(familyName, style);
         if (face) {
@@ -2247,7 +2247,7 @@ protected:
         }
         return create_from_dataProvider(pr);
     }
-    
+
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) SK_OVERRIDE {
         return create_typeface(NULL, familyName, (SkTypeface::Style)styleBits);

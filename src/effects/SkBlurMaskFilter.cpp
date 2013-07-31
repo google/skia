@@ -345,7 +345,7 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
     {
         // raster path
         SkScalar radius = SkScalarMul(fRadius, SkBlurMask::kBlurRadiusFudgeFactor);
- 
+
         radius = (radius + .5f) * 2.f;
 
         rasterPad = SkIntToScalar(SkScalarRoundToInt(radius * 3)/2);
