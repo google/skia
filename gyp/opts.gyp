@@ -33,19 +33,17 @@
       'conditions': [
         [ 'skia_arch_type == "x86" and skia_os != "ios"', {
           'conditions': [
-            [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]', {
+            [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"]', {
               'cflags': [
                 '-msse2',
-              ],
-            }],
-            [ 'skia_os != "android"', {
-              'dependencies': [
-                'opts_ssse3',
               ],
             }],
           ],
           'include_dirs': [
             '../include/utils',
+          ],
+          'dependencies': [
+            'opts_ssse3',
           ],
           'sources': [
             '../src/opts/opts_check_SSE2.cpp',
@@ -119,7 +117,7 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"]', {
           'cflags': [
             '-mssse3',
           ],
