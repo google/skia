@@ -8,6 +8,7 @@
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkFontConfigInterface.h"
+#include "SkFontConfigTypeface.h"
 #include "SkMath.h"
 #include "SkString.h"
 #include "SkTDArray.h"
@@ -266,6 +267,12 @@ protected:
     }
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) {
         return NULL;
+    }
+    
+    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
+                                               unsigned styleBits) SK_OVERRIDE {
+        return FontConfigTypeface::LegacyCreateTypeface(NULL, familyName,
+                                                  (SkTypeface::Style)styleBits);
     }
 };
 

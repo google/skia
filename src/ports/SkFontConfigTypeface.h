@@ -7,10 +7,10 @@
 
 #include "SkFontConfigInterface.h"
 #include "SkFontHost_FreeType_common.h"
+#include "SkStream.h"
 #include "SkTypefaceCache.h"
 
 class SkFontDescriptor;
-class SkStream;
 
 class FontConfigTypeface : public SkTypeface_FreeType {
     SkFontConfigInterface::FontIdentity fIdentity;
@@ -48,6 +48,10 @@ public:
         return fFamilyName.equals(name);
     }
 
+    static SkTypeface* LegacyCreateTypeface(const SkTypeface* family,
+                                            const char familyName[],
+                                            SkTypeface::Style);
+
 protected:
     friend class SkFontHost;    // hack until we can make public versions
 
@@ -56,6 +60,7 @@ protected:
                                   size_t length, void* data) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

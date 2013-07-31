@@ -18,6 +18,7 @@
         '../include/xml',
         '../src/core',
         '../src/lazy',
+        '../src/ports',
         '../src/sfnt',
         '../src/utils',
       ],
