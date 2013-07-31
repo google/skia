@@ -2580,6 +2580,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "imagefilterscropped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8199004494600185697
+        ]
+      ]
+    }, 
+    "imagefilterscropped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1344992806587217981
+        ]
+      ]
+    }, 
+    "imagefilterscropped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4749106225008301070
+        ]
+      ]
+    }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
         [

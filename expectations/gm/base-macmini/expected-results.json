@@ -3948,6 +3948,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "imagefilterscropped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4820552830142034834
+        ]
+      ]
+    }, 
+    "imagefilterscropped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10137606906992849214
+        ]
+      ]
+    }, 
+    "imagefilterscropped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8004183534535355722
+        ]
+      ]
+    }, 
+    "imagefilterscropped_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5741308506239316783
+        ]
+      ]
+    }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
         [
