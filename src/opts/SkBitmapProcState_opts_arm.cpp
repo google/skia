@@ -387,7 +387,7 @@ void convolve4RowsHorizontally_arm(const unsigned char* src_data[4],
 
 /* STOP REWRITING FUNCTIONS HERE, BUT DON'T FORGET TO EDIT THE
    PLATFORM CONVOLUTION PROCS BELOW */
-   
+
 ///////////////////////////
 
 void applySIMDPadding_arm(SkConvolutionFilter1D *filter) {
@@ -406,7 +406,7 @@ void SkBitmapProcState::platformConvolutionProcs() {
         fConvolutionProcs->fExtraHorizontalReads = 3;
         fConvolutionProcs->fConvolveVertically = &convolveVertically_arm;
 
-        // next line is commented out because the four-row convolution function above is 
+        // next line is commented out because the four-row convolution function above is
         // just a no-op.  Please see the comment above its definition, and the SSE implementation
         // in SkBitmapProcState_opts_SSE2.cpp for guidance on its semantics.
         // leaving it as NULL will just cause the convolution system to not attempt
@@ -417,6 +417,6 @@ void SkBitmapProcState::platformConvolutionProcs() {
         fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
 
         fConvolutionProcs->fConvolveHorizontally = &convolveHorizontally_arm;
-        fConvolutionProcs->fApplySIMDPadding = &applySIMDPadding_arm;        
+        fConvolutionProcs->fApplySIMDPadding = &applySIMDPadding_arm;
     }
 }
