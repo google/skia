@@ -118,7 +118,7 @@ tableToClassName = {
 'TABLE 6.7': ['Type5HalftoneDictionary', 'Entries in a type 5 halftone dictionary'],
 'TABLE 7.10': ['SoftMaskDictionary', 'Entries in a soft-mask dictionary', '', {'S': '[datatypes.PdfName(\'Alpha\'), datatypes.PdfName(\'Luminosity\')]'}],
 'TABLE 7.12': ['SoftMaskImageDictionary', 'Additional entry in a soft-mask image dictionary', 'ImageDictionary', {'Subtype': '[datatypes.PdfName(\'Image\')]', 'ColorSpace': '[datatypes.PdfName(\'DeviceGray\'), datatypes.PdfName(\'Gray\')]'}],
-'TABLE 7.13': ['TransparencyGroupDictionary', 'Additional entries specific to a transparency group attributes dictionary', 'XObjectDictionary', {'S': '[datatypes.PdfName(\'Transparency\')]'}],
+'TABLE 7.13': ['TransparencyGroupDictionary', 'Additional entries specific to a transparency group attributes dictionary', '', {'S': '[datatypes.PdfName(\'Transparency\')]'}],
 'TABLE 8.1': ['ViewerPreferencesDictionary', 'Entries in a viewer preferences dictionary'],
 'TABLE 8.3': ['OutlineDictionary', 'Entries in the outline dictionary'],
 'TABLE 8.4': ['OutlineItemDictionary', 'Entries in an outline item dictionary'],

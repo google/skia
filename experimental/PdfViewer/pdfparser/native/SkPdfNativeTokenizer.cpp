@@ -855,7 +855,7 @@ const unsigned char* nextObject(int level, const unsigned char* start, const uns
         return current;
     }
 
-    if (tokenLen == 5 && start[0] == 'f' && start[1] == 'a' && start[2] == 'l' && start[3] == 's' && start[3] == 'e') {
+    if (tokenLen == 5 && start[0] == 'f' && start[1] == 'a' && start[2] == 'l' && start[3] == 's' && start[4] == 'e') {
         SkPdfObject::makeBoolean(false, token);
         return current;
     }
