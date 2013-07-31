@@ -150,15 +150,26 @@
             'cflags': [
               '-mthumb',
             ],
-          }],
-          [ 'skia_arch_type == "arm" and armv7 == 1', {
-            'variables': {
-              'arm_neon_optional%': 0,
-            },
-            'defines': [
-              '__ARM_ARCH__=7',
+            # The --fix-cortex-a8 switch enables a link-time workaround for
+            # an erratum in certain Cortex-A8 processors.  The workaround is
+            # enabled by default if you target the ARM v7-A arch profile.
+            # It can be enabled otherwise by specifying --fix-cortex-a8, or
+            # disabled unconditionally by specifying --no-fix-cortex-a8.
+            #
+            # The erratum only affects Thumb-2 code.
+            'conditions': [
+              [ 'arm_version < 7', {
+                'ldflags': [
+                  '-Wl,--fix-cortex-a8',
+                ],
+              }],
             ],
+          }],
+          [ 'skia_arch_type == "arm" and arm_version >= 7', {
             'cflags': [
+              '-march=armv7-a',
+            ],
+            'ldflags': [
               '-march=armv7-a',
             ],
             'conditions': [
@@ -168,10 +179,6 @@
                 ],
                 'cflags': [
                   '-mfpu=neon',
-                ],
-                'ldflags': [
-                  '-march=armv7-a',
-                  '-Wl,--fix-cortex-a8',
                 ],
               }],
               [ 'arm_neon_optional == 1', {

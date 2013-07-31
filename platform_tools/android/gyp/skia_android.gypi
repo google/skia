@@ -21,7 +21,7 @@
             'android_arch%': "x86",
           }, {
             'conditions': [
-              [ 'armv7', {
+              [ 'arm_version == 7', {
                 'android_arch%': "armeabi-v7a",
               }, {
                'android_arch%': "armeabi",

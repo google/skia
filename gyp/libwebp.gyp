@@ -67,7 +67,7 @@
         {
           'target_name': 'libwebp_dsp_neon',
           'conditions': [
-            ['armv7 == 1', {
+            ['arm_version >= 7', {
               'type': 'static_library',
               'include_dirs': [
                   '../third_party/externals/libwebp',
@@ -82,7 +82,7 @@
                 '-mfpu=vfpv3-d16',
               ],
               'cflags': [ '-mfpu=neon' ],
-            },{  # "armv7 != 1"
+            },{  # !(arm_version >= 7)
               'type': 'none',
             }],
           ],
