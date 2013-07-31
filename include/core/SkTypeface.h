@@ -300,7 +300,7 @@ protected:
 
     // TODO: make this pure-virtual when all ports have overridden it
     virtual SkTypeface* onRefMatchingStyle(Style styleBits) const {
-        SkASSERT(!"unimplemented");
+        SkASSERT(0);
         this->ref();
         return const_cast<SkTypeface*>(this);
     }
