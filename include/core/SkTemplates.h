@@ -323,7 +323,7 @@ public:
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
     void reset(size_t count) {
         sk_free(fPtr);
-        fPtr = fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
     }
 
     T* get() const { return fPtr; }
