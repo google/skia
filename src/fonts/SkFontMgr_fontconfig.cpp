@@ -262,11 +262,25 @@ protected:
                                          const SkFontStyle&) { return NULL; }
 
     virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) { return NULL; }
-    virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) {
-        return NULL;
+
+    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) {
+        const size_t length = stream->getLength();
+        if (!length) {
+            return NULL;
+        }
+        if (length >= 1024 * 1024 * 1024) {
+            return NULL;  // don't accept too large fonts (>= 1GB) for safety.
+        }
+
+        // TODO should the caller give us the style?
+        SkTypeface::Style style = SkTypeface::kNormal;
+        SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, stream));
+        return face;
     }
+
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) {
-        return NULL;
+        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+        return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }
     
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

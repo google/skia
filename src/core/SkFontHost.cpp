@@ -162,14 +162,23 @@ SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
 }
 
 SkTypeface* SkFontMgr::createFromData(SkData* data, int ttcIndex) {
+    if (NULL == data) {
+        return NULL;
+    }
     return this->onCreateFromData(data, ttcIndex);
 }
 
 SkTypeface* SkFontMgr::createFromStream(SkStream* stream, int ttcIndex) {
+    if (NULL == stream) {
+        return NULL;
+    }
     return this->onCreateFromStream(stream, ttcIndex);
 }
 
 SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
+    if (NULL == path) {
+        return NULL;
+    }
     return this->onCreateFromFile(path, ttcIndex);
 }
 
