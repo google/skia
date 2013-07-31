@@ -141,17 +141,17 @@ setup_device() {
 
   case $TARGET_DEVICE in
     nexus_s)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
         DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
         ;;
     nexus_4 | nexus_7 | nexus_10)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
         ;;
     xoom)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7 arm_thumb=1"
         ;;
     galaxy_nexus)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
         DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
         ;;
     razr_i)
@@ -159,16 +159,16 @@ setup_device() {
         DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
         ;;
     arm_v7)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 armv7=1 arm_thumb=0"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
         ;;
     arm_v7_thumb)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 armv7=1 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
         ;;
     arm)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 armv7=0 arm_thumb=0"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=0"
         ;;
     arm_thumb)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 armv7=0 arm_thumb=1"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
         ;;
     x86)
         DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"

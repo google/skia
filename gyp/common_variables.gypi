@@ -69,11 +69,11 @@
         }],
         [ 'skia_os == "ios"', {
           'skia_arch_type%': 'arm',
-          'armv7%': 1,
+          'arm_version%': 7,
           'arm_neon%': 0, # neon asm files known not to work with the ios build
         },{ # skia_os is not ios
           'skia_arch_type%': 'x86',
-          'armv7%': 0,
+          'arm_version%': 0,
           'arm_neon%': 0,
         }],
       ],
@@ -121,8 +121,9 @@
 
     # Re-define all variables defined within the level-2 'variables' dict,
     # so that siblings of the level-1 'variables' dict can see them.
-    'armv7%': '<(armv7)',
+    'arm_version%': '<(arm_version)',
     'arm_neon%': '<(arm_neon)',
+    'arm_neon_optional%': 0,
     'skia_os%': '<(skia_os)',
     'os_posix%': '<(os_posix)',
     'skia_scalar%': '<(skia_scalar)',

@@ -56,7 +56,7 @@
             '../src/opts/SkUtils_opts_SSE2.cpp',
           ],
         }],
-        [ 'skia_arch_type == "arm" and armv7 == 1', {
+        [ 'skia_arch_type == "arm" and arm_version >= 7', {
           # The assembly uses the frame pointer register (r7 in Thumb/r11 in
           # ARM), the compiler doesn't like that.
           'cflags!': [
@@ -94,7 +94,7 @@
             }],
           ],
         }],
-        [ '(skia_arch_type == "arm" and armv7 == 0) or (skia_os == "ios")', {
+        [ '(skia_arch_type == "arm" and arm_version < 7) or (skia_os == "ios")', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',

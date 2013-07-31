@@ -80,7 +80,7 @@
             '../src/core/SkPaintOptionsAndroid.cpp',
           ],
         }],
-        [ 'skia_os == "android" and skia_arch_type == "arm" and armv7 == 1', {
+        [ 'skia_os == "android" and skia_arch_type == "arm"', {
           # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
           'sources': [
             '../src/core/SkPaintOptionsAndroid.cpp',
