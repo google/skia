@@ -12,7 +12,7 @@
 
 #include "SkTypeface.h"
 
-#define SK_FONTHOST_USES_FONTMGR
+//#define SK_FONTHOST_USES_FONTMGR
 
 class SkDescriptor;
 class SkScalerContext;
