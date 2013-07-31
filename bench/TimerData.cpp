@@ -13,96 +13,130 @@
 
 using namespace std;
 
-TimerData::TimerData(const SkString& perIterTimeFormat, const SkString& normalTimeFormat)
-: fWallStr(" msecs = ")
-, fTruncatedWallStr(" Wmsecs = ")
-, fCpuStr(" cmsecs = ")
-, fTruncatedCpuStr(" Cmsecs = ")
-, fGpuStr(" gmsecs = ")
-, fWallSum(0.0)
-, fWallMin(numeric_limits<double>::max())
-, fTruncatedWallSum(0.0)
-, fTruncatedWallMin(numeric_limits<double>::max())
-, fCpuSum(0.0)
-, fCpuMin(numeric_limits<double>::max())
-, fTruncatedCpuSum(0.0)
-, fTruncatedCpuMin(numeric_limits<double>::max())
-, fGpuSum(0.0)
-, fGpuMin(numeric_limits<double>::max())
-, fPerIterTimeFormat(perIterTimeFormat)
-, fNormalTimeFormat(normalTimeFormat)
-{}
-
-static double Min(double a, double b) {
-    return (a < b) ? a : b;
+TimerData::TimerData(int maxNumTimings)
+: fMaxNumTimings(maxNumTimings)
+, fCurrTiming(0)
+, fWallTimes(maxNumTimings)
+, fTruncatedWallTimes(maxNumTimings)
+, fCpuTimes(maxNumTimings)
+, fTruncatedCpuTimes(maxNumTimings)
+, fGpuTimes(maxNumTimings){
 }
 
-void TimerData::appendTimes(BenchTimer* timer, bool last) {
+bool TimerData::appendTimes(BenchTimer* timer) {
     SkASSERT(timer != NULL);
-    SkString formatString(fPerIterTimeFormat);
-    if (!last) {
-        formatString.append(",");
+    if (fCurrTiming >= fMaxNumTimings) {
+        return false;
     }
-    const char* format = formatString.c_str();
-    fWallStr.appendf(format, timer->fWall);
-    fCpuStr.appendf(format, timer->fCpu);
-    fTruncatedWallStr.appendf(format, timer->fTruncatedWall);
-    fTruncatedCpuStr.appendf(format, timer->fTruncatedCpu);
-    fGpuStr.appendf(format, timer->fGpu);
 
-    // Store the minimum values. We do not need to special case the first time since we initialized
-    // to max double.
-    fWallMin = Min(fWallMin, timer->fWall);
-    fCpuMin  = Min(fCpuMin,  timer->fCpu);
-    fTruncatedWallMin = Min(fTruncatedWallMin, timer->fTruncatedWall);
-    fTruncatedCpuMin  = Min(fTruncatedCpuMin,  timer->fTruncatedCpu);
-    fGpuMin  = Min(fGpuMin,  timer->fGpu);
+    fWallTimes[fCurrTiming] = timer->fWall;
+    fTruncatedWallTimes[fCurrTiming] = timer->fTruncatedWall;
+    fCpuTimes[fCurrTiming] = timer->fCpu;
+    fTruncatedCpuTimes[fCurrTiming] = timer->fTruncatedCpu;
+    fGpuTimes[fCurrTiming] = timer->fGpu;
 
-    // Tally the sum of each timer type.
-    fWallSum += timer->fWall;
-    fCpuSum += timer->fCpu;
-    fTruncatedWallSum += timer->fTruncatedWall;
-    fTruncatedCpuSum += timer->fTruncatedCpu;
-    fGpuSum += timer->fGpu;
+    ++fCurrTiming;
 
+    return true;
 }
 
-SkString TimerData::getResult(bool logPerIter, bool printMin, int repeatDraw,
-                              const char *configName, bool showWallTime, bool showTruncatedWallTime,
-                              bool showCpuTime, bool showTruncatedCpuTime, bool showGpuTime) {
-    // output each repeat (no average) if logPerIter is set,
-    // otherwise output only the average
-    if (!logPerIter) {
-        const char* format = fNormalTimeFormat.c_str();
-        fWallStr.set(" msecs = ");
-        fWallStr.appendf(format, printMin ? fWallMin : fWallSum / repeatDraw);
-        fCpuStr.set(" cmsecs = ");
-        fCpuStr.appendf(format, printMin ? fCpuMin : fCpuSum / repeatDraw);
-        fTruncatedWallStr.set(" Wmsecs = ");
-        fTruncatedWallStr.appendf(format,
-                                  printMin ? fTruncatedWallMin : fTruncatedWallSum / repeatDraw);
-        fTruncatedCpuStr.set(" Cmsecs = ");
-        fTruncatedCpuStr.appendf(format,
-                                 printMin ? fTruncatedCpuMin : fTruncatedCpuSum / repeatDraw);
-        fGpuStr.set(" gmsecs = ");
-        fGpuStr.appendf(format, printMin ? fGpuMin : fGpuSum / repeatDraw);
+SkString TimerData::getResult(const char* doubleFormat,
+                              Result result,
+                              const char *configName,
+                              uint32_t timerFlags,
+                              int itersPerTiming) {
+    SkASSERT(itersPerTiming >= 1);
+
+    if (!fCurrTiming) {
+        return SkString("");
     }
+
+    int numTimings = fCurrTiming;
+
+    SkString wallStr(" msecs = ");
+    SkString truncWallStr(" Wmsecs = ");
+    SkString cpuStr(" cmsecs = ");
+    SkString truncCpuStr(" Cmsecs = ");
+    SkString gpuStr(" gmsecs = ");
+
+    double wallMin = std::numeric_limits<double>::max();
+    double truncWallMin = std::numeric_limits<double>::max();
+    double cpuMin = std::numeric_limits<double>::max();
+    double truncCpuMin = std::numeric_limits<double>::max();
+    double gpuMin = std::numeric_limits<double>::max();
+
+    double wallSum = 0;
+    double truncWallSum = 0;
+    double cpuSum = 0;
+    double truncCpuSum = 0;
+    double gpuSum = 0;
+
+    for (int i = 0; i < numTimings; ++i) {
+        if (kPerIter_Result == result) {
+            wallStr.appendf(doubleFormat, fWallTimes[i]);
+            truncWallStr.appendf(doubleFormat, fTruncatedWallTimes[i]);
+            cpuStr.appendf(doubleFormat, fCpuTimes[i]);
+            truncCpuStr.appendf(doubleFormat, fTruncatedCpuTimes[i]);
+            gpuStr.appendf(doubleFormat, fGpuTimes[i]);
+
+            if (i != numTimings - 1) {
+                static const char kSep[] = ", ";
+                wallStr.append(kSep);
+                truncWallStr.append(kSep);
+                cpuStr.append(kSep);
+                truncCpuStr.append(kSep);
+                gpuStr.append(kSep);
+            }
+        } else if (kMin_Result == result) {
+            wallMin = SkTMin(wallMin, fWallTimes[i]);
+            truncWallMin = SkTMin(truncWallMin, fTruncatedWallTimes[i]);
+            cpuMin = SkTMin(cpuMin, fCpuTimes[i]);
+            truncCpuMin = SkTMin(truncCpuMin, fTruncatedCpuTimes[i]);
+            gpuMin = SkTMin(gpuMin, fGpuTimes[i]);
+        } else {
+            SkASSERT(kAvg_Result == result);
+            wallSum += fWallTimes[i];
+            truncWallSum += fTruncatedWallTimes[i];
+            cpuSum += fCpuTimes[i];
+            truncCpuSum += fTruncatedCpuTimes[i];
+        }
+
+        // We always track the GPU sum because whether it is non-zero indicates if valid gpu times
+        // were recorded at all.
+        gpuSum += fGpuTimes[i];
+    }
+
+    if (kMin_Result == result) {
+        wallStr.appendf(doubleFormat, wallMin / itersPerTiming);
+        truncWallStr.appendf(doubleFormat, truncWallMin / itersPerTiming);
+        cpuStr.appendf(doubleFormat, cpuMin / itersPerTiming);
+        truncCpuStr.appendf(doubleFormat, truncCpuMin / itersPerTiming);
+        gpuStr.appendf(doubleFormat, gpuMin / itersPerTiming);
+    } else if (kAvg_Result == result) {
+        int divisor = numTimings * itersPerTiming;
+        wallStr.appendf(doubleFormat, wallSum / divisor);
+        truncWallStr.appendf(doubleFormat, truncWallSum / divisor);
+        cpuStr.appendf(doubleFormat, cpuSum / divisor);
+        truncCpuStr.appendf(doubleFormat, truncCpuSum / divisor);
+        gpuStr.appendf(doubleFormat, gpuSum / divisor);
+    }
+
     SkString str;
     str.printf("  %4s:", configName);
-    if (showWallTime) {
-        str += fWallStr;
+    if (timerFlags & kWall_Flag) {
+        str += wallStr;
     }
-    if (showTruncatedWallTime) {
-        str += fTruncatedWallStr;
+    if (timerFlags & kTruncatedWall_Flag) {
+        str += truncWallStr;
     }
-    if (showCpuTime) {
-        str += fCpuStr;
+    if (timerFlags & kCpu_Flag) {
+        str += cpuStr;
     }
-    if (showTruncatedCpuTime) {
-        str += fTruncatedCpuStr;
+    if (timerFlags & kTruncatedCpu_Flag) {
+        str += truncCpuStr;
     }
-    if (showGpuTime && fGpuSum > 0) {
-        str += fGpuStr;
+    if ((timerFlags & kGpu_Flag) && gpuSum > 0) {
+        str += gpuStr;
     }
     return str;
 }
