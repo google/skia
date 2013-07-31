@@ -27,7 +27,7 @@ public:
         return false;
     }
 
-    GrTexture* getTexture() { return static_cast<GrTexture*>(fBitmap.getTexture()); }
+    GrTexture* getTexture() { return reinterpret_cast<GrTexture*>(fBitmap.getTexture()); }
 
 private:
     SkBitmap    fBitmap;
@@ -54,7 +54,7 @@ void SkImage_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 GrTexture* SkImage_Gpu::onGetTexture() {
-    return static_cast<GrTexture*>(fBitmap.getTexture());
+    return reinterpret_cast<GrTexture*>(fBitmap.getTexture());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
