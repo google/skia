@@ -828,7 +828,7 @@ public:
                     corresponding texs and colors arrays if non-null)
         @param vertices Array of vertices for the mesh
         @param texs May be null. If not null, specifies the coordinate
-                             in texture space for each vertex.
+                    in _texture_ space (not uv space) for each vertex.
         @param colors May be null. If not null, specifies a color for each
                       vertex, to be interpolated across the triangle.
         @param xmode Used if both texs and colors are present. In this

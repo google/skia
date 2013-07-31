@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
+#include "SkShader.h"
 #include "SkString.h"
 
 // This bench simulates the calls Skia sees from various HTML5 canvas
@@ -27,12 +28,14 @@ public:
     };
 
     GameBench(void* param, Type type, Clear clear,
-               bool aligned = false, bool useAtlas = false)
+              bool aligned = false, bool useAtlas = false,
+              bool useDrawVertices = false)
         : INHERITED(param)
         , fType(type)
         , fClear(clear)
         , fAligned(aligned)
         , fUseAtlas(useAtlas)
+        , fUseDrawVertices(useDrawVertices)
         , fName("game")
         , fNumSaved(0)
         , fInitialized(false) {
@@ -63,6 +66,10 @@ public:
             fName.append("_atlas");
         }
 
+        if (useDrawVertices) {
+            fName.append("_drawVerts");
+        }
+
         // It's HTML 5 canvas, so always AA
         fName.append("_aa");
     }
@@ -81,9 +88,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        static SkMWCRandom scaleRand;
-        static SkMWCRandom transRand;
-        static SkMWCRandom rotRand;
+        SkMWCRandom scaleRand;
+        SkMWCRandom transRand;
+        SkMWCRandom rotRand;
 
         int width, height;
         if (fUseAtlas) {
@@ -116,13 +123,26 @@ protected:
         }
 
         SkMatrix mat;
-        SkIRect src = { 0, 0, width, height };
         SkRect dst = { 0, 0, SkIntToScalar(width), SkIntToScalar(height) };
         SkRect clearRect = { -1.0f, -1.0f, width+1.0f, height+1.0f };
+        SkPoint verts[4] = { // for drawVertices path
+            { 0, 0 },
+            { 0, SkIntToScalar(height) },
+            { SkIntToScalar(width), SkIntToScalar(height) },
+            { SkIntToScalar(width), 0 }
+        };
+        uint16_t indices[6] = { 0, 1, 2, 0, 2, 3 };
 
         SkPaint p;
         p.setColor(0xFF000000);
         p.setFilterBitmap(true);
+
+        SkPaint p2;         // for drawVertices path
+        p2.setColor(0xFF000000);
+        p2.setFilterBitmap(true);
+        p2.setShader(SkShader::CreateBitmapShader(fAtlas, 
+                                                  SkShader::kClamp_TileMode,
+                                                  SkShader::kClamp_TileMode))->unref();
 
         for (int i = 0; i < kNumRects; ++i, ++fNumSaved) {
 
@@ -173,11 +193,24 @@ protected:
             canvas->concat(mat);
             if (fUseAtlas) {
                 static int curCell = 0;
-                src = fAtlasRects[curCell % (kNumAtlasedX)][curCell / (kNumAtlasedX)];
+                SkIRect src = fAtlasRects[curCell % (kNumAtlasedX)][curCell / (kNumAtlasedX)];
                 curCell = (curCell + 1) % (kNumAtlasedX*kNumAtlasedY);
-                canvas->drawBitmapRect(fAtlas, &src, dst, &p);
+
+                if (fUseDrawVertices) {
+                    SkPoint uvs[4] = { 
+                        { SkIntToScalar(src.fLeft),  SkIntToScalar(src.fBottom) },
+                        { SkIntToScalar(src.fLeft),  SkIntToScalar(src.fTop) },
+                        { SkIntToScalar(src.fRight), SkIntToScalar(src.fTop) },
+                        { SkIntToScalar(src.fRight), SkIntToScalar(src.fBottom) },
+                    };
+                    canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
+                                         4, verts, uvs, NULL, NULL, 
+                                         indices, 6, p2);
+                } else {
+                    canvas->drawBitmapRect(fAtlas, &src, dst, &p);
+                }
             } else {
-                canvas->drawBitmapRect(fCheckerboard, &src, dst, &p);
+                canvas->drawBitmapRect(fCheckerboard, NULL, dst, &p);
             }
         }
     }
@@ -209,6 +242,7 @@ private:
     Clear    fClear;
     bool     fAligned;
     bool     fUseAtlas;
+    bool     fUseDrawVertices;
     SkString fName;
     int      fNumSaved; // num draws stored in 'fSaved'
     bool     fInitialized;
@@ -258,7 +292,6 @@ private:
                                                       kAtlasCellHeight);
             }
         }
-
 
         fAtlas.setConfig(SkBitmap::kARGB_8888_Config, kTotAtlasWidth, kTotAtlasHeight);
         fAtlas.allocPixels();
@@ -310,3 +343,5 @@ DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kRotate_Type,
 // Atlased
 DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
                                             GameBench::kFull_Clear, false, true)); )
+DEF_BENCH( return SkNEW_ARGS(GameBench, (p, GameBench::kTranslate_Type,
+                                            GameBench::kFull_Clear, false, true, true)); )
