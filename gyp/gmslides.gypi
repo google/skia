@@ -61,6 +61,7 @@
     '../gm/hittestpath.cpp',
     '../gm/imageblur.cpp',
     '../gm/imagemagnifier.cpp',
+    '../gm/inversepaths.cpp',
     '../gm/lerpmode.cpp',
     '../gm/lighting.cpp',
     '../gm/image.cpp',

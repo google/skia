@@ -192,4 +192,14 @@
  */
 //#define SK_SUPPORT_GPU 1
 
+
+/* The PDF generation code uses Path Ops to generate inverse fills and complex
+ * clipping paths, but at this time, Path Ops is not release ready yet. So,
+ * the code is hidden behind this #define guard. If you are feeling adventurous
+ * and want the latest and greatest PDF generation code, uncomment the #define.
+ * When Path Ops is release ready, the define guards and this user config
+ * define should be removed entirely.
+ */
+//#define SK_PDF_USE_PATHOPS
+
 #endif
