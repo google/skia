@@ -3303,7 +3303,7 @@ Contents                                stream or array                         
 Rotate                                  integer                                                     (Optional; inheritable) The number of degrees by which the page should
                                                                                                     be rotated clockwise when displayed or printed. The value must be a mul-
                                                                                                     tiple of 90. Default value: 0.
-Group                                   dictionary                                                  (Optional; PDF 1.4) A group attributes dictionary specifying the attributes
+Group                                   TransparencyGroupDictionary                                 (Optional; PDF 1.4) A group attributes dictionary specifying the attributes
                                                                                                     of the page’s page group for use in the transparent imaging model (see
                                                                                                     Sections 7.3.6, “Page Group,” and 7.5.5, “Transparency Group XObjects”).
 Thumb                                   stream                                                      (Optional) A stream object deﬁning the page’s thumbnail image (see Sec-
@@ -9481,7 +9481,7 @@ Resources                               ResourceDictionary                      
                                                                                                          used by the form XObject. These resources are not “promoted” to the outer
                                                                                                          content stream’s resource dictionary, although that stream’s resource diction-
                                                                                                          ary will refer to the form XObject itself.
-Group                                   dictionary                                                  (Optional; PDF 1.4) A group attributes dictionary indicating that the contents
+Group                                   TransparencyGroupDictionary                                 (Optional; PDF 1.4) A group attributes dictionary indicating that the contents
                                                                                                     of the form XObject are to be treated as a group and specifying the attributes
                                                                                                     of that group (see Section 4.9.2, “Group XObjects”).
                                                                                                     Note: If a Ref entry (see below) is present, the group attributes also apply to the
@@ -14673,27 +14673,27 @@ CS                                      name or array                           
                                                                                                     and if the group is non-isolated, CS is ignored and the color space is inherited
                                                                                                     from the actual backdrop with which the page is composited (see Section 7.3.6,
                                                                                                     “Page Group”).
-                       Default value: the color space of the parent group or page into which this trans-
-                       parency group is painted. (The parent’s color space in turn can be either explic-
-                       itly speciﬁed or inherited.)
-                       Note: For a transparency group XObject used as an annotation appearance (see
-                       Section 8.4.4, “Appearance Streams”), the default color space is inherited from the
-                       page on which the annotation appears.
-I boolean              (Optional) A ﬂag specifying whether the transparency group is isolated (see Sec-
-                       tion 7.3.4, “Isolated Groups”). If this ﬂag is true, objects within the group are
-                       composited against a fully transparent initial backdrop; if false, they are com-
-                       posited against the group’s backdrop. Default value: false.
-                       In the group attributes dictionary for a page, the interpretation of this entry is
-                       slightly altered. In the normal case in which the page is imposed directly on the
-                       output medium, the page group is effectively isolated and the speciﬁed I value is
-                       ignored. But if the page is in turn used as an element of some other page, it is
-                       treated as if it were a transparency group XObject; the I value is interpreted in
-                       the normal way to determine whether the page group is isolated.
-K boolean              (Optional) A ﬂag specifying whether the transparency group is a knockout
-                       group (see Section 7.3.5, “Knockout Groups”). If this ﬂag is false, later objects
-                       within the group are composited with earlier ones with which they overlap; if
-                       true, they are composited with the group’s initial backdrop and overwrite
-                       (“knock out”) any earlier overlapping objects. Default value: false.
+                                                                                                       Default value: the color space of the parent group or page into which this trans-
+                                                                                                       parency group is painted. (The parent’s color space in turn can be either explic-
+                                                                                                       itly speciﬁed or inherited.)
+                                                                                                       Note: For a transparency group XObject used as an annotation appearance (see
+                                                                                                       Section 8.4.4, “Appearance Streams”), the default color space is inherited from the
+                                                                                                       page on which the annotation appears.
+I                                       boolean                                                     (Optional) A ﬂag specifying whether the transparency group is isolated (see Sec-
+                                                                                                    tion 7.3.4, “Isolated Groups”). If this ﬂag is true, objects within the group are
+                                                                                                    composited against a fully transparent initial backdrop; if false, they are com-
+                                                                                                    posited against the group’s backdrop. Default value: false.
+                                                                                                    In the group attributes dictionary for a page, the interpretation of this entry is
+                                                                                                    slightly altered. In the normal case in which the page is imposed directly on the
+                                                                                                    output medium, the page group is effectively isolated and the speciﬁed I value is
+                                                                                                    ignored. But if the page is in turn used as an element of some other page, it is
+                                                                                                    treated as if it were a transparency group XObject; the I value is interpreted in
+                                                                                                    the normal way to determine whether the page group is isolated.
+K                                       boolean                                                     (Optional) A ﬂag specifying whether the transparency group is a knockout
+                                                                                                    group (see Section 7.3.5, “Knockout Groups”). If this ﬂag is false, later objects
+                                                                                                    within the group are composited with earlier ones with which they overlap; if
+                                                                                                    true, they are composited with the group’s initial backdrop and overwrite
+                                                                                                    (“knock out”) any earlier overlapping objects. Default value: false.
   The transparency group XObject’s content stream deﬁnes the graphics objects
   belonging to the group. Invoking the Do operator on the XObject executes its
   content stream and composites the resulting group color, shape, and opacity into

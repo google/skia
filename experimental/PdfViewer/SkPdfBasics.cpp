@@ -28,8 +28,13 @@ void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
         paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
         // TODO(edisonn): perf, two sets of allocs, create SkDashPathEffect constr that takes ownership
         // of the intervals
-        if (fDashArrayLength > 0 && fDashPhase > 0) {
+        if (fDashArrayLength > 0) {
             paint->setPathEffect(new SkDashPathEffect(fDashArray, fDashArrayLength, fDashPhase))->unref();
         }
+    }
+
+    // TODO(edisonn): NYI multiple blend modes
+    if (fBlendModesLength == 1 && fBlendModes[0] != SkXfermode::kSrc_Mode) {
+        paint->setXfermodeMode(fBlendModes[0]);
     }
 }

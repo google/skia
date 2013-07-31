@@ -169,7 +169,6 @@ public:
         return nyi;
     }
 
-
     static void makeBoolean(bool value, SkPdfObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -703,7 +702,7 @@ public:
     inline bool boolValue() const {
         SkASSERT(fObjectType == kBoolean_PdfObjectType);
 
-        if (fObjectType == kBoolean_PdfObjectType) {
+        if (fObjectType != kBoolean_PdfObjectType) {
             // TODO(edisonn): log err
             return false;
         }

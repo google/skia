@@ -634,8 +634,70 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     return kPartial_PdfResult;
 }
 
+//TODO(edisonn): options for implementing isolation and knockout
+// 1) emulate them (current solution)
+//     PRO: simple
+//     CON: will need to use readPixels, which means serious perf issues
+// 2) Compile a plan for an array of matrixes, compose the result at the end
+//     PRO: might be faster then 1, no need to readPixels
+//     CON: multiple drawings (but on smaller areas), pay a price at loading pdf to compute a pdf draw plan
+//          on average, a load with empty draw is 100ms on all the skps we have, for complete sites
+// 3) support them natively in SkCanvas
+//     PRO: simple
+//     CON: we would still need to use a form of readPixels anyway, so perf might be the same as 1)
+// 4) compile a plan using pathops, and render once without any fancy rules with backdrop
+//     PRO: simple, fast
+//     CON: pathops must be bug free first + time to compute new paths
+//          pay a price at loading pdf to compute a pdf draw plan
+//          on average, a load with empty draw is 100ms on all the skps we have, for complete sites
+
+
+// TODO(edisonn): draw plan from point! - list of draw ops of a point, like a tree!
+// TODO(edisonn): Minimal PDF to draw some points - remove everything that it is not needed, save pdf uncompressed
+
+
+
+static void doGroup_before(PdfContext* pdfContext, SkCanvas* canvas, SkRect bbox, SkPdfTransparencyGroupDictionary* tgroup, bool page) {
+    SkRect bboxOrig = bbox;
+    SkBitmap backdrop;
+    bool isolatedGroup = tgroup->I(pdfContext->fPdfDoc);
+//  bool knockoutGroup = tgroup->K(pdfContext->fPdfDoc);
+    bool hasPixels = false;
+    if (!isolatedGroup) {
+        // TODO(edisonn): if the rect is not mapable, the operation could be expensive, e.g.
+        // a diagonal long but small rect would require to save all the page
+        SkMatrix inverse;
+        if (pdfContext->fGraphicsState.fCTM.mapRect(&bbox) &&
+                canvas->getTotalMatrix().invert(&inverse) &&
+                inverse.mapRect(&bbox)) {
+            SkIRect area = SkIRect::MakeLTRB(SkScalarTruncToInt(bbox.left()),
+                                             SkScalarTruncToInt(bbox.top()),
+                                             SkScalarTruncToInt(bbox.right()) + 2,
+                                             SkScalarTruncToInt(bbox.bottom()) + 2);
+            SkBitmap dummy;
+            if (canvas->readPixels(area, &dummy)) {
+                hasPixels = true;
+            }
+        }
+    }
+    SkPaint paint;
+    pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
+    canvas->saveLayer(&bboxOrig, isolatedGroup ? &paint : NULL);
+
+    if (hasPixels) {
+        canvas->drawBitmapRect(backdrop, bboxOrig, NULL);
+    }
+}
+
+//static void doGroup_after(PdfContext* pdfContext, SkCanvas* canvas, SkRect bbox, SkPdfTransparencyGroupDictionary* tgroup) {
+//}
+
 static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
     if (!skobj || !skobj->hasStream()) {
+        return kIgnoreError_PdfResult;
+    }
+
+    if (!skobj->has_BBox()) {
         return kIgnoreError_PdfResult;
     }
 
@@ -663,16 +725,16 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
 
     canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
 
-    if (skobj->has_BBox()) {
-        canvas->clipRect(skobj->BBox(pdfContext->fPdfDoc), SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
-    }
+    SkRect bbox = skobj->BBox(pdfContext->fPdfDoc);
+    canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
 
     // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
     // For this PdfContentsTokenizer needs to be extended.
 
     // This is a group?
     if (skobj->has_Group()) {
-        //TransparencyGroupDictionary* ...
+        SkPdfTransparencyGroupDictionary* tgroup = skobj->Group(pdfContext->fPdfDoc);
+        doGroup_before(pdfContext, canvas, bbox, tgroup, false);
     }
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
@@ -687,6 +749,11 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
 
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
+
+    if (skobj->has_Group()) {
+        canvas->restore();
+    }
+
     canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
     return kPartial_PdfResult;
@@ -808,17 +875,20 @@ static PdfResult doPage(PdfContext* pdfContext, SkCanvas* canvas, SkPdfPageObjec
 
     PdfOp_q(pdfContext, canvas, NULL);
 
-    canvas->save();
 
     if (skobj->Resources(pdfContext->fPdfDoc)) {
         pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
     }
 
-    // TODO(edisonn): refactor common path with doXObject()
-    // This is a group?
+    // TODO(edisonn): MediaBox can be inherited!!!!
+    SkRect bbox = skobj->MediaBox(pdfContext->fPdfDoc);
     if (skobj->has_Group()) {
-        //TransparencyGroupDictionary* ...
+        SkPdfTransparencyGroupDictionary* tgroup = skobj->Group(pdfContext->fPdfDoc);
+        doGroup_before(pdfContext, canvas, bbox, tgroup, true);
+    } else {
+        canvas->save();
     }
+
 
     SkPdfNativeTokenizer* tokenizer =
             pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
@@ -1582,12 +1652,21 @@ PdfResult skpdfGraphicsStateApplyD(PdfContext* pdfContext, SkPdfArray* intervals
         }
     }
 
-    pdfContext->fGraphicsState.fDashArrayLength = cnt;
     double total = 0;
     for (int i = 0 ; i < cnt; i++) {
         pdfContext->fGraphicsState.fDashArray[i] = intervals->objAtAIndex(i)->scalarValue();
         total += pdfContext->fGraphicsState.fDashArray[i];
     }
+    if (cnt & 1) {
+        if (cnt == 1) {
+            pdfContext->fGraphicsState.fDashArray[1] = pdfContext->fGraphicsState.fDashArray[0];
+            cnt++;
+        } else {
+            // TODO(edisonn): report error/warning
+            return kNYI_PdfResult;
+        }
+    }
+    pdfContext->fGraphicsState.fDashArrayLength = cnt;
     pdfContext->fGraphicsState.fDashPhase = phase->scalarValue();
     if (pdfContext->fGraphicsState.fDashPhase == 0) {
         // other rules, changes?
