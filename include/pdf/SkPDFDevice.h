@@ -293,6 +293,8 @@ private:
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
 
+    bool handleInversePath(const SkDraw& d, const SkPath& origPath,
+                           const SkPaint& paint, bool pathIsMutable);
     bool handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
                               const SkPaint& paint);
     bool handlePointAnnotation(const SkPoint* points, size_t count,

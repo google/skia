@@ -16,6 +16,7 @@
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathOps.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -842,6 +843,12 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
         return;
     }
 
+#ifdef SK_PDF_USE_PATHOPS
+    if (handleInversePath(d, origPath, paint, pathIsMutable)) {
+        return;
+    }
+#endif
+
     if (handleRectAnnotation(pathPtr->getBounds(), *d.fMatrix, paint)) {
         return;
     }
@@ -1230,6 +1237,80 @@ SkData* SkPDFDevice::copyContentToData() const {
     // potentially we could cache this SkData, and only rebuild it if we
     // see that our state has changed.
     return data.copyToData();
+}
+
+/* Calculate an inverted path's equivalent non-inverted path, given the
+ * canvas bounds.
+ */
+static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
+                                   SkPath* outPath) {
+    SkASSERT(invPath.isInverseFillType());
+
+    SkPath clipPath;
+    clipPath.addRect(bounds);
+
+    return Op(clipPath, invPath, kIntersect_PathOp, outPath);
+}
+
+/* Draws an inverse filled path by using Path Ops to compute the positive
+ * inverse using the current clip as the inverse bounds.
+ * Return true if this was an inverse path and was properly handled,
+ * otherwise returns false and the normal drawing routine should continue,
+ * either as a (incorrect) fallback or because the path was not inverse
+ * in the first place.
+ */
+bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
+                                    const SkPaint& paint, bool pathIsMutable) {
+    if (!origPath.isInverseFillType()) {
+        return false;
+    }
+
+    if (d.fClip->isEmpty()) {
+        return false;
+    }
+
+    SkPath modifiedPath;
+    SkPath* pathPtr = const_cast<SkPath*>(&origPath);
+    SkPaint noInversePaint(paint);
+
+    // Merge stroking operations into final path.
+    if (SkPaint::kStroke_Style == paint.getStyle() ||
+        SkPaint::kStrokeAndFill_Style == paint.getStyle()) {
+        bool doFillPath = paint.getFillPath(origPath, &modifiedPath);
+        if (doFillPath) {
+            noInversePaint.setStyle(SkPaint::kFill_Style);
+            noInversePaint.setStrokeWidth(0);
+            pathPtr = &modifiedPath;
+        } else {
+            // To be consistent with the raster output, hairline strokes
+            // are rendered as non-inverted.
+            modifiedPath.toggleInverseFillType();
+            drawPath(d, modifiedPath, paint, NULL, true);
+            return true;
+        }
+    }
+
+    // Get bounds of clip in current transform space
+    // (clip bounds are given in device space).
+    SkRect bounds;
+    SkMatrix transformInverse;
+    if (!d.fMatrix->invert(&transformInverse)) {
+        return false;
+    }
+    bounds.set(d.fClip->getBounds());
+    transformInverse.mapRect(&bounds);
+
+    // Extend the bounds by the line width (plus some padding)
+    // so the edge doesn't cause a visible stroke.
+    bounds.outset(paint.getStrokeWidth() + SK_Scalar1,
+                  paint.getStrokeWidth() + SK_Scalar1);
+
+    if (!calculate_inverse_path(bounds, *pathPtr, &modifiedPath)) {
+        return false;
+    }
+
+    drawPath(d, modifiedPath, noInversePaint, NULL, true);
+    return true;
 }
 
 bool SkPDFDevice::handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
