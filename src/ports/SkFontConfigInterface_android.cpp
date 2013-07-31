@@ -593,7 +593,7 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
     const SkTypeface* currTypeface = SkTypefaceCache::FindByID(currFontID);
     // non-system fonts are not in the font cache so if we are asked to fallback
     // for a non-system font we will start at the front of the chain.
-    if (NULL != currTypeface && currFontID == origFontID) {
+    if (NULL != currTypeface && currFontID != origFontID) {
         currFontRecID = ((FontConfigTypeface*)currTypeface)->getIdentity().fID;
         SkASSERT(INVALID_FONT_REC_ID != currFontRecID);
     }

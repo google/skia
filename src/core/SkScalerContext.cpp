@@ -16,6 +16,7 @@
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkRasterClip.h"
@@ -143,13 +144,19 @@ SkScalerContext* SkScalerContext::allocNextContext() const {
     SkAutoTUnref<SkTypeface> aur(newFace);
     uint32_t newFontID = newFace->uniqueID();
 
-    SkAutoDescriptor    ad(sizeof(fRec) + SkDescriptor::ComputeOverhead(1));
+    SkOrderedWriteBuffer androidBuffer(128);
+    fPaintOptionsAndroid.flatten(androidBuffer);
+
+    SkAutoDescriptor    ad(sizeof(fRec) + androidBuffer.size() + SkDescriptor::ComputeOverhead(2));
     SkDescriptor*       desc = ad.getDesc();
 
     desc->init();
     SkScalerContext::Rec* newRec =
     (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
                                           sizeof(fRec), &fRec);
+    androidBuffer.writeToMemory(desc->addEntry(kAndroidOpts_SkDescriptorTag,
+                                               androidBuffer.size(), NULL));
+
     newRec->fFontID = newFontID;
     desc->computeChecksum();
 
