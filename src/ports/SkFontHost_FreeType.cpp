@@ -1447,7 +1447,7 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
     if (offset > tableLength) {
         return 0;
     }
-    FT_ULong size = SkTMin(length, tableLength - offset);
+    FT_ULong size = SkTMin((FT_ULong)length, tableLength - (FT_ULong)offset);
     if (NULL != data) {
         error = FT_Load_Sfnt_Table(face, tag, offset, reinterpret_cast<FT_Byte*>(data), &size);
         if (error) {
