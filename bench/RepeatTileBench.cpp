@@ -17,7 +17,7 @@ static const char* gConfigName[] = {
     "ERROR", "a1", "a8", "index8", "565", "4444", "8888"
 };
 
-static void drawIntoBitmap(const SkBitmap& bm) {
+static void draw_into_bitmap(const SkBitmap& bm) {
     const int w = bm.width();
     const int h = bm.height();
 
@@ -36,32 +36,32 @@ static void drawIntoBitmap(const SkBitmap& bm) {
     canvas.drawRect(r, p);
 }
 
-static int conv6ToByte(int x) {
+static int conv_6_to_byte(int x) {
     return x * 0xFF / 5;
 }
 
-static int convByteTo6(int x) {
+static int conv_byte_to_6(int x) {
     return x * 5 / 255;
 }
 
-static uint8_t compute666Index(SkPMColor c) {
+static uint8_t compute_666_index(SkPMColor c) {
     int r = SkGetPackedR32(c);
     int g = SkGetPackedG32(c);
     int b = SkGetPackedB32(c);
 
-    return convByteTo6(r) * 36 + convByteTo6(g) * 6 + convByteTo6(b);
+    return conv_byte_to_6(r) * 36 + conv_byte_to_6(g) * 6 + conv_byte_to_6(b);
 }
 
-static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
+static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
     SkColorTable* ctable = new SkColorTable(216);
     SkPMColor* colors = ctable->lockColors();
     // rrr ggg bbb
     for (int r = 0; r < 6; r++) {
-        int rr = conv6ToByte(r);
+        int rr = conv_6_to_byte(r);
         for (int g = 0; g < 6; g++) {
-            int gg = conv6ToByte(g);
+            int gg = conv_6_to_byte(g);
             for (int b = 0; b < 6; b++) {
-                int bb = conv6ToByte(b);
+                int bb = conv_6_to_byte(b);
                 *colors++ = SkPreMultiplyARGB(0xFF, rr, gg, bb);
             }
         }
@@ -78,51 +78,60 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
         const SkPMColor* srcP = src.getAddr32(0, y);
         uint8_t* dstP = dst->getAddr8(0, y);
         for (int x = src.width() - 1; x >= 0; --x) {
-            *dstP++ = compute666Index(*srcP++);
+            *dstP++ = compute_666_index(*srcP++);
         }
     }
 }
 
 class RepeatTileBench : public SkBenchmark {
-    SkPaint     fPaint;
-    SkString    fName;
+    SkPaint          fPaint;
+    SkString         fName;
+    SkBitmap         fBitmap;
+    bool             fIsOpaque;
+    SkBitmap::Config fConfig;
     enum { N = SkBENCHLOOP(20) };
 public:
     RepeatTileBench(void* param, SkBitmap::Config c, bool isOpaque = false) : INHERITED(param) {
         const int w = 50;
         const int h = 50;
-        SkBitmap bm;
+        fConfig = c;
+        fIsOpaque = isOpaque;
 
-        if (SkBitmap::kIndex8_Config == c) {
-            bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
+        if (SkBitmap::kIndex8_Config == fConfig) {
+            fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         } else {
-            bm.setConfig(c, w, h);
+            fBitmap.setConfig(fConfig, w, h);
         }
-        bm.allocPixels();
-        bm.eraseColor(isOpaque ? SK_ColorWHITE : 0);
-        bm.setIsOpaque(isOpaque);
-
-        drawIntoBitmap(bm);
-
-        if (SkBitmap::kIndex8_Config == c) {
-            SkBitmap tmp;
-            convertToIndex666(bm, &tmp);
-            bm = tmp;
-        }
-
-        SkShader* s = SkShader::CreateBitmapShader(bm,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
-        fPaint.setShader(s)->unref();
-        fName.printf("repeatTile_%s_%c", gConfigName[bm.config()], isOpaque ? 'X' : 'A');
+        fName.printf("repeatTile_%s_%c",
+                     gConfigName[fBitmap.config()], isOpaque ? 'X' : 'A');
     }
 
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onPreDraw() SK_OVERRIDE {
+        fBitmap.allocPixels();
+        fBitmap.eraseColor(fIsOpaque ? SK_ColorWHITE : 0);
+        fBitmap.setIsOpaque(fIsOpaque);
+
+        draw_into_bitmap(fBitmap);
+
+        if (SkBitmap::kIndex8_Config == fConfig) {
+            SkBitmap tmp;
+            convert_to_index666(fBitmap, &tmp);
+            fBitmap = tmp;
+        }
+
+        SkShader* s = SkShader::CreateBitmapShader(fBitmap,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode);
+        fPaint.setShader(s)->unref();
+    }
+
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 

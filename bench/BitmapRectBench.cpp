@@ -13,7 +13,7 @@
 #include "SkRandom.h"
 #include "SkString.h"
 
-static void drawIntoBitmap(const SkBitmap& bm) {
+static void draw_into_bitmap(const SkBitmap& bm) {
     const int w = bm.width();
     const int h = bm.height();
 
@@ -45,6 +45,8 @@ class BitmapRectBench : public SkBenchmark {
     uint8_t     fAlpha;
     SkString    fName;
     SkRect      fSrcR, fDstR;
+    static const int kWidth = 128;
+    static const int kHeight = 128;
     enum { N = SkBENCHLOOP(300) };
 public:
     BitmapRectBench(void* param, U8CPU alpha, bool doFilter, bool slightMatrix) : INHERITED(param) {
@@ -52,37 +54,38 @@ public:
         fDoFilter = doFilter;
         fSlightMatrix = slightMatrix;
 
-        const int w = 128;
-        const int h = 128;
-
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        fBitmap.allocPixels();
-        fBitmap.setIsOpaque(true);
-        fBitmap.eraseColor(SK_ColorBLACK);
-        drawIntoBitmap(fBitmap);
-
-        fSrcR.iset(0, 0, w, h);
-        fDstR.iset(0, 0, w, h);
-
-        if (slightMatrix) {
-            // want fractional translate
-            fDstR.offset(SK_Scalar1 / 3, SK_Scalar1 * 5 / 7);
-            // want enough to create a scale matrix, but not enough to scare
-            // off our sniffer which tries to see if the matrix is "effectively"
-            // translate-only.
-            fDstR.fRight += SK_Scalar1 / (w * 60);
-        }
+        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, kWidth, kHeight);
     }
 
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         fName.printf("bitmaprect_%02X_%sfilter_%s",
                      fAlpha, fDoFilter ? "" : "no",
                      fSlightMatrix ? "trans" : "identity");
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onPreDraw() SK_OVERRIDE {
+        fBitmap.allocPixels();
+        fBitmap.setIsOpaque(true);
+        fBitmap.eraseColor(SK_ColorBLACK);
+        draw_into_bitmap(fBitmap);
+
+        fSrcR.iset(0, 0, kWidth, kHeight);
+        fDstR.iset(0, 0, kWidth, kHeight);
+
+        if (fSlightMatrix) {
+            // want fractional translate
+            fDstR.offset(SK_Scalar1 / 3, SK_Scalar1 * 5 / 7);
+            // want enough to create a scale matrix, but not enough to scare
+            // off our sniffer which tries to see if the matrix is "effectively"
+            // translate-only.
+            fDstR.fRight += SK_Scalar1 / (kWidth * 60);
+        }
+    }
+
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
 
         SkPaint paint;

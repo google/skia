@@ -18,7 +18,7 @@ static const int NUM_BUILD_RECTS = 500;
 static const int NUM_QUERY_RECTS = 5000;
 static const int NUM_QUERIES = 1000;
 
-typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
+typedef SkIRect (*MakeRectProc)(SkMWCRandom&, int, int);
 
 // Time how long it takes to build an R-Tree either bulk-loaded or not
 class BBoxBuildBench : public SkBenchmark {
@@ -41,11 +41,11 @@ public:
         fTree->unref();
     }
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    virtual void onDraw(SkCanvas* canvas) {
-        SkRandom rand;
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkMWCRandom rand;
         for (int i = 0; i < SkBENCHLOOP(100); ++i) {
             for (int j = 0; j < NUM_BUILD_RECTS; ++j) {
                 fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j, NUM_BUILD_RECTS),
@@ -86,23 +86,26 @@ public:
         if (fBulkLoad) {
             fName.append("_bulk");
         }
-        SkRandom rand;
-        for (int j = 0; j < SkBENCHLOOP(NUM_QUERY_RECTS); ++j) {
-            fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j,
-                           SkBENCHLOOP(NUM_QUERY_RECTS)), fBulkLoad);
-        }
-        fTree->flushDeferredInserts();
         fIsRendering = false;
     }
     virtual ~BBoxQueryBench() {
         fTree->unref();
     }
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    virtual void onDraw(SkCanvas* canvas) {
-        SkRandom rand;
+    virtual void onPreDraw() SK_OVERRIDE {
+        SkMWCRandom rand;
+        for (int j = 0; j < SkBENCHLOOP(NUM_QUERY_RECTS); ++j) {
+            fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j,
+                           SkBENCHLOOP(NUM_QUERY_RECTS)), fBulkLoad);
+        }
+        fTree->flushDeferredInserts();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkMWCRandom rand;
         for (int i = 0; i < SkBENCHLOOP(NUM_QUERIES); ++i) {
             SkTDArray<void*> hits;
             SkIRect query;
@@ -145,22 +148,22 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static inline SkIRect make_simple_rect(SkRandom&, int index, int numRects) {
+static inline SkIRect make_simple_rect(SkMWCRandom&, int index, int numRects) {
     SkIRect out = {0, 0, GENERATE_EXTENTS, GENERATE_EXTENTS};
     return out;
 }
 
-static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
+static inline SkIRect make_concentric_rects_increasing(SkMWCRandom&, int index, int numRects) {
     SkIRect out = {0, 0, index + 1, index + 1};
     return out;
 }
 
-static inline SkIRect make_concentric_rects_decreasing(SkRandom&, int index, int numRects) {
+static inline SkIRect make_concentric_rects_decreasing(SkMWCRandom&, int index, int numRects) {
     SkIRect out = {0, 0, numRects - index, numRects - index};
     return out;
 }
 
-static inline SkIRect make_point_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_point_rects(SkMWCRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
     out.fTop    = rand.nextU() % GENERATE_EXTENTS;
@@ -169,7 +172,7 @@ static inline SkIRect make_point_rects(SkRandom& rand, int index, int numRects) 
     return out;
 }
 
-static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_random_rects(SkMWCRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextS() % GENERATE_EXTENTS;
     out.fTop    = rand.nextS() % GENERATE_EXTENTS;
@@ -178,7 +181,7 @@ static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects)
     return out;
 }
 
-static inline SkIRect make_large_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_large_rects(SkMWCRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
     out.fTop    = rand.nextU() % GENERATE_EXTENTS;
