@@ -22,7 +22,6 @@ class SkAdvancedTypefaceMetrics;
 class SkWStream;
 
 typedef uint32_t SkFontID;
-/** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
 /** \class SkTypeface
@@ -295,11 +294,16 @@ protected:
 
     virtual int onGetUPEM() const = 0;
 
-    virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
+    virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const = 0;
+                                  size_t length, void* data) const;
 
-    virtual SkTypeface* onRefMatchingStyle(Style styleBits) const = 0;
+    // TODO: make this pure-virtual when all ports have overridden it
+    virtual SkTypeface* onRefMatchingStyle(Style styleBits) const {
+        SkASSERT(0);
+        this->ref();
+        return const_cast<SkTypeface*>(this);
+    }
 
 private:
     SkFontID    fUniqueID;

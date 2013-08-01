@@ -8,6 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkFontStream.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -222,4 +223,19 @@ int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
     }
     return 0;
+}
+
+int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const {
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get() ? SkFontStream::GetTableTags(stream, ttcIndex, tags) : 0;
+}
+
+size_t SkTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
+                                  size_t length, void* data) const {
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get()
+        ? SkFontStream::GetTableData(stream, ttcIndex, tag, offset, length, data)
+        : 0;
 }
