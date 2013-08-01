@@ -428,6 +428,13 @@ public:
         }
         SkPdfObject* ret = NULL;
         fMap->find((const char*)key, len, &ret);
+
+#ifdef PDF_TRACE
+        SkString _key;
+        _key.append((const char*)key, len);
+        printf("\nget(/%s) = %s\n", _key.c_str(), ret ? ret->toString(0, len + 9).c_str() : "_NOT_FOUND");
+#endif
+
         return ret;
     }
 
@@ -458,6 +465,13 @@ public:
         }
         SkPdfObject* ret = NULL;
         fMap->find((const char*)key, len, &ret);
+
+#ifdef PDF_TRACE
+        SkString _key;
+        _key.append((const char*)key, len);
+        printf("\nget(/%s) = %s\n", _key.c_str(), ret ? ret->toString(0, len + 9).c_str() : "_NOT_FOUND");
+#endif
+
         return ret;
     }
 
@@ -816,58 +830,80 @@ public:
         return true;
     }
 
-    SkString toString() {
+    void appendSpaces(SkString* str, int level) {
+        for (int i = 0 ; i < level; i++) {
+            str->append(" ");
+        }
+    }
+
+    SkString toString(int firstRowLevel = 0, int level = 0) {
         SkString str;
+        appendSpaces(&str, firstRowLevel);
         switch (fObjectType) {
             case kInvalid_PdfObjectType:
-                str.append("Invalid");
+                str.append("__Invalid");
                 break;
 
             case kBoolean_PdfObjectType:
-                str.appendf("Boolean: %s", fBooleanValue ? "true" : "false");
+                str.appendf("%s", fBooleanValue ? "true" : "false");
                 break;
 
             case kInteger_PdfObjectType:
-                str.appendf("Integer: %i", (int)fIntegerValue);
+                str.appendf("%i", (int)fIntegerValue);
                 break;
 
             case kReal_PdfObjectType:
-                str.appendf("Real: %f", fRealValue);
+                str.appendf("%f", fRealValue);
                 break;
 
             case kString_PdfObjectType:
-                str.appendf("String, len() = %u: ", (unsigned int)fStr.fBytes);
+                str.append("\"");
                 str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                str.append("\"");
                 break;
 
             case kHexString_PdfObjectType:
-                str.appendf("HexString, len() = %u: ", (unsigned int)fStr.fBytes);
+                str.append("<");
                 str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                str.append(">");
                 break;
 
             case kName_PdfObjectType:
-                str.appendf("Name, len() = %u: ", (unsigned int)fStr.fBytes);
+                str.append("/");
                 str.append((const char*)fStr.fBuffer, fStr.fBytes);
                 break;
 
             case kKeyword_PdfObjectType:
-                str.appendf("Keyword, len() = %u: ", (unsigned int)fStr.fBytes);
                 str.append((const char*)fStr.fBuffer, fStr.fBytes);
                 break;
 
             case kArray_PdfObjectType:
-                str.append("Array, size() = %i [", size());
+                str.append("[\n");
                 for (unsigned int i = 0; i < size(); i++) {
-                    str.append(objAtAIndex(i)->toString());
+                    str.append(objAtAIndex(i)->toString(level + 1, level + 1));
+                    if (i < size() - 1) {
+                        str.append(",");
+                    }
+                    str.append("\n");
                 }
+                appendSpaces(&str, level);
                 str.append("]");
                 break;
 
-            case kDictionary_PdfObjectType:
-                // TODO(edisonn): NYI
-                str.append("Dictionary: NYI");
-                if (hasStream()) {
-                    str.append(" HAS_STREAM");
+            case kDictionary_PdfObjectType: {
+                    SkTDict<SkPdfObject*>::Iter iter(*fMap);
+                    SkPdfObject* obj = NULL;
+                    const char* key = NULL;
+                    str.append("<<\n");
+                    while ((key = iter.next(&obj)) != NULL) {
+                        appendSpaces(&str, level + 2);
+                        str.appendf("/%s %s\n", key, obj->toString(0, level + strlen(key) + 4).c_str());
+                    }
+                    appendSpaces(&str, level);
+                    str.append(">>");
+                    if (hasStream()) {
+                        str.append("stream HAS_STREAM endstream");
+                    }
                 }
                 break;
 
@@ -876,7 +912,7 @@ public:
                 break;
 
             case kReference_PdfObjectType:
-                str.appendf("Reference: %i %i", fRef.fId, fRef.fGen);
+                str.appendf("%i %i R", fRef.fId, fRef.fGen);
                 break;
 
             case kUndefined_PdfObjectType:
@@ -884,7 +920,7 @@ public:
                 break;
 
             default:
-                str = "Internal Error Object Type";
+                str = "Error";
                 break;
         }
 

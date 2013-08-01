@@ -37,4 +37,7 @@ void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
     if (fBlendModesLength == 1 && fBlendModes[0] != SkXfermode::kSrc_Mode) {
         paint->setXfermodeMode(fBlendModes[0]);
     }
+
+    //paint->setStrokeMiter(SkDoubleToScalar(fMiterLimit));
+    // TODO(edisonn): impl cap and join
 }
