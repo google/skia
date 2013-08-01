@@ -10,7 +10,6 @@
     '../bench/BitmapBench.cpp',
     '../bench/BitmapRectBench.cpp',
     '../bench/BitmapScaleBench.cpp',
-    '../bench/BlendBench.cpp',
     '../bench/BlurBench.cpp',
     '../bench/BlurImageFilterBench.cpp',
     '../bench/BlurRectBench.cpp',

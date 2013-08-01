@@ -20,7 +20,6 @@
 #include "SkAvoidXfermode.h"
 #include "SkBicubicImageFilter.h"
 #include "SkBitmapSource.h"
-#include "SkBlendImageFilter.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
@@ -64,7 +63,6 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBicubicImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapSource)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlendImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilter)
