@@ -123,6 +123,7 @@ public:
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
             case kKeyword_PdfObjectType:
+            case kName_PdfObjectType:
                 return (const char*)fStr.fBuffer;
 
             default:
@@ -136,6 +137,7 @@ public:
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
             case kKeyword_PdfObjectType:
+            case kName_PdfObjectType:
                 return fStr.fBytes;
 
             default:
@@ -682,6 +684,7 @@ public:
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
             case kKeyword_PdfObjectType:
+            case kName_PdfObjectType:
                 return fStr;
 
             default:
@@ -830,13 +833,13 @@ public:
         return true;
     }
 
-    void appendSpaces(SkString* str, int level) {
+    static void appendSpaces(SkString* str, int level) {
         for (int i = 0 ; i < level; i++) {
             str->append(" ");
         }
     }
 
-    SkString toString(int firstRowLevel = 0, int level = 0) {
+    SkString toString(int firstRowLevel = 0, int level = 0) const {
         SkString str;
         appendSpaces(&str, firstRowLevel);
         switch (fObjectType) {
