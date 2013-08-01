@@ -8,13 +8,13 @@
 #include "gm.h"
 
 #include "SkBitmapSource.h"
-#include "SkBlendImageFilter.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
+#include "SkXfermodeImageFilter.h"
 
 #include "SkTestImageFilters.h"
 
@@ -74,7 +74,8 @@ protected:
 
             SkAutoTUnref<SkColorFilter> matrixFilter(new SkColorMatrixFilter(matrix));
             SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter, morph));
-            SkAutoTUnref<SkImageFilter> blendColor(new SkBlendImageFilter(SkBlendImageFilter::kNormal_Mode, colorMorph));
+            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
+            SkAutoTUnref<SkImageFilter> blendColor(new SkXfermodeImageFilter(mode, colorMorph));
 
             SkPaint paint;
             paint.setImageFilter(blendColor);

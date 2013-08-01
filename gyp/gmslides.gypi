@@ -16,7 +16,6 @@
     '../gm/bitmaprecttest.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/bleed.cpp',
-    '../gm/blend.cpp',
     '../gm/blurs.cpp',
     '../gm/blurquickreject.cpp',
     '../gm/blurrect.cpp',
