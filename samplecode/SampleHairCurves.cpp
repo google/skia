@@ -35,6 +35,7 @@ protected:
         canvas->save();
         canvas->scale(1000 * SK_Scalar1, 1000 * SK_Scalar1);
         SkRandom rand;
+        SkRandom randW;
         SkPath curves;
         SkPath hulls;
         SkPath ctrlPts;
@@ -69,6 +70,27 @@ protected:
             curves.moveTo(pts[0], pts[1]);
             curves.quadTo(pts[2], pts[3],
                           pts[4], pts[5]);
+
+            hulls.moveTo(pts[0], pts[1]);
+            hulls.lineTo(pts[2], pts[3]);
+            hulls.lineTo(pts[4], pts[5]);
+
+            ctrlPts.addCircle(pts[0], pts[1], SK_Scalar1 / 200);
+            ctrlPts.addCircle(pts[2], pts[3], SK_Scalar1 / 200);
+            ctrlPts.addCircle(pts[4], pts[5], SK_Scalar1 / 200);
+        }
+        for (int i = 0; i < 100; ++i) {
+            SkScalar pts[] = {
+                rand.nextUScalar1(), rand.nextUScalar1(),
+                rand.nextUScalar1(), rand.nextUScalar1(),
+                rand.nextUScalar1(), rand.nextUScalar1(),
+            };
+            SkScalar weight = randW.nextUScalar1() * 2.0f;
+
+            curves.moveTo(pts[0], pts[1]);
+            curves.conicTo(pts[2], pts[3],
+                          pts[4], pts[5],
+                          weight);
 
             hulls.moveTo(pts[0], pts[1]);
             hulls.lineTo(pts[2], pts[3]);
