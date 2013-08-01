@@ -46,9 +46,9 @@ public:
 private:
     struct BlockHeader;
 
-    BlockHeader* CreateBlock(size_t size);
+    static BlockHeader* CreateBlock(size_t size);
 
-    void DeleteBlock(BlockHeader* block);
+    static void DeleteBlock(BlockHeader* block);
 
     void validate();
 
