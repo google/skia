@@ -184,24 +184,6 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     return stream;
 }
 
-int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
-    int ttcIndex;
-    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
-    return stream.get()
-                ? SkFontStream::GetTableTags(stream, ttcIndex, tags)
-                : 0;
-}
-
-size_t FontConfigTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
-                                  size_t length, void* data) const {
-    int ttcIndex;
-    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
-    return stream.get()
-                ? SkFontStream::GetTableData(stream, ttcIndex,
-                                             tag, offset, length, data)
-                : 0;
-}
-
 void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* isLocalStream) const {
     desc->setFamilyName(this->getFamilyName());

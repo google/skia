@@ -55,9 +55,6 @@ public:
 protected:
     friend class SkFontHost;    // hack until we can make public versions
 
-    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
-    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
