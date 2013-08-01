@@ -650,6 +650,7 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
 //     CON: pathops must be bug free first + time to compute new paths
 //          pay a price at loading pdf to compute a pdf draw plan
 //          on average, a load with empty draw is 100ms on all the skps we have, for complete sites
+// 5) for knockout, render the objects in reverse order, and add every object to the clip, and any new draw will be cliped
 
 
 // TODO(edisonn): draw plan from point! - list of draw ops of a point, like a tree!
@@ -662,34 +663,15 @@ static void doGroup_before(PdfContext* pdfContext, SkCanvas* canvas, SkRect bbox
     SkBitmap backdrop;
     bool isolatedGroup = tgroup->I(pdfContext->fPdfDoc);
 //  bool knockoutGroup = tgroup->K(pdfContext->fPdfDoc);
-    bool hasPixels = false;
-    if (!isolatedGroup) {
-        // TODO(edisonn): if the rect is not mapable, the operation could be expensive, e.g.
-        // a diagonal long but small rect would require to save all the page
-        SkMatrix inverse;
-        if (pdfContext->fGraphicsState.fCTM.mapRect(&bbox) &&
-                canvas->getTotalMatrix().invert(&inverse) &&
-                inverse.mapRect(&bbox)) {
-            SkIRect area = SkIRect::MakeLTRB(SkScalarTruncToInt(bbox.left()),
-                                             SkScalarTruncToInt(bbox.top()),
-                                             SkScalarTruncToInt(bbox.right()) + 2,
-                                             SkScalarTruncToInt(bbox.bottom()) + 2);
-            SkBitmap dummy;
-            if (canvas->readPixels(area, &dummy)) {
-                hasPixels = true;
-            }
-        }
-    }
     SkPaint paint;
     pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
     canvas->saveLayer(&bboxOrig, isolatedGroup ? &paint : NULL);
-
-    if (hasPixels) {
-        canvas->drawBitmapRect(backdrop, bboxOrig, NULL);
-    }
 }
 
+// TODO(edisonn): non isolation implemented in skia
 //static void doGroup_after(PdfContext* pdfContext, SkCanvas* canvas, SkRect bbox, SkPdfTransparencyGroupDictionary* tgroup) {
+//    if not isolated
+//        canvas->drawBitmapRect(backdrop, bboxOrig, NULL);
 //}
 
 static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
@@ -702,8 +684,6 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
-
-
 
     canvas->save();
 
