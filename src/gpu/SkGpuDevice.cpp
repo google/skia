@@ -598,9 +598,10 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
-    // we only handle hairlines and paints without path effects or mask filters,
+    // we only handle non-AA hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter()) {
+    bool requiresAA = paint.isAntiAlias() && !fRenderTarget->isMultisampled();
+    if (requiresAA || width > 0 || paint.getPathEffect() || paint.getMaskFilter()) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
