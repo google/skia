@@ -301,29 +301,35 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     SkPath::Verb verb;
     SkPoint pts[4];
     SkDEBUGCODE(int moveCnt = 0;)
+    SkDEBUGCODE(int segmentCount = 0;)
+    SkDEBUGCODE(int closeCount = 0;)
 
     while ((verb = iter.next(pts)) != kDone_Verb) {
         int nextPt = -1;
         switch (verb) {
             case kMove_Verb:
-                SkASSERT(!moveCnt);
+                SkASSERT(!segmentCount && !closeCount);
                 SkDEBUGCODE(++moveCnt);
                 firstPt = prevPt = pts[0];
                 break;
             case kLine_Verb:
                 nextPt = 1;
-                SkASSERT(moveCnt);
+                SkASSERT(moveCnt && !closeCount);
+                SkDEBUGCODE(++segmentCount);
                 break;
             case kQuad_Verb:
             case kConic_Verb:
-                SkASSERT(moveCnt);
+                SkASSERT(moveCnt && !closeCount);
+                SkDEBUGCODE(++segmentCount);
                 nextPt = 2;
                 break;
             case kCubic_Verb:
-                SkASSERT(moveCnt);
+                SkASSERT(moveCnt && !closeCount);
+                SkDEBUGCODE(++segmentCount);
                 nextPt = 3;
                 break;
             case kClose_Verb:
+                SkDEBUGCODE(++closeCount;)
                 break;
             default:
                 SkDEBUGFAIL("unknown verb");

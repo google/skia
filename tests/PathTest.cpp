@@ -1161,6 +1161,18 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
                                                                                 SkIntToScalar(200),
                                                                                 SkIntToScalar(20),
                                                                                 SkIntToScalar(5))));
+
+    // same as above path and first test but with an extra moveTo.
+    path.reset();
+    path.moveTo(100, 100);
+    path.moveTo(0, 0);
+    path.lineTo(SkIntToScalar(100), 0);
+    path.lineTo(0, SkIntToScalar(100));
+
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+                                                                               SkIntToScalar(10),
+                                                                               SkIntToScalar(10))));
+
 }
 
 // Simple isRect test is inline TestPath, below.
