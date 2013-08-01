@@ -140,7 +140,7 @@ protected:
         SkPaint p2;         // for drawVertices path
         p2.setColor(0xFF000000);
         p2.setFilterBitmap(true);
-        p2.setShader(SkShader::CreateBitmapShader(fAtlas, 
+        p2.setShader(SkShader::CreateBitmapShader(fAtlas,
                                                   SkShader::kClamp_TileMode,
                                                   SkShader::kClamp_TileMode))->unref();
 
@@ -197,14 +197,14 @@ protected:
                 curCell = (curCell + 1) % (kNumAtlasedX*kNumAtlasedY);
 
                 if (fUseDrawVertices) {
-                    SkPoint uvs[4] = { 
+                    SkPoint uvs[4] = {
                         { SkIntToScalar(src.fLeft),  SkIntToScalar(src.fBottom) },
                         { SkIntToScalar(src.fLeft),  SkIntToScalar(src.fTop) },
                         { SkIntToScalar(src.fRight), SkIntToScalar(src.fTop) },
                         { SkIntToScalar(src.fRight), SkIntToScalar(src.fBottom) },
                     };
                     canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
-                                         4, verts, uvs, NULL, NULL, 
+                                         4, verts, uvs, NULL, NULL,
                                          indices, 6, p2);
                 } else {
                     canvas->drawBitmapRect(fAtlas, &src, dst, &p);

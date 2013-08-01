@@ -211,5 +211,3 @@ void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
 SkTypeface* FontConfigTypeface::onRefMatchingStyle(Style style) const {
     return LegacyCreateTypeface(this, NULL, style);
 }
-
-

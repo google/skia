@@ -282,7 +282,7 @@ protected:
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }
-    
+
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) SK_OVERRIDE {
         return FontConfigTypeface::LegacyCreateTypeface(NULL, familyName,
