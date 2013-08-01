@@ -18,6 +18,7 @@
 #include "SkOTTable_maxp.h"
 #include "SkOTUtils.h"
 #include "SkPath.h"
+#include "SkSFNTHeader.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
@@ -250,6 +251,9 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const SK_OVERRIDE;
     virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 };
 
@@ -2048,6 +2052,54 @@ int LogFontTypeface::onGetUPEM() const {
     DeleteDC(hdc);
 
     return upem;
+}
+
+int LogFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
+    SkSFNTHeader header;
+    if (sizeof(header) != this->onGetTableData(0, 0, sizeof(header), &header)) {
+        return 0;
+    }
+
+    int numTables = SkEndian_SwapBE16(header.numTables);
+
+    if (tags) {
+        size_t size = numTables * sizeof(SkSFNTHeader::TableDirectoryEntry);
+        SkAutoSTMalloc<0x20, SkSFNTHeader::TableDirectoryEntry> dir(numTables);
+        if (size != this->onGetTableData(0, sizeof(header), size, dir.get())) {
+            return 0;
+        }
+
+        for (int i = 0; i < numTables; ++i) {
+            tags[i] = SkEndian_SwapBE32(dir[i].tag);
+        }
+    }
+    return numTables;
+}
+
+size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
+                                       size_t length, void* data) const
+{
+    LOGFONT lf = fLogFont;
+
+    HDC hdc = ::CreateCompatibleDC(NULL);
+    HFONT font = CreateFontIndirect(&lf);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+
+    tag = SkEndian_SwapBE32(tag);
+    if (NULL == data) {
+        length = 0;
+    }
+    DWORD bufferSize = GetFontData(hdc, tag, offset, data, length);
+    if (bufferSize == GDI_ERROR) {
+        call_ensure_accessible(lf);
+        bufferSize = GetFontData(hdc, tag, offset, data, length);
+    }
+
+    SelectObject(hdc, savefont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return bufferSize == GDI_ERROR ? 0 : bufferSize;
 }
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {

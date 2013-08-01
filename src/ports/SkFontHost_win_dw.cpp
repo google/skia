@@ -16,6 +16,7 @@
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkFontStream.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
 #include "SkMaskGamma.h"
@@ -494,6 +495,9 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const SK_OVERRIDE;
     virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 };
 
@@ -1084,6 +1088,61 @@ int DWriteFontTypeface::onGetUPEM() const {
     return metrics.designUnitsPerEm;
 }
 
+int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
+    DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
+    if (type != DWRITE_FONT_FACE_TYPE_CFF &&
+        type != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
+        type != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION)
+    {
+        return 0;
+    }
+
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get() ? SkFontStream::GetTableTags(stream, ttcIndex, tags) : 0;
+}
+
+class AutoDWriteTable {
+public:
+    AutoDWriteTable(IDWriteFontFace* fontFace, UINT32 beTag) : fFontFace(fontFace), fExists(FALSE) {
+        // Any errors are ignored, user must check fExists anyway.
+        fontFace->TryGetFontTable(beTag,
+            reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
+    }
+    ~AutoDWriteTable() {
+        if (fExists) {
+            fFontFace->ReleaseFontTable(fLock);
+        }
+    }
+
+    const uint8_t* fData;
+    UINT32 fSize;
+    BOOL fExists;
+private:
+    // Borrowed reference, the user must ensure the fontFace stays alive.
+    IDWriteFontFace* fFontFace;
+    void* fLock;
+};
+
+size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
+                                          size_t length, void* data) const
+{
+    AutoDWriteTable table(fDWriteFontFace.get(), SkEndian_SwapBE32(tag));
+    if (!table.fExists) {
+        return 0;
+    }
+
+    if (offset > table.fSize) {
+        return 0;
+    }
+    size_t size = SkTMin(length, table.fSize - offset);
+    if (NULL != data) {
+        memcpy(data, table.fData + offset, size);
+    }
+
+    return size;
+}
+
 template <typename T> class SkAutoIDWriteUnregister {
 public:
     SkAutoIDWriteUnregister(IDWriteFactory* factory, T* unregister)
@@ -1328,35 +1387,12 @@ static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance
     return true;
 }
 
-template<typename T>
-class AutoDWriteTable {
+template<typename T> class AutoTDWriteTable : public AutoDWriteTable {
 public:
-    AutoDWriteTable(IDWriteFontFace* fontFace)
-        : fFontFace(fontFace)
-        , fExists(FALSE) {
+    static const UINT32 tag = DWRITE_MAKE_OPENTYPE_TAG(T::TAG0, T::TAG1, T::TAG2, T::TAG3);
+    AutoTDWriteTable(IDWriteFontFace* fontFace) : AutoDWriteTable(fontFace, tag) { }
 
-        const UINT32 tag = DWRITE_MAKE_OPENTYPE_TAG(T::TAG0,
-                                                    T::TAG1,
-                                                    T::TAG2,
-                                                    T::TAG3);
-        // Any errors are ignored, user must check fExists anyway.
-        fontFace->TryGetFontTable(tag,
-            reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
-    }
-    ~AutoDWriteTable() {
-        if (fExists) {
-            fFontFace->ReleaseFontTable(fLock);
-        }
-    }
-    const T* operator->() const { return fData; }
-
-    const T* fData;
-    UINT32 fSize;
-    BOOL fExists;
-private:
-    // Borrowed reference, the user must ensure the fontFace stays alive.
-    IDWriteFontFace* fFontFace;
-    void* fLock;
+    const T* operator->() const { return reinterpret_cast<const T*>(fData); }
 };
 
 SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
@@ -1418,10 +1454,10 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         return info;
     }
 
-    AutoDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTablePostScript> postTable(fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTableHorizontalHeader> hheaTable(fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTablePostScript> postTable(fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableHorizontalHeader> hheaTable(fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         info->fItalicAngle = 0;
         info->fAscent = dwfm.ascent;;
