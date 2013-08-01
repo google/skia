@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -146,9 +145,9 @@ int get_float_exp(float x) {
 // Uses the max curvature function for quads to estimate
 // where to chop the conic. If the max curvature is not
 // found along the curve segment it will return 1 and
-// dst[0] is the orginal conic. If it returns 2 the dst[0]
+// dst[0] is the original conic. If it returns 2 the dst[0]
 // and dst[1] are the two new conics.
-int chop_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
+int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
     SkScalar t = SkFindQuadMaxCurvature(src);
     if (t == 0) {
         if (dst) {
@@ -163,6 +162,21 @@ int chop_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
         }
         return 2;
     }
+}
+
+// Calls split_conic on the entire conic and then once more on each subsection.
+// Most cases will result in either 1 conic (chop point is not within t range)
+// or 3 points (split once and then one subsection is split again).
+int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
+    SkConic dstTemp[2];
+    int conicCnt = split_conic(src, dstTemp, weight);
+    if (2 == conicCnt) {
+        int conicCnt2 = split_conic(dstTemp[0].fPts, dst, dstTemp[0].fW);
+        conicCnt = conicCnt2 + split_conic(dstTemp[1].fPts, &dst[conicCnt2], dstTemp[1].fW);
+    } else {
+        dst[0] = dstTemp[0];
+    }
+    return conicCnt;
 }
 
 // returns 0 if quad/conic is degen or close to it
@@ -271,7 +285,10 @@ int generate_lines_and_quads(const SkPath& path,
         SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
             case SkPath::kConic_Verb: {
-                SkConic dst[2];
+                SkConic dst[4];
+                // We chop the conics to create tighter clipping to hide error
+                // that appears near max curvature of very thin conics. Thin
+                // hyperbolas with high weight still show error.
                 int conicCnt = chop_conic(pathPts, dst, iter.conicWeight());
                 for (int i = 0; i < conicCnt; ++i) {
                     SkPoint* chopPnts = dst[i].fPts;
@@ -424,21 +441,18 @@ struct Vertex {
             SkScalar fC;
         } fLine;
         struct {
-            SkScalar fA;
-            SkScalar fB;
-            SkScalar fC;
-            SkScalar fD;
-            SkScalar fE;
-            SkScalar fF;
+            SkScalar fK;
+            SkScalar fL;
+            SkScalar fM;
         } fConic;
         GrVec   fQuadCoord;
         struct {
-            SkScalar fBogus[6];
+            SkScalar fBogus[4];
         };
     };
 };
 
-GR_STATIC_ASSERT(sizeof(Vertex) == 4 * sizeof(GrPoint));
+GR_STATIC_ASSERT(sizeof(Vertex) == 3 * sizeof(GrPoint));
 
 void intersect_lines(const SkPoint& ptA, const SkVector& normA,
                      const SkPoint& ptB, const SkVector& normB,
@@ -538,43 +552,67 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
 }
 
+// Input:
+// Three control points: p[0], p[1], p[2] and weight: w
+// Output:
+// Let:
+// l = (2*w * (y1 - y0), 2*w * (x0 - x1), 2*w * (x1*y0 - x0*y1))
+// m = (2*w * (y2 - y1), 2*w * (x1 - x2), 2*w * (x2*y1 - x1*y2))
+// k = (y2 - y0, x0 - x2, (x2 - x0)*y0 - (y2 - y0)*x0 )
+void calc_conic_klm(const SkPoint p[3], const SkScalar weight,
+                       SkScalar k[3], SkScalar l[3], SkScalar m[3]) {
+    const SkScalar w2 = 2 * weight;
+    l[0] = w2 * (p[1].fY - p[0].fY);
+    l[1] = w2 * (p[0].fX - p[1].fX);
+    l[2] = w2 * (p[1].fX * p[0].fY - p[0].fX * p[1].fY);
 
+    m[0] = w2 * (p[2].fY - p[1].fY);
+    m[1] = w2 * (p[1].fX - p[2].fX);
+    m[2] = w2 * (p[2].fX * p[1].fY - p[1].fX * p[2].fY);
+
+    k[0] = p[2].fY - p[0].fY;
+    k[1] = p[0].fX - p[2].fX;
+    k[2] = (p[2].fX - p[0].fX) * p[0].fY - (p[2].fY - p[0].fY) * p[0].fX;
+
+    // scale the max absolute value of coeffs to 10
+    SkScalar scale = 0.0f;
+    for (int i = 0; i < 3; ++i) {
+       scale = SkMaxScalar(scale, SkScalarAbs(k[i]));
+       scale = SkMaxScalar(scale, SkScalarAbs(l[i]));
+       scale = SkMaxScalar(scale, SkScalarAbs(m[i]));
+    }
+    GrAssert(scale > 0);
+    scale /= 10.0f;
+    k[0] /= scale;
+    k[1] /= scale;
+    k[2] /= scale;
+    l[0] /= scale;
+    l[1] /= scale;
+    l[2] /= scale;
+    m[0] /= scale;
+    m[1] /= scale;
+    m[2] /= scale;
+}
+
+// Equations based off of Loop-Blinn Quadratic GPU Rendering
 // Input Parametric:
 // P(t) = (P0*(1-t)^2 + 2*w*P1*t*(1-t) + P2*t^2) / (1-t)^2 + 2*w*t*(1-t) + t^2)
 // Output Implicit:
-// Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
-// A = 4w^2*(y0-y1)(y1-y2)-(y0-y2)^2
-// B = 4w^2*((x0-x1)(y2-y1)+(x1-x2)(y1-y0)) + 2(x0-x2)(y0-y2)
-// C = 4w^2(x0-x1)(x1-x2) - (x0-x2)^2
-// D = 4w^2((x0y1-x1y0)(y1-y2)+(x1y2-x2y1)(y0-y1)) + 2(y2-y0)(x0y2-x2y0)
-// E = 4w^2((y0x1-y1x0)(x1-x2)+(y1x2-y2x1)(x0-x1)) + 2(x2-x0)(y0x2-y2x0)
-// F = 4w^2(x1y2-x2y1)(x0y1-x1y0) - (x2y0-x0y2)^2
-
+// f(x, y, w) = f(P) = K^2 - LM
+// K = dot(k, P), L = dot(l, P), M = dot(m, P)
+// k, l, m are calculated in function calc_conic_klm
 void set_conic_coeffs(const SkPoint p[3], Vertex verts[kVertsPerQuad], const float weight) {
-    const float ww4 = 4 * weight * weight;
-    const float x0Mx1 = p[0].fX - p[1].fX;
-    const float x1Mx2 = p[1].fX - p[2].fX;
-    const float x0Mx2 = p[0].fX - p[2].fX;
-    const float y0My1 = p[0].fY - p[1].fY;
-    const float y1My2 = p[1].fY - p[2].fY;
-    const float y0My2 = p[0].fY - p[2].fY;
-    const float x0y1Mx1y0 = p[0].fX*p[1].fY - p[1].fX*p[0].fY;
-    const float x1y2Mx2y1 = p[1].fX*p[2].fY - p[2].fX*p[1].fY;
-    const float x0y2Mx2y0 = p[0].fX*p[2].fY - p[2].fX*p[0].fY;
-    const float a = ww4 * y0My1 * y1My2 - y0My2 * y0My2;
-    const float b = -ww4 * (x0Mx1 * y1My2 + x1Mx2 * y0My1) + 2 * x0Mx2 * y0My2;
-    const float c = ww4 * x0Mx1 * x1Mx2 - x0Mx2 * x0Mx2;
-    const float d = ww4 * (x0y1Mx1y0 * y1My2 + x1y2Mx2y1 * y0My1) - 2 * y0My2 * x0y2Mx2y0;
-    const float e = -ww4 * (x0y1Mx1y0 * x1Mx2 + x1y2Mx2y1 * x0Mx1) + 2 * x0Mx2 * x0y2Mx2y0;
-    const float f = ww4 * x1y2Mx2y1 * x0y1Mx1y0 - x0y2Mx2y0 * x0y2Mx2y0;
+    SkScalar k[3];
+    SkScalar l[3];
+    SkScalar m[3];
+
+    calc_conic_klm(p, weight, k, l, m);
 
     for (int i = 0; i < kVertsPerQuad; ++i) {
-        verts[i].fConic.fA = a/f;
-        verts[i].fConic.fB = b/f;
-        verts[i].fConic.fC = c/f;
-        verts[i].fConic.fD = d/f;
-        verts[i].fConic.fE = e/f;
-        verts[i].fConic.fF = f/f;
+        const SkPoint pnt = verts[i].fPos;
+        verts[i].fConic.fK = pnt.fX * k[0] + pnt.fY * k[1] + k[2];
+        verts[i].fConic.fL = pnt.fX * l[0] + pnt.fY * l[1] + l[2];
+        verts[i].fConic.fM = pnt.fX * m[0] + pnt.fY * m[1] + m[2];
     }
 }
 
@@ -651,11 +689,46 @@ void add_line(const SkPoint p[2],
 }
 
 /**
+ * Shader is based off of Loop-Blinn Quadratic GPU Rendering
  * The output of this effect is a hairline edge for conics.
- * Conics specified by implicit equation Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0.
- * A, B, C, D are the first vec4 of vertex attributes and
- * E and F are the vec2 attached to 2nd vertex attrribute.
+ * Conics specified by implicit equation K^2 - LM.
+ * K, L, and M, are the first three values of the vertex attribute,
+ * the fourth value is not used. Distance is calculated using a
+ * first order approximation from the taylor series.
  * Coverage is max(0, 1-distance).
+ */
+
+/**
+ * Test were also run using a second order distance approximation.
+ * There were two versions of the second order approx. The first version
+ * is of roughly the form:
+ * f(q) = |f(p)| - ||f'(p)||*||q-p|| - ||f''(p)||*||q-p||^2.
+ * The second is similar:
+ * f(q) = |f(p)| + ||f'(p)||*||q-p|| + ||f''(p)||*||q-p||^2.
+ * The exact version of the equations can be found in the paper
+ * "Distance Approximations for Rasterizing Implicit Curves" by Gabriel Taubin
+ *
+ * In both versions we solve the quadratic for ||q-p||.
+ * Version 1:
+ * gFM is magnitude of first partials and gFM2 is magnitude of 2nd partials (as derived from paper)
+ * builder->fsCodeAppend("\t\tedgeAlpha = (sqrt(gFM*gFM+4.0*func*gF2M) - gFM)/(2.0*gF2M);\n");
+ * Version 2:
+ * builder->fsCodeAppend("\t\tedgeAlpha = (gFM - sqrt(gFM*gFM-4.0*func*gF2M))/(2.0*gF2M);\n");
+ *
+ * Also note that 2nd partials of k,l,m are zero
+ *
+ * When comparing the two second order approximations to the first order approximations,
+ * the following results were found. Version 1 tends to underestimate the distances, thus it
+ * basically increases all the error that we were already seeing in the first order
+ * approx. So this version is not the one to use. Version 2 has the opposite effect
+ * and tends to overestimate the distances. This is much closer to what we are
+ * looking for. It is able to render ellipses (even thin ones) without the need to chop.
+ * However, it can not handle thin hyperbolas well and thus would still rely on
+ * chopping to tighten the clipping. Another side effect of the overestimating is
+ * that the curves become much thinner and "ropey". If all that was ever rendered
+ * were "not too thin" curves and ellipses then 2nd order may have an advantage since
+ * only one geometry would need to be rendered. However no benches were run comparing
+ * chopped first order and non chopped 2nd order.
  */
 class HairConicEdgeEffect : public GrEffect {
 public:
@@ -689,38 +762,32 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const char *vsCoeffABCDName, *fsCoeffABCDName;
-            const char *vsCoeffEFName, *fsCoeffEFName;
+            const char *vsName, *fsName;
 
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
-            builder->addVarying(kVec4f_GrSLType, "ConicCoeffsABCD",
-                                &vsCoeffABCDName, &fsCoeffABCDName);
+            builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
+                                &vsName, &fsName);
             const SkString* attr0Name =
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsCoeffABCDName, attr0Name->c_str());
+            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
 
-            builder->addVarying(kVec2f_GrSLType, "ConicCoeffsEF",
-                                &vsCoeffEFName, &fsCoeffEFName);
-            const SkString* attr1Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsCoeffEFName, attr1Name->c_str());
+            builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
 
-            // Based on Gustavson 2006: "Beyond the Pixel: towards infinite resolution textures"
-            builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
-
-            builder->fsCodeAppendf("\t\tvec3 uv1 = vec3(%s.xy, 1);\n", builder->fragmentPosition());
-            builder->fsCodeAppend("\t\tvec3 u2uvv2 = uv1.xxy * uv1.xyy;\n");
-            builder->fsCodeAppendf("\t\tvec3 ABC = %s.xyz;\n", fsCoeffABCDName);
-            builder->fsCodeAppendf("\t\tvec3 DEF = vec3(%s.w, %s.xy);\n",
-                                   fsCoeffABCDName, fsCoeffEFName);
-
-            builder->fsCodeAppend("\t\tfloat dfdx = dot(uv1,vec3(2.0*ABC.x,ABC.y,DEF.x));\n");
-            builder->fsCodeAppend("\t\tfloat dfdy = dot(uv1,vec3(ABC.y, 2.0*ABC.z,DEF.y));\n");
-            builder->fsCodeAppend("\t\tfloat gF = dfdx*dfdx + dfdy*dfdy;\n");
-            builder->fsCodeAppend("\t\tedgeAlpha = dot(ABC,u2uvv2) + dot(DEF,uv1);\n");
-            builder->fsCodeAppend("\t\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / gF);\n");
-            builder->fsCodeAppend("\t\tedgeAlpha = max((1.0 - edgeAlpha), 0.0);\n");
+            builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tvec3 dklmdy = dFdy(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdx =\n"
+                                   "\t\t\t2.0*%s.x*dklmdx.x - %s.y*dklmdx.z - %s.z*dklmdx.y;\n",
+                                   fsName, fsName, fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdy =\n"
+                                   "\t\t\t2.0*%s.x*dklmdy.x - %s.y*dklmdy.z - %s.z*dklmdy.y;\n",
+                                   fsName, fsName, fsName);
+            builder->fsCodeAppend("\t\tvec2 gF = vec2(dfdx, dfdy);\n");
+            builder->fsCodeAppend("\t\tfloat gFM = sqrt(dot(gF, gF));\n");
+            builder->fsCodeAppendf("\t\tfloat func = abs(%s.x*%s.x - %s.y*%s.z);\n", fsName, fsName,
+                                   fsName, fsName);
+            builder->fsCodeAppend("\t\tedgeAlpha = func / gFM;\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             // Add line below for smooth cubic ramp
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
 
@@ -742,8 +809,6 @@ public:
 private:
     HairConicEdgeEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
-        this->addVertexAttrib(kVec2f_GrSLType);
-        this->setWillReadFragmentPosition();
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
@@ -761,9 +826,8 @@ GrEffectRef* HairConicEdgeEffect::TestCreate(SkMWCRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
-    return HairConicEdgeEffect::Create();
+    return caps.shaderDerivativeSupport() ? HairConicEdgeEffect::Create() : NULL;
 }
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * The output of this effect is a hairline edge for quadratics.
@@ -965,14 +1029,6 @@ extern const GrVertexAttrib gHairlineAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
 };
-
-// Conic
-// position + ABCD + EF
-extern const GrVertexAttrib gConicVertexAttribs[] = {
-    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
-    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
-};
 };
 
 bool GrAAHairLinePathRenderer::createGeom(
@@ -1011,7 +1067,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt +
         kVertsPerQuad * *conicCnt;
 
-    target->drawState()->setVertexAttribs<gConicVertexAttribs>(SK_ARRAY_COUNT(gConicVertexAttribs));
+    target->drawState()->setVertexAttribs<gHairlineAttribs>(SK_ARRAY_COUNT(gHairlineAttribs));
     GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
@@ -1056,13 +1112,11 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
         return false;
     }
 
-    static const uint32_t gReqDerivMask = SkPath::kCubic_SegmentMask |
-                                          SkPath::kQuad_SegmentMask;
-    if (!target->caps()->shaderDerivativeSupport() &&
-        (gReqDerivMask & path.getSegmentMasks())) {
-        return false;
+    if (SkPath::kLine_SegmentMask == path.getSegmentMasks() ||
+        target->caps()->shaderDerivativeSupport()) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
