@@ -1936,7 +1936,7 @@ static PdfResult PdfOp_gs(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
         skpdfGraphicsStateApplyAIS(pdfContext, gs->AIS(pdfContext->fPdfDoc));
     }
 
-    return kNYI_PdfResult;
+    return kOK_PdfResult;
 }
 
 //charSpace Tc Set the character spacing, Tc
