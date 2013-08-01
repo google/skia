@@ -34,13 +34,13 @@ void skjpeg_error_exit(j_common_ptr cinfo);
 /* Our source struct for directing jpeg to our stream object.
 */
 struct skjpeg_source_mgr : jpeg_source_mgr {
-    skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder, bool ownStream);
+    skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder);
     ~skjpeg_source_mgr();
 
-    SkStream*   fStream;
-    void*       fMemoryBase;
-    size_t      fMemoryBaseSize;
-    bool        fUnrefStream;
+    // fStream is ref'ed and unref'ed
+    SkStream*       fStream;
+    // Unowned pointer to the decoder, used to check if the decoding process
+    // has been cancelled.
     SkImageDecoder* fDecoder;
     enum {
         kBufferSize = 1024
