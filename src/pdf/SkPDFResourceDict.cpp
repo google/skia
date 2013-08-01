@@ -112,14 +112,15 @@ SkPDFObject* SkPDFResourceDict::insertResource(
     SkPDFDict* typeDict = fTypes[type];
     if (NULL == typeDict) {
         SkAutoTUnref<SkPDFDict> newDict(SkNEW(SkPDFDict()));
-        SkPDFName* typeName = SkNEW_ARGS(
-                SkPDFName, (get_resource_type_name(type)));
+        SkAutoTUnref<SkPDFName> typeName(
+                SkNEW_ARGS(SkPDFName, (get_resource_type_name(type))));
         insert(typeName, newDict);  // ref counting handled here
         fTypes[type] = newDict;
         typeDict = newDict.get();
     }
 
-    SkPDFName* keyName = SkNEW_ARGS(SkPDFName, (getResourceName(type, key)));
+    SkAutoTUnref<SkPDFName> keyName(
+            SkNEW_ARGS(SkPDFName, (getResourceName(type, key))));
     typeDict->insert(keyName, value);
     return value;
 }
