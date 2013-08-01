@@ -1455,10 +1455,20 @@ static PdfResult PdfOp_sc(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 }
 
 static PdfResult PdfOp_SCN_scn(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    //SkPdfString* name;
     if (pdfContext->fObjectStack.top()->isName()) {
-        // TODO(edisonn): get name, pass it
-        pdfContext->fObjectStack.pop();
+        SkPdfObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
+
+        //Next, get the ExtGState Dictionary from the Resource Dictionary:
+        SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->Pattern(pdfContext->fPdfDoc);
+
+        if (extGStateDictionary == NULL) {
+#ifdef PDF_TRACE
+            printf("ExtGState is NULL!\n");
+#endif
+            return kIgnoreError_PdfResult;
+        }
+
+        /*SkPdfObject* value = */pdfContext->fPdfDoc->resolveReference(extGStateDictionary->get(name));
     }
 
     // TODO(edisonn): SCN supports more color spaces than SCN. Read and implement spec.

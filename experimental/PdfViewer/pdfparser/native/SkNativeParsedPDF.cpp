@@ -519,6 +519,11 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
         }
 
         if (fObjects[id].fResolvedReference != NULL) {
+
+#ifdef PDF_TRACE
+            printf("\nresolve(%s) = %s\n", ref->toString(0).c_str(), fObjects[id].fResolvedReference->toString(0, ref->toString().size() + 13).c_str());
+#endif
+
             return fObjects[id].fResolvedReference;
         }
 
@@ -534,8 +539,14 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
             }
         }
 
+#ifdef PDF_TRACE
+        printf("\nresolve(%s) = %s\n", ref->toString(0).c_str(), fObjects[id].fResolvedReference->toString(0, ref->toString().size() + 13).c_str());
+#endif
         return fObjects[id].fResolvedReference;
     }
+
+
+
     // TODO(edisonn): fix the mess with const, probably we need to remove it pretty much everywhere
     return (SkPdfObject*)ref;
 }
