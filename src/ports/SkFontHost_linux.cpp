@@ -469,6 +469,8 @@ void FamilyTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef SK_FONTHOST_USES_FONTMGR
+
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
                                        SkTypeface::Style style) {
@@ -496,8 +498,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     if (NULL == stream || stream->getLength() <= 0) {
         SkDELETE(stream);
@@ -517,6 +517,8 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
     return stream.get() ? CreateTypefaceFromStream(stream) : NULL;
 }
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
