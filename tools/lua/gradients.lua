@@ -1,26 +1,10 @@
-function tostr(t)
-    local str = ""
-    for k, v in next, t do
-        if #str > 0 then
-            str = str .. ", "
-        end
-        if type(k) == "number" then
-            str = str .. "[" .. k .. "] = "
-        else
-            str = str .. tostring(k) .. " = "
-        end
-        if type(v) == "table" then
-            str = str .. "{ " .. tostr(v) .. " }"
-        else
-            str = str .. tostring(v)
-        end
-    end
-    return str
-end
 
 function sk_scrape_startcanvas(c, fileName) end
 
 function sk_scrape_endcanvas(c, fileName) end
+
+count3 = 0
+count3sym = 0
 
 function sk_scrape_accumulate(t)
     local p = t.paint
@@ -29,16 +13,22 @@ function sk_scrape_accumulate(t)
         if s then
             local g = s:asAGradient()
             if g then
-                io.write(g.type, " gradient with ", g.colorCount, " colors\n")
-            else
-                local b = s:asABitmap()
-                if b then
-                    io.write("bitmap ", b.genID, " width=", b.width, " height=", b.height, "\n")
-                end
+                --io.write(g.type, " gradient with ", g.colorCount, " colors\n")
+            
+                if g.colorCount == 3 then
+                   count3 = count3 + 1
+
+                   if (g.midPos >= 0.499 and g.midPos <= 0.501) then
+                      count3sym = count3sym + 1
+                   end
+                end    
             end
         end
     end
 end
 
-function sk_scrape_summarize() end
+function sk_scrape_summarize() 
+         io.write("Number of 3 color gradients:  ", count3, "\n");
+         io.write("Number of 3 color symmetric gradients:  ", count3sym, "\n");
+end
 
