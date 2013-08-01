@@ -29,15 +29,16 @@ static void sk_init_source(j_decompress_ptr cinfo) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 static boolean sk_seek_input_data(j_decompress_ptr cinfo, long byte_offset) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*)cinfo->src;
+    size_t bo = (size_t) byte_offset;
 
-    if (byte_offset > src->current_offset) {
-        (void)src->fStream->skip(byte_offset - src->current_offset);
+    if (bo > src->current_offset) {
+        (void)src->fStream->skip(bo - src->current_offset);
     } else {
         src->fStream->rewind();
-        (void)src->fStream->skip(byte_offset);
+        (void)src->fStream->skip(bo);
     }
 
-    src->current_offset = byte_offset;
+    src->current_offset = bo;
     src->next_input_byte = (const JOCTET*)src->fBuffer;
     src->bytes_in_buffer = 0;
     return true;
@@ -109,12 +110,9 @@ static void sk_term_source(j_decompress_ptr /*cinfo*/) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder,
-                                     bool ownStream) : fStream(stream) {
-    fDecoder = decoder;
-    fMemoryBase = NULL;
-    fUnrefStream = ownStream;
-    fMemoryBaseSize = 0;
+skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder)
+    : fStream(SkRef(stream))
+    , fDecoder(decoder) {
 
     init_source = sk_init_source;
     fill_input_buffer = sk_fill_input_buffer;
@@ -128,12 +126,7 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder,
 }
 
 skjpeg_source_mgr::~skjpeg_source_mgr() {
-    if (fMemoryBase) {
-        sk_free(fMemoryBase);
-    }
-    if (fUnrefStream) {
-        fStream->unref();
-    }
+    SkSafeUnref(fStream);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

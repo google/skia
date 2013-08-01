@@ -65,7 +65,7 @@ static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
 class SkJPEGImageIndex {
 public:
     SkJPEGImageIndex(SkStream* stream, SkImageDecoder* decoder)
-        : fSrcMgr(stream, decoder, true) {}
+        : fSrcMgr(stream, decoder) {}
 
     ~SkJPEGImageIndex() {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -238,7 +238,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     jpeg_decompress_struct  cinfo;
     skjpeg_error_mgr        errorManager;
-    skjpeg_source_mgr       srcManager(stream, this, false);
+    skjpeg_source_mgr       srcManager(stream, this);
 
     cinfo.err = jpeg_std_error(&errorManager);
     errorManager.error_exit = skjpeg_error_exit;
