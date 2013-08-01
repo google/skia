@@ -760,6 +760,98 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
+                         const SkPMColor* SK_RESTRICT src,
+                         int count, U8CPU alpha) {
+
+    SkASSERT(255 >= alpha);
+
+    if (count <= 0) {
+        return;
+    }
+
+    unsigned alpha256 = SkAlpha255To256(alpha);
+
+    // First deal with odd counts
+    if (count & 1) {
+        uint8x8_t vsrc = vdup_n_u8(0), vdst = vdup_n_u8(0), vres;
+        uint16x8_t vdst_wide, vsrc_wide;
+        unsigned dst_scale;
+
+        // Load
+        vsrc = vreinterpret_u8_u32(vld1_lane_u32(src, vreinterpret_u32_u8(vsrc), 0));
+        vdst = vreinterpret_u8_u32(vld1_lane_u32(dst, vreinterpret_u32_u8(vdst), 0));
+
+        // Calc dst_scale
+        dst_scale = vget_lane_u8(vsrc, 3);
+        dst_scale *= alpha256;
+        dst_scale >>= 8;
+        dst_scale = 256 - dst_scale;
+
+        // Process src
+        vsrc_wide = vmovl_u8(vsrc);
+        vsrc_wide = vmulq_n_u16(vsrc_wide, alpha256);
+
+        // Process dst
+        vdst_wide = vmovl_u8(vdst);
+        vdst_wide = vmulq_n_u16(vdst_wide, dst_scale);
+
+        // Combine
+        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
+
+        vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);
+        dst++;
+        src++;
+        count--;
+    }
+
+    if (count) {
+        uint8x8_t alpha_mask;
+        static const uint8_t alpha_mask_setup[] = {3,3,3,3,7,7,7,7};
+        alpha_mask = vld1_u8(alpha_mask_setup);
+
+        do {
+
+            uint8x8_t vsrc, vdst, vres, vsrc_alphas;
+            uint16x8_t vdst_wide, vsrc_wide, vsrc_scale, vdst_scale;
+
+            __builtin_prefetch(src+32);
+            __builtin_prefetch(dst+32);
+
+            // Load
+            vsrc = vreinterpret_u8_u32(vld1_u32(src));
+            vdst = vreinterpret_u8_u32(vld1_u32(dst));
+
+            // Prepare src_scale
+            vsrc_scale = vdupq_n_u16(alpha256);
+
+            // Calc dst_scale
+            vsrc_alphas = vtbl1_u8(vsrc, alpha_mask);
+            vdst_scale = vmovl_u8(vsrc_alphas);
+            vdst_scale *= vsrc_scale;
+            vdst_scale = vshrq_n_u16(vdst_scale, 8);
+            vdst_scale = vsubq_u16(vdupq_n_u16(256), vdst_scale);
+
+            // Process src
+            vsrc_wide = vmovl_u8(vsrc);
+            vsrc_wide *= vsrc_scale;
+
+            // Process dst
+            vdst_wide = vmovl_u8(vdst);
+            vdst_wide *= vdst_scale;
+
+            // Combine
+            vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
+
+            vst1_u32(dst, vreinterpret_u32_u8(vres));
+
+            src += 2;
+            dst += 2;
+            count -= 2;
+        } while(count);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #undef    DEBUG_OPAQUE_DITHER
@@ -1273,5 +1365,5 @@ const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
 #else
     S32A_Opaque_BlitRow32_neon,     // S32A_Opaque,
 #endif
-    S32A_Blend_BlitRow32_arm        // S32A_Blend
+    S32A_Blend_BlitRow32_neon        // S32A_Blend
 };
