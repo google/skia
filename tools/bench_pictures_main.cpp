@@ -44,7 +44,7 @@ DECLARE_string(readPath);
 DEFINE_int32(repeat, 1, "Set the number of times to repeat each test.");
 DEFINE_bool(timeIndividualTiles, false, "Report times for drawing individual tiles, rather than "
             "times for drawing the whole page. Requires tiled rendering.");
-DEFINE_string(timers, "", "[wcgWC]*: Display wall, cpu, gpu, truncated wall or truncated cpu time"
+DEFINE_string(timers, "c", "[wcgWC]*: Display wall, cpu, gpu, truncated wall or truncated cpu time"
               " for each picture.");
 DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecoding and "
             "LAZY_CACHE_STATS set to true. Report percentage of cache hits when using deferred "
