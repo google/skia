@@ -92,7 +92,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
     connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this, SLOT(actionCommandFilter()));
 #if SK_SUPPORT_GPU
-    connect(fSettingsWidget.getGLCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionGLWidget(bool)));
+    connect(&fSettingsWidget, SIGNAL(glSettingsChanged()), this, SLOT(actionGLWidget()));
 #endif
     connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
     connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
@@ -360,8 +360,9 @@ void SkDebuggerGUI::actionProfile() {
     renderer = SkNEW(sk_tools::SimplePictureRenderer);
 
 #if SK_SUPPORT_GPU
-    if (Qt::Checked == fSettingsWidget.getGLCheckBox()->checkState()) {
+    if (fSettingsWidget.isGLActive()) {
         renderer->setDeviceType(sk_tools::PictureRenderer::kGPU_DeviceType);
+        renderer->setSampleCount(fSettingsWidget.getGLSampleCount());
     }
 #endif
 
@@ -459,7 +460,11 @@ void SkDebuggerGUI::actionDelete() {
 }
 
 #if SK_SUPPORT_GPU
-void SkDebuggerGUI::actionGLWidget(bool isToggled) {
+void SkDebuggerGUI::actionGLWidget() {
+    bool isToggled = fSettingsWidget.isGLActive();
+    if (isToggled) {
+        fCanvasWidget.setGLSampleCount(fSettingsWidget.getGLSampleCount());
+    }
     fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kGPU_WidgetType, !isToggled);
 }
 #endif

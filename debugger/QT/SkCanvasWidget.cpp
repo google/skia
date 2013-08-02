@@ -129,6 +129,13 @@ void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
 #endif
 }
 
+#if SK_SUPPORT_GPU
+void SkCanvasWidget::setGLSampleCount(int sampleCount)
+{
+    fGLWidget.setSampleCount(sampleCount);
+}
+#endif
+
 void SkCanvasWidget::zoom(float scale, int px, int py) {
     fUserMatrix.postScale(scale, scale, px, py);
     emit scaleFactorChanged(fUserMatrix.getScaleX());

@@ -33,6 +33,7 @@ public:
     void draw() {
         this->updateGL();
     }
+    void setSampleCount(int sampleCount);
 
 signals:
     void drawComplete();

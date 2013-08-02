@@ -27,6 +27,14 @@ SkGLWidget::~SkGLWidget() {
     SkSafeUnref(fCanvas);
 }
 
+void SkGLWidget::setSampleCount(int sampleCount)
+{
+    QGLFormat currentFormat = format();
+    currentFormat.setSampleBuffers(sampleCount > 0);
+    currentFormat.setSamples(sampleCount);
+    setFormat(currentFormat);
+}
+
 void SkGLWidget::initializeGL() {
     fCurIntf = GrGLCreateNativeInterface();
     if (!fCurIntf) {
