@@ -129,30 +129,7 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-# Test rebaseline.py's soon-to-disappear image file rebaselining capability.
-#
-# Run rebaseline.py with arguments in $1, recording its dry-run output.
-# Then compare that dry-run output to the content of $2/output-expected.
-function rebaseline_images_test {
-  if [ $# != 2 ]; then
-    echo "rebaseline_test requires exactly 2 parameters, got $#"
-    exit 1
-  fi
-  ARGS="$1"
-  ACTUAL_OUTPUT_DIR="$2/output-actual"
-  EXPECTED_OUTPUT_DIR="$2/output-expected"
-
-  rm -rf $ACTUAL_OUTPUT_DIR
-  mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="python tools/rebaseline.py --dry-run $ARGS"
-  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
-  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
-  echo $? >$ACTUAL_OUTPUT_DIR/return_value
-
-  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
-}
-
-# Test rebaseline.py's new JSON-format expectations rebaselining capability.
+# Test rebaseline.py's JSON-format expectations rebaselining capability.
 #
 # Copy expected-result.json files from $1 into a dir where they can be modified.
 # Run rebaseline.py with arguments in $2, recording its output.
@@ -265,14 +242,6 @@ fi
 
 REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
-
-# These test the old image-file expectations.
-rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --tests nonexistenttest1 imageblur nonexistenttest2 --configs nonexistentconfig1 8888 nonexistentconfig2 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/subset"
-rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1"
-rebaseline_images_test "--expectations-root $REBASELINE_INPUT/fake-gm-expected-dir --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float --add-new" "$REBASELINE_OUTPUT/using-json1-add-new"
-rebaseline_images_test "--expectations-root $REBASELINE_INPUT --actuals-base-url file:$REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/exercise-bug1403"
-
-# These test the new JSON-format expectations.
 rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"
 
 #
