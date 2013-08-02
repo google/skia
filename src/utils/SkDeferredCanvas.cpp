@@ -242,6 +242,8 @@ private:
 
     void beginRecording();
     void init();
+    void aboutToDraw();
+    void prepareForImmediatePixelWrite();
 
     DeferredPipeController fPipeController;
     SkGPipeWriter  fPipeWriter;
@@ -343,22 +345,25 @@ bool DeferredDevice::hasPendingCommands() {
     return fPipeController.hasPendingCommands();
 }
 
+void DeferredDevice::aboutToDraw()
+{
+    if (NULL != fNotificationClient) {
+        fNotificationClient->prepareForDraw();
+    }
+    if (fCanDiscardCanvasContents) {
+        if (NULL != fSurface) {
+            fSurface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
+        }
+        fCanDiscardCanvasContents = false;    
+    }
+}
+
 void DeferredDevice::flushPendingCommands(PlaybackMode playbackMode) {
     if (!fPipeController.hasPendingCommands()) {
         return;
     }
     if (playbackMode == kNormal_PlaybackMode) {
-        if (NULL != fNotificationClient) {
-            fNotificationClient->prepareForDraw();
-        }
-        if (fCanDiscardCanvasContents) {
-            if (NULL != fSurface) {
-                // Pre-empt notifyContentChanged(false) calls that will happen
-                // during flush
-                fSurface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-            }
-            fCanDiscardCanvasContents = false;
-        }
+        aboutToDraw();
     }
     fPipeWriter.flushRecording(true);
     fPipeController.playback(kSilent_PlaybackMode == playbackMode);
@@ -441,6 +446,23 @@ GrRenderTarget* DeferredDevice::accessRenderTarget() {
     return immediateDevice()->accessRenderTarget();
 }
 
+void DeferredDevice::prepareForImmediatePixelWrite() {
+    // The purpose of the following code is to make sure commands are flushed, that
+    // aboutToDraw() is called and that notifyContentWillChange is called, without
+    // calling anything redundantly.
+    if (fPipeController.hasPendingCommands()) {
+        this->flushPendingCommands(kNormal_PlaybackMode);
+    } else {
+        bool mustNotifyDirectly = !fCanDiscardCanvasContents;
+        this->aboutToDraw();
+        if (mustNotifyDirectly) {
+            fSurface->notifyContentWillChange(SkSurface::kRetain_ContentChangeMode);
+        }
+    }
+
+    fImmediateCanvas->flush();
+}
+
 void DeferredDevice::writePixels(const SkBitmap& bitmap,
     int x, int y, SkCanvas::Config8888 config8888) {
 
@@ -453,7 +475,7 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
         SkCanvas::kNative_Premul_Config8888 != config8888 &&
         kPMColorAlias != config8888) {
         //Special case config: no deferral
-        this->flushPendingCommands(kNormal_PlaybackMode);
+        prepareForImmediatePixelWrite();
         immediateDevice()->writePixels(bitmap, x, y, config8888);
         return;
     }
@@ -461,7 +483,7 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     if (shouldDrawImmediately(&bitmap, NULL, getBitmapSizeThreshold())) {
-        this->flushPendingCommands(kNormal_PlaybackMode);
+        prepareForImmediatePixelWrite();
         fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
     } else {
         this->recordingCanvas()->drawSprite(bitmap, x, y, &paint);
