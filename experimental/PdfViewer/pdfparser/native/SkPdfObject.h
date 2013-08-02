@@ -839,7 +839,7 @@ public:
         }
     }
 
-    SkString toString(int firstRowLevel = 0, int level = 0) const {
+    SkString toString(int firstRowLevel = 0, int level = 0) {
         SkString str;
         appendSpaces(&str, firstRowLevel);
         switch (fObjectType) {
@@ -905,7 +905,15 @@ public:
                     appendSpaces(&str, level);
                     str.append(">>");
                     if (hasStream()) {
-                        str.append("stream HAS_STREAM endstream");
+                        const unsigned char* stream = NULL;
+                        size_t length = 0;
+                        if (GetFilteredStreamRef(&stream, &length)) {
+                            str.append("stream");
+                            str.append((const char*)stream, length > 256 ? 256 : length);
+                            str.append("endstream");
+                        } else {
+                            str.append("stream STREAM_ERROR endstream");
+                        }
                     }
                 }
                 break;

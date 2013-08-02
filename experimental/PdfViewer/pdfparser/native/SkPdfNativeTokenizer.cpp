@@ -28,7 +28,7 @@ static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
     return NULL;
 }
 
-#ifdef PDF_TRACE
+#ifdef PDF_TRACE_TOKENIZER
 static void TRACE_INDENT(int level, const char* type) {
     static int id = 0;
     id++;

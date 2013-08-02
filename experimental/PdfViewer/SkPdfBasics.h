@@ -20,7 +20,7 @@ class SkNativeParsedPDF;
 class SkPdfAllocator;
 
 // TODO(edisonn): better class design.
-struct SkPdfColorOperator {
+class SkPdfColorOperator {
 
     /*
     color space   name or array     The current color space in which color values are to be interpreted
@@ -31,8 +31,11 @@ struct SkPdfColorOperator {
 
     // TODO(edisonn): implement the array part too
     // does not own the char*
+// TODO(edisonn): remove this public, let fields be private
+// TODO(edisonn): make color space an enum!
+public:
     NotOwnedString fColorSpace;
-
+    SkPdfObject* fPattern;
 
     /*
     color         (various)         The current color to be used during painting operations (see Section
@@ -45,15 +48,29 @@ struct SkPdfColorOperator {
 
     SkColor fColor;
     double fOpacity;  // ca or CA
+
     // TODO(edisonn): add here other color space options.
 
+public:
     void setRGBColor(SkColor color) {
         // TODO(edisonn): ASSERT DeviceRGB is the color space.
+        fPattern = NULL;
         fColor = color;
     }
     // TODO(edisonn): double check the default values for all fields.
-    SkPdfColorOperator() : fColor(SK_ColorBLACK), fOpacity(1) {
-        NotOwnedString::init(&fColorSpace);
+    SkPdfColorOperator() : fPattern(NULL), fColor(SK_ColorBLACK), fOpacity(1) {
+        NotOwnedString::init(&fColorSpace, "DeviceRGB");
+    }
+
+    void setColorSpace(NotOwnedString* colorSpace) {
+        fColorSpace = *colorSpace;
+        fPattern = NULL;
+    }
+
+    void setPatternColorSpace(SkPdfObject* pattern) {
+        fColorSpace.fBuffer = (const unsigned char*)"Pattern";
+        fColorSpace.fBytes = 7;  // strlen("Pattern")
+        fPattern = pattern;
     }
 
     void applyGraphicsState(SkPaint* paint) {

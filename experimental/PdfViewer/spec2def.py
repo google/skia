@@ -86,7 +86,7 @@ tableToClassName = {
 'TABLE 4.15': ['LabColorSpaceDictionary', 'Entries in a Lab color space dictionary'],
 'TABLE 4.16': ['IccProfileStreamDictionary', 'Additional entries specific to an ICC profile stream dictionary'],
 'TABLE 4.20': ['DeviceNColorSpaceDictionary', 'Entry in a DeviceN color space attributes dictionary'],
-'TABLE 4.22': ['Type1PatternDictionary', 'Additional entries specific to a type 1 pattern dictionary'],
+'TABLE 4.22': ['Type1PatternDictionary', 'Additional entries specific to a type 1 pattern dictionary', '', {'PatternType': '[datatypes.PdfInteger(1)]'}],
 'TABLE 4.23': ['Type2PatternDictionary', 'Entries in a type 2 pattern dictionary'],
 'TABLE 4.25': ['ShadingDictionary', 'Entries common to all shading dictionaries'],
 'TABLE 4.26': ['Type1ShadingDictionary', 'Additional entries specific to a type 1 shading dictionary', 'ShadingDictionary'],
