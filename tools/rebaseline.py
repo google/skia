@@ -9,8 +9,6 @@ found in the LICENSE file.
 
 '''
 Rebaselines the given GM tests, on all bots and all configurations.
-
-TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 '''
 
 # System-level imports
@@ -20,9 +18,6 @@ import re
 import subprocess
 import sys
 import urllib2
-
-# Imports from local directory
-import rebaseline_imagefiles
 
 # Imports from within Skia
 #
@@ -38,7 +33,7 @@ import rebaseline_imagefiles
 GM_DIRECTORY = os.path.realpath(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
 if GM_DIRECTORY not in sys.path:
-    sys.path.append(GM_DIRECTORY)
+  sys.path.append(GM_DIRECTORY)
 import gm_json
 
 # Mapping of expectations/gm subdir (under
@@ -73,209 +68,207 @@ SUBDIR_MAPPING = {
 
 
 class _InternalException(Exception):
-    pass
+  pass
 
 # Object that handles exceptions, either raising them immediately or collecting
 # them to display later on.
 class ExceptionHandler(object):
 
-    # params:
-    #  keep_going_on_failure: if False, report failures and quit right away;
-    #                         if True, collect failures until
-    #                         ReportAllFailures() is called
-    def __init__(self, keep_going_on_failure=False):
-        self._keep_going_on_failure = keep_going_on_failure
-        self._failures_encountered = []
-        self._exiting = False
+  # params:
+  #  keep_going_on_failure: if False, report failures and quit right away;
+  #                         if True, collect failures until
+  #                         ReportAllFailures() is called
+  def __init__(self, keep_going_on_failure=False):
+    self._keep_going_on_failure = keep_going_on_failure
+    self._failures_encountered = []
+    self._exiting = False
 
-    # Exit the program with the given status value.
-    def _Exit(self, status=1):
-        self._exiting = True
-        sys.exit(status)
+  # Exit the program with the given status value.
+  def _Exit(self, status=1):
+    self._exiting = True
+    sys.exit(status)
 
-    # We have encountered an exception; either collect the info and keep going,
-    # or exit the program right away.
-    def RaiseExceptionOrContinue(self, e):
-        # If we are already quitting the program, propagate any exceptions
-        # so that the proper exit status will be communicated to the shell.
-        if self._exiting:
-            raise e
+  # We have encountered an exception; either collect the info and keep going,
+  # or exit the program right away.
+  def RaiseExceptionOrContinue(self, e):
+    # If we are already quitting the program, propagate any exceptions
+    # so that the proper exit status will be communicated to the shell.
+    if self._exiting:
+      raise e
 
-        if self._keep_going_on_failure:
-            print >> sys.stderr, 'WARNING: swallowing exception %s' % e
-            self._failures_encountered.append(e)
-        else:
-            print >> sys.stderr, e
-            print >> sys.stderr, (
-                'Halting at first exception; to keep going, re-run ' +
-                'with the --keep-going-on-failure option set.')
-            self._Exit()
+    if self._keep_going_on_failure:
+      print >> sys.stderr, 'WARNING: swallowing exception %s' % e
+      self._failures_encountered.append(e)
+    else:
+      print >> sys.stderr, e
+      print >> sys.stderr, (
+          'Halting at first exception; to keep going, re-run ' +
+          'with the --keep-going-on-failure option set.')
+      self._Exit()
 
-    def ReportAllFailures(self):
-        if self._failures_encountered:
-            print >> sys.stderr, ('Encountered %d failures (see above).' %
-                                  len(self._failures_encountered))
-            self._Exit()
+  def ReportAllFailures(self):
+    if self._failures_encountered:
+      print >> sys.stderr, ('Encountered %d failures (see above).' %
+                            len(self._failures_encountered))
+      self._Exit()
 
 
 # Object that rebaselines a JSON expectations file (not individual image files).
 class JsonRebaseliner(object):
 
-    # params:
-    #  expectations_root: root directory of all expectations JSON files
-    #  expectations_input_filename: filename (under expectations_root) of JSON
-    #                               expectations file to read; typically
-    #                               "expected-results.json"
-    #  expectations_output_filename: filename (under expectations_root) to
-    #                                which updated expectations should be
-    #                                written; typically the same as
-    #                                expectations_input_filename, to overwrite
-    #                                the old content
-    #  actuals_base_url: base URL from which to read actual-result JSON files
-    #  actuals_filename: filename (under actuals_base_url) from which to read a
-    #                    summary of results; typically "actual-results.json"
-    #  exception_handler: reference to rebaseline.ExceptionHandler object
-    #  tests: list of tests to rebaseline, or None if we should rebaseline
-    #         whatever files the JSON results summary file tells us to
-    #  configs: which configs to run for each test, or None if we should
-    #           rebaseline whatever configs the JSON results summary file tells
-    #           us to
-    #  add_new: if True, add expectations for tests which don't have any yet
-    def __init__(self, expectations_root, expectations_input_filename,
-                 expectations_output_filename, actuals_base_url,
-                 actuals_filename, exception_handler,
-                 tests=None, configs=None, add_new=False):
-        self._expectations_root = expectations_root
-        self._expectations_input_filename = expectations_input_filename
-        self._expectations_output_filename = expectations_output_filename
-        self._tests = tests
-        self._configs = configs
-        self._actuals_base_url = actuals_base_url
-        self._actuals_filename = actuals_filename
-        self._exception_handler = exception_handler
-        self._add_new = add_new
-        self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
-        self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
+  # params:
+  #  expectations_root: root directory of all expectations JSON files
+  #  expectations_input_filename: filename (under expectations_root) of JSON
+  #                               expectations file to read; typically
+  #                               "expected-results.json"
+  #  expectations_output_filename: filename (under expectations_root) to
+  #                                which updated expectations should be
+  #                                written; typically the same as
+  #                                expectations_input_filename, to overwrite
+  #                                the old content
+  #  actuals_base_url: base URL from which to read actual-result JSON files
+  #  actuals_filename: filename (under actuals_base_url) from which to read a
+  #                    summary of results; typically "actual-results.json"
+  #  exception_handler: reference to rebaseline.ExceptionHandler object
+  #  tests: list of tests to rebaseline, or None if we should rebaseline
+  #         whatever files the JSON results summary file tells us to
+  #  configs: which configs to run for each test, or None if we should
+  #           rebaseline whatever configs the JSON results summary file tells
+  #           us to
+  #  add_new: if True, add expectations for tests which don't have any yet
+  def __init__(self, expectations_root, expectations_input_filename,
+               expectations_output_filename, actuals_base_url,
+               actuals_filename, exception_handler,
+               tests=None, configs=None, add_new=False):
+    self._expectations_root = expectations_root
+    self._expectations_input_filename = expectations_input_filename
+    self._expectations_output_filename = expectations_output_filename
+    self._tests = tests
+    self._configs = configs
+    self._actuals_base_url = actuals_base_url
+    self._actuals_filename = actuals_filename
+    self._exception_handler = exception_handler
+    self._add_new = add_new
+    self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+    self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
 
-    # Executes subprocess.call(cmd).
-    # Raises an Exception if the command fails.
-    def _Call(self, cmd):
-        if subprocess.call(cmd) != 0:
-            raise _InternalException('error running command: ' + ' '.join(cmd))
+  # Executes subprocess.call(cmd).
+  # Raises an Exception if the command fails.
+  def _Call(self, cmd):
+    if subprocess.call(cmd) != 0:
+      raise _InternalException('error running command: ' + ' '.join(cmd))
 
-    # Returns the full contents of filepath, as a single string.
-    # If filepath looks like a URL, try to read it that way instead of as
-    # a path on local storage.
-    #
-    # Raises _InternalException if there is a problem.
-    def _GetFileContents(self, filepath):
-        if filepath.startswith('http:') or filepath.startswith('https:'):
-            try:
-                return urllib2.urlopen(filepath).read()
-            except urllib2.HTTPError as e:
-                raise _InternalException('unable to read URL %s: %s' % (
-                    filepath, e))
-        else:
-            return open(filepath, 'r').read()
+  # Returns the full contents of filepath, as a single string.
+  # If filepath looks like a URL, try to read it that way instead of as
+  # a path on local storage.
+  #
+  # Raises _InternalException if there is a problem.
+  def _GetFileContents(self, filepath):
+    if filepath.startswith('http:') or filepath.startswith('https:'):
+      try:
+        return urllib2.urlopen(filepath).read()
+      except urllib2.HTTPError as e:
+        raise _InternalException('unable to read URL %s: %s' % (
+            filepath, e))
+    else:
+      return open(filepath, 'r').read()
 
-    # Returns a dictionary of actual results from actual-results.json file.
-    #
-    # The dictionary returned has this format:
-    # {
-    #  u'imageblur_565.png': [u'bitmap-64bitMD5', 3359963596899141322],
-    #  u'imageblur_8888.png': [u'bitmap-64bitMD5', 4217923806027861152],
-    #  u'shadertext3_8888.png': [u'bitmap-64bitMD5', 3713708307125704716]
-    # }
-    #
-    # If the JSON actual result summary file cannot be loaded, logs a warning
-    # message and returns None.
-    # If the JSON actual result summary file can be loaded, but we have
-    # trouble parsing it, raises an Exception.
-    #
-    # params:
-    #  json_url: URL pointing to a JSON actual result summary file
-    #  sections: a list of section names to include in the results, e.g.
-    #            [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
-    #             gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON] ;
-    #            if None, then include ALL sections.
-    def _GetActualResults(self, json_url, sections=None):
-        try:
-            json_contents = self._GetFileContents(json_url)
-        except _InternalException:
-            print >> sys.stderr, (
-                'could not read json_url %s ; skipping this platform.' %
-                json_url)
-            return None
-        json_dict = gm_json.LoadFromString(json_contents)
-        results_to_return = {}
-        actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
-        if not sections:
-            sections = actual_results.keys()
-        for section in sections:
-            section_results = actual_results[section]
-            if section_results:
-                results_to_return.update(section_results)
-        return results_to_return
+  # Returns a dictionary of actual results from actual-results.json file.
+  #
+  # The dictionary returned has this format:
+  # {
+  #  u'imageblur_565.png': [u'bitmap-64bitMD5', 3359963596899141322],
+  #  u'imageblur_8888.png': [u'bitmap-64bitMD5', 4217923806027861152],
+  #  u'shadertext3_8888.png': [u'bitmap-64bitMD5', 3713708307125704716]
+  # }
+  #
+  # If the JSON actual result summary file cannot be loaded, logs a warning
+  # message and returns None.
+  # If the JSON actual result summary file can be loaded, but we have
+  # trouble parsing it, raises an Exception.
+  #
+  # params:
+  #  json_url: URL pointing to a JSON actual result summary file
+  #  sections: a list of section names to include in the results, e.g.
+  #            [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
+  #             gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON] ;
+  #            if None, then include ALL sections.
+  def _GetActualResults(self, json_url, sections=None):
+    try:
+      json_contents = self._GetFileContents(json_url)
+    except _InternalException:
+      print >> sys.stderr, (
+          'could not read json_url %s ; skipping this platform.' %
+          json_url)
+      return None
+    json_dict = gm_json.LoadFromString(json_contents)
+    results_to_return = {}
+    actual_results = json_dict[gm_json.JSONKEY_ACTUALRESULTS]
+    if not sections:
+      sections = actual_results.keys()
+    for section in sections:
+      section_results = actual_results[section]
+      if section_results:
+        results_to_return.update(section_results)
+    return results_to_return
 
-    # Rebaseline all tests/types we specified in the constructor,
-    # within this expectations/gm subdir.
-    #
-    # params:
-    #  subdir : e.g. 'base-shuttle-win7-intel-float'
-    #  builder : e.g. 'Test-Win7-ShuttleA-HD2000-x86-Release'
-    def RebaselineSubdir(self, subdir, builder):
-        # Read in the actual result summary, and extract all the tests whose
-        # results we need to update.
-        actuals_url = '/'.join([self._actuals_base_url,
-                                subdir, builder, subdir,
-                                self._actuals_filename])
-        # In most cases, we won't need to re-record results that are already
-        # succeeding, but including the SUCCEEDED results will allow us to
-        # re-record expectations if they somehow get out of sync.
-        sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
-                    gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED]
-        if self._add_new:
-            sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
-        results_to_update = self._GetActualResults(json_url=actuals_url,
-                                                   sections=sections)
+  # Rebaseline all tests/types we specified in the constructor,
+  # within this expectations/gm subdir.
+  #
+  # params:
+  #  subdir : e.g. 'base-shuttle-win7-intel-float'
+  #  builder : e.g. 'Test-Win7-ShuttleA-HD2000-x86-Release'
+  def RebaselineSubdir(self, subdir, builder):
+    # Read in the actual result summary, and extract all the tests whose
+    # results we need to update.
+    actuals_url = '/'.join([self._actuals_base_url,
+                            subdir, builder, subdir,
+                            self._actuals_filename])
+    # In most cases, we won't need to re-record results that are already
+    # succeeding, but including the SUCCEEDED results will allow us to
+    # re-record expectations if they somehow get out of sync.
+    sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
+                gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED]
+    if self._add_new:
+      sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
+    results_to_update = self._GetActualResults(json_url=actuals_url,
+                                               sections=sections)
 
-        # Read in current expectations.
-        expectations_input_filepath = os.path.join(
-            self._expectations_root, subdir, self._expectations_input_filename)
-        expectations_dict = gm_json.LoadFromFile(expectations_input_filepath)
-        expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
+    # Read in current expectations.
+    expectations_input_filepath = os.path.join(
+        self._expectations_root, subdir, self._expectations_input_filename)
+    expectations_dict = gm_json.LoadFromFile(expectations_input_filepath)
+    expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
 
-        # Update the expectations in memory, skipping any tests/configs that
-        # the caller asked to exclude.
-        skipped_images = []
-        if results_to_update:
-            for (image_name, image_results) in results_to_update.iteritems():
-                (test, config) = \
-                    self._image_filename_re.match(image_name).groups()
-                if self._tests:
-                    if test not in self._tests:
-                        skipped_images.append(image_name)
-                        continue
-                if self._configs:
-                    if config not in self._configs:
-                        skipped_images.append(image_name)
-                        continue
-                if not expected_results.get(image_name):
-                    expected_results[image_name] = {}
-                expected_results[image_name] \
-                    [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
+    # Update the expectations in memory, skipping any tests/configs that
+    # the caller asked to exclude.
+    skipped_images = []
+    if results_to_update:
+      for (image_name, image_results) in results_to_update.iteritems():
+        (test, config) = self._image_filename_re.match(image_name).groups()
+        if self._tests:
+          if test not in self._tests:
+            skipped_images.append(image_name)
+            continue
+        if self._configs:
+          if config not in self._configs:
+            skipped_images.append(image_name)
+            continue
+        if not expected_results.get(image_name):
+          expected_results[image_name] = {}
+        expected_results[image_name][gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
                         [image_results]
 
-        # Write out updated expectations.
-        expectations_output_filepath = os.path.join(
-            self._expectations_root, subdir, self._expectations_output_filename)
-        gm_json.WriteToFile(expectations_dict, expectations_output_filepath)
+    # Write out updated expectations.
+    expectations_output_filepath = os.path.join(
+        self._expectations_root, subdir, self._expectations_output_filename)
+    gm_json.WriteToFile(expectations_dict, expectations_output_filepath)
 
-        # Mark the JSON file as plaintext, so text-style diffs can be applied.
-        # Fixes https://code.google.com/p/skia/issues/detail?id=1442
-        if self._using_svn:
-            self._Call(['svn', 'propset', '--quiet', 'svn:mime-type',
-                        'text/x-json', expectations_output_filepath])
+    # Mark the JSON file as plaintext, so text-style diffs can be applied.
+    # Fixes https://code.google.com/p/skia/issues/detail?id=1442
+    if self._using_svn:
+      self._Call(['svn', 'propset', '--quiet', 'svn:mime-type',
+                  'text/x-json', expectations_output_filepath])
 
 # main...
 
@@ -301,12 +294,6 @@ parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     '"--configs 565 8888", as a filter over the full set of ' +
                     'results in ACTUALS_FILENAME; if unspecified, rebaseline ' +
                     '*all* configs that are available.')
-# TODO(epoger): The --dry-run argument will no longer be needed once we
-# are only rebaselining JSON files.
-parser.add_argument('--dry-run', action='store_true',
-                    help='instead of actually downloading files or adding ' +
-                    'files to checkout, display a list of operations that ' +
-                    'we would normally perform')
 parser.add_argument('--expectations-filename',
                     help='filename (under EXPECTATIONS_ROOT) to read ' +
                     'current expectations from, and to write new ' +
@@ -342,58 +329,44 @@ args = parser.parse_args()
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
 if args.subdirs:
-    subdirs = args.subdirs
-    missing_json_is_fatal = True
+  subdirs = args.subdirs
+  missing_json_is_fatal = True
 else:
-    subdirs = sorted(SUBDIR_MAPPING.keys())
-    missing_json_is_fatal = False
+  subdirs = sorted(SUBDIR_MAPPING.keys())
+  missing_json_is_fatal = False
 for subdir in subdirs:
-    if not subdir in SUBDIR_MAPPING.keys():
-        raise Exception(('unrecognized platform subdir "%s"; ' +
-                         'should be one of %s') % (
-                             subdir, SUBDIR_MAPPING.keys()))
-    builder = SUBDIR_MAPPING[subdir]
+  if not subdir in SUBDIR_MAPPING.keys():
+    raise Exception(('unrecognized platform subdir "%s"; ' +
+                     'should be one of %s') % (
+                         subdir, SUBDIR_MAPPING.keys()))
+  builder = SUBDIR_MAPPING[subdir]
 
-    # We instantiate different Rebaseliner objects depending
-    # on whether we are rebaselining an expected-results.json file, or
-    # individual image files.  Different expectations/gm subdirectories may move
-    # from individual image files to JSON-format expectations at different
-    # times, so we need to make this determination per subdirectory.
-    #
-    # See https://goto.google.com/ChecksumTransitionDetail
-    expectations_json_file = os.path.join(args.expectations_root, subdir,
-                                          args.expectations_filename)
-    if os.path.isfile(expectations_json_file):
-        rebaseliner = JsonRebaseliner(
-            expectations_root=args.expectations_root,
-            expectations_input_filename=args.expectations_filename,
-            expectations_output_filename=(args.expectations_filename_output or
-                                          args.expectations_filename),
-            tests=args.tests, configs=args.configs,
-            actuals_base_url=args.actuals_base_url,
-            actuals_filename=args.actuals_filename,
-            exception_handler=exception_handler,
-            add_new=args.add_new)
-    else:
-        # TODO(epoger): When we get rid of the ImageRebaseliner implementation,
-        # we should raise an Exception in this case (no JSON expectations file
-        # found to update), to prevent a recurrence of
-        # https://code.google.com/p/skia/issues/detail?id=1403 ('rebaseline.py
-        # script fails with misleading output when run outside of gm-expected
-        # dir')
-        rebaseliner = rebaseline_imagefiles.ImageRebaseliner(
-            expectations_root=args.expectations_root,
-            tests=args.tests, configs=args.configs,
-            dry_run=args.dry_run,
-            json_base_url=args.actuals_base_url,
-            json_filename=args.actuals_filename,
-            exception_handler=exception_handler,
-            add_new=args.add_new,
-            missing_json_is_fatal=missing_json_is_fatal)
-
+  # We instantiate different Rebaseliner objects depending
+  # on whether we are rebaselining an expected-results.json file, or
+  # individual image files.  Different expectations/gm subdirectories may move
+  # from individual image files to JSON-format expectations at different
+  # times, so we need to make this determination per subdirectory.
+  #
+  # See https://goto.google.com/ChecksumTransitionDetail
+  expectations_json_file = os.path.join(args.expectations_root, subdir,
+                                        args.expectations_filename)
+  if os.path.isfile(expectations_json_file):
+    rebaseliner = JsonRebaseliner(
+        expectations_root=args.expectations_root,
+        expectations_input_filename=args.expectations_filename,
+        expectations_output_filename=(args.expectations_filename_output or
+                                      args.expectations_filename),
+        tests=args.tests, configs=args.configs,
+        actuals_base_url=args.actuals_base_url,
+        actuals_filename=args.actuals_filename,
+        exception_handler=exception_handler,
+        add_new=args.add_new)
     try:
-        rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
+      rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
     except BaseException as e:
-        exception_handler.RaiseExceptionOrContinue(e)
+      exception_handler.RaiseExceptionOrContinue(e)
+  else:
+    exception_handler.RaiseExceptionOrContinue(_InternalException(
+        'expectations_json_file %s not found' % expectations_json_file))
 
 exception_handler.ReportAllFailures()
