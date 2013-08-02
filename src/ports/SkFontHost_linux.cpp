@@ -113,20 +113,6 @@ static FamilyRec* find_family(const SkTypeface* member) {
     return NULL;
 }
 
-static SkTypeface* find_from_uniqueID(uint32_t uniqueID) {
-    FamilyRec* curr = gFamilyHead;
-    while (curr != NULL) {
-        for (int i = 0; i < 4; i++) {
-            SkTypeface* face = curr->fFaces[i];
-            if (face != NULL && face->uniqueID() == uniqueID) {
-                return face;
-            }
-        }
-        curr = curr->fNext;
-    }
-    return NULL;
-}
-
 /*  Remove reference to this face from its family. If the resulting family
  is empty (has no faces), return that family, otherwise return NULL
  */
@@ -263,6 +249,7 @@ public:
 
 protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    virtual SkTypeface* onRefMatchingStyle(Style styleBits) const SK_OVERRIDE;
 
 private:
     FamilyRec*  fFamilyRec; // we don't own this, just point to it
@@ -467,13 +454,9 @@ void FamilyTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = !this->isSysFont();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef SK_FONTHOST_USES_FONTMGR
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style style) {
+static SkTypeface* create_typeface(const SkTypeface* familyFace,
+                                   const char familyName[],
+                                   SkTypeface::Style style) {
     load_system_fonts();
 
     SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -496,6 +479,20 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
     SkSafeRef(tf);
     return tf;
+}
+
+SkTypeface* FamilyTypeface::onRefMatchingStyle(Style style) const {
+    return create_typeface(this, NULL, style);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef SK_FONTHOST_USES_FONTMGR
+
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style) {
+    return create_typeface(familyFace, NULL, style);
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
