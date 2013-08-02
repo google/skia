@@ -49,5 +49,12 @@ bool get_directory(const char path[], SkTArray<SkString>* entries);
  */
 bool glob_files(const char globPattern[], SkTArray<SkString>* entries);
 
+/**
+ * Gets the absolute version of the given path.
+ * @param  path The absolute or relative path to expand
+ * @return      The absolute path of the given path on success, or an empty string on failure.
+ */
+SkString get_absolute_path(const SkString& path);
+
 
 #endif

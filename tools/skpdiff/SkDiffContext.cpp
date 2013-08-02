@@ -164,12 +164,15 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     while (NULL != currentRecord) {
         stream.writeText("        {\n");
 
+            SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
+            SkString testAbsPath = get_absolute_path(currentRecord->fTestPath);
+
             stream.writeText("            \"baselinePath\": \"");
-            stream.writeText(currentRecord->fBaselinePath.c_str());
+            stream.writeText(baselineAbsPath.c_str());
             stream.writeText("\",\n");
 
             stream.writeText("            \"testPath\": \"");
-            stream.writeText(currentRecord->fTestPath.c_str());
+            stream.writeText(testAbsPath.c_str());
             stream.writeText("\",\n");
 
             stream.writeText("            \"diffs\": [\n");
