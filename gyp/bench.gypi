@@ -25,6 +25,7 @@
     '../bench/DisplacementBench.cpp',
     '../bench/FontCacheBench.cpp',
     '../bench/FontScalerBench.cpp',
+    '../bench/FSRectBench.cpp',
     '../bench/GameBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
