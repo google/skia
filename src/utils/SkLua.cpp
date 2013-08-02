@@ -714,12 +714,12 @@ static int lshader_asAGradient(lua_State* L) {
         sk_bzero(&info, sizeof(info));
 
         SkColor colors[3];  // hacked in for extracting info on 3 color case.
-        SkScalar pos[3];    
+        SkScalar pos[3];
 
         info.fColorCount = 3;
         info.fColors = &colors[0];
         info.fColorOffsets = &pos[0];
-        
+
         SkShader::GradientType t = shader->asAGradient(&info);
 
         if (SkShader::kNone_GradientType != t) {
@@ -731,7 +731,7 @@ static int lshader_asAGradient(lua_State* L) {
             if (info.fColorCount == 3){
                 setfield_number(L, "midPos", pos[1]);
             }
-            
+
             return 1;
         }
     }
