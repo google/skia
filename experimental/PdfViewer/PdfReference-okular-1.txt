@@ -7501,10 +7501,10 @@ YStep                                   number                                  
                                                                                                       the dimensions of the pattern cell implied by the BBox entry. This allows
                                                                                                       tiling with irregularly shaped ﬁgures. XStep and YStep may be either positive
                                                                                                       or negative, but not zero.
-Resources                               dictionary                                                  (Required) A resource dictionary containing all of the named resources
+Resources                               ResourceDictionary                                          (Required) A resource dictionary containing all of the named resources
                                                                                                       required by the pattern’s content stream (see Section 3.7.2, “Resource Dic-
                                                                                                       tionaries”).
-Matrix                                  array                                                       (Optional) An array of six numbers specifying the pattern matrix (see Section
+Matrix                                  matrix                                                      (Optional) An array of six numbers specifying the pattern matrix (see Section
                                                                                                       4.6.1, “General Properties of Patterns”). Default value: the identity matrix
                                                                                                       [1 0 0 1 0 0].
 The pattern dictionary’s BBox, XStep, and YStep values are interpreted in the pat-
@@ -10675,7 +10675,7 @@ Widths                                  array                                   
                                                                                                     Note: If FontMatrix speciﬁes a rotation, only the horizontal component of the
                                                                                                     transformed width is used. That is, the resulting displacement is always horizon-
                                                                                                     tal in text space, as is the case for all simple fonts.
-Resources                               dictionary                                                  (Optional but strongly recommended; PDF 1.2) A list of the named resources,
+Resources                               ResourceDictionary                                          (Optional but strongly recommended; PDF 1.2) A list of the named resources,
                                                                                                     such as fonts and images, required by the glyph descriptions in this font (see
                                                                                                     Section 3.7.2, “Resource Dictionaries”). If any glyph descriptions refer to
                                                                                                     named resources but this dictionary is absent, the names are looked up in the

@@ -739,6 +739,64 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
     return kPartial_PdfResult;
 }
 
+
+// TODO(edisonn): Extract a class like ObjWithStream
+static PdfResult doXObject_Pattern(PdfContext* pdfContext, SkCanvas* canvas, SkPdfType1PatternDictionary* skobj) {
+    if (!skobj || !skobj->hasStream()) {
+        return kIgnoreError_PdfResult;
+    }
+
+    if (!skobj->has_BBox()) {
+        return kIgnoreError_PdfResult;
+    }
+
+    PdfOp_q(pdfContext, canvas, NULL);
+
+    canvas->save();
+
+
+    if (skobj->Resources(pdfContext->fPdfDoc)) {
+        pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
+    }
+
+    SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Current matrix");
+
+    if (skobj->has_Matrix()) {
+        pdfContext->fGraphicsState.fCTM.preConcat(skobj->Matrix(pdfContext->fPdfDoc));
+        pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fCTM;
+        pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fCTM;
+        // TODO(edisonn) reset matrixTm and matricTlm also?
+    }
+
+    SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Total matrix");
+
+    canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
+
+    SkRect bbox = skobj->BBox(pdfContext->fPdfDoc);
+    canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
+
+    // TODO(edisonn): iterate smart on the stream even if it is compressed, tokenize it as we go.
+    // For this PdfContentsTokenizer needs to be extended.
+
+    SkPdfStream* stream = (SkPdfStream*)skobj;
+
+    SkPdfNativeTokenizer* tokenizer =
+            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
+    if (tokenizer != NULL) {
+        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
+        looper.loop();
+        delete tokenizer;
+    }
+
+    // TODO(edisonn): should we restore the variable stack at the same state?
+    // There could be operands left, that could be consumed by a parent tokenizer when we pop.
+
+    canvas->restore();
+    PdfOp_Q(pdfContext, canvas, NULL);
+    return kPartial_PdfResult;
+}
+
+
 //static PdfResult doXObject_PS(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObject* obj) {
 //    return kNYI_PdfResult;
 //}
@@ -826,9 +884,14 @@ static PdfResult doXObject(PdfContext* pdfContext, SkCanvas* canvas, const SkPdf
             return doXObject_Form(pdfContext, canvas, (SkPdfType1FormDictionary*)obj);
         //case kObjectDictionaryXObjectPS_SkPdfObjectType:
             //return doXObject_PS(skxobj.asPS());
-        default:
-            return kIgnoreError_PdfResult;
+        default: {
+            if (pdfContext->fPdfDoc->mapper()->mapType1PatternDictionary(obj) != kNone_SkPdfObjectType) {
+                SkPdfType1PatternDictionary* pattern = (SkPdfType1PatternDictionary*)obj;
+                return doXObject_Pattern(pdfContext, canvas, pattern);
+            }
+        }
     }
+    return kIgnoreError_PdfResult;
 }
 
 static PdfResult doPage(PdfContext* pdfContext, SkCanvas* canvas, SkPdfPageObjectDictionary* skobj) {
@@ -1165,29 +1228,100 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
     if (fill && !stroke && path.isLine(line)) {
         paint.setStyle(SkPaint::kStroke_Style);
 
+        // TODO(edisonn): implement this with patterns
         pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
         paint.setStrokeWidth(SkDoubleToScalar(0));
 
         canvas->drawPath(path, paint);
     } else {
         if (fill) {
-            paint.setStyle(SkPaint::kFill_Style);
-            if (evenOdd) {
-                path.setFillType(SkPath::kEvenOdd_FillType);
+            if (strncmp((char*)pdfContext->fGraphicsState.fNonStroking.fColorSpace.fBuffer, "Pattern", strlen("Pattern")) == 0 &&
+                pdfContext->fGraphicsState.fNonStroking.fPattern != NULL) {
+
+                // TODO(edisonn): we can use a shader here, like imageshader to draw fast. ultimately,
+                // if this is not possible, and we are in rasper mode, and the cells don't intersect, we could even have multiple cpus.
+
+                canvas->save();
+                PdfOp_q(pdfContext, canvas, NULL);
+
+                if (evenOdd) {
+                    path.setFillType(SkPath::kEvenOdd_FillType);
+                }
+                canvas->clipPath(path);
+
+                if (pdfContext->fPdfDoc->mapper()->mapType1PatternDictionary(pdfContext->fGraphicsState.fNonStroking.fPattern) != kNone_SkPdfObjectType) {
+                    SkPdfType1PatternDictionary* pattern = (SkPdfType1PatternDictionary*)pdfContext->fGraphicsState.fNonStroking.fPattern;
+
+                    // TODO(edisonn): constants
+                    // TODO(edisonn): colored
+                    if (pattern->PaintType(pdfContext->fPdfDoc) == 1) {
+                        int xStep = (int)pattern->XStep(pdfContext->fPdfDoc);
+                        int yStep = (int)pattern->YStep(pdfContext->fPdfDoc);
+
+                        SkRect bounds = path.getBounds();
+                        SkScalar x;
+                        SkScalar y;
+
+                        // TODO(edisonn): xstep and ystep can be negative, and we need to iterate in reverse
+
+                        y = bounds.top();
+                        int totalx = 0;
+                        int totaly = 0;
+                        while (y < bounds.bottom()) {
+                            x = bounds.left();
+                            totalx = 0;
+
+                            while (x < bounds.right()) {
+                                doXObject(pdfContext, canvas, pattern);
+
+                                pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(xStep), SkIntToScalar(0));
+                                totalx += xStep;
+                                x += SkIntToScalar(xStep);
+                            }
+                            pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(-totalx), SkIntToScalar(0));
+
+                            pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(0), SkIntToScalar(-yStep));
+                            totaly += yStep;
+                            y += SkIntToScalar(yStep);
+                        }
+                        pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(0), SkIntToScalar(totaly));
+                    }
+                }
+
+                // apply matrix
+                // get xstep, y step, bbox ... for cliping, and bos of the path
+
+                PdfOp_Q(pdfContext, canvas, NULL);
+                canvas->restore();
+            } else {
+                paint.setStyle(SkPaint::kFill_Style);
+                if (evenOdd) {
+                    path.setFillType(SkPath::kEvenOdd_FillType);
+                }
+
+                pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
+
+                canvas->drawPath(path, paint);
             }
-
-            pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
-
-            canvas->drawPath(path, paint);
         }
 
         if (stroke) {
-            paint.setStyle(SkPaint::kStroke_Style);
+            if (false && strncmp((char*)pdfContext->fGraphicsState.fNonStroking.fColorSpace.fBuffer, "Pattern", strlen("Pattern")) == 0) {
+                // TODO(edisonn): implement Pattern for strokes
+                paint.setStyle(SkPaint::kStroke_Style);
 
-            pdfContext->fGraphicsState.applyGraphicsState(&paint, true);
+                paint.setColor(SK_ColorGREEN);
 
-            path.setFillType(SkPath::kWinding_FillType);  // reset it, just in case it messes up the stroke
-            canvas->drawPath(path, paint);
+                path.setFillType(SkPath::kWinding_FillType);  // reset it, just in case it messes up the stroke
+                canvas->drawPath(path, paint);
+            } else {
+                paint.setStyle(SkPaint::kStroke_Style);
+
+                pdfContext->fGraphicsState.applyGraphicsState(&paint, true);
+
+                path.setFillType(SkPath::kWinding_FillType);  // reset it, just in case it messes up the stroke
+                canvas->drawPath(path, paint);
+            }
         }
     }
 
@@ -1459,16 +1593,16 @@ static PdfResult PdfOp_SCN_scn(PdfContext* pdfContext, SkCanvas* canvas, SkPdfCo
         SkPdfObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
 
         //Next, get the ExtGState Dictionary from the Resource Dictionary:
-        SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->Pattern(pdfContext->fPdfDoc);
+        SkPdfDictionary* patternResources = pdfContext->fGraphicsState.fResources->Pattern(pdfContext->fPdfDoc);
 
-        if (extGStateDictionary == NULL) {
+        if (patternResources == NULL) {
 #ifdef PDF_TRACE
             printf("ExtGState is NULL!\n");
 #endif
             return kIgnoreError_PdfResult;
         }
 
-        /*SkPdfObject* value = */pdfContext->fPdfDoc->resolveReference(extGStateDictionary->get(name));
+        colorOperator->setPatternColorSpace(pdfContext->fPdfDoc->resolveReference(patternResources->get(name)));
     }
 
     // TODO(edisonn): SCN supports more color spaces than SCN. Read and implement spec.
@@ -2262,21 +2396,6 @@ void PdfInlineImageLooper::loop() {
 }
 
 PdfResult PdfInlineImageLooper::done() {
-
-    // TODO(edisonn): long to short names
-    // TODO(edisonn): set properties in a map
-    // TODO(edisonn): extract bitmap stream, check if PoDoFo has public utilities to uncompress
-    // the stream.
-
-    SkBitmap bitmap;
-    setup_bitmap(&bitmap, 50, 50, SK_ColorRED);
-
-    // TODO(edisonn): matrix use.
-    // Draw dummy red square, to show the prezence of the inline image.
-    fCanvas->drawBitmap(bitmap,
-                       SkDoubleToScalar(0),
-                       SkDoubleToScalar(0),
-                       NULL);
     return kNYI_PdfResult;
 }
 
