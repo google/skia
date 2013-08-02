@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html ng-app="GMActualResultsLoader">
+
+<head>
+  <title>GM Expected-vs-Actual Results Display</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+  <script src="module.js"></script>
+</head>
+
+<body>
+  <div ng-controller="GMActualResultsLoader.Controller" >
+
+    Pick a platform...
+    <select ng-model="platformPath" ng-change="changePlatformPath()">
+      <option selected="selected">base-fake/Fake-Platform-Made-Up/base-fake</option>
+      <option>base-android-nexus-10/Test-Android-Nexus10-MaliT604-Arm7-Release/base-android-nexus-10</option>
+    </select>
+
+    <p>
+      <h2>These are NOT live results. To get live results, copy view.html and module.js into
+        <a href="https://code.google.com/p/skia-autogen/source/browse/#svn%2Fgm-actual">this</a> directory.</h2>
+      Comparison of expected vs actual GM results for platform {{platformPath}}:
+
+      <ul>
+        <li ng-repeat="resultsOfOneType in gmActualResults">
+          <h3>
+            {{resultsOfOneType['resultType']}}
+            ({{resultsOfOneType['resultsOfThisType'].length}})
+          </h3>
+          <table border="1">
+            <tr><th>Test/Config</th><th>Expected</th><th>Actual</th></tr>
+            <tr ng-repeat="result in resultsOfOneType['resultsOfThisType']">
+              <td>{{result.test}}_{{result.config}}</td>
+              <td><a target="_blank"
+                     href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashValue}}.png">
+                  {{result.expectedHashValue}}
+              </a></td>
+              <td><a target="_blank"
+                     href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashValue}}.png">
+                  {{result.actualHashValue}}
+              </a></td>
+            </tr>
+          </table>
+          <p>
+        </li>
+      </ul>
+  </div>
+
+</body>
+</html>
