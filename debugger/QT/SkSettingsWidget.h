@@ -14,6 +14,7 @@
 #include <QHBoxLayout>
 #include <QTextEdit>
 #include <QFrame>
+#include <QGroupBox>
 #include <QLabel>
 #include <QRadioButton>
 #include <QCheckBox>
@@ -40,9 +41,19 @@ public:
     QRadioButton* getVisibilityButton();
 
 #if SK_SUPPORT_GPU
-    QCheckBox* getGLCheckBox() {
-        return &fGLCheckBox;
+    bool isGLActive() {
+        return fGLCheckBox.isChecked();
     }
+
+    int getGLSampleCount() {
+        if (fGLMSAA4On.isChecked()) {
+            return 4;
+        } else if (fGLMSAA16On.isChecked()) {
+            return 16;
+        }
+        return 0;
+    }
+
 #endif
 
     QCheckBox* getRasterCheckBox() {
@@ -61,6 +72,9 @@ signals:
     void scrollingPreferences(bool isStickyActivate);
     void showStyle(bool isSingleCommand);
     void visibilityFilter(bool isEnabled);
+#if SK_SUPPORT_GPU
+    void glSettingsChanged();
+#endif
 
 private:
     QVBoxLayout mainFrameLayout;
@@ -101,6 +115,11 @@ private:
     QHBoxLayout fGLLayout;
     QLabel fGLLabel;
     QCheckBox fGLCheckBox;
+    QGroupBox fGLMSAAButtonGroup;
+    QVBoxLayout fGLMSAALayout;
+    QRadioButton fGLMSAAOff;
+    QRadioButton fGLMSAA4On;
+    QRadioButton fGLMSAA16On;
 #endif
 
     QFrame fZoomFrame;

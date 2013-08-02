@@ -67,6 +67,28 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fGLLabel.setText("OpenGL: ");
     fGLLabel.setMinimumWidth(178);
     fGLLabel.setMaximumWidth(178);
+
+    fGLMSAAButtonGroup.setTitle("MSAA");
+    fGLMSAAButtonGroup.setMinimumWidth(178);
+    fGLMSAAButtonGroup.setMaximumWidth(178);
+    fGLMSAAButtonGroup.setEnabled(fGLCheckBox.isChecked());
+
+    fGLMSAAOff.setText("Off");
+    fGLMSAA4On.setText("4");
+    fGLMSAA4On.setChecked(true);
+    fGLMSAA16On.setText("16");
+
+    fGLMSAALayout.addWidget(&fGLMSAAOff);
+    fGLMSAALayout.addWidget(&fGLMSAA4On);
+    fGLMSAALayout.addWidget(&fGLMSAA16On);
+
+    fGLMSAAButtonGroup.setLayout(&fGLMSAALayout);
+
+    connect(&fGLCheckBox, SIGNAL(toggled(bool)), &fGLMSAAButtonGroup, SLOT(setEnabled(bool)));
+    connect(&fGLCheckBox, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
+    connect(&fGLMSAAOff, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
+    connect(&fGLMSAA4On, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
+    connect(&fGLMSAA16On, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
 #endif
 
     fRasterLayout.addWidget(&fRasterLabel);
@@ -86,6 +108,7 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fCanvasLayout.addLayout(&fOverdrawVizLayout);
 #if SK_SUPPORT_GPU
     fCanvasLayout.addLayout(&fGLLayout);
+    fCanvasLayout.addWidget(&fGLMSAAButtonGroup);
 #endif
 
     // Command Toggle

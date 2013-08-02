@@ -36,6 +36,10 @@ public:
 
     void setWidgetVisibility(WidgetType type, bool isHidden);
 
+#if SK_SUPPORT_GPU
+    void setGLSampleCount(int sampleCount);
+#endif
+
     /** Zooms the canvas by scale with the transformation centered at the widget point (px, py). */
     void zoom(float scale, int px, int py);
 

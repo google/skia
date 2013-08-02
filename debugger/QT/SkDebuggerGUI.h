@@ -114,9 +114,9 @@ private slots:
 
 #if SK_SUPPORT_GPU
     /**
-        Toggles the visibility of the GL canvas widget.
+        Updates the visibility of the GL canvas widget and sample count of the GL surface.
      */
-    void actionGLWidget(bool isToggled);
+    void actionGLWidget();
 #endif
 
     /**
