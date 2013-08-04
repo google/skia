@@ -471,7 +471,7 @@ desk_googlespreadsheet.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-2
 desk_googlespreadsheet.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,89.040,50.136,107.944
 desk_googlespreadsheet.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.110,-5.401,15.621
 desk_googlespreadsheet.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.070,-5.437,15.577
-desk_googlespreadsheet.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,121.830,99.647,144.013
+desk_googlespreadsheet.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,121.830,89.647,144.013
 desk_googlespreadsheet.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,24.130,11.717,36.543
 desk_googlespreadsheet.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,23.400,11.060,35.740
 desk_googlespreadsheet.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,16.860,5.174,78.546
@@ -2019,7 +2019,7 @@ tabl_theverge.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,193.1
 tabl_theverge.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1948.680,1743.812,2153.548
 tabl_theverge.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,125.620,103.058,148.182
 tabl_theverge.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,148.000,123.200,172.800
-tabl_theverge.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1217.040,865.336,1348.744
+tabl_theverge.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1217.040,845.336,1348.744
 tabl_theverge.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,222.500,160.250,254.750
 tabl_theverge.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,209.040,148.136,239.944
 tabl_theverge.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1821.720,1629.548,2013.892
