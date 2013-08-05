@@ -932,7 +932,6 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
     SkPdfObject obj;
 #ifdef PDF_TRACE_READ_TOKEN
     static int read_op = 0;
-    int last;
 #endif
     token->fKeyword = NULL;
     token->fObject = NULL;
@@ -942,18 +941,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
         return false;
     }
 
-#ifdef PDF_TRACE_READ_TOKEN
-    printf("BEFORE the read: %i\n", read_op);
-    last = read_op;
-#endif
-
     fUncompressedStream = nextObject(0, fUncompressedStream, fUncompressedStreamEnd, &obj, fAllocator, fDoc);
-#ifdef PDF_TRACE_READ_TOKEN
-    printf("BEFORE the read: %i\n", read_op);
-    if (last != read_op) {
-        printf("break; // memory override");
-    }
-#endif
 
     // If it is a keyword, we will only get the pointer of the string
     if (obj.type() == SkPdfObject::kKeyword_PdfObjectType) {
