@@ -350,6 +350,7 @@ smoothness             number             (PDF 1.3) The precision with which col
         fDashPhase    = 0;
         fBlendModesLength = 1;
         fBlendModes[0] = SkXfermode::kSrc_Mode;  // PDF: Normal Blend mode
+        fSMask        = NULL;
     }
 
     // TODO(edisonn): make two functons instead, stroking and non stoking, avoid branching
