@@ -502,10 +502,10 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
 
 };
 
-bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
-                                         SkIPoint* offset) {
+bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                                         SkBitmap* result, SkIPoint* offset) {
     SkBitmap inputBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM, offset)) {
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &inputBM, offset)) {
         return false;
     }
     GrTexture* input = inputBM.getTexture();
@@ -516,10 +516,10 @@ bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBi
     return SkImageFilterUtils::WrapTexture(resultTex, src.width(), src.height(), result);
 }
 
-bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
-                                        SkIPoint* offset) {
+bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                                        SkBitmap* result, SkIPoint* offset) {
     SkBitmap inputBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM, offset)) {
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &inputBM, offset)) {
         return false;
     }
     GrTexture* input = inputBM.getTexture();

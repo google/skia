@@ -341,9 +341,10 @@ GrEffectRef* GrBicubicEffect::TestCreate(SkMWCRandom* random,
     return GrBicubicEffect::Create(textures[texIdx], coefficients);
 }
 
-bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result, SkIPoint* offset) {
+bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                                          SkBitmap* result, SkIPoint* offset) {
     SkBitmap srcBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &srcBM, offset)) {
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &srcBM, offset)) {
         return false;
     }
     GrTexture* srcTexture = srcBM.getTexture();

@@ -114,7 +114,8 @@ public:
      *  relative to the src when it is drawn. The default implementation does
      *  single-pass processing using asNewEffect().
      */
-    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, SkBitmap* result, SkIPoint* offset);
+    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
+                                SkBitmap* result, SkIPoint* offset);
 
     /**
      *  Returns whether this image filter is a color filter and puts the color filter into the

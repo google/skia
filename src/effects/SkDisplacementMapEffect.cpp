@@ -275,19 +275,19 @@ private:
     typedef GrEffect INHERITED;
 };
 
-bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result,
-                                             SkIPoint* offset) {
+bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                                             SkBitmap* result, SkIPoint* offset) {
     SkBitmap colorBM;
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, &colorBM,
+    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, ctm, &colorBM,
                                                &colorOffset)) {
         return false;
     }
     GrTexture* color = colorBM.getTexture();
     SkBitmap displacementBM;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, &displacementBM,
-                                               &displacementOffset)) {
+    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, ctm,
+                                               &displacementBM, &displacementOffset)) {
         return false;
     }
     GrTexture* displacement = displacementBM.getTexture();
