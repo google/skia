@@ -44,6 +44,8 @@ static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas)
 
 
 static void TestGpuDrawPath(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    return;
+
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
 
