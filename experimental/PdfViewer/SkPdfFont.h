@@ -164,6 +164,10 @@ public:
 public:
     SkPdfFont() : fBaseFont(NULL), fEncoding(SkPdfDefaultEncoding::instance()), fToUnicode(NULL) {}
 
+    virtual ~SkPdfFont() {
+        // TODO(edisonn): NYI (will leak for now)
+    }
+
     const SkPdfEncoding* encoding() const {return fEncoding;}
 
     void drawText(const SkDecodedText& text, SkPaint* paint, PdfContext* pdfContext, SkCanvas* canvas) {
