@@ -306,7 +306,7 @@ const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailer
     }
 
     if (storeCatalog) {
-        const SkPdfObject* ref = trailer->Root(NULL);
+        SkPdfObject* ref = trailer->Root(NULL);
         if (ref == NULL || !ref->isReference()) {
             // TODO(edisonn): oops, we have to fix the corrup pdf file
             return current;
@@ -384,7 +384,7 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
 }
 
 void SkNativeParsedPDF::fillPages(SkPdfPageTreeNodeDictionary* tree) {
-    const SkPdfArray* kids = tree->Kids(this);
+    SkPdfArray* kids = tree->Kids(this);
     if (kids == NULL) {
         *fPages.append() = (SkPdfPageObjectDictionary*)tree;
         return;
@@ -392,7 +392,7 @@ void SkNativeParsedPDF::fillPages(SkPdfPageTreeNodeDictionary* tree) {
 
     int cnt = kids->size();
     for (int i = 0; i < cnt; i++) {
-        const SkPdfObject* obj = resolveReference(kids->objAtAIndex(i));
+        SkPdfObject* obj = resolveReference(kids->objAtAIndex(i));
         if (fMapper->mapPageObjectDictionary(obj) != kPageObjectDictionary_SkPdfObjectType) {
             *fPages.append() = (SkPdfPageObjectDictionary*)obj;
         } else {
@@ -506,7 +506,7 @@ SkPdfAllocator* SkNativeParsedPDF::allocator() const {
 
 // TODO(edisonn): fix infinite loop if ref to itself!
 // TODO(edisonn): perf, fix refs at load, and resolve will simply return fResolvedReference?
-SkPdfObject* SkNativeParsedPDF::resolveReference(const SkPdfObject* ref) {
+SkPdfObject* SkNativeParsedPDF::resolveReference(SkPdfObject* ref) {
     if (ref && ref->isReference()) {
         int id = ref->referenceId();
         // TODO(edisonn): generation/updates not supported now

@@ -315,7 +315,7 @@ CIDToGIDMap* fCidToGid;
 
 class SkPdfType3Font : public SkPdfFont {
     struct Type3FontChar {
-        const SkPdfObject* fObj;
+        SkPdfObject* fObj;
         double fWidth;
     };
 

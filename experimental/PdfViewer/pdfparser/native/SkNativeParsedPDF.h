@@ -64,7 +64,7 @@ public:
     // the string does not own the char*
     SkPdfString* createString(const unsigned char* sz, size_t len) const;
 
-    SkPdfObject* resolveReference(const SkPdfObject* ref);
+    SkPdfObject* resolveReference(SkPdfObject* ref);
 
     // Reports an approximation of all the memory usage.
     size_t bytesUsed() const;
@@ -95,7 +95,7 @@ private:
     SkPdfMapper* fMapper;
     const unsigned char* fFileContent;
     size_t fContentLength;
-    const SkPdfObject* fRootCatalogRef;
+    SkPdfObject* fRootCatalogRef;
     SkPdfCatalogDictionary* fRootCatalog;
 
     mutable SkTDArray<PublicObjectEntry> fObjects;

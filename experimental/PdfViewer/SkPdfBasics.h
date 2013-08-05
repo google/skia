@@ -221,7 +221,8 @@ soft mask         dictionary    (PDF 1.4) A soft-mask dictionary (see “Soft-Ma
                                 Group XObjects”). Initial value: None.
  */
     SkPdfSoftMaskDictionary* fSoftMaskDictionary;
-    SkBitmap                 fSMask;
+    // TODO(edisonn): make sMask private, add setter and getter, ref/unref/..., at the moment we most likely leask
+    SkBitmap*                fSMask;
 
 
 /*

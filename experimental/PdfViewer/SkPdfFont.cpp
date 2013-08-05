@@ -255,10 +255,10 @@ SkPdfFont* SkPdfFont::fontFromPdfDictionary(SkNativeParsedPDF* doc, SkPdfFontDic
         return NULL;  // TODO(edisonn): report default one?
     }
 
-    if (dict->data() == NULL) {
-        dict->setData(fontFromPdfDictionaryOnce(doc, dict));
+    if (!dict->hasData(SkPdfObject::kFont_Data)) {
+        dict->setData(fontFromPdfDictionaryOnce(doc, dict), SkPdfObject::kFont_Data);
     }
-    return (SkPdfFont*)dict->data();
+    return (SkPdfFont*)dict->data(SkPdfObject::kFont_Data);
 }
 
 
