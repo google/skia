@@ -79,11 +79,13 @@
           'sources': [
             '../src/core/SkPaintOptionsAndroid.cpp',
           ],
+          'dependencies': [
+            'android_deps.gyp:cpu_features',
+          ],
         }],
-        [ 'skia_os == "android" and skia_arch_type == "arm"', {
+        [ 'skia_arch_type == "arm"', {
           # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
           'sources': [
-            '../src/core/SkPaintOptionsAndroid.cpp',
             '../src/core/SkUtilsArm.cpp',
             '../src/core/SkUtilsArm.h',
           ],
