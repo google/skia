@@ -59,13 +59,14 @@ inline int num_pts(const SkPath::Verb verb) {
 static const bool kIsWrapped = false; // The constructor creates the GL path object.
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu, kIsWrapped) {
-    GL_CALL_RET(fPathID, GenPaths(1));
-    SkPath::Iter iter(path, true);
-
-    SkSTArray<16, GrGLubyte, true> pathCommands;
 #ifndef SK_SCALAR_IS_FLOAT
     GrCrash("Assumes scalar is float.");
 #endif
+    SkASSERT(!path.isEmpty());
+
+    GL_CALL_RET(fPathID, GenPaths(1));
+
+    SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
 
     int verbCnt = path.countVerbs();

@@ -691,11 +691,13 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                     fGpu->drawSimpleRect(element->getRect(), NULL);
                 } else {
                     GrAssert(Element::kPath_Type == element->getType());
-                    if (canRenderDirectToStencil) {
-                        *drawState->stencil() = gDrawToStencil;
-                        pr->drawPath(*clipPath, stroke, fGpu, false);
-                    } else {
-                        pr->stencilPath(*clipPath, stroke, fGpu);
+                    if (!clipPath->isEmpty()) {
+                        if (canRenderDirectToStencil) {
+                            *drawState->stencil() = gDrawToStencil;
+                            pr->drawPath(*clipPath, stroke, fGpu, false);
+                        } else {
+                            pr->stencilPath(*clipPath, stroke, fGpu);
+                        }
                     }
                 }
             }
