@@ -380,11 +380,11 @@ bool SkPath::isEmpty() const {
 
 bool SkPath::isLine(SkPoint line[2]) const {
     int verbCount = fPathRef->countVerbs();
-    int ptCount = fPathRef->countVerbs();
 
-    if (2 == verbCount && 2 == ptCount) {
-        if (kMove_Verb == fPathRef->atVerb(0) &&
-            kLine_Verb == fPathRef->atVerb(1)) {
+    if (2 == verbCount) {
+        SkASSERT(kMove_Verb == fPathRef->atVerb(0));
+        if (kLine_Verb == fPathRef->atVerb(1)) {
+            SkASSERT(2 == fPathRef->countPoints());
             if (line) {
                 const SkPoint* pts = fPathRef->points();
                 line[0] = pts[0];
