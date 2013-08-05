@@ -21,25 +21,11 @@ class GrEffectRef;
 class GrTexture;
 
 /**
- *  Experimental.
- *
  *  Base class for image filters. If one is installed in the paint, then
  *  all drawing occurs as usual, but it is as if the drawing happened into an
  *  offscreen (before the xfermode is applied). This offscreen bitmap will
  *  then be handed to the imagefilter, who in turn creates a new bitmap which
  *  is what will finally be drawn to the device (using the original xfermode).
- *
- *  THIS SIGNATURE IS TEMPORARY
- *
- *  There are several weaknesses in this function signature:
- *  1. Does not expose the destination/target device, so filters that can draw
- *     directly to it are unable to take advantage of that optimization.
- *  2. Does not expose a way to create a "compabitible" image (i.e. gpu -> gpu)
- *  3. As with #1, the filter is unable to "read" the dest (which would be slow)
- *
- *  Therefore, we should not create any real dependencies on this API yet -- it
- *  is being checked in as a check-point so we can explore these and other
- *  considerations.
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
