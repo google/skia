@@ -9,185 +9,162 @@
 #define SkTDynamicHash_DEFINED
 
 #include "SkTypes.h"
+#include "SkMath.h"
 
 template <typename T,
-          typename KEY,
-          const KEY& (KEY_FROM_T)(const T&),
-          uint32_t (HASH_FROM_KEY)(const KEY&),
-          bool (EQ_T_KEY)(const T&, const KEY&)>
+          typename Key,
+          const Key& (GetKey)(const T&),
+          uint32_t (Hash)(const Key&),
+          bool (Equal)(const T&, const Key&)>
 class SkTDynamicHash {
-private:
-    T* fStorage[4];     // cheap storage for small arrays
-    T** fArray;
-    int fCapacity;      // number of slots in fArray. Must be pow2
-    int fCountUsed;     // number of valid entries in fArray
-    int fCountDeleted;  // number of deletedValue() entries in fArray
-
-    // Need an illegal ptr value different from NULL (which we use to
-    // signal empty/unused.
-    const T* deletedValue() const { return reinterpret_cast<const T*>(-1); }
-
-    // fCapacity is a pow2, so that minus one is a clean mask to grab
-    // the low bits of hash to use as an index.
-    uint32_t hashMask() const { return fCapacity - 1; }
-
-    int hashToIndex(uint32_t hash) const {
-        // this 16bit fold may be overkill, if we trust that hash is good
-        return ((hash >> 16) ^ hash) & this->hashMask();
-    }
-
 public:
-    SkTDynamicHash() {
-        sk_bzero(fStorage, sizeof(fStorage));
-        fArray = fStorage;
-        fCapacity = SK_ARRAY_COUNT(fStorage);
-        fCountUsed = fCountDeleted = 0;
-    }
+    SkTDynamicHash(int initialCapacity=64/sizeof(T*))
+    : fCount(0)
+    , fCapacity(SkNextPow2(initialCapacity > 0 ? initialCapacity : 1))
+    , fArray(AllocArray(fCapacity)) {}
+
     ~SkTDynamicHash() {
-        if (fArray != fStorage) {
-            sk_free(fArray);
-        }
+        sk_free(fArray);
     }
 
-    T* find(const KEY& key) {
-        const T* const deleted = this->deletedValue();
-        const unsigned mask = this->hashMask();
-        int index = this->hashToIndex(HASH_FROM_KEY(key));
-        int delta = 1;
+    int count() const { return fCount; }
 
-        do {
+    // Return the entry with this key if we have it, otherwise NULL.
+    T* find(const Key& key) const {
+        int index = this->firstIndex(key);
+        for (int round = 0; round < fCapacity; round++) {
             T* candidate = fArray[index];
-            if (NULL == candidate) {
+            if (candidate == Empty()) {
                 return NULL;
             }
-            if (deleted != candidate && EQ_T_KEY(*candidate, key)) {
+            if (candidate != Deleted() && Equal(*candidate, key)) {
                 return candidate;
             }
-            index = (index + delta) & mask;
-            delta <<= 1;
-        } while (delta <= fCapacity);
+            index = this->nextIndex(index, round);
+        }
+        SkASSERT(!"find: should be unreachable");
         return NULL;
     }
 
-    bool add(const KEY& key, T* newElement, bool autoGrow = true) {
-        const T* const deleted = this->deletedValue();
-        for (;;) {
-            const unsigned mask = this->hashMask();
-            int index = this->hashToIndex(HASH_FROM_KEY(key));
-            int delta = 1;
+    // Add an entry with this key.
+    void add(T* newEntry) {
+        this->maybeGrow();
 
-            do {
-                const T* candidate = fArray[index];
-                if (NULL == candidate || deleted == candidate) {
-                    fArray[index] = newElement;
-                    fCountUsed += 1;
-                    if (deleted == candidate) {
-                        SkASSERT(fCountDeleted > 0);
-                        fCountDeleted -= 1;
-                    }
-                    return true;
-                }
-                index = (index + delta) & mask;
-                delta <<= 1;
-            } while (delta <= fCapacity);
-            if (autoGrow) {
-                this->grow();
-            } else {
-                return false;
+        const Key& key = GetKey(*newEntry);
+        int index = this->firstIndex(key);
+        for (int round = 0; round < fCapacity; round++) {
+            T* candidate = fArray[index];
+            if (candidate == Empty() || candidate == Deleted()) {
+                fArray[index] = newEntry;
+                fCount++;
+                return;
             }
+            if (Equal(*candidate, key)) {
+                fArray[index] = newEntry;
+                return;
+            }
+            index = this->nextIndex(index, round);
         }
-        SkASSERT(!"never get here");
-        return false;
+        SkASSERT(!"add: should be unreachable");
     }
 
-    void remove(const KEY& key) {
-        const T* const deleted = this->deletedValue();
-        const unsigned mask = this->hashMask();
-        int index = this->hashToIndex(HASH_FROM_KEY(key));
-        int delta = 1;
+    // Remove entry with this key, if we have it.
+    void remove(const Key& key) {
+        this->innerRemove(key);
+        this->maybeShrink();
+    }
 
-        for (;;) {
+protected:
+    // These methods are used by tests only.
+
+    int capacity() const { return fCapacity; }
+
+    // How many collisions do we go through before finding where this entry should be inserted?
+    int countCollisions(const Key& key) const {
+        int index = this->firstIndex(key);
+        for (int round = 0; round < fCapacity; round++) {
             const T* candidate = fArray[index];
-            SkASSERT(candidate);
-            if (deleted != candidate && EQ_T_KEY(*candidate, key)) {
-                fArray[index] = const_cast<T*>(deleted);
-                fCountUsed -= 1;
-                fCountDeleted += 1;
-                break;
+            if (candidate == Empty() || candidate == Deleted() || Equal(*candidate, key)) {
+                return round;
             }
-            index = (index + delta) & mask;
-            delta <<= 1;
-            SkASSERT(delta <= fCapacity);
+            index = this->nextIndex(index, round);
         }
-        this->checkStrink();
+        SkASSERT(!"countCollisions: should be unreachable");
+        return -1;
     }
 
 private:
-    int countCollisions(const KEY& key) const {
-        const T* const deleted = this->deletedValue();
-        const unsigned mask = this->hashMask();
-        int index = this->hashToIndex(HASH_FROM_KEY(key));
-        int delta = 1;
-        int collisionCount = 0;
+    // We have two special values to indicate an empty or deleted entry.
+    static const T* Empty()   { return reinterpret_cast<const T*>(0); }  // i.e. NULL
+    static const T* Deleted() { return reinterpret_cast<const T*>(1); }  // Also an invalid pointer.
 
-        for (;;) {
-            const T* candidate = fArray[index];
-            SkASSERT(candidate);
-            if (deleted != candidate && EQ_T_KEY(*candidate, key)) {
-                break;
-            }
-            index = (index + delta) & mask;
-            delta <<= 1;
-            collisionCount += 1;
-            SkASSERT(delta <= fCapacity);
-        }
-        return collisionCount;
+    static T** AllocArray(int capacity) {
+        T** array = (T**)sk_malloc_throw(sizeof(T*) * capacity);
+        sk_bzero(array, sizeof(T*) * capacity);  // All cells == Empty().
+        return array;
     }
 
-    void grow() {
-        const T* const deleted = this->deletedValue();
-#if 0
-        SkDebugf("growing from %d: used=%d\n", fCapacity, fCountUsed);
-        for (int i = 0; i < fCapacity; ++i) {
-            T* elem = fArray[i];
-            if (NULL == elem || deleted == elem) {
-                continue;
+    void innerRemove(const Key& key) {
+        int index = this->firstIndex(key);
+        for (int round = 0; round < fCapacity; round++) {
+            const T* candidate = fArray[index];
+            if (candidate == Empty()) {
+                return;
             }
-            SkDebugf("    entry[%d] had %d collisions\n", i, countCollisions(KEY_FROM_T(*elem)));
+            if (candidate != Deleted() && Equal(*candidate, key)) {
+                fArray[index] = const_cast<T*>(Deleted());
+                fCount--;
+                return;
+            }
+            index = this->nextIndex(index, round);
         }
-#endif
+        SkASSERT(!"innerRemove: should be unreachable");
+    }
+
+    void maybeGrow() {
+        if (fCount < fCapacity / 2) {
+            return;
+        }
+
+        SkDEBUGCODE(int oldCount = fCount;)
         int oldCapacity = fCapacity;
         T** oldArray = fArray;
 
-        int newCapacity = oldCapacity << 1;
-        T** newArray = (T**)sk_malloc_throw(sizeof(T*) * newCapacity);
-        sk_bzero(newArray, sizeof(T*) * newCapacity);
+        fCount = 0;
+        fCapacity *= 2;
+        fArray = AllocArray(fCapacity);
 
-        SkDEBUGCODE(int oldCountUsed = fCountUsed;)
-        fArray = newArray;
-        fCapacity = newCapacity;
-        fCountUsed = 0;
-        fCountDeleted = 0;
-
-        for (int i = 0; i < oldCapacity; ++i) {
-            T* elem = oldArray[i];
-            if (NULL == elem || deleted == elem) {
-                continue;
+        for (int i = 0; i < oldCapacity; i++) {
+            T* entry = oldArray[i];
+            if (entry != Empty() && entry != Deleted()) {
+                this->add(entry);
             }
-            SkDEBUGCODE(bool success =) this->add(KEY_FROM_T(*elem), elem, false);
-            SkASSERT(success);
         }
-        SkASSERT(oldCountUsed == fCountUsed);
+        SkASSERT(oldCount == fCount);
 
-        if (oldArray != fStorage) {
-            sk_free(oldArray);
-        }
+        sk_free(oldArray);
     }
 
-    void checkStrink() {
-        // todo: based on density and deadspace (fCountDeleted), consider
-        // shrinking fArray and repopulating it.
+    void maybeShrink() {
+        // TODO
     }
+
+    // fCapacity is always a power of 2, so this masks the correct low bits to index into our hash.
+    uint32_t hashMask() const { return fCapacity - 1; }
+
+    int firstIndex(const Key& key) const {
+        return Hash(key) & this->hashMask();
+    }
+
+    // Given index at round N, what is the index to check at N+1?  round should start at 0.
+    int nextIndex(int index, int round) const {
+        // This will search a power-of-two array fully without repeating an index.
+        return (index + round + 1) & this->hashMask();
+    }
+
+    int fCount;     // Number of non-empty, non-deleted entries in fArray.
+    int fCapacity;  // Number of entries in fArray.  Always a power of 2.
+    T** fArray;
 };
 
 #endif

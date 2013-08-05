@@ -48,6 +48,7 @@
         '../tests/DrawBitmapRectTest.cpp',
         '../tests/DrawPathTest.cpp',
         '../tests/DrawTextTest.cpp',
+        '../tests/DynamicHashTest.cpp',
         '../tests/EmptyPathTest.cpp',
         '../tests/ErrorTest.cpp',
         '../tests/FillPathTest.cpp',

@@ -250,7 +250,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
     SkASSERT(1 == rec->fLockCount);
 
 #ifdef USE_HASH
-    fHash->add(key, rec);
+    fHash->add(rec);
 #endif
 
     // We may (now) be overbudget, so see if we need to purge something.
@@ -270,7 +270,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
     SkASSERT(1 == rec->fLockCount);
 
 #ifdef USE_HASH
-    fHash->add(key, rec);
+    fHash->add(rec);
 #endif
 
     // We may (now) be overbudget, so see if we need to purge something.
