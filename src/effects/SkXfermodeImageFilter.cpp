@@ -78,18 +78,19 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
 
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            const SkBitmap& src,
+                                           const SkMatrix& ctm,
                                            SkBitmap* result,
                                            SkIPoint* offset) {
     SkBitmap background;
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &background,
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &background,
                                                &backgroundOffset)) {
         return false;
     }
     GrTexture* backgroundTex = background.getTexture();
     SkBitmap foreground;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(1), proxy, src, &foreground,
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(1), proxy, src, ctm, &foreground,
                                                &foregroundOffset)) {
         return false;
     }

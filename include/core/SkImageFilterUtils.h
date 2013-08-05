@@ -29,7 +29,8 @@ public:
      * will be processed in software and uploaded to the GPU.
      */
     static bool GetInputResultGPU(SkImageFilter* filter, SkImageFilter::Proxy* proxy,
-                                  const SkBitmap& src, SkBitmap* result, SkIPoint* offset);
+                                  const SkBitmap& src, const SkMatrix& ctm, SkBitmap* result,
+                                  SkIPoint* offset);
 };
 
 #endif

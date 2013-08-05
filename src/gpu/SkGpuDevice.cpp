@@ -1372,7 +1372,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
 static bool filter_texture(SkDevice* device, GrContext* context,
                            GrTexture* texture, SkImageFilter* filter,
-                           int w, int h, SkBitmap* result, SkIPoint* offset) {
+                           int w, int h, const SkMatrix& ctm, SkBitmap* result,
+                           SkIPoint* offset) {
     GrAssert(filter);
     SkDeviceImageFilterProxy proxy(device);
 
@@ -1380,7 +1381,7 @@ static bool filter_texture(SkDevice* device, GrContext* context,
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
-        return filter->filterImageGPU(&proxy, wrap_texture(texture), result, offset);
+        return filter->filterImageGPU(&proxy, wrap_texture(texture), ctm, result, offset);
     } else {
         return false;
     }
@@ -1409,7 +1410,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkBitmap filteredBitmap;
 
     if (NULL != filter) {
-        if (filter_texture(this, fContext, texture, filter, w, h, &filteredBitmap, &offset)) {
+        if (filter_texture(this, fContext, texture, filter, w, h, SkMatrix::I(), &filteredBitmap,
+                           &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
             h = filteredBitmap.height();
@@ -1494,7 +1496,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
     if (NULL != filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
-        if (filter_texture(this, fContext, devTex, filter, w, h, &filteredBitmap, &offset)) {
+        if (filter_texture(this, fContext, devTex, filter, w, h, SkMatrix::I(), &filteredBitmap,
+                           &offset)) {
             devTex = filteredBitmap.getTexture();
             w = filteredBitmap.width();
             h = filteredBitmap.height();
@@ -1547,7 +1550,8 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     SkAutoCachedTexture act(this, src, NULL, &texture);
 
-    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), result, offset);
+    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), ctm, result,
+                          offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
