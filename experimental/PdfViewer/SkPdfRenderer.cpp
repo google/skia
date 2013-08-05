@@ -311,13 +311,6 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
         out.appendf("/usr/local/google/home/edisonn/log_view2/step-%i-%s.png", gLastOpKeyword, gLastKeyword);
         SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
     }
-
-    if (token->fType == kKeyword_TokenType) {
-        strcpy(gLastKeyword, token->fKeyword);
-        gLastOpKeyword = gReadOp;
-    } else {
-        strcpy(gLastKeyword, "");
-    }
 #endif
 
     return ret;
