@@ -472,6 +472,12 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     result->fY = SkScalarMul(result->fY, wInv);
 }
 
+void set_uv_quad(const SkPoint qpts[3], Vertex verts[kVertsPerQuad]) {
+    // this should be in the src space, not dev coords, when we have perspective
+    GrPathUtils::QuadUVMatrix DevToUV(qpts);
+    DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
+}
+
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
                 const SkMatrix* toSrc, Vertex verts[kVertsPerQuad],
                 SkRect* devBounds) {
@@ -480,9 +486,6 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     SkPoint a = qpts[0];
     SkPoint b = qpts[1];
     SkPoint c = qpts[2];
-
-    // this should be in the src space, not dev coords, when we have perspective
-    GrPathUtils::QuadUVMatrix DevToUV(qpts);
 
     if (toDevice) {
         toDevice->mapPoints(&a, 1);
@@ -549,7 +552,6 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     if (toSrc) {
         toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
     }
-    DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
 }
 
 // Input:
@@ -641,6 +643,7 @@ void add_quads(const SkPoint p[3],
         add_quads(newP + 2, subdiv-1, toDevice, toSrc, vert, devBounds);
     } else {
         bloat_quad(p, toDevice, toSrc, *vert, devBounds);
+        set_uv_quad(p, *vert);
         *vert += kVertsPerQuad;
     }
 }
