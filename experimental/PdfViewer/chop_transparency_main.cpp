@@ -43,7 +43,7 @@ SkISize opaqueSize(const SkBitmap& bm) {
     int width = 1;
     int height = 1;
     for (int y = 0 ; y < bm.height(); y++) {
-        for (int x = 0 ; x < bm.height(); x++) {
+        for (int x = 0 ; x < bm.width(); x++) {
             SkColor color = bm.getColor(x, y);
             if (SkColorGetA(color) != 0) {
                 height = y + 1;
