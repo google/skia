@@ -117,6 +117,7 @@ public:
                   const SkStrokeRec& stroke,
                   GrDrawTarget* target,
                   bool antiAlias) {
+        GrAssert(!path.isEmpty());
         GrAssert(this->canDrawPath(path, stroke, target, antiAlias));
         GrAssert(target->drawState()->getStencil().isDisabled() ||
                  kNoRestriction_StencilSupport == this->getStencilSupport(path, stroke, target));
@@ -132,6 +133,7 @@ public:
      * @param target                target that the path will be rendered to
      */
     void stencilPath(const SkPath& path, const SkStrokeRec& stroke, GrDrawTarget* target) {
+        GrAssert(!path.isEmpty());
         GrAssert(kNoSupport_StencilSupport != this->getStencilSupport(path, stroke, target));
         this->onStencilPath(path, stroke, target);
     }

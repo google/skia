@@ -25,6 +25,7 @@
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
 #include "SkRTConf.h"
+#include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
@@ -952,6 +953,9 @@ void GrContext::drawVertices(const GrPaint& paint,
 void GrContext::drawRRect(const GrPaint& paint,
                           const SkRRect& rect,
                           const SkStrokeRec& stroke) {
+    if (rect.isEmpty()) {
+       return;
+    }
 
     AutoRestoreEffects are;
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
@@ -972,6 +976,9 @@ void GrContext::drawRRect(const GrPaint& paint,
 void GrContext::drawOval(const GrPaint& paint,
                          const SkRect& oval,
                          const SkStrokeRec& stroke) {
+    if (oval.isEmpty()) {
+       return;
+    }
 
     AutoRestoreEffects are;
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
@@ -1082,6 +1089,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
 
 void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                                  const SkStrokeRec& stroke) {
+    SkASSERT(!path.isEmpty());
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement
@@ -1112,6 +1120,10 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
                 strokeRec.setFillStyle();
             }
         }
+        if (pathPtr->isEmpty()) {
+            return;
+        }
+
         // This time, allow SW renderer
         pr = this->getPathRenderer(*pathPtr, strokeRec, target, true, type);
     }

@@ -62,6 +62,7 @@
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
         '../tests/GpuBitmapCopyTest.cpp',
+        '../tests/GpuDrawPathTest.cpp',
         '../tests/GrContextFactoryTest.cpp',
         '../tests/GradientTest.cpp',
         '../tests/GrMemoryPoolTest.cpp',
