@@ -99,6 +99,22 @@
         'core.gyp:core',
         'flags.gyp:flags',
         'libpdfviewer',
+        'chop_transparency',
+      ],
+    },
+    {
+      'target_name': 'chop_transparency',
+      'type': 'executable',
+      'sources': [
+        '../experimental/PdfViewer/chop_transparency_main.cpp',
+      ],
+      'include_dirs': [
+        # For SkBitmapHasher.h
+        '../src/utils/',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'flags.gyp:flags',
       ],
     },
   ],
