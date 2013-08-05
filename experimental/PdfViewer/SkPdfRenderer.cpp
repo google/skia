@@ -265,7 +265,7 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
             const SkClipStack::Element* elem;
             double y = 0;
             int total = 0;
-            while (elem = iter.next()) {
+            while ((elem = iter.next()) != NULL) {
                 total++;
                 y += 30;
 
