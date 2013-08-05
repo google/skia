@@ -6,6 +6,9 @@
 #include "SkStream.h"
 #include "SkPdfNativeTokenizer.h"
 
+#include "SkBitmap.h"
+#include "SkPdfFont.h"
+
 SkPdfObject SkPdfObject::kNull = SkPdfObject::makeNull();
 
 bool SkPdfObject::applyFlateDecodeFilter() {
@@ -85,4 +88,22 @@ bool SkPdfObject::filterStream() {
     }
 
     return true;
+}
+
+void SkPdfObject::releaseData() {
+    if (fData) {
+        switch (fDataType) {
+            case kFont_Data:
+                delete (SkPdfFont*)fData;
+                break;
+            case kBitmap_Data:
+                delete (SkBitmap*)fData;
+                break;
+            default:
+                SkASSERT(false);
+                break;
+        }
+    }
+    fData = NULL;
+    fDataType = kEmpty_Data;
 }

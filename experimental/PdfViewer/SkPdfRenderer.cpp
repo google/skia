@@ -435,11 +435,11 @@ static SkColorTable* getGrayColortable() {
     return grayColortable;
 }
 
-static SkBitmap transferImageStreamToBitmap(const unsigned char* uncompressedStream, size_t uncompressedStreamLength,
+static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedStream, size_t uncompressedStreamLength,
                                      int width, int height, int bytesPerLine,
                                      int bpc, const std::string& colorSpace,
                                      bool transparencyMask) {
-    SkBitmap bitmap;
+    SkBitmap* bitmap = new SkBitmap();
 
     //int components = GetColorSpaceComponents(colorSpace);
 //#define MAX_COMPONENTS 10
@@ -462,8 +462,8 @@ static SkBitmap transferImageStreamToBitmap(const unsigned char* uncompressedStr
             uncompressedStream += bytesPerLine;
         }
 
-        bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        bitmap.setPixels(uncompressedStreamArgb);
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+        bitmap->setPixels(uncompressedStreamArgb);
     }
     else if ((colorSpace == "DeviceGray" || colorSpace == "Gray") && bpc == 8) {
         unsigned char* uncompressedStreamA8 = (unsigned char*)malloc(width * height);
@@ -478,9 +478,9 @@ static SkBitmap transferImageStreamToBitmap(const unsigned char* uncompressedStr
             uncompressedStream += bytesPerLine;
         }
 
-        bitmap.setConfig(transparencyMask ? SkBitmap::kA8_Config : SkBitmap::kIndex8_Config,
+        bitmap->setConfig(transparencyMask ? SkBitmap::kA8_Config : SkBitmap::kIndex8_Config,
                          width, height);
-        bitmap.setPixels(uncompressedStreamA8, transparencyMask ? NULL : getGrayColortable());
+        bitmap->setPixels(uncompressedStreamA8, transparencyMask ? NULL : getGrayColortable());
     }
 
     // TODO(edisonn): Report Warning, NYI, or error
@@ -496,10 +496,10 @@ static SkBitmap transferImageStreamToBitmap(const unsigned char* uncompressedStr
 
 // this functions returns the image, it does not look at the smask.
 
-static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary* image, bool transparencyMask) {
+static SkBitmap* getImageFromObjectCore(PdfContext* pdfContext, SkPdfImageDictionary* image, bool transparencyMask) {
     if (image == NULL || !image->hasStream()) {
         // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
+        return NULL;
     }
 
     int64_t bpc = image->BitsPerComponent(pdfContext->fPdfDoc);
@@ -507,9 +507,37 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
     int64_t height = image->Height(pdfContext->fPdfDoc);
     std::string colorSpace = "DeviceRGB";
 
+    bool indexed = false;
+    SkPMColor colors[256];
+    int cnt = 0;
+
     // TODO(edisonn): color space can be an array too!
     if (image->isColorSpaceAName(pdfContext->fPdfDoc)) {
         colorSpace = image->getColorSpaceAsName(pdfContext->fPdfDoc);
+    } else if (image->isColorSpaceAArray(pdfContext->fPdfDoc)) {
+        SkPdfArray* array = image->getColorSpaceAsArray(pdfContext->fPdfDoc);
+        if (array && array->size() == 4 && array->objAtAIndex(0)->isName("Indexed") &&
+                                           (array->objAtAIndex(1)->isName("DeviceRGB") || array->objAtAIndex(1)->isName("RGB")) &&
+                                           array->objAtAIndex(2)->isInteger() &&
+                                           array->objAtAIndex(3)->isHexString()
+                                           ) {
+            // TODO(edisonn): suport only DeviceRGB for now.
+            indexed = true;
+            cnt = array->objAtAIndex(2)->intValue() + 1;
+            if (cnt > 256) {
+                // TODO(edionn): report NYIs
+                return NULL;
+            }
+            SkColorTable colorTable(cnt);
+            NotOwnedString data = array->objAtAIndex(3)->strRef();
+            if (data.fBytes != (unsigned int)cnt * 3) {
+                // TODO(edionn): report error/warning
+                return NULL;
+            }
+            for (int i = 0 ; i < cnt; i++) {
+                colors[i] = SkPreMultiplyARGB(0xff, data.fBuffer[3 * i], data.fBuffer[3 * i + 1], data.fBuffer[3 * i + 2]);
+            }
+        }
     }
 
 /*
@@ -532,7 +560,7 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
     if (!stream || !stream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength) ||
             uncompressedStream == NULL || uncompressedStreamLength == 0) {
         // TODO(edisonn): report warning to be used in testing.
-        return SkBitmap();
+        return NULL;
     }
 
     SkPdfStreamCommonDictionary* streamDict = (SkPdfStreamCommonDictionary*)stream;
@@ -543,8 +571,8 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
                                           streamDict->getFilterAsArray(NULL)->size() > 0 &&
                                           streamDict->getFilterAsArray(NULL)->objAtAIndex(0)->isName() &&
                                           streamDict->getFilterAsArray(NULL)->objAtAIndex(0)->nameValue2() == "DCTDecode"))) {
-        SkBitmap bitmap;
-        SkImageDecoder::DecodeMemory(uncompressedStream, uncompressedStreamLength, &bitmap);
+        SkBitmap* bitmap = new SkBitmap();
+        SkImageDecoder::DecodeMemory(uncompressedStream, uncompressedStreamLength, bitmap);
         return bitmap;
     }
 
@@ -562,6 +590,15 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
 //        SkImageDecoder::Factory()
 //    }
 
+    // TODO(edisonn): assumes RGB for now, since it is the only onwe implemented
+    if (indexed) {
+        SkBitmap* bitmap = new SkBitmap();
+        bitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
+        SkColorTable* colorTable = new SkColorTable(colors, cnt);
+        bitmap->setPixels((void*)uncompressedStream, colorTable);
+        return bitmap;
+    }
+
     int bytesPerLine = (int)(uncompressedStreamLength / height);
 #ifdef PDF_TRACE
     if (uncompressedStreamLength % height != 0) {
@@ -569,7 +606,7 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
     }
 #endif
 
-    SkBitmap bitmap = transferImageStreamToBitmap(
+    SkBitmap* bitmap = transferImageStreamToBitmap(
             (unsigned char*)uncompressedStream, uncompressedStreamLength,
             (int)width, (int)height, bytesPerLine,
             (int)bpc, colorSpace,
@@ -578,7 +615,19 @@ static SkBitmap getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary*
     return bitmap;
 }
 
-static SkBitmap getSmaskFromObject(PdfContext* pdfContext, SkPdfImageDictionary* obj) {
+static SkBitmap* getImageFromObject(PdfContext* pdfContext, SkPdfImageDictionary* image, bool transparencyMask) {
+    if (!transparencyMask) {
+        if (!image->hasData(SkPdfObject::kBitmap_Data)) {
+            SkBitmap* bitmap = getImageFromObjectCore(pdfContext, image, transparencyMask);
+            image->setData(bitmap, SkPdfObject::kBitmap_Data);
+        }
+        return (SkBitmap*) image->data(SkPdfObject::kBitmap_Data);
+    } else {
+        return getImageFromObjectCore(pdfContext, image, transparencyMask);
+    }
+}
+
+static SkBitmap* getSmaskFromObject(PdfContext* pdfContext, SkPdfImageDictionary* obj) {
     SkPdfImageDictionary* sMask = obj->SMask(pdfContext->fPdfDoc);
 
     if (sMask) {
@@ -594,8 +643,8 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
         return kIgnoreError_PdfResult;
     }
 
-    SkBitmap image = getImageFromObject(pdfContext, skpdfimage, false);
-    SkBitmap sMask = getSmaskFromObject(pdfContext, skpdfimage);
+    SkBitmap* image = getImageFromObject(pdfContext, skpdfimage, false);
+    SkBitmap* sMask = getSmaskFromObject(pdfContext, skpdfimage);
 
     canvas->save();
     canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
@@ -616,16 +665,16 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
 
     // TODO(edisonn): soft mask type? alpha/luminosity.
-    if (sMask.empty()) {
-        canvas->drawBitmapRect(image, dst, NULL);
+    if (!sMask || sMask->empty()) {
+        canvas->drawBitmapRect(*image, dst, NULL);
     } else {
         canvas->saveLayer(&dst, NULL);
-        canvas->drawBitmapRect(image, dst, NULL);
+        canvas->drawBitmapRect(*image, dst, NULL);
         SkPaint xfer;
         pdfContext->fGraphicsState.applyGraphicsState(&xfer, false);
         // TODO(edisonn): is the blend mode specified already implicitly/explicitly in pdf?
         xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
-        canvas->drawBitmapRect(sMask, dst, &xfer);
+        canvas->drawBitmapRect(*sMask, dst, &xfer);
         canvas->restore();
     }
 
@@ -1255,14 +1304,19 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
                     // TODO(edisonn): constants
                     // TODO(edisonn): colored
                     if (pattern->PaintType(pdfContext->fPdfDoc) == 1) {
-                        int xStep = (int)pattern->XStep(pdfContext->fPdfDoc);
-                        int yStep = (int)pattern->YStep(pdfContext->fPdfDoc);
+                        // TODO(edisonn): don't use abs, iterate as asked, if the cells intersect
+                        // it will change the result iterating in reverse
+                        int xStep = abs((int)pattern->XStep(pdfContext->fPdfDoc));
+                        int yStep = abs((int)pattern->YStep(pdfContext->fPdfDoc));
 
                         SkRect bounds = path.getBounds();
-                        SkScalar x;
-                        SkScalar y;
 
                         // TODO(edisonn): xstep and ystep can be negative, and we need to iterate in reverse
+                        // TODO(edisonn): don't do that!
+                        bounds.sort();
+
+                        SkScalar x;
+                        SkScalar y;
 
                         y = bounds.top();
                         int totalx = 0;
@@ -1961,7 +2015,7 @@ void skpdfGraphicsStateApplySMask_dict(PdfContext* pdfContext, SkPdfDictionary* 
 void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string& sMask) {
     if (sMask == "None") {
         pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
-        pdfContext->fGraphicsState.fSMask = SkBitmap();
+        pdfContext->fGraphicsState.fSMask = NULL;
         return;
     }
 
@@ -1983,7 +2037,7 @@ void skpdfGraphicsStateApplySMask_name(PdfContext* pdfContext, const std::string
     }
 
     pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
-    pdfContext->fGraphicsState.fSMask = SkBitmap();
+    pdfContext->fGraphicsState.fSMask = NULL;
 
     skpdfGraphicsStateApplySMask_dict(pdfContext, obj->asDictionary());
 }

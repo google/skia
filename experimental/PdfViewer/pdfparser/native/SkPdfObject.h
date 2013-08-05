@@ -49,6 +49,12 @@ class SkPdfObject {
          kUndefined_PdfObjectType,  // per 1.4 spec, if the same key appear twice in the dictionary, the value is undefined
      };
 
+     enum DataType {
+         kEmpty_Data,
+         kFont_Data,
+         kBitmap_Data,
+     };
+
 private:
     struct Reference {
         unsigned int fId;
@@ -76,20 +82,32 @@ private:
         Reference fRef;
     };
     SkTDict<SkPdfObject*>* fMap;
+
+    // TODO(edisonn): rename data with cache
     void* fData;
+    DataType fDataType;
 
 
 public:
 
-    SkPdfObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL) {}
+    SkPdfObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
 
-    inline void* data() {
-        return fData;
+
+    inline bool hasData(DataType type) {
+        return type == fDataType;
     }
 
-    inline void setData(void* data) {
+    inline void* data(DataType type) {
+        return type == fDataType ? fData : NULL;
+    }
+
+    inline void setData(void* data, DataType type) {
+        releaseData();
+        fDataType = type;
         fData = data;
     }
+
+    void releaseData();
 
 //    ~SkPdfObject() {
 //        //reset();  must be called manually!
@@ -114,6 +132,7 @@ public:
                 break;
         }
         fObjectType = kInvalid_PdfObjectType;
+        releaseData();
     }
 
     ObjectType type() { return fObjectType; }
@@ -604,6 +623,10 @@ public:
         return fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType;
     }
 
+    bool isHexString() const {
+        return fObjectType == kHexString_PdfObjectType;
+    }
+
     bool isMatrix() const {
         return fObjectType == kArray_PdfObjectType && fArray->count() == 6; // NYI + and elems are numbers
     }
@@ -867,7 +890,9 @@ public:
 
             case kHexString_PdfObjectType:
                 str.append("<");
-                str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                for (unsigned int i = 0 ; i < fStr.fBytes; i++) {
+                    str.appendf("%02x", (unsigned int)fStr.fBuffer[i]);
+                }
                 str.append(">");
                 break;
 
@@ -908,9 +933,9 @@ public:
                         const unsigned char* stream = NULL;
                         size_t length = 0;
                         if (GetFilteredStreamRef(&stream, &length)) {
-                            str.append("stream");
+                            str.append("stream\n");
                             str.append((const char*)stream, length > 256 ? 256 : length);
-                            str.append("endstream");
+                            str.append("\nendstream");
                         } else {
                             str.append("stream STREAM_ERROR endstream");
                         }

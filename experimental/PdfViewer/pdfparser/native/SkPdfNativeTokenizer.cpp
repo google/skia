@@ -32,9 +32,11 @@ static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
 static void TRACE_INDENT(int level, const char* type) {
     static int id = 0;
     id++;
+#if 0
     if (478613 == id) {
         printf("break;\n");
     }
+#endif
     // all types should have 2 letters, so the text is alligned nicely
     printf("\n%10i %15s: ", id, type);
     for (int i = 0 ; i < level; i++) {
@@ -158,7 +160,6 @@ static const unsigned char* readArray(int level, const unsigned char* start, con
         }
         array->appendInArray(newObj);
     }
-    printf("break;\n");  // DO NOT SUBMIT!
     // TODO(edisonn): report not reached, we should never get here
     // TODO(edisonn): there might be a bug here, enable an assert and run it on files
     // or it might be that the files were actually corrupted
@@ -954,9 +955,11 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
 #ifdef PDF_TRACE_READ_TOKEN
     static int read_op = 0;
     read_op++;
+#if 0
     if (548 == read_op) {
         printf("break;\n");
     }
+#endif
     printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? std::string(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
 #endif
 
