@@ -153,22 +153,22 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         canvas->clipRect(rect, SkRegion::kReplace_Op );
         applyUserTransform(canvas);
         fOutstandingSaveCount = 0;
+    }
 
-        // The setting of the draw filter has to go here (rather than in
-        // SkRasterWidget) due to the canvas restores this class performs.
-        // Since the draw filter is stored in the layer stack if we
-        // call setDrawFilter on anything but the root layer odd things happen
-        if (fOverdrawViz) {
-            if (NULL == fOverdrawFilter) {
-                fOverdrawFilter = new OverdrawFilter;
-            }
-
-            if (fOverdrawFilter != canvas->getDrawFilter()) {
-                canvas->setDrawFilter(fOverdrawFilter);
-            }
-        } else {
-            canvas->setDrawFilter(NULL);
+    // The setting of the draw filter has to go here (rather than in
+    // SkRasterWidget) due to the canvas restores this class performs.
+    // Since the draw filter is stored in the layer stack if we
+    // call setDrawFilter on anything but the root layer odd things happen.
+    if (fOverdrawViz) {
+        if (NULL == fOverdrawFilter) {
+            fOverdrawFilter = new OverdrawFilter;
         }
+
+        if (fOverdrawFilter != canvas->getDrawFilter()) {
+            canvas->setDrawFilter(fOverdrawFilter);
+        }
+    } else {
+        canvas->setDrawFilter(NULL);
     }
 
     for (; i <= index; i++) {
