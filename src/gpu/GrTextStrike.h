@@ -46,6 +46,9 @@ public:
     }
     GrAtlas* getAtlas() const { return fAtlas; }
 
+    // returns true if an atlas was removed
+    bool removeUnusedAtlases();
+
 public:
     // for LRU
     GrTextStrike*   fPrev;
@@ -80,6 +83,9 @@ public:
     void freeAll();
 
     void purgeExceptFor(GrTextStrike*);
+
+    // remove an unused atlas and its strike (if necessary)
+    void freeAtlasExceptFor(GrTextStrike*);
 
     // testing
     int countStrikes() const { return fCache.getArray().count(); }

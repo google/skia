@@ -20,8 +20,6 @@ class GrAtlasMgr;
 
 class GrAtlas {
 public:
-    GrAtlas(GrAtlasMgr*, int plotX, int plotY, GrMaskFormat);
-
     int getPlotX() const { return fPlot.fX; }
     int getPlotY() const { return fPlot.fY; }
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
@@ -31,20 +29,34 @@ public:
     bool addSubImage(int width, int height, const void*, GrIPoint16*);
 
     static void FreeLList(GrAtlas* atlas) {
-        while (atlas) {
+        while (NULL != atlas) {
             GrAtlas* next = atlas->fNext;
             delete atlas;
             atlas = next;
         }
     }
 
-    // testing
-    GrAtlas* nextAtlas() const { return fNext; }
+    static void MarkAllUnused(GrAtlas* atlas) {
+        while (NULL != atlas) {
+            atlas->fUsed = false;
+            atlas = atlas->fNext;
+        }
+    }
+
+    static bool RemoveUnusedAtlases(GrAtlasMgr* atlasMgr, GrAtlas** startAtlas);
+
+    bool used() const { return fUsed; }
+    void setUsed(bool used) { fUsed = used; }
 
 private:
+    GrAtlas(GrAtlasMgr*, int plotX, int plotY, GrMaskFormat format);
     ~GrAtlas(); // does not try to delete the fNext field
 
     GrAtlas*        fNext;
+
+    // for recycling
+    bool            fUsed;
+
     GrTexture*      fTexture;
     GrRectanizer*   fRects;
     GrAtlasMgr*     fAtlasMgr;
@@ -61,8 +73,9 @@ public:
     GrAtlasMgr(GrGpu*);
     ~GrAtlasMgr();
 
-    GrAtlas* addToAtlas(GrAtlas*, int width, int height, const void*,
+    GrAtlas* addToAtlas(GrAtlas**, int width, int height, const void*,
                         GrMaskFormat, GrIPoint16*);
+    void deleteAtlas(GrAtlas* atlas) { delete atlas; }
 
     GrTexture* getTexture(GrMaskFormat format) const {
         GrAssert((unsigned)format < kCount_GrMaskFormats);
@@ -70,7 +83,7 @@ public:
     }
 
     // to be called by ~GrAtlas()
-    void freePlot(int x, int y);
+    void freePlot(GrMaskFormat format, int x, int y);
 
 private:
     GrGpu*      fGpu;

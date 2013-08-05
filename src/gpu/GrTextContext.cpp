@@ -153,6 +153,12 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             goto HAS_ATLAS;
         }
 
+        // try to clear out an unused atlas before we flush
+        fContext->getFontCache()->freeAtlasExceptFor(fStrike);
+        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+            goto HAS_ATLAS;
+        }
+
         // before we purge the cache, we must flush any accumulated draws
         this->flushGlyphs();
         fContext->flush();
