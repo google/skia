@@ -216,14 +216,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     SkString inputFilename;
     get_basename(&inputFilename, inputPath);
 
-    SkFILEStream inputStream;
-    inputStream.setPath(inputPath.c_str());
-    if (!inputStream.isValid()) {
-        SkDebugf("Could not open file %s\n", inputPath.c_str());
-        return false;
-    }
-
-    bool success = false;
+    bool success = true;
 
     success = renderer.load(inputPath);
     if (FLAGS_showMemoryUsage) {
@@ -233,7 +226,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
     // TODO(edisonn): bench timers
     if (FLAGS_benchLoad > 0) {
         for (int i = 0 ; i < FLAGS_benchLoad; i++) {
-            success = renderer.load(inputPath);
+            success = renderer.load(inputPath) && success;
             if (FLAGS_showMemoryUsage) {
                 SkDebugf("Memory usage after load %i number : %u\n", i, (unsigned int)renderer.bytesUsed());
             }
@@ -262,10 +255,14 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
                     success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && success;
                 } else {
                     int pn = atoi(FLAGS_pages[0]);
-                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : renderer.pages() - 1) && pn;
+                    success = render_page(outputDir, inputFilename, renderer, FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : pn) && success;
                 }
             }
         }
+    }
+
+    if (!success) {
+        SkDebugf("Failures for file %s\n", inputPath.c_str());
     }
 
     return success;

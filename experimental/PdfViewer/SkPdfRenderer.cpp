@@ -658,13 +658,15 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
 
     // TODO(edisonn): soft mask type? alpha/luminosity.
+    SkPaint paint;
+    pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
+
     if (!sMask || sMask->empty()) {
-        canvas->drawBitmapRect(*image, dst, NULL);
+        canvas->drawBitmapRect(*image, dst, &paint);
     } else {
-        canvas->saveLayer(&dst, NULL);
+        canvas->saveLayer(&dst, &paint);
         canvas->drawBitmapRect(*image, dst, NULL);
         SkPaint xfer;
-        pdfContext->fGraphicsState.applyGraphicsState(&xfer, false);
         // TODO(edisonn): is the blend mode specified already implicitly/explicitly in pdf?
         xfer.setXfermodeMode(SkXfermode::kSrcOut_Mode); // SkXfermode::kSdtOut_Mode
         canvas->drawBitmapRect(*sMask, dst, &xfer);
