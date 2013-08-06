@@ -3,17 +3,11 @@
 # android_gdbserver: Pushes gdbserver. Starts debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP_NAME=$(basename $1)
+source $SCRIPT_DIR/android_setup.sh
+
+APP_NAME=${APP_ARGS[0]}
 PORT=5039
 
-# Collect extra arguments to be passed to the Skia binary
-shift
-while (( "$#" )); do
-  APP_ARGS="$APP_ARGS $1"
-  shift
-done
-
-source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 # We need the debug symbols from these files
@@ -54,5 +48,5 @@ $ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill
 $ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
 
 # Starting up gdbserver in android shell
-echo "Starting gdbserver with command: skia_launcher $APP_NAME$APP_ARGS"
-$ADB shell gdbserver :5039 /system/bin/skia_launcher $APP_NAME$APP_ARGS & 
+echo "Starting gdbserver with command: skia_launcher $APP_ARGS"
+$ADB shell gdbserver :5039 /system/bin/skia_launcher $APP_ARGS & 

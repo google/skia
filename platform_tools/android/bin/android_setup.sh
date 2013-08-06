@@ -1,3 +1,23 @@
+#!/bin/bash
+#
+# android_setup.sh: Sets environment variables used by other Android scripts.
+
+# Parse the arguments for a DEVICE_ID.
+DEVICE_ID=""
+while (( "$#" )); do
+  if [[ $(echo "$1" | grep "^-d$") != "" ]];
+  then
+    DEVICE_ID=$2
+    shift
+  else
+    APP_ARGS="$APP_ARGS $1"
+  fi
+
+  shift
+done
+
+APP_ARGS=$(echo ${APP_ARGS} | sed 's/^ *//g')
+
 function exportVar {
   NAME=$1
   VALUE=$2
@@ -105,19 +125,19 @@ setup_toolchain() {
   # Remove the '-gcc' at the end to get the full toolchain prefix
   ANDROID_TOOLCHAIN_PREFIX=${GCC%%-gcc}
 
-  exportVar AR "$ANDROID_TOOLCHAIN_PREFIX-ar"
   if [[ -z "$ANDROID_MAKE_CCACHE" ]]; then
-    exportVar CC "$ANDROID_TOOLCHAIN_PREFIX-gcc"
-    exportVar CXX "$ANDROID_TOOLCHAIN_PREFIX-g++"
-    exportVar LINK "$ANDROID_TOOLCHAIN_PREFIX-gcc"
+    export CC="$ANDROID_TOOLCHAIN_PREFIX-gcc"
+    export CXX="$ANDROID_TOOLCHAIN_PREFIX-g++"
+    export LINK="$ANDROID_TOOLCHAIN_PREFIX-gcc"
   else
-    exportVar CC "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
-    exportVar CXX "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
-    exportVar LINK "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
+    export CC="$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
+    export CXX="$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
+    export LINK="$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
   fi
-  exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
-  exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
-  exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
+  export AR="$ANDROID_TOOLCHAIN_PREFIX-ar"
+  export RANLIB="$ANDROID_TOOLCHAIN_PREFIX-ranlib"
+  export OBJCOPY="$ANDROID_TOOLCHAIN_PREFIX-objcopy"
+  export STRIP="$ANDROID_TOOLCHAIN_PREFIX-strip"
 }
 
 # Helper function to configure the GYP defines to the appropriate values
@@ -141,36 +161,46 @@ setup_device() {
     nexus_s)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
+      ANDROID_ARCH="arm"
       ;;
     nexus_4 | nexus_7 | nexus_10)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
+      ANDROID_ARCH="arm"
       ;;
     xoom)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7 arm_thumb=1"
+      ANDROID_ARCH="arm"
       ;;
     galaxy_nexus)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ANDROID_ARCH="arm"
       ;;
     razr_i)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ANDROID_ARCH="x86"
       ;;
     arm_v7)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
+      ANDROID_ARCH="arm"
       ;;
     arm_v7_thumb)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
+      ANDROID_ARCH="arm"
       ;;
     arm)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=0"
+      ANDROID_ARCH="arm"
       ;;
     arm_thumb)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
+      ANDROID_ARCH="arm"
       ;;
     x86)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ANDROID_ARCH="x86"
       ;;
     *)
       echo -n "ERROR: unknown device specified ($TARGET_DEVICE), valid values: "
@@ -183,6 +213,9 @@ setup_device() {
 
   # Set up the toolchain.
   setup_toolchain
+  if [[ "$?" != "0" ]]; then
+    return 1
+  fi
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
 
   # Use the "android" flavor of the Makefile generator for both Linux and OS X.
@@ -224,3 +257,9 @@ adb_pull_if_needed() {
     $ADB pull $ANDROID_SRC $HOST_DST
   fi
 }
+
+# Set up the device.
+setup_device "${DEVICE_ID}"
+if [[ "$?" != "0" ]]; then
+  exit 1
+fi
