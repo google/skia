@@ -225,7 +225,12 @@ SkNativeParsedPDF::~SkNativeParsedPDF() {
 }
 
 const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd) {
-    const unsigned char* current = ignoreLine(xrefStart, trailerEnd);  // TODO(edisonn): verify next keyord is "xref", use nextObject here
+    SkPdfObject xref;
+    const unsigned char* current = nextObject(0, xrefStart, trailerEnd, &xref, NULL, NULL);
+
+    if (!xref.isKeyword("xref")) {
+        return trailerEnd;
+    }
 
     SkPdfObject token;
     while (current < trailerEnd) {
