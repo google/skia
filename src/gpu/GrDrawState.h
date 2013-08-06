@@ -9,6 +9,7 @@
 #define GrDrawState_DEFINED
 
 #include "GrBackendEffectFactory.h"
+#include "GrBlend.h"
 #include "GrColor.h"
 #include "GrEffectStage.h"
 #include "GrPaint.h"
@@ -469,27 +470,11 @@ public:
         fCommon.fSrcBlend = srcCoeff;
         fCommon.fDstBlend = dstCoeff;
     #if GR_DEBUG
-        switch (dstCoeff) {
-        case kDC_GrBlendCoeff:
-        case kIDC_GrBlendCoeff:
-        case kDA_GrBlendCoeff:
-        case kIDA_GrBlendCoeff:
-            GrPrintf("Unexpected dst blend coeff. Won't work correctly with"
-                     "coverage stages.\n");
-            break;
-        default:
-            break;
+        if (GrBlendCoeffRefsDst(dstCoeff)) {
+            GrPrintf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
         }
-        switch (srcCoeff) {
-        case kSC_GrBlendCoeff:
-        case kISC_GrBlendCoeff:
-        case kSA_GrBlendCoeff:
-        case kISA_GrBlendCoeff:
-            GrPrintf("Unexpected src blend coeff. Won't work correctly with"
-                     "coverage stages.\n");
-            break;
-        default:
-            break;
+        if (GrBlendCoeffRefsSrc(srcCoeff)) {
+            GrPrintf("Unexpected src blend coeff. Won't work correctly with coverage stages.\n");
         }
     #endif
     }

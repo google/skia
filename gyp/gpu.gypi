@@ -55,6 +55,8 @@
       '<(skia_src_path)/gpu/GrAtlas.cpp',
       '<(skia_src_path)/gpu/GrAtlas.h',
       '<(skia_src_path)/gpu/GrBinHashKey.h',
+      '<(skia_src_path)/gpu/GrBlend.cpp',
+      '<(skia_src_path)/gpu/GrBlend.h',
       '<(skia_src_path)/gpu/GrBufferAllocPool.cpp',
       '<(skia_src_path)/gpu/GrBufferAllocPool.h',
       '<(skia_src_path)/gpu/GrCacheID.cpp',
