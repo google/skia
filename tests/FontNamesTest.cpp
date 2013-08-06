@@ -7,8 +7,6 @@
 
 #include "Test.h"
 
-#include "SkCommandLineFlags.h"
-#include "SkFontMgr.h"
 #include "SkOTTable_name.h"
 #include "SkTypeface.h"
 
@@ -110,7 +108,40 @@ struct FontNamesTest {
     },
 };
 
-static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
+static void TestFontNames(skiatest::Reporter* reporter) {
+    static const char* interestingFont[] = {
+        "Arial",
+        "Times New Roman",
+        "MS PGothic", // Has Japanese name.
+        "Wingdings", // Uses 'Symbol' name encoding.
+    };
+    static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(interestingFont); ++i) {
+        SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromName(interestingFont[i],
+                                          SkTypeface::kNormal));
+        if (NULL == typeface.get()) {
+            continue;
+        }
+        size_t nameTableSize = typeface->getTableSize(nameTag);
+        if (0 == nameTableSize) {
+            continue;
+        }
+        uint8_t* nameTableData = new uint8_t[nameTableSize];
+        SkAutoTDeleteArray<uint8_t> ada(nameTableData);
+        size_t copied = typeface->getTableData(nameTag, 0, nameTableSize, nameTableData);
+        if (copied != nameTableSize) {
+            continue;
+        }
+
+        SkOTTableName::Iterator iter(*((SkOTTableName*)nameTableData),
+                                     SkOTTableName::Record::NameID::Predefined::FontFamilyName);
+        SkOTTableName::Iterator::Record record;
+        while (iter.next(record)) {
+            //printf("%s <%s>\n", record.name.c_str(), record.language.c_str());
+        }
+    }
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(test); ++i) {
         SkOTTableName::Iterator iter(*test[i].data, test[i].nameID.predefined.value);
         SkOTTableName::Iterator::Record record;
@@ -139,84 +170,6 @@ static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
-#define MAX_FAMILIES 1000
-static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
-    static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
-
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
-    for (int i = 0; i < count; ++i) {
-        SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
-        for (int j = 0; j < set->count(); ++j) {
-            SkString sname;
-            SkFontStyle fs;
-            set->getStyle(j, &fs, &sname);
-
-            SkAutoTUnref<SkTypeface> typeface(set->createTypeface(j));
-
-            SkString familyName;
-            typeface->getFamilyName(&familyName);
-            if (verbose) {
-                printf("[%s]\n", familyName.c_str());
-            }
-
-            SkAutoTDelete<SkTypeface::LocalizedStrings> familyNamesIter(typeface->getFamilyNames());
-            SkTypeface::LocalizedString familyNameLocalized;
-            while (familyNamesIter->next(&familyNameLocalized)) {
-                if (verbose) {
-                    printf("(%s) <%s>\n", familyNameLocalized.fString.c_str(),
-                                          familyNameLocalized.fLanguage.c_str());
-                }
-            }
-
-            size_t nameTableSize = typeface->getTableSize(nameTag);
-            if (0 == nameTableSize) {
-                continue;
-            }
-            SkAutoTMalloc<uint8_t> nameTableData(nameTableSize);
-            size_t copied = typeface->getTableData(nameTag, 0, nameTableSize, nameTableData.get());
-            if (copied != nameTableSize) {
-                continue;
-            }
-
-            SkOTTableName::Iterator::Record record;
-            SkOTTableName::Iterator familyNameIter(*((SkOTTableName*)nameTableData.get()),
-                SkOTTableName::Record::NameID::Predefined::FontFamilyName);
-            while (familyNameIter.next(record)) {
-                REPORTER_ASSERT_MESSAGE(reporter,
-                    SkOTTableName::Record::NameID::Predefined::FontFamilyName == record.type,
-                    "Requested family name, got something else."
-                );
-                if (verbose) {
-                    printf("{%s} <%s>\n", record.name.c_str(), record.language.c_str());
-                }
-            }
-
-            SkOTTableName::Iterator styleNameIter(*((SkOTTableName*)nameTableData.get()),
-                SkOTTableName::Record::NameID::Predefined::FontSubfamilyName);
-            while (styleNameIter.next(record)) {
-                REPORTER_ASSERT_MESSAGE(reporter,
-                    SkOTTableName::Record::NameID::Predefined::FontSubfamilyName == record.type,
-                    "Requested subfamily name, got something else."
-                );
-                if (verbose) {
-                    printf("{{%s}} <%s>\n", record.name.c_str(), record.language.c_str());
-                }
-            }
-
-            if (verbose) {
-                printf("\n");
-            }
-        }
-    }
-}
-
-DEFINE_bool(verboseFontNames, false, "verbose FontNames test.");
-
-static void TestFontNames(skiatest::Reporter* reporter) {
-    test_synthetic(reporter, FLAGS_verboseFontNames);
-    test_systemfonts(reporter, FLAGS_verboseFontNames);
-}
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("FontNames", FontNamesTestClass, TestFontNames)

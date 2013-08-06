@@ -16,7 +16,6 @@
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
 #include "SkOTTable_maxp.h"
-#include "SkOTTable_name.h"
 #include "SkOTUtils.h"
 #include "SkPath.h"
 #include "SkSFNTHeader.h"
@@ -95,26 +94,6 @@ static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #else
     s->set(t);
 #endif
-}
-
-static void dcfontname_to_skstring(HDC deviceContext, const LOGFONT& lf, SkString* familyName) {
-    int fontNameLen; //length of fontName in TCHARS.
-    if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
-        call_ensure_accessible(lf);
-        if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
-            fontNameLen = 0;
-        }
-    }
-
-    SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
-    if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
-        call_ensure_accessible(lf);
-        if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
-            fontName[0] = 0;
-        }
-    }
-
-    tchar_to_skstring(fontName.get(), familyName);
 }
 
 static void make_canonical(LOGFONT* lf) {
@@ -244,6 +223,10 @@ public:
                       (textMetric.tmPitchAndFamily & TMPF_DEVICE));
     }
 
+    void getFamilyName(SkString* name) const {
+        tchar_to_skstring(fLogFont.lfFaceName, name);
+    }
+
     LOGFONT fLogFont;
     bool fSerializeAsStream;
     bool fCanBeLCD;
@@ -268,7 +251,6 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -1733,8 +1715,21 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     HDC deviceContext = ::CreateCompatibleDC(NULL);
     HFONT savefont = (HFONT)SelectObject(deviceContext, font);
 
-    SkString familyName;
-    dcfontname_to_skstring(deviceContext, fLogFont, &familyName);
+    int fontNameLen; //length of fontName in TCHARS.
+    if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
+        call_ensure_accessible(fLogFont);
+        if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
+            fontNameLen = 0;
+        }
+    }
+
+    SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
+    if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
+        call_ensure_accessible(fLogFont);
+        if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
+            fontName[0] = 0;
+        }
+    }
 
     if (deviceContext) {
         ::SelectObject(deviceContext, savefont);
@@ -1743,6 +1738,9 @@ void LogFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     if (font) {
         ::DeleteObject(font);
     }
+
+    SkString familyName;
+    tchar_to_skstring(fontName.get(), &familyName);
 
     desc->setFamilyName(familyName.c_str());
     *isLocalStream = this->fSerializeAsStream;
@@ -2056,18 +2054,6 @@ int LogFontTypeface::onGetUPEM() const {
     return upem;
 }
 
-SkTypeface::LocalizedStrings* LogFontTypeface::onGetFamilyNames() const {
-    SkTypeface::LocalizedStrings* nameIter =
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
-    if (NULL == nameIter) {
-        SkString familyName;
-        this->getFamilyName(&familyName);
-        SkString language("und"); //undetermined
-        nameIter = new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
-    }
-    return nameIter;
-}
-
 int LogFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     SkSFNTHeader header;
     if (sizeof(header) != this->onGetTableData(0, 0, sizeof(header), &header)) {
@@ -2205,25 +2191,21 @@ SkTypeface* LogFontTypeface::onRefMatchingStyle(Style style) const {
 #include "SkFontMgr.h"
 #include "SkDataTable.h"
 
-static bool valid_logfont_for_enum(const LOGFONT& lf) {
-    // TODO: Vector FON is unsupported and should not be listed.
-    return
-        // Ignore implicit vertical variants.
-        lf.lfFaceName[0] && lf.lfFaceName[0] != '@'
-
-        // DEFAULT_CHARSET is used to get all fonts, but also implies all
-        // character sets. Filter assuming all fonts support ANSI_CHARSET.
-        && ANSI_CHARSET == lf.lfCharSet
-    ;
+static bool valid_logfont_for_enum(const LOGFONT& lf, DWORD fontType) {
+    return TRUETYPE_FONTTYPE == fontType
+        && lf.lfFaceName[0]
+        && lf.lfFaceName[0] != '@'
+        && OUT_STROKE_PRECIS == lf.lfOutPrecision
+        // without the chraset check, we got LOTS of dups of the same font
+        // is there a better check (other than searching the array for
+        // the same name?
+        && 0 == lf.lfCharSet
+        ;
 }
 
-/** An EnumFontFamExProc implementation which interprets builderParam as
- *  an SkTDArray<ENUMLOGFONTEX>* and appends logfonts which
- *  pass the valid_logfont_for_enum predicate.
- */
-static int CALLBACK enum_family_proc(const LOGFONT* lf, const TEXTMETRIC*,
-                                     DWORD fontType, LPARAM builderParam) {
-    if (valid_logfont_for_enum(*lf)) {
+static int CALLBACK enum_fonts_proc(const LOGFONT* lf, const TEXTMETRIC*,
+                                    DWORD fontType, LPARAM builderParam) {
+    if (valid_logfont_for_enum(*lf, fontType)) {
         SkTDArray<ENUMLOGFONTEX>* array = (SkTDArray<ENUMLOGFONTEX>*)builderParam;
         *array->append() = *(ENUMLOGFONTEX*)lf;
     }
@@ -2239,13 +2221,8 @@ static SkFontStyle compute_fontstyle(const LOGFONT& lf) {
 class SkFontStyleSetGDI : public SkFontStyleSet {
 public:
     SkFontStyleSetGDI(const TCHAR familyName[]) {
-        LOGFONT lf;
-        sk_bzero(&lf, sizeof(lf));
-        lf.lfCharSet = DEFAULT_CHARSET;
-        _tcscpy_s(lf.lfFaceName, familyName);
-
         HDC hdc = ::CreateCompatibleDC(NULL);
-        ::EnumFontFamiliesEx(hdc, &lf, enum_family_proc, (LPARAM)&fArray, 0);
+        ::EnumFonts(hdc, familyName, enum_fonts_proc, (LPARAM)&fArray);
         ::DeleteDC(hdc);
     }
 
@@ -2283,9 +2260,29 @@ private:
     SkTDArray<ENUMLOGFONTEX> fArray;
 };
 
+static int CALLBACK enum_family_proc(const LOGFONT* lf, const TEXTMETRIC* tm,
+                                     DWORD fontType, LPARAM builderParam) {
+    if (valid_logfont_for_enum(*lf, fontType)) {
+        SkTDArray<ENUMLOGFONTEX>* array = (SkTDArray<ENUMLOGFONTEX>*)builderParam;
+        *array->append() = *(ENUMLOGFONTEX*)lf;
+#if 0
+        SkString str;
+        tchar_to_skstring(lf->lfFaceName, &str);
+        SkDebugf("fam:%s height:%d width:%d esc:%d orien:%d weight:%d ital:%d char:%d clip:%d qual:%d pitch:%d\n",
+                 str.c_str(), lf->lfHeight, lf->lfWidth, lf->lfEscapement, lf->lfOrientation,
+                 lf->lfWeight, lf->lfItalic, lf->lfCharSet, lf->lfClipPrecision, lf->lfQuality,
+                 lf->lfPitchAndFamily);
+#endif
+    }
+    return 1; // non-zero means continue
+}
+
 class SkFontMgrGDI : public SkFontMgr {
-public:
-    SkFontMgrGDI() {
+    void init() {
+        if (!fLogFontArray.isEmpty()) {
+            return;
+        }
+
         LOGFONT lf;
         sk_bzero(&lf, sizeof(lf));
         lf.lfCharSet = DEFAULT_CHARSET;
@@ -2295,17 +2292,23 @@ public:
         ::DeleteDC(hdc);
     }
 
+public:
+    SkFontMgrGDI() {}
+
 protected:
     virtual int onCountFamilies() SK_OVERRIDE {
+        this->init();
         return fLogFontArray.count();
     }
 
     virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
+        this->init();
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
     virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
+        this->init();
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         return SkNEW_ARGS(SkFontStyleSetGDI, (fLogFontArray[index].elfLogFont.lfFaceName));
     }

@@ -225,21 +225,6 @@ public:
      */
     int getUnitsPerEm() const;
 
-    struct LocalizedString {
-        SkString fString;
-        SkString fLanguage;
-    };
-    class LocalizedStrings : ::SkNoncopyable {
-    public:
-        virtual bool next(LocalizedString* localizedString) = 0;
-    };
-    /**
-     *  Returns an iterator which will attempt to enumerate all of the
-     *  family names specified by the font.
-     *  It is the caller's responsibility to SK_DELETE the returned pointer.
-     */
-    LocalizedStrings* getFamilyNames() const;
-
     /**
      *  Return the family name for this typeface. It will always be returned
      *  encoded as UTF8, but the language of the name is whatever the host
@@ -309,8 +294,6 @@ protected:
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
-
-    virtual LocalizedStrings* onGetFamilyNames() const = 0;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
