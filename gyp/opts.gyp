@@ -122,14 +122,7 @@
             '-mssse3',
           ],
         }],
-        # TODO(epoger): the following will enable SSSE3 on Macs, but it will
-        # break once we set OTHER_CFLAGS anywhere else (the first setting will
-        # be replaced, not added to)
-        [ 'skia_os in ["mac"]', {
-          'xcode_settings': {
-            'OTHER_CFLAGS': ['-mssse3',],
-          },
-        }],
+        # (Mac has -mssse3 globally.)
         [ 'skia_arch_type == "x86"', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_SSSE3.cpp',
