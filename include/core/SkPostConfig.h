@@ -63,6 +63,14 @@
     #endif
 #endif
 
+#if !defined(SK_ATTRIBUTE)
+    #if defined(__clang__) || defined(__GNUC__)
+        #define SK_ATTRIBUTE(attr) __attribute__((attr))
+    #else
+        #define SK_ATTRIBUTE(attr)
+    #endif
+#endif
+
 #if !defined(SK_SUPPORT_GPU)
     #define SK_SUPPORT_GPU 1
 #endif
@@ -350,6 +358,12 @@
         // Linux GCC ignores "__attribute__((override))" and rejects "override".
         #define SK_OVERRIDE
     #endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(SK_UNUSED)
+    #define SK_UNUSED SK_ATTRIBUTE(unused)
 #endif
 
 //////////////////////////////////////////////////////////////////////
