@@ -495,6 +495,7 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -1088,6 +1089,54 @@ int DWriteFontTypeface::onGetUPEM() const {
     return metrics.designUnitsPerEm;
 }
 
+class LocalizedStrings_IDWriteLocalizedStrings : public SkTypeface::LocalizedStrings {
+public:
+    /** Takes ownership of the IDWriteLocalizedStrings. */
+    explicit LocalizedStrings_IDWriteLocalizedStrings(IDWriteLocalizedStrings* strings)
+        : fIndex(0), fStrings(strings)
+    { }
+
+    virtual bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE {
+        if (fIndex >= fStrings->GetCount()) {
+            return false;
+        }
+
+        // String
+        UINT32 stringLength;
+        HRBM(fStrings->GetStringLength(fIndex, &stringLength), "Could not get string length.");
+        stringLength += 1;
+
+        SkSMallocWCHAR wString(stringLength);
+        HRBM(fStrings->GetString(fIndex, wString.get(), stringLength), "Could not get string.");
+
+        HRB(wchar_to_skstring(wString.get(), &localizedString->fString));
+
+        // Locale
+        UINT32 localeLength;
+        HRBM(fStrings->GetLocaleNameLength(fIndex, &localeLength), "Could not get locale length.");
+        localeLength += 1;
+
+        SkSMallocWCHAR wLocale(localeLength);
+        HRBM(fStrings->GetLocaleName(fIndex, wLocale.get(), localeLength), "Could not get locale.");
+
+        HRB(wchar_to_skstring(wLocale.get(), &localizedString->fLanguage));
+
+        ++fIndex;
+        return true;
+    }
+
+private:
+    UINT32 fIndex;
+    SkTScopedComPtr<IDWriteLocalizedStrings> fStrings;
+};
+
+SkTypeface::LocalizedStrings* DWriteFontTypeface::onGetFamilyNames() const {
+    SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
+    HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
+
+    return new LocalizedStrings_IDWriteLocalizedStrings(familyNames.release());
+}
+
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
     if (type != DWRITE_FONT_FACE_TYPE_CFF &&
@@ -1656,6 +1705,7 @@ public:
         DWRITE_FONT_STRETCH width = (DWRITE_FONT_STRETCH)pattern.width();
 
         SkTScopedComPtr<IDWriteFont> font;
+        // TODO: perhaps use GetMatchingFonts and get the least simulated?
         HRNM(fFontFamily->GetFirstMatchingFont(weight, width, slant, &font),
              "Could not match font in family.");
 

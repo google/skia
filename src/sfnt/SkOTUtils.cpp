@@ -159,3 +159,45 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
 
     return rewrittenFontData.detach();
 }
+
+
+SkOTUtils::LocalizedStrings_NameTable*
+SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& typeface) {
+    static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
+    size_t nameTableSize = typeface.getTableSize(nameTag);
+    if (0 == nameTableSize) {
+        return NULL;
+    }
+    SkAutoTDeleteArray<uint8_t> nameTableData(new uint8_t[nameTableSize]);
+    size_t copied = typeface.getTableData(nameTag, 0, nameTableSize, nameTableData.get());
+    if (copied != nameTableSize) {
+        return NULL;
+    }
+
+    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.detach(),
+        SkOTUtils::LocalizedStrings_NameTable::familyNameTypes,
+        SK_ARRAY_COUNT(SkOTUtils::LocalizedStrings_NameTable::familyNameTypes));
+}
+
+bool SkOTUtils::LocalizedStrings_NameTable::next(SkTypeface::LocalizedString* localizedString) {
+    do {
+        SkOTTableName::Iterator::Record record;
+        if (fFamilyNameIter.next(record)) {
+            localizedString->fString = record.name;
+            localizedString->fLanguage = record.language;
+            return true;
+        }
+        if (fTypesCount == fTypesIndex + 1) {
+            return false;
+        }
+        ++fTypesIndex;
+        fFamilyNameIter.reset(fTypes[fTypesIndex]);
+    } while (true);
+}
+
+SkOTTableName::Record::NameID::Predefined::Value
+SkOTUtils::LocalizedStrings_NameTable::familyNameTypes[3] = {
+    SkOTTableName::Record::NameID::Predefined::FontFamilyName,
+    SkOTTableName::Record::NameID::Predefined::PreferredFamily,
+    SkOTTableName::Record::NameID::Predefined::WWSFamilyName,
+};
