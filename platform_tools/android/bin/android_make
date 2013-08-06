@@ -1,21 +1,18 @@
 #!/bin/bash
 
-deviceID=""
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/android_setup.sh
 
-while (( "$#" )); do
-
-  if [[ $(echo "$1" | grep "^-d$") != "" ]];
-  then 
-    deviceID="$2"
-    shift
-  elif [[ "$1" == "--use-ccache" ]];
+for arg in ${APP_ARGS}
+do
+  if [[ "${arg}" == "--use-ccache" ]];
   then
     if [[ -z "$ANDROID_MAKE_CCACHE" ]];
     then
       ANDROID_MAKE_CCACHE=$(which ccache)
     fi
   else
-    makeVars=("${makeVars[@]}" "$1")
+    makeVars=("${makeVars[@]}" "${arg}")
   fi
 
 shift
@@ -27,23 +24,6 @@ if [[ -n "$ANDROID_MAKE_CCACHE" ]]; then
     echo "Unable to find ccache!"
     exit 1
   fi
-fi
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# hack for x86 support in android_setup.sh
-if [ "$deviceID" == "x86" ] || [ "$deviceID" == "razr_i" ]
-then
-  ANDROID_ARCH="x86"
-fi
-
-source $SCRIPT_DIR/android_setup.sh
-
-setup_device $deviceID
-returnVal=$?
-if [ $returnVal != 0 ]
-then
-  exit 1;
 fi
 
 # write the out directory into the .android_config file
