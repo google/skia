@@ -42,24 +42,24 @@ API_LEVEL=14
 
 if [[ -z "$NDK_REV" ]];
 then
-    NDK_REV="8e"
+  NDK_REV="8e"
 fi
 
 if [[ -z "$ANDROID_ARCH" ]];
 then
-    ANDROID_ARCH="arm"
+  ANDROID_ARCH="arm"
 fi
 
 TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
 if [ $(uname) == "Linux" ]; then
-    echo "Using Linux toolchain."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
+  echo "Using Linux toolchain."
+  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
 elif [ $(uname) == "Darwin" ]; then
-    echo "Using Mac toolchain."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
+  echo "Using Mac toolchain."
+  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
 else
-    echo "Could not automatically determine toolchain!  Defaulting to Linux."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
+  echo "Could not automatically determine toolchain!  Defaulting to Linux."
+  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
 fi
 exportVar ANDROID_TOOLCHAIN ${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin
 
@@ -97,8 +97,8 @@ echo "The build is targeting NDK API level $API_LEVEL for use on Android 4.0 (ND
 LS="/bin/ls"  # Use directly to avoid any 'ls' alias that might be defined.
 GCC=$($LS $ANDROID_TOOLCHAIN/*-gcc | head -n1)
 if [ -z "$GCC" ]; then
-    echo "ERROR: Could not find Android cross-compiler in: $ANDROID_TOOLCHAIN"
-    return 1
+  echo "ERROR: Could not find Android cross-compiler in: $ANDROID_TOOLCHAIN"
+  return 1
 fi
 
 # Remove the '-gcc' at the end to get the full toolchain prefix
@@ -141,44 +141,44 @@ setup_device() {
 
   case $TARGET_DEVICE in
     nexus_s)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
-        DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
+      DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
+      ;;
     nexus_4 | nexus_7 | nexus_10)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
+      ;;
     xoom)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7 arm_thumb=1"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7 arm_thumb=1"
+      ;;
     galaxy_nexus)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
-        DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
+      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ;;
     razr_i)
-        DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-        DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
+      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ;;
     arm_v7)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
+      ;;
     arm_v7_thumb)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
+      ;;
     arm)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=0"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=0"
+      ;;
     arm_thumb)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
+      ;;
     x86)
-        DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-        DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
-        ;;
+      DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
+      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ;;
     *)
-        echo -n "ERROR: unknown device specified ($TARGET_DEVICE), valid values: "
-        echo "nexus_[s,4,7,10] xoom galaxy_nexus razr_i arm arm_thumb arm_v7 arm_v7_thumb x86"
-        return 1;
-        ;;
+      echo -n "ERROR: unknown device specified ($TARGET_DEVICE), valid values: "
+      echo "nexus_[s,4,7,10] xoom galaxy_nexus razr_i arm arm_thumb arm_v7 arm_v7_thumb x86"
+      return 1;
+      ;;
   esac
 
   echo "The build is targeting the device: $TARGET_DEVICE"
