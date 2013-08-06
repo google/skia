@@ -194,10 +194,6 @@ int SkTypeface::getUnitsPerEm() const {
     return this->onGetUPEM();
 }
 
-SkTypeface::LocalizedStrings* SkTypeface::getFamilyNames() const {
-    return this->onGetFamilyNames();
-}
-
 void SkTypeface::getFamilyName(SkString* name) const {
     bool isLocal = false;
     SkFontDescriptor desc(this->style());

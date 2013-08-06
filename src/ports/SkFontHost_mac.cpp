@@ -95,7 +95,6 @@ public:
     operator CFRef() const { return fCFRef; }
     CFRef get() const { return fCFRef; }
 
-    CFRef* operator&() { SkASSERT(fCFRef == NULL); return &fCFRef; }
 private:
     CFRef fCFRef;
 };
@@ -454,7 +453,6 @@ protected:
 
     virtual int onGetUPEM() const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -1748,30 +1746,6 @@ SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
 int SkTypeface_Mac::onGetUPEM() const {
     AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(fFontRef, NULL));
     return CGFontGetUnitsPerEm(cgFont);
-}
-
-SkTypeface::LocalizedStrings* SkTypeface_Mac::onGetFamilyNames() const {
-    SkTypeface::LocalizedStrings* nameIter =
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
-    if (NULL == nameIter) {
-        AutoCFRelease<CFStringRef> cfLanguage;
-        AutoCFRelease<CFStringRef> cfFamilyName(
-            CTFontCopyLocalizedName(fFontRef, kCTFontFamilyNameKey, &cfLanguage));
-
-        SkString skLanguage;
-        SkString skFamilyName;
-        if (cfLanguage.get()) {
-            CFStringToSkString(cfLanguage.get(), &skLanguage);
-        } else {
-            skLanguage = "und"; //undetermined
-        }
-        if (cfFamilyName.get()) {
-            CFStringToSkString(cfFamilyName.get(), &skFamilyName);
-        }
-
-        nameIter = new SkOTUtils::LocalizedStrings_SingleName(skFamilyName, skLanguage);
-    }
-    return nameIter;
 }
 
 // If, as is the case with web fonts, the CTFont data isn't available,

@@ -17,7 +17,6 @@
 #include "SkGlyph.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
-#include "SkOTUtils.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkScalerContext.h"
 #include "SkStream.h"
@@ -1401,18 +1400,6 @@ int SkTypeface_FreeType::onCountGlyphs() const {
         fGlyphCount = face ? face->num_glyphs : 0;
     }
     return fGlyphCount;
-}
-
-SkTypeface::LocalizedStrings* SkTypeface_FreeType::onGetFamilyNames() const {
-    SkTypeface::LocalizedStrings* nameIter =
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
-    if (NULL == nameIter) {
-        SkString familyName;
-        this->getFamilyName(&familyName);
-        SkString language("und"); //undetermined
-        nameIter = new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
-    }
-    return nameIter;
 }
 
 int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
