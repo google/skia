@@ -354,7 +354,7 @@ void DeferredDevice::aboutToDraw()
         if (NULL != fSurface) {
             fSurface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         }
-        fCanDiscardCanvasContents = false;    
+        fCanDiscardCanvasContents = false;
     }
 }
 
