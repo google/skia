@@ -22,6 +22,7 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
+DEFINE_string(config, "None", "Preferred config to decode into. [None|8888|565|A8]");
 DEFINE_string(createExpectationsPath, "", "Path to write JSON expectations.");
 DEFINE_string(mismatchPath, "", "Folder to write mismatched images to.");
 DEFINE_string2(readPath, r, "", "Folder(s) and files to decode images. Required.");
@@ -101,6 +102,8 @@ static SkTArray<SkString, false> gFailedSubsetDecodes;
 // the bots will not turn red with each new image test.
 static SkTArray<SkString, false> gMissingExpectations;
 static SkTArray<SkString, false> gMissingSubsetExpectations;
+
+static SkBitmap::Config gPrefConfig(SkBitmap::kNo_Config);
 
 // Expections read from a file specified by readExpectationsPath. The expectations must have been
 // previously written using createExpectationsPath.
@@ -323,7 +326,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     SkString basename = SkOSPath::SkBasename(srcPath);
     const char* filename = basename.c_str();
 
-    if (!codec->decode(&stream, &bitmap, SkBitmap::kARGB_8888_Config,
+    if (!codec->decode(&stream, &bitmap, gPrefConfig,
                        SkImageDecoder::kDecodePixels_Mode)) {
         if (expect_to_fail(filename)) {
             gSuccessfulDecodes.push_back().appendf(
@@ -393,7 +396,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                 SkIRect rect = generate_random_rect(&rand, width, height);
                 SkString subsetDim = SkStringPrintf("[%d,%d,%d,%d]", rect.fLeft, rect.fTop,
                                                     rect.fRight, rect.fBottom);
-                if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, SkBitmap::kNo_Config)) {
+                if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, gPrefConfig)) {
                     SkString subsetName = SkStringPrintf("%s_%s", filename, subsetDim.c_str());
                     if (compare_to_expectations_if_necessary(bitmapFromDecodeSubset,
                                                              subsetName.c_str(),
@@ -476,7 +479,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         SkMemoryStream memStream(data);
         SkBitmap redecodedBitmap;
         SkImageDecoder::Format formatOnSecondDecode;
-        if (SkImageDecoder::DecodeStream(&memStream, &redecodedBitmap, SkBitmap::kNo_Config,
+        if (SkImageDecoder::DecodeStream(&memStream, &redecodedBitmap, gPrefConfig,
                                           SkImageDecoder::kDecodePixels_Mode,
                                           &formatOnSecondDecode)) {
             SkASSERT(format_to_type(formatOnSecondDecode) == type);
@@ -558,6 +561,21 @@ int tool_main(int argc, char** argv) {
         outDirPtr = &outDir;
     } else {
         outDirPtr = NULL;
+    }
+
+    if (FLAGS_config.count() == 1) {
+        // Only consider the first config specified on the command line.
+        const char* config = FLAGS_config[0];
+        if (0 == strcmp(config, "8888")) {
+            gPrefConfig = SkBitmap::kARGB_8888_Config;
+        } else if (0 == strcmp(config, "565")) {
+            gPrefConfig = SkBitmap::kRGB_565_Config;
+        } else if (0 == strcmp(config, "A8")) {
+            gPrefConfig = SkBitmap::kA8_Config;
+        } else if (0 != strcmp(config, "None")) {
+            SkDebugf("Invalid preferred config\n");
+            return -1;
+        }
     }
 
     for (int i = 0; i < FLAGS_readPath.count(); i++) {
