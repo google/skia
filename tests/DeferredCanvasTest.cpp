@@ -80,7 +80,7 @@ public:
 
     void clearCounts() {
         fDiscardCount = 0;
-        fRetainCount = 0;    
+        fRetainCount = 0;
     }
 
     int fDiscardCount, fRetainCount;
