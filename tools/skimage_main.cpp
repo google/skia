@@ -97,6 +97,10 @@ static SkTArray<SkString, false> gEncodeFailures;
 static SkTArray<SkString, false> gSuccessfulDecodes;
 static SkTArray<SkString, false> gSuccessfulSubsetDecodes;
 static SkTArray<SkString, false> gFailedSubsetDecodes;
+// Files/subsets that do not have expectations. Not reported as a failure of the test so
+// the bots will not turn red with each new image test.
+static SkTArray<SkString, false> gMissingExpectations;
+static SkTArray<SkString, false> gMissingSubsetExpectations;
 
 // Expections read from a file specified by readExpectationsPath. The expectations must have been
 // previously written using createExpectationsPath.
@@ -179,6 +183,8 @@ static bool expect_to_fail(const char* filename) {
  *  Compare against an expectation for this filename, if there is one.
  *  @param bitmap SkBitmap to compare to the expected value.
  *  @param filename String used to find the expected value.
+ *  @param failureArray Array to add a failure message to on failure.
+ *  @param missingArray Array to add missing expectation to on failure.
  *  @return bool True in any of these cases:
  *                  - the bitmap matches the expectation.
  *               False in any of these cases:
@@ -188,7 +194,8 @@ static bool expect_to_fail(const char* filename) {
  *                  - expectation could not be computed from the bitmap.
  */
 static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const char* filename,
-                                                 SkTArray<SkString, false>* failureArray) {
+                                                 SkTArray<SkString, false>* failureArray,
+                                                 SkTArray<SkString, false>* missingArray) {
     skiagm::GmResultDigest resultDigest(bitmap);
     if (!resultDigest.isValid()) {
         if (failureArray != NULL) {
@@ -204,8 +211,8 @@ static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const c
 
     skiagm::Expectations jsExpectation = gJsonExpectations->get(filename);
     if (jsExpectation.empty()) {
-        if (failureArray != NULL) {
-            failureArray->push_back().printf("decoded %s, but could not find expectation.",
+        if (missingArray != NULL) {
+            missingArray->push_back().printf("decoded %s, but could not find expectation.",
                                              filename);
         }
         return false;
@@ -343,7 +350,9 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         }
     }
 
-    if (compare_to_expectations_if_necessary(bitmap, filename, &gDecodeFailures)) {
+    if (compare_to_expectations_if_necessary(bitmap, filename,
+                                             &gDecodeFailures,
+                                             &gMissingExpectations)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
                                               bitmap.height());
     } else if (!FLAGS_mismatchPath.isEmpty()) {
@@ -388,7 +397,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                     SkString subsetName = SkStringPrintf("%s_%s", filename, subsetDim.c_str());
                     if (compare_to_expectations_if_necessary(bitmapFromDecodeSubset,
                                                              subsetName.c_str(),
-                                                             &gFailedSubsetDecodes)) {
+                                                             &gFailedSubsetDecodes,
+                                                             &gMissingSubsetExpectations)) {
                         gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
                                                               subsetDim.c_str(), srcPath);
                     } else if (!FLAGS_mismatchPath.isEmpty()) {
@@ -589,10 +599,12 @@ int tool_main(int argc, char** argv) {
     failed |= print_strings("Failed to decode", gDecodeFailures);
     failed |= print_strings("Failed to encode", gEncodeFailures);
     print_strings("Decoded", gSuccessfulDecodes);
+    print_strings("Missing expectations", gMissingExpectations);
 
     if (FLAGS_testSubsetDecoding) {
         failed |= print_strings("Failed subset decodes", gFailedSubsetDecodes);
         print_strings("Decoded subsets", gSuccessfulSubsetDecodes);
+        print_strings("Missing subset expectations", gMissingSubsetExpectations);
     }
 
     return failed ? -1 : 0;
