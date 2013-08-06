@@ -354,8 +354,8 @@
                 #define SK_OVERRIDE override
             #endif
         #endif
-    #else
-        // Linux GCC ignores "__attribute__((override))" and rejects "override".
+    #endif
+    #ifndef SK_OVERRIDE
         #define SK_OVERRIDE
     #endif
 #endif
