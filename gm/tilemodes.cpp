@@ -130,6 +130,12 @@ protected:
                 for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
                     for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
                         SkPaint paint;
+#if 1 // Temporary change to regen bitmap before each draw. This may help tracking down an issue
+      // on SGX where resizing NPOT textures to POT textures exhibits a driver bug.
+                        if (!fPowerOfTwoSize) {
+                            makebm(&fTexture[i], gConfigs[i], size, size);
+                        }
+#endif
                         setup(&paint, fTexture[i], gFilters[j], gModes[kx], gModes[ky]);
                         paint.setDither(true);
 
