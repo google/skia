@@ -466,8 +466,9 @@ struct SK_API SkRect {
         return !SkScalarsEqual((SkScalar*)&a, (SkScalar*)&b, 4);
     }
 
-    /** return the 4 points that enclose the rectangle
-    */
+    /** return the 4 points that enclose the rectangle (top-left, top-right, bottom-right,
+        bottom-left). TODO: Consider adding param to control whether quad is CW or CCW.
+     */
     void toQuad(SkPoint quad[4]) const;
 
     /** Set this rectangle to the empty rectangle (0,0,0,0)
