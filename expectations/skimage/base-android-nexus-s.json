@@ -6,12 +6,6 @@
       "succeeded" : null
    },
    "expected-results" : {
-      "Softskin-Series-Folder-Folder-TV-DEXTER-2.ico" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 15513164475782874663 ]
-         ],
-         "ignore-failure" : true
-      },
       "01_original.jpg" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 6357612266670593419 ]
