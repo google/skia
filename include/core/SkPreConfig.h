@@ -99,7 +99,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_CPU_BENDIAN) && !defined(SK_CPU_LENDIAN)
-    #if defined (__ppc__) || defined(__ppc64__)
+    #if defined (__ppc__) || defined(__PPC__) || defined(__ppc64__) \
+        || defined(__PPC64__)
         #define SK_CPU_BENDIAN
     #else
         #define SK_CPU_LENDIAN
