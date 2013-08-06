@@ -37,89 +37,88 @@ if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then
 	exit 1;
 fi
 
-# determine the toolchain that we will be using
-API_LEVEL=14
+# Helper function to determine and download the toolchain that we will be using.
+setup_toolchain() {
+  API_LEVEL=14
 
-if [[ -z "$NDK_REV" ]];
-then
-  NDK_REV="8e"
-fi
-
-if [[ -z "$ANDROID_ARCH" ]];
-then
-  ANDROID_ARCH="arm"
-fi
-
-TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
-if [ $(uname) == "Linux" ]; then
-  echo "Using Linux toolchain."
-  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
-elif [ $(uname) == "Darwin" ]; then
-  echo "Using Mac toolchain."
-  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
-else
-  echo "Could not automatically determine toolchain!  Defaulting to Linux."
-  TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
-fi
-exportVar ANDROID_TOOLCHAIN ${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin
-
-# if the toolchain doesn't exist on your machine then we need to fetch it
-if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
-  # create the toolchain directory if needed
-  if [ ! -d "$TOOLCHAIN_DIR" ]; then
-    mkdir $TOOLCHAIN_DIR
-  fi
-  # enter the toolchain directory then download, unpack, and remove the tarball
-  pushd $TOOLCHAIN_DIR
-  TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
-
-  echo "Downloading $TARBALL ..."
-  ${SCRIPT_DIR}/download_toolchains.py http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL $TOOLCHAIN_DIR/$TARBALL
-  if [[ "$?" != "0" ]]; then
-    echo "ERROR: Unable to download toolchain $TARBALL."
-    exit 1
+  if [[ -z "$NDK_REV" ]];
+  then
+    NDK_REV="8e"
   fi
 
-  echo "Untarring $TOOLCHAIN_TYPE from $TARBALL."
-  tar -xzf $TARBALL $TOOLCHAIN_TYPE
-  echo "Removing $TARBALL"
-  rm $TARBALL
-  popd
-fi
+  if [[ -z "$ANDROID_ARCH" ]];
+  then
+    ANDROID_ARCH="arm"
+  fi
 
-if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
-  echo "ERROR: unable to download/setup the required toolchain (${TOOLCHAIN_TYPE})"
-  return 1;
-fi
+  TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
+  if [ $(uname) == "Linux" ]; then
+    echo "Using Linux toolchain."
+    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
+  elif [ $(uname) == "Darwin" ]; then
+    echo "Using Mac toolchain."
+    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
+  else
+    echo "Could not automatically determine toolchain!  Defaulting to Linux."
+    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
+  fi
+  exportVar ANDROID_TOOLCHAIN ${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin
 
-echo "The build is targeting NDK API level $API_LEVEL for use on Android 4.0 (NDK Revision $NDK_REV) and above"
+  # if the toolchain doesn't exist on your machine then we need to fetch it
+  if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
+    # create the toolchain directory if needed
+    if [ ! -d "$TOOLCHAIN_DIR" ]; then
+      mkdir $TOOLCHAIN_DIR
+    fi
+    # enter the toolchain directory then download, unpack, and remove the tarball
+    pushd $TOOLCHAIN_DIR
+    TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
 
-LS="/bin/ls"  # Use directly to avoid any 'ls' alias that might be defined.
-GCC=$($LS $ANDROID_TOOLCHAIN/*-gcc | head -n1)
-if [ -z "$GCC" ]; then
-  echo "ERROR: Could not find Android cross-compiler in: $ANDROID_TOOLCHAIN"
-  return 1
-fi
+    echo "Downloading $TARBALL ..."
+    ${SCRIPT_DIR}/download_toolchains.py http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL $TOOLCHAIN_DIR/$TARBALL
+    if [[ "$?" != "0" ]]; then
+      echo "ERROR: Unable to download toolchain $TARBALL."
+      exit 1
+    fi
 
-# Remove the '-gcc' at the end to get the full toolchain prefix
-ANDROID_TOOLCHAIN_PREFIX=${GCC%%-gcc}
+    echo "Untarring $TOOLCHAIN_TYPE from $TARBALL."
+    tar -xzf $TARBALL $TOOLCHAIN_TYPE
+    echo "Removing $TARBALL"
+    rm $TARBALL
+    popd
+  fi
 
-exportVar AR "$ANDROID_TOOLCHAIN_PREFIX-ar"
-if [[ -z "$ANDROID_MAKE_CCACHE" ]]; then
-  exportVar CC "$ANDROID_TOOLCHAIN_PREFIX-gcc"
-  exportVar CXX "$ANDROID_TOOLCHAIN_PREFIX-g++"
-  exportVar LINK "$ANDROID_TOOLCHAIN_PREFIX-gcc"
-else
-  exportVar CC "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
-  exportVar CXX "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
-  exportVar LINK "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
-fi
-exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
-exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
-exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
+  if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
+    echo "ERROR: unable to download/setup the required toolchain (${TOOLCHAIN_TYPE})"
+    return 1;
+  fi
 
-# Use the "android" flavor of the Makefile generator for both Linux and OS X.
-exportVar GYP_GENERATORS "make-android"
+  echo "The build is targeting NDK API level $API_LEVEL for use on Android 4.0 (NDK Revision $NDK_REV) and above"
+
+  LS="/bin/ls"  # Use directly to avoid any 'ls' alias that might be defined.
+  GCC=$($LS $ANDROID_TOOLCHAIN/*-gcc | head -n1)
+  if [ -z "$GCC" ]; then
+    echo "ERROR: Could not find Android cross-compiler in: $ANDROID_TOOLCHAIN"
+    return 1
+  fi
+
+  # Remove the '-gcc' at the end to get the full toolchain prefix
+  ANDROID_TOOLCHAIN_PREFIX=${GCC%%-gcc}
+
+  exportVar AR "$ANDROID_TOOLCHAIN_PREFIX-ar"
+  if [[ -z "$ANDROID_MAKE_CCACHE" ]]; then
+    exportVar CC "$ANDROID_TOOLCHAIN_PREFIX-gcc"
+    exportVar CXX "$ANDROID_TOOLCHAIN_PREFIX-g++"
+    exportVar LINK "$ANDROID_TOOLCHAIN_PREFIX-gcc"
+  else
+    exportVar CC "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
+    exportVar CXX "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
+    exportVar LINK "$ANDROID_MAKE_CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
+  fi
+  exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
+  exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
+  exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
+}
 
 # Helper function to configure the GYP defines to the appropriate values
 # based on the target device.
@@ -128,7 +127,6 @@ setup_device() {
   DEFINES="${DEFINES} host_os=$(uname -s | sed -e 's/Linux/linux/;s/Darwin/mac/')"
   DEFINES="${DEFINES} skia_os=android"
   DEFINES="${DEFINES} android_base=${SCRIPT_DIR}/.."
-  DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
   DEFINES="${DEFINES} skia_shared_lib=1"
 
   # Setup the build variation depending on the target device
@@ -183,6 +181,12 @@ setup_device() {
 
   echo "The build is targeting the device: $TARGET_DEVICE"
 
+  # Set up the toolchain.
+  setup_toolchain
+  DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
+
+  # Use the "android" flavor of the Makefile generator for both Linux and OS X.
+  exportVar GYP_GENERATORS "make-android"
   exportVar GYP_DEFINES "$DEFINES"
   exportVar SKIA_OUT "out/config/android-${TARGET_DEVICE}"
 }
