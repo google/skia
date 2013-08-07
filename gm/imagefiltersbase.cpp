@@ -13,6 +13,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkDropShadowImageFilter.h"
 #include "SkTestImageFilters.h"
 
 class FailImageFilter : public SkImageFilter {
@@ -156,7 +157,7 @@ protected:
         return SkString("imagefiltersbase");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(700, 460); }
+    virtual SkISize onISize() { return SkISize::Make(700, 500); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -189,6 +190,7 @@ protected:
             new FailImageFilter,
             SkColorFilterImageFilter::Create(cf),
             new SkBlurImageFilter(12.0f, 0.0f),
+            new SkDropShadowImageFilter(10.0f, 5.0f, 3.0f, SK_ColorBLUE),
         };
         cf->unref();
 
