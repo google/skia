@@ -454,7 +454,7 @@ protected:
 
     virtual int onGetUPEM() const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
+    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -1750,7 +1750,7 @@ int SkTypeface_Mac::onGetUPEM() const {
     return CGFontGetUnitsPerEm(cgFont);
 }
 
-SkTypeface::LocalizedStrings* SkTypeface_Mac::onGetFamilyNames() const {
+SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const {
     SkTypeface::LocalizedStrings* nameIter =
         SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
     if (NULL == nameIter) {

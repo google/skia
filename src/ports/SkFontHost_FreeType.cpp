@@ -1403,7 +1403,7 @@ int SkTypeface_FreeType::onCountGlyphs() const {
     return fGlyphCount;
 }
 
-SkTypeface::LocalizedStrings* SkTypeface_FreeType::onGetFamilyNames() const {
+SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() const {
     SkTypeface::LocalizedStrings* nameIter =
         SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
     if (NULL == nameIter) {
