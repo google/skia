@@ -681,8 +681,9 @@ static bool isIRect(const SkRect& r) {
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const SkRect& rect,
                              SkScalar strokeWidth,
-                             const SkMatrix& combinedMatrix,
-                             SkRect* devBoundRect,
+                             const SkMatrix* matrix,
+                             SkMatrix* combinedMatrix,
+                             SkRect* devRect,
                              bool* useVertexCoverage) {
     // we use a simple coverage ramp to do aa on axis-aligned rects
     // we check if the rect will be axis-aligned, and the rect won't land on
@@ -715,30 +716,50 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 #if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
     if (strokeWidth >= 0) {
 #endif
-        if (!combinedMatrix.preservesAxisAlignment()) {
+        if (!drawState.getViewMatrix().preservesAxisAlignment()) {
             return false;
         }
 
+        if (NULL != matrix && !matrix->preservesAxisAlignment()) {
+            return false;
+        }
 #if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
     } else {
-        if (!combinedMatrix.preservesRightAngles()) {
+        if (!drawState.getViewMatrix().preservesAxisAlignment() &&
+            !drawState.getViewMatrix().preservesRightAngles()) {
+            return false;
+        }
+
+        if (NULL != matrix && !matrix->preservesRightAngles()) {
             return false;
         }
     }
 #endif
 
-    combinedMatrix.mapRect(devBoundRect, rect);
+    *combinedMatrix = drawState.getViewMatrix();
+    if (NULL != matrix) {
+        combinedMatrix->preConcat(*matrix);
+
+#if GR_DEBUG
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
+        if (strokeWidth >= 0) {
+#endif
+            GrAssert(combinedMatrix->preservesAxisAlignment());
+#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
+        } else {
+            GrAssert(combinedMatrix->preservesRightAngles());
+        }
+#endif
+#endif
+    }
+
+    combinedMatrix->mapRect(devRect, rect);
 
     if (strokeWidth < 0) {
-        return !isIRect(*devBoundRect);
+        return !isIRect(*devRect);
     } else {
         return true;
     }
-}
-
-static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
-    return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
-           point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
 void GrContext::drawRect(const GrPaint& paint,
@@ -750,48 +771,13 @@ void GrContext::drawRect(const GrPaint& paint,
     AutoRestoreEffects are;
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are);
 
-    SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
-    if (NULL != matrix) {
-        combinedMatrix.preConcat(*matrix);
-    }
-
-    // Check if this is a full RT draw and can be replaced with a clear.
-    SkRect rtRect;
-    target->getDrawState().getRenderTarget()->getBoundsRect(&rtRect);
-    SkRect clipSpaceRTRect = rtRect;
-    bool checkClip = false;
-    if (NULL != this->getClip()) {
-        checkClip = true;
-        clipSpaceRTRect.offset(SkIntToScalar(this->getClip()->fOrigin.fX),
-                               SkIntToScalar(this->getClip()->fOrigin.fY));
-    }
-    // Does the clip contain the entire RT?
-    if (!checkClip || target->getClip()->fClipStack->quickContains(clipSpaceRTRect)) {
-        SkMatrix invM;
-        if (!combinedMatrix.invert(&invM)) {
-            return;
-        }
-        // Does the rect bound the RT?
-        SkPoint srcSpaceRTQuad[4];
-        invM.mapRectToQuad(srcSpaceRTQuad, rtRect);
-        if (rect_contains_inclusive(rect, srcSpaceRTQuad[0]) &&
-            rect_contains_inclusive(rect, srcSpaceRTQuad[1]) &&
-            rect_contains_inclusive(rect, srcSpaceRTQuad[2]) &&
-            rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
-            // Will it blend?
-            GrColor clearColor;
-            if (paint.isOpaqueAndConstantColor(&clearColor)) {
-                target->clear(NULL, clearColor);
-                return;
-            }
-        }
-    }
-
-    SkRect devBoundRect;
+    SkRect devRect;
+    SkMatrix combinedMatrix;
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !target->getDrawState().getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, rect, width, combinedMatrix, &devBoundRect,
+    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix,
+                                           &combinedMatrix, &devRect,
                                            &useVertexCoverage);
     if (doAA) {
         GrDrawState::AutoViewMatrixRestore avmr;
@@ -800,12 +786,12 @@ void GrContext::drawRect(const GrPaint& paint,
         }
         if (width >= 0) {
             fAARectRenderer->strokeAARect(this->getGpu(), target,
-                                          rect, combinedMatrix, devBoundRect,
+                                          rect, combinedMatrix, devRect,
                                           width, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
-                                        rect, combinedMatrix, devBoundRect,
+                                        rect, combinedMatrix, devRect,
                                         useVertexCoverage);
         }
         return;
