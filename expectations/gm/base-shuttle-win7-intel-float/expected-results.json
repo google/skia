@@ -1811,13 +1811,9 @@
         [
           "bitmap-64bitMD5", 
           11137490508568328458
-        ],
-        [
-          "bitmap-64bitMD5", 
-          4904536750140494702
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "degeneratesegments_565.png": {
       "allowed-digests": [
