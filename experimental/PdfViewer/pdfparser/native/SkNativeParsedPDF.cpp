@@ -207,6 +207,18 @@ void SkNativeParsedPDF::loadWithoutXRef() {
         current = skipPdfWhiteSpaces(0, current, end);
     }
 
+    // TODO(edisonn): hack, detect root catalog - we need to implement liniarized support, and remove this hack.
+    if (!fRootCatalogRef) {
+        for (unsigned int i = 0 ; i < objects(); i++) {
+            SkPdfObject* obj = object(i);
+            SkPdfObject* root = (obj && obj->isDictionary()) ? obj->get("Root") : NULL;
+            if (root && root->isReference()) {
+                fRootCatalogRef = root;
+            }
+        }
+    }
+
+
     if (fRootCatalogRef) {
         fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
         if (fRootCatalog->isDictionary() && fRootCatalog->valid()) {
@@ -216,6 +228,7 @@ void SkNativeParsedPDF::loadWithoutXRef() {
             }
         }
     }
+
 
 }
 

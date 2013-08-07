@@ -1586,8 +1586,49 @@ static PdfResult PdfOp_TJ(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 }
 
 static PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    colorOperator->fColorSpace = pdfContext->fObjectStack.top()->strRef();    pdfContext->fObjectStack.pop();
-    return kOK_PdfResult;
+    SkPdfObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
+
+    //Next, get the ColorSpace Dictionary from the Resource Dictionary:
+    SkPdfDictionary* colorSpaceResource = pdfContext->fGraphicsState.fResources->ColorSpace(pdfContext->fPdfDoc);
+
+    SkPdfObject* colorSpace = pdfContext->fPdfDoc->resolveReference(colorSpaceResource->get(name));
+
+    if (colorSpace == NULL) {
+        colorOperator->fColorSpace = name->strRef();
+    } else {
+#ifdef PDF_TRACE
+        printf("CS = %s\n", colorSpace->toString(0, 0).c_str());
+#endif   // PDF_TRACE
+        if (colorSpace->isName()) {
+            colorOperator->fColorSpace = colorSpace->strRef();
+        } else if (colorSpace->isArray()) {
+            int cnt = colorSpace->size();
+            if (cnt == 0) {
+                return kIgnoreError_PdfResult;
+            }
+            SkPdfObject* type = colorSpace->objAtAIndex(0);
+            type = pdfContext->fPdfDoc->resolveReference(type);
+
+            if (type->isName("ICCBased")) {
+                if (cnt != 2) {
+                    return kIgnoreError_PdfResult;
+                }
+                SkPdfObject* prop = colorSpace->objAtAIndex(1);
+                prop = pdfContext->fPdfDoc->resolveReference(prop);
+#ifdef PDF_TRACE
+                printf("ICCBased prop = %s\n", prop->toString(0, 0).c_str());
+#endif   // PDF_TRACE
+                // TODO(edisonn): hack
+                if (prop && prop->isDictionary() && prop->get("N") &&  prop->get("N")->isInteger() && prop->get("N")->intValue() == 3) {
+                    colorOperator->setColorSpace(&strings_DeviceRGB);
+                    return kPartial_PdfResult;
+                }
+                return kNYI_PdfResult;
+            }
+        }
+    }
+
+    return kPartial_PdfResult;
 }
 
 static PdfResult PdfOp_CS(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
