@@ -125,12 +125,9 @@ void SkStaticTextView::getPaint(SkPaint* paint) const
 
 void SkStaticTextView::setPaint(const SkPaint& paint)
 {
-    if (fPaint != paint)
-    {
-        fPaint = paint;
-        this->computeSize();
-        this->inval(NULL);
-    }
+    fPaint = paint;
+    this->computeSize();
+    this->inval(NULL);
 }
 
 void SkStaticTextView::onDraw(SkCanvas* canvas)
