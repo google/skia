@@ -233,13 +233,14 @@ public:
     public:
         virtual ~LocalizedStrings() { }
         virtual bool next(LocalizedString* localizedString) = 0;
+        void unref() { SkDELETE(this); }
     };
     /**
      *  Returns an iterator which will attempt to enumerate all of the
      *  family names specified by the font.
-     *  It is the caller's responsibility to SK_DELETE the returned pointer.
+     *  It is the caller's responsibility to unref() the returned pointer.
      */
-    LocalizedStrings* getFamilyNames() const;
+    LocalizedStrings* createFamilyNameIterator() const;
 
     /**
      *  Return the family name for this typeface. It will always be returned
@@ -311,7 +312,7 @@ protected:
 
     virtual int onGetUPEM() const = 0;
 
-    virtual LocalizedStrings* onGetFamilyNames() const = 0;
+    virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,

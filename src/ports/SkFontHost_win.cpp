@@ -268,7 +268,7 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
+    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -2056,7 +2056,7 @@ int LogFontTypeface::onGetUPEM() const {
     return upem;
 }
 
-SkTypeface::LocalizedStrings* LogFontTypeface::onGetFamilyNames() const {
+SkTypeface::LocalizedStrings* LogFontTypeface::onCreateFamilyNameIterator() const {
     SkTypeface::LocalizedStrings* nameIter =
         SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
     if (NULL == nameIter) {
