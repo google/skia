@@ -41,7 +41,7 @@ protected:
         }
         canvas->drawBitmap(bm, 0, 0);
         SkAssertResult(bm.copyTo(&bm4444, SkBitmap::kARGB_4444_Config));
-        canvas->drawBitmap(bm4444, bm.width(), 0);
+        canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
     }
 
 private:
