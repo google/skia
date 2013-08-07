@@ -225,10 +225,8 @@ static SkStream* create_image_stream(SkImageEncoder::Type type) {
 // Only runs in debug mode since we are testing for a crash.
 static void test_stream_life() {
     const SkImageEncoder::Type gTypes[] = {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        SkImageEncoder::kJPEG_Type,
-#endif
 #ifdef SK_BUILD_FOR_ANDROID
+        SkImageEncoder::kJPEG_Type,
         SkImageEncoder::kPNG_Type,
 #endif
         SkImageEncoder::kWEBP_Type,
