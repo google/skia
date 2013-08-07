@@ -67,6 +67,11 @@ public:
 
     SkPaint& operator=(const SkPaint&);
 
+    SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
+    friend bool operator!=(const SkPaint& a, const SkPaint& b) {
+        return !(a == b);
+    }
+
     void flatten(SkFlattenableWriteBuffer&) const;
     void unflatten(SkFlattenableReadBuffer&);
 
