@@ -153,6 +153,10 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             set->getStyle(j, &fs, &sname);
 
             SkAutoTUnref<SkTypeface> typeface(set->createTypeface(j));
+            if (NULL == typeface.get()) {
+                //TODO: SkFontMgr_fontconfig always returns NULL?
+                continue;
+            }
 
             SkString familyName;
             typeface->getFamilyName(&familyName);
