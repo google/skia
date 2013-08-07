@@ -133,15 +133,6 @@ static void test_filterlevel(skiatest::Reporter* reporter) {
     }
 }
 
-// Only useful for test_copy. Checks the fields that are set.
-static bool check_equal(const SkPaint& a, const SkPaint &b) {
-    return a.getLooper() == b.getLooper() &&
-           a.getMaskFilter() == b.getMaskFilter() &&
-           a.getStrokeWidth() == b.getStrokeWidth() &&
-           a.getStyle() == b.getStyle() &&
-           a.getTextAlign() == b.getTextAlign();
-}
-
 static void test_copy(skiatest::Reporter* reporter) {
     SkPaint paint;
     // set a few member variables
@@ -156,19 +147,19 @@ static void test_copy(skiatest::Reporter* reporter) {
 
     // copy the paint using the copy constructor and check they are the same
     SkPaint copiedPaint = paint;
-    REPORTER_ASSERT(reporter, check_equal(paint, copiedPaint));
+    REPORTER_ASSERT(reporter, paint == copiedPaint);
 
 #ifdef SK_BUILD_FOR_ANDROID
     // the copy constructor should preserve the Generation ID
     uint32_t paintGenID = paint.getGenerationID();
     uint32_t copiedPaintGenID = copiedPaint.getGenerationID();
     REPORTER_ASSERT(reporter, paintGenID == copiedPaintGenID);
-    REPORTER_ASSERT(reporter, check_equal(paint, copiedPaint));
+    REPORTER_ASSERT(reporter, !memcmp(&paint, &copiedPaint, sizeof(paint)));
 #endif
 
     // copy the paint using the equal operator and check they are the same
     copiedPaint = paint;
-    REPORTER_ASSERT(reporter, check_equal(paint, copiedPaint));
+    REPORTER_ASSERT(reporter, paint == copiedPaint);
 
 #ifdef SK_BUILD_FOR_ANDROID
     // the equals operator should increment the Generation ID
@@ -182,8 +173,8 @@ static void test_copy(skiatest::Reporter* reporter) {
     SkPaint cleanPaint;
     paint.reset();
     copiedPaint.reset();
-    REPORTER_ASSERT(reporter, check_equal(cleanPaint, paint));
-    REPORTER_ASSERT(reporter, check_equal(cleanPaint, copiedPaint));
+    REPORTER_ASSERT(reporter, cleanPaint == paint);
+    REPORTER_ASSERT(reporter, cleanPaint == copiedPaint);
 
 #ifdef SK_BUILD_FOR_ANDROID
     // the reset function should increment the Generation ID
