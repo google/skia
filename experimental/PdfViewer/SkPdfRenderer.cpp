@@ -390,26 +390,6 @@ static PdfResult DrawText(PdfContext* pdfContext,
 
     canvas->save();
 
-#if 1
-    SkMatrix matrix = pdfContext->fGraphicsState.fMatrixTm;
-
-    SkPoint point1;
-    pdfContext->fGraphicsState.fMatrixTm.mapXY(SkIntToScalar(0), SkIntToScalar(0), &point1);
-
-    SkMatrix mirror;
-    mirror.setTranslate(0, -point1.y());
-    // TODO(edisonn): fix rotated text, and skewed too
-    mirror.postScale(SK_Scalar1, -SK_Scalar1);
-    // TODO(edisonn): post rotate, skew
-    mirror.postTranslate(0, point1.y());
-
-    matrix.postConcat(mirror);
-
-    canvas->setMatrix(matrix);
-
-    SkTraceMatrix(matrix, "mirrored");
-#endif
-
     skfont->drawText(decoded, &paint, pdfContext, canvas);
     canvas->restore();
 
@@ -756,8 +736,10 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
 
     if (skobj->has_Matrix()) {
         pdfContext->fGraphicsState.fCTM.preConcat(skobj->Matrix(pdfContext->fPdfDoc));
-        pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fCTM;
-        pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fCTM;
+        SkMatrix matrix = pdfContext->fGraphicsState.fCTM;
+        matrix.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
+        pdfContext->fGraphicsState.fMatrixTm = matrix;
+        pdfContext->fGraphicsState.fMatrixTlm = matrix;
         // TODO(edisonn) reset matrixTm and matricTlm also?
     }
 
@@ -870,9 +852,10 @@ PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObjec
 
     pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
     pdfContext->fGraphicsState.fMatrixTm.preScale(SkDoubleToScalar(textSize), SkDoubleToScalar(textSize));
+    pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fMatrixTm;
 
     pdfContext->fGraphicsState.fCTM = pdfContext->fGraphicsState.fMatrixTm;
-    pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fCTM;
+    pdfContext->fGraphicsState.fCTM.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
 
     SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Total matrix");
 
@@ -1074,7 +1057,7 @@ static PdfResult PdfOp_Td(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
     obj = obj;
     double tx = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
 
-    double array[6] = {1, 0, 0, 1, tx, ty};
+    double array[6] = {1, 0, 0, 1, tx, -ty};
     SkMatrix matrix = SkMatrixFromPdfMatrix(array);
 
     pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
@@ -1125,6 +1108,7 @@ static PdfResult PdfOp_Tm(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoop
 
     SkMatrix matrix = SkMatrixFromPdfMatrix(array);
     matrix.postConcat(pdfContext->fGraphicsState.fCTM);
+    matrix.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
 
     // TODO(edisonn): Text positioning.
     pdfContext->fGraphicsState.fMatrixTm = matrix;
@@ -1459,8 +1443,10 @@ static PdfResult PdfOp_n(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLoope
 
 static PdfResult PdfOp_BT(PdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fTextBlock   = true;
-    pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fCTM;
-    pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fCTM;
+    SkMatrix matrix = pdfContext->fGraphicsState.fCTM;
+    matrix.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
+    pdfContext->fGraphicsState.fMatrixTm = matrix;
+    pdfContext->fGraphicsState.fMatrixTlm = matrix;
 
     return kPartial_PdfResult;
 }

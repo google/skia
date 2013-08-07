@@ -90,21 +90,22 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
         , fRootCatalog(NULL) {
     gDoc = this;
     FILE* file = fopen(path, "r");
-    size_t size = getFileSize(path);
-    void* content = sk_malloc_throw(size);
-    bool ok = (0 != fread(content, size, 1, file));
-    fclose(file);
-    file = NULL;
+    // TODO(edisonn): put this in a function that can return NULL
+    if (file) {
+        size_t size = getFileSize(path);
+        void* content = sk_malloc_throw(size);
+        bool ok = (0 != fread(content, size, 1, file));
+        fclose(file);
+        if (!ok) {
+            sk_free(content);
+            // TODO(edisonn): report read error
+            // TODO(edisonn): not nice to return like this from constructor, create a static
+            // function that can report NULL for failures.
+            return;  // Doc will have 0 pages
+        }
 
-    if (!ok) {
-        sk_free(content);
-        // TODO(edisonn): report read error
-        // TODO(edisonn): not nice to return like this from constructor, create a static
-        // function that can report NULL for failures.
-        return;  // Doc will have 0 pages
+        init(content, size);
     }
-
-    init(content, size);
 }
 
 void SkNativeParsedPDF::init(const void* bytes, size_t length) {
