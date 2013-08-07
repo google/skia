@@ -1,3 +1,5 @@
+var MAX_SWAP_IMG_SIZE = 400;
+
 angular.module('diff_viewer', []).
 config(['$routeProvider', function($routeProvider) {
     // Show the list of differences by default
@@ -28,10 +30,10 @@ directive('swapImg', function() {
                     image = rightImage;
                 }
 
-                // Make it so the maximum size of an image is 500, and the images are scaled
-                // down in halves.
+                // Make it so the maximum size of an image is MAX_SWAP_IMG_SIZE, and the images are
+                // scaled down in halves.
                 var divisor = 1;
-                while ((image.width / divisor) > 500) {
+                while ((image.width / divisor) > MAX_SWAP_IMG_SIZE) {
                     divisor *= 2;
                 }
 
@@ -74,7 +76,7 @@ directive('swapImg', function() {
     };
 });
 
-function DiffListController($scope) {
+function DiffListController($scope, $http, $timeout) {
     // Label each kind of differ for the sort buttons.
     $scope.differs = [
         {
@@ -99,5 +101,32 @@ function DiffListController($scope) {
     // A predicate for pulling out the number used for sorting
     $scope.sortingDiffer = function(record) {
         return record.diffs[$scope.sortIndex].result;
+    };
+
+    // Flash status indicators on the rows, and then remove them so the style can potentially be
+    // reapplied later.
+    $scope.flashRowStatus = function(success, record) {
+        var flashStyle = success ? "success-flash" : "failure-flash";
+        var flashDurationMillis = success ? 500 : 800;
+
+        // Store the style in the record. The row will pick up the style this way instead of through
+        // index because index can change with sort order.
+        record.cssClasses = flashStyle;
+
+        // The animation cannot be repeated unless the class is removed the element.
+        $timeout(function() {
+            record.cssClasses = "";
+        }, flashDurationMillis);
+    }
+
+    $scope.setHashOf = function(imagePath, record) {
+        $http.post("/set_hash", {
+            "path": imagePath
+        }).success(function(data) {
+            $scope.flashRowStatus(data.success, record);
+        }).error(function() {
+            $scope.flashRowStatus(false, record);
+        });
+
     };
 }
