@@ -244,7 +244,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
         { SkBitmap::kIndex8_Config,     "00111010"  },
         { SkBitmap::kRGB_565_Config,    "00101010"  },
         { SkBitmap::kARGB_4444_Config,  "00101110"  },
-        { SkBitmap::kARGB_8888_Config,  "00101010"  },
+        { SkBitmap::kARGB_8888_Config,  "00101110"  },
     };
 
     static const bool isExtracted[] = {
