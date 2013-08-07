@@ -55,45 +55,115 @@ static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_BUILD_FOR_ANDROID
 class SkJPEGImageIndex {
 public:
     SkJPEGImageIndex(SkStream* stream, SkImageDecoder* decoder)
-        : fSrcMgr(stream, decoder) {}
+        : fSrcMgr(stream, decoder)
+        , fInfoInitialized(false)
+        , fHuffmanCreated(false)
+        , fDecompressStarted(false)
+        {
+            SkDEBUGCODE(fReadHeaderSucceeded = false;)
+        }
 
     ~SkJPEGImageIndex() {
-#ifdef SK_BUILD_FOR_ANDROID
-        jpeg_destroy_huffman_index(&fHuffmanIndex);
-#endif
-        jpeg_finish_decompress(&fCInfo);
-        jpeg_destroy_decompress(&fCInfo);
+        if (fHuffmanCreated) {
+            fHuffmanCreated = false;
+            jpeg_destroy_huffman_index(&fHuffmanIndex);
+        }
+        if (fDecompressStarted) {
+            fDecompressStarted = false;
+            jpeg_finish_decompress(&fCInfo);
+        }
+        if (fInfoInitialized) {
+            this->destroyInfo();
+        }
     }
 
     /**
-     * Init the cinfo struct using libjpeg and apply any necessary
-     * customizations.
+     *  Destroy the cinfo struct.
+     *  After this call, if a huffman index was already built, it
+     *  can be used after calling initializeInfoAndReadHeader
+     *  again. Must not be called after startTileDecompress except
+     *  in the destructor.
      */
-    void initializeInfo() {
+    void destroyInfo() {
+        SkASSERT(fInfoInitialized);
+        SkASSERT(!fDecompressStarted);
+        fInfoInitialized = false;
+        jpeg_destroy_decompress(&fCInfo);
+        SkDEBUGCODE(fReadHeaderSucceeded = false;)
+    }
+
+    /**
+     *  Initialize the cinfo struct.
+     *  Calls jpeg_create_decompress, makes customizations, and
+     *  finally calls jpeg_read_header. Returns true if jpeg_read_header
+     *  returns JPEG_HEADER_OK.
+     *  If cinfo was already initialized, destroyInfo must be called to
+     *  destroy the old one. Must not be called after startTileDecompress.
+     */
+    bool initializeInfoAndReadHeader() {
+        SkASSERT(!fInfoInitialized && !fDecompressStarted);
         jpeg_create_decompress(&fCInfo);
         overwrite_mem_buffer_size(&fCInfo);
         fCInfo.src = &fSrcMgr;
+        fInfoInitialized = true;
+        const bool success = (JPEG_HEADER_OK == jpeg_read_header(&fCInfo, true));
+        SkDEBUGCODE(fReadHeaderSucceeded = success;)
+        return success;
     }
 
     jpeg_decompress_struct* cinfo() { return &fCInfo; }
 
-#ifdef SK_BUILD_FOR_ANDROID
     huffman_index* huffmanIndex() { return &fHuffmanIndex; }
-#endif
+
+    /**
+     *  Build the index to be used for tile based decoding.
+     *  Must only be called after a successful call to
+     *  initializeInfoAndReadHeader and must not be called more
+     *  than once.
+     */
+    bool buildHuffmanIndex() {
+        SkASSERT(fReadHeaderSucceeded);
+        SkASSERT(!fHuffmanCreated);
+        jpeg_create_huffman_index(&fCInfo, &fHuffmanIndex);
+        fHuffmanCreated = true;
+        SkASSERT(1 == fCInfo.scale_num && 1 == fCInfo.scale_denom);
+        return jpeg_build_huffman_index(&fCInfo, &fHuffmanIndex);
+    }
+
+    /**
+     *  Start tile based decoding. Must only be called after a
+     *  successful call to buildHuffmanIndex, and must only be
+     *  called once.
+     */
+    bool startTileDecompress() {
+        SkASSERT(fHuffmanCreated);
+        SkASSERT(fReadHeaderSucceeded);
+        SkASSERT(!fDecompressStarted);
+        if (jpeg_start_tile_decompress(&fCInfo)) {
+            fDecompressStarted = true;
+            return true;
+        }
+        return false;
+    }
 
 private:
     skjpeg_source_mgr  fSrcMgr;
     jpeg_decompress_struct fCInfo;
-#ifdef SK_BUILD_FOR_ANDROID
     huffman_index fHuffmanIndex;
-#endif
+    bool fInfoInitialized;
+    bool fHuffmanCreated;
+    bool fDecompressStarted;
+    SkDEBUGCODE(bool fReadHeaderSucceeded;)
 };
+#endif
 
 class SkJPEGImageDecoder : public SkImageDecoder {
 public:
+#ifdef SK_BUILD_FOR_ANDROID
     SkJPEGImageDecoder() {
         fImageIndex = NULL;
         fImageWidth = 0;
@@ -103,6 +173,7 @@ public:
     virtual ~SkJPEGImageDecoder() {
         SkDELETE(fImageIndex);
     }
+#endif
 
     virtual Format getFormat() const {
         return kJPEG_Format;
@@ -116,9 +187,11 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
+#ifdef SK_BUILD_FOR_ANDROID
     SkJPEGImageIndex* fImageIndex;
     int fImageWidth;
     int fImageHeight;
+#endif
 
     typedef SkImageDecoder INHERITED;
 };
@@ -475,9 +548,8 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #ifdef SK_BUILD_FOR_ANDROID
 bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *height) {
 
-    SkJPEGImageIndex* imageIndex = SkNEW_ARGS(SkJPEGImageIndex, (stream, this));
+    SkAutoTDelete<SkJPEGImageIndex> imageIndex(SkNEW_ARGS(SkJPEGImageIndex, (stream, this)));
     jpeg_decompress_struct* cinfo = imageIndex->cinfo();
-    huffman_index* huffmanIndex = imageIndex->huffmanIndex();
 
     skjpeg_error_mgr sk_err;
     cinfo->err = jpeg_std_error(&sk_err);
@@ -490,33 +562,19 @@ bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *hei
     }
 
     // create the cinfo used to create/build the huffmanIndex
-    imageIndex->initializeInfo();
-    cinfo->do_fancy_upsampling = 0;
-    cinfo->do_block_smoothing = 0;
-
-    int status = jpeg_read_header(cinfo, true);
-    if (JPEG_HEADER_OK != status) {
-        SkDELETE(imageIndex);
+    if (!imageIndex->initializeInfoAndReadHeader()) {
         return false;
     }
 
-    jpeg_create_huffman_index(cinfo, huffmanIndex);
-    cinfo->scale_num = 1;
-    cinfo->scale_denom = 1;
-    if (!jpeg_build_huffman_index(cinfo, huffmanIndex)) {
-        SkDELETE(imageIndex);
+    if (!imageIndex->buildHuffmanIndex()) {
         return false;
     }
 
     // destroy the cinfo used to create/build the huffman index
-    jpeg_destroy_decompress(cinfo);
+    imageIndex->destroyInfo();
 
     // Init decoder to image decode mode
-    imageIndex->initializeInfo();
-
-    status = jpeg_read_header(cinfo, true);
-    if (JPEG_HEADER_OK != status) {
-        SkDELETE(imageIndex);
+    if (!imageIndex->initializeInfoAndReadHeader()) {
         return false;
     }
 
@@ -525,16 +583,18 @@ bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *hei
     cinfo->do_block_smoothing = 0;
 
     // instead of jpeg_start_decompress() we start a tiled decompress
-    jpeg_start_tile_decompress(cinfo);
+    if (!imageIndex->startTileDecompress()) {
+        return false;
+    }
 
-    cinfo->scale_num = 1;
+    SkASSERT(1 == cinfo->scale_num);
     *height = cinfo->output_height;
     *width = cinfo->output_width;
     fImageWidth = *width;
     fImageHeight = *height;
 
     SkDELETE(fImageIndex);
-    fImageIndex = imageIndex;
+    fImageIndex = imageIndex.detach();
 
     return true;
 }
