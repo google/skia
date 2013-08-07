@@ -1017,11 +1017,12 @@ bool SkBitmap::canCopyTo(Config dstConfig) const {
             break;
         case kA1_Config:
         case kIndex8_Config:
-        case kARGB_4444_Config:
             if (!sameConfigs) {
                 return false;
             }
             break;
+        case kARGB_4444_Config:
+            return sameConfigs || kARGB_8888_Config == this->config();
         default:
             return false;
     }
@@ -1107,6 +1108,19 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
                 memcpy(dstP, srcP, bytesToCopy);
                 srcP += src->rowBytes();
                 dstP += tmpDst.rowBytes();
+            }
+        }
+    } else if (SkBitmap::kARGB_4444_Config == dstConfig
+               && SkBitmap::kARGB_8888_Config == src->config()) {
+        SkASSERT(src->height() == tmpDst.height());
+        SkASSERT(src->width() == tmpDst.width());
+        for (int y = 0; y < src->height(); ++y) {
+            SkPMColor16* SK_RESTRICT dstRow = (SkPMColor16*) tmpDst.getAddr16(0, y);
+            SkPMColor* SK_RESTRICT srcRow = (SkPMColor*) src->getAddr32(0, y);
+            DITHER_4444_SCAN(y);
+            for (int x = 0; x < src->width(); ++x) {
+                dstRow[x] = SkDitherARGB32To4444(srcRow[x],
+                                                 DITHER_VALUE(x));
             }
         }
     } else {
