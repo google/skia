@@ -25,12 +25,18 @@ static const SkScalar gPos2[] = {
     0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
 };
 
+static const SkScalar gPosClamp[]   = {0.0f, 0.0f, 1.0f, 1.0f};
+static const SkColor  gColorClamp[] = {
+    SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorBLUE
+};
+
 static const GradData gGradData[] = {
     { 2, gColors, NULL },
     { 2, gColors, gPos0 },
     { 2, gColors, gPos1 },
     { 5, gColors, NULL },
-    { 5, gColors, gPos2 }
+    { 5, gColors, gPos2 },
+    { 4, gColorClamp, gPosClamp }
 };
 
 static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data,
@@ -120,6 +126,14 @@ protected:
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
                 SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
+
+                if (i == 5) { // if the clamp case
+                    SkMatrix scale;
+                    scale.setScale(0.5f, 0.5f);
+                    scale.postTranslate(25.f, 25.f);
+                    shader->setLocalMatrix(scale);
+                }
+                    
                 paint.setShader(shader);
                 canvas->drawRect(r, paint);
                 shader->unref();
@@ -173,6 +187,7 @@ protected:
                                       SkIntToScalar(500)));
                 perspective.setSkewX(SkScalarDiv(SkIntToScalar((unsigned) i+1),
                                      SkIntToScalar(10)));
+
                 shader->setLocalMatrix(perspective);
 
                 paint.setShader(shader);
