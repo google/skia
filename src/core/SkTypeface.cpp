@@ -194,8 +194,8 @@ int SkTypeface::getUnitsPerEm() const {
     return this->onGetUPEM();
 }
 
-SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
-    return this->onCreateFamilyNameIterator();
+SkTypeface::LocalizedStrings* SkTypeface::getFamilyNames() const {
+    return this->onGetFamilyNames();
 }
 
 void SkTypeface::getFamilyName(SkString* name) const {

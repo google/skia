@@ -202,8 +202,8 @@ int SkGTypeface::onGetUPEM() const {
     return fProxy->getUnitsPerEm();
 }
 
-SkTypeface::LocalizedStrings* SkGTypeface::onCreateFamilyNameIterator() const {
-    return fProxy->createFamilyNameIterator();
+SkTypeface::LocalizedStrings* SkGTypeface::onGetFamilyNames() const {
+    return fProxy->getFamilyNames();
 }
 
 int SkGTypeface::onGetTableTags(SkFontTableTag tags[]) const {
