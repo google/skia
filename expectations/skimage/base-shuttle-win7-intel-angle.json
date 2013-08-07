@@ -132,5 +132,8 @@
          ],
          "ignore-failure" : false
       }
+      "gif_test.gif" : {
+         "ignore-failure" : true
+      }
    }
 }
