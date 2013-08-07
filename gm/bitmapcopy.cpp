@@ -21,7 +21,8 @@ static const char* gConfigNames[] = {
 
 SkBitmap::Config gConfigs[] = {
   SkBitmap::kRGB_565_Config,
-  SkBitmap::kARGB_4444_Config,
+  SkBitmap::kARGB_4444_Config,  // TODO(edisonn): Should we remove it from GM?
+                                // it fails to copy in bitmap with this config.
   SkBitmap::kARGB_8888_Config,
 };
 
@@ -65,8 +66,11 @@ protected:
         SkScalar horizMargin(SkIntToScalar(10));
         SkScalar vertMargin(SkIntToScalar(10));
 
-        draw_checks(canvas, 40, 40);
-        SkBitmap src = canvas->getTopDevice()->accessBitmap(false);
+        SkDevice devTmp(SkBitmap::kARGB_8888_Config, 40, 40);
+        SkCanvas canvasTmp(&devTmp);
+        
+        draw_checks(&canvasTmp, 40, 40);
+        SkBitmap src = canvasTmp.getTopDevice()->accessBitmap(false);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
             if (!src.deepCopyTo(&fDst[i], gConfigs[i])) {
