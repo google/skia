@@ -49,6 +49,9 @@ public:
                                 const SkRect& dst, const SkPaint* paint) SK_OVERRIDE;
     virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPosTextBounded(const void* text, size_t byteLength,
+                                    const SkPoint pos[], const SkRect& bbox,
+                                    const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
                               const SkPaint& paint) SK_OVERRIDE;
