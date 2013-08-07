@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
@@ -25,12 +24,6 @@ extern "C" {
     #include "jpeglib.h"
     #include "jerror.h"
 }
-
-// Uncomment to enable the code path used by the Android framework with their
-// custom image decoders.
-//#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_DEBUG)
-//  #define SK_BUILD_FOR_ANDROID_FRAMEWORK
-//#endif
 
 // These enable timing code that report milliseconds for an encoding/decoding
 //#define TIME_ENCODE
@@ -68,7 +61,7 @@ public:
         : fSrcMgr(stream, decoder) {}
 
     ~SkJPEGImageIndex() {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
         jpeg_destroy_huffman_index(&fHuffmanIndex);
 #endif
         jpeg_finish_decompress(&fCInfo);
@@ -87,14 +80,14 @@ public:
 
     jpeg_decompress_struct* cinfo() { return &fCInfo; }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
     huffman_index* huffmanIndex() { return &fHuffmanIndex; }
 #endif
 
 private:
     skjpeg_source_mgr  fSrcMgr;
     jpeg_decompress_struct fCInfo;
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
     huffman_index fHuffmanIndex;
 #endif
 };
@@ -116,7 +109,7 @@ public:
     }
 
 protected:
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
     virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
     virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
 #endif
@@ -180,7 +173,7 @@ static bool skip_src_rows(jpeg_decompress_struct* cinfo, void* buffer, int count
     return true;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
 static bool skip_src_rows_tile(jpeg_decompress_struct* cinfo,
                                huffman_index *index, void* buffer, int count) {
     for (int i = 0; i < count; i++) {
@@ -479,7 +472,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     return true;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_BUILD_FOR_ANDROID
 bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *height) {
 
     SkJPEGImageIndex* imageIndex = SkNEW_ARGS(SkJPEGImageIndex, (stream, this));
