@@ -99,6 +99,8 @@ def download_gm_image(image_name, image_path, hash_val):
     @param image_path Path to place the image.
     @param hash_val   The hash value of the image.
     """
+    if hash_val is None:
+        return
 
     # Separate the test name from a image name
     image_match = IMAGE_FILENAME_RE.match(image_name)
@@ -174,14 +176,18 @@ class GMInstance:
      - image_name = the GM test name and config
      - expected_hash = the current expected hash value
      - actual_hash = the actual hash value
+     - is_rebaselined = True if actual_hash is what is currently in the expected
+                        results file, False otherwise.
     """
     def __init__(self,
                  device_name, image_name,
-                 expected_hash, actual_hash):
+                 expected_hash, actual_hash,
+                 is_rebaselined):
         self.device_name = device_name
         self.image_name = image_name
         self.expected_hash = expected_hash
         self.actual_hash = actual_hash
+        self.is_rebaselined = is_rebaselined
 
 
 class ExpectationsManager:
@@ -228,13 +234,14 @@ class ExpectationsManager:
 
         # Invoke skpdiff with our downloaded images and place its results in the
         # temporary directory.
-        self.skpdiff_output_path = os.path.join(image_output_dir,
+        self._skpdiff_output_path = os.path.join(image_output_dir,
                                                 'skpdiff_output.json')
         skpdiff_cmd = SKPDIFF_INVOKE_FORMAT.format(self._skpdiff_path,
-                                                   self.skpdiff_output_path,
+                                                   self._skpdiff_output_path,
                                                    expected_image_dir,
                                                    actual_image_dir)
         os.system(skpdiff_cmd)
+        self._load_skpdiff_output()
 
 
     def _get_expectations(self):
@@ -267,10 +274,24 @@ class ExpectationsManager:
                 with open(updated_file_path, 'rb') as updated_file:
                     updated_contents = updated_file.read()
 
+                # Read the expected results on disk to determine what we've
+                # already rebaselined.
+                commited_contents = None
+                with open(expected_file_path, 'rb') as expected_file:
+                    commited_contents = expected_file.read()
+
                 # Find all expectations that did not match.
                 expected_diff = differ.GenerateDiffDictFromStrings(
                     expected_contents,
                     updated_contents)
+
+                # Generate a set of images that have already been rebaselined
+                # onto disk.
+                rebaselined_diff = differ.GenerateDiffDictFromStrings(
+                    expected_contents,
+                    commited_contents)
+
+                rebaselined_set = set(rebaselined_diff.keys())
 
                 # The name of the device corresponds to the name of the folder
                 # we are in.
@@ -280,7 +301,18 @@ class ExpectationsManager:
                 for image_name, hashes in expected_diff.iteritems():
                     self._expectations.append(
                         GMInstance(device_name, image_name,
-                                   hashes['old'], hashes['new']))
+                                   hashes['old'], hashes['new'],
+                                   image_name in rebaselined_set))
+
+    def _load_skpdiff_output(self):
+        """Loads the results of skpdiff and annotates them with whether they
+        have already been rebaselined or not. The resulting data is store in
+        self.skpdiff_records."""
+        self.skpdiff_records = None
+        with open(self._skpdiff_output_path, 'rb') as skpdiff_output_file:
+            self.skpdiff_records = json.load(skpdiff_output_file)['records']
+            for record in self.skpdiff_records:
+                record['isRebaselined'] = self.image_map[record['baselinePath']][1].is_rebaselined
 
 
     def _download_expectation_images(self, expected_image_dir, actual_image_dir):
@@ -346,23 +378,36 @@ class ExpectationsManager:
         # Write it out to disk using gm_json to keep the formatting consistent.
         gm_json.WriteToFile(expectations, json_path)
 
-    def use_hash_of(self, image_path):
-        """Determine the hash of the image at the path using the records, and
-        set it as the expected hash for its device and image config.
+    def commit_rebaselines(self, rebaselines):
+        """Sets the expected results file to use the hashes of the images in
+        the rebaselines list. If a expected result image is not in rebaselines
+        at all, the old hash will be used.
 
-        @param image_path The path of the image as it was stored in the output
-               of skpdiff_path
+        @param rebaselines A list of image paths to use the hash of.
         """
+        # Reset all expectations to their old hashes because some of them may
+        # have been set to the new hash by a previous call to this function.
+        for expectation in self._expectations:
+            expectation.is_rebaselined = False
+            self._set_expected_hash(expectation.device_name,
+                                    expectation.image_name,
+                                    expectation.expected_hash)
 
-        # Get the metadata about the image at the path.
-        is_actual, expectation = self.image_map[image_path]
+        # Take all the images to rebaseline
+        for image_path in rebaselines:
+            # Get the metadata about the image at the path.
+            is_actual, expectation = self.image_map[image_path]
 
-        expectation_hash = expectation.actual_hash if is_actual else\
-                           expectation.expected_hash
+            expectation.is_rebaselined = is_actual
+            expectation_hash = expectation.actual_hash if is_actual else\
+                               expectation.expected_hash
 
-        # Write out that image's hash directly to the expected results file.
-        self._set_expected_hash(expectation.device_name, expectation.image_name,
-                                expectation_hash)
+            # Write out that image's hash directly to the expected results file.
+            self._set_expected_hash(expectation.device_name,
+                                    expectation.image_name,
+                                    expectation_hash)
+
+        self._load_skpdiff_output()
 
 
 class SkPDiffHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -410,7 +455,15 @@ class SkPDiffHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', MIME_TYPE_MAP['json'])
             self.end_headers()
-            self.wfile.write(self.server.skpdiff_output_json)
+
+            # Add JSONP padding to the JSON because the web page expects it. It
+            # expects it because it was designed to run with or without a web
+            # server. Without a web server, the only way to load JSON is with
+            # JSONP.
+            skpdiff_records = self.server.expectations_manager.skpdiff_records
+            self.wfile.write('var SkPDiffRecords = ')
+            json.dump({'records': skpdiff_records}, self.wfile)
+            self.wfile.write(';')
             return
 
         # Attempt to send static asset files first.
@@ -427,10 +480,11 @@ class SkPDiffHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self):
-        if self.path == '/set_hash':
+        if self.path == '/commit_rebaselines':
             content_length = int(self.headers['Content-length'])
             request_data = json.loads(self.rfile.read(content_length))
-            self.server.expectations_manager.use_hash_of(request_data['path'])
+            rebaselines = request_data['rebaselines']
+            self.server.expectations_manager.commit_rebaselines(rebaselines)
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -442,22 +496,10 @@ class SkPDiffHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 def run_server(expectations_manager, port=8080):
-    # Preload the skpdiff results file. This is so we can perform some
-    # processing on it.
-    skpdiff_output_json = ''
-    with open(expectations_manager.skpdiff_output_path, 'rb') as records_file:
-        skpdiff_output_json = records_file.read()
-
     # It's important to parse the results file so that we can make a set of
     # images that the web page might request.
-    skpdiff_records = json.loads(skpdiff_output_json)['records']
+    skpdiff_records = expectations_manager.skpdiff_records
     image_set = get_image_set_from_skpdiff(skpdiff_records)
-
-    # Add JSONP padding to the JSON because the web page expects it. It expects
-    # it because it was designed to run with or without a web server. Without a
-    # web server, the only way to load JSON is with JSONP.
-    skpdiff_output_json = ('var SkPDiffRecords = ' +
-                           json.dumps({'records': skpdiff_records}) + ';')
 
     # Do not bind to interfaces other than localhost because the server will
     # attempt to serve files relative to the root directory as a last resort
@@ -466,7 +508,6 @@ def run_server(expectations_manager, port=8080):
     server_address = ('127.0.0.1', port)
     http_server = BaseHTTPServer.HTTPServer(server_address, SkPDiffHandler)
     http_server.image_set = image_set
-    http_server.skpdiff_output_json = skpdiff_output_json
     http_server.expectations_manager = expectations_manager
     print('Navigate thine browser to: http://{}:{}/'.format(*server_address))
     http_server.serve_forever()
