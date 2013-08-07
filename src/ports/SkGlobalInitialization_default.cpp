@@ -28,6 +28,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkColorShader.h"
 #include "SkColorTable.h"
+#include "SkComposeImageFilter.h"
 #include "SkComposeShader.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
