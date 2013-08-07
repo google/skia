@@ -108,7 +108,7 @@ static GrColor simplify_blend_term(GrBlendCoeff* srcCoeff,
                 *srcCoeff = kZero_GrBlendCoeff;
             }
             break;
-
+            
         default:
             break;
     }
