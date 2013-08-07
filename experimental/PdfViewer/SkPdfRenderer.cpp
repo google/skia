@@ -236,11 +236,11 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
     bool ret = fTokenizer->readToken(token);
 
     gReadOp++;
-
+    gLastOpKeyword++;
 #ifdef PDF_TRACE_DIFF_IN_PNG
     // TODO(edisonn): compare with old bitmap, and save only new bits are available, and save
     // the numbar and name of last operation, so the file name will reflect op that changed.
-    if (hasVisualEffect(gLastKeyword)) {  // TODO(edisonn): and has dirty bits.
+    if (gLastKeyword[0] && hasVisualEffect(gLastKeyword)) {  // TODO(edisonn): and has dirty bits.
         gDumpCanvas->flush();
 
         SkBitmap bitmap;
@@ -311,6 +311,14 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
         out.appendf("/usr/local/google/home/edisonn/log_view2/step-%i-%s.png", gLastOpKeyword, gLastKeyword);
         SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
     }
+
+    if (ret && token->fType == kKeyword_TokenType && token->fKeyword && token->fKeywordLength > 0 && token->fKeywordLength < 100) {
+        strncpy(gLastKeyword, token->fKeyword, token->fKeywordLength);
+        gLastKeyword[token->fKeywordLength] = '\0';
+    } else {
+        gLastKeyword[0] = '\0';
+    }
+
 #endif
 
     return ret;
@@ -642,7 +650,6 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     canvas->save();
     canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
 
-#if 1
     SkScalar z = SkIntToScalar(0);
     SkScalar one = SkIntToScalar(1);
 
@@ -653,7 +660,16 @@ static PdfResult doXObject_Image(PdfContext* pdfContext, SkCanvas* canvas, SkPdf
     SkMatrix solveImageFlip = pdfContext->fGraphicsState.fCTM;
     solveImageFlip.preConcat(flip);
     canvas->setMatrix(solveImageFlip);
-#endif
+
+#ifdef PDF_TRACE
+    SkPoint final[4] = {SkPoint::Make(z, z), SkPoint::Make(one, z), SkPoint::Make(one, one), SkPoint::Make(z, one)};
+    solveImageFlip.mapPoints(final, 4);
+    printf("IMAGE rect = ");
+    for (int i = 0; i < 4; i++) {
+        printf("(%f %f) ", SkScalarToDouble(final[i].x()), SkScalarToDouble(final[i].y()));
+    }
+    printf("\n");
+#endif  // PDF_TRACE
 
     SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
 
@@ -746,6 +762,7 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
     }
 
     SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Total matrix");
+    pdfContext->fGraphicsState.fContentStreamMatrix = pdfContext->fGraphicsState.fCTM;
 
     canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
 
@@ -803,18 +820,16 @@ static PdfResult doXObject_Pattern(PdfContext* pdfContext, SkCanvas* canvas, SkP
         pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
     }
 
-    SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Current matrix");
+    SkTraceMatrix(pdfContext->fGraphicsState.fContentStreamMatrix, "Current Content stream matrix");
 
     if (skobj->has_Matrix()) {
-        pdfContext->fGraphicsState.fCTM.preConcat(skobj->Matrix(pdfContext->fPdfDoc));
-        pdfContext->fGraphicsState.fMatrixTm = pdfContext->fGraphicsState.fCTM;
-        pdfContext->fGraphicsState.fMatrixTlm = pdfContext->fGraphicsState.fCTM;
-        // TODO(edisonn) reset matrixTm and matricTlm also?
+        pdfContext->fGraphicsState.fContentStreamMatrix.preConcat(skobj->Matrix(pdfContext->fPdfDoc));
     }
 
-    SkTraceMatrix(pdfContext->fGraphicsState.fCTM, "Total matrix");
+    SkTraceMatrix(pdfContext->fGraphicsState.fContentStreamMatrix, "Total Content stream matrix");
 
-    canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
+    canvas->setMatrix(pdfContext->fGraphicsState.fContentStreamMatrix);
+    pdfContext->fGraphicsState.fCTM = pdfContext->fGraphicsState.fContentStreamMatrix;
 
     SkRect bbox = skobj->BBox(pdfContext->fPdfDoc);
     canvas->clipRect(bbox, SkRegion::kIntersect_Op, true);  // TODO(edisonn): AA from settings.
@@ -1323,17 +1338,17 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
                             while (x < bounds.right()) {
                                 doXObject(pdfContext, canvas, pattern);
 
-                                pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(xStep), SkIntToScalar(0));
+                                pdfContext->fGraphicsState.fContentStreamMatrix.preTranslate(SkIntToScalar(xStep), SkIntToScalar(0));
                                 totalx += xStep;
                                 x += SkIntToScalar(xStep);
                             }
-                            pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(-totalx), SkIntToScalar(0));
+                            pdfContext->fGraphicsState.fContentStreamMatrix.preTranslate(SkIntToScalar(-totalx), SkIntToScalar(0));
 
-                            pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(0), SkIntToScalar(-yStep));
+                            pdfContext->fGraphicsState.fContentStreamMatrix.preTranslate(SkIntToScalar(0), SkIntToScalar(-yStep));
                             totaly += yStep;
                             y += SkIntToScalar(yStep);
                         }
-                        pdfContext->fGraphicsState.fCTM.preTranslate(SkIntToScalar(0), SkIntToScalar(totaly));
+                        pdfContext->fGraphicsState.fContentStreamMatrix.preTranslate(SkIntToScalar(0), SkIntToScalar(totaly));
                     }
                 }
 
@@ -2534,8 +2549,8 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
     SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
 
-
     pdfContext.fGraphicsState.fCTM = pdfContext.fOriginalMatrix;
+    pdfContext.fGraphicsState.fContentStreamMatrix = pdfContext.fOriginalMatrix;
     pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fCTM;
     pdfContext.fGraphicsState.fMatrixTlm = pdfContext.fGraphicsState.fCTM;
 

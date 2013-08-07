@@ -113,6 +113,8 @@ struct SkPdfGraphicsState {
  */
     SkMatrix fCTM;
 
+    SkMatrix fContentStreamMatrix;
+
 /*
 clipping path (internal)        The current clipping path, which deﬁnes the boundary against
                                 which all output is to be cropped (see Section 4.4.3, “Clipping Path
