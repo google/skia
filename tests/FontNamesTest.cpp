@@ -164,7 +164,8 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
                 printf("[%s]\n", familyName.c_str());
             }
 
-            SkAutoTDelete<SkTypeface::LocalizedStrings> familyNamesIter(typeface->getFamilyNames());
+            SkAutoTUnref<SkTypeface::LocalizedStrings> familyNamesIter(
+                typeface->createFamilyNameIterator());
             SkTypeface::LocalizedString familyNameLocalized;
             while (familyNamesIter->next(&familyNameLocalized)) {
                 if (verbose) {

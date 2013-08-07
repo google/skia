@@ -495,7 +495,7 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onGetFamilyNames() const SK_OVERRIDE;
+    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -1130,7 +1130,7 @@ private:
     SkTScopedComPtr<IDWriteLocalizedStrings> fStrings;
 };
 
-SkTypeface::LocalizedStrings* DWriteFontTypeface::onGetFamilyNames() const {
+SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
 
