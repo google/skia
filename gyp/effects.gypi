@@ -22,6 +22,7 @@
     '<(skia_src_path)/effects/SkColorFilterImageFilter.cpp',
     '<(skia_src_path)/effects/SkColorMatrix.cpp',
     '<(skia_src_path)/effects/SkColorMatrixFilter.cpp',
+    '<(skia_src_path)/effects/SkComposeImageFilter.cpp',
     '<(skia_src_path)/effects/SkCornerPathEffect.cpp',
     '<(skia_src_path)/effects/SkDashPathEffect.cpp',
     '<(skia_src_path)/effects/SkDiscretePathEffect.cpp',

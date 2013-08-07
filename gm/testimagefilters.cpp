@@ -13,6 +13,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkComposeImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkTestImageFilters.h"
