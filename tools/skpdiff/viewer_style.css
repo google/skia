@@ -35,6 +35,36 @@ thead > tr > td {
     text-align: right;
 }
 
+.success-flash {
+    -webkit-animation-duration: 0.5s;
+    -webkit-animation-name: greenflash;
+}
+
+.failure-flash {
+    -webkit-animation-duration: 0.8s;
+    -webkit-animation-name: redflash;
+}
+
+@-webkit-keyframes greenflash {
+    from {
+        background-color: #8F8;
+    }
+
+    to {
+        background-color: #FFF
+    }
+}
+
+@-webkit-keyframes redflash {
+    from {
+        background-color: #F88;
+    }
+
+    to {
+        background-color: #FFF
+    }
+}
+
 .result {
     padding: 8px;
     cursor: default;
