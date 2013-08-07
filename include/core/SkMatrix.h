@@ -470,18 +470,6 @@ public:
         return this->mapRect(rect, *rect);
     }
 
-    /** Apply this matrix to the src rectangle, and write the four transformed
-        points into dst. The points written to dst will be the original top-left, top-right,
-        bottom-right, and bottom-left points transformed by the matrix.
-        @param dst  Where the transformed quad is written.
-        @param rect The original rectangle to be transformed.
-    */
-    void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
-        // This could potentially be faster if we only transformed each x and y of the rect once.
-        rect.toQuad(dst);
-        this->mapPoints(dst, 4);
-    }
-
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle
         has its center at the origin.
