@@ -185,12 +185,12 @@ void SkPath::resetFields() {
 }
 
 SkPath::SkPath(const SkPath& that)
-    : fPathRef(SkRef(that.fPathRef.get()))
-#ifdef SK_BUILD_FOR_ANDROID
-    , fGenerationID(0)
-#endif
-{
+    : fPathRef(SkRef(that.fPathRef.get())) {
     this->copyFields(that);
+#ifdef SK_BUILD_FOR_ANDROID
+    fGenerationID = that.fGenerationID;
+    fSourcePath   = NULL;  // TODO(mtklein): follow up with Android: do we want to copy this too?
+#endif
     SkDEBUGCODE(that.validate();)
 }
 
@@ -204,6 +204,10 @@ SkPath& SkPath::operator=(const SkPath& that) {
     if (this != &that) {
         fPathRef.reset(SkRef(that.fPathRef.get()));
         this->copyFields(that);
+#ifdef SK_BUILD_FOR_ANDROID
+        GEN_ID_INC;  // Similar to swap, we can't just copy this or it could go back in time.
+        fSourcePath = NULL;  // TODO(mtklein): follow up with Android: do we want to copy this too?
+#endif
     }
     SkDEBUGCODE(this->validate();)
     return *this;
@@ -220,10 +224,6 @@ void SkPath::copyFields(const SkPath& that) {
     fDirection       = that.fDirection;
     fIsFinite        = that.fIsFinite;
     fIsOval          = that.fIsOval;
-#ifdef SK_BUILD_FOR_ANDROID
-    GEN_ID_INC;
-    fSourcePath      = NULL;
-#endif
 }
 
 SK_API bool operator==(const SkPath& a, const SkPath& b) {
@@ -253,8 +253,13 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<uint8_t>(fDirection, that.fDirection);
         SkTSwap<SkBool8>(fIsFinite, that.fIsFinite);
         SkTSwap<SkBool8>(fIsOval, that.fIsOval);
+#ifdef SK_BUILD_FOR_ANDROID
+        // It doesn't really make sense to swap the generation IDs here, because they might go
+        // backwards.  To be safe we increment both to mark them both as changed.
         GEN_ID_INC;
         GEN_ID_PTR_INC(&that);
+        SkTSwap<const SkPath*>(fSourcePath, that.fSourcePath);
+#endif
     }
 }
 
