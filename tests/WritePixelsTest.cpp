@@ -473,7 +473,5 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
 }
 }
 
-#ifndef SK_BUILD_FOR_ANDROID
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("WritePixels", WritePixelsTestClass, WritePixelsTest)
-#endif
