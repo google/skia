@@ -40,11 +40,10 @@ public:
     SK_DECLARE_INST_COUNT_ROOT(SkPath);
 
     SkPath();
-    SkPath(const SkPath&);
+    SkPath(const SkPath&);  // Copies fGenerationID on Android.
     ~SkPath();
 
-    SkPath& operator=(const SkPath&);
-
+    SkPath& operator=(const SkPath&);  // Increments fGenerationID on Android.
     friend  SK_API bool operator==(const SkPath&, const SkPath&);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
@@ -167,14 +166,12 @@ public:
 
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
-        This does NOT change the fill-type setting nor isConvex
     */
     void reset();
 
     /** Similar to reset(), in that all lines and curves are removed from the
         path. However, any internal storage for those lines/curves is retained,
         making reuse of the path potentially faster.
-        This does NOT change the fill-type setting nor isConvex
     */
     void rewind();
 
@@ -965,8 +962,7 @@ private:
 
     /** Sets all fields other than fPathRef to the values in 'that'.
      *  Assumes the caller has already set fPathRef.
-     *  On Android increments fGenerationID without copying it.
-     *  On Android sets fSourcePath to NULL.
+     *  Doesn't change fGenerationID or fSourcePath on Android.
      */
     void copyFields(const SkPath& that);
 

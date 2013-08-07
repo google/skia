@@ -15,8 +15,9 @@
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkSize.h"
-#include "SkWriter32.h"
 #include "SkSurface.h"
+#include "SkTypes.h"
+#include "SkWriter32.h"
 
 #if defined(WIN32)
     #define SUPPRESS_VISIBILITY_WARNING
@@ -29,6 +30,23 @@ static SkSurface* new_surface(int w, int h) {
         w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
     };
     return SkSurface::NewRaster(info);
+}
+
+static void test_android_specific_behavior(skiatest::Reporter* reporter) {
+#ifdef SK_BUILD_FOR_ANDROID
+    // Copy constructor should preserve generation ID, but assignment shouldn't.
+    SkPath original;
+    original.moveTo(0, 0);
+    original.lineTo(1, 1);
+    REPORTER_ASSERT(reporter, original.getGenerationID() > 0);
+
+    const SkPath copy(original);
+    REPORTER_ASSERT(reporter, copy.getGenerationID() == original.getGenerationID());
+
+    SkPath assign;
+    assign = original;
+    REPORTER_ASSERT(reporter, assign.getGenerationID() != original.getGenerationID());
+#endif
 }
 
 // This used to assert in the debug build, as the edges did not all line-up.
@@ -2450,6 +2468,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_crbug_170666();
     test_bad_cubic_crbug229478();
     test_bad_cubic_crbug234190();
+    test_android_specific_behavior(reporter);
 }
 
 #include "TestClassDef.h"
