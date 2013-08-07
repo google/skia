@@ -131,7 +131,7 @@
             [ "bitmap-64bitMD5", 12021873154910819088 ]
          ],
          "ignore-failure" : false
-      }
+      },
       "gif_test.gif" : {
          "ignore-failure" : true
       }
