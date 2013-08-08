@@ -388,10 +388,7 @@ static PdfResult DrawText(PdfContext* pdfContext,
 
     pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
 
-    canvas->save();
-
     skfont->drawText(decoded, &paint, pdfContext, canvas);
-    canvas->restore();
 
     return kOK_PdfResult;
 }
@@ -1581,7 +1578,7 @@ static PdfResult PdfOp_CS_cs(PdfContext* pdfContext, SkCanvas* canvas, SkPdfColo
     //Next, get the ColorSpace Dictionary from the Resource Dictionary:
     SkPdfDictionary* colorSpaceResource = pdfContext->fGraphicsState.fResources->ColorSpace(pdfContext->fPdfDoc);
 
-    SkPdfObject* colorSpace = pdfContext->fPdfDoc->resolveReference(colorSpaceResource->get(name));
+    SkPdfObject* colorSpace = colorSpaceResource ? pdfContext->fPdfDoc->resolveReference(colorSpaceResource->get(name)) : name;
 
     if (colorSpace == NULL) {
         colorOperator->fColorSpace = name->strRef();
