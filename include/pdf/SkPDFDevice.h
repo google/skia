@@ -293,8 +293,10 @@ private:
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
 
+#ifdef SK_PDF_USE_PATHOPS
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable);
+#endif
     bool handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
                               const SkPaint& paint);
     bool handlePointAnnotation(const SkPoint* points, size_t count,

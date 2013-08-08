@@ -327,6 +327,96 @@ static void emit_clip(SkPath* clipPath, SkRect* clipRect,
     }
 }
 
+#ifdef SK_PDF_USE_PATHOPS
+/* Calculate an inverted path's equivalent non-inverted path, given the
+ * canvas bounds.
+ * outPath may alias with invPath (since this is supported by PathOps).
+ */
+static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
+                                   SkPath* outPath) {
+    SkASSERT(invPath.isInverseFillType());
+
+    SkPath clipPath;
+    clipPath.addRect(bounds);
+
+    return Op(clipPath, invPath, kIntersect_PathOp, outPath);
+}
+
+// Sanity check the numerical values of the SkRegion ops and PathOps ops
+// enums so region_op_to_pathops_op can do a straight passthrough cast.
+// If these are failing, it may be necessary to make region_op_to_pathops_op
+// do more.
+SK_COMPILE_ASSERT(SkRegion::kDifference_Op == (int)kDifference_PathOp,
+                  region_pathop_mismatch);
+SK_COMPILE_ASSERT(SkRegion::kIntersect_Op == (int)kIntersect_PathOp,
+                  region_pathop_mismatch);
+SK_COMPILE_ASSERT(SkRegion::kUnion_Op == (int)kUnion_PathOp,
+                  region_pathop_mismatch);
+SK_COMPILE_ASSERT(SkRegion::kXOR_Op == (int)kXOR_PathOp,
+                  region_pathop_mismatch);
+SK_COMPILE_ASSERT(SkRegion::kReverseDifference_Op ==
+                  (int)kReverseDifference_PathOp,
+                  region_pathop_mismatch);
+
+static SkPathOp region_op_to_pathops_op(SkRegion::Op op) {
+    SkASSERT(op >= 0);
+    SkASSERT(op <= SkRegion::kReverseDifference_Op);
+    return (SkPathOp)op;
+}
+
+/* Uses Path Ops to calculate a vector SkPath clip from a clip stack.
+ * Returns true if successful, or false if not successful.
+ * If successful, the resulting clip is stored in outClipPath.
+ * If not successful, outClipPath is undefined, and a fallback method
+ * should be used.
+ */
+static bool get_clip_stack_path(const SkMatrix& transform,
+                                const SkClipStack& clipStack,
+                                const SkRegion& clipRegion,
+                                SkPath* outClipPath) {
+    outClipPath->reset();
+    outClipPath->setFillType(SkPath::kInverseWinding_FillType);
+
+    const SkClipStack::Element* clipEntry;
+    SkClipStack::Iter iter;
+    iter.reset(clipStack, SkClipStack::Iter::kBottom_IterStart);
+    for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
+        SkPath entryPath;
+        if (SkClipStack::Element::kEmpty_Type == clipEntry->getType()) {
+            outClipPath->reset();
+            outClipPath->setFillType(SkPath::kInverseWinding_FillType);
+            continue;
+        } else if (SkClipStack::Element::kRect_Type == clipEntry->getType()) {
+            entryPath.addRect(clipEntry->getRect());
+        } else if (SkClipStack::Element::kPath_Type == clipEntry->getType()) {
+            entryPath = clipEntry->getPath();
+        }
+        entryPath.transform(transform);
+
+        if (SkRegion::kReplace_Op == clipEntry->getOp()) {
+            *outClipPath = entryPath;
+        } else {
+            SkPathOp op = region_op_to_pathops_op(clipEntry->getOp());
+            if (!Op(*outClipPath, entryPath, op, outClipPath)) {
+                return false;
+            }
+        }
+    }
+
+    if (outClipPath->isInverseFillType()) {
+        // The bounds are slightly outset to ensure this is correct in the
+        // face of floating-point accuracy and possible SkRegion bitmap
+        // approximations.
+        SkRect clipBounds = SkRect::Make(clipRegion.getBounds());
+        clipBounds.outset(SK_Scalar1, SK_Scalar1);
+        if (!calculate_inverse_path(clipBounds, *outClipPath, outClipPath)) {
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
 // TODO(vandebo): Take advantage of SkClipStack::getSaveCount(), the PDF
 // graphic state stack, and the fact that we can know all the clips used
 // on the page to optimize this.
@@ -345,6 +435,19 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     }
     push();
 
+    currentEntry()->fClipStack = clipStack;
+    currentEntry()->fClipRegion = clipRegion;
+
+    SkMatrix transform;
+    transform.setTranslate(translation.fX, translation.fY);
+
+#ifdef SK_PDF_USE_PATHOPS
+    SkPath clipPath;
+    if (get_clip_stack_path(transform, clipStack, clipRegion, &clipPath)) {
+        emit_clip(&clipPath, NULL, fContentStream);
+        return;
+    }
+#endif
     // gsState->initialEntry()->fClipStack/Region specifies the clip that has
     // already been applied.  (If this is a top level device, then it specifies
     // a clip to the content area.  If this is a layer, then it specifies
@@ -373,8 +476,6 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
         emit_clip(&clipPath, NULL, fContentStream);
     } else {
         skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
-        SkMatrix transform;
-        transform.setTranslate(translation.fX, translation.fY);
         const SkClipStack::Element* clipEntry;
         for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
             SkASSERT(clipEntry->getOp() == SkRegion::kIntersect_Op);
@@ -396,8 +497,6 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
             }
         }
     }
-    currentEntry()->fClipStack = clipStack;
-    currentEntry()->fClipRegion = clipRegion;
 }
 
 void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
@@ -1239,19 +1338,7 @@ SkData* SkPDFDevice::copyContentToData() const {
     return data.copyToData();
 }
 
-/* Calculate an inverted path's equivalent non-inverted path, given the
- * canvas bounds.
- */
-static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
-                                   SkPath* outPath) {
-    SkASSERT(invPath.isInverseFillType());
-
-    SkPath clipPath;
-    clipPath.addRect(bounds);
-
-    return Op(clipPath, invPath, kIntersect_PathOp, outPath);
-}
-
+#ifdef SK_PDF_USE_PATHOPS
 /* Draws an inverse filled path by using Path Ops to compute the positive
  * inverse using the current clip as the inverse bounds.
  * Return true if this was an inverse path and was properly handled,
@@ -1312,6 +1399,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
     drawPath(d, modifiedPath, noInversePaint, NULL, true);
     return true;
 }
+#endif
 
 bool SkPDFDevice::handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
                                        const SkPaint& p) {
