@@ -29,20 +29,15 @@ namespace {
 static const int kVertsPerQuad = 5;
 static const int kIdxsPerQuad = 9;
 
-static const int kVertsPerLineSeg = 6;
-static const int kIdxsPerLineSeg = 12;
+static const int kVertsPerLineSeg = 4;
+static const int kIdxsPerLineSeg = 6;
 
 static const int kNumQuadsInIdxBuffer = 256;
 static const size_t kQuadIdxSBufize = kIdxsPerQuad *
                                       sizeof(uint16_t) *
                                       kNumQuadsInIdxBuffer;
 
-static const int kNumLineSegsInIdxBuffer = 256;
-static const size_t kLineSegIdxSBufize = kIdxsPerLineSeg *
-                                         sizeof(uint16_t) *
-                                         kNumLineSegsInIdxBuffer;
-
-static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
+bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
     uint16_t* data = (uint16_t*) qIdxBuffer->lock();
     bool tempData = NULL == data;
     if (tempData) {
@@ -83,66 +78,22 @@ static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
         return true;
     }
 }
-
-static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
-    uint16_t* data = (uint16_t*) lIdxBuffer->lock();
-    bool tempData = NULL == data;
-    if (tempData) {
-        data = SkNEW_ARRAY(uint16_t, kNumLineSegsInIdxBuffer * kIdxsPerLineSeg);
-    }
-    for (int i = 0; i < kNumLineSegsInIdxBuffer; ++i) {
-        // Each line segment is rendered as two quads, with alpha = 1 along the
-        // spine of the segment, and alpha = 0 along the outer edges, represented
-        // horizontally (i.e., the line equation is t*(p1-p0) + p0)
-        //
-        // p4                  p5
-        // p0                  p1
-        // p2                  p3
-        //
-        // Each is drawn as four triangles specified by these 12 indices:
-        int baseIdx = i * kIdxsPerLineSeg;
-        uint16_t baseVert = (uint16_t)(i * kVertsPerLineSeg);
-        data[0 + baseIdx] = baseVert + 0; // p0
-        data[1 + baseIdx] = baseVert + 1; // p1
-        data[2 + baseIdx] = baseVert + 2; // p2
-        
-        data[3 + baseIdx] = baseVert + 2; // p2
-        data[4 + baseIdx] = baseVert + 1; // p1
-        data[5 + baseIdx] = baseVert + 3; // p3
-        
-        data[6 + baseIdx] = baseVert + 0; // p0
-        data[7 + baseIdx] = baseVert + 5; // p5
-        data[8 + baseIdx] = baseVert + 1; // p1
-        
-        data[9 + baseIdx] = baseVert + 0; // p0
-        data[10+ baseIdx] = baseVert + 4; // p4
-        data[11+ baseIdx] = baseVert + 5; // p5
-    }
-    if (tempData) {
-        bool ret = lIdxBuffer->updateData(data, kLineSegIdxSBufize);
-        delete[] data;
-        return ret;
-    } else {
-        lIdxBuffer->unlock();
-        return true;
-    }
-}
 }
 
 GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
+    const GrIndexBuffer* lIdxBuffer = context->getQuadIndexBuffer();
+    if (NULL == lIdxBuffer) {
+        return NULL;
+    }
     GrGpu* gpu = context->getGpu();
     GrIndexBuffer* qIdxBuf = gpu->createIndexBuffer(kQuadIdxSBufize, false);
     SkAutoTUnref<GrIndexBuffer> qIdxBuffer(qIdxBuf);
-    if (NULL == qIdxBuf || !push_quad_index_data(qIdxBuf)) {
-        return NULL;
-    }
-    GrIndexBuffer* lIdxBuf = gpu->createIndexBuffer(kLineSegIdxSBufize, false);
-    SkAutoTUnref<GrIndexBuffer> lIdxBuffer(lIdxBuf);
-    if (NULL == lIdxBuf || !push_line_index_data(lIdxBuf)) {
+    if (NULL == qIdxBuf ||
+        !push_quad_index_data(qIdxBuf)) {
         return NULL;
     }
     return SkNEW_ARGS(GrAAHairLinePathRenderer,
-                      (context, lIdxBuf, qIdxBuf));
+                      (context, lIdxBuffer, qIdxBuf));
 }
 
 GrAAHairLinePathRenderer::GrAAHairLinePathRenderer(
@@ -485,7 +436,9 @@ struct Vertex {
     GrPoint fPos;
     union {
         struct {
-            SkScalar fCoverage;
+            SkScalar fA;
+            SkScalar fB;
+            SkScalar fC;
         } fLine;
         struct {
             SkScalar fK;
@@ -708,17 +661,17 @@ void add_line(const SkPoint p[2],
     if (orthVec.setLength(SK_Scalar1)) {
         orthVec.setOrthog(orthVec);
 
+        SkScalar lineC = -(a.dot(orthVec));
         for (int i = 0; i < kVertsPerLineSeg; ++i) {
-            (*vert)[i].fPos = (i & 0x1) ? b : a;
-            if (i & 0x2) {
-                (*vert)[i].fPos += orthVec;
-                (*vert)[i].fLine.fCoverage = 0;
-            } else if (i & 0x4) {
+            (*vert)[i].fPos = (i < 2) ? a : b;
+            if (0 == i || 3 == i) {
                 (*vert)[i].fPos -= orthVec;
-                (*vert)[i].fLine.fCoverage = 0;
             } else {
-                (*vert)[i].fLine.fCoverage = SK_Scalar1;
+                (*vert)[i].fPos += orthVec;
             }
+            (*vert)[i].fLine.fA = orthVec.fX;
+            (*vert)[i].fLine.fB = orthVec.fY;
+            (*vert)[i].fLine.fC = lineC;
         }
         if (NULL != toSrc) {
             toSrc->mapPointsWithStride(&(*vert)->fPos,
@@ -731,8 +684,6 @@ void add_line(const SkPoint p[2],
         (*vert)[1].fPos.set(SK_ScalarMax, SK_ScalarMax);
         (*vert)[2].fPos.set(SK_ScalarMax, SK_ScalarMax);
         (*vert)[3].fPos.set(SK_ScalarMax, SK_ScalarMax);
-        (*vert)[4].fPos.set(SK_ScalarMax, SK_ScalarMax);
-        (*vert)[5].fPos.set(SK_ScalarMax, SK_ScalarMax);
     }
 
     *vert += kVertsPerLineSeg;
@@ -985,7 +936,7 @@ GrEffectRef* HairQuadEdgeEffect::TestCreate(SkMWCRandom* random,
 
 /**
  * The output of this effect is a 1-pixel wide line.
- * Input is coverage relative to the line.
+ * Input is 2D implicit device coord line eq (a*x + b*y +c = 0). 4th component unused.
  */
 class HairLineEdgeEffect : public GrEffect {
 public:
@@ -1027,7 +978,9 @@ public:
 
             builder->addVarying(kVec4f_GrSLType, "HairLineEdge", &vsName, &fsName);
 
-            builder->fsCodeAppendf("\t\tedgeAlpha = %s.x;\n", fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n",
+                                   builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
 
             SkString modulate;
             GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
@@ -1238,15 +1191,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 #endif
 
     {
-        // the fact we're using an effect to pass per-vertex coverage is kind of dumb,
-        // but necessary due to the shared vertex buffer
-        // TODO: refactor so that we render lines with a separate vertex buffer
         GrDrawState::AutoRestoreEffects are(drawState);
         target->setIndexSourceToBuffer(fLinesIndexBuffer);
         int lines = 0;
+        int nBufLines = fLinesIndexBuffer->maxQuads();
         drawState->addCoverageEffect(hairLineEffect, kEdgeAttrIndex)->unref();
         while (lines < lineCnt) {
-            int n = GrMin(lineCnt - lines, kNumLineSegsInIdxBuffer);
+            int n = GrMin(lineCnt - lines, nBufLines);
             target->drawIndexed(kTriangles_GrPrimitiveType,
                                 kVertsPerLineSeg*lines,     // startV
                                 0,                          // startI
