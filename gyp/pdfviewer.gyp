@@ -72,9 +72,7 @@
         '<(SHARED_INTERMEDIATE_DIR)/native/autogen',
       ],
       'dependencies': [
-        'core.gyp:core',
-        'effects.gyp:effects',
-        'images.gyp:images',
+        'skia_lib.gyp:skia_lib',
         'zlib.gyp:zlib',
       ],
     },
@@ -96,7 +94,7 @@
         '../experimental/PdfViewer/pdfparser/native/autogen',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_lib.gyp:skia_lib',
         'flags.gyp:flags',
         'libpdfviewer',
         'chop_transparency',
