@@ -68,7 +68,7 @@ protected:
 
         SkDevice devTmp(SkBitmap::kARGB_8888_Config, 40, 40);
         SkCanvas canvasTmp(&devTmp);
-        
+
         draw_checks(&canvasTmp, 40, 40);
         SkBitmap src = canvasTmp.getTopDevice()->accessBitmap(false);
 
