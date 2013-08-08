@@ -127,6 +127,7 @@
     '../gm/xfermodeimagefilter.cpp',
     '../gm/xfermodes.cpp',
     '../gm/xfermodes2.cpp',
+    '../gm/xfermodes3.cpp',
   ],
 }
 
