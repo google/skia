@@ -104,6 +104,7 @@
         '../tests/RefCntTest.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
+        '../tests/ResourceCacheTest.cpp',
         '../tests/RoundRectTest.cpp',
         '../tests/RTreeTest.cpp',
         '../tests/SHA1Test.cpp',
