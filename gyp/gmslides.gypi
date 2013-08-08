@@ -20,6 +20,7 @@
     '../gm/blurquickreject.cpp',
     '../gm/blurrect.cpp',
     '../gm/circles.cpp',
+    '../gm/circularclips.cpp',
     '../gm/colorfilterimagefilter.cpp',
     '../gm/colormatrix.cpp',
     '../gm/colortype.cpp',
