@@ -133,7 +133,7 @@ protected:
                     scale.postTranslate(25.f, 25.f);
                     shader->setLocalMatrix(scale);
                 }
-                    
+
                 paint.setShader(shader);
                 canvas->drawRect(r, paint);
                 shader->unref();

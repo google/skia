@@ -60,4 +60,3 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     *result = device->accessBitmap(false);
     return true;
 }
-
