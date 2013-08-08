@@ -725,8 +725,6 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
 
     PdfOp_q(pdfContext, canvas, NULL);
 
-    canvas->save();
-
 
     if (skobj->Resources(pdfContext->fPdfDoc)) {
         pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
@@ -777,7 +775,6 @@ static PdfResult doXObject_Form(PdfContext* pdfContext, SkCanvas* canvas, SkPdfT
         canvas->restore();
     }
 
-    canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
     return kPartial_PdfResult;
 }
@@ -794,8 +791,6 @@ static PdfResult doXObject_Pattern(PdfContext* pdfContext, SkCanvas* canvas, SkP
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
-
-    canvas->save();
 
 
     if (skobj->Resources(pdfContext->fPdfDoc)) {
@@ -832,7 +827,6 @@ static PdfResult doXObject_Pattern(PdfContext* pdfContext, SkCanvas* canvas, SkP
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
 
-    canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
     return kPartial_PdfResult;
 }
@@ -848,7 +842,6 @@ PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObjec
     }
 
     PdfOp_q(pdfContext, canvas, NULL);
-    canvas->save();
 
     pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
     pdfContext->fGraphicsState.fMatrixTm.preScale(SkDoubleToScalar(textSize), SkDoubleToScalar(textSize));
@@ -883,7 +876,6 @@ PdfResult doType3Char(PdfContext* pdfContext, SkCanvas* canvas, const SkPdfObjec
 
     // TODO(edisonn): should we restore the variable stack at the same state?
     // There could be operands left, that could be consumed by a parent tokenizer when we pop.
-    canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
 
     return kPartial_PdfResult;
@@ -1284,7 +1276,6 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
                 // TODO(edisonn): we can use a shader here, like imageshader to draw fast. ultimately,
                 // if this is not possible, and we are in rasper mode, and the cells don't intersect, we could even have multiple cpus.
 
-                canvas->save();
                 PdfOp_q(pdfContext, canvas, NULL);
 
                 if (evenOdd) {
@@ -1340,7 +1331,6 @@ static PdfResult PdfOp_fillAndStroke(PdfContext* pdfContext, SkCanvas* canvas, b
                 // get xstep, y step, bbox ... for cliping, and bos of the path
 
                 PdfOp_Q(pdfContext, canvas, NULL);
-                canvas->restore();
             } else {
                 paint.setStyle(SkPaint::kFill_Style);
                 if (evenOdd) {
