@@ -5,16 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow_opts_arm.h"
-
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
 #include "SkUtils.h"
+#include "SkUtilsArm.h"
 
 #include "SkCachePreload_arm.h"
+
+// Define USE_NEON_CODE to indicate that we need to build NEON routines
+#define USE_NEON_CODE  (!SK_ARM_NEON_IS_NONE)
+
+// Define USE_ARM_CODE to indicate that we need to build ARM routines
+#define USE_ARM_CODE   (!SK_ARM_NEON_IS_ALWAYS)
+
+#if USE_NEON_CODE
+  #include "SkBlitRow_opts_arm_neon.h"
+#endif
 
 #if USE_ARM_CODE
 
@@ -185,12 +194,10 @@ static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
                   : "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "ip", "memory"
                   );
 }
-#endif // USE_ARM_CODE
 
 /*
  * ARM asm version of S32A_Blend_BlitRow32
  */
-// This version is also used by the NEON procs table, so always compile it
 void S32A_Blend_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
                               const SkPMColor* SK_RESTRICT src,
                               int count, U8CPU alpha) {
@@ -331,8 +338,7 @@ void S32A_Blend_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if USE_ARM_CODE
-const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[] = {
+static const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[] = {
     // no dither
     // NOTE: For the functions below, we don't have a special version
     //       that assumes that each source pixel is opaque. But our S32A is
@@ -349,13 +355,14 @@ const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm[] = {
     NULL,   // S32A_D565_Blend_Dither
 };
 
-const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
+static const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     NULL,   // S32_Opaque,
     NULL,   // S32_Blend,
     S32A_Opaque_BlitRow32_arm,   // S32A_Opaque,
     S32A_Blend_BlitRow32_arm     // S32A_Blend
 };
-#endif
+
+#endif // USE_ARM_CODE
 
 SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return SK_ARM_NEON_WRAP(sk_blitrow_platform_565_procs_arm)[flags];
