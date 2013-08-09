@@ -29,12 +29,7 @@ protected:
         SkDevice *device = canvas->getDevice()->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, CANVAS_WIDTH, CANVAS_HEIGHT, false);
 
-        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
-            SkDeferredCanvas::Create(device));
-#else
-            SkNEW_ARGS(SkDeferredCanvas, (device)));
-#endif
+        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(device));
         device->unref();
 
         initDeferredCanvas(deferredCanvas);
