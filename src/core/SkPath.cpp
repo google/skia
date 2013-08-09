@@ -226,7 +226,7 @@ void SkPath::copyFields(const SkPath& that) {
     fIsOval          = that.fIsOval;
 }
 
-SK_API bool operator==(const SkPath& a, const SkPath& b) {
+bool operator==(const SkPath& a, const SkPath& b) {
     // note: don't need to look at isConvex or bounds, since just comparing the
     // raw data is sufficient.
 
