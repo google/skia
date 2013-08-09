@@ -16,7 +16,7 @@ static const int gWidth = 640;
 static const int gHeight = 480;
 
 ////////////////////////////////////////////////////////////////////////////////
-static void test_cache(skiatest::Reporter* reporter, 
+static void test_cache(skiatest::Reporter* reporter,
                        GrContext* context,
                        SkCanvas* canvas) {
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);
@@ -32,7 +32,7 @@ static void test_cache(skiatest::Reporter* reporter,
     int oldMaxNum;
     size_t oldMaxBytes;
     context->getTextureCacheLimits(&oldMaxNum, &oldMaxBytes);
-    
+
     // Set the cache limits so we can fit 10 "src" images and the
     // max number of textures doesn't matter
     size_t maxCacheSize = initialCacheSize + 10*srcSize;
