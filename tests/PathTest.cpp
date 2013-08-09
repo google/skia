@@ -32,6 +32,56 @@ static SkSurface* new_surface(int w, int h) {
     return SkSurface::NewRaster(info);
 }
 
+static void test_path_close_issue1474(skiatest::Reporter* reporter) {
+    // This test checks that r{Line,Quad,Conic,Cubic}To following a close()
+    // are relative to the point we close to, not relative to the point we close from.
+    SkPath path;
+    SkPoint last;
+
+    // Test rLineTo().
+    path.rLineTo(0, 100);
+    path.rLineTo(100, 0);
+    path.close();          // Returns us back to 0,0.
+    path.rLineTo(50, 50);  // This should go to 50,50.
+
+    path.getLastPt(&last);
+    REPORTER_ASSERT(reporter, 50 == last.fX);
+    REPORTER_ASSERT(reporter, 50 == last.fY);
+
+    // Test rQuadTo().
+    path.rewind();
+    path.rLineTo(0, 100);
+    path.rLineTo(100, 0);
+    path.close();
+    path.rQuadTo(50, 50, 75, 75);
+
+    path.getLastPt(&last);
+    REPORTER_ASSERT(reporter, 75 == last.fX);
+    REPORTER_ASSERT(reporter, 75 == last.fY);
+
+    // Test rConicTo().
+    path.rewind();
+    path.rLineTo(0, 100);
+    path.rLineTo(100, 0);
+    path.close();
+    path.rConicTo(50, 50, 85, 85, 2);
+
+    path.getLastPt(&last);
+    REPORTER_ASSERT(reporter, 85 == last.fX);
+    REPORTER_ASSERT(reporter, 85 == last.fY);
+
+    // Test rCubicTo().
+    path.rewind();
+    path.rLineTo(0, 100);
+    path.rLineTo(100, 0);
+    path.close();
+    path.rCubicTo(50, 50, 85, 85, 95, 95);
+
+    path.getLastPt(&last);
+    REPORTER_ASSERT(reporter, 95 == last.fX);
+    REPORTER_ASSERT(reporter, 95 == last.fY);
+}
+
 static void test_android_specific_behavior(skiatest::Reporter* reporter) {
 #ifdef SK_BUILD_FOR_ANDROID
     // Copy constructor should preserve generation ID, but assignment shouldn't.
@@ -2469,6 +2519,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_bad_cubic_crbug229478();
     test_bad_cubic_crbug234190();
     test_android_specific_behavior(reporter);
+    test_path_close_issue1474(reporter);
 }
 
 #include "TestClassDef.h"
