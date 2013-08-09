@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow_opts_arm.h"
+#include "SkBlitRow_opts_arm_neon.h"
 
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
