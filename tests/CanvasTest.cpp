@@ -780,12 +780,7 @@ public:
         SkBitmap deferredStore;
         createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
         SkDevice deferredDevice(deferredStore);
-        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
-            SkDeferredCanvas::Create(&deferredDevice));
-#else
-            SkNEW_ARGS(SkDeferredCanvas, (&deferredDevice)));
-#endif
+        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(&deferredDevice));
         testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
         testStep->draw(deferredCanvas, reporter);
         testStep->setAssertMessageFormat(kDeferredPreFlushAssertMessageFormat);

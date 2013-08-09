@@ -550,33 +550,15 @@ private:
     SkDeferredCanvas* fCanvas;
 };
 
-#if !SK_DEFERRED_CANVAS_USES_FACTORIES
-SkDeferredCanvas::SkDeferredCanvas() {
-    this->init();
-}
-
-SkDeferredCanvas::SkDeferredCanvas(SkDevice* device) {
-    this->init();
-    this->setDevice(device);
-}
-
-SkDeferredCanvas::SkDeferredCanvas(SkSurface* surface) {
-    this->init();
-    this->INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (surface)))->unref();
-}
-#endif
-
 SkDeferredCanvas* SkDeferredCanvas::Create(SkSurface* surface) {
     SkAutoTUnref<DeferredDevice> deferredDevice(SkNEW_ARGS(DeferredDevice, (surface)));
     return SkNEW_ARGS(SkDeferredCanvas, (deferredDevice));
 }
 
-#ifdef SK_DEVELOPER
 SkDeferredCanvas* SkDeferredCanvas::Create(SkDevice* device) {
     SkAutoTUnref<DeferredDevice> deferredDevice(SkNEW_ARGS(DeferredDevice, (device)));
     return SkNEW_ARGS(SkDeferredCanvas, (deferredDevice));
 }
-#endif
 
 SkDeferredCanvas::SkDeferredCanvas(DeferredDevice* device) : SkCanvas (device) {
     this->init();
@@ -660,15 +642,6 @@ void SkDeferredCanvas::silentFlush() {
 }
 
 SkDeferredCanvas::~SkDeferredCanvas() {
-}
-
-SkDevice* SkDeferredCanvas::setDevice(SkDevice* device) {
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
-    SkASSERT(0); // setDevice is deprecated
-#else
-    this->INHERITED::setDevice(SkNEW_ARGS(DeferredDevice, (device)))->unref();
-#endif
-    return device;
 }
 
 SkSurface* SkDeferredCanvas::setSurface(SkSurface* surface) {

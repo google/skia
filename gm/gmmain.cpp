@@ -519,11 +519,7 @@ public:
         if (gRec.fBackend == kRaster_Backend) {
             SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (*bitmap)));
             if (deferred) {
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
                 canvas.reset(SkDeferredCanvas::Create(device));
-#else
-                canvas.reset(SkNEW_ARGS(SkDeferredCanvas, (device)));
-#endif
             } else {
                 canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
             }
@@ -534,11 +530,7 @@ public:
         else {  // GPU
             SkAutoTUnref<SkDevice> device(SkGpuDevice::Create(gpuTarget));
             if (deferred) {
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
                 canvas.reset(SkDeferredCanvas::Create(device));
-#else
-                canvas.reset(SkNEW_ARGS(SkDeferredCanvas, (device)));
-#endif
             } else {
                 canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
             }

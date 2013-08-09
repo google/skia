@@ -15,11 +15,6 @@ class DeferredDevice;
 class SkImage;
 class SkSurface;
 
-#if !defined(SK_DEFERRED_CANVAS_USES_FACTORIES)
-// This is temporary, for rolling the API change into Chromium/Blink
-#define SK_DEFERRED_CANVAS_USES_FACTORIES 0
-#endif
-
 /** \class SkDeferredCanvas
     Subclass of SkCanvas that encapsulates an SkPicture or SkGPipe for deferred
     drawing. The main difference between this class and SkPictureRecord (the
@@ -38,41 +33,9 @@ public:
      */
     static SkDeferredCanvas* Create(SkSurface* surface);
 
-#ifdef SK_DEVELOPER
-    static SkDeferredCanvas* Create(SkDevice* device); // Used for testing
-#endif
-
-#if !SK_DEFERRED_CANVAS_USES_FACTORIES
-    /** DEPRECATED
-     */
-    SkDeferredCanvas();
-
-    /** DEPRACATED, use create instead
-        Construct a canvas with the specified device to draw into.
-        Equivalent to calling default constructor, then setDevice.
-        @param device Specifies a device for the canvas to draw into.
-    */
-    explicit SkDeferredCanvas(SkDevice* device);
-
-    /** DEPRECATED, use create instead
-        Construct a canvas with the specified surface to draw into.
-        This constructor must be used for newImageSnapshot to work.
-        @param surface Specifies a surface for the canvas to draw into.
-    */
-    explicit SkDeferredCanvas(SkSurface* surface);
-#endif
+    static SkDeferredCanvas* Create(SkDevice* device);
 
     virtual ~SkDeferredCanvas();
-
-    /** DEPRECATED
-     *  Specify a device to be used by this canvas. Calling setDevice will
-     *  release the previously set device, if any. Takes a reference on the
-     *  device.
-     *
-     *  @param device The device that the canvas will raw into
-     *  @return The device argument, for convenience.
-     */
-    virtual SkDevice* setDevice(SkDevice* device);
 
     /**
      *  Specify the surface to be used by this canvas. Calling setSurface will

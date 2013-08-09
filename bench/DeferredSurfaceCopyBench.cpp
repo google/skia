@@ -53,12 +53,7 @@ protected:
         {
             surface = SkSurface::NewRaster(info);
         }
-        SkAutoTUnref<SkDeferredCanvas> drawingCanvas(
-#if SK_DEFERRED_CANVAS_USES_FACTORIES
-            SkDeferredCanvas::Create(surface));
-#else
-            SkNEW_ARGS(SkDeferredCanvas, (surface)));
-#endif
+        SkAutoTUnref<SkDeferredCanvas> drawingCanvas(SkDeferredCanvas::Create(surface));
         surface->unref();
 
         for (int iteration = 0; iteration < N; iteration++) {
