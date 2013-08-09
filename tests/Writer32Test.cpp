@@ -21,6 +21,34 @@ static void check_contents(skiatest::Reporter* reporter, const SkWriter32& write
     REPORTER_ASSERT(reporter, !memcmp(storage.get(), expected, size));
 }
 
+static void test_string_null(skiatest::Reporter* reporter) {
+    uint8_t storage[8];
+    SkWriter32 writer(0, storage, sizeof(storage));
+    SkReader32 reader(storage, sizeof(storage));
+
+    const char* str;
+    size_t len;
+
+    // Can we write NULL?
+    writer.writeString(NULL);
+    const int32_t null[] = { 0xFFFF };
+    check_contents(reporter, writer, null, sizeof(null));
+    str = reader.readString(&len);
+    REPORTER_ASSERT(reporter, NULL == str);
+    REPORTER_ASSERT(reporter, 0 == len);
+
+    writer.reset(storage, sizeof(storage));
+    reader.rewind();
+
+    // Is NULL distinct from ""?
+    writer.writeString("");
+    const int32_t empty[] = { 0x0, 0x0 };
+    check_contents(reporter, writer, empty, sizeof(empty));
+    str = reader.readString(&len);
+    REPORTER_ASSERT(reporter, 0 == strcmp("", str));
+    REPORTER_ASSERT(reporter, 0 == len);
+}
+
 static void test_rewind(skiatest::Reporter* reporter) {
     SkSWriter32<32> writer(32);
     int32_t array[3] = { 1, 2, 4 };
@@ -228,6 +256,7 @@ static void Tests(skiatest::Reporter* reporter) {
         testWritePad(reporter, &writer);
     }
 
+    test_string_null(reporter);
     test_ptr(reporter);
     test_rewind(reporter);
 }
