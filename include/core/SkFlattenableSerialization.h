@@ -17,4 +17,3 @@ SK_API SkData* SkSerializeFlattenable(SkFlattenable*);
 SK_API SkFlattenable* SkDeserializeFlattenable(const void* data, size_t size);
 
 #endif
-

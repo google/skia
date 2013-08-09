@@ -1,7 +1,7 @@
 # Include this gypi to include all public header files that use
 # the SK_API defines.
 #
-# The list is computed by running 'egrep -lr "SK_API" include' in the root dir 
+# The list is computed by running 'egrep -lr "SK_API" include' in the root dir
 # of the project.
 #
 {
