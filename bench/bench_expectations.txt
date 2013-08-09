@@ -1512,7 +1512,7 @@ tabl_googleblog.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25
 tabl_googleblog.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,37.390,23.651,51.129
 tabl_googleblog.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,63.610,47.249,79.971
 tabl_googleblog.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,66.750,50.075,83.425
-tabl_googleblog.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,717.030,635.327,798.733
+tabl_googleblog.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,717.030,615.327,798.733
 tabl_googleblog.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,63.970,47.573,80.367
 tabl_googleblog.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,68.330,51.497,85.163
 tabl_googleblog.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,893.980,794.582,993.378
