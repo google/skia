@@ -1218,47 +1218,11 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 };
 
 void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
-    SkASSERT((dst && src && count > 0) || 0 == count);
+    SkASSERT((dst && src && count > 0) || count == 0);
     // no partial overlap
     SkASSERT(src == dst || SkAbs32((int32_t)(src - dst)) >= count);
 
     this->getMapPtsProc()(*this, dst, src, count);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkMatrix::mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const {
-    SkASSERT((dst && src && count > 0) || 0 == count);
-    // no partial overlap
-    SkASSERT(src == dst || SkAbs32((int32_t)(src - dst)) >= 3*count);
-
-    if (count > 0) {
-        if (this->isIdentity()) {
-            memcpy(dst, src, 3*count*sizeof(SkScalar));
-            return;
-        }
-        do {
-            SkScalar sx = src[0];
-            SkScalar sy = src[1];
-            SkScalar sw = src[2];
-            src += 3;
-
-            SkScalar x = SkScalarMul(sx, fMat[kMScaleX]) +
-                         SkScalarMul(sy, fMat[kMSkewX]) +
-                         SkScalarMul(sw, fMat[kMTransX]);
-            SkScalar y = SkScalarMul(sx, fMat[kMSkewY]) +
-                         SkScalarMul(sy, fMat[kMScaleY]) +
-                         SkScalarMul(sw, fMat[kMTransY]);
-            SkScalar w = SkScalarMul(sx, fMat[kMPersp0]) +
-                         SkScalarMul(sy, fMat[kMPersp1]) +
-                         SkScalarMul(sw, fMat[kMPersp2]);
-
-            dst[0] = x;
-            dst[1] = y;
-            dst[2] = w;
-            dst += 3;
-        } while (--count);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
