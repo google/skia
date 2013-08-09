@@ -6401,6 +6401,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "xfermodes3_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11595333716616264543
+        ]
+      ]
+    }, 
+    "xfermodes3_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14790336341677145591
+        ]
+      ]
+    }, 
+    "xfermodes3_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13778108239205119160
+        ]
+      ]
+    }, 
+    "xfermodes3_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5282280917246256546
+        ]
+      ]
+    }, 
     "xfermodes_565.png": {
       "allowed-digests": [
         [
