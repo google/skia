@@ -3918,6 +3918,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "xfermodes3_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12214323353074242983
+        ]
+      ]
+    }, 
+    "xfermodes3_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2774207337434276749
+        ]
+      ]
+    }, 
+    "xfermodes3_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3402081095160962419
+        ]
+      ]
+    }, 
     "xfermodes_565.png": {
       "allowed-digests": [
         [
