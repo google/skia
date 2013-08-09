@@ -2745,7 +2745,7 @@
           2352597049202920444
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "pathinterior_msaa4.png": {
       "allowed-digests": [
