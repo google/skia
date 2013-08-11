@@ -73,9 +73,6 @@ public:
     void possiblyDumpFile() const;
     void validate() const;
     template <typename T> void set(const char *confname, T value);
-#ifdef SK_SUPPORT_UNITTEST
-    static void UnitTest();
-#endif
 private:
     template<typename T> friend class SkRTConf;
 
@@ -85,9 +82,6 @@ private:
     SkTDArray<SkString *> fConfigFileKeys, fConfigFileValues;
     typedef SkTDict< SkTDArray<SkRTConfBase *> * > ConfMap;
     ConfMap fConfs;
-#ifdef SK_SUPPORT_UNITTEST
-    SkRTConfRegistry(bool);
-#endif
 };
 
 // our singleton registry
