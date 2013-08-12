@@ -1990,12 +1990,6 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength,
     LOOPER_END
 }
 
-void SkCanvas::drawPosTextBounded(const void* text, size_t byteLength,
-                                  const SkPoint pos[], const SkRect& bbox,
-                                  const SkPaint& paint) {
-    this->drawPosText(text, byteLength, pos, paint);
-}
-
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
                             const SkScalar xpos[], SkScalar constY,
                             const SkPaint& paint) {

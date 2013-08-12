@@ -176,14 +176,6 @@ void SkBBoxRecord::drawPosText(const void* text, size_t byteLength,
     }
 }
 
-void SkBBoxRecord::drawPosTextBounded(const void* text, size_t byteLength,
-                                      const SkPoint pos[], const SkRect& bbox,
-                                      const SkPaint& paint) {
-    if (this->transformBounds(bbox, &paint)) {
-        INHERITED::drawPosText(text, byteLength, pos, paint);
-    }
-}
-
 void SkBBoxRecord::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                                 SkScalar constY, const SkPaint& paint) {
     SkRect bbox;
