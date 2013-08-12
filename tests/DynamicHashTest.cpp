@@ -36,23 +36,23 @@ static void test_growth(skiatest::Reporter* reporter) {
     Entry d = { 4, 5.0 };
     Entry e = { 5, 6.0 };
 
-    Hash hash(0);
-    ASSERT(hash.capacity() == 1);
+    Hash hash(4);
+    ASSERT(hash.capacity() == 4);
 
     hash.add(&a);
-    ASSERT(hash.capacity() == 2);
+    ASSERT(hash.capacity() == 4);
 
     hash.add(&b);
     ASSERT(hash.capacity() == 4);
 
     hash.add(&c);
-    ASSERT(hash.capacity() == 8);
+    ASSERT(hash.capacity() == 4);
 
     hash.add(&d);
     ASSERT(hash.capacity() == 8);
 
     hash.add(&e);
-    ASSERT(hash.capacity() == 16);
+    ASSERT(hash.capacity() == 8);
 
     ASSERT(hash.count() == 5);
 }
@@ -61,20 +61,12 @@ static void test_add(skiatest::Reporter* reporter) {
     Hash hash;
     Entry a = { 1, 2.0 };
     Entry b = { 2, 3.0 };
-    Entry c = { 1, 1.0 };
 
     ASSERT(hash.count() == 0);
     hash.add(&a);
     ASSERT(hash.count() == 1);
     hash.add(&b);
     ASSERT(hash.count() == 2);
-    hash.add(&c);  // Overwrites a.
-    ASSERT(hash.count() == 2);
-
-    // Make sure the hash didn't modify the entries we inserted when overwriting.
-    ASSERT(a.value == 2.0);
-    ASSERT(b.value == 3.0);
-    ASSERT(c.value == 1.0);
 }
 
 static void test_lookup(skiatest::Reporter* reporter) {
