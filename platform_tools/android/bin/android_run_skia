@@ -33,3 +33,4 @@ adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so"
 
 
 $ADB ${DEVICE_SERIAL} shell /data/local/tmp/skia_launcher ${runVars[@]}
+exit $?
