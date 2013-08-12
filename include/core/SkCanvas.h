@@ -750,18 +750,6 @@ public:
     virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint& paint);
 
-    /** Draw the text, with each character/glyph origin specified by the pos[]
-        array. The origin is interpreted by the Align setting in the paint.
-        @param text The text to be drawn
-        @param byteLength   The number of bytes to read from the text parameter
-        @param pos      Array of positions, used to position each character
-        @param bbox     Precomputed bounding box of the text.
-        @param paint    The paint used for the text (e.g. color, size, style)
-        */
-    virtual void drawPosTextBounded(const void* text, size_t byteLength,
-                                    const SkPoint pos[], const SkRect& bbox,
-                                    const SkPaint& paint);
-
     /** Draw the text, with each character/glyph origin specified by the x
         coordinate taken from the xpos[] array, and the y from the constY param.
         The origin is interpreted by the Align setting in the paint.
