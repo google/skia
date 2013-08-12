@@ -15,6 +15,13 @@ import sys
 
 SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
 
+PUBLIC_API_OWNERS = (
+    'reed@chromium.org',
+    'reed@google.com',
+    'bsalomon@chromium.org',
+    'bsalomon@google.com',
+)
+
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with atleast one \n (LF)."""
@@ -96,6 +103,50 @@ def _CheckTreeStatus(input_api, output_api, json_url):
   return tree_status_results
 
 
+def _CheckLGTMsForPublicAPI(input_api, output_api):
+  """Check LGTMs for public API changes.
+
+  For public API files make sure there is an LGTM from the list of owners in
+  PUBLIC_API_OWNERS.
+  """
+  results = []
+  requires_owner_check = False
+  for affected_svn_file in input_api.AffectedFiles():
+    affected_file_path = affected_svn_file.AbsoluteLocalPath()
+    file_path, file_ext = os.path.splitext(affected_file_path)
+    # We only care about files that end in .h and are under the include dir.
+    if file_ext == '.h' and 'include' in file_path.split(os.path.sep):
+      requires_owner_check = True
+
+  if not requires_owner_check:
+    return results
+
+  lgtm_from_owner = False
+  issue = input_api.change.issue
+  if issue and input_api.rietveld:
+    issue_properties = input_api.rietveld.get_issue_properties(
+        issue=int(issue), messages=True)
+    if issue_properties['owner_email'] in PUBLIC_API_OWNERS:
+      # An owner created the CL that is an automatic LGTM.
+      lgtm_from_owner = True
+
+    messages = issue_properties.get('messages')
+    if messages:
+      for message in messages:
+        if (message['sender'] in PUBLIC_API_OWNERS and
+            'lgtm' in message['text'].lower()):
+          # Found an lgtm in a message from an owner.
+          lgtm_from_owner = True
+          break;
+       
+  if not lgtm_from_owner:
+    results.append(
+        output_api.PresubmitError(
+            'Since the CL is editing public API, you must have an LGTM from '
+            'one of: %s' % str(PUBLIC_API_OWNERS)))
+  return results
+
+
 def CheckChangeOnCommit(input_api, output_api):
   """Presubmit checks for the change on commit.
 
@@ -110,4 +161,5 @@ def CheckChangeOnCommit(input_api, output_api):
   results.extend(
       _CheckTreeStatus(input_api, output_api, json_url=(
           SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   return results
