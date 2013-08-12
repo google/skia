@@ -173,4 +173,13 @@ static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+static inline float SkFloatInvSqrt(float x) {
+    float xhalf = 0.5f * x;
+    int i = *SkTCast<int*>(&x);
+    i = 0x5f3759df - (i >> 1);
+    x = *SkTCast<float*>(&i);
+    x = x * (1.5f - xhalf * x * x);
+    return x;
+}
+
 #endif
