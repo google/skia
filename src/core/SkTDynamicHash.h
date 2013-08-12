@@ -15,13 +15,16 @@ template <typename T,
           typename Key,
           const Key& (GetKey)(const T&),
           uint32_t (Hash)(const Key&),
-          bool (Equal)(const T&, const Key&)>
+          bool (Equal)(const T&, const Key&),
+          int kGrowPercent   = 75,  // Larger -> more memory efficient, but slower.
+          int kShrinkPercent = 25>
 class SkTDynamicHash {
+    static const int kMinCapacity = 4;  // Smallest capacity we allow.
 public:
-    SkTDynamicHash(int initialCapacity=64/sizeof(T*))
-    : fCount(0)
-    , fCapacity(SkNextPow2(initialCapacity > 0 ? initialCapacity : 1))
-    , fArray(AllocArray(fCapacity)) {}
+    SkTDynamicHash(int initialCapacity=64/sizeof(T*)) {
+        this->reset(SkNextPow2(initialCapacity > kMinCapacity ? initialCapacity : kMinCapacity));
+        SkASSERT(this->validate());
+    }
 
     ~SkTDynamicHash() {
         sk_free(fArray);
@@ -34,10 +37,10 @@ public:
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
             T* candidate = fArray[index];
-            if (candidate == Empty()) {
+            if (Empty() == candidate) {
                 return NULL;
             }
-            if (candidate != Deleted() && Equal(*candidate, key)) {
+            if (Deleted() != candidate && Equal(*candidate, key)) {
                 return candidate;
             }
             index = this->nextIndex(index, round);
@@ -46,32 +49,22 @@ public:
         return NULL;
     }
 
-    // Add an entry with this key.
+    // Add an entry with this key.  We require that no entry with newEntry's key is already present.
     void add(T* newEntry) {
+        SkASSERT(NULL == this->find(GetKey(*newEntry)));
         this->maybeGrow();
-
-        const Key& key = GetKey(*newEntry);
-        int index = this->firstIndex(key);
-        for (int round = 0; round < fCapacity; round++) {
-            T* candidate = fArray[index];
-            if (candidate == Empty() || candidate == Deleted()) {
-                fArray[index] = newEntry;
-                fCount++;
-                return;
-            }
-            if (Equal(*candidate, key)) {
-                fArray[index] = newEntry;
-                return;
-            }
-            index = this->nextIndex(index, round);
-        }
-        SkASSERT(!"add: should be unreachable");
+        SkASSERT(this->validate());
+        this->innerAdd(newEntry);
+        SkASSERT(this->validate());
     }
 
-    // Remove entry with this key, if we have it.
+    // Remove the entry with this key.  We reqire that an entry with this key is present.
     void remove(const Key& key) {
+        SkASSERT(NULL != this->find(key));
         this->innerRemove(key);
+        SkASSERT(this->validate());
         this->maybeShrink();
+        SkASSERT(this->validate());
     }
 
 protected:
@@ -84,7 +77,7 @@ protected:
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
             const T* candidate = fArray[index];
-            if (candidate == Empty() || candidate == Deleted() || Equal(*candidate, key)) {
+            if (Empty() == candidate || Deleted() == candidate || Equal(*candidate, key)) {
                 return round;
             }
             index = this->nextIndex(index, round);
@@ -95,8 +88,8 @@ protected:
 
 private:
     // We have two special values to indicate an empty or deleted entry.
-    static const T* Empty()   { return reinterpret_cast<const T*>(0); }  // i.e. NULL
-    static const T* Deleted() { return reinterpret_cast<const T*>(1); }  // Also an invalid pointer.
+    static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. NULL
+    static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
     static T** AllocArray(int capacity) {
         T** array = (T**)sk_malloc_throw(sizeof(T*) * capacity);
@@ -104,16 +97,91 @@ private:
         return array;
     }
 
-    void innerRemove(const Key& key) {
+    void reset(int capacity) {
+        fCount = 0;
+        fDeleted = 0;
+        fCapacity = capacity;
+        fArray = AllocArray(fCapacity);
+    }
+
+    bool validate() const {
+        #define CHECK(x) SkASSERT((x)); if (!(x)) return false
+
+        // Is capacity sane?
+        CHECK(SkIsPow2(fCapacity));
+        CHECK(fCapacity >= kMinCapacity);
+
+        // Is fCount correct?
+        int count = 0;
+        for (int i = 0; i < fCapacity; i++) {
+            if (Empty() != fArray[i] && Deleted() != fArray[i]) {
+                count++;
+            }
+        }
+        CHECK(count == fCount);
+
+        // Is fDeleted correct?
+        int deleted = 0;
+        for (int i = 0; i < fCapacity; i++) {
+            if (Deleted() == fArray[i]) {
+                deleted++;
+            }
+        }
+        CHECK(deleted == fDeleted);
+
+        // Are all entries findable?
+        for (int i = 0; i < fCapacity; i++) {
+            if (Empty() == fArray[i] || Deleted() == fArray[i]) {
+                continue;
+            }
+            CHECK(NULL != this->find(GetKey(*fArray[i])));
+        }
+
+        // Are all entries unique?
+        for (int i = 0; i < fCapacity; i++) {
+            if (Empty() == fArray[i] || Deleted() == fArray[i]) {
+                continue;
+            }
+            for (int j = i+1; j < fCapacity; j++) {
+                if (Empty() == fArray[j] || Deleted() == fArray[j]) {
+                    continue;
+                }
+                CHECK(fArray[i] != fArray[j]);
+                CHECK(!Equal(*fArray[i], GetKey(*fArray[j])));
+                CHECK(!Equal(*fArray[j], GetKey(*fArray[i])));
+            }
+        }
+        #undef CHECK
+        return true;
+    }
+
+    void innerAdd(T* newEntry) {
+        const Key& key = GetKey(*newEntry);
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
             const T* candidate = fArray[index];
-            if (candidate == Empty()) {
+            if (Empty() == candidate || Deleted() == candidate) {
+                if (Deleted() == candidate) {
+                    fDeleted--;
+                }
+                fCount++;
+                fArray[index] = newEntry;
                 return;
             }
-            if (candidate != Deleted() && Equal(*candidate, key)) {
-                fArray[index] = const_cast<T*>(Deleted());
+            index = this->nextIndex(index, round);
+        }
+        SkASSERT(!"add: should be unreachable");
+    }
+
+    void innerRemove(const Key& key) {
+        const int firstIndex = this->firstIndex(key);
+        int index = firstIndex;
+        for (int round = 0; round < fCapacity; round++) {
+            const T* candidate = fArray[index];
+            if (Deleted() != candidate && Equal(*candidate, key)) {
+                fDeleted++;
                 fCount--;
+                fArray[index] = Deleted();
                 return;
             }
             index = this->nextIndex(index, round);
@@ -122,31 +190,33 @@ private:
     }
 
     void maybeGrow() {
-        if (fCount < fCapacity / 2) {
-            return;
+        if (fCount + fDeleted + 1 > (fCapacity * kGrowPercent) / 100) {
+            resize(fCapacity * 2);
         }
+    }
 
+    void maybeShrink() {
+        if (fCount < (fCapacity * kShrinkPercent) / 100 && fCapacity / 2 > kMinCapacity) {
+            resize(fCapacity / 2);
+        }
+    }
+
+    void resize(int newCapacity) {
         SkDEBUGCODE(int oldCount = fCount;)
         int oldCapacity = fCapacity;
         T** oldArray = fArray;
 
-        fCount = 0;
-        fCapacity *= 2;
-        fArray = AllocArray(fCapacity);
+        reset(newCapacity);
 
         for (int i = 0; i < oldCapacity; i++) {
             T* entry = oldArray[i];
-            if (entry != Empty() && entry != Deleted()) {
+            if (Empty() != entry && Deleted() != entry) {
                 this->add(entry);
             }
         }
         SkASSERT(oldCount == fCount);
 
         sk_free(oldArray);
-    }
-
-    void maybeShrink() {
-        // TODO
     }
 
     // fCapacity is always a power of 2, so this masks the correct low bits to index into our hash.
@@ -162,7 +232,8 @@ private:
         return (index + round + 1) & this->hashMask();
     }
 
-    int fCount;     // Number of non-empty, non-deleted entries in fArray.
+    int fCount;     // Number of non Empty(), non Deleted() entries in fArray.
+    int fDeleted;   // Number of Deleted() entries in fArray.
     int fCapacity;  // Number of entries in fArray.  Always a power of 2.
     T** fArray;
 };
