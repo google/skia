@@ -213,9 +213,6 @@
           }],
         ],
       },
-      'sources': [
-        '../app/jni/com_skia_SkiaIntentService.cpp',
-      ],
     },
     {
       # This target is a dependency for Skia Sample application which runs on

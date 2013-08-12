@@ -15,6 +15,7 @@
       [ 'skia_os == "android"', {
         'dependencies': [
           'android_deps.gyp:Android_EntryPoint',
+          'android_system.gyp:skia_launcher',
         ],
       }],
       [ 'skia_os == "nacl"', {

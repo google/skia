@@ -4,19 +4,27 @@
 
 # Parse the arguments for a DEVICE_ID.
 DEVICE_ID=""
+DEVICE_SERIAL=""
 while (( "$#" )); do
   if [[ $(echo "$1" | grep "^-d$") != "" ]];
   then
     DEVICE_ID=$2
     shift
+  elif [[ "$1" == "-s" ]];
+  then
+    if [[ $# -lt 2 ]];
+    then
+      echo "ERROR: missing serial number"
+      exit 1;
+    fi
+    DEVICE_SERIAL="-s $2"
+    shift
   else
-    APP_ARGS="$APP_ARGS $1"
+    APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
 
   shift
 done
-
-APP_ARGS=$(echo ${APP_ARGS} | sed 's/^ *//g')
 
 function exportVar {
   NAME=$1
@@ -210,6 +218,7 @@ setup_device() {
   esac
 
   echo "The build is targeting the device: $TARGET_DEVICE"
+  export DEVICE_ID="$TARGET_DEVICE"
 
   # Set up the toolchain.
   setup_toolchain
@@ -244,17 +253,53 @@ adb_pull_if_needed() {
   if [ -f $HOST_DST ];
   then
     #get the MD5 for dst and src
-    ANDROID_MD5=`$ADB shell md5 $ANDROID_SRC`
+    ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_SRC`
     HOST_MD5=`md5sum $HOST_DST`
 
     if [ "${ANDROID_MD5:0:32}" != "${HOST_MD5:0:32}" ];
     then
-      $ADB pull $ANDROID_SRC $HOST_DST
+      $ADB $DEVICE_SERIAL pull $ANDROID_SRC $HOST_DST
 #   else
 #      echo "md5 match of android [$ANDROID_SRC] and host [$HOST_DST]"
     fi
   else
-    $ADB pull $ANDROID_SRC $HOST_DST
+    $ADB $DEVICE_SERIAL pull $ANDROID_SRC $HOST_DST
+  fi
+}
+
+# adb_push_if_needed(host_src, android_dst)
+adb_push_if_needed() {
+
+  # get adb location
+  source $SCRIPT_DIR/utils/setup_adb.sh
+
+  # read input params
+  HOST_SRC="$1"
+  ANDROID_DST="$2"
+
+  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
+  if [ "${ANDROID_LS:0:1}" == "d" ];
+  then
+    ANDROID_DST="${ANDROID_DST}/$(basename ${HOST_SRC})"
+  fi
+
+  echo "ANDROID: $ANDROID_DST"
+
+  ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
+  if [ "${ANDROID_LS:0:1}" == "-" ];
+  then
+    #get the MD5 for dst and src
+    ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
+    HOST_MD5=`md5sum $HOST_SRC`
+
+    if [ "${ANDROID_MD5:0:32}" != "${HOST_MD5:0:32}" ];
+    then
+      $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
+#    else
+#      echo "md5 match of android [${ANDROID_DST}] and host [${HOST_SRC}]"
+    fi
+  else
+    $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
   fi
 }
 

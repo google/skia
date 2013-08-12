@@ -4,45 +4,32 @@
 # output, and kills the app if interrupted.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
+source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-APP_ARGS=""
-USE_INTENT="false"
-SERIAL=""
+configuration="Debug"
 
-while (( "$#" )); do
-
-  if [[ "$1" == "--intent" ]];
-  then
-    USE_INTENT="true"
-  elif [[ "$1" == "-s" ]];
-  then
-    if [[ $# -lt 2 ]];
-    then
-      echo "ERROR: missing serial number"
-      exit 1;
-    fi
-    SERIAL="-s $2"
-    shift
+for arg in ${APP_ARGS[@]}
+do
+  if [[ "${arg}" == "--release" ]];
+  then 
+    configuration="Release"
   else
-    APP_ARGS="$APP_ARGS $1"
+    runVars=("${runVars[@]}" "${arg}")
   fi
 
 shift
 done
 
-
-if [[ "$USE_INTENT" == "true" ]];
+if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" ];
 then
-    $ADB $SERIAL logcat -c
-    $ADB $SERIAL shell am broadcast -a com.skia.intent.action.LAUNCH_SKIA -n com.skia/.SkiaReceiver -e args "$APP_ARGS"
-    trap "echo \"Interrupt.\"" INT
-    eval "($ADB $SERIAL logcat)"
-    trap - INT
-    echo "Interrupt. Killing Skia process..."
-    $SCRIPT_DIR/android_kill_skia $SERIAL
-    echo "Done."
-else
-    $ADB $SERIAL shell skia_launcher $APP_ARGS
+  echo "Unable to find the ${runVars[0]} library"
+  exit 1
 fi
+
+adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" /data/local/tmp
+
+
+$ADB ${DEVICE_SERIAL} shell /data/local/tmp/skia_launcher ${runVars[@]}

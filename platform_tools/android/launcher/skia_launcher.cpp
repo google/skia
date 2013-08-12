@@ -32,7 +32,7 @@ void* load_library(const char* appLocation, const char* libraryName)
 {
      // attempt to lookup the location of the shared libraries
     char libraryLocation[100];
-    sprintf(libraryLocation, "%s/lib/lib%s.so", appLocation, libraryName);
+    sprintf(libraryLocation, "%s/lib%s.so", appLocation, libraryName);
     if (!file_exists(libraryLocation)) {
         printf("ERROR: Unable to find the '%s' library in the Skia App.\n", libraryName);
         printf("ERROR: Did you provide the correct program_name?\n");
@@ -61,9 +61,9 @@ int main(int argc, const char** argv) {
     }
 
     // attempt to lookup the location of the skia app
-    const char* appLocation = "/data/data/com.skia";
+    const char* appLocation = "/data/local/tmp";
     if (!file_exists(appLocation)) {
-        printf("ERROR: Unable to find the com.skia app on the device.\n");
+        printf("ERROR: Unable to find /data/local/tmp on the device.\n");
         return -1;
     }
 

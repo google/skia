@@ -22,7 +22,7 @@
       ],
       'conditions': [
         ['skia_os == "android"', {
-          'dependencies': [ 'android_system.gyp:SkiaAndroidApp' ],
+          'dependencies': [ 'android_system.gyp:SampleApp_APK' ],
         }],
       ],
     },

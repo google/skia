@@ -9,14 +9,6 @@
     <!-- Needed to add to the download manager. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="SkiaAndroid">
-        <receiver android:name=".SkiaReceiver" android:enabled="true">
-            <intent-filter>
-                <action android:name="com.skia.intent.action.LAUNCH_SKIA" />
-            </intent-filter>
-        </receiver>
-        <service android:name=".SkiaIntentService"
-                 android:process=":skia_native">
-        </service>
         <activity android:name=".SkiaSampleActivity"
                   android:theme="@android:style/Theme.Holo.Light"
                   android:configChanges="orientation|screenSize"
