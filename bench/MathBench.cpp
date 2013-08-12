@@ -93,58 +93,44 @@ private:
     typedef MathBench INHERITED;
 };
 
-class InvSqrtBench : public SkBenchmark {
-    enum {
-        ARRAY = SkBENCHLOOP(1000),
-        LOOP = SkBENCHLOOP(5000),
-    };
-    float fData[ARRAY];
-    const char *type;
-
+class SlowISqrtMathBench : public MathBench {
 public:
-    InvSqrtBench(void* param, const char *type)
-        : INHERITED(param)
-        , type(type) {
-    }
-
-    // just so the compiler doesn't remove our loops
-    virtual void process(int) {}
-
+    SlowISqrtMathBench(void* param) : INHERITED(param, "slowIsqrt") {}
 protected:
-    virtual void onPreDraw() SK_OVERRIDE {
-        SkRandom rand;
-        for (int i = 0; i < ARRAY; ++i) {
-            fData[i] = rand.nextRangeF(0, 10000);
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
+                              int count) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = 1.0f / sk_float_sqrt(src[i]);
         }
-
-        fIsRendering = false;
     }
-
-    virtual void onDraw(SkCanvas*) {
-        float accum = 0;
-
-        if (strcmp(type, "float_slow") == 0) {
-            for (int j = 0; j < LOOP; ++j)
-                for (int i = 0; i < ARRAY; ++i)
-                    accum += 1.0f / sk_float_sqrt(fData[i]);
-        } else if (strcmp(type, "float_fast") == 0) {
-            for (int j = 0; j < LOOP; ++j)
-                for (int i = 0; i < ARRAY; ++i)
-                    accum += SkFloatInvSqrt(fData[i]);
-        }
-
-        this->process(accum);
-    }
-
-    virtual const char* onGetName() {
-        fName.printf("math_inv_sqrt");
-        fName.appendf("_%s", type);
-        return fName.c_str();
-    }
-
 private:
-    SkString    fName;
-    typedef SkBenchmark INHERITED;
+    typedef MathBench INHERITED;
+};
+
+static inline float SkFastInvSqrt(float x) {
+    float xhalf = 0.5f*x;
+    int i = *SkTCast<int*>(&x);
+    i = 0x5f3759df - (i>>1);
+    x = *SkTCast<float*>(&i);
+    x = x*(1.5f-xhalf*x*x);
+//    x = x*(1.5f-xhalf*x*x); // this line takes err from 10^-3 to 10^-6
+    return x;
+}
+
+class FastISqrtMathBench : public MathBench {
+public:
+    FastISqrtMathBench(void* param) : INHERITED(param, "fastIsqrt") {}
+protected:
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
+                              int count) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = SkFastInvSqrt(src[i]);
+        }
+    }
+private:
+    typedef MathBench INHERITED;
 };
 
 static inline uint32_t QMul64(uint32_t value, U8CPU alpha) {
@@ -537,8 +523,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new NoOpMathBench(p); )
-DEF_BENCH( return new InvSqrtBench(p, "float_slow"); )
-DEF_BENCH( return new InvSqrtBench(p, "float_fast"); )
+DEF_BENCH( return new SlowISqrtMathBench(p); )
+DEF_BENCH( return new FastISqrtMathBench(p); )
 DEF_BENCH( return new QMul64Bench(p); )
 DEF_BENCH( return new QMul32Bench(p); )
 
