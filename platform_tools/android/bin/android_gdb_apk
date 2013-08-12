@@ -12,7 +12,7 @@ PORT=5039
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 echo "Installing Skia Android app"
-$SCRIPT_DIR/android_install_skia -f
+$SCRIPT_DIR/android_install_skia_apk -f
 
 # Forward local to remote socket connection.
 $ADB forward "tcp:$PORT" "tcp:$PORT"
@@ -24,17 +24,18 @@ $ADB shell ps | grep gdbserver | awk '{print $2}' | xargs -r $ADB shell kill
 GDB_TMP_DIR=$(pwd)/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
 echo "Copying symbol files"
-$ADB pull /system/bin/app_process $GDB_TMP_DIR
-$ADB pull /system/lib/libc.so $GDB_TMP_DIR
-$ADB pull /data/data/com.skia/lib/lib$APP_NAME.so $GDB_TMP_DIR
+adb_pull_if_needed /system/bin/app_process $GDB_TMP_DIR
+adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
+adb_pull_if_needed /data/data/com.skia/lib/libskia_android.so $GDB_TMP_DIR
+adb_pull_if_needed /data/data/com.skia/lib/libSampleApp.so $GDB_TMP_DIR
 
 # Launch the app
 SK_COMMAND="$APP_ARGS"
 echo "Running command $SK_COMMAND"
-$ADB shell am broadcast -a com.skia.intent.action.LAUNCH_SKIA -n com.skia/.SkiaReceiver -e args "$SK_COMMAND"
+adb shell am start -n com.skia/com.skia.SkiaSampleActivity
 
 # Attach gdbserver to the app process
-PID=$($ADB shell ps | grep skia_native | awk '{print $2}')
+PID=$($ADB shell ps | grep com.skia | awk '{print $2}')
 echo "Attaching to pid: $PID"
 $ADB shell /data/data/com.skia/lib/gdbserver :$PORT --attach $PID &
 

@@ -4,49 +4,57 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/setup_adb.sh
 
-APP_NAME=${APP_ARGS[0]}
+configuration="Debug"
+
+for arg in ${APP_ARGS[@]}
+do
+  if [[ "${arg}" == "--release" ]];
+  then 
+    configuration="Release"
+  else
+    gdbVars=("${gdbVars[@]}" "${arg}")
+  fi
+
+shift
+done
+
+APP_NAME=${gdbVars[0]}
 PORT=5039
 
-source $SCRIPT_DIR/utils/setup_adb.sh
+if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${gdbVars[0]}.so" ];
+then
+  echo "Unable to find the ${gdbVars[0]} library"
+  exit 1
+fi
 
 # We need the debug symbols from these files
 GDB_TMP_DIR=$(pwd)/android_gdb_tmp
 mkdir $GDB_TMP_DIR
+
 echo "Copying symbol files"
-adb_pull_if_needed /system/bin/skia_launcher $GDB_TMP_DIR
 adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia/lib/libskia_android.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia/lib/lib$APP_NAME.so $GDB_TMP_DIR
+cp "${SKIA_OUT}/${configuration}/skia_launcher" $GDB_TMP_DIR
+cp "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" $GDB_TMP_DIR
+cp "${SKIA_OUT}/${configuration}/lib.target/lib${APP_NAME}.so" $GDB_TMP_DIR
 
-echo "Checking for skia_launcher app..."
-if [ ! -f $GDB_TMP_DIR/skia_launcher ]
-then
-    echo "Unable for find the skia_launcher on the device"
-    rm -rf $GDB_TMP_DIR
-    exit 1;
-fi
-
-echo "Checking for $APP_NAME library..."
-if [ ! -f $GDB_TMP_DIR/lib$APP_NAME.so ]
-then
-    echo "Unable for find the app's shared library on the device"
-    rm -rf $GDB_TMP_DIR
-    exit 1;
-fi
+echo "Pushing app..."
+adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${APP_NAME}.so" /data/local/tmp
 
 echo "Pushing gdbserver..."
-$ADB remount
-$ADB push $ANDROID_TOOLCHAIN/../gdbserver /system/bin/gdbserver
+adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver data/local/tmp
 
 echo "Setting up port forward"
 $ADB forward "tcp:5039" "tcp:5039"
 
-# Kill all previous instances of gdbserver and skia_launcher to rid all port overriding errors.
+# Kill all previous instances of gdbserver and the app to rid all port overriding errors.
 echo "Killing any running Skia processes."
 $ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill
-$ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
+$ADB shell ps | grep ${APP_NAME} | awk '{print $2}' | xargs $ADB shell kill
 
 # Starting up gdbserver in android shell
-echo "Starting gdbserver with command: skia_launcher $APP_ARGS"
-$ADB shell gdbserver :5039 /system/bin/skia_launcher $APP_ARGS & 
+echo "Starting gdbserver with command: ${gdbVars[@]}"
+$ADB shell /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${gdbVars[@]} & 

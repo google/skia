@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# android_install_skia: installs the skia apk on the device.
+
+function print_usage {
+  echo "USAGE: android_install_skia [options]"
+  echo " Options:         -f  Forces the package to be installed by removing any"
+  echo "                      previously installed packages"
+  echo "                  -h  Prints this help message"
+  echo "            --release Install the release build of Skia"
+  echo "      -s [device_s/n] Serial number of the device to be used"
+}
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source $SCRIPT_DIR/utils/setup_adb.sh
+source $SCRIPT_DIR/utils/setup_skia_out.sh
+
+forceRemoval="false"
+installLauncher="false"
+installOptions="-r"
+configuration="Debug"
+
+while (( "$#" )); do
+
+  if [[ "$1" == "-f" ]];
+  then
+    forceRemoval="true"
+  elif [[ "$1" == "-h" ]];
+  then
+    print_usage
+    exit
+  elif [[ "$1" == "-r" ]];
+  then
+    echo "DEPRECATED: -r is now a no-op"
+  elif [[ "$1" == "--release" ]];
+  then 
+    configuration="Release"
+  else
+    echo "ERROR: unrecognized option $1"
+    print_usage
+    exit 1;
+  fi
+
+shift
+done
+
+if [[ "$forceRemoval" == "true" ]];
+then
+    echo "Forcing removal of previously installed packages"
+    $ADB ${DEVICE_SERIAL} uninstall com.skia > /dev/null
+fi
+
+echo "Installing Skia App from ${SKIA_OUT}/${configuration}"
+$ADB ${DEVICE_SERIAL} install ${installOptions} ${SKIA_OUT}/${configuration}/android/bin/SkiaAndroid.apk

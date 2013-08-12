@@ -9,8 +9,7 @@
 #
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PERF_CMD=$1
-
+source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 if [ $(uname) == "Linux" ]; then
@@ -22,77 +21,70 @@ else
     exit 1;
 fi
 
+# grab and remove the perf command from the input args
+PERF_CMD=${APP_ARGS[0]}
+unset APP_ARGS[0]
+
+configuration="Debug"
+
+for arg in ${APP_ARGS[@]}
+do
+  if [[ "${arg}" == "--release" ]];
+  then 
+    configuration="Release"
+  else
+    echo "${arg}"
+    runVars=("${runVars[@]}" "${arg}")
+  fi
+
+shift
+done
+
 # We need the debug symbols from these files
 PERF_TMP_DIR=$(pwd)/android_perf_tmp
 
 TMP_SYS_BIN=$PERF_TMP_DIR/system/bin
 TMP_SYS_LIB=$PERF_TMP_DIR/system/lib
-TMP_APP_LIB=$PERF_TMP_DIR/data/data/com.skia/lib
+TMP_APP_LOC=$PERF_TMP_DIR/data/local/tmp
 
 perf_setup() {
 
     mkdir -p $TMP_SYS_BIN
     mkdir -p $TMP_SYS_LIB
-    mkdir -p $TMP_APP_LIB
+    mkdir -p $TMP_APP_LOC
 
-    # setup symlinks to account for perf potentially looking elsewhere
-    mkdir -p $PERF_TMP_DIR/data/app-lib
-    $( cd $PERF_TMP_DIR/data/app-lib && ln -s ../data/com.skia/lib com.skia-1)
-    $( cd $PERF_TMP_DIR/data/app-lib && ln -s ../data/com.skia/lib com.skia-2)
-    
     echo "Copying symbol files"
-    $ADB pull /system/bin/skia_launcher $TMP_SYS_BIN
-    $ADB pull /system/lib/libc.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libstlport.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libcutils.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libGLESv2.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libandroid.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libm.so $TMP_SYS_LIB
-    $ADB pull /system/lib/libz.so $TMP_SYS_LIB
-    
-    if [ $# -ge 2 ]
-    then
-        APP_NAME=$(basename $2)
-        $ADB pull /data/data/com.skia/lib/lib${APP_NAME}.so $TMP_APP_LIB
-    else 
-        $ADB pull /data/data/com.skia/lib/ $TMP_APP_LIB
-    fi
-    
+    adb_pull_if_needed /system/lib/libc.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libstlport.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libcutils.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libGLESv2.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libandroid.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libz.so $TMP_SYS_LIB
 
+    if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" ];
+    then
+      echo "Unable to find the ${runVars[0]} library"
+      exit 1
+    fi
+
+    echo "Pushing app..."
+    adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
+    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
+    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" /data/local/tmp
+
+    cp "${SKIA_OUT}/${configuration}/skia_launcher" $TMP_APP_LOC
+    cp "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" $TMP_APP_LOC
+    cp "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" $TMP_APP_LOC
 }
 
 perf_record() {
 
-    APP_NAME=$(basename $2)
-    # Collect extra arguments to be passed to the skia_launcher binary
-    shift # perf_cmd
-    shift # app_name
-    while (( "$#" )); do
-      APP_ARGS="$APP_ARGS $1"
-      shift
-    done
-
-    echo "Checking for skia_launcher app..."
-    if [ ! -f $TMP_SYS_BIN/skia_launcher ]
-    then
-        echo "Unable to find the skia_launcher on the device"
-        rm -rf $PERF_TMP_DIR
-        exit 1;
-    fi
-    
-    echo "Checking for $APP_NAME library..."
-    if [ ! -f $TMP_APP_LIB/lib$APP_NAME.so ]
-    then
-        echo "Unable to find the app's shared library on the device"
-        rm -rf $PERF_TMP_DIR
-        exit 1;
-    fi
-    
     echo "Killing any running Skia processes."
     $ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
 
     echo "Starting application"
-    $ADB shell skia_launcher $APP_NAME $APP_ARGS &
+    $ADB shell /data/local/tmp/skia_launcher ${runVars[@]} &
 
     # WE REALLY REALLY WANT TO BE ABLE TO PASS THE SKIA_LAUNCHER APP DIRECTLY TO
     # PERF, BUT AT THIS POINT THE DATA FILE WE GET WHEN GOING THAT ROUTE IS UNABLE
@@ -107,13 +99,8 @@ perf_record() {
 }
 
 perf_report() {
-    # Collect extra arguments to be passed to the perfhost binary
-    while (( "$#" )); do
-      APP_ARGS="$APP_ARGS $1"
-      shift
-    done
-    
-    $PERFHOST report -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR $APP_ARGS
+    adb_pull_if_needed /data/perf.data $PERF_TMP_DIR/perf.data
+    $PERFHOST report -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR ${runVars[@]}
 }
 
 # Clean up
@@ -123,11 +110,11 @@ perf_clean() {
 
 case $PERF_CMD in
   setup)
-      perf_setup $@
+      perf_setup ${runVars[@]}
       ;;
   record)
-      perf_setup $@
-      perf_record $@
+      perf_setup ${runVars[@]}
+      perf_record ${runVars[@]}
       ;;
   report)
       perf_report

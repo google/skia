@@ -1,19 +1,11 @@
 {
   'targets': [
     {
-      'target_name': 'CopySkiaAppDeps',
+      'target_name': 'CopySampleAppDeps',
       'type': 'none',
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'SampleApp.gyp:SampleApp',
-        'bench.gyp:bench',
-        'gm.gyp:gm',
-        'tests.gyp:tests',
-        'pathops_unittest.gyp:pathops_unittest',
-        'tools.gyp:bench_pictures',
-        'tools.gyp:render_pictures',
-        'tools.gyp:render_pdfs',
-        'tools.gyp:skimage',
       ],
       'variables': {
         'conditions': [
@@ -47,15 +39,7 @@
         {
           'destination': '<(PRODUCT_DIR)/android/libs/<(android_arch)',
           'files': [
-            '<(PRODUCT_DIR)/lib.target/libbench.so',
-            '<(PRODUCT_DIR)/lib.target/libbench_pictures.so',
-            '<(PRODUCT_DIR)/lib.target/libgm.so',
-            '<(PRODUCT_DIR)/lib.target/librender_pdfs.so',
-            '<(PRODUCT_DIR)/lib.target/librender_pictures.so',
             '<(PRODUCT_DIR)/lib.target/libSampleApp.so',
-            '<(PRODUCT_DIR)/lib.target/libskimage.so',
-            '<(PRODUCT_DIR)/lib.target/libtests.so',
-            '<(PRODUCT_DIR)/lib.target/libpathops_unittest.so',
             '<(PRODUCT_DIR)/lib.target/gdbserver',
             '<(PRODUCT_DIR)/lib.target/libskia_android.so',
           ],
@@ -70,11 +54,10 @@
       ],
     },
     {
-      'target_name': 'SkiaAndroidApp',
+      'target_name': 'SampleApp_APK',
       'type': 'none',
       'dependencies': [
-        'CopySkiaAppDeps',
-        'skia_launcher',
+        'CopySampleAppDeps',
       ],
       'variables': {
          'ANDROID_SDK_ROOT': '<!(echo $ANDROID_SDK_ROOT)'
@@ -86,12 +69,8 @@
             '<(android_base)/app/AndroidManifest.xml',
             '<(android_base)/app/build.xml',
             '<(android_base)/app/project.properties',
-            '<(android_base)/app/jni/com_skia_SkiaIntentService.h',
-            '<(android_base)/app/jni/com_skia_SkiaIntentService.cpp',
             '<(android_base)/app/jni/com_skia_SkiaSampleRenderer.h',
             '<(android_base)/app/jni/com_skia_SkiaSampleRenderer.cpp',
-            '<(android_base)/app/src/com/skia/SkiaReceiver.java',
-            '<(android_base)/app/src/com/skia/SkiaIntentService.java',
             '<(android_base)/app/src/com/skia/SkiaSampleActivity.java',
             '<(android_base)/app/src/com/skia/SkiaSampleRenderer.java',
             '<(android_base)/app/src/com/skia/SkiaSampleView.java',

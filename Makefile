@@ -45,8 +45,8 @@ VALID_TARGETS := \
                  pathops_unittest \
                  pdfviewer \
                  SampleApp \
+                 SampleApp_APK \
                  skhello \
-                 SkiaAndroidApp \
                  skia_lib \
                  tests \
                  tools \
