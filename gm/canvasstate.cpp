@@ -81,7 +81,7 @@ protected:
     }
 
 
-    virtual uint32_t onGetFlags() SK_OVERRIDE const { return kSkipPicture_Flag; }
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPicture_Flag; }
 
 private:
     void drawTestPattern(int x, int y, SkCanvas* canvas,
@@ -95,7 +95,7 @@ private:
             canvas->clipPath(fPath);
         }
         if (doScale) {
-            canvas->scale(0.5, 0.5);
+            canvas->scale(SkDoubleToScalar(0.5), SkDoubleToScalar(0.5));
         }
         canvas->restore();
         canvas->drawRect(fFillRect, fFillPaint);
