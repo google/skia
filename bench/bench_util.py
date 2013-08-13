@@ -17,7 +17,7 @@ ALGORITHM_25TH_PERCENTILE = '25th'
 PER_SETTING_RE = '([^\s=]+)(?:=(\S+))?'
 SETTINGS_RE = 'skia bench:((?:\s+' + PER_SETTING_RE + ')*)'
 BENCH_RE = 'running bench (?:\[\d+ \d+\] )?\s*(\S+)'
-TIME_RE = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:, \d+\.\d+)*)'
+TIME_RE = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:,\s*\d+\.\d+)*)'
 # non-per-tile benches have configs that don't end with ']' or '>'
 CONFIG_RE = '(\S+[^\]>]): ((?:' + TIME_RE + '\s+)+)'
 # per-tile bench lines are in the following format. Note that there are
