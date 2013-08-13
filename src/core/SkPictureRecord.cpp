@@ -24,6 +24,7 @@ enum {
 // A lot of basic types get stored as a uint32_t: bools, ints, paint indices, etc.
 static int const kUInt32Size = 4;
 
+static const uint32_t kSaveSize = 2 * kUInt32Size;
 static const uint32_t kSaveLayerNoBoundsSize = 4 * kUInt32Size;
 static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect);
 
@@ -148,7 +149,7 @@ int SkPictureRecord::save(SaveFlags flags) {
     fRestoreOffsetStack.push(-(int32_t)fWriter.size());
 
     // op + flags
-    uint32_t size = 2 * kUInt32Size;
+    uint32_t size = kSaveSize;
     uint32_t initialOffset = this->addDraw(SAVE, &size);
     addInt(flags);
 
@@ -479,6 +480,16 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
         return false;
     }
     SkASSERT(SAVE == op);
+    SkASSERT(kSaveSize == opSize);
+
+    // get the save flag (last 4-bytes of the space allocated for the opSize)
+    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags) *writer->peek32(offset+4);
+    if (SkCanvas::kMatrixClip_SaveFlag != saveFlags) {
+        // This function's optimization is only correct for kMatrixClip style saves.
+        // TODO: set checkMatrix & checkClip booleans here and then check for the
+        // offending operations in the following loop.
+        return false;
+    }
 
     // Walk forward until we get back to either a draw-verb (abort) or we hit
     // our restore (success).
