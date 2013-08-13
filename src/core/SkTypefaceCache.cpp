@@ -13,6 +13,21 @@
 
 #define TYPEFACE_CACHE_LIMIT    1024
 
+SkTypefaceCache::SkTypefaceCache() {}
+
+SkTypefaceCache::~SkTypefaceCache() {
+    const Rec* curr = fArray.begin();
+    const Rec* stop = fArray.end();
+    while (curr < stop) {
+        if (curr->fStrong) {
+            curr->fFace->unref();
+        } else {
+            curr->fFace->weak_unref();
+        }
+        curr += 1;
+    }
+}
+
 void SkTypefaceCache::add(SkTypeface* face,
                           SkTypeface::Style requestedStyle,
                           bool strong) {
