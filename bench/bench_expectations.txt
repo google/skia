@@ -216,16 +216,16 @@ desk_chalkboard.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25
 desk_chalkboard.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,40.190,26.171,54.209
 desk_chalkboard.skp_tile_1024x64_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,47.020,32.318,61.722
 desk_chalkboard.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,48.050,33.245,62.855
-desk_chalkboard.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,410.330,359.297,461.363
+desk_chalkboard.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,410.330,359.297,491.363
 desk_chalkboard.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,53.530,38.177,68.883
 desk_chalkboard.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,53.380,38.042,68.718
 desk_chalkboard.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1366.810,1220.129,1513.491
 desk_chalkboard.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,398.800,348.920,448.680
 desk_chalkboard.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,394.680,345.212,444.148
-desk_chalkboard.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,403.520,353.168,453.872
+desk_chalkboard.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,403.520,353.168,493.872
 desk_chalkboard.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,53.540,38.186,68.894
 desk_chalkboard.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,51.900,36.710,67.090
-desk_chalkboard.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,396.810,347.129,446.491
+desk_chalkboard.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,396.810,347.129,486.491
 desk_chalkboard.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,53.380,38.042,68.718
 desk_chalkboard.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,53.030,37.727,68.333
 desk_chalkboard.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,44.460,30.014,58.906
@@ -621,7 +621,7 @@ desk_pinterest.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th
 desk_pinterest.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,475.320,417.788,542.852
 desk_pinterest.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.090,2.681,25.499
 desk_pinterest.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.280,2.852,25.708
-desk_pinterest.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,465.970,409.373,522.567
+desk_pinterest.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,465.970,409.373,552.567
 desk_pinterest.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.040,2.636,25.444
 desk_pinterest.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.130,2.717,25.543
 desk_pinterest.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,17.320,5.588,29.052
@@ -939,7 +939,7 @@ desk_yahoogames.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,110
 desk_yahoogames.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,928.570,825.713,1151.427
 desk_yahoogames.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,71.610,54.449,88.771
 desk_yahoogames.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,85.900,67.310,104.490
-desk_yahoogames.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1478.390,1320.551,1666.229
+desk_yahoogames.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1478.390,1320.551,1766.229
 desk_yahoogames.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,197.310,167.579,227.041
 desk_yahoogames.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,177.060,149.354,204.766
 desk_yahoogames.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,398.070,348.263,447.877
@@ -1326,7 +1326,7 @@ tabl_digg.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,5.591,-
 tabl_digg.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.691,-9.378,10.760
 tabl_digg.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.636,-9.428,10.700
 tabl_digg.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,37.050,23.345,50.755
-tabl_digg.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,24.450,10.005,36.895
+tabl_digg.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,24.450,7.005,36.895
 tabl_digg.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,36.880,23.192,50.568
 tabl_digg.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.880,6.992,30.768
 tabl_digg.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,20.680,8.612,32.748
@@ -1413,7 +1413,7 @@ tabl_frantzen.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,
 tabl_frantzen.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,310.980,269.882,420.078
 tabl_frantzen.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.460,-3.286,18.206
 tabl_frantzen.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.780,-2.998,18.558
-tabl_frantzen.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,315.980,274.382,407.578
+tabl_frantzen.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,315.980,274.382,437.578
 tabl_frantzen.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.610,-3.151,18.371
 tabl_frantzen.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.850,-2.935,18.635
 tabl_frantzen.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,6.440,-4.204,17.084
@@ -1731,7 +1731,7 @@ tabl_mozilla.skp_tile_1024x64_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1285.5
 tabl_mozilla.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12525.510,11262.959,14788.061
 tabl_mozilla.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,733.360,630.024,836.696
 tabl_mozilla.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,879.560,781.604,977.516
-tabl_mozilla.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13904.420,12503.978,15304.862
+tabl_mozilla.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13904.420,12503.978,15604.862
 tabl_mozilla.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1145.910,1021.319,1270.501
 tabl_mozilla.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1019.460,907.514,1131.406
 tabl_mozilla.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,2367.770,2120.993,2614.547
