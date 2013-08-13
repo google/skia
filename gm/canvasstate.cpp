@@ -74,7 +74,8 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(flags); ++i) {
             for (int j = 0; j < 2; ++j) {
                 for (int k = 0; k < 2; ++k) {
-                    this->drawTestPattern(i, (2*j)+k, canvas, flags[i], j, k);
+                    this->drawTestPattern(i, (2*j)+k, canvas, flags[i],
+                                          SkToBool(j), SkToBool(k));
                 }
             }
         }
@@ -87,7 +88,7 @@ private:
     void drawTestPattern(int x, int y, SkCanvas* canvas,
                          SkCanvas::SaveFlags flags, bool doClip, bool doScale) {
         canvas->save();
-        canvas->translate(x*WIDTH, y*HEIGHT);
+        canvas->translate(SkIntToScalar(x*WIDTH), SkIntToScalar(y*HEIGHT));
 
         canvas->drawRect(fOutlineRect, fStrokePaint);
         canvas->save(flags);
