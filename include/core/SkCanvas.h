@@ -239,6 +239,12 @@ public:
         operate on this copy.
         When the balancing call to restore() is made, the previous matrix, clip,
         and drawFilter are restored.
+        @param flags The flags govern what portion of the Matrix/Clip/drawFilter
+                     state the save (and matching restore) effect. For example,
+                     if only kMatrix is specified, then only the matrix state
+                     will be pushed and popped. Likewise for the clip if kClip
+                     is specified.  However, the drawFilter is always affected
+                     by calls to save/restore.
         @return The value to pass to restoreToCount() to balance this save()
     */
     virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
