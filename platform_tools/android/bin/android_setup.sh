@@ -184,6 +184,11 @@ setup_device() {
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
       ANDROID_ARCH="arm"
       ;;
+    intel_rhb)
+      DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
+      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      ANDROID_ARCH="x86"
+      ;;
     razr_i)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
