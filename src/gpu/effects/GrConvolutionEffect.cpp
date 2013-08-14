@@ -14,7 +14,6 @@
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLConvolutionEffect : public GrGLEffect {
 public:
@@ -50,9 +49,6 @@ private:
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& factory,
                                              const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fKernelUni(kInvalidUniformHandle)
-    , fImageIncrementUni(kInvalidUniformHandle)
-    , fBoundsUni(kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrConvolutionEffect>().coordsType()) {
     const GrConvolutionEffect& c = drawEffect.castEffect<GrConvolutionEffect>();
     fRadius = c.radius();

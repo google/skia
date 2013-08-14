@@ -132,17 +132,6 @@ private:
         UniformHandle       fDstCopyTopLeftUni;
         UniformHandle       fDstCopyScaleUni;
         UniformHandle       fDstCopySamplerUni;
-
-        UniformHandles() {
-            fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
-            fColorUni = GrGLUniformManager::kInvalidUniformHandle;
-            fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
-            fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
-            fRTHeightUni = GrGLUniformManager::kInvalidUniformHandle;
-            fDstCopyTopLeftUni = GrGLUniformManager::kInvalidUniformHandle;
-            fDstCopyScaleUni = GrGLUniformManager::kInvalidUniformHandle;
-            fDstCopySamplerUni = GrGLUniformManager::kInvalidUniformHandle;
-        }
     };
 
     typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;

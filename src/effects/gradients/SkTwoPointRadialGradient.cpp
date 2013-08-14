@@ -376,7 +376,6 @@ void SkTwoPointRadialGradient::init() {
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLRadial2Gradient : public GrGLGradientEffect {
 
@@ -516,8 +515,6 @@ GrEffectRef* GrRadial2Gradient::TestCreate(SkMWCRandom* random,
 GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
                                          const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fVSParamUni(kInvalidUniformHandle)
-    , fFSParamUni(kInvalidUniformHandle)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(SK_ScalarMax)

@@ -215,8 +215,6 @@ private:
 GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory,
                                      const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fCoefficientsUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrBicubicEffect>().coordsType()) {
 }
 

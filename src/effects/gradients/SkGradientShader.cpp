@@ -826,7 +826,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(SK_ScalarMax)
-    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(kCoordsType) {
 }
 

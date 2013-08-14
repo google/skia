@@ -22,8 +22,29 @@ class SkMatrix;
 class GrGLUniformManager {
 public:
     // Opaque handle to a uniform
-    typedef int UniformHandle;
-    static const UniformHandle kInvalidUniformHandle = 0;
+    class UniformHandle {
+    public:
+        static UniformHandle CreateFromUniformIndex(int i);
+
+        bool isValid() const { return 0 != fValue; }
+
+        bool operator==(const UniformHandle& other) const { return other.fValue == fValue; }
+
+        UniformHandle()
+            : fValue(0) {
+        }
+
+    private:
+        UniformHandle(int value)
+            : fValue(~value) {
+            GrAssert(isValid());
+        }
+
+        int toUniformIndex() const { GrAssert(isValid()); return ~fValue; }
+
+        int fValue;
+        friend class GrGLUniformManager; // For accessing toUniformIndex().
+    };
 
     GrGLUniformManager(const GrGLContext& context) : fContext(context) {}
 
@@ -64,6 +85,11 @@ public:
      * Called by the GrGLShaderBuilder to get GL locations for all uniforms.
      */
     void getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms);
+
+    /**
+     * Called by the GrGLShaderBuilder to access the array by the handle (index).
+     */
+    const BuilderUniform& getBuilderUniform(const BuilderUniformArray&, GrGLUniformManager::UniformHandle) const;
 
 private:
     enum {

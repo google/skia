@@ -391,9 +391,8 @@ public:
 
         GLEffect(const GrBackendEffectFactory& factory,
                  const GrDrawEffect&)
-        : INHERITED(factory)
-        , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
-        , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {}
+        : INHERITED(factory) {
+        }
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect&,

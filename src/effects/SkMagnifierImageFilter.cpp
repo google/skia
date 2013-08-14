@@ -118,9 +118,6 @@ private:
 GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
                                          const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
-    , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
-    , fInsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrMagnifierEffect>().coordsType()) {
 }
 

@@ -753,7 +753,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
     GrGLint texUnitIdx = 0;
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopySamplerUni) {
+    if (fUniformHandles.fDstCopySamplerUni.isValid()) {
         fUniformManager.setSampler(fUniformHandles.fDstCopySamplerUni, texUnitIdx);
         fDstCopyTexUnit = texUnitIdx++;
     }
@@ -772,7 +772,7 @@ void GrGLProgram::initEffectSamplerUniforms(EffectAndSamplers* effect, int* texU
     effect->fTextureUnits.reset(numSamplers);
     for (int s = 0; s < numSamplers; ++s) {
         UniformHandle handle = effect->fSamplerUnis[s];
-        if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+        if (handle.isValid()) {
             fUniformManager.setSampler(handle, *texUnitIdx);
             effect->fTextureUnits[s] = (*texUnitIdx)++;
         }
@@ -795,7 +795,7 @@ void GrGLProgram::setEffectData(GrGpuGL* gpu,
     GrAssert((*stage.getEffect())->numTextures() == numSamplers);
     for (int s = 0; s < numSamplers; ++s) {
         UniformHandle handle = effect.fSamplerUnis[s];
-        if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+        if (handle.isValid()) {
             const GrTextureAccess& access = (*stage.getEffect())->textureAccess(s);
             GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
             int unit = effect.fTextureUnits[s];
@@ -830,7 +830,7 @@ void GrGLProgram::setData(GrGpuGL* gpu,
     this->setMatrixAndRenderTargetHeight(drawState);
 
     // Setup the SkXfermode::Mode-based colorfilter uniform if necessary
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fColorFilterUni &&
+    if (fUniformHandles.fColorFilterUni.isValid() &&
         fColorFilterColor != drawState.getColorFilterColor()) {
         GrGLfloat c[4];
         GrColorToRGBAFloat(drawState.getColorFilterColor(), c);
@@ -839,10 +839,7 @@ void GrGLProgram::setData(GrGpuGL* gpu,
     }
 
     if (NULL != dstCopy) {
-        if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopyTopLeftUni) {
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopyScaleUni);
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle !=
-                     fUniformHandles.fDstCopySamplerUni);
+        if (fUniformHandles.fDstCopyTopLeftUni.isValid()) {
             fUniformManager.set2f(fUniformHandles.fDstCopyTopLeftUni,
                                   static_cast<GrGLfloat>(dstCopy->offset().fX),
                                   static_cast<GrGLfloat>(dstCopy->offset().fY));
@@ -853,15 +850,13 @@ void GrGLProgram::setData(GrGpuGL* gpu,
             static GrTextureParams kParams; // the default is clamp, nearest filtering.
             gpu->bindTexture(fDstCopyTexUnit, kParams, texture);
         } else {
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
-                    fUniformHandles.fDstCopyScaleUni);
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
-                    fUniformHandles.fDstCopySamplerUni);
+            GrAssert(!fUniformHandles.fDstCopyScaleUni.isValid());
+            GrAssert(!fUniformHandles.fDstCopySamplerUni.isValid());
         }
     } else {
-        GrAssert(GrGLUniformManager::kInvalidUniformHandle == fUniformHandles.fDstCopyTopLeftUni);
-        GrAssert(GrGLUniformManager::kInvalidUniformHandle == fUniformHandles.fDstCopyScaleUni);
-        GrAssert(GrGLUniformManager::kInvalidUniformHandle == fUniformHandles.fDstCopySamplerUni);
+        GrAssert(!fUniformHandles.fDstCopyTopLeftUni.isValid());
+        GrAssert(!fUniformHandles.fDstCopyScaleUni.isValid());
+        GrAssert(!fUniformHandles.fDstCopySamplerUni.isValid());
     }
 
     for (int e = 0; e < fColorEffects.count(); ++e) {
@@ -902,8 +897,6 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
-                    GrAssert(GrGLUniformManager::kInvalidUniformHandle !=
-                             fUniformHandles.fColorUni);
                     fUniformManager.set4fv(fUniformHandles.fColorUni, 0, 1, c);
                     fColor = color;
                 }
@@ -943,8 +936,6 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
-                    GrAssert(GrGLUniformManager::kInvalidUniformHandle !=
-                             fUniformHandles.fCoverageUni);
                     fUniformManager.set4fv(fUniformHandles.fCoverageUni, 0, 1, c);
                     fCoverage = coverage;
                 }
@@ -968,7 +959,7 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
     size.set(rt->width(), rt->height());
 
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fRTHeightUni &&
+    if (fUniformHandles.fRTHeightUni.isValid() &&
         fMatrixState.fRenderTargetSize.fHeight != size.fHeight) {
         fUniformManager.set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(size.fHeight));
     }
