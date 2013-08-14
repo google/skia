@@ -500,9 +500,6 @@ def main():
         usage()
         sys.exit(2)
 
-    if not output_path:
-        print 'Warning: No output path provided. No graphs will be written.'
-
     if time_of_interest:
         time_to_ignore = None
 
