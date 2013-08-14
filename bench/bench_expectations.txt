@@ -869,7 +869,7 @@ desk_wowwiki.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1
 desk_wowwiki.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,151.440,126.296,176.584
 desk_wowwiki.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1901.300,1701.170,2101.430
 desk_wowwiki.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,241.120,207.008,275.232
-desk_wowwiki.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,210.600,179.540,241.660
+desk_wowwiki.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,210.600,159.540,241.660
 desk_wowwiki.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,133.930,110.537,1057.323
 desk_wowwiki.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.260,2.834,65.686
 desk_wowwiki.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,15.870,4.283,77.457
