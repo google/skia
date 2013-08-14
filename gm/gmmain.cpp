@@ -1759,231 +1759,6 @@ bool prepare_subdirectories(const char *root, bool useFileHierarchy,
     return true;
 }
 
-static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
-                         GrContextFactory* grFactory) {
-    SkTDArray<size_t> excludeConfigs;
-
-    for (int i = 0; i < FLAGS_config.count(); i++) {
-        const char* config = FLAGS_config[i];
-        bool exclude = false;
-        if (*config == kExcludeConfigChar) {
-            exclude = true;
-            config += 1;
-        }
-        int index = findConfig(config);
-        if (index >= 0) {
-            if (exclude) {
-                *excludeConfigs.append() = index;
-            } else {
-                appendUnique<size_t>(outConfigs, index);
-            }
-        } else if (0 == strcmp(kDefaultsConfigStr, config)) {
-            if (exclude) {
-                gm_fprintf(stderr, "%c%s is not allowed.\n",
-                           kExcludeConfigChar, kDefaultsConfigStr);
-                return false;
-            }
-            for (size_t c = 0; c < SK_ARRAY_COUNT(gRec); ++c) {
-                if (gRec[c].fRunByDefault) {
-                    appendUnique<size_t>(outConfigs, c);
-                }
-            }
-        } else {
-            gm_fprintf(stderr, "unrecognized config %s\n", config);
-            return false;
-        }
-    }
-
-    for (int i = 0; i < FLAGS_excludeConfig.count(); i++) {
-        int index = findConfig(FLAGS_excludeConfig[i]);
-        if (index >= 0) {
-            *excludeConfigs.append() = index;
-        } else {
-            gm_fprintf(stderr, "unrecognized excludeConfig %s\n", FLAGS_excludeConfig[i]);
-            return false;
-        }
-    }
-
-    if (outConfigs->count() == 0) {
-        // if no config is specified by user, add the defaults
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-            if (gRec[i].fRunByDefault) {
-                *outConfigs->append() = i;
-            }
-        }
-    }
-    // now remove any explicitly excluded configs
-    for (int i = 0; i < excludeConfigs.count(); ++i) {
-        int index = outConfigs->find(excludeConfigs[i]);
-        if (index >= 0) {
-            outConfigs->remove(index);
-            // now assert that there was only one copy in configs[]
-            SkASSERT(outConfigs->find(excludeConfigs[i]) < 0);
-        }
-    }
-
-#if SK_SUPPORT_GPU
-    SkASSERT(grFactory != NULL);
-    for (int i = 0; i < outConfigs->count(); ++i) {
-        size_t index = (*outConfigs)[i];
-        if (kGPU_Backend == gRec[index].fBackend) {
-            GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
-            if (NULL == ctx) {
-                gm_fprintf(stderr, "GrContext could not be created for config %s."
-                           " Config will be skipped.\n", gRec[index].fName);
-                outConfigs->remove(i);
-                --i;
-                continue;
-            }
-            if (gRec[index].fSampleCnt > ctx->getMaxSampleCount()) {
-                gm_fprintf(stderr, "Sample count (%d) of config %s is not supported."
-                           " Config will be skipped.\n",
-                           gRec[index].fSampleCnt, gRec[index].fName);
-                outConfigs->remove(i);
-                --i;
-            }
-        }
-    }
-#endif
-
-    if (outConfigs->isEmpty()) {
-        gm_fprintf(stderr, "No configs to run.");
-        return false;
-    }
-
-    // now show the user the set of configs that will be run.
-    SkString configStr("These configs will be run: ");
-    // show the user the config that will run.
-    for (int i = 0; i < outConfigs->count(); ++i) {
-        configStr.appendf("%s ", gRec[(*outConfigs)[i]].fName);
-    }
-    gm_fprintf(stdout, "%s\n", configStr.c_str());
-
-    return true;
-}
-
-static bool parse_flags_ignore_error_types(ErrorCombination* outErrorTypes) {
-    if (FLAGS_ignoreErrorTypes.count() > 0) {
-        *outErrorTypes = ErrorCombination();
-        for (int i = 0; i < FLAGS_ignoreErrorTypes.count(); i++) {
-            ErrorType type;
-            const char *name = FLAGS_ignoreErrorTypes[i];
-            if (!getErrorTypeByName(name, &type)) {
-                gm_fprintf(stderr, "cannot find ErrorType with name '%s'\n", name);
-                return false;
-            } else {
-                outErrorTypes->add(type);
-            }
-        }
-    }
-    return true;
-}
-
-static bool parse_flags_modulo(int* moduloRemainder, int* moduloDivisor) {
-    if (FLAGS_modulo.count() == 2) {
-        *moduloRemainder = atoi(FLAGS_modulo[0]);
-        *moduloDivisor = atoi(FLAGS_modulo[1]);
-        if (*moduloRemainder < 0 || *moduloDivisor <= 0 ||
-                *moduloRemainder >= *moduloDivisor) {
-            gm_fprintf(stderr, "invalid modulo values.");
-            return false;
-        }
-    }
-    return true;
-}
-
-#if SK_SUPPORT_GPU
-static bool parse_flags_gpu_cache(int* sizeBytes, int* sizeCount) {
-    if (FLAGS_gpuCacheSize.count() > 0) {
-        if (FLAGS_gpuCacheSize.count() != 2) {
-            gm_fprintf(stderr, "--gpuCacheSize requires two arguments\n");
-            return false;
-        }
-        *sizeBytes = atoi(FLAGS_gpuCacheSize[0]);
-        *sizeCount = atoi(FLAGS_gpuCacheSize[1]);
-    } else {
-        *sizeBytes = DEFAULT_CACHE_VALUE;
-        *sizeCount = DEFAULT_CACHE_VALUE;
-    }
-    return true;
-}
-#endif
-
-static bool parse_flags_tile_grid_replay_scales(SkTDArray<SkScalar>* outScales) {
-    *outScales->append() = SK_Scalar1; // By default only test at scale 1.0
-    if (FLAGS_tileGridReplayScales.count() > 0) {
-        outScales->reset();
-        for (int i = 0; i < FLAGS_tileGridReplayScales.count(); i++) {
-            double val = atof(FLAGS_tileGridReplayScales[i]);
-            if (0 < val) {
-                *outScales->append() = SkDoubleToScalar(val);
-            }
-        }
-        if (0 == outScales->count()) {
-            // Should have at least one scale
-            gm_fprintf(stderr, "--tileGridReplayScales requires at least one scale.\n");
-            return false;
-        }
-    }
-    return true;
-}
-
-static bool parse_flags_gmmain_paths(GMMain* gmmain) {
-    gmmain->fUseFileHierarchy = FLAGS_hierarchy;
-    gmmain->fWriteChecksumBasedFilenames = FLAGS_writeChecksumBasedFilenames;
-
-    if (FLAGS_mismatchPath.count() == 1) {
-        gmmain->fMismatchPath = FLAGS_mismatchPath[0];
-    }
-
-    if (FLAGS_missingExpectationsPath.count() == 1) {
-        gmmain->fMissingExpectationsPath = FLAGS_missingExpectationsPath[0];
-    }
-
-    if (FLAGS_readPath.count() == 1) {
-        const char* readPath = FLAGS_readPath[0];
-        if (!sk_exists(readPath)) {
-            gm_fprintf(stderr, "readPath %s does not exist!\n", readPath);
-            return false;
-        }
-        if (sk_isdir(readPath)) {
-            if (FLAGS_verbose) {
-                gm_fprintf(stdout, "reading from %s\n", readPath);
-            }
-            gmmain->fExpectationsSource.reset(SkNEW_ARGS(
-                IndividualImageExpectationsSource, (readPath)));
-        } else {
-            if (FLAGS_verbose) {
-                gm_fprintf(stdout, "reading expectations from JSON summary file %s\n", readPath);
-            }
-            gmmain->fExpectationsSource.reset(SkNEW_ARGS(JsonExpectationsSource, (readPath)));
-        }
-    }
-    return true;
-}
-
-static bool parse_flags_match_strs(SkTDArray<const char*>* matchStrs) {
-    for (int i = 0; i < FLAGS_match.count(); ++i) {
-        matchStrs->push(FLAGS_match[i]);
-    }
-    return true;
-}
-
-static bool parse_flags_resource_path() {
-    if (FLAGS_resourcePath.count() == 1) {
-        GM::SetResourcePath(FLAGS_resourcePath[0]);
-    }
-    return true;
-}
-
-static bool parse_flags_jpeg_quality() {
-    if (FLAGS_pdfJpegQuality < -1 || FLAGS_pdfJpegQuality > 100) {
-        gm_fprintf(stderr, "%s\n", "pdfJpegQuality must be in [-1 .. 100] range.");
-        return false;
-    }
-    return true;
-}
-
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
 
@@ -1998,36 +1773,204 @@ int tool_main(int argc, char** argv) {
     setSystemPreferences();
     GMMain gmmain;
 
+    SkTDArray<size_t> configs;
+    SkTDArray<size_t> excludeConfigs;
+    bool userConfig = false;
+
     SkString usage;
     usage.printf("Run the golden master tests.\n");
     SkCommandLineFlags::SetUsage(usage.c_str());
     SkCommandLineFlags::Parse(argc, argv);
 
-    SkTDArray<size_t> configs;
+    gmmain.fUseFileHierarchy = FLAGS_hierarchy;
+    gmmain.fWriteChecksumBasedFilenames = FLAGS_writeChecksumBasedFilenames;
+    if (FLAGS_mismatchPath.count() == 1) {
+        gmmain.fMismatchPath = FLAGS_mismatchPath[0];
+    }
+    if (FLAGS_missingExpectationsPath.count() == 1) {
+        gmmain.fMissingExpectationsPath = FLAGS_missingExpectationsPath[0];
+    }
+
+    for (int i = 0; i < FLAGS_config.count(); i++) {
+        const char* config = FLAGS_config[i];
+        userConfig = true;
+        bool exclude = false;
+        if (*config == kExcludeConfigChar) {
+            exclude = true;
+            config += 1;
+        }
+        int index = findConfig(config);
+        if (index >= 0) {
+            if (exclude) {
+                *excludeConfigs.append() = index;
+            } else {
+                appendUnique<size_t>(&configs, index);
+            }
+        } else if (0 == strcmp(kDefaultsConfigStr, config)) {
+            for (size_t c = 0; c < SK_ARRAY_COUNT(gRec); ++c) {
+                if (gRec[c].fRunByDefault) {
+                    if (exclude) {
+                        gm_fprintf(stderr, "%c%s is not allowed.\n",
+                                   kExcludeConfigChar, kDefaultsConfigStr);
+                        return -1;
+                    } else {
+                        appendUnique<size_t>(&configs, c);
+                    }
+                }
+            }
+        } else {
+            gm_fprintf(stderr, "unrecognized config %s\n", config);
+            return -1;
+        }
+    }
+
+    for (int i = 0; i < FLAGS_excludeConfig.count(); i++) {
+        int index = findConfig(FLAGS_excludeConfig[i]);
+        if (index >= 0) {
+            *excludeConfigs.append() = index;
+        } else {
+            gm_fprintf(stderr, "unrecognized excludeConfig %s\n", FLAGS_excludeConfig[i]);
+            return -1;
+        }
+    }
+
     int moduloRemainder = -1;
     int moduloDivisor = -1;
+
+    if (FLAGS_modulo.count() == 2) {
+        moduloRemainder = atoi(FLAGS_modulo[0]);
+        moduloDivisor = atoi(FLAGS_modulo[1]);
+        if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
+            gm_fprintf(stderr, "invalid modulo values.");
+            return -1;
+        }
+    }
+
+    if (FLAGS_ignoreErrorTypes.count() > 0) {
+        gmmain.fIgnorableErrorTypes = ErrorCombination();
+        for (int i = 0; i < FLAGS_ignoreErrorTypes.count(); i++) {
+            ErrorType type;
+            const char *name = FLAGS_ignoreErrorTypes[i];
+            if (!getErrorTypeByName(name, &type)) {
+                gm_fprintf(stderr, "cannot find ErrorType with name '%s'\n", name);
+                return -1;
+            } else {
+                gmmain.fIgnorableErrorTypes.add(type);
+            }
+        }
+    }
+
+#if SK_SUPPORT_GPU
+    if (FLAGS_gpuCacheSize.count() > 0) {
+        if (FLAGS_gpuCacheSize.count() != 2) {
+            gm_fprintf(stderr, "--gpuCacheSize requires two arguments\n");
+            return -1;
+        }
+        gGpuCacheSizeBytes = atoi(FLAGS_gpuCacheSize[0]);
+        gGpuCacheSizeCount = atoi(FLAGS_gpuCacheSize[1]);
+    } else {
+        gGpuCacheSizeBytes = DEFAULT_CACHE_VALUE;
+        gGpuCacheSizeCount = DEFAULT_CACHE_VALUE;
+    }
+#endif
+
     SkTDArray<SkScalar> tileGridReplayScales;
+    *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
+    if (FLAGS_tileGridReplayScales.count() > 0) {
+        tileGridReplayScales.reset();
+        for (int i = 0; i < FLAGS_tileGridReplayScales.count(); i++) {
+            double val = atof(FLAGS_tileGridReplayScales[i]);
+            if (0 < val) {
+                *tileGridReplayScales.append() = SkDoubleToScalar(val);
+            }
+        }
+        if (0 == tileGridReplayScales.count()) {
+            // Should have at least one scale
+            gm_fprintf(stderr, "--tileGridReplayScales requires at least one scale.\n");
+            return -1;
+        }
+    }
+
+    if (!userConfig) {
+        // if no config is specified by user, add the defaults
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+            if (gRec[i].fRunByDefault) {
+                *configs.append() = i;
+            }
+        }
+    }
+    // now remove any explicitly excluded configs
+    for (int i = 0; i < excludeConfigs.count(); ++i) {
+        int index = configs.find(excludeConfigs[i]);
+        if (index >= 0) {
+            configs.remove(index);
+            // now assert that there was only one copy in configs[]
+            SkASSERT(configs.find(excludeConfigs[i]) < 0);
+        }
+    }
+
 #if SK_SUPPORT_GPU
     GrContextFactory* grFactory = new GrContextFactory;
+    for (int i = 0; i < configs.count(); ++i) {
+        size_t index = configs[i];
+        if (kGPU_Backend == gRec[index].fBackend) {
+            GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
+            if (NULL == ctx) {
+                gm_fprintf(stderr, "GrContext could not be created for config %s."
+                           " Config will be skipped.\n", gRec[index].fName);
+                configs.remove(i);
+                --i;
+                continue;
+            }
+            if (gRec[index].fSampleCnt > ctx->getMaxSampleCount()) {
+                gm_fprintf(stderr, "Sample count (%d) of config %s is not supported."
+                           " Config will be skipped.\n", gRec[index].fSampleCnt, gRec[index].fName);
+                configs.remove(i);
+                --i;
+            }
+        }
+    }
 #else
     GrContextFactory* grFactory = NULL;
 #endif
-    SkTDArray<const char*> matchStrs;
 
-    if (!parse_flags_modulo(&moduloRemainder, &moduloDivisor) ||
-        !parse_flags_ignore_error_types(&gmmain.fIgnorableErrorTypes) ||
-#if SK_SUPPORT_GPU
-        !parse_flags_gpu_cache(&gGpuCacheSizeBytes, &gGpuCacheSizeCount) ||
-#endif
-        !parse_flags_tile_grid_replay_scales(&tileGridReplayScales) ||
-        !parse_flags_gmmain_paths(&gmmain) ||
-        !parse_flags_resource_path() ||
-        !parse_flags_match_strs(&matchStrs) ||
-        !parse_flags_jpeg_quality() ||
-        !parse_flags_configs(&configs, grFactory)) {
+    if (configs.isEmpty()) {
+        gm_fprintf(stderr, "No configs to run.");
         return -1;
     }
 
+    // now show the user the set of configs that will be run.
+    SkString configStr("These configs will be run: ");
+    // show the user the config that will run.
+    for (int i = 0; i < configs.count(); ++i) {
+        configStr.appendf("%s%s", gRec[configs[i]].fName, (i == configs.count() - 1) ? "\n" : " ");
+    }
+    gm_fprintf(stdout, "%s", configStr.c_str());
+
+    if (FLAGS_resourcePath.count() == 1) {
+        GM::SetResourcePath(FLAGS_resourcePath[0]);
+    }
+
+    if (FLAGS_readPath.count() == 1) {
+        const char* readPath = FLAGS_readPath[0];
+        if (!sk_exists(readPath)) {
+            gm_fprintf(stderr, "readPath %s does not exist!\n", readPath);
+            return -1;
+        }
+        if (sk_isdir(readPath)) {
+            if (FLAGS_verbose) {
+                gm_fprintf(stdout, "reading from %s\n", readPath);
+            }
+            gmmain.fExpectationsSource.reset(SkNEW_ARGS(
+                IndividualImageExpectationsSource, (readPath)));
+        } else {
+            if (FLAGS_verbose) {
+                gm_fprintf(stdout, "reading expectations from JSON summary file %s\n", readPath);
+            }
+            gmmain.fExpectationsSource.reset(SkNEW_ARGS(
+                JsonExpectationsSource, (readPath)));
+        }
+    }
     if (FLAGS_verbose) {
         if (FLAGS_writePath.count() == 1) {
             gm_fprintf(stdout, "writing to %s\n", FLAGS_writePath[0]);
@@ -2045,6 +1988,13 @@ int tool_main(int argc, char** argv) {
         if (FLAGS_resourcePath.count() == 1) {
             gm_fprintf(stdout, "reading resources from %s\n", FLAGS_resourcePath[0]);
         }
+    }
+
+    if (moduloDivisor <= 0) {
+        moduloRemainder = -1;
+    }
+    if (moduloRemainder < 0 || moduloRemainder >= moduloDivisor) {
+        moduloRemainder = -1;
     }
 
     int gmsRun = 0;
@@ -2069,6 +2019,10 @@ int tool_main(int argc, char** argv) {
         }
     }
 
+    if (FLAGS_pdfJpegQuality < -1 || FLAGS_pdfJpegQuality > 100) {
+        gm_fprintf(stderr, "%s\n", "pdfJpegQuality must be in [-1 .. 100] range.");
+    }
+
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
@@ -2083,6 +2037,10 @@ int tool_main(int argc, char** argv) {
 
         const char* shortName = gm->shortName();
 
+        SkTDArray<const char*> matchStrs;
+        for (int i = 0; i < FLAGS_match.count(); ++i) {
+            matchStrs.push(FLAGS_match[i]);
+        }
         if (SkCommandLineFlags::ShouldSkip(matchStrs, shortName)) {
             continue;
         }
