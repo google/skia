@@ -377,7 +377,7 @@ void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
     const Gr1DKernelEffect& kern = drawEffect.castEffect<Gr1DKernelEffect>();
     GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
-    GrAssert(kern.radius() == fRadius);
+    SkASSERT(kern.radius() == fRadius);
     float imageIncrement[2] = { 0 };
     switch (kern.direction()) {
         case Gr1DKernelEffect::kX_Direction:

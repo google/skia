@@ -910,7 +910,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     desc.fContext = ctx;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
     fAtlas = GrTextureStripAtlas::GetAtlas(desc);
-    GrAssert(NULL != fAtlas);
+    SkASSERT(NULL != fAtlas);
 
     // We always filter the gradient table. Each table is one row of a texture, so always y-clamp.
     GrTextureParams params;

@@ -364,7 +364,7 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
         dstColor = builder->dstColor();
     }
 
-    GrAssert(NULL != dstColor);
+    SkASSERT(NULL != dstColor);
     fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                 kVec4f_GrSLType, "k");
     const char* kUni = builder->getUniformCStr(fKUni);

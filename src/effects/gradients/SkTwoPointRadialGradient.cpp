@@ -640,7 +640,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
                                   const GrDrawEffect& drawEffect) {
     INHERITED::setData(uman, drawEffect);
     const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
-    GrAssert(data.isDegenerate() == fIsDegenerate);
+    SkASSERT(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
     if (fCachedCenter != centerX1 ||
