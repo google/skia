@@ -638,7 +638,7 @@ desk_pokemonwiki.skp_record_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.334,-5
 desk_pokemonwiki.skp_record_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,105.773,75.196,126.350
 desk_pokemonwiki.skp_record_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,11.174,0.057,22.291
 desk_pokemonwiki.skp_record_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.591,-0.468,21.650
-desk_pokemonwiki.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,130.119,101.107,153.131
+desk_pokemonwiki.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,130.119,91.107,153.131
 desk_pokemonwiki.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.227,2.805,25.650
 desk_pokemonwiki.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.482,3.034,25.930
 desk_pokemonwiki.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.020,8.018,32.022
