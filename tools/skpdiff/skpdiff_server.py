@@ -68,7 +68,11 @@ def get_skpdiff_path(user_path=None):
         possible_paths.append(os.path.join(SKIA_ROOT_DIR, 'out',
                                            'Release', 'skpdiff'))
         possible_paths.append(os.path.join(SKIA_ROOT_DIR, 'out',
+                                           'Release', 'skpdiff.exe'))
+        possible_paths.append(os.path.join(SKIA_ROOT_DIR, 'out',
                                            'Debug', 'skpdiff'))
+        possible_paths.append(os.path.join(SKIA_ROOT_DIR, 'out',
+                                           'Debug', 'skpdiff.exe'))
     # Use the first path that actually points to the binary
     for possible_path in possible_paths:
         if os.path.isfile(possible_path):
@@ -159,8 +163,9 @@ def get_head_version(path):
     """
 
     # git-show will not work with absolute paths. This ensures we give it a path
-    # relative to the skia root.
-    git_path = os.path.relpath(path, SKIA_ROOT_DIR)
+    # relative to the skia root. This path also has to use forward slashes, even
+    # on windows.
+    git_path = os.path.relpath(path, SKIA_ROOT_DIR).replace('\\', '/')
     git_show_proc = subprocess.Popen(['git', 'show', 'HEAD:' + git_path],
                                      stdout=subprocess.PIPE)
 
@@ -221,8 +226,10 @@ class ExpectationsManager:
 
 
         # Create a temporary file tree that makes sense for skpdiff to operate
-        # on.
-        image_output_dir = tempfile.mkdtemp('skpdiff')
+        # on. We take the realpath of the new temp directory because some OSs
+        # (*cough* osx) put the temp directory behind a symlink that gets
+        # resolved later down the pipeline and breaks the image map.
+        image_output_dir = os.path.realpath(tempfile.mkdtemp('skpdiff'))
         expected_image_dir = os.path.join(image_output_dir, 'expected')
         actual_image_dir = os.path.join(image_output_dir, 'actual')
         os.mkdir(expected_image_dir)
