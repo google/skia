@@ -53,19 +53,21 @@
           'action': ['python', '../experimental/PdfViewer/spec2def.py', '../experimental/PdfViewer/PdfReference-okular-1.txt', '<(GENERATE_DIR)/pdfspec_autogen.py'],
         },
         {
-          'action_name': 'copy_files',
-          'variables': {
-            'sources' : [
-              '../experimental/PdfViewer/datatypes.py',
-              '../experimental/PdfViewer/generate_code.py',
-            ]
-          },
-          'inputs' : ['<(sources)'],
+          'action_name': 'copy_files1',
+          'inputs' : ['../experimental/PdfViewer/datatypes.py'],
           'outputs': [
             '<(GENERATE_DIR)/datatypes.py',
+          ],
+          'action': ['python', '../experimental/PdfViewer/copy_files.py', '<(GENERATE_DIR)', '../experimental/PdfViewer/datatypes.py'],
+        },
+        {
+          'action_name': 'copy_files2',
+
+          'inputs' : ['../experimental/PdfViewer/generate_code.py'],
+          'outputs': [
             '<(GENERATE_DIR)/generate_code.py',
           ],
-          'action': ['python', '../experimental/PdfViewer/copy_files.py', '<(GENERATE_DIR)', '<@(sources)'],
+          'action': ['python', '../experimental/PdfViewer/copy_files.py', '<(GENERATE_DIR)', '../experimental/PdfViewer/generate_code.py'],
         },
         {
           'action_name': 'generate_code',
