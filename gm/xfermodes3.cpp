@@ -32,7 +32,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(630, 620);
+        return make_isize(630, 1215);
     }
 
     virtual void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
@@ -62,40 +62,50 @@ protected:
 
         int test = 0;
         int x = 0, y = 0;
-        for (size_t m = 0; m <= SkXfermode::kLastMode; ++m) {
-            SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
-            canvas->drawText(SkXfermode::ModeName(mode),
-                             strlen(SkXfermode::ModeName(mode)),
-                             SkIntToScalar(x),
-                             SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
-                             labelP);
-            for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
-                SkPaint modePaint;
-                modePaint.setXfermodeMode(mode);
-                modePaint.setColor(kSolidColors[c]);
+        static const struct { SkPaint::Style fStyle; SkScalar fWidth; } kStrokes[] = {
+            {SkPaint::kFill_Style, 0},
+            {SkPaint::kStroke_Style, SkIntToScalar(kSize) / 2},
+        };
+        for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
+            for (size_t m = 0; m <= SkXfermode::kLastMode; ++m) {
+                SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
+                canvas->drawText(SkXfermode::ModeName(mode),
+                                 strlen(SkXfermode::ModeName(mode)),
+                                 SkIntToScalar(x),
+                                 SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
+                                 labelP);
+                for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
+                    SkPaint modePaint;
+                    modePaint.setXfermodeMode(mode);
+                    modePaint.setColor(kSolidColors[c]);
+                    modePaint.setStyle(kStrokes[s].fStyle);
+                    modePaint.setStrokeWidth(kStrokes[s].fWidth);
 
-                this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempCanvas.get());
+                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempCanvas.get());
 
-                ++test;
-                x += kSize + 10;
-                if (!(test % kTestsPerRow)) {
-                    x = 0;
-                    y += kSize + 30;
+                    ++test;
+                    x += kSize + 10;
+                    if (!(test % kTestsPerRow)) {
+                        x = 0;
+                        y += kSize + 30;
+                    }
                 }
-            }
-            for (size_t a = 0; a < SK_ARRAY_COUNT(kBmpAlphas); ++a) {
-                SkPaint modePaint;
-                modePaint.setXfermodeMode(mode);
-                modePaint.setAlpha(kBmpAlphas[a]);
-                modePaint.setShader(fBmpShader);
+                for (size_t a = 0; a < SK_ARRAY_COUNT(kBmpAlphas); ++a) {
+                    SkPaint modePaint;
+                    modePaint.setXfermodeMode(mode);
+                    modePaint.setAlpha(kBmpAlphas[a]);
+                    modePaint.setShader(fBmpShader);
+                    modePaint.setStyle(kStrokes[s].fStyle);
+                    modePaint.setStrokeWidth(kStrokes[s].fWidth);
 
-                this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempCanvas.get());
+                    this->drawMode(canvas, x, y, kSize, kSize, modePaint, tempCanvas.get());
 
-                ++test;
-                x += kSize + 10;
-                if (!(test % kTestsPerRow)) {
-                    x = 0;
-                    y += kSize + 30;
+                    ++test;
+                    x += kSize + 10;
+                    if (!(test % kTestsPerRow)) {
+                        x = 0;
+                        y += kSize + 30;
+                    }
                 }
             }
         }
