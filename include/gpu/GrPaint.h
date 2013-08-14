@@ -174,7 +174,28 @@ public:
         this->resetColorFilter();
     }
 
+    /**
+     * Determines whether the drawing with this paint is opaque with respect to both color blending
+     * and fractional coverage. It does not consider whether AA has been enabled on the paint or
+     * not. Depending upon whether multisampling or coverage-based AA is in use, AA may make the
+     * result only apply to the interior of primitives.
+     *
+     */
+    bool isOpaque() const;
+
+    /**
+     * Returns true if isOpaque would return true and the paint represents a solid constant color
+     * draw. If the result is true, constantColor will be updated to contain the constant color.
+     */
+    bool isOpaqueAndConstantColor(GrColor* constantColor) const;
+
 private:
+
+    /**
+     * Helper for isOpaque and isOpaqueAndConstantColor.
+     */
+    bool getOpaqueAndKnownColor(GrColor* solidColor, uint32_t* solidColorKnownComponents) const;
+
     /**
      * Called when the source coord system from which geometry is rendered changes. It ensures that
      * the local coordinates seen by effects remains unchanged. oldToNew gives the transformation

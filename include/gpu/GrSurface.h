@@ -11,6 +11,7 @@
 
 #include "GrTypes.h"
 #include "GrResource.h"
+#include "SkRect.h"
 
 class GrTexture;
 class GrRenderTarget;
@@ -32,6 +33,12 @@ public:
      * @return the height in texels
      */
     int height() const { return fDesc.fHeight; }
+
+    /**
+     * Helper that gets the width and height of the surface as a bounding rectangle.
+     */
+    void getBoundsRect(SkRect* rect) const { rect->setWH(SkIntToScalar(this->width()),
+                                                         SkIntToScalar(this->height())); }
 
     GrSurfaceOrigin origin() const {
         GrAssert(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin || kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
