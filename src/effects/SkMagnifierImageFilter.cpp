@@ -219,7 +219,7 @@ GrEffectRef* GrMagnifierEffect::TestCreate(SkMWCRandom* random,
                 inset));
     GrEffectRef* effect;
     filter->asNewEffect(&effect, textures[0], SkIPoint::Make(0, 0));
-    GrAssert(NULL != effect);
+    SkASSERT(NULL != effect);
     return effect;
 }
 

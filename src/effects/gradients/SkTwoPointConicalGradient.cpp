@@ -658,7 +658,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
                                    const GrDrawEffect& drawEffect) {
     INHERITED::setData(uman, drawEffect);
     const GrConical2Gradient& data = drawEffect.castEffect<GrConical2Gradient>();
-    GrAssert(data.isDegenerate() == fIsDegenerate);
+    SkASSERT(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
     SkScalar diffRadius = data.diffRadius();

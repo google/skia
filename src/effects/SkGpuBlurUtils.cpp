@@ -35,7 +35,7 @@ static float adjust_sigma(float sigma, int *scaleFactor, int *radius) {
         sigma *= 0.5f;
     }
     *radius = static_cast<int>(ceilf(sigma * 3.0f));
-    GrAssert(*radius <= GrConvolutionEffect::kMaxKernelRadius);
+    SkASSERT(*radius <= GrConvolutionEffect::kMaxKernelRadius);
     return sigma;
 }
 
@@ -119,7 +119,7 @@ GrTexture* GaussianBlur(GrContext* context,
                         bool cropToRect,
                         float sigmaX,
                         float sigmaY) {
-    GrAssert(NULL != context);
+    SkASSERT(NULL != context);
 
     GrContext::AutoRenderTarget art(context);
 
@@ -140,7 +140,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
     GrContext::AutoClip acs(context, SkRect::MakeWH(srcRect.width(), srcRect.height()));
 
-    GrAssert(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
+    SkASSERT(kBGRA_8888_GrPixelConfig == srcTexture->config() ||
              kRGBA_8888_GrPixelConfig == srcTexture->config() ||
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
