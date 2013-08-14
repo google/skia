@@ -468,12 +468,10 @@ class PdfClassManager:
     fileMapperNativeCpp.write('\n')
     
     fileMapperNative.write('class SkPdfMapper {\n')
-
-    fileMapperNative.write('  SkPdfNativeDoc* fParsedDoc;\n')
     
     fileMapperNative.write('public:\n')
     
-    fileMapperNative.write('  SkPdfMapper(SkPdfNativeDoc* doc) : fParsedDoc(doc) {}\n')
+    fileMapperNative.write('  SkPdfMapper() {}\n')
     fileMapperNative.write('\n')
     
     for name in self.fClassesNamesInOrder:

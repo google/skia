@@ -359,11 +359,12 @@ smoothness             number             (PDF 1.3) The precision with which col
 
 // TODO(edisonn): better class design.
 // TODO(edisonn): rename to SkPdfContext
-struct SkPdfContext {
-    std::stack<SkPdfNativeObject*>        fObjectStack;
+class SkPdfContext {
+public:
+    std::stack<SkPdfNativeObject*>  fObjectStack;
     std::stack<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
-    SkPdfNativeDoc*              fPdfDoc;
+    SkPdfNativeDoc*                 fPdfDoc;
     // TODO(edisonn): the allocator, could be freed after the page is done drawing.
     SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;

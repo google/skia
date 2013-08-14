@@ -1,5 +1,4 @@
 #include "SkPdfUtils.h"
-#include "SkPdfConfig.h"
 
 #ifdef PDF_TRACE
 void SkTraceMatrix(const SkMatrix& matrix, const char* sz) {

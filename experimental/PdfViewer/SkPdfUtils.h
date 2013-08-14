@@ -3,6 +3,7 @@
 
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkPdfConfig.h"
 
 class SkPdfArray;
 class SkPdfContext;

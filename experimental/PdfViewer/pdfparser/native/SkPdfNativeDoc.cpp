@@ -7,10 +7,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "SkPdfFileTrailerDictionary_autogen.h"
-#include "SkPdfCatalogDictionary_autogen.h"
-#include "SkPdfPageObjectDictionary_autogen.h"
-#include "SkPdfPageTreeNodeDictionary_autogen.h"
+// TODO(edisonn): for some reason on mac these files are found here, but are found from headers
+//#include "SkPdfFileTrailerDictionary_autogen.h"
+//#include "SkPdfCatalogDictionary_autogen.h"
+//#include "SkPdfPageObjectDictionary_autogen.h"
+//#include "SkPdfPageTreeNodeDictionary_autogen.h"
+#include "SkPdfHeaders_autogen.h"
+
 #include "SkPdfMapper_autogen.h"
 
 #include "SkStream.h"
@@ -361,7 +364,7 @@ SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/
     const unsigned char* current = fFileContent + startOffset;
     const unsigned char* end = fFileContent + fContentLength;
 
-    SkPdfNativeTokenizer tokenizer(current, end - current, fMapper, fAllocator, this);
+    SkPdfNativeTokenizer tokenizer(current, end - current, fAllocator, this);
 
     SkPdfNativeObject idObj;
     SkPdfNativeObject generationObj;
@@ -465,7 +468,7 @@ SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfStream(SkPdfNativeObject* strea
         return NULL;
     }
 
-    return new SkPdfNativeTokenizer(stream, fMapper, allocator, this);
+    return new SkPdfNativeTokenizer(stream, allocator, this);
 }
 
 // TODO(edisonn): NYI
@@ -473,7 +476,7 @@ SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfBuffer(const unsigned char* buf
                                                            SkPdfAllocator* allocator) {
     // warning does not track two calls in the same buffer! the buffer is updated!
     // make a clean copy if needed!
-    return new SkPdfNativeTokenizer(buffer, len, fMapper, allocator, this);
+    return new SkPdfNativeTokenizer(buffer, len, allocator, this);
 }
 
 size_t SkPdfNativeDoc::objects() const {
