@@ -12,6 +12,7 @@
     '../gm/bitmapcopy.cpp',
     '../gm/bitmapmatrix.cpp',
     '../gm/bitmapfilters.cpp',
+    '../gm/bitmappremul.cpp',
     '../gm/bitmaprect.cpp',
     '../gm/bitmaprecttest.cpp',
     '../gm/bitmapscroll.cpp',
