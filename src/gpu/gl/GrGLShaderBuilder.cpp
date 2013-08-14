@@ -110,9 +110,6 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fUsesGS(false)
 #endif
     , fSetupFragPosition(false)
-    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
-    , fDstCopyTopLeftUniform (GrGLUniformManager::kInvalidUniformHandle)
-    , fDstCopyScaleUniform (GrGLUniformManager::kInvalidUniformHandle)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey) {
 
     const GrGLProgramDesc::KeyHeader& header = desc.getHeader();
@@ -391,7 +388,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     GrAssert(0 != visibility);
 
     BuilderUniform& uni = fUniforms.push_back();
-    UniformHandle h = index_to_handle(fUniforms.count() - 1);
+    UniformHandle h = GrGLUniformManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
     GR_DEBUGCODE(UniformHandle h2 =)
     fUniformManager.appendUniform(type, count);
     // We expect the uniform manager to initially have no uniforms and that all uniforms are added
@@ -416,10 +413,6 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     }
 
     return h;
-}
-
-const GrGLShaderVar& GrGLShaderBuilder::getUniformVariable(UniformHandle u) const {
-    return fUniforms[handle_to_index(u)].fVariable;
 }
 
 bool GrGLShaderBuilder::addAttribute(GrSLType type,
@@ -512,7 +505,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             // temporarily change the stage index because we're inserting non-stage code.
             CodeStage::AutoStageRestore csar(&fCodeStage, NULL);
 
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fRTHeightUniform);
+            GrAssert(!fRTHeightUniform.isValid());
             const char* rtHeightName;
 
             fRTHeightUniform = this->addUniform(kFragment_ShaderType,
@@ -524,7 +517,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
                                    kCoordName, rtHeightName);
             fSetupFragPosition = true;
         }
-        GrAssert(GrGLUniformManager::kInvalidUniformHandle != fRTHeightUniform);
+        GrAssert(fRTHeightUniform.isValid());
         return kCoordName;
     }
 }

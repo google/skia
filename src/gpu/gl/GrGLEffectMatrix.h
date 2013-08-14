@@ -59,8 +59,7 @@ public:
     };
 
     GrGLEffectMatrix(CoordsType coordsType)
-        : fUni(GrGLUniformManager::kInvalidUniformHandle)
-        , fCoordsType(coordsType) {
+        : fCoordsType(coordsType) {
         GrAssert(GrEffect::kLocal_CoordsType == coordsType ||
                  GrEffect::kPosition_CoordsType == coordsType);
         fPrevMatrix = SkMatrix::InvalidMatrix();

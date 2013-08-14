@@ -25,7 +25,6 @@ class GrGLSpecularLightingEffect;
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 #endif
 
 namespace {
@@ -1150,8 +1149,6 @@ GrEffectRef* GrDiffuseLightingEffect::TestCreate(SkMWCRandom* random,
 GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
                                        const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fImageIncrementUni(kInvalidUniformHandle)
-    , fSurfaceScaleUni(kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrLightingEffect>().coordsType()) {
     const GrLightingEffect& m = drawEffect.castEffect<GrLightingEffect>();
     fLight = m.light()->createGLLight();
@@ -1294,8 +1291,7 @@ void GrGLLightingEffect::setData(const GrGLUniformManager& uman,
 
 GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
                                                      const GrDrawEffect& drawEffect)
-    : INHERITED(factory, drawEffect)
-    , fKDUni(kInvalidUniformHandle) {
+    : INHERITED(factory, drawEffect) {
 }
 
 void GrGLDiffuseLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkString* funcName) {
@@ -1372,9 +1368,7 @@ GrEffectRef* GrSpecularLightingEffect::TestCreate(SkMWCRandom* random,
 
 GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrBackendEffectFactory& factory,
                                                        const GrDrawEffect& drawEffect)
-    : GrGLLightingEffect(factory, drawEffect)
-    , fKSUni(kInvalidUniformHandle)
-    , fShininessUni(kInvalidUniformHandle) {
+    : INHERITED(factory, drawEffect) {
 }
 
 void GrGLSpecularLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkString* funcName) {

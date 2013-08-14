@@ -336,7 +336,6 @@ void SkTwoPointConicalGradient::flatten(
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 class GrGLConical2Gradient : public GrGLGradientEffect {
 public:
@@ -475,8 +474,6 @@ GrEffectRef* GrConical2Gradient::TestCreate(SkMWCRandom* random,
 GrGLConical2Gradient::GrGLConical2Gradient(const GrBackendEffectFactory& factory,
                                            const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fVSParamUni(kInvalidUniformHandle)
-    , fFSParamUni(kInvalidUniformHandle)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(SK_ScalarMax)

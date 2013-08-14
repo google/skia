@@ -33,8 +33,7 @@ public:
     class TextureSampler {
     public:
         TextureSampler()
-            : fConfigComponentMask(0)
-            , fSamplerUniform(GrGLUniformManager::kInvalidUniformHandle) {
+            : fConfigComponentMask(0) {
             // we will memcpy the first 4 bytes from passed in swizzle. This ensures the string is
             // terminated.
             fSwizzle[4] = '\0';
@@ -44,7 +43,7 @@ public:
 
         TextureSampler& operator= (const TextureSampler& other) {
             GrAssert(0 == fConfigComponentMask);
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
+            GrAssert(!fSamplerUniform.isValid());
 
             fConfigComponentMask = other.fConfigComponentMask;
             fSamplerUniform = other.fSamplerUniform;
@@ -67,7 +66,7 @@ public:
                   int idx) {
             GrAssert(!this->isInitialized());
             GrAssert(0 != configComponentMask);
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
+            GrAssert(!fSamplerUniform.isValid());
 
             GrAssert(NULL != builder);
             SkString name;
@@ -75,7 +74,7 @@ public:
             fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                   kSampler2D_GrSLType,
                                                   name.c_str());
-            GrAssert(GrGLUniformManager::kInvalidUniformHandle != fSamplerUniform);
+            GrAssert(fSamplerUniform.isValid());
 
             fConfigComponentMask = configComponentMask;
             memcpy(fSwizzle, swizzle, 4);
@@ -228,7 +227,9 @@ public:
                                                       int arrayCount,
                                                       const char** outName = NULL);
 
-    const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle) const;
+    const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle u) const {
+        return fUniformManager.getBuilderUniform(fUniforms, u).fVariable;
+    }
 
     /**
      * Shortcut for getUniformVariable(u).c_str()

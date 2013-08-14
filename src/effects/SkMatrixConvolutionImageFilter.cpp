@@ -351,11 +351,6 @@ private:
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
                                                          const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fTargetUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fGainUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fBiasUni(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrMatrixConvolutionEffect>().coordsType()) {
     const GrMatrixConvolutionEffect& m = drawEffect.castEffect<GrMatrixConvolutionEffect>();
     fKernelSize = m.kernelSize();

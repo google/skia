@@ -38,7 +38,6 @@ private:
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
                                                  const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fNameUni(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrTextureDomainEffect>().coordsType()) {
     fPrevDomain[0] = SK_FloatNaN;
 }

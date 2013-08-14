@@ -12,7 +12,6 @@
 #include "SkTSearch.h"
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
-static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
 struct GrGpuGL::ProgramCache::Entry {
     SK_DECLARE_INST_COUNT_ROOT(Entry);

@@ -189,8 +189,7 @@ void GrGLEffectMatrix::setData(const GrGLUniformManager& uniformManager,
                                const SkMatrix& matrix,
                                const GrDrawEffect& drawEffect,
                                const GrTexture* texture) {
-    GrAssert((GrGLUniformManager::kInvalidUniformHandle == fUni) ==
-             (kVoid_GrSLType == fUniType));
+    GrAssert(fUni.isValid() != (kVoid_GrSLType == fUniType));
     const SkMatrix& coordChangeMatrix = GrEffect::kLocal_CoordsType == fCoordsType ?
                                             drawEffect.getCoordChangeMatrix() :
                                             SkMatrix::I();

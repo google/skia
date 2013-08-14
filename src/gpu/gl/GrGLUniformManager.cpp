@@ -22,11 +22,11 @@ GrGLUniformManager::UniformHandle GrGLUniformManager::appendUniform(GrSLType typ
     uni.fType = type;
     uni.fVSLocation = kUnusedUniform;
     uni.fFSLocation = kUnusedUniform;
-    return index_to_handle(idx);
+    return GrGLUniformManager::UniformHandle::CreateFromUniformIndex(idx);
 }
 
 void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kSampler2D_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
@@ -42,7 +42,7 @@ void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
 }
 
 void GrGLUniformManager::set1f(UniformHandle u, GrGLfloat v0) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kFloat_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -58,7 +58,7 @@ void GrGLUniformManager::set1fv(UniformHandle u,
                                 int offset,
                                 int arrayCount,
                                 const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kFloat_GrSLType);
     GrAssert(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
@@ -75,7 +75,7 @@ void GrGLUniformManager::set1fv(UniformHandle u,
 }
 
 void GrGLUniformManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec2f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -91,7 +91,7 @@ void GrGLUniformManager::set2fv(UniformHandle u,
                                 int offset,
                                 int arrayCount,
                                 const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec2f_GrSLType);
     GrAssert(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
@@ -105,7 +105,7 @@ void GrGLUniformManager::set2fv(UniformHandle u,
 }
 
 void GrGLUniformManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec3f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -121,7 +121,7 @@ void GrGLUniformManager::set3fv(UniformHandle u,
                                 int offset,
                                 int arrayCount,
                                 const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec3f_GrSLType);
     GrAssert(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
@@ -139,7 +139,7 @@ void GrGLUniformManager::set4f(UniformHandle u,
                                GrGLfloat v1,
                                GrGLfloat v2,
                                GrGLfloat v3) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec4f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -155,7 +155,7 @@ void GrGLUniformManager::set4fv(UniformHandle u,
                                 int offset,
                                 int arrayCount,
                                 const GrGLfloat v[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kVec4f_GrSLType);
     GrAssert(arrayCount > 0);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -168,7 +168,7 @@ void GrGLUniformManager::set4fv(UniformHandle u,
 }
 
 void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kMat33f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     // TODO: Re-enable this assert once texture matrices aren't forced on all effects
@@ -182,7 +182,7 @@ void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) 
 }
 
 void GrGLUniformManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kMat44f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
     GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
@@ -198,7 +198,7 @@ void GrGLUniformManager::setMatrix3fv(UniformHandle u,
                                       int offset,
                                       int arrayCount,
                                       const GrGLfloat matrices[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kMat33f_GrSLType);
     GrAssert(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
@@ -217,7 +217,7 @@ void GrGLUniformManager::setMatrix4fv(UniformHandle u,
                                       int offset,
                                       int arrayCount,
                                       const GrGLfloat matrices[]) const {
-    const Uniform& uni = fUniforms[handle_to_index(u)];
+    const Uniform& uni = fUniforms[u.toUniformIndex()];
     GrAssert(uni.fType == kMat44f_GrSLType);
     GrAssert(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
@@ -266,4 +266,9 @@ void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUn
             fUniforms[i].fFSLocation = location;
         }
     }
+}
+
+const GrGLUniformManager::BuilderUniform&
+GrGLUniformManager::getBuilderUniform(const BuilderUniformArray& array, UniformHandle handle) const {
+    return array[handle.toUniformIndex()];
 }

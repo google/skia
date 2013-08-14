@@ -312,7 +312,6 @@ private:
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
                                            const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
     , fEffectMatrix(drawEffect.castEffect<GrMorphologyEffect>().coordsType()) {
     const GrMorphologyEffect& m = drawEffect.castEffect<GrMorphologyEffect>();
     fRadius = m.radius();
