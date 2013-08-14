@@ -1479,7 +1479,7 @@ static const SkScriptNAnswer2 scriptTests[]  = {
 void SkScriptEngine2::UnitTest() {
 #if defined(SK_SUPPORT_UNITTEST)
     ValidateDecompileTable();
-    for (int index = 0; index < SkScriptNAnswer_testCount; index++) {
+    for (size_t index = 0; index < SkScriptNAnswer_testCount; index++) {
         SkScriptEngine2 engine(scriptTests[index].fType);
         SkScriptValue2 value;
         const char* script = scriptTests[index].fScript;
