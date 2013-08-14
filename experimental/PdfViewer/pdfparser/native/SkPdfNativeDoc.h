@@ -8,7 +8,7 @@ class SkCanvas;
 
 class SkPdfAllocator;
 class SkPdfMapper;
-class SkPdfObject;
+class SkPdfNativeObject;
 class SkPdfReal;
 class SkPdfInteger;
 class SkPdfString;
@@ -21,14 +21,14 @@ class SkPdfNativeTokenizer;
 
 class SkStream;
 
-class SkNativeParsedPDF {
+class SkPdfNativeDoc {
 private:
     struct PublicObjectEntry {
         long fOffset;
         // long endOffset;  // TODO(edisonn): determine the end of the object, to be used when the doc is corrupted
-        SkPdfObject* fObj;
+        SkPdfNativeObject* fObj;
         // TODO(edisonn): perf ... probably it does not make sense to cache the ref. test it!
-        SkPdfObject* fResolvedReference;
+        SkPdfNativeObject* fResolvedReference;
     };
 
 public:
@@ -38,22 +38,22 @@ public:
     // TODO(edisonn): allow corruptions of file (e.g. missing endobj, missing stream length, ...)
     // TODO(edisonn): encryption
 
-    SkNativeParsedPDF(const char* path);
-    SkNativeParsedPDF(SkStream* stream);
+    SkPdfNativeDoc(const char* path);
+    SkPdfNativeDoc(SkStream* stream);
 
-    ~SkNativeParsedPDF();
+    ~SkPdfNativeDoc();
 
     int pages() const;
     SkPdfResourceDictionary* pageResources(int page);
     SkRect MediaBox(int page);
     SkPdfNativeTokenizer* tokenizerOfPage(int n, SkPdfAllocator* allocator);
 
-    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfObject* stream, SkPdfAllocator* allocator);
+    SkPdfNativeTokenizer* tokenizerOfStream(SkPdfNativeObject* stream, SkPdfAllocator* allocator);
     SkPdfNativeTokenizer* tokenizerOfBuffer(const unsigned char* buffer, size_t len,
                                             SkPdfAllocator* allocator);
 
     size_t objects() const;
-    SkPdfObject* object(int i);
+    SkPdfNativeObject* object(int i);
     SkPdfPageObjectDictionary* page(int page);
 
     const SkPdfMapper* mapper() const;
@@ -64,7 +64,7 @@ public:
     // the string does not own the char*
     SkPdfString* createString(const unsigned char* sz, size_t len) const;
 
-    SkPdfObject* resolveReference(SkPdfObject* ref);
+    SkPdfNativeObject* resolveReference(SkPdfNativeObject* ref);
 
     // Reports an approximation of all the memory usage.
     size_t bytesUsed() const;
@@ -86,7 +86,7 @@ private:
         obj->fOffset = -1;
     }
 
-    SkPdfObject* readObject(int id/*, int generation*/);
+    SkPdfNativeObject* readObject(int id/*, int generation*/);
 
     void fillPages(SkPdfPageTreeNodeDictionary* tree);
 
@@ -95,7 +95,7 @@ private:
     SkPdfMapper* fMapper;
     const unsigned char* fFileContent;
     size_t fContentLength;
-    SkPdfObject* fRootCatalogRef;
+    SkPdfNativeObject* fRootCatalogRef;
     SkPdfCatalogDictionary* fRootCatalog;
 
     mutable SkTDArray<PublicObjectEntry> fObjects;

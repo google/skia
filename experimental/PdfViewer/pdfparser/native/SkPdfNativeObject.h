@@ -12,6 +12,9 @@
 
 #include "SkPdfNYI.h"
 #include "SkPdfConfig.h"
+#include "SkPdfUtils.h"
+
+#include "SkPdfNativeTokenizer.h"
 
 class SkPdfDictionary;
 class SkPdfStream;
@@ -25,7 +28,7 @@ SkMatrix SkMatrixFromPdfMatrix(double array[6]);
 #define kUnfilteredStreamBit 1
 #define kOwnedStreamBit 2
 
-class SkPdfObject {
+class SkPdfNativeObject {
  public:
      enum ObjectType {
          kInvalid_PdfObjectType,
@@ -78,10 +81,10 @@ private:
         NotOwnedString fStr;
 
         // TODO(edisonn): make sure the foorprint of fArray and fMap is small, otherwise, use pointers, or classes with up to 8 bytes in footprint
-        SkTDArray<SkPdfObject*>* fArray;
+        SkTDArray<SkPdfNativeObject*>* fArray;
         Reference fRef;
     };
-    SkTDict<SkPdfObject*>* fMap;
+    SkTDict<SkPdfNativeObject*>* fMap;
 
     // TODO(edisonn): rename data with cache
     void* fData;
@@ -90,7 +93,7 @@ private:
 
 public:
 
-    SkPdfObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
+    SkPdfNativeObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
 
 
     inline bool hasData(DataType type) {
@@ -109,7 +112,7 @@ public:
 
     void releaseData();
 
-//    ~SkPdfObject() {
+//    ~SkPdfNativeObject() {
 //        //reset();  must be called manually!
 //    }
 
@@ -190,49 +193,49 @@ public:
         return nyi;
     }
 
-    static void makeBoolean(bool value, SkPdfObject* obj) {
+    static void makeBoolean(bool value, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kBoolean_PdfObjectType;
         obj->fBooleanValue = value;
     }
 
-    static SkPdfObject makeBoolean(bool value) {
-        SkPdfObject obj;
+    static SkPdfNativeObject makeBoolean(bool value) {
+        SkPdfNativeObject obj;
         obj.fObjectType = kBoolean_PdfObjectType;
         obj.fBooleanValue = value;
         return obj;
     }
 
-    static void makeInteger(int64_t value, SkPdfObject* obj) {
+    static void makeInteger(int64_t value, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kInteger_PdfObjectType;
         obj->fIntegerValue = value;
     }
 
-    static void makeReal(double value, SkPdfObject* obj) {
+    static void makeReal(double value, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kReal_PdfObjectType;
         obj->fRealValue = value;
     }
 
-    static void makeNull(SkPdfObject* obj) {
+    static void makeNull(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kNull_PdfObjectType;
     }
 
-    static SkPdfObject makeNull() {
-        SkPdfObject obj;
+    static SkPdfNativeObject makeNull() {
+        SkPdfNativeObject obj;
         obj.fObjectType = kNull_PdfObjectType;
         return obj;
     }
 
-    static SkPdfObject kNull;
+    static SkPdfNativeObject kNull;
 
-    static void makeNumeric(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
+    static void makeNumeric(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         // TODO(edisonn): NYI properly
@@ -252,7 +255,7 @@ public:
         }
     }
 
-    static void makeReference(unsigned int id, unsigned int gen, SkPdfObject* obj) {
+    static void makeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kReference_PdfObjectType;
@@ -261,69 +264,69 @@ public:
     }
 
 
-    static void makeString(const unsigned char* start, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kString_PdfObjectType);
     }
 
-    static void makeString(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kString_PdfObjectType);
     }
 
-    static void makeString(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kString_PdfObjectType);
     }
 
 
-    static void makeHexString(const unsigned char* start, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kHexString_PdfObjectType);
     }
 
-    static void makeHexString(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kHexString_PdfObjectType);
     }
 
-    static void makeHexString(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeHexString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kHexString_PdfObjectType);
     }
 
 
-    static void makeName(const unsigned char* start, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kName_PdfObjectType);
     }
 
-    static void makeName(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kName_PdfObjectType);
     }
 
-    static void makeName(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeName(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kName_PdfObjectType);
     }
 
 
-    static void makeKeyword(const unsigned char* start, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kKeyword_PdfObjectType);
     }
 
-    static void makeKeyword(const unsigned char* start, const unsigned char* end, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kKeyword_PdfObjectType);
     }
 
-    static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfObject* obj) {
+    static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kKeyword_PdfObjectType);
     }
 
 
 
     // TODO(edisonn): make the functions to return SkPdfArray, move these functions in SkPdfArray
-    static void makeEmptyArray(SkPdfObject* obj) {
+    static void makeEmptyArray(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kArray_PdfObjectType;
-        obj->fArray = new SkTDArray<SkPdfObject*>();
+        obj->fArray = new SkTDArray<SkPdfNativeObject*>();
         // return (SkPdfArray*)obj;
     }
 
-    bool appendInArray(SkPdfObject* obj) {
+    bool appendInArray(SkPdfNativeObject* obj) {
         SkASSERT(fObjectType == kArray_PdfObjectType);
         if (fObjectType != kArray_PdfObjectType) {
             // TODO(edisonn): report err
@@ -340,35 +343,35 @@ public:
         return fArray->count();
     }
 
-    SkPdfObject* objAtAIndex(int i) {
+    SkPdfNativeObject* objAtAIndex(int i) {
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
     }
 
-    SkPdfObject* removeLastInArray() {
+    SkPdfNativeObject* removeLastInArray() {
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
-        SkPdfObject* ret = NULL;
+        SkPdfNativeObject* ret = NULL;
         fArray->pop(&ret);
 
         return ret;
     }
 
 
-    const SkPdfObject* objAtAIndex(int i) const {
+    const SkPdfNativeObject* objAtAIndex(int i) const {
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
     }
 
-    SkPdfObject* operator[](int i) {
+    SkPdfNativeObject* operator[](int i) {
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
     }
 
-    const SkPdfObject* operator[](int i) const {
+    const SkPdfNativeObject* operator[](int i) const {
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
@@ -376,11 +379,11 @@ public:
 
 
     // TODO(edisonn): make the functions to return SkPdfDictionary, move these functions in SkPdfDictionary
-    static void makeEmptyDictionary(SkPdfObject* obj) {
+    static void makeEmptyDictionary(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kDictionary_PdfObjectType;
-        obj->fMap = new SkTDict<SkPdfObject*>(1);
+        obj->fMap = new SkTDict<SkPdfNativeObject*>(1);
         obj->fStr.fBuffer = NULL;
         obj->fStr.fBytes = 0;
     }
@@ -392,7 +395,7 @@ public:
     // which will be used in code
     // add function SkPdfFastNameKey key(const char* key);
     // TODO(edisonn): setting the same key twike, will make the value undefined!
-    bool set(const SkPdfObject* key, SkPdfObject* value) {
+    bool set(const SkPdfNativeObject* key, SkPdfNativeObject* value) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -407,11 +410,11 @@ public:
         return set(key->fStr.fBuffer, key->fStr.fBytes, value);
     }
 
-    bool set(const char* key, SkPdfObject* value) {
+    bool set(const char* key, SkPdfNativeObject* value) {
         return set((const unsigned char*)key, strlen(key), value);
     }
 
-    bool set(const unsigned char* key, size_t len, SkPdfObject* value) {
+    bool set(const unsigned char* key, size_t len, SkPdfNativeObject* value) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
 
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -422,7 +425,7 @@ public:
         return fMap->set((const char*)key, len, value);
     }
 
-    SkPdfObject* get(const SkPdfObject* key) {
+    SkPdfNativeObject* get(const SkPdfNativeObject* key) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -436,18 +439,18 @@ public:
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
-    SkPdfObject* get(const char* key) {
+    SkPdfNativeObject* get(const char* key) {
         return get((const unsigned char*)key, strlen(key));
     }
 
-    SkPdfObject* get(const unsigned char* key, size_t len) {
+    SkPdfNativeObject* get(const unsigned char* key, size_t len) {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
             // TODO(edisonn): report err
             return NULL;
         }
-        SkPdfObject* ret = NULL;
+        SkPdfNativeObject* ret = NULL;
         fMap->find((const char*)key, len, &ret);
 
 #ifdef PDF_TRACE
@@ -459,7 +462,7 @@ public:
         return ret;
     }
 
-    const SkPdfObject* get(const SkPdfObject* key) const {
+    const SkPdfNativeObject* get(const SkPdfNativeObject* key) const {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -473,18 +476,18 @@ public:
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
-    const SkPdfObject* get(const char* key) const {
+    const SkPdfNativeObject* get(const char* key) const {
         return get((const unsigned char*)key, strlen(key));
     }
 
-    const SkPdfObject* get(const unsigned char* key, size_t len) const {
+    const SkPdfNativeObject* get(const unsigned char* key, size_t len) const {
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
             // TODO(edisonn): report err
             return NULL;
         }
-        SkPdfObject* ret = NULL;
+        SkPdfNativeObject* ret = NULL;
         fMap->find((const char*)key, len, &ret);
 
 #ifdef PDF_TRACE
@@ -496,8 +499,8 @@ public:
         return ret;
     }
 
-    const SkPdfObject* get(const char* key, const char* abr) const {
-        const SkPdfObject* ret = get(key);
+    const SkPdfNativeObject* get(const char* key, const char* abr) const {
+        const SkPdfNativeObject* ret = get(key);
         // TODO(edisonn): / is a valid name, and it might be an abreviation, so "" should not be like NULL
         // make this distiontion in generator, and remove "" from condition
         if (ret != NULL || abr == NULL || *abr == '\0') {
@@ -506,8 +509,8 @@ public:
         return get(abr);
     }
 
-    SkPdfObject* get(const char* key, const char* abr) {
-        SkPdfObject* ret = get(key);
+    SkPdfNativeObject* get(const char* key, const char* abr) {
+        SkPdfNativeObject* ret = get(key);
         // TODO(edisonn): / is a valid name, and it might be an abreviation, so "" should not be like NULL
         // make this distiontion in generator, and remove "" from condition
         if (ret != NULL || abr == NULL || *abr == '\0') {
@@ -758,7 +761,7 @@ public:
         double array[4];
         for (int i = 0; i < 4; i++) {
             // TODO(edisonn): version where we could resolve references?
-            const SkPdfObject* elem = objAtAIndex(i);
+            const SkPdfNativeObject* elem = objAtAIndex(i);
             if (elem == NULL || !elem->isNumber()) {
                 // TODO(edisonn): report error
                 return SkRect::MakeEmpty();
@@ -781,7 +784,7 @@ public:
         double array[6];
         for (int i = 0; i < 6; i++) {
             // TODO(edisonn): version where we could resolve references?
-            const SkPdfObject* elem = objAtAIndex(i);
+            const SkPdfNativeObject* elem = objAtAIndex(i);
             if (elem == NULL || !elem->isNumber()) {
                 // TODO(edisonn): report error
                 return SkMatrix::I();
@@ -862,6 +865,29 @@ public:
         }
     }
 
+    static void append(SkString* str, const char* data, size_t len, const char* prefix = "\\x") {
+        for (unsigned int i = 0 ; i < len; i++) {
+            if (data[i] == kNUL_PdfWhiteSpace) {
+                str->append(prefix);
+                str->append("00");
+            } else if (data[i] == kHT_PdfWhiteSpace) {
+                str->append(prefix);
+                str->append("09");
+            } else if (data[i] == kLF_PdfWhiteSpace) {
+                str->append(prefix);
+                str->append("0A");
+            } else if (data[i] == kFF_PdfWhiteSpace) {
+                str->append(prefix);
+                str->append("0C");
+            } else if (data[i] == kCR_PdfWhiteSpace) {
+                str->append(prefix);
+                str->append("0D");
+            } else {
+                str->append(data + i, 1);
+            }
+        }
+    }
+
     SkString toString(int firstRowLevel = 0, int level = 0) {
         SkString str;
         appendSpaces(&str, firstRowLevel);
@@ -884,7 +910,7 @@ public:
 
             case kString_PdfObjectType:
                 str.append("\"");
-                str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                append(&str, (const char*)fStr.fBuffer, fStr.fBytes);
                 str.append("\"");
                 break;
 
@@ -898,11 +924,11 @@ public:
 
             case kName_PdfObjectType:
                 str.append("/");
-                str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                append(&str, (const char*)fStr.fBuffer, fStr.fBytes, "#");
                 break;
 
             case kKeyword_PdfObjectType:
-                str.append((const char*)fStr.fBuffer, fStr.fBytes);
+                append(&str, (const char*)fStr.fBuffer, fStr.fBytes);
                 break;
 
             case kArray_PdfObjectType:
@@ -919,8 +945,8 @@ public:
                 break;
 
             case kDictionary_PdfObjectType: {
-                    SkTDict<SkPdfObject*>::Iter iter(*fMap);
-                    SkPdfObject* obj = NULL;
+                    SkTDict<SkPdfNativeObject*>::Iter iter(*fMap);
+                    SkPdfNativeObject* obj = NULL;
                     const char* key = NULL;
                     str.append("<<\n");
                     while ((key = iter.next(&obj)) != NULL) {
@@ -934,7 +960,7 @@ public:
                         size_t length = 0;
                         if (GetFilteredStreamRef(&stream, &length)) {
                             str.append("stream\n");
-                            str.append((const char*)stream, length > 256 ? 256 : length);
+                            append(&str, (const char*)stream, length > 256 ? 256 : length);
                             str.append("\nendstream");
                         } else {
                             str.append("stream STREAM_ERROR endstream");
@@ -964,15 +990,15 @@ public:
     }
 
 private:
-    static void makeStringCore(const unsigned char* start, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, SkPdfNativeObject* obj, ObjectType type) {
         makeStringCore(start, strlen((const char*)start), obj, type);
     }
 
-    static void makeStringCore(const unsigned char* start, const unsigned char* end, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj, ObjectType type) {
         makeStringCore(start, end - start, obj, type);
     }
 
-    static void makeStringCore(const unsigned char* start, size_t bytes, SkPdfObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj, ObjectType type) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = type;
@@ -985,20 +1011,20 @@ private:
     bool applyDCTDecodeFilter();
 };
 
-class SkPdfStream : public SkPdfObject {};
-class SkPdfArray : public SkPdfObject {};
-class SkPdfString : public SkPdfObject {};
-class SkPdfHexString : public SkPdfObject {};
-class SkPdfInteger : public SkPdfObject {};
-class SkPdfReal : public SkPdfObject {};
-class SkPdfNumber : public SkPdfObject {};
+class SkPdfStream : public SkPdfNativeObject {};
+class SkPdfArray : public SkPdfNativeObject {};
+class SkPdfString : public SkPdfNativeObject {};
+class SkPdfHexString : public SkPdfNativeObject {};
+class SkPdfInteger : public SkPdfNativeObject {};
+class SkPdfReal : public SkPdfNativeObject {};
+class SkPdfNumber : public SkPdfNativeObject {};
 
-class SkPdfName : public SkPdfObject {
-    SkPdfName() : SkPdfObject() {
-        SkPdfObject::makeName((const unsigned char*)"", this);
+class SkPdfName : public SkPdfNativeObject {
+    SkPdfName() : SkPdfNativeObject() {
+        SkPdfNativeObject::makeName((const unsigned char*)"", this);
     }
 public:
-    SkPdfName(char* name) : SkPdfObject() {
+    SkPdfName(char* name) : SkPdfNativeObject() {
         this->makeName((const unsigned char*)name, this);
     }
 };

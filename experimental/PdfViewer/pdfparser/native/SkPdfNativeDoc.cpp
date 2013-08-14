@@ -1,7 +1,6 @@
-#include "SkNativeParsedPDF.h"
+#include "SkPdfNativeDoc.h"
 #include "SkPdfNativeTokenizer.h"
-#include "SkPdfBasics.h"
-#include "SkPdfObject.h"
+#include "SkPdfNativeObject.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -59,7 +58,7 @@ static const unsigned char* ignoreLine(const unsigned char* current, const unsig
     return current;
 }
 
-SkNativeParsedPDF* gDoc = NULL;
+SkPdfNativeDoc* gDoc = NULL;
 
 // TODO(edisonn): NYI
 // TODO(edisonn): 3 constructuctors from URL, from stream, from file ...
@@ -69,7 +68,7 @@ SkNativeParsedPDF* gDoc = NULL;
 // 2) recoverable corupt file: remove endobj, endsteam, remove other keywords, use other white spaces, insert comments randomly, ...
 // 3) irrecoverable corrupt file
 
-SkNativeParsedPDF::SkNativeParsedPDF(SkStream* stream)
+SkPdfNativeDoc::SkPdfNativeDoc(SkStream* stream)
         : fAllocator(new SkPdfAllocator())
         , fFileContent(NULL)
         , fContentLength(0)
@@ -82,7 +81,7 @@ SkNativeParsedPDF::SkNativeParsedPDF(SkStream* stream)
     init(ptr, size);
 }
 
-SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
+SkPdfNativeDoc::SkPdfNativeDoc(const char* path)
         : fAllocator(new SkPdfAllocator())
         , fFileContent(NULL)
         , fContentLength(0)
@@ -108,7 +107,7 @@ SkNativeParsedPDF::SkNativeParsedPDF(const char* path)
     }
 }
 
-void SkNativeParsedPDF::init(const void* bytes, size_t length) {
+void SkPdfNativeDoc::init(const void* bytes, size_t length) {
     fFileContent = (const unsigned char*)bytes;
     fContentLength = length;
     const unsigned char* eofLine = lineHome(fFileContent, fFileContent + fContentLength - 1);
@@ -158,7 +157,7 @@ void SkNativeParsedPDF::init(const void* bytes, size_t length) {
     // and resolve references?... or not ...
 }
 
-void SkNativeParsedPDF::loadWithoutXRef() {
+void SkPdfNativeDoc::loadWithoutXRef() {
     const unsigned char* current = fFileContent;
     const unsigned char* end = fFileContent + fContentLength;
 
@@ -167,7 +166,7 @@ void SkNativeParsedPDF::loadWithoutXRef() {
 
     current = skipPdfWhiteSpaces(0, current, end);
     while (current < end) {
-        SkPdfObject token;
+        SkPdfNativeObject token;
         current = nextObject(0, current, end, &token, NULL, NULL);
         if (token.isInteger()) {
             int id = (int)token.intValue();
@@ -189,7 +188,7 @@ void SkNativeParsedPDF::loadWithoutXRef() {
 
             fObjects[id].fOffset = current - fFileContent;
 
-            SkPdfObject* obj = fAllocator->allocObject();
+            SkPdfNativeObject* obj = fAllocator->allocObject();
             current = nextObject(0, current, end, obj, fAllocator, this);
 
             fObjects[id].fResolvedReference = obj;
@@ -210,8 +209,8 @@ void SkNativeParsedPDF::loadWithoutXRef() {
     // TODO(edisonn): hack, detect root catalog - we need to implement liniarized support, and remove this hack.
     if (!fRootCatalogRef) {
         for (unsigned int i = 0 ; i < objects(); i++) {
-            SkPdfObject* obj = object(i);
-            SkPdfObject* root = (obj && obj->isDictionary()) ? obj->get("Root") : NULL;
+            SkPdfNativeObject* obj = object(i);
+            SkPdfNativeObject* root = (obj && obj->isDictionary()) ? obj->get("Root") : NULL;
             if (root && root->isReference()) {
                 fRootCatalogRef = root;
             }
@@ -233,20 +232,20 @@ void SkNativeParsedPDF::loadWithoutXRef() {
 }
 
 // TODO(edisonn): NYI
-SkNativeParsedPDF::~SkNativeParsedPDF() {
+SkPdfNativeDoc::~SkPdfNativeDoc() {
     sk_free((void*)fFileContent);
     delete fAllocator;
 }
 
-const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd) {
-    SkPdfObject xref;
+const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd) {
+    SkPdfNativeObject xref;
     const unsigned char* current = nextObject(0, xrefStart, trailerEnd, &xref, NULL, NULL);
 
     if (!xref.isKeyword("xref")) {
         return trailerEnd;
     }
 
-    SkPdfObject token;
+    SkPdfNativeObject token;
     while (current < trailerEnd) {
         token.reset();
         const unsigned char* previous = current;
@@ -297,12 +296,12 @@ const unsigned char* SkNativeParsedPDF::readCrossReferenceSection(const unsigned
     return current;
 }
 
-const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog, long* prev, bool skipKeyword) {
+const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog, long* prev, bool skipKeyword) {
     *prev = -1;
 
     const unsigned char* current = trailerStart;
     if (!skipKeyword) {
-        SkPdfObject trailerKeyword;
+        SkPdfNativeObject trailerKeyword;
         // TODO(edisonn): use null allocator, and let it just fail if memory
         // needs allocated (but no crash)!
         current = nextObject(0, current, trailerEnd, &trailerKeyword, NULL, NULL);
@@ -314,7 +313,7 @@ const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailer
         }
     }
 
-    SkPdfObject token;
+    SkPdfNativeObject token;
     current = nextObject(0, current, trailerEnd, &token, fAllocator, NULL);
     if (!token.isDictionary()) {
         return current;
@@ -325,7 +324,7 @@ const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailer
     }
 
     if (storeCatalog) {
-        SkPdfObject* ref = trailer->Root(NULL);
+        SkPdfNativeObject* ref = trailer->Root(NULL);
         if (ref == NULL || !ref->isReference()) {
             // TODO(edisonn): oops, we have to fix the corrup pdf file
             return current;
@@ -340,7 +339,7 @@ const unsigned char* SkNativeParsedPDF::readTrailer(const unsigned char* trailer
     return current;
 }
 
-void SkNativeParsedPDF::addCrossSectionInfo(int id, int generation, int offset, bool isFreed) {
+void SkPdfNativeDoc::addCrossSectionInfo(int id, int generation, int offset, bool isFreed) {
     // TODO(edisonn): security here
     while (fObjects.count() < id + 1) {
         reset(fObjects.append());
@@ -351,7 +350,7 @@ void SkNativeParsedPDF::addCrossSectionInfo(int id, int generation, int offset, 
     fObjects[id].fResolvedReference = NULL;
 }
 
-SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
+SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/) {
     long startOffset = fObjects[id].fOffset;
     //long endOffset = fObjects[id].fOffsetEnd;
     // TODO(edisonn): use hinted endOffset
@@ -364,10 +363,10 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
 
     SkPdfNativeTokenizer tokenizer(current, end - current, fMapper, fAllocator, this);
 
-    SkPdfObject idObj;
-    SkPdfObject generationObj;
-    SkPdfObject objKeyword;
-    SkPdfObject* dict = fAllocator->allocObject();
+    SkPdfNativeObject idObj;
+    SkPdfNativeObject generationObj;
+    SkPdfNativeObject objKeyword;
+    SkPdfNativeObject* dict = fAllocator->allocObject();
 
     current = nextObject(0, current, end, &idObj, NULL, NULL);
     if (current >= end) {
@@ -402,7 +401,7 @@ SkPdfObject* SkNativeParsedPDF::readObject(int id/*, int expectedGeneration*/) {
     return dict;
 }
 
-void SkNativeParsedPDF::fillPages(SkPdfPageTreeNodeDictionary* tree) {
+void SkPdfNativeDoc::fillPages(SkPdfPageTreeNodeDictionary* tree) {
     SkPdfArray* kids = tree->Kids(this);
     if (kids == NULL) {
         *fPages.append() = (SkPdfPageObjectDictionary*)tree;
@@ -411,8 +410,8 @@ void SkNativeParsedPDF::fillPages(SkPdfPageTreeNodeDictionary* tree) {
 
     int cnt = kids->size();
     for (int i = 0; i < cnt; i++) {
-        SkPdfObject* obj = resolveReference(kids->objAtAIndex(i));
-        if (fMapper->mapPageObjectDictionary(obj) != kPageObjectDictionary_SkPdfObjectType) {
+        SkPdfNativeObject* obj = resolveReference(kids->objAtAIndex(i));
+        if (fMapper->mapPageObjectDictionary(obj) != kPageObjectDictionary_SkPdfNativeObjectType) {
             *fPages.append() = (SkPdfPageObjectDictionary*)obj;
         } else {
             // TODO(edisonn): verify that it is a page tree indeed
@@ -421,23 +420,23 @@ void SkNativeParsedPDF::fillPages(SkPdfPageTreeNodeDictionary* tree) {
     }
 }
 
-int SkNativeParsedPDF::pages() const {
+int SkPdfNativeDoc::pages() const {
     return fPages.count();
 }
 
-SkPdfPageObjectDictionary* SkNativeParsedPDF::page(int page) {
+SkPdfPageObjectDictionary* SkPdfNativeDoc::page(int page) {
     SkASSERT(page >= 0 && page < fPages.count());
     return fPages[page];
 }
 
 
-SkPdfResourceDictionary* SkNativeParsedPDF::pageResources(int page) {
+SkPdfResourceDictionary* SkPdfNativeDoc::pageResources(int page) {
     SkASSERT(page >= 0 && page < fPages.count());
     return fPages[page]->Resources(this);
 }
 
 // TODO(edisonn): Partial implemented. Move the logics directly in the code generator for inheritable and default value?
-SkRect SkNativeParsedPDF::MediaBox(int page) {
+SkRect SkPdfNativeDoc::MediaBox(int page) {
     SkPdfPageObjectDictionary* current = fPages[page];
     while (!current->has_MediaBox() && current->has_Parent()) {
         current = (SkPdfPageObjectDictionary*)current->Parent(this);
@@ -449,7 +448,7 @@ SkRect SkNativeParsedPDF::MediaBox(int page) {
 }
 
 // TODO(edisonn): stream or array ... ? for now only array
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfPage(int page,
+SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfPage(int page,
                                                          SkPdfAllocator* allocator) {
     if (fPages[page]->isContentsAStream(this)) {
         return tokenizerOfStream(fPages[page]->getContentsAsStream(this), allocator);
@@ -460,7 +459,7 @@ SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfPage(int page,
     }
 }
 
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfStream(SkPdfObject* stream,
+SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfStream(SkPdfNativeObject* stream,
                                                            SkPdfAllocator* allocator) {
     if (stream == NULL) {
         return NULL;
@@ -470,18 +469,18 @@ SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfStream(SkPdfObject* stream,
 }
 
 // TODO(edisonn): NYI
-SkPdfNativeTokenizer* SkNativeParsedPDF::tokenizerOfBuffer(const unsigned char* buffer, size_t len,
+SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfBuffer(const unsigned char* buffer, size_t len,
                                                            SkPdfAllocator* allocator) {
     // warning does not track two calls in the same buffer! the buffer is updated!
     // make a clean copy if needed!
     return new SkPdfNativeTokenizer(buffer, len, fMapper, allocator, this);
 }
 
-size_t SkNativeParsedPDF::objects() const {
+size_t SkPdfNativeDoc::objects() const {
     return fObjects.count();
 }
 
-SkPdfObject* SkNativeParsedPDF::object(int i) {
+SkPdfNativeObject* SkPdfNativeDoc::object(int i) {
     SkASSERT(!(i < 0 || i > fObjects.count()));
 
     if (i < 0 || i > fObjects.count()) {
@@ -497,35 +496,35 @@ SkPdfObject* SkNativeParsedPDF::object(int i) {
     return fObjects[i].fObj;
 }
 
-const SkPdfMapper* SkNativeParsedPDF::mapper() const {
+const SkPdfMapper* SkPdfNativeDoc::mapper() const {
     return fMapper;
 }
 
-SkPdfReal* SkNativeParsedPDF::createReal(double value) const {
-    SkPdfObject* obj = fAllocator->allocObject();
-    SkPdfObject::makeReal(value, obj);
+SkPdfReal* SkPdfNativeDoc::createReal(double value) const {
+    SkPdfNativeObject* obj = fAllocator->allocObject();
+    SkPdfNativeObject::makeReal(value, obj);
     return (SkPdfReal*)obj;
 }
 
-SkPdfInteger* SkNativeParsedPDF::createInteger(int value) const {
-    SkPdfObject* obj = fAllocator->allocObject();
-    SkPdfObject::makeInteger(value, obj);
+SkPdfInteger* SkPdfNativeDoc::createInteger(int value) const {
+    SkPdfNativeObject* obj = fAllocator->allocObject();
+    SkPdfNativeObject::makeInteger(value, obj);
     return (SkPdfInteger*)obj;
 }
 
-SkPdfString* SkNativeParsedPDF::createString(const unsigned char* sz, size_t len) const {
-    SkPdfObject* obj = fAllocator->allocObject();
-    SkPdfObject::makeString(sz, len, obj);
+SkPdfString* SkPdfNativeDoc::createString(const unsigned char* sz, size_t len) const {
+    SkPdfNativeObject* obj = fAllocator->allocObject();
+    SkPdfNativeObject::makeString(sz, len, obj);
     return (SkPdfString*)obj;
 }
 
-SkPdfAllocator* SkNativeParsedPDF::allocator() const {
+SkPdfAllocator* SkPdfNativeDoc::allocator() const {
     return fAllocator;
 }
 
 // TODO(edisonn): fix infinite loop if ref to itself!
 // TODO(edisonn): perf, fix refs at load, and resolve will simply return fResolvedReference?
-SkPdfObject* SkNativeParsedPDF::resolveReference(SkPdfObject* ref) {
+SkPdfNativeObject* SkPdfNativeDoc::resolveReference(SkPdfNativeObject* ref) {
     if (ref && ref->isReference()) {
         int id = ref->referenceId();
         // TODO(edisonn): generation/updates not supported now
@@ -564,13 +563,11 @@ SkPdfObject* SkNativeParsedPDF::resolveReference(SkPdfObject* ref) {
         return fObjects[id].fResolvedReference;
     }
 
-
-
     // TODO(edisonn): fix the mess with const, probably we need to remove it pretty much everywhere
-    return (SkPdfObject*)ref;
+    return (SkPdfNativeObject*)ref;
 }
 
-size_t SkNativeParsedPDF::bytesUsed() const {
+size_t SkPdfNativeDoc::bytesUsed() const {
     return fAllocator->bytesUsed() +
            fContentLength +
            fObjects.count() * sizeof(PublicObjectEntry) +

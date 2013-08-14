@@ -4,19 +4,17 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPdfConfig.h"
+#include "SkPdfUtils.h"
 
-#include <iostream>
-#include <cstdio>
-#include <map>
 #include <stack>
 
 class SkPdfFont;
 class SkPdfDoc;
-class SkPdfObject;
+class SkPdfNativeObject;
 class SkPdfResourceDictionary;
 class SkPdfSoftMaskDictionary;
 
-class SkNativeParsedPDF;
+class SkPdfNativeDoc;
 class SkPdfAllocator;
 
 // TODO(edisonn): better class design.
@@ -35,7 +33,7 @@ class SkPdfColorOperator {
 // TODO(edisonn): make color space an enum!
 public:
     NotOwnedString fColorSpace;
-    SkPdfObject* fPattern;
+    SkPdfNativeObject* fPattern;
 
     /*
     color         (various)         The current color to be used during painting operations (see Section
@@ -67,7 +65,7 @@ public:
         fPattern = NULL;
     }
 
-    void setPatternColorSpace(SkPdfObject* pattern) {
+    void setPatternColorSpace(SkPdfNativeObject* pattern) {
         fColorSpace.fBuffer = (const unsigned char*)"Pattern";
         fColorSpace.fBytes = 7;  // strlen("Pattern")
         fPattern = pattern;
@@ -360,41 +358,18 @@ smoothness             number             (PDF 1.3) The precision with which col
 };
 
 // TODO(edisonn): better class design.
-// TODO(edisonn): could we remove it?
-// TODO(edisonn): rename to SkPdfInlineImage
-struct SkPdfInlineImage {
-    std::map<std::string, std::string> fKeyValuePairs;
-    std::string fImageData;
-};
-
-// TODO(edisonn): better class design.
 // TODO(edisonn): rename to SkPdfContext
-struct PdfContext {
-    std::stack<SkPdfObject*>        fObjectStack;
+struct SkPdfContext {
+    std::stack<SkPdfNativeObject*>        fObjectStack;
     std::stack<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
-    SkNativeParsedPDF*              fPdfDoc;
+    SkPdfNativeDoc*              fPdfDoc;
     // TODO(edisonn): the allocator, could be freed after the page is done drawing.
     SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;
 
-    SkPdfInlineImage                fInlineImage;
-
-    PdfContext(SkNativeParsedPDF* doc);
-    ~PdfContext();
-};
-
-// TODO(edisonn): temporary code, to report how much of the PDF we actually think we rendered.
-// TODO(edisonn): rename to SkPdfResult
-enum PdfResult {
-    kOK_PdfResult,
-    kPartial_PdfResult,
-    kNYI_PdfResult,
-    kIgnoreError_PdfResult,
-    kError_PdfResult,
-    kUnsupported_PdfResult,
-
-    kCount_PdfResult
+    SkPdfContext(SkPdfNativeDoc* doc);
+    ~SkPdfContext();
 };
 
 #endif  // __DEFINED__SkPdfBasics

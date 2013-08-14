@@ -9,10 +9,10 @@ from pdfspec_autogen import *
 # TODO(edisonn): date and some other types are in fact strings, with a custom format!!!
 # TODO(edisonn): refer to page 99 (PDF data types)
 knowTypes = {
-'(any)': ['SkPdfObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
+'(any)': ['SkPdfNativeObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
 # TODO(edisonn): return constant for undefined
-'(undefined)': ['SkPdfObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
-'(various)': ['SkPdfObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
+'(undefined)': ['SkPdfNativeObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
+'(various)': ['SkPdfNativeObject*', 'ret', datatypes.CppNull(), 'true', 'use a mapper'],
 'array': ['SkPdfArray*', '(SkPdfArray*)ret', datatypes.CppNull(), 'ret->isArray()'],
 'boolean': ['bool', 'ret->boolValue()', datatypes.PdfBoolean('false'), 'ret->isBoolean()'],
 #date is a string, with special formating, add here the 
@@ -254,8 +254,8 @@ class PdfClassManager:
     
     for name in self.fClasses:
       cls = self.fClasses[name]
-      cls.fEnum = 'k' + name + '_SkPdfObjectType'
-      cls.fEnumEnd = 'k' + name + '__End_SkPdfObjectType'
+      cls.fEnum = 'k' + name + '_SkPdfNativeObjectType'
+      cls.fEnumEnd = 'k' + name + '__End_SkPdfNativeObjectType'
 
       fileHeadersNative.write('#include "SkPdf' + cls.fName + '_autogen.h"\n')
       fileHeadersNativeCpp.write('#include "SkPdf' + cls.fName + '_autogen.cpp"\n')
@@ -280,8 +280,8 @@ class PdfClassManager:
     fileEnums.write('#define __DEFINED__SkPdfEnums\n')
     fileEnums.write('\n')
     
-    fileEnums.write('enum SkPdfObjectType {\n')
-    fileEnums.write('  kNone_SkPdfObjectType = 0,\n')
+    fileEnums.write('enum SkPdfNativeObjectType {\n')
+    fileEnums.write('  kNone_SkPdfNativeObjectType = 0,\n')
     for enum in enumsRoot:
       self.writeEnum(fileEnums, enum, enumToCls)
     fileEnums.write('};\n')
@@ -315,13 +315,13 @@ class PdfClassManager:
         nativeFileClass.write('#include <string>\n')
         nativeFileClass.write('#include "SkPdfEnums_autogen.h"\n')
         nativeFileClass.write('#include "SkPdfNYI.h"\n')
-        nativeFileClass.write('#include "SkPdfObject.h"\n')
-        nativeFileClass.write('class SkNativeParsedPDF;\n')
+        nativeFileClass.write('#include "SkPdfNativeObject.h"\n')
+        nativeFileClass.write('class SkPdfNativeDoc;\n')
 
       if cls.fBase != '':
         nativeFileClass.write('#include "SkPdf' + cls.fBase + '_autogen.h"\n')
 
-      nativeFileClassCpp.write('#include "SkNativeParsedPDF.h"\n')
+      nativeFileClassCpp.write('#include "SkPdfNativeDoc.h"\n')
 
 
       nativeFileClass.write('\n')
@@ -330,7 +330,7 @@ class PdfClassManager:
         nativeFileClass.write('// ' + cls.fComment + '\n')
       
       if cls.fBase == '':
-        nativeFileClass.write('class SkPdf' + cls.fName + ' : public SkPdfObject {\n')
+        nativeFileClass.write('class SkPdf' + cls.fName + ' : public SkPdfNativeObject {\n')
       else:
         nativeFileClass.write('class SkPdf' + cls.fName + ' : public SkPdf' + cls.fBase + ' {\n')
       
@@ -375,9 +375,9 @@ class PdfClassManager:
           if len(prop.fTypes.split()) == 1:
             t = prop.fTypes.strip()
 
-            nativeFileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '(SkNativeParsedPDF* doc);\n')
-            nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '(SkNativeParsedPDF* doc) {\n')
-            nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
+            nativeFileClass.write('  ' + knowTypes[t][0] + ' ' + prop.fCppName + '(SkPdfNativeDoc* doc);\n')
+            nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::' + prop.fCppName + '(SkPdfNativeDoc* doc) {\n')
+            nativeFileClassCpp.write('  SkPdfNativeObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
             nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
             nativeFileClassCpp.write('  if ((ret != NULL && ' + knowTypes[t][3] + ') || (doc == NULL && ret != NULL && ret->isReference())) return ' + knowTypes[t][1] + ';\n')
             
@@ -396,19 +396,19 @@ class PdfClassManager:
             for type in prop.fTypes.split():
               t = type.strip()
               
-              nativeFileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '(SkNativeParsedPDF* doc);\n')
+              nativeFileClass.write('  bool is' + prop.fCppName + 'A' + t.title() + '(SkPdfNativeDoc* doc);\n')
 
-              nativeFileClassCpp.write('bool SkPdf' + cls.fName + '::is' + prop.fCppName + 'A' + t.title() + '(SkNativeParsedPDF* doc) {\n')
-              nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
+              nativeFileClassCpp.write('bool SkPdf' + cls.fName + '::is' + prop.fCppName + 'A' + t.title() + '(SkPdfNativeDoc* doc) {\n')
+              nativeFileClassCpp.write('  SkPdfNativeObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
               nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
               nativeFileClassCpp.write('  return ret != NULL && ' + knowTypes[t][3] + ';\n')
               nativeFileClassCpp.write('}\n')
               nativeFileClassCpp.write('\n')
 
-              nativeFileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '(SkNativeParsedPDF* doc);\n')
-              nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '(SkNativeParsedPDF* doc) {\n')
+              nativeFileClass.write('  ' + knowTypes[t][0] + ' get' + prop.fCppName + 'As' + t.title() + '(SkPdfNativeDoc* doc);\n')
+              nativeFileClassCpp.write('' + knowTypes[t][0] + ' SkPdf' + cls.fName + '::get' + prop.fCppName + 'As' + t.title() + '(SkPdfNativeDoc* doc) {\n')
 
-              nativeFileClassCpp.write('  SkPdfObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
+              nativeFileClassCpp.write('  SkPdfNativeObject* ret = get(\"' + prop.fName + '\", \"' + prop.fAbr + '\");\n')
               nativeFileClassCpp.write('  if (doc) {ret = doc->resolveReference(ret);}\n')
               nativeFileClassCpp.write('  if ((ret != NULL && ' + knowTypes[t][3] + ') || (doc == NULL && ret != NULL && ret->isReference())) return ' + knowTypes[t][1] + ';\n')
 
@@ -458,51 +458,51 @@ class PdfClassManager:
     fileMapperNative.write('\n')
 
     fileMapperNative.write('#include "SkPdfHeaders_autogen.h"\n')
-    fileMapperNative.write('#include "SkNativeParsedPDF.h"\n')
-    fileMapperNative.write('#include "SkPdfObject.h"\n')
+    fileMapperNative.write('#include "SkPdfNativeDoc.h"\n')
+    fileMapperNative.write('#include "SkPdfNativeObject.h"\n')
 
 
     fileMapperNativeCpp.write('#include "SkPdfMapper_autogen.h"\n')
     fileMapperNativeCpp.write('#include "SkPdfUtils.h"\n')
-    fileMapperNativeCpp.write('#include "SkPdfObject.h"\n')
+    fileMapperNativeCpp.write('#include "SkPdfNativeObject.h"\n')
     fileMapperNativeCpp.write('\n')
     
     fileMapperNative.write('class SkPdfMapper {\n')
 
-    fileMapperNative.write('  SkNativeParsedPDF* fParsedDoc;\n')
+    fileMapperNative.write('  SkPdfNativeDoc* fParsedDoc;\n')
     
     fileMapperNative.write('public:\n')
     
-    fileMapperNative.write('  SkPdfMapper(SkNativeParsedPDF* doc) : fParsedDoc(doc) {}\n')
+    fileMapperNative.write('  SkPdfMapper(SkPdfNativeDoc* doc) : fParsedDoc(doc) {}\n')
     fileMapperNative.write('\n')
     
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      fileMapperNative.write('  SkPdfObjectType map' + name + '(const SkPdfObject* in) const;\n')
+      fileMapperNative.write('  SkPdfNativeObjectType map' + name + '(const SkPdfNativeObject* in) const;\n')
 
-      fileMapperNativeCpp.write('SkPdfObjectType SkPdfMapper::map' + name + '(const SkPdfObject* in) const {\n')
-      fileMapperNativeCpp.write('  if (in == NULL || !is' + name + '(in)) return kNone_SkPdfObjectType;\n')
+      fileMapperNativeCpp.write('SkPdfNativeObjectType SkPdfMapper::map' + name + '(const SkPdfNativeObject* in) const {\n')
+      fileMapperNativeCpp.write('  if (in == NULL || !is' + name + '(in)) return kNone_SkPdfNativeObjectType;\n')
       fileMapperNativeCpp.write('\n')
       if len(cls.fEnumSubclasses) > 0:
-        fileMapperNativeCpp.write('  SkPdfObjectType ret;\n')
+        fileMapperNativeCpp.write('  SkPdfNativeObjectType ret;\n')
 
       # stream must be last one
       hasStream = False
       for sub in cls.fEnumSubclasses:
-        fileMapperNativeCpp.write('  if (kNone_SkPdfObjectType != (ret = map' + enumToCls[sub].fName + '(in))) return ret;\n')
+        fileMapperNativeCpp.write('  if (kNone_SkPdfNativeObjectType != (ret = map' + enumToCls[sub].fName + '(in))) return ret;\n')
       
       fileMapperNativeCpp.write('\n')
       
-      fileMapperNativeCpp.write('  return k' + name + '_SkPdfObjectType;\n')        
+      fileMapperNativeCpp.write('  return k' + name + '_SkPdfNativeObjectType;\n')        
       fileMapperNativeCpp.write('}\n') 
       fileMapperNativeCpp.write('\n')
        
     for name in self.fClassesNamesInOrder:
       cls = self.fClasses[name]
       
-      fileMapperNative.write('  bool is' + name + '(const SkPdfObject* nativeObj) const ;\n')
-      fileMapperNativeCpp.write('bool SkPdfMapper::is' + name + '(const SkPdfObject* nativeObj) const {\n')
+      fileMapperNative.write('  bool is' + name + '(const SkPdfNativeObject* nativeObj) const ;\n')
+      fileMapperNativeCpp.write('bool SkPdfMapper::is' + name + '(const SkPdfNativeObject* nativeObj) const {\n')
       
       if cls.fCheck != '':
         fileMapperNativeCpp.write('  return ' + cls.fCheck + ';\n')
@@ -513,7 +513,7 @@ class PdfClassManager:
           prop = field.fProp
           if prop.fHasMust:
             if emitedRet == False:
-              fileMapperNativeCpp.write('  const SkPdfObject* ret = NULL;\n')
+              fileMapperNativeCpp.write('  const SkPdfNativeObject* ret = NULL;\n')
               emitedRet = True
             cntMust = cntMust + 1
             fileMapperNativeCpp.write('  if (!nativeObj->isDictionary()) return false;\n')
@@ -541,19 +541,19 @@ class PdfClassManager:
       fileMapperNativeCpp.write('\n')    
     
       # TODO(edisonn): dict should be a SkPdfDictionary ?
-      fileMapperNative.write('  bool SkPdf' + name + 'FromDictionary(const SkPdfObject* dict, const char* key, SkPdf' + name + '** data) const ;\n')
-      fileMapperNativeCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const SkPdfObject* dict, const char* key, SkPdf' + name + '** data) const {\n')
-      fileMapperNativeCpp.write('  const SkPdfObject* value = dict->get(key);\n')
+      fileMapperNative.write('  bool SkPdf' + name + 'FromDictionary(const SkPdfNativeObject* dict, const char* key, SkPdf' + name + '** data) const ;\n')
+      fileMapperNativeCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const SkPdfNativeObject* dict, const char* key, SkPdf' + name + '** data) const {\n')
+      fileMapperNativeCpp.write('  const SkPdfNativeObject* value = dict->get(key);\n')
       fileMapperNativeCpp.write('  if (value == NULL) { return false; }\n')
       fileMapperNativeCpp.write('  if (data == NULL) { return true; }\n')
-      fileMapperNativeCpp.write('  if (kNone_SkPdfObjectType == map' + name + '(value)) return false;\n')
+      fileMapperNativeCpp.write('  if (kNone_SkPdfNativeObjectType == map' + name + '(value)) return false;\n')
       fileMapperNativeCpp.write('  *data = (SkPdf' + name + '*)value;\n')
       fileMapperNativeCpp.write('  return true;\n');
       fileMapperNativeCpp.write('}\n')
       fileMapperNativeCpp.write('\n')
 
-      fileMapperNative.write('  bool SkPdf' + name + 'FromDictionary(const SkPdfObject* dict, const char* key, const char* abr, SkPdf' + name + '** data) const ;\n')
-      fileMapperNativeCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const SkPdfObject* dict, const char* key, const char* abr, SkPdf' + name + '** data) const {\n')
+      fileMapperNative.write('  bool SkPdf' + name + 'FromDictionary(const SkPdfNativeObject* dict, const char* key, const char* abr, SkPdf' + name + '** data) const ;\n')
+      fileMapperNativeCpp.write('bool SkPdfMapper::SkPdf' + name + 'FromDictionary(const SkPdfNativeObject* dict, const char* key, const char* abr, SkPdf' + name + '** data) const {\n')
       fileMapperNativeCpp.write('  if (SkPdf' + name + 'FromDictionary(dict, key, data)) return true;\n')
       fileMapperNativeCpp.write('  if (abr == NULL || *abr == \'\\0\') return false;\n')
       fileMapperNativeCpp.write('  return SkPdf' + name + 'FromDictionary(dict, abr, data);\n')

@@ -1,14 +1,14 @@
-#include "SkPdfBasics.h"
+#include "SkPdfGraphicsState.h"
 #include "SkPdfNativeTokenizer.h"
 
 #include "SkDashPathEffect.h"
 
-PdfContext::PdfContext(SkNativeParsedPDF* doc)
+SkPdfContext::SkPdfContext(SkPdfNativeDoc* doc)
     : fPdfDoc(doc)
     , fTmpPageAllocator(new SkPdfAllocator()) {
 }
 
-PdfContext::~PdfContext() {
+SkPdfContext::~SkPdfContext() {
     delete fTmpPageAllocator;
 }
 

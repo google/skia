@@ -1,5 +1,5 @@
 
-#include "SkPdfObject.h"
+#include "SkPdfNativeObject.h"
 #include "SkPdfStreamCommonDictionary_autogen.h"
 
 #include "SkFlate.h"
@@ -9,9 +9,9 @@
 #include "SkBitmap.h"
 #include "SkPdfFont.h"
 
-SkPdfObject SkPdfObject::kNull = SkPdfObject::makeNull();
+SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull();
 
-bool SkPdfObject::applyFlateDecodeFilter() {
+bool SkPdfNativeObject::applyFlateDecodeFilter() {
     if (!SkFlate::HaveFlate()) {
         // TODO(edisonn): warn, make callers handle it
         return false;
@@ -39,14 +39,14 @@ bool SkPdfObject::applyFlateDecodeFilter() {
     }
 }
 
-bool SkPdfObject::applyDCTDecodeFilter() {
+bool SkPdfNativeObject::applyDCTDecodeFilter() {
     // this would fail, and it won't allow any more filters.
     // technically, it would be possible, but not a real world scenario
     // TODO(edisonn): or get the image here and store it for fast retrieval?
     return false;
 }
 
-bool SkPdfObject::applyFilter(const char* name) {
+bool SkPdfNativeObject::applyFilter(const char* name) {
     if (strcmp(name, "FlateDecode") == 0) {
         return applyFlateDecodeFilter();
     } else if (strcmp(name, "DCTDecode") == 0) {
@@ -56,7 +56,7 @@ bool SkPdfObject::applyFilter(const char* name) {
     return false;
 }
 
-bool SkPdfObject::filterStream() {
+bool SkPdfNativeObject::filterStream() {
     if (!hasStream()) {
         return false;
     }
@@ -76,7 +76,7 @@ bool SkPdfObject::filterStream() {
         const SkPdfArray* filters = stream->getFilterAsArray(NULL);
         int cnt = filters->size();
         for (int i = cnt - 1; i >= 0; i--) {
-            const SkPdfObject* filterName = filters->objAtAIndex(i);
+            const SkPdfNativeObject* filterName = filters->objAtAIndex(i);
             if (filterName != NULL && filterName->isName()) {
                 if (!applyFilter(filterName->nameValue())) {
                     break;
@@ -90,7 +90,7 @@ bool SkPdfObject::filterStream() {
     return true;
 }
 
-void SkPdfObject::releaseData() {
+void SkPdfNativeObject::releaseData() {
     if (fData) {
         switch (fDataType) {
             case kFont_Data:
