@@ -18,6 +18,57 @@
 
 namespace {
 
+static void unpremultiply_and_pack_argb8888(uint32_t src, uint8_t dst[3]) {
+    uint8_t alpha = SkGetPackedA32(src);
+    if (alpha != SK_AlphaOPAQUE) {
+        SkColor unpremul = SkUnPreMultiply::PMColorToColor(src);
+        dst[0] = SkColorGetR(unpremul);
+        dst[1] = SkColorGetG(unpremul);
+        dst[2] = SkColorGetB(unpremul);
+    } else {
+        dst[0] = SkGetPackedR32(src);
+        dst[1] = SkGetPackedG32(src);
+        dst[2] = SkGetPackedB32(src);
+    }
+}
+
+static void unpremultiply_and_pack_argb4444(uint16_t src0, uint16_t src1,
+                                            uint8_t dst[3]) {
+    // Unpack and transform the alpha values from 4 bits to 8 bits.
+    // This is necessary since the unpremultiply functions expect to work in
+    // 8-bit space, but we are passing in 4-bit values. Since we scale up
+    // the alpha, we scale down the amount the value is increased by, so that
+    // the results are correct for 4-bit color components.
+    uint8_t alpha0 = SkGetPackedA4444(src0);
+    alpha0 = alpha0 | (alpha0 << 4);
+    if (alpha0 != SK_AlphaOPAQUE) {
+        SkUnPreMultiply::Scale scale0 = SkUnPreMultiply::GetScale(alpha0);
+        dst[0] = SkUnPreMultiply::ApplyScale(scale0,
+                                             SkGetPackedR4444(src0)) << 4;
+        dst[0] |= SkUnPreMultiply::ApplyScale(scale0, SkGetPackedG4444(src0));
+        dst[1] = SkUnPreMultiply::ApplyScale(scale0,
+                                             SkGetPackedB4444(src0)) << 4;
+    } else {
+        dst[0] = SkGetPackedR4444(src0) << 4;
+        dst[0] |= SkGetPackedG4444(src0);
+        dst[1] = SkGetPackedB4444(src0) << 4;
+    }
+
+    uint8_t alpha1 = SkGetPackedA4444(src1);
+    alpha1 = alpha1 | (alpha1 << 4);
+    if (alpha1 != SK_AlphaOPAQUE) {
+        SkUnPreMultiply::Scale scale1 = SkUnPreMultiply::GetScale(alpha1);
+        dst[1] |= SkUnPreMultiply::ApplyScale(scale1, SkGetPackedR4444(src1));
+        dst[2] = SkUnPreMultiply::ApplyScale(scale1,
+                                             SkGetPackedG4444(src1)) << 4;
+        dst[2] |= SkUnPreMultiply::ApplyScale(scale1, SkGetPackedB4444(src1));
+    } else {
+        dst[1] |= SkGetPackedR4444(src1);
+        dst[2] = SkGetPackedG4444(src1) << 4;
+        dst[2] |= SkGetPackedB4444(src1);
+    }
+}
+
 void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                       SkStream** imageData, SkStream** alphaData) {
     SkMemoryStream* image = NULL;
@@ -49,36 +100,35 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                 uint16_t* src = bitmap.getAddr16(0, y);
                 int x;
                 for (x = srcRect.fLeft; x + 1 < srcRect.fRight; x += 2) {
-                    dst[0] = (SkGetPackedR4444(src[x]) << 4) |
-                        SkGetPackedG4444(src[x]);
-                    dst[1] = (SkGetPackedB4444(src[x]) << 4) |
-                        SkGetPackedR4444(src[x + 1]);
-                    dst[2] = (SkGetPackedG4444(src[x + 1]) << 4) |
-                        SkGetPackedB4444(src[x + 1]);
-                    dst += 3;
                     alphaDst[0] = (SkGetPackedA4444(src[x]) << 4) |
-                        SkGetPackedA4444(src[x + 1]);
-                    if (alphaDst[0] != 0xFF) {
+                            SkGetPackedA4444(src[x + 1]);
+                    if (alphaDst[0] != SK_AlphaOPAQUE) {
                         hasAlpha = true;
                     }
                     if (alphaDst[0]) {
                         isTransparent = false;
                     }
+                    unpremultiply_and_pack_argb4444(src[x], src[x + 1], dst);
                     alphaDst++;
+                    dst += 3;
                 }
                 if (srcRect.width() & 1) {
-                    dst[0] = (SkGetPackedR4444(src[x]) << 4) |
-                        SkGetPackedG4444(src[x]);
-                    dst[1] = (SkGetPackedB4444(src[x]) << 4);
-                    dst += 2;
-                    alphaDst[0] = (SkGetPackedA4444(src[x]) << 4);
+                    alphaDst[0] = SkGetPackedA4444(src[x]) << 4;
+                    // Use a buffer to translate from the usual 2 4444 values
+                    // in 3 bytes to the single 4444 value in 2 bytes.
+                    uint8_t buffer[3];
                     if (alphaDst[0] != 0xF0) {
                         hasAlpha = true;
                     }
                     if (alphaDst[0] & 0xF0) {
                         isTransparent = false;
                     }
+                    unpremultiply_and_pack_argb4444(src[x], 0x00, buffer);
+                    dst[0] = buffer[0];
+                    dst[1] = buffer[1];
+
                     alphaDst++;
+                    dst += 2;
                 }
             }
             break;
@@ -108,18 +158,16 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint32_t* src = bitmap.getAddr32(0, y);
                 for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
-                    dst[0] = SkGetPackedR32(src[x]);
-                    dst[1] = SkGetPackedG32(src[x]);
-                    dst[2] = SkGetPackedB32(src[x]);
-                    dst += 3;
                     alphaDst[0] = SkGetPackedA32(src[x]);
-                    if (alphaDst[0] != 0xFF) {
+                    if (alphaDst[0] != SK_AlphaOPAQUE) {
                         hasAlpha = true;
                     }
-                    if (alphaDst[0]) {
+                    if (alphaDst[0] != SK_AlphaTRANSPARENT) {
                         isTransparent = false;
                     }
+                    unpremultiply_and_pack_argb8888(src[x], dst);
                     alphaDst++;
+                    dst += 3;
                 }
             }
             break;
