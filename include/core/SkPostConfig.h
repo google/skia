@@ -269,17 +269,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
-    #ifndef SkLONGLONG
-        #ifdef SK_BUILD_FOR_WIN32
-            #define SkLONGLONG  __int64
-        #else
-            #define SkLONGLONG  long long
-        #endif
-    #endif
-#endif
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef SK_BUILD_FOR_WINCE
 #include <string.h>
 #include <stdlib.h>

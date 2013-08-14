@@ -120,20 +120,6 @@ inline SkFixed SkFixedFraction(SkFixed x)
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
-SkFixed SkFixedMul_portable(SkFixed, SkFixed);
-SkFract SkFractMul_portable(SkFract, SkFract);
-inline SkFixed SkFixedSquare_portable(SkFixed value)
-{
-    uint32_t a = SkAbs32(value);
-    uint32_t ah = a >> 16;
-    uint32_t al = a & 0xFFFF;
-    SkFixed result = ah * a + al * ah + (al * al >> 16);
-    if (result >= 0)
-        return result;
-    else // Overflow.
-        return SK_FixedMax;
-}
-
 #define SkFixedDiv(numer, denom)    SkDivBits(numer, denom, 16)
 SkFixed SkFixedDivInt(int32_t numer, int32_t denom);
 SkFixed SkFixedMod(SkFixed numer, SkFixed denom);
@@ -169,26 +155,27 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     return SkAbs32(x) < tolerance;
 }
 
+inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b)
+{
+    return (SkFixed)((int64_t)a * b >> 16);
+}
+
+inline SkFract SkFractMul_longlong(SkFract a, SkFract b)
+{
+    return (SkFract)((int64_t)a * b >> 30);
+}
+
+inline SkFixed SkFixedSquare_longlong(SkFixed value)
+{
+    return (SkFixed)((int64_t)value * value >> 16);
+}
+
+#define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
+#define SkFractMul(a,b)     SkFractMul_longlong(a,b)
+#define SkFixedSquare(a)    SkFixedSquare_longlong(a)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Now look for ASM overrides for our portable versions (should consider putting this in its own file)
-
-#ifdef SkLONGLONG
-    inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b)
-    {
-        return (SkFixed)((SkLONGLONG)a * b >> 16);
-    }
-    inline SkFract SkFractMul_longlong(SkFract a, SkFract b)
-    {
-        return (SkFract)((SkLONGLONG)a * b >> 30);
-    }
-    inline SkFixed SkFixedSquare_longlong(SkFixed value)
-    {
-        return (SkFixed)((SkLONGLONG)value * value >> 16);
-    }
-    #define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
-    #define SkFractMul(a,b)     SkFractMul_longlong(a,b)
-    #define SkFixedSquare(a)    SkFixedSquare_longlong(a)
-#endif
 
 #if defined(SK_CPU_ARM)
     /* This guy does not handle NaN or other obscurities, but is faster than
@@ -261,12 +248,6 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
 
 #ifndef SkFixedSquare
     #define SkFixedSquare(x)    SkFixedSquare_portable(x)
-#endif
-#ifndef SkFixedMul
-    #define SkFixedMul(x, y)    SkFixedMul_portable(x, y)
-#endif
-#ifndef SkFractMul
-    #define SkFractMul(x, y)    SkFractMul_portable(x, y)
 #endif
 #ifndef SkFixedMulAdd
     #define SkFixedMulAdd(x, y, a)  (SkFixedMul(x, y) + (a))
