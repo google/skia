@@ -39,7 +39,7 @@ static const Format gFormats[] = {
     { SkImageEncoder::kWEBP_Type, SkImageDecoder::kWEBP_Format, ".webp" }
 };
 
-SkISize opaqueSize(const SkBitmap& bm) {
+static SkISize opaqueSize(const SkBitmap& bm) {
     int width = 1;
     int height = 1;
     for (int y = 0 ; y < bm.height(); y++) {

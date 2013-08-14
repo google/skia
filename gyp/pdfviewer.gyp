@@ -7,6 +7,21 @@
   'includes': [
     'apptype_console.gypi',
   ],
+  # TODO(edisonn): Hack! on mack, SHARED_INTERMEDIATE_DIR can't be reliable used in a sources context
+  'conditions' : [
+    [ 'skia_os != "mac"', {
+        'variables': {
+          'GENERATE_DIR%' : '<(SHARED_INTERMEDIATE_DIR)',
+        },
+      },
+    ],
+    [ 'skia_os == "mac"', {
+        'variables': {
+          'GENERATE_DIR%' : '../src/tmp_autogen',
+        },
+      },
+    ],
+  ],
   'targets': [
     {
       'target_name': 'libpdfviewer',
@@ -22,17 +37,8 @@
         '../experimental/PdfViewer/pdfparser/native/SkPdfNativeObject.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfNativeTokenizer.cpp',
         '../experimental/PdfViewer/pdfparser/native/SkPdfNativeDoc.cpp',
-        '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
-        '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
-      ],
-      'copies': [
-        {
-          'files': [
-            '../experimental/PdfViewer/datatypes.py',
-            '../experimental/PdfViewer/generate_code.py',
-          ],
-          'destination': '<(SHARED_INTERMEDIATE_DIR)',
-        },
+        '<(GENERATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
+        '<(GENERATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
       ],
       'actions': [
         {
@@ -42,34 +48,49 @@
             '../experimental/PdfViewer/PdfReference-okular-1.txt',
           ],
           'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py',
+            '<(GENERATE_DIR)/pdfspec_autogen.py',
           ],
-          'action': ['python', '../experimental/PdfViewer/spec2def.py', '../experimental/PdfViewer/PdfReference-okular-1.txt', '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py'],
+          'action': ['python', '../experimental/PdfViewer/spec2def.py', '../experimental/PdfViewer/PdfReference-okular-1.txt', '<(GENERATE_DIR)/pdfspec_autogen.py'],
+        },
+        {
+          'action_name': 'copy_files',
+          'variables': {
+            'sources' : [
+              '../experimental/PdfViewer/datatypes.py',
+              '../experimental/PdfViewer/generate_code.py',
+            ]
+          },
+          'inputs' : ['<(sources)'],
+          'outputs': [
+            '<(GENERATE_DIR)/datatypes.py',
+            '<(GENERATE_DIR)/generate_code.py',
+          ],
+          'action': ['python', '../experimental/PdfViewer/copy_files.py', '<(GENERATE_DIR)', '<@(sources)'],
         },
         {
           'action_name': 'generate_code',
           'inputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/datatypes.py',
-            '<(SHARED_INTERMEDIATE_DIR)/generate_code.py',
-            '<(SHARED_INTERMEDIATE_DIR)/pdfspec_autogen.py',
+            '<(GENERATE_DIR)/datatypes.py',
+            '<(GENERATE_DIR)/generate_code.py',
+            '<(GENERATE_DIR)/pdfspec_autogen.py',
           ],
           'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfEnums_autogen.h',
-            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.h',
-            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.h',
-            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
-            '<(SHARED_INTERMEDIATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
+            '<(GENERATE_DIR)/native/autogen/SkPdfEnums_autogen.h',
+            '<(GENERATE_DIR)/native/autogen/SkPdfMapper_autogen.h',
+            '<(GENERATE_DIR)/native/autogen/SkPdfHeaders_autogen.h',
+            '<(GENERATE_DIR)/native/autogen/SkPdfMapper_autogen.cpp',
+            '<(GENERATE_DIR)/native/autogen/SkPdfHeaders_autogen.cpp',
             # TODO(edisonn): ok, there are many more files here, which we should list but since
             # any change in the above should trigger a change here, we should be fine normally
           ],
-          'action': ['python', '<(SHARED_INTERMEDIATE_DIR)/generate_code.py', '<(SHARED_INTERMEDIATE_DIR)'],
+          'action': ['python', '<(GENERATE_DIR)/generate_code.py', '<(GENERATE_DIR)'],
         },
       ],
       'include_dirs': [
         '../experimental/PdfViewer',
         '../experimental/PdfViewer/pdfparser',
         '../experimental/PdfViewer/pdfparser/native',
-        '<(SHARED_INTERMEDIATE_DIR)/native/autogen',
+        '<(GENERATE_DIR)/native/autogen',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',

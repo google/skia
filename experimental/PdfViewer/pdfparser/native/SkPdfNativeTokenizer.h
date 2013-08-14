@@ -6,7 +6,6 @@
 #include <math.h>
 #include <string.h>
 
-class SkPdfMapper;
 class SkPdfDictionary;
 class SkPdfImageDictionary;
 
@@ -128,8 +127,8 @@ struct PdfToken {
 
 class SkPdfNativeTokenizer {
 public:
-    SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
-    SkPdfNativeTokenizer(const unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+    SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+    SkPdfNativeTokenizer(const unsigned char* buffer, int len, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
 
     virtual ~SkPdfNativeTokenizer();
 
@@ -140,7 +139,6 @@ public:
 
 private:
     SkPdfNativeDoc* fDoc;
-    const SkPdfMapper* fMapper;
     SkPdfAllocator* fAllocator;
 
     const unsigned char* fUncompressedStreamStart;

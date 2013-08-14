@@ -479,9 +479,9 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
         return NULL;
     }
 
-    int64_t bpc = image->BitsPerComponent(pdfContext->fPdfDoc);
-    int64_t width = image->Width(pdfContext->fPdfDoc);
-    int64_t height = image->Height(pdfContext->fPdfDoc);
+    int bpc = (int)image->BitsPerComponent(pdfContext->fPdfDoc);
+    int width = (int)image->Width(pdfContext->fPdfDoc);
+    int height = (int)image->Height(pdfContext->fPdfDoc);
     std::string colorSpace = "DeviceRGB";
 
     bool indexed = false;
@@ -500,7 +500,7 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
                                            ) {
             // TODO(edisonn): suport only DeviceRGB for now.
             indexed = true;
-            cnt = array->objAtAIndex(2)->intValue() + 1;
+            cnt = (int)array->objAtAIndex(2)->intValue() + 1;
             if (cnt > 256) {
                 // TODO(edionn): report NYIs
                 return NULL;
@@ -1041,8 +1041,6 @@ static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     printf("stack size = %i\n", (int)pdfContext->fObjectStack.size());
 #endif
     double ty = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    SkPdfNativeObject* obj = pdfContext->fObjectStack.top();
-    obj = obj;
     double tx = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
 
     double array[6] = {1, 0, 0, 1, tx, -ty};
@@ -1445,7 +1443,7 @@ static SkPdfResult PdfOp_ET(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, const SkPdfNativeObject* fontName, double fontSize) {
+static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, const SkPdfNativeObject* fontName, double fontSize) {
 #ifdef PDF_TRACE
     printf("font name: %s\n", fontName->nameValue2().c_str());
 #endif
@@ -1799,32 +1797,32 @@ static SkPdfResult PdfOp_EI(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 
 // TODO(edisonn): security review here, make sure all parameters are valid, and safe.
-SkPdfResult skpdfGraphicsStateApply_ca(SkPdfContext* pdfContext, double ca) {
+static SkPdfResult skpdfGraphicsStateApply_ca(SkPdfContext* pdfContext, double ca) {
     pdfContext->fGraphicsState.fNonStroking.fOpacity = ca;
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApply_CA(SkPdfContext* pdfContext, double CA) {
+static SkPdfResult skpdfGraphicsStateApply_CA(SkPdfContext* pdfContext, double CA) {
     pdfContext->fGraphicsState.fStroking.fOpacity = CA;
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyLW(SkPdfContext* pdfContext, double lineWidth) {
+static SkPdfResult skpdfGraphicsStateApplyLW(SkPdfContext* pdfContext, double lineWidth) {
     pdfContext->fGraphicsState.fLineWidth = lineWidth;
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyLC(SkPdfContext* pdfContext, int64_t lineCap) {
+static SkPdfResult skpdfGraphicsStateApplyLC(SkPdfContext* pdfContext, int64_t lineCap) {
     pdfContext->fGraphicsState.fLineCap = (int)lineCap;
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyLJ(SkPdfContext* pdfContext, int64_t lineJoin) {
+static SkPdfResult skpdfGraphicsStateApplyLJ(SkPdfContext* pdfContext, int64_t lineJoin) {
     pdfContext->fGraphicsState.fLineJoin = (int)lineJoin;
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyML(SkPdfContext* pdfContext, double miterLimit) {
+static SkPdfResult skpdfGraphicsStateApplyML(SkPdfContext* pdfContext, double miterLimit) {
     pdfContext->fGraphicsState.fMiterLimit = miterLimit;
     return kOK_SkPdfResult;
 }
@@ -1839,7 +1837,7 @@ SkPdfResult skpdfGraphicsStateApplyML(SkPdfContext* pdfContext, double miterLimi
 6) [2 3] 11 1 on, 3 off, 2 on, 3 off, 2 on, …
  */
 
-SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* intervals, SkPdfNativeObject* phase) {
+static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* intervals, SkPdfNativeObject* phase) {
     int cnt = intervals->size();
     if (cnt >= 256) {
         // TODO(edisonn): report error/warning, unsuported;
@@ -1877,7 +1875,7 @@ SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* inter
     return kOK_SkPdfResult;
 }
 
-SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* dash) {
+static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* dash) {
     // TODO(edisonn): verify input
     if (!dash || dash->isArray() || dash->size() != 2 || !dash->objAtAIndex(0)->isArray() || !dash->objAtAIndex(1)->isNumber()) {
         // TODO(edisonn): report error/warning
@@ -1886,7 +1884,7 @@ SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* dash)
     return skpdfGraphicsStateApplyD(pdfContext, (SkPdfArray*)dash->objAtAIndex(0), dash->objAtAIndex(1));
 }
 
-void skpdfGraphicsStateApplyFont(SkPdfContext* pdfContext, SkPdfArray* fontAndSize) {
+static void skpdfGraphicsStateApplyFont(SkPdfContext* pdfContext, SkPdfArray* fontAndSize) {
     if (!fontAndSize || fontAndSize->isArray() || fontAndSize->size() != 2 || !fontAndSize->objAtAIndex(0)->isName() || !fontAndSize->objAtAIndex(1)->isNumber()) {
         // TODO(edisonn): report error/warning
         return;
@@ -1978,7 +1976,7 @@ public:
 
 InitBlendModes _gDummyInniter;
 
-SkXfermode::Mode xferModeFromBlendMode(const char* blendMode, size_t len) {
+static SkXfermode::Mode xferModeFromBlendMode(const char* blendMode, size_t len) {
     SkXfermode::Mode mode = (SkXfermode::Mode)(SkXfermode::kLastMode + 1);
     if (gPdfBlendModes.find(blendMode, len, &mode)) {
         return mode;
@@ -1987,7 +1985,7 @@ SkXfermode::Mode xferModeFromBlendMode(const char* blendMode, size_t len) {
     return (SkXfermode::Mode)(SkXfermode::kLastMode + 1);
 }
 
-void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const std::string& blendMode) {
+static void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const std::string& blendMode) {
     SkXfermode::Mode mode = xferModeFromBlendMode(blendMode.c_str(), blendMode.length());
     if (mode <= SkXfermode::kLastMode) {
         pdfContext->fGraphicsState.fBlendModesLength = 1;
@@ -1997,7 +1995,7 @@ void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const std::string&
     }
 }
 
-void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray* blendModes) {
+static void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray* blendModes) {
     if (!blendModes || blendModes->isArray() || blendModes->size() == 0 || blendModes->size() > 256) {
         // TODO(edisonn): report error/warning
         return;
@@ -2023,7 +2021,7 @@ void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray* blend
     }
 }
 
-void skpdfGraphicsStateApplySMask_dict(SkPdfContext* pdfContext, SkPdfDictionary* sMask) {
+static void skpdfGraphicsStateApplySMask_dict(SkPdfContext* pdfContext, SkPdfDictionary* sMask) {
     // TODO(edisonn): verify input
     if (pdfContext->fPdfDoc->mapper()->mapSoftMaskDictionary(sMask)) {
         pdfContext->fGraphicsState.fSoftMaskDictionary = (SkPdfSoftMaskDictionary*)sMask;
@@ -2035,7 +2033,7 @@ void skpdfGraphicsStateApplySMask_dict(SkPdfContext* pdfContext, SkPdfDictionary
     }
 }
 
-void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const std::string& sMask) {
+static void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const std::string& sMask) {
     if (sMask == "None") {
         pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
         pdfContext->fGraphicsState.fSMask = NULL;
@@ -2065,7 +2063,7 @@ void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const std::stri
     skpdfGraphicsStateApplySMask_dict(pdfContext, obj->asDictionary());
 }
 
-void skpdfGraphicsStateApplyAIS(SkPdfContext* pdfContext, bool alphaSource) {
+static void skpdfGraphicsStateApplyAIS(SkPdfContext* pdfContext, bool alphaSource) {
     pdfContext->fGraphicsState.fAlphaSource = alphaSource;
 }
 

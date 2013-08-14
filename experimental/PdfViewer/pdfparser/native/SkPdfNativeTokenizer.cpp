@@ -3,8 +3,11 @@
 #include "SkPdfNativeObject.h"
 #include "SkPdfConfig.h"
 
-#include "SkPdfStreamCommonDictionary_autogen.h"
-#include "SkPdfImageDictionary_autogen.h"
+// TODO(edisonn): mac builder does not find the header ... but from headers is ok
+//#include "SkPdfStreamCommonDictionary_autogen.h"
+//#include "SkPdfImageDictionary_autogen.h"
+#include "SkPdfHeaders_autogen.h"
+
 
 // TODO(edisonn): perf!!!
 // there could be 0s between start and end! but not in the needle.
@@ -902,7 +905,7 @@ SkPdfNativeObject* SkPdfAllocator::allocObject() {
 }
 
 // TODO(edisonn): perf: do no copy the buffers, but use them, and mark cache the result, so there is no need of a second pass
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fMapper(mapper), fAllocator(allocator), fUncompressedStream(NULL), fUncompressedStreamEnd(NULL), fEmpty(false), fHasPutBack(false) {
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fAllocator(allocator), fUncompressedStream(NULL), fUncompressedStreamEnd(NULL), fEmpty(false), fHasPutBack(false) {
     const unsigned char* buffer = NULL;
     size_t len = 0;
     objWithStream->GetFilteredStreamRef(&buffer, &len);
@@ -915,7 +918,7 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, con
     fUncompressedStreamEnd = fUncompressedStream + len;
 }
 
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(const unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fMapper(mapper), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(const unsigned char* buffer, int len, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
     // TODO(edisonn): hack, find end of object
     char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {

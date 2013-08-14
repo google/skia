@@ -1,6 +1,9 @@
 
 #include "SkPdfNativeObject.h"
-#include "SkPdfStreamCommonDictionary_autogen.h"
+
+// TODO(edisonn): mac builder does not find the header ... but from headers is ok
+//#include "SkPdfStreamCommonDictionary_autogen.h"
+#include "SkPdfHeaders_autogen.h"
 
 #include "SkFlate.h"
 #include "SkStream.h"

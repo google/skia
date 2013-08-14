@@ -83,7 +83,7 @@ static bool add_page_and_replace_filename_extension(SkString* path, int page,
     return false;
 }
 
-void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
+static void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
     size_t len = dir.size();
     path->set(dir);
     if (0 < len  && '/' != dir[len - 1]) {
@@ -92,7 +92,7 @@ void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
     path->append(name);
 }
 
-bool is_path_seperator(const char chr) {
+static bool is_path_seperator(const char chr) {
 #if defined(SK_BUILD_FOR_WIN)
     return chr == '\\' || chr == '/';
 #else
@@ -100,7 +100,7 @@ bool is_path_seperator(const char chr) {
 #endif
 }
 
-void get_basename(SkString* basename, const SkString& path) {
+static void get_basename(SkString* basename, const SkString& path) {
     if (path.size() == 0) {
         basename->reset();
         return;
