@@ -73,16 +73,16 @@ const unsigned char* endOfPdfToken(int level, const unsigned char* start, const 
 // this would allow us not to do any garbage collection while we parse or draw a pdf, and defere it
 // while the user is looking at the image
 
-class SkPdfObject;
+class SkPdfNativeObject;
 
 class SkPdfAllocator {
 #define BUFFER_SIZE 1024
-    SkTDArray<SkPdfObject*> fHistory;
+    SkTDArray<SkPdfNativeObject*> fHistory;
     SkTDArray<void*> fHandles;
-    SkPdfObject* fCurrent;
+    SkPdfNativeObject* fCurrent;
     int fCurrentUsed;
 
-    SkPdfObject* allocBlock();
+    SkPdfNativeObject* allocBlock();
     size_t fSizeInBytes;
 
 public:
@@ -94,7 +94,7 @@ public:
 
     ~SkPdfAllocator();
 
-    SkPdfObject* allocObject();
+    SkPdfNativeObject* allocObject();
 
     // TODO(edisonn): free this memory in destructor, track the usage?
     void* alloc(size_t bytes) {
@@ -109,8 +109,8 @@ public:
     }
 };
 
-class SkNativeParsedPDF;
-const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfObject* token, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
+class SkPdfNativeDoc;
+const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
 
 enum SkPdfTokenType {
     kKeyword_TokenType,
@@ -120,7 +120,7 @@ enum SkPdfTokenType {
 struct PdfToken {
     const char*      fKeyword;
     size_t           fKeywordLength;
-    SkPdfObject*     fObject;
+    SkPdfNativeObject*     fObject;
     SkPdfTokenType   fType;
 
     PdfToken() : fKeyword(NULL), fKeywordLength(0), fObject(NULL) {}
@@ -128,8 +128,8 @@ struct PdfToken {
 
 class SkPdfNativeTokenizer {
 public:
-    SkPdfNativeTokenizer(SkPdfObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
-    SkPdfNativeTokenizer(const unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkNativeParsedPDF* doc);
+    SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+    SkPdfNativeTokenizer(const unsigned char* buffer, int len, const SkPdfMapper* mapper, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
 
     virtual ~SkPdfNativeTokenizer();
 
@@ -139,7 +139,7 @@ public:
     SkPdfImageDictionary* readInlineImage();
 
 private:
-    SkNativeParsedPDF* fDoc;
+    SkPdfNativeDoc* fDoc;
     const SkPdfMapper* fMapper;
     SkPdfAllocator* fAllocator;
 

@@ -11,7 +11,7 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkNativeParsedPDF;
+class SkPdfNativeDoc;
 struct SkRect;
 class SkStream;
 
@@ -22,7 +22,7 @@ enum SkPdfContent {
 
 // TODO(edisonn): move in another file
 class SkPdfRenderer : public SkRefCnt {
-    SkNativeParsedPDF* fPdfDoc;
+    SkPdfNativeDoc* fPdfDoc;
 public:
     SkPdfRenderer() : fPdfDoc(NULL) {}
     virtual ~SkPdfRenderer() {unload();}
