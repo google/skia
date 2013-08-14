@@ -214,6 +214,7 @@ static inline void str_replace(char *s, char search, char replace) {
 
 template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
     SkString *str = NULL;
+    SkString tmp;
 
     for (int i = fConfigFileKeys.count() - 1 ; i >= 0; i--) {
         if (fConfigFileKeys[i]->equals(name)) {
@@ -227,6 +228,9 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
 
     const char *environment_value = getenv(environment_variable.c_str());
     if (environment_value) {
+        if (NULL == str) {
+            str = &tmp;
+        }
         str->set(environment_value);
     } else {
         // apparently my shell doesn't let me have environment variables that
@@ -238,6 +242,9 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
         sk_free(underscore_name);
         environment_value = getenv(underscore_environment_variable.c_str());
         if (environment_value) {
+            if (NULL == str) {
+                str = &tmp;
+            }
             str->set(environment_value);
         }
     }
@@ -294,3 +301,30 @@ SkRTConfRegistry &skRTConfRegistry() {
     static SkRTConfRegistry r;
     return r;
 }
+
+
+#ifdef SK_SUPPORT_UNITTEST
+
+#ifdef SK_BUILD_FOR_WIN32
+static void sk_setenv(const char* key, const char* value) {
+    _putenv_s(key, value);
+}
+#else
+static void sk_setenv(const char* key, const char* value) {
+    setenv(key, value, 1);
+}
+#endif
+
+void SkRTConfRegistry::UnitTest() {
+    SkRTConfRegistry registryWithoutContents(true);
+
+    sk_setenv("skia_nonexistent_item", "132");
+    int result = 0;
+    registryWithoutContents.parse("nonexistent.item", &result);
+    SkASSERT(result == 132);
+}
+
+SkRTConfRegistry::SkRTConfRegistry(bool)
+    : fConfs(100) {
+}
+#endif

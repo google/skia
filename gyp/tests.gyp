@@ -127,6 +127,7 @@
         '../tests/TSetTest.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/UnicodeTest.cpp',
+        '../tests/UnitTestTest.cpp',
         '../tests/UtilsTest.cpp',
         '../tests/WArrayTest.cpp',
         '../tests/WritePixelsTest.cpp',
