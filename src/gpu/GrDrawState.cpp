@@ -327,7 +327,7 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
     if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) || covIsZero) {
         if (this->getStencil().doesWrite()) {
             return kDisableBlend_BlendOptFlag |
-                   kEmitTransBlack_BlendOptFlag;
+                   kEmitCoverage_BlendOptFlag;
         } else {
             return kSkipDraw_BlendOptFlag;
         }
