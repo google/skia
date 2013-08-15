@@ -168,7 +168,9 @@ public:
      *  Writes a string to the writer, which can be retrieved with
      *  SkReader32::readString().
      *  The length can be specified, or if -1 is passed, it will be computed by
-     *  calling strlen(). The length must be < 0xFFFF
+     *  calling strlen(). The length must be < max size_t.
+     *
+     *  If you write NULL, it will be read as "".
      */
     void writeString(const char* str, size_t len = (size_t)-1);
 
