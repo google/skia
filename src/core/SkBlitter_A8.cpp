@@ -336,6 +336,10 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         fShader->shadeSpan(x, y, span, width);
         if (fXfermode) {
             fXfermode->xferA8(device, span, width, alpha);
+        } else {
+            for (int i = width - 1; i >= 0; --i) {
+                device[i] = aa_blend8(span[i], device[i], alpha[i]);
+            }
         }
 
         y += 1;
