@@ -403,6 +403,33 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     iden2.setConcat(inverse, mat);
     REPORTER_ASSERT(reporter, is_identity(iden2));
 
+    // test tiny-valued matrix inverse
+    mat.reset();
+    mat.setScale(1.0e-12, 1.0e-12, 1.0e-12);
+    rot.setRotateDegreesAbout(0, 0, -1, 90);
+    mat.postConcat(rot);
+    mat.postTranslate(1.0e-12, 1.0e-12, 1.0e-12);
+    REPORTER_ASSERT(reporter, mat.invert(NULL));
+    mat.invert(&inverse);
+    iden1.setConcat(mat, inverse);
+    REPORTER_ASSERT(reporter, is_identity(iden1));
+    
+    // test mixed-valued matrix inverse
+    mat.reset();
+    mat.setScale(1.0e-12, 3.0, 1.0e+12);
+    rot.setRotateDegreesAbout(0, 0, -1, 90);
+    mat.postConcat(rot);
+    mat.postTranslate(1.0e+12, 3.0, 1.0e-12);
+    REPORTER_ASSERT(reporter, mat.invert(NULL));
+    mat.invert(&inverse);
+    iden1.setConcat(mat, inverse);
+    REPORTER_ASSERT(reporter, is_identity(iden1));
+    
+    // test degenerate matrix
+    mat.reset();
+    mat.set3x3(1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    REPORTER_ASSERT(reporter, !mat.invert(NULL));
+    
     // test rol/col Major getters
     {
         mat.setTranslate(2, 3, 4);
