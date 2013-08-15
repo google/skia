@@ -70,9 +70,6 @@ SkPaint::SkPaint() {
 
     fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-    fHintingScaleFactor = SK_Scalar1;
-#endif
     fColor      = SK_ColorBLACK;
     fMiterLimit = SkPaintDefaults_MiterLimit;
     fFlags      = SkPaintDefaults_Flags;
@@ -388,13 +385,6 @@ void SkPaint::setTextSkewX(SkScalar skewX) {
     GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
 }
-
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-void SkPaint::setHintingScaleFactor(SkScalar hintingScaleFactor) {
-    GEN_ID_INC_EVAL(hintingScaleFactor != fHintingScaleFactor);
-    fHintingScaleFactor = hintingScaleFactor;
-}
-#endif
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
     if ((unsigned)encoding <= kGlyphID_TextEncoding) {
@@ -1594,9 +1584,6 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fTextSize = paint.getTextSize();
     rec->fPreScaleX = paint.getTextScaleX();
     rec->fPreSkewX  = paint.getTextSkewX();
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-    rec->fHintingScaleFactor = paint.getHintingScaleFactor();
-#endif
 
     if (deviceMatrix) {
         rec->fPost2x2[0][0] = sk_relax(deviceMatrix->getScaleX());
@@ -2058,12 +2045,8 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         ptr = write_scalar(ptr, this->getTextSize());
         ptr = write_scalar(ptr, this->getTextScaleX());
         ptr = write_scalar(ptr, this->getTextSkewX());
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-        ptr = write_scalar(ptr, this->getHintingScaleFactor());
-#else
-        // Dummy value.
+        // Dummy value for obsolete hinting scale factor.  TODO: remove with next picture version
         ptr = write_scalar(ptr, SK_Scalar1);
-#endif
         ptr = write_scalar(ptr, this->getStrokeWidth());
         ptr = write_scalar(ptr, this->getStrokeMiter());
         *ptr++ = this->getColor();
@@ -2080,12 +2063,8 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeScalar(fTextSize);
         buffer.writeScalar(fTextScaleX);
         buffer.writeScalar(fTextSkewX);
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-        buffer.writeScalar(fHintingScaleFactor);
-#else
-        // Dummy value.
+        // Dummy value for obsolete hinting scale factor.  TODO: remove with next picture version
         buffer.writeScalar(SK_Scalar1);
-#endif
         buffer.writeScalar(fWidth);
         buffer.writeScalar(fMiterLimit);
         buffer.writeColor(fColor);
@@ -2131,12 +2110,8 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setTextSize(read_scalar(pod));
         this->setTextScaleX(read_scalar(pod));
         this->setTextSkewX(read_scalar(pod));
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-        this->setHintingScaleFactor(read_scalar(pod));
-#else
         // Skip the hinting scalar factor, which is not supported.
         read_scalar(pod);
-#endif
         this->setStrokeWidth(read_scalar(pod));
         this->setStrokeMiter(read_scalar(pod));
         this->setColor(*pod++);
@@ -2163,12 +2138,8 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setTextSize(buffer.readScalar());
         this->setTextScaleX(buffer.readScalar());
         this->setTextSkewX(buffer.readScalar());
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-        this->setHintingScaleFactor(buffer.readScalar());
-#else
         // Skip the hinting scalar factor, which is not supported.
         buffer.readScalar();
-#endif
         this->setStrokeWidth(buffer.readScalar());
         this->setStrokeMiter(buffer.readScalar());
         this->setColor(buffer.readColor());
