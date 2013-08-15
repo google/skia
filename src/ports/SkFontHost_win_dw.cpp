@@ -1908,4 +1908,3 @@ SkFontMgr* SkFontMgr_New_DirectWrite() {
 
     return SkNEW_ARGS(SkFontMgr_DirectWrite, (sysFontCollection.get(), localeName, localeNameLen));
 }
-

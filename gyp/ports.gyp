@@ -124,7 +124,7 @@
             '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkTLS_pthread.cpp',
           ],
-		  'conditions': [
+          'conditions': [
             #    when we build for win, we only want one of these default files
             [ 'skia_directwrite', {
               'sources!': [
