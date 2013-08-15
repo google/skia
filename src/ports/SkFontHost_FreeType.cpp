@@ -794,34 +794,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
         fMatrix22.xx = fMatrix22.yy = SK_Fixed1;
         fMatrix22.xy = fMatrix22.yx = 0;
     }
-
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
-    if (fRec.getHinting() == SkPaint::kNo_Hinting) {
-        fScale.set(sx, sy);
-        fScaleX = SkScalarToFixed(sx);
-        fScaleY = SkScalarToFixed(sy);
-    } else {
-        SkScalar hintingScaleFactor = fRec.fHintingScaleFactor;
-
-        fScale.set(sx / hintingScaleFactor, sy / hintingScaleFactor);
-        fScaleX = SkScalarToFixed(fScale.fX);
-        fScaleY = SkScalarToFixed(fScale.fY);
-
-        fMatrix22.xx *= hintingScaleFactor;
-        fMatrix22.xy *= hintingScaleFactor;
-        fMatrix22.yx *= hintingScaleFactor;
-        fMatrix22.yy *= hintingScaleFactor;
-
-        fMatrix22Scalar.setScaleX(fMatrix22Scalar.getScaleX() * hintingScaleFactor);
-        fMatrix22Scalar.setSkewX(fMatrix22Scalar..getSkewX() * hintingScaleFactor);
-        fMatrix22Scalar.setSkewY(fMatrix22Scalar..getSkewY() * hintingScaleFactor);
-        fMatrix22Scalar.setScaleY(fMatrix22Scalar..getScaleY() * hintingScaleFactor);
-    }
-#else
     fScale.set(sx, sy);
     fScaleX = SkScalarToFixed(sx);
     fScaleY = SkScalarToFixed(sy);
-#endif
 
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
