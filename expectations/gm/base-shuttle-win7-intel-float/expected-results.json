@@ -1495,10 +1495,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7064746384958261694
+          4841496337918692008
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "complexclip2_rect_aa_565.png": {
       "allowed-digests": [
