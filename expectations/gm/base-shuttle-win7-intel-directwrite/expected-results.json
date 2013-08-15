@@ -1486,10 +1486,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13576222650558037858
+          12801179152774323055
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "complexclip2_path_bw_565.png": {
       "allowed-digests": [
@@ -1594,10 +1594,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8644373960135336174
+          16413003550520501420
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "complexclip_bw_565.png": {
       "allowed-digests": [
@@ -1648,10 +1648,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12182838714906220236
+          5098939383473316884
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "convexpaths_565.png": {
       "allowed-digests": [
@@ -3490,10 +3490,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13417560662400024090
+          16182911913162793498
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "strokes3_565.png": {
       "allowed-digests": [
@@ -3625,10 +3625,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3114280467270127381
+          3530844216328374551
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "texdata_565.png": {
       "allowed-digests": [
@@ -3859,10 +3859,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16958619463849828362
+          5831176308157757540
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "xfermodeimagefilter_565.png": {
       "allowed-digests": [
