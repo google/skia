@@ -529,16 +529,13 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     // Calculate the determinant
     double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-    double invdet = 1.0 / det;
-    // If det is zero, we want to return false. However, we also want to return false
-    // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-    // handled by checking that 1/det is finite.
-    if (!sk_float_isfinite(invdet)) {
+    if (dabs(det) < TOO_SMALL_FOR_DETERMINANT) {
         return false;
     }
     if (NULL == inverse) {
         return true;
     }
+    double invdet = 1.0 / det;
 
     b00 *= invdet;
     b01 *= invdet;
@@ -571,6 +568,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     inverse->fMat[3][3] = SkDoubleToMScalar(a20 * b03 - a21 * b01 + a22 * b00);
     inverse->dirtyTypeMask();
 
+    inverse->dirtyTypeMask();
     return true;
 }
 
