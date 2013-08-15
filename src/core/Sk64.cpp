@@ -299,6 +299,15 @@ int32_t Sk64::getSqrt() const
     return root;
 }
 
+#ifdef SkLONGLONG
+    SkLONGLONG Sk64::getLongLong() const
+    {
+        SkLONGLONG value = fHi;
+        value <<= 32;
+        return value | fLo;
+    }
+#endif
+
 SkFixed Sk64::getFixedDiv(const Sk64& denom) const
 {
     Sk64    N = *this;
