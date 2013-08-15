@@ -246,12 +246,6 @@ void SkWriter32::validate() const {
 
 const char* SkReader32::readString(size_t* outLen) {
     size_t len = this->readInt();
-    if (0xFFFF == len) {
-        if (outLen) {
-            *outLen = 0;
-        }
-        return NULL;
-    }
     const void* ptr = this->peek();
 
     // skip over teh string + '\0' and then pad to a multiple of 4
@@ -275,9 +269,8 @@ size_t SkReader32::readIntoString(SkString* copy) {
 
 void SkWriter32::writeString(const char str[], size_t len) {
     if (NULL == str) {
-        // We're already requiring len < 0xFFFF, so we can use that to mark NULL.
-        this->write32(0xFFFF);
-        return;
+        str = "";
+        len = 0;
     }
     if ((long)len < 0) {
         len = strlen(str);
