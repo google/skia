@@ -9,6 +9,26 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+static void test_quadstroke(SkCanvas* canvas) {
+    SkPath path;
+    path.moveTo(6, 0);
+    path.quadTo(150, 150, 0, 6);
+
+    SkPaint paint;
+    
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->translate(20, 20);
+
+#if 1
+    canvas->drawPath(path, paint);
+    canvas->translate(100, 0);
+#endif
+    
+    paint.setStrokeWidth(1.01f);
+    canvas->drawPath(path, paint);
+}
+
 static void draw_conic(SkCanvas* canvas, SkScalar weight, const SkPaint& paint) {
     SkPath path;
     path.moveTo(100, 100);
@@ -253,6 +273,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        if (false) { test_quadstroke(canvas); return; }
         if (false) { test_conic(canvas); return; }
         if (false) {
             SkRect bounds;

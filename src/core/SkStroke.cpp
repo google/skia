@@ -30,9 +30,18 @@ static inline bool normals_too_curvy(const SkVector& norm0, SkVector& norm1) {
 }
 
 static inline bool normals_too_pinchy(const SkVector& norm0, SkVector& norm1) {
-    static const SkScalar kTooPinchyNormalDotProd = -SK_Scalar1 * 999 / 1000;
+    // if the dot-product is -1, then we are definitely too pinchy. We tweak
+    // that by an epsilon to ensure we have significant bits in our test
+    static const int kMinSigBitsForDot = 8;
+    static const SkScalar kDotEpsilon = FLT_EPSILON * (1 << kMinSigBitsForDot);
+    static const SkScalar kTooPinchyNormalDotProd = kDotEpsilon - 1;
+    
+    // just some sanity asserts to help document the expected range
+    SkASSERT(kTooPinchyNormalDotProd >= -1);
+    SkASSERT(kTooPinchyNormalDotProd < SkDoubleToScalar(-0.999));
 
-    return SkPoint::DotProduct(norm0, norm1) <= kTooPinchyNormalDotProd;
+    SkScalar dot = SkPoint::DotProduct(norm0, norm1);
+    return dot <= kTooPinchyNormalDotProd;
 }
 
 static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after,
