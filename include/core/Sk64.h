@@ -221,6 +221,10 @@ struct SK_API Sk64 {
     friend bool operator>=(const Sk64& a, const Sk64& b) {
         return a.fHi > b.fHi || (a.fHi == b.fHi && a.fLo >= b.fLo);
     }
+
+#ifdef SkLONGLONG
+    SkLONGLONG getLongLong() const;
+#endif
 };
 
 #endif

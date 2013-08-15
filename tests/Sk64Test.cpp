@@ -24,6 +24,13 @@ static void bool_table_test(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, a.getSign() == table.sign);
 }
 
+#ifdef SkLONGLONG
+    static SkLONGLONG asLL(const Sk64& a)
+    {
+        return ((SkLONGLONG)a.fHi << 32) | a.fLo;
+    }
+#endif
+
 static void TestSk64(skiatest::Reporter* reporter) {
     enum BoolTests {
         kZero_BoolTest,
@@ -87,6 +94,109 @@ static void TestSk64(skiatest::Reporter* reporter) {
         c = a; c.sub(b);
         REPORTER_ASSERT(reporter, c.get32() == aa - bb);
     }
+
+#ifdef SkLONGLONG
+    for (i = 0; i < 1000; i++)
+    {
+        rand.next64(&a); //a.fHi >>= 1; // avoid overflow
+        rand.next64(&b); //b.fHi >>= 1; // avoid overflow
+
+        if (!(i & 3))   // want to explicitly test these cases
+        {
+            a.fLo = 0;
+            b.fLo = 0;
+        }
+        else if (!(i & 7))  // want to explicitly test these cases
+        {
+            a.fHi = 0;
+            b.fHi = 0;
+        }
+
+        SkLONGLONG aa = asLL(a);
+        SkLONGLONG bb = asLL(b);
+
+        REPORTER_ASSERT(reporter, (a < b) == (aa < bb));
+        REPORTER_ASSERT(reporter, (a <= b) == (aa <= bb));
+        REPORTER_ASSERT(reporter, (a > b) == (aa > bb));
+        REPORTER_ASSERT(reporter, (a >= b) == (aa >= bb));
+        REPORTER_ASSERT(reporter, (a == b) == (aa == bb));
+        REPORTER_ASSERT(reporter, (a != b) == (aa != bb));
+
+        c = a; c.add(b);
+        REPORTER_ASSERT(reporter, asLL(c) == aa + bb);
+        c = a; c.sub(b);
+        REPORTER_ASSERT(reporter, asLL(c) == aa - bb);
+        c = a; c.rsub(b);
+        REPORTER_ASSERT(reporter, asLL(c) == bb - aa);
+        c = a; c.negate();
+        REPORTER_ASSERT(reporter, asLL(c) == -aa);
+
+        int bits = rand.nextU() & 63;
+        c = a; c.shiftLeft(bits);
+        REPORTER_ASSERT(reporter, asLL(c) == (aa << bits));
+        c = a; c.shiftRight(bits);
+        REPORTER_ASSERT(reporter, asLL(c) == (aa >> bits));
+        c = a; c.roundRight(bits);
+
+        SkLONGLONG tmp;
+
+        tmp = aa;
+        if (bits > 0)
+            tmp += (SkLONGLONG)1 << (bits - 1);
+        REPORTER_ASSERT(reporter, asLL(c) == (tmp >> bits));
+
+        c.setMul(a.fHi, b.fHi);
+        tmp = (SkLONGLONG)a.fHi * b.fHi;
+        REPORTER_ASSERT(reporter, asLL(c) == tmp);
+    }
+
+
+    for (i = 0; i < 100000; i++)
+    {
+        Sk64    wide;
+        int32_t denom = rand.nextS();
+
+        while (denom == 0)
+            denom = rand.nextS();
+        wide.setMul(rand.nextS(), rand.nextS());
+        SkLONGLONG check = wide.getLongLong();
+
+        wide.div(denom, Sk64::kTrunc_DivOption);
+        check /= denom;
+        SkLONGLONG w = wide.getLongLong();
+
+        REPORTER_ASSERT(reporter, check == w);
+
+        wide.setMul(rand.nextS(), rand.nextS());
+        wide.abs();
+        denom = wide.getSqrt();
+        int32_t ck = (int32_t)sqrt((double)wide.getLongLong());
+        int diff = denom - ck;
+        REPORTER_ASSERT(reporter, SkAbs32(diff) <= 1);
+
+        wide.setMul(rand.nextS(), rand.nextS());
+        Sk64    dwide;
+        dwide.setMul(rand.nextS(), rand.nextS());
+        SkFixed fixdiv = wide.getFixedDiv(dwide);
+        double dnumer = (double)wide.getLongLong();
+        double ddenom = (double)dwide.getLongLong();
+        double ddiv = dnumer / ddenom;
+        SkFixed dfixdiv;
+        if (ddiv >= (double)SK_MaxS32 / (double)SK_Fixed1)
+            dfixdiv = SK_MaxS32;
+        else if (ddiv <= -(double)SK_MaxS32 / (double)SK_Fixed1)
+            dfixdiv = SK_MinS32;
+        else
+            dfixdiv = SkFloatToFixed(dnumer / ddenom);
+        diff = fixdiv - dfixdiv;
+
+        if (SkAbs32(diff) > 1) {
+            SkDebugf(" %d === numer %g denom %g div %g xdiv %x fxdiv %x\n",
+                     i, dnumer, ddenom, ddiv, dfixdiv, fixdiv);
+        }
+        REPORTER_ASSERT(reporter, SkAbs32(diff) <= 1);
+    }
+#endif
 }
 
 #include "TestClassDef.h"

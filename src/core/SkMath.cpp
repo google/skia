@@ -105,6 +105,71 @@ int32_t SkMulShift(int32_t a, int32_t b, unsigned shift) {
     }
 }
 
+SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
+#if 0
+    Sk64    tmp;
+
+    tmp.setMul(a, b);
+    tmp.shiftRight(16);
+    return tmp.fLo;
+#elif defined(SkLONGLONG)
+    return static_cast<SkFixed>((SkLONGLONG)a * b >> 16);
+#else
+    int sa = SkExtractSign(a);
+    int sb = SkExtractSign(b);
+    // now make them positive
+    a = SkApplySign(a, sa);
+    b = SkApplySign(b, sb);
+
+    uint32_t    ah = a >> 16;
+    uint32_t    al = a & 0xFFFF;
+    uint32_t bh = b >> 16;
+    uint32_t bl = b & 0xFFFF;
+
+    uint32_t R = ah * b + al * bh + (al * bl >> 16);
+
+    return SkApplySign(R, sa ^ sb);
+#endif
+}
+
+SkFract SkFractMul_portable(SkFract a, SkFract b) {
+#if 0
+    Sk64 tmp;
+    tmp.setMul(a, b);
+    return tmp.getFract();
+#elif defined(SkLONGLONG)
+    return static_cast<SkFract>((SkLONGLONG)a * b >> 30);
+#else
+    int sa = SkExtractSign(a);
+    int sb = SkExtractSign(b);
+    // now make them positive
+    a = SkApplySign(a, sa);
+    b = SkApplySign(b, sb);
+
+    uint32_t ah = a >> 16;
+    uint32_t al = a & 0xFFFF;
+    uint32_t bh = b >> 16;
+    uint32_t bl = b & 0xFFFF;
+
+    uint32_t A = ah * bh;
+    uint32_t B = ah * bl + al * bh;
+    uint32_t C = al * bl;
+
+    /*  [  A  ]
+           [  B  ]
+              [  C  ]
+    */
+    uint32_t Lo = C + (B << 16);
+    uint32_t Hi = A + (B >>16) + (Lo < C);
+
+    SkASSERT((Hi >> 29) == 0);  // else overflow
+
+    int32_t R = (Hi << 2) + (Lo >> 30);
+
+    return SkApplySign(R, sa ^ sb);
+#endif
+}
+
 int SkFixedMulCommon(SkFixed a, int b, int bias) {
     // this function only works if b is 16bits
     SkASSERT(b == (int16_t)b);
