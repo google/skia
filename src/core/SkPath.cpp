@@ -180,7 +180,8 @@ void SkPath::resetFields() {
     fIsOval = false;
 #ifdef SK_BUILD_FOR_ANDROID
     GEN_ID_INC;
-    fSourcePath = NULL;
+    // We don't touch fSourcePath.  It's used to track texture garbage collection, so we don't
+    // want to muck with it if it's been set to something non-NULL.
 #endif
 }
 
@@ -189,7 +190,7 @@ SkPath::SkPath(const SkPath& that)
     this->copyFields(that);
 #ifdef SK_BUILD_FOR_ANDROID
     fGenerationID = that.fGenerationID;
-    fSourcePath   = NULL;  // TODO(mtklein): follow up with Android: do we want to copy this too?
+    fSourcePath   = that.fSourcePath;
 #endif
     SkDEBUGCODE(that.validate();)
 }
@@ -206,7 +207,7 @@ SkPath& SkPath::operator=(const SkPath& that) {
         this->copyFields(that);
 #ifdef SK_BUILD_FOR_ANDROID
         GEN_ID_INC;  // Similar to swap, we can't just copy this or it could go back in time.
-        fSourcePath = NULL;  // TODO(mtklein): follow up with Android: do we want to copy this too?
+        fSourcePath = that.fSourcePath;
 #endif
     }
     SkDEBUGCODE(this->validate();)

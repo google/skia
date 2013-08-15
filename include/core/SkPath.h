@@ -166,12 +166,14 @@ public:
 
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
+        On Android, does not change fSourcePath.
     */
     void reset();
 
     /** Similar to reset(), in that all lines and curves are removed from the
         path. However, any internal storage for those lines/curves is retained,
         making reuse of the path potentially faster.
+        On Android, does not change fSourcePath.
     */
     void rewind();
 
