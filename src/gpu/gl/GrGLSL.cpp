@@ -23,7 +23,7 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
             } else {
                 return k110_GrGLSLGeneration;
             }
-        case kES2_GrGLBinding:
+        case kES_GrGLBinding:
             // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
             GrAssert(ver >= GR_GL_VER(1,00));
             return k110_GrGLSLGeneration;
@@ -36,7 +36,7 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
 const char* GrGetGLSLVersionDecl(GrGLBinding binding, GrGLSLGeneration gen) {
     switch (gen) {
         case k110_GrGLSLGeneration:
-            if (kES2_GrGLBinding == binding) {
+            if (kES_GrGLBinding == binding) {
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";

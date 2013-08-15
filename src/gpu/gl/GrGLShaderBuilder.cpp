@@ -165,7 +165,7 @@ bool GrGLShaderBuilder::enableFeature(GLSLFeature feature) {
             if (!fCtxInfo.caps()->shaderDerivativeSupport()) {
                 return false;
             }
-            if (kES2_GrGLBinding == fCtxInfo.binding()) {
+            if (kES_GrGLBinding == fCtxInfo.binding()) {
                 this->addFSFeature(1 << kStandardDerivatives_GLSLFeature,
                                    "GL_OES_standard_derivatives");
             }
@@ -552,7 +552,7 @@ inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
                                                GrGLBinding binding,
                                                SkString* str) {
     // Desktop GLSL has added precision qualifiers but they don't do anything.
-    if (kES2_GrGLBinding == binding) {
+    if (kES_GrGLBinding == binding) {
         switch (p) {
             case GrGLShaderVar::kHigh_Precision:
                 str->append("precision highp float;\n");

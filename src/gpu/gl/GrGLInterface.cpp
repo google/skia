@@ -150,7 +150,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if (kES2_GrGLBinding == binding) {
+    if (kES_GrGLBinding == binding) {
         if (NULL == fStencilFuncSeparate ||
             NULL == fStencilMaskSeparate ||
             NULL == fStencilOpSeparate) {

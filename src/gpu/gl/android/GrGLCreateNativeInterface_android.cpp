@@ -20,12 +20,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
         GrGLExtensions extensions;
-        if (!extensions.init(kES2_GrGLBinding, glGetString, NULL, glGetIntegerv)) {
+        if (!extensions.init(kES_GrGLBinding, glGetString, NULL, glGetIntegerv)) {
             return NULL;
         }
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
-        interface->fBindingsExported = kES2_GrGLBinding;
+        interface->fBindingsExported = kES_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
         interface->fBindAttribLocation = glBindAttribLocation;
