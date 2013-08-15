@@ -304,7 +304,7 @@ public:
 
     static const char* PrecisionString(Precision p, GrGLBinding binding) {
         // Desktop GLSL has added precision qualifiers but they don't do anything.
-        if (kES2_GrGLBinding == binding) {
+        if (kES_GrGLBinding == binding) {
             switch (p) {
                 case kLow_Precision:
                     return "lowp ";

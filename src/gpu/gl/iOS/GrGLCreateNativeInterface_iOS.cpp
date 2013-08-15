@@ -145,7 +145,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGenVertexArrays = glGenVertexArraysOES;
 #endif
 
-        interface->fBindingsExported = kES2_GrGLBinding;
+        interface->fBindingsExported = kES_GrGLBinding;
     }
     glInterface.get()->ref();
     return glInterface.get();

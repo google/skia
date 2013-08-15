@@ -37,7 +37,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     if (!glInterface.get()) {
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
-        interface->fBindingsExported = kES2_GrGLBinding;
+        interface->fBindingsExported = kES_GrGLBinding;
 
         GET_PROC(ActiveTexture);
         GET_PROC(AttachShader);

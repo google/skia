@@ -116,7 +116,7 @@ GrGLBinding GrGLGetBindingInUseFromString(const char* versionString) {
     // check for ES2
     n = sscanf(versionString, "OpenGL ES %d.%d", &major, &minor);
     if (2 == n) {
-        return kES2_GrGLBinding;
+        return kES_GrGLBinding;
     }
     return kNone_GrGLBinding;
 }

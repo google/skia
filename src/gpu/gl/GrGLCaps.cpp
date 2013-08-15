@@ -101,7 +101,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
      * Caps specific to GrGLCaps
      **************************************************************************/
 
-    if (kES2_GrGLBinding == binding) {
+    if (kES_GrGLBinding == binding) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
                           &fMaxFragmentUniformVectors);
     } else {
@@ -155,7 +155,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
 
-    fTextureUsageSupport = (kES2_GrGLBinding == binding) &&
+    fTextureUsageSupport = (kES_GrGLBinding == binding) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
     // Tex storage is in desktop 4.2 and can be an extension to desktop or ES.
@@ -183,7 +183,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // ES 2 only guarantees RGBA/uchar + one other format/type combo for
     // ReadPixels. The other format has to checked at run-time since it
     // can change based on which render target is bound
-    fTwoFormatLimit = kES2_GrGLBinding == binding;
+    fTwoFormatLimit = kES_GrGLBinding == binding;
 
     // Known issue on at least some Intel platforms:
     // http://code.google.com/p/skia/issues/detail?id=946
@@ -216,7 +216,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fVertexArrayObjectSupport = ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
-    if (kES2_GrGLBinding == binding) {
+    if (kES_GrGLBinding == binding) {
         if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
             fFBFetchType = kEXT_FBFetchType;
         } else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
