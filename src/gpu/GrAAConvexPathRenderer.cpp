@@ -24,8 +24,6 @@
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
 
-namespace {
-
 struct Segment {
     enum {
         // These enum values are assumed in member functions below.
@@ -57,7 +55,7 @@ struct Segment {
 
 typedef SkTArray<Segment, true> SegmentArray;
 
-void center_of_mass(const SegmentArray& segments, SkPoint* c) {
+static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkScalar area = 0;
     SkPoint center = {0, 0};
     int count = segments.count();
@@ -108,11 +106,11 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     GrAssert(!SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY));
 }
 
-void compute_vectors(SegmentArray* segments,
-                     SkPoint* fanPt,
-                     SkPath::Direction dir,
-                     int* vCount,
-                     int* iCount) {
+static void compute_vectors(SegmentArray* segments,
+                            SkPoint* fanPt,
+                            SkPath::Direction dir,
+                            int* vCount,
+                            int* iCount) {
     center_of_mass(*segments, fanPt);
     int count = segments->count();
 
@@ -177,17 +175,17 @@ struct DegenerateTestData {
     SkScalar    fLineC;
 };
 
-void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
-    static const SkScalar TOL = (SK_Scalar1 / 16);
-    static const SkScalar TOL_SQD = SkScalarMul(TOL, TOL);
+static const SkScalar kClose = (SK_Scalar1 / 16);
+static const SkScalar kCloseSqd = SkScalarMul(kClose, kClose);
 
+static void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
     switch (data->fStage) {
         case DegenerateTestData::kInitial:
             data->fFirstPoint = pt;
             data->fStage = DegenerateTestData::kPoint;
             break;
         case DegenerateTestData::kPoint:
-            if (pt.distanceToSqd(data->fFirstPoint) > TOL_SQD) {
+            if (pt.distanceToSqd(data->fFirstPoint) > kCloseSqd) {
                 data->fLineNormal = pt - data->fFirstPoint;
                 data->fLineNormal.normalize();
                 data->fLineNormal.setOrthog(data->fLineNormal);
@@ -196,7 +194,7 @@ void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
             }
             break;
         case DegenerateTestData::kLine:
-            if (SkScalarAbs(data->fLineNormal.dot(pt) + data->fLineC) > TOL) {
+            if (SkScalarAbs(data->fLineNormal.dot(pt) + data->fLineC) > kClose) {
                 data->fStage = DegenerateTestData::kNonDegenerate;
             }
         case DegenerateTestData::kNonDegenerate:
@@ -206,7 +204,7 @@ void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
     }
 }
 
-inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Direction* dir) {
+static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Direction* dir) {
     if (!path.cheapComputeDirection(dir)) {
         return false;
     }
@@ -220,12 +218,42 @@ inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Directi
     return true;
 }
 
-bool get_segments(const SkPath& path,
-                  const SkMatrix& m,
-                  SegmentArray* segments,
-                  SkPoint* fanPt,
-                  int* vCount,
-                  int* iCount) {
+static inline void add_line_to_segment(const SkPoint& pt, SegmentArray* segments) {
+    segments->push_back();
+    segments->back().fType = Segment::kLine;
+    segments->back().fPts[0] = pt;
+}
+
+static inline void add_quad_segment(const SkPoint pts[3], SegmentArray* segments) {
+    if (pts[0].distanceToSqd(pts[1]) < kCloseSqd || pts[1].distanceToSqd(pts[2]) < kCloseSqd) {
+        if (pts[0] != pts[2]) {
+            add_line_to_segment(pts[2], segments);
+        }
+    } else {
+        segments->push_back();
+        segments->back().fType = Segment::kQuad;
+        segments->back().fPts[0] = pts[1];
+        segments->back().fPts[1] = pts[2];
+    }
+}
+
+static inline void add_cubic_segments(const SkPoint pts[4],
+                                      SkPath::Direction dir,
+                                      SegmentArray* segments) {
+    SkSTArray<15, SkPoint, true> quads;
+    GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
+    int count = quads.count();
+    for (int q = 0; q < count; q += 3) {
+        add_quad_segment(&quads[q], segments);
+    }
+}
+
+static bool get_segments(const SkPath& path,
+                         const SkMatrix& m,
+                         SegmentArray* segments,
+                         SkPoint* fanPt,
+                         int* vCount,
+                         int* iCount) {
     SkPath::Iter iter(path, true);
     // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
@@ -250,38 +278,23 @@ bool get_segments(const SkPath& path,
                 update_degenerate_test(&degenerateData, pts[0]);
                 break;
             case SkPath::kLine_Verb: {
-                m.mapPoints(pts + 1, 1);
+                m.mapPoints(&pts[1], 1);
                 update_degenerate_test(&degenerateData, pts[1]);
-                segments->push_back();
-                segments->back().fType = Segment::kLine;
-                segments->back().fPts[0] = pts[1];
+                add_line_to_segment(pts[1], segments);
                 break;
             }
             case SkPath::kQuad_Verb:
-                m.mapPoints(pts + 1, 2);
+                m.mapPoints(pts, 3);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
-                segments->push_back();
-                segments->back().fType = Segment::kQuad;
-                segments->back().fPts[0] = pts[1];
-                segments->back().fPts[1] = pts[2];
+                add_quad_segment(pts, segments);
                 break;
             case SkPath::kCubic_Verb: {
                 m.mapPoints(pts, 4);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
                 update_degenerate_test(&degenerateData, pts[3]);
-                // unlike quads and lines, the pts[0] will also be read (in
-                // convertCubicToQuads).
-                SkSTArray<15, SkPoint, true> quads;
-                GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
-                int count = quads.count();
-                for (int q = 0; q < count; q += 3) {
-                    segments->push_back();
-                    segments->back().fType = Segment::kQuad;
-                    segments->back().fPts[0] = quads[q + 1];
-                    segments->back().fPts[1] = quads[q + 2];
-                }
+                add_cubic_segments(pts, dir, segments);
                 break;
             };
             case SkPath::kDone_Verb:
@@ -312,11 +325,11 @@ struct Draw {
 
 typedef SkTArray<Draw, true> DrawArray;
 
-void create_vertices(const SegmentArray&  segments,
-                     const SkPoint& fanPt,
-                     DrawArray*     draws,
-                     QuadVertex*    verts,
-                     uint16_t*      idxs) {
+static void create_vertices(const SegmentArray&  segments,
+                            const SkPoint& fanPt,
+                            DrawArray*     draws,
+                            QuadVertex*    verts,
+                            uint16_t*      idxs) {
     Draw* draw = &draws->push_back();
     // alias just to make vert/index assignments easier to read.
     int* v = &draw->fVertexCnt;
@@ -457,8 +470,6 @@ void create_vertices(const SegmentArray&  segments,
             *i += 12;
         }
     }
-}
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////

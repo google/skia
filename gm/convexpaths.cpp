@@ -48,30 +48,16 @@ protected:
             return;
         }
         fOnce.accomplished();
-        // CW
+
         fPaths.push_back().moveTo(0, 0);
         fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
                              0, 100 * SK_Scalar1);
         fPaths.back().lineTo(0, 0);
 
-        // CCW
-        fPaths.push_back().moveTo(0, 0);
-        fPaths.back().lineTo(0, 100 * SK_Scalar1);
-        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
-                             0, 0);
-
-        // CW
         fPaths.push_back().moveTo(0, 50 * SK_Scalar1);
         fPaths.back().quadTo(50 * SK_Scalar1, 0,
                              100 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
-                             0, 50 * SK_Scalar1);
-
-        // CCW
-        fPaths.push_back().moveTo(0, 50 * SK_Scalar1);
-        fPaths.back().quadTo(50 * SK_Scalar1, 100 * SK_Scalar1,
-                             100 * SK_Scalar1, 50 * SK_Scalar1);
-        fPaths.back().quadTo(50 * SK_Scalar1, 0,
                              0, 50 * SK_Scalar1);
 
         fPaths.push_back().addRect(0, 0,
@@ -85,18 +71,11 @@ protected:
         fPaths.push_back().addCircle(50  * SK_Scalar1, 50  * SK_Scalar1,
                                      50  * SK_Scalar1, SkPath::kCW_Direction);
 
-        fPaths.push_back().addCircle(50  * SK_Scalar1, 50  * SK_Scalar1,
-                                     40  * SK_Scalar1, SkPath::kCCW_Direction);
 
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     50 * SK_Scalar1,
                                                     100 * SK_Scalar1),
                                    SkPath::kCW_Direction);
-
-        fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
-                                                    100 * SK_Scalar1,
-                                                    50 * SK_Scalar1),
-                                   SkPath::kCCW_Direction);
 
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     100 * SK_Scalar1,
@@ -106,19 +85,13 @@ protected:
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     SK_Scalar1,
                                                     100 * SK_Scalar1),
-                                   SkPath::kCCW_Direction);
+                                                    SkPath::kCCW_Direction);
 
         fPaths.push_back().addRoundRect(SkRect::MakeXYWH(0, 0,
                                                          SK_Scalar1 * 100,
                                                          SK_Scalar1 * 100),
                                         40 * SK_Scalar1, 20 * SK_Scalar1,
                                         SkPath::kCW_Direction);
-
-        fPaths.push_back().addRoundRect(SkRect::MakeXYWH(0, 0,
-                                                         SK_Scalar1 * 100,
-                                                         SK_Scalar1 * 100),
-                                        20 * SK_Scalar1, 40 * SK_Scalar1,
-                                        SkPath::kCCW_Direction);
 
         // large number of points
         enum {
@@ -144,12 +117,10 @@ protected:
         fPaths.back().lineTo(98 * SK_Scalar1, 100 * SK_Scalar1);
         fPaths.back().lineTo(3 * SK_Scalar1, 96 * SK_Scalar1);
 
-        //It turns out arcTos are not automatically marked as convex and they
-        //may in fact be ever so slightly concave.
-        //fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
-        //                                          50 * SK_Scalar1,
-        //                                          100 * SK_Scalar1),
-        //                         25 * SK_Scalar1,  130 * SK_Scalar1, false);
+        fPaths.push_back().arcTo(SkRect::MakeXYWH(0, 0,
+                                                  50 * SK_Scalar1,
+                                                  100 * SK_Scalar1),
+                                                  25 * SK_Scalar1,  130 * SK_Scalar1, false);
 
         // cubics
         fPaths.push_back().cubicTo( 1 * SK_Scalar1,  1 * SK_Scalar1,
@@ -211,13 +182,49 @@ protected:
         fPaths.back().lineTo(100 * SK_Scalar1,              100 * SK_Scalar1);
         fPaths.back().lineTo(SkFloatToScalar(8.59375f),      45 * SK_Scalar1);
 
-        // point degenerate
+        // triangle where one edge is a quad with a repeated point
+        fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 0);
+        fPaths.back().quadTo(50 * SK_Scalar1, 50 * SK_Scalar1, 50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // triangle where one edge is a cubic with a 2x repeated point
+        fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(50 * SK_Scalar1, 0,
+                              50 * SK_Scalar1, 50 * SK_Scalar1,
+                              50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // triangle where one edge is a quad with a nearly repeated point
+        fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 0);
+        fPaths.back().quadTo(50 * SK_Scalar1, SkFloatToScalar(49.95f),
+                             50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // triangle where one edge is a cubic with a 3x nearly repeated point
+        fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 0);
+        fPaths.back().cubicTo(50 * SK_Scalar1, SkFloatToScalar(49.95f),
+                              50 * SK_Scalar1, SkFloatToScalar(49.97f),
+                              50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // triangle where there is a point degenerate cubic at one corner
+        fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
+        fPaths.back().lineTo(50 * SK_Scalar1, 0);
+        fPaths.back().lineTo(50 * SK_Scalar1, 50 * SK_Scalar1);
+        fPaths.back().cubicTo(50 * SK_Scalar1, 50 * SK_Scalar1,
+                              50 * SK_Scalar1, 50 * SK_Scalar1,
+                              50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // point line
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().lineTo(50 * SK_Scalar1, 50 * SK_Scalar1);
 
+        // point quad
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().quadTo(50 * SK_Scalar1, 50 * SK_Scalar1,
                              50 * SK_Scalar1, 50 * SK_Scalar1);
+
+        // point cubic
         fPaths.push_back().moveTo(50 * SK_Scalar1, 50 * SK_Scalar1);
         fPaths.back().cubicTo(50 * SK_Scalar1, 50 * SK_Scalar1,
                               50 * SK_Scalar1, 50 * SK_Scalar1,
@@ -246,7 +253,7 @@ protected:
 
         // small circle. This is listed last so that it has device coords far
         // from the origin (small area relative to x,y values).
-        fPaths.push_back().addCircle(0, 0, SkFloatToScalar(0.8f));
+        fPaths.push_back().addCircle(0, 0, SkFloatToScalar(1.2f));
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -256,11 +263,15 @@ protected:
     paint.setAntiAlias(true);
     SkRandom rand;
     canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
+
+    // As we've added more paths this has gotten pretty big. Scale the whole thing down.
+    canvas->scale(2 * SK_Scalar1 / 3, 2 * SK_Scalar1 / 3);
+
     for (int i = 0; i < fPaths.count(); ++i) {
         canvas->save();
         // position the path, and make it at off-integer coords.
-        canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 4,
-                          SK_Scalar1 * 200 * (i / 5) + 3 * SK_Scalar1 / 4);
+        canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 10,
+                          SK_Scalar1 * 200 * (i / 5) + 9 * SK_Scalar1 / 10);
         SkColor color = rand.nextU();
         color |= 0xff000000;
         paint.setColor(color);
