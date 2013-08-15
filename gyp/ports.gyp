@@ -26,12 +26,8 @@
         '../src/ports/SkDebug_nacl.cpp',
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
-
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkFontHost_win_dw.cpp',
-        '../src/ports/SkFontMgr_default_gdi.cpp',
-        '../src/ports/SkFontMgr_default_dw.cpp',
-
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
         '../src/ports/SkOSFile_posix.cpp',
@@ -117,6 +113,17 @@
             'config/win',
             '../src/utils/win',
           ],
+          'conditions': [
+            [ 'skia_directwrite', {
+                'sources!': [
+                  '../src/ports/SkFontHost_win.cpp',
+                ],
+              }, { # else !skia_directwrite
+                'sources!': [
+                  '../src/ports/SkFontHost_win_dw.cpp',
+                ],
+              }],
+          ],
           'sources!': [ # these are used everywhere but windows
             '../src/ports/SkDebug_stdio.cpp',
             '../src/ports/SkOSFile_posix.cpp',
@@ -124,25 +131,11 @@
             '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkTLS_pthread.cpp',
           ],
-          'conditions': [
-            #    when we build for win, we only want one of these default files
-            [ 'skia_directwrite', {
-              'sources!': [
-                '../src/ports/SkFontMgr_default_gdi.cpp',
-              ],
-            }, { # else gdi
-              'sources!': [
-                '../src/ports/SkFontMgr_default_dw.cpp',
-              ],
-            }],
-          ],
         }, { # else !win
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
             '../src/ports/SkFontHost_win.cpp',
             '../src/ports/SkFontHost_win_dw.cpp',
-            '../src/ports/SkFontMgr_default_gdi.cpp',
-            '../src/ports/SkFontMgr_default_dw.cpp',
             '../src/ports/SkOSFile_win.cpp',
             '../src/ports/SkThread_win.cpp',
             '../src/ports/SkTime_win.cpp',

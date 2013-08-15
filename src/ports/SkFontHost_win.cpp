@@ -2371,7 +2371,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
 #endif
 
-extern SkFontMgr* SkFontMgr_New_GDI();
-SkFontMgr* SkFontMgr_New_GDI() {
+SkFontMgr* SkFontMgr::Factory() {
     return SkNEW(SkFontMgrGDI);
 }
