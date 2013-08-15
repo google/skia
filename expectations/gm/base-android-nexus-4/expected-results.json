@@ -591,6 +591,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "convexpaths_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          384705706809958819
+        ]
+      ]
+    }, 
+    "convexpaths_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9645239680457923128
+        ]
+      ]
+    }, 
+    "convexpaths_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8172814238498160467
+        ]
+      ]
+    }, 
     "cubicclosepath_gpu.png": {
       "allowed-digests": [
         [
