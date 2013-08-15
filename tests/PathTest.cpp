@@ -84,18 +84,50 @@ static void test_path_close_issue1474(skiatest::Reporter* reporter) {
 
 static void test_android_specific_behavior(skiatest::Reporter* reporter) {
 #ifdef SK_BUILD_FOR_ANDROID
-    // Copy constructor should preserve generation ID, but assignment shouldn't.
-    SkPath original;
+    // Make sure we treat fGenerationID and fSourcePath correctly for each of
+    // copy, assign, rewind, reset, and swap.
+    SkPath original, source, anotherSource;
+    original.setSourcePath(&source);
     original.moveTo(0, 0);
     original.lineTo(1, 1);
     REPORTER_ASSERT(reporter, original.getGenerationID() > 0);
+    REPORTER_ASSERT(reporter, original.getSourcePath() == &source);
 
-    const SkPath copy(original);
+    uint32_t copyID, assignID;
+
+    // Test copy constructor.  Copy generation ID, copy source path.
+    SkPath copy(original);
     REPORTER_ASSERT(reporter, copy.getGenerationID() == original.getGenerationID());
+    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
 
+    // Test assigment operator.  Increment generation ID, copy source path.
     SkPath assign;
+    assignID = assign.getGenerationID();
     assign = original;
-    REPORTER_ASSERT(reporter, assign.getGenerationID() != original.getGenerationID());
+    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
+
+    // Test rewind.  Increment generation ID, don't touch source path.
+    copyID = copy.getGenerationID();
+    copy.rewind();
+    REPORTER_ASSERT(reporter, copy.getGenerationID() > copyID);
+    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
+
+    // Test reset.  Increment generation ID, don't touch source path.
+    assignID = assign.getGenerationID();
+    assign.reset();
+    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
+
+    // Test swap.  Increment both generation IDs, swap source paths.
+    copy.setSourcePath(&anotherSource);
+    copyID = copy.getGenerationID();
+    assignID = assign.getGenerationID();
+    copy.swap(assign);
+    REPORTER_ASSERT(reporter, copy.getGenerationID() > copyID);
+    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
+    REPORTER_ASSERT(reporter, assign.getSourcePath() == &anotherSource);
 #endif
 }
 
