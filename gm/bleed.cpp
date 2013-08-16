@@ -117,7 +117,8 @@ protected:
 
         // then draw with bleeding
         dst = SkRect::MakeXYWH(120, 10, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint);
+        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint,
+                                     SkCanvas::kBleed_DrawBitmapRectFlag);
 
         // Next test out the GPU's tiling of large textures
 
@@ -132,7 +133,8 @@ protected:
 
         // then with bleeding
         dst = SkRect::MakeXYWH(120, 120, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint);
+        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint,
+                                     SkCanvas::kBleed_DrawBitmapRectFlag);
 
         // next draw ~1/4 of the bitmap
         src = SkRect::MakeXYWH(1, 1,
@@ -145,7 +147,8 @@ protected:
 
         // then with bleeding
         dst = SkRect::MakeXYWH(120, 230, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint);
+        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint,
+                                     SkCanvas::kBleed_DrawBitmapRectFlag);
 
 #if SK_SUPPORT_GPU
         if (NULL != ctx) {

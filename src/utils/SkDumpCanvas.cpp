@@ -349,7 +349,8 @@ void SkDumpCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 }
 
 void SkDumpCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                        const SkRect& dst, const SkPaint* paint) {
+                                        const SkRect& dst, const SkPaint* paint,
+                                        DrawBitmapRectFlags flags) {
     SkString bs, rs;
     bitmap.toString(&bs);
     toString(dst, &rs);

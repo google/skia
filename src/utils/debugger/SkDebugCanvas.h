@@ -161,7 +161,8 @@ public:
                             const SkPaint*) SK_OVERRIDE;
 
     virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
-                                  const SkRect& dst, const SkPaint*) SK_OVERRIDE;
+                                      const SkRect& dst, const SkPaint* paint,
+                                      DrawBitmapRectFlags flags) SK_OVERRIDE;
 
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                   const SkPaint*) SK_OVERRIDE;

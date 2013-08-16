@@ -193,7 +193,8 @@ private:
 class SkDrawBitmapRectCommand : public SkDrawCommand {
 public:
     SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
-                   const SkRect& dst, const SkPaint* paint);
+                            const SkRect& dst, const SkPaint* paint,
+                            SkCanvas::DrawBitmapRectFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
 
@@ -209,17 +210,21 @@ public:
     void setPaint(const SkPaint& paint) { fPaint = paint; fPaintPtr = &fPaint; }
 
     const SkRect* srcRect() const { return fSrc.isEmpty() ? NULL : &fSrc; }
-    const SkRect& dstRect() const { return fDst; }
-
     void setSrcRect(const SkRect& src) { fSrc = src; }
+
+    const SkRect& dstRect() const { return fDst; }
     void setDstRect(const SkRect& dst) { fDst = dst; }
 
+    SkCanvas::DrawBitmapRectFlags flags() const { return fFlags; }
+    void setFlags(SkCanvas::DrawBitmapRectFlags flags) { fFlags = flags; }
+
 private:
-    SkBitmap fBitmap;
-    SkRect   fSrc;
-    SkRect   fDst;
-    SkPaint  fPaint;
-    SkPaint* fPaintPtr;
+    SkBitmap                      fBitmap;
+    SkRect                        fSrc;
+    SkRect                        fDst;
+    SkPaint                       fPaint;
+    SkPaint*                      fPaintPtr;
+    SkCanvas::DrawBitmapRectFlags fFlags;
 
     typedef SkDrawCommand INHERITED;
 };

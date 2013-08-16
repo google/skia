@@ -1751,7 +1751,8 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 
 // this one is non-virtual, so it can be called safely by other canvas apis
 void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                      const SkRect& dst, const SkPaint* paint) {
+                                      const SkRect& dst, const SkPaint* paint,
+                                      DrawBitmapRectFlags flags) {
     if (bitmap.width() == 0 || bitmap.height() == 0 || dst.isEmpty()) {
         return;
     }
@@ -1777,16 +1778,17 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
 
     while (iter.next()) {
-        iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint());
+        iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint(), flags);
     }
 
     LOOPER_END
 }
 
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                    const SkRect& dst, const SkPaint* paint) {
+                                    const SkRect& dst, const SkPaint* paint,
+                                    DrawBitmapRectFlags flags) {
     SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmapRect(bitmap, src, dst, paint);
+    this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
 }
 
 void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
@@ -1856,7 +1858,8 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
             s.fRight = srcX[x+1];
             d.fLeft = dstX[x];
             d.fRight = dstX[x+1];
-            this->internalDrawBitmapRect(bitmap, &s, d, paint);
+            this->internalDrawBitmapRect(bitmap, &s, d, paint,
+                                         kNone_DrawBitmapRectflag);
         }
     }
 }

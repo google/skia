@@ -913,9 +913,10 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
 }
 
 void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                            const SkRect& dst, const SkPaint* paint) {
-    // id + paint index + bitmap index + bool for 'src'
-    uint32_t size = 4 * kUInt32Size;
+                                           const SkRect& dst, const SkPaint* paint,
+                                           DrawBitmapRectFlags flags) {
+    // id + paint index + bitmap index + bool for 'src' + flags
+    uint32_t size = 5 * kUInt32Size;
     if (NULL != src) {
         size += sizeof(*src);   // + rect
     }
@@ -927,6 +928,7 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
     addBitmap(bitmap);
     addRectPtr(src);  // may be null
     addRect(dst);
+    addInt(flags);
     validate(initialOffset, size);
 }
 
