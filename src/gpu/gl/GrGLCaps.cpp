@@ -275,7 +275,9 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         }
     } else {
         // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
-        fNPOTTextureTileSupport = ctxInfo.hasExtension("GL_OES_texture_npot");
+        // ES3 has no limitations.
+        fNPOTTextureTileSupport = ctxInfo.version() >= GR_GL_VER(3,0) ||
+                                  ctxInfo.hasExtension("GL_OES_texture_npot");
     }
 
     fHWAALineSupport = (kDesktop_GrGLBinding == binding);
