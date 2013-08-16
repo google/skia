@@ -73,7 +73,7 @@ bool SkPdfNativeObject::filterStream() {
     if (!stream->has_Filter()) {
         fStr.fBytes = ((fStr.fBytes >> 1) << 1) + kFilteredStreamBit;
     } else if (stream->isFilterAName(NULL)) {
-        std::string filterName = stream->getFilterAsName(NULL);
+        SkString filterName = stream->getFilterAsName(NULL);
         applyFilter(filterName.c_str());
     } else if (stream->isFilterAArray(NULL)) {
         const SkPdfArray* filters = stream->getFilterAsArray(NULL);

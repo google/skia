@@ -20,9 +20,6 @@
 
 #include "SkPdfGraphicsState.h"
 #include "SkPdfNativeTokenizer.h"
-#include <cstdio>
-#include <stack>
-#include <set>
 
 extern "C" SkPdfContext* gPdfContext;
 extern "C" SkBitmap* gDumpBitmap;
@@ -42,7 +39,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 // TODO(edisonn): move trace dump in the get functions, and mapper ones too so it ghappens automatically
 /*
 #ifdef PDF_TRACE
-    std::string str;
+    SkString str;
     pdfContext->fGraphicsState.fResources->native()->ToString(str);
     printf("Print Tf Resources: %s\n", str.c_str());
 #endif
@@ -73,8 +70,6 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
  * - deal with inheritable automatically ?
  * - deal with specific type in spec directly, add all dictionary types to known types
 */
-
-using namespace std;
 
 NotOwnedString strings_DeviceRGB;
 NotOwnedString strings_DeviceCMYK;
@@ -414,7 +409,7 @@ static SkColorTable* getGrayColortable() {
 
 static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedStream, size_t uncompressedStreamLength,
                                      int width, int height, int bytesPerLine,
-                                     int bpc, const std::string& colorSpace,
+                                     int bpc, const SkString& colorSpace,
                                      bool transparencyMask) {
     SkBitmap* bitmap = new SkBitmap();
 
@@ -425,7 +420,7 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
     // Is there a faster way to load the uncompressed stream into a bitmap?
 
     // minimal support for now
-    if ((colorSpace == "DeviceRGB" || colorSpace == "RGB") && bpc == 8) {
+    if ((colorSpace.equals("DeviceRGB") || colorSpace.equals("RGB")) && bpc == 8) {
         SkColor* uncompressedStreamArgb = (SkColor*)malloc(width * height * sizeof(SkColor));
 
         for (int h = 0 ; h < height; h++) {
@@ -442,7 +437,7 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bitmap->setPixels(uncompressedStreamArgb);
     }
-    else if ((colorSpace == "DeviceGray" || colorSpace == "Gray") && bpc == 8) {
+    else if ((colorSpace.equals("DeviceGray") || colorSpace.equals("Gray")) && bpc == 8) {
         unsigned char* uncompressedStreamA8 = (unsigned char*)malloc(width * height);
 
         for (int h = 0 ; h < height; h++) {
@@ -482,7 +477,7 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
     int bpc = (int)image->BitsPerComponent(pdfContext->fPdfDoc);
     int width = (int)image->Width(pdfContext->fPdfDoc);
     int height = (int)image->Height(pdfContext->fPdfDoc);
-    std::string colorSpace = "DeviceRGB";
+    SkString colorSpace("DeviceRGB");
 
     bool indexed = false;
     SkPMColor colors[256];
@@ -543,11 +538,11 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
     SkPdfStreamCommonDictionary* streamDict = (SkPdfStreamCommonDictionary*)stream;
 
     if (streamDict->has_Filter() && ((streamDict->isFilterAName(NULL) &&
-                                          streamDict->getFilterAsName(NULL) == "DCTDecode") ||
+                                          streamDict->getFilterAsName(NULL).equals("DCTDecode")) ||
                                      (streamDict->isFilterAArray(NULL) &&
                                           streamDict->getFilterAsArray(NULL)->size() > 0 &&
                                           streamDict->getFilterAsArray(NULL)->objAtAIndex(0)->isName() &&
-                                          streamDict->getFilterAsArray(NULL)->objAtAIndex(0)->nameValue2() == "DCTDecode"))) {
+                                          streamDict->getFilterAsArray(NULL)->objAtAIndex(0)->nameValue2().equals("DCTDecode")))) {
         SkBitmap* bitmap = new SkBitmap();
         SkImageDecoder::DecodeMemory(uncompressedStream, uncompressedStreamLength, bitmap);
         return bitmap;
@@ -877,28 +872,25 @@ SkPdfResult doType3Char(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfN
     return kPartial_SkPdfResult;
 }
 
-
-// TODO(edisonn): make sure the pointer is unique
-std::set<const SkPdfNativeObject*> gInRendering;
-
 class CheckRecursiveRendering {
-    const SkPdfNativeObject* fUniqueData;
+    SkPdfNativeObject* fObj;
 public:
-    CheckRecursiveRendering(const SkPdfNativeObject* obj) : fUniqueData(obj) {
-        gInRendering.insert(obj);
+    CheckRecursiveRendering(SkPdfNativeObject* obj) : fObj(obj) {
+        SkASSERT(!obj->inRendering());
+        obj->startRendering();
     }
 
     ~CheckRecursiveRendering() {
-        //SkASSERT(fObj.fInRendering);
-        gInRendering.erase(fUniqueData);
+        SkASSERT(fObj->inRendering());
+        fObj->doneRendering();
     }
 
     static bool IsInRendering(const SkPdfNativeObject* obj) {
-        return gInRendering.find(obj) != gInRendering.end();
+        return obj->inRendering();
     }
 };
 
-static SkPdfResult doXObject(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfNativeObject* obj) {
+static SkPdfResult doXObject(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfNativeObject* obj) {
     if (CheckRecursiveRendering::IsInRendering(obj)) {
         // Oops, corrupt PDF!
         return kIgnoreError_SkPdfResult;
@@ -1869,7 +1861,7 @@ static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray
     pdfContext->fGraphicsState.fDashPhase = phase->scalarValue();
     if (pdfContext->fGraphicsState.fDashPhase == 0) {
         // other rules, changes?
-        pdfContext->fGraphicsState.fDashPhase = total;
+        pdfContext->fGraphicsState.fDashPhase = SkDoubleToScalar(total);
     }
 
     return kOK_SkPdfResult;
@@ -1901,13 +1893,15 @@ static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
 static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    int64_t lc = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    // TODO(edisonn): round/ceil to int?
+    int lc = (int)pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
     return skpdfGraphicsStateApplyLC(pdfContext, lc);
 }
 
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
 static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double lj = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    // TODO(edisonn): round/ceil to int?
+    int lj = (int)pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
     return skpdfGraphicsStateApplyLJ(pdfContext, lj);
 }
 
@@ -1985,8 +1979,8 @@ static SkXfermode::Mode xferModeFromBlendMode(const char* blendMode, size_t len)
     return (SkXfermode::Mode)(SkXfermode::kLastMode + 1);
 }
 
-static void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const std::string& blendMode) {
-    SkXfermode::Mode mode = xferModeFromBlendMode(blendMode.c_str(), blendMode.length());
+static void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const SkString& blendMode) {
+    SkXfermode::Mode mode = xferModeFromBlendMode(blendMode.c_str(), blendMode.size());
     if (mode <= SkXfermode::kLastMode) {
         pdfContext->fGraphicsState.fBlendModesLength = 1;
         pdfContext->fGraphicsState.fBlendModes[0] = mode;
@@ -2033,8 +2027,8 @@ static void skpdfGraphicsStateApplySMask_dict(SkPdfContext* pdfContext, SkPdfDic
     }
 }
 
-static void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const std::string& sMask) {
-    if (sMask == "None") {
+static void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const SkString& sMask) {
+    if (sMask.equals("None")) {
         pdfContext->fGraphicsState.fSoftMaskDictionary = NULL;
         pdfContext->fGraphicsState.fSMask = NULL;
         return;
@@ -2074,7 +2068,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     SkPdfNativeObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
 
 #ifdef PDF_TRACE
-    std::string str;
+    SkString str;
 #endif
 
     //Next, get the ExtGState Dictionary from the Resource Dictionary:
@@ -2406,8 +2400,6 @@ public:
 InitPdfOps gInitPdfOps;
 
 void reportPdfRenderStats() {
-    std::map<std::string, int>::iterator iter;
-
     for (int i = 0 ; i < kCount_SkPdfResult; i++) {
         SkTDict<int>::Iter iter(gRenderStats[i]);
         const char* key;

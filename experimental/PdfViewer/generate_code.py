@@ -21,15 +21,15 @@ knowTypes = {
 'function': ['SkPdfFunction', 'ret->functionValue()', datatypes.PdfFunctionNone(), 'ret->isFunction()'],
 'integer': ['int64_t', 'ret->intValue()', datatypes.PdfInteger(0), 'ret->isInteger()'],
 'file_specification': ['SkPdfFileSpec', 'ret->fileSpecValue()', datatypes.FileSpecNone(), 'false'],
-'name': ['std::string', 'ret->nameValue2()', datatypes.PdfString('""'), 'ret->isName()'],
+'name': ['SkString', 'ret->nameValue2()', datatypes.PdfString('SkString()'), 'ret->isName()'],
 #should assert, references should never be allowed here, should be resolved way earlier
 'tree': ['SkPdfTree', 'ret->treeValue()', datatypes.EmptyTree(), 'false'],
 'number': ['double', 'ret->numberValue()', datatypes.PdfNumber(0), 'ret->isNumber()'],
 'rectangle': ['SkRect', 'ret->rectangleValue()', datatypes.EmptyRect(), 'ret->isRectangle()'],
 'stream': ['SkPdfStream*', 'ret->getStream()',  datatypes.CppNull(), 'ret->hasStream()'],
-'string': ['std::string', 'ret->stringValue2()', datatypes.PdfString('""'), 'ret->isAnyString()'],
-'text': ['std::string', 'ret->stringValue2()', datatypes.PdfString('""'), 'ret->isAnyString()'],
-'text string': ['std::string', 'ret->stringValue2()', datatypes.PdfString('""'), 'ret->isAnyString()'],
+'string': ['SkString', 'ret->stringValue2()', datatypes.PdfString('SkString()'), 'ret->isAnyString()'],
+'text': ['SkString', 'ret->stringValue2()', datatypes.PdfString('SkString()'), 'ret->isAnyString()'],
+'text string': ['SkString', 'ret->stringValue2()', datatypes.PdfString('SkString()'), 'ret->isAnyString()'],
 'matrix': ['SkMatrix', 'ret->matrixValue()', datatypes.IdentityMatrix(), 'ret->isMatrix()'],
 }
 

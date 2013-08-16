@@ -4,14 +4,11 @@
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfMapper_autogen.h"
 
-#include <map>
-#include <string>
-
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkPdfGraphicsState.h"
 #include "SkPdfUtils.h"
-
+#include "SkTDict.h"
 
 class SkPdfType0Font;
 class SkPdfType1Font;
@@ -36,7 +33,7 @@ struct SkPdfStandardFontEntry {
           fIsItalic(italic) {}
 };
 
-std::map<std::string, SkPdfStandardFontEntry>& getStandardFonts();
+SkTDict<SkPdfStandardFontEntry>& getStandardFonts();
 SkTypeface* SkTypefaceFromPdfStandardFont(const char* fontName, bool bold, bool italic);
 SkPdfFont* fontFromName(SkPdfNativeDoc* doc, SkPdfNativeObject* obj, const char* fontName);
 
@@ -74,7 +71,7 @@ public:
     static SkPdfEncoding* fromName(const char* name);
 };
 
-std::map<std::string, SkPdfEncoding*>& getStandardEncodings();
+SkTDict<SkPdfEncoding*>& getStandardEncodings();
 
 class SkPdfToUnicode {
     SkPdfNativeDoc* fParsed;

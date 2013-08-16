@@ -1,5 +1,9 @@
 #include "SkPdfUtils.h"
 
+bool operator !=(const SkString& first, const char* second) {
+    return !first.equals(second);
+}
+
 #ifdef PDF_TRACE
 void SkTraceMatrix(const SkMatrix& matrix, const char* sz) {
     printf("SkMatrix %s ", sz);
