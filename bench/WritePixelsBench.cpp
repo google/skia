@@ -14,7 +14,7 @@
 class WritePixelsBench : public SkBenchmark {
 public:
     WritePixelsBench(void* param, SkCanvas::Config8888 config)
-        : INHERITED(param) 
+        : INHERITED(param)
         , fConfig(config)
         , fName("writepix") {
         switch (config) {
@@ -36,7 +36,7 @@ public:
             case SkCanvas::kRGBA_Unpremul_Config8888:
                 fName.append("_rgba_UPM");
                 break;
-            default: 
+            default:
                 SK_CRASH();
                 break;
         }
@@ -74,4 +74,3 @@ private:
 
 DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (p, SkCanvas::kRGBA_Premul_Config8888)); )
 DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (p, SkCanvas::kRGBA_Unpremul_Config8888)); )
-

@@ -35,7 +35,7 @@ static inline bool normals_too_pinchy(const SkVector& norm0, SkVector& norm1) {
     static const int kMinSigBitsForDot = 8;
     static const SkScalar kDotEpsilon = FLT_EPSILON * (1 << kMinSigBitsForDot);
     static const SkScalar kTooPinchyNormalDotProd = kDotEpsilon - 1;
-    
+
     // just some sanity asserts to help document the expected range
     SkASSERT(kTooPinchyNormalDotProd >= -1);
     SkASSERT(kTooPinchyNormalDotProd < SkDoubleToScalar(-0.999));
