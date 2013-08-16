@@ -161,7 +161,7 @@
            'SAMPLE_PDF_FILE_VIEWER',
          ],
          'dependencies': [
-           'pdfviewer_lib.gyp:libpdfviewer_lib',
+           'pdfviewer_lib.gyp:pdfviewer_lib',
          ],
          'include_dirs' : [
            '../experimental/PdfViewer/',
