@@ -4,6 +4,7 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkPdfConfig.h"
+#include "SkString.h"
 
 class SkPdfArray;
 class SkPdfContext;
@@ -41,6 +42,10 @@ struct NotOwnedString {
 
     }
 };
+
+// TODO(edisonn): hack to make code generation simpler. Alternatively we can update the
+// generate_code.py not to rely on != operator
+bool operator !=(const SkString& first, const char* second);
 
 SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray);
 

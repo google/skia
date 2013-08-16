@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <string>
+#include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTDict.h"
 #include "SkRect.h"
@@ -59,6 +59,11 @@ class SkPdfNativeObject {
      };
 
 private:
+    // TODO(edisonn): assert reset operations while in rendering!
+    uint32_t fInRendering : 1;
+    uint32_t fUnused : 31;
+
+
     struct Reference {
         unsigned int fId;
         unsigned int fGen;
@@ -93,8 +98,11 @@ private:
 
 public:
 
-    SkPdfNativeObject() : fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
+    SkPdfNativeObject() : fInRendering(0), fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
 
+    bool inRendering() const { return fInRendering != 0; }
+    void startRendering() {fInRendering = 1;}
+    void doneRendering() {fInRendering = 0;}
 
     inline bool hasData(DataType type) {
         return type == fDataType;
@@ -722,24 +730,24 @@ public:
     // TODO(edisonn): nameValue2 and stringValue2 are used to make code generation easy,
     // but it is not a performat way to do it, since it will create an extra copy
     // remove these functions and make code generated faster
-    inline std::string nameValue2() const {
+    inline SkString nameValue2() const {
         SkASSERT(fObjectType == kName_PdfObjectType);
 
         if (fObjectType != kName_PdfObjectType) {
             // TODO(edisonn): log err
-            return "";
+            return SkString();
         }
-        return std::string((const char*)fStr.fBuffer, fStr.fBytes);
+        return SkString((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
-    inline std::string stringValue2() const {
+    inline SkString stringValue2() const {
         SkASSERT(fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType);
 
         if (fObjectType != kString_PdfObjectType && fObjectType != kHexString_PdfObjectType) {
             // TODO(edisonn): log err
-            return "";
+            return SkString();
         }
-        return std::string((const char*)fStr.fBuffer, fStr.fBytes);
+        return SkString((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
     inline bool boolValue() const {
