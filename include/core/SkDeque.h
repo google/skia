@@ -81,7 +81,7 @@ public:
         void reset(const SkDeque& d, IterStart startLoc);
 
     private:
-        SkDeque::Block*  fCurBlock;
+        SkDeque::Block* fCurBlock;
         char*           fPos;
         size_t          fElemSize;
     };
