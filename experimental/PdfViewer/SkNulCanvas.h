@@ -50,7 +50,8 @@ public:
                             const SkPaint* paint = NULL) {}
     virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst,
-                                      const SkPaint* paint) {}
+                                      const SkPaint* paint,
+                                      DrawBitmapRectFlags flags) {}
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL) {}
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
