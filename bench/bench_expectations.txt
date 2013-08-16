@@ -1732,7 +1732,7 @@ tabl_mozilla.skp_tile_256x256_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1252
 tabl_mozilla.skp_tile_256x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,733.360,630.024,836.696
 tabl_mozilla.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,879.560,781.604,977.516
 tabl_mozilla.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13904.420,12503.978,15604.862
-tabl_mozilla.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1145.910,1021.319,1270.501
+tabl_mozilla.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1145.910,1001.319,1270.501
 tabl_mozilla.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1019.460,907.514,1131.406
 tabl_mozilla.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,2367.770,2120.993,2614.547
 tabl_mozilla.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,129.120,106.208,152.032
