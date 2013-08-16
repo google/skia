@@ -86,9 +86,6 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
             fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
             this->detachStrikeFromList(strikeToPurge);
             delete strikeToPurge;
-        } else {
-            // for the remaining strikes, we just mark them unused
-            GrAtlas::MarkAllUnused(strikeToPurge->fAtlas);
         }
     }
 #if FONT_CACHE_STATS
@@ -185,7 +182,7 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
 static void free_glyph(GrGlyph*& glyph) { glyph->free(); }
 
 static void invalidate_glyph(GrGlyph*& glyph) {
-    if (glyph->fAtlas && !glyph->fAtlas->used()) {
+    if (glyph->fAtlas && glyph->fAtlas->drawToken().isIssued()) {
         glyph->fAtlas = NULL;
     }
 }
@@ -217,11 +214,10 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
 bool GrTextStrike::removeUnusedAtlases() {
     fCache.getArray().visitAll(invalidate_glyph);
     return GrAtlas::RemoveUnusedAtlases(fAtlasMgr, &fAtlas);
-
-    return false;
 }
 
-bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
+bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
+                                 GrDrawTarget::DrawToken currentDrawToken) {
 #if 0   // testing hack to force us to flush our cache often
     static int gCounter;
     if ((++gCounter % 10) == 0) return false;
@@ -231,7 +227,7 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     GrAssert(scaler);
     GrAssert(fCache.contains(glyph));
     if (glyph->fAtlas) {
-        glyph->fAtlas->setUsed(true);
+        glyph->fAtlas->setDrawToken(currentDrawToken);
         return true;
     }
 
@@ -256,6 +252,6 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     }
 
     glyph->fAtlas = atlas;
-    atlas->setUsed(true);
+    atlas->setDrawToken(currentDrawToken);
     return true;
 }

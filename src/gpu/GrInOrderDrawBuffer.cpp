@@ -27,7 +27,8 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     , fClipProxyState(kUnknown_ClipProxyState)
     , fVertexPool(*vertexPool)
     , fIndexPool(*indexPool)
-    , fFlushing(false) {
+    , fFlushing(false)
+    , fDrawID(0) {
 
     fDstGpu->ref();
     fCaps.reset(SkRef(fDstGpu->caps()));
@@ -536,6 +537,7 @@ void GrInOrderDrawBuffer::flush() {
     fDstGpu->setDrawState(prevDrawState);
     prevDrawState->unref();
     this->reset();
+    ++fDrawID;
 }
 
 bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
