@@ -312,7 +312,6 @@ class PdfClassManager:
       
       if cls.fBase == '':
         nativeFileClass.write('#include "stddef.h"\n')
-        nativeFileClass.write('#include <string>\n')
         nativeFileClass.write('#include "SkPdfEnums_autogen.h"\n')
         nativeFileClass.write('#include "SkPdfNYI.h"\n')
         nativeFileClass.write('#include "SkPdfNativeObject.h"\n')
