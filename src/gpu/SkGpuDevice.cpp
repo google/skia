@@ -1082,14 +1082,16 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
                              const SkMatrix& m,
                              const SkPaint& paint) {
     // We cannot call drawBitmapRect here since 'm' could be anything
-    this->drawBitmapCommon(draw, bitmap, NULL, m, paint);
+    this->drawBitmapCommon(draw, bitmap, NULL, m, paint,
+                           SkCanvas::kNone_DrawBitmapRectflag);
 }
 
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkBitmap& bitmap,
                                    const SkRect* srcRectPtr,
                                    const SkMatrix& m,
-                                   const SkPaint& paint) {
+                                   const SkPaint& paint,
+                                   SkCanvas::DrawBitmapRectFlags flags) {
     CHECK_SHOULD_DRAW(draw, false);
 
     SkRect srcRect;
@@ -1100,6 +1102,8 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
 
     if (paint.getMaskFilter()){
+        // TODO: this path needs to be updated to respect the bleed flag
+
         // Convert the bitmap to a shader so that the rect can be drawn
         // through drawRect, which supports mask filters.
         SkMatrix        newM(m);
@@ -1168,9 +1172,9 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
     if (!this->shouldTileBitmap(bitmap, params, srcRectPtr)) {
         // take the simple case
-        this->internalDrawBitmap(bitmap, srcRect, m, params, paint);
+        this->internalDrawBitmap(bitmap, srcRect, m, params, paint, flags);
     } else {
-        this->drawTiledBitmap(bitmap, srcRect, m, params, paint);
+        this->drawTiledBitmap(bitmap, srcRect, m, params, paint, flags);
     }
 }
 
@@ -1180,7 +1184,9 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkRect& srcRect,
                                   const SkMatrix& m,
                                   const GrTextureParams& params,
-                                  const SkPaint& paint) {
+                                  const SkPaint& paint,
+                                  SkCanvas::DrawBitmapRectFlags flags) {
+    // TODO: this method needs to be updated to respect the bleed flag
     const int maxTextureSize = fContext->getMaxTextureSize();
 
     int tileSize = determine_tile_size(bitmap, srcRect, maxTextureSize);
@@ -1229,7 +1235,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                 tmpM.preTranslate(SkIntToScalar(iTileR.fLeft),
                                   SkIntToScalar(iTileR.fTop));
 
-                this->internalDrawBitmap(tmpB, tileR, tmpM, params, paint);
+                this->internalDrawBitmap(tmpB, tileR, tmpM, params, paint, flags);
             }
         }
     }
@@ -1288,7 +1294,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      const SkRect& srcRect,
                                      const SkMatrix& m,
                                      const GrTextureParams& params,
-                                     const SkPaint& paint) {
+                                     const SkPaint& paint,
+                                     SkCanvas::DrawBitmapRectFlags flags) {
     SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
              bitmap.height() <= fContext->getMaxTextureSize());
 
@@ -1308,7 +1315,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fBottom, hInv));
 
     bool needsTextureDomain = false;
-    if (params.filterMode() != GrTextureParams::kNone_FilterMode) {
+    if (!(flags & SkCanvas::kBleed_DrawBitmapRectFlag) &&
+        params.filterMode() != GrTextureParams::kNone_FilterMode) {
         // Need texture domain if drawing a sub rect.
         needsTextureDomain = srcRect.width() < bitmap.width() ||
                              srcRect.height() < bitmap.height();
@@ -1440,7 +1448,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
-                                 const SkPaint& paint) {
+                                 const SkPaint& paint,
+                                 SkCanvas::DrawBitmapRectFlags flags) {
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc;
 
@@ -1465,7 +1474,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         }
     }
 
-    this->drawBitmapCommon(draw, bitmap, &tmpSrc, matrix, paint);
+    this->drawBitmapCommon(draw, bitmap, &tmpSrc, matrix, paint, flags);
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,

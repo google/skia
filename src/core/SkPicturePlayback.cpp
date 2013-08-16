@@ -834,7 +834,20 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 const SkBitmap& bitmap = getBitmap(reader);
                 const SkRect* src = this->getRectPtr(reader);   // may be null
                 const SkRect& dst = reader.skipT<SkRect>();     // required
-                canvas.drawBitmapRectToRect(bitmap, src, dst, paint);
+                SkCanvas::DrawBitmapRectFlags flags;
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
+                flags = SkCanvas::kNone_DrawBitmapRectflag;
+                // TODO: remove this backwards compatibility code once the .skps are 
+                // regenerated
+                SkASSERT(32 == size || 48 == size ||    // old sizes
+                         36 == size || 52 == size);     // new sizes
+                if (36 == size || 52 == size) {
+#endif
+                    flags = (SkCanvas::DrawBitmapRectFlags) reader.readInt();
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
+                }
+#endif
+                canvas.drawBitmapRectToRect(bitmap, src, dst, paint, flags);
             } break;
             case DRAW_BITMAP_MATRIX: {
                 const SkPaint* paint = getPaint(reader);

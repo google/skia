@@ -287,7 +287,8 @@ protected:
      */
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint& paint);
+                                const SkPaint& paint,
+                                SkCanvas::DrawBitmapRectFlags flags);
 
     /**
      *  Does not handle text decoration.

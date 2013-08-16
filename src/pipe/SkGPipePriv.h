@@ -148,6 +148,9 @@ enum {
     // Specific to drawBitmapRect, but needs to be different from HasPaint,
     // which is used for all drawBitmap calls, so include it here.
     kDrawBitmap_HasSrcRect_DrawOpFlag = 1 << 1,
+    // SkCanvas::DrawBitmapRectFlags::kBleed_DrawBitmapRectFlag is 
+    // converted into and out of this flag to save space
+    kDrawBitmap_Bleed_DrawOpFlag      = 1 << 2,
 };
 enum {
     kClip_HasAntiAlias_DrawOpFlag = 1 << 0,

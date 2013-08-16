@@ -342,7 +342,8 @@ bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
 }
 
 SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
-                                                 const SkRect& dst, const SkPaint* paint) {
+                                                 const SkRect& dst, const SkPaint* paint,
+                                                 SkCanvas::DrawBitmapRectFlags flags) {
     fBitmap = bitmap;
     if (NULL != src) {
         fSrc = *src;
@@ -357,6 +358,8 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
     } else {
         fPaintPtr = NULL;
     }
+    fFlags = flags;
+
     fDrawType = DRAW_BITMAP_RECT_TO_RECT;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
@@ -367,10 +370,11 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
     if (NULL != paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
+    fInfo.push(SkObjectParser::IntToString(fFlags, "Flags: "));
 }
 
 void SkDrawBitmapRectCommand::execute(SkCanvas* canvas) {
-    canvas->drawBitmapRectToRect(fBitmap, this->srcRect(), fDst, fPaintPtr);
+    canvas->drawBitmapRectToRect(fBitmap, this->srcRect(), fDst, fPaintPtr, fFlags);
 }
 
 bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {

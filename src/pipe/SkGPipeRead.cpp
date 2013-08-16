@@ -572,10 +572,15 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     } else {
         src = NULL;
     }
+    SkCanvas::DrawBitmapRectFlags dbmrFlags = SkCanvas::kNone_DrawBitmapRectflag;
+    if (flags & kDrawBitmap_Bleed_DrawOpFlag) {
+        dbmrFlags = (SkCanvas::DrawBitmapRectFlags)(dbmrFlags|SkCanvas::kBleed_DrawBitmapRectFlag);
+    }
     const SkRect* dst = skip<SkRect>(reader);
     const SkBitmap* bitmap = holder.getBitmap();
     if (state->shouldDraw()) {
-        canvas->drawBitmapRectToRect(*bitmap, src, *dst, hasPaint ? &state->paint() : NULL);
+        canvas->drawBitmapRectToRect(*bitmap, src, *dst, 
+                                     hasPaint ? &state->paint() : NULL, dbmrFlags);
     }
 }
 

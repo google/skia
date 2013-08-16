@@ -231,7 +231,8 @@ public:
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
-                                const SkRect& dst, const SkPaint*) SK_OVERRIDE;
+                                      const SkRect& dst, const SkPaint* paint, 
+                                      DrawBitmapRectFlags flags) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                   const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
@@ -774,7 +775,8 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
 }
 
 void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
-                                   const SkRect& dst, const SkPaint* paint) {
+                                         const SkRect& dst, const SkPaint* paint,
+                                         DrawBitmapRectFlags dbmrFlags) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkRect);
     bool hasSrc = src != NULL;
@@ -784,6 +786,9 @@ void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
         opBytesNeeded += sizeof(int32_t) * 4;
     } else {
         flags = 0;
+    }
+    if (dbmrFlags & kBleed_DrawBitmapRectFlag) {
+        flags |= kDrawBitmap_Bleed_DrawOpFlag;
     }
 
     if (this->commonDrawBitmap(bm, kDrawBitmapRectToRect_DrawOp, flags, opBytesNeeded, paint)) {

@@ -273,7 +273,11 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (!stream->read(&info, sizeof(SkPictInfo))) {
         return false;
     }
-    if (PICTURE_VERSION != info.fVersion) {
+    if (PICTURE_VERSION != info.fVersion
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
+        && PRIOR_PICTURE_VERSION != info.fVersion  // TODO: remove when .skps regenerated
+#endif
+        ) { 
         return false;
     }
 

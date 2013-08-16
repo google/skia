@@ -964,7 +964,9 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
 
 void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
-                                 const SkPaint& paint) {
+                                 const SkPaint& paint,
+                                 SkCanvas::DrawBitmapRectFlags flags) {
+    // TODO: this code path must be updated to respect the flags parameter
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;

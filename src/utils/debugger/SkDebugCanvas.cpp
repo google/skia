@@ -276,17 +276,19 @@ bool SkDebugCanvas::concat(const SkMatrix& matrix) {
 }
 
 void SkDebugCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
-        SkScalar top, const SkPaint* paint = NULL) {
+                               SkScalar top, const SkPaint* paint = NULL) {
     addDrawCommand(new SkDrawBitmapCommand(bitmap, left, top, paint));
 }
 
 void SkDebugCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
-        const SkRect* src, const SkRect& dst, const SkPaint* paint) {
-    addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint));
+                                         const SkRect* src, const SkRect& dst, 
+                                         const SkPaint* paint,
+                                         SkCanvas::DrawBitmapRectFlags flags) {
+    addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint, flags));
 }
 
 void SkDebugCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
-        const SkMatrix& matrix, const SkPaint* paint) {
+                                     const SkMatrix& matrix, const SkPaint* paint) {
     addDrawCommand(new SkDrawBitmapMatrixCommand(bitmap, matrix, paint));
 }
 

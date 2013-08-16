@@ -84,7 +84,8 @@ public:
                             const SkMatrix&, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint& paint) SK_OVERRIDE;
+                                const SkPaint& paint,
+                                SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);
     virtual void drawText(const SkDraw&, const void* text, size_t len,
@@ -163,7 +164,8 @@ private:
                           const SkBitmap& bitmap,
                           const SkRect* srcRectPtr,
                           const SkMatrix&,
-                          const SkPaint&);
+                          const SkPaint&,
+                          SkCanvas::DrawBitmapRectFlags flags);
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
@@ -176,12 +178,14 @@ private:
                             const SkRect&,
                             const SkMatrix&,
                             const GrTextureParams& params,
-                            const SkPaint& paint);
+                            const SkPaint& paint,
+                            SkCanvas::DrawBitmapRectFlags flags);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
                          const SkMatrix& m,
                          const GrTextureParams& params,
-                         const SkPaint& paint);
+                         const SkPaint& paint,
+                         SkCanvas::DrawBitmapRectFlags flags);
 
     /**
      * Returns non-initialized instance.

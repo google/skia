@@ -208,7 +208,11 @@ protected:
     // V10: add drawRRect, drawOval, clipRRect
     // V11: modify how readBitmap and writeBitmap store their info.
     // V12: add conics to SkPath, use new SkPathRef flattening
-    static const uint32_t PICTURE_VERSION = 12;
+    // V13: add flag to drawBitmapRectToRect
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
+    static const uint32_t PRIOR_PICTURE_VERSION = 12;  // TODO: remove when .skps regenerated
+#endif
+    static const uint32_t PICTURE_VERSION = 13;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

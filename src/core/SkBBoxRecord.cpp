@@ -134,9 +134,10 @@ void SkBBoxRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar to
 }
 
 void SkBBoxRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                  const SkRect& dst, const SkPaint* paint) {
+                                        const SkRect& dst, const SkPaint* paint,
+                                        DrawBitmapRectFlags flags) {
     if (this->transformBounds(dst, paint)) {
-        INHERITED::drawBitmapRectToRect(bitmap, src, dst, paint);
+        INHERITED::drawBitmapRectToRect(bitmap, src, dst, paint, flags);
     }
 }
 
