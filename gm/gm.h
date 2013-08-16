@@ -34,13 +34,14 @@ namespace skiagm {
         virtual ~GM();
 
         enum Flags {
-            kSkipPDF_Flag           = 1 << 0,
-            kSkipPicture_Flag       = 1 << 1,
-            kSkipPipe_Flag          = 1 << 2,
-            kSkipTiled_Flag         = 1 << 3,
-            kSkip565_Flag           = 1 << 4,
-            kSkipScaledReplay_Flag  = 1 << 5,
-            kSkipGPU_Flag           = 1 << 6,
+            kSkipPDF_Flag               = 1 << 0,
+            kSkipPicture_Flag           = 1 << 1,
+            kSkipPipe_Flag              = 1 << 2,
+            kSkipPipeCrossProcess_Flag  = 1 << 3,
+            kSkipTiled_Flag             = 1 << 4,
+            kSkip565_Flag               = 1 << 5,
+            kSkipScaledReplay_Flag      = 1 << 6,
+            kSkipGPU_Flag               = 1 << 7,
         };
 
         void draw(SkCanvas*);

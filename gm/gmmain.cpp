@@ -1014,11 +1014,24 @@ public:
         return pict;
     }
 
+    static SkData* bitmap_encoder(size_t* pixelRefOffset, const SkBitmap& bm) {
+        SkPixelRef* pr = bm.pixelRef();
+        if (pr != NULL) {
+            SkData* data = pr->refEncodedData();
+            if (data != NULL) {
+                *pixelRefOffset = bm.pixelRefOffset();
+                return data;
+            }
+        }
+        return NULL;
+    }
+
     static SkPicture* stream_to_new_picture(const SkPicture& src) {
         SkDynamicMemoryWStream storage;
-        src.serialize(&storage);
+        src.serialize(&storage, &bitmap_encoder);
         SkAutoTUnref<SkStreamAsset> pictReadback(storage.detachAsStream());
-        SkPicture* retval = SkPicture::CreateFromStream(pictReadback);
+        SkPicture* retval = SkPicture::CreateFromStream(pictReadback,
+                                                        &SkImageDecoder::DecodeMemory);
         return retval;
     }
 
@@ -1108,7 +1121,9 @@ public:
             SkString renderModeDescriptor("-pipe");
             renderModeDescriptor.append(gPipeWritingFlagCombos[i].name);
 
-            if (gm->getFlags() & GM::kSkipPipe_Flag) {
+            if (gm->getFlags() & GM::kSkipPipe_Flag
+                || (gPipeWritingFlagCombos[i].flags == SkGPipeWriter::kCrossProcess_Flag
+                    && gm->getFlags() & GM::kSkipPipeCrossProcess_Flag)) {
                 RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                   renderModeDescriptor.c_str());
                 errors.add(kIntentionallySkipped_ErrorType);
