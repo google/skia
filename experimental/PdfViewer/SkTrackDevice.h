@@ -98,9 +98,10 @@ protected:
 
     virtual void drawBitmapRect(const SkDraw& dummy1, const SkBitmap& dummy2,
                                 const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint& paint) {
+                                const SkPaint& paint,
+                                SkCanvas::DrawBitmapRectFlags flags) {
         before();
-        INHERITED::drawBitmapRect(dummy1, dummy2, srcOrNull, dst, paint);
+        INHERITED::drawBitmapRect(dummy1, dummy2, srcOrNull, dst, paint, flags);
         after();
     }
 
