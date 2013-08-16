@@ -214,6 +214,7 @@ private:
 class SkCanvas::MCRec {
 public:
     MCRec*          fNext;
+    int             fFlags;
     SkMatrix*       fMatrix;        // points to either fMatrixStorage or prev MCRec
     SkRasterClip*   fRasterClip;    // points to either fRegionStorage or prev MCRec
     SkDrawFilter*   fFilter;        // the current filter (or null)
@@ -227,7 +228,7 @@ public:
     */
     DeviceCM*   fTopLayer;
 
-    MCRec(const MCRec* prev, int flags) {
+    MCRec(const MCRec* prev, int flags) : fFlags(flags) {
         if (NULL != prev) {
             if (flags & SkCanvas::kMatrix_SaveFlag) {
                 fMatrixStorage = *prev->fMatrix;
@@ -720,8 +721,9 @@ int SkCanvas::internalSave(SaveFlags flags) {
     newTop->fNext = fMCRec;
     fMCRec = newTop;
 
-    fClipStack.save();
-    SkASSERT(fClipStack.getSaveCount() == this->getSaveCount() - 1);
+    if (SkCanvas::kClip_SaveFlag & flags) {
+        fClipStack.save();
+    }
 
     return saveCount;
 }
@@ -896,7 +898,10 @@ void SkCanvas::internalRestore() {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
 
-    fClipStack.restore();
+    if (SkCanvas::kClip_SaveFlag & fMCRec->fFlags) {
+        fClipStack.restore();
+    }
+
     // reserve our layer (if any)
     DeviceCM* layer = fMCRec->fLayer;   // may be null
     // now detach it from fMCRec so we can pop(). Gets freed after its drawn
