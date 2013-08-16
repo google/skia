@@ -1,6 +1,6 @@
 {
   'variables': {
-    #manaully set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
+    #manually set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
     'sample_pdf_file_viewer%': 0,
   },
   'targets': [
@@ -161,7 +161,7 @@
            'SAMPLE_PDF_FILE_VIEWER',
          ],
          'dependencies': [
-           'pdfviewer.gyp:libpdfviewer',
+           'pdfviewer_lib.gyp:libpdfviewer_lib',
          ],
          'include_dirs' : [
            '../experimental/PdfViewer/',
