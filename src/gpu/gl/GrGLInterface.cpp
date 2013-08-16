@@ -378,7 +378,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
             }
         }
     } else {
-        if (extensions.has("GL_OES_vertex_array_object")) {
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_OES_vertex_array_object")) {
             if (NULL == fBindVertexArray ||
                 NULL == fDeleteVertexArrays ||
                 NULL == fGenVertexArrays) {

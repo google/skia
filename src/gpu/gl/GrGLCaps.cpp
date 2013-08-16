@@ -213,7 +213,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_ARB_vertex_array_object");
     } else {
-        fVertexArrayObjectSupport = ctxInfo.hasExtension("GL_OES_vertex_array_object");
+        fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
+                                    ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
     if (kES_GrGLBinding == binding) {
