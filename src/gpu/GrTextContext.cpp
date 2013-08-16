@@ -148,14 +148,15 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         }
     }
 
+    GrDrawTarget::DrawToken drawToken = fDrawTarget->getCurrentDrawToken();
     if (NULL == glyph->fAtlas) {
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
         }
 
         // try to clear out an unused atlas before we flush
         fContext->getFontCache()->freeAtlasExceptFor(fStrike);
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
         }
 
@@ -165,7 +166,8 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
 
         // try to purge
         fContext->getFontCache()->purgeExceptFor(fStrike);
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        // need to use new flush count here
+        if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
         }
 

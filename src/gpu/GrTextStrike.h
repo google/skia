@@ -16,6 +16,7 @@
 #include "GrTHashCache.h"
 #include "GrPoint.h"
 #include "GrGlyph.h"
+#include "GrDrawTarget.h"
 
 class GrAtlasMgr;
 class GrFontCache;
@@ -37,7 +38,7 @@ public:
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
 
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
-    bool getGlyphAtlas(GrGlyph*, GrFontScaler*);
+    bool getGlyphAtlas(GrGlyph*, GrFontScaler*, GrDrawTarget::DrawToken currentDrawToken);
 
     // testing
     int countGlyphs() const { return fCache.getArray().count(); }

@@ -66,6 +66,9 @@ public:
      */
     void flush();
 
+    // tracking for draws
+    virtual DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
+
     // overrides from GrDrawTarget
     virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
@@ -74,7 +77,6 @@ public:
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
     virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
-
 
 protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
@@ -222,7 +224,10 @@ private:
     };
     SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> fGeoPoolStateStack;
 
+    virtual bool       isIssued(uint32_t drawID) { return drawID != fDrawID; }
+    
     bool                            fFlushing;
+    uint32_t                        fDrawID;
 
     typedef GrDrawTarget INHERITED;
 };
