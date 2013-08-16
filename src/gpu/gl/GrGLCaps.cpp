@@ -147,10 +147,11 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fPackRowLengthSupport = true;
         fPackFlipYSupport = false;
     } else {
-        fUnpackRowLengthSupport =ctxInfo.hasExtension("GL_EXT_unpack_subimage");
+        fUnpackRowLengthSupport = version >= GR_GL_VER(3,0) ||
+                                  ctxInfo.hasExtension("GL_EXT_unpack_subimage");
         fUnpackFlipYSupport = ctxInfo.hasExtension("GL_CHROMIUM_flipy");
-        // no extension for pack row length
-        fPackRowLengthSupport = false;
+        fPackRowLengthSupport = version >= GR_GL_VER(3,0) ||
+                                ctxInfo.hasExtension("GL_NV_pack_subimage");
         fPackFlipYSupport =
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
