@@ -15,7 +15,7 @@ static void test_quadstroke(SkCanvas* canvas) {
     path.quadTo(150, 150, 0, 6);
 
     SkPaint paint;
-    
+
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->translate(20, 20);
@@ -24,7 +24,7 @@ static void test_quadstroke(SkCanvas* canvas) {
     canvas->drawPath(path, paint);
     canvas->translate(100, 0);
 #endif
-    
+
     paint.setStrokeWidth(1.01f);
     canvas->drawPath(path, paint);
 }
