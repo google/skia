@@ -929,8 +929,6 @@ void SkCanvas::internalRestore() {
         }
         SkDELETE(layer);
     }
-
-    SkASSERT(fClipStack.getSaveCount() == this->getSaveCount() - 1);
 }
 
 int SkCanvas::getSaveCount() const {
