@@ -627,17 +627,17 @@ public:
     public:
         DrawToken(GrDrawTarget* drawTarget, uint32_t drawID) :
                   fDrawTarget(drawTarget), fDrawID(drawID) {}
-        
+
         bool isIssued() { return NULL != fDrawTarget && fDrawTarget->isIssued(fDrawID); }
-        
+
     private:
         GrDrawTarget*  fDrawTarget;
         uint32_t       fDrawID;   // this may wrap, but we're doing direct comparison
                                   // so that should be okay
     };
-    
+
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
-        
+
 protected:
 
     enum GeometrySrcType {
@@ -858,7 +858,7 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
-    
+
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
     };

@@ -108,7 +108,7 @@ public:
     }
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap& bitmap,
                                 const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint&, 
+                                const SkPaint&,
                                 SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE {
         this->addBitmap(bitmap);
     }

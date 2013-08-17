@@ -837,7 +837,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 SkCanvas::DrawBitmapRectFlags flags;
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
                 flags = SkCanvas::kNone_DrawBitmapRectflag;
-                // TODO: remove this backwards compatibility code once the .skps are 
+                // TODO: remove this backwards compatibility code once the .skps are
                 // regenerated
                 SkASSERT(32 == size || 48 == size ||    // old sizes
                          36 == size || 52 == size);     // new sizes

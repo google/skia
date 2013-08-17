@@ -840,7 +840,7 @@ public:
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
 
-    
+
 #if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
