@@ -167,7 +167,7 @@ public:
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
     static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
-        GrAssert(NULL != texture);
+        SkASSERT(NULL != texture);
         SkMatrix mat;
         mat.setIDiv(texture->width(), texture->height());
         return mat;
@@ -235,7 +235,7 @@ protected:
 
     /** Used by GR_CREATE_STATIC_EFFECT below */
     static GrEffectRef* CreateStaticEffectRef(void* refStorage, GrEffect* effect) {
-        GrAssert(NULL == effect->fEffectRef);
+        SkASSERT(NULL == effect->fEffectRef);
         effect->fEffectRef = SkNEW_PLACEMENT_ARGS(refStorage, GrEffectRef, (effect));
         return effect->fEffectRef;
     }
@@ -289,9 +289,9 @@ private:
         bool result = this->onIsEqual(other);
 #if GR_DEBUG
         if (result) {
-            GrAssert(this->numTextures() == other.numTextures());
+            SkASSERT(this->numTextures() == other.numTextures());
             for (int i = 0; i < this->numTextures(); ++i) {
-                GrAssert(*fTextureAccesses[i] == *other.fTextureAccesses[i]);
+                SkASSERT(*fTextureAccesses[i] == *other.fTextureAccesses[i]);
             }
         }
 #endif
@@ -320,7 +320,7 @@ private:
 };
 
 inline GrEffectRef::GrEffectRef(GrEffect* effect) {
-    GrAssert(NULL != effect);
+    SkASSERT(NULL != effect);
     effect->ref();
     fEffect = effect;
 }

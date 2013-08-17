@@ -37,10 +37,10 @@ public:
     private:
         UniformHandle(int value)
             : fValue(~value) {
-            GrAssert(isValid());
+            SkASSERT(isValid());
         }
 
-        int toUniformIndex() const { GrAssert(isValid()); return ~fValue; }
+        int toUniformIndex() const { SkASSERT(isValid()); return ~fValue; }
 
         int fValue;
         friend class GrGLUniformManager; // For accessing toUniformIndex().

@@ -19,7 +19,7 @@ struct GrAllocPool::Block {
     size_t  fBytesTotal;
 
     static Block* Create(size_t size, Block* next) {
-        GrAssert(size >= GrAllocPool_MIN_BLOCK_SIZE);
+        SkASSERT(size >= GrAllocPool_MIN_BLOCK_SIZE);
 
         Block* block = (Block*)GrMalloc(sizeof(Block) + size);
         block->fNext = next;
@@ -34,7 +34,7 @@ struct GrAllocPool::Block {
     }
 
     void* alloc(size_t bytes) {
-        GrAssert(bytes <= fBytesFree);
+        SkASSERT(bytes <= fBytesFree);
         fBytesFree -= bytes;
         void* ptr = fPtr;
         fPtr += bytes;
@@ -42,7 +42,7 @@ struct GrAllocPool::Block {
     }
 
     size_t release(size_t bytes) {
-        GrAssert(bytes > 0);
+        SkASSERT(bytes > 0);
         size_t free = GrMin(bytes, fBytesTotal - fBytesFree);
         fBytesFree += free;
         fPtr -= free;
@@ -112,7 +112,7 @@ void GrAllocPool::validate() const {
         count += 1;
         block = block->fNext;
     }
-    GrAssert(fBlocksAllocated == count);
+    SkASSERT(fBlocksAllocated == count);
 }
 
 #endif

@@ -539,8 +539,8 @@ public:
                  int            vertexCount,
                  int            indexCount);
         bool succeeded() const { return NULL != fTarget; }
-        void* vertices() const { GrAssert(this->succeeded()); return fVertices; }
-        void* indices() const { GrAssert(this->succeeded()); return fIndices; }
+        void* vertices() const { SkASSERT(this->succeeded()); return fVertices; }
+        void* indices() const { SkASSERT(this->succeeded()); return fIndices; }
         GrPoint* positions() const {
             return static_cast<GrPoint*>(this->vertices());
         }
@@ -584,7 +584,7 @@ public:
     public:
         AutoGeometryPush(GrDrawTarget* target)
             : fAttribRestore(target->drawState()) {
-            GrAssert(NULL != target);
+            SkASSERT(NULL != target);
             fTarget = target;
             target->pushGeometrySource();
         }
@@ -606,7 +606,7 @@ public:
                                  ASRInit init,
                                  const SkMatrix* viewMatrix = NULL)
             : fState(target, init, viewMatrix) {
-            GrAssert(NULL != target);
+            SkASSERT(NULL != target);
             fTarget = target;
             target->pushGeometrySource();
             if (kPreserve_ASRInit == init) {
@@ -719,7 +719,7 @@ protected:
     // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
     size_t getVertexSize() const {
         // the vertex layout is only valid if a vertex source has been specified.
-        GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
+        SkASSERT(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
         return this->getGeomSrc().fVertexSize;
     }
 

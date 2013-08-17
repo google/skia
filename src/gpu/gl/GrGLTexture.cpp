@@ -18,7 +18,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
                        const Desc& textureDesc,
                        const GrGLRenderTarget::Desc* rtDesc) {
 
-    GrAssert(0 != textureDesc.fTextureID);
+    SkASSERT(0 != textureDesc.fTextureID);
 
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;

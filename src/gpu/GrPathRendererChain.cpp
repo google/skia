@@ -78,7 +78,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const SkPath& path,
 }
 
 void GrPathRendererChain::init() {
-    GrAssert(!fInit);
+    SkASSERT(!fInit);
     GrGpu* gpu = fOwner->getGpu();
     bool twoSided = gpu->caps()->twoSidedStencilSupport();
     bool wrapOp = gpu->caps()->stencilWrapOpsSupport();

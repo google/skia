@@ -42,8 +42,8 @@ public:
         TextureSampler(const TextureSampler& other) { *this = other; }
 
         TextureSampler& operator= (const TextureSampler& other) {
-            GrAssert(0 == fConfigComponentMask);
-            GrAssert(!fSamplerUniform.isValid());
+            SkASSERT(0 == fConfigComponentMask);
+            SkASSERT(!fSamplerUniform.isValid());
 
             fConfigComponentMask = other.fConfigComponentMask;
             fSamplerUniform = other.fSamplerUniform;
@@ -64,24 +64,24 @@ public:
                   uint32_t configComponentMask,
                   const char* swizzle,
                   int idx) {
-            GrAssert(!this->isInitialized());
-            GrAssert(0 != configComponentMask);
-            GrAssert(!fSamplerUniform.isValid());
+            SkASSERT(!this->isInitialized());
+            SkASSERT(0 != configComponentMask);
+            SkASSERT(!fSamplerUniform.isValid());
 
-            GrAssert(NULL != builder);
+            SkASSERT(NULL != builder);
             SkString name;
             name.printf("Sampler%d", idx);
             fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                   kSampler2D_GrSLType,
                                                   name.c_str());
-            GrAssert(fSamplerUniform.isValid());
+            SkASSERT(fSamplerUniform.isValid());
 
             fConfigComponentMask = configComponentMask;
             memcpy(fSwizzle, swizzle, 4);
         }
 
         void init(GrGLShaderBuilder* builder, const GrTextureAccess* access, int idx) {
-            GrAssert(NULL != access);
+            SkASSERT(NULL != access);
             this->init(builder,
                        GrPixelConfigComponentMask(access->getTexture()->config()),
                        access->getSwizzle(),
@@ -375,7 +375,7 @@ private:
         class AutoStageRestore : GrNoncopyable {
         public:
             AutoStageRestore(CodeStage* codeStage, const GrEffectStage* newStage) {
-                GrAssert(NULL != codeStage);
+                SkASSERT(NULL != codeStage);
                 fSavedIndex = codeStage->fCurrentIndex;
                 fSavedEffectStage = codeStage->fEffectStage;
 
@@ -398,7 +398,7 @@ private:
             const GrEffectStage*    fSavedEffectStage;
         };
     private:
-        void validate() const { GrAssert((NULL == fEffectStage) == (-1 == fCurrentIndex)); }
+        void validate() const { SkASSERT((NULL == fEffectStage) == (-1 == fCurrentIndex)); }
         int                     fNextIndex;
         int                     fCurrentIndex;
         const GrEffectStage*    fEffectStage;

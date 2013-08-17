@@ -62,7 +62,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
 
     // copy android verts to our vertex buffer
     if (antiAlias) {
-        GrAssert(sizeof(ColorVertex) == drawState->getVertexSize());
+        SkASSERT(sizeof(ColorVertex) == drawState->getVertexSize());
         ColorVertex* outVert = reinterpret_cast<ColorVertex*>(geo.vertices());
         android::uirenderer::AlphaVertex* inVert =
             reinterpret_cast<android::uirenderer::AlphaVertex*>(vertices.getBuffer());

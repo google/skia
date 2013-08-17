@@ -26,8 +26,8 @@ GrResource::GrResource(GrGpu* gpu, bool isWrapped) {
 
 GrResource::~GrResource() {
     // subclass should have released this.
-    GrAssert(0 == fDeferredRefCount);
-    GrAssert(!this->isValid());
+    SkASSERT(0 == fDeferredRefCount);
+    SkASSERT(!this->isValid());
 }
 
 void GrResource::release() {

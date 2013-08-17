@@ -54,10 +54,10 @@ struct GrGLIRect {
         }
         fHeight = height;
 
-        GrAssert(fLeft >= 0);
-        GrAssert(fWidth >= 0);
-        GrAssert(fBottom >= 0);
-        GrAssert(fHeight >= 0);
+        SkASSERT(fLeft >= 0);
+        SkASSERT(fWidth >= 0);
+        SkASSERT(fBottom >= 0);
+        SkASSERT(fHeight >= 0);
     }
 
     bool contains(const GrGLIRect& glRect) const {

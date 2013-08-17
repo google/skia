@@ -27,7 +27,7 @@ bool GrDrawState::setIdentityViewMatrix()  {
 }
 
 void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
-    GrAssert(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
+    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
 
     fColorStages.reset();
     fCoverageStages.reset();
@@ -70,7 +70,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 #if GR_DEBUG
     uint32_t overlapCheck = 0;
 #endif
-    GrAssert(count <= GrDrawState::kMaxVertexAttribCnt);
+    SkASSERT(count <= GrDrawState::kMaxVertexAttribCnt);
     size_t size = 0;
     for (int index = 0; index < count; ++index) {
         size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
@@ -79,7 +79,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
         size_t dwordCount = attribSize >> 2;
         uint32_t mask = (1 << dwordCount)-1;
         size_t offsetShift = attribs[index].fOffset >> 2;
-        GrAssert(!(overlapCheck & (mask << offsetShift)));
+        SkASSERT(!(overlapCheck & (mask << offsetShift)));
         overlapCheck |= (mask << offsetShift);
 #endif
     }
@@ -93,7 +93,7 @@ size_t GrDrawState::getVertexSize() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
-    GrAssert(count <= kMaxVertexAttribCnt);
+    SkASSERT(count <= kMaxVertexAttribCnt);
 
     fCommon.fVAPtr = attribs;
     fCommon.fVACount = count;
@@ -108,8 +108,8 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
     for (int i = 0; i < count; ++i) {
         if (attribs[i].fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
             // The fixed function attribs can only be specified once
-            GrAssert(-1 == fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding]);
-            GrAssert(GrFixedFunctionVertexAttribVectorCount(attribs[i].fBinding) ==
+            SkASSERT(-1 == fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding]);
+            SkASSERT(GrFixedFunctionVertexAttribVectorCount(attribs[i].fBinding) ==
                      GrVertexAttribTypeVectorCount(attribs[i].fType));
             fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding] = i;
         }
@@ -117,12 +117,12 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
         size_t dwordCount = GrVertexAttribTypeSize(attribs[i].fType) >> 2;
         uint32_t mask = (1 << dwordCount)-1;
         size_t offsetShift = attribs[i].fOffset >> 2;
-        GrAssert(!(overlapCheck & (mask << offsetShift)));
+        SkASSERT(!(overlapCheck & (mask << offsetShift)));
         overlapCheck |= (mask << offsetShift);
 #endif
     }
     // Positions must be specified.
-    GrAssert(-1 != fCommon.fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
+    SkASSERT(-1 != fCommon.fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ bool GrDrawState::validateVertexAttribs() const {
         int covIdx = s - fColorStages.count();
         const GrEffectStage& stage = covIdx < 0 ? fColorStages[s] : fCoverageStages[covIdx];
         const GrEffectRef* effect = stage.getEffect();
-        GrAssert(NULL != effect);
+        SkASSERT(NULL != effect);
         // make sure that any attribute indices have the correct binding type, that the attrib
         // type and effect's shader lang type are compatible, and that attributes shared by
         // multiple effects use the same shader lang type.
@@ -402,9 +402,9 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
     if (NULL != fDrawState) {
         GR_DEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
         fDrawState->fCommon.fViewMatrix = fViewMatrix;
-        GrAssert(fDrawState->numColorStages() >= fNumColorStages);
+        SkASSERT(fDrawState->numColorStages() >= fNumColorStages);
         int numCoverageStages = fSavedCoordChanges.count() - fNumColorStages;
-        GrAssert(fDrawState->numCoverageStages() >= numCoverageStages);
+        SkASSERT(fDrawState->numCoverageStages() >= numCoverageStages);
 
         int i = 0;
         for (int s = 0; s < fNumColorStages; ++s, ++i) {
@@ -421,7 +421,7 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
                                              const SkMatrix& preconcatMatrix) {
     this->restore();
 
-    GrAssert(NULL == fDrawState);
+    SkASSERT(NULL == fDrawState);
     if (NULL == drawState || preconcatMatrix.isIdentity()) {
         return;
     }

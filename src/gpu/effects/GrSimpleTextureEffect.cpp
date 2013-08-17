@@ -34,8 +34,8 @@ public:
         const char* fsCoordName;
         GrSLType fsCoordSLType;
         if (GrEffect::kCustom_CoordsType == ste.coordsType()) {
-            GrAssert(ste.getMatrix().isIdentity());
-            GrAssert(1 == ste.numVertexAttribs());
+            SkASSERT(ste.getMatrix().isIdentity());
+            SkASSERT(1 == ste.numVertexAttribs());
             fsCoordSLType = kVec2f_GrSLType;
             const char* vsVaryingName;
             builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsCoordName);
@@ -70,7 +70,7 @@ public:
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = drawEffect.castEffect<GrSimpleTextureEffect>();
         if (GrEffect::kCustom_CoordsType == ste.coordsType()) {
-            GrAssert(ste.getMatrix().isIdentity());
+            SkASSERT(ste.getMatrix().isIdentity());
         } else {
             fEffectMatrix.get()->setData(uman, ste.getMatrix(), drawEffect, ste.texture(0));
         }

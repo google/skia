@@ -112,7 +112,7 @@ void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {
 
 void GrDebugGL::setVertexArray(GrVertexArrayObj* vertexArray) {
     if (NULL != vertexArray) {
-        GrAssert(!vertexArray->getDeleted());
+        SkASSERT(!vertexArray->getDeleted());
     }
     SkRefCnt_SafeAssign(fVertexArray, vertexArray);
 }

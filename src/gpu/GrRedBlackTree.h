@@ -196,12 +196,12 @@ public:
     }
     bool operator !=(const Iter& i) const { return !(*this == i); }
     Iter& operator ++() {
-        GrAssert(*this != fTree->end());
+        SkASSERT(*this != fTree->end());
         fN = SuccessorNode(fN);
         return *this;
     }
     Iter& operator --() {
-        GrAssert(*this != fTree->begin());
+        SkASSERT(*this != fTree->begin());
         if (NULL != fN) {
             fN = PredecessorNode(fN);
         } else {
@@ -378,7 +378,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         fRoot = x;
         x->fColor = kBlack_Color;
         x->fParent = NULL;
-        GrAssert(1 == fCount);
+        SkASSERT(1 == fCount);
         return Iter(returnNode, this);
     }
     p->fChildren[pc] = x;
@@ -387,13 +387,13 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
 
     do {
         // assumptions at loop start.
-        GrAssert(NULL != x);
-        GrAssert(kRed_Color == x->fColor);
+        SkASSERT(NULL != x);
+        SkASSERT(kRed_Color == x->fColor);
         // can't have a grandparent but no parent.
-        GrAssert(!(NULL != gp && NULL == p));
+        SkASSERT(!(NULL != gp && NULL == p));
         // make sure pc and gpc are correct
-        GrAssert(NULL == p  || p->fChildren[pc] == x);
-        GrAssert(NULL == gp || gp->fChildren[gpc] == p);
+        SkASSERT(NULL == p  || p->fChildren[pc] == x);
+        SkASSERT(NULL == gp || gp->fChildren[gpc] == p);
 
         // if x's parent is black then we didn't violate any of the
         // red/black properties when we added x as red.
@@ -401,9 +401,9 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
             return Iter(returnNode, this);
         }
         // gp must be valid because if p was the root then it is black
-        GrAssert(NULL != gp);
+        SkASSERT(NULL != gp);
         // gp must be black since it's child, p, is red.
-        GrAssert(kBlack_Color == gp->fColor);
+        SkASSERT(kBlack_Color == gp->fColor);
 
 
         // x and its parent are red, violating red-black property.
@@ -419,7 +419,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
             p = x->fParent;
             if (NULL == p) {
                 // x (prev gp) is the root, color it black and be done.
-                GrAssert(fRoot == x);
+                SkASSERT(fRoot == x);
                 x->fColor = kBlack_Color;
                 validate();
                 return Iter(returnNode, this);
@@ -436,10 +436,10 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
     } while (true);
     // Here p is red but u is black and we still have to resolve the fact
     // that x and p are both red.
-    GrAssert(NULL == gp->fChildren[1-gpc] || kBlack_Color == gp->fChildren[1-gpc]->fColor);
-    GrAssert(kRed_Color == x->fColor);
-    GrAssert(kRed_Color == p->fColor);
-    GrAssert(kBlack_Color == gp->fColor);
+    SkASSERT(NULL == gp->fChildren[1-gpc] || kBlack_Color == gp->fChildren[1-gpc]->fColor);
+    SkASSERT(kRed_Color == x->fColor);
+    SkASSERT(kRed_Color == p->fColor);
+    SkASSERT(kBlack_Color == gp->fColor);
 
     // make x be on the same side of p as p is of gp. If it isn't already
     // the case then rotate x up to p and swap their labels.
@@ -462,7 +462,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
     // gp's child, u, that is not affected we know to be black. gp's new
     // child is p's previous child (x's pre-rotation sibling) which must be
     // black since p is red.
-    GrAssert(NULL == p->fChildren[1-pc] ||
+    SkASSERT(NULL == p->fChildren[1-pc] ||
              kBlack_Color == p->fChildren[1-pc]->fColor);
     // Since gp's two children are black it can become red if p is made
     // black. This leaves the black-height of both of p's new subtrees
@@ -491,7 +491,7 @@ void GrRedBlackTree<T,C>::rotateRight(Node* n) {
      */
     Node* d = n->fParent;
     Node* s = n->fChildren[kLeft_Child];
-    GrAssert(NULL != s);
+    SkASSERT(NULL != s);
     Node* b = s->fChildren[kRight_Child];
 
     if (NULL != d) {
@@ -499,7 +499,7 @@ void GrRedBlackTree<T,C>::rotateRight(Node* n) {
                                              kRight_Child;
         d->fChildren[c] = s;
     } else {
-        GrAssert(fRoot == n);
+        SkASSERT(fRoot == n);
         fRoot = s;
     }
     s->fParent = d;
@@ -523,7 +523,7 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
 
     Node* d = n->fParent;
     Node* s = n->fChildren[kRight_Child];
-    GrAssert(NULL != s);
+    SkASSERT(NULL != s);
     Node* b = s->fChildren[kLeft_Child];
 
     if (NULL != d) {
@@ -531,7 +531,7 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
                                                    kLeft_Child;
         d->fChildren[c] = s;
     } else {
-        GrAssert(fRoot == n);
+        SkASSERT(fRoot == n);
         fRoot = s;
     }
     s->fParent = d;
@@ -552,7 +552,7 @@ void GrRedBlackTree<T,C>::rotateLeft(Node* n) {
 
 template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::SuccessorNode(Node* x) {
-    GrAssert(NULL != x);
+    SkASSERT(NULL != x);
     if (NULL != x->fChildren[kRight_Child]) {
         x = x->fChildren[kRight_Child];
         while (NULL != x->fChildren[kLeft_Child]) {
@@ -568,7 +568,7 @@ typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::SuccessorNode(Node* x) 
 
 template <typename T, typename C>
 typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::PredecessorNode(Node* x) {
-    GrAssert(NULL != x);
+    SkASSERT(NULL != x);
     if (NULL != x->fChildren[kLeft_Child]) {
         x = x->fChildren[kLeft_Child];
         while (NULL != x->fChildren[kRight_Child]) {
@@ -584,7 +584,7 @@ typename GrRedBlackTree<T,C>::Node* GrRedBlackTree<T,C>::PredecessorNode(Node* x
 
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
-    GrAssert(NULL != x);
+    SkASSERT(NULL != x);
     validate();
     --fCount;
 
@@ -594,15 +594,15 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
 
     if (hasLeft && hasRight) {
         // first and last can't have two children.
-        GrAssert(fFirst != x);
-        GrAssert(fLast != x);
+        SkASSERT(fFirst != x);
+        SkASSERT(fLast != x);
         // if x is an interior node then we find it's successor
         // and swap them.
         Node* s = x->fChildren[kRight_Child];
         while (NULL != s->fChildren[kLeft_Child]) {
             s = s->fChildren[kLeft_Child];
         }
-        GrAssert(NULL != s);
+        SkASSERT(NULL != s);
         // this might be expensive relative to swapping node ptrs around.
         // depends on T.
         x->fItem = s->fItem;
@@ -611,23 +611,23 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
     } else if (NULL == x->fParent) {
         // if x was the root we just replace it with its child and make
         // the new root (if the tree is not empty) black.
-        GrAssert(fRoot == x);
+        SkASSERT(fRoot == x);
         fRoot = x->fChildren[c];
         if (NULL != fRoot) {
             fRoot->fParent = NULL;
             fRoot->fColor = kBlack_Color;
             if (x == fLast) {
-                GrAssert(c == kLeft_Child);
+                SkASSERT(c == kLeft_Child);
                 fLast = fRoot;
             } else if (x == fFirst) {
-                GrAssert(c == kRight_Child);
+                SkASSERT(c == kRight_Child);
                 fFirst = fRoot;
             }
         } else {
-            GrAssert(fFirst == fLast && x == fFirst);
+            SkASSERT(fFirst == fLast && x == fFirst);
             fFirst = NULL;
             fLast = NULL;
-            GrAssert(0 == fCount);
+            SkASSERT(0 == fCount);
         }
         delete x;
         validate();
@@ -641,10 +641,10 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
     if (NULL == x->fChildren[c]) {
         if (fLast == x) {
             fLast = p;
-            GrAssert(p == PredecessorNode(x));
+            SkASSERT(p == PredecessorNode(x));
         } else if (fFirst == x) {
             fFirst = p;
-            GrAssert(p == SuccessorNode(x));
+            SkASSERT(p == SuccessorNode(x));
         }
         // x has two implicit black children.
         Color xcolor = x->fColor;
@@ -663,8 +663,8 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         //s cannot be an implicit black node because the original
         // black-height at x was >= 2 and s's black-height must equal the
         // initial black height of x.
-        GrAssert(NULL != s);
-        GrAssert(p == s->fParent);
+        SkASSERT(NULL != s);
+        SkASSERT(p == s->fParent);
 
         // assigned in loop
         Node* sl;
@@ -680,9 +680,9 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
             // be real nodes.
             // The x side of p has a black-height that is one less than the
             // s side. It must be rebalanced.
-            GrAssert(NULL != s);
-            GrAssert(p == s->fParent);
-            GrAssert(NULL == x || x->fParent == p);
+            SkASSERT(NULL != s);
+            SkASSERT(p == s->fParent);
+            SkASSERT(NULL == x || x->fParent == p);
 
             //sl and sr are s's children, which may be implicit.
             sl = s->fChildren[kLeft_Child];
@@ -692,11 +692,11 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
             // that x's new sibling is black
             if (kRed_Color == s->fColor) {
                 // if s is red then it's parent must be black.
-                GrAssert(kBlack_Color == p->fColor);
+                SkASSERT(kBlack_Color == p->fColor);
                 // s's children must also be black since s is red. They can't
                 // be implicit since s is red and it's black-height is >= 2.
-                GrAssert(NULL != sl && kBlack_Color == sl->fColor);
-                GrAssert(NULL != sr && kBlack_Color == sr->fColor);
+                SkASSERT(NULL != sl && kBlack_Color == sl->fColor);
+                SkASSERT(NULL != sr && kBlack_Color == sr->fColor);
                 p->fColor = kRed_Color;
                 s->fColor = kBlack_Color;
                 if (kLeft_Child == pc) {
@@ -710,10 +710,10 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
                 sr = s->fChildren[kRight_Child];
             }
             // x and s are now both black.
-            GrAssert(kBlack_Color == s->fColor);
-            GrAssert(NULL == x || kBlack_Color == x->fColor);
-            GrAssert(p == s->fParent);
-            GrAssert(NULL == x || p == x->fParent);
+            SkASSERT(kBlack_Color == s->fColor);
+            SkASSERT(NULL == x || kBlack_Color == x->fColor);
+            SkASSERT(p == s->fParent);
+            SkASSERT(NULL == x || p == x->fParent);
 
             // when x is deleted its subtree will have reduced black-height.
             slRed = (NULL != sl && kRed_Color == sl->fColor);
@@ -733,7 +733,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
                     x = p;
                     p = x->fParent;
                     if (NULL == p) {
-                        GrAssert(fRoot == x);
+                        SkASSERT(fRoot == x);
                         validate();
                         return;
                     } else {
@@ -742,8 +742,8 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
 
                     }
                     s = p->fChildren[1-pc];
-                    GrAssert(NULL != s);
-                    GrAssert(p == s->fParent);
+                    SkASSERT(NULL != s);
+                    SkASSERT(p == s->fParent);
                     continue;
                 } else if (kRed_Color == p->fColor) {
                     // we can make p black and s red. This balance out p's
@@ -760,7 +760,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         // if we made it here one or both of sl and sr is red.
         // s and x are black. We make sure that a red child is on
         // the same side of s as s is of p.
-        GrAssert(slRed || srRed);
+        SkASSERT(slRed || srRed);
         if (kLeft_Child == pc && !srRed) {
             s->fColor = kRed_Color;
             sl->fColor = kBlack_Color;
@@ -787,11 +787,11 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         s->fColor = p->fColor;
         p->fColor = kBlack_Color;
         if (kLeft_Child == pc) {
-            GrAssert(NULL != sr && kRed_Color == sr->fColor);
+            SkASSERT(NULL != sr && kRed_Color == sr->fColor);
             sr->fColor = kBlack_Color;
             rotateLeft(p);
         } else {
-            GrAssert(NULL != sl && kRed_Color == sl->fColor);
+            SkASSERT(NULL != sl && kRed_Color == sl->fColor);
             sl->fColor = kBlack_Color;
             rotateRight(p);
         }
@@ -802,28 +802,28 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         // child and c1 be its non-implicit child. c1 must be black because
         // red nodes always have two black children. Then the two subtrees
         // of x rooted at c0 and c1 will have different black-heights.
-        GrAssert(kBlack_Color == x->fColor);
+        SkASSERT(kBlack_Color == x->fColor);
         // So we know x is black and has one implicit black child, c0. c1
         // must be red, otherwise the subtree at c1 will have a different
         // black-height than the subtree rooted at c0.
-        GrAssert(kRed_Color == x->fChildren[c]->fColor);
+        SkASSERT(kRed_Color == x->fChildren[c]->fColor);
         // replace x with c1, making c1 black, preserves all red-black tree
         // props.
         Node* c1 = x->fChildren[c];
         if (x == fFirst) {
-            GrAssert(c == kRight_Child);
+            SkASSERT(c == kRight_Child);
             fFirst = c1;
             while (NULL != fFirst->fChildren[kLeft_Child]) {
                 fFirst = fFirst->fChildren[kLeft_Child];
             }
-            GrAssert(fFirst == SuccessorNode(x));
+            SkASSERT(fFirst == SuccessorNode(x));
         } else if (x == fLast) {
-            GrAssert(c == kLeft_Child);
+            SkASSERT(c == kLeft_Child);
             fLast = c1;
             while (NULL != fLast->fChildren[kRight_Child]) {
                 fLast = fLast->fChildren[kRight_Child];
             }
-            GrAssert(fLast == PredecessorNode(x));
+            SkASSERT(fLast == PredecessorNode(x));
         }
         c1->fParent = p;
         p->fChildren[pc] = c1;
@@ -847,43 +847,43 @@ void GrRedBlackTree<T,C>::RecursiveDelete(Node* x) {
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::validate() const {
     if (fCount) {
-        GrAssert(NULL == fRoot->fParent);
-        GrAssert(NULL != fFirst);
-        GrAssert(NULL != fLast);
+        SkASSERT(NULL == fRoot->fParent);
+        SkASSERT(NULL != fFirst);
+        SkASSERT(NULL != fLast);
 
-        GrAssert(kBlack_Color == fRoot->fColor);
+        SkASSERT(kBlack_Color == fRoot->fColor);
         if (1 == fCount) {
-            GrAssert(fFirst == fRoot);
-            GrAssert(fLast == fRoot);
-            GrAssert(0 == fRoot->fChildren[kLeft_Child]);
-            GrAssert(0 == fRoot->fChildren[kRight_Child]);
+            SkASSERT(fFirst == fRoot);
+            SkASSERT(fLast == fRoot);
+            SkASSERT(0 == fRoot->fChildren[kLeft_Child]);
+            SkASSERT(0 == fRoot->fChildren[kRight_Child]);
         }
     } else {
-        GrAssert(NULL == fRoot);
-        GrAssert(NULL == fFirst);
-        GrAssert(NULL == fLast);
+        SkASSERT(NULL == fRoot);
+        SkASSERT(NULL == fFirst);
+        SkASSERT(NULL == fLast);
     }
 #if DEEP_VALIDATE
     int bh;
     int count = checkNode(fRoot, &bh);
-    GrAssert(count == fCount);
+    SkASSERT(count == fCount);
 #endif
 }
 
 template <typename T, typename C>
 int GrRedBlackTree<T,C>::checkNode(Node* n, int* bh) const {
     if (NULL != n) {
-        GrAssert(validateChildRelations(n, false));
+        SkASSERT(validateChildRelations(n, false));
         if (kBlack_Color == n->fColor) {
             *bh += 1;
         }
-        GrAssert(!fComp(n->fItem, fFirst->fItem));
-        GrAssert(!fComp(fLast->fItem, n->fItem));
+        SkASSERT(!fComp(n->fItem, fFirst->fItem));
+        SkASSERT(!fComp(fLast->fItem, n->fItem));
         int leftBh = *bh;
         int rightBh = *bh;
         int cl = checkNode(n->fChildren[kLeft_Child], &leftBh);
         int cr = checkNode(n->fChildren[kRight_Child], &rightBh);
-        GrAssert(leftBh == rightBh);
+        SkASSERT(leftBh == rightBh);
         *bh = leftBh;
         return 1 + cl + cr;
     }
@@ -957,7 +957,7 @@ void GrRedBlackTree<T,C>::UnitTest() {
     for (int i = 0; i < 10000; ++i) {
         int x = r.nextU()%100;
         SkDEBUGCODE(Iter xi = ) tree.insert(x);
-        GrAssert(*xi == x);
+        SkASSERT(*xi == x);
         ++count[x];
     }
 
@@ -965,11 +965,11 @@ void GrRedBlackTree<T,C>::UnitTest() {
     ++count[0];
     tree.insert(99);
     ++count[99];
-    GrAssert(*tree.begin() == 0);
-    GrAssert(*tree.last() == 99);
-    GrAssert(--(++tree.begin()) == tree.begin());
-    GrAssert(--tree.end() == tree.last());
-    GrAssert(tree.count() == 10002);
+    SkASSERT(*tree.begin() == 0);
+    SkASSERT(*tree.last() == 99);
+    SkASSERT(--(++tree.begin()) == tree.begin());
+    SkASSERT(--tree.end() == tree.last());
+    SkASSERT(tree.count() == 10002);
 
     int c = 0;
     // check that we iterate through the correct number of
@@ -978,9 +978,9 @@ void GrRedBlackTree<T,C>::UnitTest() {
         Iter b = a;
         ++b;
         ++c;
-        GrAssert(b == tree.end() || *a <= *b);
+        SkASSERT(b == tree.end() || *a <= *b);
     }
-    GrAssert(c == tree.count());
+    SkASSERT(c == tree.count());
 
     // check that the tree reports the correct number of each int
     // and that we can iterate through them correctly both forward
@@ -988,14 +988,14 @@ void GrRedBlackTree<T,C>::UnitTest() {
     for (int i = 0; i < 100; ++i) {
         int c;
         c = tree.countOf(i);
-        GrAssert(c == count[i]);
+        SkASSERT(c == count[i]);
         c = 0;
         Iter iter = tree.findFirst(i);
         while (iter != tree.end() && *iter == i) {
             ++c;
             ++iter;
         }
-        GrAssert(count[i] == c);
+        SkASSERT(count[i] == c);
         c = 0;
         iter = tree.findLast(i);
         if (iter != tree.end()) {
@@ -1012,7 +1012,7 @@ void GrRedBlackTree<T,C>::UnitTest() {
                 }
             } while (true);
         }
-        GrAssert(c == count[i]);
+        SkASSERT(c == count[i]);
     }
     // remove all the ints between 25 and 74. Randomly chose to remove
     // the first, last, or any entry for each.
@@ -1035,35 +1035,35 @@ void GrRedBlackTree<T,C>::UnitTest() {
             }
             tree.remove(iter);
         }
-        GrAssert(0 == count[i]);
-        GrAssert(tree.findFirst(i) == tree.end());
-        GrAssert(tree.findLast(i) == tree.end());
-        GrAssert(tree.find(i) == tree.end());
+        SkASSERT(0 == count[i]);
+        SkASSERT(tree.findFirst(i) == tree.end());
+        SkASSERT(tree.findLast(i) == tree.end());
+        SkASSERT(tree.find(i) == tree.end());
     }
     // remove all of the 0 entries. (tests removing begin())
-    GrAssert(*tree.begin() == 0);
-    GrAssert(*(--tree.end()) == 99);
+    SkASSERT(*tree.begin() == 0);
+    SkASSERT(*(--tree.end()) == 99);
     while (0 != tree.countOf(0)) {
         --count[0];
         tree.remove(tree.find(0));
     }
-    GrAssert(0 == count[0]);
-    GrAssert(tree.findFirst(0) == tree.end());
-    GrAssert(tree.findLast(0) == tree.end());
-    GrAssert(tree.find(0) == tree.end());
-    GrAssert(0 < *tree.begin());
+    SkASSERT(0 == count[0]);
+    SkASSERT(tree.findFirst(0) == tree.end());
+    SkASSERT(tree.findLast(0) == tree.end());
+    SkASSERT(tree.find(0) == tree.end());
+    SkASSERT(0 < *tree.begin());
 
     // remove all the 99 entries (tests removing last()).
     while (0 != tree.countOf(99)) {
         --count[99];
         tree.remove(tree.find(99));
     }
-    GrAssert(0 == count[99]);
-    GrAssert(tree.findFirst(99) == tree.end());
-    GrAssert(tree.findLast(99) == tree.end());
-    GrAssert(tree.find(99) == tree.end());
-    GrAssert(99 > *(--tree.end()));
-    GrAssert(tree.last() == --tree.end());
+    SkASSERT(0 == count[99]);
+    SkASSERT(tree.findFirst(99) == tree.end());
+    SkASSERT(tree.findLast(99) == tree.end());
+    SkASSERT(tree.find(99) == tree.end());
+    SkASSERT(99 > *(--tree.end()));
+    SkASSERT(tree.last() == --tree.end());
 
     // Make sure iteration still goes through correct number of entries
     // and is still sorted correctly.
@@ -1072,21 +1072,21 @@ void GrRedBlackTree<T,C>::UnitTest() {
         Iter b = a;
         ++b;
         ++c;
-        GrAssert(b == tree.end() || *a <= *b);
+        SkASSERT(b == tree.end() || *a <= *b);
     }
-    GrAssert(c == tree.count());
+    SkASSERT(c == tree.count());
 
     // repeat check that correct number of each entry is in the tree
     // and iterates correctly both forward and backward.
     for (int i = 0; i < 100; ++i) {
-        GrAssert(tree.countOf(i) == count[i]);
+        SkASSERT(tree.countOf(i) == count[i]);
         int c = 0;
         Iter iter = tree.findFirst(i);
         while (iter != tree.end() && *iter == i) {
             ++c;
             ++iter;
         }
-        GrAssert(count[i] == c);
+        SkASSERT(count[i] == c);
         c = 0;
         iter = tree.findLast(i);
         if (iter != tree.end()) {
@@ -1103,7 +1103,7 @@ void GrRedBlackTree<T,C>::UnitTest() {
                 }
             } while (true);
         }
-        GrAssert(count[i] == c);
+        SkASSERT(count[i] == c);
     }
 
     // remove all entries

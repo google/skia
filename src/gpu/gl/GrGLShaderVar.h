@@ -69,7 +69,7 @@ public:
 
     GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
                   Precision precision = kDefault_Precision) {
-        GrAssert(kVoid_GrSLType != type);
+        SkASSERT(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = kNone_TypeModifier;
         fCount = arrayCount;
@@ -87,7 +87,7 @@ public:
         , fPrecision(var.fPrecision)
         , fOrigin(var.fOrigin)
         , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {
-        GrAssert(kVoid_GrSLType != var.fType);
+        SkASSERT(kVoid_GrSLType != var.fType);
     }
 
     /**
@@ -107,7 +107,7 @@ public:
              Precision precision = kDefault_Precision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
-        GrAssert(kVoid_GrSLType != type);
+        SkASSERT(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -126,7 +126,7 @@ public:
              Precision precision = kDefault_Precision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
-        GrAssert(kVoid_GrSLType != type);
+        SkASSERT(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -146,7 +146,7 @@ public:
              Precision precision = kDefault_Precision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
-        GrAssert(kVoid_GrSLType != type);
+        SkASSERT(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -166,7 +166,7 @@ public:
              Precision precision = kDefault_Precision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
-        GrAssert(kVoid_GrSLType != type);
+        SkASSERT(kVoid_GrSLType != type);
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -275,7 +275,7 @@ public:
                              GrGLSLTypeString(effectiveType),
                              this->getName().c_str());
             } else {
-                GrAssert(this->getArrayCount() > 0);
+                SkASSERT(this->getArrayCount() > 0);
                 out->appendf("%s %s[%d]",
                              GrGLSLTypeString(effectiveType),
                              this->getName().c_str(),

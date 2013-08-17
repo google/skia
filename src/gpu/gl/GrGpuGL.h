@@ -313,7 +313,7 @@ private:
 
         void setVertexArrayID(GrGpuGL* gpu, GrGLuint arrayID) {
             if (!gpu->glCaps().vertexArrayObjectSupport()) {
-                GrAssert(0 == arrayID);
+                SkASSERT(0 == arrayID);
                 return;
             }
             if (!fBoundVertexArrayIDIsValid || arrayID != fBoundVertexArrayID) {

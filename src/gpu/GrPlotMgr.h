@@ -53,14 +53,14 @@ public:
     }
 
     bool isBusy(int x, int y) const {
-        GrAssert((unsigned)x < (unsigned)fDim.fX);
-        GrAssert((unsigned)y < (unsigned)fDim.fY);
+        SkASSERT((unsigned)x < (unsigned)fDim.fX);
+        SkASSERT((unsigned)y < (unsigned)fDim.fY);
         return fBusy[y * fDim.fX + x] != 0;
     }
 
     void freePlot(int x, int y) {
-        GrAssert((unsigned)x < (unsigned)fDim.fX);
-        GrAssert((unsigned)y < (unsigned)fDim.fY);
+        SkASSERT((unsigned)x < (unsigned)fDim.fX);
+        SkASSERT((unsigned)y < (unsigned)fDim.fY);
         fBusy[y * fDim.fX + x] = false;
     }
 

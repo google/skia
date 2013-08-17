@@ -198,7 +198,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
                                 int width, int height, const void* image,
                                 GrMaskFormat format,
                                 GrIPoint16* loc) {
-    GrAssert(NULL == *atlas || (*atlas)->getMaskFormat() == format);
+    SkASSERT(NULL == *atlas || (*atlas)->getMaskFormat() == format);
 
     // iterate through entire atlas list, see if we can find a hole
     GrAtlas* atlasIter = *atlas;

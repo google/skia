@@ -69,8 +69,8 @@ public:
     void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
-    void incDeferredRefCount() const { GrAssert(fDeferredRefCount >= 0); ++fDeferredRefCount; }
-    void decDeferredRefCount() const { GrAssert(fDeferredRefCount > 0); --fDeferredRefCount; }
+    void incDeferredRefCount() const { SkASSERT(fDeferredRefCount >= 0); ++fDeferredRefCount; }
+    void decDeferredRefCount() const { SkASSERT(fDeferredRefCount > 0); --fDeferredRefCount; }
 
 protected:
     /**

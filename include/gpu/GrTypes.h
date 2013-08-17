@@ -74,7 +74,7 @@ template <typename T> const T& GrMax(const T& a, const T& b) {
  *  divide, rounding up
  */
 static inline int32_t GrIDivRoundUp(int x, int y) {
-    GrAssert(y > 0);
+    SkASSERT(y > 0);
     return (x + (y-1)) / y;
 }
 static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
@@ -152,7 +152,7 @@ static inline uint32_t GrNextPow2(uint32_t n) {
 }
 
 static inline int GrNextPow2(int n) {
-    GrAssert(n >= 0); // this impl only works for non-neg.
+    SkASSERT(n >= 0); // this impl only works for non-neg.
     return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
 }
 
@@ -166,7 +166,7 @@ typedef int32_t GrFixed;
 #if GR_DEBUG
 
 static inline int16_t GrToS16(intptr_t x) {
-    GrAssert((int16_t)x == x);
+    SkASSERT((int16_t)x == x);
     return (int16_t)x;
 }
 
@@ -256,7 +256,7 @@ enum GrMaskFormat {
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
 static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    GrAssert((unsigned)format <= 2);
+    SkASSERT((unsigned)format <= 2);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kA888 (2) -> 4
@@ -472,7 +472,7 @@ public:
      * Initialize the cache ID to a domain and key.
      */
     GrCacheID(Domain domain, const Key& key) {
-        GrAssert(kInvalid_Domain != domain);
+        SkASSERT(kInvalid_Domain != domain);
         this->reset(domain, key);
     }
 
@@ -484,8 +484,8 @@ public:
     /** Has this been initialized to a valid domain */
     bool isValid() const { return kInvalid_Domain != fDomain; }
 
-    const Key& getKey() const { GrAssert(this->isValid()); return fKey; }
-    Domain getDomain() const { GrAssert(this->isValid()); return fDomain; }
+    const Key& getKey() const { SkASSERT(this->isValid()); return fKey; }
+    Domain getDomain() const { SkASSERT(this->isValid()); return fDomain; }
 
     /** Creates a new unique ID domain. */
     static Domain GenerateDomain();

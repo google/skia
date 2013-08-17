@@ -678,7 +678,7 @@ public:
          * Initializes by pre-concat'ing the context's current matrix with the preConcat param.
          */
         void setPreConcat(GrContext* context, const SkMatrix& preConcat, GrPaint* paint = NULL) {
-            GrAssert(NULL != context);
+            SkASSERT(NULL != context);
 
             this->restore();
 
@@ -692,7 +692,7 @@ public:
          * update a paint but the matrix cannot be inverted.
          */
         bool setIdentity(GrContext* context, GrPaint* paint = NULL) {
-            GrAssert(NULL != context);
+            SkASSERT(NULL != context);
 
             this->restore();
 
@@ -772,7 +772,7 @@ public:
 
         AutoClip(GrContext* context, InitialClip initialState)
         : fContext(context) {
-            GrAssert(kWideOpen_InitialClip == initialState);
+            SkASSERT(kWideOpen_InitialClip == initialState);
             fNewClipData.fClipStack = &fNewClipStack;
 
             fOldClip = context->getClip();
@@ -808,7 +808,7 @@ public:
             , fAutoRT(ctx, rt) {
             fAutoMatrix.setIdentity(ctx);
             // should never fail with no paint param.
-            GrAssert(fAutoMatrix.succeeded());
+            SkASSERT(fAutoMatrix.succeeded());
         }
 
     private:
@@ -987,10 +987,10 @@ public:
         // The cache also has a ref which we are lending to the caller of detach(). When the caller
         // lets go of the ref and the ref count goes to 0 internal_dispose will see this flag is
         // set and re-ref the texture, thereby restoring the cache's ref.
-        GrAssert(texture->getRefCnt() > 1);
+        SkASSERT(texture->getRefCnt() > 1);
         texture->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
         texture->unref();
-        GrAssert(NULL != texture->getCacheEntry());
+        SkASSERT(NULL != texture->getCacheEntry());
 
         return texture;
     }

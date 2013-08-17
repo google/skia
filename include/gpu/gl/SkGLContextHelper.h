@@ -35,7 +35,7 @@ public:
     virtual void makeCurrent() const = 0;
 
     bool hasExtension(const char* extensionName) const {
-        GrAssert(NULL != fGL);
+        SkASSERT(NULL != fGL);
         return fExtensions.has(extensionName);
     }
 

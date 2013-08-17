@@ -100,11 +100,11 @@ public:
      * only.
      */
     GrFixed normalizeFixedX(GrFixed x) const {
-        GrAssert(GrIsPow2(fDesc.fWidth));
+        SkASSERT(GrIsPow2(fDesc.fWidth));
         return x >> fShiftFixedX;
     }
     GrFixed normalizeFixedY(GrFixed y) const {
-        GrAssert(GrIsPow2(fDesc.fHeight));
+        SkASSERT(GrIsPow2(fDesc.fHeight));
         return y >> fShiftFixedY;
     }
 

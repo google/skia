@@ -107,7 +107,7 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
             break;
         case GrGLProgramDesc::kCombineWithDst_CoverageOutput:
             // We should only have set this if the blend was specified as (1, 0)
-            GrAssert(kOne_GrBlendCoeff == *srcCoeff && kZero_GrBlendCoeff == *dstCoeff);
+            SkASSERT(kOne_GrBlendCoeff == *srcCoeff && kZero_GrBlendCoeff == *dstCoeff);
             break;
         default:
             GrCrash("Unexpected coverage output");
@@ -282,7 +282,7 @@ void GrGLProgram::genGeometryShader(GrGLShaderBuilder* builder) const {
 #if GR_GL_EXPERIMENTAL_GS
     // TODO: The builder should add all this glue code.
     if (fDesc.getHeader().fExperimentalGS) {
-        GrAssert(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
+        SkASSERT(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
         builder->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
         builder->gsCodeAppend("\tfor (int i = 0; i < 3; ++i) {\n"
@@ -290,7 +290,7 @@ void GrGLProgram::genGeometryShader(GrGLShaderBuilder* builder) const {
         if (fDesc.getHeader().fEmitsPointSize) {
             builder->gsCodeAppend("\t\tgl_PointSize = 1.0;\n");
         }
-        GrAssert(builder->fGSInputs.count() == builder->fGSOutputs.count());
+        SkASSERT(builder->fGSInputs.count() == builder->fGSOutputs.count());
         int count = builder->fGSInputs.count();
         for (int i = 0; i < count; ++i) {
             builder->gsCodeAppendf("\t\t%s = %s[i];\n",
@@ -364,7 +364,7 @@ GrGLuint compile_shader(const GrGLContext& gl,
             print_shader(stringCnt, strings, stringLengths);
             GrPrintf("\n%s", log.get());
         }
-        GrAssert(!"Shader compilation failed!");
+        SkASSERT(!"Shader compilation failed!");
         GR_GL_CALL(gli, DeleteShader(shader));
         return 0;
     }
@@ -379,7 +379,7 @@ GrGLuint compile_shader(const GrGLContext& gl, GrGLenum type, const SkString& sh
 }
 
 void expand_known_value4f(SkString* string, GrSLConstantVec vec) {
-    GrAssert(string->isEmpty() == (vec != kNone_GrSLConstantVec));
+    SkASSERT(string->isEmpty() == (vec != kNone_GrSLConstantVec));
     switch (vec) {
         case kNone_GrSLConstantVec:
             break;
@@ -437,7 +437,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 
 bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                              const GrEffectStage* coverageStages[]) {
-    GrAssert(0 == fProgramID);
+    SkASSERT(0 == fProgramID);
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
@@ -742,7 +742,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
                                       (char*)log.get()));
             GrPrintf((char*)log.get());
         }
-        GrAssert(!"Error linking program");
+        SkASSERT(!"Error linking program");
         GL_CALL(DeleteProgram(fProgramID));
         fProgramID = 0;
         return false;
@@ -792,7 +792,7 @@ void GrGLProgram::setEffectData(GrGpuGL* gpu,
 
     // Bind the texures for the effect.
     int numSamplers = effect.fSamplerUnis.count();
-    GrAssert((*stage.getEffect())->numTextures() == numSamplers);
+    SkASSERT((*stage.getEffect())->numTextures() == numSamplers);
     for (int s = 0; s < numSamplers; ++s) {
         UniformHandle handle = effect.fSamplerUnis[s];
         if (handle.isValid()) {
@@ -850,13 +850,13 @@ void GrGLProgram::setData(GrGpuGL* gpu,
             static GrTextureParams kParams; // the default is clamp, nearest filtering.
             gpu->bindTexture(fDstCopyTexUnit, kParams, texture);
         } else {
-            GrAssert(!fUniformHandles.fDstCopyScaleUni.isValid());
-            GrAssert(!fUniformHandles.fDstCopySamplerUni.isValid());
+            SkASSERT(!fUniformHandles.fDstCopyScaleUni.isValid());
+            SkASSERT(!fUniformHandles.fDstCopySamplerUni.isValid());
         }
     } else {
-        GrAssert(!fUniformHandles.fDstCopyTopLeftUni.isValid());
-        GrAssert(!fUniformHandles.fDstCopyScaleUni.isValid());
-        GrAssert(!fUniformHandles.fDstCopySamplerUni.isValid());
+        SkASSERT(!fUniformHandles.fDstCopyTopLeftUni.isValid());
+        SkASSERT(!fUniformHandles.fDstCopyScaleUni.isValid());
+        SkASSERT(!fUniformHandles.fDstCopySamplerUni.isValid());
     }
 
     for (int e = 0; e < fColorEffects.count(); ++e) {
@@ -881,7 +881,7 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
     if (!drawState.hasColorVertexAttribute()) {
         switch (header.fColorInput) {
             case GrGLProgramDesc::kAttribute_ColorInput:
-                GrAssert(-1 != header.fColorAttributeIndex);
+                SkASSERT(-1 != header.fColorAttributeIndex);
                 if (sharedState->fConstAttribColor != color ||
                     sharedState->fConstAttribColorIndex != header.fColorAttributeIndex) {
                     // OpenGL ES only supports the float varieties of glVertexAttrib

@@ -276,7 +276,6 @@ typedef unsigned __int64 uint64_t;
 /**
  *  Prettier forms of the above macros.
  */
-#define GrAssert(COND) GR_DEBUGASSERT(COND)
 #define GrAlwaysAssert(COND) GR_ALWAYSASSERT(COND)
 
 /**
@@ -285,8 +284,8 @@ typedef unsigned __int64 uint64_t;
  */
 inline void GrCrash() { GrAlwaysAssert(false); }
 inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
-inline void GrDebugCrash() { GrAssert(false); }
-inline void GrDebugCrash(const char* msg) { GrPrintf(msg); GrAssert(false); }
+inline void GrDebugCrash() { SkASSERT(false); }
+inline void GrDebugCrash(const char* msg) { GrPrintf(msg); SkASSERT(false); }
 
 /**
  *  GR_DEBUGCODE compiles the code X in debug builds only

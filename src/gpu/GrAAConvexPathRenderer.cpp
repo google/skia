@@ -103,7 +103,7 @@ static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         // undo the translate of p0 to the origin.
         *c = center + p0;
     }
-    GrAssert(!SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY));
+    SkASSERT(!SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY));
 }
 
 static void compute_vectors(SegmentArray* segments,
@@ -209,7 +209,7 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::
         return false;
     }
     // check whether m reverses the orientation
-    GrAssert(!m.hasPerspective());
+    SkASSERT(!m.hasPerspective());
     SkScalar det2x2 = SkScalarMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
                       SkScalarMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
     if (det2x2 < 0) {
@@ -656,7 +656,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (!arg.succeeded()) {
         return false;
     }
-    GrAssert(sizeof(QuadVertex) == drawState->getVertexSize());
+    SkASSERT(sizeof(QuadVertex) == drawState->getVertexSize());
     verts = reinterpret_cast<QuadVertex*>(arg.vertices());
     idxs = reinterpret_cast<uint16_t*>(arg.indices());
 
@@ -678,7 +678,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     for (int i = 2; i < vCount; ++i) {
         actualBounds.growToInclude(verts[i].fPos.fX, verts[i].fPos.fY);
     }
-    GrAssert(tolDevBounds.contains(actualBounds));
+    SkASSERT(tolDevBounds.contains(actualBounds));
 #endif
 
     int vOffset = 0;

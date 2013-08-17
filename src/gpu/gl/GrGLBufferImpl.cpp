@@ -44,7 +44,7 @@ void GrGLBufferImpl::release(GrGpuGL* gpu) {
         if (GR_GL_ARRAY_BUFFER == fBufferType) {
             gpu->notifyVertexBufferDelete(fDesc.fID);
         } else {
-            GrAssert(GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
+            SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
             gpu->notifyIndexBufferDelete(fDesc.fID);
         }
         fDesc.fID = 0;
@@ -64,14 +64,14 @@ void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
     if (GR_GL_ARRAY_BUFFER == fBufferType) {
         gpu->bindVertexBuffer(fDesc.fID);
     } else {
-        GrAssert(GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
+        SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
         gpu->bindIndexBufferAndDefaultVertexArray(fDesc.fID);
     }
 }
 
 void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
     VALIDATE();
-    GrAssert(!this->isLocked());
+    SkASSERT(!this->isLocked());
     if (0 == fDesc.fID) {
         fLockPtr = fCPUData;
     } else if (gpu->caps()->bufferLockSupport()) {
@@ -90,9 +90,9 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
 
 void GrGLBufferImpl::unlock(GrGpuGL* gpu) {
     VALIDATE();
-    GrAssert(this->isLocked());
+    SkASSERT(this->isLocked());
     if (0 != fDesc.fID) {
-        GrAssert(gpu->caps()->bufferLockSupport());
+        SkASSERT(gpu->caps()->bufferLockSupport());
         this->bind(gpu);
         GL_CALL(gpu, UnmapBuffer(fBufferType));
     }
@@ -105,7 +105,7 @@ bool GrGLBufferImpl::isLocked() const {
 }
 
 bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes) {
-    GrAssert(!this->isLocked());
+    SkASSERT(!this->isLocked());
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
@@ -157,9 +157,9 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
 }
 
 void GrGLBufferImpl::validate() const {
-    GrAssert(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
+    SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
-    // GrAssert((0 == fDesc.fID) == (NULL != fCPUData));
-    GrAssert(0 != fDesc.fID || !fDesc.fIsWrapped);
-    GrAssert(NULL == fCPUData || NULL == fLockPtr || fCPUData == fLockPtr);
+    // SkASSERT((0 == fDesc.fID) == (NULL != fCPUData));
+    SkASSERT(0 != fDesc.fID || !fDesc.fIsWrapped);
+    SkASSERT(NULL == fCPUData || NULL == fLockPtr || fCPUData == fLockPtr);
 }

@@ -52,7 +52,7 @@ public:
     }
 
     void setKeyData(const uint32_t* SK_RESTRICT data) {
-        GrAssert(GrIsALIGN4(KEY_SIZE));
+        SkASSERT(GrIsALIGN4(KEY_SIZE));
         memcpy(&fData, data, KEY_SIZE);
 
         uint32_t hash = 0;
@@ -73,27 +73,27 @@ public:
     }
 
     int compare(const GrTBinHashKey<ENTRY, KEY_SIZE>& key) const {
-        GrAssert(fIsValid && key.fIsValid);
+        SkASSERT(fIsValid && key.fIsValid);
         return memcmp(fData, key.fData, KEY_SIZE);
     }
 
     static bool EQ(const ENTRY& entry, const GrTBinHashKey<ENTRY, KEY_SIZE>& key) {
-        GrAssert(key.fIsValid);
+        SkASSERT(key.fIsValid);
         return 0 == entry.compare(key);
     }
 
     static bool LT(const ENTRY& entry, const GrTBinHashKey<ENTRY, KEY_SIZE>& key) {
-        GrAssert(key.fIsValid);
+        SkASSERT(key.fIsValid);
         return entry.compare(key) < 0;
     }
 
     uint32_t getHash() const {
-        GrAssert(fIsValid);
+        SkASSERT(fIsValid);
         return fHash;
     }
 
     const uint8_t* getData() const {
-        GrAssert(fIsValid);
+        SkASSERT(fIsValid);
         return fData;
     }
 

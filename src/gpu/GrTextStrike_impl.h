@@ -32,18 +32,18 @@ private:
 
 void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {
     if (strike->fPrev) {
-        GrAssert(fHead != strike);
+        SkASSERT(fHead != strike);
         strike->fPrev->fNext = strike->fNext;
     } else {
-        GrAssert(fHead == strike);
+        SkASSERT(fHead == strike);
         fHead = strike->fNext;
     }
 
     if (strike->fNext) {
-        GrAssert(fTail != strike);
+        SkASSERT(fTail != strike);
         strike->fNext->fPrev = strike->fPrev;
     } else {
-        GrAssert(fTail == strike);
+        SkASSERT(fTail == strike);
         fTail = strike->fPrev;
     }
 }

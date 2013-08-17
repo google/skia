@@ -41,7 +41,7 @@ public:
                                                          SkIntToScalar(this->height())); }
 
     GrSurfaceOrigin origin() const {
-        GrAssert(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin || kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin || kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);
         return fDesc.fOrigin;
     }
 
@@ -81,7 +81,7 @@ public:
             return thisRT == other->asRenderTarget();
         } else {
             const GrTexture* thisTex = this->asTexture();
-            GrAssert(NULL != thisTex); // We must be one or the other
+            SkASSERT(NULL != thisTex); // We must be one or the other
             return thisTex == other->asTexture();
         }
     }

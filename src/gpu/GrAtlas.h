@@ -72,7 +72,7 @@ public:
     void deleteAtlas(GrAtlas* atlas) { delete atlas; }
 
     GrTexture* getTexture(GrMaskFormat format) const {
-        GrAssert((unsigned)format < kCount_GrMaskFormats);
+        SkASSERT((unsigned)format < kCount_GrMaskFormats);
         return fTexture[format];
     }
 
