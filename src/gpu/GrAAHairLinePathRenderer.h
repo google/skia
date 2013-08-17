@@ -21,11 +21,11 @@ public:
                              const SkStrokeRec& stroke,
                              const GrDrawTarget* target,
                              bool antiAlias) const SK_OVERRIDE;
-    
+
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
-    
+
 protected:
     virtual bool onDrawPath(const SkPath& path,
                             const SkStrokeRec& stroke,
@@ -43,7 +43,7 @@ private:
                         int lineCnt,
                         GrDrawTarget::AutoReleaseGeometry* arg,
                         SkRect* devBounds);
-    
+
     bool createBezierGeom(const SkPath& path,
                           GrDrawTarget* target,
                           const PtArray& quads,

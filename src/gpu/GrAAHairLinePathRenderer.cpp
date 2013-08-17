@@ -105,15 +105,15 @@ static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
         data[0 + baseIdx] = baseVert + 0; // p0
         data[1 + baseIdx] = baseVert + 1; // p1
         data[2 + baseIdx] = baseVert + 2; // p2
-        
+
         data[3 + baseIdx] = baseVert + 2; // p2
         data[4 + baseIdx] = baseVert + 1; // p1
         data[5 + baseIdx] = baseVert + 3; // p3
-        
+
         data[6 + baseIdx] = baseVert + 0; // p0
         data[7 + baseIdx] = baseVert + 5; // p5
         data[8 + baseIdx] = baseVert + 1; // p1
-        
+
         data[9 + baseIdx] = baseVert + 0; // p0
         data[10+ baseIdx] = baseVert + 4; // p4
         data[11+ baseIdx] = baseVert + 5; // p5
@@ -482,7 +482,7 @@ struct LineVertex {
     GrPoint fPos;
     GrColor fCoverage;
 };
-        
+
 struct BezierVertex {
     GrPoint fPos;
     union {
@@ -1051,44 +1051,44 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
                                           GrDrawTarget::AutoReleaseGeometry* arg,
                                           SkRect* devBounds) {
     GrDrawState* drawState = target->drawState();
-    
+
     const SkMatrix& viewM = drawState->getViewMatrix();
-    
+
     // All the vertices that we compute are within 1 of path control points with the exception of
     // one of the bounding vertices for each quad. The add_quads() function will update the bounds
     // for each quad added.
     *devBounds = path.getBounds();
     viewM.mapRect(devBounds);
     devBounds->outset(SK_Scalar1, SK_Scalar1);
-    
+
     int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
-    
+
     target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(SK_ARRAY_COUNT(gHairlineBezierAttribs));
     SkASSERT(sizeof(BezierVertex) == target->getDrawState().getVertexSize());
-    
+
     if (!arg->set(target, vertCnt, 0)) {
         return false;
     }
-    
+
     BezierVertex* verts = reinterpret_cast<BezierVertex*>(arg->vertices());
-    
+
     const SkMatrix* toDevice = NULL;
     const SkMatrix* toSrc = NULL;
     SkMatrix ivm;
-    
+
     if (viewM.hasPerspective()) {
         if (viewM.invert(&ivm)) {
             toDevice = &viewM;
             toSrc = &ivm;
         }
     }
-    
+
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
         SkASSERT(qSubdivs[i] >= 0);
         add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts, devBounds);
     }
-    
+
     // Start Conics
     for (int i = 0; i < conicCnt; ++i) {
         add_conics(&conics[3*i], cWeights[i], toDevice, toSrc, &verts, devBounds);
@@ -1117,7 +1117,7 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
     SkRect tolDevBounds = devBounds;
     tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
     SkRect actualBounds;
-    
+
     VertexType* verts = reinterpret_cast<VertexType*>(vertices);
     bool first = true;
     for (int i = 0; i < vCount; ++i) {
@@ -1137,7 +1137,7 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
     if (!first) {
         return tolDevBounds.contains(actualBounds);
     }
-    
+
     return true;
 }
 
@@ -1145,12 +1145,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                           const SkStrokeRec&,
                                           GrDrawTarget* target,
                                           bool antiAlias) {
-    
+
     GrDrawState* drawState = target->drawState();
-    
+
     SkIRect devClipBounds;
     target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
-    
+
     int lineCnt;
     int quadCnt;
     int conicCnt;
@@ -1163,7 +1163,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                        &lines, &quads, &conics, &qSubdivs, &cWeights);
     lineCnt = lines.count() / 2;
     conicCnt = conics.count() / 3;
-    
+
     // do lines first
     {
         GrDrawTarget::AutoReleaseGeometry arg;
@@ -1209,12 +1209,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             }
         }
     }
-    
+
     // then quadratics/conics
     {
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
-        
+
         if (!this->createBezierGeom(path,
                                     target,
                                     quads,
@@ -1227,9 +1227,9 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                     &devBounds)) {
             return false;
         }
-        
+
         GrDrawTarget::AutoStateRestore asr;
-        
+
         // createGeom transforms the geometry to device space when the matrix does not have
         // perspective.
         if (target->getDrawState().getViewMatrix().hasPerspective()) {
@@ -1240,14 +1240,14 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrDrawState* drawState = target->drawState();
 
         static const int kEdgeAttrIndex = 1;
-        
+
         GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
         GrEffectRef* hairConicEffect = HairConicEdgeEffect::Create();
-        
+
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
-        
+
         {
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
@@ -1264,7 +1264,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                 quads += n;
             }
         }
-        
+
         {
             GrDrawState::AutoRestoreEffects are(drawState);
             int conics = 0;
@@ -1281,7 +1281,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             }
         }
     }
-    
+
     target->resetIndexSource();
 
     return true;

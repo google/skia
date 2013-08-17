@@ -675,9 +675,9 @@ public:
 
     enum DrawBitmapRectFlags {
         kNone_DrawBitmapRectflag            = 0x0,
-        /** 
+        /**
          *  When filtering is enabled, allow the color samples outside of
-         *  the src rect (but still in the src bitmap) to bleed into the 
+         *  the src rect (but still in the src bitmap) to bleed into the
          *  drawn portion
          */
         kBleed_DrawBitmapRectFlag            = 0x1,

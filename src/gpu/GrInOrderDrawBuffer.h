@@ -225,7 +225,7 @@ private:
     SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> fGeoPoolStateStack;
 
     virtual bool       isIssued(uint32_t drawID) { return drawID != fDrawID; }
-    
+
     bool                            fFlushing;
     uint32_t                        fDrawID;
 
