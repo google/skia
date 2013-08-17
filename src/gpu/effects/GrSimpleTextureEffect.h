@@ -26,7 +26,7 @@ public:
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
+        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode, coordsType)));
         return CreateEffectRef(effect);
     }
@@ -36,7 +36,7 @@ public:
                                const SkMatrix& matrix,
                                GrTextureParams::FilterMode filterMode,
                                CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
+        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(
             SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordsType)));
         return CreateEffectRef(effect);
@@ -46,7 +46,7 @@ public:
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
                                CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
+        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordsType)));
         return CreateEffectRef(effect);
     }
@@ -77,7 +77,7 @@ private:
                           GrTextureParams::FilterMode filterMode,
                           CoordsType coordsType)
         : GrSingleTextureEffect(texture, matrix, filterMode, coordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
+        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
     }
 
     GrSimpleTextureEffect(GrTexture* texture,
@@ -86,7 +86,7 @@ private:
                           CoordsType coordsType)
         : GrSingleTextureEffect(texture, matrix, params, coordsType) {
         if (kCustom_CoordsType == coordsType) {
-            GrAssert(matrix.isIdentity());
+            SkASSERT(matrix.isIdentity());
             this->addVertexAttrib(kVec2f_GrSLType);
         }
     }

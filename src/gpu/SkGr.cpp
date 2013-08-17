@@ -189,7 +189,7 @@ GrTexture* GrLockAndRefCachedBitmapTexture(GrContext* ctx,
 }
 
 void GrUnlockAndUnrefCachedBitmapTexture(GrTexture* texture) {
-    GrAssert(NULL != texture->getContext());
+    SkASSERT(NULL != texture->getContext());
 
     texture->getContext()->unlockScratchTexture(texture);
     texture->unref();

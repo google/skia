@@ -63,7 +63,7 @@ int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIl
 SK_DEFINE_INST_COUNT(GrEffectRef)
 
 GrEffectRef::~GrEffectRef() {
-    GrAssert(this->unique());
+    SkASSERT(this->unique());
     fEffect->EffectRefDestroyed();
     fEffect->unref();
 }
@@ -79,7 +79,7 @@ void GrEffectRef::operator delete(void* target) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrEffect::~GrEffect() {
-    GrAssert(NULL == fEffectRef);
+    SkASSERT(NULL == fEffectRef);
 }
 
 const char* GrEffect::name() const {
@@ -91,7 +91,7 @@ void GrEffect::addTextureAccess(const GrTextureAccess* access) {
 }
 
 void GrEffect::addVertexAttrib(GrSLType type) {
-    GrAssert(fVertexAttribTypes.count() < kMaxVertexAttribs);
+    SkASSERT(fVertexAttribTypes.count() < kMaxVertexAttribs);
     fVertexAttribTypes.push_back(type);
 }
 

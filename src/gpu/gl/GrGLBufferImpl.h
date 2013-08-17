@@ -29,7 +29,7 @@ public:
     GrGLBufferImpl(GrGpuGL*, const Desc&, GrGLenum bufferType);
     ~GrGLBufferImpl() {
         // either release or abandon should have been called by the owner of this object.
-        GrAssert(0 == fDesc.fID);
+        SkASSERT(0 == fDesc.fID);
     }
 
     void abandon();

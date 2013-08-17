@@ -171,17 +171,17 @@ int get_float_exp(float x) {
     static bool tested;
     if (!tested) {
         tested = true;
-        GrAssert(get_float_exp(0.25f) == -2);
-        GrAssert(get_float_exp(0.3f) == -2);
-        GrAssert(get_float_exp(0.5f) == -1);
-        GrAssert(get_float_exp(1.f) == 0);
-        GrAssert(get_float_exp(2.f) == 1);
-        GrAssert(get_float_exp(2.5f) == 1);
-        GrAssert(get_float_exp(8.f) == 3);
-        GrAssert(get_float_exp(100.f) == 6);
-        GrAssert(get_float_exp(1000.f) == 9);
-        GrAssert(get_float_exp(1024.f) == 10);
-        GrAssert(get_float_exp(3000000.f) == 21);
+        SkASSERT(get_float_exp(0.25f) == -2);
+        SkASSERT(get_float_exp(0.3f) == -2);
+        SkASSERT(get_float_exp(0.5f) == -1);
+        SkASSERT(get_float_exp(1.f) == 0);
+        SkASSERT(get_float_exp(2.f) == 1);
+        SkASSERT(get_float_exp(2.5f) == 1);
+        SkASSERT(get_float_exp(8.f) == 3);
+        SkASSERT(get_float_exp(100.f) == 6);
+        SkASSERT(get_float_exp(1000.f) == 9);
+        SkASSERT(get_float_exp(1024.f) == 10);
+        SkASSERT(get_float_exp(3000000.f) == 21);
     }
 #endif
     const int* iptr = (const int*)&x;
@@ -392,7 +392,7 @@ int generate_lines_and_quads(const SkPath& path,
 
                     if (SkIRect::Intersects(devClipBounds, ibounds)) {
                         int subdiv = num_quad_subdivs(devPts);
-                        GrAssert(subdiv >= -1);
+                        SkASSERT(subdiv >= -1);
                         if (-1 == subdiv) {
                             SkPoint* pts = lines->push_back_n(4);
                             pts[0] = devPts[0];
@@ -448,7 +448,7 @@ int generate_lines_and_quads(const SkPath& path,
                         bounds.roundOut(&ibounds);
                         if (SkIRect::Intersects(devClipBounds, ibounds)) {
                             int subdiv = num_quad_subdivs(qInDevSpace);
-                            GrAssert(subdiv >= -1);
+                            SkASSERT(subdiv >= -1);
                             if (-1 == subdiv) {
                                 SkPoint* pts = lines->push_back_n(4);
                                 // lines should always be in device coords
@@ -527,7 +527,7 @@ void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kVertsPerQuad]) {
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
                 const SkMatrix* toSrc, BezierVertex verts[kVertsPerQuad],
                 SkRect* devBounds) {
-    GrAssert(!toDevice == !toSrc);
+    SkASSERT(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
     SkPoint a = qpts[0];
     SkPoint b = qpts[1];
@@ -564,7 +564,7 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     cb -= c;
 
     // We should have already handled degenerates
-    GrAssert(ab.length() > 0 && cb.length() > 0);
+    SkASSERT(ab.length() > 0 && cb.length() > 0);
 
     ab.normalize();
     SkVector abN;
@@ -629,7 +629,7 @@ void calc_conic_klm(const SkPoint p[3], const SkScalar weight,
        scale = SkMaxScalar(scale, SkScalarAbs(l[i]));
        scale = SkMaxScalar(scale, SkScalarAbs(m[i]));
     }
-    GrAssert(scale > 0);
+    SkASSERT(scale > 0);
     scale /= 10.0f;
     k[0] /= scale;
     k[1] /= scale;
@@ -681,7 +681,7 @@ void add_quads(const SkPoint p[3],
                const SkMatrix* toSrc,
                BezierVertex** vert,
                SkRect* devBounds) {
-    GrAssert(subdiv >= 0);
+    SkASSERT(subdiv >= 0);
     if (subdiv) {
         SkPoint newP[5];
         SkChopQuadAtHalf(p, newP);
@@ -1015,7 +1015,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(
     int vertCnt = kVertsPerLineSeg * lineCnt;
 
     target->drawState()->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
-    GrAssert(sizeof(LineVertex) == target->getDrawState().getVertexSize());
+    SkASSERT(sizeof(LineVertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
         return false;
@@ -1064,7 +1064,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
     int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
     
     target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(SK_ARRAY_COUNT(gHairlineBezierAttribs));
-    GrAssert(sizeof(BezierVertex) == target->getDrawState().getVertexSize());
+    SkASSERT(sizeof(BezierVertex) == target->getDrawState().getVertexSize());
     
     if (!arg->set(target, vertCnt, 0)) {
         return false;
@@ -1085,7 +1085,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
     
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
-        GrAssert(qSubdivs[i] >= 0);
+        SkASSERT(qSubdivs[i] >= 0);
         add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts, devBounds);
     }
     

@@ -266,10 +266,10 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
                 break;
             case SkPath::kQuad_Verb:
             case SkPath::kCubic_Verb:
-                GrAssert(!"Curves not supported!");
+                SkASSERT(!"Curves not supported!");
             default:
                 // Unhandled cases
-                GrAssert(false);
+                SkASSERT(false);
         }
     }
 
@@ -283,14 +283,14 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
                 lastPt [1] += dir;
                 break;
             case SkPaint::kRound_Cap:
-                GrAssert(!"Round caps not supported!");
+                SkASSERT(!"Round caps not supported!");
             default: // No cap
                 break;
         }
     }
 
-    GrAssert(vCount <= maxVertexCount);
-    GrAssert(iCount <= maxIndexCount);
+    SkASSERT(vCount <= maxVertexCount);
+    SkASSERT(iCount <= maxIndexCount);
 
     if (vCount > 0) {
         target->drawIndexed(kTriangles_GrPrimitiveType,

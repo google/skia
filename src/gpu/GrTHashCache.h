@@ -108,7 +108,7 @@ int GrTHashTable<T, Key, kHashBits>::searchArray(const Key& key) const {
     if (Key::EQ(*array[high], key)) {
         // above search should have found the first occurrence if there
         // are multiple.
-        GrAssert(0 == high || Key::LT(*array[high - 1], key));
+        SkASSERT(0 == high || Key::LT(*array[high - 1], key));
         return high;
     }
 
@@ -147,7 +147,7 @@ T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, const FindFuncType& fin
 
     // above search should have found the first occurrence if there
     // are multiple.
-    GrAssert(0 == index || Key::LT(*array[index - 1], key));
+    SkASSERT(0 == index || Key::LT(*array[index - 1], key));
 
     for ( ; index < count() && Key::EQ(*array[index], key); ++index) {
         if (findFunc(fSorted[index])) {
@@ -184,14 +184,14 @@ void GrTHashTable<T, Key, kHashBits>::remove(const Key& key, const T* elem) {
 
     // remove from our sorted array
     index = this->searchArray(key);
-    GrAssert(index >= 0);
+    SkASSERT(index >= 0);
     // if there are multiple matches searchArray will give us the first match
     // march forward until we find elem.
     while (elem != fSorted[index]) {
         ++index;
-        GrAssert(index < fSorted.count());
+        SkASSERT(index < fSorted.count());
     }
-    GrAssert(elem == fSorted[index]);
+    SkASSERT(elem == fSorted[index]);
     fSorted.remove(index);
 }
 
@@ -230,7 +230,7 @@ template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::validate() const {
     int count = fSorted.count();
     for (int i = 1; i < count; i++) {
-        GrAssert(Key::LT(*fSorted[i - 1], *fSorted[i]) ||
+        SkASSERT(Key::LT(*fSorted[i - 1], *fSorted[i]) ||
                  Key::EQ(*fSorted[i - 1], *fSorted[i]));
     }
 }

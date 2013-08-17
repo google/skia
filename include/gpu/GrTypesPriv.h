@@ -33,7 +33,7 @@ static const int kGrSLTypeCount = kLast_GrSLType + 1;
  * Gets the vector size of the SLType. Returns -1 for void, matrices, and samplers.
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
-    GrAssert(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
+    SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
     static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1 };
     return kCounts[type];
 
@@ -51,7 +51,7 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
 /** Return the type enum for a vector of floats of length n (1..4),
  e.g. 1 -> kFloat_GrSLType, 2 -> kVec2_GrSLType, ... */
 static inline GrSLType GrSLFloatVectorType(int count) {
-    GrAssert(count > 0 && count <= 4);
+    SkASSERT(count > 0 && count <= 4);
     return (GrSLType)(count);
 
     GR_STATIC_ASSERT(kFloat_GrSLType == 1);
@@ -78,7 +78,7 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
  * Returns the vector size of the type.
  */
 static inline int GrVertexAttribTypeVectorCount(GrVertexAttribType type) {
-    GrAssert(type >= 0 && type < kGrVertexAttribTypeCount);
+    SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
     static const int kCounts[] = { 1, 2, 3, 4, 4 };
     return kCounts[type];
 
@@ -94,7 +94,7 @@ static inline int GrVertexAttribTypeVectorCount(GrVertexAttribType type) {
  * Returns the size of the attrib type in bytes.
  */
 static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
-    GrAssert(type >= 0 && type < kGrVertexAttribTypeCount);
+    SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
     static const size_t kSizes[] = {
         sizeof(float),          // kFloat_GrVertexAttribType
         2*sizeof(float),        // kVec2f_GrVertexAttribType
@@ -136,7 +136,7 @@ static const int kGrFixedFunctionVertexAttribBindingCnt =
     kLastFixedFunction_GrVertexAttribBinding + 1;
 
 static inline int GrFixedFunctionVertexAttribVectorCount(GrVertexAttribBinding binding) {
-    GrAssert(binding >= 0 && binding < kGrFixedFunctionVertexAttribBindingCnt);
+    SkASSERT(binding >= 0 && binding < kGrFixedFunctionVertexAttribBindingCnt);
     static const int kVecCounts[] = { 2, 2, 4, 4 };
 
     return kVecCounts[binding];

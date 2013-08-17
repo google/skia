@@ -13,7 +13,7 @@
 namespace {
 template<int N>
 GrSLConstantVec return_const_vecf(GrSLConstantVec constVec, SkString* outAppend, bool omitAppend) {
-    GrAssert(kNone_GrSLConstantVec != constVec);
+    SkASSERT(kNone_GrSLConstantVec != constVec);
     if (!omitAppend) {
         if (kZeros_GrSLConstantVec == constVec) {
             outAppend->append(GrGLSLZerosVecf(N));
@@ -32,18 +32,18 @@ GrSLConstantVec GrGLSLModulatef(SkString* outAppend,
                                 GrSLConstantVec default0,
                                 GrSLConstantVec default1,
                                 bool omitIfConstVec) {
-    GrAssert(N > 0 && N <= 4);
-    GrAssert(NULL != outAppend);
+    SkASSERT(N > 0 && N <= 4);
+    SkASSERT(NULL != outAppend);
 
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
 
-    GrAssert(has0 || kNone_GrSLConstantVec != default0);
-    GrAssert(has1 || kNone_GrSLConstantVec != default1);
+    SkASSERT(has0 || kNone_GrSLConstantVec != default0);
+    SkASSERT(has1 || kNone_GrSLConstantVec != default1);
 
     if (!has0 && !has1) {
-        GrAssert(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
-        GrAssert(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
+        SkASSERT(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
+        SkASSERT(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
         if (kZeros_GrSLConstantVec == default0 || kZeros_GrSLConstantVec == default1) {
             return return_const_vecf<N>(kZeros_GrSLConstantVec, outAppend, omitIfConstVec);
         } else {
@@ -51,7 +51,7 @@ GrSLConstantVec GrGLSLModulatef(SkString* outAppend,
             return return_const_vecf<N>(kOnes_GrSLConstantVec, outAppend, omitIfConstVec);
         }
     } else if (!has0) {
-        GrAssert(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
+        SkASSERT(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
         if (kZeros_GrSLConstantVec == default0) {
             return return_const_vecf<N>(kZeros_GrSLConstantVec, outAppend, omitIfConstVec);
         } else {
@@ -59,7 +59,7 @@ GrSLConstantVec GrGLSLModulatef(SkString* outAppend,
             return kNone_GrSLConstantVec;
         }
     } else if (!has1) {
-        GrAssert(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
+        SkASSERT(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
         if (kZeros_GrSLConstantVec == default1) {
             return return_const_vecf<N>(kZeros_GrSLConstantVec, outAppend, omitIfConstVec);
         } else {
@@ -79,15 +79,15 @@ GrSLConstantVec GrGLSLAddf(SkString* outAppend,
                            GrSLConstantVec default0,
                            GrSLConstantVec default1,
                            bool omitIfConstVec) {
-    GrAssert(N > 0 && N <= 4);
-    GrAssert(NULL != outAppend);
+    SkASSERT(N > 0 && N <= 4);
+    SkASSERT(NULL != outAppend);
 
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
 
     if (!has0 && !has1) {
-        GrAssert(kNone_GrSLConstantVec != default0);
-        GrAssert(kNone_GrSLConstantVec != default1);
+        SkASSERT(kNone_GrSLConstantVec != default0);
+        SkASSERT(kNone_GrSLConstantVec != default1);
         int sum = (kOnes_GrSLConstantVec == default0) + (kOnes_GrSLConstantVec == default1);
         if (0 == sum) {
             return return_const_vecf<N>(kZeros_GrSLConstantVec, outAppend, omitIfConstVec);
@@ -95,12 +95,12 @@ GrSLConstantVec GrGLSLAddf(SkString* outAppend,
             outAppend->append(GrGLSLOnesVecf(N));
             return return_const_vecf<N>(kOnes_GrSLConstantVec, outAppend, omitIfConstVec);
         } else {
-            GrAssert(2 == sum);
+            SkASSERT(2 == sum);
             outAppend->appendf("%s(2)", GrGLSLFloatVectorTypeString(N));
             return kNone_GrSLConstantVec;
         }
     } else if (!has0) {
-        GrAssert(kNone_GrSLConstantVec != default0);
+        SkASSERT(kNone_GrSLConstantVec != default0);
         if (kZeros_GrSLConstantVec == default0) {
             outAppend->appendf("%s(%s)", GrGLSLFloatVectorTypeString(N), in1);
         } else {
@@ -111,7 +111,7 @@ GrSLConstantVec GrGLSLAddf(SkString* outAppend,
         }
         return kNone_GrSLConstantVec;
     } else if (!has1) {
-        GrAssert(kNone_GrSLConstantVec != default1);
+        SkASSERT(kNone_GrSLConstantVec != default1);
         if (kZeros_GrSLConstantVec == default1) {
             outAppend->appendf("%s(%s)", GrGLSLFloatVectorTypeString(N), in0);
         } else {
@@ -138,15 +138,15 @@ GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
                                  GrSLConstantVec default0,
                                  GrSLConstantVec default1,
                                  bool omitIfConstVec) {
-    GrAssert(N > 0 && N <= 4);
-    GrAssert(NULL != outAppend);
+    SkASSERT(N > 0 && N <= 4);
+    SkASSERT(NULL != outAppend);
 
     bool has0 = NULL != in0 && '\0' != *in0;
     bool has1 = NULL != in1 && '\0' != *in1;
 
     if (!has0 && !has1) {
-        GrAssert(kNone_GrSLConstantVec != default0);
-        GrAssert(kNone_GrSLConstantVec != default1);
+        SkASSERT(kNone_GrSLConstantVec != default0);
+        SkASSERT(kNone_GrSLConstantVec != default1);
         int diff = (kOnes_GrSLConstantVec == default0) - (kOnes_GrSLConstantVec == default1);
         if (-1 == diff) {
             outAppend->appendf("%s(-1)", GrGLSLFloatVectorTypeString(N));
@@ -154,11 +154,11 @@ GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
         } else if (0 == diff) {
             return return_const_vecf<N>(kZeros_GrSLConstantVec, outAppend, omitIfConstVec);
         } else {
-            GrAssert(1 == diff);
+            SkASSERT(1 == diff);
             return return_const_vecf<N>(kOnes_GrSLConstantVec, outAppend, omitIfConstVec);
         }
     } else if (!has0) {
-        GrAssert(kNone_GrSLConstantVec != default0);
+        SkASSERT(kNone_GrSLConstantVec != default0);
         if (kZeros_GrSLConstantVec == default0) {
             outAppend->appendf("-%s(%s)", GrGLSLFloatVectorTypeString(N), in1);
         } else {
@@ -169,7 +169,7 @@ GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
         }
         return kNone_GrSLConstantVec;
     } else if (!has1) {
-        GrAssert(kNone_GrSLConstantVec != default1);
+        SkASSERT(kNone_GrSLConstantVec != default1);
         if (kZeros_GrSLConstantVec == default1) {
             outAppend->appendf("%s(%s)", GrGLSLFloatVectorTypeString(N), in0);
         } else {

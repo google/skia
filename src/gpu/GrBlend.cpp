@@ -58,8 +58,8 @@ static GrColor simplify_blend_term(GrBlendCoeff* srcCoeff,
                                    GrColor dstColor, uint32_t dstCompFlags,
                                    GrColor constantColor) {
 
-    GrAssert(!GrBlendCoeffRefsSrc(*srcCoeff));
-    GrAssert(NULL != srcCoeff);
+    SkASSERT(!GrBlendCoeffRefsSrc(*srcCoeff));
+    SkASSERT(NULL != srcCoeff);
 
     // Check whether srcCoeff can be reduced to kOne or kZero based on known color inputs.
     // We could pick out the coeff r,g,b,a values here and use them to compute the blend term color,

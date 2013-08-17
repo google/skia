@@ -50,7 +50,7 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
     if (fHead) {
         fHead->fPrev = strike;
     } else {
-        GrAssert(NULL == fTail);
+        SkASSERT(NULL == fTail);
         fTail = strike;
     }
     strike->fPrev = NULL;
@@ -82,7 +82,7 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
             // keep purging if we won't free up any atlases with this strike.
             purge = (NULL == strikeToPurge->fAtlas);
             int index = fCache.slowFindIndex(strikeToPurge);
-            GrAssert(index >= 0);
+            SkASSERT(index >= 0);
             fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
             this->detachStrikeFromList(strikeToPurge);
             delete strikeToPurge;
@@ -105,7 +105,7 @@ void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
         if (strikeToPurge->removeUnusedAtlases()) {
             if (NULL == strikeToPurge->fAtlas) {
                 int index = fCache.slowFindIndex(strikeToPurge);
-                GrAssert(index >= 0);
+                SkASSERT(index >= 0);
                 fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
                 this->detachStrikeFromList(strikeToPurge);
                 delete strikeToPurge;
@@ -119,12 +119,12 @@ void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
 void GrFontCache::validate() const {
     int count = fCache.count();
     if (0 == count) {
-        GrAssert(!fHead);
-        GrAssert(!fTail);
+        SkASSERT(!fHead);
+        SkASSERT(!fTail);
     } else if (1 == count) {
-        GrAssert(fHead == fTail);
+        SkASSERT(fHead == fTail);
     } else {
-        GrAssert(fHead != fTail);
+        SkASSERT(fHead != fTail);
     }
 
     int count2 = 0;
@@ -133,7 +133,7 @@ void GrFontCache::validate() const {
         count2 += 1;
         strike = strike->fNext;
     }
-    GrAssert(count == count2);
+    SkASSERT(count == count2);
 
     count2 = 0;
     strike = fTail;
@@ -141,7 +141,7 @@ void GrFontCache::validate() const {
         count2 += 1;
         strike = strike->fPrev;
     }
-    GrAssert(count == count2);
+    SkASSERT(count == count2);
 }
 #endif
 
@@ -223,9 +223,9 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
     if ((++gCounter % 10) == 0) return false;
 #endif
 
-    GrAssert(glyph);
-    GrAssert(scaler);
-    GrAssert(fCache.contains(glyph));
+    SkASSERT(glyph);
+    SkASSERT(scaler);
+    SkASSERT(fCache.contains(glyph));
     if (glyph->fAtlas) {
         glyph->fAtlas->setDrawToken(currentDrawToken);
         return true;

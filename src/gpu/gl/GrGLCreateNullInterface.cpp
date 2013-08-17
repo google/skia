@@ -23,7 +23,7 @@ public:
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (NULL != fDataPtr) {
-            GrAssert(0 != fSize);
+            SkASSERT(0 != fSize);
             SkDELETE_ARRAY(fDataPtr);
         }
 
@@ -53,7 +53,7 @@ static GrGLuint gCurrElementArrayBuffer;
 
 static GrBufferObj* look_up(GrGLuint id) {
     GrBufferObj* buffer = gBuffers[id];
-    GrAssert(NULL != buffer && buffer->id() == id);
+    SkASSERT(NULL != buffer && buffer->id() == id);
     return buffer;
 }
 
@@ -84,7 +84,7 @@ static GrBufferObj* create_buffer() {
 }
 
 static void delete_buffer(GrBufferObj* buffer) {
-    GrAssert(gBuffers.count() > 0);
+    SkASSERT(gBuffers.count() > 0);
 
     GrGLuint id = buffer->id();
     SkDELETE(buffer);
@@ -200,12 +200,12 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) 
 
     if (id > 0) {
         GrBufferObj* buffer = look_up(id);
-        GrAssert(!buffer->mapped());
+        SkASSERT(!buffer->mapped());
         buffer->setMapped(true);
         return buffer->dataPtr();
     }
 
-    GrAssert(false);
+    SkASSERT(false);
     return NULL;            // no buffer bound to target
 }
 
@@ -221,7 +221,7 @@ GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
     }
     if (id > 0) {
         GrBufferObj* buffer = look_up(id);
-        GrAssert(buffer->mapped());
+        SkASSERT(buffer->mapped());
         buffer->setMapped(false);
         return GR_GL_TRUE;
     }

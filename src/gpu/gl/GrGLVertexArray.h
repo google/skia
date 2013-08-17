@@ -26,7 +26,7 @@ struct GrGLAttribLayout {
 };
 
 static inline const GrGLAttribLayout& GrGLAttribTypeToLayout(GrVertexAttribType type) {
-    GrAssert(type >= 0 && type < kGrVertexAttribTypeCount);
+    SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
     static const GrGLAttribLayout kLayouts[kGrVertexAttribTypeCount] = {
         {1, GR_GL_FLOAT, false},         // kFloat_GrVertexAttribType
         {2, GR_GL_FLOAT, false},         // kVec2f_GrVertexAttribType

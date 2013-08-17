@@ -19,7 +19,7 @@ void GrGLAttribArrayState::set(const GrGpuGL* gpu,
                                GrGLboolean normalized,
                                GrGLsizei stride,
                                GrGLvoid* offset) {
-    GrAssert(index >= 0 && index < fAttribArrayStates.count());
+    SkASSERT(index >= 0 && index < fAttribArrayStates.count());
     AttribArrayState* array = &fAttribArrayStates[index];
     if (!array->fEnableIsValid || !array->fEnabled) {
         GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(index));

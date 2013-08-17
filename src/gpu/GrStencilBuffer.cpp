@@ -15,7 +15,7 @@
 SK_DEFINE_INST_COUNT(GrStencilBuffer)
 
 void GrStencilBuffer::transferToCache() {
-    GrAssert(NULL == this->getCacheEntry());
+    SkASSERT(NULL == this->getCacheEntry());
 
     this->getGpu()->getContext()->addStencilBuffer(this);
 }

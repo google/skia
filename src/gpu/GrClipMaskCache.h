@@ -55,7 +55,7 @@ public:
 
     void reset() {
         if (fStack.empty()) {
-//            GrAssert(false);
+//            SkASSERT(false);
             return;
         }
 
@@ -73,7 +73,7 @@ public:
     void push();
 
     void pop() {
-        //GrAssert(!fStack.empty());
+        //SkASSERT(!fStack.empty());
 
         if (!fStack.empty()) {
             GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
@@ -95,7 +95,7 @@ public:
     GrTexture* getLastMask() {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             return NULL;
         }
 
@@ -107,7 +107,7 @@ public:
     const GrTexture* getLastMask() const {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             return NULL;
         }
 
@@ -121,7 +121,7 @@ public:
                      const SkIRect& bound) {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             return;
         }
 
@@ -133,7 +133,7 @@ public:
     int getLastMaskWidth() const {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             return -1;
         }
 
@@ -149,7 +149,7 @@ public:
     int getLastMaskHeight() const {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             return -1;
         }
 
@@ -165,7 +165,7 @@ public:
     void getLastBound(SkIRect* bound) const {
 
         if (fStack.empty()) {
-            GrAssert(false);
+            SkASSERT(false);
             bound->setEmpty();
             return;
         }

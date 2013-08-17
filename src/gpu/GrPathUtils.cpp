@@ -41,7 +41,7 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
-    GrAssert(tol > 0);
+    SkASSERT(tol > 0);
 
     SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
     if (d <= tol) {
@@ -93,7 +93,7 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
-    GrAssert(tol > 0);
+    SkASSERT(tol > 0);
 
     SkScalar d = GrMax(
         points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
@@ -149,7 +149,7 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
-    GrAssert(tol > 0);
+    SkASSERT(tol > 0);
 
     int pointCount = 0;
     *subpaths = 1;
@@ -251,8 +251,8 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
 
         // The matrix should not have perspective.
         SkDEBUGCODE(static const SkScalar gTOL = SkFloatToScalar(1.f / 100.f));
-        GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
-        GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
+        SkASSERT(SkScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
+        SkASSERT(SkScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
 
         // It may not be normalized to have 1.0 in the bottom right
         float m33 = m.get(SkMatrix::kMPersp2);
@@ -296,7 +296,7 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
             return false;
         }
     } else {
-        GrAssert(SkPath::kCCW_Direction == dir);
+        SkASSERT(SkPath::kCCW_Direction == dir);
         if (apXab < 0) {
             return false;
         }
@@ -309,7 +309,7 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
             return false;
         }
     } else {
-        GrAssert(SkPath::kCCW_Direction == dir);
+        SkASSERT(SkPath::kCCW_Direction == dir);
         if (dpXdc > 0) {
             return false;
         }

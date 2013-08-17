@@ -34,9 +34,9 @@ static void test_bsearch() {
     for (size_t n = 0; n < GR_ARRAY_COUNT(array); n++) {
         for (size_t i = 0; i < n; i++) {
             int index = GrTBSearch<int, int>(array, n, array[i]);
-            GrAssert(index == (int) i);
+            SkASSERT(index == (int) i);
             index = GrTBSearch<int, int>(array, n, -array[i]);
-            GrAssert(index < 0);
+            SkASSERT(index < 0);
         }
     }
 }
@@ -59,17 +59,17 @@ static void test_binHashKey()
     keyA.setKeyData(testStringA);
     // test copy constructor and comparison
     GrTBinHashKey<BogusEntry, kDataLenUsedForKey> keyA2(keyA);
-    GrAssert(keyA.compare(keyA2) == 0);
-    GrAssert(keyA.getHash() == keyA2.getHash());
+    SkASSERT(keyA.compare(keyA2) == 0);
+    SkASSERT(keyA.getHash() == keyA2.getHash());
     // test re-init
     keyA2.setKeyData(testStringA);
-    GrAssert(keyA.compare(keyA2) == 0);
-    GrAssert(keyA.getHash() == keyA2.getHash());
+    SkASSERT(keyA.compare(keyA2) == 0);
+    SkASSERT(keyA.getHash() == keyA2.getHash());
     // test sorting
     GrTBinHashKey<BogusEntry, kDataLenUsedForKey> keyB;
     keyB.setKeyData(testStringB);
-    GrAssert(keyA.compare(keyB) < 0);
-    GrAssert(keyA.getHash() != keyB.getHash());
+    SkASSERT(keyA.compare(keyB) < 0);
+    SkASSERT(keyA.getHash() != keyB.getHash());
 }
 
 

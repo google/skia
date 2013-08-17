@@ -295,7 +295,7 @@ public:
      * Can the provided configuration act as a color render target?
      */
     bool isConfigRenderable(GrPixelConfig config) const {
-        GrAssert(kGrPixelConfigCnt > config);
+        SkASSERT(kGrPixelConfigCnt > config);
         return fConfigRenderSupport[config];
     }
 

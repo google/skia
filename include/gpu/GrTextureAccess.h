@@ -151,7 +151,7 @@ public:
     bool operator== (const GrTextureAccess& other) const {
 #if GR_DEBUG
         // below assumes all chars in fSwizzle are initialized even if string is < 4 chars long.
-        GrAssert(memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1) ==
+        SkASSERT(memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1) ==
                  strcmp(fSwizzle, other.fSwizzle));
 #endif
         return fParams == other.fParams &&

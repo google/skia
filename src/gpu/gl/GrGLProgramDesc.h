@@ -30,7 +30,7 @@ public:
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
-        GrAssert(fInitialized);
+        SkASSERT(fInitialized);
         return reinterpret_cast<const uint32_t*>(fKey.get());
     }
 
@@ -71,12 +71,12 @@ public:
                       GrGLProgramDesc* outDesc);
 
     int numColorEffects() const {
-        GrAssert(fInitialized);
+        SkASSERT(fInitialized);
         return this->getHeader().fColorEffectCnt;
     }
 
     int numCoverageEffects() const {
-        GrAssert(fInitialized);
+        SkASSERT(fInitialized);
         return this->getHeader().fCoverageEffectCnt;
     }
 
@@ -85,7 +85,7 @@ public:
     GrGLProgramDesc& operator= (const GrGLProgramDesc& other);
 
     bool operator== (const GrGLProgramDesc& other) const {
-        GrAssert(fInitialized && other.fInitialized);
+        SkASSERT(fInitialized && other.fInitialized);
         // The length is masked as a hint to the compiler that the address will be 4 byte aligned.
         return 0 == memcmp(this->asKey(), other.asKey(), this->keyLength() & ~0x3);
     }

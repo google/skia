@@ -67,7 +67,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                                 "clampCoord");
         builder->fsCodeAppend(";\n");
     } else {
-        GrAssert(GrTextureDomainEffect::kDecal_WrapMode == texDom.wrapMode());
+        SkASSERT(GrTextureDomainEffect::kDecal_WrapMode == texDom.wrapMode());
 
         if (kImagination_GrGLVendor == builder->ctxInfo().vendor()) {
             // On the NexusS and GalaxyNexus, the other path (with the 'any'
@@ -162,14 +162,14 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
         // We don't currently handle domains that are empty or don't intersect the texture.
         // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
         // handle rects that do not intersect the [0..1]x[0..1] rect.
-        GrAssert(domain.fLeft <= domain.fRight);
-        GrAssert(domain.fTop <= domain.fBottom);
+        SkASSERT(domain.fLeft <= domain.fRight);
+        SkASSERT(domain.fTop <= domain.fBottom);
         clippedDomain.fLeft = SkMaxScalar(domain.fLeft, kFullRect.fLeft);
         clippedDomain.fRight = SkMinScalar(domain.fRight, kFullRect.fRight);
         clippedDomain.fTop = SkMaxScalar(domain.fTop, kFullRect.fTop);
         clippedDomain.fBottom = SkMinScalar(domain.fBottom, kFullRect.fBottom);
-        GrAssert(clippedDomain.fLeft <= clippedDomain.fRight);
-        GrAssert(clippedDomain.fTop <= clippedDomain.fBottom);
+        SkASSERT(clippedDomain.fLeft <= clippedDomain.fRight);
+        SkASSERT(clippedDomain.fTop <= clippedDomain.fBottom);
 
         AutoEffectUnref effect(SkNEW_ARGS(GrTextureDomainEffect, (texture,
                                                                   matrix,

@@ -32,19 +32,19 @@ public:
         GLSL code generation. */
     virtual EffectKey glEffectKey(const GrDrawEffect& drawEffect,
                                   const GrGLCaps& caps) const SK_OVERRIDE {
-        GrAssert(kIllegalEffectClassID != fEffectClassID);
+        SkASSERT(kIllegalEffectClassID != fEffectClassID);
         EffectKey effectKey = GLEffect::GenKey(drawEffect, caps);
         EffectKey textureKey = GLEffect::GenTextureKey(drawEffect, caps);
         EffectKey attribKey = GLEffect::GenAttribKey(drawEffect);
 #if GR_DEBUG
         static const EffectKey kIllegalIDMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
-        GrAssert(!(kIllegalIDMask & effectKey));
+        SkASSERT(!(kIllegalIDMask & effectKey));
 
         static const EffectKey kIllegalTextureKeyMask = (uint16_t) (~((1U << kTextureKeyBits) - 1));
-        GrAssert(!(kIllegalTextureKeyMask & textureKey));
+        SkASSERT(!(kIllegalTextureKeyMask & textureKey));
 
         static const EffectKey kIllegalAttribKeyMask = (uint16_t) (~((1U << kAttribKeyBits) - 1));
-        GrAssert(!(kIllegalAttribKeyMask & textureKey));
+        SkASSERT(!(kIllegalAttribKeyMask & textureKey));
 #endif
         return fEffectClassID | (attribKey << (kEffectKeyBits+kTextureKeyBits)) |
                (textureKey << kEffectKeyBits) | effectKey;

@@ -46,7 +46,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     coverageStages->reset();
 
     // This should already have been caught
-    GrAssert(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
+    SkASSERT(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
 
     bool skipCoverage = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
 
@@ -137,13 +137,13 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     if (readsDst) {
-        GrAssert(NULL != dstCopy || gpu->caps()->dstReadInShaderSupport());
+        SkASSERT(NULL != dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
         if (NULL != dstCopy) {
             dstCopyTexture = dstCopy->texture();
         }
         header->fDstReadKey = GrGLShaderBuilder::KeyForDstRead(dstCopyTexture, gpu->glCaps());
-        GrAssert(0 != header->fDstReadKey);
+        SkASSERT(0 != header->fDstReadKey);
     } else {
         header->fDstReadKey = 0;
     }
@@ -164,7 +164,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     if (requiresColorAttrib) {
         header->fColorAttributeIndex = drawState.colorVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fColorInput) {
-        GrAssert(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
+        SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fColorAttributeIndex = availableAttributeIndex;
         availableAttributeIndex++;
     } else {
@@ -174,7 +174,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     if (requiresCoverageAttrib) {
         header->fCoverageAttributeIndex = drawState.coverageVertexAttributeIndex();
     } else if (GrGLProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
-        GrAssert(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
+        SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
         header->fCoverageAttributeIndex = availableAttributeIndex;
     } else {
         header->fCoverageAttributeIndex = -1;

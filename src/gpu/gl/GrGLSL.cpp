@@ -13,7 +13,7 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     switch (binding) {
         case kDesktop_GrGLBinding:
-            GrAssert(ver >= GR_GLSL_VER(1,10));
+            SkASSERT(ver >= GR_GLSL_VER(1,10));
             if (ver >= GR_GLSL_VER(1,50)) {
                 return k150_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,40)) {
@@ -25,7 +25,7 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
             }
         case kES_GrGLBinding:
             // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
-            GrAssert(ver >= GR_GL_VER(1,00));
+            SkASSERT(ver >= GR_GL_VER(1,00));
             return k110_GrGLSLGeneration;
         default:
             GrCrash("Unknown GL Binding");
@@ -41,17 +41,17 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding, GrGLSLGeneration gen) {
                 // 1.00 of the ES language.
                 return "#version 100\n";
             } else {
-                GrAssert(kDesktop_GrGLBinding == binding);
+                SkASSERT(kDesktop_GrGLBinding == binding);
                 return "#version 110\n";
             }
         case k130_GrGLSLGeneration:
-            GrAssert(kDesktop_GrGLBinding == binding);
+            SkASSERT(kDesktop_GrGLBinding == binding);
             return "#version 130\n";
         case k140_GrGLSLGeneration:
-            GrAssert(kDesktop_GrGLBinding == binding);
+            SkASSERT(kDesktop_GrGLBinding == binding);
             return "#version 140\n";
         case k150_GrGLSLGeneration:
-            GrAssert(kDesktop_GrGLBinding == binding);
+            SkASSERT(kDesktop_GrGLBinding == binding);
             return "#version 150\n";
         default:
             GrCrash("Unknown GL version.");
@@ -69,7 +69,7 @@ bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen, const char* nameIfDeclared, G
 
 const char* GrGLSLVectorHomogCoord(int count) {
     static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
-    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
+    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
     return HOMOGS[count];
 }
 
@@ -79,7 +79,7 @@ const char* GrGLSLVectorHomogCoord(GrSLType type) {
 
 const char* GrGLSLVectorNonhomogCoords(int count) {
     static const char* NONHOMOGS[] = {"ERROR", "", ".x", ".xy", ".xyz"};
-    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
+    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
     return NONHOMOGS[count];
 }
 
@@ -105,15 +105,15 @@ GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
                                  GrSLConstantVec mulFactorDefault) {
     bool haveFactor = NULL != mulFactor && '\0' != *mulFactor;
 
-    GrAssert(NULL != outAppend);
-    GrAssert(NULL != vec4VarName);
-    GrAssert(kNone_GrSLConstantVec != mulFactorDefault || haveFactor);
+    SkASSERT(NULL != outAppend);
+    SkASSERT(NULL != vec4VarName);
+    SkASSERT(kNone_GrSLConstantVec != mulFactorDefault || haveFactor);
 
     if (!haveFactor) {
         if (kOnes_GrSLConstantVec == mulFactorDefault) {
             return kNone_GrSLConstantVec;
         } else {
-            GrAssert(kZeros_GrSLConstantVec == mulFactorDefault);
+            SkASSERT(kZeros_GrSLConstantVec == mulFactorDefault);
             append_tabs(outAppend, tabCnt);
             outAppend->appendf("%s = vec4(0, 0, 0, 0);\n", vec4VarName);
             return kZeros_GrSLConstantVec;
@@ -130,12 +130,12 @@ GrSLConstantVec GrGLSLGetComponent4f(SkString* outAppend,
                                      GrSLConstantVec defaultExpr,
                                      bool omitIfConst) {
     if (NULL == expr || '\0' == *expr) {
-        GrAssert(defaultExpr != kNone_GrSLConstantVec);
+        SkASSERT(defaultExpr != kNone_GrSLConstantVec);
         if (!omitIfConst) {
             if (kOnes_GrSLConstantVec == defaultExpr) {
                 outAppend->append("1.0");
             } else {
-                GrAssert(kZeros_GrSLConstantVec == defaultExpr);
+                SkASSERT(kZeros_GrSLConstantVec == defaultExpr);
                 outAppend->append("0.0");
             }
         }

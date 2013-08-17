@@ -20,7 +20,7 @@
 class GrGLExtensions {
 public:
     bool init(GrGLBinding binding, const GrGLInterface* iface) {
-        GrAssert(binding & iface->fBindingsExported);
+        SkASSERT(binding & iface->fBindingsExported);
         return this->init(binding, iface->fGetString, iface->fGetStringi, iface->fGetIntegerv);
     }
     /**

@@ -960,7 +960,7 @@ public:
             } else {
                 dstColor = builder->dstColor();
             }
-            GrAssert(NULL != dstColor);
+            SkASSERT(NULL != dstColor);
 
             // We don't try to optimize for this case at all
             if (NULL == inputColor) {

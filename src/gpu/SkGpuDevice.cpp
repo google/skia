@@ -72,7 +72,7 @@ public:
                         GrTexture** texture)
         : fDevice(NULL)
         , fTexture(NULL) {
-        GrAssert(NULL != texture);
+        SkASSERT(NULL != texture);
         *texture = this->set(device, bitmap, params);
     }
 
@@ -149,7 +149,7 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface) {
-    GrAssert(NULL != surface);
+    SkASSERT(NULL != surface);
     if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
         return NULL;
     }
@@ -181,7 +181,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fRenderTarget = NULL;
     fNeedClear = false;
 
-    GrAssert(NULL != renderTarget);
+    SkASSERT(NULL != renderTarget);
     fRenderTarget = renderTarget;
     fRenderTarget->ref();
 
@@ -230,7 +230,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         fRenderTarget = texture->asRenderTarget();
         fRenderTarget->ref();
 
-        GrAssert(NULL != fRenderTarget);
+        SkASSERT(NULL != fRenderTarget);
 
         // wrap the bitmap with a pixelref to expose our texture
         SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (texture));
@@ -238,7 +238,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
                  width, height);
-        GrAssert(false);
+        SkASSERT(false);
     }
 }
 
@@ -398,7 +398,7 @@ static void check_bounds(const GrClipData& clipData,
         }
     }
 
-    GrAssert(devBound.contains(clipRegion.getBounds()));
+    SkASSERT(devBound.contains(clipRegion.getBounds()));
 }
 #endif
 
@@ -407,7 +407,7 @@ static void check_bounds(const GrClipData& clipData,
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareDraw(const SkDraw& draw, bool forceIdentity) {
-    GrAssert(NULL != fClipData.fClipStack);
+    SkASSERT(NULL != fClipData.fClipStack);
 
     fContext->setRenderTarget(fRenderTarget);
 
@@ -492,7 +492,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         grPaint->setColor(GrColorPackRGBA(alpha, alpha, alpha, alpha));
         // justAlpha is currently set to true only if there is a texture,
         // so constantColor should not also be true.
-        GrAssert(!constantColor);
+        SkASSERT(!constantColor);
     } else {
         grPaint->setColor(SkColor2GrColor(skPaint.getColor()));
     }
@@ -1262,7 +1262,7 @@ static bool may_color_bleed(const SkRect& srcRect,
                             const SkMatrix& m) {
     // Only gets called if has_aligned_samples returned false.
     // So we can assume that sampling is axis aligned but not texel aligned.
-    GrAssert(!has_aligned_samples(srcRect, transformedRect));
+    SkASSERT(!has_aligned_samples(srcRect, transformedRect));
     SkRect innerSrcRect(srcRect), innerTransformedRect,
         outerTransformedRect(transformedRect);
     innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
@@ -1382,7 +1382,7 @@ static bool filter_texture(SkDevice* device, GrContext* context,
                            GrTexture* texture, SkImageFilter* filter,
                            int w, int h, const SkMatrix& ctm, SkBitmap* result,
                            SkIPoint* offset) {
-    GrAssert(filter);
+    SkASSERT(filter);
     SkDeviceImageFilterProxy proxy(device);
 
     if (filter->canFilterImageGPU()) {
@@ -1798,7 +1798,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          bool needClear)
     : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
 
-    GrAssert(texture && texture->asRenderTarget());
+    SkASSERT(texture && texture->asRenderTarget());
     // This constructor is called from onCreateCompatibleDevice. It has locked the RT in the texture
     // cache. We pass true for the third argument so that it will get unlocked.
     this->initFromRenderTarget(context, texture->asRenderTarget(), true);

@@ -62,7 +62,7 @@ static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 1 << 11;
 static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
-#define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
+#define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 
 // Glorified typedef to avoid including GrDrawState.h in GrContext.h
 class GrContext::AutoRestoreEffects : public GrDrawState::AutoRestoreEffects {};
@@ -107,7 +107,7 @@ GrContext::GrContext() {
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
-    GrAssert(NULL == fGpu);
+    SkASSERT(NULL == fGpu);
 
     fGpu = GrGpu::Create(backend, backendContext, this);
     if (NULL == fGpu) {
@@ -367,7 +367,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
 
         SkDEBUGCODE(GrTexture* texture = )fGpu->createTexture(rtDesc, stretchedPixels.get(),
                                                               stretchedRowBytes);
-        GrAssert(NULL != texture);
+        SkASSERT(NULL != texture);
     }
 
     return texture;
@@ -418,11 +418,11 @@ static GrTexture* create_scratch_texture(GrGpu* gpu,
 
 GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
 
-    GrAssert((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+    SkASSERT((inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              !(inDesc.fFlags & kNoStencil_GrTextureFlagBit));
 
     // Renderable A8 targets are not universally supported (e.g., not on ANGLE)
-    GrAssert(this->isConfigRenderable(kAlpha_8_GrPixelConfig) ||
+    SkASSERT(this->isConfigRenderable(kAlpha_8_GrPixelConfig) ||
              !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              (inDesc.fConfig != kAlpha_8_GrPixelConfig));
 
@@ -487,11 +487,11 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 
     // This texture should already have a cache entry since it was once
     // attached
-    GrAssert(NULL != texture->getCacheEntry());
+    SkASSERT(NULL != texture->getCacheEntry());
 
     // Conceptually, the cache entry is going to assume responsibility
     // for the creation ref.
-    GrAssert(texture->unique());
+    SkASSERT(texture->unique());
 
     // Since this texture came from an AutoScratchTexture it should
     // still be in the exclusive pile
@@ -509,7 +509,7 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 
 void GrContext::unlockScratchTexture(GrTexture* texture) {
     ASSERT_OWNED_RESOURCE(texture);
-    GrAssert(NULL != texture->getCacheEntry());
+    SkASSERT(NULL != texture->getCacheEntry());
 
     // If this is a scratch texture we detached it from the cache
     // while it was locked (to avoid two callers simultaneously getting
@@ -527,7 +527,7 @@ void GrContext::purgeCache() {
 }
 
 bool GrContext::OverbudgetCB(void* data) {
-    GrAssert(NULL != data);
+    SkASSERT(NULL != data);
 
     GrContext* context = reinterpret_cast<GrContext*>(data);
 
@@ -1369,7 +1369,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 // can be invoked in this method
                 GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
-                GrAssert(effect);
+                SkASSERT(effect);
                 drawState->addColorEffect(effect);
 
                 drawState->setRenderTarget(texture->asRenderTarget());
@@ -1397,10 +1397,10 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         grconfig_to_config8888(dstConfig, unpremul, &dstC8888);
 
         if (swapRAndB) {
-            GrAssert(c8888IsValid); // we should only do r/b swap on 8888 configs
+            SkASSERT(c8888IsValid); // we should only do r/b swap on 8888 configs
             srcC8888 = swap_config8888_red_and_blue(srcC8888);
         }
-        GrAssert(c8888IsValid);
+        SkASSERT(c8888IsValid);
         uint32_t* b32 = reinterpret_cast<uint32_t*>(buffer);
         SkConvertConfig8888Pixels(b32, rowBytes, dstC8888,
                                   b32, rowBytes, srcC8888,
@@ -1410,7 +1410,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 }
 
 void GrContext::resolveRenderTarget(GrRenderTarget* target) {
-    GrAssert(target);
+    SkASSERT(target);
     ASSERT_OWNED_RESOURCE(target);
     // In the future we may track whether there are any pending draws to this
     // target. We don't today so we always perform a flush. We don't promise
@@ -1528,10 +1528,10 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
             SkCanvas::Config8888 srcConfig8888, dstConfig8888;
             GR_DEBUGCODE(bool success = )
             grconfig_to_config8888(srcConfig, true, &srcConfig8888);
-            GrAssert(success);
+            SkASSERT(success);
             GR_DEBUGCODE(success = )
             grconfig_to_config8888(srcConfig, false, &dstConfig8888);
-            GrAssert(success);
+            SkASSERT(success);
             const uint32_t* src = reinterpret_cast<const uint32_t*>(buffer);
             tmpPixels.reset(width * height);
             SkConvertConfig8888Pixels(tmpPixels.get(), 4 * width, dstConfig8888,
@@ -1562,7 +1562,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
     GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit, &matrix);
     GrDrawState* drawState = fGpu->drawState();
-    GrAssert(effect);
+    SkASSERT(effect);
     drawState->addColorEffect(effect);
 
     drawState->setRenderTarget(target);
@@ -1577,7 +1577,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
                                        AutoRestoreEffects* are) {
     // All users of this draw state should be freeing up all effects when they're done.
     // Otherwise effects that own resources may keep those resources alive indefinitely.
-    GrAssert(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
+    SkASSERT(0 == fDrawState->numColorStages() && 0 == fDrawState->numCoverageStages());
 
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         fDrawBuffer->flush();
@@ -1585,7 +1585,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
     }
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (NULL != paint) {
-        GrAssert(NULL != are);
+        SkASSERT(NULL != are);
         are->set(fDrawState);
         fDrawState->setFromPaint(*paint, fViewMatrix, fRenderTarget.get());
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
@@ -1603,14 +1603,14 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint,
         fLastDrawWasBuffered = kYes_BufferedDraw;
         target = fDrawBuffer;
     } else {
-        GrAssert(kNo_BufferedDraw == buffered);
+        SkASSERT(kNo_BufferedDraw == buffered);
         fLastDrawWasBuffered = kNo_BufferedDraw;
         target = fGpu;
     }
     fDrawState->setState(GrDrawState::kClip_StateBit, NULL != fClip &&
                                                      !fClip->fClipStack->isWideOpen());
     target->setClip(fClip);
-    GrAssert(fDrawState == target->drawState());
+    SkASSERT(fDrawState == target->drawState());
     return target;
 }
 
@@ -1664,10 +1664,9 @@ static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
 }
 
 void GrContext::setupDrawBuffer() {
-
-    GrAssert(NULL == fDrawBuffer);
-    GrAssert(NULL == fDrawBufferVBAllocPool);
-    GrAssert(NULL == fDrawBufferIBAllocPool);
+    SkASSERT(NULL == fDrawBuffer);
+    SkASSERT(NULL == fDrawBufferVBAllocPool);
+    SkASSERT(NULL == fDrawBufferIBAllocPool);
 
     fDrawBufferVBAllocPool =
         SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu, false,

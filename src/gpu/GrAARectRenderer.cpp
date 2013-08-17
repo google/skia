@@ -398,7 +398,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
     size_t vsize = drawState->getVertexSize();
-    GrAssert(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    SkASSERT(sizeof(GrPoint) + sizeof(GrColor) == vsize);
 
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
@@ -545,7 +545,7 @@ void GrAARectRenderer::shaderFillAARect(GrGpu* gpu,
     SkScalar newWidth = SkScalarHalf(rect.width() * vec[0].length()) + SK_ScalarHalf;
     SkScalar newHeight = SkScalarHalf(rect.height() * vec[1].length()) + SK_ScalarHalf;
     drawState->setVertexAttribs<gAARectVertexAttribs>(SK_ARRAY_COUNT(gAARectVertexAttribs));
-    GrAssert(sizeof(RectVertex) == drawState->getVertexSize());
+    SkASSERT(sizeof(RectVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -595,7 +595,7 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
     SkASSERT(combinedMatrix.rectStaysRect());
 
     drawState->setVertexAttribs<gAAAARectVertexAttribs>(SK_ARRAY_COUNT(gAAAARectVertexAttribs));
-    GrAssert(sizeof(AARectVertex) == drawState->getVertexSize());
+    SkASSERT(sizeof(AARectVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
@@ -718,7 +718,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
     size_t vsize = drawState->getVertexSize();
-    GrAssert(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    SkASSERT(sizeof(GrPoint) + sizeof(GrColor) == vsize);
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.

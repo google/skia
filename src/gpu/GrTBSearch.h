@@ -13,7 +13,7 @@
 
 template <typename ELEM, typename KEY>
 int GrTBSearch(const ELEM array[], int count, KEY target) {
-    GrAssert(count >= 0);
+    SkASSERT(count >= 0);
     if (0 == count) {
         // we should insert it at 0
         return ~0;
