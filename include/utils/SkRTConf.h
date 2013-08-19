@@ -115,10 +115,8 @@ void SkRTConf<T>::print(SkWStream *o) const {
     sprintf(outline, "%-30.30s", getName());
     doPrint(&(outline[30]));
     sprintf(&(outline[60]), " %.128s", fDescription.c_str());
-    if (' ' == outline[strlen(outline)-1]) {
-        for (int i = strlen(outline)-1 ; ' ' == outline[i] ; i--) {
-            outline[i] = '\0';
-        }
+    for (size_t i = strlen(outline); i --> 0 && ' ' == outline[i];) {
+        outline[i] = '\0';
     }
     o->writeText(outline);
 }
