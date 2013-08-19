@@ -37,6 +37,7 @@
         '../src/ports/SkOSFile_posix.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',
+        '../src/ports/SkDiscardableMemory_none.cpp',
         '../src/ports/SkPurgeableMemoryBlock_none.cpp',
        #'../src/ports/SkThread_none.cpp',
         '../src/ports/SkThread_pthread.cpp',
