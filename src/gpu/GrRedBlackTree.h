@@ -948,7 +948,6 @@ bool GrRedBlackTree<T,C>::validateChildRelations(const Node* n,
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::UnitTest() {
     GrRedBlackTree<int> tree;
-    typedef GrRedBlackTree<int>::Iter iter;
 
     SkMWCRandom r;
 
