@@ -247,13 +247,15 @@
                 '-pthread',
               ],
             },
+          }, { # skia_os != "nacl"
+            'link_settings': {
+              'ldflags': [
+                '-lstdc++',
+                '-lm',
+              ],
+            },
           }],
-          [ 'skia_os == "chromeos"', {
-            'ldflags': [
-              '-lstdc++',
-              '-lm',
-            ],
-          }, {
+          [ 'skia_os != "chromeos"', {
             'conditions': [
               [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
                 'cflags': [
