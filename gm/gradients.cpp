@@ -361,6 +361,56 @@ private:
 };
 
 
+class RadialGradient2GM : public GM {
+public:
+    RadialGradient2GM() {}
+
+protected:
+    SkString onShortName() { return SkString("radial_gradient2"); }
+    virtual SkISize onISize() { return make_isize(400, 400); }
+    void drawBG(SkCanvas* canvas) {
+        canvas->drawColor(0xFF000000);
+    }
+
+    // Reproduces the example given in bug 7671058.
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint paint1, paint2, paint3;
+        paint1.setStyle(SkPaint::kFill_Style);
+        paint2.setStyle(SkPaint::kFill_Style);
+        paint3.setStyle(SkPaint::kFill_Style);
+
+        const SkColor sweep_colors[] =
+            { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 };
+        const SkColor colors1[] = { 0xFFFFFFFF, 0x00000000 };
+        const SkColor colors2[] = { 0xFF000000, 0x00000000 };
+
+        const SkScalar cx = 200, cy = 200, radius = 150;
+        SkPoint center;
+        center.set(cx, cy);
+
+        SkAutoTUnref<SkShader> sweep(
+                SkGradientShader::CreateSweep(cx, cy, sweep_colors,
+                                              NULL, SK_ARRAY_COUNT(sweep_colors)));
+        SkAutoTUnref<SkShader> radial1(
+                SkGradientShader::CreateRadial(center, radius, colors1,
+                                               NULL, SK_ARRAY_COUNT(colors1),
+                                               SkShader::kClamp_TileMode));
+        SkAutoTUnref<SkShader> radial2(
+                SkGradientShader::CreateRadial(center, radius, colors2,
+                                               NULL, SK_ARRAY_COUNT(colors2),
+                                               SkShader::kClamp_TileMode));
+        paint1.setShader(sweep);
+        paint2.setShader(radial1);
+        paint3.setShader(radial2);
+
+        canvas->drawCircle(cx, cy, radius, paint1);
+        canvas->drawCircle(cx, cy, radius, paint3);
+        canvas->drawCircle(cx, cy, radius, paint2);
+    }
+
+private:
+    typedef GM INHERITED;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -381,4 +431,7 @@ static GMRegistry reg5(MyFactory5);
 
 static GM* MyFactory6(void*) { return new GradientsViewPerspectiveGM; }
 static GMRegistry reg6(MyFactory6);
+
+static GM* MyFactory7(void*) { return new RadialGradient2GM; }
+static GMRegistry reg7(MyFactory7);
 }
