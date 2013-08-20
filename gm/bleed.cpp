@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkBlurMaskFilter.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -139,6 +140,26 @@ protected:
         canvas->restore();
     }
 
+    // Draw the center of the small bitmap with a mask filter
+    void drawCase4(SkCanvas* canvas, int transX, int transY, 
+                   SkCanvas::DrawBitmapRectFlags flags, bool filter) {
+        SkRect src = SkRect::MakeXYWH(1, 1,
+                                      kSmallTextureSize-2,
+                                      kSmallTextureSize-2);
+        SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
+
+        SkPaint paint;
+        paint.setFilterBitmap(filter);
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(3), 
+                                                    SkBlurMaskFilter::kNormal_BlurStyle);
+        paint.setMaskFilter(mf)->unref();
+
+        canvas->save();
+        canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
+        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint, flags);
+        canvas->restore();
+    }
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         canvas->clear(SK_ColorGRAY);
@@ -147,11 +168,13 @@ protected:
         this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
         this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
         this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
+        this->drawCase4(canvas, kCol0X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
 
         // Then draw a column with no bleeding or tiling but with filtering
         this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
         this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
         this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase4(canvas, kCol1X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
 
 
 #if SK_SUPPORT_GPU
@@ -168,11 +191,13 @@ protected:
         this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
         this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
         this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase4(canvas, kCol2X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
 
         // Finally draw a column with all three (bleeding, tiling, and filtering)
         this->drawCase1(canvas, kCol3X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
         this->drawCase2(canvas, kCol3X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
         this->drawCase3(canvas, kCol3X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
+        this->drawCase4(canvas, kCol3X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
 
 #if SK_SUPPORT_GPU
         if (NULL != ctx) {
@@ -194,7 +219,8 @@ private:
     static const int kRow0Y = kBlockSpacing;
     static const int kRow1Y = 2*kBlockSpacing + kBlockSize;
     static const int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
-    static const int kHeight = 4*kBlockSpacing + 3*kBlockSize;
+    static const int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
+    static const int kHeight = 5*kBlockSpacing + 4*kBlockSize;
 
     static const int kSmallTextureSize = 4;
     static const int kMaxTextureSize = 32;
