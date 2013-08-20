@@ -1,0 +1,1502 @@
+{
+  "actual-results": {
+    "failed": null, 
+    "failure-ignored": null, 
+    "no-comparison": null, 
+    "succeeded": null
+  }, 
+  "expected-results": {
+    "aaclip_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7163810414113793867
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "aarectmodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1526268471177155551
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "arithmode_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6329400057600097234
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bigmatrix_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13768015915922732356
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmapcopy_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9769079178972712396
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmapfilters_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15067856232268696933
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmapscroll_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15523912372033394602
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9204962342746841096
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7570530342905628456
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10719700266229569967
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2967934151616235045
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10723107923613959342
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          615317659026317281
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8459602697994167638
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7006461124398681964
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2027939861397155283
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16859077574164786861
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11235472972448689767
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          211753060382777252
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9480781043126732856
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13490358164525901469
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7510678086179746596
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3806074074893746616
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6448347138450055386
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8116983762815866279
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8586295779506545029
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13549111781346373872
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10705231956829285301
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16166530039514546259
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14266854668713428040
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13919535267648107375
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4024415106133337207
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4056266015657707537
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8512719054924050854
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2333883535017760004
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4944324683394912164
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          559777607283727863
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_inner_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8753902296095062956
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_inner_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11858986800931856376
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_normal_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3606241125593407269
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_normal_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10333770547066405158
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_outer_fast_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5438277324777890642
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_outer_slow_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16194212489255681648
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11366009864626301095
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_slow_100_100_10_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10886948119426105539
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_slow_100_100_2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2402557726028292049
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_slow_10_100_10_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5727456614556143298
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurs_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3872171766663447756
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "chrome_gradtext1_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5630935511407937833
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "chrome_gradtext2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5398721390547657273
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "circles_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13705565392298166914
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "clamped_gradients_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10294386269501306224
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "cmykjpeg_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8689938548045974643
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "colorfilterimagefilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4222894307342718754
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7558229948134696044
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_path_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2753457357686696581
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_path_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6767202152973974411
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_rect_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1665772178289333989
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15846272537024489445
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_aa_layer_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7316170203180306951
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2747903056294159383
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_bw_layer_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14454128860535915933
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "convexpaths_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          384705706809958819
+        ]
+      ]
+    }, 
+    "convexpaths_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9645239680457923128
+        ]
+      ]
+    }, 
+    "convexpaths_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16534929744735726579
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "convexpaths_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15502353884120373822
+        ]
+      ]
+    }, 
+    "cubicclosepath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6991391090289940122
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "cubicpath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4267469000941675438
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashcubics_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9920247883716692117
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8365055987252810014
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing3_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15462156663555384658
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11137490508568328458
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "degeneratesegments_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15903710117831491594
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "deviceproperties_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10010276479003822633
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "displacement_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          882267044033796806
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "drawbitmapmatrix_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2484664190477506773
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "drawbitmaprect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15703705789633962603
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "drawlooper_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2735610952661947922
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "emptypath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6448857246475111318
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filltypes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2587801139190028480
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filltypespersp_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1369682450089743255
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "fontscaler_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3910180571108258646
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gammatext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4991624662448556808
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_bilerp_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          837181341739915295
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_bilerp_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8430366169989348557
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_point_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17664227249162604428
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_point_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9837143541713078189
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_bilerp_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8537380779998846168
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_bilerp_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14028826497920893597
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_point_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14262669156538927941
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_point_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18105452151182268887
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_bilerp_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          412888624415954805
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_bilerp_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1935220768992920746
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_point_rotate_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7354290000062937617
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_point_scale_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14547059667322106211
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradients_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14865668329364574663
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradients_degenerate_2pt_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4050301159412654369
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradients_local_perspective_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3841898315187325926
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradients_view_perspective_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          416101816820131611
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradtext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2328482482999487459
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "hairmodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11518207149951694549
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "hittestpath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16781705300910493680
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imageblur_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          769294667722625983
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imagefiltersbase_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16934815728001911255
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imagefilterscropped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10267199484925399365
+        ]
+      ]
+    }, 
+    "imagefilterscropped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16225020407926229569
+        ]
+      ]
+    }, 
+    "imagefilterscropped_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15873738807574929761
+        ]
+      ]
+    }, 
+    "imagefilterscropped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9540626140949731992
+        ]
+      ]
+    }, 
+    "imagefiltersgraph_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          701337779330450233
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lcdtext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17910577862166221122
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lighting_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          304572795717583895
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lineclosepath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8200021215559120818
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "linepath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17364323165819274082
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "matrixconvolution_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6634124156724761508
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "mixed_xfermodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11746786394266128137
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "morphology_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18169330679722554103
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "ninepatch-stretch_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9159269768658325041
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "nocolorbleed_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5586477482373989517
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "ovals_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4617750761946104161
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "path-reverse_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          600112234547825758
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "patheffect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13131020552883989344
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathfill_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8442372175891164301
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathinvfill_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5029407105525423667
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "perlinnoise_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9205335740684637092
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "points_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          481949613314361705
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "poly2poly_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18154532037286592644
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "quadclosepath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17174790409763084733
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "quadpath_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11798651298936594976
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "radial_gradient_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5440525180981761895
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7046001837568527545
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "roundrects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1618248436630554276
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9342782968123020090
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8216247799231314990
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17179521567697245058
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_clip_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7381759179207603107
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_clip_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17179521567697245058
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "samplerstress_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2889438399607519888
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shaderbounds_linear_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4486212949887494524
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadertext2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15520459147595855854
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadertext3_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12927112962588412244
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadertext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18124542945872312499
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadows_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6632905709117322473
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "simpleaaclip_path_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9638289616436431136
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "simpleaaclip_rect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11863949126169208720
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "stroke-fill_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14092660394167221372
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokerect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13938370746225516049
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokerects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12939080799075296178
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes3_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2033457168278586110
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes_poly_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9409621563205246563
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes_round_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17713228725519318626
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tablecolorfilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4261665017152160557
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "testimagefilters_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8375891761168151067
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "texdata_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2736593828543197285
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "texteffects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12212573649788363904
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "thinrects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10999541404612369092
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "thinstrokedrects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6717965895519090324
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tilemodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16891752632016505152
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tinybitmap_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5633315905476176630
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "twopointconical_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12942831443715735331
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "verttext2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17080929691634768887
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "verttext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4508665063115003469
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodes2_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6046964193895052919
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodes3_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12446706227464206952
+        ]
+      ]
+    }, 
+    "xfermodes3_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15495101818088843162
+        ]
+      ]
+    }, 
+    "xfermodes3_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3510190051532298415
+        ]
+      ]
+    }, 
+    "xfermodes3_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13777400238782053543
+        ]
+      ]
+    }, 
+    "xfermodes_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12811402217567391576
+        ]
+      ], 
+      "ignore-failure": false
+    }
+  }
+}
