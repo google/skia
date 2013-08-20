@@ -13,6 +13,7 @@ Rebaselines the given GM tests, on all bots and all configurations.
 
 # System-level imports
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -34,38 +35,15 @@ GM_DIRECTORY = os.path.realpath(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
+import buildbot_globals
 import gm_json
 
-# Mapping of expectations/gm subdir (under
-# https://skia.googlecode.com/svn/trunk/expectations/gm/ )
-# to builder name (see list at http://108.170.217.252:10117/builders )
-SUBDIR_MAPPING = {
-   'base-shuttle-win7-intel-float':
-    'Test-Win7-ShuttleA-HD2000-x86-Release',
-   'base-shuttle-win7-intel-angle':
-    'Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE',
-   'base-shuttle-win7-intel-directwrite':
-    'Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite',
-   'base-shuttle_ubuntu12_ati5770':
-    'Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release',
-   'base-macmini':
-    'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release',
-   'base-macmini-lion-float':
-    'Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release',
-   'base-android-galaxy-nexus':
-    'Test-Android-GalaxyNexus-SGX540-Arm7-Debug',
-   'base-android-nexus-7':
-    'Test-Android-Nexus7-Tegra3-Arm7-Release',
-   'base-android-nexus-s':
-    'Test-Android-NexusS-SGX540-Arm7-Release',
-   'base-android-xoom':
-    'Test-Android-Xoom-Tegra2-Arm7-Release',
-   'base-android-nexus-10':
-    'Test-Android-Nexus10-MaliT604-Arm7-Release',
-   'base-android-nexus-4':
-    'Test-Android-Nexus4-Adreno320-Arm7-Release',
-}
-
+MASTER_HOST_URL = 'http://%s:%s' % (buildbot_globals.Get('master_host'),
+                                    buildbot_globals.Get('external_port'))
+ALL_BUILDERS = list(json.load(urllib2.urlopen(
+    MASTER_HOST_URL + '/json/builders')))
+TEST_BUILDERS = filter(lambda x: 'Trybot' not in x and 'Test' in x,
+                       ALL_BUILDERS)
 
 class _InternalException(Exception):
   pass
@@ -213,17 +191,15 @@ class JsonRebaseliner(object):
     return results_to_return
 
   # Rebaseline all tests/types we specified in the constructor,
-  # within this expectations/gm subdir.
+  # within this builder's subdirectory in expectations/gm .
   #
   # params:
-  #  subdir : e.g. 'base-shuttle-win7-intel-float'
   #  builder : e.g. 'Test-Win7-ShuttleA-HD2000-x86-Release'
-  def RebaselineSubdir(self, subdir, builder):
+  def RebaselineSubdir(self, builder):
     # Read in the actual result summary, and extract all the tests whose
     # results we need to update.
     actuals_url = '/'.join([self._actuals_base_url,
-                            subdir, builder, subdir,
-                            self._actuals_filename])
+                            builder, self._actuals_filename])
     # In most cases, we won't need to re-record results that are already
     # succeeding, but including the SUCCEEDED results will allow us to
     # re-record expectations if they somehow get out of sync.
@@ -236,7 +212,7 @@ class JsonRebaseliner(object):
 
     # Read in current expectations.
     expectations_input_filepath = os.path.join(
-        self._expectations_root, subdir, self._expectations_input_filename)
+        self._expectations_root, builder, self._expectations_input_filename)
     expectations_dict = gm_json.LoadFromFile(expectations_input_filepath)
     expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
 
@@ -261,7 +237,7 @@ class JsonRebaseliner(object):
 
     # Write out updated expectations.
     expectations_output_filepath = os.path.join(
-        self._expectations_root, subdir, self._expectations_output_filename)
+        self._expectations_root, builder, self._expectations_output_filename)
     gm_json.WriteToFile(expectations_dict, expectations_output_filepath)
 
     # Mark the JSON file as plaintext, so text-style diffs can be applied.
@@ -278,7 +254,7 @@ parser.add_argument('--actuals-base-url',
                     'summaries of actual GM results; defaults to %(default)s',
                     default='http://skia-autogen.googlecode.com/svn/gm-actual')
 parser.add_argument('--actuals-filename',
-                    help='filename (within platform-specific subdirectories ' +
+                    help='filename (within builder-specific subdirectories ' +
                     'of ACTUALS_BASE_URL) to read a summary of results from; ' +
                     'defaults to %(default)s',
                     default='actual-results.json')
@@ -288,6 +264,10 @@ parser.add_argument('--add-new', action='store_true',
                     'updating expectations for failing tests, add ' +
                     'expectations for tests which don\'t have expectations ' +
                     'yet.')
+parser.add_argument('--builders', metavar='BUILDER', nargs='+',
+                    help='which platforms to rebaseline; ' +
+                    'if unspecified, rebaseline all platforms, same as ' +
+                    '"--builders %s"' % ' '.join(sorted(TEST_BUILDERS)))
 # TODO(epoger): Add test that exercises --configs argument.
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help='which configurations to rebaseline, e.g. ' +
@@ -308,17 +288,13 @@ parser.add_argument('--expectations-filename-output',
                     default='')
 parser.add_argument('--expectations-root',
                     help='root of expectations directory to update-- should ' +
-                    'contain one or more base-* subdirectories. Defaults to ' +
+                    'contain one or more builder subdirectories. Defaults to ' +
                     '%(default)s',
                     default=os.path.join('expectations', 'gm'))
 parser.add_argument('--keep-going-on-failure', action='store_true',
                     help='instead of halting at the first error encountered, ' +
                     'keep going and rebaseline as many tests as possible, ' +
                     'and then report the full set of errors at the end')
-parser.add_argument('--subdirs', metavar='SUBDIR', nargs='+',
-                    help='which platform subdirectories to rebaseline; ' +
-                    'if unspecified, rebaseline all subdirs, same as ' +
-                    '"--subdirs %s"' % ' '.join(sorted(SUBDIR_MAPPING.keys())))
 # TODO(epoger): Add test that exercises --tests argument.
 parser.add_argument('--tests', metavar='TEST', nargs='+',
                     help='which tests to rebaseline, e.g. ' +
@@ -328,27 +304,19 @@ parser.add_argument('--tests', metavar='TEST', nargs='+',
 args = parser.parse_args()
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
-if args.subdirs:
-  subdirs = args.subdirs
+if args.builders:
+  builders = args.builders
   missing_json_is_fatal = True
 else:
-  subdirs = sorted(SUBDIR_MAPPING.keys())
+  builders = sorted(TEST_BUILDERS)
   missing_json_is_fatal = False
-for subdir in subdirs:
-  if not subdir in SUBDIR_MAPPING.keys():
-    raise Exception(('unrecognized platform subdir "%s"; ' +
+for builder in builders:
+  if not builder in TEST_BUILDERS:
+    raise Exception(('unrecognized builder "%s"; ' +
                      'should be one of %s') % (
-                         subdir, SUBDIR_MAPPING.keys()))
-  builder = SUBDIR_MAPPING[subdir]
+                         builder, TEST_BUILDERS))
 
-  # We instantiate different Rebaseliner objects depending
-  # on whether we are rebaselining an expected-results.json file, or
-  # individual image files.  Different expectations/gm subdirectories may move
-  # from individual image files to JSON-format expectations at different
-  # times, so we need to make this determination per subdirectory.
-  #
-  # See https://goto.google.com/ChecksumTransitionDetail
-  expectations_json_file = os.path.join(args.expectations_root, subdir,
+  expectations_json_file = os.path.join(args.expectations_root, builder,
                                         args.expectations_filename)
   if os.path.isfile(expectations_json_file):
     rebaseliner = JsonRebaseliner(
@@ -362,7 +330,7 @@ for subdir in subdirs:
         exception_handler=exception_handler,
         add_new=args.add_new)
     try:
-      rebaseliner.RebaselineSubdir(subdir=subdir, builder=builder)
+      rebaseliner.RebaselineSubdir(builder=builder)
     except BaseException as e:
       exception_handler.RaiseExceptionOrContinue(e)
   else:

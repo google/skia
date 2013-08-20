@@ -131,9 +131,9 @@ function benchgraph_test {
 
 # Test rebaseline.py's JSON-format expectations rebaselining capability.
 #
-# Copy expected-result.json files from $1 into a dir where they can be modified.
+# Copy expected-results.json files from $1 into a dir where they can be modified.
 # Run rebaseline.py with arguments in $2, recording its output.
-# Then compare the output (and modified expected-result.json files) to the
+# Then compare the output (and modified expected-results.json files) to the
 # content of $2/output-expected.
 function rebaseline_test {
   if [ $# != 3 ]; then
@@ -148,18 +148,31 @@ function rebaseline_test {
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
   EXPECTATIONS_TO_MODIFY_DIR="$ACTUAL_OUTPUT_DIR/gm-expectations"
-  SUBDIRS=$(ls $COPY_EXPECTATIONS_FROM_DIR)
-  for SUBDIR in $SUBDIRS; do
-    mkdir -p $EXPECTATIONS_TO_MODIFY_DIR/$SUBDIR
-    cp $COPY_EXPECTATIONS_FROM_DIR/$SUBDIR/expected-results.json \
-       $EXPECTATIONS_TO_MODIFY_DIR/$SUBDIR
+  # TODO(epoger): Temporarily exclude expectations subdirs with old base-* names,
+  # during a transition period (we need the svn rm of those subdirs to take
+  # effect)
+  BUILDERS=$(ls $COPY_EXPECTATIONS_FROM_DIR | grep -v ^base-)
+  for BUILDER in $BUILDERS; do
+    mkdir -p $EXPECTATIONS_TO_MODIFY_DIR/$BUILDER
+    cp $COPY_EXPECTATIONS_FROM_DIR/$BUILDER/expected-results.json \
+       $EXPECTATIONS_TO_MODIFY_DIR/$BUILDER
   done
   COMMAND="python tools/rebaseline.py --expectations-root $EXPECTATIONS_TO_MODIFY_DIR $ARGS"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
-  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+  # TODO(epoger): Temporarily override compare_directories with a comparison
+  # that excludes expectations subdirs with old base-* names,
+  # during a transition period (we need the svn rm of those subdirs to take
+  # effect)
+  #
+  # WAS: compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+  diff --recursive --exclude=.* --exclude=base-* $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+  if [ $? != 0 ]; then
+    echo "failed in: compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR"
+    exit 1
+  fi
 }
 
 # Run jsondiff.py with arguments in $1, recording its output.
@@ -242,7 +255,7 @@ fi
 
 REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
-rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --subdirs base-android-galaxy-nexus base-shuttle-win7-intel-float" "$REBASELINE_OUTPUT/using-json1-expectations"
+rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release" "$REBASELINE_OUTPUT/using-json1-expectations"
 
 #
 # Test jsondiff.py ...

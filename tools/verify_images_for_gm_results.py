@@ -47,8 +47,8 @@ def FindURLSInJSON(json_file, gs_urls):
 
   Example gs_urls:
   { 'gs://chromium-skia-gm/gm/sometest/12345.png': [
-      'http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug/base-macmini/actual-results.json',
-      'http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-10_8/Test-Mac10.8-MacMini4.1-GeForce320M-x86-Debug/base-macmini-10_8/actual-results.json',
+      'http://skia-autogen.googlecode.com/svn/gm-actual/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug/actual-results.json',
+      'http://skia-autogen.googlecode.com/svn/gm-actual/Test-Mac10.8-MacMini4.1-GeForce320M-x86-Debug/actual-results.json',
     ]
   }
   """
@@ -111,8 +111,8 @@ def FindURLs(url):
 
   Example output:
   { 'gs://chromium-skia-gm/gm/sometest/12345.png': [
-      'http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug/base-macmini/actual-results.json',
-      'http://skia-autogen.googlecode.com/svn/gm-actual/base-macmini-10_8/Test-Mac10.8-MacMini4.1-GeForce320M-x86-Debug/base-macmini-10_8/actual-results.json',
+      'http://skia-autogen.googlecode.com/svn/gm-actual/Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug/actual-results.json',
+      'http://skia-autogen.googlecode.com/svn/gm-actual/Test-Mac10.8-MacMini4.1-GeForce320M-x86-Debug/actual-results.json',
     ]
   }
   """

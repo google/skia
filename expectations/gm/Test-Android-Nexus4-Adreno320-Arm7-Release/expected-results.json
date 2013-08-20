@@ -1,0 +1,1604 @@
+{
+  "actual-results": {
+    "failed": null, 
+    "failure-ignored": null, 
+    "no-comparison": null, 
+    "succeeded": null
+  }, 
+  "expected-results": {
+    "3x3bitmaprect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2054956815327187963
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "aaclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13629814658482325806
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "aarectmodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7778842390739990811
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "alphagradients_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15199591551871406588
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "arithmode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2517464688252538320
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bicubicfilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12488185918270960759
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bigmatrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11312341834140573842
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bigtext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14992614689880273626
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmapfilters_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10134487180207873568
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmaprect_i_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16618451024892116570
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmaprect_s_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16618451024892116570
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmaprecttest_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1454528164630516875
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "bitmapscroll_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          930590022062657844
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blend_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6936034028654996743
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9204962342746841096
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7570530342905628456
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10719700266229569967
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2967934151616235045
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10723107923613959342
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          615317659026317281
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8459602697994167638
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7006461124398681964
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2027939861397155283
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16859077574164786861
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11235472972448689767
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          211753060382777252
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9480781043126732856
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13490358164525901469
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7510678086179746596
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3806074074893746616
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6448347138450055386
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8116983762815866279
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8586295779506545029
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13549111781346373872
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10705231956829285301
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16166530039514546259
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14266854668713428040
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13919535267648107375
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4024415106133337207
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4056266015657707537
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8512719054924050854
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2333883535017760004
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4944324683394912164
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          559777607283727863
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_inner_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8753902296095062956
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_inner_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11858986800931856376
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_normal_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3606241125593407269
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_normal_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10333770547066405158
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_outer_fast_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5438277324777890642
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_outer_slow_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16194212489255681648
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blurs_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10039814989256160709
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "chrome_gradtext1_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6708894799496057436
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "chrome_gradtext2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7116408385747031060
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "clamped_gradients_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3828862583467184095
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "clippedcubic_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6043182265987438315
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "cmykjpeg_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8689938548045974643
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "colorfilterimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2646827529077989952
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "colormatrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          637895803554466821
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7558229948134696044
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip2_path_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6767202152973974411
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_aa_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10389883438780678606
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_aa_layer_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3577194492193648723
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12667766993203707148
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "complexclip_bw_layer_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5883475138905220650
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "composeshader_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8335957777854187363
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "convexpaths_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          384705706809958819
+        ]
+      ]
+    }, 
+    "convexpaths_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9645239680457923128
+        ]
+      ]
+    }, 
+    "convexpaths_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8172814238498160467
+        ]
+      ]
+    }, 
+    "cubicclosepath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5353706609262609505
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "cubicpath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3391061664603436052
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashcubics_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14590699292550118849
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          491154211623518706
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing3_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7019362229269827952
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "dashing_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6037358077984560592
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "degeneratesegments_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16178145683473871136
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "displacement_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12963036951035488526
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "distantclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2455115578822786504
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "drawbitmapmatrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8144375082455306072
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "drawlooper_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7052292723958646903
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "emptypath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9979180146861458879
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "extractbitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6262841086313421656
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "factory_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8689938548045974643
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "fatpathfill_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10403138627407579157
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filltypes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2587801139190028480
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filltypespersp_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2410735654677354211
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filterbitmap_checkerboard_192_192_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10976759969092282269
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filterbitmap_checkerboard_32_2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4728459166519057746
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filterbitmap_checkerboard_32_32_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7374709700617910519
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filterbitmap_checkerboard_32_8_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13236446710206383232
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "filterbitmap_checkerboard_4_4_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10005917168450402317
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "fontmgr_iter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2211593642825930916
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "fontmgr_match_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2211593642825930916
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gammatext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15148478138073773888
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "getpostextpath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17806795773608718041
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_bilerp_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8112152499985052384
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_bilerp_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8430366169989348557
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_point_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17664227249162604428
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_point_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9837143541713078189
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_bilerp_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3373048891778268599
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_bilerp_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4487809511991243437
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_point_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12270897651601903070
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_point_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18105452151182268887
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_bilerp_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10221881734083134060
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_bilerp_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6434436505279098745
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_point_rotate_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7372779768318507780
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_point_scale_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14547059667322106211
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradient_matrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12845177880899457337
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradients_degenerate_2pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11233985797286739496
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "gradtext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13684447092962806852
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "hairlines_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6241209310235207292
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "hairmodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6870984406142963887
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "hittestpath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11931398909998950167
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imageblur_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7948354793145784383
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imagefiltersbase_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17122066540798351091
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imagefilterscropped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17318846310258594258
+        ]
+      ]
+    }, 
+    "imagefilterscropped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1344992806587217981
+        ]
+      ]
+    }, 
+    "imagefilterscropped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7586563415490930520
+        ]
+      ]
+    }, 
+    "imagefiltersgraph_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7486758441167850578
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imagemagnifier_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8682444366670180704
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "internal_links_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5006387858954941726
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lcdtext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7423967266561092263
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lighting_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5978500723325345632
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "lineclosepath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13619478597343468297
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "linepath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5682113047049520500
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "matrixconvolution_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8194666704613577884
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "modecolorfilters_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11934469864526604734
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "morphology_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2622266009798656719
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "nocolorbleed_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18074334797059459988
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "optimizations_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13857521313271479795
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "patheffect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1874060958958504483
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathfill_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18069286949622411976
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathinterior_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8014573766004268808
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathinvfill_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5029407105525423667
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathopsinverse_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          344340342425352800
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "pathopsskpclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15453759077814414857
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "perlinnoise_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17304976251617218753
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "points_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3748309998381027476
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "poly2poly_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15861347466422106081
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "quadclosepath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2716225417887944926
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "quadpath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12559438135733997771
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "radial_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14470264741921611599
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7803575516375633753
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_aa_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15505846428157583707
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17179521567697245058
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_clip_aa_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9497202824208489073
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "rrect_clip_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17179521567697245058
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "selftest1_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1149339852105949057
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "selftest2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7903070799454133570
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shaderbounds_linear_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7727257194845091814
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadows_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10943857060043481936
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shallow_gradient_linear_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3204062886906844487
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shallow_gradient_radial_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8517037460304899087
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shallow_gradient_sweep_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6438934157705253771
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "simpleaaclip_aaclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10585334343648404971
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "simpleaaclip_path_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          566616378850685785
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "simpleaaclip_rect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          717202113858671478
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "spritebitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11613164920112499895
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokerect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9590153275800042560
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokerects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10205964363897246069
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes3_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14947400480439360508
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes_poly_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6641542521483188265
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "strokes_round_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15713100465149066594
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tablecolorfilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17892855770534705304
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "texteffects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11308726831785357368
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "thinrects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18123780144204716606
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tilemode_bitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1158037186592982953
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tilemode_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1111833538637514681
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tilemodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11362478029744814114
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "tinybitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5633315905476176630
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "typeface_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3449195366356383828
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "typefacestyles_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13157091006852688628
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "verttext2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12104808368891683816
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "verttext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5856797709241343799
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodeimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18285403550986146407
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodeimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17728923405020117084
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodes3_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14495299544118438005
+        ]
+      ]
+    }, 
+    "xfermodes3_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4472496443282382989
+        ]
+      ]
+    }, 
+    "xfermodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9019242913965337895
+        ]
+      ], 
+      "ignore-failure": false
+    }
+  }
+}
