@@ -80,14 +80,6 @@ protected:
         }
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        // On android, we fail due to bad gpu drivers (it seems) by adding too
-        // much to our text atlas (texture).
-        return kSkipGPU_Flag;
-    }
-#endif
-
 private:
     typedef GM INHERITED;
 };
