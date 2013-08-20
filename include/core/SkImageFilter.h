@@ -13,7 +13,7 @@
 
 class SkBitmap;
 class SkColorFilter;
-class SkDevice;
+class SkBaseDevice;
 class SkMatrix;
 struct SkIPoint;
 class SkShader;
@@ -35,7 +35,7 @@ public:
     public:
         virtual ~Proxy() {};
 
-        virtual SkDevice* createDevice(int width, int height) = 0;
+        virtual SkBaseDevice* createDevice(int width, int height) = 0;
         // returns true if the proxy can handle this filter natively
         virtual bool canHandleImageFilter(SkImageFilter*) = 0;
         // returns true if the proxy handled the filter itself. if this returns

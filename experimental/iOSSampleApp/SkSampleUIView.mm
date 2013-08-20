@@ -136,8 +136,8 @@ public:
             case SampleWindow::kGPU_DeviceType:
             case SampleWindow::kNullGPU_DeviceType:
                 if (fCurContext) {
-                    SkAutoTUnref<SkDevice> device(new SkGpuDevice(fCurContext,
-                                                                  fCurRenderTarget));
+                    SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fCurContext,
+                                                                      fCurRenderTarget));
                     return new SkCanvas(device);
                 } else {
                     return NULL;

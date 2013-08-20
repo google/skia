@@ -74,7 +74,7 @@ protected:
         }
 
         // Now do the same but with a device bitmap as source image
-        SkAutoTUnref<SkDevice> secondDevice(canvas->createCompatibleDevice(
+        SkAutoTUnref<SkBaseDevice> secondDevice(canvas->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, bitmap.width(),
             bitmap.height(), true));
         SkCanvas secondCanvas(secondDevice.get());

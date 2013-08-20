@@ -432,7 +432,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     // We don't allocate pixels for the bitmap
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
+    SkBaseDevice* device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
     this->setDevice(device)->unref();
 
     // Tell the reader the appropriate flags to use.

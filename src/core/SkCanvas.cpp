@@ -129,7 +129,7 @@ void SkCanvas::predrawNotify() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*  This is the record we keep for each SkDevice that the user installs.
+/*  This is the record we keep for each SkBaseDevice that the user installs.
     The clip/matrix/proc are fields that reflect the top of the save/restore
     stack. Whenever the canvas changes, it marks a dirty flag, and then before
     these are used (assuming we're not on a layer) we rebuild these cache
@@ -138,12 +138,12 @@ void SkCanvas::predrawNotify() {
 */
 struct DeviceCM {
     DeviceCM*           fNext;
-    SkDevice*           fDevice;
+    SkBaseDevice*       fDevice;
     SkRasterClip        fClip;
     const SkMatrix*     fMatrix;
     SkPaint*            fPaint; // may be null (in the future)
 
-    DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas)
+    DeviceCM(SkBaseDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas)
             : fNext(NULL) {
         if (NULL != device) {
             device->ref();
@@ -315,7 +315,7 @@ public:
         return false;
     }
 
-    SkDevice* getDevice() const { return fDevice; }
+    SkBaseDevice* getDevice() const { return fDevice; }
     int getX() const { return fDevice->getOrigin().x(); }
     int getY() const { return fDevice->getOrigin().y(); }
     const SkMatrix& getMatrix() const { return *fMatrix; }
@@ -482,7 +482,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-SkDevice* SkCanvas::init(SkDevice* device) {
+SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
@@ -511,7 +511,7 @@ SkCanvas::SkCanvas()
     this->init(NULL);
 }
 
-SkCanvas::SkCanvas(SkDevice* device)
+SkCanvas::SkCanvas(SkBaseDevice* device)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
@@ -522,7 +522,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkDevice, (bitmap)))->unref();
+    this->init(SkNEW_ARGS(SkBitmapDevice, (bitmap)))->unref();
 }
 
 SkCanvas::~SkCanvas() {
@@ -564,37 +564,37 @@ SkMetaData& SkCanvas::getMetaData() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::flush() {
-    SkDevice* device = this->getDevice();
+    SkBaseDevice* device = this->getDevice();
     if (device) {
         device->flush();
     }
 }
 
 SkISize SkCanvas::getDeviceSize() const {
-    SkDevice* d = this->getDevice();
+    SkBaseDevice* d = this->getDevice();
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
 }
 
-SkDevice* SkCanvas::getDevice() const {
+SkBaseDevice* SkCanvas::getDevice() const {
     // return root device
     MCRec* rec = (MCRec*) fMCStack.front();
     SkASSERT(rec && rec->fLayer);
     return rec->fLayer->fDevice;
 }
 
-SkDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
+SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
     if (updateMatrixClip) {
         const_cast<SkCanvas*>(this)->updateDeviceCMCache();
     }
     return fMCRec->fTopLayer->fDevice;
 }
 
-SkDevice* SkCanvas::setDevice(SkDevice* device) {
+SkBaseDevice* SkCanvas::setDevice(SkBaseDevice* device) {
     // return root device
     SkDeque::F2BIter iter(fMCStack);
     MCRec*           rec = (MCRec*)iter.next();
     SkASSERT(rec && rec->fLayer);
-    SkDevice*       rootDevice = rec->fLayer->fDevice;
+    SkBaseDevice*    rootDevice = rec->fLayer->fDevice;
 
     if (rootDevice == device) {
         return device;
@@ -644,7 +644,7 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
 bool SkCanvas::readPixels(SkBitmap* bitmap,
                           int x, int y,
                           Config8888 config8888) {
-    SkDevice* device = this->getDevice();
+    SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
@@ -652,7 +652,7 @@ bool SkCanvas::readPixels(SkBitmap* bitmap,
 }
 
 bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
-    SkDevice* device = this->getDevice();
+    SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
@@ -676,7 +676,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
 
 void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
                            Config8888 config8888) {
-    SkDevice* device = this->getDevice();
+    SkBaseDevice* device = this->getDevice();
     if (device) {
         if (SkIRect::Intersects(SkIRect::MakeSize(this->getDeviceSize()),
                                 SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()))) {
@@ -748,7 +748,7 @@ static SkBitmap::Config resolve_config(SkCanvas* canvas,
     uint32_t configMask = 0;
     for (int i = canvas->countLayerDevices() - 1; i >= 0; --i)
     {
-        SkDevice* device = canvas->getLayerDevice(i);
+        SkBaseDevice* device = canvas->getLayerDevice(i);
         if (device->intersects(bounds))
             configMask |= 1 << device->config();
     }
@@ -849,7 +849,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
     bool isOpaque;
     SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
 
-    SkDevice* device;
+    SkBaseDevice* device;
     if (paint && paint->getImageFilter()) {
         device = this->createCompatibleDevice(config, ir.width(), ir.height(),
                                               isOpaque);
@@ -981,7 +981,7 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
     LOOPER_END
 }
 
-void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
+void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
                                   const SkPaint* paint) {
     SkPaint tmp;
     if (NULL == paint) {
@@ -991,7 +991,7 @@ void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
 
     LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
     while (iter.next()) {
-        SkDevice* dstDev = iter.fDevice;
+        SkBaseDevice* dstDev = iter.fDevice;
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
@@ -1164,7 +1164,7 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
             return currClip->op(clip, op);
         }
     } else {
-        const SkDevice* device = canvas->getDevice();
+        const SkBaseDevice* device = canvas->getDevice();
         if (!device) {
             return currClip->setEmpty();
         }
@@ -1358,7 +1358,7 @@ bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
 #ifdef SK_DEBUG
 void SkCanvas::validateClip() const {
     // construct clipRgn from the clipstack
-    const SkDevice* device = this->getDevice();
+    const SkBaseDevice* device = this->getDevice();
     if (!device) {
         SkASSERT(this->getTotalClip().isEmpty());
         return;
@@ -1543,10 +1543,10 @@ const SkRegion& SkCanvas::getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
 }
 
-SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
+SkBaseDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
                                       int width, int height,
                                       bool isOpaque) {
-    SkDevice* device = this->getTopDevice();
+    SkBaseDevice* device = this->getTopDevice();
     if (device) {
         return device->createCompatibleDeviceForSaveLayer(config, width, height,
                                                           isOpaque);
@@ -1555,10 +1555,10 @@ SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
     }
 }
 
-SkDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
+SkBaseDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
                                            int width, int height,
                                            bool isOpaque) {
-    SkDevice* device = this->getDevice();
+    SkBaseDevice* device = this->getDevice();
     if (device) {
         return device->createCompatibleDevice(config, width, height, isOpaque);
     } else {
@@ -1874,8 +1874,8 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 
 class SkDeviceFilteredPaint {
 public:
-    SkDeviceFilteredPaint(SkDevice* device, const SkPaint& paint) {
-        SkDevice::TextFlags flags;
+    SkDeviceFilteredPaint(SkBaseDevice* device, const SkPaint& paint) {
+        SkBaseDevice::TextFlags flags;
         if (device->filterTextFlags(paint, &flags)) {
             SkPaint* newPaint = fLazy.set(paint);
             newPaint->setFlags(flags.fFlags);
@@ -2203,7 +2203,7 @@ void SkCanvas::LayerIter::next() {
     fDone = !fImpl->next();
 }
 
-SkDevice* SkCanvas::LayerIter::device() const {
+SkBaseDevice* SkCanvas::LayerIter::device() const {
     return fImpl->getDevice();
 }
 

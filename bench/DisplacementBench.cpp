@@ -35,7 +35,7 @@ protected:
         const int h = isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fBitmap.allocPixels();
-        SkDevice device(fBitmap);
+        SkBitmapDevice device(fBitmap);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint paint;
@@ -51,7 +51,7 @@ protected:
         const int h = isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fCheckerboard.allocPixels();
-        SkDevice device(fCheckerboard);
+        SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;

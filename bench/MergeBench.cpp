@@ -53,7 +53,7 @@ private:
     void make_bitmap() {
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 80, 80);
         fBitmap.allocPixels();
-        SkDevice device(fBitmap);
+        SkBitmapDevice device(fBitmap);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint paint;
@@ -67,7 +67,7 @@ private:
     void make_checkerboard() {
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, 80, 80);
         fCheckerboard.allocPixels();
-        SkDevice device(fCheckerboard);
+        SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;

@@ -109,7 +109,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     const int x0 = bounds.left();
     const int y0 = bounds.top();
 
-    SkAutoTUnref<SkDevice> dst(proxy->createDevice(bounds.width(), bounds.height()));
+    SkAutoTUnref<SkBaseDevice> dst(proxy->createDevice(bounds.width(), bounds.height()));
     if (NULL == dst) {
         return false;
     }
