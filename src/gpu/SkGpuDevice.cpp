@@ -1086,6 +1086,32 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
                            SkCanvas::kNone_DrawBitmapRectFlag);
 }
 
+// This method outsets 'iRect' by 1 all around and then clamps its extents to
+// 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
+// of 'iRect' for all possible outsets/clamps.
+static inline void clamped_unit_outset_with_offset(SkIRect* iRect, SkPoint* offset, 
+                                                   const SkIRect& clamp) {
+    iRect->outset(1, 1);
+
+    if (iRect->fLeft < clamp.fLeft) {
+        iRect->fLeft = clamp.fLeft;
+    } else {
+        offset->fX -= SK_Scalar1;
+    }
+    if (iRect->fTop < clamp.fTop) {
+        iRect->fTop = clamp.fTop;
+    } else {
+        offset->fY -= SK_Scalar1;
+    }
+
+    if (iRect->fRight > clamp.fRight) {
+        iRect->fRight = clamp.fRight;
+    }
+    if (iRect->fBottom > clamp.fBottom) {
+        iRect->fBottom = clamp.fBottom;
+    }
+}
+
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkBitmap& bitmap,
                                    const SkRect* srcRectPtr,
@@ -1102,8 +1128,6 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
 
     if (paint.getMaskFilter()){
-        // TODO: this path needs to be updated to respect the bleed flag
-
         // Convert the bitmap to a shader so that the rect can be drawn
         // through drawRect, which supports mask filters.
         SkMatrix        newM(m);
@@ -1112,13 +1136,24 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         if (NULL != srcRectPtr) {
             SkIRect iSrc;
             srcRect.roundOut(&iSrc);
+
+            SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft), 
+                                           SkIntToScalar(iSrc.fTop));
+
+            if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
+                // In bleed mode we want to expand the src rect on all sides
+                // but stay within the bitmap bounds
+                SkIRect iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+                clamped_unit_outset_with_offset(&iSrc, &offset, iClampRect);
+            }
+
             if (!bitmap.extractSubset(&tmp, iSrc)) {
                 return;     // extraction failed
             }
             bitmapPtr = &tmp;
-            srcRect.offset(SkIntToScalar(-iSrc.fLeft), SkIntToScalar(-iSrc.fTop));
+            srcRect.offset(-offset.fX, -offset.fY);
             // The source rect has changed so update the matrix
-            newM.preTranslate(SkIntToScalar(iSrc.fLeft), SkIntToScalar(iSrc.fTop));
+            newM.preTranslate(offset.fX, offset.fY);
         }
 
         SkPaint paintWithTexture(paint);
@@ -1175,32 +1210,6 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         this->internalDrawBitmap(bitmap, srcRect, m, params, paint, flags);
     } else {
         this->drawTiledBitmap(bitmap, srcRect, m, params, paint, flags);
-    }
-}
-
-// This method outsets 'iRect' by 1 all around and then clamps its extents to
-// 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
-// of 'iRect' despite the possible outsets/clamps.
-static inline void clamped_unit_outset_with_offset(SkIRect* iRect, SkPoint* offset, 
-                                                   const SkIRect& clamp) {
-    iRect->outset(1, 1);
-
-    if (iRect->fLeft < clamp.fLeft) {
-        iRect->fLeft = clamp.fLeft;
-    } else {
-        offset->fX -= SK_Scalar1;
-    }
-    if (iRect->fTop < clamp.fTop) {
-        iRect->fTop = clamp.fTop;
-    } else {
-        offset->fY -= SK_Scalar1;
-    }
-
-    if (iRect->fRight > clamp.fRight) {
-        iRect->fRight = clamp.fRight;
-    }
-    if (iRect->fBottom > clamp.fBottom) {
-        iRect->fBottom = clamp.fBottom;
     }
 }
 
