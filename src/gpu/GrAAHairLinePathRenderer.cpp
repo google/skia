@@ -600,72 +600,29 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     }
 }
 
-// Input:
-// Three control points: p[0], p[1], p[2] and weight: w
-// Output:
-// Let:
-// l = (2*w * (y1 - y0), 2*w * (x0 - x1), 2*w * (x1*y0 - x0*y1))
-// m = (2*w * (y2 - y1), 2*w * (x1 - x2), 2*w * (x2*y1 - x1*y2))
-// k = (y2 - y0, x0 - x2, (x2 - x0)*y0 - (y2 - y0)*x0 )
-void calc_conic_klm(const SkPoint p[3], const SkScalar weight,
-                       SkScalar k[3], SkScalar l[3], SkScalar m[3]) {
-    const SkScalar w2 = 2 * weight;
-    l[0] = w2 * (p[1].fY - p[0].fY);
-    l[1] = w2 * (p[0].fX - p[1].fX);
-    l[2] = w2 * (p[1].fX * p[0].fY - p[0].fX * p[1].fY);
-
-    m[0] = w2 * (p[2].fY - p[1].fY);
-    m[1] = w2 * (p[1].fX - p[2].fX);
-    m[2] = w2 * (p[2].fX * p[1].fY - p[1].fX * p[2].fY);
-
-    k[0] = p[2].fY - p[0].fY;
-    k[1] = p[0].fX - p[2].fX;
-    k[2] = (p[2].fX - p[0].fX) * p[0].fY - (p[2].fY - p[0].fY) * p[0].fX;
-
-    // scale the max absolute value of coeffs to 10
-    SkScalar scale = 0.0f;
-    for (int i = 0; i < 3; ++i) {
-       scale = SkMaxScalar(scale, SkScalarAbs(k[i]));
-       scale = SkMaxScalar(scale, SkScalarAbs(l[i]));
-       scale = SkMaxScalar(scale, SkScalarAbs(m[i]));
-    }
-    SkASSERT(scale > 0);
-    scale /= 10.0f;
-    k[0] /= scale;
-    k[1] /= scale;
-    k[2] /= scale;
-    l[0] /= scale;
-    l[1] /= scale;
-    l[2] /= scale;
-    m[0] /= scale;
-    m[1] /= scale;
-    m[2] /= scale;
-}
-
 // Equations based off of Loop-Blinn Quadratic GPU Rendering
 // Input Parametric:
 // P(t) = (P0*(1-t)^2 + 2*w*P1*t*(1-t) + P2*t^2) / (1-t)^2 + 2*w*t*(1-t) + t^2)
 // Output Implicit:
 // f(x, y, w) = f(P) = K^2 - LM
 // K = dot(k, P), L = dot(l, P), M = dot(m, P)
-// k, l, m are calculated in function calc_conic_klm
-void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kVertsPerQuad], const float weight) {
-    SkScalar k[3];
-    SkScalar l[3];
-    SkScalar m[3];
+// k, l, m are calculated in function GrPathUtils::getConicKLM
+void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kVertsPerQuad],
+                      const SkScalar weight) {
+    SkScalar klm[9];
 
-    calc_conic_klm(p, weight, k, l, m);
+    GrPathUtils::getConicKLM(p, weight, klm);
 
     for (int i = 0; i < kVertsPerQuad; ++i) {
         const SkPoint pnt = verts[i].fPos;
-        verts[i].fConic.fK = pnt.fX * k[0] + pnt.fY * k[1] + k[2];
-        verts[i].fConic.fL = pnt.fX * l[0] + pnt.fY * l[1] + l[2];
-        verts[i].fConic.fM = pnt.fX * m[0] + pnt.fY * m[1] + m[2];
+        verts[i].fConic.fK = pnt.fX * klm[0] + pnt.fY * klm[1] + klm[2];
+        verts[i].fConic.fL = pnt.fX * klm[3] + pnt.fY * klm[4] + klm[5];
+        verts[i].fConic.fM = pnt.fX * klm[6] + pnt.fY * klm[7] + klm[8];
     }
 }
 
 void add_conics(const SkPoint p[3],
-                float weight,
+                const SkScalar weight,
                 const SkMatrix* toDevice,
                 const SkMatrix* toSrc,
                 BezierVertex** vert,

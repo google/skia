@@ -97,6 +97,15 @@ namespace GrPathUtils {
         float fM[6];
     };
 
+    // Input is 3 control points and a weight for a bezier conic. Calculates the
+    // three linear functionals (K,L,M) that represent the implicit equation of the
+    // conic, K^2 - LM.
+    //
+    // Output:
+    //  K = (klm[0], klm[1], klm[2])
+    //  L = (klm[3], klm[4], klm[5])
+    //  M = (klm[6], klm[7], klm[8])
+    void getConicKLM(const SkPoint p[3], const SkScalar weight, SkScalar klm[9]);
 
     // Converts a cubic into a sequence of quads. If working in device space
     // use tolScale = 1, otherwise set based on stretchiness of the matrix. The

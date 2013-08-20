@@ -275,6 +275,39 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+// k = (y2 - y0, x0 - x2, (x2 - x0)*y0 - (y2 - y0)*x0 )
+// l = (2*w * (y1 - y0), 2*w * (x0 - x1), 2*w * (x1*y0 - x0*y1))
+// m = (2*w * (y2 - y1), 2*w * (x1 - x2), 2*w * (x2*y1 - x1*y2))
+void GrPathUtils::getConicKLM(const SkPoint p[3], const SkScalar weight, SkScalar klm[9]) {
+    const SkScalar w2 = 2.f * weight;
+    klm[0] = p[2].fY - p[0].fY;
+    klm[1] = p[0].fX - p[2].fX;
+    klm[2] = (p[2].fX - p[0].fX) * p[0].fY - (p[2].fY - p[0].fY) * p[0].fX;
+
+    klm[3] = w2 * (p[1].fY - p[0].fY);
+    klm[4] = w2 * (p[0].fX - p[1].fX);
+    klm[5] = w2 * (p[1].fX * p[0].fY - p[0].fX * p[1].fY);
+
+    klm[6] = w2 * (p[2].fY - p[1].fY);
+    klm[7] = w2 * (p[1].fX - p[2].fX);
+    klm[8] = w2 * (p[2].fX * p[1].fY - p[1].fX * p[2].fY);
+
+    // scale the max absolute value of coeffs to 10
+    SkScalar scale = 0.f;
+    for (int i = 0; i < 9; ++i) {
+       scale = SkMaxScalar(scale, SkScalarAbs(klm[i]));
+    }
+    SkASSERT(scale > 0.f);
+    scale = 10.f / scale;
+    for (int i = 0; i < 9; ++i) {
+        klm[i] *= scale;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace {
 
 // a is the first control point of the cubic.
