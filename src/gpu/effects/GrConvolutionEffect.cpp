@@ -227,12 +227,12 @@ GrEffectRef* GrConvolutionEffect::TestCreate(SkMWCRandom* random,
                                       GrEffectUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     int radius = random->nextRangeU(1, kMaxKernelRadius);
-    float kernel[kMaxKernelRadius];
-    for (int i = 0; i < kMaxKernelRadius; ++i) {
+    float kernel[kMaxKernelWidth];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kernel); ++i) {
         kernel[i] = random->nextSScalar1();
     }
     float bounds[2];
-    for (int i = 0; i < 2; ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(bounds); ++i) {
         bounds[i] = random->nextF();
     }
 
