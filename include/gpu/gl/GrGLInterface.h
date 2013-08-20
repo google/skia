@@ -110,7 +110,7 @@ typedef intptr_t GrGLInterfaceCallbackData;
  * non-NULL or GrContext creation will fail. This can be tested with the
  * validate() method when the OpenGL context has been made current.
  */
-struct GR_API GrGLInterface : public GrRefCnt {
+struct SK_API GrGLInterface : public GrRefCnt {
 private:
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class GLPtr {

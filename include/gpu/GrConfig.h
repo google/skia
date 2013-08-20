@@ -157,36 +157,6 @@ typedef unsigned __int64 uint64_t;
 // postconfig section:
 //
 
-// GR_IMPLEMENTATION should be define to 1 when building Gr and 0 when including
-// it in another dependent build. The Gr makefile/ide-project should define this
-// to 1.
-#if !defined(GR_IMPLEMENTATION)
-    #define GR_IMPLEMENTATION 0
-#endif
-
-// If Gr is built as a shared library then GR_DLL should be defined to 1 (both
-// when building Gr and when including its headers in dependent builds). Only
-// currently supported minimally for Chrome's Win32 Multi-DLL build (TODO:
-// correctly exort all of the public API correctly and support shared lib on
-// other platforms).
-#if !defined(GR_DLL)
-    #define GR_DLL 0
-#endif
-
-#if GR_DLL
-    #if GR_WIN32_BUILD
-        #if GR_IMPLEMENTATION
-            #define GR_API __declspec(dllexport)
-        #else
-            #define GR_API __declspec(dllimport)
-        #endif
-    #else
-        #define GR_API __attribute__((visibility("default")))
-    #endif
-#else
-    #define GR_API
-#endif
-
 // By now we must have a GR_..._BUILD symbol set to 1, and a decision about
 // debug -vs- release
 //

@@ -146,9 +146,6 @@
         '<@(skgpu_null_gl_sources)',
         'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
-      'defines': [
-        'GR_IMPLEMENTATION=1',
-      ],
       'conditions': [
         [ 'skia_nv_path_rendering', {
           'defines': [

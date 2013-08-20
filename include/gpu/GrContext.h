@@ -39,7 +39,7 @@ class GrVertexBufferAllocPool;
 class GrSoftwarePathRenderer;
 class SkStrokeRec;
 
-class GR_API GrContext : public GrRefCnt {
+class SK_API GrContext : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrContext)
 

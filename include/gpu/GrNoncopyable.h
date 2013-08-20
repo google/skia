@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrNoncopyable_DEFINED
 #define GrNoncopyable_DEFINED
 
@@ -17,7 +15,7 @@
  *  Base for classes that want to disallow copying themselves. It makes its
  *  copy-constructor and assignment operators private (and unimplemented).
  */
-class GR_API GrNoncopyable {
+class SK_API GrNoncopyable {
 public:
     GrNoncopyable() {}
 
