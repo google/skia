@@ -610,9 +610,14 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     GrGLenum internalFormat;
     GrGLenum externalFormat;
     GrGLenum externalType;
-    // glTexStorage requires sized internal formats on both desktop and ES. ES
-    // glTexImage requires an unsized format.
-    if (!this->configToGLFormats(dataConfig, useTexStorage, &internalFormat,
+    // glTexStorage requires sized internal formats on both desktop and ES. ES2
+    // requires an unsized format for glTexImage. ES3 has relaxed this restriction.
+    // Qualcomm Adreno drivers seem to have issues with the relaxed ES3 rules.
+    bool useSizedInternalFormat = useTexStorage ||
+                                  kDesktop_GrGLBinding == this->glBinding() ||
+                                  (this->glVersion() >= GR_GL_VER(3,0) &&
+                                   kQualcomm_GrGLVendor != this->glContext().info().vendor());
+    if (!this->configToGLFormats(dataConfig, useSizedInternalFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
     }
@@ -809,7 +814,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         if (!desc->fRTFBOID ||
             !desc->fMSColorRenderbufferID ||
             !this->configToGLFormats(desc->fConfig,
-                                     // GLES requires sized internal formats
+                                     // ES2 and ES3 require sized internal formats for rb storage.
                                      kES_GrGLBinding == this->glBinding(),
                                      &msColorFormat,
                                      NULL,

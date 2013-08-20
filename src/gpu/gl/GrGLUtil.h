@@ -23,6 +23,7 @@ enum GrGLVendor {
     kARM_GrGLVendor,
     kImagination_GrGLVendor,
     kIntel_GrGLVendor,
+    kQualcomm_GrGLVendor,
 
     kOther_GrGLVendor
 };
