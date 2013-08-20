@@ -90,6 +90,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         NULL == fGetString ||
         NULL == fGetUniformLocation ||
         NULL == fLinkProgram ||
+        NULL == fLineWidth ||
         NULL == fPixelStorei ||
         NULL == fReadPixels ||
         NULL == fScissor ||
@@ -273,8 +274,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     // part of desktop GL, but not ES
     if (kDesktop_GrGLBinding == binding &&
-        (NULL == fLineWidth ||
-         NULL == fGetTexLevelParameteriv ||
+        (NULL == fGetTexLevelParameteriv ||
          NULL == fDrawBuffer ||
          NULL == fReadBuffer)) {
         return false;
