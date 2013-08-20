@@ -416,10 +416,10 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     
     // test mixed-valued matrix inverse
     mat.reset();
-    mat.setScale(1.0e-11, 3.0, 1.0e+11);
+    mat.setScale(1.0e-10, 3.0, 1.0e+10);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(1.0e+11, 3.0, 1.0e-11);
+    mat.postTranslate(1.0e+10, 3.0, 1.0e-10);
     REPORTER_ASSERT(reporter, mat.invert(NULL));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
