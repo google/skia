@@ -674,13 +674,13 @@ public:
                             const SkPaint* paint = NULL);
 
     enum DrawBitmapRectFlags {
-        kNone_DrawBitmapRectflag            = 0x0,
+        kNone_DrawBitmapRectFlag            = 0x0,
         /**
          *  When filtering is enabled, allow the color samples outside of
          *  the src rect (but still in the src bitmap) to bleed into the
          *  drawn portion
          */
-        kBleed_DrawBitmapRectFlag            = 0x1,
+        kBleed_DrawBitmapRectFlag           = 0x1,
     };
 
     /** Draw the specified bitmap, with the specified matrix applied (before the
@@ -694,16 +694,16 @@ public:
     virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst,
                                       const SkPaint* paint = NULL,
-                                      DrawBitmapRectFlags flags = kNone_DrawBitmapRectflag);
+                                      DrawBitmapRectFlags flags = kNone_DrawBitmapRectFlag);
 
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst,
                         const SkPaint* paint = NULL) {
-        this->drawBitmapRectToRect(bitmap, NULL, dst, paint, kNone_DrawBitmapRectflag);
+        this->drawBitmapRectToRect(bitmap, NULL, dst, paint, kNone_DrawBitmapRectFlag);
     }
 
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* isrc,
                         const SkRect& dst, const SkPaint* paint = NULL,
-                        DrawBitmapRectFlags flags = kNone_DrawBitmapRectflag) {
+                        DrawBitmapRectFlags flags = kNone_DrawBitmapRectFlag) {
         SkRect realSrcStorage;
         SkRect* realSrcPtr = NULL;
         if (isrc) {
