@@ -201,6 +201,10 @@ void GrGpuGL::fillInConfigRenderableTable() {
     //  GL_OES_rgb8_rgba8 and/or GL_ARM_rgba8 adds support for RGBA8
     //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888 added BGRA support
 
+    // ES 3.0
+    // Same as ES 2.0 except R8 and RGBA8 are supported without extensions (the functions called
+    // below already account for this).
+
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // Post 3.0 we will get R8
         // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
