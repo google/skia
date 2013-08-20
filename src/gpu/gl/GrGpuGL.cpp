@@ -610,8 +610,10 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     GrGLenum internalFormat;
     GrGLenum externalFormat;
     GrGLenum externalType;
-    // glTexStorage requires sized internal formats on both desktop and ES. ES
-    // glTexImage requires an unsized format.
+    // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
+    // format for glTexImage, unlike ES3 and desktop. However, we allow the driver to decide the
+    // size of the internal format whenever possible and so only use a sized internal format when
+    // using texture storage.
     if (!this->configToGLFormats(dataConfig, useTexStorage, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
@@ -809,7 +811,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         if (!desc->fRTFBOID ||
             !desc->fMSColorRenderbufferID ||
             !this->configToGLFormats(desc->fConfig,
-                                     // GLES requires sized internal formats
+                                     // ES2 and ES3 require sized internal formats for rb storage.
                                      kES_GrGLBinding == this->glBinding(),
                                      &msColorFormat,
                                      NULL,
