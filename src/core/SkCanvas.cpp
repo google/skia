@@ -1859,7 +1859,7 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
             d.fLeft = dstX[x];
             d.fRight = dstX[x+1];
             this->internalDrawBitmapRect(bitmap, &s, d, paint,
-                                         kNone_DrawBitmapRectflag);
+                                         kNone_DrawBitmapRectFlag);
         }
     }
 }

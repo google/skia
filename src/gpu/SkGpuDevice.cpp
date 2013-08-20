@@ -1083,7 +1083,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
                              const SkPaint& paint) {
     // We cannot call drawBitmapRect here since 'm' could be anything
     this->drawBitmapCommon(draw, bitmap, NULL, m, paint,
-                           SkCanvas::kNone_DrawBitmapRectflag);
+                           SkCanvas::kNone_DrawBitmapRectFlag);
 }
 
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
