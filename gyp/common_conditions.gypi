@@ -229,8 +229,6 @@
               '-fPIC',
             ],
             'defines': [
-              'GR_DLL=1',
-              'GR_IMPLEMENTATION=1',
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
             ],
@@ -456,8 +454,6 @@
               '-fPIC',
             ],
             'defines': [
-              'GR_DLL=1',
-              'GR_IMPLEMENTATION=1',
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
             ],

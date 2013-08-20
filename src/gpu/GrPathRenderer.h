@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
@@ -28,7 +27,7 @@ struct GrPoint;
  *  stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
  *  filter masks).
  */
-class GR_API GrPathRenderer : public GrRefCnt {
+class SK_API GrPathRenderer : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrPathRenderer)
 

@@ -15,7 +15,7 @@
  *  Subclass that renders the path using the stencil buffer to resolve fill rules
  * (e.g. winding, even-odd)
  */
-class GR_API GrDefaultPathRenderer : public GrPathRenderer {
+class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
