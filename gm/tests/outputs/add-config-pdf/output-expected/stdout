@@ -1,4 +1,5 @@
 GM: These configs will be run: 8888 565 pdf
+GM: These PDF rasterizers will be run: poppler
 GM: reading expectations from JSON summary file gm/tests/inputs/json/identical-bytes.json
 GM: writing to gm/tests/outputs/add-config-pdf/output-actual/writePath
 GM: writing mismatches to gm/tests/outputs/add-config-pdf/output-actual/mismatchPath
@@ -8,11 +9,11 @@ GM: Ran 1 GMs
 GM: ... over  3 configs ["8888", "565", "pdf"]
 GM: ...  and  7 modes   ["pipe", "pipe cross-process", "pipe cross-process, shared address", "replay", "rtree", "serialize", "tilegrid"]
 GM: ... so there should be a total of 10 tests.
-GM: Ran 10 tests: NoGpuContext=0 IntentionallySkipped=1 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=0 WritingReferenceImage=0
+GM: Ran 10 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=1 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
-GM: [ ] 1 IntentionallySkipped: pdf/selftest1
+GM: [ ] 0 IntentionallySkipped:
 GM: [*] 0 RenderModeMismatch:
 GM: [*] 0 ExpectationsMismatch:
-GM: [ ] 0 MissingExpectations:
+GM: [ ] 1 MissingExpectations: pdf/selftest1
 GM: [*] 0 WritingReferenceImage:
 GM: (results marked with [*] will cause nonzero return value)

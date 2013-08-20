@@ -30,6 +30,7 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkPDFRasterizer.h"
 #include "SkPicture.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
@@ -83,9 +84,6 @@ extern bool gSkSuppressFontCachePurgeSpew;
 
 #ifdef SK_BUILD_FOR_MAC
     #include "SkCGUtils.h"
-    #define CAN_IMAGE_PDF   1
-#else
-    #define CAN_IMAGE_PDF   0
 #endif
 
 using namespace skiagm;
@@ -158,6 +156,12 @@ struct ConfigData {
     ConfigFlags                     fFlags;
     const char*                     fName;
     bool                            fRunByDefault;
+};
+
+struct PDFRasterizerData {
+    bool        (*fRasterizerFunction)(SkStream*, SkBitmap*);
+    const char* fName;
+    bool        fRunByDefault;
 };
 
 class BWTextDrawFilter : public SkDrawFilter {
@@ -282,14 +286,19 @@ public:
         }
     }
 
-    static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
+    static ErrorCombination write_bitmap(const SkString& path, const SkBitmap& bitmap) {
         // TODO(epoger): Now that we have removed force_all_opaque()
         // from this method, we should be able to get rid of the
         // transformation to 8888 format also.
         SkBitmap copy;
         bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-        return SkImageEncoder::EncodeFile(path.c_str(), copy,
-                                          SkImageEncoder::kPNG_Type, 100);
+        if (!SkImageEncoder::EncodeFile(path.c_str(), copy,
+                                        SkImageEncoder::kPNG_Type,
+                                        100)) {
+            gm_fprintf(stderr, "FAILED to write bitmap: %s\n", path.c_str());
+            return ErrorCombination(kWritingReferenceImage_ErrorType);
+        }
+        return kEmpty_ErrorCombination;
     }
 
     /**
@@ -410,9 +419,13 @@ public:
         gm_fprintf(stdout, "(results marked with [*] will cause nonzero return value)\n");
     }
 
-    static bool write_document(const SkString& path, SkStreamAsset* asset) {
+    static ErrorCombination write_document(const SkString& path, SkStreamAsset* asset) {
         SkFILEWStream stream(path.c_str());
-        return stream.writeStream(asset, asset->getLength());
+        if (!stream.writeStream(asset, asset->getLength())) {
+            gm_fprintf(stderr, "FAILED to write document: %s\n", path.c_str());
+            return ErrorCombination(kWritingReferenceImage_ErrorType);
+        }
+        return kEmpty_ErrorCombination;
     }
 
     /**
@@ -651,51 +664,6 @@ public:
 #endif
     }
 
-    ErrorCombination write_reference_image(const ConfigData& gRec, const char writePath [],
-                                           const char renderModeDescriptor [],
-                                           const char *shortName,
-                                           const BitmapAndDigest* bitmapAndDigest,
-                                           SkStreamAsset* document) {
-        SkString path;
-        bool success = false;
-        if (gRec.fBackend == kRaster_Backend ||
-            gRec.fBackend == kGPU_Backend ||
-            (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF)) {
-
-            path = make_bitmap_filename(writePath, shortName, gRec.fName, renderModeDescriptor,
-                                        bitmapAndDigest->fDigest);
-            success = write_bitmap(path, bitmapAndDigest->fBitmap);
-        }
-        if (kPDF_Backend == gRec.fBackend) {
-            path = make_filename(writePath, shortName, gRec.fName, renderModeDescriptor,
-                                 "pdf");
-            success = write_document(path, document);
-        }
-        if (kXPS_Backend == gRec.fBackend) {
-            path = make_filename(writePath, shortName, gRec.fName, renderModeDescriptor,
-                                 "xps");
-            success = write_document(path, document);
-        }
-        if (success) {
-            return kEmpty_ErrorCombination;
-        } else {
-            gm_fprintf(stderr, "FAILED to write %s\n", path.c_str());
-            ErrorCombination errors(kWritingReferenceImage_ErrorType);
-            // TODO(epoger): Don't call RecordTestResults() here...
-            // Instead, we should make sure to call RecordTestResults
-            // exactly ONCE per test.  (Otherwise, gmmain.fTestsRun
-            // will be incremented twice for this test: once in
-            // compare_test_results_to_stored_expectations() before
-            // that method calls this one, and again here.)
-            //
-            // When we make that change, we should probably add a
-            // WritingReferenceImage test to the gm self-tests.)
-            RecordTestResults(errors, make_shortname_plus_config(shortName, gRec.fName),
-                              renderModeDescriptor);
-            return errors;
-        }
-    }
-
     /**
      * Log more detail about the mistmatch between expectedBitmap and
      * actualBitmap.
@@ -824,7 +792,6 @@ public:
                                     completeName);
             }
         }
-        RecordTestResults(errors, shortNamePlusConfig, renderModeDescriptor);
 
         if (addToJsonSummary) {
             add_actual_results_to_json_summary(completeName, actualBitmapAndDigest.fDigest, errors,
@@ -893,20 +860,14 @@ public:
      *
      * @param gm which test generated the actualBitmap
      * @param gRec
-     * @param writePath unless this is NULL, write out actual images into this
-     *        directory
      * @param actualBitmapAndDigest ptr to bitmap generated by this run, or NULL
      *        if we don't have a usable bitmap representation
-     * @param document pdf or xps representation, if appropriate
      */
     ErrorCombination compare_test_results_to_stored_expectations(
-        GM* gm, const ConfigData& gRec, const char writePath[],
-        const BitmapAndDigest* actualBitmapAndDigest, SkStreamAsset* document) {
+        GM* gm, const ConfigData& gRec,
+        const BitmapAndDigest* actualBitmapAndDigest) {
 
         SkString shortNamePlusConfig = make_shortname_plus_config(gm->shortName(), gRec.fName);
-        SkString nameWithExtension(shortNamePlusConfig);
-        nameWithExtension.append(".");
-        nameWithExtension.append(kPNG_FileExtension);
 
         ErrorCombination errors;
 
@@ -914,18 +875,20 @@ public:
             // Note that we intentionally skipped validating the results for
             // this test, because we don't know how to generate an SkBitmap
             // version of the output.
-            RecordTestResults(ErrorCombination(kIntentionallySkipped_ErrorType),
-                              shortNamePlusConfig, "");
+            errors.add(ErrorCombination(kIntentionallySkipped_ErrorType));
         } else if (!(gRec.fFlags & kWrite_ConfigFlag)) {
             // We don't record the results for this test or compare them
             // against any expectations, because the output image isn't
             // meaningful.
             // See https://code.google.com/p/skia/issues/detail?id=1410 ('some
             // GM result images not available for download from Google Storage')
-            RecordTestResults(ErrorCombination(kIntentionallySkipped_ErrorType),
-                              shortNamePlusConfig, "");
+            errors.add(ErrorCombination(kIntentionallySkipped_ErrorType));
         } else {
             ExpectationsSource *expectationsSource = this->fExpectationsSource.get();
+            SkString nameWithExtension(shortNamePlusConfig);
+            nameWithExtension.append(".");
+            nameWithExtension.append(kPNG_FileExtension);
+
             if (expectationsSource && (gRec.fFlags & kRead_ConfigFlag)) {
                 /*
                  * Get the expected results for this test, as one or more allowed
@@ -950,20 +913,9 @@ public:
                                                    actualBitmapAndDigest->fDigest,
                                                    ErrorCombination(kMissingExpectations_ErrorType),
                                                    false);
-                RecordTestResults(ErrorCombination(kMissingExpectations_ErrorType),
-                                  shortNamePlusConfig, "");
+                errors.add(ErrorCombination(kMissingExpectations_ErrorType));
             }
         }
-
-        // TODO: Consider moving this into compare_to_expectations(),
-        // similar to fMismatchPath... for now, we don't do that, because
-        // we don't want to write out the actual bitmaps for all
-        // renderModes of all tests!  That would be a lot of files.
-        if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-            errors.add(write_reference_image(gRec, writePath, "", gm->shortName(),
-                                             actualBitmapAndDigest, document));
-        }
-
         return errors;
     }
 
@@ -983,8 +935,19 @@ public:
         SkASSERT(referenceBitmap);
         Expectations expectations(*referenceBitmap);
         BitmapAndDigest actualBitmapAndDigest(actualBitmap);
-        return compare_to_expectations(expectations, actualBitmapAndDigest, shortName,
-                                       configName, renderModeDescriptor, false);
+
+        // TODO: Eliminate RecordTestResults from here.
+        // Results recording code for the test_drawing path has been refactored so that
+        // RecordTestResults is only called once, at the topmost level. However, the
+        // other paths have not yet been refactored, and RecordTestResults has been added
+        // here to maintain proper behavior for calls not coming from the test_drawing path.
+        ErrorCombination errors;
+        errors.add(compare_to_expectations(expectations, actualBitmapAndDigest, shortName,
+                                           configName, renderModeDescriptor, false));
+        SkString shortNamePlusConfig = make_shortname_plus_config(shortName, configName);
+        RecordTestResults(errors, shortNamePlusConfig, renderModeDescriptor);
+
+        return errors;
     }
 
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
@@ -1037,46 +1000,89 @@ public:
 
     // Test: draw into a bitmap or pdf.
     // Depending on flags, possibly compare to an expected image.
-    ErrorCombination test_drawing(GM* gm,
-                                  const ConfigData& gRec,
+    // If writePath is not NULL, also write images (or documents) to the specified path.
+    ErrorCombination test_drawing(GM* gm, const ConfigData& gRec,
+                                  const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
                                   const char writePath [],
                                   GrSurface* gpuTarget,
                                   SkBitmap* bitmap) {
+        ErrorCombination errors;
         SkDynamicMemoryWStream document;
+        SkString path;
 
         if (gRec.fBackend == kRaster_Backend ||
             gRec.fBackend == kGPU_Backend) {
             // Early exit if we can't generate the image.
-            ErrorCombination errors = generate_image(gm, gRec, gpuTarget, bitmap, false);
+            errors.add(generate_image(gm, gRec, gpuTarget, bitmap, false));
             if (!errors.isEmpty()) {
                 // TODO: Add a test to exercise what the stdout and
                 // JSON look like if we get an "early error" while
                 // trying to generate the image.
                 return errors;
             }
+            BitmapAndDigest bitmapAndDigest(*bitmap);
+            errors.add(compare_test_results_to_stored_expectations(
+                           gm, gRec, &bitmapAndDigest));
+
+            if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
+                path = make_bitmap_filename(writePath, gm->shortName(), gRec.fName,
+                                            "", bitmapAndDigest.fDigest);
+                errors.add(write_bitmap(path, bitmapAndDigest.fBitmap));
+            }
         } else if (gRec.fBackend == kPDF_Backend) {
             generate_pdf(gm, document);
-#if CAN_IMAGE_PDF
-            SkAutoDataUnref data(document.copyToData());
-            SkMemoryStream stream(data->data(), data->size());
-            SkPDFDocumentToBitmap(&stream, bitmap);
-#else
-            bitmap = NULL;  // we don't generate a bitmap rendering of the PDF file
-#endif
+
+            SkAutoTUnref<SkStreamAsset> documentStream(document.detachAsStream());
+            if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
+                path = make_filename(writePath, gm->shortName(), gRec.fName, "", "pdf");
+                errors.add(write_document(path, documentStream));
+            }
+
+            if (!(gm->getFlags() & GM::kSkipPDFRasterization_Flag)) {
+                for (int i = 0; i < pdfRasterizers.count(); i++) {
+                    SkBitmap pdfBitmap;
+                    SkASSERT(documentStream->rewind());
+                    bool success = (*pdfRasterizers[i]->fRasterizerFunction)(
+                            documentStream.get(), &pdfBitmap);
+                    if (!success) {
+                        gm_fprintf(stderr, "FAILED to render PDF for %s using renderer %s\n",
+                                   gm->shortName(),
+                                   pdfRasterizers[i]->fName);
+                        continue;
+                    }
+
+                    BitmapAndDigest bitmapAndDigest(pdfBitmap);
+                    errors.add(compare_test_results_to_stored_expectations(
+                               gm, gRec, &bitmapAndDigest));
+
+                    SkString configName(gRec.fName);
+                    configName.append("_");
+                    configName.append(pdfRasterizers[i]->fName);
+
+                    if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
+                        path = make_bitmap_filename(writePath, gm->shortName(), configName.c_str(),
+                                                    "", bitmapAndDigest.fDigest);
+                        errors.add(write_bitmap(path, bitmapAndDigest.fBitmap));
+                    }
+                }
+            } else {
+                errors.add(kIntentionallySkipped_ErrorType);
+            }
         } else if (gRec.fBackend == kXPS_Backend) {
             generate_xps(gm, document);
-            bitmap = NULL;  // we don't generate a bitmap rendering of the XPS file
-        }
+            SkAutoTUnref<SkStreamAsset> documentStream(document.detachAsStream());
 
-        SkAutoTUnref<SkStreamAsset> documentStream(document.detachAsStream());
-        if (NULL == bitmap) {
-            return compare_test_results_to_stored_expectations(
-                gm, gRec, writePath, NULL, documentStream);
+            errors.add(compare_test_results_to_stored_expectations(
+                           gm, gRec, NULL));
+
+            if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
+                path = make_filename(writePath, gm->shortName(), gRec.fName, "", "xps");
+                errors.add(write_document(path, documentStream));
+            }
         } else {
-            BitmapAndDigest bitmapAndDigest(*bitmap);
-            return compare_test_results_to_stored_expectations(
-                gm, gRec, writePath, &bitmapAndDigest, documentStream);
+            SkASSERT(false);
         }
+        return errors;
     }
 
     ErrorCombination test_deferred_drawing(GM* gm,
@@ -1230,11 +1236,6 @@ static const GLContextType kDontCare_GLContextType = GrContextFactory::kNative_G
 static const GLContextType kDontCare_GLContextType = 0;
 #endif
 
-// If the platform does not support writing PNGs of PDFs then there will be no
-// reference images to read. However, we can always write the .pdf files
-static const ConfigFlags kPDFConfigFlags = CAN_IMAGE_PDF ? kRW_ConfigFlag :
-                                                           kWrite_ConfigFlag;
-
 static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888",         true },
 #if 0   // stop testing this (for now at least) since we want to remove support for it (soon please!!!)
@@ -1266,8 +1267,17 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps",          true },
 #endif // SK_SUPPORT_XPS
 #ifdef SK_SUPPORT_PDF
-    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf",          true },
+    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "pdf",          true },
 #endif // SK_SUPPORT_PDF
+};
+
+static const PDFRasterizerData kPDFRasterizers[] = {
+#ifdef SK_BUILD_FOR_MAC
+    { &SkPDFDocumentToBitmap, "mac",     true },
+#endif
+#ifdef SK_BUILD_POPPLER
+    { &SkPopplerRasterizePDF, "poppler", true },
+#endif
 };
 
 static const char kDefaultsConfigStr[] = "defaults";
@@ -1321,6 +1331,32 @@ static SkString configUsage() {
     return result;
 }
 
+static SkString pdfRasterizerUsage() {
+    SkString result;
+    result.appendf("Space delimited list of which PDF rasterizers to run. Possible options: [");
+    // For this (and further) loops through kPDFRasterizers, there is a typecast to int to avoid
+    // the compiler giving an "comparison of unsigned expression < 0 is always false" warning
+    // and turning it into a build-breaking error.
+    for (int i = 0; i < (int)SK_ARRAY_COUNT(kPDFRasterizers); ++i) {
+        if (i > 0) {
+            result.append(" ");
+        }
+        result.append(kPDFRasterizers[i].fName);
+    }
+    result.append("]\n");
+    result.append("The default value is: \"");
+    for (int i = 0; i < (int)SK_ARRAY_COUNT(kPDFRasterizers); ++i) {
+        if (kPDFRasterizers[i].fRunByDefault) {
+            if (i > 0) {
+                result.append(" ");
+            }
+            result.append(kPDFRasterizers[i].fName);
+        }
+    }
+    result.append("\"");
+    return result;
+}
+
 // Macro magic to convert a numeric preprocessor token into a string.
 // Adapted from http://stackoverflow.com/questions/240353/convert-a-preprocessor-token-to-a-string
 // This should probably be moved into one of our common headers...
@@ -1329,6 +1365,7 @@ static SkString configUsage() {
 
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
 DEFINE_string(config, "", configUsage().c_str());
+DEFINE_string(pdfRasterizers, "", pdfRasterizerUsage().c_str());
 DEFINE_bool(deferred, true, "Exercise the deferred rendering test pass.");
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
@@ -1417,6 +1454,15 @@ static int findConfig(const char config[]) {
     return -1;
 }
 
+static const PDFRasterizerData* findPDFRasterizer(const char rasterizer[]) {
+    for (int i = 0; i < (int)SK_ARRAY_COUNT(kPDFRasterizers); i++) {
+        if (!strcmp(rasterizer, kPDFRasterizers[i].fName)) {
+            return &kPDFRasterizers[i];
+        }
+    }
+    return NULL;
+}
+
 namespace skiagm {
 #if SK_SUPPORT_GPU
 SkAutoTUnref<GrContext> gGrContext;
@@ -1473,9 +1519,13 @@ template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
  *
  * Returns all errors encountered while doing so.
  */
-ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<size_t> &configs,
+ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
+                                      const SkTDArray<size_t> &configs,
+                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
                                       GrContextFactory *grFactory);
-ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<size_t> &configs,
+ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
+                                      const SkTDArray<size_t> &configs,
+                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
                                       GrContextFactory *grFactory) {
     const char renderModeDescriptor[] = "";
     ErrorCombination errorsForAllConfigs;
@@ -1566,9 +1616,12 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<si
         } else {
             writePath = NULL;
         }
+
         if (errorsForThisConfig.isEmpty()) {
-            errorsForThisConfig.add(gmmain.test_drawing(gm,config, writePath, gpuTarget,
+            errorsForThisConfig.add(gmmain.test_drawing(gm, config, pdfRasterizers,
+                                                        writePath, gpuTarget,
                                                         &comparisonBitmap));
+            gmmain.RecordTestResults(errorsForThisConfig, shortNamePlusConfig, "");
         }
 
         if (FLAGS_deferred && errorsForThisConfig.isEmpty() &&
@@ -1754,10 +1807,9 @@ SkString list_all_config_names(const SkTDArray<size_t> &configs) {
     return total;
 }
 
-bool prepare_subdirectories(const char *root, bool useFileHierarchy,
-                            const SkTDArray<size_t> &configs);
-bool prepare_subdirectories(const char *root, bool useFileHierarchy,
-                            const SkTDArray<size_t> &configs) {
+static bool prepare_subdirectories(const char *root, bool useFileHierarchy,
+                                   const SkTDArray<size_t> &configs,
+                                   const SkTDArray<const PDFRasterizerData*>& pdfRasterizers) {
     if (!sk_mkdir(root)) {
         return false;
     }
@@ -1768,6 +1820,16 @@ bool prepare_subdirectories(const char *root, bool useFileHierarchy,
             subdir.appendf("%s%c%s", root, SkPATH_SEPARATOR, config.fName);
             if (!sk_mkdir(subdir.c_str())) {
                 return false;
+            }
+
+            if (config.fBackend == kPDF_Backend) {
+                for (int j = 0; j < pdfRasterizers.count(); j++) {
+                    SkString pdfSubdir = subdir;
+                    pdfSubdir.appendf("_%s", pdfRasterizers[j]->fName);
+                    if (!sk_mkdir(pdfSubdir.c_str())) {
+                        return false;
+                    }
+                }
             }
         }
     }
@@ -1871,6 +1933,53 @@ static bool parse_flags_configs(SkTDArray<size_t>* outConfigs,
     // show the user the config that will run.
     for (int i = 0; i < outConfigs->count(); ++i) {
         configStr.appendf(" %s", gRec[(*outConfigs)[i]].fName);
+    }
+    gm_fprintf(stdout, "%s\n", configStr.c_str());
+
+    return true;
+}
+
+static bool parse_flags_pdf_rasterizers(const SkTDArray<size_t>& configs,
+                                        SkTDArray<const PDFRasterizerData*>* outRasterizers) {
+    // No need to run this check (and display the PDF rasterizers message)
+    // if no PDF backends are in the configs.
+    bool configHasPDF = false;
+    for (int i = 0; i < configs.count(); i++) {
+        if (gRec[configs[i]].fBackend == kPDF_Backend) {
+            configHasPDF = true;
+            break;
+        }
+    }
+    if (!configHasPDF) {
+        return true;
+    }
+
+    for (int i = 0; i < FLAGS_pdfRasterizers.count(); i++) {
+        const char* rasterizer = FLAGS_pdfRasterizers[i];
+        const PDFRasterizerData* rasterizerPtr = findPDFRasterizer(rasterizer);
+
+        if (rasterizerPtr == NULL) {
+            gm_fprintf(stderr, "unrecognized rasterizer %s\n", rasterizer);
+            return false;
+        }
+        appendUnique<const PDFRasterizerData*>(outRasterizers,
+                                               rasterizerPtr);
+    }
+
+    if (outRasterizers->count() == 0) {
+        // if no config is specified by user, add the defaults
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(kPDFRasterizers); ++i) {
+            if (kPDFRasterizers[i].fRunByDefault) {
+                *outRasterizers->append() = &kPDFRasterizers[i];
+            }
+        }
+    }
+
+    // now show the user the set of configs that will be run.
+    SkString configStr("These PDF rasterizers will be run:");
+    // show the user the config that will run.
+    for (int i = 0; i < outRasterizers->count(); ++i) {
+        configStr.appendf(" %s", (*outRasterizers)[i]->fName);
     }
     gm_fprintf(stdout, "%s\n", configStr.c_str());
 
@@ -2019,8 +2128,10 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     SkTDArray<size_t> configs;
+
     int moduloRemainder = -1;
     int moduloDivisor = -1;
+    SkTDArray<const PDFRasterizerData*> pdfRasterizers;
     SkTDArray<SkScalar> tileGridReplayScales;
 #if SK_SUPPORT_GPU
     GrContextFactory* grFactory = new GrContextFactory;
@@ -2039,6 +2150,7 @@ int tool_main(int argc, char** argv) {
         !parse_flags_match_strs(&matchStrs) ||
         !parse_flags_jpeg_quality() ||
         !parse_flags_configs(&configs, grFactory) ||
+        !parse_flags_pdf_rasterizers(configs, &pdfRasterizers) ||
         !parse_flags_gmmain_paths(&gmmain)) {
         return -1;
     }
@@ -2068,18 +2180,20 @@ int tool_main(int argc, char** argv) {
 
     // If we will be writing out files, prepare subdirectories.
     if (FLAGS_writePath.count() == 1) {
-        if (!prepare_subdirectories(FLAGS_writePath[0], gmmain.fUseFileHierarchy, configs)) {
+        if (!prepare_subdirectories(FLAGS_writePath[0], gmmain.fUseFileHierarchy,
+                                    configs, pdfRasterizers)) {
             return -1;
         }
     }
     if (NULL != gmmain.fMismatchPath) {
-        if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy, configs)) {
+        if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy,
+                                    configs, pdfRasterizers)) {
             return -1;
         }
     }
     if (NULL != gmmain.fMissingExpectationsPath) {
         if (!prepare_subdirectories(gmmain.fMissingExpectationsPath, gmmain.fUseFileHierarchy,
-                                    configs)) {
+                                    configs, pdfRasterizers)) {
             return -1;
         }
     }
@@ -2107,7 +2221,7 @@ int tool_main(int argc, char** argv) {
         gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                    size.width(), size.height());
 
-        run_multiple_configs(gmmain, gm, configs, grFactory);
+        run_multiple_configs(gmmain, gm, configs, pdfRasterizers, grFactory);
 
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
