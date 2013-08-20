@@ -45,7 +45,7 @@ public:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(!"find: should be unreachable");
+        SkASSERT(0); //  find: should be unreachable
         return NULL;
     }
 
@@ -82,7 +82,7 @@ protected:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(!"countCollisions: should be unreachable");
+        SkASSERT(0); // countCollisions: should be unreachable
         return -1;
     }
 
@@ -170,7 +170,7 @@ private:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(!"add: should be unreachable");
+        SkASSERT(0); // add: should be unreachable
     }
 
     void innerRemove(const Key& key) {
@@ -186,7 +186,7 @@ private:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(!"innerRemove: should be unreachable");
+        SkASSERT(0); // innerRemove: should be unreachable
     }
 
     void maybeGrow() {
