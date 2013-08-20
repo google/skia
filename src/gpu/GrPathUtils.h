@@ -115,5 +115,50 @@ namespace GrPathUtils {
                              bool constrainWithinTangents,
                              SkPath::Direction dir,
                              SkTArray<SkPoint, true>* quads);
+
+    // Chops the cubic bezier passed in by src, at the double point (intersection point)
+    // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
+    // the double point: ls and ms. We chop the cubic at these values if they are between 0 and 1.
+    // Return value:
+    // Value of 3: ls and ms are both between (0,1), and dst will contain the three cubics,
+    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not NULL
+    // Value of 2: Only one of ls and ms are between (0,1), and dst will contain the two cubics,
+    //             dst[0..3] and dst[3..6] if dst is not NULL
+    // Value of 1: Neither ls or ms are between (0,1), and dst will contain the one original cubic,
+    //             dst[0..3] if dst is not NULL
+    //
+    // Optional KLM Calculation:
+    // The function can also return the KLM linear functionals for the chopped cubic implicit form
+    // of K^3 - LM.
+    // It will calculate a single set of KLM values that can be shared by all sub cubics, except
+    // for the subsection that is "the loop" the K and L values need to be negated.
+    // Output:
+    // klm:     Holds the values for the linear functionals as:
+    //          K = (klm[0], klm[1], klm[2])
+    //          L = (klm[3], klm[4], klm[5])
+    //          M = (klm[6], klm[7], klm[8])
+    // klm_rev: These values are flags for the corresponding sub cubic saying whether or not
+    //          the K and L values need to be flipped. A value of -1.f means flip K and L and
+    //          a value of 1.f means do nothing.
+    //          *****DO NOT FLIP M, JUST K AND L*****
+    //
+    // Notice that the klm lines are calculated in the same space as the input control points.
+    // If you transform the points the lines will also need to be transformed. This can be done
+    // by mapping the lines with the inverse-transpose of the matrix used to map the points.
+    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = NULL,
+                                    SkScalar klm[9] = NULL, SkScalar klm_rev[3] = NULL);
+
+    // Input is p which holds the 4 control points of a non-rational cubic Bezier curve.
+    // Output is the coefficients of the three linear functionals K, L, & M which
+    // represent the implicit form of the cubic as f(x,y,w) = K^3 - LM. The w term
+    // will always be 1. The output is stored in the array klm, where the values are:
+    // K = (klm[0], klm[1], klm[2])
+    // L = (klm[3], klm[4], klm[5])
+    // M = (klm[6], klm[7], klm[8])
+    //
+    // Notice that the klm lines are calculated in the same space as the input control points.
+    // If you transform the points the lines will also need to be transformed. This can be done
+    // by mapping the lines with the inverse-transpose of the matrix used to map the points.
+    void getCubicKLM(const SkPoint p[4], SkScalar klm[9]);
 };
 #endif
