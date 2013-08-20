@@ -1981,15 +1981,8 @@ void GrGpuGL::flushBlend(bool isLines,
         }
     }
 }
-namespace {
 
-inline void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
-    GR_GL_CALL(gl, TexParameteriv(GR_GL_TEXTURE_2D,
-                                  GR_GL_TEXTURE_SWIZZLE_RGBA,
-                                  reinterpret_cast<const GrGLint*>(swizzle)));
-}
-
-inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
+static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
     static const GrGLenum gWrapModes[] = {
         GR_GL_CLAMP_TO_EDGE,
         GR_GL_REPEAT,
@@ -2000,8 +1993,6 @@ inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
     GR_STATIC_ASSERT(1 == SkShader::kRepeat_TileMode);
     GR_STATIC_ASSERT(2 == SkShader::kMirror_TileMode);
     return gWrapModes[tm];
-}
-
 }
 
 void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
@@ -2082,8 +2073,18 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {
         this->setTextureUnit(unitIdx);
-        set_tex_swizzle(newTexParams.fSwizzleRGBA,
-                        this->glInterface());
+        if (this->glBinding() == kES_GrGLBinding) {
+            // ES3 added swizzle support but not GL_TEXTURE_SWIZZLE_RGBA.
+            const GrGLenum* swizzle = newTexParams.fSwizzleRGBA;
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_R, swizzle[0]));
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_G, swizzle[1]));
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_B, swizzle[2]));
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_A, swizzle[3]));
+        } else {
+            GR_STATIC_ASSERT(sizeof(newTexParams.fSwizzleRGBA[0]) == sizeof(GrGLint));
+            const GrGLint* swizzle = reinterpret_cast<const GrGLint*>(newTexParams.fSwizzleRGBA);
+            GL_CALL(TexParameteriv(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_RGBA, swizzle));
+        }
     }
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
