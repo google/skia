@@ -116,7 +116,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     if (kDesktop_GrGLBinding == binding) {
         fRGBA8RenderbufferSupport = true;
     } else {
-        fRGBA8RenderbufferSupport = ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
+        fRGBA8RenderbufferSupport = version >= GR_GL_VER(3,0) ||
+                                    ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
                                     ctxInfo.hasExtension("GL_ARM_rgba8");
     }
 
@@ -175,7 +176,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                                  ctxInfo.hasExtension("GL_ARB_texture_rg");
         }
     } else {
-        fTextureRedSupport = ctxInfo.hasExtension("GL_EXT_texture_rg");
+        fTextureRedSupport =  version >= GR_GL_VER(3,0) ||
+                              ctxInfo.hasExtension("GL_EXT_texture_rg");
     }
 
     fImagingSupport = kDesktop_GrGLBinding == binding &&
