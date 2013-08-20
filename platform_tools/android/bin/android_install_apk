@@ -13,8 +13,8 @@ function print_usage {
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
-source $SCRIPT_DIR/utils/setup_skia_out.sh
 
 forceRemoval="false"
 installLauncher="false"

@@ -1,7 +1,20 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# remove the existing .android_config file prior to running android_setup. If
+# we did not remove this here then we would build for whatever device type was
+# listed in the .android_config instead of the default device type.
+if [ -f .android_config ]
+then
+  rm .android_config
+fi
+
+# run the config to setup the environment
 source $SCRIPT_DIR/android_setup.sh
+
+# write the device id into the .android_config file
+echo $DEVICE_ID > .android_config
 
 for arg in ${APP_ARGS[@]}
 do
@@ -25,9 +38,6 @@ if [[ -n "$ANDROID_MAKE_CCACHE" ]]; then
     exit 1
   fi
 fi
-
-# write the out directory into the .android_config file
-echo $SKIA_OUT > .android_config
 
 make ${makeVars[@]}
 if [ $? != 0 ]

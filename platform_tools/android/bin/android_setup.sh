@@ -161,8 +161,13 @@ setup_device() {
   TARGET_DEVICE="$1"
 
   if [ -z "$TARGET_DEVICE" ]; then
-    echo "INFO: no target device type was specified so using the default 'arm_v7'"
-    TARGET_DEVICE="arm_v7"
+    if [ -f .android_config ]; then
+      TARGET_DEVICE=$(cat .android_config)
+      echo "INFO: no target device was specified so using the device (${TARGET_DEVICE}) from the most recent build"
+    else
+      TARGET_DEVICE="arm_v7"  
+      echo "INFO: no target device type was specified so using the default '${TARGET_DEVICE}'"
+    fi
   fi
 
   case $TARGET_DEVICE in
