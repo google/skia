@@ -88,7 +88,72 @@ protected:
         make_red_ringed_bitmap(&fBitmapBig, 2*kMaxTextureSize, 2*kMaxTextureSize);
     }
 
+    // Draw only the center of the small bitmap
+    void drawCase1(SkCanvas* canvas, int transX, int transY, 
+                   SkCanvas::DrawBitmapRectFlags flags, bool filter) {
+        SkRect src = SkRect::MakeXYWH(1, 1,
+                                      kSmallTextureSize-2,
+                                      kSmallTextureSize-2);
+        SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
+
+        SkPaint paint;
+        paint.setFilterBitmap(filter);
+
+        canvas->save();
+        canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
+        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint, flags);
+        canvas->restore();
+    }
+
+    // Draw almost all of the large bitmap
+    void drawCase2(SkCanvas* canvas, int transX, int transY, 
+                   SkCanvas::DrawBitmapRectFlags flags, bool filter) {
+        SkRect src = SkRect::MakeXYWH(1, 1,
+                                      SkIntToScalar(fBitmapBig.width()-2),
+                                      SkIntToScalar(fBitmapBig.height()-2));
+        SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
+
+        SkPaint paint;
+        paint.setFilterBitmap(filter);
+
+        canvas->save();
+        canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
+        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint, flags);
+        canvas->restore();
+    }
+
+    // Draw ~1/4 of the large bitmap
+    void drawCase3(SkCanvas* canvas, int transX, int transY, 
+                   SkCanvas::DrawBitmapRectFlags flags, bool filter) {
+        SkRect src = SkRect::MakeXYWH(1, 1,
+                                      SkIntToScalar(fBitmapBig.width()/2-1),
+                                      SkIntToScalar(fBitmapBig.height()/2-1));
+        SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
+
+        SkPaint paint;
+        paint.setFilterBitmap(filter);
+
+        canvas->save();
+        canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
+        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint, flags);
+        canvas->restore();
+    }
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+
+        canvas->clear(SK_ColorGRAY);
+
+        // First draw a column with no bleeding, tiling, or filtering
+        this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, false);
+        this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, false);
+        this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, false);
+
+        // Then draw a column with no bleeding or tiling but with filtering
+        this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+
+
 #if SK_SUPPORT_GPU
         GrContext* ctx = skiagm::GetGr();
         int oldMaxTextureSize = 0;
@@ -99,56 +164,15 @@ protected:
         }
 #endif
 
-        canvas->clear(SK_ColorGRAY);
+        // Then draw a column with no bleeding but with tiling and filtering
+        this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, true);
 
-        SkPaint paint;
-
-        // Bleeding only comes into play when filtering
-        paint.setFilterBitmap(true);
-
-        // carve out the center of the small bitmap
-        SkRect src = SkRect::MakeXYWH(1, 1,
-                                      kSmallTextureSize-2,
-                                      kSmallTextureSize-2);
-        SkRect dst = SkRect::MakeXYWH(10, 10, 100, 100);
-
-        // first draw without bleeding
-        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint);
-
-        // then draw with bleeding
-        dst = SkRect::MakeXYWH(120, 10, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapSmall, &src, dst, &paint,
-                                     SkCanvas::kBleed_DrawBitmapRectFlag);
-
-        // Next test out the GPU's tiling of large textures
-
-        // first draw almost the whole thing
-        src = SkRect::MakeXYWH(1, 1,
-                               SkIntToScalar(fBitmapBig.width()-2),
-                               SkIntToScalar(fBitmapBig.height()-2));
-        dst = SkRect::MakeXYWH(10, 120, 100, 100);
-
-        // first without bleeding
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint);
-
-        // then with bleeding
-        dst = SkRect::MakeXYWH(120, 120, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint,
-                                     SkCanvas::kBleed_DrawBitmapRectFlag);
-
-        // next draw ~1/4 of the bitmap
-        src = SkRect::MakeXYWH(1, 1,
-                               SkIntToScalar(fBitmapBig.width()/2-1),
-                               SkIntToScalar(fBitmapBig.height()/2-1));
-        dst = SkRect::MakeXYWH(10, 230, 100, 100);
-
-        // first without bleeding
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint);
-
-        // then with bleeding
-        dst = SkRect::MakeXYWH(120, 230, 100, 100);
-        canvas->drawBitmapRectToRect(fBitmapBig, &src, dst, &paint,
-                                     SkCanvas::kBleed_DrawBitmapRectFlag);
+        // Finally draw a column with all three (bleeding, tiling, and filtering)
+        this->drawCase1(canvas, kCol3X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
+        this->drawCase2(canvas, kCol3X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
+        this->drawCase3(canvas, kCol3X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
 
 #if SK_SUPPORT_GPU
         if (NULL != ctx) {
@@ -158,8 +182,19 @@ protected:
     }
 
 private:
-    static const int kWidth = 230;
-    static const int kHeight = 340;
+    static const int kBlockSize = 90;
+    static const int kBlockSpacing = 10;
+
+    static const int kCol0X = kBlockSpacing;
+    static const int kCol1X = 2*kBlockSpacing + kBlockSize;
+    static const int kCol2X = 3*kBlockSpacing + 2*kBlockSize;
+    static const int kCol3X = 4*kBlockSpacing + 3*kBlockSize;
+    static const int kWidth = 5*kBlockSpacing + 4*kBlockSize;
+
+    static const int kRow0Y = kBlockSpacing;
+    static const int kRow1Y = 2*kBlockSpacing + kBlockSize;
+    static const int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
+    static const int kHeight = 4*kBlockSpacing + 3*kBlockSize;
 
     static const int kSmallTextureSize = 4;
     static const int kMaxTextureSize = 32;
