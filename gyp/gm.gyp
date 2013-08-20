@@ -60,6 +60,17 @@
         'pdf.gyp:pdf',
       ],
       'conditions': [
+        ['skia_os in ["linux", "mac", "win"]', {
+          'dependencies': [
+            'poppler.gyp:libpoppler-cpp-gpl',
+          ],
+          'sources': [
+            '../src/utils/SkPDFRasterizer.cpp',
+          ],
+          'defines': [
+            'SK_BUILD_POPPLER',
+          ],
+        }],
         ['skia_os == "mac"', {
           'sources!': [
             '../gm/system_preferences_default.cpp',
