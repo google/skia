@@ -109,6 +109,74 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
+class CanvasLayerStateGM : public GM {
+public:
+    CanvasLayerStateGM() {
+        fRedPaint.setColor(SK_ColorRED);
+        fRedPaint.setStyle(SkPaint::kFill_Style);
+
+        fBluePaint.setColor(SK_ColorBLUE);
+        fBluePaint.setStyle(SkPaint::kFill_Style);
+
+        fRect = SkRect::MakeXYWH(SPACER, SPACER, WIDTH-(2*SPACER), (HEIGHT-(2*SPACER)) / 7);
+    }
+
+protected:
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("canvas-layer-state");
+    }
+
+    virtual SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(WIDTH, HEIGHT);
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+
+        // clear the canvas to red
+        canvas->drawColor(SK_ColorRED);
+
+        // both rects should appear
+        drawTestPattern(canvas, 255, SkCanvas::kARGB_NoClipLayer_SaveFlag);
+
+        canvas->translate(0, 2*(fRect.height() + 10));
+
+        // only the top rect should appear
+        drawTestPattern(canvas, 255, SkCanvas::kARGB_ClipLayer_SaveFlag);
+
+        canvas->translate(0, 2*(fRect.height() + 10));
+
+        // only the bottom rect should appear
+        drawTestPattern(canvas, 0, SkCanvas::kARGB_NoClipLayer_SaveFlag);
+    }
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipGPU_Flag; }
+
+private:
+    // draw a rect within the layer's bounds and again outside the layer's bounds
+    void drawTestPattern(SkCanvas* canvas, U8CPU layerAlpha, SkCanvas::SaveFlags flags) {
+        canvas->saveLayerAlpha(&fRect, layerAlpha, flags);
+        canvas->drawRect(fRect, fBluePaint);
+        canvas->translate(0, fRect.height() + 10);
+        canvas->drawRect(fRect, fBluePaint);
+        canvas->restore();
+    }
+
+    enum {
+        WIDTH = 400,
+        HEIGHT = 400,
+        SPACER = 10,
+    };
+
+    SkPaint fRedPaint;
+    SkPaint fBluePaint;
+    SkRect fRect;
+
+    typedef GM INHERITED;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 DEF_GM( return SkNEW(CanvasStateGM); )
+DEF_GM( return SkNEW(CanvasLayerStateGM); )
 
 } // end namespace
