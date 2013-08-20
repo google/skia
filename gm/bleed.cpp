@@ -144,14 +144,14 @@ protected:
         canvas->clear(SK_ColorGRAY);
 
         // First draw a column with no bleeding, tiling, or filtering
-        this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, false);
-        this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, false);
-        this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, false);
+        this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
+        this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
+        this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, false);
 
         // Then draw a column with no bleeding or tiling but with filtering
-        this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, true);
-        this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, true);
-        this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
 
 
 #if SK_SUPPORT_GPU
@@ -165,9 +165,9 @@ protected:
 #endif
 
         // Then draw a column with no bleeding but with tiling and filtering
-        this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectflag, true);
-        this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectflag, true);
-        this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectflag, true);
+        this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
+        this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, true);
 
         // Finally draw a column with all three (bleeding, tiling, and filtering)
         this->drawCase1(canvas, kCol3X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, true);
