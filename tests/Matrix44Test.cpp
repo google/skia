@@ -319,6 +319,103 @@ static void test_determinant(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
 }
 
+static void test_invert(skiatest::Reporter* reporter) {
+    SkMatrix44 inverse;
+    double inverseData[16];
+
+    SkMatrix44 identity;
+    identity.setIdentity();
+    identity.invert(&inverse);
+    inverse.asRowMajord(inverseData);
+    assert16<double>(reporter, inverseData,
+                     1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1);
+
+    SkMatrix44 translation;
+    translation.setTranslate(2, 3, 4);
+    translation.invert(&inverse);
+    inverse.asRowMajord(inverseData);
+    assert16<double>(reporter, inverseData,
+                     1, 0, 0, -2,
+                     0, 1, 0, -3,
+                     0, 0, 1, -4,
+                     0, 0, 0, 1);
+
+    SkMatrix44 scale;
+    scale.setScale(2, 4, 8);
+    scale.invert(&inverse);
+    inverse.asRowMajord(inverseData);
+    assert16<double>(reporter, inverseData,
+                     0.5, 0,    0,     0,
+                     0,   0.25, 0,     0,
+                     0,   0,    0.125, 0,
+                     0,   0,    0,     1);
+
+    SkMatrix44 scaleTranslation;
+    scaleTranslation.setScale(10, 100, 1000);
+    scaleTranslation.preTranslate(2, 3, 4);
+    scaleTranslation.invert(&inverse);
+    inverse.asRowMajord(inverseData);
+    assert16<double>(reporter, inverseData,
+                     0.1,  0,    0,   -2,
+                     0,   0.01,  0,   -3,
+                     0,    0,  0.001, -4,
+                     0,    0,    0,   1);
+
+    SkMatrix44 rotation;
+    rotation.setRotateDegreesAbout(0, 0, 1, 90);
+    rotation.invert(&inverse);
+    SkMatrix44 expected;
+    double expectedInverseRotation[16] =
+            {0,  1, 0, 0,
+             -1, 0, 0, 0,
+             0,  0, 1, 0,
+             0,  0, 0, 1};
+    expected.setRowMajord(expectedInverseRotation);
+    REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
+    
+    SkMatrix44 affine;
+    affine.setRotateDegreesAbout(0, 0, 1, 90);
+    affine.preScale(10, 20, 100);
+    affine.preTranslate(2, 3, 4);
+    affine.invert(&inverse);
+    double expectedInverseAffine[16] =
+            {0,    0.1,  0,   -2,
+             -0.05, 0,   0,   -3,
+             0,     0,  0.01, -4,
+             0,     0,   0,   1};
+    expected.setRowMajord(expectedInverseAffine);
+    REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
+
+    SkMatrix44 perspective;
+    perspective.setIdentity();
+    perspective.setDouble(3, 2, 1.0);
+    perspective.invert(&inverse);
+    double expectedInversePerspective[16] =
+            {1, 0,  0, 0,
+             0, 1,  0, 0,
+             0, 0,  1, 0,
+             0, 0, -1, 1};
+    expected.setRowMajord(expectedInversePerspective);
+    REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
+
+    SkMatrix44 affineAndPerspective;
+    affineAndPerspective.setIdentity();
+    affineAndPerspective.setDouble(3, 2, 1.0);
+    affineAndPerspective.preScale(10, 20, 100);
+    affineAndPerspective.preTranslate(2, 3, 4);
+    affineAndPerspective.invert(&inverse);
+    double expectedInverseAffineAndPerspective[16] =
+            {0.1, 0,    2,   -2,
+             0,  0.05,  3,   -3,
+             0,   0,   4.01, -4,
+             0,   0,   -1,    1};
+    expected.setRowMajord(expectedInverseAffineAndPerspective);
+    REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
+}
+
 static void test_transpose(skiatest::Reporter* reporter) {
     SkMatrix44 a;
     SkMatrix44 b;
@@ -468,6 +565,7 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     test_constructor(reporter);
     test_gettype(reporter);
     test_determinant(reporter);
+    test_invert(reporter);
     test_transpose(reporter);
     test_get_set_double(reporter);
     test_set_row_col_major(reporter);
