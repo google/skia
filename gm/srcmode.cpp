@@ -124,7 +124,7 @@ protected:
             SkImage::kPremul_AlphaType
         };
 #if SK_SUPPORT_GPU
-        SkDevice* dev = canvas->getDevice();
+        SkBaseDevice* dev = canvas->getDevice();
         if (!skipGPU && dev->accessRenderTarget()) {
             SkGpuDevice* gd = (SkGpuDevice*)dev;
             GrContext* ctx = gd->context();

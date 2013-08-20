@@ -26,7 +26,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkDevice *device = canvas->getDevice()->createCompatibleDevice(
+        SkBaseDevice *device = canvas->getDevice()->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, CANVAS_WIDTH, CANVAS_HEIGHT, false);
 
         SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(device));

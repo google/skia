@@ -8,7 +8,7 @@ public:
     SK_DECLARE_INST_COUNT(SkNulCanvas);
 
     SkNulCanvas() {}
-    explicit SkNulCanvas(SkDevice* device) : SkCanvas(device) {}
+    explicit SkNulCanvas(SkBaseDevice* device) : SkCanvas(device) {}
 
     explicit SkNulCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap) {}
     virtual ~SkNulCanvas() {}
@@ -83,7 +83,7 @@ public:
 
 protected:
     virtual SkCanvas* canvasForDrawIter() {return NULL;}
-    virtual SkDevice* setDevice(SkDevice* device) {return NULL;}
+    virtual SkBaseDevice* setDevice(SkBaseDevice* device) {return NULL;}
 
 private:
     typedef SkCanvas INHERITED;

@@ -779,7 +779,7 @@ public:
 
         SkBitmap deferredStore;
         createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-        SkDevice deferredDevice(deferredStore);
+        SkBitmapDevice deferredDevice(deferredStore);
         SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(&deferredDevice));
         testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
         testStep->draw(deferredCanvas, reporter);
@@ -821,7 +821,7 @@ static void TestProxyCanvasStateConsistency(
 
     SkBitmap indirectStore;
     createBitmap(&indirectStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    SkDevice indirectDevice(indirectStore);
+    SkBitmapDevice indirectDevice(indirectStore);
     SkCanvas indirectCanvas(&indirectDevice);
     SkProxyCanvas proxyCanvas(&indirectCanvas);
     testStep->setAssertMessageFormat(kProxyDrawAssertMessageFormat);
@@ -844,12 +844,12 @@ static void TestNWayCanvasStateConsistency(
 
     SkBitmap indirectStore1;
     createBitmap(&indirectStore1, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    SkDevice indirectDevice1(indirectStore1);
+    SkBitmapDevice indirectDevice1(indirectStore1);
     SkCanvas indirectCanvas1(&indirectDevice1);
 
     SkBitmap indirectStore2;
     createBitmap(&indirectStore2, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    SkDevice indirectDevice2(indirectStore2);
+    SkBitmapDevice indirectDevice2(indirectStore2);
     SkCanvas indirectCanvas2(&indirectDevice2);
 
     SkISize canvasSize = referenceCanvas.getDeviceSize();
@@ -882,7 +882,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
                                          CanvasTestStep* testStep) {
     SkBitmap referenceStore;
     createBitmap(&referenceStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    SkDevice referenceDevice(referenceStore);
+    SkBitmapDevice referenceDevice(referenceStore);
     SkCanvas referenceCanvas(&referenceDevice);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, reporter);

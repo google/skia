@@ -146,7 +146,7 @@ static void TestConstantGradient(skiatest::Reporter*) {
     outBitmap.allocPixels();
     SkPaint paint;
     paint.setShader(s.get());
-    SkDevice device(outBitmap);
+    SkBitmapDevice device(outBitmap);
     SkCanvas canvas(&device);
     canvas.drawPaint(paint);
     SkAutoLockPixels alp(outBitmap);

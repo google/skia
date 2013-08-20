@@ -517,7 +517,7 @@ public:
         SkAutoTUnref<SkCanvas> canvas;
 
         if (gRec.fBackend == kRaster_Backend) {
-            SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (*bitmap)));
+            SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (*bitmap)));
             if (deferred) {
                 canvas.reset(SkDeferredCanvas::Create(device));
             } else {
@@ -528,7 +528,7 @@ public:
         }
 #if SK_SUPPORT_GPU
         else {  // GPU
-            SkAutoTUnref<SkDevice> device(SkGpuDevice::Create(gpuTarget));
+            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(gpuTarget));
             if (deferred) {
                 canvas.reset(SkDeferredCanvas::Create(device));
             } else {
