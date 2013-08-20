@@ -1,0 +1,118 @@
+Copyright
+
+
+
+This MSVC++2010 solution is distributed under an LGPL license and is designed to
+
+permit you to compile FontConfig 2.10.1 with Microsoft Visual C++ 2010 Express.
+
+
+
+It is part of the EBU Media-Player project and developped at:
+
+EBU/European Broadcasting Union
+
+Technology and Innovation Department
+
+L'Ancienne-Route 17A
+
+CH-1218 Grand-Saconnex 
+
+Switzerland
+
+http://tech.ebu.ch
+
+
+
+This MSVC++ solution was created by : Marco Dos Santos Oliveira at the EBU
+
+                                      dossantos@ebu.ch
+
+
+
+########################################################################################################################
+
+
+
+Content
+
+
+
+This zip file is very similar to the Chun-wei Fan fontconfig_vs9.zip :
+https://live.gnome.org/GTK%2B/Win32/MSVCCompilationOfGTKStack?action=AttachFile&do=get&target=fontconfig_vs9.zip
+
+released especially for the GTK+ MSVC++ tutorial :
+
+https://live.gnome.org/GTK%2B/Win32/MSVCCompilationOfGTKStack#FontConfig
+
+
+Indeed, it contains all additional files of Chun-wei Fan's solution except his
+
+MSVC++ project because it is outdated.
+
+
+
+Changes are into config.h/config.h.vc and in fontconfig.def
+
+
+
+For more details, I invite you to read the Gtk+ MSVC++ tutorial or to contact me at
+
+dossantos@ebu.ch
+
+
+
+########################################################################################################################
+
+
+
+Modifications
+
+Definition added to fontconfig.def :
+
+- FcCacheCreateTagFile
+
+- FcDirCacheClean
+
+
+
+Modification/addition to config.h/config.h.vc :
+
+- #define FLEXIBLE_ARRAY_MEMBER 1
+
+- Version number of package
+
+
+
+########################################################################################################################
+
+
+
+How to build FontConfig-2.10.1
+
+
+
+Dependencies required :
+
+- Freetype 2.4.10
+
+- Expat 2.1.0
+
+- Libiconv 1.14
+
+
+
+Compilation procedure :
+
+1) Download the latest FontConfig release (right now, it's 2.10.1) from
+http://www.freedesktop.org/software/fontconfig/release/
+
+2) Unpack it where you want
+
+3) Unzip this MSVC++2010 project inside the FontConfig root directory
+
+4) Update the path of additional include directories and additional libraries directories.
+Maybe you should update the name of additional libraries too.
+
+5) Compile and enjoy :)
+
