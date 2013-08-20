@@ -94,16 +94,10 @@ SkNamedFactorySet* SkFlatController::setNamedFactorySet(SkNamedFactorySet* set) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFlatData::stampHeaderAndSentinel(int index, int32_t size) {
-    fIndex    = index;
-    fFlatSize = size;
-    fChecksum = SkChecksum::Compute(this->data32(), size);
-    this->setTopBotUnwritten();
-    this->setSentinelAsCandidate();
-}
-
-SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
-        int index, void (*flattenProc)(SkOrderedWriteBuffer&, const void*)) {
+SkFlatData* SkFlatData::Create(SkFlatController* controller,
+                               const void* obj,
+                               int index,
+                               void (*flattenProc)(SkOrderedWriteBuffer&, const void*)) {
     // a buffer of 256 bytes should be sufficient for most paints, regions,
     // and matrices.
     intptr_t storage[256];
@@ -118,18 +112,14 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     uint32_t size = buffer.size();
     SkASSERT(SkIsAlign4(size));
 
-    /**
-     *  Allocate enough memory to hold
-     *  1. SkFlatData struct
-     *  2. flattenProc's data (4-byte aligned)
-     *  3. 4-byte sentinel
-     */
-    size_t allocSize = sizeof(SkFlatData) + size + sizeof(uint32_t);
+    // Allocate enough memory to hold SkFlatData struct and the flat data itself.
+    size_t allocSize = sizeof(SkFlatData) + size;
     SkFlatData* result = (SkFlatData*) controller->allocThrow(allocSize);
 
-    // put the serialized contents into the data section of the new allocation
+    // Put the serialized contents into the data section of the new allocation.
     buffer.writeToMemory(result->data());
-    result->stampHeaderAndSentinel(index, size);
+    // Stamp the index, size and checksum in the header.
+    result->stampHeader(index, size);
     return result;
 }
 

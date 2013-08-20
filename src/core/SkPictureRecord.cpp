@@ -401,16 +401,13 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
                                    SkColorGetA(saveLayerPaint->getColor()));
     dbmPaint->setColor(newColor);
 
-    const SkFlatData* data = paintDict->findAndReturnFlat(*dbmPaint);
-    if (NULL == data) {
-        return false;
-    }
+    const int paintIndex = paintDict->find(*dbmPaint);
 
     // kill the saveLayer and alter the DBMR2R's paint to be the modified one
     convert_command_to_noop(writer, saveLayerInfo.fOffset);
     uint32_t* ptr = writer->peek32(dbmInfo.fOffset+dbmPaintOffset);
     SkASSERT(dbmPaintId == *ptr);
-    *ptr = data->index();
+    *ptr = paintIndex;
     return true;
 }
 
