@@ -12,9 +12,9 @@
 
 class SkDeviceImageFilterProxy : public SkImageFilter::Proxy {
 public:
-    SkDeviceImageFilterProxy(SkBaseDevice* device) : fDevice(device) {}
+    SkDeviceImageFilterProxy(SkDevice* device) : fDevice(device) {}
 
-    virtual SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
+    virtual SkDevice* createDevice(int w, int h) SK_OVERRIDE {
         return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
                                                w, h, false);
     }
@@ -28,7 +28,7 @@ public:
     }
 
 private:
-    SkBaseDevice* fDevice;
+    SkDevice* fDevice;
 };
 
 #endif

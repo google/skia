@@ -22,7 +22,7 @@
 #include "SkXfermode.h"
 
 class SkBounder;
-class SkBaseDevice;
+class SkDevice;
 class SkDraw;
 class SkDrawFilter;
 class SkMetaData;
@@ -55,7 +55,7 @@ public:
 
         @param device   Specifies a device for the canvas to draw into.
     */
-    explicit SkCanvas(SkBaseDevice* device);
+    explicit SkCanvas(SkDevice* device);
 
     /** Deprecated - Construct a canvas with the specified bitmap to draw into.
         @param bitmap   Specifies a bitmap for the canvas to draw into. Its
@@ -84,7 +84,7 @@ public:
         the bitmap of the pixels that the canvas draws into. The reference count
         of the returned device is not changed by this call.
     */
-    SkBaseDevice* getDevice() const;
+    SkDevice* getDevice() const;
 
     /**
      *  saveLayer() can create another device (which is later drawn onto
@@ -99,15 +99,15 @@ public:
      *        is drawn to, but is optional here, as there is a small perf hit
      *        sometimes.
      */
-    SkBaseDevice* getTopDevice(bool updateMatrixClip = false) const;
+    SkDevice* getTopDevice(bool updateMatrixClip = false) const;
 
     /**
      *  Shortcut for getDevice()->createCompatibleDevice(...).
      *  If getDevice() == NULL, this method does nothing, and returns NULL.
      */
-    SkBaseDevice* createCompatibleDevice(SkBitmap::Config config,
-                                         int width, int height,
-                                         bool isOpaque);
+    SkDevice* createCompatibleDevice(SkBitmap::Config config,
+                                    int width, int height,
+                                    bool isOpaque);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -994,7 +994,7 @@ public:
 
         // These reflect the current device in the iterator
 
-        SkBaseDevice*   device() const;
+        SkDevice*       device() const;
         const SkMatrix& matrix() const;
         const SkRegion& clip() const;
         const SkPaint&  paint() const;
@@ -1043,7 +1043,7 @@ protected:
      reference count is incremented. If the canvas was already holding a
      device, its reference count is decremented. The new device is returned.
      */
-    virtual SkBaseDevice* setDevice(SkBaseDevice* device);
+    virtual SkDevice* setDevice(SkDevice* device);
 
 private:
     class MCRec;
@@ -1074,10 +1074,10 @@ private:
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
 
-    SkBaseDevice* createLayerDevice(SkBitmap::Config, int width, int height,
-                                    bool isOpaque);
+    SkDevice* createLayerDevice(SkBitmap::Config, int width, int height,
+                                bool isOpaque);
 
-    SkBaseDevice* init(SkBaseDevice*);
+    SkDevice* init(SkDevice*);
 
     // internal methods are not virtual, so they can safely be called by other
     // canvas apis, without confusing subclasses (like SkPictureRecording)
@@ -1090,7 +1090,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     int internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags, bool justForImageFilter);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
+    void internalDrawDevice(SkDevice*, int x, int y, const SkPaint*);
 
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);

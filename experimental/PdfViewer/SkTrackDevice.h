@@ -4,24 +4,24 @@
 #include "SkDevice.h"
 #include "SkTracker.h"
 
-class SkTrackDevice : public SkBitmapDevice {
+class SkTrackDevice : public SkDevice {
 public:
     SK_DECLARE_INST_COUNT(SkTrackDevice)
 
-    SkTrackDevice(const SkBitmap& bitmap) : SkBitmapDevice(bitmap)
+    SkTrackDevice(const SkBitmap& bitmap) : SkDevice(bitmap)
                                           , fTracker(NULL) {}
 
     SkTrackDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
-        : SkBitmapDevice(bitmap, deviceProperties)
+        : SkDevice(bitmap, deviceProperties)
         , fTracker(NULL) {}
 
     SkTrackDevice(SkBitmap::Config config, int width, int height, bool isOpaque = false)
-        : SkBitmapDevice(config, width, height, isOpaque)
+        : SkDevice(config, width, height, isOpaque)
         , fTracker(NULL) {}
 
     SkTrackDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
                   const SkDeviceProperties& deviceProperties)
-        : SkBitmapDevice(config, width, height, isOpaque, deviceProperties)
+        : SkDevice(config, width, height, isOpaque, deviceProperties)
         , fTracker(NULL) {}
 
     virtual ~SkTrackDevice() {}
@@ -147,7 +147,7 @@ protected:
         after();
     }
 
-    virtual void drawDevice(const SkDraw& dummy1, SkBaseDevice* dummy2, int x, int y,
+    virtual void drawDevice(const SkDraw& dummy1, SkDevice* dummy2, int x, int y,
                             const SkPaint& dummy3) {
         before();
         INHERITED::drawDevice(dummy1, dummy2, x, y, dummy3);
@@ -171,7 +171,7 @@ private:
 private:
     SkTracker* fTracker;
 
-    typedef SkBitmapDevice INHERITED;
+    typedef SkDevice INHERITED;
 };
 
 #endif  // EXPERIMENTAL_PDFVIEWER_SKTRACKDEVICE_H_

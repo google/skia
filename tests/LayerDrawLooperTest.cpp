@@ -19,20 +19,17 @@
 
 namespace {
 
-class FakeDevice : public SkBitmapDevice {
+class FakeDevice : public SkDevice {
 public:
-    FakeDevice() : SkBitmapDevice(SkBitmap::kARGB_8888_Config, 100, 100, false) { }
+    FakeDevice() : SkDevice(SkBitmap::kARGB_8888_Config, 100, 100) { }
 
     virtual void drawRect(const SkDraw& draw, const SkRect& r,
                           const SkPaint& paint) SK_OVERRIDE {
         fLastMatrix = *draw.fMatrix;
-        INHERITED::drawRect(draw, r, paint);
+        SkDevice::drawRect(draw, r, paint);
     }
 
     SkMatrix fLastMatrix;
-
-private:
-    typedef SkBitmapDevice INHERITED;
 };
 
 } // namespace

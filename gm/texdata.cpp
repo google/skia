@@ -38,7 +38,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkBaseDevice* device = canvas->getTopDevice();
+        SkDevice* device = canvas->getTopDevice();
         GrRenderTarget* target = device->accessRenderTarget();
         GrContext* ctx = GetGr();
         if (ctx && target) {

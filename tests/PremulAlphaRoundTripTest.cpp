@@ -41,7 +41,7 @@ static const SkCanvas::Config8888 gUnpremulConfigs[] = {
 };
 
 void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
-    SkAutoTUnref<SkBaseDevice> device;
+    SkAutoTUnref<SkDevice> device;
     for (int dtype = 0; dtype < 2; ++dtype) {
 
         int glCtxTypeCnt = 1;
@@ -52,10 +52,10 @@ void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* fa
 #endif
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
             if (0 == dtype) {
-                device.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config,
-                                                256,
-                                                256,
-                                                false));
+                device.reset(new SkDevice(SkBitmap::kARGB_8888_Config,
+                                              256,
+                                              256,
+                                              false));
             } else {
 #if SK_SUPPORT_GPU
                 GrContextFactory::GLContextType type =

@@ -33,7 +33,7 @@ public:
      */
     static SkDeferredCanvas* Create(SkSurface* surface);
 
-    static SkDeferredCanvas* Create(SkBaseDevice* device);
+    static SkDeferredCanvas* Create(SkDevice* device);
 
     virtual ~SkDeferredCanvas();
 

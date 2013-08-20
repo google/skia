@@ -227,7 +227,7 @@ bool checkWrite(skiatest::Reporter* reporter,
                 const SkBitmap& bitmap,
                 int writeX, int writeY,
                 SkCanvas::Config8888 config8888) {
-    SkBaseDevice* dev = canvas->getDevice();
+    SkDevice* dev = canvas->getDevice();
     if (!dev) {
         return false;
     }
@@ -305,7 +305,7 @@ static const CanvasConfig gCanvasConfigs[] = {
 #endif
 };
 
-SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
+SkDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
     switch (c.fDevType) {
         case kRaster_DevType: {
             SkBitmap bmp;
@@ -320,7 +320,7 @@ SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
                 SkAutoLockPixels alp(bmp);
                 memset(bmp.getPixels(), DEV_PAD, bmp.getSafeSize());
             }
-            return new SkBitmapDevice(bmp);
+            return new SkDevice(bmp);
         }
 #if SK_SUPPORT_GPU
         case kGpu_BottomLeft_DevType:
@@ -435,7 +435,7 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
             }
 #endif
 
-            SkAutoTUnref<SkBaseDevice> device(createDevice(gCanvasConfigs[i], context));
+            SkAutoTUnref<SkDevice> device(createDevice(gCanvasConfigs[i], context));
             SkCanvas canvas(device);
 
             static const SkCanvas::Config8888 gSrcConfigs[] = {

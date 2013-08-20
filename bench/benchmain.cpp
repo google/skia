@@ -193,9 +193,9 @@ enum Backend {
     kPDF_Backend,
 };
 
-static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                                 Backend backend, int sampleCount, GrContext* context) {
-    SkBaseDevice* device = NULL;
+static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
+                             Backend backend, int sampleCount, GrContext* context) {
+    SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
 
@@ -203,7 +203,7 @@ static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
         case kRaster_Backend:
             bitmap.allocPixels();
             erase(bitmap);
-            device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
+            device = SkNEW_ARGS(SkDevice, (bitmap));
             break;
 #if SK_SUPPORT_GPU
         case kGPU_Backend: {
@@ -776,7 +776,7 @@ int tool_main(int argc, char** argv) {
                 glContext = gContextFactory.getGLContext(gConfigs[configIndex].fContextType);
             }
 #endif
-            SkBaseDevice* device = NULL;
+            SkDevice* device = NULL;
             SkCanvas* canvas = NULL;
             SkPicture pictureRecordFrom;
             SkPicture pictureRecordTo;

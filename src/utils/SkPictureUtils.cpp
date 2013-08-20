@@ -47,7 +47,7 @@ static void nothing_to_do() {}
  *  It should never actually draw anything, so there need not be any pixels
  *  behind its device-bitmap.
  */
-class GatherPixelRefDevice : public SkBitmapDevice {
+class GatherPixelRefDevice : public SkDevice {
 private:
     PixelRefSet*  fPRSet;
 
@@ -70,7 +70,7 @@ private:
     }
 
 public:
-    GatherPixelRefDevice(const SkBitmap& bm, PixelRefSet* prset) : SkBitmapDevice(bm) {
+    GatherPixelRefDevice(const SkBitmap& bm, PixelRefSet* prset) : SkDevice(bm) {
         fPRSet = prset;
     }
 
@@ -138,7 +138,7 @@ public:
                               const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
-    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
+    virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE {
         nothing_to_do();
     }
@@ -150,14 +150,11 @@ protected:
         not_supported();
         return false;
     }
-
-private:
-    typedef SkBitmapDevice INHERITED;
 };
 
 class NoSaveLayerCanvas : public SkCanvas {
 public:
-    NoSaveLayerCanvas(SkBaseDevice* device) : INHERITED(device) {}
+    NoSaveLayerCanvas(SkDevice* device) : INHERITED(device) {}
 
     // turn saveLayer() into save() for speed, should not affect correctness.
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,

@@ -111,7 +111,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
         return false;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
+    SkAutoTUnref<SkDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
     SkCanvas canvas(device.get());
     SkPaint paint;
 
