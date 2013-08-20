@@ -44,7 +44,7 @@ private:
     SkBitmap fBitmap;
     SkDebugger* fDebugger;
     SkCanvas* fCanvas;
-    SkBaseDevice* fDevice;
+    SkDevice* fDevice;
 };
 
 #endif /* SKRASTERWIDGET_H_ */

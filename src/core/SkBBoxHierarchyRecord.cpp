@@ -11,7 +11,7 @@
 
 SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(uint32_t recordFlags,
                                              SkBBoxHierarchy* h,
-                                             SkBaseDevice* device)
+                                             SkDevice* device)
     : INHERITED(recordFlags, device) {
     fStateTree = SkNEW(SkPictureStateTree);
     fBoundingHierarchy = h;

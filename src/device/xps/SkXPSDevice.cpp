@@ -111,7 +111,7 @@ static SkBitmap make_fake_bitmap(int width, int height) {
 }
 
 SkXPSDevice::SkXPSDevice()
-    : SkBitmapDevice(make_fake_bitmap(10000, 10000))
+    : SkDevice(make_fake_bitmap(10000, 10000))
     , fCurrentPage(0) {
 }
 
@@ -2375,7 +2375,7 @@ void SkXPSDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
      d.drawTextOnPath((const char*)text, len, path, matrix, paint);
 }
 
-void SkXPSDevice::drawDevice(const SkDraw& d, SkBaseDevice* dev,
+void SkXPSDevice::drawDevice(const SkDraw& d, SkDevice* dev,
                              int x, int y,
                              const SkPaint&) {
     SkXPSDevice* that = static_cast<SkXPSDevice*>(dev);
@@ -2407,11 +2407,11 @@ bool SkXPSDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
     return false;
 }
 
-SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
-                                                    int width, int height,
-                                                    bool isOpaque,
-                                                    Usage usage) {
-    if (SkBaseDevice::kGeneral_Usage == usage) {
+SkDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
+                                                int width, int height,
+                                                bool isOpaque,
+                                                Usage usage) {
+    if (SkDevice::kGeneral_Usage == usage) {
         return NULL;
         SK_CRASH();
         //To what stream do we write?
@@ -2425,7 +2425,7 @@ SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
 }
 
 SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
-    : SkBitmapDevice(make_fake_bitmap(10000, 10000))
+    : SkDevice(make_fake_bitmap(10000, 10000))
     , fCurrentPage(0) {
 
     HRVM(CoCreateInstance(

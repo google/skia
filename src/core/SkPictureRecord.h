@@ -30,10 +30,10 @@ class SkBBoxHierarchy;
 
 class SkPictureRecord : public SkCanvas {
 public:
-    SkPictureRecord(uint32_t recordFlags, SkBaseDevice*);
+    SkPictureRecord(uint32_t recordFlags, SkDevice*);
     virtual ~SkPictureRecord();
 
-    virtual SkBaseDevice* setDevice(SkBaseDevice* device) SK_OVERRIDE;
+    virtual SkDevice* setDevice(SkDevice* device) SK_OVERRIDE;
 
     virtual int save(SaveFlags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint*, SaveFlags) SK_OVERRIDE;

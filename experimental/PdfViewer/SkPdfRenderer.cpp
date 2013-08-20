@@ -242,7 +242,7 @@ static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
 
         memcpy(bitmap.getPixels(), gDumpBitmap->getPixels(), gDumpBitmap->getSize());
 
-        SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
+        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
         SkCanvas canvas(device);
 
         // draw context stuff here
@@ -2641,7 +2641,7 @@ bool SkPDFNativeRenderToBitmap(SkStream* stream,
 
     setup_bitmap(output, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (*output)));
+    SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (*output)));
     SkCanvas canvas(device);
 
     return renderer.renderPage(page, &canvas, rect);

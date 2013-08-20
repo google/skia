@@ -9,11 +9,11 @@
 // with the following:
 //
 //  SkCanvas canvas(device);
-//  SkAutoTUnref<SkBaseDevice> aur(device);
+//  SkAutoTUnref<SkDevice> aur(device);
 //
 class OwnDeviceCanvas : public SkCanvas {
 public:
-    OwnDeviceCanvas(SkBaseDevice* device) : SkCanvas(device) {
+    OwnDeviceCanvas(SkDevice* device) : SkCanvas(device) {
         SkSafeUnref(device);
     }
 };
@@ -41,7 +41,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
     // downsample
     {
-        SkBaseDevice* dev = proxy->createDevice(dstW, dstH);
+        SkDevice* dev = proxy->createDevice(dstW, dstH);
         if (NULL == dev) {
             return false;
         }
@@ -56,7 +56,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
     // upscale
     {
-        SkBaseDevice* dev = proxy->createDevice(src.width(), src.height());
+        SkDevice* dev = proxy->createDevice(src.width(), src.height());
         if (NULL == dev) {
             return false;
         }

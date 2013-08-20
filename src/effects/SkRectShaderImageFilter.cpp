@@ -56,8 +56,8 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(SkScalarCeilToInt(rect.width()),
-                                                          SkScalarCeilToInt(rect.height())));
+    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(rect.width()),
+                                                      SkScalarCeilToInt(rect.height())));
     SkCanvas canvas(device.get());
     SkPaint paint;
     paint.setShader(fShader);
