@@ -207,6 +207,14 @@
 #endif
 
 /**
+ * SkColor has well defined shift values, but SkPMColor is configurable. This
+ * macro is a convenience that returns true if the shift values are equal while
+ * ignoring the machine's endianness.
+ */
+#define SK_COLOR_MATCHES_PMCOLOR_BYTE_ORDER \
+    (SK_A32_SHIFT == 24 && SK_R32_SHIFT == 16 && SK_G32_SHIFT == 8 && SK_B32_SHIFT == 0)
+
+/**
  * SK_PMCOLOR_BYTE_ORDER can be used to query the byte order of SkPMColor at compile time. The
  * relationship between the byte order and shift values depends on machine endianness. If the shift
  * order is R=0, G=8, B=16, A=24 then ((char*)&pmcolor)[0] will produce the R channel on a little
