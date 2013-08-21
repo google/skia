@@ -6,6 +6,7 @@
     '../gm/alphagradients.cpp',
     '../gm/arcofzorro.cpp',
     '../gm/arithmode.cpp',
+    '../gm/beziereffects.cpp',
     '../gm/bicubicfilter.cpp',
     '../gm/bigmatrix.cpp',
     '../gm/bigtext.cpp',
