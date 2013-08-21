@@ -43,6 +43,8 @@ namespace skiagm {
             kSkipScaledReplay_Flag      = 1 << 6,
             kSkipGPU_Flag               = 1 << 7,
             kSkipPDFRasterization_Flag  = 1 << 8,
+
+            kGPUOnly_Flag               = 1 << 9,
         };
 
         void draw(SkCanvas*);

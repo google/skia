@@ -1559,8 +1559,8 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
             errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
             continue;
         }
-        if ((gmFlags & GM::kSkipGPU_Flag) &&
-            kGPU_Backend == config.fBackend) {
+        if (((gmFlags & GM::kSkipGPU_Flag) && kGPU_Backend == config.fBackend) ||
+            ((gmFlags & GM::kGPUOnly_Flag) && kGPU_Backend != config.fBackend)) {
             gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                      renderModeDescriptor);
             errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);

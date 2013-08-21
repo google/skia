@@ -300,8 +300,8 @@
           ],
         }],
         [ 'skia_gpu == 1', {
-          'include_dirs': [
-            '../src/gpu', # To pull gl/GrGLUtil.h
+          'dependencies': [
+            'gputest.gyp:skgputest',
           ],
         }],
         [ 'skia_os == "nacl"', {

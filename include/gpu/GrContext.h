@@ -33,6 +33,7 @@ class GrPathRenderer;
 class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
+class GrTestTarget;
 class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
@@ -824,6 +825,9 @@ public:
     GrFontCache* getFontCache() { return fFontCache; }
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
+
+    // Called by tests that draw directly to the context via GrDrawTarget
+    void getTestTarget(GrTestTarget*);
 
     /**
      * Stencil buffers add themselves to the cache using addStencilBuffer. findStencilBuffer is

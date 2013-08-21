@@ -15,10 +15,6 @@
 namespace skiagm {
 extern GrContext* GetGr();
 };
-
-void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
-    fMaxTextureSizeOverride = maxTextureSizeOverride;
-}
 #endif
 
 // Create a black&white checked texture with a 1-pixel red ring
