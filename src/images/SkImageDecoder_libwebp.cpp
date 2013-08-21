@@ -60,16 +60,24 @@ static const size_t WEBP_IDECODE_BUFFER_SZ = (1 << 16);
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 static bool webp_parse_header(SkStream* stream, int* width, int* height, int* alpha) {
     unsigned char buffer[WEBP_VP8_HEADER_SIZE];
-    const uint32_t contentSize = stream->getLength();
-    const size_t len = stream->read(buffer, WEBP_VP8_HEADER_SIZE);
-    const uint32_t read_bytes =
-            (contentSize < WEBP_VP8_HEADER_SIZE) ? contentSize : WEBP_VP8_HEADER_SIZE;
-    if (len != read_bytes) {
-        return false; // can't read enough
-    }
+    size_t bytesToRead = WEBP_VP8_HEADER_SIZE;
+    size_t totalBytesRead = 0;
+    do {
+        unsigned char* dst = buffer + totalBytesRead;
+        const size_t bytesRead = stream->read(dst, bytesToRead);
+        if (0 == bytesRead) {
+            // Could not read any bytes. Check to see if we are at the end (exit
+            // condition), and continue reading if not. Important for streams
+            // that do not have all the data ready.
+            continue;
+        }
+        bytesToRead -= bytesRead;
+        totalBytesRead += bytesRead;
+        SkASSERT(bytesToRead + totalBytesRead == WEBP_VP8_HEADER_SIZE);
+    } while (!stream->isAtEnd() && bytesToRead > 0);
 
     WebPBitstreamFeatures features;
-    VP8StatusCode status = WebPGetFeatures(buffer, read_bytes, &features);
+    VP8StatusCode status = WebPGetFeatures(buffer, totalBytesRead, &features);
     if (VP8_STATUS_OK != status) {
         return false; // Invalid WebP file.
     }
@@ -192,9 +200,8 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
     }
 
     stream->rewind();
-    const uint32_t contentSize = stream->getLength();
-    const uint32_t readBufferSize = (contentSize < WEBP_IDECODE_BUFFER_SZ) ?
-                                       contentSize : WEBP_IDECODE_BUFFER_SZ;
+    const size_t readBufferSize = stream->hasLength() ?
+            SkTMin(stream->getLength(), WEBP_IDECODE_BUFFER_SZ) : WEBP_IDECODE_BUFFER_SZ;
     SkAutoMalloc srcStorage(readBufferSize);
     unsigned char* input = (uint8_t*)srcStorage.get();
     if (NULL == input) {
