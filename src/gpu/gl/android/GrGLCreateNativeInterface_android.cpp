@@ -6,6 +6,7 @@
 
 #include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
+#include "gl/GrGLUtil.h"
 
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES
@@ -23,6 +24,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         if (!extensions.init(kES_GrGLBinding, glGetString, NULL, glGetIntegerv)) {
             return NULL;
         }
+        const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
+        GrGLVersion version = GrGLGetVersionFromString(verStr);
+        if (version < GR_GL_VER(2,0)) {
+            return NULL;
+        }
+
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
         interface->fBindingsExported = kES_GrGLBinding;
@@ -94,13 +101,21 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fTexParameteri = glTexParameteri;
         interface->fTexParameteriv = glTexParameteriv;
         interface->fTexSubImage2D = glTexSubImage2D;
-#if GL_ARB_texture_storage
-        interface->fTexStorage2D = glTexStorage2D;
-#elif GL_EXT_texture_storage
-        interface->fTexStorage2D = glTexStorage2DEXT;
+
+        if (version >= GR_GL_VER(3,0)) {
+#if GL_ES_VERSION_3_0
+            interface->fTexStorage2D = glTexStorage2D;
 #else
-        interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
+            interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2D");
 #endif
+        } else {
+#if GL_EXT_texture_storage
+            interface->fTexStorage2D = glTexStorage2DEXT;
+#else
+            interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
+#endif
+        }
+
 #if GL_EXT_discard_framebuffer
         interface->fDiscardFramebuffer = glDiscardFramebufferEXT;
 #endif
