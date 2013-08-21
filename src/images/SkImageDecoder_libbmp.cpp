@@ -93,12 +93,34 @@ private:
 };
 
 bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
+    // First read the entire stream, so that all of the data can be passed to
+    // the BmpDecoderHelper.
 
-    size_t length = stream->getLength();
-    SkAutoMalloc storage(length);
+    // Byte length of all of the data.
+    size_t length;
+    // Allocated space used to hold the data.
+    SkAutoMalloc storage;
 
-    if (stream->read(storage.get(), length) != length) {
-        return false;
+    if (stream->hasLength()) {
+        length = stream->getLength();
+        void* dst = storage.reset(length);
+        if (stream->read(dst, length) != length) {
+            return false;
+        }
+    } else {
+        SkDynamicMemoryWStream tempStream;
+        // Arbitrary buffer size.
+        const size_t bufferSize = 256 * 1024; // 256 KB
+        char buffer[bufferSize];
+        length = 0;
+        do {
+            size_t bytesRead = stream->read(buffer, bufferSize);
+            tempStream.write(buffer, bytesRead);
+            length += bytesRead;
+            SkASSERT(tempStream.bytesWritten() == length);
+        } while (!stream->isAtEnd());
+        void* dst = storage.reset(length);
+        tempStream.copyTo(dst);
     }
 
     const bool justBounds = SkImageDecoder::kDecodeBounds_Mode == mode;
