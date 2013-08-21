@@ -60,6 +60,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "arcofzorro_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16152065030750953710
+        ]
+      ]
+    }, 
+    "arcofzorro_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7634371874392183923
+        ]
+      ]
+    }, 
+    "arcofzorro_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5910317601352068754
+        ]
+      ]
+    }, 
     "arithmode_565.png": {
       "allowed-digests": [
         [

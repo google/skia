@@ -78,6 +78,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "arcofzorro_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16152065030750953710
+        ]
+      ]
+    }, 
+    "arcofzorro_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7634371874392183923
+        ]
+      ]
+    }, 
+    "arcofzorro_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4170526865753739297
+        ]
+      ]
+    }, 
+    "arcofzorro_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14429359818796761362
+        ]
+      ]
+    }, 
     "arithmode_565.png": {
       "allowed-digests": [
         [
