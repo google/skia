@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEncodingDictionary
-#define __DEFINED__SkPdfEncodingDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEncodingDictionary_DEFINED
+#define SkPdfEncodingDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Differences() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfEncodingDictionary
+#endif  // SkPdfEncodingDictionary_DEFINED

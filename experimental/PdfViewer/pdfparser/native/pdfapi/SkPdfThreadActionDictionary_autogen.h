@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfThreadActionDictionary
-#define __DEFINED__SkPdfThreadActionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfThreadActionDictionary_DEFINED
+#define SkPdfThreadActionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,18 +522,23 @@ public:
   bool has_S() const;
   SkPdfFileSpec F(SkPdfNativeDoc* doc);
   bool has_F() const;
+
   bool isDADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getDAsDictionary(SkPdfNativeDoc* doc);
+
   bool isDAInteger(SkPdfNativeDoc* doc);
   int64_t getDAsInteger(SkPdfNativeDoc* doc);
+
   bool isDAString(SkPdfNativeDoc* doc);
   SkString getDAsString(SkPdfNativeDoc* doc);
   bool has_D() const;
+
   bool isBADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getBAsDictionary(SkPdfNativeDoc* doc);
+
   bool isBAInteger(SkPdfNativeDoc* doc);
   int64_t getBAsInteger(SkPdfNativeDoc* doc);
   bool has_B() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfThreadActionDictionary
+#endif  // SkPdfThreadActionDictionary_DEFINED

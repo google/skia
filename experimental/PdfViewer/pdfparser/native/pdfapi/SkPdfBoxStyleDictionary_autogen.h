@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBoxStyleDictionary
-#define __DEFINED__SkPdfBoxStyleDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfBoxStyleDictionary_DEFINED
+#define SkPdfBoxStyleDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_D() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfBoxStyleDictionary
+#endif  // SkPdfBoxStyleDictionary_DEFINED

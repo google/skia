@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFDFTrailerDictionary
-#define __DEFINED__SkPdfFDFTrailerDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFDFTrailerDictionary_DEFINED
+#define SkPdfFDFTrailerDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_Root() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFDFTrailerDictionary
+#endif  // SkPdfFDFTrailerDictionary_DEFINED

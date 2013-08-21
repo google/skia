@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMacOsFileInformationDictionary
-#define __DEFINED__SkPdfMacOsFileInformationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMacOsFileInformationDictionary_DEFINED
+#define SkPdfMacOsFileInformationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_ResFork() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfMacOsFileInformationDictionary
+#endif  // SkPdfMacOsFileInformationDictionary_DEFINED

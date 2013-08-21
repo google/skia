@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_SKTRACKDEVICE_H_
-#define EXPERIMENTAL_PDFVIEWER_SKTRACKDEVICE_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkTrackDevice_DEFINED
+#define SkTrackDevice_DEFINED
 
 #include "SkDevice.h"
 #include "SkTracker.h"
@@ -174,4 +181,4 @@ private:
     typedef SkDevice INHERITED;
 };
 
-#endif  // EXPERIMENTAL_PDFVIEWER_SKTRACKDEVICE_H_
+#endif  // SkTrackDevice_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPageObjectDictionary
-#define __DEFINED__SkPdfPageObjectDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPageObjectDictionary_DEFINED
+#define SkPdfPageObjectDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -531,8 +538,10 @@ public:
   bool has_ArtBox() const;
   SkPdfDictionary* BoxColorInfo(SkPdfNativeDoc* doc);
   bool has_BoxColorInfo() const;
+
   bool isContentsAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getContentsAsStream(SkPdfNativeDoc* doc);
+
   bool isContentsAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getContentsAsArray(SkPdfNativeDoc* doc);
   bool has_Contents() const;
@@ -566,4 +575,4 @@ public:
   bool has_SeparationInfo() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPageObjectDictionary
+#endif  // SkPdfPageObjectDictionary_DEFINED

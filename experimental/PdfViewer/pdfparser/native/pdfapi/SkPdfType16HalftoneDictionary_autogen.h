@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType16HalftoneDictionary
-#define __DEFINED__SkPdfType16HalftoneDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType16HalftoneDictionary_DEFINED
+#define SkPdfType16HalftoneDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,11 +532,13 @@ public:
   bool has_Width2() const;
   int64_t Height2(SkPdfNativeDoc* doc);
   bool has_Height2() const;
+
   bool isTransferFunctionAFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getTransferFunctionAsFunction(SkPdfNativeDoc* doc);
+
   bool isTransferFunctionAName(SkPdfNativeDoc* doc);
   SkString getTransferFunctionAsName(SkPdfNativeDoc* doc);
   bool has_TransferFunction() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType16HalftoneDictionary
+#endif  // SkPdfType16HalftoneDictionary_DEFINED

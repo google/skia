@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfApplicationDataDictionary
-#define __DEFINED__SkPdfApplicationDataDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfApplicationDataDictionary_DEFINED
+#define SkPdfApplicationDataDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_Private() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfApplicationDataDictionary
+#endif  // SkPdfApplicationDataDictionary_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMultiMasterFontDictionary
-#define __DEFINED__SkPdfMultiMasterFontDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMultiMasterFontDictionary_DEFINED
+#define SkPdfMultiMasterFontDictionary_DEFINED
 
 #include "SkPdfType1FontDictionary_autogen.h"
 
@@ -22,4 +29,4 @@ public:
   bool has_Subtype() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfMultiMasterFontDictionary
+#endif  // SkPdfMultiMasterFontDictionary_DEFINED

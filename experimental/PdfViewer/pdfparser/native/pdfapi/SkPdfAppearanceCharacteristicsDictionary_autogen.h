@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfAppearanceCharacteristicsDictionary
-#define __DEFINED__SkPdfAppearanceCharacteristicsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfAppearanceCharacteristicsDictionary_DEFINED
+#define SkPdfAppearanceCharacteristicsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -535,4 +542,4 @@ public:
   bool has_TP() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfAppearanceCharacteristicsDictionary
+#endif  // SkPdfAppearanceCharacteristicsDictionary_DEFINED

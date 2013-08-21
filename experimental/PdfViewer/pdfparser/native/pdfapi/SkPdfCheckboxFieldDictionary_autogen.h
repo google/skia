@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCheckboxFieldDictionary
-#define __DEFINED__SkPdfCheckboxFieldDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCheckboxFieldDictionary_DEFINED
+#define SkPdfCheckboxFieldDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_Opt() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCheckboxFieldDictionary
+#endif  // SkPdfCheckboxFieldDictionary_DEFINED

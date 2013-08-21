@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfGoToActionDictionary
-#define __DEFINED__SkPdfGoToActionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfGoToActionDictionary_DEFINED
+#define SkPdfGoToActionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,13 +520,16 @@ public:
    bool valid() const {return true;}
   SkString S(SkPdfNativeDoc* doc);
   bool has_S() const;
+
   bool isDAName(SkPdfNativeDoc* doc);
   SkString getDAsName(SkPdfNativeDoc* doc);
+
   bool isDAString(SkPdfNativeDoc* doc);
   SkString getDAsString(SkPdfNativeDoc* doc);
+
   bool isDAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getDAsArray(SkPdfNativeDoc* doc);
   bool has_D() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfGoToActionDictionary
+#endif  // SkPdfGoToActionDictionary_DEFINED

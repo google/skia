@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfWebCapturePageSetDictionary
-#define __DEFINED__SkPdfWebCapturePageSetDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfWebCapturePageSetDictionary_DEFINED
+#define SkPdfWebCapturePageSetDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_TID() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfWebCapturePageSetDictionary
+#endif  // SkPdfWebCapturePageSetDictionary_DEFINED

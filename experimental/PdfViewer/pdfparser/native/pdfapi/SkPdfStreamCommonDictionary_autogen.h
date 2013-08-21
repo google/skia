@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfStreamCommonDictionary
-#define __DEFINED__SkPdfStreamCommonDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfStreamCommonDictionary_DEFINED
+#define SkPdfStreamCommonDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,28 +520,36 @@ public:
    bool valid() const {return true;}
   int64_t Length(SkPdfNativeDoc* doc);
   bool has_Length() const;
+
   bool isFilterAName(SkPdfNativeDoc* doc);
   SkString getFilterAsName(SkPdfNativeDoc* doc);
+
   bool isFilterAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getFilterAsArray(SkPdfNativeDoc* doc);
   bool has_Filter() const;
+
   bool isDecodeParmsADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getDecodeParmsAsDictionary(SkPdfNativeDoc* doc);
+
   bool isDecodeParmsAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getDecodeParmsAsArray(SkPdfNativeDoc* doc);
   bool has_DecodeParms() const;
   SkPdfFileSpec F(SkPdfNativeDoc* doc);
   bool has_F() const;
+
   bool isFFilterAName(SkPdfNativeDoc* doc);
   SkString getFFilterAsName(SkPdfNativeDoc* doc);
+
   bool isFFilterAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getFFilterAsArray(SkPdfNativeDoc* doc);
   bool has_FFilter() const;
+
   bool isFDecodeParmsADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getFDecodeParmsAsDictionary(SkPdfNativeDoc* doc);
+
   bool isFDecodeParmsAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getFDecodeParmsAsArray(SkPdfNativeDoc* doc);
   bool has_FDecodeParms() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfStreamCommonDictionary
+#endif  // SkPdfStreamCommonDictionary_DEFINED

@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfStructureElementAccessDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 int64_t SkPdfStructureElementAccessDictionary::StructParent(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("StructParent", "");
   if (doc) {ret = doc->resolveReference(ret);}

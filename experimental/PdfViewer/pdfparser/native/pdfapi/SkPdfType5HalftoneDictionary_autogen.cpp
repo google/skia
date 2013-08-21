@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfType5HalftoneDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkString SkPdfType5HalftoneDictionary::Type(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Type", "");
   if (doc) {ret = doc->resolveReference(ret);}
@@ -37,8 +43,8 @@ SkString SkPdfType5HalftoneDictionary::HalftoneName(SkPdfNativeDoc* doc) {
 bool SkPdfType5HalftoneDictionary::has_HalftoneName() const {
   return get("HalftoneName", "") != NULL;
 }
-
 /*
+
 bool SkPdfType5HalftoneDictionary::is[any_colorant_name]ADictionary(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("[any_colorant_name]", "");
   if (doc) {ret = doc->resolveReference(ret);}
@@ -70,8 +76,8 @@ SkPdfStream* SkPdfType5HalftoneDictionary::get[any_colorant_name]AsStream(SkPdfN
 bool SkPdfType5HalftoneDictionary::has_[any_colorant_name]() const {
   return get("[any_colorant_name]", "") != NULL;
 }
-
 */
+
 bool SkPdfType5HalftoneDictionary::isDefaultADictionary(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Default", "");
   if (doc) {ret = doc->resolveReference(ret);}

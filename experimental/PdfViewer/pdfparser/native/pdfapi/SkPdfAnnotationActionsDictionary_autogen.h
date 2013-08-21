@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfAnnotationActionsDictionary
-#define __DEFINED__SkPdfAnnotationActionsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfAnnotationActionsDictionary_DEFINED
+#define SkPdfAnnotationActionsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_Bl() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfAnnotationActionsDictionary
+#endif  // SkPdfAnnotationActionsDictionary_DEFINED

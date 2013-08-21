@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType2ShadingDictionary
-#define __DEFINED__SkPdfType2ShadingDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType2ShadingDictionary_DEFINED
+#define SkPdfType2ShadingDictionary_DEFINED
 
 #include "SkPdfShadingDictionary_autogen.h"
 
@@ -38,4 +45,4 @@ public:
   bool has_Extend() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType2ShadingDictionary
+#endif  // SkPdfType2ShadingDictionary_DEFINED

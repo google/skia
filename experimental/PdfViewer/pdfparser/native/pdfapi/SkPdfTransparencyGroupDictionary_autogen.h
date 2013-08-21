@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfTransparencyGroupDictionary
-#define __DEFINED__SkPdfTransparencyGroupDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfTransparencyGroupDictionary_DEFINED
+#define SkPdfTransparencyGroupDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,8 +520,10 @@ public:
    bool valid() const {return true;}
   SkString S(SkPdfNativeDoc* doc);
   bool has_S() const;
+
   bool isCSAName(SkPdfNativeDoc* doc);
   SkString getCSAsName(SkPdfNativeDoc* doc);
+
   bool isCSAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getCSAsArray(SkPdfNativeDoc* doc);
   bool has_CS() const;
@@ -524,4 +533,4 @@ public:
   bool has_K() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfTransparencyGroupDictionary
+#endif  // SkPdfTransparencyGroupDictionary_DEFINED

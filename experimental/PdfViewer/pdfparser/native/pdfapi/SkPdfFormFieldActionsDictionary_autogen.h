@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFormFieldActionsDictionary
-#define __DEFINED__SkPdfFormFieldActionsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFormFieldActionsDictionary_DEFINED
+#define SkPdfFormFieldActionsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_C() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFormFieldActionsDictionary
+#endif  // SkPdfFormFieldActionsDictionary_DEFINED

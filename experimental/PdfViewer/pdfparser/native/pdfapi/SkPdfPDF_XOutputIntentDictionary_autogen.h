@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPDF_XOutputIntentDictionary
-#define __DEFINED__SkPdfPDF_XOutputIntentDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPDF_XOutputIntentDictionary_DEFINED
+#define SkPdfPDF_XOutputIntentDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -527,4 +534,4 @@ public:
   bool has_DestOutputProfile() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPDF_XOutputIntentDictionary
+#endif  // SkPdfPDF_XOutputIntentDictionary_DEFINED

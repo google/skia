@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfThreadDictionary
-#define __DEFINED__SkPdfThreadDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfThreadDictionary_DEFINED
+#define SkPdfThreadDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_I() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfThreadDictionary
+#endif  // SkPdfThreadDictionary_DEFINED

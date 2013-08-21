@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEmbeddedFontStreamDictionary
-#define __DEFINED__SkPdfEmbeddedFontStreamDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEmbeddedFontStreamDictionary_DEFINED
+#define SkPdfEmbeddedFontStreamDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -523,4 +530,4 @@ public:
   bool has_Metadata() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfEmbeddedFontStreamDictionary
+#endif  // SkPdfEmbeddedFontStreamDictionary_DEFINED

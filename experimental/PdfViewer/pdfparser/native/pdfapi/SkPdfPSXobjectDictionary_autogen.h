@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPSXobjectDictionary
-#define __DEFINED__SkPdfPSXobjectDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPSXobjectDictionary_DEFINED
+#define SkPdfPSXobjectDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Level1() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPSXobjectDictionary
+#endif  // SkPdfPSXobjectDictionary_DEFINED

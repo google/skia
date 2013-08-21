@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType2PatternDictionary
-#define __DEFINED__SkPdfType2PatternDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType2PatternDictionary_DEFINED
+#define SkPdfType2PatternDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,8 +522,10 @@ public:
   bool has_Type() const;
   int64_t PatternType(SkPdfNativeDoc* doc);
   bool has_PatternType() const;
+
   bool isShadingADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getShadingAsDictionary(SkPdfNativeDoc* doc);
+
   bool isShadingAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getShadingAsStream(SkPdfNativeDoc* doc);
   bool has_Shading() const;
@@ -526,4 +535,4 @@ public:
   bool has_ExtGState() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType2PatternDictionary
+#endif  // SkPdfType2PatternDictionary_DEFINED

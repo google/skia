@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPopUpAnnotationDictionary
-#define __DEFINED__SkPdfPopUpAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPopUpAnnotationDictionary_DEFINED
+#define SkPdfPopUpAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_Open() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPopUpAnnotationDictionary
+#endif  // SkPdfPopUpAnnotationDictionary_DEFINED

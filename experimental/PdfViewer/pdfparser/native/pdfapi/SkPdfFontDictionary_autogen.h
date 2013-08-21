@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFontDictionary
-#define __DEFINED__SkPdfFontDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFontDictionary_DEFINED
+#define SkPdfFontDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -497,4 +504,4 @@ public:
    bool valid() const {return true;}
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFontDictionary
+#endif  // SkPdfFontDictionary_DEFINED

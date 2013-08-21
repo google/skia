@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfJbig2DecodeFilterDictionary
-#define __DEFINED__SkPdfJbig2DecodeFilterDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfJbig2DecodeFilterDictionary_DEFINED
+#define SkPdfJbig2DecodeFilterDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_JBIG2Globals() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfJbig2DecodeFilterDictionary
+#endif  // SkPdfJbig2DecodeFilterDictionary_DEFINED

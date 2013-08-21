@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKNATIVEPARSEDPDF_H_
-#define EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKNATIVEPARSEDPDF_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNativeDoc_DEFINED
+#define SkPdfNativeDoc_DEFINED
 
 #include "SkRect.h"
 #include "SkTDArray.h"
@@ -102,4 +109,4 @@ private:
     SkTDArray<SkPdfPageObjectDictionary*> fPages;
 };
 
-#endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKNATIVEPARSEDPDF_H_
+#endif  // SkPdfNativeDoc_DEFINED

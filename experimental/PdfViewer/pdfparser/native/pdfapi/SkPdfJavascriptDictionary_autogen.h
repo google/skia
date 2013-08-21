@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfJavascriptDictionary
-#define __DEFINED__SkPdfJavascriptDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfJavascriptDictionary_DEFINED
+#define SkPdfJavascriptDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -511,13 +518,17 @@ private:
 
 public:
    bool valid() const {return true;}
+
   bool isBeforeAString(SkPdfNativeDoc* doc);
   SkString getBeforeAsString(SkPdfNativeDoc* doc);
+
   bool isBeforeAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getBeforeAsStream(SkPdfNativeDoc* doc);
   bool has_Before() const;
+
   bool isAfterAString(SkPdfNativeDoc* doc);
   SkString getAfterAsString(SkPdfNativeDoc* doc);
+
   bool isAfterAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getAfterAsStream(SkPdfNativeDoc* doc);
   bool has_After() const;
@@ -525,4 +536,4 @@ public:
   bool has_Doc() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfJavascriptDictionary
+#endif  // SkPdfJavascriptDictionary_DEFINED

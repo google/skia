@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBeadDictionary
-#define __DEFINED__SkPdfBeadDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfBeadDictionary_DEFINED
+#define SkPdfBeadDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_R() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfBeadDictionary
+#endif  // SkPdfBeadDictionary_DEFINED

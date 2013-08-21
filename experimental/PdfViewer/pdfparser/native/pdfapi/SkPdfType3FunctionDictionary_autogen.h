@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType3FunctionDictionary
-#define __DEFINED__SkPdfType3FunctionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType3FunctionDictionary_DEFINED
+#define SkPdfType3FunctionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Encode() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType3FunctionDictionary
+#endif  // SkPdfType3FunctionDictionary_DEFINED

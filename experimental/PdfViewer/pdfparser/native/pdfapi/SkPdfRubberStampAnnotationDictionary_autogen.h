@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfRubberStampAnnotationDictionary
-#define __DEFINED__SkPdfRubberStampAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfRubberStampAnnotationDictionary_DEFINED
+#define SkPdfRubberStampAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Name() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfRubberStampAnnotationDictionary
+#endif  // SkPdfRubberStampAnnotationDictionary_DEFINED

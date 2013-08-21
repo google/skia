@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfDocumentCatalogActionsDictionary
-#define __DEFINED__SkPdfDocumentCatalogActionsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfDocumentCatalogActionsDictionary_DEFINED
+#define SkPdfDocumentCatalogActionsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -523,4 +530,4 @@ public:
   bool has_DP() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfDocumentCatalogActionsDictionary
+#endif  // SkPdfDocumentCatalogActionsDictionary_DEFINED

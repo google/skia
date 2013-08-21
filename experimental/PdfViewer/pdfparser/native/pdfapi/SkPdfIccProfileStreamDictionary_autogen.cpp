@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfIccProfileStreamDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 int64_t SkPdfIccProfileStreamDictionary::N(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("N", "");
   if (doc) {ret = doc->resolveReference(ret);}

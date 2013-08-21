@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfAnnotationDictionary
-#define __DEFINED__SkPdfAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfAnnotationDictionary_DEFINED
+#define SkPdfAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -522,8 +529,10 @@ public:
   SkRect Rect(SkPdfNativeDoc* doc);
   bool has_Rect() const;
   bool has_NM() const;
+
   bool isMADate(SkPdfNativeDoc* doc);
   SkPdfDate getMAsDate(SkPdfNativeDoc* doc);
+
   bool isMAString(SkPdfNativeDoc* doc);
   SkString getMAsString(SkPdfNativeDoc* doc);
   bool has_M() const;
@@ -553,4 +562,4 @@ public:
   bool has_StructParent() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfAnnotationDictionary
+#endif  // SkPdfAnnotationDictionary_DEFINED

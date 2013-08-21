@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBasics
-#define __DEFINED__SkPdfBasics
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfGraphicsState_DEFINED
+#define SkPdfGraphicsState_DEFINED
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -471,4 +478,4 @@ public:
     ~SkPdfContext();
 };
 
-#endif  // __DEFINED__SkPdfBasics
+#endif  // SkPdfGraphicsState_DEFINED

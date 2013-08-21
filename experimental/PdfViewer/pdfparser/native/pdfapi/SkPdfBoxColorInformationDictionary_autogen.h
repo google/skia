@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBoxColorInformationDictionary
-#define __DEFINED__SkPdfBoxColorInformationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfBoxColorInformationDictionary_DEFINED
+#define SkPdfBoxColorInformationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_ArtBox() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfBoxColorInformationDictionary
+#endif  // SkPdfBoxColorInformationDictionary_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfHideActionDictionary
-#define __DEFINED__SkPdfHideActionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfHideActionDictionary_DEFINED
+#define SkPdfHideActionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,10 +520,13 @@ public:
    bool valid() const {return true;}
   SkString S(SkPdfNativeDoc* doc);
   bool has_S() const;
+
   bool isTADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getTAsDictionary(SkPdfNativeDoc* doc);
+
   bool isTAString(SkPdfNativeDoc* doc);
   SkString getTAsString(SkPdfNativeDoc* doc);
+
   bool isTAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getTAsArray(SkPdfNativeDoc* doc);
   bool has_T() const;
@@ -524,4 +534,4 @@ public:
   bool has_H() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfHideActionDictionary
+#endif  // SkPdfHideActionDictionary_DEFINED

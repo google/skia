@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFDFPageDictionary
-#define __DEFINED__SkPdfFDFPageDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFDFPageDictionary_DEFINED
+#define SkPdfFDFPageDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_Info() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFDFPageDictionary
+#endif  // SkPdfFDFPageDictionary_DEFINED

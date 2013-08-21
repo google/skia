@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfInkAnnotationDictionary
-#define __DEFINED__SkPdfInkAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfInkAnnotationDictionary_DEFINED
+#define SkPdfInkAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_BS() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfInkAnnotationDictionary
+#endif  // SkPdfInkAnnotationDictionary_DEFINED

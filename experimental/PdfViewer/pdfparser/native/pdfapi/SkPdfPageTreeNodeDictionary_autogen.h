@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPageTreeNodeDictionary
-#define __DEFINED__SkPdfPageTreeNodeDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPageTreeNodeDictionary_DEFINED
+#define SkPdfPageTreeNodeDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_Count() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPageTreeNodeDictionary
+#endif  // SkPdfPageTreeNodeDictionary_DEFINED

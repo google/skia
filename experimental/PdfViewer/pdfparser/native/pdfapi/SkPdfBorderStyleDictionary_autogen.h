@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBorderStyleDictionary
-#define __DEFINED__SkPdfBorderStyleDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfBorderStyleDictionary_DEFINED
+#define SkPdfBorderStyleDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_D() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfBorderStyleDictionary
+#endif  // SkPdfBorderStyleDictionary_DEFINED

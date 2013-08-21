@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_
-#define EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNYI_DEFINED
+#define SkPdfNYI_DEFINED
 
 struct SkPdfFileSpec {};
 
@@ -10,4 +17,4 @@ struct SkPdfTree {};
 struct SkPdfFunction {};
 
 
-#endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_SKPDFNYI_H_
+#endif  // SkPdfNYI_DEFINED

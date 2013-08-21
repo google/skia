@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFNATIVETOKENIZER_H_
-#define EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFNATIVETOKENIZER_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNativeTokenizer_DEFINED
+#define SkPdfNativeTokenizer_DEFINED
 
 #include "SkTDArray.h"
 #include "SkTDict.h"
@@ -150,4 +157,4 @@ private:
     PdfToken fPutBack;
 };
 
-#endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFNATIVETOKENIZER_H_
+#endif  // SkPdfNativeTokenizer_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfDctdecodeFilterDictionary
-#define __DEFINED__SkPdfDctdecodeFilterDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfDctdecodeFilterDictionary_DEFINED
+#define SkPdfDctdecodeFilterDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_ColorTransform() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfDctdecodeFilterDictionary
+#endif  // SkPdfDctdecodeFilterDictionary_DEFINED

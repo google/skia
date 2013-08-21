@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfGraphicsStateDictionary
-#define __DEFINED__SkPdfGraphicsStateDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfGraphicsStateDictionary_DEFINED
+#define SkPdfGraphicsStateDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -535,36 +542,49 @@ public:
   bool has_Font() const;
   SkPdfFunction BG(SkPdfNativeDoc* doc);
   bool has_BG() const;
+
   bool isBG2AFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getBG2AsFunction(SkPdfNativeDoc* doc);
+
   bool isBG2AName(SkPdfNativeDoc* doc);
   SkString getBG2AsName(SkPdfNativeDoc* doc);
   bool has_BG2() const;
   SkPdfFunction UCR(SkPdfNativeDoc* doc);
   bool has_UCR() const;
+
   bool isUCR2AFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getUCR2AsFunction(SkPdfNativeDoc* doc);
+
   bool isUCR2AName(SkPdfNativeDoc* doc);
   SkString getUCR2AsName(SkPdfNativeDoc* doc);
   bool has_UCR2() const;
+
   bool isTRAFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getTRAsFunction(SkPdfNativeDoc* doc);
+
   bool isTRAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getTRAsArray(SkPdfNativeDoc* doc);
+
   bool isTRAName(SkPdfNativeDoc* doc);
   SkString getTRAsName(SkPdfNativeDoc* doc);
   bool has_TR() const;
+
   bool isTR2AFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getTR2AsFunction(SkPdfNativeDoc* doc);
+
   bool isTR2AArray(SkPdfNativeDoc* doc);
   SkPdfArray* getTR2AsArray(SkPdfNativeDoc* doc);
+
   bool isTR2AName(SkPdfNativeDoc* doc);
   SkString getTR2AsName(SkPdfNativeDoc* doc);
   bool has_TR2() const;
+
   bool isHTADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getHTAsDictionary(SkPdfNativeDoc* doc);
+
   bool isHTAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getHTAsStream(SkPdfNativeDoc* doc);
+
   bool isHTAName(SkPdfNativeDoc* doc);
   SkString getHTAsName(SkPdfNativeDoc* doc);
   bool has_HT() const;
@@ -574,13 +594,17 @@ public:
   bool has_SM() const;
   bool SA(SkPdfNativeDoc* doc);
   bool has_SA() const;
+
   bool isBMAName(SkPdfNativeDoc* doc);
   SkString getBMAsName(SkPdfNativeDoc* doc);
+
   bool isBMAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getBMAsArray(SkPdfNativeDoc* doc);
   bool has_BM() const;
+
   bool isSMaskADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getSMaskAsDictionary(SkPdfNativeDoc* doc);
+
   bool isSMaskAName(SkPdfNativeDoc* doc);
   SkString getSMaskAsName(SkPdfNativeDoc* doc);
   bool has_SMask() const;
@@ -594,4 +618,4 @@ public:
   bool has_TK() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfGraphicsStateDictionary
+#endif  // SkPdfGraphicsStateDictionary_DEFINED

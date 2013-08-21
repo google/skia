@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEncryptedEmbeddedFileStreamDictionary
-#define __DEFINED__SkPdfEncryptedEmbeddedFileStreamDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEncryptedEmbeddedFileStreamDictionary_DEFINED
+#define SkPdfEncryptedEmbeddedFileStreamDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_EncryptionRevision() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfEncryptedEmbeddedFileStreamDictionary
+#endif  // SkPdfEncryptedEmbeddedFileStreamDictionary_DEFINED

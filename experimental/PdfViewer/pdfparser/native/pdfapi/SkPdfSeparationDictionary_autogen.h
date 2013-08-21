@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfSeparationDictionary
-#define __DEFINED__SkPdfSeparationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfSeparationDictionary_DEFINED
+#define SkPdfSeparationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,8 +520,10 @@ public:
    bool valid() const {return true;}
   SkPdfArray* Pages(SkPdfNativeDoc* doc);
   bool has_Pages() const;
+
   bool isDeviceColorantAName(SkPdfNativeDoc* doc);
   SkString getDeviceColorantAsName(SkPdfNativeDoc* doc);
+
   bool isDeviceColorantAString(SkPdfNativeDoc* doc);
   SkString getDeviceColorantAsString(SkPdfNativeDoc* doc);
   bool has_DeviceColorant() const;
@@ -522,4 +531,4 @@ public:
   bool has_ColorSpace() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfSeparationDictionary
+#endif  // SkPdfSeparationDictionary_DEFINED

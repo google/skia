@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType0FontDictionary
-#define __DEFINED__SkPdfType0FontDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType0FontDictionary_DEFINED
+#define SkPdfType0FontDictionary_DEFINED
 
 #include "SkPdfFontDictionary_autogen.h"
 
@@ -31,8 +38,10 @@ public:
   bool has_Subtype() const;
   SkString BaseFont(SkPdfNativeDoc* doc);
   bool has_BaseFont() const;
+
   bool isEncodingAName(SkPdfNativeDoc* doc);
   SkString getEncodingAsName(SkPdfNativeDoc* doc);
+
   bool isEncodingAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getEncodingAsStream(SkPdfNativeDoc* doc);
   bool has_Encoding() const;
@@ -42,4 +51,4 @@ public:
   bool has_ToUnicode() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType0FontDictionary
+#endif  // SkPdfType0FontDictionary_DEFINED

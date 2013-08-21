@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfTrapNetworkAnnotationDictionary
-#define __DEFINED__SkPdfTrapNetworkAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfTrapNetworkAnnotationDictionary_DEFINED
+#define SkPdfTrapNetworkAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_FontFauxing() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfTrapNetworkAnnotationDictionary
+#endif  // SkPdfTrapNetworkAnnotationDictionary_DEFINED

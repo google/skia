@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCatalogDictionary
-#define __DEFINED__SkPdfCatalogDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCatalogDictionary_DEFINED
+#define SkPdfCatalogDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,8 +524,10 @@ public:
   bool has_Version() const;
   SkPdfPageTreeNodeDictionary* Pages(SkPdfNativeDoc* doc);
   bool has_Pages() const;
+
   bool isPageLabelsANumber(SkPdfNativeDoc* doc);
   double getPageLabelsAsNumber(SkPdfNativeDoc* doc);
+
   bool isPageLabelsATree(SkPdfNativeDoc* doc);
   SkPdfTree getPageLabelsAsTree(SkPdfNativeDoc* doc);
   bool has_PageLabels() const;
@@ -536,8 +545,10 @@ public:
   bool has_Outlines() const;
   SkPdfArray* Threads(SkPdfNativeDoc* doc);
   bool has_Threads() const;
+
   bool isOpenActionAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getOpenActionAsArray(SkPdfNativeDoc* doc);
+
   bool isOpenActionADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getOpenActionAsDictionary(SkPdfNativeDoc* doc);
   bool has_OpenAction() const;
@@ -561,4 +572,4 @@ public:
   bool has_OutputIntents() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCatalogDictionary
+#endif  // SkPdfCatalogDictionary_DEFINED

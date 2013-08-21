@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFDFCatalogDictionary
-#define __DEFINED__SkPdfFDFCatalogDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFDFCatalogDictionary_DEFINED
+#define SkPdfFDFCatalogDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_FDF() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFDFCatalogDictionary
+#endif  // SkPdfFDFCatalogDictionary_DEFINED

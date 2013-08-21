@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfBlockLevelStructureElementsDictionary
-#define __DEFINED__SkPdfBlockLevelStructureElementsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfBlockLevelStructureElementsDictionary_DEFINED
+#define SkPdfBlockLevelStructureElementsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,13 +532,17 @@ public:
   bool has_TextAlign() const;
   SkRect BBox(SkPdfNativeDoc* doc);
   bool has_BBox() const;
+
   bool isWidthANumber(SkPdfNativeDoc* doc);
   double getWidthAsNumber(SkPdfNativeDoc* doc);
+
   bool isWidthAName(SkPdfNativeDoc* doc);
   SkString getWidthAsName(SkPdfNativeDoc* doc);
   bool has_Width() const;
+
   bool isHeightANumber(SkPdfNativeDoc* doc);
   double getHeightAsNumber(SkPdfNativeDoc* doc);
+
   bool isHeightAName(SkPdfNativeDoc* doc);
   SkString getHeightAsName(SkPdfNativeDoc* doc);
   bool has_Height() const;
@@ -541,4 +552,4 @@ public:
   bool has_InlineAlign() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfBlockLevelStructureElementsDictionary
+#endif  // SkPdfBlockLevelStructureElementsDictionary_DEFINED

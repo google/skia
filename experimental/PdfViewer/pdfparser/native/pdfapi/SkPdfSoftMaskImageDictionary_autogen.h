@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfSoftMaskImageDictionary
-#define __DEFINED__SkPdfSoftMaskImageDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfSoftMaskImageDictionary_DEFINED
+#define SkPdfSoftMaskImageDictionary_DEFINED
 
 #include "SkPdfImageDictionary_autogen.h"
 
@@ -21,4 +28,4 @@ public:
   bool has_ColorSpace() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfSoftMaskImageDictionary
+#endif  // SkPdfSoftMaskImageDictionary_DEFINED

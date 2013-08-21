@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfOpiVersionDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfDictionary* SkPdfOpiVersionDictionary::version_number(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("version_number", "");
   if (doc) {ret = doc->resolveReference(ret);}

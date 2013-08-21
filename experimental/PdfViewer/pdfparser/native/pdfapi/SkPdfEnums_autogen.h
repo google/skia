@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEnums
-#define __DEFINED__SkPdfEnums
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEnums_DEFINED
+#define SkPdfEnums_DEFINED
 
 enum SkPdfNativeObjectType {
   kNone_SkPdfNativeObjectType = 0,
@@ -348,4 +355,4 @@ class SkPdfTrapNetworkAppearanceStreamDictionary;
 class SkPdfOpiVersionDictionary;
 class SkPdfMultiMasterFontDictionary;
 
-#endif  // __DEFINED__SkPdfEnums
+#endif  // SkPdfEnums_DEFINED

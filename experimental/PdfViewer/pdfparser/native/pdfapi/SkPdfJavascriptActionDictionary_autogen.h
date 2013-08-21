@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfJavascriptActionDictionary
-#define __DEFINED__SkPdfJavascriptActionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfJavascriptActionDictionary_DEFINED
+#define SkPdfJavascriptActionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,11 +520,13 @@ public:
    bool valid() const {return true;}
   SkString S(SkPdfNativeDoc* doc);
   bool has_S() const;
+
   bool isJSAString(SkPdfNativeDoc* doc);
   SkString getJSAsString(SkPdfNativeDoc* doc);
+
   bool isJSAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getJSAsStream(SkPdfNativeDoc* doc);
   bool has_JS() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfJavascriptActionDictionary
+#endif  // SkPdfJavascriptActionDictionary_DEFINED

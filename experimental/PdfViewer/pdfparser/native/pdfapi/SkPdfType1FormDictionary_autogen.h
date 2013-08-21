@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType1FormDictionary
-#define __DEFINED__SkPdfType1FormDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType1FormDictionary_DEFINED
+#define SkPdfType1FormDictionary_DEFINED
 
 #include "SkPdfXObjectDictionary_autogen.h"
 
@@ -51,4 +58,4 @@ public:
   bool has_OPI() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType1FormDictionary
+#endif  // SkPdfType1FormDictionary_DEFINED

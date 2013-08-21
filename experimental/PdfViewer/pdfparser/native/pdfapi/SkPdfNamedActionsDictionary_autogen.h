@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfNamedActionsDictionary
-#define __DEFINED__SkPdfNamedActionsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNamedActionsDictionary_DEFINED
+#define SkPdfNamedActionsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_N() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfNamedActionsDictionary
+#endif  // SkPdfNamedActionsDictionary_DEFINED

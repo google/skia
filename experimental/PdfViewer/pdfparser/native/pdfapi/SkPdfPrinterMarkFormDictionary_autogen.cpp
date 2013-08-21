@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfPrinterMarkFormDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkString SkPdfPrinterMarkFormDictionary::MarkStyle(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("MarkStyle", "");
   if (doc) {ret = doc->resolveReference(ret);}

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfChoiceFieldDictionary
-#define __DEFINED__SkPdfChoiceFieldDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfChoiceFieldDictionary_DEFINED
+#define SkPdfChoiceFieldDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_I() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfChoiceFieldDictionary
+#endif  // SkPdfChoiceFieldDictionary_DEFINED

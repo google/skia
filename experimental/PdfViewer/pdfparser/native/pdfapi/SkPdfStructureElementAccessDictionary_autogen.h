@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfStructureElementAccessDictionary
-#define __DEFINED__SkPdfStructureElementAccessDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfStructureElementAccessDictionary_DEFINED
+#define SkPdfStructureElementAccessDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_StructParents() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfStructureElementAccessDictionary
+#endif  // SkPdfStructureElementAccessDictionary_DEFINED

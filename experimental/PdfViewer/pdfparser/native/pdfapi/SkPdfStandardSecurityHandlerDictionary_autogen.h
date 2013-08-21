@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfStandardSecurityHandlerDictionary
-#define __DEFINED__SkPdfStandardSecurityHandlerDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfStandardSecurityHandlerDictionary_DEFINED
+#define SkPdfStandardSecurityHandlerDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_P() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfStandardSecurityHandlerDictionary
+#endif  // SkPdfStandardSecurityHandlerDictionary_DEFINED

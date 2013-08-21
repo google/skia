@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfLzwdecodeAndFlatedecodeFiltersDictionary
-#define __DEFINED__SkPdfLzwdecodeAndFlatedecodeFiltersDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfLzwdecodeAndFlatedecodeFiltersDictionary_DEFINED
+#define SkPdfLzwdecodeAndFlatedecodeFiltersDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -523,4 +530,4 @@ public:
   bool has_EarlyChange() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfLzwdecodeAndFlatedecodeFiltersDictionary
+#endif  // SkPdfLzwdecodeAndFlatedecodeFiltersDictionary_DEFINED

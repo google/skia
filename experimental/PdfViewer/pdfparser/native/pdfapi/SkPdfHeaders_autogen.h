@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfHeaders
-#define __DEFINED__SkPdfHeaders
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfHeaders_DEFINED
+#define SkPdfHeaders_DEFINED
 
 #include "SkPdfJavascriptActionDictionary_autogen.h"
 #include "SkPdfMovieAnnotationDictionary_autogen.h"
@@ -169,4 +176,4 @@
 #include "SkPdfType0FunctionDictionary_autogen.h"
 #include "SkPdfFDFPageDictionary_autogen.h"
 #include "SkPdfCalrgbColorSpaceDictionary_autogen.h"
-#endif  // __DEFINED__SkPdfHeaders
+#endif  // SkPdfHeaders_DEFINED

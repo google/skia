@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfALinkAnnotationDictionary
-#define __DEFINED__SkPdfALinkAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfALinkAnnotationDictionary_DEFINED
+#define SkPdfALinkAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,10 +522,13 @@ public:
   bool has_Subtype() const;
   SkString Contents(SkPdfNativeDoc* doc);
   bool has_Contents() const;
+
   bool isDestAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getDestAsArray(SkPdfNativeDoc* doc);
+
   bool isDestAName(SkPdfNativeDoc* doc);
   SkString getDestAsName(SkPdfNativeDoc* doc);
+
   bool isDestAString(SkPdfNativeDoc* doc);
   SkString getDestAsString(SkPdfNativeDoc* doc);
   bool has_Dest() const;
@@ -528,4 +538,4 @@ public:
   bool has_PA() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfALinkAnnotationDictionary
+#endif  // SkPdfALinkAnnotationDictionary_DEFINED

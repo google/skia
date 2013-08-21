@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfIccProfileStreamDictionary
-#define __DEFINED__SkPdfIccProfileStreamDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfIccProfileStreamDictionary_DEFINED
+#define SkPdfIccProfileStreamDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,8 +520,10 @@ public:
    bool valid() const {return true;}
   int64_t N(SkPdfNativeDoc* doc);
   bool has_N() const;
+
   bool isAlternateAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getAlternateAsArray(SkPdfNativeDoc* doc);
+
   bool isAlternateAName(SkPdfNativeDoc* doc);
   SkString getAlternateAsName(SkPdfNativeDoc* doc);
   bool has_Alternate() const;
@@ -524,4 +533,4 @@ public:
   bool has_Metadata() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfIccProfileStreamDictionary
+#endif  // SkPdfIccProfileStreamDictionary_DEFINED

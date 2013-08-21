@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfSoftMaskDictionary
-#define __DEFINED__SkPdfSoftMaskDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfSoftMaskDictionary_DEFINED
+#define SkPdfSoftMaskDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,11 +526,13 @@ public:
   bool has_G() const;
   SkPdfArray* BC(SkPdfNativeDoc* doc);
   bool has_BC() const;
+
   bool isTRAFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getTRAsFunction(SkPdfNativeDoc* doc);
+
   bool isTRAName(SkPdfNativeDoc* doc);
   SkString getTRAsName(SkPdfNativeDoc* doc);
   bool has_TR() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfSoftMaskDictionary
+#endif  // SkPdfSoftMaskDictionary_DEFINED

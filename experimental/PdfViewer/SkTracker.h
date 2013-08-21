@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_SKTRACKER_H_
-#define EXPERIMENTAL_PDFVIEWER_SKTRACKER_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkTracker_DEFINED
+#define SkTracker_DEFINED
 
 #include "SkBitmap.h"
 #include "SkPoint.h"
@@ -171,4 +178,4 @@ private:
     int fHits;
 };
 
-#endif  // EXPERIMENTAL_PDFVIEWER_SKTRACKER_H_
+#endif  // SkTracker_DEFINED

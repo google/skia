@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfWebCaptureCommandSettingsDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfDictionary* SkPdfWebCaptureCommandSettingsDictionary::G(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("G", "");
   if (doc) {ret = doc->resolveReference(ret);}

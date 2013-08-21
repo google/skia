@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFileSpecificationDictionary
-#define __DEFINED__SkPdfFileSpecificationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFileSpecificationDictionary_DEFINED
+#define SkPdfFileSpecificationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -533,4 +540,4 @@ public:
   bool has_RF() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFileSpecificationDictionary
+#endif  // SkPdfFileSpecificationDictionary_DEFINED

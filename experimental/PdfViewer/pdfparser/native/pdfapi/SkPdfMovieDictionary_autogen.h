@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMovieDictionary
-#define __DEFINED__SkPdfMovieDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMovieDictionary_DEFINED
+#define SkPdfMovieDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,11 +524,13 @@ public:
   bool has_Aspect() const;
   int64_t Rotate(SkPdfNativeDoc* doc);
   bool has_Rotate() const;
+
   bool isPosterABoolean(SkPdfNativeDoc* doc);
   bool getPosterAsBoolean(SkPdfNativeDoc* doc);
+
   bool isPosterAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getPosterAsStream(SkPdfNativeDoc* doc);
   bool has_Poster() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfMovieDictionary
+#endif  // SkPdfMovieDictionary_DEFINED

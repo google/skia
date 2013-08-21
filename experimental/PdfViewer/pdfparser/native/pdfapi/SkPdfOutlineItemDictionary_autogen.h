@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfOutlineItemDictionary
-#define __DEFINED__SkPdfOutlineItemDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfOutlineItemDictionary_DEFINED
+#define SkPdfOutlineItemDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,10 +532,13 @@ public:
   bool has_Last() const;
   int64_t Count(SkPdfNativeDoc* doc);
   bool has_Count() const;
+
   bool isDestAName(SkPdfNativeDoc* doc);
   SkString getDestAsName(SkPdfNativeDoc* doc);
+
   bool isDestAString(SkPdfNativeDoc* doc);
   SkString getDestAsString(SkPdfNativeDoc* doc);
+
   bool isDestAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getDestAsArray(SkPdfNativeDoc* doc);
   bool has_Dest() const;
@@ -542,4 +552,4 @@ public:
   bool has_F() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfOutlineItemDictionary
+#endif  // SkPdfOutlineItemDictionary_DEFINED

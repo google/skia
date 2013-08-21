@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfObjectReferenceDictionary
-#define __DEFINED__SkPdfObjectReferenceDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfObjectReferenceDictionary_DEFINED
+#define SkPdfObjectReferenceDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Obj() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfObjectReferenceDictionary
+#endif  // SkPdfObjectReferenceDictionary_DEFINED

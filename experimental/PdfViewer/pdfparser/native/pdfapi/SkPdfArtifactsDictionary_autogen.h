@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfArtifactsDictionary
-#define __DEFINED__SkPdfArtifactsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfArtifactsDictionary_DEFINED
+#define SkPdfArtifactsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Attached() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfArtifactsDictionary
+#endif  // SkPdfArtifactsDictionary_DEFINED

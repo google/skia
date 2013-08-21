@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfEncryptedEmbeddedFileStreamDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 int64_t SkPdfEncryptedEmbeddedFileStreamDictionary::EncryptionRevision(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("EncryptionRevision", "");
   if (doc) {ret = doc->resolveReference(ret);}
