@@ -23,6 +23,7 @@
     '../gm/canvasstate.cpp',
     '../gm/circles.cpp',
     '../gm/circularclips.cpp',
+    '../gm/clippedbitmapshaders.cpp',
     '../gm/colorfilterimagefilter.cpp',
     '../gm/colormatrix.cpp',
     '../gm/colortype.cpp',
