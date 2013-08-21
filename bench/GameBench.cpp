@@ -207,7 +207,8 @@ protected:
                                          4, verts, uvs, NULL, NULL,
                                          indices, 6, p2);
                 } else {
-                    canvas->drawBitmapRect(fAtlas, &src, dst, &p);
+                    canvas->drawBitmapRect(fAtlas, &src, dst, &p,
+                                           SkCanvas::kBleed_DrawBitmapRectFlag);
                 }
             } else {
                 canvas->drawBitmapRect(fCheckerboard, NULL, dst, &p);

@@ -80,7 +80,6 @@
     '../gm/morphology.cpp',
     '../gm/nested.cpp',
     '../gm/ninepatchstretch.cpp',
-    '../gm/nocolorbleed.cpp',
     '../gm/optimizations.cpp',
     '../gm/ovals.cpp',
     '../gm/patheffects.cpp',
