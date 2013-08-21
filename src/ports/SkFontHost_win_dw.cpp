@@ -97,12 +97,6 @@ private:
     SkTDArray<uint8_t> fBits;
 };
 
-typedef HRESULT (WINAPI *DWriteCreateFactoryProc)(
-    __in DWRITE_FACTORY_TYPE factoryType,
-    __in REFIID iid,
-    __out IUnknown **factory
-);
-
 static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
     static IDWriteFactory* gDWriteFactory = NULL;
 
@@ -111,6 +105,7 @@ static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
         return S_OK;
     }
 
+    typedef decltype(DWriteCreateFactory)* DWriteCreateFactoryProc;
     DWriteCreateFactoryProc dWriteCreateFactoryProc =
         reinterpret_cast<DWriteCreateFactoryProc>(
             GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory")
@@ -1847,6 +1842,13 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
 #endif
 
+typedef decltype(GetUserDefaultLocaleName)* GetUserDefaultLocaleNameProc;
+static GetUserDefaultLocaleNameProc GetGetUserDefaultLocaleNameProc() {
+    return reinterpret_cast<GetUserDefaultLocaleNameProc>(
+        GetProcAddress(LoadLibraryW(L"Kernel32.dll"), "GetUserDefaultLocaleName")
+    );
+}
+
 SkFontMgr* SkFontMgr::Factory() {
     IDWriteFactory* factory;
     HRNM(get_dwrite_factory(&factory), "Could not get factory.");
@@ -1857,10 +1859,18 @@ SkFontMgr* SkFontMgr::Factory() {
 
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
     WCHAR* localeName = NULL;
-    int localeNameLen = GetUserDefaultLocaleName(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
-    if (localeNameLen) {
-        localeName = localeNameStorage;
-    };
+    int localeNameLen = 0;
+
+    // Dynamically load GetUserDefaultLocaleName function, as it is not available on XP.
+    GetUserDefaultLocaleNameProc getUserDefaultLocaleNameProc = GetGetUserDefaultLocaleNameProc();
+    if (NULL == getUserDefaultLocaleNameProc) {
+        SkDebugf("Could not get GetUserDefaultLocaleName.");
+    } else {
+        localeNameLen = getUserDefaultLocaleNameProc(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
+        if (localeNameLen) {
+            localeName = localeNameStorage;
+        };
+    }
 
     return SkNEW_ARGS(SkFontMgr_DirectWrite, (sysFontCollection.get(), localeName, localeNameLen));
 }
