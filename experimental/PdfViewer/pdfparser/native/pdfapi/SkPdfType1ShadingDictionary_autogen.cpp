@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfType1ShadingDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfArray* SkPdfType1ShadingDictionary::Domain(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Domain", "");
   if (doc) {ret = doc->resolveReference(ret);}

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfOpiVersionDictionary
-#define __DEFINED__SkPdfOpiVersionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfOpiVersionDictionary_DEFINED
+#define SkPdfOpiVersionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_version_number() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfOpiVersionDictionary
+#endif  // SkPdfOpiVersionDictionary_DEFINED

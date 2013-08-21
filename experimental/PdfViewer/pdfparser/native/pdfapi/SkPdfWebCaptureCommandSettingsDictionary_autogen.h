@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfWebCaptureCommandSettingsDictionary
-#define __DEFINED__SkPdfWebCaptureCommandSettingsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfWebCaptureCommandSettingsDictionary_DEFINED
+#define SkPdfWebCaptureCommandSettingsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_C() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfWebCaptureCommandSettingsDictionary
+#endif  // SkPdfWebCaptureCommandSettingsDictionary_DEFINED

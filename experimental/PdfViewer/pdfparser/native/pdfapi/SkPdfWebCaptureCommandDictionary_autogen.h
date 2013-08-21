@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfWebCaptureCommandDictionary
-#define __DEFINED__SkPdfWebCaptureCommandDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfWebCaptureCommandDictionary_DEFINED
+#define SkPdfWebCaptureCommandDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,8 +524,10 @@ public:
   bool has_L() const;
   int64_t F(SkPdfNativeDoc* doc);
   bool has_F() const;
+
   bool isPAString(SkPdfNativeDoc* doc);
   SkString getPAsString(SkPdfNativeDoc* doc);
+
   bool isPAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getPAsStream(SkPdfNativeDoc* doc);
   bool has_P() const;
@@ -530,4 +539,4 @@ public:
   bool has_S() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfWebCaptureCommandDictionary
+#endif  // SkPdfWebCaptureCommandDictionary_DEFINED

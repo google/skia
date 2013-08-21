@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfLineAnnotationDictionary
-#define __DEFINED__SkPdfLineAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfLineAnnotationDictionary_DEFINED
+#define SkPdfLineAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_IC() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfLineAnnotationDictionary
+#endif  // SkPdfLineAnnotationDictionary_DEFINED

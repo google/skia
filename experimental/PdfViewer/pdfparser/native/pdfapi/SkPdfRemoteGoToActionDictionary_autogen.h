@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfRemoteGoToActionDictionary
-#define __DEFINED__SkPdfRemoteGoToActionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfRemoteGoToActionDictionary_DEFINED
+#define SkPdfRemoteGoToActionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,10 +522,13 @@ public:
   bool has_S() const;
   SkPdfFileSpec F(SkPdfNativeDoc* doc);
   bool has_F() const;
+
   bool isDAName(SkPdfNativeDoc* doc);
   SkString getDAsName(SkPdfNativeDoc* doc);
+
   bool isDAString(SkPdfNativeDoc* doc);
   SkString getDAsString(SkPdfNativeDoc* doc);
+
   bool isDAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getDAsArray(SkPdfNativeDoc* doc);
   bool has_D() const;
@@ -526,4 +536,4 @@ public:
   bool has_NewWindow() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfRemoteGoToActionDictionary
+#endif  // SkPdfRemoteGoToActionDictionary_DEFINED

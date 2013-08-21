@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType5HalftoneDictionary
-#define __DEFINED__SkPdfType5HalftoneDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType5HalftoneDictionary_DEFINED
+#define SkPdfType5HalftoneDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -518,17 +525,21 @@ public:
   SkString HalftoneName(SkPdfNativeDoc* doc);
   bool has_HalftoneName() const;
 /*
+
   bool is[any_colorant_name]ADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* get[any_colorant_name]AsDictionary(SkPdfNativeDoc* doc);
+
   bool is[any_colorant_name]AStream(SkPdfNativeDoc* doc);
   SkPdfStream* get[any_colorant_name]AsStream(SkPdfNativeDoc* doc);
   bool has_[any_colorant_name]() const;
 */
+
   bool isDefaultADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getDefaultAsDictionary(SkPdfNativeDoc* doc);
+
   bool isDefaultAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getDefaultAsStream(SkPdfNativeDoc* doc);
   bool has_Default() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType5HalftoneDictionary
+#endif  // SkPdfType5HalftoneDictionary_DEFINED

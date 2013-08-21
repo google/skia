@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfAlternateImageDictionary
-#define __DEFINED__SkPdfAlternateImageDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfAlternateImageDictionary_DEFINED
+#define SkPdfAlternateImageDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_DefaultForPrinting() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfAlternateImageDictionary
+#endif  // SkPdfAlternateImageDictionary_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfSourceInformationDictionary
-#define __DEFINED__SkPdfSourceInformationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfSourceInformationDictionary_DEFINED
+#define SkPdfSourceInformationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -511,8 +518,10 @@ private:
 
 public:
    bool valid() const {return true;}
+
   bool isAUAString(SkPdfNativeDoc* doc);
   SkString getAUAsString(SkPdfNativeDoc* doc);
+
   bool isAUADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getAUAsDictionary(SkPdfNativeDoc* doc);
   bool has_AU() const;
@@ -526,4 +535,4 @@ public:
   bool has_C() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfSourceInformationDictionary
+#endif  // SkPdfSourceInformationDictionary_DEFINED

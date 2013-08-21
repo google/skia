@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfSignatureDictionary
-#define __DEFINED__SkPdfSignatureDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfSignatureDictionary_DEFINED
+#define SkPdfSignatureDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -531,4 +538,4 @@ public:
   bool has_Reason() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfSignatureDictionary
+#endif  // SkPdfSignatureDictionary_DEFINED

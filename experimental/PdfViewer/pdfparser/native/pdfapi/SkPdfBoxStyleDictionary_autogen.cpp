@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfBoxStyleDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfArray* SkPdfBoxStyleDictionary::C(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("C", "");
   if (doc) {ret = doc->resolveReference(ret);}

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMovieAnnotationDictionary
-#define __DEFINED__SkPdfMovieAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMovieAnnotationDictionary_DEFINED
+#define SkPdfMovieAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,11 +524,13 @@ public:
   bool has_Movie() const;
   SkString Contents(SkPdfNativeDoc* doc);
   bool has_Contents() const;
+
   bool isAABoolean(SkPdfNativeDoc* doc);
   bool getAAsBoolean(SkPdfNativeDoc* doc);
+
   bool isAADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getAAsDictionary(SkPdfNativeDoc* doc);
   bool has_A() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfMovieAnnotationDictionary
+#endif  // SkPdfMovieAnnotationDictionary_DEFINED

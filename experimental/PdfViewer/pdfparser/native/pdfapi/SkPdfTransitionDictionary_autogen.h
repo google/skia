@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfTransitionDictionary
-#define __DEFINED__SkPdfTransitionDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfTransitionDictionary_DEFINED
+#define SkPdfTransitionDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_Di() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfTransitionDictionary
+#endif  // SkPdfTransitionDictionary_DEFINED

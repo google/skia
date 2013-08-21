@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfCIDFontDescriptorDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfDictionary* SkPdfCIDFontDescriptorDictionary::Style(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Style", "");
   if (doc) {ret = doc->resolveReference(ret);}

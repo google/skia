@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfImageDictionary
-#define __DEFINED__SkPdfImageDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfImageDictionary_DEFINED
+#define SkPdfImageDictionary_DEFINED
 
 #include "SkPdfXObjectDictionary_autogen.h"
 
@@ -24,8 +31,10 @@ public:
   bool has_Width() const;
   int64_t Height(SkPdfNativeDoc* doc);
   bool has_Height() const;
+
   bool isColorSpaceAName(SkPdfNativeDoc* doc);
   SkString getColorSpaceAsName(SkPdfNativeDoc* doc);
+
   bool isColorSpaceAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getColorSpaceAsArray(SkPdfNativeDoc* doc);
   bool has_ColorSpace() const;
@@ -35,8 +44,10 @@ public:
   bool has_Intent() const;
   bool ImageMask(SkPdfNativeDoc* doc);
   bool has_ImageMask() const;
+
   bool isMaskAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getMaskAsStream(SkPdfNativeDoc* doc);
+
   bool isMaskAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getMaskAsArray(SkPdfNativeDoc* doc);
   bool has_Mask() const;
@@ -60,4 +71,4 @@ public:
   bool has_Metadata() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfImageDictionary
+#endif  // SkPdfImageDictionary_DEFINED

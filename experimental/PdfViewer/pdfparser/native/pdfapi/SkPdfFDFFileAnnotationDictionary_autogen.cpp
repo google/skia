@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfFDFFileAnnotationDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 int64_t SkPdfFDFFileAnnotationDictionary::Page(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Page", "");
   if (doc) {ret = doc->resolveReference(ret);}

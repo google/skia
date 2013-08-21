@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfWebCaptureDictionary
-#define __DEFINED__SkPdfWebCaptureDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfWebCaptureDictionary_DEFINED
+#define SkPdfWebCaptureDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,8 +526,10 @@ public:
   bool has_ID() const;
   SkPdfArray* O(SkPdfNativeDoc* doc);
   bool has_O() const;
+
   bool isSIADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getSIAsDictionary(SkPdfNativeDoc* doc);
+
   bool isSIAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getSIAsArray(SkPdfNativeDoc* doc);
   bool has_SI() const;
@@ -530,4 +539,4 @@ public:
   bool has_TS() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfWebCaptureDictionary
+#endif  // SkPdfWebCaptureDictionary_DEFINED

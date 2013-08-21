@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCIDFontDictionary
-#define __DEFINED__SkPdfCIDFontDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCIDFontDictionary_DEFINED
+#define SkPdfCIDFontDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -529,11 +536,13 @@ public:
   bool has_DW2() const;
   SkPdfArray* W2(SkPdfNativeDoc* doc);
   bool has_W2() const;
+
   bool isCIDToGIDMapAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getCIDToGIDMapAsStream(SkPdfNativeDoc* doc);
+
   bool isCIDToGIDMapAName(SkPdfNativeDoc* doc);
   SkString getCIDToGIDMapAsName(SkPdfNativeDoc* doc);
   bool has_CIDToGIDMap() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCIDFontDictionary
+#endif  // SkPdfCIDFontDictionary_DEFINED

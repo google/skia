@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfVariableTextFieldDictionary
-#define __DEFINED__SkPdfVariableTextFieldDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfVariableTextFieldDictionary_DEFINED
+#define SkPdfVariableTextFieldDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Q() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfVariableTextFieldDictionary
+#endif  // SkPdfVariableTextFieldDictionary_DEFINED

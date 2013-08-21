@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfStructureTreeRootDictionary
-#define __DEFINED__SkPdfStructureTreeRootDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfStructureTreeRootDictionary_DEFINED
+#define SkPdfStructureTreeRootDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -513,18 +520,24 @@ public:
    bool valid() const {return true;}
   SkString Type(SkPdfNativeDoc* doc);
   bool has_Type() const;
+
   bool isKADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getKAsDictionary(SkPdfNativeDoc* doc);
+
   bool isKAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getKAsArray(SkPdfNativeDoc* doc);
   bool has_K() const;
+
   bool isIDTreeAName(SkPdfNativeDoc* doc);
   SkString getIDTreeAsName(SkPdfNativeDoc* doc);
+
   bool isIDTreeATree(SkPdfNativeDoc* doc);
   SkPdfTree getIDTreeAsTree(SkPdfNativeDoc* doc);
   bool has_IDTree() const;
+
   bool isParentTreeANumber(SkPdfNativeDoc* doc);
   double getParentTreeAsNumber(SkPdfNativeDoc* doc);
+
   bool isParentTreeATree(SkPdfNativeDoc* doc);
   SkPdfTree getParentTreeAsTree(SkPdfNativeDoc* doc);
   bool has_ParentTree() const;
@@ -536,4 +549,4 @@ public:
   bool has_ClassMap() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfStructureTreeRootDictionary
+#endif  // SkPdfStructureTreeRootDictionary_DEFINED

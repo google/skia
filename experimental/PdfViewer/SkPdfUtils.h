@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfUtils
-#define __DEFINED__SkPdfUtils
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfUtils_DEFINED
+#define SkPdfUtils_DEFINED
 
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -63,4 +70,4 @@ void SkTraceRect(const SkRect& rect, const char* sz);
 #define SkTraceRect(a,b)
 #endif
 
-#endif   // __DEFINED__SkPdfUtils
+#endif   // SkPdfUtils_DEFINED

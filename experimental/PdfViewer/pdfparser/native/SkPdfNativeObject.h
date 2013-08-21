@@ -1,5 +1,12 @@
-#ifndef EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFOBJECT_H_
-#define EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFOBJECT_H_
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNativeObject_DEFINED
+#define SkPdfNativeObject_DEFINED
 
 #include <stdint.h>
 #include <string.h>
@@ -1037,4 +1044,4 @@ public:
     }
 };
 
-#endif  // EXPERIMENTAL_PDFVIEWER_PDFPARSER_NATIVE_SKPDFOBJECT_H_
+#endif  // SkPdfNativeObject

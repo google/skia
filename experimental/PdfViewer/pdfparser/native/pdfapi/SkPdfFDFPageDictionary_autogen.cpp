@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfFDFPageDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfArray* SkPdfFDFPageDictionary::Templates(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Templates", "");
   if (doc) {ret = doc->resolveReference(ret);}

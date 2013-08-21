@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFDFDictionary
-#define __DEFINED__SkPdfFDFDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFDFDictionary_DEFINED
+#define SkPdfFDFDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -535,4 +542,4 @@ public:
   bool has_JavaScript() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFDFDictionary
+#endif  // SkPdfFDFDictionary_DEFINED

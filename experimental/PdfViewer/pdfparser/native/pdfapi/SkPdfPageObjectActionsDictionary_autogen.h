@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPageObjectActionsDictionary
-#define __DEFINED__SkPdfPageObjectActionsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPageObjectActionsDictionary_DEFINED
+#define SkPdfPageObjectActionsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_C() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPageObjectActionsDictionary
+#endif  // SkPdfPageObjectActionsDictionary_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMapper
-#define __DEFINED__SkPdfMapper
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMapper_DEFINED
+#define SkPdfMapper_DEFINED
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfNativeDoc.h"
@@ -682,4 +689,4 @@ public:
   bool SkPdfMultiMasterFontDictionaryFromDictionary(const SkPdfNativeObject* dict, const char* key, const char* abr, SkPdfMultiMasterFontDictionary** data) const ;
 };
 
-#endif  // __DEFINED__SkPdfMapper
+#endif  // SkPdfMapper_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfType1HalftoneDictionary
-#define __DEFINED__SkPdfType1HalftoneDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfType1HalftoneDictionary_DEFINED
+#define SkPdfType1HalftoneDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,18 +528,22 @@ public:
   bool has_Frequency() const;
   double Angle(SkPdfNativeDoc* doc);
   bool has_Angle() const;
+
   bool isSpotFunctionAFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getSpotFunctionAsFunction(SkPdfNativeDoc* doc);
+
   bool isSpotFunctionAName(SkPdfNativeDoc* doc);
   SkString getSpotFunctionAsName(SkPdfNativeDoc* doc);
   bool has_SpotFunction() const;
   bool AccurateScreens(SkPdfNativeDoc* doc);
   bool has_AccurateScreens() const;
+
   bool isTransferFunctionAFunction(SkPdfNativeDoc* doc);
   SkPdfFunction getTransferFunctionAsFunction(SkPdfNativeDoc* doc);
+
   bool isTransferFunctionAName(SkPdfNativeDoc* doc);
   SkString getTransferFunctionAsName(SkPdfNativeDoc* doc);
   bool has_TransferFunction() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfType1HalftoneDictionary
+#endif  // SkPdfType1HalftoneDictionary_DEFINED

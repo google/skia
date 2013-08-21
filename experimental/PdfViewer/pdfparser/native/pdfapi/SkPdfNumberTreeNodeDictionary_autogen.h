@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfNumberTreeNodeDictionary
-#define __DEFINED__SkPdfNumberTreeNodeDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNumberTreeNodeDictionary_DEFINED
+#define SkPdfNumberTreeNodeDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Limits() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfNumberTreeNodeDictionary
+#endif  // SkPdfNumberTreeNodeDictionary_DEFINED

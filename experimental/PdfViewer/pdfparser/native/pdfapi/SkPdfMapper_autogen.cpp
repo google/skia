@@ -1,3 +1,10 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfMapper_autogen.h"
 #include "SkPdfUtils.h"
 #include "SkPdfNativeObject.h"
@@ -4625,3 +4632,4 @@ bool SkPdfMapper::SkPdfMultiMasterFontDictionaryFromDictionary(const SkPdfNative
   if (abr == NULL || *abr == '\0') return false;
   return SkPdfMultiMasterFontDictionaryFromDictionary(dict, abr, data);
 }
+

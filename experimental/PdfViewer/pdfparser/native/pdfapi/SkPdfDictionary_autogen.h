@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfDictionary
-#define __DEFINED__SkPdfDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfDictionary_DEFINED
+#define SkPdfDictionary_DEFINED
 
 #include "stddef.h"
 #include "SkPdfEnums_autogen.h"
@@ -519,4 +526,4 @@ public:
    bool valid() const {return true;}
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfDictionary
+#endif  // SkPdfDictionary_DEFINED

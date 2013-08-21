@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfFormFieldActionsDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfDictionary* SkPdfFormFieldActionsDictionary::K(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("K", "");
   if (doc) {ret = doc->resolveReference(ret);}

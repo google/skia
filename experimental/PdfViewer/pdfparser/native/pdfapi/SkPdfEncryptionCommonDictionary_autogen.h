@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEncryptionCommonDictionary
-#define __DEFINED__SkPdfEncryptionCommonDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEncryptionCommonDictionary_DEFINED
+#define SkPdfEncryptionCommonDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -519,4 +526,4 @@ public:
   bool has_Length() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfEncryptionCommonDictionary
+#endif  // SkPdfEncryptionCommonDictionary_DEFINED

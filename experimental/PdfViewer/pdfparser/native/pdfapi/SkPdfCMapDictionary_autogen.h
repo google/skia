@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCMapDictionary
-#define __DEFINED__SkPdfCMapDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCMapDictionary_DEFINED
+#define SkPdfCMapDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,18 +522,22 @@ public:
   bool has_Type() const;
   SkString CMapName(SkPdfNativeDoc* doc);
   bool has_CMapName() const;
+
   bool isCIDSystemInfoADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getCIDSystemInfoAsDictionary(SkPdfNativeDoc* doc);
+
   bool isCIDSystemInfoAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getCIDSystemInfoAsArray(SkPdfNativeDoc* doc);
   bool has_CIDSystemInfo() const;
   int64_t WMode(SkPdfNativeDoc* doc);
   bool has_WMode() const;
+
   bool isUseCMapAName(SkPdfNativeDoc* doc);
   SkString getUseCMapAsName(SkPdfNativeDoc* doc);
+
   bool isUseCMapAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getUseCMapAsStream(SkPdfNativeDoc* doc);
   bool has_UseCMap() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCMapDictionary
+#endif  // SkPdfCMapDictionary_DEFINED

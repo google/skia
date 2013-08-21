@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfShadingDictionary
-#define __DEFINED__SkPdfShadingDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfShadingDictionary_DEFINED
+#define SkPdfShadingDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -495,8 +502,10 @@ public:
    bool valid() const {return true;}
   int64_t ShadingType(SkPdfNativeDoc* doc);
   bool has_ShadingType() const;
+
   bool isColorSpaceAName(SkPdfNativeDoc* doc);
   SkString getColorSpaceAsName(SkPdfNativeDoc* doc);
+
   bool isColorSpaceAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getColorSpaceAsArray(SkPdfNativeDoc* doc);
   bool has_ColorSpace() const;
@@ -508,4 +517,4 @@ public:
   bool has_AntiAlias() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfShadingDictionary
+#endif  // SkPdfShadingDictionary_DEFINED

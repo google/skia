@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfTrueTypeFontDictionary
-#define __DEFINED__SkPdfTrueTypeFontDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfTrueTypeFontDictionary_DEFINED
+#define SkPdfTrueTypeFontDictionary_DEFINED
 
 #include "SkPdfType1FontDictionary_autogen.h"
 
@@ -22,4 +29,4 @@ public:
   bool has_Subtype() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfTrueTypeFontDictionary
+#endif  // SkPdfTrueTypeFontDictionary_DEFINED

@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCcittfaxdecodeFilterDictionary
-#define __DEFINED__SkPdfCcittfaxdecodeFilterDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCcittfaxdecodeFilterDictionary_DEFINED
+#define SkPdfCcittfaxdecodeFilterDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -529,4 +536,4 @@ public:
   bool has_DamagedRowsBeforeError() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCcittfaxdecodeFilterDictionary
+#endif  // SkPdfCcittfaxdecodeFilterDictionary_DEFINED

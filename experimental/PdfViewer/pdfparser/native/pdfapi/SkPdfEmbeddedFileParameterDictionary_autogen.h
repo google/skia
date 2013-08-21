@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfEmbeddedFileParameterDictionary
-#define __DEFINED__SkPdfEmbeddedFileParameterDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfEmbeddedFileParameterDictionary_DEFINED
+#define SkPdfEmbeddedFileParameterDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -523,4 +530,4 @@ public:
   bool has_CheckSum() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfEmbeddedFileParameterDictionary
+#endif  // SkPdfEmbeddedFileParameterDictionary_DEFINED

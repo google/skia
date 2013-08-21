@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfAppearanceDictionary
-#define __DEFINED__SkPdfAppearanceDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfAppearanceDictionary_DEFINED
+#define SkPdfAppearanceDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -511,21 +518,27 @@ private:
 
 public:
    bool valid() const {return true;}
+
   bool isNAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getNAsStream(SkPdfNativeDoc* doc);
+
   bool isNADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getNAsDictionary(SkPdfNativeDoc* doc);
   bool has_N() const;
+
   bool isRAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getRAsStream(SkPdfNativeDoc* doc);
+
   bool isRADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getRAsDictionary(SkPdfNativeDoc* doc);
   bool has_R() const;
+
   bool isDAStream(SkPdfNativeDoc* doc);
   SkPdfStream* getDAsStream(SkPdfNativeDoc* doc);
+
   bool isDADictionary(SkPdfNativeDoc* doc);
   SkPdfDictionary* getDAsDictionary(SkPdfNativeDoc* doc);
   bool has_D() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfAppearanceDictionary
+#endif  // SkPdfAppearanceDictionary_DEFINED

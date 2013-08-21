@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfStreamCommonDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 int64_t SkPdfStreamCommonDictionary::Length(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("Length", "");
   if (doc) {ret = doc->resolveReference(ret);}

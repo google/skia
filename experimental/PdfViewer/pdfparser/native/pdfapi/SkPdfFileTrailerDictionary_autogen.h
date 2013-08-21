@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFileTrailerDictionary
-#define __DEFINED__SkPdfFileTrailerDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFileTrailerDictionary_DEFINED
+#define SkPdfFileTrailerDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,4 +532,4 @@ public:
   bool has_ID() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfFileTrailerDictionary
+#endif  // SkPdfFileTrailerDictionary_DEFINED

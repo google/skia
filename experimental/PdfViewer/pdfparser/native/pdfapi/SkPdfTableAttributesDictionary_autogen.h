@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfTableAttributesDictionary
-#define __DEFINED__SkPdfTableAttributesDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfTableAttributesDictionary_DEFINED
+#define SkPdfTableAttributesDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_ColSpan() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfTableAttributesDictionary
+#endif  // SkPdfTableAttributesDictionary_DEFINED

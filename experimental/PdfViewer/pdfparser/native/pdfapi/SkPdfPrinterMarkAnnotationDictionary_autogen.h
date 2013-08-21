@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfPrinterMarkAnnotationDictionary
-#define __DEFINED__SkPdfPrinterMarkAnnotationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfPrinterMarkAnnotationDictionary_DEFINED
+#define SkPdfPrinterMarkAnnotationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -517,4 +524,4 @@ public:
   bool has_MN() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfPrinterMarkAnnotationDictionary
+#endif  // SkPdfPrinterMarkAnnotationDictionary_DEFINED

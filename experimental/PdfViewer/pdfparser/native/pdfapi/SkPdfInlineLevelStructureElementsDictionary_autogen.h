@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfInlineLevelStructureElementsDictionary
-#define __DEFINED__SkPdfInlineLevelStructureElementsDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfInlineLevelStructureElementsDictionary_DEFINED
+#define SkPdfInlineLevelStructureElementsDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -511,11 +518,13 @@ private:
 
 public:
    bool valid() const {return true;}
+
   bool isLineHeightANumber(SkPdfNativeDoc* doc);
   double getLineHeightAsNumber(SkPdfNativeDoc* doc);
+
   bool isLineHeightAName(SkPdfNativeDoc* doc);
   SkString getLineHeightAsName(SkPdfNativeDoc* doc);
   bool has_LineHeight() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfInlineLevelStructureElementsDictionary
+#endif  // SkPdfInlineLevelStructureElementsDictionary_DEFINED

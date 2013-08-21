@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfCIDFontDescriptorDictionary
-#define __DEFINED__SkPdfCIDFontDescriptorDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfCIDFontDescriptorDictionary_DEFINED
+#define SkPdfCIDFontDescriptorDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -521,4 +528,4 @@ public:
   bool has_CIDSet() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfCIDFontDescriptorDictionary
+#endif  // SkPdfCIDFontDescriptorDictionary_DEFINED

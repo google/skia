@@ -1,7 +1,13 @@
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPdfResourceDictionary_autogen.h"
-
-
 #include "SkPdfNativeDoc.h"
+
 SkPdfDictionary* SkPdfResourceDictionary::ExtGState(SkPdfNativeDoc* doc) {
   SkPdfNativeObject* ret = get("ExtGState", "");
   if (doc) {ret = doc->resolveReference(ret);}

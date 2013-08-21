@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfNameDictionary
-#define __DEFINED__SkPdfNameDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfNameDictionary_DEFINED
+#define SkPdfNameDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -511,46 +518,62 @@ private:
 
 public:
    bool valid() const {return true;}
+
   bool isDestsAName(SkPdfNativeDoc* doc);
   SkString getDestsAsName(SkPdfNativeDoc* doc);
+
   bool isDestsATree(SkPdfNativeDoc* doc);
   SkPdfTree getDestsAsTree(SkPdfNativeDoc* doc);
   bool has_Dests() const;
+
   bool isAPAName(SkPdfNativeDoc* doc);
   SkString getAPAsName(SkPdfNativeDoc* doc);
+
   bool isAPATree(SkPdfNativeDoc* doc);
   SkPdfTree getAPAsTree(SkPdfNativeDoc* doc);
   bool has_AP() const;
+
   bool isJavaScriptAName(SkPdfNativeDoc* doc);
   SkString getJavaScriptAsName(SkPdfNativeDoc* doc);
+
   bool isJavaScriptATree(SkPdfNativeDoc* doc);
   SkPdfTree getJavaScriptAsTree(SkPdfNativeDoc* doc);
   bool has_JavaScript() const;
+
   bool isPagesAName(SkPdfNativeDoc* doc);
   SkString getPagesAsName(SkPdfNativeDoc* doc);
+
   bool isPagesATree(SkPdfNativeDoc* doc);
   SkPdfTree getPagesAsTree(SkPdfNativeDoc* doc);
   bool has_Pages() const;
+
   bool isTemplatesAName(SkPdfNativeDoc* doc);
   SkString getTemplatesAsName(SkPdfNativeDoc* doc);
+
   bool isTemplatesATree(SkPdfNativeDoc* doc);
   SkPdfTree getTemplatesAsTree(SkPdfNativeDoc* doc);
   bool has_Templates() const;
+
   bool isIDSAName(SkPdfNativeDoc* doc);
   SkString getIDSAsName(SkPdfNativeDoc* doc);
+
   bool isIDSATree(SkPdfNativeDoc* doc);
   SkPdfTree getIDSAsTree(SkPdfNativeDoc* doc);
   bool has_IDS() const;
+
   bool isURLSAName(SkPdfNativeDoc* doc);
   SkString getURLSAsName(SkPdfNativeDoc* doc);
+
   bool isURLSATree(SkPdfNativeDoc* doc);
   SkPdfTree getURLSAsTree(SkPdfNativeDoc* doc);
   bool has_URLS() const;
+
   bool isEmbeddedFilesAName(SkPdfNativeDoc* doc);
   SkString getEmbeddedFilesAsName(SkPdfNativeDoc* doc);
+
   bool isEmbeddedFilesATree(SkPdfNativeDoc* doc);
   SkPdfTree getEmbeddedFilesAsTree(SkPdfNativeDoc* doc);
   bool has_EmbeddedFiles() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfNameDictionary
+#endif  // SkPdfNameDictionary_DEFINED

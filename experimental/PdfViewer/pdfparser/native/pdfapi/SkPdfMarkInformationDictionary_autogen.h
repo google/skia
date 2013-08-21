@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfMarkInformationDictionary
-#define __DEFINED__SkPdfMarkInformationDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfMarkInformationDictionary_DEFINED
+#define SkPdfMarkInformationDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -515,4 +522,4 @@ public:
   bool has_Marked() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfMarkInformationDictionary
+#endif  // SkPdfMarkInformationDictionary_DEFINED

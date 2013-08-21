@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfFont
-#define __DEFINED__SkPdfFont
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfFont_DEFINED
+#define SkPdfFont_DEFINED
 
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfMapper_autogen.h"
@@ -440,4 +447,4 @@ public:
     }
 };
 
-#endif  // __DEFINED__SkPdfFont
+#endif  // SkPdfFont_DEFINED

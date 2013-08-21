@@ -1,5 +1,12 @@
-#ifndef __DEFINED__SkPdfStructureElementDictionary
-#define __DEFINED__SkPdfStructureElementDictionary
+/*
+ * Copyright 2013 Google Inc.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPdfStructureElementDictionary_DEFINED
+#define SkPdfStructureElementDictionary_DEFINED
 
 #include "SkPdfDictionary_autogen.h"
 
@@ -525,8 +532,10 @@ public:
   bool has_K() const;
   SkPdfNativeObject* A(SkPdfNativeDoc* doc);
   bool has_A() const;
+
   bool isCAName(SkPdfNativeDoc* doc);
   SkString getCAsName(SkPdfNativeDoc* doc);
+
   bool isCAArray(SkPdfNativeDoc* doc);
   SkPdfArray* getCAsArray(SkPdfNativeDoc* doc);
   bool has_C() const;
@@ -542,4 +551,4 @@ public:
   bool has_ActualText() const;
 };
 
-#endif  // __DEFINED__NATIVE_SkPdfStructureElementDictionary
+#endif  // SkPdfStructureElementDictionary_DEFINED
