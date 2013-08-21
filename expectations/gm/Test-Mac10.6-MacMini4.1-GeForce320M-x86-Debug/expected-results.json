@@ -335,6 +335,38 @@
         ]
       ]
     }, 
+    "blurquickreject_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14575894174086753692
+        ]
+      ]
+    }, 
+    "blurquickreject_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1951057418144050940
+        ]
+      ]
+    }, 
+    "blurquickreject_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15349848866157744075
+        ]
+      ]
+    }, 
+    "blurquickreject_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10154742945558178134
+        ]
+      ]
+    }, 
     "blurrect_25_100_20_inner_fast_565.png": {
       "allowed-digests": [
         [
