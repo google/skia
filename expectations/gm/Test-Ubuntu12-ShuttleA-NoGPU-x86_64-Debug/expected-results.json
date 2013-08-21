@@ -3090,6 +3090,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "radial_gradient2_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13081729740716608069
+        ]
+      ]
+    }, 
+    "radial_gradient2_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16624838454964344604
+        ]
+      ]
+    }, 
+    "radial_gradient2_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11341215534952942208
+        ]
+      ]
+    }, 
     "radial_gradient_565.png": {
       "allowed-digests": [
         [

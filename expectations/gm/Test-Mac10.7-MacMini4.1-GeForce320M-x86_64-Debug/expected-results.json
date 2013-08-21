@@ -5416,6 +5416,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "radial_gradient2_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18307699538837897413
+        ]
+      ]
+    }, 
+    "radial_gradient2_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5549683248195883229
+        ]
+      ]
+    }, 
+    "radial_gradient2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17403009349153899409
+        ]
+      ]
+    }, 
+    "radial_gradient2_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11341215534952942208
+        ]
+      ]
+    }, 
     "radial_gradient_565.png": {
       "allowed-digests": [
         [
