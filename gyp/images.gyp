@@ -64,6 +64,8 @@
         '../src/images/SkPageFlipper.cpp',
         '../src/images/SkScaledBitmapSampler.cpp',
         '../src/images/SkScaledBitmapSampler.h',
+        '../src/images/SkStreamHelpers.cpp',
+        '../src/images/SkStreamHelpers.h',
 
         '../src/ports/SkImageDecoder_CG.cpp',
         '../src/ports/SkImageDecoder_WIC.cpp',

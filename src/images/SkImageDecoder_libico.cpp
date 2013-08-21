@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
-#include "SkColorPriv.h"
+#include "SkStreamHelpers.h"
 #include "SkTypes.h"
 
 class SkICOImageDecoder : public SkImageDecoder {
@@ -75,12 +74,13 @@ static int calculateRowBytesFor8888(int w, int bitCount)
 
 bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
-    size_t length = stream->getLength();
-    SkAutoMalloc autoMal(length);
-    unsigned char* buf = (unsigned char*)autoMal.get();
-    if (stream->read((void*)buf, length) != length) {
+    SkAutoMalloc autoMal;
+    const size_t length = CopyStreamToStorage(&autoMal, stream);
+    if (0 == length) {
         return false;
     }
+
+    unsigned char* buf = (unsigned char*)autoMal.get();
 
     //these should always be the same - should i use for error checking? - what about files that have some
     //incorrect values, but still decode properly?
