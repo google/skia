@@ -126,6 +126,9 @@ protected:
     virtual SkTypeface* onCreateFromFile(const char[], int) SK_OVERRIDE {
         return NULL;
     }
+    virtual SkTypeface* onLegacyCreateTypeface(const char [], unsigned) SK_OVERRIDE {
+        return NULL;
+    }
 };
 
 static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
@@ -185,12 +188,6 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
 SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
                                             unsigned styleBits) {
     return this->onLegacyCreateTypeface(familyName, styleBits);
-}
-
-SkTypeface* SkFontMgr::onLegacyCreateTypeface(const char familyName[],
-                                              unsigned styleBits) {
-    SkASSERT(!"unimplemented");
-    return NULL;
 }
 
 SkFontMgr* SkFontMgr::RefDefault() {
