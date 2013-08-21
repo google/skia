@@ -6,8 +6,7 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
-        'core.gyp:core',
-        'gpu.gyp:skgpu',
+        'skia_lib.gyp:skia_lib',
       ],
       'include_dirs': [
         '../include/gpu',
