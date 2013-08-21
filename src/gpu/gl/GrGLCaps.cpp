@@ -160,11 +160,17 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     fTextureUsageSupport = (kES_GrGLBinding == binding) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
-    // Tex storage is in desktop 4.2 and can be an extension to desktop or ES.
-    fTexStorageSupport = (kDesktop_GrGLBinding == binding &&
-                          version >= GR_GL_VER(4,2)) ||
-                         ctxInfo.hasExtension("GL_ARB_texture_storage") ||
-                         ctxInfo.hasExtension("GL_EXT_texture_storage");
+    if (kDesktop_GrGLBinding == binding) {
+        // The EXT version can apply to either GL or GLES.
+        fTexStorageSupport = version >= GR_GL_VER(4,2) ||
+                             ctxInfo.hasExtension("GL_ARB_texture_storage") ||
+                             ctxInfo.hasExtension("GL_EXT_texture_storage");
+    } else {
+        // Qualcomm Adreno drivers appear to have issues with texture storage.
+        fTexStorageSupport = (version >= GR_GL_VER(3,0) &&
+                              kQualcomm_GrGLVendor != ctxInfo.vendor()) ||
+                             ctxInfo.hasExtension("GL_EXT_texture_storage");
+    }
 
     // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support it if
     // it doesn't have ARB_texture_rg extension.

@@ -290,7 +290,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
                 return false;
             }
         }
-    } else if (extensions.has("GL_EXT_texture_storage")) {
+    } else if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_EXT_texture_storage")) {
         if (NULL == fTexStorage2D) {
             return false;
         }
