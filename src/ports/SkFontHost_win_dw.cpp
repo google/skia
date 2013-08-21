@@ -174,9 +174,12 @@ static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
             GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory")
         )
     ;
-
     if (!dWriteCreateFactoryProc) {
-        return E_UNEXPECTED;
+        HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+        if (!IS_ERROR(hr)) {
+            hr = ERROR_PROC_NOT_FOUND;
+        }
+        return hr;
     }
 
     HRM(dWriteCreateFactoryProc(DWRITE_FACTORY_TYPE_SHARED,
@@ -1886,10 +1889,18 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 #endif
 
 typedef decltype(GetUserDefaultLocaleName)* GetUserDefaultLocaleNameProc;
-static GetUserDefaultLocaleNameProc GetGetUserDefaultLocaleNameProc() {
-    return reinterpret_cast<GetUserDefaultLocaleNameProc>(
+static HRESULT GetGetUserDefaultLocaleNameProc(GetUserDefaultLocaleNameProc* proc) {
+    *proc = reinterpret_cast<GetUserDefaultLocaleNameProc>(
         GetProcAddress(LoadLibraryW(L"Kernel32.dll"), "GetUserDefaultLocaleName")
     );
+    if (!*proc) {
+        HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+        if (!IS_ERROR(hr)) {
+            hr = ERROR_PROC_NOT_FOUND;
+        }
+        return hr;
+    }
+    return S_OK;
 }
 
 extern SkFontMgr* SkFontMgr_New_DirectWrite();
@@ -1906,9 +1917,10 @@ SkFontMgr* SkFontMgr_New_DirectWrite() {
     int localeNameLen = 0;
 
     // Dynamically load GetUserDefaultLocaleName function, as it is not available on XP.
-    GetUserDefaultLocaleNameProc getUserDefaultLocaleNameProc = GetGetUserDefaultLocaleNameProc();
+    GetUserDefaultLocaleNameProc getUserDefaultLocaleNameProc = NULL;
+    HRESULT hr = GetGetUserDefaultLocaleNameProc(&getUserDefaultLocaleNameProc);
     if (NULL == getUserDefaultLocaleNameProc) {
-        SkDebugf("Could not get GetUserDefaultLocaleName.");
+        SK_TRACEHR(hr, "Could not get GetUserDefaultLocaleName.");
     } else {
         localeNameLen = getUserDefaultLocaleNameProc(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
         if (localeNameLen) {
