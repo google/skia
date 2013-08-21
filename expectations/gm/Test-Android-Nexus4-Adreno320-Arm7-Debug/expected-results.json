@@ -123,6 +123,22 @@
       ], 
       "ignore-failure": false
     }, 
+    "bleed_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5004478543740101868
+        ]
+      ]
+    }, 
+    "bleed_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11696408059085312336
+        ]
+      ]
+    }, 
     "blend_gpu.png": {
       "allowed-digests": [
         [

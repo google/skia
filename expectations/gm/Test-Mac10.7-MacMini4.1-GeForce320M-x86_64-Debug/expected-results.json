@@ -348,6 +348,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "bleed_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5004478543740101868
+        ]
+      ]
+    }, 
+    "bleed_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17043327607051825291
+        ]
+      ]
+    }, 
+    "bleed_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13838572424700699751
+        ]
+      ]
+    }, 
+    "bleed_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10434884666398670192
+        ]
+      ]
+    }, 
     "blurrect_25_100_20_inner_fast_565.png": {
       "allowed-digests": [
         [
