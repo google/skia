@@ -1,0 +1,19 @@
+
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkBitmapDevice_DEFINED
+#define SkBitmapDevice_DEFINED
+
+#include "SkDevice.h"
+
+typedef SkDevice SkBitmapDevice;
+
+#endif // SkBitmapDevice_DEFINED
+
+
+

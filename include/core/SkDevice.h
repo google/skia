@@ -466,4 +466,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+typedef SkDevice SkBaseDevice;
+
 #endif
