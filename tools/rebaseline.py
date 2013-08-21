@@ -38,8 +38,9 @@ if GM_DIRECTORY not in sys.path:
 import buildbot_globals
 import gm_json
 
-MASTER_HOST_URL = 'http://%s:%s' % (buildbot_globals.Get('master_host'),
-                                    buildbot_globals.Get('external_port'))
+MASTER_HOST_URL = 'http://%s:%s' % (
+    buildbot_globals.Get('public_master_host'),
+    buildbot_globals.Get('public_external_port'))
 ALL_BUILDERS = list(json.load(urllib2.urlopen(
     MASTER_HOST_URL + '/json/builders')))
 TEST_BUILDERS = filter(lambda x: 'Trybot' not in x and 'Test' in x,
