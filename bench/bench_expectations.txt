@@ -138,7 +138,7 @@ desk_booking.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12.8
 desk_booking.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.325,-8.808,11.457
 desk_booking.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.161,-8.955,11.277
 desk_booking.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.730,8.657,32.803
-desk_booking.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,60.830,44.747,76.913
+desk_booking.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,60.830,34.747,76.913
 desk_booking.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.130,8.117,32.143
 desk_booking.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.180,0.962,23.398
 desk_booking.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,13.560,2.204,24.916
@@ -1074,7 +1074,7 @@ mobi_wikipedia.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14
 mobi_wikipedia.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.979,-8.219,12.177
 mobi_wikipedia.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.992,-8.207,12.191
 mobi_wikipedia.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,11.840,0.656,23.024
-mobi_wikipedia.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.640,19.376,45.904
+mobi_wikipedia.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.640,10.376,45.904
 mobi_wikipedia.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,11.810,0.629,22.991
 mobi_wikipedia.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,17.140,5.426,28.854
 mobi_wikipedia.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.460,6.614,30.306
