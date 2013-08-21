@@ -221,7 +221,7 @@
           '-Wextra',
           # suppressions below here were added for clang
           '-Wno-unused-parameter',
-          '-Wno-c++11-extensions'
+          '-Wno-c++11-extensions',
         ],
         'conditions' : [
           [ 'skia_shared_lib', {
@@ -280,6 +280,11 @@
             ],
             'ldflags': [
               '-fsanitize=address',
+            ],
+          }],
+          [ 'skia_clang_build', {
+            'cflags': [
+              '-Wstring-conversion',
             ],
           }],
         ],
