@@ -25,4 +25,3 @@ SkString SkPdfNamedActionsDictionary::N(SkPdfNativeDoc* doc) {
 bool SkPdfNamedActionsDictionary::has_N() const {
   return get("N", "") != NULL;
 }
-

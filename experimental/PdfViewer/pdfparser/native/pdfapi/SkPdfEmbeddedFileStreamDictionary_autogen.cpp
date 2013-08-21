@@ -37,4 +37,3 @@ SkPdfDictionary* SkPdfEmbeddedFileStreamDictionary::Params(SkPdfNativeDoc* doc) 
 bool SkPdfEmbeddedFileStreamDictionary::has_Params() const {
   return get("Params", "") != NULL;
 }
-

@@ -73,4 +73,3 @@ SkRect SkPdfBeadDictionary::R(SkPdfNativeDoc* doc) {
 bool SkPdfBeadDictionary::has_R() const {
   return get("R", "") != NULL;
 }
-

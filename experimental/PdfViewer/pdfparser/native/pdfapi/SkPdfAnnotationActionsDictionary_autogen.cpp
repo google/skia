@@ -73,4 +73,3 @@ SkPdfDictionary* SkPdfAnnotationActionsDictionary::Bl(SkPdfNativeDoc* doc) {
 bool SkPdfAnnotationActionsDictionary::has_Bl() const {
   return get("Bl", "") != NULL;
 }
-

@@ -177,4 +177,3 @@ SkString SkPdfStructureElementDictionary::ActualText(SkPdfNativeDoc* doc) {
 bool SkPdfStructureElementDictionary::has_ActualText() const {
   return get("ActualText", "") != NULL;
 }
-

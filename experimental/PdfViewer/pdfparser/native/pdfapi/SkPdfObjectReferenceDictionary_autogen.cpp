@@ -37,4 +37,3 @@ SkPdfNativeObject* SkPdfObjectReferenceDictionary::Obj(SkPdfNativeDoc* doc) {
 bool SkPdfObjectReferenceDictionary::has_Obj() const {
   return get("Obj", "") != NULL;
 }
-

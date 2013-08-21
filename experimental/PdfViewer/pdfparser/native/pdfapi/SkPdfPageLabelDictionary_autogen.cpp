@@ -49,4 +49,3 @@ int64_t SkPdfPageLabelDictionary::St(SkPdfNativeDoc* doc) {
 bool SkPdfPageLabelDictionary::has_St() const {
   return get("St", "") != NULL;
 }
-

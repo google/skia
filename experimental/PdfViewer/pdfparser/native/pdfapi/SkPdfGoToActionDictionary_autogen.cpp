@@ -59,4 +59,3 @@ SkPdfArray* SkPdfGoToActionDictionary::getDAsArray(SkPdfNativeDoc* doc) {
 bool SkPdfGoToActionDictionary::has_D() const {
   return get("D", "") != NULL;
 }
-

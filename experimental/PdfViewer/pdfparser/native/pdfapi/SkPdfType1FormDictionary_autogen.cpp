@@ -181,4 +181,3 @@ SkPdfDictionary* SkPdfType1FormDictionary::OPI(SkPdfNativeDoc* doc) {
 bool SkPdfType1FormDictionary::has_OPI() const {
   return get("OPI", "") != NULL;
 }
-

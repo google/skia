@@ -13,4 +13,3 @@ int64_t SkPdfTextFieldDictionary::MaxLen(SkPdfNativeDoc* doc) {
 bool SkPdfTextFieldDictionary::has_MaxLen() const {
   return get("MaxLen", "") != NULL;
 }
-

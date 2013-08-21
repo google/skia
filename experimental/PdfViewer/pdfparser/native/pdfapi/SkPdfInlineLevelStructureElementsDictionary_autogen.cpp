@@ -33,4 +33,3 @@ SkString SkPdfInlineLevelStructureElementsDictionary::getLineHeightAsName(SkPdfN
 bool SkPdfInlineLevelStructureElementsDictionary::has_LineHeight() const {
   return get("LineHeight", "") != NULL;
 }
-

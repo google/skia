@@ -13,4 +13,3 @@ int64_t SkPdfEncryptedEmbeddedFileStreamDictionary::EncryptionRevision(SkPdfNati
 bool SkPdfEncryptedEmbeddedFileStreamDictionary::has_EncryptionRevision() const {
   return get("EncryptionRevision", "") != NULL;
 }
-

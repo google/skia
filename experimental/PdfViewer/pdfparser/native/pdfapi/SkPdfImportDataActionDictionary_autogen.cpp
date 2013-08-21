@@ -25,4 +25,3 @@ SkPdfFileSpec SkPdfImportDataActionDictionary::F(SkPdfNativeDoc* doc) {
 bool SkPdfImportDataActionDictionary::has_F() const {
   return get("F", "") != NULL;
 }
-

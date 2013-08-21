@@ -49,4 +49,3 @@ int64_t SkPdfFreeTextAnnotationDictionary::Q(SkPdfNativeDoc* doc) {
 bool SkPdfFreeTextAnnotationDictionary::has_Q() const {
   return get("Q", "") != NULL;
 }
-

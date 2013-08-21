@@ -37,4 +37,3 @@ double SkPdfCalgrayColorSpaceDictionary::Gamma(SkPdfNativeDoc* doc) {
 bool SkPdfCalgrayColorSpaceDictionary::has_Gamma() const {
   return get("Gamma", "") != NULL;
 }
-

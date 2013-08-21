@@ -93,4 +93,3 @@ SkPdfStream* SkPdfType0FontDictionary::ToUnicode(SkPdfNativeDoc* doc) {
 bool SkPdfType0FontDictionary::has_ToUnicode() const {
   return get("ToUnicode", "") != NULL;
 }
-

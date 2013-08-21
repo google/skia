@@ -105,4 +105,3 @@ SkPdfDictionary* SkPdfWebCaptureCommandDictionary::S(SkPdfNativeDoc* doc) {
 bool SkPdfWebCaptureCommandDictionary::has_S() const {
   return get("S", "") != NULL;
 }
-

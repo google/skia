@@ -145,4 +145,3 @@ SkPdfDictionary* SkPdfStructureTreeRootDictionary::ClassMap(SkPdfNativeDoc* doc)
 bool SkPdfStructureTreeRootDictionary::has_ClassMap() const {
   return get("ClassMap", "") != NULL;
 }
-

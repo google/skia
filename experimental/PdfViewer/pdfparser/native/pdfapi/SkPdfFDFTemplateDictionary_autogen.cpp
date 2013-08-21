@@ -37,4 +37,3 @@ bool SkPdfFDFTemplateDictionary::Rename(SkPdfNativeDoc* doc) {
 bool SkPdfFDFTemplateDictionary::has_Rename() const {
   return get("Rename", "") != NULL;
 }
-

@@ -25,4 +25,3 @@ SkString SkPdfPrinterMarkAnnotationDictionary::MN(SkPdfNativeDoc* doc) {
 bool SkPdfPrinterMarkAnnotationDictionary::has_MN() const {
   return get("MN", "") != NULL;
 }
-

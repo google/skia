@@ -25,4 +25,3 @@ int64_t SkPdfTableAttributesDictionary::ColSpan(SkPdfNativeDoc* doc) {
 bool SkPdfTableAttributesDictionary::has_ColSpan() const {
   return get("ColSpan", "") != NULL;
 }
-

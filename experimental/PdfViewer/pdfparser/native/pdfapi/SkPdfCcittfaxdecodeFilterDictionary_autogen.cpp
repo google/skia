@@ -97,4 +97,3 @@ int64_t SkPdfCcittfaxdecodeFilterDictionary::DamagedRowsBeforeError(SkPdfNativeD
 bool SkPdfCcittfaxdecodeFilterDictionary::has_DamagedRowsBeforeError() const {
   return get("DamagedRowsBeforeError", "") != NULL;
 }
-

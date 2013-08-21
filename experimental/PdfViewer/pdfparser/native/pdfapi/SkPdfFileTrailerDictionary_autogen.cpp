@@ -73,4 +73,3 @@ SkPdfArray* SkPdfFileTrailerDictionary::ID(SkPdfNativeDoc* doc) {
 bool SkPdfFileTrailerDictionary::has_ID() const {
   return get("ID", "") != NULL;
 }
-

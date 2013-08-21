@@ -61,4 +61,3 @@ SkPdfDictionary* SkPdfDocumentCatalogActionsDictionary::DP(SkPdfNativeDoc* doc) 
 bool SkPdfDocumentCatalogActionsDictionary::has_DP() const {
   return get("DP", "") != NULL;
 }
-

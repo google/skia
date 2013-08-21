@@ -37,4 +37,3 @@ SkPdfStream* SkPdfMacOsFileInformationDictionary::ResFork(SkPdfNativeDoc* doc) {
 bool SkPdfMacOsFileInformationDictionary::has_ResFork() const {
   return get("ResFork", "") != NULL;
 }
-

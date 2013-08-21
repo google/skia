@@ -133,4 +133,3 @@ SkPdfDictionary* SkPdfFDFDictionary::JavaScript(SkPdfNativeDoc* doc) {
 bool SkPdfFDFDictionary::has_JavaScript() const {
   return get("JavaScript", "") != NULL;
 }
-

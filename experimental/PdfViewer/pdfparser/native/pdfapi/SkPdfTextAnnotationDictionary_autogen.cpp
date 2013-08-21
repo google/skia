@@ -49,4 +49,3 @@ SkString SkPdfTextAnnotationDictionary::Name(SkPdfNativeDoc* doc) {
 bool SkPdfTextAnnotationDictionary::has_Name() const {
   return get("Name", "") != NULL;
 }
-

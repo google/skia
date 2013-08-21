@@ -49,4 +49,3 @@ SkPdfArray* SkPdfType3ShadingDictionary::Extend(SkPdfNativeDoc* doc) {
 bool SkPdfType3ShadingDictionary::has_Extend() const {
   return get("Extend", "") != NULL;
 }
-

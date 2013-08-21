@@ -13,4 +13,3 @@ SkString SkPdfListAttributeDictionary::ListNumbering(SkPdfNativeDoc* doc) {
 bool SkPdfListAttributeDictionary::has_ListNumbering() const {
   return get("ListNumbering", "") != NULL;
 }
-

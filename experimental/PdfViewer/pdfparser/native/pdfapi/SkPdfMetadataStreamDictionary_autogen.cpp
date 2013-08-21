@@ -25,4 +25,3 @@ SkString SkPdfMetadataStreamDictionary::Subtype(SkPdfNativeDoc* doc) {
 bool SkPdfMetadataStreamDictionary::has_Subtype() const {
   return get("Subtype", "") != NULL;
 }
-

@@ -49,4 +49,3 @@ SkPdfArray* SkPdfSquareOrCircleAnnotation::IC(SkPdfNativeDoc* doc) {
 bool SkPdfSquareOrCircleAnnotation::has_IC() const {
   return get("IC", "") != NULL;
 }
-

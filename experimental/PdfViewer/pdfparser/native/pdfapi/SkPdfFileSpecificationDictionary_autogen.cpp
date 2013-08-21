@@ -121,4 +121,3 @@ SkPdfDictionary* SkPdfFileSpecificationDictionary::RF(SkPdfNativeDoc* doc) {
 bool SkPdfFileSpecificationDictionary::has_RF() const {
   return get("RF", "") != NULL;
 }
-

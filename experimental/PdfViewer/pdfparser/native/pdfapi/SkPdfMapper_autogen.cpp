@@ -4625,4 +4625,3 @@ bool SkPdfMapper::SkPdfMultiMasterFontDictionaryFromDictionary(const SkPdfNative
   if (abr == NULL || *abr == '\0') return false;
   return SkPdfMultiMasterFontDictionaryFromDictionary(dict, abr, data);
 }
-

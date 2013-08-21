@@ -37,4 +37,3 @@ int64_t SkPdfCIDSystemInfoDictionary::Supplement(SkPdfNativeDoc* doc) {
 bool SkPdfCIDSystemInfoDictionary::has_Supplement() const {
   return get("Supplement", "") != NULL;
 }
-

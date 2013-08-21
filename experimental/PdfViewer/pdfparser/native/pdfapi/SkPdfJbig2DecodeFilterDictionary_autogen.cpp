@@ -13,4 +13,3 @@ SkPdfStream* SkPdfJbig2DecodeFilterDictionary::JBIG2Globals(SkPdfNativeDoc* doc)
 bool SkPdfJbig2DecodeFilterDictionary::has_JBIG2Globals() const {
   return get("JBIG2Globals", "") != NULL;
 }
-

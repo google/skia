@@ -507,4 +507,3 @@ bool SkPdfGraphicsStateDictionary::TK(SkPdfNativeDoc* doc) {
 bool SkPdfGraphicsStateDictionary::has_TK() const {
   return get("TK", "") != NULL;
 }
-

@@ -257,4 +257,3 @@ SkPdfStream* SkPdfImageDictionary::Metadata(SkPdfNativeDoc* doc) {
 bool SkPdfImageDictionary::has_Metadata() const {
   return get("Metadata", "") != NULL;
 }
-

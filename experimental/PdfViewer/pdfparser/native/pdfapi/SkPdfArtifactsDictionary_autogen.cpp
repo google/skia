@@ -37,4 +37,3 @@ SkPdfArray* SkPdfArtifactsDictionary::Attached(SkPdfNativeDoc* doc) {
 bool SkPdfArtifactsDictionary::has_Attached() const {
   return get("Attached", "") != NULL;
 }
-

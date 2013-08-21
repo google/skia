@@ -37,4 +37,3 @@ SkPdfArray* SkPdfNameTreeNodeDictionary::Limits(SkPdfNativeDoc* doc) {
 bool SkPdfNameTreeNodeDictionary::has_Limits() const {
   return get("Limits", "") != NULL;
 }
-

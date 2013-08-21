@@ -13,4 +13,3 @@ SkString SkPdfCheckboxFieldDictionary::Opt(SkPdfNativeDoc* doc) {
 bool SkPdfCheckboxFieldDictionary::has_Opt() const {
   return get("Opt", "") != NULL;
 }
-

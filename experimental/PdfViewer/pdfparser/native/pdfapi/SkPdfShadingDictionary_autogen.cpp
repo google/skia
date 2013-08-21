@@ -81,4 +81,3 @@ bool SkPdfShadingDictionary::AntiAlias(SkPdfNativeDoc* doc) {
 bool SkPdfShadingDictionary::has_AntiAlias() const {
   return get("AntiAlias", "") != NULL;
 }
-

@@ -97,4 +97,3 @@ SkPdfDictionary* SkPdfResourceDictionary::Properties(SkPdfNativeDoc* doc) {
 bool SkPdfResourceDictionary::has_Properties() const {
   return get("Properties", "") != NULL;
 }
-

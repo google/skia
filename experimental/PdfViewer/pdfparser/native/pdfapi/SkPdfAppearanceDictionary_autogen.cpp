@@ -97,4 +97,3 @@ SkPdfDictionary* SkPdfAppearanceDictionary::getDAsDictionary(SkPdfNativeDoc* doc
 bool SkPdfAppearanceDictionary::has_D() const {
   return get("D", "") != NULL;
 }
-

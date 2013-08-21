@@ -1089,7 +1089,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
 // This method outsets 'iRect' by 1 all around and then clamps its extents to
 // 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
 // of 'iRect' for all possible outsets/clamps.
-static inline void clamped_unit_outset_with_offset(SkIRect* iRect, SkPoint* offset, 
+static inline void clamped_unit_outset_with_offset(SkIRect* iRect, SkPoint* offset,
                                                    const SkIRect& clamp) {
     iRect->outset(1, 1);
 
@@ -1137,7 +1137,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             SkIRect iSrc;
             srcRect.roundOut(&iSrc);
 
-            SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft), 
+            SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft),
                                            SkIntToScalar(iSrc.fTop));
 
             if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
@@ -1267,7 +1267,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             SkBitmap tmpB;
             SkIRect iTileR;
             tileR.roundOut(&iTileR);
-            SkPoint offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft), 
+            SkPoint offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft),
                                            SkIntToScalar(iTileR.fTop));
 
             if (SkPaint::kNone_FilterLevel != paint.getFilterLevel()) {

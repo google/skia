@@ -49,4 +49,3 @@ SkPdfArray* SkPdfBorderStyleDictionary::D(SkPdfNativeDoc* doc) {
 bool SkPdfBorderStyleDictionary::has_D() const {
   return get("D", "") != NULL;
 }
-

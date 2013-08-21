@@ -13,4 +13,3 @@ SkPdfStream* SkPdfComponentsWithMetadataDictionary::Metadata(SkPdfNativeDoc* doc
 bool SkPdfComponentsWithMetadataDictionary::has_Metadata() const {
   return get("Metadata", "") != NULL;
 }
-

@@ -49,4 +49,3 @@ SkPdfArray* SkPdfBoxStyleDictionary::D(SkPdfNativeDoc* doc) {
 bool SkPdfBoxStyleDictionary::has_D() const {
   return get("D", "") != NULL;
 }
-

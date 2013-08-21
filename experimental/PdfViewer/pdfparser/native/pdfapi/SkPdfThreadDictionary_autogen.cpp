@@ -37,4 +37,3 @@ SkPdfDictionary* SkPdfThreadDictionary::I(SkPdfNativeDoc* doc) {
 bool SkPdfThreadDictionary::has_I() const {
   return get("I", "") != NULL;
 }
-

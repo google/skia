@@ -181,4 +181,3 @@ SkPdfDictionary* SkPdfFDFFieldDictionary::AA(SkPdfNativeDoc* doc) {
 bool SkPdfFDFFieldDictionary::has_AA() const {
   return get("AA", "") != NULL;
 }
-

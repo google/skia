@@ -154,7 +154,7 @@
         }],
       ],
     },
-    
+
     {
       'target_name': 'libpoppler-cpp-gpl',
       'dependencies': [

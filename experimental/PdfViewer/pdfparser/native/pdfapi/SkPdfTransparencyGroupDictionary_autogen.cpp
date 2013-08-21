@@ -69,4 +69,3 @@ bool SkPdfTransparencyGroupDictionary::K(SkPdfNativeDoc* doc) {
 bool SkPdfTransparencyGroupDictionary::has_K() const {
   return get("K", "") != NULL;
 }
-

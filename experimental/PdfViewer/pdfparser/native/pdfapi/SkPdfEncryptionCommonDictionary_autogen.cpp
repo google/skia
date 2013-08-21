@@ -37,4 +37,3 @@ int64_t SkPdfEncryptionCommonDictionary::Length(SkPdfNativeDoc* doc) {
 bool SkPdfEncryptionCommonDictionary::has_Length() const {
   return get("Length", "") != NULL;
 }
-

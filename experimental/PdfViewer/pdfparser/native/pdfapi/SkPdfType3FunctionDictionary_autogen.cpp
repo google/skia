@@ -37,4 +37,3 @@ SkPdfArray* SkPdfType3FunctionDictionary::Encode(SkPdfNativeDoc* doc) {
 bool SkPdfType3FunctionDictionary::has_Encode() const {
   return get("Encode", "") != NULL;
 }
-

@@ -81,4 +81,3 @@ SkPdfDictionary* SkPdfType2PatternDictionary::ExtGState(SkPdfNativeDoc* doc) {
 bool SkPdfType2PatternDictionary::has_ExtGState() const {
   return get("ExtGState", "") != NULL;
 }
-

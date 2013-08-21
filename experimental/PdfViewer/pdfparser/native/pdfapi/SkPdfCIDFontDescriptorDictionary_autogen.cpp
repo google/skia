@@ -49,4 +49,3 @@ SkPdfStream* SkPdfCIDFontDescriptorDictionary::CIDSet(SkPdfNativeDoc* doc) {
 bool SkPdfCIDFontDescriptorDictionary::has_CIDSet() const {
   return get("CIDSet", "") != NULL;
 }
-

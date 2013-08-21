@@ -49,4 +49,3 @@ SkString SkPdfFileAttachmentAnnotationDictionary::Name(SkPdfNativeDoc* doc) {
 bool SkPdfFileAttachmentAnnotationDictionary::has_Name() const {
   return get("Name", "") != NULL;
 }
-

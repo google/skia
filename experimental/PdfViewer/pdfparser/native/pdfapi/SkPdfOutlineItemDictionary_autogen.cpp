@@ -179,4 +179,3 @@ int64_t SkPdfOutlineItemDictionary::F(SkPdfNativeDoc* doc) {
 bool SkPdfOutlineItemDictionary::has_F() const {
   return get("F", "") != NULL;
 }
-

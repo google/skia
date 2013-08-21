@@ -109,4 +109,3 @@ SkPdfArray* SkPdfMovieActivationDictionary::FWPosition(SkPdfNativeDoc* doc) {
 bool SkPdfMovieActivationDictionary::has_FWPosition() const {
   return get("FWPosition", "") != NULL;
 }
-

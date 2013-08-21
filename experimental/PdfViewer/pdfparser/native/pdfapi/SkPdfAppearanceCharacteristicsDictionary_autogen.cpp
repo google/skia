@@ -133,4 +133,3 @@ int64_t SkPdfAppearanceCharacteristicsDictionary::TP(SkPdfNativeDoc* doc) {
 bool SkPdfAppearanceCharacteristicsDictionary::has_TP() const {
   return get("TP", "") != NULL;
 }
-

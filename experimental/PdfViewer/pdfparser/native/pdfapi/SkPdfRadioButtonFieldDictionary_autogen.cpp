@@ -13,4 +13,3 @@ SkPdfArray* SkPdfRadioButtonFieldDictionary::Opt(SkPdfNativeDoc* doc) {
 bool SkPdfRadioButtonFieldDictionary::has_Opt() const {
   return get("Opt", "") != NULL;
 }
-

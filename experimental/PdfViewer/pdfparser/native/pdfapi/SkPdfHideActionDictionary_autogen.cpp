@@ -71,4 +71,3 @@ bool SkPdfHideActionDictionary::H(SkPdfNativeDoc* doc) {
 bool SkPdfHideActionDictionary::has_H() const {
   return get("H", "") != NULL;
 }
-

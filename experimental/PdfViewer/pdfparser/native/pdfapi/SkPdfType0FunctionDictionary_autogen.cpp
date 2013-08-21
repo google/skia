@@ -61,4 +61,3 @@ SkPdfArray* SkPdfType0FunctionDictionary::Decode(SkPdfNativeDoc* doc) {
 bool SkPdfType0FunctionDictionary::has_Decode() const {
   return get("Decode", "") != NULL;
 }
-

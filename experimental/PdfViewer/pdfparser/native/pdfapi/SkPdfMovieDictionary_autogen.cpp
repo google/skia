@@ -69,4 +69,3 @@ SkPdfStream* SkPdfMovieDictionary::getPosterAsStream(SkPdfNativeDoc* doc) {
 bool SkPdfMovieDictionary::has_Poster() const {
   return get("Poster", "") != NULL;
 }
-

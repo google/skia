@@ -57,4 +57,3 @@ SkPdfArray* SkPdfSeparationDictionary::ColorSpace(SkPdfNativeDoc* doc) {
 bool SkPdfSeparationDictionary::has_ColorSpace() const {
   return get("ColorSpace", "") != NULL;
 }
-

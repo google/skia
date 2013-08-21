@@ -37,4 +37,3 @@ SkPdfArray* SkPdfIconFitDictionary::A(SkPdfNativeDoc* doc) {
 bool SkPdfIconFitDictionary::has_A() const {
   return get("A", "") != NULL;
 }
-

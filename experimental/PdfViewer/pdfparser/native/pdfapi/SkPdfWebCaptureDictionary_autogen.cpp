@@ -105,4 +105,3 @@ SkPdfDate SkPdfWebCaptureDictionary::TS(SkPdfNativeDoc* doc) {
 bool SkPdfWebCaptureDictionary::has_TS() const {
   return get("TS", "") != NULL;
 }
-

@@ -13,4 +13,3 @@ SkString SkPdfTrueTypeFontDictionary::Subtype(SkPdfNativeDoc* doc) {
 bool SkPdfTrueTypeFontDictionary::has_Subtype() const {
   return get("Subtype", "") != NULL;
 }
-

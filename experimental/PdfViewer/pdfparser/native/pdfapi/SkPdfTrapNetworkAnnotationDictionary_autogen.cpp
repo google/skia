@@ -73,4 +73,3 @@ SkPdfArray* SkPdfTrapNetworkAnnotationDictionary::FontFauxing(SkPdfNativeDoc* do
 bool SkPdfTrapNetworkAnnotationDictionary::has_FontFauxing() const {
   return get("FontFauxing", "") != NULL;
 }
-

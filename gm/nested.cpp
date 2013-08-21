@@ -29,8 +29,8 @@ protected:
         return name;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { 
-        return make_isize(kImageWidth, kImageHeight); 
+    virtual SkISize onISize() SK_OVERRIDE {
+        return make_isize(kImageWidth, kImageHeight);
     }
 
     enum Shapes {
@@ -77,8 +77,8 @@ protected:
 
         for (int y = 0; y < kImageHeight; y += 10) {
             for (int x = 0; x < kImageWidth; x += 10) {
-                SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), 
-                                            SkIntToScalar(y), 
+                SkRect r = SkRect::MakeXYWH(SkIntToScalar(x),
+                                            SkIntToScalar(y),
                                             10, 10);
                 SkPaint p;
                 p.setColor(rand.nextU() | 0xFF000000);
@@ -94,7 +94,7 @@ protected:
                     SkPath path;
 
                     AddShape(&path, outerRect, (Shapes) outerShape, SkPath::kCW_Direction);
-                    AddShape(&path, innerRects[innerRect], (Shapes) innerShape, 
+                    AddShape(&path, innerRects[innerRect], (Shapes) innerShape,
                              SkPath::kCCW_Direction);
 
                     canvas->drawPath(path, shapePaint);

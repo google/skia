@@ -49,4 +49,3 @@ SkPdfDictionary* SkPdfWidgetAnnotationDictionary::MK(SkPdfNativeDoc* doc) {
 bool SkPdfWidgetAnnotationDictionary::has_MK() const {
   return get("MK", "") != NULL;
 }
-

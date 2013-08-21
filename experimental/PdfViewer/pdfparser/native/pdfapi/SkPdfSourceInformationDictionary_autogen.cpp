@@ -81,4 +81,3 @@ SkPdfDictionary* SkPdfSourceInformationDictionary::C(SkPdfNativeDoc* doc) {
 bool SkPdfSourceInformationDictionary::has_C() const {
   return get("C", "") != NULL;
 }
-

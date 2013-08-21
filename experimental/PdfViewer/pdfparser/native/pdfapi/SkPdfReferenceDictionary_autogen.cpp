@@ -57,4 +57,3 @@ SkPdfArray* SkPdfReferenceDictionary::ID(SkPdfNativeDoc* doc) {
 bool SkPdfReferenceDictionary::has_ID() const {
   return get("ID", "") != NULL;
 }
-

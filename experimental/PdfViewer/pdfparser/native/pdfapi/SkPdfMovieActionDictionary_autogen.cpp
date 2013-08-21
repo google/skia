@@ -49,4 +49,3 @@ SkString SkPdfMovieActionDictionary::Operation(SkPdfNativeDoc* doc) {
 bool SkPdfMovieActionDictionary::has_Operation() const {
   return get("Operation", "") != NULL;
 }
-

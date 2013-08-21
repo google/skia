@@ -241,4 +241,3 @@ int64_t SkPdfAnnotationDictionary::StructParent(SkPdfNativeDoc* doc) {
 bool SkPdfAnnotationDictionary::has_StructParent() const {
   return get("StructParent", "") != NULL;
 }
-

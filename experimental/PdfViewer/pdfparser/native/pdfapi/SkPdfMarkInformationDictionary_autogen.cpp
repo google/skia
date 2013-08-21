@@ -13,4 +13,3 @@ bool SkPdfMarkInformationDictionary::Marked(SkPdfNativeDoc* doc) {
 bool SkPdfMarkInformationDictionary::has_Marked() const {
   return get("Marked", "") != NULL;
 }
-

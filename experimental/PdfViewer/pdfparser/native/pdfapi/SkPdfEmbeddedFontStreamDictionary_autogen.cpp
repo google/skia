@@ -61,4 +61,3 @@ SkPdfStream* SkPdfEmbeddedFontStreamDictionary::Metadata(SkPdfNativeDoc* doc) {
 bool SkPdfEmbeddedFontStreamDictionary::has_Metadata() const {
   return get("Metadata", "") != NULL;
 }
-

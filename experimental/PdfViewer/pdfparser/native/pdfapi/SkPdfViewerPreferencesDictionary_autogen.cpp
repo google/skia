@@ -145,4 +145,3 @@ SkString SkPdfViewerPreferencesDictionary::PrintClip(SkPdfNativeDoc* doc) {
 bool SkPdfViewerPreferencesDictionary::has_PrintClip() const {
   return get("PrintClip", "") != NULL;
 }
-

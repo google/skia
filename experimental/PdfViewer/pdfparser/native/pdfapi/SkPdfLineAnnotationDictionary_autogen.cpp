@@ -73,4 +73,3 @@ SkPdfArray* SkPdfLineAnnotationDictionary::IC(SkPdfNativeDoc* doc) {
 bool SkPdfLineAnnotationDictionary::has_IC() const {
   return get("IC", "") != NULL;
 }
-

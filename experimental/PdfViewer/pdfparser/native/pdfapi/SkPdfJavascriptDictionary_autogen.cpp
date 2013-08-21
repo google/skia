@@ -77,4 +77,3 @@ SkPdfArray* SkPdfJavascriptDictionary::Doc(SkPdfNativeDoc* doc) {
 bool SkPdfJavascriptDictionary::has_Doc() const {
   return get("Doc", "") != NULL;
 }
-

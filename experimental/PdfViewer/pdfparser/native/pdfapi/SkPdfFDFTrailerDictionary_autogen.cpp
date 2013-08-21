@@ -13,4 +13,3 @@ SkPdfDictionary* SkPdfFDFTrailerDictionary::Root(SkPdfNativeDoc* doc) {
 bool SkPdfFDFTrailerDictionary::has_Root() const {
   return get("Root", "") != NULL;
 }
-

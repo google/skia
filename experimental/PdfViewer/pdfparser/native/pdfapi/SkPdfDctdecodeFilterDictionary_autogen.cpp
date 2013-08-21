@@ -13,4 +13,3 @@ int64_t SkPdfDctdecodeFilterDictionary::ColorTransform(SkPdfNativeDoc* doc) {
 bool SkPdfDctdecodeFilterDictionary::has_ColorTransform() const {
   return get("ColorTransform", "") != NULL;
 }
-

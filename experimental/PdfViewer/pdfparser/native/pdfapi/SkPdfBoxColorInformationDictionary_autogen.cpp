@@ -49,4 +49,3 @@ SkPdfDictionary* SkPdfBoxColorInformationDictionary::ArtBox(SkPdfNativeDoc* doc)
 bool SkPdfBoxColorInformationDictionary::has_ArtBox() const {
   return get("ArtBox", "") != NULL;
 }
-

@@ -13,4 +13,3 @@ int64_t SkPdfFDFFileAnnotationDictionary::Page(SkPdfNativeDoc* doc) {
 bool SkPdfFDFFileAnnotationDictionary::has_Page() const {
   return get("Page", "") != NULL;
 }
-
