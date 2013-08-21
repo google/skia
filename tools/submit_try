@@ -36,8 +36,8 @@ REGEX = 'regex'
 ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, CQ_BUILDERS, REGEX]
 
 # Contact information for the build master.
-SKIA_BUILD_MASTER_HOST = str(buildbot_globals.Get('master_host'))
-SKIA_BUILD_MASTER_PORT = str(buildbot_globals.Get('external_port'))
+SKIA_BUILD_MASTER_HOST = str(buildbot_globals.Get('public_master_host'))
+SKIA_BUILD_MASTER_PORT = str(buildbot_globals.Get('public_external_port'))
 
 # All try builders have this suffix.
 TRYBOT_SUFFIX = '-Trybot'
