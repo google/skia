@@ -33,7 +33,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "3x3bitmaprect_pdf.png": {
+    "3x3bitmaprect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -69,7 +69,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "aaclip_pdf.png": {
+    "aaclip_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -105,7 +105,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "aarectmodes_pdf.png": {
+    "aarectmodes_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -141,7 +141,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "alphagradients_pdf.png": {
+    "alphagradients_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -177,7 +177,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "arithmode_pdf.png": {
+    "arithmode_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -213,7 +213,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bicubicfilter_pdf.png": {
+    "bicubicfilter_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -249,7 +249,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bigbitmaprect_i_pdf.png": {
+    "bigbitmaprect_i_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -285,7 +285,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bigbitmaprect_s_pdf.png": {
+    "bigbitmaprect_s_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -321,7 +321,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bigmatrix_pdf.png": {
+    "bigmatrix_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -357,7 +357,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bigtext_pdf.png": {
+    "bigtext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -393,7 +393,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmapcopy_pdf.png": {
+    "bitmapcopy_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -429,7 +429,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmapfilters_pdf.png": {
+    "bitmapfilters_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -465,7 +465,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmaprect_i_pdf.png": {
+    "bitmaprect_i_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -501,7 +501,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmaprect_s_pdf.png": {
+    "bitmaprect_s_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -537,7 +537,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmaprecttest_pdf.png": {
+    "bitmaprecttest_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -573,7 +573,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bitmapscroll_pdf.png": {
+    "bitmapscroll_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -609,7 +609,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blend_pdf.png": {
+    "blend_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -645,7 +645,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_inner_fast_pdf.png": {
+    "blurrect_25_100_20_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -681,7 +681,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_inner_slow_pdf.png": {
+    "blurrect_25_100_20_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -717,7 +717,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_normal_fast_pdf.png": {
+    "blurrect_25_100_20_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -753,7 +753,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_normal_slow_pdf.png": {
+    "blurrect_25_100_20_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -789,7 +789,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_outer_fast_pdf.png": {
+    "blurrect_25_100_20_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -825,7 +825,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_20_outer_slow_pdf.png": {
+    "blurrect_25_100_20_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -861,7 +861,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_inner_fast_pdf.png": {
+    "blurrect_25_100_2_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -897,7 +897,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_inner_slow_pdf.png": {
+    "blurrect_25_100_2_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -933,7 +933,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_normal_fast_pdf.png": {
+    "blurrect_25_100_2_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -969,7 +969,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_normal_slow_pdf.png": {
+    "blurrect_25_100_2_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1005,7 +1005,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_outer_fast_pdf.png": {
+    "blurrect_25_100_2_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1041,7 +1041,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_25_100_2_outer_slow_pdf.png": {
+    "blurrect_25_100_2_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1086,7 +1086,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_inner_fast_pdf.png": {
+    "blurrect_5_100_20_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1122,7 +1122,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_inner_slow_pdf.png": {
+    "blurrect_5_100_20_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1158,7 +1158,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_normal_fast_pdf.png": {
+    "blurrect_5_100_20_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1194,7 +1194,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_normal_slow_pdf.png": {
+    "blurrect_5_100_20_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1230,7 +1230,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_outer_fast_pdf.png": {
+    "blurrect_5_100_20_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1266,7 +1266,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_20_outer_slow_pdf.png": {
+    "blurrect_5_100_20_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1302,7 +1302,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_inner_fast_pdf.png": {
+    "blurrect_5_100_2_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1338,7 +1338,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_inner_slow_pdf.png": {
+    "blurrect_5_100_2_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1374,7 +1374,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_normal_fast_pdf.png": {
+    "blurrect_5_100_2_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1410,7 +1410,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_normal_slow_pdf.png": {
+    "blurrect_5_100_2_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1446,7 +1446,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_outer_fast_pdf.png": {
+    "blurrect_5_100_2_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1482,7 +1482,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_100_2_outer_slow_pdf.png": {
+    "blurrect_5_100_2_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1518,7 +1518,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_inner_fast_pdf.png": {
+    "blurrect_5_5_20_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1554,7 +1554,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_inner_slow_pdf.png": {
+    "blurrect_5_5_20_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1590,7 +1590,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_normal_fast_pdf.png": {
+    "blurrect_5_5_20_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1626,7 +1626,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_normal_slow_pdf.png": {
+    "blurrect_5_5_20_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1662,7 +1662,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_outer_fast_pdf.png": {
+    "blurrect_5_5_20_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1698,7 +1698,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_20_outer_slow_pdf.png": {
+    "blurrect_5_5_20_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1734,7 +1734,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_inner_fast_pdf.png": {
+    "blurrect_5_5_2_inner_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1770,7 +1770,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_inner_slow_pdf.png": {
+    "blurrect_5_5_2_inner_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1806,7 +1806,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_normal_fast_pdf.png": {
+    "blurrect_5_5_2_normal_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1842,7 +1842,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_normal_slow_pdf.png": {
+    "blurrect_5_5_2_normal_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1878,7 +1878,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_outer_fast_pdf.png": {
+    "blurrect_5_5_2_outer_fast_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1914,7 +1914,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_5_5_2_outer_slow_pdf.png": {
+    "blurrect_5_5_2_outer_slow_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2004,7 +2004,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_inner_pdf.png": {
+    "blurrect_inner_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2040,7 +2040,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_normal_pdf.png": {
+    "blurrect_normal_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2076,7 +2076,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_outer_pdf.png": {
+    "blurrect_outer_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2112,7 +2112,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurrect_solid_pdf.png": {
+    "blurrect_solid_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2148,7 +2148,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "blurs_pdf.png": {
+    "blurs_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2184,7 +2184,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "chrome_gradtext1_pdf.png": {
+    "chrome_gradtext1_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2220,7 +2220,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "chrome_gradtext2_pdf.png": {
+    "chrome_gradtext2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2256,7 +2256,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "circles_pdf.png": {
+    "circles_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2292,7 +2292,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "clamped_gradients_pdf.png": {
+    "clamped_gradients_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2328,7 +2328,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "clippedcubic_pdf.png": {
+    "clippedcubic_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2364,7 +2364,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "cmykjpeg_pdf.png": {
+    "cmykjpeg_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2400,7 +2400,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "colorfilterimagefilter_pdf.png": {
+    "colorfilterimagefilter_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2436,7 +2436,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "colormatrix_pdf.png": {
+    "colormatrix_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2472,7 +2472,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "colortype_pdf.png": {
+    "colortype_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2535,7 +2535,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip2_path_aa_pdf.png": {
+    "complexclip2_path_aa_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2571,7 +2571,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip2_path_bw_pdf.png": {
+    "complexclip2_path_bw_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2580,7 +2580,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip2_pdf.png": {
+    "complexclip2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2616,7 +2616,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip2_rect_aa_pdf.png": {
+    "complexclip2_rect_aa_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2679,7 +2679,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip_aa_layer_pdf.png": {
+    "complexclip_aa_layer_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2688,7 +2688,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip_aa_pdf.png": {
+    "complexclip_aa_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2751,7 +2751,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip_bw_layer_pdf.png": {
+    "complexclip_bw_layer_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2760,7 +2760,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "complexclip_bw_pdf.png": {
+    "complexclip_bw_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2805,7 +2805,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "composeshader_pdf.png": {
+    "composeshader_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2841,7 +2841,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "convexpaths_pdf.png": {
+    "convexpaths_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2877,7 +2877,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "cubicclosepath_pdf.png": {
+    "cubicclosepath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2913,7 +2913,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "cubicpath_pdf.png": {
+    "cubicpath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2949,7 +2949,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "dashcubics_pdf.png": {
+    "dashcubics_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2985,7 +2985,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "dashing2_pdf.png": {
+    "dashing2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3021,7 +3021,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "dashing3_pdf.png": {
+    "dashing3_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3057,7 +3057,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "dashing_pdf.png": {
+    "dashing_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3093,7 +3093,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "degeneratesegments_pdf.png": {
+    "degeneratesegments_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3129,7 +3129,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "deviceproperties_pdf.png": {
+    "deviceproperties_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3165,7 +3165,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "displacement_pdf.png": {
+    "displacement_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3201,7 +3201,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "distantclip_pdf.png": {
+    "distantclip_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3237,7 +3237,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "drawbitmapmatrix_pdf.png": {
+    "drawbitmapmatrix_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3273,7 +3273,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "drawbitmaprect_pdf.png": {
+    "drawbitmaprect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3309,7 +3309,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "drawlooper_pdf.png": {
+    "drawlooper_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3345,7 +3345,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "emptypath_pdf.png": {
+    "emptypath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3381,7 +3381,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "extractbitmap_pdf.png": {
+    "extractbitmap_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3417,7 +3417,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "factory_pdf.png": {
+    "factory_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3453,7 +3453,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "fatpathfill_pdf.png": {
+    "fatpathfill_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3489,7 +3489,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filltypes_pdf.png": {
+    "filltypes_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3525,7 +3525,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filltypespersp_pdf.png": {
+    "filltypespersp_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3570,7 +3570,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_checkerboard_192_192_pdf.png": {
+    "filterbitmap_checkerboard_192_192_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3606,7 +3606,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_checkerboard_32_2_pdf.png": {
+    "filterbitmap_checkerboard_32_2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3642,7 +3642,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_checkerboard_32_32_pdf.png": {
+    "filterbitmap_checkerboard_32_32_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3678,7 +3678,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_checkerboard_32_8_pdf.png": {
+    "filterbitmap_checkerboard_32_8_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3714,7 +3714,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_checkerboard_4_4_pdf.png": {
+    "filterbitmap_checkerboard_4_4_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3750,7 +3750,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_128.png_pdf.png": {
+    "filterbitmap_image_mandrill_128.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3786,7 +3786,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_16.png_pdf.png": {
+    "filterbitmap_image_mandrill_16.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3822,7 +3822,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_256.png_pdf.png": {
+    "filterbitmap_image_mandrill_256.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3858,7 +3858,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_32.png_pdf.png": {
+    "filterbitmap_image_mandrill_32.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3894,7 +3894,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_512.png_pdf.png": {
+    "filterbitmap_image_mandrill_512.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3930,7 +3930,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_image_mandrill_64.png_pdf.png": {
+    "filterbitmap_image_mandrill_64.png_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3966,7 +3966,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_text_10.00pt_pdf.png": {
+    "filterbitmap_text_10.00pt_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4002,7 +4002,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_text_3.00pt_pdf.png": {
+    "filterbitmap_text_3.00pt_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4038,7 +4038,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "filterbitmap_text_7.00pt_pdf.png": {
+    "filterbitmap_text_7.00pt_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4101,7 +4101,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "fontmgr_match_pdf.png": {
+    "fontmgr_match_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4137,7 +4137,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "fontscaler_pdf.png": {
+    "fontscaler_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4173,7 +4173,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gammatext_pdf.png": {
+    "gammatext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4209,7 +4209,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "getpostextpath_pdf.png": {
+    "getpostextpath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4245,7 +4245,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_clamp_bilerp_rotate_pdf.png": {
+    "giantbitmap_clamp_bilerp_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4281,7 +4281,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_clamp_bilerp_scale_pdf.png": {
+    "giantbitmap_clamp_bilerp_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4317,7 +4317,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_clamp_point_rotate_pdf.png": {
+    "giantbitmap_clamp_point_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4353,7 +4353,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_clamp_point_scale_pdf.png": {
+    "giantbitmap_clamp_point_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4389,7 +4389,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_mirror_bilerp_rotate_pdf.png": {
+    "giantbitmap_mirror_bilerp_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4425,7 +4425,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_mirror_bilerp_scale_pdf.png": {
+    "giantbitmap_mirror_bilerp_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4461,7 +4461,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_mirror_point_rotate_pdf.png": {
+    "giantbitmap_mirror_point_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4497,7 +4497,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_mirror_point_scale_pdf.png": {
+    "giantbitmap_mirror_point_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4533,7 +4533,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_repeat_bilerp_rotate_pdf.png": {
+    "giantbitmap_repeat_bilerp_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4569,7 +4569,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_repeat_bilerp_scale_pdf.png": {
+    "giantbitmap_repeat_bilerp_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4605,7 +4605,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_repeat_point_rotate_pdf.png": {
+    "giantbitmap_repeat_point_rotate_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4641,7 +4641,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "giantbitmap_repeat_point_scale_pdf.png": {
+    "giantbitmap_repeat_point_scale_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4695,7 +4695,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gradients_degenerate_2pt_pdf.png": {
+    "gradients_degenerate_2pt_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4740,7 +4740,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gradients_local_perspective_pdf.png": {
+    "gradients_local_perspective_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4749,7 +4749,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gradients_pdf.png": {
+    "gradients_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4785,7 +4785,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gradients_view_perspective_pdf.png": {
+    "gradients_view_perspective_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4821,7 +4821,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "gradtext_pdf.png": {
+    "gradtext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4857,7 +4857,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "hairlines_pdf.png": {
+    "hairlines_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4920,7 +4920,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "hittestpath_pdf.png": {
+    "hittestpath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4956,7 +4956,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "image-surface_pdf.png": {
+    "image-surface_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5019,7 +5019,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "imageblur_pdf.png": {
+    "imageblur_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5055,7 +5055,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "imagefiltersbase_pdf.png": {
+    "imagefiltersbase_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5091,7 +5091,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "imagefiltersgraph_pdf.png": {
+    "imagefiltersgraph_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5127,7 +5127,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "imagemagnifier_pdf.png": {
+    "imagemagnifier_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5163,7 +5163,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "internal_links_pdf.png": {
+    "internal_links_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5199,7 +5199,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "lcdtext_pdf.png": {
+    "lcdtext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5235,7 +5235,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "lerpmode_pdf.png": {
+    "lerpmode_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5271,7 +5271,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "lighting_pdf.png": {
+    "lighting_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5307,7 +5307,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "lineclosepath_pdf.png": {
+    "lineclosepath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5343,7 +5343,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "linepath_pdf.png": {
+    "linepath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5379,7 +5379,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "matrixconvolution_pdf.png": {
+    "matrixconvolution_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5415,7 +5415,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "megalooper_0x0_pdf.png": {
+    "megalooper_0x0_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5451,7 +5451,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "megalooper_1x4_pdf.png": {
+    "megalooper_1x4_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5487,7 +5487,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "megalooper_4x1_pdf.png": {
+    "megalooper_4x1_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5523,7 +5523,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "mixed_xfermodes_pdf.png": {
+    "mixed_xfermodes_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5559,7 +5559,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "modecolorfilters_pdf.png": {
+    "modecolorfilters_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5595,7 +5595,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "morphology_pdf.png": {
+    "morphology_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5631,7 +5631,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "ninepatch-stretch_pdf.png": {
+    "ninepatch-stretch_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5667,7 +5667,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "nocolorbleed_pdf.png": {
+    "nocolorbleed_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5703,7 +5703,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "optimizations_pdf.png": {
+    "optimizations_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5739,7 +5739,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "ovals_pdf.png": {
+    "ovals_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5775,7 +5775,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "path-reverse_pdf.png": {
+    "path-reverse_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5811,7 +5811,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "patheffect_pdf.png": {
+    "patheffect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5847,7 +5847,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "pathfill_pdf.png": {
+    "pathfill_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5883,7 +5883,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "pathinterior_pdf.png": {
+    "pathinterior_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5919,7 +5919,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "pathinvfill_pdf.png": {
+    "pathinvfill_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5955,7 +5955,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "pathopsinverse_pdf.png": {
+    "pathopsinverse_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5991,7 +5991,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "pathopsskpclip_pdf.png": {
+    "pathopsskpclip_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6027,7 +6027,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "perlinnoise_pdf.png": {
+    "perlinnoise_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6063,7 +6063,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "points_pdf.png": {
+    "points_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6099,7 +6099,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "poly2poly_pdf.png": {
+    "poly2poly_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6135,7 +6135,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "quadclosepath_pdf.png": {
+    "quadclosepath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6171,7 +6171,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "quadpath_pdf.png": {
+    "quadpath_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6207,7 +6207,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "radial_gradient_pdf.png": {
+    "radial_gradient_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6243,7 +6243,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rects_pdf.png": {
+    "rects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6279,7 +6279,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "roundrects_pdf.png": {
+    "roundrects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6333,7 +6333,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rrect_aa_pdf.png": {
+    "rrect_aa_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6369,7 +6369,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rrect_bw_pdf.png": {
+    "rrect_bw_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6405,7 +6405,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rrect_clip_aa_pdf.png": {
+    "rrect_clip_aa_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6441,7 +6441,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rrect_clip_bw_pdf.png": {
+    "rrect_clip_bw_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6459,7 +6459,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "rrect_pdf.png": {
+    "rrect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6495,7 +6495,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "samplerstress_pdf.png": {
+    "samplerstress_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6531,7 +6531,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "selftest1_pdf.png": {
+    "selftest1_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6567,7 +6567,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "selftest2_pdf.png": {
+    "selftest2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6603,7 +6603,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shaderbounds_linear_pdf.png": {
+    "shaderbounds_linear_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6630,7 +6630,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shadertext2_pdf.png": {
+    "shadertext2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6666,7 +6666,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shadertext3_pdf.png": {
+    "shadertext3_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6702,7 +6702,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shadertext_pdf.png": {
+    "shadertext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6738,7 +6738,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shadows_pdf.png": {
+    "shadows_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6774,7 +6774,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shallow_gradient_conical_pdf.png": {
+    "shallow_gradient_conical_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6810,7 +6810,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shallow_gradient_linear_pdf.png": {
+    "shallow_gradient_linear_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6846,7 +6846,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shallow_gradient_radial_pdf.png": {
+    "shallow_gradient_radial_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6882,7 +6882,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "shallow_gradient_sweep_pdf.png": {
+    "shallow_gradient_sweep_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6918,7 +6918,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "simpleaaclip_aaclip_pdf.png": {
+    "simpleaaclip_aaclip_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6954,7 +6954,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "simpleaaclip_path_pdf.png": {
+    "simpleaaclip_path_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6990,7 +6990,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "simpleaaclip_rect_pdf.png": {
+    "simpleaaclip_rect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7026,7 +7026,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "spritebitmap_pdf.png": {
+    "spritebitmap_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7062,7 +7062,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "srcmode_pdf.png": {
+    "srcmode_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7098,7 +7098,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "stroke-fill_pdf.png": {
+    "stroke-fill_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7134,7 +7134,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokerect_pdf.png": {
+    "strokerect_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7170,7 +7170,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokerects_pdf.png": {
+    "strokerects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7206,7 +7206,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokes3_pdf.png": {
+    "strokes3_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7242,7 +7242,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokes_poly_pdf.png": {
+    "strokes_poly_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7278,7 +7278,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "strokes_round_pdf.png": {
+    "strokes_round_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7314,7 +7314,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tablecolorfilter_pdf.png": {
+    "tablecolorfilter_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7350,7 +7350,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "testimagefilters_pdf.png": {
+    "testimagefilters_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7386,7 +7386,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "texdata_pdf.png": {
+    "texdata_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7422,7 +7422,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "texteffects_pdf.png": {
+    "texteffects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7458,7 +7458,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "thinrects_pdf.png": {
+    "thinrects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7494,7 +7494,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tilemode_bitmap_pdf.png": {
+    "tilemode_bitmap_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7530,7 +7530,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tilemode_gradient_pdf.png": {
+    "tilemode_gradient_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7566,7 +7566,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tilemodes_pdf.png": {
+    "tilemodes_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7602,7 +7602,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tinybitmap_pdf.png": {
+    "tinybitmap_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7638,7 +7638,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "twopointconical_pdf.png": {
+    "twopointconical_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7674,7 +7674,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "typeface_pdf.png": {
+    "typeface_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7710,7 +7710,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "typefacestyles_pdf.png": {
+    "typefacestyles_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7746,7 +7746,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "verttext2_pdf.png": {
+    "verttext2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7782,7 +7782,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "verttext_pdf.png": {
+    "verttext_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7818,7 +7818,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "verylargebitmap_pdf.png": {
+    "verylargebitmap_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7854,7 +7854,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "xfermodes2_pdf.png": {
+    "xfermodes2_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7890,7 +7890,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "xfermodes_pdf.png": {
+    "xfermodes_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
