@@ -37,4 +37,3 @@ SkString SkPdfWebCapturePageSetDictionary::TID(SkPdfNativeDoc* doc) {
 bool SkPdfWebCapturePageSetDictionary::has_TID() const {
   return get("TID", "") != NULL;
 }
-

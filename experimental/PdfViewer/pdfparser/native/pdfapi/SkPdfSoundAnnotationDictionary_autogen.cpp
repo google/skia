@@ -49,4 +49,3 @@ SkString SkPdfSoundAnnotationDictionary::Name(SkPdfNativeDoc* doc) {
 bool SkPdfSoundAnnotationDictionary::has_Name() const {
   return get("Name", "") != NULL;
 }
-

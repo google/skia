@@ -25,4 +25,3 @@ SkPdfDictionary* SkPdfPageObjectActionsDictionary::C(SkPdfNativeDoc* doc) {
 bool SkPdfPageObjectActionsDictionary::has_C() const {
   return get("C", "") != NULL;
 }
-

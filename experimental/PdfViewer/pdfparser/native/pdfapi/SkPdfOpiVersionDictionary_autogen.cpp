@@ -13,4 +13,3 @@ SkPdfDictionary* SkPdfOpiVersionDictionary::version_number(SkPdfNativeDoc* doc) 
 bool SkPdfOpiVersionDictionary::has_version_number() const {
   return get("version_number", "") != NULL;
 }
-

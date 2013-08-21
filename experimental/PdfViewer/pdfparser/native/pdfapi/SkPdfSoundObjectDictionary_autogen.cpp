@@ -85,4 +85,3 @@ SkPdfNativeObject* SkPdfSoundObjectDictionary::CP(SkPdfNativeDoc* doc) {
 bool SkPdfSoundObjectDictionary::has_CP() const {
   return get("CP", "") != NULL;
 }
-

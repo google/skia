@@ -37,4 +37,3 @@ bool SkPdfURIActionDictionary::IsMap(SkPdfNativeDoc* doc) {
 bool SkPdfURIActionDictionary::has_IsMap() const {
   return get("IsMap", "") != NULL;
 }
-

@@ -25,4 +25,3 @@ SkPdfDictionary* SkPdfPrinterMarkFormDictionary::Colorants(SkPdfNativeDoc* doc) 
 bool SkPdfPrinterMarkFormDictionary::has_Colorants() const {
   return get("Colorants", "") != NULL;
 }
-

@@ -25,4 +25,3 @@ SkPdfArray* SkPdfURLAliasDictionary::C(SkPdfNativeDoc* doc) {
 bool SkPdfURLAliasDictionary::has_C() const {
   return get("C", "") != NULL;
 }
-

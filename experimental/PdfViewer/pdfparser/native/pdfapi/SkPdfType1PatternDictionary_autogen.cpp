@@ -109,4 +109,3 @@ SkMatrix SkPdfType1PatternDictionary::Matrix(SkPdfNativeDoc* doc) {
 bool SkPdfType1PatternDictionary::has_Matrix() const {
   return get("Matrix", "") != NULL;
 }
-

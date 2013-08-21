@@ -37,4 +37,3 @@ SkPdfArray* SkPdfEncodingDictionary::Differences(SkPdfNativeDoc* doc) {
 bool SkPdfEncodingDictionary::has_Differences() const {
   return get("Differences", "") != NULL;
 }
-

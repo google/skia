@@ -25,4 +25,3 @@ bool SkPdfAlternateImageDictionary::DefaultForPrinting(SkPdfNativeDoc* doc) {
 bool SkPdfAlternateImageDictionary::has_DefaultForPrinting() const {
   return get("DefaultForPrinting", "") != NULL;
 }
-

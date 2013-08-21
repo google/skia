@@ -141,4 +141,3 @@ SkString SkPdfCIDFontDictionary::getCIDToGIDMapAsName(SkPdfNativeDoc* doc) {
 bool SkPdfCIDFontDictionary::has_CIDToGIDMap() const {
   return get("CIDToGIDMap", "") != NULL;
 }
-

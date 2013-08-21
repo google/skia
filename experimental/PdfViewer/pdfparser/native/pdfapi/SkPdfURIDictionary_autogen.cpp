@@ -13,4 +13,3 @@ SkString SkPdfURIDictionary::Base(SkPdfNativeDoc* doc) {
 bool SkPdfURIDictionary::has_Base() const {
   return get("Base", "") != NULL;
 }
-

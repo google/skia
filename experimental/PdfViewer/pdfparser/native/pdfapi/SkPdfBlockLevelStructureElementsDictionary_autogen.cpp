@@ -173,4 +173,3 @@ SkString SkPdfBlockLevelStructureElementsDictionary::InlineAlign(SkPdfNativeDoc*
 bool SkPdfBlockLevelStructureElementsDictionary::has_InlineAlign() const {
   return get("InlineAlign", "") != NULL;
 }
-

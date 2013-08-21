@@ -25,4 +25,3 @@ SkString SkPdfGroupAttributesDictionary::S(SkPdfNativeDoc* doc) {
 bool SkPdfGroupAttributesDictionary::has_S() const {
   return get("S", "") != NULL;
 }
-

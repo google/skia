@@ -101,4 +101,3 @@ SkPdfStream* SkPdfCMapDictionary::getUseCMapAsStream(SkPdfNativeDoc* doc) {
 bool SkPdfCMapDictionary::has_UseCMap() const {
   return get("UseCMap", "") != NULL;
 }
-

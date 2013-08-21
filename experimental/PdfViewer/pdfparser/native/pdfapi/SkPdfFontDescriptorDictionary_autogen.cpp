@@ -229,4 +229,3 @@ SkString SkPdfFontDescriptorDictionary::CharSet(SkPdfNativeDoc* doc) {
 bool SkPdfFontDescriptorDictionary::has_CharSet() const {
   return get("CharSet", "") != NULL;
 }
-

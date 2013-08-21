@@ -25,4 +25,3 @@ SkPdfDictionary* SkPdfFDFCatalogDictionary::FDF(SkPdfNativeDoc* doc) {
 bool SkPdfFDFCatalogDictionary::has_FDF() const {
   return get("FDF", "") != NULL;
 }
-

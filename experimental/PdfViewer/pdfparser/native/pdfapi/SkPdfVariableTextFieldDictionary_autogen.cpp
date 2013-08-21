@@ -37,4 +37,3 @@ int64_t SkPdfVariableTextFieldDictionary::Q(SkPdfNativeDoc* doc) {
 bool SkPdfVariableTextFieldDictionary::has_Q() const {
   return get("Q", "") != NULL;
 }
-

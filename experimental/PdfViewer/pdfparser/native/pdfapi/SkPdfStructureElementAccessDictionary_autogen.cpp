@@ -25,4 +25,3 @@ int64_t SkPdfStructureElementAccessDictionary::StructParents(SkPdfNativeDoc* doc
 bool SkPdfStructureElementAccessDictionary::has_StructParents() const {
   return get("StructParents", "") != NULL;
 }
-

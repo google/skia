@@ -153,4 +153,3 @@ SkPdfArray* SkPdfStreamCommonDictionary::getFDecodeParmsAsArray(SkPdfNativeDoc* 
 bool SkPdfStreamCommonDictionary::has_FDecodeParms() const {
   return get("FDecodeParms", "") != NULL;
 }
-

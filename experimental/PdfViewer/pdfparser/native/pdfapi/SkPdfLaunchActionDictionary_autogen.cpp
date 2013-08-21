@@ -73,4 +73,3 @@ bool SkPdfLaunchActionDictionary::NewWindow(SkPdfNativeDoc* doc) {
 bool SkPdfLaunchActionDictionary::has_NewWindow() const {
   return get("NewWindow", "") != NULL;
 }
-

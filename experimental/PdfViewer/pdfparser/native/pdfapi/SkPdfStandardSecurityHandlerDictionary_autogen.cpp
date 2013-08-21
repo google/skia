@@ -49,4 +49,3 @@ int64_t SkPdfStandardSecurityHandlerDictionary::P(SkPdfNativeDoc* doc) {
 bool SkPdfStandardSecurityHandlerDictionary::has_P() const {
   return get("P", "") != NULL;
 }
-

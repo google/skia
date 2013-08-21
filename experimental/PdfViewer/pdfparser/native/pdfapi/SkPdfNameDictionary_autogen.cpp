@@ -257,4 +257,3 @@ SkPdfTree SkPdfNameDictionary::getEmbeddedFilesAsTree(SkPdfNativeDoc* doc) {
 bool SkPdfNameDictionary::has_EmbeddedFiles() const {
   return get("EmbeddedFiles", "") != NULL;
 }
-

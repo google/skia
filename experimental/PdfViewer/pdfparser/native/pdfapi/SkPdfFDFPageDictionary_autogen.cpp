@@ -25,4 +25,3 @@ SkPdfDictionary* SkPdfFDFPageDictionary::Info(SkPdfNativeDoc* doc) {
 bool SkPdfFDFPageDictionary::has_Info() const {
   return get("Info", "") != NULL;
 }
-

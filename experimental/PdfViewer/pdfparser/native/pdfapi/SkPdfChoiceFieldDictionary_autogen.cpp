@@ -37,4 +37,3 @@ SkPdfArray* SkPdfChoiceFieldDictionary::I(SkPdfNativeDoc* doc) {
 bool SkPdfChoiceFieldDictionary::has_I() const {
   return get("I", "") != NULL;
 }
-

@@ -13,4 +13,3 @@ SkString SkPdfAttributeObjectDictionary::O(SkPdfNativeDoc* doc) {
 bool SkPdfAttributeObjectDictionary::has_O() const {
   return get("O", "") != NULL;
 }
-

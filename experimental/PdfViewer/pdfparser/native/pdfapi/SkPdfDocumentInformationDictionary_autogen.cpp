@@ -109,4 +109,3 @@ SkString SkPdfDocumentInformationDictionary::Trapped(SkPdfNativeDoc* doc) {
 bool SkPdfDocumentInformationDictionary::has_Trapped() const {
   return get("Trapped", "") != NULL;
 }
-

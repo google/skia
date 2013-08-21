@@ -49,4 +49,3 @@ SkPdfDictionary* SkPdfInkAnnotationDictionary::BS(SkPdfNativeDoc* doc) {
 bool SkPdfInkAnnotationDictionary::has_BS() const {
   return get("BS", "") != NULL;
 }
-

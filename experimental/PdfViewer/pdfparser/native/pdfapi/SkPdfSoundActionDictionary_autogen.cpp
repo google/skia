@@ -73,4 +73,3 @@ bool SkPdfSoundActionDictionary::Mix(SkPdfNativeDoc* doc) {
 bool SkPdfSoundActionDictionary::has_Mix() const {
   return get("Mix", "") != NULL;
 }
-

@@ -103,4 +103,3 @@ int64_t SkPdfThreadActionDictionary::getBAsInteger(SkPdfNativeDoc* doc) {
 bool SkPdfThreadActionDictionary::has_B() const {
   return get("B", "") != NULL;
 }
-

@@ -25,4 +25,3 @@ SkString SkPdfStandardStructureDictionary::WritingMode(SkPdfNativeDoc* doc) {
 bool SkPdfStandardStructureDictionary::has_WritingMode() const {
   return get("WritingMode", "") != NULL;
 }
-

@@ -49,4 +49,3 @@ int64_t SkPdfPageTreeNodeDictionary::Count(SkPdfNativeDoc* doc) {
 bool SkPdfPageTreeNodeDictionary::has_Count() const {
   return get("Count", "") != NULL;
 }
-

@@ -95,4 +95,3 @@ SkPdfDictionary* SkPdfALinkAnnotationDictionary::PA(SkPdfNativeDoc* doc) {
 bool SkPdfALinkAnnotationDictionary::has_PA() const {
   return get("PA", "") != NULL;
 }
-

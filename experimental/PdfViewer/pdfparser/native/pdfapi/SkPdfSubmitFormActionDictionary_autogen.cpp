@@ -49,4 +49,3 @@ int64_t SkPdfSubmitFormActionDictionary::Flags(SkPdfNativeDoc* doc) {
 bool SkPdfSubmitFormActionDictionary::has_Flags() const {
   return get("Flags", "") != NULL;
 }
-

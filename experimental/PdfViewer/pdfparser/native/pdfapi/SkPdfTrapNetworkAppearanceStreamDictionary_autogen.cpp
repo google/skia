@@ -49,4 +49,3 @@ SkString SkPdfTrapNetworkAppearanceStreamDictionary::TrapStyles(SkPdfNativeDoc* 
 bool SkPdfTrapNetworkAppearanceStreamDictionary::has_TrapStyles() const {
   return get("TrapStyles", "") != NULL;
 }
-

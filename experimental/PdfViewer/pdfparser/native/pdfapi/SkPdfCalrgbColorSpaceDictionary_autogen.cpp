@@ -49,4 +49,3 @@ SkPdfArray* SkPdfCalrgbColorSpaceDictionary::Matrix(SkPdfNativeDoc* doc) {
 bool SkPdfCalrgbColorSpaceDictionary::has_Matrix() const {
   return get("Matrix", "") != NULL;
 }
-

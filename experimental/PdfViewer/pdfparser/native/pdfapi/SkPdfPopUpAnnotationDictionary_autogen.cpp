@@ -49,4 +49,3 @@ bool SkPdfPopUpAnnotationDictionary::Open(SkPdfNativeDoc* doc) {
 bool SkPdfPopUpAnnotationDictionary::has_Open() const {
   return get("Open", "") != NULL;
 }
-

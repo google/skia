@@ -37,4 +37,3 @@ int64_t SkPdfResetFormActionDictionary::Flags(SkPdfNativeDoc* doc) {
 bool SkPdfResetFormActionDictionary::has_Flags() const {
   return get("Flags", "") != NULL;
 }
-

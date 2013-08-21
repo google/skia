@@ -49,4 +49,3 @@ SkPdfDictionary* SkPdfFormFieldActionsDictionary::C(SkPdfNativeDoc* doc) {
 bool SkPdfFormFieldActionsDictionary::has_C() const {
   return get("C", "") != NULL;
 }
-

@@ -93,4 +93,3 @@ SkString SkPdfType6HalftoneDictionary::getTransferFunctionAsName(SkPdfNativeDoc*
 bool SkPdfType6HalftoneDictionary::has_TransferFunction() const {
   return get("TransferFunction", "") != NULL;
 }
-

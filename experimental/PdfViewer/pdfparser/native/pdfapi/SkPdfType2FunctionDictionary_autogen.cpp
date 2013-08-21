@@ -37,4 +37,3 @@ double SkPdfType2FunctionDictionary::N(SkPdfNativeDoc* doc) {
 bool SkPdfType2FunctionDictionary::has_N() const {
   return get("N", "") != NULL;
 }
-

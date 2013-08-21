@@ -85,4 +85,3 @@ SkPdfStream* SkPdfPDF_XOutputIntentDictionary::DestOutputProfile(SkPdfNativeDoc*
 bool SkPdfPDF_XOutputIntentDictionary::has_DestOutputProfile() const {
   return get("DestOutputProfile", "") != NULL;
 }
-

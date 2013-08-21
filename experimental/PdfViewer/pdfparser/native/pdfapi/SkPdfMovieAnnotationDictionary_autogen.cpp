@@ -69,4 +69,3 @@ SkPdfDictionary* SkPdfMovieAnnotationDictionary::getAAsDictionary(SkPdfNativeDoc
 bool SkPdfMovieAnnotationDictionary::has_A() const {
   return get("A", "") != NULL;
 }
-

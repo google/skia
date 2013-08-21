@@ -61,4 +61,3 @@ int64_t SkPdfMarkedContentReferenceDictionary::MCID(SkPdfNativeDoc* doc) {
 bool SkPdfMarkedContentReferenceDictionary::has_MCID() const {
   return get("MCID", "") != NULL;
 }
-

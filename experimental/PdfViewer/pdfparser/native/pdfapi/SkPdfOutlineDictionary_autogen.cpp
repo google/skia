@@ -49,4 +49,3 @@ int64_t SkPdfOutlineDictionary::Count(SkPdfNativeDoc* doc) {
 bool SkPdfOutlineDictionary::has_Count() const {
   return get("Count", "") != NULL;
 }
-

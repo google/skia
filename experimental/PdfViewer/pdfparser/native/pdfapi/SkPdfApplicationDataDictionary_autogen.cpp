@@ -25,4 +25,3 @@ SkPdfNativeObject* SkPdfApplicationDataDictionary::Private(SkPdfNativeDoc* doc) 
 bool SkPdfApplicationDataDictionary::has_Private() const {
   return get("Private", "") != NULL;
 }
-

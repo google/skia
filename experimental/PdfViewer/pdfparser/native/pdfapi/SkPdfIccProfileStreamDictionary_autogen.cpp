@@ -69,4 +69,3 @@ SkPdfStream* SkPdfIccProfileStreamDictionary::Metadata(SkPdfNativeDoc* doc) {
 bool SkPdfIccProfileStreamDictionary::has_Metadata() const {
   return get("Metadata", "") != NULL;
 }
-

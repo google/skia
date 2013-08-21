@@ -13,4 +13,3 @@ SkString SkPdfMultiMasterFontDictionary::Subtype(SkPdfNativeDoc* doc) {
 bool SkPdfMultiMasterFontDictionary::has_Subtype() const {
   return get("Subtype", "") != NULL;
 }
-

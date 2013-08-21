@@ -49,4 +49,3 @@ SkString SkPdfWindowsLaunchActionDictionary::P(SkPdfNativeDoc* doc) {
 bool SkPdfWindowsLaunchActionDictionary::has_P() const {
   return get("P", "") != NULL;
 }
-

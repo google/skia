@@ -37,4 +37,3 @@ SkPdfArray* SkPdfLabColorSpaceDictionary::Range(SkPdfNativeDoc* doc) {
 bool SkPdfLabColorSpaceDictionary::has_Range() const {
   return get("Range", "") != NULL;
 }
-

@@ -375,7 +375,7 @@ static void test_invert(skiatest::Reporter* reporter) {
              0,  0, 0, 1};
     expected.setRowMajord(expectedInverseRotation);
     REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
-    
+
     SkMatrix44 affine;
     affine.setRotateDegreesAbout(0, 0, 1, 90);
     affine.preScale(10, 20, 100);
@@ -510,7 +510,7 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
-    
+
     // test mixed-valued matrix inverse
     mat.reset();
     mat.setScale(1.0e-10, 3.0, 1.0e+10);
@@ -521,12 +521,12 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
-    
+
     // test degenerate matrix
     mat.reset();
     mat.set3x3(1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     REPORTER_ASSERT(reporter, !mat.invert(NULL));
-    
+
     // test rol/col Major getters
     {
         mat.setTranslate(2, 3, 4);

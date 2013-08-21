@@ -103,4 +103,3 @@ SkPdfStream* SkPdfType5HalftoneDictionary::getDefaultAsStream(SkPdfNativeDoc* do
 bool SkPdfType5HalftoneDictionary::has_Default() const {
   return get("Default", "") != NULL;
 }
-

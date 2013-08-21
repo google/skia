@@ -321,4 +321,3 @@ SkPdfDictionary* SkPdfPageObjectDictionary::SeparationInfo(SkPdfNativeDoc* doc) 
 bool SkPdfPageObjectDictionary::has_SeparationInfo() const {
   return get("SeparationInfo", "") != NULL;
 }
-

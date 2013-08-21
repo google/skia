@@ -61,4 +61,3 @@ int64_t SkPdfLzwdecodeAndFlatedecodeFiltersDictionary::EarlyChange(SkPdfNativeDo
 bool SkPdfLzwdecodeAndFlatedecodeFiltersDictionary::has_EarlyChange() const {
   return get("EarlyChange", "") != NULL;
 }
-

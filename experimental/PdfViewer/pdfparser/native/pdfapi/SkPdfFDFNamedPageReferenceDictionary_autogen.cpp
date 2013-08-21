@@ -25,4 +25,3 @@ SkPdfFileSpec SkPdfFDFNamedPageReferenceDictionary::F(SkPdfNativeDoc* doc) {
 bool SkPdfFDFNamedPageReferenceDictionary::has_F() const {
   return get("F", "") != NULL;
 }
-

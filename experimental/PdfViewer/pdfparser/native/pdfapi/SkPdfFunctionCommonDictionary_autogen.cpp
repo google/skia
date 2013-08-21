@@ -37,4 +37,3 @@ SkPdfArray* SkPdfFunctionCommonDictionary::Range(SkPdfNativeDoc* doc) {
 bool SkPdfFunctionCommonDictionary::has_Range() const {
   return get("Range", "") != NULL;
 }
-

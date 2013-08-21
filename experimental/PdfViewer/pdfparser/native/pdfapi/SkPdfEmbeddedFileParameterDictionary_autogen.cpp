@@ -61,4 +61,3 @@ SkString SkPdfEmbeddedFileParameterDictionary::CheckSum(SkPdfNativeDoc* doc) {
 bool SkPdfEmbeddedFileParameterDictionary::has_CheckSum() const {
   return get("CheckSum", "") != NULL;
 }
-

@@ -109,4 +109,3 @@ SkString SkPdfSignatureDictionary::Reason(SkPdfNativeDoc* doc) {
 bool SkPdfSignatureDictionary::has_Reason() const {
   return get("Reason", "") != NULL;
 }
-

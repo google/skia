@@ -81,4 +81,3 @@ SkString SkPdfSoftMaskDictionary::getTRAsName(SkPdfNativeDoc* doc) {
 bool SkPdfSoftMaskDictionary::has_TR() const {
   return get("TR", "") != NULL;
 }
-

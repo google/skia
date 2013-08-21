@@ -57,4 +57,3 @@ SkPdfArray* SkPdfActionDictionary::getNextAsArray(SkPdfNativeDoc* doc) {
 bool SkPdfActionDictionary::has_Next() const {
   return get("Next", "") != NULL;
 }
-

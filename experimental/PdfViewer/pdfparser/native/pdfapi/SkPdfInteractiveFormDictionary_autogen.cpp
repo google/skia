@@ -85,4 +85,3 @@ int64_t SkPdfInteractiveFormDictionary::Q(SkPdfNativeDoc* doc) {
 bool SkPdfInteractiveFormDictionary::has_Q() const {
   return get("Q", "") != NULL;
 }
-

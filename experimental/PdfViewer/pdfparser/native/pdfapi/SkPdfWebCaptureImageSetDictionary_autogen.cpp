@@ -45,4 +45,3 @@ SkPdfArray* SkPdfWebCaptureImageSetDictionary::getRAsArray(SkPdfNativeDoc* doc) 
 bool SkPdfWebCaptureImageSetDictionary::has_R() const {
   return get("R", "") != NULL;
 }
-

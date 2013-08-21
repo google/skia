@@ -90,7 +90,7 @@ protected:
     }
 
     // Draw only the center of the small bitmap
-    void drawCase1(SkCanvas* canvas, int transX, int transY, 
+    void drawCase1(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, bool filter) {
         SkRect src = SkRect::MakeXYWH(1, 1,
                                       kSmallTextureSize-2,
@@ -107,7 +107,7 @@ protected:
     }
 
     // Draw almost all of the large bitmap
-    void drawCase2(SkCanvas* canvas, int transX, int transY, 
+    void drawCase2(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, bool filter) {
         SkRect src = SkRect::MakeXYWH(1, 1,
                                       SkIntToScalar(fBitmapBig.width()-2),
@@ -124,7 +124,7 @@ protected:
     }
 
     // Draw ~1/4 of the large bitmap
-    void drawCase3(SkCanvas* canvas, int transX, int transY, 
+    void drawCase3(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, bool filter) {
         SkRect src = SkRect::MakeXYWH(1, 1,
                                       SkIntToScalar(fBitmapBig.width()/2-1),
@@ -141,7 +141,7 @@ protected:
     }
 
     // Draw the center of the small bitmap with a mask filter
-    void drawCase4(SkCanvas* canvas, int transX, int transY, 
+    void drawCase4(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, bool filter) {
         SkRect src = SkRect::MakeXYWH(1, 1,
                                       kSmallTextureSize-2,
@@ -150,7 +150,7 @@ protected:
 
         SkPaint paint;
         paint.setFilterBitmap(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(3), 
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(3),
                                                     SkBlurMaskFilter::kNormal_BlurStyle);
         paint.setMaskFilter(mf)->unref();
 

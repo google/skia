@@ -45,4 +45,3 @@ SkPdfStream* SkPdfJavascriptActionDictionary::getJSAsStream(SkPdfNativeDoc* doc)
 bool SkPdfJavascriptActionDictionary::has_JS() const {
   return get("JS", "") != NULL;
 }
-

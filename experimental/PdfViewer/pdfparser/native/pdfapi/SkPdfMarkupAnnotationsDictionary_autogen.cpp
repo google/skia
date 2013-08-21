@@ -37,4 +37,3 @@ SkPdfArray* SkPdfMarkupAnnotationsDictionary::QuadPoints(SkPdfNativeDoc* doc) {
 bool SkPdfMarkupAnnotationsDictionary::has_QuadPoints() const {
   return get("QuadPoints", "") != NULL;
 }
-

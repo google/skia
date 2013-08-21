@@ -293,4 +293,3 @@ SkPdfArray* SkPdfCatalogDictionary::OutputIntents(SkPdfNativeDoc* doc) {
 bool SkPdfCatalogDictionary::has_OutputIntents() const {
   return get("OutputIntents", "") != NULL;
 }
-

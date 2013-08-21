@@ -37,4 +37,3 @@ SkPdfStream* SkPdfPSXobjectDictionary::Level1(SkPdfNativeDoc* doc) {
 bool SkPdfPSXobjectDictionary::has_Level1() const {
   return get("Level1", "") != NULL;
 }
-

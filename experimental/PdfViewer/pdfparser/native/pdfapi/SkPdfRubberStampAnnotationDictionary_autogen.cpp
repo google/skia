@@ -37,4 +37,3 @@ SkString SkPdfRubberStampAnnotationDictionary::Name(SkPdfNativeDoc* doc) {
 bool SkPdfRubberStampAnnotationDictionary::has_Name() const {
   return get("Name", "") != NULL;
 }
-

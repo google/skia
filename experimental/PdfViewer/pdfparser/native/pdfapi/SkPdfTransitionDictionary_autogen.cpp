@@ -73,4 +73,3 @@ double SkPdfTransitionDictionary::Di(SkPdfNativeDoc* doc) {
 bool SkPdfTransitionDictionary::has_Di() const {
   return get("Di", "") != NULL;
 }
-

@@ -83,4 +83,3 @@ bool SkPdfRemoteGoToActionDictionary::NewWindow(SkPdfNativeDoc* doc) {
 bool SkPdfRemoteGoToActionDictionary::has_NewWindow() const {
   return get("NewWindow", "") != NULL;
 }
-

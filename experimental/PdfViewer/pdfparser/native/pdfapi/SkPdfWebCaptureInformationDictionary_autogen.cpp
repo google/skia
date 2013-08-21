@@ -25,4 +25,3 @@ SkPdfArray* SkPdfWebCaptureInformationDictionary::C(SkPdfNativeDoc* doc) {
 bool SkPdfWebCaptureInformationDictionary::has_C() const {
   return get("C", "") != NULL;
 }
-

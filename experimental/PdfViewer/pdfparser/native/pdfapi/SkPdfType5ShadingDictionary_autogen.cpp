@@ -61,4 +61,3 @@ SkPdfFunction SkPdfType5ShadingDictionary::Function(SkPdfNativeDoc* doc) {
 bool SkPdfType5ShadingDictionary::has_Function() const {
   return get("Function", "") != NULL;
 }
-

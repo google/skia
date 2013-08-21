@@ -37,4 +37,3 @@ SkString SkPdfSoftMaskImageDictionary::ColorSpace(SkPdfNativeDoc* doc) {
 bool SkPdfSoftMaskImageDictionary::has_ColorSpace() const {
   return get("ColorSpace", "") != NULL;
 }
-
