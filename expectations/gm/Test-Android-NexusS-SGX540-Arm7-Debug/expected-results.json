@@ -168,6 +168,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "bleed_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5004478543740101868
+        ]
+      ]
+    }, 
+    "bleed_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11696408059085312336
+        ]
+      ]
+    }, 
+    "bleed_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17400141878873401841
+        ]
+      ]
+    }, 
     "blurrect_25_100_20_inner_fast_565.png": {
       "allowed-digests": [
         [
