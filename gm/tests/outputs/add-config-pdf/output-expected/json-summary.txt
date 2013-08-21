@@ -3,7 +3,7 @@
       "failed" : null,
       "failure-ignored" : null,
       "no-comparison" : {
-         "pdf/selftest1.png" : [ "bitmap-64bitMD5", 1149339852105949057 ]
+         "pdf-poppler/selftest1.png" : [ "bitmap-64bitMD5", 1149339852105949057 ]
       },
       "succeeded" : {
          "565/selftest1.png" : [ "bitmap-64bitMD5", 12927999507540085554 ],
@@ -23,7 +23,7 @@
          ],
          "ignore-failure" : false
       },
-      "pdf/selftest1.png" : {
+      "pdf-poppler/selftest1.png" : {
          "allowed-digests" : null,
          "ignore-failure" : false
       }
