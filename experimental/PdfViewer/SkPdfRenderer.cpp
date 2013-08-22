@@ -71,6 +71,116 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
  * - deal with specific type in spec directly, add all dictionary types to known types
 */
 
+#define EXPECT_OPERANDS(pdfContext,n) \
+    bool __failed = pdfContext->fObjectStack.count() < n; \
+    SkDEBUGCODE(int __cnt = n);
+
+#define POP_OBJ(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    SkPdfNativeObject* name = NULL; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        name = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+    }
+
+#define POP_NUMBER(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    double name = 0; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isNumber()) { \
+            __failed = true;\
+        } else { \
+            name = tmp->numberValue(); \
+        } \
+    }
+
+#define POP_INTEGER(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    int64_t name = 0; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isInteger()) { \
+            __failed = true;\
+        } else { \
+            name = tmp->intValue(); \
+        } \
+    }
+
+#define POP_NUMBER_INTO(pdfContext,var) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isNumber()) { \
+            __failed = true;\
+        } else { \
+            var = tmp->numberValue(); \
+        } \
+    }
+
+
+#define POP_NAME(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    SkPdfNativeObject* name = NULL; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isName()) { \
+            __failed = true;\
+        } else { \
+            name = tmp; \
+        } \
+    }
+
+#define POP_STRING(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    SkPdfNativeObject* name = NULL; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isAnyString()) { \
+            __failed = true;\
+        } else { \
+            name = tmp; \
+        } \
+    }
+
+#define POP_ARRAY(pdfContext,name) \
+    SkDEBUGCODE(__cnt--); \
+    SkASSERT(__cnt >= 0); \
+    SkPdfArray* name = NULL; \
+    __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    if (pdfContext->fObjectStack.count() > 0) { \
+        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        pdfContext->fObjectStack.pop(); \
+        if (!tmp || !tmp->isArray()) { \
+            __failed = true;\
+        } else { \
+            name = (SkPdfArray*)tmp; \
+        } \
+    }
+
+// TODO(edisonn): ability to turn on asserts for known good files
+// log error - add name of function? location in file?
+#define CHECK_PARAMETERS() \
+    SkASSERT(__cnt == 0); \
+    if (__failed) return kIgnoreError_SkPdfResult;
+
 NotOwnedString strings_DeviceRGB;
 NotOwnedString strings_DeviceCMYK;
 
@@ -971,6 +1081,8 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageO
 }
 
 SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+    // TODO(edisonn): create a new stack of parameters, so once we start a q,
+    // it is not possible to see under the previous q?
     pdfContext->fStateStack.push(pdfContext->fGraphicsState);
     canvas->save();
     return kOK_SkPdfResult;
@@ -984,11 +1096,15 @@ SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
 }
 
 static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double array[6];
-    for (int i = 0 ; i < 6 ; i++) {
-        array[5 - i] = pdfContext->fObjectStack.top()->numberValue();
-        pdfContext->fObjectStack.pop();
-    }
+    EXPECT_OPERANDS(pdfContext, 6);
+    POP_NUMBER(pdfContext, f);
+    POP_NUMBER(pdfContext, e);
+    POP_NUMBER(pdfContext, d);
+    POP_NUMBER(pdfContext, c);
+    POP_NUMBER(pdfContext, b);
+    POP_NUMBER(pdfContext, a);
+    CHECK_PARAMETERS();
+    double array[6] = {a, b, c, d, e, f};
 
     // a b
     // c d
@@ -1021,7 +1137,9 @@ static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //, to leading, which is a number expressed in unscaled text
 //space units. Text leading is used only by the T*, ', and " operators. Initial value: 0.
 static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ty = pdfContext->fObjectStack.top()->numberValue();   pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1)
+    POP_NUMBER(pdfContext, ty);
+    CHECK_PARAMETERS();
 
     pdfContext->fGraphicsState.fTextLeading = ty;
 
@@ -1029,11 +1147,10 @@ static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-#ifdef PDF_TRACE
-    printf("stack size = %i\n", (int)pdfContext->fObjectStack.size());
-#endif
-    double ty = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double tx = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_NUMBER(pdfContext, ty);
+    POP_NUMBER(pdfContext, tx);
+    CHECK_PARAMETERS();
 
     double array[6] = {1, 0, 0, 1, tx, -ty};
     SkMatrix matrix = SkMatrixFromPdfMatrix(array);
@@ -1045,8 +1162,10 @@ static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ty = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double tx = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2)
+    POP_NUMBER(pdfContext, ty);
+    POP_NUMBER(pdfContext, tx);
+    CHECK_PARAMETERS();
 
     // TODO(edisonn): Create factory methods or constructors so native is hidden
     SkPdfReal* _ty = pdfContext->fPdfDoc->createReal(-ty);
@@ -1069,12 +1188,14 @@ static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double f = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double e = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double d = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double c = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double b = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
-    double a = pdfContext->fObjectStack.top()->numberValue(); pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 6);
+    POP_NUMBER(pdfContext, f);
+    POP_NUMBER(pdfContext, e);
+    POP_NUMBER(pdfContext, d);
+    POP_NUMBER(pdfContext, c);
+    POP_NUMBER(pdfContext, b);
+    POP_NUMBER(pdfContext, a);
+    CHECK_PARAMETERS();
 
     double array[6];
     array[0] = a;
@@ -1116,11 +1237,16 @@ static SkPdfResult PdfOp_m(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    pdfContext->fGraphicsState.fCurPosY = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    pdfContext->fGraphicsState.fCurPosX = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_NUMBER(pdfContext, y);
+    POP_NUMBER(pdfContext, x);
+    CHECK_PARAMETERS();
+
+    pdfContext->fGraphicsState.fCurPosY = y;
+    pdfContext->fGraphicsState.fCurPosX = x;
 
     pdfContext->fGraphicsState.fPath.moveTo(SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosX),
-                                          SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
+                                            SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
 
     return kOK_SkPdfResult;
 }
@@ -1131,11 +1257,16 @@ static SkPdfResult PdfOp_l(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    pdfContext->fGraphicsState.fCurPosY = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    pdfContext->fGraphicsState.fCurPosX = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_NUMBER(pdfContext, y);
+    POP_NUMBER(pdfContext, x);
+    CHECK_PARAMETERS();
+
+    pdfContext->fGraphicsState.fCurPosY = y;
+    pdfContext->fGraphicsState.fCurPosX = x;
 
     pdfContext->fGraphicsState.fPath.lineTo(SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosX),
-                                          SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
+                                            SkDoubleToScalar(pdfContext->fGraphicsState.fCurPosY));
 
     return kOK_SkPdfResult;
 }
@@ -1146,16 +1277,18 @@ static SkPdfResult PdfOp_c(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double y2 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x2 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double y1 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x1 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 6);
+    POP_NUMBER(pdfContext, y3);
+    POP_NUMBER(pdfContext, x3);
+    POP_NUMBER(pdfContext, y2);
+    POP_NUMBER(pdfContext, x2);
+    POP_NUMBER(pdfContext, y1);
+    POP_NUMBER(pdfContext, x1);
+    CHECK_PARAMETERS();
 
     pdfContext->fGraphicsState.fPath.cubicTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
-                                            SkDoubleToScalar(x2), SkDoubleToScalar(y2),
-                                            SkDoubleToScalar(x3), SkDoubleToScalar(y3));
+                                             SkDoubleToScalar(x2), SkDoubleToScalar(y2),
+                                             SkDoubleToScalar(x3), SkDoubleToScalar(y3));
 
     pdfContext->fGraphicsState.fCurPosX = x3;
     pdfContext->fGraphicsState.fCurPosY = y3;
@@ -1169,16 +1302,19 @@ static SkPdfResult PdfOp_v(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double y2 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x2 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 4);
+    POP_NUMBER(pdfContext, y3);
+    POP_NUMBER(pdfContext, x3);
+    POP_NUMBER(pdfContext, y2);
+    POP_NUMBER(pdfContext, x2);
+    CHECK_PARAMETERS();
+
     double y1 = pdfContext->fGraphicsState.fCurPosY;
     double x1 = pdfContext->fGraphicsState.fCurPosX;
 
     pdfContext->fGraphicsState.fPath.cubicTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
-                                            SkDoubleToScalar(x2), SkDoubleToScalar(y2),
-                                            SkDoubleToScalar(x3), SkDoubleToScalar(y3));
+                                             SkDoubleToScalar(x2), SkDoubleToScalar(y2),
+                                             SkDoubleToScalar(x3), SkDoubleToScalar(y3));
 
     pdfContext->fGraphicsState.fCurPosX = x3;
     pdfContext->fGraphicsState.fCurPosY = y3;
@@ -1192,16 +1328,19 @@ static SkPdfResult PdfOp_y(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double y3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x3 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 4);
+    POP_NUMBER(pdfContext, y3);
+    POP_NUMBER(pdfContext, x3);
+    POP_NUMBER(pdfContext, y1);
+    POP_NUMBER(pdfContext, x1);
+    CHECK_PARAMETERS();
+
     double y2 = pdfContext->fGraphicsState.fCurPosY;
     double x2 = pdfContext->fGraphicsState.fCurPosX;
-    double y1 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    double x1 = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
 
     pdfContext->fGraphicsState.fPath.cubicTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
-                                            SkDoubleToScalar(x2), SkDoubleToScalar(y2),
-                                            SkDoubleToScalar(x3), SkDoubleToScalar(y3));
+                                             SkDoubleToScalar(x2), SkDoubleToScalar(y2),
+                                             SkDoubleToScalar(x3), SkDoubleToScalar(y3));
 
     pdfContext->fGraphicsState.fCurPosX = x3;
     pdfContext->fGraphicsState.fCurPosY = y3;
@@ -1215,13 +1354,15 @@ static SkPdfResult PdfOp_re(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    double height = pdfContext->fObjectStack.top()->numberValue();      pdfContext->fObjectStack.pop();
-    double width = pdfContext->fObjectStack.top()->numberValue();       pdfContext->fObjectStack.pop();
-    double y = pdfContext->fObjectStack.top()->numberValue();           pdfContext->fObjectStack.pop();
-    double x = pdfContext->fObjectStack.top()->numberValue();           pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 4);
+    POP_NUMBER(pdfContext, height);
+    POP_NUMBER(pdfContext, width);
+    POP_NUMBER(pdfContext, y);
+    POP_NUMBER(pdfContext, x);
+    CHECK_PARAMETERS();
 
     pdfContext->fGraphicsState.fPath.addRect(SkDoubleToScalar(x), SkDoubleToScalar(y),
-                                           SkDoubleToScalar(x + width), SkDoubleToScalar(y + height));
+                                             SkDoubleToScalar(x + width), SkDoubleToScalar(y + height));
 
     pdfContext->fGraphicsState.fCurPosX = x;
     pdfContext->fGraphicsState.fCurPosY = y + height;
@@ -1469,21 +1610,25 @@ static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, con
 //a number representing a scale factor. There is no initial value for either font or
 //size; they must be speciﬁed explicitly using Tf before any text is shown.
 static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double fontSize = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    SkPdfNativeObject* fontName = pdfContext->fObjectStack.top();                           pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_NUMBER(pdfContext, fontSize);
+    POP_NAME(pdfContext, fontName);
+    CHECK_PARAMETERS();
+
     return skpdfGraphicsStateApplyFontCore(pdfContext, fontName, fontSize);
 }
 
 static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_STRING(pdfContext, str);
+    CHECK_PARAMETERS();
+
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
         return kIgnoreError_SkPdfResult;
     }
 
-    SkPdfResult ret = DrawText(pdfContext,
-                             pdfContext->fObjectStack.top(),
-                             canvas);
-    pdfContext->fObjectStack.pop();
+    SkPdfResult ret = DrawText(pdfContext, str, canvas);
 
     return ret;
 }
@@ -1505,9 +1650,11 @@ static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas,
         return kIgnoreError_SkPdfResult;
     }
 
-    SkPdfNativeObject* str = pdfContext->fObjectStack.top();       pdfContext->fObjectStack.pop();
-    SkPdfNativeObject* ac = pdfContext->fObjectStack.top();        pdfContext->fObjectStack.pop();
-    SkPdfNativeObject* aw = pdfContext->fObjectStack.top();        pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 3);
+    POP_OBJ(pdfContext, str);
+    POP_OBJ(pdfContext, ac);
+    POP_OBJ(pdfContext, aw);
+    CHECK_PARAMETERS();
 
     pdfContext->fObjectStack.push(aw);
     PdfOp_Tw(pdfContext, canvas, looper);
@@ -1522,13 +1669,14 @@ static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas,
 }
 
 static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_ARRAY(pdfContext, array);
+    CHECK_PARAMETERS();
+
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
         return kIgnoreError_SkPdfResult;
     }
-
-    SkPdfArray* array = (SkPdfArray*)pdfContext->fObjectStack.top();
-    pdfContext->fObjectStack.pop();
 
     if (!array->isArray()) {
         return kIgnoreError_SkPdfResult;
@@ -1538,9 +1686,7 @@ static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     {
         if( (*array)[i]->isAnyString()) {
             SkPdfNativeObject* obj = (*array)[i];
-            DrawText(pdfContext,
-                     obj,
-                     canvas);
+            DrawText(pdfContext, obj, canvas);
         } else if ((*array)[i]->isNumber()) {
             double dx = (*array)[i]->numberValue();
             SkMatrix matrix;
@@ -1562,7 +1708,9 @@ static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    SkPdfNativeObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NAME(pdfContext, name);
+    CHECK_PARAMETERS();
 
     //Next, get the ColorSpace Dictionary from the Resource Dictionary:
     SkPdfDictionary* colorSpaceResource = pdfContext->fGraphicsState.fResources->ColorSpace(pdfContext->fPdfDoc);
@@ -1630,13 +1778,16 @@ static SkPdfResult PdfOp_SC_sc(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdf
     printf("color space = %s, N = %i\n", colorOperator->fColorSpace.fBuffer, n);
 #endif
 
+    EXPECT_OPERANDS(pdfContext, n);
+
     for (int i = n - 1; i >= 0 ; i--) {
         if (doubles) {
-            c[i] = pdfContext->fObjectStack.top()->numberValue();         pdfContext->fObjectStack.pop();
+            POP_NUMBER_INTO(pdfContext, c[i]);
 //        } else {
 //            v[i] = pdfContext->fObjectStack.top()->intValue();        pdfContext->fObjectStack.pop();
         }
     }
+    CHECK_PARAMETERS();
 
     // TODO(edisonn): Now, set that color. Only DeviceRGB supported.
     // TODO(edisonn): do possible field values to enum at parsing time!
@@ -1656,7 +1807,7 @@ static SkPdfResult PdfOp_sc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_SCN_scn(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    if (pdfContext->fObjectStack.top()->isName()) {
+    if (pdfContext->fObjectStack.count() > 0 && pdfContext->fObjectStack.top()->isName()) {
         SkPdfNativeObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
 
         //Next, get the ExtGState Dictionary from the Resource Dictionary:
@@ -1687,8 +1838,14 @@ static SkPdfResult PdfOp_scn(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 }
 
 static SkPdfResult PdfOp_G_g(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    /*double gray = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    return kNYI_SkPdfResult;
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, gray);
+    CHECK_PARAMETERS();
+
+    colorOperator->fColorSpace = strings_DeviceRGB;  // TODO(edisonn): HACK - it should be device gray, but not suported right now
+    colorOperator->setRGBColor(SkColorSetRGB((U8CPU)(255*gray), (U8CPU)(255*gray), (U8CPU)(255*gray)));
+
+    return kPartial_SkPdfResult;
 }
 
 static SkPdfResult PdfOp_G(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
@@ -1700,9 +1857,11 @@ static SkPdfResult PdfOp_g(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 static SkPdfResult PdfOp_RG_rg(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    double b = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    double g = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    double r = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 3);
+    POP_NUMBER(pdfContext, b);
+    POP_NUMBER(pdfContext, g);
+    POP_NUMBER(pdfContext, r);
+    CHECK_PARAMETERS();
 
     colorOperator->fColorSpace = strings_DeviceRGB;
     colorOperator->setRGBColor(SkColorSetRGB((U8CPU)(255*r), (U8CPU)(255*g), (U8CPU)(255*b)));
@@ -1719,12 +1878,19 @@ static SkPdfResult PdfOp_rg(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 static SkPdfResult PdfOp_K_k(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     // TODO(edisonn): spec has some rules about overprint, implement them.
-    /*double k = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    /*double y = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    /*double m = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
-    /*double c = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 4);
+    POP_NUMBER(pdfContext, k);
+    POP_NUMBER(pdfContext, y);
+    POP_NUMBER(pdfContext, m);
+    POP_NUMBER(pdfContext, c);
+    CHECK_PARAMETERS();
 
-    colorOperator->fColorSpace = strings_DeviceCMYK;
+    // TODO(edisonn): silly way to remove compiler warning
+    if (k + y + m + c == 0) {
+        return kNYI_SkPdfResult;
+    }
+
+    //colorOperator->fColorSpace = strings_DeviceCMYK;
     // TODO(edisonn): Set color.
     return kNYI_SkPdfResult;
 }
@@ -1887,41 +2053,50 @@ static void skpdfGraphicsStateApplyFont(SkPdfContext* pdfContext, SkPdfArray* fo
 
 //lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
 static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double lw = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, lw);
+    CHECK_PARAMETERS();
+
     return skpdfGraphicsStateApplyLW(pdfContext, lw);
 }
 
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
 static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
-    int lc = (int)pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    return skpdfGraphicsStateApplyLC(pdfContext, lc);
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, lc);
+    CHECK_PARAMETERS();
+
+    return skpdfGraphicsStateApplyLC(pdfContext, (int)lc);
 }
 
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
 static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
-    int lj = (int)pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
-    return skpdfGraphicsStateApplyLJ(pdfContext, lj);
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, lj);
+    CHECK_PARAMETERS();
+
+    return skpdfGraphicsStateApplyLJ(pdfContext, (int)lj);
 }
 
 //miterLimit M Set the miter limit in the graphics state (see “Miter Limit” on page 153).
 static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double ml = pdfContext->fObjectStack.top()->numberValue();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, ml);
+    CHECK_PARAMETERS();
     return skpdfGraphicsStateApplyML(pdfContext, ml);
 }
 
 //dashArray dashPhase d Set the line dash pattern in the graphics state (see “Line Dash Pattern” on
 //page 155).
 static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    SkPdfNativeObject* phase = pdfContext->fObjectStack.top();          pdfContext->fObjectStack.pop();
-    SkPdfNativeObject* array = pdfContext->fObjectStack.top();          pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_OBJ(pdfContext, phase);
+    POP_ARRAY(pdfContext, array);
+    CHECK_PARAMETERS();
 
-    if (!array->isArray()) {
-        return kIgnoreError_SkPdfResult;
-    }
-
-    return skpdfGraphicsStateApplyD(pdfContext, (SkPdfArray*)array, phase);
+    return skpdfGraphicsStateApplyD(pdfContext, array, phase);
 }
 
 //intent ri (PDF 1.1) Set the color rendering intent in the graphics state (see “Rendering Intents” on page 197).
@@ -1935,7 +2110,13 @@ static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //Tolerance”). ﬂatness is a number in the range 0 to 100; a value of 0 speci-
 //ﬁes the output device’s default ﬂatness tolerance.
 static SkPdfResult PdfOp_i(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, flatness);
+    CHECK_PARAMETERS();
+
+    if (flatness < 0 || flatness > 100) {
+        return kError_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
@@ -2065,7 +2246,9 @@ static void skpdfGraphicsStateApplyAIS(SkPdfContext* pdfContext, bool alphaSourc
 //dictName gs (PDF 1.2) Set the speciﬁed parameters in the graphics state. dictName is
 //the name of a graphics state parameter dictionary in the ExtGState subdictionary of the current resource dictionary (see the next section).
 static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    SkPdfNativeObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NAME(pdfContext, name);
+    CHECK_PARAMETERS();
 
 #ifdef PDF_TRACE
     SkString str;
@@ -2156,7 +2339,10 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //, to charSpace, which is a number expressed in unscaled text space units. Character spacing is used by the Tj, TJ, and ' operators.
 //Initial value: 0.
 SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double charSpace = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, charSpace);
+    CHECK_PARAMETERS();
+
     pdfContext->fGraphicsState.fCharSpace = charSpace;
 
     return kOK_SkPdfResult;
@@ -2168,7 +2354,10 @@ SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //text space units. Word spacing is used by the Tj, TJ, and ' operators. Initial
 //value: 0.
 SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    double wordSpace = pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, wordSpace);
+    CHECK_PARAMETERS();
+
     pdfContext->fGraphicsState.fWordSpace = wordSpace;
 
     return kOK_SkPdfResult;
@@ -2178,7 +2367,13 @@ SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //, to (scale ˜ 100). scale is a number specifying the
 //percentage of the normal width. Initial value: 100 (normal width).
 static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    /*double scale = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, scale);
+    CHECK_PARAMETERS();
+
+    if (scale < 0) {
+        return kError_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
@@ -2186,48 +2381,80 @@ static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //render Tr Set the text rendering mode, T
 //mode, to render, which is an integer. Initial value: 0.
 static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    /*double render = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_INTEGER(pdfContext, mode);
+    CHECK_PARAMETERS();
+
+    if (mode < 0) {  // TODO(edisonn): function/enums with supported modes
+        return kError_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
 //rise Ts Set the text rise, Trise, to rise, which is a number expressed in unscaled text space
 //units. Initial value: 0.
 static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    /*double rise = */pdfContext->fObjectStack.top()->numberValue();     pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NUMBER(pdfContext, rise);
+    CHECK_PARAMETERS();
+
+    if (rise < 0) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
 
 //wx wy d0
 static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_NUMBER(pdfContext, wy);
+    POP_NUMBER(pdfContext, wx);
+    CHECK_PARAMETERS();
+
+    if (wx < 0 || wy < 0) {
+        return kError_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
 
 //wx wy llx lly urx ury d1
 static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 6);
+    POP_NUMBER(pdfContext, ury);
+    POP_NUMBER(pdfContext, urx);
+    POP_NUMBER(pdfContext, lly);
+    POP_NUMBER(pdfContext, llx);
+    POP_NUMBER(pdfContext, wy);
+    POP_NUMBER(pdfContext, wx);
+    CHECK_PARAMETERS();
+
+    if (wx + wy + llx + lly + urx + ury) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
 
 //name sh
 static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NAME(pdfContext, name);
+    CHECK_PARAMETERS();
+
+    if (name == NULL) {
+        return kError_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
 
 //name Do
 static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    SkPdfNativeObject* name = pdfContext->fObjectStack.top();    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_NAME(pdfContext, name);
+    CHECK_PARAMETERS();
 
     SkPdfDictionary* xObject =  pdfContext->fGraphicsState.fResources->XObject(pdfContext->fPdfDoc);
 
@@ -2252,7 +2479,13 @@ static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //tag MP Designate a marked-content point. tag is a name object indicating the role or
 //signiﬁcance of the point.
 static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_OBJ(pdfContext, tag);
+    CHECK_PARAMETERS();
+
+    if (tag == NULL) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
@@ -2263,8 +2496,14 @@ static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //associated with it in the Properties subdictionary of the current resource
 //dictionary (see Section 9.5.1, “Property Lists”).
 static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_OBJ(pdfContext, properties);
+    POP_OBJ(pdfContext, tag);
+    CHECK_PARAMETERS();
+
+    if (tag == NULL || properties == NULL) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
@@ -2272,7 +2511,13 @@ static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //tag BMC Begin a marked-content sequence terminated by a balancing EMC operator.
 //tag is a name object indicating the role or signiﬁcance of the sequence.
 static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 1);
+    POP_OBJ(pdfContext, tag);
+    CHECK_PARAMETERS();
+
+    if (tag == NULL) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
@@ -2281,8 +2526,14 @@ static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 //by a balancing EMCoperator. tag is a name object indicating the role or significance of the sequence; propertiesis either an inline dictionary containing the
 //property list or a name object associated with it in the Properties subdictionary of the current resource dictionary (see Section 9.5.1, “Property Lists”).
 static SkPdfResult PdfOp_BDC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fObjectStack.pop();
-    pdfContext->fObjectStack.pop();
+    EXPECT_OPERANDS(pdfContext, 2);
+    POP_OBJ(pdfContext, properties);
+    POP_OBJ(pdfContext, tag);
+    CHECK_PARAMETERS();
+
+    if (tag == NULL || properties == NULL) {
+        return kNYI_SkPdfResult;
+    }
 
     return kNYI_SkPdfResult;
 }
