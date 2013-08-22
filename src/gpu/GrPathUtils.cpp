@@ -639,7 +639,7 @@ static void set_loop_klm(const SkScalar d[3], SkScalar k[4], SkScalar l[4], SkSc
     // If (d0 < 0 && sign(k1) > 0) || (d0 > 0 && sign(k1) < 0),
     // we need to flip the orientation of our curve.
     // This is done by negating the k and l values
-    if ( (d[0] < 0 && k[1] > 0) || (d[0] > 0 && k[1] < 0)) {
+    if ( (d[0] < 0 && k[1] < 0) || (d[0] > 0 && k[1] > 0)) {
         for (int i = 0; i < 4; ++i) {
             k[i] = -k[i];
             l[i] = -l[i];

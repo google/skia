@@ -19,7 +19,8 @@
 #include "SkStroke.h"
 #include "SkTemplates.h"
 
-#include "effects/GrBezierEffect.h"
+#include "gl/GrGLEffect.h"
+#include "gl/GrGLSL.h"
 
 namespace {
 // quadratics are rendered as 5-sided polys in order to bound the
@@ -693,6 +694,346 @@ void add_line(const SkPoint p[2],
 
 }
 
+/**
+ * Shader is based off of "Resolution Independent Curve Rendering using
+ * Programmable Graphics Hardware" by Loop and Blinn.
+ * The output of this effect is a hairline edge for non rational cubics.
+ * Cubics are specified by implicit equation K^3 - LM.
+ * K, L, and M, are the first three values of the vertex attribute,
+ * the fourth value is not used. Distance is calculated using a
+ * first order approximation from the taylor series.
+ * Coverage is max(0, 1-distance).
+ */
+class HairCubicEdgeEffect : public GrEffect {
+public:
+    static GrEffectRef* Create() {
+        GR_CREATE_STATIC_EFFECT(gHairCubicEdgeEffect, HairCubicEdgeEffect, ());
+        gHairCubicEdgeEffect->ref();
+        return gHairCubicEdgeEffect;
+    }
+
+    virtual ~HairCubicEdgeEffect() {}
+
+    static const char* Name() { return "HairCubicEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<HairCubicEdgeEffect>::getInstance();
+    }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+            : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const char *vsName, *fsName;
+
+            SkAssertResult(builder->enableFeature(
+                    GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            builder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
+                                &vsName, &fsName);
+            const SkString* attr0Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+
+            builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
+
+            builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tvec3 dklmdy = dFdy(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdx =\n"
+                                   "\t\t3.0*%s.x*%s.x*dklmdx.x - %s.y*dklmdx.z - %s.z*dklmdx.y;\n",
+                                   fsName, fsName, fsName, fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdy =\n"
+                                   "\t\t3.0*%s.x*%s.x*dklmdy.x - %s.y*dklmdy.z - %s.z*dklmdy.y;\n",
+                                   fsName, fsName, fsName, fsName);
+            builder->fsCodeAppend("\t\tvec2 gF = vec2(dfdx, dfdy);\n");
+            builder->fsCodeAppend("\t\tfloat gFM = sqrt(dot(gF, gF));\n");
+            builder->fsCodeAppendf("\t\tfloat func = abs(%s.x*%s.x*%s.x - %s.y*%s.z);\n",
+                                   fsName, fsName, fsName, fsName, fsName);
+            builder->fsCodeAppend("\t\tedgeAlpha = func / gFM;\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            // Add line below for smooth cubic ramp
+            // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
+
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+private:
+    HairCubicEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        return true;
+    }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+/**
+ * Shader is based off of Loop-Blinn Quadratic GPU Rendering
+ * The output of this effect is a hairline edge for conics.
+ * Conics specified by implicit equation K^2 - LM.
+ * K, L, and M, are the first three values of the vertex attribute,
+ * the fourth value is not used. Distance is calculated using a
+ * first order approximation from the taylor series.
+ * Coverage is max(0, 1-distance).
+ */
+
+/**
+ * Test were also run using a second order distance approximation.
+ * There were two versions of the second order approx. The first version
+ * is of roughly the form:
+ * f(q) = |f(p)| - ||f'(p)||*||q-p|| - ||f''(p)||*||q-p||^2.
+ * The second is similar:
+ * f(q) = |f(p)| + ||f'(p)||*||q-p|| + ||f''(p)||*||q-p||^2.
+ * The exact version of the equations can be found in the paper
+ * "Distance Approximations for Rasterizing Implicit Curves" by Gabriel Taubin
+ *
+ * In both versions we solve the quadratic for ||q-p||.
+ * Version 1:
+ * gFM is magnitude of first partials and gFM2 is magnitude of 2nd partials (as derived from paper)
+ * builder->fsCodeAppend("\t\tedgeAlpha = (sqrt(gFM*gFM+4.0*func*gF2M) - gFM)/(2.0*gF2M);\n");
+ * Version 2:
+ * builder->fsCodeAppend("\t\tedgeAlpha = (gFM - sqrt(gFM*gFM-4.0*func*gF2M))/(2.0*gF2M);\n");
+ *
+ * Also note that 2nd partials of k,l,m are zero
+ *
+ * When comparing the two second order approximations to the first order approximations,
+ * the following results were found. Version 1 tends to underestimate the distances, thus it
+ * basically increases all the error that we were already seeing in the first order
+ * approx. So this version is not the one to use. Version 2 has the opposite effect
+ * and tends to overestimate the distances. This is much closer to what we are
+ * looking for. It is able to render ellipses (even thin ones) without the need to chop.
+ * However, it can not handle thin hyperbolas well and thus would still rely on
+ * chopping to tighten the clipping. Another side effect of the overestimating is
+ * that the curves become much thinner and "ropey". If all that was ever rendered
+ * were "not too thin" curves and ellipses then 2nd order may have an advantage since
+ * only one geometry would need to be rendered. However no benches were run comparing
+ * chopped first order and non chopped 2nd order.
+ */
+class HairConicEdgeEffect : public GrEffect {
+public:
+    static GrEffectRef* Create() {
+        GR_CREATE_STATIC_EFFECT(gHairConicEdgeEffect, HairConicEdgeEffect, ());
+        gHairConicEdgeEffect->ref();
+        return gHairConicEdgeEffect;
+    }
+
+    virtual ~HairConicEdgeEffect() {}
+
+    static const char* Name() { return "HairConicEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<HairConicEdgeEffect>::getInstance();
+    }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+            : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const char *vsName, *fsName;
+
+            SkAssertResult(builder->enableFeature(
+                    GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
+                                &vsName, &fsName);
+            const SkString* attr0Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+
+            builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
+
+            builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tvec3 dklmdy = dFdy(%s.xyz);\n", fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdx =\n"
+                                   "\t\t\t2.0*%s.x*dklmdx.x - %s.y*dklmdx.z - %s.z*dklmdx.y;\n",
+                                   fsName, fsName, fsName);
+            builder->fsCodeAppendf("\t\tfloat dfdy =\n"
+                                   "\t\t\t2.0*%s.x*dklmdy.x - %s.y*dklmdy.z - %s.z*dklmdy.y;\n",
+                                   fsName, fsName, fsName);
+            builder->fsCodeAppend("\t\tvec2 gF = vec2(dfdx, dfdy);\n");
+            builder->fsCodeAppend("\t\tfloat gFM = sqrt(dot(gF, gF));\n");
+            builder->fsCodeAppendf("\t\tfloat func = abs(%s.x*%s.x - %s.y*%s.z);\n", fsName, fsName,
+                                   fsName, fsName);
+            builder->fsCodeAppend("\t\tedgeAlpha = func / gFM;\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            // Add line below for smooth cubic ramp
+            // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
+
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+private:
+    HairConicEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        return true;
+    }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(HairConicEdgeEffect);
+
+GrEffectRef* HairConicEdgeEffect::TestCreate(SkMWCRandom* random,
+                                             GrContext*,
+                                             const GrDrawTargetCaps& caps,
+                                             GrTexture*[]) {
+    return caps.shaderDerivativeSupport() ? HairConicEdgeEffect::Create() : NULL;
+}
+
+/**
+ * The output of this effect is a hairline edge for quadratics.
+ * Quadratic specified by 0=u^2-v canonical coords. u and v are the first
+ * two components of the vertex attribute. Uses unsigned distance.
+ * Coverage is min(0, 1-distance). 3rd & 4th component unused.
+ * Requires shader derivative instruction support.
+ */
+class HairQuadEdgeEffect : public GrEffect {
+public:
+
+    static GrEffectRef* Create() {
+        GR_CREATE_STATIC_EFFECT(gHairQuadEdgeEffect, HairQuadEdgeEffect, ());
+        gHairQuadEdgeEffect->ref();
+        return gHairQuadEdgeEffect;
+    }
+
+    virtual ~HairQuadEdgeEffect() {}
+
+    static const char* Name() { return "HairQuadEdge"; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<HairQuadEdgeEffect>::getInstance();
+    }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+            : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const char *vsName, *fsName;
+            const SkString* attrName =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
+
+            SkAssertResult(builder->enableFeature(
+                    GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
+
+            builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\t\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
+                                   "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
+                                   fsName, fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
+                                   fsName);
+            builder->fsCodeAppend("\t\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
+            builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+
+            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            return 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+private:
+    HairQuadEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        return true;
+    }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(HairQuadEdgeEffect);
+
+GrEffectRef* HairQuadEdgeEffect::TestCreate(SkMWCRandom* random,
+                                            GrContext*,
+                                            const GrDrawTargetCaps& caps,
+                                            GrTexture*[]) {
+    // Doesn't work without derivative instructions.
+    return caps.shaderDerivativeSupport() ? HairQuadEdgeEffect::Create() : NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -956,10 +1297,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         static const int kEdgeAttrIndex = 1;
 
-        GrEffectRef* hairQuadEffect = GrQuadEffect::Create(kHairAA_GrBezierEdgeType,
-                                                           *target->caps());
-        GrEffectRef* hairConicEffect = GrConicEffect::Create(kHairAA_GrBezierEdgeType,
-                                                             *target->caps());
+        GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
+        GrEffectRef* hairConicEffect = HairConicEdgeEffect::Create();
 
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
