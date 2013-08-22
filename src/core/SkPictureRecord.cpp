@@ -401,13 +401,16 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
                                    SkColorGetA(saveLayerPaint->getColor()));
     dbmPaint->setColor(newColor);
 
-    const int paintIndex = paintDict->find(*dbmPaint);
+    const SkFlatData* data = paintDict->findAndReturnFlat(*dbmPaint);
+    if (NULL == data) {
+        return false;
+    }
 
     // kill the saveLayer and alter the DBMR2R's paint to be the modified one
     convert_command_to_noop(writer, saveLayerInfo.fOffset);
     uint32_t* ptr = writer->peek32(dbmInfo.fOffset+dbmPaintOffset);
     SkASSERT(dbmPaintId == *ptr);
-    *ptr = paintIndex;
+    *ptr = data->index();
     return true;
 }
 
@@ -967,10 +970,7 @@ void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
     validate(initialOffset, size);
 }
 
-// Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
-// tweaked by paint.computeFastBounds().
-//
-static void computeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]) {
+void SkPictureRecord::ComputeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]) {
     SkPaint::FontMetrics metrics;
     paint.getFontMetrics(&metrics);
     SkRect bounds;
@@ -984,10 +984,7 @@ static void computeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]
 
 void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData& flat,
                                               SkScalar minY, SkScalar maxY) {
-    if (!flat.isTopBotWritten()) {
-        computeFontMetricsTopBottom(paint, flat.writableTopBot());
-        SkASSERT(flat.isTopBotWritten());
-    }
+    WriteTopBot(paint, flat);
     addScalar(flat.topBot()[0] + minY);
     addScalar(flat.topBot()[1] + maxY);
 }
@@ -1103,6 +1100,14 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
 void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
                           const SkScalar xpos[], SkScalar constY,
                           const SkPaint& paint) {
+
+    const SkFlatData* flatPaintData = this->getFlatPaintData(paint);
+    drawPosTextHImpl(text, byteLength, xpos, constY, paint, flatPaintData);
+}
+
+void SkPictureRecord::drawPosTextHImpl(const void* text, size_t byteLength,
+                          const SkScalar xpos[], SkScalar constY,
+                          const SkPaint& paint, const SkFlatData* flatPaintData) {
     size_t points = paint.countText(text, byteLength);
     if (0 == points)
         return;
@@ -1116,11 +1121,11 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     }
     // + y + the actual points
     size += 1 * kUInt32Size + points * sizeof(SkScalar);
-
     uint32_t initialOffset = this->addDraw(fast ? DRAW_POS_TEXT_H_TOP_BOTTOM : DRAW_POS_TEXT_H,
                                            &size);
-    const SkFlatData* flatPaintData = addPaint(paint);
     SkASSERT(flatPaintData);
+    addFlatPaint(flatPaintData);
+
     addText(text, byteLength);
     addInt(points);
 
@@ -1265,11 +1270,19 @@ void SkPictureRecord::addMatrixPtr(const SkMatrix* matrix) {
     this->addInt(matrix ? fMatrices.find(*matrix) : 0);
 }
 
+const SkFlatData* SkPictureRecord::getFlatPaintData(const SkPaint& paint) {
+    return fPaints.findAndReturnFlat(paint);
+}
+
 const SkFlatData* SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    const SkFlatData* data = paint ? fPaints.findAndReturnFlat(*paint) : NULL;
-    int index = data ? data->index() : 0;
-    this->addInt(index);
+    const SkFlatData* data = paint ? getFlatPaintData(*paint) : NULL;
+    this->addFlatPaint(data);
     return data;
+}
+
+void SkPictureRecord::addFlatPaint(const SkFlatData* flatPaint) {
+    int index = flatPaint ? flatPaint->index() : 0;
+    this->addInt(index);
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {

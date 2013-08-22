@@ -165,6 +165,7 @@ private:
     void addMatrixPtr(const SkMatrix* matrix);
     const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
     const SkFlatData* addPaintPtr(const SkPaint* paint);
+    void addFlatPaint(const SkFlatData* flatPaint);
     void addPath(const SkPath& path);
     void addPicture(SkPicture& picture);
     void addPoint(const SkPoint& point);
@@ -216,6 +217,26 @@ public:
 #endif
 
 protected:
+    // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
+    // tweaked by paint.computeFastBounds().
+    static void ComputeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]);
+
+    // Make sure that flat has fTopBot written.
+    static void WriteTopBot(const SkPaint& paint, const SkFlatData& flat) {
+        if (!flat.isTopBotWritten()) {
+            ComputeFontMetricsTopBottom(paint, flat.writableTopBot());
+            SkASSERT(flat.isTopBotWritten());
+        }
+    }
+    // Will return a cached version when possible.
+    const SkFlatData* getFlatPaintData(const SkPaint& paint);
+    /**
+     * SkBBoxRecord::drawPosTextH gets a flat paint and uses it,
+     * then it calls this, using the extra parameter, to avoid duplication.
+     */
+    void drawPosTextHImpl(const void* text, size_t byteLength,
+                          const SkScalar xpos[], SkScalar constY,
+                          const SkPaint& paint, const SkFlatData* flatPaintData);
 
     // These are set to NULL in our constructor, but may be changed by
     // subclasses, in which case they will be SkSafeUnref'd in our destructor.
