@@ -482,13 +482,17 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
         if (inverse) {
             sk_bzero(inverse->fMat, sizeof(inverse->fMat));
 
-            inverse->fMat[3][0] = -fMat[3][0] / fMat[0][0];
-            inverse->fMat[3][1] = -fMat[3][1] / fMat[1][1];
-            inverse->fMat[3][2] = -fMat[3][2] / fMat[2][2];
+            double invXScale = 1 / fMat[0][0];
+            double invYScale = 1 / fMat[1][1];
+            double invZScale = 1 / fMat[2][2];
 
-            inverse->fMat[0][0] = 1 / fMat[0][0];
-            inverse->fMat[1][1] = 1 / fMat[1][1];
-            inverse->fMat[2][2] = 1 / fMat[2][2];
+            inverse->fMat[3][0] = -fMat[3][0] * invXScale;
+            inverse->fMat[3][1] = -fMat[3][1] * invYScale;
+            inverse->fMat[3][2] = -fMat[3][2] * invZScale;
+
+            inverse->fMat[0][0] = invXScale;
+            inverse->fMat[1][1] = invYScale;
+            inverse->fMat[2][2] = invZScale;
             inverse->fMat[3][3] = 1;
 
             inverse->setTypeMask(this->getType());
@@ -512,6 +516,72 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     double a31 = fMat[3][1];
     double a32 = fMat[3][2];
     double a33 = fMat[3][3];
+
+    if (!(this->getType() & kPerspective_Mask)) {
+        // If we know the matrix has no perspective, then the perspective
+        // component is (0, 0, 0, 1). We can use this information to save a lot
+        // of arithmetic that would otherwise be spent to compute the inverse
+        // of a general matrix.
+
+        SkASSERT(a03 == 0);
+        SkASSERT(a13 == 0);
+        SkASSERT(a23 == 0);
+        SkASSERT(a33 == 1);
+
+        double b00 = a00 * a11 - a01 * a10;
+        double b01 = a00 * a12 - a02 * a10;
+        double b03 = a01 * a12 - a02 * a11;
+        double b06 = a20 * a31 - a21 * a30;
+        double b07 = a20 * a32 - a22 * a30;
+        double b08 = a20;
+        double b09 = a21 * a32 - a22 * a31;
+        double b10 = a21;
+        double b11 = a22;
+
+        // Calculate the determinant
+        double det = b00 * b11 - b01 * b10 + b03 * b08;
+
+        double invdet = 1.0 / det;
+        // If det is zero, we want to return false. However, we also want to return false
+        // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
+        // handled by checking that 1/det is finite.
+        if (!sk_float_isfinite(invdet)) {
+            return false;
+        }
+        if (NULL == inverse) {
+            return true;
+        }
+
+        b00 *= invdet;
+        b01 *= invdet;
+        b03 *= invdet;
+        b06 *= invdet;
+        b07 *= invdet;
+        b08 *= invdet;
+        b09 *= invdet;
+        b10 *= invdet;
+        b11 *= invdet;
+
+        inverse->fMat[0][0] = SkDoubleToMScalar(a11 * b11 - a12 * b10);
+        inverse->fMat[0][1] = SkDoubleToMScalar(a02 * b10 - a01 * b11);
+        inverse->fMat[0][2] = SkDoubleToMScalar(b03);
+        inverse->fMat[0][3] = 0;
+        inverse->fMat[1][0] = SkDoubleToMScalar(a12 * b08 - a10 * b11);
+        inverse->fMat[1][1] = SkDoubleToMScalar(a00 * b11 - a02 * b08);
+        inverse->fMat[1][2] = SkDoubleToMScalar(-b01);
+        inverse->fMat[1][3] = 0;
+        inverse->fMat[2][0] = SkDoubleToMScalar(a10 * b10 - a11 * b08);
+        inverse->fMat[2][1] = SkDoubleToMScalar(a01 * b08 - a00 * b10);
+        inverse->fMat[2][2] = SkDoubleToMScalar(b00);
+        inverse->fMat[2][3] = 0;
+        inverse->fMat[3][0] = SkDoubleToMScalar(a11 * b07 - a10 * b09 - a12 * b06);
+        inverse->fMat[3][1] = SkDoubleToMScalar(a00 * b09 - a01 * b07 + a02 * b06);
+        inverse->fMat[3][2] = SkDoubleToMScalar(a31 * b01 - a30 * b03 - a32 * b00);
+        inverse->fMat[3][3] = 1;
+
+        inverse->setTypeMask(this->getType());
+        return true;
+    }
 
     double b00 = a00 * a11 - a01 * a10;
     double b01 = a00 * a12 - a02 * a10;
