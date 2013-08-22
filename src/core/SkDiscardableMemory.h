@@ -14,7 +14,7 @@
  *  Interface for discardable memory. Implementation is provided by the
  *  embedder.
  */
-class SkDiscardableMemory {
+class SK_API SkDiscardableMemory {
 
 public:
     /**
