@@ -1041,6 +1041,12 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageO
         return kIgnoreError_SkPdfResult;
     }
 
+    pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
+
+    if (!pdfContext->fGraphicsState.fResources) {
+        return kIgnoreError_SkPdfResult;  // probably it is null because we have not implemented yet inheritance
+    }
+
     if (CheckRecursiveRendering::IsInRendering(skobj)) {
         // Oops, corrupt PDF!
         return kIgnoreError_SkPdfResult;
@@ -1049,11 +1055,6 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageO
 
 
     PdfOp_q(pdfContext, canvas, NULL);
-
-
-    if (skobj->Resources(pdfContext->fPdfDoc)) {
-        pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
-    }
 
     // TODO(edisonn): MediaBox can be inherited!!!!
     SkRect bbox = skobj->MediaBox(pdfContext->fPdfDoc);
