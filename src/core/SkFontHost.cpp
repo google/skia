@@ -74,10 +74,10 @@ class SkEmptyFontStyleSet : public SkFontStyleSet {
 public:
     virtual int count() SK_OVERRIDE { return 0; }
     virtual void getStyle(int, SkFontStyle*, SkString*) SK_OVERRIDE {
-        SkASSERT(!"SkFontStyleSet::getStyle called on empty set");
+        SkDEBUGFAIL("SkFontStyleSet::getStyle called on empty set");
     }
     virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
-        SkASSERT(!"SkFontStyleSet::createTypeface called on empty set");
+        SkDEBUGFAIL("SkFontStyleSet::createTypeface called on empty set");
         return NULL;
     }
     virtual SkTypeface* matchStyle(const SkFontStyle&) SK_OVERRIDE {
@@ -99,10 +99,10 @@ protected:
         return 0;
     }
     virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
-        SkASSERT(!"onGetFamilyName called with bad index");
+        SkDEBUGFAIL("onGetFamilyName called with bad index");
     }
     virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
-        SkASSERT(!"onCreateStyleSet called with bad index");
+        SkDEBUGFAIL("onCreateStyleSet called with bad index");
         return NULL;
     }
     virtual SkFontStyleSet* onMatchFamily(const char[]) SK_OVERRIDE {

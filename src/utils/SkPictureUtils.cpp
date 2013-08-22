@@ -37,7 +37,7 @@ private:
 };
 
 static void not_supported() {
-    SkASSERT(!"this method should never be called");
+    SkDEBUGFAIL("this method should never be called");
 }
 
 static void nothing_to_do() {}

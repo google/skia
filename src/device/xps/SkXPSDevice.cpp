@@ -476,7 +476,7 @@ static XPS_SPREAD_METHOD xps_spread_method(SkShader::TileMode tileMode) {
     case SkShader::kMirror_TileMode:
         return XPS_SPREAD_METHOD_REFLECT;
     default:
-        SkASSERT(!"Unknown tile mode.");
+        SkDEBUGFAIL("Unknown tile mode.");
     }
     return XPS_SPREAD_METHOD_PAD;
 }
@@ -1370,7 +1370,7 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                 // the corresponding line/quad/cubic verbs
                 break;
             default:
-                SkASSERT(!"unexpected verb");
+                SkDEBUGFAIL("unexpected verb");
                 break;
         }
     }
@@ -1879,7 +1879,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
             break;
         }
         default:
-            SkASSERT(!"Unknown SkPath::FillType.");
+            SkDEBUGFAIL("Unknown SkPath::FillType.");
     }
     HRVM(shadedGeometry->SetFillRule(xpsFillRule),
          "Could not set fill rule for shaded path.");
@@ -2125,7 +2125,7 @@ HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
                 "Could not set transform matrix.");
             useCanvasForClip = true;
         } else {
-            SkASSERT(!"Attempt to add glyphs in perspective.");
+            SkDEBUGFAIL("Attempt to add glyphs in perspective.");
             useCanvasForClip = false;
         }
     }

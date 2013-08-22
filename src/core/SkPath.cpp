@@ -514,7 +514,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 closedOrMoved = true;
                 break;
             default:
-                SkASSERT(!"unexpected verb");
+                SkDEBUGFAIL("unexpected verb");
                 break;
         }
         *currVerb += 1;
@@ -858,7 +858,7 @@ void SkPath::close() {
                 // don't add a close if it's the first verb or a repeat
                 break;
             default:
-                SkASSERT(!"unexpected verb");
+                SkDEBUGFAIL("unexpected verb");
                 break;
         }
     }
@@ -1594,7 +1594,7 @@ void SkPath::reverseAddPath(const SkPath& src) {
                 needClose = true;
                 break;
             default:
-                SkASSERT(!"unexpected verb");
+                SkDEBUGFAIL("unexpected verb");
         }
     }
 }
@@ -1662,7 +1662,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                     subdivide_quad_to(&tmp, pts);
                     break;
                 case kConic_Verb:
-                    SkASSERT(!"TODO: compute new weight");
+                    SkDEBUGFAIL("TODO: compute new weight");
                     tmp.conicTo(pts[1], pts[2], iter.conicWeight());
                     break;
                 case kCubic_Verb:
@@ -2498,7 +2498,7 @@ void ContourIter::next() {
             case SkPath::kClose_Verb:
                 break;
             default:
-                SkASSERT(!"unexpected verb");
+                SkDEBUGFAIL("unexpected verb");
                 break;
         }
     }

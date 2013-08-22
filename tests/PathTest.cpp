@@ -568,13 +568,13 @@ static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
                 srcPts++;
                 break;
             case SkPath::kQuad_Verb:
-                REPORTER_ASSERT(reporter, !"unexpected quad verb");
+                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected quad verb");
                 break;
             case SkPath::kConic_Verb:
-                REPORTER_ASSERT(reporter, !"unexpected conic verb");
+                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected conic verb");
                 break;
             case SkPath::kCubic_Verb:
-                REPORTER_ASSERT(reporter, !"unexpected cubic verb");
+                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected cubic verb");
                 break;
             case SkPath::kClose_Verb:
                 REPORTER_ASSERT(reporter, !firstTime);
@@ -2117,7 +2117,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     lastWasClose = true;
                     break;
                 default:
-                    SkASSERT(!"unexpected verb");
+                    SkDEBUGFAIL("unexpected verb");
             }
             expectedVerbs[numIterVerbs++] = nextVerb;
         }
@@ -2170,7 +2170,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     lastPt = lastMoveTo;
                     break;
                 default:
-                    SkASSERT(!"unexpected verb");
+                    SkDEBUGFAIL("unexpected verb");
             }
         }
         REPORTER_ASSERT(reporter, numIterPts == numPoints);

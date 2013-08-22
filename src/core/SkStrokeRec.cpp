@@ -44,7 +44,7 @@ SkStrokeRec::SkStrokeRec(const SkPaint& paint) {
             }
             break;
         default:
-            SkASSERT(!"unknown paint style");
+            SkDEBUGFAIL("unknown paint style");
             // fall back on just fill
             fWidth = kStrokeRec_FillStyleWidth;
             fStrokeAndFill = false;

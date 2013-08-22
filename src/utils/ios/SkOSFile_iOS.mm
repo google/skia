@@ -82,12 +82,12 @@ size_t sk_fread(void* buffer, size_t byteCount, SkFILE* rec) {
 }
 
 size_t sk_fwrite(const void* buffer, size_t byteCount, SkFILE* f) {
-    SkASSERT(!"Not supported yet");
+    SkDEBUGFAIL("Not supported yet");
     return 0;
 }
 
 void sk_fflush(SkFILE* f) {
-    SkASSERT(!"Not supported yet");
+    SkDEBUGFAIL("Not supported yet");
 }
 
 void sk_fclose(SkFILE* rec) {

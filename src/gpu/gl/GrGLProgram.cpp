@@ -364,7 +364,7 @@ GrGLuint compile_shader(const GrGLContext& gl,
             print_shader(stringCnt, strings, stringLengths);
             GrPrintf("\n%s", log.get());
         }
-        SkASSERT(!"Shader compilation failed!");
+        SkDEBUGFAIL("Shader compilation failed!");
         GR_GL_CALL(gli, DeleteShader(shader));
         return 0;
     }
@@ -742,7 +742,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
                                       (char*)log.get()));
             GrPrintf((char*)log.get());
         }
-        SkASSERT(!"Error linking program");
+        SkDEBUGFAIL("Error linking program");
         GL_CALL(DeleteProgram(fProgramID));
         fProgramID = 0;
         return false;

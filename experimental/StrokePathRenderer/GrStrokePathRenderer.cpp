@@ -266,7 +266,7 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
                 break;
             case SkPath::kQuad_Verb:
             case SkPath::kCubic_Verb:
-                SkASSERT(!"Curves not supported!");
+                SkDEBUGFAIL("Curves not supported!");
             default:
                 // Unhandled cases
                 SkASSERT(false);
@@ -283,7 +283,7 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
                 lastPt [1] += dir;
                 break;
             case SkPaint::kRound_Cap:
-                SkASSERT(!"Round caps not supported!");
+                SkDEBUGFAIL("Round caps not supported!");
             default: // No cap
                 break;
         }

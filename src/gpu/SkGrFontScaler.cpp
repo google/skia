@@ -88,7 +88,7 @@ GrMaskFormat SkGrFontScaler::getMaskFormat() {
         case SkMask::kLCD32_Format:
             return kA888_GrMaskFormat;
         default:
-            SkASSERT(!"unsupported SkMask::Format");
+            SkDEBUGFAIL("unsupported SkMask::Format");
             return kA8_GrMaskFormat;
     }
 }

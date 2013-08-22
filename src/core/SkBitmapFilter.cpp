@@ -92,7 +92,7 @@ SkBitmapFilter *SkBitmapFilter::Allocate() {
     } else if (!strcmp(c_bitmapFilter, "box")) {
         return SkNEW(SkBoxFilter);
     } else {
-        SkASSERT(!!!"Unknown filter type");
+        SkDEBUGFAIL("Unknown filter type");
     }
 
     return NULL;

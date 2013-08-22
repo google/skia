@@ -278,7 +278,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                             flag->setDouble(atof(argv[i]));
                             break;
                         default:
-                            SkASSERT(!"Invalid flag type");
+                            SkDEBUGFAIL("Invalid flag type");
                     }
                     break;
                 }

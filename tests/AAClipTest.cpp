@@ -39,7 +39,7 @@ static bool operator==(const SkMask& a, const SkMask& b) {
             wbytes <<= 2;
             break;
         default:
-            SkASSERT(!"unknown mask format");
+            SkDEBUGFAIL("unknown mask format");
             return false;
     }
 

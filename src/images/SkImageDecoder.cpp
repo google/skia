@@ -94,7 +94,7 @@ const char* SkImageDecoder::GetFormatName(Format format) {
         case kWEBP_Format:
             return "WEBP";
         default:
-            SkASSERT(!"Invalid format type!");
+            SkDEBUGFAIL("Invalid format type!");
     }
     return "Unknown Format";
 }
@@ -433,7 +433,7 @@ bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
 
     if (target->fRowBytes != SkToU32(bm.rowBytes())) {
         if (target->fRowBytes < SkImageMinRowBytes(*info)) {
-            SkASSERT(!"Desired row bytes is too small");
+            SkDEBUGFAIL("Desired row bytes is too small");
             return false;
         }
         bm.setConfig(bm.config(), bm.width(), bm.height(), target->fRowBytes);

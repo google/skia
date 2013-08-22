@@ -414,7 +414,7 @@ void SkJSON::Object::dumpLevel(int level) const {
                 SkDebugf("%s", slot->fValue.fBool ? "true" : "false");
                 break;
             default:
-                SkASSERT(!"how did I get here");
+                SkDEBUGFAIL("how did I get here");
                 break;
         }
         if (slot->fNext) {
@@ -490,7 +490,7 @@ void SkJSON::Array::dumpLevel(int level) const {
             SkDebugf(" %s ", fArray.fInts[last] ? "true" : "false");
         } break;
         default:
-            SkASSERT(!"unsupported array type");
+            SkDEBUGFAIL("unsupported array type");
             break;
     }
 }

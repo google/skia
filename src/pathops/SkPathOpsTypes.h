@@ -227,7 +227,7 @@ inline SkPath::Verb SkPathOpsPointsToVerb(int points) {
         case 1: SkASSERT(SkPath::kLine_Verb == verb); break;
         case 2: SkASSERT(SkPath::kQuad_Verb == verb); break;
         case 3: SkASSERT(SkPath::kCubic_Verb == verb); break;
-        default: SkASSERT(!"should not be here");
+        default: SkDEBUGFAIL("should not be here");
     }
 #endif
     return (SkPath::Verb)verb;
@@ -240,7 +240,7 @@ inline int SkPathOpsVerbToPoints(SkPath::Verb verb) {
         case SkPath::kLine_Verb: SkASSERT(1 == points); break;
         case SkPath::kQuad_Verb: SkASSERT(2 == points); break;
         case SkPath::kCubic_Verb: SkASSERT(3 == points); break;
-        default: SkASSERT(!"should not get here");
+        default: SkDEBUGFAIL("should not get here");
     }
 #endif
     return points;
