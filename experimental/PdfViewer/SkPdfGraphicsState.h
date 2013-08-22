@@ -24,14 +24,18 @@ class SkPdfSoftMaskDictionary;
 class SkPdfNativeDoc;
 class SkPdfAllocator;
 
-// TODO(edisonn): move this class in iclude/core?
+// TODO(edisonn): move this class in include/core?
 // Ref objects can't be dealt unless we use a specific class initialization
 // The difference between SkTDStackNew and SkTDStack is that SkTDStackNew uses new/delete
 // to be a manage c++ stuff (like initializations)
+
+// Adobe limits it to 28, so 256 should be more than enough
+#define MAX_NESTING 256
+
 #include "SkTypes.h"
 template <typename T> class SkTDStackNew : SkNoncopyable {
 public:
-    SkTDStackNew() : fCount(0), fTotalCount(0) {
+    SkTDStackNew() : fCount(0), fTotalCount(0), fLocalCount(0) {
         fInitialRec.fNext = NULL;
         fRec = &fInitialRec;
 
@@ -47,9 +51,36 @@ public:
         }
     }
 
-    int count() const { return fTotalCount; }
-    int depth() const { return fTotalCount; }
-    bool empty() const { return fTotalCount == 0; }
+    int count() const { return fLocalCount; }
+    int depth() const { return fLocalCount; }
+    bool empty() const { return fLocalCount == 0; }
+
+    bool nests() {
+        return fNestingLevel;
+    }
+
+    void nest() {
+        // We are are past max nesting levels, we will still continue to work, but we might fail
+        // to properly ignore errors. Ideally it should only mean poor rendering in exceptional
+        // cases
+        if (fNestingLevel >= 0 && fNestingLevel < MAX_NESTING) {
+            fNestings[fNestingLevel] = fLocalCount;
+            fLocalCount = 0;
+        }
+        fNestingLevel++;
+    }
+
+    void unnest() {
+        SkASSERT(fNestingLevel > 0);
+        fNestingLevel--;
+        if (fNestingLevel >= 0 && fNestingLevel < MAX_NESTING) {
+            // TODO(edisonn): warn if fLocal > 0
+            while (fLocalCount > 0) {
+                pop();
+            }
+            fLocalCount = fNestings[fNestingLevel];
+        }
+    }
 
     T* push() {
         SkASSERT(fCount <= kSlotCount);
@@ -60,6 +91,7 @@ public:
             fCount = 0;
         }
         ++fTotalCount;
+        ++fLocalCount;
         return &fRec->fSlots[fCount++];
     }
 
@@ -94,6 +126,7 @@ public:
 
     void pop() {
         SkASSERT(fCount > 0 && fRec);
+        --fLocalCount;
         --fTotalCount;
         if (--fCount == 0) {
             if (fRec != &fInitialRec) {
@@ -121,7 +154,9 @@ private:
     };
     Rec     fInitialRec;
     Rec*    fRec;
-    int     fCount, fTotalCount;
+    int     fCount, fTotalCount, fLocalCount;
+    int     fNestings[MAX_NESTING];
+    int     fNestingLevel;
 };
 
 // TODO(edisonn): better class design.

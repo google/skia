@@ -1085,13 +1085,25 @@ SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
     // it is not possible to see under the previous q?
     pdfContext->fStateStack.push(pdfContext->fGraphicsState);
     canvas->save();
+    pdfContext->fObjectStack.nest();
     return kOK_SkPdfResult;
 }
 
 SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    pdfContext->fGraphicsState = pdfContext->fStateStack.top();
-    pdfContext->fStateStack.pop();
-    canvas->restore();
+    if (pdfContext->fStateStack.count() > 0) {
+        pdfContext->fGraphicsState = pdfContext->fStateStack.top();
+        pdfContext->fStateStack.pop();
+        canvas->restore();
+
+        if (pdfContext->fObjectStack.nests() <= 0) {
+            return kIgnoreError_SkPdfResult;
+        } else {
+            pdfContext->fObjectStack.unnest();
+        }
+    } else {
+        return kIgnoreError_SkPdfResult;
+    }
+
     return kOK_SkPdfResult;
 }
 
@@ -2774,6 +2786,10 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     SkScalar z = SkIntToScalar(0);
     SkScalar w = dst.width();
     SkScalar h = dst.height();
+
+    if (SkScalarTruncToInt(w) <= 0 || SkScalarTruncToInt(h) <= 0) {
+        return true;
+    }
 
     SkScalar wp = fPdfDoc->MediaBox(page).width();
     SkScalar hp = fPdfDoc->MediaBox(page).height();
