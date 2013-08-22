@@ -14,6 +14,3 @@
 typedef SkDevice SkBitmapDevice;
 
 #endif // SkBitmapDevice_DEFINED
-
-
-
