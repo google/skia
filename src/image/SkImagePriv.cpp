@@ -54,7 +54,7 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
             }
             break;
     }
-    SkASSERT(!"how did we get here");
+    SkDEBUGFAIL("how did we get here");
     return SkBitmap::kNo_Config;
 }
 

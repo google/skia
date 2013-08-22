@@ -891,7 +891,7 @@ FAILED:
 
 // good to set a break-point here to know when createTexture fails
 static GrTexture* return_null_texture() {
-//    SkASSERT(!"null texture");
+//    SkDEBUGFAIL("null texture");
     return NULL;
 }
 

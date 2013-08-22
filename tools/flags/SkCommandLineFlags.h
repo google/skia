@@ -304,7 +304,7 @@ public:
         if (kString_FlagType == fFlagType) {
             fStrings->reset();
         } else {
-            SkASSERT(!"Can only call resetStrings on kString_FlagType");
+            SkDEBUGFAIL("Can only call resetStrings on kString_FlagType");
         }
     }
 
@@ -312,7 +312,7 @@ public:
         if (kString_FlagType == fFlagType) {
             fStrings->append(string);
         } else {
-            SkASSERT(!"Can only append to kString_FlagType");
+            SkDEBUGFAIL("Can only append to kString_FlagType");
         }
     }
 
@@ -320,7 +320,7 @@ public:
         if (kInt_FlagType == fFlagType) {
             *fIntValue = value;
         } else {
-            SkASSERT(!"Can only call setInt on kInt_FlagType");
+            SkDEBUGFAIL("Can only call setInt on kInt_FlagType");
         }
     }
 
@@ -328,7 +328,7 @@ public:
         if (kDouble_FlagType == fFlagType) {
             *fDoubleValue = value;
         } else {
-            SkASSERT(!"Can only call setDouble on kDouble_FlagType");
+            SkDEBUGFAIL("Can only call setDouble on kDouble_FlagType");
         }
     }
 
@@ -336,7 +336,7 @@ public:
         if (kBool_FlagType == fFlagType) {
             *fBoolValue = value;
         } else {
-            SkASSERT(!"Can only call setBool on kBool_FlagType");
+            SkDEBUGFAIL("Can only call setBool on kBool_FlagType");
         }
     }
 
@@ -363,7 +363,7 @@ public:
                 result.printf("%2.2f", fDefaultDouble);
                 break;
             default:
-                SkASSERT(!"Invalid flag type");
+                SkDEBUGFAIL("Invalid flag type");
         }
         return result;
     }
@@ -379,7 +379,7 @@ public:
             case SkFlagInfo::kDouble_FlagType:
                 return SkString("double");
             default:
-                SkASSERT(!"Invalid flag type");
+                SkDEBUGFAIL("Invalid flag type");
                 return SkString();
         }
     }

@@ -93,7 +93,7 @@ bool get_gl_version_for_mesa(int mesaMajorVersion, int* major, int* minor) {
 
 GrGLBinding GrGLGetBindingInUseFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkASSERT(!"NULL GL version string.");
+        SkDEBUGFAIL("NULL GL version string.");
         return kNone_GrGLBinding;
     }
 
@@ -129,7 +129,7 @@ bool GrGLIsMesaFromVersionString(const char* versionString) {
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkASSERT(!"NULL GL version string.");
+        SkDEBUGFAIL("NULL GL version string.");
         return 0;
     }
 
@@ -168,7 +168,7 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
 
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkASSERT(!"NULL GLSL version string.");
+        SkDEBUGFAIL("NULL GLSL version string.");
         return 0;
     }
 

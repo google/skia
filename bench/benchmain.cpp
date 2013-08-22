@@ -223,7 +223,7 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
 #endif
         case kPDF_Backend:
         default:
-            SkASSERT(!"unsupported");
+            SkDEBUGFAIL("unsupported");
     }
     return device;
 }

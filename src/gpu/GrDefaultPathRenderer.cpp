@@ -441,7 +441,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                     }
                     break;
                 default:
-                    SkASSERT(!"Unknown path fFill!");
+                    SkDEBUGFAIL("Unknown path fFill!");
                     return false;
             }
         }

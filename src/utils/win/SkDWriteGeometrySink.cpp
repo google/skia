@@ -53,21 +53,21 @@ void STDMETHODCALLTYPE SkDWriteGeometrySink::SetFillMode(D2D1_FILL_MODE fillMode
         fPath->setFillType(SkPath::kWinding_FillType);
         break;
     default:
-        SkASSERT(!"Unknown D2D1_FILL_MODE.");
+        SkDEBUGFAIL("Unknown D2D1_FILL_MODE.");
         break;
     }
 }
 
 void STDMETHODCALLTYPE SkDWriteGeometrySink::SetSegmentFlags(D2D1_PATH_SEGMENT vertexFlags) {
     if (vertexFlags == D2D1_PATH_SEGMENT_NONE || vertexFlags == D2D1_PATH_SEGMENT_FORCE_ROUND_LINE_JOIN) {
-        SkASSERT(!"Invalid D2D1_PATH_SEGMENT value.");
+        SkDEBUGFAIL("Invalid D2D1_PATH_SEGMENT value.");
     }
 }
 
 void STDMETHODCALLTYPE SkDWriteGeometrySink::BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) {
     fPath->moveTo(SkFloatToScalar(startPoint.x), SkFloatToScalar(startPoint.y));
     if (figureBegin == D2D1_FIGURE_BEGIN_HOLLOW) {
-        SkASSERT(!"Invalid D2D1_FIGURE_BEGIN value.");
+        SkDEBUGFAIL("Invalid D2D1_FIGURE_BEGIN value.");
     }
 }
 

@@ -139,7 +139,7 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
 }
 
 SkDevice* SkPictureRecord::setDevice(SkDevice* device) {
-    SkASSERT(!"eeek, don't try to change the device on a recording canvas");
+    SkDEBUGFAIL("eeek, don't try to change the device on a recording canvas");
     return this->INHERITED::setDevice(device);
 }
 

@@ -424,10 +424,10 @@ private:
                 pCnt = 0;
                 break;
             case SkPath::kDone_Verb:
-                SkASSERT(!"growForVerb called for kDone");
+                SkDEBUGFAIL("growForVerb called for kDone");
                 // fall through
             default:
-                SkASSERT(!"default is not reached");
+                SkDEBUGFAIL("default is not reached");
                 pCnt = 0;
         }
         size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);

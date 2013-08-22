@@ -172,12 +172,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    SkASSERT(!"SkFontHost::CreateTypeface unimplemented");
+    SkDEBUGFAIL("SkFontHost::CreateTypeface unimplemented");
     return NULL;
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
-//    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+//    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
 }
 
@@ -198,7 +198,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
@@ -249,7 +249,7 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                                                                   uint32_t fontID,
                                                                   SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
+    SkDEBUGFAIL("SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
     return NULL;
 }
 
@@ -257,6 +257,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
 }
 
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    SkASSERT(!"SkFontHost::CreateScalarContext unimplemented");
+    SkDEBUGFAIL("SkFontHost::CreateScalarContext unimplemented");
     return NULL;
 }

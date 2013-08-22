@@ -291,7 +291,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
                                                         colorStages.begin(),
                                                         coverageStages.begin()));
         if (NULL == fCurrentProgram.get()) {
-            SkASSERT(!"Failed to create program!");
+            SkDEBUGFAIL("Failed to create program!");
             return false;
         }
         fCurrentProgram.get()->ref();

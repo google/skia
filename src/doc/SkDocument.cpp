@@ -49,7 +49,7 @@ SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
                 return NULL;
         }
     }
-    SkASSERT(!"never get here");
+    SkDEBUGFAIL("never get here");
     return NULL;
 }
 

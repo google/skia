@@ -21,7 +21,7 @@ namespace {
 
 template<SkDisplacementMapEffect::ChannelSelectorType type>
 uint32_t getValue(SkColor, const SkUnPreMultiply::Scale*) {
-    SkASSERT(!"Unknown channel selector");
+    SkDEBUGFAIL("Unknown channel selector");
     return 0;
 }
 
@@ -97,7 +97,7 @@ void computeDisplacement(SkDisplacementMapEffect::ChannelSelectorType yChannelSe
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
-        SkASSERT(!"Unknown Y channel selector");
+        SkDEBUGFAIL("Unknown Y channel selector");
     }
 }
 
@@ -124,7 +124,7 @@ void computeDisplacement(SkDisplacementMapEffect::ChannelSelectorType xChannelSe
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
-        SkASSERT(!"Unknown X channel selector");
+        SkDEBUGFAIL("Unknown X channel selector");
     }
 }
 
@@ -456,7 +456,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
-        SkASSERT(!"Unknown X channel selector");
+        SkDEBUGFAIL("Unknown X channel selector");
     }
 
     switch (fYChannelSelector) {
@@ -474,7 +474,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
-        SkASSERT(!"Unknown Y channel selector");
+        SkDEBUGFAIL("Unknown Y channel selector");
     }
     builder->fsCodeAppend("-vec2(0.5));\t\t");
 

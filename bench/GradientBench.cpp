@@ -137,7 +137,7 @@ static const char* tilemodename(SkShader::TileMode tm) {
         case SkShader::kMirror_TileMode:
             return "mirror";
         default:
-            SkASSERT(!"unknown tilemode");
+            SkDEBUGFAIL("unknown tilemode");
             return "error";
     }
 }
@@ -149,7 +149,7 @@ static const char* geomtypename(GeomType gt) {
         case kOval_GeomType:
             return "oval";
         default:
-            SkASSERT(!"unknown geometry type");
+            SkDEBUGFAIL("unknown geometry type");
             return "error";
     }
 }
