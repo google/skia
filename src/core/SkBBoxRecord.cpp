@@ -179,35 +179,45 @@ void SkBBoxRecord::drawPosText(const void* text, size_t byteLength,
 
 void SkBBoxRecord::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                                 SkScalar constY, const SkPaint& paint) {
-    SkRect bbox;
     size_t numChars = paint.countText(text, byteLength);
-    if (numChars > 0) {
-        bbox.fLeft  = xpos[0];
-        bbox.fRight = xpos[numChars - 1];
-        // if we had a guarantee that these will be monotonically increasing, this could be sped up
-        for (size_t i = 1; i < numChars; ++i) {
-            if (xpos[i] < bbox.fLeft) {
-                bbox.fLeft = xpos[i];
-            }
-            if (xpos[i] > bbox.fRight) {
-                bbox.fRight = xpos[i];
-            }
+    if (numChars == 0) {
+        return;
+    }
+
+    const SkFlatData* flatPaintData = this->getFlatPaintData(paint);
+    WriteTopBot(paint, *flatPaintData);
+
+    SkScalar top = flatPaintData->topBot()[0];
+    SkScalar bottom = flatPaintData->topBot()[1];
+    SkScalar pad = top - bottom;
+
+    SkRect bbox;
+    bbox.fLeft = SK_ScalarMax;
+    bbox.fRight = SK_ScalarMin;
+
+    for (size_t i = 0; i < numChars; ++i) {
+        if (xpos[i] < bbox.fLeft) {
+            bbox.fLeft = xpos[i];
         }
-        SkPaint::FontMetrics metrics;
-        paint.getFontMetrics(&metrics);
-
-        // pad horizontally by max glyph height
-        SkScalar pad = (metrics.fTop - metrics.fBottom);
-        bbox.fLeft  += pad;
-        bbox.fRight -= pad;
-
-        bbox.fTop    = metrics.fTop + constY;
-        bbox.fBottom = metrics.fBottom + constY;
-        if (!this->transformBounds(bbox, &paint)) {
-            return;
+        if (xpos[i] > bbox.fRight) {
+            bbox.fRight = xpos[i];
         }
     }
-    INHERITED::drawPosTextH(text, byteLength, xpos, constY, paint);
+
+    // pad horizontally by max glyph height
+    bbox.fLeft  += pad;
+    bbox.fRight -= pad;
+
+    bbox.fTop    = top + constY;
+    bbox.fBottom = bottom + constY;
+
+    if (!this->transformBounds(bbox, &paint)) {
+        return;
+    }
+    // This is the equivalent of calling:
+    //  INHERITED::drawPosTextH(text, byteLength, xpos, constY, paint);
+    // but we filled our flat paint beforehand so that we could get font metrics.
+    drawPosTextHImpl(text, byteLength, xpos, constY, paint, flatPaintData);
 }
 
 void SkBBoxRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
