@@ -36,6 +36,7 @@ private:
         SkPdfNativeObject* fObj;
         // TODO(edisonn): perf ... probably it does not make sense to cache the ref. test it!
         SkPdfNativeObject* fResolvedReference;
+        bool fIsReferenceResolved;
     };
 
 public:
@@ -91,6 +92,7 @@ private:
         obj->fObj = NULL;
         obj->fResolvedReference = NULL;
         obj->fOffset = -1;
+        obj->fIsReferenceResolved = false;
     }
 
     SkPdfNativeObject* readObject(int id/*, int generation*/);

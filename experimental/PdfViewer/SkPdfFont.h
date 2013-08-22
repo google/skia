@@ -211,7 +211,7 @@ public:
     };
 
     inline unsigned int ToUnicode(unsigned int ch) const {
-        if (fToUnicode) {
+        if (fToUnicode && fToUnicode->fCMapEncoding) {
             return fToUnicode->fCMapEncoding[ch];
         } else {
             return ch;

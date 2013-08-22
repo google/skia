@@ -358,6 +358,7 @@ void SkPdfNativeDoc::addCrossSectionInfo(int id, int generation, int offset, boo
     fObjects[id].fOffset = offset;
     fObjects[id].fObj = NULL;
     fObjects[id].fResolvedReference = NULL;
+    fObjects[id].fIsReferenceResolved = false;
 }
 
 SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/) {
@@ -546,14 +547,21 @@ SkPdfNativeObject* SkPdfNativeDoc::resolveReference(SkPdfNativeObject* ref) {
             return NULL;
         }
 
-        if (fObjects[id].fResolvedReference != NULL) {
+        if (fObjects[id].fIsReferenceResolved) {
 
 #ifdef PDF_TRACE
             printf("\nresolve(%s) = %s\n", ref->toString(0).c_str(), fObjects[id].fResolvedReference->toString(0, ref->toString().size() + 13).c_str());
 #endif
 
+            // TODO(edisonn): for known good documents, assert here THAT THE REFERENCE IS NOT null
             return fObjects[id].fResolvedReference;
         }
+
+        // TODO(edisonn): there are pdfs in the crashing suite that cause a stack overflow here unless we check for resolved reference on next line
+        // determine if the pdf is corrupted, or we have a bug here
+
+        // avoids recursive calls
+        fObjects[id].fIsReferenceResolved = true;
 
         if (fObjects[id].fObj == NULL) {
             fObjects[id].fObj = readObject(id);
