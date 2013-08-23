@@ -11,7 +11,7 @@
 #define SkPDFImage_DEFINED
 
 #include "SkPDFDevice.h"
-#include "SkPDFImageStream.h"
+#include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 
@@ -27,7 +27,7 @@ struct SkIRect;
 // We could play the same trick here as is done in SkPDFGraphicState, storing
 // a copy of the Bitmap object (not the pixels), the pixel generation number,
 // and settings used from the paint to canonicalize image objects.
-class SkPDFImage : public SkPDFImageStream {
+class SkPDFImage : public SkPDFStream {
 public:
     /** Create a new Image XObject to represent the passed bitmap.
      *  @param bitmap   The image to encode.
@@ -48,24 +48,50 @@ public:
      */
     SkPDFImage* addSMask(SkPDFImage* mask);
 
+    bool isEmpty() {
+        return fSrcRect.isEmpty();
+    }
+
     // The SkPDFObject interface.
     virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                               SkTSet<SkPDFObject*>* newResourceObjects);
 
 private:
+    SkBitmap fBitmap;
+    bool fIsAlpha;
+    SkIRect fSrcRect;
+    EncodeToDCTStream fEncoder;
+    bool fStreamValid;
+
     SkTDArray<SkPDFObject*> fResources;
 
     /** Create a PDF image XObject. Entries for the image properties are
      *  automatically added to the stream dictionary.
-     *  @param imageData  The final raw bits representing the image.
-     *  @param bitmap     The image parameters to use (Config, etc).
+     *  @param stream     The image stream. May be NULL. Otherwise, this
+     *                    (instead of the input bitmap) will be used as the
+     *                    PDF's content stream, possibly with lossless encoding.
+     *  @param bitmap     The image. If a stream is not given, its color data
+     *                    will be used as the image. If a stream is given, this
+     *                    is used for configuration only.
+     *  @param isAlpha    Whether or not this is the alpha of an image.
      *  @param srcRect    The clipping applied to bitmap before generating
      *                    imageData.
-     *  @param alpha      Is this the alpha channel of the bitmap.
-     *  @param paint      Used to calculate alpha, masks, etc.
+     *  @param encoder    A function used to encode the bitmap for compression.
+     *                    May be NULL.
      */
-    SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
-               const SkIRect& srcRect, bool alpha, EncodeToDCTStream encoder);
+    SkPDFImage(SkStream* stream, const SkBitmap& bitmap, bool isAlpha,
+               const SkIRect& srcRect, EncodeToDCTStream encoder);
+
+    /** Copy constructor, used to generate substitutes.
+     *  @param image      The SkPDFImage to copy.
+     */
+    SkPDFImage(SkPDFImage& pdfImage);
+
+    // Populate the stream dictionary.  This method returns false if
+    // fSubstitute should be used.
+    virtual bool populate(SkPDFCatalog* catalog);
+
+    typedef SkPDFStream INHERITED;
 };
 
 #endif
