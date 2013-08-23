@@ -961,7 +961,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrEffectRef* hairConicEffect = GrConicEffect::Create(kHairAA_GrBezierEdgeType,
                                                              *target->caps());
         SkASSERT(hairQuadEffect && hairConicEffect);
-        
+
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));

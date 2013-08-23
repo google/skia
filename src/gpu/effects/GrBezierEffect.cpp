@@ -31,7 +31,7 @@ private:
 
     typedef GrGLEffect INHERITED;
 };
-    
+
 GrGLConicEffect::GrGLConicEffect(const GrBackendEffectFactory& factory,
                                  const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
@@ -171,7 +171,7 @@ private:
 
     typedef GrGLEffect INHERITED;
 };
-    
+
 GrGLQuadEffect::GrGLQuadEffect(const GrBackendEffectFactory& factory,
                                  const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
@@ -300,7 +300,7 @@ private:
 
     typedef GrGLEffect INHERITED;
 };
-    
+
 GrGLCubicEffect::GrGLCubicEffect(const GrBackendEffectFactory& factory,
                                  const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
