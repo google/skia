@@ -6,7 +6,7 @@
  */
 
 #ifndef GrBezierEffect_DEFINED
-#define GrBezierEffect_DEFINED 
+#define GrBezierEffect_DEFINED
 
 #include "GrEffect.h"
 #include "GrDrawTargetCaps.h"
@@ -85,7 +85,7 @@ public:
             }
             gConicHairAA->ref();
             return gConicHairAA;
-        } else { 
+        } else {
             gConicFillNoAA->ref();
             return gConicFillNoAA;
         }
@@ -106,12 +106,12 @@ public:
         *validFlags = 0;
     }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE; 
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrConicEffect(GrBezierEdgeType);
 
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE; 
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     GrBezierEdgeType fEdgeType;
 
@@ -149,7 +149,7 @@ public:
             }
             gQuadHairAA->ref();
             return gQuadHairAA;
-        } else { 
+        } else {
             gQuadFillNoAA->ref();
             return gQuadFillNoAA;
         }
@@ -170,12 +170,12 @@ public:
         *validFlags = 0;
     }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE; 
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrQuadEffect(GrBezierEdgeType);
 
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE; 
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     GrBezierEdgeType fEdgeType;
 
@@ -215,7 +215,7 @@ public:
             }
             gCubicHairAA->ref();
             return gCubicHairAA;
-        } else { 
+        } else {
             gCubicFillNoAA->ref();
             return gCubicFillNoAA;
         }
@@ -236,12 +236,12 @@ public:
         *validFlags = 0;
     }
 
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE; 
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GrCubicEffect(GrBezierEdgeType);
 
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE; 
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     GrBezierEdgeType fEdgeType;
 
