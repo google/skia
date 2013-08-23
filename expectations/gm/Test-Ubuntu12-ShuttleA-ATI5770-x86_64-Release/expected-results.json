@@ -119,6 +119,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "bezier_conic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8752881519268098929
+        ]
+      ]
+    }, 
+    "bezier_cubic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2528441855443294358
+        ]
+      ]
+    }, 
+    "bezier_quad_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4262371397616505441
+        ]
+      ]
+    }, 
     "bigmatrix_565.png": {
       "allowed-digests": [
         [
