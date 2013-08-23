@@ -70,9 +70,9 @@ class GrGLConicEffect;
 class GrConicEffect : public GrEffect {
 public:
     static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (edgeType));
-        GR_CREATE_STATIC_EFFECT(gConicHairAA, GrConicEffect, (edgeType));
-        GR_CREATE_STATIC_EFFECT(gConicFillNoAA, GrConicEffect, (edgeType));
+        GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrBezierEdgeType));
+        GR_CREATE_STATIC_EFFECT(gConicHairAA, GrConicEffect, (kHairAA_GrBezierEdgeType));
+        GR_CREATE_STATIC_EFFECT(gConicFillNoAA, GrConicEffect, (kFillNoAA_GrBezierEdgeType));
         if (kFillAA_GrBezierEdgeType == edgeType) {
             if (!caps.shaderDerivativeSupport()) {
                 return NULL;
