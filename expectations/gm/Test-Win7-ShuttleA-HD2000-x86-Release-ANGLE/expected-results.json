@@ -73,6 +73,54 @@
       ], 
       "ignore-failure": false
     }, 
+    "bezier_conic_effects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14688737770880244325
+        ]
+      ]
+    }, 
+    "bezier_conic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2180660720917607386
+        ]
+      ]
+    }, 
+    "bezier_cubic_effects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9394974514074415858
+        ]
+      ]
+    }, 
+    "bezier_cubic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2781992412778501528
+        ]
+      ]
+    }, 
+    "bezier_quad_effects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14407637302613118672
+        ]
+      ]
+    }, 
+    "bezier_quad_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2687307227878020527
+        ]
+      ]
+    }, 
     "bigmatrix_angle.png": {
       "allowed-digests": [
         [

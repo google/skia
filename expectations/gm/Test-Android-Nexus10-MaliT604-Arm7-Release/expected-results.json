@@ -146,6 +146,54 @@
       ], 
       "ignore-failure": false
     }, 
+    "bezier_conic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3043872350657813613
+        ]
+      ]
+    }, 
+    "bezier_conic_effects_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5784469259466637231
+        ]
+      ]
+    }, 
+    "bezier_cubic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6480467677781984857
+        ]
+      ]
+    }, 
+    "bezier_cubic_effects_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          606644217329953381
+        ]
+      ]
+    }, 
+    "bezier_quad_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15138504414786294431
+        ]
+      ]
+    }, 
+    "bezier_quad_effects_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10125912225436112750
+        ]
+      ]
+    }, 
     "bicubicfilter_gpu.png": {
       "allowed-digests": [
         [
