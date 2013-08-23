@@ -15,39 +15,39 @@
 enum SkError {
     /** All is well
      */
-    kNoError_SkError=0,
+    kNoError_SkError          = 0x00,
 
     /** User argument passed to Skia function was invalid: NULL when that’s
      *  not allowed, out of numeric range, bad enum, or violating some
      *  other general precondition.
      */
-    kInvalidArgument_SkError,
+    kInvalidArgument_SkError  = 0x01,
 
     /** User tried to perform some operation in a state when the operation
      *  was not legal, or the operands make no sense (e.g., asking for
      *  pixels from an SkPictureCanvas).  Other examples might be
      *  inset()’ing a rectangle to make it degenerate (negative width/height).
      */
-    kInvalidOperation_SkError,
+    kInvalidOperation_SkError = 0x02,
 
     /** Probably not needed right now, but in the future we could have opaque
      *  handles for SkPictures floating around, and it would be a good idea
      *  to anticipate this kind of issue.
      */
-    kInvalidHandle_SkError,
+    kInvalidHandle_SkError    = 0x04,
 
     /** This is probably not possible because paint surely has defaults for
      *  everything, but perhaps a paint can get into a bad state somehow.
      */
-    kInvalidPaint_SkError,
+    kInvalidPaint_SkError     = 0x08,
 
     /** Skia was unable to allocate memory to perform some task.
      */
-    kOutOfMemory_SkError,
+    kOutOfMemory_SkError      = 0x10,
 
     /** Skia failed while trying to consume some external resource.
      */
-    kParseError_SkError
+    kParseError_SkError       = 0x20
 };
 
 /** Return the current per-thread error code.  Error codes are "sticky"; they
