@@ -363,7 +363,8 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         }
     }
 
-    if (kDesktop_GrGLBinding == binding && glVer >= GR_GL_VER(3, 0)) {
+    // glGetStringi was added in version 3.0 of both desktop and ES.
+    if (glVer >= GR_GL_VER(3, 0)) {
         if (NULL == fGetStringi) {
             return false;
         }
