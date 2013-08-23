@@ -21,7 +21,14 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
         GrGLExtensions extensions;
-        if (!extensions.init(kES_GrGLBinding, glGetString, NULL, glGetIntegerv)) {
+        GrGLGetStringiProc getStringi;
+#if GL_ES_VERSION_3_0
+        getStringi = glGetStringi;
+#else
+        getStringi = (GrGLGetStringiProc) eglGetProcAddress("glGetStringi");
+#endif
+
+        if (!extensions.init(kES_GrGLBinding, glGetString, getStringi, glGetIntegerv)) {
             return NULL;
         }
         const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
@@ -80,6 +87,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGetShaderInfoLog = glGetShaderInfoLog;
         interface->fGetShaderiv = glGetShaderiv;
         interface->fGetString = glGetString;
+        interface->fGetStringi = getStringi; // located above
         interface->fGetUniformLocation = glGetUniformLocation;
         interface->fLineWidth = glLineWidth;
         interface->fLinkProgram = glLinkProgram;

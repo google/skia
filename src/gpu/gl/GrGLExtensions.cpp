@@ -26,15 +26,15 @@ bool GrGLExtensions::init(GrGLBinding binding,
     if (NULL == getString) {
         return false;
     }
-    bool indexed = false;
-    if (kDesktop_GrGLBinding == binding) {
-        const GrGLubyte* verString = getString(GR_GL_VERSION);
-        if (NULL == verString) {
-            return false;
-        }
-        GrGLVersion version = GrGLGetVersionFromString((const char*) verString);
-        indexed = version >= GR_GL_VER(3, 0);
+
+    // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
+    const GrGLubyte* verString = getString(GR_GL_VERSION);
+    if (NULL == verString) {
+        return false;
     }
+    GrGLVersion version = GrGLGetVersionFromString((const char*) verString);
+    bool indexed = version >= GR_GL_VER(3, 0);
+
     if (indexed) {
         if (NULL == getStringi || NULL == getIntegerv) {
             return false;
