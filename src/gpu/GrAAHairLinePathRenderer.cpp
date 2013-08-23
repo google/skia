@@ -956,21 +956,18 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         static const int kEdgeAttrIndex = 1;
 
-        GrEffectRef* hairQuadEffect = GrQuadEffect::Create(kHairAA_GrBezierEdgeType,
-                                                           *target->caps());
-        GrEffectRef* hairConicEffect = GrConicEffect::Create(kHairAA_GrBezierEdgeType,
-                                                             *target->caps());
-        SkASSERT(hairQuadEffect && hairConicEffect);
-
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
                                             kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
 
-        {
+        if (quadCnt > 0) {
+            GrEffectRef* hairQuadEffect = GrQuadEffect::Create(kHairAA_GrBezierEdgeType,
+                                                               *target->caps());
+            SkASSERT(NULL != hairQuadEffect);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
-            int quads = 0;
             drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
+            int quads = 0;
             while (quads < quadCnt) {
                 int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
@@ -983,10 +980,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             }
         }
 
-        {
+        if (conicCnt > 0) {
             GrDrawState::AutoRestoreEffects are(drawState);
-            int conics = 0;
+            GrEffectRef* hairConicEffect = GrConicEffect::Create(kHairAA_GrBezierEdgeType,
+                                                                 *target->caps());
+            SkASSERT(NULL != hairConicEffect);
             drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
+            int conics = 0;
             while (conics < conicCnt) {
                 int n = GrMin(conicCnt - conics, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
