@@ -35,16 +35,61 @@ GM_DIRECTORY = os.path.realpath(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), 'gm'))
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
-import buildbot_globals
 import gm_json
 
-MASTER_HOST_URL = 'http://%s:%s' % (
-    buildbot_globals.Get('public_master_host'),
-    buildbot_globals.Get('public_external_port'))
-ALL_BUILDERS = list(json.load(urllib2.urlopen(
-    MASTER_HOST_URL + '/json/builders')))
-TEST_BUILDERS = filter(lambda x: 'Trybot' not in x and 'Test' in x,
-                       ALL_BUILDERS)
+# TODO(epoger): In the long run, we want to build this list automatically,
+# but for now we hard-code it until we can properly address
+# https://code.google.com/p/skia/issues/detail?id=1544
+# ('live query of builder list makes rebaseline.py slow to start up')
+TEST_BUILDERS = [
+    'Test-Android-GalaxyNexus-SGX540-Arm7-Debug',
+    'Test-Android-GalaxyNexus-SGX540-Arm7-Release',
+    'Test-Android-IntelRhb-SGX544-x86-Debug',
+    'Test-Android-IntelRhb-SGX544-x86-Release',
+    'Test-Android-Nexus10-MaliT604-Arm7-Debug',
+    'Test-Android-Nexus10-MaliT604-Arm7-Release',
+    'Test-Android-Nexus4-Adreno320-Arm7-Debug',
+    'Test-Android-Nexus4-Adreno320-Arm7-Release',
+    'Test-Android-Nexus7-Tegra3-Arm7-Debug',
+    'Test-Android-Nexus7-Tegra3-Arm7-Release',
+    'Test-Android-NexusS-SGX540-Arm7-Debug',
+    'Test-Android-NexusS-SGX540-Arm7-Release',
+    'Test-Android-Xoom-Tegra2-Arm7-Debug',
+    'Test-Android-Xoom-Tegra2-Arm7-Release',
+    'Test-ChromeOS-Alex-GMA3150-x86-Debug',
+    'Test-ChromeOS-Alex-GMA3150-x86-Release',
+    'Test-ChromeOS-Daisy-MaliT604-Arm7-Debug',
+    'Test-ChromeOS-Daisy-MaliT604-Arm7-Release',
+    'Test-ChromeOS-Link-HD4000-x86_64-Debug',
+    'Test-ChromeOS-Link-HD4000-x86_64-Release',
+    'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
+    'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release',
+    'Test-Mac10.6-MacMini4.1-GeForce320M-x86_64-Debug',
+    'Test-Mac10.6-MacMini4.1-GeForce320M-x86_64-Release',
+    'Test-Mac10.7-MacMini4.1-GeForce320M-x86-Debug',
+    'Test-Mac10.7-MacMini4.1-GeForce320M-x86-Release',
+    'Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug',
+    'Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Release',
+    'Test-Mac10.8-MacMini4.1-GeForce320M-x86-Debug',
+    'Test-Mac10.8-MacMini4.1-GeForce320M-x86-Release',
+    'Test-Mac10.8-MacMini4.1-GeForce320M-x86_64-Debug',
+    'Test-Mac10.8-MacMini4.1-GeForce320M-x86_64-Release',
+    'Test-Ubuntu12-ShuttleA-ATI5770-x86-Debug',
+    'Test-Ubuntu12-ShuttleA-ATI5770-x86-Release',
+    'Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Debug',
+    'Test-Ubuntu12-ShuttleA-ATI5770-x86_64-Release',
+    'Test-Ubuntu12-ShuttleA-HD2000-x86_64-Release-Valgrind',
+    'Test-Ubuntu12-ShuttleA-NoGPU-x86_64-Debug',
+    'Test-Ubuntu13-ShuttleA-HD2000-x86_64-Debug-ASAN',
+    'Test-Win7-ShuttleA-HD2000-x86-Debug',
+    'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
+    'Test-Win7-ShuttleA-HD2000-x86-Debug-DirectWrite',
+    'Test-Win7-ShuttleA-HD2000-x86-Release',
+    'Test-Win7-ShuttleA-HD2000-x86-Release-ANGLE',
+    'Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite',
+    'Test-Win7-ShuttleA-HD2000-x86_64-Debug',
+    'Test-Win7-ShuttleA-HD2000-x86_64-Release',
+]
 
 class _InternalException(Exception):
   pass
