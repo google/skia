@@ -14,7 +14,7 @@
       'type': 'none',
       'dependencies': ['most.gyp:most'],
       'conditions': [
-        ['skia_os in ("ios", "android") or (skia_os == "mac" and skia_arch_width == 32)', {
+        ['skia_os in ("ios", "android", "chromeos") or (skia_os == "mac" and skia_arch_width == 32)', {
           # debugger is not supported on this platform
         }, {
           'dependencies': [ 'debugger.gyp:debugger' ],
