@@ -18,10 +18,8 @@ static bool skip_compression(SkPDFCatalog* catalog) {
                     SkPDFDocument::kFavorSpeedOverSize_Flags);
 }
 
-SkPDFStream::SkPDFStream(SkStream* stream)
-    : fState(kUnused_State),
-      fData(stream) {
-    SkSafeRef(stream);
+SkPDFStream::SkPDFStream(SkStream* stream) : fState(kUnused_State) {
+    setData(stream);
 }
 
 SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
@@ -30,9 +28,8 @@ SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
 
 SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
         : SkPDFDict(),
-          fState(kUnused_State),
-          fData(pdfStream.fData.get()) {
-    fData.get()->ref();
+          fState(kUnused_State) {
+    setData(pdfStream.fData.get());
     bool removeLength = true;
     // Don't uncompress an already compressed stream, but we could.
     if (pdfStream.fState == kCompressed_State) {
@@ -64,7 +61,8 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     this->INHERITED::emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
-    stream->write(fData->getMemoryBase(), fData->getLength());
+    stream->writeStream(fData.get(), fData->getLength());
+    fData->rewind();
     stream->writeText("\nendstream");
 }
 
@@ -89,6 +87,11 @@ void SkPDFStream::setData(SkData* data) {
 }
 
 void SkPDFStream::setData(SkStream* stream) {
+    // Code assumes that the stream starts at the beginning and is rewindable.
+    if (stream) {
+        SkASSERT(stream->getPosition() == 0);
+        SkASSERT(stream->rewind());
+    }
     fData.reset(stream);
     SkSafeRef(stream);
 }
