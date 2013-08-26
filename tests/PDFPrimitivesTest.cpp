@@ -250,7 +250,7 @@ static void setup_bitmap(SkBitmap* bitmap, int width, int height) {
 static void TestImage(skiatest::Reporter* reporter, const SkBitmap& bitmap,
                       const char* expected, bool useDCTEncoder) {
     SkISize pageSize = SkISize::Make(bitmap.width(), bitmap.height());
-    SkPDFDevice* dev = new SkPDFDevice(pageSize, pageSize, SkMatrix::I());
+    SkAutoTUnref<SkPDFDevice> dev(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
 
     if (useDCTEncoder) {
         dev->setDCTEncoder(encode_to_dct_stream);
