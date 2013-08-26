@@ -155,7 +155,7 @@ void SkBitmapProcState::platformProcs() {
             fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
         }
         if (c_hqfilter_sse) {
-            if (fShaderProc32 == highQualityFilter) {
+            if (fShaderProc32 == highQualityFilter32) {
                 fShaderProc32 = highQualityFilter_SSE2;
             }
         }
