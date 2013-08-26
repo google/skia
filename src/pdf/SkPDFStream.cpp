@@ -64,7 +64,7 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     this->INHERITED::emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
-    stream->write(fData->getMemoryBase(), fData->getLength());
+    stream->writeStream(fData.get(), fData->getLength());
     stream->writeText("\nendstream");
 }
 
