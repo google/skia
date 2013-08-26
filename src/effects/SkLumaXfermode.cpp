@@ -76,7 +76,8 @@ void SkLumaMaskXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
             if (cov) {
                 unsigned resC = luma_proc(a[i], b[i]);
                 if (cov < 255) {
-                    resC = SkAlphaMulQ(resC, SkAlpha255To256(cov));
+                    resC = SkFastFourByteInterp256(resC, dst[i],
+                                                   SkAlpha255To256(cov));
                 }
                 dst[i] = resC;
             }
