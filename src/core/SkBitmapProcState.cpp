@@ -376,8 +376,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
         SkASSERT(fInvType > SkMatrix::kTranslate_Mask);
 
-        fShaderProc32 = this->chooseBitmapFilterProc();
-        if (!fShaderProc32) {
+        if (!this->setBitmapFilterProcs()) {
             fFilterLevel = SkPaint::kLow_FilterLevel;
         }
     }
@@ -404,7 +403,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     // No need to do this if we're doing HQ sampling; if filter quality is
     // still set to HQ by the time we get here, then we must have installed
-    // the shader proc above and can skip all this.
+    // the shader procs above and can skip all this.
 
     if (fFilterLevel < SkPaint::kHigh_FilterLevel) {
 
