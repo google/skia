@@ -63,7 +63,7 @@ static void normalize(SkScalar v[3]) {
 }
 
 SkEmbossMaskFilter::SkEmbossMaskFilter(SkScalar blurSigma, const Light& light)
-        : fBlurSigma(blurSigma), fLight(light) {
+    : fLight(light), fBlurSigma(blurSigma) {
     normalize(fLight.fDirection);
 }
 
