@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkError.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -550,6 +551,62 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
 }
 
+/**
+ * A canvas that records the number of clip commands.
+ */
+class ClipCountingCanvas : public SkCanvas {
+public:
+    explicit ClipCountingCanvas(SkDevice* device)
+        : SkCanvas(device)
+        , fClipCount(0){
+    }
+
+    virtual bool clipRect(const SkRect& r, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
+        fClipCount += 1;
+        return this->INHERITED::clipRect(r, op, doAA);
+    }
+
+    virtual bool clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
+        fClipCount += 1;
+        return this->INHERITED::clipRRect(rrect, op, doAA);
+    }
+
+    virtual bool clipPath(const SkPath& path, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
+        fClipCount += 1;
+        return this->INHERITED::clipPath(path, op, doAA);
+    }
+
+    unsigned getClipCount() const { return fClipCount; }
+
+private:
+    unsigned fClipCount;
+
+    typedef SkCanvas INHERITED;
+};
+
+static void test_clip_expansion(skiatest::Reporter* reporter) {
+    SkPicture picture;
+    SkCanvas* canvas = picture.beginRecording(10, 10, 0);
+
+    canvas->clipRect(SkRect::MakeEmpty(), SkRegion::kReplace_Op);
+    // The following expanding clip should not be skipped.
+    canvas->clipRect(SkRect::MakeXYWH(4, 4, 3, 3), SkRegion::kUnion_Op);
+    // Draw something so the optimizer doesn't just fold the world.
+    SkPaint p;
+    p.setColor(SK_ColorBLUE);
+    canvas->drawPaint(p);
+
+    SkDevice testDevice(SkBitmap::kNo_Config, 10, 10);
+    ClipCountingCanvas testCanvas(&testDevice);
+    picture.draw(&testCanvas);
+
+    // Both clips should be present on playback.
+    REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
+}
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -562,6 +619,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_bitmap_with_encoded_data(reporter);
     test_clone_empty(reporter);
     test_clip_bound_opt(reporter);
+    test_clip_expansion(reporter);
 }
 
 #include "TestClassDef.h"

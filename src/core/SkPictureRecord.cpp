@@ -715,21 +715,27 @@ void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
         return;
     }
 
+    // The RestoreOffset field is initially filled with a placeholder
+    // value that points to the offset of the previous RestoreOffset
+    // in the current stack level, thus forming a linked list so that
+    // the restore offsets can be filled in when the corresponding
+    // restore command is recorded.
+    int32_t prevOffset = fRestoreOffsetStack.top();
+
     if (regionOpExpands(op)) {
         // Run back through any previous clip ops, and mark their offset to
         // be 0, disabling their ability to trigger a jump-to-restore, otherwise
         // they could hide this clips ability to expand the clip (i.e. go from
         // empty to non-empty).
         fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
+
+        // Reset the pointer back to the previous clip so that subsequent
+        // restores don't overwrite the offsets we just cleared.
+        prevOffset = 0;
     }
 
     size_t offset = fWriter.size();
-    // The RestoreOffset field is initially filled with a placeholder
-    // value that points to the offset of the previous RestoreOffset
-    // in the current stack level, thus forming a linked list so that
-    // the restore offsets can be filled in when the corresponding
-    // restore command is recorded.
-    addInt(fRestoreOffsetStack.top());
+    addInt(prevOffset);
     fRestoreOffsetStack.top() = offset;
 }
 
