@@ -183,7 +183,12 @@ static void get_path_for_sys_fonts(SkString* full, const char name[]) {
 static void insert_into_name_dict(SkTDict<FamilyRecID>& familyNameDict,
                                   const char* name, FamilyRecID familyRecID) {
     SkAutoAsciiToLC tolc(name);
-    familyNameDict.set(tolc.lc(), familyRecID);
+    if (familyNameDict.find(tolc.lc())) {
+        SkDebugf("---- system font attempting to use a the same name [%s] for"
+                 "multiple families. skipping subsequent occurrences", tolc.lc());
+    } else {
+        familyNameDict.set(tolc.lc(), familyRecID);
+    }
 }
 
 // Defined in SkFontHost_FreeType.cpp
