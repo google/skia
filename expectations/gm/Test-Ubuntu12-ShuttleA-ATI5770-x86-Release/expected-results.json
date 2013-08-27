@@ -2790,7 +2790,7 @@
           "bitmap-64bitMD5", 
           5390741294414908657
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "matrixconvolution_565.png": {

@@ -4364,7 +4364,7 @@
           "bitmap-64bitMD5", 
           6060504486714248927
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "lumamode_pdf-poppler.png": {
@@ -4373,7 +4373,7 @@
           "bitmap-64bitMD5", 
           1779317193688678710
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "matrixconvolution_565.png": {
