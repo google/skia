@@ -102,7 +102,7 @@ bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
-    return this->asNewEffect(NULL, NULL, SkIPoint::Make(0, 0));
+    return this->asNewEffect(NULL, NULL, SkMatrix::I());
 }
 
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
@@ -116,7 +116,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     GrTexture* srcTexture = input.getTexture();
     SkIRect bounds;
     src.getBounds(&bounds);
-    if (!this->applyCropRect(&bounds)) {
+    if (!this->applyCropRect(&bounds, ctm)) {
         return false;
     }
     SkRect srcRect = SkRect::Make(bounds);
@@ -135,7 +135,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
     GrContext::AutoClip acs(context, dstRect);
     GrEffectRef* effect;
-    this->asNewEffect(&effect, srcTexture, SkIPoint::Make(bounds.left(), bounds.top()));
+    SkMatrix matrix(ctm);
+    matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+    this->asNewEffect(&effect, srcTexture, matrix);
     SkASSERT(effect);
     SkAutoUnref effectRef(effect);
     GrPaint paint;
@@ -152,8 +154,17 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
 #endif
 }
 
-bool SkImageFilter::applyCropRect(SkIRect* rect) const {
-    return rect->intersect(fCropRect);
+bool SkImageFilter::applyCropRect(SkIRect* rect, const SkMatrix& matrix) const {
+    SkRect cropRect;
+    matrix.mapRect(&cropRect, SkRect::Make(fCropRect));
+    SkIRect cropRectI;
+    cropRect.roundOut(&cropRectI);
+    // If the original crop rect edges were unset, max out the new crop edges
+    if (fCropRect.fLeft == SK_MinS32) cropRectI.fLeft = SK_MinS32;
+    if (fCropRect.fTop == SK_MinS32) cropRectI.fTop = SK_MinS32;
+    if (fCropRect.fRight == SK_MaxS32) cropRectI.fRight = SK_MaxS32;
+    if (fCropRect.fBottom == SK_MaxS32) cropRectI.fBottom = SK_MaxS32;
+    return rect->intersect(cropRectI);
 }
 
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -162,7 +173,7 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkIPoint& offset) const {
+bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkMatrix&) const {
     return false;
 }
 

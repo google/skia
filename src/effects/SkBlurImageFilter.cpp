@@ -158,7 +158,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     SkIRect srcBounds, dstBounds;
     src.getBounds(&srcBounds);
-    if (!this->applyCropRect(&srcBounds)) {
+    if (!this->applyCropRect(&srcBounds, ctm)) {
         return false;
     }
 
@@ -216,7 +216,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     GrTexture* source = input.getTexture();
     SkIRect rect;
     src.getBounds(&rect);
-    if (!this->applyCropRect(&rect)) {
+    if (!this->applyCropRect(&rect, ctm)) {
         return false;
     }
     SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),

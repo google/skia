@@ -1476,7 +1476,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkBitmap filteredBitmap;
 
     if (NULL != filter) {
-        if (filter_texture(this, fContext, texture, filter, w, h, SkMatrix::I(), &filteredBitmap,
+        SkMatrix matrix(*draw.fMatrix);
+        matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
+        if (filter_texture(this, fContext, texture, filter, w, h, matrix, &filteredBitmap,
                            &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1563,7 +1565,9 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
     if (NULL != filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
-        if (filter_texture(this, fContext, devTex, filter, w, h, SkMatrix::I(), &filteredBitmap,
+        SkMatrix matrix(*draw.fMatrix);
+        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+        if (filter_texture(this, fContext, devTex, filter, w, h, matrix, &filteredBitmap,
                            &offset)) {
             devTex = filteredBitmap.getTexture();
             w = filteredBitmap.width();
