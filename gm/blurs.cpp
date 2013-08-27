@@ -60,31 +60,29 @@ protected:
             for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
                 if (gRecs[i].fStyle != NONE) {
                     SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                            SkIntToScalar(20), gRecs[i].fStyle, flags
-                    );
+                            SkIntToScalar(20), gRecs[i].fStyle, flags);
                     paint.setMaskFilter(mf)->unref();
                 } else {
                     paint.setMaskFilter(NULL);
                 }
-                canvas->drawCircle(SkIntToScalar(200 + gRecs[i].fCx*100)
-                                   , SkIntToScalar(200 + gRecs[i].fCy*100)
-                                   , SkIntToScalar(50)
-                                   , paint);
+                canvas->drawCircle(SkIntToScalar(200 + gRecs[i].fCx*100),
+                                   SkIntToScalar(200 + gRecs[i].fCy*100),
+                                   SkIntToScalar(50),
+                                   paint);
             }
             // draw text
             {
                 SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                        SkIntToScalar(4)
-                        , SkBlurMaskFilter::kNormal_BlurStyle
-                        , flags
-                );
+                        SkIntToScalar(4),
+                        SkBlurMaskFilter::kNormal_BlurStyle,
+                        flags);
                 paint.setMaskFilter(mf)->unref();
                 SkScalar x = SkIntToScalar(70);
                 SkScalar y = SkIntToScalar(400);
                 paint.setColor(SK_ColorBLACK);
                 canvas->drawText("Hamburgefons Style", 18, x, y, paint);
-                canvas->drawText("Hamburgefons Style", 18
-                                 , x, y + SkIntToScalar(50), paint);
+                canvas->drawText("Hamburgefons Style", 18,
+                                 x, y + SkIntToScalar(50), paint);
                 paint.setMaskFilter(NULL);
                 paint.setColor(SK_ColorWHITE);
                 x -= SkIntToScalar(2);

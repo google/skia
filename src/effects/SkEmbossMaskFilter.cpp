@@ -26,6 +26,12 @@ static inline int pin2byte(int n) {
 SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
                                              SkScalar ambient, SkScalar specular,
                                              SkScalar blurRadius) {
+    return SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(blurRadius),
+                                          direction, ambient, specular);
+}
+
+SkMaskFilter* SkBlurMaskFilter::CreateEmboss(SkScalar blurSigma, const SkScalar direction[3],
+                                             SkScalar ambient, SkScalar specular) {
     if (direction == NULL) {
         return NULL;
     }
@@ -42,7 +48,7 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
     light.fAmbient = SkToU8(am);
     light.fSpecular = SkToU8(sp);
 
-    return SkNEW_ARGS(SkEmbossMaskFilter, (light, blurRadius));
+    return SkNEW_ARGS(SkEmbossMaskFilter, (blurSigma, light));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,9 +62,16 @@ static void normalize(SkScalar v[3]) {
     }
 }
 
-SkEmbossMaskFilter::SkEmbossMaskFilter(const Light& light, SkScalar blurRadius)
-        : fLight(light), fBlurRadius(blurRadius) {
+SkEmbossMaskFilter::SkEmbossMaskFilter(SkScalar blurSigma, const Light& light)
+        : fBlurSigma(blurSigma), fLight(light) {
     normalize(fLight.fDirection);
+}
+
+SkEmbossMaskFilter::SkEmbossMaskFilter(const Light& light, SkScalar blurRadius)
+        : fLight(light) {
+    normalize(fLight.fDirection);
+
+    fBlurSigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
 }
 
 SkMask::Format SkEmbossMaskFilter::getFormat() const {
@@ -66,17 +79,17 @@ SkMask::Format SkEmbossMaskFilter::getFormat() const {
 }
 
 bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
-                            const SkMatrix& matrix, SkIPoint* margin) const {
-    SkScalar radius = matrix.mapRadius(fBlurRadius);
+                                    const SkMatrix& matrix, SkIPoint* margin) const {
+    SkScalar sigma = matrix.mapRadius(fBlurSigma);
 
-    if (!SkBlurMask::Blur(dst, src, radius, SkBlurMask::kInner_Style,
-                          SkBlurMask::kLow_Quality)) {
+    if (!SkBlurMask::BoxBlur(dst, src, sigma, SkBlurMask::kInner_Style,
+                             SkBlurMask::kLow_Quality)) {
         return false;
     }
 
     dst->fFormat = SkMask::k3D_Format;
     if (margin) {
-        margin->set(SkScalarCeil(radius), SkScalarCeil(radius));
+        margin->set(SkScalarCeil(3*sigma), SkScalarCeil(3*sigma));
     }
 
     if (src.fImage == NULL) {
@@ -121,7 +134,18 @@ SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
     SkASSERT(buffer.getArrayCount() == sizeof(Light));
     buffer.readByteArray(&fLight);
     SkASSERT(fLight.fPad == 0); // for the font-cache lookup to be clean
-    fBlurRadius = buffer.readScalar();
+    fBlurSigma = buffer.readScalar();
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
+    // Fixing this must be done in two stages. When the skps are recaptured in V13,
+    // remove the ConvertRadiusToSigma but retain the absolute value. 
+    // At the same time, switch the code in flatten to write a positive value.
+    // When the skps are captured in V14 the absolute value can be removed.
+    if (fBlurSigma > 0) {
+        fBlurSigma = SkBlurMask::ConvertRadiusToSigma(fBlurSigma);
+    } else {
+        fBlurSigma = -fBlurSigma;
+    }
+#endif
 }
 
 void SkEmbossMaskFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -130,7 +154,7 @@ void SkEmbossMaskFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     Light tmpLight = fLight;
     tmpLight.fPad = 0;    // for the font-cache lookup to be clean
     buffer.writeByteArray(&tmpLight, sizeof(tmpLight));
-    buffer.writeScalar(fBlurRadius);
+    buffer.writeScalar(-fBlurSigma);
 }
 
 #ifdef SK_DEVELOPER
@@ -148,8 +172,8 @@ void SkEmbossMaskFilter::toString(SkString* str) const {
     str->appendf("ambient: %d specular: %d ",
         fLight.fAmbient, fLight.fSpecular);
 
-    str->append("blurRadius: ");
-    str->appendScalar(fBlurRadius);
+    str->append("blurSigma: ");
+    str->appendScalar(fBlurSigma);
     str->append(")");
 }
 #endif

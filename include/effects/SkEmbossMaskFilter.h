@@ -23,6 +23,9 @@ public:
         uint8_t     fSpecular;      // exponent, 4.4 right now
     };
 
+    SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
+
+    // DEPRECATED - radius-based
     SkEmbossMaskFilter(const Light& light, SkScalar blurRadius);
 
     // overrides from SkMaskFilter
@@ -41,7 +44,7 @@ protected:
 
 private:
     Light       fLight;
-    SkScalar    fBlurRadius;
+    SkScalar    fBlurSigma;
 
     typedef SkMaskFilter INHERITED;
 };

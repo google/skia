@@ -33,27 +33,39 @@ public:
         kAll_BlurFlag = 0x03
     };
 
-    /** Create a blur maskfilter.
-        @param radius   The radius to extend the blur from the original mask. Must be > 0.
-        @param style    The BlurStyle to use
-        @param flags    Flags to use - defaults to none
-        @return The new blur maskfilter
-    */
+    /**
+     *  DEPRECATED - radius-based
+     */
     static SkMaskFilter* Create(SkScalar radius, BlurStyle style,
                                 uint32_t flags = kNone_BlurFlag);
 
+    /** Create a blur maskfilter.
+        @param style    The BlurStyle to use
+        @param sigma    Standard deviation of the Gaussian blur to apply. Must be > 0.
+        @param flags    Flags to use - defaults to none
+        @return The new blur maskfilter
+    */
+    static SkMaskFilter* Create(BlurStyle style, SkScalar sigma,
+                                uint32_t flags = kNone_BlurFlag);
+
     /** Create an emboss maskfilter
+        @param blurSigma    standard deviation of the Gaussian blur to apply 
+                            before applying lighting (e.g. 3)
         @param direction    array of 3 scalars [x, y, z] specifying the direction of the light source
         @param ambient      0...1 amount of ambient light
         @param specular     coefficient for specular highlights (e.g. 8)
-        @param blurRadius   amount to blur before applying lighting (e.g. 3)
         @return the emboss maskfilter
     */
-    static SkMaskFilter* CreateEmboss(  const SkScalar direction[3],
-                                        SkScalar ambient, SkScalar specular,
-                                        SkScalar blurRadius);
+    static SkMaskFilter* CreateEmboss(SkScalar blurSigma, const SkScalar direction[3],
+                                      SkScalar ambient, SkScalar specular);
+
+    // DEPRECATED - radius-based
+    static SkMaskFilter* CreateEmboss(const SkScalar direction[3],
+                                      SkScalar ambient, SkScalar specular,
+                                      SkScalar blurRadius);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+
 private:
     SkBlurMaskFilter(); // can't be instantiated
 };

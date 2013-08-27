@@ -71,12 +71,12 @@ class BlurRectGM : public skiagm::GM {
       SkAlpha   fAlpha;
 public:
     BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha,
-               SkBlurMaskFilter::BlurStyle bs) :
-        fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2, bs,
-                    SkBlurMaskFilter::kHighQuality_BlurFlag))
-                  , fName(name)
-                  , fPProc(pproc)
-                  , fAlpha(SkToU8(alpha)) {
+               SkBlurMaskFilter::BlurStyle bs) 
+               : fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2, bs,
+                             SkBlurMaskFilter::kHighQuality_BlurFlag))
+               , fName(name)
+               , fPProc(pproc)
+               , fAlpha(SkToU8(alpha)) {
         fName.appendf("_%s", gBlurStyle2Name[bs]);
     }
 
@@ -208,13 +208,12 @@ private:
 
 class BlurRectFastGM: public BlurRectCompareGM {
 public:
-    BlurRectFastGM(const char name[], unsigned int rect_width,
-                   unsigned int rect_height, float blur_radius,
+    BlurRectFastGM(const char name[], unsigned int rectWidth,
+                   unsigned int rectHeight, float blurRadius,
                    SkBlurMask::Style style) :
-        INHERITED(name, rect_width, rect_height, blur_radius, style)
-        {
-
+        INHERITED(name, rectWidth, rectHeight, blurRadius, style) {
         }
+
 protected:
     virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
         return SkBlurMask::BlurRect(m, r, this->radius(), this->style());

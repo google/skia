@@ -29,27 +29,37 @@ public:
         kHigh_Quality   //!< three pass box blur (similar to gaussian)
     };
 
-    static bool BlurRect(SkMask *dst, const SkRect &src,
-                         SkScalar radius, Style style,
+    static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src,
+                         Style style,
                          SkIPoint *margin = NULL,
-                         SkMask::CreateMode createMode=SkMask::kComputeBoundsAndRenderImage_CreateMode);
-    static bool Blur(SkMask* dst, const SkMask& src,
-                     SkScalar radius, Style style, Quality quality,
-                     SkIPoint* margin = NULL);
+                         SkMask::CreateMode createMode =
+                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
+    static bool BoxBlur(SkMask* dst, const SkMask& src,
+                        SkScalar sigma, Style style, Quality quality,
+                        SkIPoint* margin = NULL);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
+    static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
+                                Style style,
+                                SkIPoint* margin = NULL);
 
+    // DEPRECATED - radius-based
+    static bool BlurRect(SkMask *dst, const SkRect &src,
+                         SkScalar radius, Style style,
+                         SkIPoint *margin = NULL,
+                         SkMask::CreateMode createMode = 
+                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
+    // DEPRECATED - radius-based
+    static bool Blur(SkMask* dst, const SkMask& src,
+                     SkScalar radius, Style style, Quality quality,
+                     SkIPoint* margin = NULL);
+    // DEPRECATED - radius-based
     static bool BlurGroundTruth(SkMask* dst, const SkMask& src,
-                           SkScalar provided_radius, Style style,
-                           SkIPoint* margin = NULL);
+                                SkScalar radius, Style style,
+                                SkIPoint* margin = NULL);
 
-    // scale factor for the blur radius to match the behavior of the all existing blur
-    // code (both on the CPU and the GPU).  This magic constant is  1/sqrt(3).
-    // TODO: get rid of this fudge factor and move any required fudging up into
-    // the calling library
-    static const SkScalar kBlurRadiusFudgeFactor;
-
+    static SkScalar ConvertRadiusToSigma(SkScalar radius);
 };
 
 #endif
