@@ -2777,6 +2777,22 @@
       ], 
       "ignore-failure": false
     }, 
+    "lumamode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          35341348457809035
+        ]
+      ]
+    }, 
+    "lumamode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3752989277991158947
+        ]
+      ]
+    }, 
     "matrixconvolution_565.png": {
       "allowed-digests": [
         [

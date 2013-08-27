@@ -2742,6 +2742,39 @@
       ], 
       "ignore-failure": false
     }, 
+    "lumamode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7384879675028140231
+        ]
+      ]
+    }, 
+    "lumamode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12788881843097605555
+        ]
+      ]
+    }, 
+    "lumamode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8651505370041252446
+        ]
+      ]
+    }, 
+    "lumamode_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4995743986536267719
+        ]
+      ],
+      "ignore-failure": true
+    }, 
     "matrixconvolution_565.png": {
       "allowed-digests": [
         [
