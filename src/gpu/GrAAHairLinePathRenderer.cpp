@@ -29,15 +29,20 @@ namespace {
 static const int kVertsPerQuad = 5;
 static const int kIdxsPerQuad = 9;
 
-static const int kVertsPerLineSeg = 4;
-static const int kIdxsPerLineSeg = 6;
+static const int kVertsPerLineSeg = 6;
+static const int kIdxsPerLineSeg = 12;
 
 static const int kNumQuadsInIdxBuffer = 256;
 static const size_t kQuadIdxSBufize = kIdxsPerQuad *
                                       sizeof(uint16_t) *
                                       kNumQuadsInIdxBuffer;
 
-bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
+static const int kNumLineSegsInIdxBuffer = 256;
+static const size_t kLineSegIdxSBufize = kIdxsPerLineSeg *
+                                         sizeof(uint16_t) *
+                                         kNumLineSegsInIdxBuffer;
+
+static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
     uint16_t* data = (uint16_t*) qIdxBuffer->lock();
     bool tempData = NULL == data;
     if (tempData) {
@@ -78,22 +83,66 @@ bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
         return true;
     }
 }
+
+static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
+    uint16_t* data = (uint16_t*) lIdxBuffer->lock();
+    bool tempData = NULL == data;
+    if (tempData) {
+        data = SkNEW_ARRAY(uint16_t, kNumLineSegsInIdxBuffer * kIdxsPerLineSeg);
+    }
+    for (int i = 0; i < kNumLineSegsInIdxBuffer; ++i) {
+        // Each line segment is rendered as two quads, with alpha = 1 along the
+        // spine of the segment, and alpha = 0 along the outer edges, represented
+        // horizontally (i.e., the line equation is t*(p1-p0) + p0)
+        //
+        // p4                  p5
+        // p0                  p1
+        // p2                  p3
+        //
+        // Each is drawn as four triangles specified by these 12 indices:
+        int baseIdx = i * kIdxsPerLineSeg;
+        uint16_t baseVert = (uint16_t)(i * kVertsPerLineSeg);
+        data[0 + baseIdx] = baseVert + 0; // p0
+        data[1 + baseIdx] = baseVert + 1; // p1
+        data[2 + baseIdx] = baseVert + 2; // p2
+        
+        data[3 + baseIdx] = baseVert + 2; // p2
+        data[4 + baseIdx] = baseVert + 1; // p1
+        data[5 + baseIdx] = baseVert + 3; // p3
+        
+        data[6 + baseIdx] = baseVert + 0; // p0
+        data[7 + baseIdx] = baseVert + 5; // p5
+        data[8 + baseIdx] = baseVert + 1; // p1
+        
+        data[9 + baseIdx] = baseVert + 0; // p0
+        data[10+ baseIdx] = baseVert + 4; // p4
+        data[11+ baseIdx] = baseVert + 5; // p5
+    }
+    if (tempData) {
+        bool ret = lIdxBuffer->updateData(data, kLineSegIdxSBufize);
+        delete[] data;
+        return ret;
+    } else {
+        lIdxBuffer->unlock();
+        return true;
+    }
+}
 }
 
 GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
-    const GrIndexBuffer* lIdxBuffer = context->getQuadIndexBuffer();
-    if (NULL == lIdxBuffer) {
-        return NULL;
-    }
     GrGpu* gpu = context->getGpu();
     GrIndexBuffer* qIdxBuf = gpu->createIndexBuffer(kQuadIdxSBufize, false);
     SkAutoTUnref<GrIndexBuffer> qIdxBuffer(qIdxBuf);
-    if (NULL == qIdxBuf ||
-        !push_quad_index_data(qIdxBuf)) {
+    if (NULL == qIdxBuf || !push_quad_index_data(qIdxBuf)) {
+        return NULL;
+    }
+    GrIndexBuffer* lIdxBuf = gpu->createIndexBuffer(kLineSegIdxSBufize, false);
+    SkAutoTUnref<GrIndexBuffer> lIdxBuffer(lIdxBuf);
+    if (NULL == lIdxBuf || !push_line_index_data(lIdxBuf)) {
         return NULL;
     }
     return SkNEW_ARGS(GrAAHairLinePathRenderer,
-                      (context, lIdxBuffer, qIdxBuf));
+                      (context, lIdxBuf, qIdxBuf));
 }
 
 GrAAHairLinePathRenderer::GrAAHairLinePathRenderer(
@@ -113,10 +162,7 @@ GrAAHairLinePathRenderer::~GrAAHairLinePathRenderer() {
 
 namespace {
 
-typedef SkTArray<SkPoint, true> PtArray;
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
-typedef SkTArray<int, true> IntArray;
-typedef SkTArray<float, true> FloatArray;
 
 // Takes 178th time of logf on Z600 / VC2010
 int get_float_exp(float x) {
@@ -266,11 +312,11 @@ int num_quad_subdivs(const SkPoint p[3]) {
 int generate_lines_and_quads(const SkPath& path,
                              const SkMatrix& m,
                              const SkIRect& devClipBounds,
-                             PtArray* lines,
-                             PtArray* quads,
-                             PtArray* conics,
-                             IntArray* quadSubdivCnts,
-                             FloatArray* conicWeights) {
+                             GrAAHairLinePathRenderer::PtArray* lines,
+                             GrAAHairLinePathRenderer::PtArray* quads,
+                             GrAAHairLinePathRenderer::PtArray* conics,
+                             GrAAHairLinePathRenderer::IntArray* quadSubdivCnts,
+                             GrAAHairLinePathRenderer::FloatArray* conicWeights) {
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
@@ -432,14 +478,14 @@ int generate_lines_and_quads(const SkPath& path,
     }
 }
 
-struct Vertex {
+struct LineVertex {
+    GrPoint fPos;
+    GrColor fCoverage;
+};
+        
+struct BezierVertex {
     GrPoint fPos;
     union {
-        struct {
-            SkScalar fA;
-            SkScalar fB;
-            SkScalar fC;
-        } fLine;
         struct {
             SkScalar fK;
             SkScalar fL;
@@ -452,7 +498,7 @@ struct Vertex {
     };
 };
 
-GR_STATIC_ASSERT(sizeof(Vertex) == 3 * sizeof(GrPoint));
+GR_STATIC_ASSERT(sizeof(BezierVertex) == 3 * sizeof(GrPoint));
 
 void intersect_lines(const SkPoint& ptA, const SkVector& normA,
                      const SkPoint& ptB, const SkVector& normB,
@@ -472,14 +518,14 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     result->fY = SkScalarMul(result->fY, wInv);
 }
 
-void set_uv_quad(const SkPoint qpts[3], Vertex verts[kVertsPerQuad]) {
+void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kVertsPerQuad]) {
     // this should be in the src space, not dev coords, when we have perspective
     GrPathUtils::QuadUVMatrix DevToUV(qpts);
-    DevToUV.apply<kVertsPerQuad, sizeof(Vertex), sizeof(GrPoint)>(verts);
+    DevToUV.apply<kVertsPerQuad, sizeof(BezierVertex), sizeof(GrPoint)>(verts);
 }
 
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
-                const SkMatrix* toSrc, Vertex verts[kVertsPerQuad],
+                const SkMatrix* toSrc, BezierVertex verts[kVertsPerQuad],
                 SkRect* devBounds) {
     GrAssert(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
@@ -504,11 +550,11 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     //
     // edges a0->b0 and b0->c0 are parallel to original edges a->b and b->c,
     // respectively.
-    Vertex& a0 = verts[0];
-    Vertex& a1 = verts[1];
-    Vertex& b0 = verts[2];
-    Vertex& c0 = verts[3];
-    Vertex& c1 = verts[4];
+    BezierVertex& a0 = verts[0];
+    BezierVertex& a1 = verts[1];
+    BezierVertex& b0 = verts[2];
+    BezierVertex& c0 = verts[3];
+    BezierVertex& c1 = verts[4];
 
     SkVector ab = b;
     ab -= a;
@@ -550,7 +596,7 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     devBounds->growToInclude(b0.fPos.fX, b0.fPos.fY);
 
     if (toSrc) {
-        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
+        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(BezierVertex), kVertsPerQuad);
     }
 }
 
@@ -603,7 +649,7 @@ void calc_conic_klm(const SkPoint p[3], const SkScalar weight,
 // f(x, y, w) = f(P) = K^2 - LM
 // K = dot(k, P), L = dot(l, P), M = dot(m, P)
 // k, l, m are calculated in function calc_conic_klm
-void set_conic_coeffs(const SkPoint p[3], Vertex verts[kVertsPerQuad], const float weight) {
+void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kVertsPerQuad], const float weight) {
     SkScalar k[3];
     SkScalar l[3];
     SkScalar m[3];
@@ -622,7 +668,7 @@ void add_conics(const SkPoint p[3],
                 float weight,
                 const SkMatrix* toDevice,
                 const SkMatrix* toSrc,
-                Vertex** vert,
+                BezierVertex** vert,
                 SkRect* devBounds) {
     bloat_quad(p, toDevice, toSrc, *vert, devBounds);
     set_conic_coeffs(p, *vert, weight);
@@ -633,7 +679,7 @@ void add_quads(const SkPoint p[3],
                int subdiv,
                const SkMatrix* toDevice,
                const SkMatrix* toSrc,
-               Vertex** vert,
+               BezierVertex** vert,
                SkRect* devBounds) {
     GrAssert(subdiv >= 0);
     if (subdiv) {
@@ -651,7 +697,8 @@ void add_quads(const SkPoint p[3],
 void add_line(const SkPoint p[2],
               int rtHeight,
               const SkMatrix* toSrc,
-              Vertex** vert) {
+              GrColor coverage,
+              LineVertex** vert) {
     const SkPoint& a = p[0];
     const SkPoint& b = p[1];
 
@@ -661,29 +708,28 @@ void add_line(const SkPoint p[2],
     if (orthVec.setLength(SK_Scalar1)) {
         orthVec.setOrthog(orthVec);
 
-        SkScalar lineC = -(a.dot(orthVec));
         for (int i = 0; i < kVertsPerLineSeg; ++i) {
-            (*vert)[i].fPos = (i < 2) ? a : b;
-            if (0 == i || 3 == i) {
-                (*vert)[i].fPos -= orthVec;
-            } else {
+            (*vert)[i].fPos = (i & 0x1) ? b : a;
+            if (i & 0x2) {
                 (*vert)[i].fPos += orthVec;
+                (*vert)[i].fCoverage = 0;
+            } else if (i & 0x4) {
+                (*vert)[i].fPos -= orthVec;
+                (*vert)[i].fCoverage = 0;
+            } else {
+                (*vert)[i].fCoverage = coverage;
             }
-            (*vert)[i].fLine.fA = orthVec.fX;
-            (*vert)[i].fLine.fB = orthVec.fY;
-            (*vert)[i].fLine.fC = lineC;
         }
         if (NULL != toSrc) {
             toSrc->mapPointsWithStride(&(*vert)->fPos,
-                                       sizeof(Vertex),
+                                       sizeof(LineVertex),
                                        kVertsPerLineSeg);
         }
     } else {
         // just make it degenerate and likely offscreen
-        (*vert)[0].fPos.set(SK_ScalarMax, SK_ScalarMax);
-        (*vert)[1].fPos.set(SK_ScalarMax, SK_ScalarMax);
-        (*vert)[2].fPos.set(SK_ScalarMax, SK_ScalarMax);
-        (*vert)[3].fPos.set(SK_ScalarMax, SK_ScalarMax);
+        for (int i = 0; i < kVertsPerLineSeg; ++i) {
+            (*vert)[i].fPos.set(SK_ScalarMax, SK_ScalarMax);
+        }
     }
 
     *vert += kVertsPerLineSeg;
@@ -934,174 +980,117 @@ GrEffectRef* HairQuadEdgeEffect::TestCreate(SkMWCRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * The output of this effect is a 1-pixel wide line.
- * Input is 2D implicit device coord line eq (a*x + b*y +c = 0). 4th component unused.
- */
-class HairLineEdgeEffect : public GrEffect {
-public:
-
-    static GrEffectRef* Create() {
-        GR_CREATE_STATIC_EFFECT(gHairLineEdge, HairLineEdgeEffect, ());
-        gHairLineEdge->ref();
-        return gHairLineEdge;
-    }
-
-    virtual ~HairLineEdgeEffect() {}
-
-    static const char* Name() { return "HairLineEdge"; }
-
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
-    }
-
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendEffectFactory<HairLineEdgeEffect>::getInstance();
-    }
-
-    class GLEffect : public GrGLEffect {
-    public:
-        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
-            : INHERITED (factory) {}
-
-        virtual void emitCode(GrGLShaderBuilder* builder,
-                              const GrDrawEffect& drawEffect,
-                              EffectKey key,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TextureSamplerArray& samplers) SK_OVERRIDE {
-            const char *vsName, *fsName;
-            const SkString* attrName =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
-
-            builder->addVarying(kVec4f_GrSLType, "HairLineEdge", &vsName, &fsName);
-
-            builder->fsCodeAppendf("\t\tedgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n",
-                                   builder->fragmentPosition(), fsName);
-            builder->fsCodeAppendf("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-
-            SkString modulate;
-            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
-
-            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
-        }
-
-        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            return 0x0;
-        }
-
-        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
-
-    private:
-        typedef GrGLEffect INHERITED;
-    };
-
-private:
-    HairLineEdgeEffect() {
-        this->addVertexAttrib(kVec4f_GrSLType);
-        this->setWillReadFragmentPosition();
-    }
-
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        return true;
-    }
-
-    GR_DECLARE_EFFECT_TEST;
-
-    typedef GrEffect INHERITED;
-};
-
-GR_DEFINE_EFFECT_TEST(HairLineEdgeEffect);
-
-GrEffectRef* HairLineEdgeEffect::TestCreate(SkMWCRandom* random,
-                                            GrContext*,
-                                            const GrDrawTargetCaps& caps,
-                                            GrTexture*[]) {
-    return HairLineEdgeEffect::Create();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 namespace {
 
 // position + edge
-extern const GrVertexAttrib gHairlineAttribs[] = {
+extern const GrVertexAttrib gHairlineBezierAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
 };
+
+// position + coverage
+extern const GrVertexAttrib gHairlineLineAttribs[] = {
+    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kCoverage_GrVertexAttribBinding},
 };
 
-bool GrAAHairLinePathRenderer::createGeom(
+};
+
+bool GrAAHairLinePathRenderer::createLineGeom(
             const SkPath& path,
             GrDrawTarget* target,
-            int* lineCnt,
-            int* quadCnt,
-            int* conicCnt,
+            const PtArray& lines,
+            int lineCnt,
             GrDrawTarget::AutoReleaseGeometry* arg,
             SkRect* devBounds) {
     GrDrawState* drawState = target->drawState();
     int rtHeight = drawState->getRenderTarget()->height();
 
-    SkIRect devClipBounds;
-    target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
+    const SkMatrix& viewM = drawState->getViewMatrix();
 
-    SkMatrix viewM = drawState->getViewMatrix();
+    *devBounds = path.getBounds();
+    viewM.mapRect(devBounds);
+    devBounds->outset(SK_Scalar1, SK_Scalar1);
 
+    int vertCnt = kVertsPerLineSeg * lineCnt;
+
+    target->drawState()->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
+    GrAssert(sizeof(LineVertex) == target->getDrawState().getVertexSize());
+
+    if (!arg->set(target, vertCnt, 0)) {
+        return false;
+    }
+
+    LineVertex* verts = reinterpret_cast<LineVertex*>(arg->vertices());
+
+    const SkMatrix* toSrc = NULL;
+    SkMatrix ivm;
+
+    if (viewM.hasPerspective()) {
+        if (viewM.invert(&ivm)) {
+            toSrc = &ivm;
+        }
+    }
+
+    for (int i = 0; i < lineCnt; ++i) {
+        add_line(&lines[2*i], rtHeight, toSrc, drawState->getCoverage(), &verts);
+    }
+
+    return true;
+}
+
+bool GrAAHairLinePathRenderer::createBezierGeom(
+                                          const SkPath& path,
+                                          GrDrawTarget* target,
+                                          const PtArray& quads,
+                                          int quadCnt,
+                                          const PtArray& conics,
+                                          int conicCnt,
+                                          const IntArray& qSubdivs,
+                                          const FloatArray& cWeights,
+                                          GrDrawTarget::AutoReleaseGeometry* arg,
+                                          SkRect* devBounds) {
+    GrDrawState* drawState = target->drawState();
+    
+    const SkMatrix& viewM = drawState->getViewMatrix();
+    
     // All the vertices that we compute are within 1 of path control points with the exception of
     // one of the bounding vertices for each quad. The add_quads() function will update the bounds
     // for each quad added.
     *devBounds = path.getBounds();
     viewM.mapRect(devBounds);
     devBounds->outset(SK_Scalar1, SK_Scalar1);
-
-    PREALLOC_PTARRAY(128) lines;
-    PREALLOC_PTARRAY(128) quads;
-    PREALLOC_PTARRAY(128) conics;
-    IntArray qSubdivs;
-    FloatArray cWeights;
-    *quadCnt = generate_lines_and_quads(path, viewM, devClipBounds,
-                                        &lines, &quads, &conics, &qSubdivs, &cWeights);
-
-    *lineCnt = lines.count() / 2;
-    *conicCnt = conics.count() / 3;
-    int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt +
-        kVertsPerQuad * *conicCnt;
-
-    target->drawState()->setVertexAttribs<gHairlineAttribs>(SK_ARRAY_COUNT(gHairlineAttribs));
-    GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
-
+    
+    int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
+    
+    target->drawState()->setVertexAttribs<gHairlineBezierAttribs>(SK_ARRAY_COUNT(gHairlineBezierAttribs));
+    GrAssert(sizeof(BezierVertex) == target->getDrawState().getVertexSize());
+    
     if (!arg->set(target, vertCnt, 0)) {
         return false;
     }
-
-    Vertex* verts = reinterpret_cast<Vertex*>(arg->vertices());
-
+    
+    BezierVertex* verts = reinterpret_cast<BezierVertex*>(arg->vertices());
+    
     const SkMatrix* toDevice = NULL;
     const SkMatrix* toSrc = NULL;
     SkMatrix ivm;
-
+    
     if (viewM.hasPerspective()) {
         if (viewM.invert(&ivm)) {
             toDevice = &viewM;
             toSrc = &ivm;
         }
     }
-
-    for (int i = 0; i < *lineCnt; ++i) {
-        add_line(&lines[2*i], rtHeight, toSrc, &verts);
-    }
-
+    
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
         GrAssert(qSubdivs[i] >= 0);
         add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts, devBounds);
     }
-
+    
     // Start Conics
-    for (int i = 0; i < *conicCnt; ++i) {
+    for (int i = 0; i < conicCnt; ++i) {
         add_conics(&conics[3*i], cWeights[i], toDevice, toSrc, &verts, devBounds);
     }
     return true;
@@ -1122,54 +1111,14 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
     return false;
 }
 
-bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
-                                          const SkStrokeRec&,
-                                          GrDrawTarget* target,
-                                          bool antiAlias) {
-
-    int lineCnt;
-    int quadCnt;
-    int conicCnt;
-    GrDrawTarget::AutoReleaseGeometry arg;
-    SkRect devBounds;
-
-    if (!this->createGeom(path,
-                          target,
-                          &lineCnt,
-                          &quadCnt,
-                          &conicCnt,
-                          &arg,
-                          &devBounds)) {
-        return false;
-    }
-
-    GrDrawTarget::AutoStateRestore asr;
-
-    // createGeom transforms the geometry to device space when the matrix does not have
-    // perspective.
-    if (target->getDrawState().getViewMatrix().hasPerspective()) {
-        asr.set(target, GrDrawTarget::kPreserve_ASRInit);
-    } else if (!asr.setIdentity(target, GrDrawTarget::kPreserve_ASRInit)) {
-        return false;
-    }
-    GrDrawState* drawState = target->drawState();
-
-    // TODO: See whether rendering lines as degenerate quads improves perf
-    // when we have a mix
-
-    static const int kEdgeAttrIndex = 1;
-
-    GrEffectRef* hairLineEffect = HairLineEdgeEffect::Create();
-    GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
-    GrEffectRef* hairConicEffect = HairConicEdgeEffect::Create();
-
-    // Check devBounds
-#if GR_DEBUG
+template <class VertexType>
+bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertices, int vCount)
+{
     SkRect tolDevBounds = devBounds;
     tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
     SkRect actualBounds;
-    Vertex* verts = reinterpret_cast<Vertex*>(arg.vertices());
-    int vCount = kVertsPerLineSeg * lineCnt + kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
+    
+    VertexType* verts = reinterpret_cast<VertexType*>(vertices);
     bool first = true;
     for (int i = 0; i < vCount; ++i) {
         SkPoint pos = verts[i].fPos;
@@ -1186,61 +1135,153 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         }
     }
     if (!first) {
-        GrAssert(tolDevBounds.contains(actualBounds));
+        return tolDevBounds.contains(actualBounds);
     }
-#endif
+    
+    return true;
+}
 
+bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
+                                          const SkStrokeRec&,
+                                          GrDrawTarget* target,
+                                          bool antiAlias) {
+    
+    GrDrawState* drawState = target->drawState();
+    
+    SkIRect devClipBounds;
+    target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
+    
+    int lineCnt;
+    int quadCnt;
+    int conicCnt;
+    PREALLOC_PTARRAY(128) lines;
+    PREALLOC_PTARRAY(128) quads;
+    PREALLOC_PTARRAY(128) conics;
+    IntArray qSubdivs;
+    FloatArray cWeights;
+    quadCnt = generate_lines_and_quads(path, drawState->getViewMatrix(), devClipBounds,
+                                       &lines, &quads, &conics, &qSubdivs, &cWeights);
+    lineCnt = lines.count() / 2;
+    conicCnt = conics.count() / 3;
+    
+    // do lines first
     {
-        GrDrawState::AutoRestoreEffects are(drawState);
-        target->setIndexSourceToBuffer(fLinesIndexBuffer);
-        int lines = 0;
-        int nBufLines = fLinesIndexBuffer->maxQuads();
-        drawState->addCoverageEffect(hairLineEffect, kEdgeAttrIndex)->unref();
-        while (lines < lineCnt) {
-            int n = GrMin(lineCnt - lines, nBufLines);
-            target->drawIndexed(kTriangles_GrPrimitiveType,
-                                kVertsPerLineSeg*lines,     // startV
-                                0,                          // startI
-                                kVertsPerLineSeg*n,         // vCount
-                                kIdxsPerLineSeg*n,
-                                &devBounds);                // iCount
-            lines += n;
+        GrDrawTarget::AutoReleaseGeometry arg;
+        SkRect devBounds;
+
+        if (!this->createLineGeom(path,
+                                  target,
+                                  lines,
+                                  lineCnt,
+                                  &arg,
+                                  &devBounds)) {
+            return false;
+        }
+
+        GrDrawTarget::AutoStateRestore asr;
+
+        // createGeom transforms the geometry to device space when the matrix does not have
+        // perspective.
+        if (target->getDrawState().getViewMatrix().hasPerspective()) {
+            asr.set(target, GrDrawTarget::kPreserve_ASRInit);
+        } else if (!asr.setIdentity(target, GrDrawTarget::kPreserve_ASRInit)) {
+            return false;
+        }
+        GrDrawState* drawState = target->drawState();
+
+        // Check devBounds
+        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
+                                          kVertsPerLineSeg * lineCnt));
+
+        {
+            GrDrawState::AutoRestoreEffects are(drawState);
+            target->setIndexSourceToBuffer(fLinesIndexBuffer);
+            int lines = 0;
+            while (lines < lineCnt) {
+                int n = GrMin(lineCnt - lines, kNumLineSegsInIdxBuffer);
+                target->drawIndexed(kTriangles_GrPrimitiveType,
+                                    kVertsPerLineSeg*lines,     // startV
+                                    0,                          // startI
+                                    kVertsPerLineSeg*n,         // vCount
+                                    kIdxsPerLineSeg*n,
+                                    &devBounds);                // iCount
+                lines += n;
+            }
         }
     }
-
+    
+    // then quadratics/conics
     {
-        GrDrawState::AutoRestoreEffects are(drawState);
-        target->setIndexSourceToBuffer(fQuadsIndexBuffer);
-        int quads = 0;
-        drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
-        while (quads < quadCnt) {
-            int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
-            target->drawIndexed(kTriangles_GrPrimitiveType,
-                                kVertsPerLineSeg * lineCnt + kVertsPerQuad*quads,  // startV
-                                0,                                                 // startI
-                                kVertsPerQuad*n,                                   // vCount
-                                kIdxsPerQuad*n,                                    // iCount
-                                &devBounds);
-            quads += n;
+        GrDrawTarget::AutoReleaseGeometry arg;
+        SkRect devBounds;
+        
+        if (!this->createBezierGeom(path,
+                                    target,
+                                    quads,
+                                    quadCnt,
+                                    conics,
+                                    conicCnt,
+                                    qSubdivs,
+                                    cWeights,
+                                    &arg,
+                                    &devBounds)) {
+            return false;
+        }
+        
+        GrDrawTarget::AutoStateRestore asr;
+        
+        // createGeom transforms the geometry to device space when the matrix does not have
+        // perspective.
+        if (target->getDrawState().getViewMatrix().hasPerspective()) {
+            asr.set(target, GrDrawTarget::kPreserve_ASRInit);
+        } else if (!asr.setIdentity(target, GrDrawTarget::kPreserve_ASRInit)) {
+            return false;
+        }
+        GrDrawState* drawState = target->drawState();
+
+        static const int kEdgeAttrIndex = 1;
+        
+        GrEffectRef* hairQuadEffect = HairQuadEdgeEffect::Create();
+        GrEffectRef* hairConicEffect = HairConicEdgeEffect::Create();
+        
+        // Check devBounds
+        SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
+                                            kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt));
+        
+        {
+            GrDrawState::AutoRestoreEffects are(drawState);
+            target->setIndexSourceToBuffer(fQuadsIndexBuffer);
+            int quads = 0;
+            drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
+            while (quads < quadCnt) {
+                int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
+                target->drawIndexed(kTriangles_GrPrimitiveType,
+                                    kVertsPerQuad*quads,               // startV
+                                    0,                                 // startI
+                                    kVertsPerQuad*n,                   // vCount
+                                    kIdxsPerQuad*n,                    // iCount
+                                    &devBounds);
+                quads += n;
+            }
+        }
+        
+        {
+            GrDrawState::AutoRestoreEffects are(drawState);
+            int conics = 0;
+            drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
+            while (conics < conicCnt) {
+                int n = GrMin(conicCnt - conics, kNumQuadsInIdxBuffer);
+                target->drawIndexed(kTriangles_GrPrimitiveType,
+                                    kVertsPerQuad*(quadCnt + conics),  // startV
+                                    0,                                 // startI
+                                    kVertsPerQuad*n,                   // vCount
+                                    kIdxsPerQuad*n,                    // iCount
+                                    &devBounds);
+                conics += n;
+            }
         }
     }
-
-    {
-        GrDrawState::AutoRestoreEffects are(drawState);
-        int conics = 0;
-        drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
-        while (conics < conicCnt) {
-            int n = GrMin(conicCnt - conics, kNumQuadsInIdxBuffer);
-            target->drawIndexed(kTriangles_GrPrimitiveType,
-                                kVertsPerLineSeg*lineCnt +
-                                kVertsPerQuad*(quadCnt + conics),  // startV
-                                0,                                 // startI
-                                kVertsPerQuad*n,                   // vCount
-                                kIdxsPerQuad*n,                    // iCount
-                                &devBounds);
-            conics += n;
-        }
-    }
+    
     target->resetIndexSource();
 
     return true;
