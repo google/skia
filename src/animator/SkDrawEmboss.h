@@ -15,10 +15,14 @@
 class SkDrawEmboss : public SkDrawMaskFilter {
     DECLARE_DRAW_MEMBER_INFO(Emboss);
     SkDrawEmboss();
-    virtual SkMaskFilter* getMaskFilter();
+    virtual SkMaskFilter* getMaskFilter() SK_OVERRIDE;
 protected:
-    SkTDScalarArray direction;
-    SkScalar radius, ambient, specular;
+    SkTDScalarArray fDirection;
+    SkScalar        fSigma;
+    SkScalar        fAmbient;
+    SkScalar        fSpecular;
+
+    typedef SkDrawMaskFilter INHERITED;
 };
 
 #endif // SkDrawEmboss_DEFINED

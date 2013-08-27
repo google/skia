@@ -50,33 +50,33 @@ protected:
                               SkIntToScalar(10), 0xFF0000FF,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                              SkBlurDrawLooper::kHighQuality_BlurFlag );
+                              SkBlurDrawLooper::kHighQuality_BlurFlag);
     SkAutoUnref aurL0(shadowLoopers[0]);
     shadowLoopers[1] =
         new SkBlurDrawLooper (SkIntToScalar(10), SkIntToScalar(5),
                               SkIntToScalar(10), 0xFF0000FF,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                              SkBlurDrawLooper::kOverrideColor_BlurFlag );
+                              SkBlurDrawLooper::kOverrideColor_BlurFlag);
     SkAutoUnref aurL1(shadowLoopers[1]);
     shadowLoopers[2] =
         new SkBlurDrawLooper (SkIntToScalar(5), SkIntToScalar(5),
                               SkIntToScalar(10), 0xFF000000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                              SkBlurDrawLooper::kHighQuality_BlurFlag  );
+                              SkBlurDrawLooper::kHighQuality_BlurFlag);
     SkAutoUnref aurL2(shadowLoopers[2]);
     shadowLoopers[3] =
         new SkBlurDrawLooper (SkIntToScalar(5), SkIntToScalar(-5),
                               SkIntToScalar(-10), 0x7FFF0000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                              SkBlurDrawLooper::kHighQuality_BlurFlag  );
+                              SkBlurDrawLooper::kHighQuality_BlurFlag);
     SkAutoUnref aurL3(shadowLoopers[3]);
     shadowLoopers[4] =
         new SkBlurDrawLooper (SkIntToScalar(0), SkIntToScalar(5),
                               SkIntToScalar(5), 0xFF000000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                              SkBlurDrawLooper::kHighQuality_BlurFlag  );
+                              SkBlurDrawLooper::kHighQuality_BlurFlag);
     SkAutoUnref aurL4(shadowLoopers[4]);
 
     static const struct {

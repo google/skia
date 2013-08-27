@@ -88,7 +88,7 @@ protected:
                                       SkIntToScalar(10), SK_ColorWHITE,
                                       SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                       SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                      SkBlurDrawLooper::kHighQuality_BlurFlag );
+                                      SkBlurDrawLooper::kHighQuality_BlurFlag);
             SkAutoUnref aurL0(shadowLooper);
             p.setLooper(shadowLooper);
             fPaints.push_back(p);

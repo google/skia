@@ -209,6 +209,7 @@ protected:
     // V11: modify how readBitmap and writeBitmap store their info.
     // V12: add conics to SkPath, use new SkPathRef flattening
     // V13: add flag to drawBitmapRectToRect
+    //      parameterize blurs by sigma rather than radius
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
     static const uint32_t PRIOR_PICTURE_VERSION = 12;  // TODO: remove when .skps regenerated
 #endif

@@ -12,7 +12,19 @@
 #include "SkTemplates.h"
 #include "SkEndian.h"
 
-const SkScalar SkBlurMask::kBlurRadiusFudgeFactor = SkFloatToScalar(.57735f);
+
+SkScalar SkBlurMask::ConvertRadiusToSigma(SkScalar radius) {
+    // This constant approximates the scaling done in the software path's
+    // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
+    // IMHO, it actually should be 1:  we blur "less" than we should do
+    // according to the CSS and canvas specs, simply because Safari does the same.
+    // Firefox used to do the same too, until 4.0 where they fixed it.  So at some
+    // point we should probably get rid of these scaling constants and rebaseline
+    // all the blur tests.
+    static const SkScalar kBLUR_SIGMA_SCALE = SkFloatToScalar(0.57735f);
+
+    return radius ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;
+}
 
 #define UNROLL_SEPARABLE_LOOPS
 
@@ -473,24 +485,40 @@ void SkMask_FreeImage(uint8_t* image) {
 
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                       SkScalar radius, Style style, Quality quality,
-                      SkIPoint* margin)
-{
+                      SkIPoint* margin) {
+    return SkBlurMask::BoxBlur(dst, src, 
+                               SkBlurMask::ConvertRadiusToSigma(radius),
+                               style, quality, margin);
+}
+
+bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
+                         SkScalar sigma, Style style, Quality quality,
+                         SkIPoint* margin) {
 
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
 
     // Force high quality off for small radii (performance)
-    if (radius < SkIntToScalar(3)) {
+    if (sigma <= SkIntToScalar(2)) {
         quality = kLow_Quality;
+    }
+
+    SkScalar passRadius;
+    if (kHigh_Quality == quality) {
+        // For the high quality path the 3 pass box blur kernel width is
+        // 6*rad+1 while the full Gaussian width is 6*sigma.
+        passRadius = sigma - (1/6.0f);
+    } else {
+        // For the low quality path we only attempt to cover 3*sigma of the 
+        // Gaussian blur area (1.5*sigma on each side). The single pass box 
+        // blur's kernel size is 2*rad+1.
+        passRadius = 1.5f*sigma - 0.5f;
     }
 
     // highQuality: use three box blur passes as a cheap way
     // to approximate a Gaussian blur
     int passCount = (kHigh_Quality == quality) ? 3 : 1;
-    SkScalar passRadius = (kHigh_Quality == quality) ?
-                          SkScalarMul( radius, kBlurRadiusFudgeFactor):
-                          radius;
 
     int rx = SkScalarCeil(passRadius);
     int outerWeight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
@@ -510,7 +538,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         margin->set(padx, pady);
     }
     dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
-        src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
+                     src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
@@ -651,13 +679,6 @@ static float gaussianIntegral(float x) {
     return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
-// Compute the size of the array allocated for the profile.
-
-static int compute_profile_size(SkScalar radius) {
-    return SkScalarRoundToInt(radius * 3);
-
-}
-
 /*  compute_profile allocates and fills in an array of floating
     point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
@@ -669,13 +690,13 @@ static int compute_profile_size(SkScalar radius) {
     memory returned in profile_out.
 */
 
-static void compute_profile(SkScalar radius, unsigned int **profile_out) {
-    int size = compute_profile_size(radius);
+static void compute_profile(SkScalar sigma, unsigned int **profile_out) {
+    int size = SkScalarCeilToInt(6*sigma);
 
     int center = size >> 1;
     unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
 
-    float invr = 1.f/radius;
+    float invr = 1.f/(2*sigma);
 
     profile[0] = 255;
     for (int x = 1 ; x < size ; ++x) {
@@ -705,16 +726,17 @@ static inline unsigned int profile_lookup( unsigned int *profile, int loc, int b
 }
 
 bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
-                          SkScalar provided_radius, Style style,
+                          SkScalar radius, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
-    int profile_size;
+    return SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
+                                dst, src, 
+                                style, margin, createMode);
+}
 
-    float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
-
-    // adjust blur radius to match interpretation from boxfilter code
-    radius = (radius + .5f) * 2.f;
-
-    profile_size = compute_profile_size(radius);
+bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst, 
+                          const SkRect &src, Style style,
+                          SkIPoint *margin, SkMask::CreateMode createMode) {
+    int profile_size = SkScalarCeilToInt(6*sigma);
 
     int pad = profile_size/2;
     if (margin) {
@@ -745,7 +767,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     }
     unsigned int *profile = NULL;
 
-    compute_profile(radius, &profile);
+    compute_profile(sigma, &profile);
     SkAutoTDeleteArray<unsigned int> ada(profile);
 
     size_t dstSize = dst->computeImageSize();
@@ -775,8 +797,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         if (profile_size <= sw) {
             horizontalScanline[x] = profile_lookup(profile, x, dstWidth, w);
         } else {
-            float span = float(sw)/radius;
-            float giX = 1.5f - (x+.5f)/radius;
+            float span = float(sw)/(2*sigma);
+            float giX = 1.5f - (x+.5f)/(2*sigma);
             horizontalScanline[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
         }
     }
@@ -786,8 +808,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         if (profile_size <= sh) {
             profile_y = profile_lookup(profile, y, dstHeight, h);
         } else {
-            float span = float(sh)/radius;
-            float giY = 1.5f - (y+.5f)/radius;
+            float span = float(sh)/(2*sigma);
+            float giY = 1.5f - (y+.5f)/(2*sigma);
             profile_y = (uint8_t) (255 * (gaussianIntegral(giY) - gaussianIntegral(giY + span)));
         }
 
@@ -834,22 +856,24 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     return true;
 }
 
+bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar radius,
+                                 Style style, SkIPoint* margin) {
+    return BlurGroundTruth(ConvertRadiusToSigma(radius), dst, src, style, margin);
+}
 // The "simple" blur is a direct implementation of separable convolution with a discrete
 // gaussian kernel.  It's "ground truth" in a sense; too slow to be used, but very
 // useful for correctness comparisons.
 
-bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provided_radius,
-                            Style style, SkIPoint* margin) {
+bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
+                                 Style style, SkIPoint* margin) {
 
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
 
-    float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
-    float stddev = SkScalarToFloat(radius) /2.0f;
-    float variance = stddev * stddev;
+    float variance = sigma * sigma;
 
-    int windowSize = SkScalarCeil(stddev*4);
+    int windowSize = SkScalarCeil(sigma*4);
     // round window size up to nearest odd number
     windowSize |= 1;
 
