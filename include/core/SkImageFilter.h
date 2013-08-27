@@ -77,16 +77,18 @@ public:
      *  caller to unref it.
      *
      *  The effect can assume its vertexCoords space maps 1-to-1 with texels
-     *  in the texture.  "offset" is the delta between the source and
-     *  destination rect's origins, when cropped processing is being performed.
+     *  in the texture.  "matrix" is a transformation to apply to filter
+     *  parameters before they are used in the effect. Note that this function
+     *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
+     *  so returning "true" indicates support for all possible matrices.
      */
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkIPoint& offset) const;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
      *  rendered to textures.  For single-pass effects, use asNewEffect().
-     *  The default implementation returns asNewEffect(NULL, NULL).
+     *  The default implementation returns asNewEffect(NULL, NULL, SkMatrix::I()).
      */
     virtual bool canFilterImageGPU() const;
 
@@ -159,9 +161,10 @@ protected:
     // Default impl copies src into dst and returns true
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);
 
-    // Sets rect to the intersection of rect and the crop rect. If there
-    // is no overlap, returns false and leaves rect unchanged.
-    bool applyCropRect(SkIRect* rect) const;
+    // Applies "matrix" to the crop rect, and sets "rect" to the intersection of
+    // "rect" and the transformed crop rect. If there is no overlap, returns
+    // false and leaves "rect" unchanged.
+    bool applyCropRect(SkIRect* rect, const SkMatrix& matrix) const;
 
 private:
     typedef SkFlattenable INHERITED;

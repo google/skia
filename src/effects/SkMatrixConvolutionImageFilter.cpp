@@ -561,7 +561,7 @@ GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkMWCRandom* random,
 
 bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffectRef** effect,
                                                  GrTexture* texture,
-                                                 const SkIPoint&) const {
+                                                 const SkMatrix&) const {
     if (!effect) {
         return fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     }
