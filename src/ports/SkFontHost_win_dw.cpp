@@ -908,37 +908,33 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
     if (!(mx || my))
       return;
 
+    if (mx) {
+        sk_bzero(mx, sizeof(*mx));
+    }
+    if (my) {
+        sk_bzero(my, sizeof(*my));
+    }
+
     DWRITE_FONT_METRICS dwfm;
     fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
 
+    SkScalar upem = SkIntToScalar(dwfm.designUnitsPerEm);
     if (mx) {
-        mx->fTop = SkScalarMulDiv(-fRec.fTextSize,
-                                  SkIntToScalar(dwfm.ascent),
-                                  SkIntToScalar(dwfm.designUnitsPerEm));
-        mx->fAscent = mx->fTop;
-        mx->fDescent = SkScalarMulDiv(fRec.fTextSize,
-                                      SkIntToScalar(dwfm.descent),
-                                      SkIntToScalar(dwfm.designUnitsPerEm));
-        mx->fBottom = mx->fDescent;
-        //TODO, can be less than zero
-        mx->fLeading = SkScalarMulDiv(fRec.fTextSize,
-                                      SkIntToScalar(dwfm.lineGap),
-                                      SkIntToScalar(dwfm.designUnitsPerEm));
+        my->fTop = -fRec.fTextSize * SkIntToScalar(dwfm.ascent) / upem;
+        my->fAscent = my->fTop;
+        my->fDescent = fRec.fTextSize * SkIntToScalar(dwfm.descent) / upem;
+        my->fBottom = my->fDescent;
+        my->fLeading = fRec.fTextSize * SkIntToScalar(dwfm.lineGap) / upem;
+        my->fXHeight = fRec.fTextSize * SkIntToScalar(dwfm.xHeight) / upem;
     }
 
     if (my) {
-        my->fTop = SkScalarMulDiv(-fRec.fTextSize,
-                                  SkIntToScalar(dwfm.ascent),
-                                  SkIntToScalar(dwfm.designUnitsPerEm));
+        my->fTop = -fRec.fTextSize * SkIntToScalar(dwfm.ascent) / upem;
         my->fAscent = my->fTop;
-        my->fDescent = SkScalarMulDiv(fRec.fTextSize,
-                                      SkIntToScalar(dwfm.descent),
-                                      SkIntToScalar(dwfm.designUnitsPerEm));
+        my->fDescent = fRec.fTextSize * SkIntToScalar(dwfm.descent) / upem;
         my->fBottom = my->fDescent;
-        //TODO, can be less than zero
-        my->fLeading = SkScalarMulDiv(fRec.fTextSize,
-                                      SkIntToScalar(dwfm.lineGap),
-                                      SkIntToScalar(dwfm.designUnitsPerEm));
+        my->fLeading = fRec.fTextSize * SkIntToScalar(dwfm.lineGap) / upem;
+        my->fXHeight = fRec.fTextSize * SkIntToScalar(dwfm.xHeight) / upem;
     }
 }
 
