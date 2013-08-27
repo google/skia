@@ -2835,6 +2835,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "lumamode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14139681226373687263
+        ]
+      ]
+    }, 
+    "lumamode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9095296973707702820
+        ]
+      ]
+    }, 
+    "lumamode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8133243544350529939
+        ]
+      ]
+    }, 
     "matrixconvolution_565.png": {
       "allowed-digests": [
         [

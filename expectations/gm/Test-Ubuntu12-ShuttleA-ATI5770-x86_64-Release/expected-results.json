@@ -2760,6 +2760,39 @@
       ], 
       "ignore-failure": false
     }, 
+    "lumamode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16991972047111813318
+        ]
+      ]
+    }, 
+    "lumamode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14320238949339336861
+        ]
+      ]
+    }, 
+    "lumamode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15564972645957209207
+        ]
+      ]
+    }, 
+    "lumamode_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16316576401360384636
+        ]
+      ],
+      "ignore-failure": true
+    }, 
     "matrixconvolution_565.png": {
       "allowed-digests": [
         [
