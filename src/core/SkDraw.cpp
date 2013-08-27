@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkDraw.h"
 #include "SkBlitter.h"
 #include "SkBounder.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
-#include "SkDeviceLooper.h"
 #include "SkFixed.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
@@ -873,56 +873,48 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     }
 
     // look for the quick exit, before we build a blitter
-    SkIRect ir;
-    devRect.roundOut(&ir);
-    if (paint.getStyle() != SkPaint::kFill_Style) {
-        // extra space for hairlines
-        ir.inset(-1, -1);
-    }
-    if (fRC->quickReject(ir)) {
-        return;
-    }
-
-    SkDeviceLooper looper(*fBitmap, *fRC, ir, paint.isAntiAlias());
-    while (looper.next()) {
-        SkRect localDevRect;
-        looper.mapRect(&localDevRect, devRect);
-        SkMatrix localMatrix;
-        looper.mapMatrix(&localMatrix, matrix);
-
-        SkAutoBlitterChoose blitterStorage(looper.getBitmap(), localMatrix,
-                                           paint);
-        const SkRasterClip& clip = looper.getRC();
-        SkBlitter*          blitter = blitterStorage.get();
-
-        // we want to "fill" if we are kFill or kStrokeAndFill, since in the latter
-        // case we are also hairline (if we've gotten to here), which devolves to
-        // effectively just kFill
-        switch (rtype) {
-            case kFill_RectType:
-                if (paint.isAntiAlias()) {
-                    SkScan::AntiFillRect(localDevRect, clip, blitter);
-                } else {
-                    SkScan::FillRect(localDevRect, clip, blitter);
-                }
-                break;
-            case kStroke_RectType:
-                if (paint.isAntiAlias()) {
-                    SkScan::AntiFrameRect(localDevRect, strokeSize, clip, blitter);
-                } else {
-                    SkScan::FrameRect(localDevRect, strokeSize, clip, blitter);
-                }
-                break;
-            case kHair_RectType:
-                if (paint.isAntiAlias()) {
-                    SkScan::AntiHairRect(localDevRect, clip, blitter);
-                } else {
-                    SkScan::HairRect(localDevRect, clip, blitter);
-                }
-                break;
-            default:
-                SkDEBUGFAIL("bad rtype");
+    if (true) {
+        SkIRect ir;
+        devRect.roundOut(&ir);
+        if (paint.getStyle() != SkPaint::kFill_Style) {
+            // extra space for hairlines
+            ir.inset(-1, -1);
         }
+        if (fRC->quickReject(ir))
+            return;
+    }
+
+    SkAutoBlitterChoose blitterStorage(*fBitmap, matrix, paint);
+    const SkRasterClip& clip = *fRC;
+    SkBlitter*          blitter = blitterStorage.get();
+
+    // we want to "fill" if we are kFill or kStrokeAndFill, since in the latter
+    // case we are also hairline (if we've gotten to here), which devolves to
+    // effectively just kFill
+    switch (rtype) {
+        case kFill_RectType:
+            if (paint.isAntiAlias()) {
+                SkScan::AntiFillRect(devRect, clip, blitter);
+            } else {
+                SkScan::FillRect(devRect, clip, blitter);
+            }
+            break;
+        case kStroke_RectType:
+            if (paint.isAntiAlias()) {
+                SkScan::AntiFrameRect(devRect, strokeSize, clip, blitter);
+            } else {
+                SkScan::FrameRect(devRect, strokeSize, clip, blitter);
+            }
+            break;
+        case kHair_RectType:
+            if (paint.isAntiAlias()) {
+                SkScan::AntiHairRect(devRect, clip, blitter);
+            } else {
+                SkScan::HairRect(devRect, clip, blitter);
+            }
+            break;
+        default:
+            SkDEBUGFAIL("bad rtype");
     }
 }
 
@@ -2833,4 +2825,3 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
 
     return true;
 }
-
