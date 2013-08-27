@@ -994,8 +994,6 @@ void GrContext::drawOval(const GrPaint& paint,
     }
 }
 
-namespace {
-
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool is_nested_rects(GrDrawTarget* target,
                             const SkPath& path,
@@ -1030,15 +1028,26 @@ static bool is_nested_rects(GrDrawTarget* target,
         return false;
     }
 
-    if (SkPath::kWinding_FillType == path.getFillType()) {
+    if (SkPath::kWinding_FillType == path.getFillType() && dirs[0] == dirs[1]) {
         // The two rects need to be wound opposite to each other
-        return dirs[0] != dirs[1];
-    } else {
-        return true;
+        return false;
     }
-}
 
-};
+    // Right now, nested rects where the margin is not the same width
+    // all around do not render correctly
+    const SkScalar* outer = rects[0].asScalars();
+    const SkScalar* inner = rects[1].asScalars();
+
+    SkScalar margin = SkScalarAbs(outer[0] - inner[0]);
+    for (int i = 1; i < 4; ++i) {
+        SkScalar temp = SkScalarAbs(outer[i] - inner[i]);
+        if (!SkScalarNearlyEqual(margin, temp)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
 
