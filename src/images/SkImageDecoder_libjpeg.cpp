@@ -143,9 +143,9 @@ public:
         SkASSERT(fReadHeaderSucceeded);
         SkASSERT(!fHuffmanCreated);
         jpeg_create_huffman_index(&fCInfo, &fHuffmanIndex);
-        fHuffmanCreated = true;
         SkASSERT(1 == fCInfo.scale_num && 1 == fCInfo.scale_denom);
-        return jpeg_build_huffman_index(&fCInfo, &fHuffmanIndex);
+        fHuffmanCreated = jpeg_build_huffman_index(&fCInfo, &fHuffmanIndex);
+        return fHuffmanCreated;
     }
 
     /**
