@@ -70,7 +70,6 @@
         '<(skia_src_path)/core/SkDebug.cpp',
         '<(skia_src_path)/core/SkDeque.cpp',
         '<(skia_src_path)/core/SkDevice.cpp',
-        '<(skia_src_path)/core/SkDeviceLooper.cpp',
         '<(skia_src_path)/core/SkDeviceProfile.cpp',
         '<(skia_src_path)/core/SkDither.cpp',
         '<(skia_src_path)/core/SkDraw.cpp',
