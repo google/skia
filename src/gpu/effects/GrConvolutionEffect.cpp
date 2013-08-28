@@ -62,7 +62,7 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const TextureSamplerArray& samplers) {
-    const char* coords;
+    SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
@@ -79,7 +79,7 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    builder->fsCodeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords, fRadius, imgInc);
+    builder->fsCodeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords.c_str(), fRadius, imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {

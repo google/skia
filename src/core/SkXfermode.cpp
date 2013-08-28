@@ -948,13 +948,13 @@ public:
             const GrTexture* backgroundTex = drawEffect.castEffect<XferEffect>().backgroundAccess().getTexture();
             const char* dstColor;
             if (backgroundTex) {
-                const char* bgCoords;
+                SkString bgCoords;
                 GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
                 dstColor = "bgColor";
                 builder->fsCodeAppendf("\t\tvec4 %s = ", dstColor);
                 builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                              samplers[0],
-                                             bgCoords,
+                                             bgCoords.c_str(),
                                              bgCoordsType);
                 builder->fsCodeAppendf(";\n");
             } else {

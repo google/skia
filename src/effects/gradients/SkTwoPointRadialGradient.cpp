@@ -533,8 +533,8 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    const TextureSamplerArray& samplers) {
 
     this->emitYCoordUniform(builder);
-    const char* fsCoords;
-    const char* vsCoordsVarying;
+    SkString fsCoords;
+    SkString vsCoordsVarying;
     GrSLType coordsVaryingType;
     this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
@@ -565,7 +565,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
             // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
             builder->vsCodeAppendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
                                    fVSVaryingName, p2.c_str(),
-                                   vsCoordsVarying, p3.c_str());
+                                   vsCoordsVarying.c_str(), p3.c_str());
         }
     }
 
@@ -596,14 +596,14 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
         } else {
             bVar = "b";
             builder->fsCodeAppendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                                   bVar.c_str(), p2.c_str(), fsCoords, p3.c_str());
+                                   bVar.c_str(), p2.c_str(), fsCoords.c_str(), p3.c_str());
         }
 
         // c = (x^2)+(y^2) - params[4]
         builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
                                cName.c_str(),
-                               fsCoords,
-                               fsCoords,
+                               fsCoords.c_str(),
+                               fsCoords.c_str(),
                                p4.c_str());
 
         // If we aren't degenerate, emit some extra code, and accept a slightly

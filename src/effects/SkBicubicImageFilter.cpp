@@ -224,7 +224,7 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TextureSamplerArray& samplers) {
-    const char* coords;
+    SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                            kMat44f_GrSLType, "Coefficients");
@@ -253,7 +253,7 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                           "\tvec4 c = coefficients * ts;\n"
                           "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
                           &cubicBlendName);
-    builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords, imgInc);
+    builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords.c_str(), imgInc);
     builder->fsCodeAppendf("\tvec2 f = fract(coord / %s);\n", imgInc);
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {

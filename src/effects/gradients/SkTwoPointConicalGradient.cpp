@@ -490,8 +490,8 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TextureSamplerArray& samplers) {
-    const char* fsCoords;
-    const char* vsCoordsVarying;
+    SkString fsCoords;
+    SkString vsCoordsVarying;
     GrSLType coordsVaryingType;
     this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
@@ -526,7 +526,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
             // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
             builder->vsCodeAppendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
                                    fVSVaryingName, p2.c_str(),
-                                   vsCoordsVarying, p3.c_str(), p5.c_str());
+                                   vsCoordsVarying.c_str(), p3.c_str(), p5.c_str());
         }
     }
 
@@ -562,7 +562,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
         } else {
             bVar = "b";
             builder->fsCodeAppendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
-                                   bVar.c_str(), p2.c_str(), fsCoords,
+                                   bVar.c_str(), p2.c_str(), fsCoords.c_str(),
                                    p3.c_str(), p5.c_str());
         }
 
@@ -572,7 +572,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
         // c = (x^2)+(y^2) - params[4]
         builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
-                               fsCoords, fsCoords,
+                               fsCoords.c_str(), fsCoords.c_str(),
                                p4.c_str());
 
         // Non-degenerate case (quadratic)

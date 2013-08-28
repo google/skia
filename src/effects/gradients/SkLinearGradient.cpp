@@ -525,7 +525,7 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
-    const char* coords;
+    SkString coords;
     this->setupMatrix(builder, key, &coords);
     SkString t;
     t.append(coords);

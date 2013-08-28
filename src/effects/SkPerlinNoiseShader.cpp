@@ -749,7 +749,7 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
                                 const TextureSamplerArray&) {
     sk_ignore_unused_variable(inputColor);
 
-    const char* vCoords;
+    SkString vCoords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
 
     fSeedUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -904,7 +904,7 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
     // There are rounding errors if the floor operation is not performed here
     builder->fsCodeAppendf(
         "\t\tvec3 %s = vec3(floor((%s*vec3(%s, 1.0)).xy) * vec2(0.66) * %s, 0.0);\n",
-        noiseVecIni, invMatrixUni, vCoords, baseFrequencyUni);
+        noiseVecIni, invMatrixUni, vCoords.c_str(), baseFrequencyUni);
 
     // Perturb the texcoords with three components of noise
     builder->fsCodeAppendf("\t\t%s += 0.1 * vec3(%s(%s + vec3(  0.0,   0.0, %s)),"
@@ -965,7 +965,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
                                const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    const char* vCoords;
+    SkString vCoords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
 
     fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -1148,7 +1148,7 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     // There are rounding errors if the floor operation is not performed here
     builder->fsCodeAppendf("\n\t\tvec2 %s = floor((%s * vec3(%s, 1.0)).xy) * %s;",
-                           noiseVec, invMatrixUni, vCoords, baseFrequencyUni);
+                           noiseVec, invMatrixUni, vCoords.c_str(), baseFrequencyUni);
 
     // Clear the color accumulator
     builder->fsCodeAppendf("\n\t\t%s = vec4(0.0);", outputColor);

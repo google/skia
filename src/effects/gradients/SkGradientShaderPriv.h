@@ -317,8 +317,8 @@ protected:
      */
     void setupMatrix(GrGLShaderBuilder* builder,
                      EffectKey key,
-                     const char** fsCoordName,
-                     const char** vsVaryingName = NULL,
+                     SkString* fsCoordName,
+                     SkString* vsVaryingName = NULL,
                      GrSLType* vsVaryingType = NULL);
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses

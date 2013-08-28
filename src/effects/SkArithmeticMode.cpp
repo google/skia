@@ -351,12 +351,12 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
     GrTexture* backgroundTex = drawEffect.castEffect<GrArithmeticEffect>().backgroundTexture();
     const char* dstColor;
     if (backgroundTex) {
-        const char* bgCoords;
+        SkString bgCoords;
         GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
         builder->fsCodeAppend("\t\tvec4 bgColor = ");
         builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                      samplers[0],
-                                     bgCoords,
+                                     bgCoords.c_str(),
                                      bgCoordsType);
         builder->fsCodeAppendf(";\n");
         dstColor = "bgColor";
