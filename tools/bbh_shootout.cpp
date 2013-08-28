@@ -238,11 +238,11 @@ static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
         }
 
         renderer->setup();
-        // Render once to fill caches.
-        renderer->render(NULL);
+        // Render once to fill caches. Fill bitmap during the first iteration.
+        renderer->render(NULL, out);
         // Render again to measure
         timer->start();
-        bool result = renderer->render(NULL, out);
+        bool result = renderer->render(NULL);
         timer->end();
 
         // We only care about a false result on playback. RecordPictureRenderer::render will always
@@ -388,7 +388,9 @@ int tool_main(int argc, char** argv) {
     playbackOut.writeText("\n");
     // Write to file, and save recording averages.
     SkScalar avgRecord = SkIntToScalar(0);
+    SkScalar avgPlayback = SkIntToScalar(0);
     SkScalar avgRecordRTree = SkIntToScalar(0);
+    SkScalar avgPlaybackRTree = SkIntToScalar(0);
     for (int i = 0; i < argc - 1; ++i) {
         SkString pbLine;
         SkString recLine;
@@ -400,10 +402,13 @@ int tool_main(int argc, char** argv) {
         cpuTime = histograms[BenchmarkControl::kRTreeRecord][i].fCpuTime;
         recLine.appendf("%f", cpuTime);
         avgRecordRTree += cpuTime;
+        avgPlaybackRTree += cpuTime;
 
         // ==== Write playback info
         pbLine.printf("%d ", i);
         pbLine.appendf("%f ", histograms[2][i].fCpuTime);  // Start with normal playback time.
+        avgPlayback += histograms[kNumBbhPlaybackBenchmarks - 1][i].fCpuTime;
+        avgPlaybackRTree += histograms[kNumBbhPlaybackBenchmarks][i].fCpuTime;
         // Append all playback benchmark times.
         for (size_t j = kNumBbhPlaybackBenchmarks; j < kNumBenchmarks; ++j) {
             pbLine.appendf("%f ", histograms[j][i].fCpuTime);
@@ -416,8 +421,13 @@ int tool_main(int argc, char** argv) {
     }
     avgRecord /= argc - 1;
     avgRecordRTree /= argc - 1;
+    avgPlayback /= argc - 1;
+    avgPlaybackRTree /= argc - 1;
     SkDebugf("Average base recording time: %.3fms\n", avgRecord);
     SkDebugf("Average recording time with rtree: %.3fms\n", avgRecordRTree);
+    SkDebugf("Average base playback time: %.3fms\n", avgPlayback);
+    SkDebugf("Average playback time with rtree: %.3fms\n", avgPlaybackRTree);
+
     SkDebugf("\nWrote data to gnuplot-readable files: %s %s\n", pbTitle, recTitle);
 
     return 0;
