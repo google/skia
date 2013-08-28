@@ -71,7 +71,7 @@ class BlurRectGM : public skiagm::GM {
       SkAlpha   fAlpha;
 public:
     BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha,
-               SkBlurMaskFilter::BlurStyle bs) 
+               SkBlurMaskFilter::BlurStyle bs)
                : fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2, bs,
                              SkBlurMaskFilter::kHighQuality_BlurFlag))
                , fName(name)

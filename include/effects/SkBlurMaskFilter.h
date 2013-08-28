@@ -49,7 +49,7 @@ public:
                                 uint32_t flags = kNone_BlurFlag);
 
     /** Create an emboss maskfilter
-        @param blurSigma    standard deviation of the Gaussian blur to apply 
+        @param blurSigma    standard deviation of the Gaussian blur to apply
                             before applying lighting (e.g. 3)
         @param direction    array of 3 scalars [x, y, z] specifying the direction of the light source
         @param ambient      0...1 amount of ambient light

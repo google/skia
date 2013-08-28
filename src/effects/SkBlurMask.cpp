@@ -486,7 +486,7 @@ void SkMask_FreeImage(uint8_t* image) {
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                       SkScalar radius, Style style, Quality quality,
                       SkIPoint* margin) {
-    return SkBlurMask::BoxBlur(dst, src, 
+    return SkBlurMask::BoxBlur(dst, src,
                                SkBlurMask::ConvertRadiusToSigma(radius),
                                style, quality, margin);
 }
@@ -510,8 +510,8 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
         // 6*rad+1 while the full Gaussian width is 6*sigma.
         passRadius = sigma - (1/6.0f);
     } else {
-        // For the low quality path we only attempt to cover 3*sigma of the 
-        // Gaussian blur area (1.5*sigma on each side). The single pass box 
+        // For the low quality path we only attempt to cover 3*sigma of the
+        // Gaussian blur area (1.5*sigma on each side). The single pass box
         // blur's kernel size is 2*rad+1.
         passRadius = 1.5f*sigma - 0.5f;
     }
@@ -729,11 +729,11 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
                           SkScalar radius, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
     return SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
-                                dst, src, 
+                                dst, src,
                                 style, margin, createMode);
 }
 
-bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst, 
+bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
                           const SkRect &src, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
     int profile_size = SkScalarCeilToInt(6*sigma);
