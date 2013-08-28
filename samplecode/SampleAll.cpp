@@ -80,7 +80,7 @@ private:
 
 static void r0(SkLayerRasterizer* rast, SkPaint& p) {
     p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                             SkBlurMaskFilter::kNormal_BlurStyle, 
+                                             SkBlurMaskFilter::kNormal_BlurStyle,
                                              SkBlurMaskFilter::kNone_BlurFlag))->unref();
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
@@ -255,9 +255,9 @@ static void apply_shader(SkPaint* paint, int index) {
 
 #if 1
     SkScalar dir[] = { SK_Scalar1, SK_Scalar1, SK_Scalar1 };
-    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(dir, 
-                                                        SK_Scalar1/4, 
-                                                        SkIntToScalar(4), 
+    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(dir,
+                                                        SK_Scalar1/4,
+                                                        SkIntToScalar(4),
                                                         SkIntToScalar(3)))->unref();
     paint->setColor(SK_ColorBLUE);
 #endif

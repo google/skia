@@ -46,7 +46,7 @@ class XfermodesBlurView : public SampleView {
     void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
                    SkScalar x, SkScalar y) {
         SkPaint p;
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(5, SkBlurMaskFilter::kNormal_BlurStyle, 
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(5, SkBlurMaskFilter::kNormal_BlurStyle,
                                                     SkBlurMaskFilter::kNone_BlurFlag);
         p.setMaskFilter(mf)->unref();
 

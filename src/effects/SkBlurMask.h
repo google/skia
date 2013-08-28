@@ -48,7 +48,7 @@ public:
     static bool BlurRect(SkMask *dst, const SkRect &src,
                          SkScalar radius, Style style,
                          SkIPoint *margin = NULL,
-                         SkMask::CreateMode createMode = 
+                         SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
     // DEPRECATED - radius-based
     static bool Blur(SkMask* dst, const SkMask& src,

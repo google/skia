@@ -137,7 +137,7 @@ SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
     fBlurSigma = buffer.readScalar();
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
     // Fixing this must be done in two stages. When the skps are recaptured in V13,
-    // remove the ConvertRadiusToSigma but retain the absolute value. 
+    // remove the ConvertRadiusToSigma but retain the absolute value.
     // At the same time, switch the code in flatten to write a positive value.
     // When the skps are captured in V14 the absolute value can be removed.
     if (fBlurSigma > 0) {

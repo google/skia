@@ -21,7 +21,7 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
     this->init(SkBlurMask::ConvertRadiusToSigma(radius), dx, dy, color, flags);
 }
 
-SkBlurDrawLooper::SkBlurDrawLooper(SkColor color, SkScalar sigma, 
+SkBlurDrawLooper::SkBlurDrawLooper(SkColor color, SkScalar sigma,
                                    SkScalar dx, SkScalar dy, uint32_t flags) {
     this->init(sigma, dx, dy, color, flags);
 }
