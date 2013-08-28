@@ -670,7 +670,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
     // Check devBounds
-#if GR_DEBUG
+#ifdef SK_DEBUG
     SkRect tolDevBounds = devBounds;
     tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
     SkRect actualBounds;

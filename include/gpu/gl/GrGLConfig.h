@@ -39,7 +39,7 @@
  * GR_GL_LOG_CALLS is 1. Defaults to 0.
  *
  * GR_GL_CHECK_ERROR: if enabled Gr can do a glGetError() after every GL call.
- * Defaults to 1 if GR_DEBUG is set, otherwise 0. When GR_GL_CHECK_ERROR is 1
+ * Defaults to 1 if SK_DEBUG is set, otherwise 0. When GR_GL_CHECK_ERROR is 1
  * this can be toggled in a debugger using the gCheckErrorGL global. The initial
  * value of gCheckErrorGL is controlled by by GR_GL_CHECK_ERROR_START.
  *
@@ -107,7 +107,11 @@
  */
 
 #if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS                             GR_DEBUG
+    #ifdef SK_DEBUG
+        #define GR_GL_LOG_CALLS 1
+    #else
+        #define GR_GL_LOG_CALLS 0
+    #endif
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
@@ -115,7 +119,11 @@
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR)
-    #define GR_GL_CHECK_ERROR                           GR_DEBUG
+    #ifdef SK_DEBUG
+        #define GR_GL_CHECK_ERROR 1
+    #else
+        #define GR_GL_CHECK_ERROR 0
+    #endif
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR_START)

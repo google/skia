@@ -46,7 +46,7 @@ public:
         return entry.fKey == key.fKey;
     }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     static uint32_t GetHash(const HashElement& entry) {
         return entry.fKey;
     }

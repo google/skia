@@ -53,7 +53,7 @@ public:
      */
     int slowFindIndex(T* elem) const { return fSorted.find(elem); }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const;
     bool contains(T*) const;
 #endif
@@ -225,7 +225,7 @@ void GrTHashTable<T, Key, kHashBits>::unrefAll() {
     Gr_bzero(fHash, sizeof(fHash));
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::validate() const {
     int count = fSorted.count();

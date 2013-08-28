@@ -45,7 +45,7 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
     return *this;
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 bool GrDrawTarget::DrawInfo::isInstanced() const {
     if (fInstanceCount > 0) {
         SkASSERT(0 == fIndexCount % fIndicesPerInstance);
@@ -96,7 +96,7 @@ GrDrawTarget::GrDrawTarget(GrContext* context)
     // We assume that fDrawState always owns a ref to the object it points at.
     fDefaultDrawState.ref();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     geoSrc.fVertexCount = DEBUG_INVAL_START_IDX;
     geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
     geoSrc.fIndexCount = DEBUG_INVAL_START_IDX;
@@ -239,7 +239,7 @@ void GrDrawTarget::releasePreviousVertexSource() {
             break;
         case kBuffer_GeometrySrcType:
             geoSrc.fVertexBuffer->unref();
-#if GR_DEBUG
+#ifdef SK_DEBUG
             geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
 #endif
             break;
@@ -262,7 +262,7 @@ void GrDrawTarget::releasePreviousIndexSource() {
             break;
         case kBuffer_GeometrySrcType:
             geoSrc.fIndexBuffer->unref();
-#if GR_DEBUG
+#ifdef SK_DEBUG
             geoSrc.fIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
 #endif
             break;
@@ -325,7 +325,7 @@ void GrDrawTarget::pushGeometrySource() {
     GeometrySrcState& newState = fGeoSrcStateStack.push_back();
     newState.fIndexSrc = kNone_GeometrySrcType;
     newState.fVertexSrc = kNone_GeometrySrcType;
-#if GR_DEBUG
+#ifdef SK_DEBUG
     newState.fVertexCount  = ~0;
     newState.fVertexBuffer = (GrVertexBuffer*)~0;
     newState.fIndexCount   = ~0;
@@ -349,7 +349,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
                              int startIndex, int vertexCount,
                              int indexCount) const {
     const GrDrawState& drawState = this->getDrawState();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     const GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     int maxVertex = startVertex + vertexCount;
     int maxValidVertex;
@@ -425,13 +425,13 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     SkIRect drawIBounds;
     if (info->getDevIBounds(&drawIBounds)) {
         if (!copyRect.intersect(drawIBounds)) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
             GrPrintf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
             return false;
         }
     } else {
-#if GR_DEBUG
+#ifdef SK_DEBUG
         //GrPrintf("No dev bounds when dst copy is made.\n");
 #endif
     }

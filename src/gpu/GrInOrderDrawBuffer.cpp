@@ -39,7 +39,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
-#if GR_DEBUG
+#ifdef SK_DEBUG
     poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
     poolState.fPoolStartVertex = ~0;
     poolState.fPoolIndexBuffer = (GrIndexBuffer*)~0;
@@ -704,7 +704,7 @@ void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     SkASSERT(0 == poolState.fUsedPoolVertexBytes);
-#if GR_DEBUG
+#ifdef SK_DEBUG
     bool success =
 #endif
     fVertexPool.appendVertices(this->getVertexSize(),
@@ -719,7 +719,7 @@ void GrInOrderDrawBuffer::onSetIndexSourceToArray(const void* indexArray,
                                                   int indexCount) {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     SkASSERT(0 == poolState.fUsedPoolIndexBytes);
-#if GR_DEBUG
+#ifdef SK_DEBUG
     bool success =
 #endif
     fIndexPool.appendIndices(indexCount,
@@ -745,7 +745,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPush() {
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
-#if GR_DEBUG
+#ifdef SK_DEBUG
     poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
     poolState.fPoolStartVertex = ~0;
     poolState.fPoolIndexBuffer = (GrIndexBuffer*)~0;

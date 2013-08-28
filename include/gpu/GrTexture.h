@@ -120,7 +120,7 @@ public:
      */
     virtual void invalidateCachedState() = 0;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
 

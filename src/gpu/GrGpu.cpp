@@ -40,7 +40,7 @@ GrGpu::GrGpu(GrContext* context)
     fClipMaskManager.setGpu(this);
 
     fGeomPoolStateStack.push_back();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     GeometryPoolState& poolState = fGeomPoolStateStack.back();
     poolState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
     poolState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
@@ -105,7 +105,7 @@ void GrGpu::removeResource(GrResource* resource) {
 
 
 void GrGpu::unimpl(const char msg[]) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
     GrPrintf("--- GrGpu unimplemented(\"%s\")\n", msg);
 #endif
 }
@@ -319,7 +319,7 @@ void GrGpu::geometrySourceWillPush() {
         this->finalizeReservedIndices();
     }
     GeometryPoolState& newState = fGeomPoolStateStack.push_back();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     newState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
     newState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
     newState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
@@ -455,7 +455,7 @@ void GrGpu::releaseReservedIndexSpace() {
 void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
     this->prepareVertexPool();
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     bool success =
 #endif
     fVertexPool->appendVertices(this->getVertexSize(),
@@ -470,7 +470,7 @@ void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
 void GrGpu::onSetIndexSourceToArray(const void* indexArray, int indexCount) {
     this->prepareIndexPool();
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-#if GR_DEBUG
+#ifdef SK_DEBUG
     bool success =
 #endif
     fIndexPool->appendIndices(indexCount,

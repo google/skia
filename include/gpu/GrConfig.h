@@ -85,26 +85,14 @@
     #endif
 #endif
 
-// we need both GR_DEBUG and GR_RELEASE to be defined as 0 or 1
-//
-#ifndef GR_DEBUG
-    #ifdef GR_RELEASE
-        #define GR_DEBUG !GR_RELEASE
-    #else
-        #ifdef NDEBUG
-            #define GR_DEBUG    0
-        #else
-            #define GR_DEBUG    1
-        #endif
+#if !defined(SK_DEBUG) && !GR_RELEASE
+    #ifdef NDEBUG
+        #define GR_RELEASE 1
     #endif
 #endif
 
-#ifndef GR_RELEASE
-    #define GR_RELEASE  !GR_DEBUG
-#endif
-
-#if GR_DEBUG == GR_RELEASE
-    #error "GR_DEBUG and GR_RELEASE must not be the same"
+#if defined(SK_DEBUG) && GR_RELEASE
+    #error "cannot define both SK_DEBUG and GR_RELEASE"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,8 +130,8 @@ typedef unsigned __int64 uint64_t;
  *  A alternate user config file can be specified by defining
  *  GR_USER_CONFIG_FILE. It should be defined relative to GrConfig.h
  *
- *  e.g. it can specify GR_DEBUG/GR_RELEASE as it please, change the BUILD
- *  target, or supply its own defines for anything else (e.g. GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT)
+ *  e.g. it can change the BUILD target or supply its own defines for anything
+ *  else (e.g. GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT)
  */
 #if !defined(GR_USER_CONFIG_FILE)
     #include "GrUserConfig.h"
@@ -212,7 +200,7 @@ typedef unsigned __int64 uint64_t;
  *  GR_DEBUGBREAK is an unconditional break in debug builds.
  */
 #if !defined(GR_DEBUGBREAK)
-    #if GR_DEBUG
+    #ifdef SK_DEBUG
         #define GR_DEBUGBREAK GR_ALWAYSBREAK
     #else
         #define GR_DEBUGBREAK
@@ -236,7 +224,7 @@ typedef unsigned __int64 uint64_t;
  *  GR_DEBUGASSERT is an assertion in debug builds only.
  */
 #if !defined(GR_DEBUGASSERT)
-    #if GR_DEBUG
+    #ifdef SK_DEBUG
         #define GR_DEBUGASSERT(COND) GR_ALWAYSASSERT(COND)
     #else
         #define GR_DEBUGASSERT(COND)
@@ -261,7 +249,7 @@ inline void GrDebugCrash(const char* msg) { GrPrintf(msg); SkASSERT(false); }
  *  GR_DEBUGCODE compiles the code X in debug builds only
  */
 #if !defined(GR_DEBUGCODE)
-    #if GR_DEBUG
+    #ifdef SK_DEBUG
         #define GR_DEBUGCODE(X) X
     #else
         #define GR_DEBUGCODE(X)

@@ -469,7 +469,7 @@ public:
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
         fCommon.fSrcBlend = srcCoeff;
         fCommon.fDstBlend = dstCoeff;
-    #if GR_DEBUG
+    #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
             GrPrintf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
         }

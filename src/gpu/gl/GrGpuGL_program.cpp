@@ -165,7 +165,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
             memmove(fEntries + purgeIdx, fEntries + purgeIdx + 1, copySize);
             fEntries[entryIdx - 1] = entry;
         }
-#if GR_DEBUG
+#ifdef SK_DEBUG
         SkASSERT(NULL != fEntries[0]->fProgram.get());
         for (int i = 0; i < fCount - 1; ++i) {
             SkASSERT(NULL != fEntries[i + 1]->fProgram.get());

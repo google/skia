@@ -744,7 +744,7 @@ protected:
         int instanceCount() const { return fInstanceCount; }
 
         bool isIndexed() const { return fIndexCount > 0; }
-#if GR_DEBUG
+#ifdef SK_DEBUG
         bool isInstanced() const; // this version is longer because of asserts
 #else
         bool isInstanced() const { return fInstanceCount > 0; }

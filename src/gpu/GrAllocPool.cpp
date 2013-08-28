@@ -102,8 +102,7 @@ void GrAllocPool::release(size_t bytes) {
     }
 }
 
-
-#if GR_DEBUG
+#ifdef SK_DEBUG
 
 void GrAllocPool::validate() const {
     Block* block = fBlock;

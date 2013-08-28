@@ -115,7 +115,7 @@ void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
     }
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 void GrFontCache::validate() const {
     int count = fCache.count();
     if (0 == count) {
@@ -147,7 +147,7 @@ void GrFontCache::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     static int gCounter;
 #endif
 
@@ -171,7 +171,7 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
 
     fMaskFormat = format;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 //    GrPrintf(" GrTextStrike %p %d\n", this, gCounter);
     gCounter += 1;
 #endif
@@ -192,7 +192,7 @@ GrTextStrike::~GrTextStrike() {
     fFontScalerKey->unref();
     fCache.getArray().visitAll(free_glyph);
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     gCounter -= 1;
 //    GrPrintf("~GrTextStrike %p %d\n", this, gCounter);
 #endif

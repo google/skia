@@ -14,9 +14,13 @@
 
 class GrGpuGL;
 
-// optionally compile the experimental GS code. Set to GR_DEBUG so that debug build bots will
-// execute the code.
-#define GR_GL_EXPERIMENTAL_GS GR_DEBUG
+#ifdef SK_DEBUG
+  // Optionally compile the experimental GS code. Set to SK_DEBUG so that debug build bots will
+  // execute the code.
+  #define GR_GL_EXPERIMENTAL_GS 1
+#else
+  #define GR_GL_EXPERIMENTAL_GS 0
+#endif
 
 
 /** This class describes a program to generate. It also serves as a program cache key. Very little

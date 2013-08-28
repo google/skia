@@ -42,6 +42,12 @@ enum benchModes {
     kPictureRecord_benchModes
 };
 
+#ifdef SK_DEBUG
+static const bool kDebugOnly = true;
+#else
+static const bool kDebugOnly = false;
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void erase(SkBitmap& bm) {
@@ -255,9 +261,7 @@ static const struct {
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config,  "ANGLE",        0, kGPU_Backend,          GrContextFactory::kANGLE_GLContextType,  true     },
 #endif // SK_ANGLE
-#ifdef SK_DEBUG
-    { SkBitmap::kARGB_8888_Config,  "Debug",        0, kGPU_Backend,          GrContextFactory::kDebug_GLContextType,  GR_DEBUG },
-#endif // SK_DEBUG
+    { SkBitmap::kARGB_8888_Config,  "Debug",        0, kGPU_Backend,          GrContextFactory::kDebug_GLContextType,  kDebugOnly },
     { SkBitmap::kARGB_8888_Config,  "NULLGPU",      0, kGPU_Backend,          GrContextFactory::kNull_GLContextType,   true     },
 #endif // SK_SUPPORT_GPU
 };

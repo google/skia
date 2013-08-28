@@ -163,7 +163,7 @@ static inline int GrNextPow2(int n) {
  */
 typedef int32_t GrFixed;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 
 static inline int16_t GrToS16(intptr_t x) {
     SkASSERT((int16_t)x == x);

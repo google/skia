@@ -95,7 +95,7 @@ public:
     }
     GrTextStrike* getHeadStrike() const { return fHead; }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const;
 #else
     void validate() const {}

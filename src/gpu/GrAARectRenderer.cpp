@@ -363,7 +363,7 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu) {
         fAAStrokeRectIndexBuffer =
                   gpu->createIndexBuffer(sizeof(gStrokeAARectIdx), false);
         if (NULL != fAAStrokeRectIndexBuffer) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
             bool updated =
 #endif
             fAAStrokeRectIndexBuffer->updateData(gStrokeAARectIdx,

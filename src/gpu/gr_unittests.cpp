@@ -17,7 +17,7 @@ void gr_run_unittests();
 // If we aren't inheriting these as #defines from elsewhere,
 // clang demands they be declared before we #include the template
 // that relies on them.
-#if GR_DEBUG
+#ifdef SK_DEBUG
 static bool LT(const int& elem, int value) {
     return elem < value;
 }

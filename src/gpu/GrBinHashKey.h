@@ -46,7 +46,7 @@ public:
 
     void reset() {
         fHash = 0;
-#if GR_DEBUG
+#ifdef SK_DEBUG
         fIsValid = false;
 #endif
     }
@@ -66,7 +66,7 @@ public:
         hash += (fHash << 3);
         hash ^= (fHash >> 11);
         hash += (fHash << 15);
-#if GR_DEBUG
+#ifdef SK_DEBUG
         fIsValid = true;
 #endif
         fHash = hash;
@@ -101,7 +101,7 @@ private:
     uint32_t            fHash;
     uint8_t             fData[KEY_SIZE];  // Buffer for key storage
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 public:
     bool                fIsValid;
 #endif

@@ -10,7 +10,7 @@
 #include "GrTexture.h"
 
 GrTextureAccess::GrTextureAccess() {
-#if GR_DEBUG
+#ifdef SK_DEBUG
     memcpy(fSwizzle, "void", 5);
     fSwizzleMask = 0xbeeffeed;
 #endif
