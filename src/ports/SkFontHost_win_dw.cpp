@@ -1899,7 +1899,6 @@ static HRESULT GetGetUserDefaultLocaleNameProc(GetUserDefaultLocaleNameProc* pro
     return S_OK;
 }
 
-extern SkFontMgr* SkFontMgr_New_DirectWrite();
 SkFontMgr* SkFontMgr_New_DirectWrite() {
     IDWriteFactory* factory;
     HRNM(get_dwrite_factory(&factory), "Could not get factory.");
