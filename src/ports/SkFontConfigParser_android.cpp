@@ -163,16 +163,52 @@ static void endElementHandler(void *data, const char *tag) {
  * families array.
  */
 static void parseConfigFile(const char *filename, SkTDArray<FontFamily*> &families) {
+
+    FILE* file = NULL;
+
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // if we are using a version of Android prior to Android 4.2 (JellyBean MR1
+    // at API Level 17) then we need to look for files with a different suffix.
+    char sdkVersion[PROP_VALUE_MAX];
+    __system_property_get("ro.build.version.sdk", sdkVersion);
+    const int sdkVersionInt = atoi(sdkVersion);
+
+    if (0 != *sdkVersion && sdkVersionInt < 17) {
+        SkString basename;
+        SkString updatedFilename;
+        SkString locale = SkFontConfigParser::GetLocale();
+
+        basename.set(filename);
+        // Remove the .xml suffix. We'll add it back in a moment.
+        if (basename.endsWith(".xml")) {
+            basename.resize(basename.size()-4);
+        }
+        // Try first with language and region
+        updatedFilename.printf("%s-%s.xml", basename.c_str(), locale.c_str());
+        file = fopen(updatedFilename.c_str(), "r");
+        if (!file) {
+            // If not found, try next with just language
+            updatedFilename.printf("%s-%.2s.xml", basename.c_str(), locale.c_str());
+            file = fopen(updatedFilename.c_str(), "r");
+        }
+    }
+#endif
+
+    if (NULL == file) {
+        file = fopen(filename, "r");
+    }
+
+    // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
+    // are optional - failure here is okay because one of these optional files may not exist.
+    if (NULL == file) {
+        return;
+    }
+
     XML_Parser parser = XML_ParserCreate(NULL);
     FamilyData *familyData = new FamilyData(&parser, families);
     XML_SetUserData(parser, familyData);
     XML_SetElementHandler(parser, startElementHandler, endElementHandler);
-    FILE *file = fopen(filename, "r");
-    // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
-    // are optional - failure here is okay because one of these optional files may not exist.
-    if (file == NULL) {
-        return;
-    }
+
     char buffer[512];
     bool done = false;
     while (!done) {
