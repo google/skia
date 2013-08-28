@@ -1,6 +1,5 @@
 #include "SkFontMgr.h"
-
-extern SkFontMgr* SkFontMgr_New_GDI();
+#include "SkTypeface_win.h"
 
 SkFontMgr* SkFontMgr::Factory() {
     return SkFontMgr_New_GDI();

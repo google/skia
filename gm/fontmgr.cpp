@@ -12,8 +12,7 @@
 #include "SkTypeface.h"
 
 #ifdef SK_BUILD_FOR_WIN
-    extern SkFontMgr* SkFontMgr_New_GDI();
-    extern SkFontMgr* SkFontMgr_New_DirectWrite();
+    #include "SkTypeface_win.h"
 #endif
 
 // limit this just so we don't take too long to draw
