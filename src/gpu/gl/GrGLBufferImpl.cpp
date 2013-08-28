@@ -10,7 +10,7 @@
 
 #define GL_CALL(GPU, X) GR_GL_CALL(GPU->glInterface(), X)
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 #define VALIDATE() this->validate()
 #else
 #define VALIDATE() do {} while(false)

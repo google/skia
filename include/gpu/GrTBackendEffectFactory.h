@@ -36,7 +36,7 @@ public:
         EffectKey effectKey = GLEffect::GenKey(drawEffect, caps);
         EffectKey textureKey = GLEffect::GenTextureKey(drawEffect, caps);
         EffectKey attribKey = GLEffect::GenAttribKey(drawEffect);
-#if GR_DEBUG
+#ifdef SK_DEBUG
         static const EffectKey kIllegalIDMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
         SkASSERT(!(kIllegalIDMask & effectKey));
 

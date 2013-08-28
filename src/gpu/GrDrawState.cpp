@@ -67,7 +67,7 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
 static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
     // this works as long as we're 4 byte-aligned
-#if GR_DEBUG
+#ifdef SK_DEBUG
     uint32_t overlapCheck = 0;
 #endif
     SkASSERT(count <= GrDrawState::kMaxVertexAttribCnt);
@@ -75,7 +75,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
     for (int index = 0; index < count; ++index) {
         size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
         size += attribSize;
-#if GR_DEBUG
+#ifdef SK_DEBUG
         size_t dwordCount = attribSize >> 2;
         uint32_t mask = (1 << dwordCount)-1;
         size_t offsetShift = attribs[index].fOffset >> 2;
@@ -102,7 +102,7 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
     memset(fCommon.fFixedFunctionVertexAttribIndices,
            0xff,
            sizeof(fCommon.fFixedFunctionVertexAttribIndices));
-#if GR_DEBUG
+#ifdef SK_DEBUG
     uint32_t overlapCheck = 0;
 #endif
     for (int i = 0; i < count; ++i) {
@@ -113,7 +113,7 @@ void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
                      GrVertexAttribTypeVectorCount(attribs[i].fType));
             fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding] = i;
         }
-#if GR_DEBUG
+#ifdef SK_DEBUG
         size_t dwordCount = GrVertexAttribTypeSize(attribs[i].fType) >> 2;
         uint32_t mask = (1 << dwordCount)-1;
         size_t offsetShift = attribs[i].fOffset >> 2;

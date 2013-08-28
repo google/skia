@@ -39,6 +39,12 @@
 #include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
 
+#ifdef SK_DEBUG
+static const bool kDebugOnly = true;
+#else
+static const bool kDebugOnly = false;
+#endif
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 #ifdef SK_BUILD_FOR_WIN
@@ -1249,12 +1255,12 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     GR_DEBUG},
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},
     /* The gpunull context does the least amount of work possible and doesn't
        generate meaninful images, so don't record them!. It can be run to
        isolate the CPU-side processing expense from the GPU-side.
       */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNull_GLContextType,    0, kNone_ConfigFlag,  "gpunull",      GR_DEBUG},
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNull_GLContextType,    0, kNone_ConfigFlag,  "gpunull",      kDebugOnly},
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,19 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrUserConfig_DEFINED
 #define GrUserConfig_DEFINED
 
 #if defined(GR_USER_CONFIG_FILE)
     #error "default user config pulled in but GR_USER_CONFIG_FILE is defined."
-#endif
-
-#if 0
-    #undef GR_RELEASE
-    #undef GR_DEBUG
-    #define GR_RELEASE  0
-    #define GR_DEBUG    1
 #endif
 
 /**

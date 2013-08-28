@@ -38,7 +38,7 @@ static void check_list(const SkTInternalLList<ListElement>& list,
                        ListElement elements[4]) {
 
     REPORTER_ASSERT(reporter, empty == list.isEmpty());
-#if SK_DEBUG
+#ifdef SK_DEBUG
     list.validate();
     REPORTER_ASSERT(reporter, numElements == list.countEntries());
     REPORTER_ASSERT(reporter, in0 == list.isInList(&elements[0]));

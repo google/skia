@@ -158,7 +158,7 @@ private:
 
     int onCountOf(const Node* n, const T& t) const;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const;
     int checkNode(Node* n, int* blackHeight) const;
     // checks relationship between a node and its children. allowRedRed means
@@ -843,7 +843,7 @@ void GrRedBlackTree<T,C>::RecursiveDelete(Node* x) {
     }
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::validate() const {
     if (fCount) {

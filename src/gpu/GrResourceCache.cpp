@@ -37,7 +37,7 @@ GrResourceEntry::~GrResourceEntry() {
     fResource->unref();
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 void GrResourceEntry::validate() const {
     SkASSERT(fResource);
     SkASSERT(fResource->getCacheEntry() == this);
@@ -227,7 +227,7 @@ void GrResourceCache::makeExclusive(GrResourceEntry* entry) {
     this->internalDetach(entry, kIgnore_BudgetBehavior);
     fCache.remove(entry->key(), entry);
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     fExclusiveList.addToHead(entry);
 #endif
 }
@@ -248,7 +248,7 @@ void GrResourceCache::removeInvalidResource(GrResourceEntry* entry) {
 void GrResourceCache::makeNonExclusive(GrResourceEntry* entry) {
     GrAutoResourceCacheValidate atcv(this);
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     fExclusiveList.remove(entry);
 #endif
 
@@ -360,7 +360,7 @@ void GrResourceCache::purgeAllUnlocked() {
     fMaxCount = 0;
     this->purgeAsNeeded();
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     SkASSERT(fExclusiveList.countEntries() == fClientDetachedCount);
     SkASSERT(countBytes(fExclusiveList) == fClientDetachedBytes);
     if (!fCache.count()) {
@@ -379,7 +379,7 @@ void GrResourceCache::purgeAllUnlocked() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 size_t GrResourceCache::countBytes(const EntryList& list) {
     size_t bytes = 0;
 
@@ -441,7 +441,7 @@ void GrResourceCache::validate() const {
 
     SkASSERT(fExclusiveList.countEntries() == fClientDetachedCount);
 }
-#endif // GR_DEBUG
+#endif // SK_DEBUG
 
 #if GR_CACHE_STATS
 

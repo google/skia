@@ -148,7 +148,7 @@ public:
     GrResource* resource() const { return fResource; }
     const GrResourceKey& key() const { return fKey; }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const;
 #else
     void validate() const {}
@@ -340,7 +340,7 @@ public:
      */
     void purgeAsNeeded(int extraCount = 0, size_t extraBytes = 0);
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     void validate() const;
 #else
     void validate() const {}
@@ -367,7 +367,7 @@ private:
     typedef SkTInternalLList<GrResourceEntry> EntryList;
     EntryList      fList;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     // These objects cannot be returned by a search
     EntryList      fExclusiveList;
 #endif
@@ -397,14 +397,14 @@ private:
 
     void internalPurge(int extraCount, size_t extraBytes);
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     static size_t countBytes(const SkTInternalLList<GrResourceEntry>& list);
 #endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     class GrAutoResourceCacheValidate {
     public:
         GrAutoResourceCacheValidate(GrResourceCache* cache) : fCache(cache) {

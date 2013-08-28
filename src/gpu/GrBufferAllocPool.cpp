@@ -14,7 +14,7 @@
 #include "GrTypes.h"
 #include "GrVertexBuffer.h"
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     #define VALIDATE validate
 #else
     static void VALIDATE(bool = false) {}
@@ -117,7 +117,7 @@ void GrBufferAllocPool::unlock() {
     VALIDATE();
 }
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     if (NULL != fBufferPtr) {
         SkASSERT(!fBlocks.empty());

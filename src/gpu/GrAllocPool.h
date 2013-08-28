@@ -41,7 +41,7 @@ private:
     Block*  fBlock;
     size_t  fMinBlockSize;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     int fBlocksAllocated;
     void validate() const;
 #else

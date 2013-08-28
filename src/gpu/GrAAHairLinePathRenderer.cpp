@@ -166,7 +166,7 @@ namespace {
 // Takes 178th time of logf on Z600 / VC2010
 int get_float_exp(float x) {
     GR_STATIC_ASSERT(sizeof(int) == sizeof(float));
-#if GR_DEBUG
+#ifdef SK_DEBUG
     static bool tested;
     if (!tested) {
         tested = true;

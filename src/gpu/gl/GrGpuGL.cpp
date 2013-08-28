@@ -895,7 +895,7 @@ static GrTexture* return_null_texture() {
     return NULL;
 }
 
-#if 0 && GR_DEBUG
+#if 0 && defined(SK_DEBUG)
 static size_t as_size_t(int x) {
     return x;
 }
@@ -1125,7 +1125,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_DEPTH_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, 0));
-#if GR_DEBUG
+#ifdef SK_DEBUG
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
@@ -1545,7 +1545,7 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
 
     if (fHWBoundRenderTarget != rt) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
-#if GR_DEBUG
+#ifdef SK_DEBUG
         GrGLenum status;
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {

@@ -46,7 +46,7 @@ SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true,
 // limitations) should we disable AA or draw wrong?
 #define DISABLE_COVERAGE_AA_FOR_BLEND 1
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     // change this to a 1 to see notifications when partial coverage fails
     #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
 #else
@@ -695,7 +695,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     *useVertexCoverage = false;
     if (!target->getDrawState().canTweakAlphaForCoverage()) {
         if (disable_coverage_aa_for_blend(target)) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
             //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
             return false;
@@ -1122,7 +1122,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     if (disable_coverage_aa_for_blend(target)) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
         //GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
         useAA = false;
@@ -1155,7 +1155,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
     }
 
     if (NULL == pr) {
-#if GR_DEBUG
+#ifdef SK_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
 #endif
         return;

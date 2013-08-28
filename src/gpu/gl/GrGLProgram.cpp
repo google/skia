@@ -650,7 +650,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
 
     ///////////////////////////////////////////////////////////////////////////
     // insert GS
-#if GR_DEBUG
+#ifdef SK_DEBUG
     this->genGeometryShader(&builder);
 #endif
 

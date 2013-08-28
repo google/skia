@@ -287,7 +287,7 @@ private:
             return false;
         }
         bool result = this->onIsEqual(other);
-#if GR_DEBUG
+#ifdef SK_DEBUG
         if (result) {
             SkASSERT(this->numTextures() == other.numTextures());
             for (int i = 0; i < this->numTextures(); ++i) {

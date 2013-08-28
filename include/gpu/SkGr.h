@@ -25,8 +25,8 @@
 #include "SkRegion.h"
 #include "SkClipStack.h"
 
-#if (GR_DEBUG && defined(SK_RELEASE)) || (GR_RELEASE && defined(SK_DEBUG))
-//    #error "inconsistent GR_DEBUG and SK_DEBUG"
+#if (GR_RELEASE && defined(SK_DEBUG))
+//    #error "inconsistent GR_RELEASE and SK_DEBUG"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

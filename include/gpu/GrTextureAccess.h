@@ -149,7 +149,7 @@ public:
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode);
 
     bool operator== (const GrTextureAccess& other) const {
-#if GR_DEBUG
+#ifdef SK_DEBUG
         // below assumes all chars in fSwizzle are initialized even if string is < 4 chars long.
         SkASSERT(memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1) ==
                  strcmp(fSwizzle, other.fSwizzle));

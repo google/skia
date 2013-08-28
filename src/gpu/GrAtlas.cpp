@@ -40,7 +40,7 @@
 
 #define BORDER      1
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     static int gCounter;
 #endif
 
@@ -63,7 +63,7 @@ GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY, GrMaskFormat format) :
 
     fMaskFormat = format;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
 //    GrPrintf(" GrAtlas %p [%d %d] %d\n", this, plotX, plotY, gCounter);
     gCounter += 1;
 #endif
@@ -74,7 +74,7 @@ GrAtlas::~GrAtlas() {
 
     delete fRects;
 
-#if GR_DEBUG
+#ifdef SK_DEBUG
     --gCounter;
 //    GrPrintf("~GrAtlas %p [%d %d] %d\n", this, fPlot.fX, fPlot.fY, gCounter);
 #endif
