@@ -107,7 +107,10 @@ bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
 
     SkASSERT(fBitmap.getPixels() == NULL);
 
-    fStream->rewind();
+    if (!fStream->rewind()) {
+        SkDEBUGF(("Failed to rewind SkImageRef stream!"));
+        return false;
+    }
 
     SkImageDecoder* codec;
     if (fFactory) {
@@ -184,6 +187,15 @@ void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fConfig);
     buffer.writeInt(fSampleSize);
     buffer.writeBool(fDoDither);
-    fStream->rewind();
-    buffer.writeStream(fStream, fStream->getLength());
+    // FIXME: Consider moving this logic should go into writeStream itself.
+    // writeStream currently has no other callers, so this may be fine for
+    // now.
+    if (!fStream->rewind()) {
+        SkDEBUGF(("Failed to rewind SkImageRef stream!"));
+        buffer.write32(0);
+    } else {
+        // FIXME: Handle getLength properly here. Perhaps this class should
+        // take an SkStreamAsset.
+        buffer.writeStream(fStream, fStream->getLength());
+    }
 }

@@ -199,7 +199,10 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
         return false;
     }
 
-    stream->rewind();
+    if (!stream->rewind()) {
+        SkDebugf("Failed to rewind webp stream!");
+        return false;
+    }
     const size_t readBufferSize = stream->hasLength() ?
             SkTMin(stream->getLength(), WEBP_IDECODE_BUFFER_SZ) : WEBP_IDECODE_BUFFER_SZ;
     SkAutoMalloc srcStorage(readBufferSize);
@@ -311,7 +314,11 @@ bool SkWEBPImageDecoder::onBuildTileIndex(SkStream* stream,
         return false;
     }
 
-    stream->rewind();
+    if (!stream->rewind()) {
+        SkDebugf("Failed to rewind webp stream!");
+        return false;
+    }
+
     *width = origWidth;
     *height = origHeight;
 

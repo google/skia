@@ -124,7 +124,9 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
 #ifdef SK_BUILD_FOR_ANDROID
 static void sk_seek_fn(png_structp png_ptr, png_uint_32 offset) {
     SkStream* sk_stream = (SkStream*) png_get_io_ptr(png_ptr);
-    sk_stream->rewind();
+    if (!sk_stream->rewind()) {
+        png_error(png_ptr, "Failed to rewind stream!");
+    }
     (void)sk_stream->skip(offset);
 }
 #endif
