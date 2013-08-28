@@ -66,12 +66,6 @@
          ],
          "ignore-failure" : false
       },
-      "CMYK.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 8044662098954176130 ]
-         ],
-         "ignore-failure" : false
-      },
       "Lower_Left.jpg" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 3518857344143029942 ]
@@ -90,12 +84,6 @@
          ],
          "ignore-failure" : false
       },
-      "Softskin-Series-Folder-Folder-TV-DEXTER-2.ico" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 6383196142855109799 ]
-         ],
-         "ignore-failure" : false
-      },
       "Upper_Left.jpg" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 7518208176958373090 ]
@@ -108,33 +96,15 @@
          ],
          "ignore-failure" : false
       },
-      "art.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 1194865470158040918 ]
-         ],
-         "ignore-failure" : false
-      },
-      "baseline_jpeg.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 4163734972868667214 ]
-         ],
-         "ignore-failure" : false
-      },
-      "baseline_restart_jpeg.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 4163734972868667214 ]
-         ],
-         "ignore-failure" : false
-      },
-      "bmp_test.bmp" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 13377769522785041821 ]
-         ],
-         "ignore-failure" : false
-      },
       "desk_yahoonews_0.jpg" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 11660520904814991699 ]
+         ],
+         "ignore-failure" : false
+      },
+      "friend.wbmp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 8444311348702753929 ]
          ],
          "ignore-failure" : false
       },
@@ -144,27 +114,15 @@
          ],
          "ignore-failure" : false
       },
+      "pac2.wbmp" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 16120779150350061767 ]
+         ],
+         "ignore-failure" : false
+      },
       "photo.jpg.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 76400998740744557 ]
-         ],
-         "ignore-failure" : false
-      },
-      "png_test.png" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 3962535646133419277 ]
-         ],
-         "ignore-failure" : false
-      },
-      "progressive_jpeg.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 4163734972868667214 ]
-         ],
-         "ignore-failure" : false
-      },
-      "progressive_restart_jpeg.jpg" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 4163734972868667214 ]
          ],
          "ignore-failure" : false
       },
@@ -174,41 +132,8 @@
          ],
          "ignore-failure" : false
       },
-      "webp_test.webp" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 2946264152433674804 ]
-         ],
-         "ignore-failure" : false
-      },
-      "webp_test.webp_[103,17,154,124]" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 8972288090774759642 ]
-         ],
-         "ignore-failure" : false
-      },
-      "webp_test.webp_[110,85,267,304]" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 261638602306139829 ]
-         ],
-         "ignore-failure" : false
-      },
-      "webp_test.webp_[223,404,562,457]" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 6408120322797303128 ]
-         ],
-         "ignore-failure" : false
-      },
-      "webp_test.webp_[262,269,387,328]" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 18424384439009379931 ]
-         ],
-         "ignore-failure" : false
-      },
-      "webp_test.webp_[514,217,623,260]" : {
-         "allowed-digests" : [
-            [ "bitmap-64bitMD5", 1549338922479921698 ]
-         ],
-         "ignore-failure" : false
+      "gif_test.gif" : {
+         "ignore-failure" : true
       }
    }
 }
