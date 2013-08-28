@@ -16,7 +16,10 @@ static void sk_init_source(j_decompress_ptr cinfo) {
 #ifdef SK_BUILD_FOR_ANDROID
     src->current_offset = 0;
 #endif
-    src->fStream->rewind();
+    if (!src->fStream->rewind()) {
+        SkDebugf("xxxxxxxxxxxxxx failure to rewind\n");
+        cinfo->err->error_exit((j_common_ptr)cinfo);
+    }
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -27,7 +30,11 @@ static boolean sk_seek_input_data(j_decompress_ptr cinfo, long byte_offset) {
     if (bo > src->current_offset) {
         (void)src->fStream->skip(bo - src->current_offset);
     } else {
-        src->fStream->rewind();
+        if (!src->fStream->rewind()) {
+            SkDebugf("xxxxxxxxxxxxxx failure to rewind\n");
+            cinfo->err->error_exit((j_common_ptr)cinfo);
+            return false;
+        }
         (void)src->fStream->skip(bo);
     }
 

@@ -96,7 +96,9 @@ public:
     SkData* readData();
 
 //SkStreamRewindable
-    /** Rewinds to the beginning of the stream. If this cannot be done, return false. */
+    /** Rewinds to the beginning of the stream. Returns true if the stream is known
+     *  to be at the beginning after this call returns.
+     */
     virtual bool rewind() { return false; }
 
     /** Duplicates this stream. If this cannot be done, returns NULL.
