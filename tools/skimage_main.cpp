@@ -184,7 +184,8 @@ static bool expect_to_fail(const char* filename) {
 
 /**
  *  Compare against an expectation for this filename, if there is one.
- *  @param bitmap SkBitmap to compare to the expected value.
+ *  @param digest GmResultDigest, computed from the decoded bitmap, to compare to the
+ *           expectation.
  *  @param filename String used to find the expected value.
  *  @param failureArray Array to add a failure message to on failure.
  *  @param missingArray Array to add missing expectation to on failure.
@@ -196,11 +197,11 @@ static bool expect_to_fail(const char* filename) {
  *                  - there is an expectation for this bitmap, but it did not match.
  *                  - expectation could not be computed from the bitmap.
  */
-static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const char* filename,
+static bool compare_to_expectations_if_necessary(const skiagm::GmResultDigest& digest,
+                                                 const char* filename,
                                                  SkTArray<SkString, false>* failureArray,
                                                  SkTArray<SkString, false>* missingArray) {
-    skiagm::GmResultDigest resultDigest(bitmap);
-    if (!resultDigest.isValid()) {
+    if (!digest.isValid()) {
         if (failureArray != NULL) {
             failureArray->push_back().printf("decoded %s, but could not create a GmResultDigest.",
                                              filename);
@@ -221,7 +222,7 @@ static bool compare_to_expectations_if_necessary(const SkBitmap& bitmap, const c
         return false;
     }
 
-    if (jsExpectation.match(resultDigest)) {
+    if (jsExpectation.match(digest)) {
         return true;
     }
 
@@ -304,6 +305,68 @@ static bool write_subset(const char* writePath, const char* filename, const char
     return true;
 }
 
+// FIXME: This test could be run on windows/mac once we remove their dependence on
+// getLength. See https://code.google.com/p/skia/issues/detail?id=1570
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
+
+/**
+ *  Dummy class for testing to ensure that a stream without a length decodes the same
+ *  as a stream with a length.
+ */
+class FILEStreamWithoutLength : public SkFILEStream {
+public:
+    FILEStreamWithoutLength(const char path[])
+    : INHERITED(path) {}
+
+    virtual bool hasLength() const SK_OVERRIDE {
+        return false;
+    }
+
+private:
+    typedef SkFILEStream INHERITED;
+};
+
+/**
+ *  Test that decoding a stream which reports to not have a length still results in the
+ *  same image as if it did report to have a length. Assumes that codec was used to
+ *  successfully decode the file using SkFILEStream.
+ *  @param srcPath The path to the file, for recreating the length-less stream.
+ *  @param codec The SkImageDecoder originally used to decode srcPath, which will be used
+ *      again to decode the length-less stream.
+ *  @param digest GmResultDigest computed from decoding the stream the first time.
+ *      Decoding the length-less stream is expected to result in a matching digest.
+ */
+static void test_stream_without_length(const char srcPath[], SkImageDecoder* codec,
+                                       const skiagm::GmResultDigest& digest) {
+    if (!digest.isValid()) {
+        // An error was already reported.
+        return;
+    }
+    SkASSERT(srcPath);
+    SkASSERT(codec);
+    FILEStreamWithoutLength stream(srcPath);
+    // This will only be called after a successful decode. Creating a stream from the same
+    // path should never fail.
+    SkASSERT(stream.isValid());
+    SkBitmap bm;
+    if (!codec->decode(&stream, &bm, gPrefConfig, SkImageDecoder::kDecodePixels_Mode)) {
+        gDecodeFailures.push_back().appendf("Without using getLength, %s failed to decode\n",
+                                            srcPath);
+        return;
+    }
+    skiagm::GmResultDigest lengthLessDigest(bm);
+    if (!lengthLessDigest.isValid()) {
+        gDecodeFailures.push_back().appendf("Without using getLength, %s failed to build "
+                                            "a digest\n", srcPath);
+        return;
+    }
+    if (!lengthLessDigest.equals(digest)) {
+        gDecodeFailures.push_back().appendf("Without using getLength, %s did not match digest "
+                                            "that uses getLength\n", srcPath);
+    }
+}
+#endif // defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
+
 static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) {
     SkBitmap bitmap;
     SkFILEStream stream(srcPath);
@@ -353,7 +416,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         }
     }
 
-    if (compare_to_expectations_if_necessary(bitmap, filename,
+    skiagm::GmResultDigest digest(bitmap);
+    if (compare_to_expectations_if_necessary(digest, filename,
                                              &gDecodeFailures,
                                              &gMissingExpectations)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
@@ -367,6 +431,12 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
             gEncodeFailures.push_back().set(outPath);
         }
     }
+
+// FIXME: This test could be run on windows/mac once we remove their dependence on
+// getLength. See https://code.google.com/p/skia/issues/detail?id=1570
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
+    test_stream_without_length(srcPath, codec, digest);
+#endif
 
     if (writePath != NULL) {
         SkString outPath;
@@ -398,7 +468,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                                                     rect.fRight, rect.fBottom);
                 if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, gPrefConfig)) {
                     SkString subsetName = SkStringPrintf("%s_%s", filename, subsetDim.c_str());
-                    if (compare_to_expectations_if_necessary(bitmapFromDecodeSubset,
+                    skiagm::GmResultDigest subsetDigest(bitmapFromDecodeSubset);
+                    if (compare_to_expectations_if_necessary(subsetDigest,
                                                              subsetName.c_str(),
                                                              &gFailedSubsetDecodes,
                                                              &gMissingSubsetExpectations)) {
