@@ -180,8 +180,22 @@ const SkMatrix44& SkMatrix44::I() {
 }
 
 void SkMatrix44::setIdentity() {
-    sk_bzero(fMat, sizeof(fMat));
-    fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
+    fMat[0][0] = 1;
+    fMat[0][1] = 0;
+    fMat[0][2] = 0;
+    fMat[0][3] = 0;
+    fMat[1][0] = 0;
+    fMat[1][1] = 1;
+    fMat[1][2] = 0;
+    fMat[1][3] = 0;
+    fMat[2][0] = 0;
+    fMat[2][1] = 0;
+    fMat[2][2] = 1;
+    fMat[2][3] = 0;
+    fMat[3][0] = 0;
+    fMat[3][1] = 0;
+    fMat[3][2] = 0;
+    fMat[3][3] = 1;
     this->setTypeMask(kIdentity_Mask);
 }
 
@@ -452,9 +466,6 @@ double SkMatrix44::determinant() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// just picked a small value. not sure how to pick the "right" one
-#define TOO_SMALL_FOR_DETERMINANT   (1.e-8)
-
 static inline double dabs(double x) {
     if (x < 0) {
         x = -x;
@@ -465,7 +476,7 @@ static inline double dabs(double x) {
 bool SkMatrix44::invert(SkMatrix44* inverse) const {
     if (this->isIdentity()) {
         if (inverse) {
-            *inverse = *this;
+            inverse->setIdentity();
             return true;
         }
     }
@@ -479,24 +490,56 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
         if (0 == fMat[0][0] * fMat[1][1] * fMat[2][2]) {
             return false;
         }
-        if (inverse) {
-            sk_bzero(inverse->fMat, sizeof(inverse->fMat));
 
-            double invXScale = 1 / fMat[0][0];
-            double invYScale = 1 / fMat[1][1];
-            double invZScale = 1 / fMat[2][2];
+        double a00 = fMat[0][0];
+        double a11 = fMat[1][1];
+        double a22 = fMat[2][2];
+        double a30 = fMat[3][0];
+        double a31 = fMat[3][1];
+        double a32 = fMat[3][2];
 
-            inverse->fMat[3][0] = -fMat[3][0] * invXScale;
-            inverse->fMat[3][1] = -fMat[3][1] * invYScale;
-            inverse->fMat[3][2] = -fMat[3][2] * invZScale;
+        double b00 = a00 * a11;
+        double b07 = -a22 * a30;
+        double b09 = -a22 * a31;
+        double b11 = a22;
 
-            inverse->fMat[0][0] = invXScale;
-            inverse->fMat[1][1] = invYScale;
-            inverse->fMat[2][2] = invZScale;
-            inverse->fMat[3][3] = 1;
+        // Calculate the determinant
+        double det = b00 * b11;
 
-            inverse->setTypeMask(this->getType());
+        double invdet = 1.0 / det;
+        // If det is zero, we want to return false. However, we also want to return false
+        // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
+        // handled by checking that 1/det is finite.
+        if (!sk_float_isfinite(invdet)) {
+            return false;
         }
+        if (NULL == inverse) {
+            return true;
+        }
+
+        b00 *= invdet;
+        b07 *= invdet;
+        b09 *= invdet;
+        b11 *= invdet;
+
+        inverse->fMat[0][0] = SkDoubleToMScalar(a11 * b11);
+        inverse->fMat[0][1] = 0;
+        inverse->fMat[0][2] = 0;
+        inverse->fMat[0][3] = 0;
+        inverse->fMat[1][0] = 0;
+        inverse->fMat[1][1] = SkDoubleToMScalar(a00 * b11);
+        inverse->fMat[1][2] = 0;
+        inverse->fMat[1][3] = 0;
+        inverse->fMat[2][0] = 0;
+        inverse->fMat[2][1] = 0;
+        inverse->fMat[2][2] = SkDoubleToMScalar(b00);
+        inverse->fMat[2][3] = 0;
+        inverse->fMat[3][0] = SkDoubleToMScalar(a11 * b07);
+        inverse->fMat[3][1] = SkDoubleToMScalar(a00 * b09);
+        inverse->fMat[3][2] = SkDoubleToMScalar(-a32 * b00);
+        inverse->fMat[3][3] = 1;
+
+        inverse->setTypeMask(this->getType());
         return true;
     }
 
@@ -883,14 +926,22 @@ void SkMatrix44::dump() const {
 // TODO: make this support src' perspective elements
 //
 static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
-    sk_bzero(dst, 16 * sizeof(SkMScalar));
     dst[0][0] = SkScalarToMScalar(src[SkMatrix::kMScaleX]);
     dst[1][0] = SkScalarToMScalar(src[SkMatrix::kMSkewX]);
+    dst[2][0] = 0;
     dst[3][0] = SkScalarToMScalar(src[SkMatrix::kMTransX]);
     dst[0][1] = SkScalarToMScalar(src[SkMatrix::kMSkewY]);
     dst[1][1] = SkScalarToMScalar(src[SkMatrix::kMScaleY]);
+    dst[2][1] = 0;
     dst[3][1] = SkScalarToMScalar(src[SkMatrix::kMTransY]);
-    dst[2][2] = dst[3][3] = 1;
+    dst[0][2] = 0;
+    dst[1][2] = 0;
+    dst[2][2] = 1;
+    dst[3][2] = 0;
+    dst[0][3] = 0;
+    dst[1][3] = 0;
+    dst[2][3] = 0;
+    dst[3][3] = 1;
 }
 
 SkMatrix44::SkMatrix44(const SkMatrix& src) {
