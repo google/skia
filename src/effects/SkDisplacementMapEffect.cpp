@@ -413,10 +413,10 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                                     kVec2f_GrSLType, "Scale");
     const char* scaleUni = builder->getUniformCStr(fScaleUni);
 
-    const char* dCoordsIn;
+    SkString dCoordsIn;
     GrSLType dCoordsType = fDisplacementEffectMatrix.emitCode(
                                 builder, key, &dCoordsIn, NULL, "DISPL");
-    const char* cCoordsIn;
+    SkString cCoordsIn;
     GrSLType cCoordsType = fColorEffectMatrix.emitCode(
                                 builder, key, &cCoordsIn, NULL, "COLOR");
 
@@ -430,7 +430,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t\tvec4 %s = ", dColor);
     builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                  samplers[0],
-                                 dCoordsIn,
+                                 dCoordsIn.c_str(),
                                  dCoordsType);
     builder->fsCodeAppend(";\n");
 
@@ -439,7 +439,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                            dColor, dColor, nearZero, dColor, dColor);
 
     builder->fsCodeAppendf("\t\tvec2 %s = %s + %s*(%s.",
-                           cCoords, cCoordsIn, scaleUni, dColor);
+                           cCoords, cCoordsIn.c_str(), scaleUni, dColor);
 
     switch (fXChannelSelector) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:

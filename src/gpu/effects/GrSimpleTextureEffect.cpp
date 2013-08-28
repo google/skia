@@ -31,14 +31,16 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = drawEffect.castEffect<GrSimpleTextureEffect>();
-        const char* fsCoordName;
+        SkString fsCoordName;
         GrSLType fsCoordSLType;
         if (GrEffect::kCustom_CoordsType == ste.coordsType()) {
             SkASSERT(ste.getMatrix().isIdentity());
             SkASSERT(1 == ste.numVertexAttribs());
             fsCoordSLType = kVec2f_GrSLType;
             const char* vsVaryingName;
-            builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsCoordName);
+            const char* fsVaryingNamePtr;
+            builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
+            fsCoordName = fsVaryingNamePtr;
             const char* attrName =
                 builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
             builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
@@ -49,7 +51,7 @@ public:
         builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
                                                 inputColor,
                                                 samplers[0],
-                                                fsCoordName,
+                                                fsCoordName.c_str(),
                                                 fsCoordSLType);
         builder->fsCodeAppend(";\n");
     }

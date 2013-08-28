@@ -50,7 +50,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                        const TextureSamplerArray& samplers) {
     const GrTextureDomainEffect& texDom = drawEffect.castEffect<GrTextureDomainEffect>();
 
-    const char* coords;
+    SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     const char* domain;
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -58,7 +58,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
     if (GrTextureDomainEffect::kClamp_WrapMode == texDom.wrapMode()) {
 
         builder->fsCodeAppendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
-                                coords, domain, domain);
+                                coords.c_str(), domain, domain);
 
         builder->fsCodeAppendf("\t%s = ", outputColor);
         builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
@@ -81,24 +81,24 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
                                                     inputColor,
                                                     samplers[0],
-                                                    coords);
+                                                    coords.c_str());
             builder->fsCodeAppend(";\n");
 
             builder->fsCodeAppendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
-                                   coords, domain, domain, domain);
+                                   coords.c_str(), domain, domain, domain);
             builder->fsCodeAppendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
-                                   coords, domain, domain, domain);
+                                   coords.c_str(), domain, domain, domain);
             builder->fsCodeAppend("\tfloat blend = step(1.0, max(x, y));\n");
             builder->fsCodeAppendf("\t%s = mix(inside, outside, blend);\n", outputColor);
         } else {
             builder->fsCodeAppend("\tbvec4 outside;\n");
-            builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords, domain);
-            builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords, domain);
+            builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords.c_str(), domain);
+            builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords.c_str(), domain);
             builder->fsCodeAppendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ", outputColor);
             builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
                                                     inputColor,
                                                     samplers[0],
-                                                    coords);
+                                                    coords.c_str());
             builder->fsCodeAppend(";\n");
         }
     }

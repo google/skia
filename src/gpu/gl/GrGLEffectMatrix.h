@@ -84,12 +84,12 @@ public:
      * are returned as output parameters and the type of the varying is the return value. The suffix
      * is an optional parameter that can be used to make all variables emitted by the object
      * unique within a stage. It is only necessary if multiple GrGLEffectMatrix objects are used by
-     * a GrGLEffect.
+     * a single GrGLEffect.
      */
     GrSLType emitCode(GrGLShaderBuilder*,
                       EffectKey,
-                      const char** fsCoordName, /* optional */
-                      const char** vsCoordName = NULL,
+                      SkString* fsCoordName, /* optional */
+                      SkString* vsCoordName = NULL,
                       const char* suffix = NULL);
 
     /**
@@ -98,8 +98,8 @@ public:
      */
     void emitCodeMakeFSCoords2D(GrGLShaderBuilder*,
                                 EffectKey,
-                                const char** fsCoordName, /* optional */
-                                const char** vsVaryingName = NULL,
+                                SkString* fsCoordName, /* optional */
+                                SkString* vsVaryingName = NULL,
                                 GrSLType* vsVaryingType = NULL,
                                 const char* suffix = NULL);
     /**

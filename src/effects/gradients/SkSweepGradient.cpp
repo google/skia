@@ -473,10 +473,10 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
                                  const char* inputColor,
                                  const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
-    const char* coords;
+    SkString coords;
     this->setupMatrix(builder, key, &coords);
     SkString t;
-    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords, coords);
+    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords.c_str(), coords.c_str());
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 

@@ -45,8 +45,8 @@ GrGLEffect::EffectKey GrGLEffectMatrix::GenKey(const SkMatrix& effectMatrix,
 
 GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                     EffectKey key,
-                                    const char** fsCoordName,
-                                    const char** vsCoordName,
+                                    SkString* fsCoordName,
+                                    SkString* vsCoordName,
                                     const char* suffix) {
     GrSLType varyingType = kVoid_GrSLType;
     const char* uniName;
@@ -152,11 +152,11 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     */
 void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
                                               EffectKey key,
-                                              const char** fsCoordName,
-                                              const char** vsVaryingName,
+                                              SkString* fsCoordName,
+                                              SkString* vsVaryingName,
                                               GrSLType* vsVaryingType,
                                               const char* suffix) {
-    const char* fsVaryingName;
+    SkString fsVaryingName;
 
     GrSLType varyingType = this->emitCode(builder,
                                           key,
@@ -173,7 +173,7 @@ void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
             coordName = suffixedCoordName.c_str();
         }
         builder->fsCodeAppendf("\tvec2 %s = %s.xy / %s.z;",
-                               coordName, fsVaryingName, fsVaryingName);
+                               coordName, fsVaryingName.c_str(), fsVaryingName.c_str());
         if (NULL != fsCoordName) {
             *fsCoordName = coordName;
         }

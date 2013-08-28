@@ -30,12 +30,12 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        const char* coords;
+        SkString coords;
         GrSLType coordsType = fEffectMatrix.emitCode(builder, key, &coords);
         builder->fsCodeAppendf("\t\t%s = ", outputColor);
         builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                      samplers[0],
-                                     coords,
+                                     coords.c_str(),
                                      coordsType);
         builder->fsCodeAppend(";\n");
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {

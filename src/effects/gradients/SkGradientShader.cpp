@@ -857,8 +857,8 @@ GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrDrawEffect& drawE
 
 void GrGLGradientEffect::setupMatrix(GrGLShaderBuilder* builder,
                                      EffectKey key,
-                                     const char** fsCoordName,
-                                     const char** vsVaryingName,
+                                     SkString* fsCoordName,
+                                     SkString* vsVaryingName,
                                      GrSLType* vsVaryingType) {
     fEffectMatrix.emitCodeMakeFSCoords2D(builder,
                                          key & kMatrixKeyMask,
