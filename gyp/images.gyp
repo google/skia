@@ -22,6 +22,8 @@
         '../src/core/',
         # for access to SkImagePriv.h
         '../src/image/',
+        # So src/ports/SkImageDecoder_CG can access SkStreamHelpers.h
+        '../src/images/',
       ],
       'sources': [
         '../include/images/SkForceLinking.h',
