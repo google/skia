@@ -148,10 +148,7 @@ function rebaseline_test {
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
   EXPECTATIONS_TO_MODIFY_DIR="$ACTUAL_OUTPUT_DIR/gm-expectations"
-  # TODO(epoger): Temporarily exclude expectations subdirs with old base-* names,
-  # during a transition period (we need the svn rm of those subdirs to take
-  # effect)
-  BUILDERS=$(ls $COPY_EXPECTATIONS_FROM_DIR | grep -v ^base-)
+  BUILDERS=$(ls $COPY_EXPECTATIONS_FROM_DIR)
   for BUILDER in $BUILDERS; do
     mkdir -p $EXPECTATIONS_TO_MODIFY_DIR/$BUILDER
     cp $COPY_EXPECTATIONS_FROM_DIR/$BUILDER/expected-results.json \
@@ -162,17 +159,7 @@ function rebaseline_test {
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
-  # TODO(epoger): Temporarily override compare_directories with a comparison
-  # that excludes expectations subdirs with old base-* names,
-  # during a transition period (we need the svn rm of those subdirs to take
-  # effect)
-  #
-  # WAS: compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
-  diff --recursive --exclude=.* --exclude=base-* $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
-  if [ $? != 0 ]; then
-    echo "failed in: compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR"
-    exit 1
-  fi
+  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
 # Run jsondiff.py with arguments in $1, recording its output.
