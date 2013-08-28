@@ -11,6 +11,7 @@
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
+#include "SkStreamHelpers.h"
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 
@@ -30,9 +31,9 @@ static void malloc_release_proc(void* info, const void* data, size_t size) {
 
 static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
     // TODO: use callbacks, so we don't have to load all the data into RAM
-    size_t len = stream->getLength();
-    void* data = sk_malloc_throw(len);
-    stream->read(data, len);
+    SkAutoMalloc storage;
+    const size_t len = CopyStreamToStorage(&storage, stream);
+    void* data = storage.detach();
 
     return CGDataProviderCreateWithData(data, data, len, malloc_release_proc);
 }
