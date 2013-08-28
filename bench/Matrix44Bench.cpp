@@ -58,6 +58,27 @@ private:
     typedef Matrix44Bench INHERITED;
 };
 
+class SetIdentityMatrix44Bench : public Matrix44Bench {
+public:
+    SetIdentityMatrix44Bench(void* param) : INHERITED(param, "setidentity") {
+        double rowMajor[16] =
+                { 1, 2, 3, 4,
+                  5, 6, 7, 8,
+                  9, 10, 11, 12,
+                  13, 14, 15, 16};
+        mat.setRowMajord(rowMajor);
+    }
+protected:
+    virtual void performTest() {
+        for (int i = 0; i < 10; ++i) {
+            mat.setIdentity();
+        }
+    }
+private:
+    SkMatrix44 mat;
+    typedef Matrix44Bench INHERITED;
+};
+
 class PreScaleMatrix44Bench : public Matrix44Bench {
 public:
     PreScaleMatrix44Bench(void* param) : INHERITED(param, "prescale") {
@@ -232,6 +253,7 @@ private:
     typedef Matrix44Bench INHERITED;
 };
 
+DEF_BENCH( return new SetIdentityMatrix44Bench(p); )
 DEF_BENCH( return new EqualsMatrix44Bench(p); )
 DEF_BENCH( return new PreScaleMatrix44Bench(p); )
 DEF_BENCH( return new PostScaleMatrix44Bench(p); )
