@@ -9,7 +9,7 @@
 #include "Test.h"
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
-#include "SkDevice.h"
+#include "SkBitmapDevice.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
