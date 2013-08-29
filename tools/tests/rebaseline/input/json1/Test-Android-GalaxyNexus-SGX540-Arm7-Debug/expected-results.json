@@ -12,7 +12,8 @@
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 11899819492385205974 ]
          ],
-         "ignore-failure" : false
+         "ignore-failure" : false,
+         "unknown-extra-field" : "make sure that rebaseline.py maintains this unknown field within a record whose allowed-digest IS NOT modified"
       },
       "aarectmodes_565.png" : {
          "allowed-digests" : [
@@ -24,7 +25,8 @@
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 17796243856503591523 ]
          ],
-         "ignore-failure" : false
+         "ignore-failure" : false,
+         "unknown-extra-field" : "make sure that rebaseline.py maintains this unknown field within a record whose allowed-digest IS modified"
       },
       "imageblur_8888.png" : {
          "allowed-digests" : [
