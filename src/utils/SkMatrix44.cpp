@@ -491,55 +491,34 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
             return false;
         }
 
-        double a00 = fMat[0][0];
-        double a11 = fMat[1][1];
-        double a22 = fMat[2][2];
-        double a30 = fMat[3][0];
-        double a31 = fMat[3][1];
-        double a32 = fMat[3][2];
+	if (inverse) {
+	    double invXScale = 1 / fMat[0][0];
+	    double invYScale = 1 / fMat[1][1];
+	    double invZScale = 1 / fMat[2][2];
+	  
+            inverse->fMat[0][0] = invXScale;
+	    inverse->fMat[0][1] = 0;
+	    inverse->fMat[0][2] = 0;
+	    inverse->fMat[0][3] = 0;
 
-        double b00 = a00 * a11;
-        double b07 = -a22 * a30;
-        double b09 = -a22 * a31;
-        double b11 = a22;
+	    inverse->fMat[1][0] = 0;
+	    inverse->fMat[1][1] = invYScale;
+	    inverse->fMat[1][2] = 0;
+	    inverse->fMat[1][3] = 0;
+	  
+	    inverse->fMat[2][0] = 0;
+            inverse->fMat[2][1] = 0;
+	    inverse->fMat[2][2] = invZScale;
+	    inverse->fMat[2][3] = 0;
+	  
+            inverse->fMat[3][0] = -fMat[3][0] * invXScale;
+            inverse->fMat[3][1] = -fMat[3][1] * invYScale;
+            inverse->fMat[3][2] = -fMat[3][2] * invZScale;
+            inverse->fMat[3][3] = 1;
 
-        // Calculate the determinant
-        double det = b00 * b11;
-
-        double invdet = 1.0 / det;
-        // If det is zero, we want to return false. However, we also want to return false
-        // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-        // handled by checking that 1/det is finite.
-        if (!sk_float_isfinite(invdet)) {
-            return false;
+            inverse->setTypeMask(this->getType());
         }
-        if (NULL == inverse) {
-            return true;
-        }
 
-        b00 *= invdet;
-        b07 *= invdet;
-        b09 *= invdet;
-        b11 *= invdet;
-
-        inverse->fMat[0][0] = SkDoubleToMScalar(a11 * b11);
-        inverse->fMat[0][1] = 0;
-        inverse->fMat[0][2] = 0;
-        inverse->fMat[0][3] = 0;
-        inverse->fMat[1][0] = 0;
-        inverse->fMat[1][1] = SkDoubleToMScalar(a00 * b11);
-        inverse->fMat[1][2] = 0;
-        inverse->fMat[1][3] = 0;
-        inverse->fMat[2][0] = 0;
-        inverse->fMat[2][1] = 0;
-        inverse->fMat[2][2] = SkDoubleToMScalar(b00);
-        inverse->fMat[2][3] = 0;
-        inverse->fMat[3][0] = SkDoubleToMScalar(a11 * b07);
-        inverse->fMat[3][1] = SkDoubleToMScalar(a00 * b09);
-        inverse->fMat[3][2] = SkDoubleToMScalar(-a32 * b00);
-        inverse->fMat[3][3] = 1;
-
-        inverse->setTypeMask(this->getType());
         return true;
     }
 
