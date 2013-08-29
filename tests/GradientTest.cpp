@@ -6,12 +6,12 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkDevice.h"
-#include "SkTemplates.h"
-#include "SkShader.h"
+#include "SkBitmapDevice.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"
 #include "SkGradientShader.h"
+#include "SkShader.h"
+#include "SkTemplates.h"
 
 struct GradRec {
     int             fColorCount;
@@ -146,7 +146,7 @@ static void TestConstantGradient(skiatest::Reporter*) {
     outBitmap.allocPixels();
     SkPaint paint;
     paint.setShader(s.get());
-    SkDevice device(outBitmap);
+    SkBitmapDevice device(outBitmap);
     SkCanvas canvas(&device);
     canvas.drawPaint(paint);
     SkAutoLockPixels alp(outBitmap);

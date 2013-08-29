@@ -269,7 +269,7 @@ public:
                                    SampleWindow* win) {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && NULL != fCurContext) {
-            SkAutoTUnref<SkDevice> device(new SkGpuDevice(fCurContext, fCurRenderTarget));
+            SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fCurContext, fCurRenderTarget));
             return new SkCanvas(device);
         } else
 #endif
@@ -1429,7 +1429,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
 
-        SkDevice* device = orig->getDevice();
+        SkBaseDevice* device = orig->getDevice();
         SkBitmap bmp;
         if (device->accessBitmap(false).copyTo(&bmp, SkBitmap::kARGB_8888_Config)) {
             static int gSampleGrabCounter;

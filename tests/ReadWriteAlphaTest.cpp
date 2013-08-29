@@ -82,7 +82,7 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContextFactory* f
         REPORTER_ASSERT(reporter, match);
 
         // Now try writing on the single channel texture
-        SkAutoTUnref<SkDevice> device(new SkGpuDevice(context, texture->asRenderTarget()));
+        SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(context, texture->asRenderTarget()));
         SkCanvas canvas(device);
 
         SkPaint paint;

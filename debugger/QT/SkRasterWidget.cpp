@@ -12,7 +12,7 @@ SkRasterWidget::SkRasterWidget(SkDebugger *debugger) : QWidget() {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 800, 800);
     fBitmap.allocPixels();
     fBitmap.eraseColor(SK_ColorTRANSPARENT);
-    fDevice = new SkDevice(fBitmap);
+    fDevice = new SkBitmapDevice(fBitmap);
     fDebugger = debugger;
     fCanvas = new SkCanvas(fDevice);
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
@@ -29,7 +29,7 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.eraseColor(SK_ColorTRANSPARENT);
     SkSafeUnref(fCanvas);
     SkSafeUnref(fDevice);
-    fDevice = new SkDevice(fBitmap);
+    fDevice = new SkBitmapDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
     fDebugger->resize(event->size().width(), event->size().height());
     this->update();

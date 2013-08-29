@@ -10,8 +10,8 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRect.h"
@@ -44,7 +44,7 @@ typedef bool (*EncodeToDCTStream)(SkWStream* stream, const SkBitmap& bitmap, con
 
     The drawing context for the PDF backend.
 */
-class SkPDFDevice : public SkDevice {
+class SkPDFDevice : public SkBitmapDevice {
 public:
     /** Create a PDF drawing context with the given width and height.
      *  72 points/in means letter paper is 612x792.
@@ -107,7 +107,7 @@ public:
                               const SkPoint texs[], const SkColor colors[],
                               SkXfermode* xmode, const uint16_t indices[],
                               int indexCount, const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
+    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
 
     virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
@@ -237,11 +237,11 @@ private:
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
 
-    // override from SkDevice
-    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                               int width, int height,
-                                               bool isOpaque,
-                                               Usage usage) SK_OVERRIDE;
+    // override from SkBaseDevice
+    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
+                                                   int width, int height,
+                                                   bool isOpaque,
+                                                   Usage usage) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);
@@ -310,7 +310,7 @@ private:
     void defineNamedDestination(SkData* nameData, const SkPoint& point,
                                 const SkMatrix& matrix);
 
-    typedef SkDevice INHERITED;
+    typedef SkBitmapDevice INHERITED;
 };
 
 #endif

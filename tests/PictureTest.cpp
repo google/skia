@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkDevice.h"
 #include "SkError.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureUtils.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
 #include "SkShader.h"
 #include "SkStream.h"
 
-#include "SkPictureUtils.h"
 
 static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);
@@ -556,7 +556,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
  */
 class ClipCountingCanvas : public SkCanvas {
 public:
-    explicit ClipCountingCanvas(SkDevice* device)
+    explicit ClipCountingCanvas(SkBaseDevice* device)
         : SkCanvas(device)
         , fClipCount(0){
     }
@@ -599,7 +599,7 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     p.setColor(SK_ColorBLUE);
     canvas->drawPaint(p);
 
-    SkDevice testDevice(SkBitmap::kNo_Config, 10, 10);
+    SkBitmapDevice testDevice(SkBitmap::kNo_Config, 10, 10);
     ClipCountingCanvas testCanvas(&testDevice);
     picture.draw(&testCanvas);
 

@@ -28,7 +28,7 @@ static const uint32_t kSaveSize = 2 * kUInt32Size;
 static const uint32_t kSaveLayerNoBoundsSize = 4 * kUInt32Size;
 static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect);
 
-SkPictureRecord::SkPictureRecord(uint32_t flags, SkDevice* device) :
+SkPictureRecord::SkPictureRecord(uint32_t flags, SkBaseDevice* device) :
         INHERITED(device),
         fBoundingHierarchy(NULL),
         fStateTree(NULL),
@@ -138,7 +138,7 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
     return gPaintOffsets[op] * sizeof(uint32_t) + overflow;
 }
 
-SkDevice* SkPictureRecord::setDevice(SkDevice* device) {
+SkBaseDevice* SkPictureRecord::setDevice(SkBaseDevice* device) {
     SkDEBUGFAIL("eeek, don't try to change the device on a recording canvas");
     return this->INHERITED::setDevice(device);
 }

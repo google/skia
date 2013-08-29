@@ -6,9 +6,9 @@
  */
 
 #include "SkBenchmark.h"
+#include "SkBitmapDevice.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"
@@ -53,7 +53,7 @@ private:
         const int h = fIsSmall ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fCheckerboard.allocPixels();
-        SkDevice device(fCheckerboard);
+        SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;

@@ -25,7 +25,7 @@ class SkPath;
 //      use growToInclude to fit skp round rects & generate stats (RRs vs. real paths)
 //      check on # of rectorus's the RRs could handle
 //   rendering work
-//      add entry points (clipRRect, drawRRect) - plumb down to SkDevice
+//      add entry points (clipRRect, drawRRect) - plumb down to SkBaseDevice
 //      update SkPath.addRRect() to take an SkRRect - only use quads
 //          -- alternatively add addRRectToPath here
 //      add GM and bench

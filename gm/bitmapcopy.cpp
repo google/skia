@@ -66,7 +66,7 @@ protected:
         SkScalar horizMargin(SkIntToScalar(10));
         SkScalar vertMargin(SkIntToScalar(10));
 
-        SkDevice devTmp(SkBitmap::kARGB_8888_Config, 40, 40);
+        SkBitmapDevice devTmp(SkBitmap::kARGB_8888_Config, 40, 40, false);
         SkCanvas canvasTmp(&devTmp);
 
         draw_checks(&canvasTmp, 40, 40);

@@ -14,7 +14,7 @@ class GrContext;
 #endif
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
-    SkDevice* dev;
+    SkBaseDevice* dev;
 
     const int kFixed = 28;
     const int kStretchy = 8;
@@ -29,7 +29,7 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
         bitmap->allocPixels();
-        dev = new SkDevice(*bitmap);
+        dev = new SkBitmapDevice(*bitmap);
     }
 
     SkCanvas canvas(dev);

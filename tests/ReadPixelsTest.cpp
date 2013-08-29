@@ -311,9 +311,10 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
         }
 #endif
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            SkAutoTUnref<SkDevice> device;
+            SkAutoTUnref<SkBaseDevice> device;
             if (0 == dtype) {
-                device.reset(new SkDevice(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H, false));
+                device.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config, 
+                                                DEV_W, DEV_H, false));
             } else {
 #if SK_SUPPORT_GPU
                 GrContextFactory::GLContextType type =
