@@ -612,7 +612,6 @@
 		26D90D2A140D51290036A311 /* SkTDStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTDStack.h; path = core/SkTDStack.h; sourceTree = "<group>"; };
 		26D90D2B140D51290036A311 /* SkTDict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTDict.h; path = core/SkTDict.h; sourceTree = "<group>"; };
 		26D90D2C140D51290036A311 /* SkTRegistry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTRegistry.h; path = core/SkTRegistry.h; sourceTree = "<group>"; };
-		26D90D2D140D51290036A311 /* SkTScopedPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTScopedPtr.h; path = core/SkTScopedPtr.h; sourceTree = "<group>"; };
 		26D90D2E140D51290036A311 /* SkTSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTSearch.h; path = core/SkTSearch.h; sourceTree = "<group>"; };
 		26D90D2F140D51290036A311 /* SkTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTemplates.h; path = core/SkTemplates.h; sourceTree = "<group>"; };
 		26D90D30140D51290036A311 /* SkThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkThread.h; path = core/SkThread.h; sourceTree = "<group>"; };
@@ -1486,7 +1485,6 @@
 				26D90D2A140D51290036A311 /* SkTDStack.h */,
 				26D90D2B140D51290036A311 /* SkTDict.h */,
 				26D90D2C140D51290036A311 /* SkTRegistry.h */,
-				26D90D2D140D51290036A311 /* SkTScopedPtr.h */,
 				26D90D2E140D51290036A311 /* SkTSearch.h */,
 				26D90D2F140D51290036A311 /* SkTemplates.h */,
 				26D90D30140D51290036A311 /* SkThread.h */,

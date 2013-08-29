@@ -13,7 +13,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkTScopedPtr.h"
+#include "SkTemplates.h"
 
 class SkPDFCatalog;
 class SkPDFDevice;
@@ -74,7 +74,7 @@ public:
         int counts[SkAdvancedTypefaceMetrics::kNotEmbeddable_Font + 1]) const;
 
 private:
-    SkTScopedPtr<SkPDFCatalog> fCatalog;
+    SkAutoTDelete<SkPDFCatalog> fCatalog;
     int64_t fXRefFileOffset;
 
     SkTDArray<SkPDFPage*> fPages;

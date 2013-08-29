@@ -284,7 +284,6 @@
         '<(skia_include_path)/core/SkTInternalLList.h',
         '<(skia_include_path)/core/SkTileGridPicture.h',
         '<(skia_include_path)/core/SkTRegistry.h',
-        '<(skia_include_path)/core/SkTScopedPtr.h',
         '<(skia_include_path)/core/SkTSearch.h',
         '<(skia_include_path)/core/SkTemplates.h',
         '<(skia_include_path)/core/SkThread.h',

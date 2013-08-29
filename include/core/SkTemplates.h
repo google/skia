@@ -98,6 +98,16 @@ private:
     T* fObj;
 };
 
+/** \class SkAutoTDelete
+  An SkAutoTDelete<T> is like a T*, except that the destructor of SkAutoTDelete<T>
+  automatically deletes the pointer it holds (if any).  That is, SkAutoTDelete<T>
+  owns the T object that it points to.  Like a T*, an SkAutoTDelete<T> may hold
+  either NULL or a pointer to a T object.  Also like T*, SkAutoTDelete<T> is
+  thread-compatible, and once you dereference it, you get the threadsafety
+  guarantees of T.
+
+  The size of a SkAutoTDelete is small: sizeof(SkAutoTDelete<T>) == sizeof(T*)
+*/
 template <typename T> class SkAutoTDelete : SkNoncopyable {
 public:
     SkAutoTDelete(T* obj = NULL) : fObj(obj) {}

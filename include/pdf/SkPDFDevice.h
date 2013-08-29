@@ -18,7 +18,7 @@
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTScopedPtr.h"
+#include "SkTemplates.h"
 
 class SkPDFArray;
 class SkPDFDevice;
@@ -216,21 +216,21 @@ private:
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
 
-    SkTScopedPtr<ContentEntry> fContentEntries;
+    SkAutoTDelete<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;
-    SkTScopedPtr<ContentEntry> fMarginContentEntries;
+    SkAutoTDelete<ContentEntry> fMarginContentEntries;
     ContentEntry* fLastMarginContentEntry;
     DrawingArea fDrawingArea;
 
     const SkClipStack* fClipStack;
 
     // Accessor and setter functions based on the current DrawingArea.
-    SkTScopedPtr<ContentEntry>* getContentEntries();
+    SkAutoTDelete<ContentEntry>* getContentEntries();
     ContentEntry* getLastContentEntry();
     void setLastContentEntry(ContentEntry* contentEntry);
 
     // Glyph ids used for each font on this device.
-    SkTScopedPtr<SkPDFGlyphSetMap> fFontGlyphUsage;
+    SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
 
     EncodeToDCTStream fEncoder;
 

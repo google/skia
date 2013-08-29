@@ -15,7 +15,6 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
-#include "SkTScopedPtr.h"
 
 /** \class SkAdvancedTypefaceMetrics
 
@@ -90,7 +89,7 @@ public:
         uint16_t fStartId;
         uint16_t fEndId;
         SkTDArray<Data> fAdvance;
-        SkTScopedPtr<AdvanceMetric<Data> > fNext;
+        SkAutoTDelete<AdvanceMetric<Data> > fNext;
     };
 
     struct VerticalMetric {
@@ -102,12 +101,12 @@ public:
     typedef AdvanceMetric<VerticalMetric> VerticalAdvanceRange;
 
     // This is indexed by glyph id.
-    SkTScopedPtr<WidthRange> fGlyphWidths;
+    SkAutoTDelete<WidthRange> fGlyphWidths;
     // Only used for Vertical CID fonts.
-    SkTScopedPtr<VerticalAdvanceRange> fVerticalMetrics;
+    SkAutoTDelete<VerticalAdvanceRange> fVerticalMetrics;
 
     // The names of each glyph, only populated for postscript fonts.
-    SkTScopedPtr<SkAutoTArray<SkString> > fGlyphNames;
+    SkAutoTDelete<SkAutoTArray<SkString> > fGlyphNames;
 
     // The mapping from glyph to Unicode, only populated if
     // kToUnicode_PerGlyphInfo is passed to GetAdvancedTypefaceMetrics.
@@ -125,7 +124,7 @@ void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
 
 template <typename Data>
 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
-        SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
+        SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
         int startId);
 
 template <typename Data>
