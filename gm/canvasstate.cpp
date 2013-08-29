@@ -112,6 +112,9 @@ private:
 class CanvasLayerStateGM : public GM {
 public:
     CanvasLayerStateGM() {
+        fRedPaint.setColor(SK_ColorRED);
+        fRedPaint.setStyle(SkPaint::kFill_Style);
+
         fBluePaint.setColor(SK_ColorBLUE);
         fBluePaint.setStyle(SkPaint::kFill_Style);
 
@@ -164,6 +167,7 @@ private:
         SPACER = 10,
     };
 
+    SkPaint fRedPaint;
     SkPaint fBluePaint;
     SkRect fRect;
 
