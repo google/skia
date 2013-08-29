@@ -7,9 +7,9 @@
  */
 
 #include "Test.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkDevice.h"
 #include "SkMathPriv.h"
 #include "SkRegion.h"
 #if SK_SUPPORT_GPU
