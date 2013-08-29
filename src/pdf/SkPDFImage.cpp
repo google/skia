@@ -391,10 +391,16 @@ SkPDFImage::SkPDFImage(SkStream* stream,
                        bool isAlpha,
                        const SkIRect& srcRect,
                        EncodeToDCTStream encoder)
-    : fBitmap(bitmap),
-      fIsAlpha(isAlpha),
+    : fIsAlpha(isAlpha),
       fSrcRect(srcRect),
       fEncoder(encoder) {
+
+    if (bitmap.isImmutable()) {
+        fBitmap = bitmap;
+    } else {
+        bitmap.deepCopyTo(&fBitmap, bitmap.config());
+        fBitmap.setImmutable();
+    }
 
     if (stream != NULL) {
         setData(stream);
