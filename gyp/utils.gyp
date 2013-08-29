@@ -35,7 +35,6 @@
 
         '../include/utils/SkBoundaryPatch.h',
         '../include/utils/SkCamera.h',
-        '../include/utils/SkCanvasStateUtils.h',
         '../include/utils/SkCubicInterval.h',
         '../include/utils/SkCullPoints.h',
         '../include/utils/SkDebugUtils.h',
@@ -66,7 +65,6 @@
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
-        '../src/utils/SkCanvasStateUtils.cpp',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
         '../src/utils/SkDeferredCanvas.cpp',
