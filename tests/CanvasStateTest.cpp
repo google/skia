@@ -21,7 +21,9 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
     const int HEIGHT = 400;
     const int SPACER = 10;
 
-    SkRect rect = SkRect::MakeXYWH(SPACER, SPACER, WIDTH-(2*SPACER), (HEIGHT-(2*SPACER)) / 7);
+    SkRect rect = SkRect::MakeXYWH(SkIntToScalar(SPACER), SkIntToScalar(SPACER),
+                                   SkIntToScalar(WIDTH-(2*SPACER)),
+                                   SkIntToScalar((HEIGHT-(2*SPACER)) / 7));
 
     const SkBitmap::Config configs[] = { SkBitmap::kRGB_565_Config,
                                          SkBitmap::kARGB_8888_Config
