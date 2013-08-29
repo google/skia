@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 #include "SkBenchmark.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkRandom.h"
 
@@ -52,7 +52,7 @@ private:
         const int h = fIsSmall ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fCheckerboard.allocPixels();
-        SkDevice device(fCheckerboard);
+        SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;

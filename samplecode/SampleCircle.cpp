@@ -74,7 +74,7 @@ protected:
     }
 
     static void blowup(SkCanvas* canvas, const SkIRect& src, const SkRect& dst) {
-        SkDevice* device = canvas->getDevice();
+        SkBaseDevice* device = canvas->getDevice();
         const SkBitmap& bm = device->accessBitmap(false);
         canvas->drawBitmapRect(bm, &src, dst, NULL);
     }

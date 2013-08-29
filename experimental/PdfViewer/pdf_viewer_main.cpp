@@ -186,7 +186,7 @@ static bool render_page(const SkString& outputDir,
     // Exercise all pdf codepaths as in normal rendering, but no actual bits are changed.
     if (!FLAGS_config.isEmpty() && strcmp(FLAGS_config[0], "nul") == 0) {
         SkBitmap bitmap;
-        SkAutoTUnref<SkDevice> device(SkNEW_ARGS(SkDevice, (bitmap)));
+        SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
         SkNulCanvas canvas(device);
         renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
     } else {
@@ -204,9 +204,9 @@ static bool render_page(const SkString& outputDir,
 #else
         setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
 #endif
-        SkAutoTUnref<SkDevice> device;
+        SkAutoTUnref<SkBaseDevice> device;
         if (strcmp(FLAGS_config[0], "8888") == 0) {
-            device.reset(SkNEW_ARGS(SkDevice, (bitmap)));
+            device.reset(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
         }
 #if SK_SUPPORT_GPU
         else if (strcmp(FLAGS_config[0], "gpu") == 0) {

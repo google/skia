@@ -9,8 +9,8 @@
 #define skiagm_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"

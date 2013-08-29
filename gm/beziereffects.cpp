@@ -58,7 +58,7 @@ protected:
 
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkDevice* device = canvas->getTopDevice();
+        SkBaseDevice* device = canvas->getTopDevice();
         GrRenderTarget* rt = device->accessRenderTarget();
         if (NULL == rt) {
             return;
@@ -210,7 +210,7 @@ protected:
 
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkDevice* device = canvas->getTopDevice();
+        SkBaseDevice* device = canvas->getTopDevice();
         GrRenderTarget* rt = device->accessRenderTarget();
         if (NULL == rt) {
             return;
@@ -395,7 +395,7 @@ protected:
 
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkDevice* device = canvas->getTopDevice();
+        SkBaseDevice* device = canvas->getTopDevice();
         GrRenderTarget* rt = device->accessRenderTarget();
         if (NULL == rt) {
             return;

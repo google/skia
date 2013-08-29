@@ -132,7 +132,7 @@ private:
             desc.fConfig = rt->config();
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
-            SkAutoTUnref<SkDevice> device(SkGpuDevice::Create(surface.get()));
+            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get()));
             if (NULL != device.get()) {
                 tempCanvas = SkNEW_ARGS(SkCanvas, (device.get()));
             }

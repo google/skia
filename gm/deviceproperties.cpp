@@ -44,7 +44,7 @@ protected:
             SkDeviceProperties::Geometry::Make(SkDeviceProperties::Geometry::kVertical_Orientation,
                                                SkDeviceProperties::Geometry::kBGR_Layout),
             SK_Scalar1);
-        SkDevice device(bitmap, properties);
+        SkBitmapDevice device(bitmap, properties);
         SkCanvas canvas(&device);
         canvas.drawColor(SK_ColorWHITE);
 

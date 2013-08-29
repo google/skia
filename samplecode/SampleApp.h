@@ -61,7 +61,7 @@ public:
     /**
      * SampleApp ports can subclass this manager class if they want to:
      *      * filter the types of devices supported
-     *      * customize plugging of SkDevice objects into an SkCanvas
+     *      * customize plugging of SkBaseDevice objects into an SkCanvas
      *      * customize publishing the results of draw to the OS window
      *      * manage GrContext / GrRenderTarget lifetimes
      */

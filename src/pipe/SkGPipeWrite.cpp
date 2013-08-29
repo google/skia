@@ -7,12 +7,12 @@
  */
 
 #include "SkAnnotation.h"
+#include "SkBitmapDevice.h"
 #include "SkBitmapHeap.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDrawLooper.h"
-#include "SkDevice.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkImageFilter.h"
@@ -432,7 +432,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     // We don't allocate pixels for the bitmap
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
+    SkBaseDevice* device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
     this->setDevice(device)->unref();
 
     // Tell the reader the appropriate flags to use.

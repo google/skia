@@ -115,7 +115,7 @@ void SkExampleWindow::setupRenderTarget() {
 SkCanvas* SkExampleWindow::createCanvas() {
     if (fType == kGPU_DeviceType) {
         if (NULL != fContext && NULL != fRenderTarget) {
-            SkAutoTUnref<SkDevice> device(new SkGpuDevice(fContext, fRenderTarget));
+            SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fContext, fRenderTarget));
             return new SkCanvas(device);
         }
         tearDownBackend();

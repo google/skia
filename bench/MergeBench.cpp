@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "SkBenchmark.h"
+#include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
 #include "SkMergeImageFilter.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
@@ -53,7 +53,7 @@ private:
     void make_bitmap() {
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, 80, 80);
         fBitmap.allocPixels();
-        SkDevice device(fBitmap);
+        SkBitmapDevice device(fBitmap);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint paint;
@@ -67,7 +67,7 @@ private:
     void make_checkerboard() {
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, 80, 80);
         fCheckerboard.allocPixels();
-        SkDevice device(fCheckerboard);
+        SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;

@@ -13,7 +13,7 @@
 
 #include "SkGr.h"
 #include "SkBitmap.h"
-#include "SkDevice.h"
+#include "SkBitmapDevice.h"
 #include "SkRegion.h"
 #include "GrContext.h"
 
@@ -22,10 +22,10 @@ struct GrSkDrawProcs;
 class GrTextContext;
 
 /**
- *  Subclass of SkDevice, which directs all drawing to the GrGpu owned by the
+ *  Subclass of SkBitmapDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkDevice {
+class SK_API SkGpuDevice : public SkBitmapDevice {
 public:
 
     /**
@@ -62,7 +62,7 @@ public:
 
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-    // overrides from SkDevice
+    // overrides from SkBaseDevice
 
     virtual void clear(SkColor color) SK_OVERRIDE;
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
@@ -101,11 +101,11 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
-    virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
+    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
     virtual bool filterTextFlags(const SkPaint&, TextFlags*) SK_OVERRIDE;
 
-    virtual void flush();
+    virtual void flush() SK_OVERRIDE;
 
     virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
     virtual void onDetachFromCanvas() SK_OVERRIDE;
@@ -123,7 +123,7 @@ public:
     class SkAutoCachedTexture; // used internally
 
 protected:
-    // overrides from SkDevice
+    // overrides from SkBaseDevice
     virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x, int y,
                               SkCanvas::Config8888 config8888) SK_OVERRIDE;
@@ -145,11 +145,11 @@ private:
     // used by createCompatibleDevice
     SkGpuDevice(GrContext*, GrTexture* texture, bool needClear);
 
-    // override from SkDevice
-    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                               int width, int height,
-                                               bool isOpaque,
-                                               Usage usage) SK_OVERRIDE;
+    // override from SkBaseDevice
+    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
+                                                   int width, int height,
+                                                   bool isOpaque,
+                                                   Usage usage) SK_OVERRIDE;
 
     SkDrawProcs* initDrawForText(GrTextContext*);
 
@@ -192,7 +192,7 @@ private:
      */
     GrTextContext* getTextContext();
 
-    typedef SkDevice INHERITED;
+    typedef SkBitmapDevice INHERITED;
 };
 
 #endif

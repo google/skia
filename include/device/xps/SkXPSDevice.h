@@ -13,10 +13,10 @@
 #include <XpsObjectModel.h>
 
 #include "SkAutoCoInitialize.h"
+#include "SkBitmapDevice.h"
 #include "SkBitSet.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -30,7 +30,7 @@
 
     The drawing context for the XPS backend.
 */
-class SkXPSDevice : public SkDevice {
+class SkXPSDevice : public SkBitmapDevice {
 public:
     SK_API SkXPSDevice();
     SK_API virtual ~SkXPSDevice();
@@ -134,7 +134,7 @@ protected:
 
     virtual void drawDevice(
         const SkDraw&,
-        SkDevice* device,
+        SkBaseDevice* device,
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
 
@@ -307,18 +307,17 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    // override from SkDevice
-    virtual SkDevice* onCreateCompatibleDevice(
-        SkBitmap::Config config,
-        int width, int height,
-        bool isOpaque,
-        Usage usage) SK_OVERRIDE;
+    // override from SkBaseDevice
+    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
+                                                   int width, int height,
+                                                   bool isOpaque,
+                                                   Usage usage) SK_OVERRIDE;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);
     void operator=(const SkXPSDevice&);
 
-    typedef SkDevice INHERITED;
+    typedef SkBitmapDevice INHERITED;
 };
 
 #endif

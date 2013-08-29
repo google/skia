@@ -19,7 +19,7 @@
 class SkBBoxRecord : public SkPictureRecord {
 public:
 
-    SkBBoxRecord(uint32_t recordFlags, SkDevice* device)
+    SkBBoxRecord(uint32_t recordFlags, SkBaseDevice* device)
             : INHERITED(recordFlags, device) { }
     virtual ~SkBBoxRecord() { }
 
