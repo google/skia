@@ -661,7 +661,6 @@
 		260E01F713B1225D0064D447 /* SkTDStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTDStack.h; path = core/SkTDStack.h; sourceTree = "<group>"; };
 		260E01F813B1225D0064D447 /* SkTDict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTDict.h; path = core/SkTDict.h; sourceTree = "<group>"; };
 		260E01F913B1225D0064D447 /* SkTRegistry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTRegistry.h; path = core/SkTRegistry.h; sourceTree = "<group>"; };
-		260E01FA13B1225D0064D447 /* SkTScopedPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTScopedPtr.h; path = core/SkTScopedPtr.h; sourceTree = "<group>"; };
 		260E01FB13B1225D0064D447 /* SkTSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTSearch.h; path = core/SkTSearch.h; sourceTree = "<group>"; };
 		260E01FC13B1225D0064D447 /* SkTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTemplates.h; path = core/SkTemplates.h; sourceTree = "<group>"; };
 		260E01FD13B1225D0064D447 /* SkThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkThread.h; path = core/SkThread.h; sourceTree = "<group>"; };
@@ -1675,7 +1674,6 @@
 				260E01F713B1225D0064D447 /* SkTDStack.h */,
 				260E01F813B1225D0064D447 /* SkTDict.h */,
 				260E01F913B1225D0064D447 /* SkTRegistry.h */,
-				260E01FA13B1225D0064D447 /* SkTScopedPtr.h */,
 				260E01FB13B1225D0064D447 /* SkTSearch.h */,
 				260E01FC13B1225D0064D447 /* SkTemplates.h */,
 				260E01FD13B1225D0064D447 /* SkThread.h */,

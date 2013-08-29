@@ -165,7 +165,7 @@ class TestWData {
     }
 
     bool RunTest() {
-        SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t> > result;
+        SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t> > result;
         result.reset(getAdvanceData((void*)this, fAdvancesLen, fSubset, fSubsetLen, getAdvance));
 
         SkString stringResult = stringify_advance_data(result.get());

@@ -209,7 +209,6 @@
       'core/SkCanvas.h',
       'core/SkPicture.h',
       'core/SkClipStack.h',
-      'core/SkTScopedPtr.h',
       'core/SkXfermode.h',
       'core/SkColorFilter.h',
       'core/SkRegion.h',

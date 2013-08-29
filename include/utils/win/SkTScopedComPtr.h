@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkSkTScopedPtr_DEFINED
-#define SkSkTScopedPtr_DEFINED
+#ifndef SkTScopedComPtr_DEFINED
+#define SkTScopedComPtr_DEFINED
 
 #include "SkTypes.h"
 #include "SkTemplates.h"
