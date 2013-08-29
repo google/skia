@@ -2833,4 +2833,3 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
 
     return true;
 }
-

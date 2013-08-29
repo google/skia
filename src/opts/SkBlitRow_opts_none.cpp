@@ -24,4 +24,3 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
     return NULL;
 }
-

@@ -51,7 +51,7 @@ public:
 
     /**
      *  Call next to setup the looper to return a valid coordinate chunk.
-     *  Each time this returns true, it is safe to call mapRect() and 
+     *  Each time this returns true, it is safe to call mapRect() and
      *  mapMatrix(), to convert from "global" coordinate values to ones that
      *  are local to this chunk.
      *
@@ -89,7 +89,7 @@ private:
     bool fitsInDelta(const SkIRect& r) const {
         return r.right() < fDelta && r.bottom() < fDelta;
     }
-    
+
     bool computeCurrBitmapAndClip();
 };
 

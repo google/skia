@@ -58,7 +58,7 @@ void SkDeviceLooper::mapMatrix(SkMatrix* dst, const SkMatrix& src) const {
 
 bool SkDeviceLooper::computeCurrBitmapAndClip() {
     SkASSERT(kComplex_State == fState);
-    
+
     SkIRect r = SkIRect::MakeXYWH(fCurrOffset.x(), fCurrOffset.y(),
                                   fDelta, fDelta);
     if (!fBaseBitmap.extractSubset(&fSubsetBitmap, r)) {
@@ -66,10 +66,10 @@ bool SkDeviceLooper::computeCurrBitmapAndClip() {
         return false;
     }
     fSubsetBitmap.lockPixels();
-    
+
     fBaseRC.translate(-r.left(), -r.top(), &fSubsetRC);
     (void)fSubsetRC.op(SkIRect::MakeWH(fDelta, fDelta), SkRegion::kIntersect_Op);
-    
+
     fCurrBitmap = &fSubsetBitmap;
     fCurrRC = &fSubsetRC;
     return true;
@@ -81,7 +81,7 @@ bool SkDeviceLooper::next() {
             // in theory, we should not get called here, since we must have
             // previously returned false, but we check anyway.
             break;
-    
+
         case kSimple_State:
             // first time for simple
             if (NULL == fCurrBitmap) {
@@ -96,7 +96,7 @@ bool SkDeviceLooper::next() {
         case kComplex_State:
             // need to propogate fCurrOffset through clippedbounds
             // left to right, until we wrap around and move down
-            
+
             if (fCurrOffset.x() + fDelta < fClippedBounds.right()) {
                 fCurrOffset.fX += fDelta;
                 return this->computeCurrBitmapAndClip();
@@ -108,7 +108,7 @@ bool SkDeviceLooper::next() {
             }
             break;
     }
-    
+
     fState = kDone_State;
     return false;
 }
