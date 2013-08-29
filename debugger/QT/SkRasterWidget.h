@@ -13,7 +13,7 @@
 #include "SkGpuDevice.h"
 #endif
 
-#include "SkDevice.h"
+#include "SkBitmapDevice.h"
 #include "SkDebugger.h"
 
 #include <QApplication>
