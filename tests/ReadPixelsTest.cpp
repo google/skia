@@ -313,7 +313,7 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
             SkAutoTUnref<SkBaseDevice> device;
             if (0 == dtype) {
-                device.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config, 
+                device.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config,
                                                 DEV_W, DEV_H, false));
             } else {
 #if SK_SUPPORT_GPU

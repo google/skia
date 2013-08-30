@@ -89,7 +89,7 @@ public:
         implicitly opaque.
     */
     virtual bool isOpaque() const = 0;
-    
+
     /** DEPRECATED - Return the bitmap config of the device's pixels
      */
     virtual SkBitmap::Config config() const = 0;
@@ -316,7 +316,7 @@ protected:
     ///////////////////////////////////////////////////////////////////////////
 
     /** Update as needed the pixel value in the bitmap, so that the caller can
-        access the pixels directly. 
+        access the pixels directly.
         @return The device contents as a bitmap
     */
     virtual const SkBitmap& onAccessBitmap() = 0;
