@@ -364,9 +364,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         fHWBoundRenderTarget = NULL;
     }
 
-    if (resetBits & kFixedFunction_GrGLBackendState &&
-        kDesktop_GrGLBinding == this->glBinding() &&
-        !this->glCaps().isCoreProfile()) {
+    if (resetBits & kFixedFunction_GrGLBackendState && this->glCaps().fixedFunctionSupport()) {
 
         fHWProjectionMatrixState.invalidate();
         // we don't use the model view matrix.

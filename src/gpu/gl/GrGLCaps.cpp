@@ -47,6 +47,7 @@ void GrGLCaps::reset() {
     fVertexArrayObjectSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
+    fFixedFunctionSupport = false;
     fDiscardFBSupport = false;
 }
 
@@ -84,6 +85,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
+    fFixedFunctionSupport = caps.fFixedFunctionSupport;
     fDiscardFBSupport = caps.fDiscardFBSupport;
 
     return *this;
@@ -117,6 +119,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
         }
         if (!fIsCoreProfile) {
+            fFixedFunctionSupport = true;
             GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_COORDS, &fMaxFixedFunctionTextureCoords);
             // Sanity check
             SkASSERT(fMaxFixedFunctionTextureCoords > 0 && fMaxFixedFunctionTextureCoords < 128);
@@ -589,9 +592,15 @@ void GrGLCaps::print() const {
     GR_STATIC_ASSERT(GR_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
 
 
+    GrPrintf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
+    GrPrintf("Fixed Function Support: %s\n", (fFixedFunctionSupport ? "YES" : "NO"));
     GrPrintf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
     GrPrintf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
+    GrPrintf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
+    if (fFixedFunctionSupport) {
+        GrPrintf("Max Fixed Function Texture Coords: %d\n", fMaxFixedFunctionTextureCoords);
+    }
     GrPrintf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     GrPrintf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
     GrPrintf("BGRA support: %s\n", (fBGRAFormatSupport ? "YES": "NO"));
@@ -612,6 +621,5 @@ void GrGLCaps::print() const {
     GrPrintf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     GrPrintf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
-    GrPrintf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
     GrPrintf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
 }
