@@ -790,8 +790,9 @@ public:
         static const int kRTreeMaxChildren = 11;
         SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
                                            SkIntToScalar(fHeight));
+        bool sortDraws = false;
         return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                               aspectRatio);
+                               aspectRatio, sortDraws);
     }
 };
 

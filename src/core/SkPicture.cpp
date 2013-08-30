@@ -232,8 +232,10 @@ SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
 
     SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
                                        SkIntToScalar(fHeight));
+    bool sortDraws = false;  // Do not sort draw calls when bulk loading.
+
     return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                           aspectRatio);
+                           aspectRatio, sortDraws);
 }
 
 SkCanvas* SkPicture::getRecordingCanvas() const {
