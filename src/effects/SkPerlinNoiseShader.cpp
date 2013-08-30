@@ -752,16 +752,16 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
     SkString vCoords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
 
-    fSeedUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fSeedUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "seed");
     const char* seedUni = builder->getUniformCStr(fSeedUni);
-    fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                         kMat33f_GrSLType, "invMatrix");
     const char* invMatrixUni = builder->getUniformCStr(fInvMatrixUni);
-    fBaseFrequencyUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fBaseFrequencyUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, "baseFrequency");
     const char* baseFrequencyUni = builder->getUniformCStr(fBaseFrequencyUni);
-    fAlphaUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fAlphaUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kFloat_GrSLType, "alpha");
     const char* alphaUni = builder->getUniformCStr(fAlphaUni);
 
@@ -771,10 +771,10 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
     };
 
     SkString mod289_3_funcName;
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kVec3f_GrSLType,
-                          "mod289", SK_ARRAY_COUNT(gVec3Args), gVec3Args,
-                          "const vec2 C = vec2(1.0 / 289.0, 289.0);\n"
-                          "return x - floor(x * C.xxx) * C.yyy;", &mod289_3_funcName);
+    builder->fsEmitFunction(kVec3f_GrSLType,
+                            "mod289", SK_ARRAY_COUNT(gVec3Args), gVec3Args,
+                            "const vec2 C = vec2(1.0 / 289.0, 289.0);\n"
+                            "return x - floor(x * C.xxx) * C.yyy;", &mod289_3_funcName);
 
     // Add vec4 modulo 289 function
     static const GrGLShaderVar gVec4Args[] =  {
@@ -782,26 +782,26 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
     };
 
     SkString mod289_4_funcName;
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kVec4f_GrSLType,
-                          "mod289", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
-                          "const vec2 C = vec2(1.0 / 289.0, 289.0);\n"
-                          "return x - floor(x * C.xxxx) * C.yyyy;", &mod289_4_funcName);
+    builder->fsEmitFunction(kVec4f_GrSLType,
+                            "mod289", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
+                            "const vec2 C = vec2(1.0 / 289.0, 289.0);\n"
+                            "return x - floor(x * C.xxxx) * C.yyyy;", &mod289_4_funcName);
 
     // Add vec4 permute function
     SkString permuteCode;
     permuteCode.appendf("const vec2 C = vec2(34.0, 1.0);\n"
                         "return %s(((x * C.xxxx) + C.yyyy) * x);", mod289_4_funcName.c_str());
     SkString permuteFuncName;
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kVec4f_GrSLType,
-                          "permute", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
-                          permuteCode.c_str(), &permuteFuncName);
+    builder->fsEmitFunction(kVec4f_GrSLType,
+                            "permute", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
+                            permuteCode.c_str(), &permuteFuncName);
 
     // Add vec4 taylorInvSqrt function
     SkString taylorInvSqrtFuncName;
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kVec4f_GrSLType,
-                          "taylorInvSqrt", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
-                          "const vec2 C = vec2(-0.85373472095314, 1.79284291400159);\n"
-                          "return x * C.xxxx + C.yyyy;", &taylorInvSqrtFuncName);
+    builder->fsEmitFunction(kVec4f_GrSLType,
+                            "taylorInvSqrt", SK_ARRAY_COUNT(gVec4Args), gVec4Args,
+                            "const vec2 C = vec2(-0.85373472095314, 1.79284291400159);\n"
+                            "return x * C.xxxx + C.yyyy;", &taylorInvSqrtFuncName);
 
     // Add vec3 noise function
     static const GrGLShaderVar gNoiseVec3Args[] =  {
@@ -886,9 +886,9 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
         taylorInvSqrtFuncName.c_str());
 
     SkString noiseFuncName;
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType,
-                          "snoise", SK_ARRAY_COUNT(gNoiseVec3Args), gNoiseVec3Args,
-                          noiseCode.c_str(), &noiseFuncName);
+    builder->fsEmitFunction(kFloat_GrSLType,
+                            "snoise", SK_ARRAY_COUNT(gNoiseVec3Args), gNoiseVec3Args,
+                            noiseCode.c_str(), &noiseFuncName);
 
     const char* noiseVecIni = "noiseVecIni";
     const char* factors     = "factors";
@@ -968,19 +968,19 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
     SkString vCoords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
 
-    fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                         kMat33f_GrSLType, "invMatrix");
     const char* invMatrixUni = builder->getUniformCStr(fInvMatrixUni);
-    fBaseFrequencyUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fBaseFrequencyUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, "baseFrequency");
     const char* baseFrequencyUni = builder->getUniformCStr(fBaseFrequencyUni);
-    fAlphaUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fAlphaUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kFloat_GrSLType, "alpha");
     const char* alphaUni = builder->getUniformCStr(fAlphaUni);
 
     const char* stitchDataUni = NULL;
     if (fStitchTiles) {
-        fStitchDataUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+        fStitchDataUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "stitchData");
         stitchDataUni = builder->getUniformCStr(fStitchDataUni);
     }
@@ -1137,13 +1137,13 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
 
     SkString noiseFuncName;
     if (fStitchTiles) {
-        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType,
-                              "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseStitchArgs),
-                              gPerlinNoiseStitchArgs, noiseCode.c_str(), &noiseFuncName);
+        builder->fsEmitFunction(kFloat_GrSLType,
+                                "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseStitchArgs),
+                                gPerlinNoiseStitchArgs, noiseCode.c_str(), &noiseFuncName);
     } else {
-        builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType, kFloat_GrSLType,
-                              "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseArgs),
-                              gPerlinNoiseArgs, noiseCode.c_str(), &noiseFuncName);
+        builder->fsEmitFunction(kFloat_GrSLType,
+                                "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseArgs),
+                                gPerlinNoiseArgs, noiseCode.c_str(), &noiseFuncName);
     }
 
     // There are rounding errors if the floor operation is not performed here

@@ -64,13 +64,13 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                      const TextureSamplerArray& samplers) {
     SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
     if (this->useBounds()) {
-        fBoundsUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+        fBoundsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                          kVec2f_GrSLType, "Bounds");
     }
-    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
                                           kFloat_GrSLType, "Kernel", this->width());
 
     builder->fsCodeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
@@ -88,7 +88,7 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         builder->fsCodeAppendf("\t\t%s += ", outputColor);
-        builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "coord");
+        builder->fsAppendTextureLookup(samplers[0], "coord");
         if (this->useBounds()) {
             const char* bounds = builder->getUniformCStr(fBoundsUni);
             const char* component = this->direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";

@@ -231,7 +231,7 @@ GrSLConstantVec GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString*
         }
         case GrGLProgramDesc::kUniform_ColorInput: {
             const char* name;
-            fUniformHandles.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+            fUniformHandles.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                                             kVec4f_GrSLType, "Color", &name);
             *inColor = name;
             return kNone_GrSLConstantVec;
@@ -261,7 +261,7 @@ GrSLConstantVec GrGLProgram::genInputCoverage(GrGLShaderBuilder* builder, SkStri
         case GrGLProgramDesc::kUniform_ColorInput: {
             const char* name;
             fUniformHandles.fCoverageUni =
-                builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kVec4f_GrSLType, "Coverage", &name);
             *inCoverage = name;
             return kNone_GrSLConstantVec;
@@ -399,7 +399,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 
     SkString shader;
 
-    builder.getShader(GrGLShaderBuilder::kVertex_ShaderType, &shader);
+    builder.vsGetShader(&shader);
     if (c_PrintShaders) {
         GrPrintf(shader.c_str());
         GrPrintf("\n");
@@ -412,7 +412,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     fGShaderID = 0;
 #if GR_GL_EXPERIMENTAL_GS
     if (fDesc.getHeader().fExperimentalGS) {
-        builder.getShader(GrGLShaderBuilder::kGeometry_ShaderType, &shader);
+        builder.gsGetShader(&shader);
         if (c_PrintShaders) {
             GrPrintf(shader.c_str());
             GrPrintf("\n");
@@ -423,7 +423,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     }
 #endif
 
-    builder.getShader(GrGLShaderBuilder::kFragment_ShaderType, &shader);
+    builder.fsGetShader(&shader);
     if (c_PrintShaders) {
         GrPrintf(shader.c_str());
         GrPrintf("\n");
@@ -456,7 +456,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     }
 
     const char* viewMName;
-    fUniformHandles.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+    fUniformHandles.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_Visibility,
                                                         kMat33f_GrSLType, "ViewM", &viewMName);
 
 
@@ -514,7 +514,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     // Insert the color filter. This will soon be replaced by a color effect.
     if (SkXfermode::kDst_Mode != header.fColorFilterXfermode) {
         const char* colorFilterColorUniName = NULL;
-        fUniformHandles.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+        fUniformHandles.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                                              kVec4f_GrSLType, "FilterColor",
                                                              &colorFilterColorUniName);
 

@@ -259,10 +259,10 @@ void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUn
         // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
         GR_GL_CALL_RET(fContext.interface(), location,
                        GetUniformLocation(programID, uniforms[i].fVariable.c_str()));
-        if (GrGLShaderBuilder::kVertex_ShaderType & uniforms[i].fVisibility) {
+        if (GrGLShaderBuilder::kVertex_Visibility & uniforms[i].fVisibility) {
             fUniforms[i].fVSLocation = location;
         }
-        if (GrGLShaderBuilder::kFragment_ShaderType & uniforms[i].fVisibility) {
+        if (GrGLShaderBuilder::kFragment_Visibility & uniforms[i].fVisibility) {
             fUniforms[i].fFSLocation = location;
         }
     }

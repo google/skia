@@ -81,7 +81,7 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
         uniName = suffixedUniName.c_str();
     }
     if (kVoid_GrSLType != fUniType) {
-        fUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+        fUni = builder->addUniform(GrGLShaderBuilder::kVertex_Visibility,
                                    fUniType,
                                    uniName,
                                    &uniName);

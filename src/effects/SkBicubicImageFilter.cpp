@@ -226,9 +226,9 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                                  const TextureSamplerArray& samplers) {
     SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
-    fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                            kMat44f_GrSLType, "Coefficients");
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
@@ -244,15 +244,14 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
         GrGLShaderVar("c2",            kVec4f_GrSLType),
         GrGLShaderVar("c3",            kVec4f_GrSLType),
     };
-    builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                          kVec4f_GrSLType,
-                          "cubicBlend",
-                          SK_ARRAY_COUNT(gCubicBlendArgs),
-                          gCubicBlendArgs,
-                          "\tvec4 ts = vec4(1.0, t, t * t, t * t * t);\n"
-                          "\tvec4 c = coefficients * ts;\n"
-                          "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
-                          &cubicBlendName);
+    builder->fsEmitFunction(kVec4f_GrSLType,
+                            "cubicBlend",
+                            SK_ARRAY_COUNT(gCubicBlendArgs),
+                            gCubicBlendArgs,
+                            "\tvec4 ts = vec4(1.0, t, t * t, t * t * t);\n"
+                            "\tvec4 c = coefficients * ts;\n"
+                            "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
+                            &cubicBlendName);
     builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords.c_str(), imgInc);
     builder->fsCodeAppendf("\tvec2 f = fract(coord / %s);\n", imgInc);
     for (int y = 0; y < 4; ++y) {
@@ -260,9 +259,7 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
             SkString coord;
             coord.printf("coord + %s * vec2(%d, %d)", imgInc, x - 1, y - 1);
             builder->fsCodeAppendf("\tvec4 s%d%d = ", x, y);
-            builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                         samplers[0],
-                                         coord.c_str());
+            builder->fsAppendTextureLookup(samplers[0], coord.c_str());
             builder->fsCodeAppend(";\n");
         }
         builder->fsCodeAppendf("\tvec4 s%d = %s(%s, f.x, s0%d, s1%d, s2%d, s3%d);\n", y, cubicBlendName.c_str(), coeff, y, y, y, y);

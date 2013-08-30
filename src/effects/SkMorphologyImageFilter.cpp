@@ -326,7 +326,7 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
                                     const TextureSamplerArray& samplers) {
     SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, "ImageIncrement");
 
     const char* func;
@@ -349,7 +349,7 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords.c_str(), fRadius, imgInc);
     builder->fsCodeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
     builder->fsCodeAppendf("\t\t\t%s = %s(%s, ", outputColor, func, outputColor);
-    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "coord");
+    builder->fsAppendTextureLookup(samplers[0], "coord");
     builder->fsCodeAppend(");\n");
     builder->fsCodeAppendf("\t\t\tcoord += %s;\n", imgInc);
     builder->fsCodeAppend("\t\t}\n");
