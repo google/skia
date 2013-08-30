@@ -29,6 +29,7 @@ void GrGLCaps::reset() {
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fMaxFragmentTextureUnits = 0;
+    fMaxFixedFunctionTextureCoords = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAFormatSupport = false;
     fBGRAIsInternalFormat = false;
@@ -61,6 +62,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
+    fMaxFixedFunctionTextureCoords = caps.fMaxFixedFunctionTextureCoords;
     fMSFBOType = caps.fMSFBOType;
     fCoverageAAType = caps.fCoverageAAType;
     fMSAACoverageModes = caps.fMSAACoverageModes;
@@ -109,6 +111,16 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         GrGLint max;
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
         fMaxFragmentUniformVectors = max / 4;
+        if (version >= GR_GL_VER(3, 2)) {
+            GrGLint profileMask;
+            GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
+            fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
+        }
+        if (!fIsCoreProfile) {
+            GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_COORDS, &fMaxFixedFunctionTextureCoords);
+            // Sanity check
+            SkASSERT(fMaxFixedFunctionTextureCoords > 0 && fMaxFixedFunctionTextureCoords < 128);
+        }
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &fMaxFragmentTextureUnits);
@@ -208,12 +220,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     if (!GR_GL_MUST_USE_VBO &&
         (kARM_GrGLVendor == ctxInfo.vendor() || kImagination_GrGLVendor == ctxInfo.vendor())) {
         fUseNonVBOVertexAndIndexDynamicData = true;
-    }
-
-    if (kDesktop_GrGLBinding == binding && version >= GR_GL_VER(3, 2)) {
-        GrGLint profileMask;
-        GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
-        fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
     }
 
     fDiscardFBSupport = ctxInfo.hasExtension("GL_EXT_discard_framebuffer");

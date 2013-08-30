@@ -63,6 +63,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fClear = glClear;
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
+        interface->fClientActiveTexture = glClientActiveTexture;
         interface->fColorMask = glColorMask;
         GR_GL_GET_PROC(CompileShader);
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
@@ -77,12 +78,14 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
+        interface->fDisableClientState = glDisableClientState;
         GR_GL_GET_PROC(DisableVertexAttribArray);
         interface->fDrawArrays = glDrawArrays;
         interface->fDrawBuffer = glDrawBuffer;
         GR_GL_GET_PROC(DrawBuffers);
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
+        interface->fEnableClientState = glEnableClientState;
         GR_GL_GET_PROC(EnableVertexAttribArray);
         GR_GL_GET_PROC(EndQuery);
         interface->fFinish = glFinish;
@@ -132,6 +135,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fStencilOp = glStencilOp;
         GR_GL_GET_PROC(StencilOpSeparate);
         interface->fTexImage2D = glTexImage2D;
+        interface->fTexGenf = glTexGenf;
+        interface->fTexGenfv = glTexGenfv;
+        interface->fTexGeni = glTexGeni;
         interface->fTexParameteri = glTexParameteri;
         interface->fTexParameteriv = glTexParameteriv;
         if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
@@ -163,6 +169,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
+        GR_GL_GET_PROC(VertexPointer);
         interface->fViewport = glViewport;
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
 

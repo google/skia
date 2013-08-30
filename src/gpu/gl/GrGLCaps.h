@@ -221,6 +221,9 @@ public:
     /// maximum number of texture units accessible in the fragment shader.
     int maxFragmentTextureUnits() const { return fMaxFragmentTextureUnits; }
 
+    /// maximum number of fixed-function texture coords, or zero if no fixed-function.
+    int maxFixedFunctionTextureCoords() const { return fMaxFixedFunctionTextureCoords; }
+
     /// ES requires an extension to support RGBA8 in RenderBufferStorage
     bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
 
@@ -336,6 +339,7 @@ private:
     int fMaxFragmentUniformVectors;
     int fMaxVertexAttributes;
     int fMaxFragmentTextureUnits;
+    int fMaxFixedFunctionTextureCoords;
 
     MSFBOType fMSFBOType;
     CoverageAAType fCoverageAAType;

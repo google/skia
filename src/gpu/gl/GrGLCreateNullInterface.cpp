@@ -100,6 +100,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLClientActiveTexture(GrGLenum) {}
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
 
@@ -281,6 +282,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fClear = noOpGLClear;
         interface->fClearColor = noOpGLClearColor;
         interface->fClearStencil = noOpGLClearStencil;
+        interface->fClientActiveTexture = nullGLClientActiveTexture;
         interface->fColorMask = noOpGLColorMask;
         interface->fCompileShader = noOpGLCompileShader;
         interface->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
@@ -296,12 +298,14 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fDeleteVertexArrays = noOpGLDeleteIds;
         interface->fDepthMask = noOpGLDepthMask;
         interface->fDisable = noOpGLDisable;
+        interface->fDisableClientState = noOpGLDisableClientState;
         interface->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
         interface->fDrawArrays = noOpGLDrawArrays;
         interface->fDrawBuffer = noOpGLDrawBuffer;
         interface->fDrawBuffers = noOpGLDrawBuffers;
         interface->fDrawElements = noOpGLDrawElements;
         interface->fEnable = noOpGLEnable;
+        interface->fEnableClientState = noOpGLEnableClientState;
         interface->fEnableVertexAttribArray = noOpGLEnableVertexAttribArray;
         interface->fEndQuery = noOpGLEndQuery;
         interface->fFinish = noOpGLFinish;
@@ -328,8 +332,11 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fGetStringi = noOpGLGetStringi;
         interface->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
         interface->fGetUniformLocation = noOpGLGetUniformLocation;
+        interface->fLoadIdentity = noOpGLLoadIdentity;
+        interface->fLoadMatrixf = noOpGLLoadMatrixf;
         interface->fLineWidth = noOpGLLineWidth;
         interface->fLinkProgram = noOpGLLinkProgram;
+        interface->fMatrixMode = noOpGLMatrixMode;
         interface->fPixelStorei = nullGLPixelStorei;
         interface->fQueryCounter = noOpGLQueryCounter;
         interface->fReadBuffer = noOpGLReadBuffer;
@@ -342,6 +349,9 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fStencilMaskSeparate = noOpGLStencilMaskSeparate;
         interface->fStencilOp = noOpGLStencilOp;
         interface->fStencilOpSeparate = noOpGLStencilOpSeparate;
+        interface->fTexGenf = noOpGLTexGenf;
+        interface->fTexGenfv = noOpGLTexGenfv;
+        interface->fTexGeni = noOpGLTexGeni;
         interface->fTexImage2D = noOpGLTexImage2D;
         interface->fTexParameteri = noOpGLTexParameteri;
         interface->fTexParameteriv = noOpGLTexParameteriv;
@@ -370,6 +380,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fUseProgram = nullGLUseProgram;
         interface->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
         interface->fVertexAttribPointer = noOpGLVertexAttribPointer;
+        interface->fVertexPointer = noOpGLVertexPointer;
         interface->fViewport = nullGLViewport;
         interface->fBindFramebuffer = nullGLBindFramebuffer;
         interface->fBindRenderbuffer = nullGLBindRenderbuffer;

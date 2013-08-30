@@ -63,6 +63,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(Clear);
         GR_GL_GET_PROC(ClearColor);
         GR_GL_GET_PROC(ClearStencil);
+        GR_GL_GET_PROC(ClientActiveTexture);
         GR_GL_GET_PROC(ColorMask);
         GR_GL_GET_PROC(CompileShader);
         GR_GL_GET_PROC(CompressedTexImage2D);
@@ -77,12 +78,14 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(DeleteTextures);
         GR_GL_GET_PROC(DepthMask);
         GR_GL_GET_PROC(Disable);
+        GR_GL_GET_PROC(DisableClientState);
         GR_GL_GET_PROC(DisableVertexAttribArray);
         GR_GL_GET_PROC(DrawArrays);
         GR_GL_GET_PROC(DrawBuffer);
         GR_GL_GET_PROC(DrawBuffers);
         GR_GL_GET_PROC(DrawElements);
         GR_GL_GET_PROC(Enable);
+        GR_GL_GET_PROC(EnableClientState);
         GR_GL_GET_PROC(EnableVertexAttribArray);
         GR_GL_GET_PROC(EndQuery);
         GR_GL_GET_PROC(Finish);
@@ -116,6 +119,9 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(GetUniformLocation);
         GR_GL_GET_PROC(LineWidth);
         GR_GL_GET_PROC(LinkProgram);
+        GR_GL_GET_PROC(LoadIdentity);
+        GR_GL_GET_PROC(LoadMatrixf);
+        GR_GL_GET_PROC(MatrixMode);
         GR_GL_GET_PROC(MapBuffer);
         GR_GL_GET_PROC(PixelStorei);
         GR_GL_GET_PROC(ReadBuffer);
@@ -128,6 +134,9 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(StencilMaskSeparate);
         GR_GL_GET_PROC(StencilOp);
         GR_GL_GET_PROC(StencilOpSeparate);
+        GR_GL_GET_PROC(TexGenf);
+        GR_GL_GET_PROC(TexGenfv);
+        GR_GL_GET_PROC(TexGeni);
         GR_GL_GET_PROC(TexImage2D)
         GR_GL_GET_PROC(TexParameteri);
         GR_GL_GET_PROC(TexParameteriv);
@@ -159,6 +168,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
+        GR_GL_GET_PROC(VertexPointer);
         GR_GL_GET_PROC(Viewport);
 
         if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {

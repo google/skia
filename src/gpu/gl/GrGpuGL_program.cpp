@@ -209,9 +209,9 @@ void GrGpuGL::flushPathStencilMatrix() {
     size.set(rt->width(), rt->height());
     const SkMatrix& vm = this->getDrawState().getViewMatrix();
 
-    if (fHWPathStencilMatrixState.fRenderTargetOrigin != rt->origin() ||
-        !fHWPathStencilMatrixState.fViewMatrix.cheapEqualTo(viewMatrix) ||
-        fHWPathStencilMatrixState.fRenderTargetSize!= size) {
+    if (fHWProjectionMatrixState.fRenderTargetOrigin != rt->origin() ||
+        !fHWProjectionMatrixState.fViewMatrix.cheapEqualTo(viewMatrix) ||
+        fHWProjectionMatrixState.fRenderTargetSize!= size) {
         // rescale the coords from skia's "device" coords to GL's normalized coords,
         // and perform a y-flip if required.
         SkMatrix m;
@@ -249,9 +249,9 @@ void GrGpuGL::flushPathStencilMatrix() {
         };
         GL_CALL(MatrixMode(GR_GL_PROJECTION));
         GL_CALL(LoadMatrixf(mv));
-        fHWPathStencilMatrixState.fViewMatrix = vm;
-        fHWPathStencilMatrixState.fRenderTargetSize = size;
-        fHWPathStencilMatrixState.fRenderTargetOrigin = rt->origin();
+        fHWProjectionMatrixState.fViewMatrix = vm;
+        fHWProjectionMatrixState.fRenderTargetSize = size;
+        fHWProjectionMatrixState.fRenderTargetOrigin = rt->origin();
     }
 }
 
