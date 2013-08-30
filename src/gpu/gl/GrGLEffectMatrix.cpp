@@ -48,6 +48,9 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                     SkString* fsCoordName,
                                     SkString* vsCoordName,
                                     const char* suffix) {
+    GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+    SkASSERT(NULL != vertexBuilder);
+
     GrSLType varyingType = kVoid_GrSLType;
     const char* uniName;
     key &= kKeyMask;
@@ -96,17 +99,17 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     }
     const char* vsVaryingName;
     const char* fsVaryingName;
-    builder->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
+    vertexBuilder->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
 
     const GrGLShaderVar* coords;
     switch (fCoordsType) {
         case GrEffect::kLocal_CoordsType:
             SkASSERT(!(kPositionCoords_Flag & key));
-            coords = &builder->localCoordsAttribute();
+            coords = &vertexBuilder->localCoordsAttribute();
             break;
         case GrEffect::kPosition_CoordsType:
-            SkASSERT((kPositionCoords_Flag & key) || !builder->hasExplicitLocalCoords());
-            coords = &builder->positionAttribute();
+            SkASSERT((kPositionCoords_Flag & key) || !vertexBuilder->hasExplicitLocalCoords());
+            coords = &vertexBuilder->positionAttribute();
             break;
         default:
             coords = NULL; // prevents warning
@@ -116,21 +119,21 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     switch (fUniType) {
         case kVoid_GrSLType:
             SkASSERT(kVec2f_GrSLType == varyingType);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords->c_str());
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords->c_str());
             break;
         case kVec2f_GrSLType:
             SkASSERT(kVec2f_GrSLType == varyingType);
-            builder->vsCodeAppendf("\t%s = %s + %s;\n",
-                                   vsVaryingName, uniName, coords->c_str());
+            vertexBuilder->vsCodeAppendf("\t%s = %s + %s;\n",
+                                         vsVaryingName, uniName, coords->c_str());
             break;
         case kMat33f_GrSLType: {
             SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
             if (kVec2f_GrSLType == varyingType) {
-                builder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
-                                       vsVaryingName, uniName, coords->c_str());
+                vertexBuilder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
+                                             vsVaryingName, uniName, coords->c_str());
             } else {
-                builder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
-                                       vsVaryingName, uniName, coords->c_str());
+                vertexBuilder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
+                                             vsVaryingName, uniName, coords->c_str());
             }
             break;
         }

@@ -96,6 +96,7 @@ public:
     };
 
     typedef SkTArray<TextureSampler> TextureSamplerArray;
+    typedef GrTAllocator<GrGLShaderVar> VarArray;
 
     enum ShaderVisibility {
         kVertex_Visibility   = 0x1,
@@ -103,7 +104,10 @@ public:
         kFragment_Visibility = 0x4,
     };
 
-    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&, const GrGLProgramDesc&);
+    GrGLShaderBuilder(const GrGLContextInfo&,
+                      GrGLUniformManager&,
+                      const GrGLProgramDesc&,
+                      bool needsVertexShader);
 
     /**
      * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
@@ -122,22 +126,8 @@ public:
     bool enableFeature(GLSLFeature);
 
     /**
-     * Called by GrGLEffects to add code to one of the shaders.
+     * Called by GrGLEffects to add code the fragment shader.
      */
-    void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-        va_list args;
-        va_start(args, format);
-        fVSCode.appendf(format, args);
-        va_end(args);
-    }
-
-    void gsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-        va_list args;
-        va_start(args, format);
-        fGSCode.appendf(format, args);
-        va_end(args);
-    }
-
     void fsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
         va_list args;
         va_start(args, format);
@@ -145,8 +135,6 @@ public:
         va_end(args);
     }
 
-    void vsCodeAppend(const char* str) { fVSCode.append(str); }
-    void gsCodeAppend(const char* str) { fGSCode.append(str); }
     void fsCodeAppend(const char* str) { fFSCode.append(str); }
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
@@ -179,6 +167,12 @@ public:
                         const GrGLShaderVar* args,
                         const char* body,
                         SkString* outName);
+
+    /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
+    GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
+    GrGLShaderVar& fsOutputAppend() { return fFSOutputs.push_back(); }
+    GrGLShaderVar& fsInputAppend(const GrGLShaderVar& var) { return fFSInputs.push_back(var); }
+    GrGLShaderVar& fsOutputAppend(const GrGLShaderVar& var) { return fFSOutputs.push_back(var); }
 
     /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
@@ -233,40 +227,13 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
-   /** Add a vertex attribute to the current program that is passed in from the vertex data.
-       Returns false if the attribute was already there, true otherwise. */
-    bool addAttribute(GrSLType type, const char* name);
-
-   /** Add a varying variable to the current program to pass values between vertex and fragment
-        shaders. If the last two parameters are non-NULL, they are filled in with the name
-        generated. */
-    void addVarying(GrSLType type,
-                    const char* name,
-                    const char** vsOutName = NULL,
-                    const char** fsInName = NULL);
-
     /** Returns a variable name that represents the position of the fragment in the FS. The position
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     const char* fragmentPosition();
 
-    /** Returns a vertex attribute that represents the vertex position in the VS. This is the
-        pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
-      */
-    const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
-
-    /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
-        as positionAttribute() or it may not be. It depends upon whether the rendering code
-        specified explicit local coords or not in the GrDrawState. */
-    const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
-
     /** Returns the color of the destination pixel. This may be NULL if no effect advertised
         that it will read the destination. */
     const char* dstColor();
-
-    /**
-     * Are explicit local coordinates provided as input to the vertex shader.
-     */
-    bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
 
     /**
      * Interfaces used by GrGLProgram.
@@ -274,9 +241,8 @@ public:
      * Also, GrGLProgram's shader string construction should be moved to this class.
      */
 
-    /** Called after building is complete to get the final shader string. */
-    void vsGetShader(SkString*) const;
-    void gsGetShader(SkString*) const;
+    /** Called after building is complete to get the final shader string. To acces the vertex
+        and geometry shaders, use the VertexBuilder. */
     void fsGetShader(SkString*) const;
 
     /**
@@ -309,17 +275,103 @@ public:
         return fDstCopySampler.fSamplerUniform;
     }
 
-    struct AttributePair {
-        void set(int index, const SkString& name) {
-            fIndex = index; fName = name;
+    /** Helper class used to build the vertex and geometry shaders. This functionality
+        is kept separate from the rest of GrGLShaderBuilder to allow for shaders programs
+        that only use the fragment shader. */
+    class VertexBuilder {
+    public:
+        VertexBuilder(GrGLShaderBuilder* parent, const GrGLProgramDesc&);
+
+        /**
+         * Called by GrGLEffects to add code to one of the shaders.
+         */
+        void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+            va_list args;
+            va_start(args, format);
+            fVSCode.appendf(format, args);
+            va_end(args);
         }
-        int      fIndex;
-        SkString fName;
+
+        void gsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+            va_list args;
+            va_start(args, format);
+            fGSCode.appendf(format, args);
+            va_end(args);
+        }
+
+        void vsCodeAppend(const char* str) { fVSCode.append(str); }
+        void gsCodeAppend(const char* str) { fGSCode.append(str); }
+
+       /** Add a vertex attribute to the current program that is passed in from the vertex data.
+           Returns false if the attribute was already there, true otherwise. */
+        bool addAttribute(GrSLType type, const char* name);
+
+       /** Add a varying variable to the current program to pass values between vertex and fragment
+            shaders. If the last two parameters are non-NULL, they are filled in with the name
+            generated. */
+        void addVarying(GrSLType type,
+                        const char* name,
+                        const char** vsOutName = NULL,
+                        const char** fsInName = NULL);
+
+        /** Returns a vertex attribute that represents the vertex position in the VS. This is the
+            pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
+          */
+        const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
+
+        /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
+            as positionAttribute() or it may not be. It depends upon whether the rendering code
+            specified explicit local coords or not in the GrDrawState. */
+        const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
+
+        /**
+         * Are explicit local coordinates provided as input to the vertex shader.
+         */
+        bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
+
+        /** Called after building is complete to get the final shader string. */
+        void vsGetShader(SkString*) const;
+        void gsGetShader(SkString*) const;
+
+        struct AttributePair {
+            void set(int index, const SkString& name) {
+                fIndex = index; fName = name;
+            }
+            int      fIndex;
+            SkString fName;
+        };
+        const SkTArray<AttributePair, true>& getEffectAttributes() const {
+            return fEffectAttributes;
+        }
+        bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
+        const SkString* getEffectAttributeName(int attributeIndex) const;
+
+        // TODO: Everything below here private.
+    public:
+
+        VarArray    fVSAttrs;
+        VarArray    fVSOutputs;
+        VarArray    fGSInputs;
+        VarArray    fGSOutputs;
+        SkString    fGSHeader; // layout qualifiers specific to GS
+
+    private:
+        GrGLShaderBuilder*                  fParent;
+
+        bool                                fUsesGS;
+
+        SkString                            fVSCode;
+        SkString                            fGSCode;
+
+        SkSTArray<10, AttributePair, true>  fEffectAttributes;
+
+        GrGLShaderVar*                      fPositionVar;
+        GrGLShaderVar*                      fLocalCoordsVar;
     };
-    const SkTArray<AttributePair, true>& getEffectAttributes() const {
-        return fEffectAttributes;
-    }
-    const SkString* getEffectAttributeName(int attributeIndex) const;
+
+    /** Gets the vertex builder that is used to construct the vertex and geometry shaders.
+        It may be NULL if this shader program is only meant to have a fragment shader. */
+    VertexBuilder* getVertexBuilder() const { return fVertexBuilder.get(); }
 
     // TODO: Make this do all the compiling, linking, etc.
     void finished(GrGLuint programID);
@@ -327,24 +379,11 @@ public:
     const GrGLContextInfo& ctxInfo() const { return fCtxInfo; }
 
 private:
-    typedef GrTAllocator<GrGLShaderVar> VarArray;
-
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderVisibility, SkString*) const;
 
     typedef GrGLUniformManager::BuilderUniform BuilderUniform;
     GrGLUniformManager::BuilderUniformArray fUniforms;
-
-    // TODO: Everything below here private.
-public:
-
-    VarArray    fVSAttrs;
-    VarArray    fVSOutputs;
-    VarArray    fGSInputs;
-    VarArray    fGSOutputs;
-    VarArray    fFSInputs;
-    SkString    fGSHeader; // layout qualifiers specific to GS
-    VarArray    fFSOutputs;
 
 private:
     class CodeStage : GrNoncopyable {
@@ -436,12 +475,10 @@ private:
     uint32_t                            fFSFeaturesAddedMask;
     SkString                            fFSFunctions;
     SkString                            fFSExtensions;
-
-    bool                                fUsesGS;
+    VarArray                            fFSInputs;
+    VarArray                            fFSOutputs;
 
     SkString                            fFSCode;
-    SkString                            fVSCode;
-    SkString                            fGSCode;
 
     bool                                fSetupFragPosition;
     TextureSampler                      fDstCopySampler;
@@ -452,11 +489,7 @@ private:
 
     bool                                fTopLeftFragPosRead;
 
-    SkSTArray<10, AttributePair, true>  fEffectAttributes;
-
-    GrGLShaderVar*                      fPositionVar;
-    GrGLShaderVar*                      fLocalCoordsVar;
-
+    SkAutoTDelete<VertexBuilder> fVertexBuilder;
 };
 
 #endif

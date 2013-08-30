@@ -39,11 +39,13 @@ public:
             fsCoordSLType = kVec2f_GrSLType;
             const char* vsVaryingName;
             const char* fsVaryingNamePtr;
-            builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+            vertexBuilder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
             fsCoordName = fsVaryingNamePtr;
             const char* attrName =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
-            builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
         } else {
             fsCoordSLType = fEffectMatrix.get()->emitCode(builder, key, &fsCoordName);
         }

@@ -517,14 +517,17 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+
             const char *vsName, *fsName;
             const SkString* attrName =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
             builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
 
             SkAssertResult(builder->enableFeature(
                                               GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
-            builder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
+            vertexBuilder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
 
             // keep the derivative instructions outside the conditional
             builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -546,7 +549,7 @@ public:
             GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
 
-            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
