@@ -132,7 +132,10 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GET_PROC(GetUniformLocation);
         GET_PROC(LineWidth);
         GET_PROC(LinkProgram);
+        GET_PROC(LoadIdentity);
+        GET_PROC(LoadMatrixf);
         GET_PROC(MapBuffer);
+        GET_PROC(MatrixMode);
         GET_PROC(PixelStorei);
         GET_PROC(ReadBuffer);
         GET_PROC(ReadPixels);
