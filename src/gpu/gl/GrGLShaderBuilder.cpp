@@ -93,37 +93,23 @@ static const char kDstCopyColorName[] = "_dstColor";
 
 GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
                                      GrGLUniformManager& uniformManager,
-                                     const GrGLProgramDesc& desc)
+                                     const GrGLProgramDesc& desc,
+                                     bool needsVertexShader)
     : fUniforms(kVarsPerBlock)
-    , fVSAttrs(kVarsPerBlock)
-    , fVSOutputs(kVarsPerBlock)
-    , fGSInputs(kVarsPerBlock)
-    , fGSOutputs(kVarsPerBlock)
-    , fFSInputs(kVarsPerBlock)
-    , fFSOutputs(kMaxFSOutputs)
     , fCtxInfo(ctxInfo)
     , fUniformManager(uniformManager)
     , fFSFeaturesAddedMask(0)
-#if GR_GL_EXPERIMENTAL_GS
-    , fUsesGS(SkToBool(desc.getHeader().fExperimentalGS))
-#else
-    , fUsesGS(false)
-#endif
+    , fFSInputs(kVarsPerBlock)
+    , fFSOutputs(kMaxFSOutputs)
     , fSetupFragPosition(false)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey) {
 
     const GrGLProgramDesc::KeyHeader& header = desc.getHeader();
 
-    fPositionVar = &fVSAttrs.push_back();
-    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-    if (-1 != header.fLocalCoordAttributeIndex) {
-        fLocalCoordsVar = &fVSAttrs.push_back();
-        fLocalCoordsVar->set(kVec2f_GrSLType,
-                             GrGLShaderVar::kAttribute_TypeModifier,
-                             "aLocalCoords");
-    } else {
-        fLocalCoordsVar = fPositionVar;
+    if (needsVertexShader) {
+        fVertexBuilder.reset(SkNEW_ARGS(VertexBuilder, (this, desc)));
     }
+
     // Emit code to read the dst copy textue if necessary.
     if (kNoDstRead_DstReadKey != header.fDstReadKey &&
         GrGLCaps::kNone_FBFetchType == ctxInfo.caps()->fbFetchType()) {
@@ -375,61 +361,6 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     return h;
 }
 
-bool GrGLShaderBuilder::addAttribute(GrSLType type,
-                                     const char* name) {
-    for (int i = 0; i < fVSAttrs.count(); ++i) {
-        const GrGLShaderVar& attr = fVSAttrs[i];
-        // if attribute already added, don't add it again
-        if (attr.getName().equals(name)) {
-            SkASSERT(attr.getType() == type);
-            return false;
-        }
-    }
-    fVSAttrs.push_back().set(type,
-                             GrGLShaderVar::kAttribute_TypeModifier,
-                             name);
-    return true;
-}
-
-void GrGLShaderBuilder::addVarying(GrSLType type,
-                                   const char* name,
-                                   const char** vsOutName,
-                                   const char** fsInName) {
-    fVSOutputs.push_back();
-    fVSOutputs.back().setType(type);
-    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
-    this->nameVariable(fVSOutputs.back().accessName(), 'v', name);
-
-    if (vsOutName) {
-        *vsOutName = fVSOutputs.back().getName().c_str();
-    }
-    // input to FS comes either from VS or GS
-    const SkString* fsName;
-    if (fUsesGS) {
-        // if we have a GS take each varying in as an array
-        // and output as non-array.
-        fGSInputs.push_back();
-        fGSInputs.back().setType(type);
-        fGSInputs.back().setTypeModifier(GrGLShaderVar::kVaryingIn_TypeModifier);
-        fGSInputs.back().setUnsizedArray();
-        *fGSInputs.back().accessName() = fVSOutputs.back().getName();
-        fGSOutputs.push_back();
-        fGSOutputs.back().setType(type);
-        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
-        this->nameVariable(fGSOutputs.back().accessName(), 'g', name);
-        fsName = fGSOutputs.back().accessName();
-    } else {
-        fsName = fVSOutputs.back().accessName();
-    }
-    fFSInputs.push_back();
-    fFSInputs.back().setType(type);
-    fFSInputs.back().setTypeModifier(GrGLShaderVar::kVaryingIn_TypeModifier);
-    fFSInputs.back().setName(*fsName);
-    if (fsInName) {
-        *fsInName = fsName->c_str();
-    }
-}
-
 const char* GrGLShaderBuilder::fragmentPosition() {
     if (fCodeStage.inStageCode()) {
         const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
@@ -547,31 +478,6 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderVisibility visibility,
     }
 }
 
-void GrGLShaderBuilder::vsGetShader(SkString* shaderStr) const {
-    *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
-    this->appendUniformDecls(kVertex_Visibility, shaderStr);
-    this->appendDecls(fVSAttrs, shaderStr);
-    this->appendDecls(fVSOutputs, shaderStr);
-    shaderStr->append("void main() {\n");
-    shaderStr->append(fVSCode);
-    shaderStr->append("}\n");
-}
-
-void GrGLShaderBuilder::gsGetShader(SkString* shaderStr) const {
-    if (!fUsesGS) {
-        shaderStr->reset();
-        return;
-    }
-
-    *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
-    shaderStr->append(fGSHeader);
-    this->appendDecls(fGSInputs, shaderStr);
-    this->appendDecls(fGSOutputs, shaderStr);
-    shaderStr->append("void main() {\n");
-    shaderStr->append(fGSCode);
-    shaderStr->append("}\n");
-}
-
 void GrGLShaderBuilder::fsGetShader(SkString* shaderStr) const {
     *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
     shaderStr->append(fFSExtensions);
@@ -620,18 +526,20 @@ void GrGLShaderBuilder::emitEffects(
             textureSamplers[t].init(this, &effect->textureAccess(t), t);
             effectSamplerHandles[e]->push_back(textureSamplers[t].fSamplerUniform);
         }
-        GrDrawEffect drawEffect(stage, this->hasExplicitLocalCoords());
+        GrDrawEffect drawEffect(stage, fVertexBuilder.get()
+                                       && fVertexBuilder->hasExplicitLocalCoords());
 
         int numAttributes = stage.getVertexAttribIndexCount();
         const int* attributeIndices = stage.getVertexAttribIndices();
         SkSTArray<GrEffect::kMaxVertexAttribs, SkString> attributeNames;
         for (int a = 0; a < numAttributes; ++a) {
             // TODO: Make addAttribute mangle the name.
+            SkASSERT(fVertexBuilder.get());
             SkString attributeName("aAttr");
             attributeName.appendS32(attributeIndices[a]);
-            if (this->addAttribute(effect->vertexAttribType(a), attributeName.c_str())) {
-                fEffectAttributes.push_back().set(attributeIndices[a], attributeName);
-            }
+            fVertexBuilder->addEffectAttribute(attributeIndices[a],
+                                               effect->vertexAttribType(a),
+                                               attributeName);
         }
 
         glEffects[e] = effect->getFactory().createGLInstance(drawEffect);
@@ -649,8 +557,10 @@ void GrGLShaderBuilder::emitEffects(
         // Enclose custom code in a block to avoid namespace conflicts
         SkString openBrace;
         openBrace.printf("\t{ // Stage %d: %s\n", fCodeStage.stageIndex(), glEffects[e]->name());
-        this->fVSCode.append(openBrace);
-        this->fFSCode.append(openBrace);
+        if (fVertexBuilder.get()) {
+            fVertexBuilder->vsCodeAppend(openBrace.c_str());
+        }
+        this->fsCodeAppend(openBrace.c_str());
 
         glEffects[e]->emitCode(this,
                                drawEffect,
@@ -658,8 +568,11 @@ void GrGLShaderBuilder::emitEffects(
                                outColor.c_str(),
                                inColor.isEmpty() ? NULL : inColor.c_str(),
                                textureSamplers);
-        this->fVSCode.append("\t}\n");
-        this->fFSCode.append("\t}\n");
+
+        if (fVertexBuilder.get()) {
+            fVertexBuilder->vsCodeAppend("\t}\n");
+        }
+        this->fsCodeAppend("\t}\n");
 
         inColor = outColor;
         *fsInOutColorKnownValue = kNone_GrSLConstantVec;
@@ -671,7 +584,127 @@ void GrGLShaderBuilder::emitEffects(
     }
 }
 
-const SkString* GrGLShaderBuilder::getEffectAttributeName(int attributeIndex) const {
+////////////////////////////////////////////////////////////////////////////
+
+GrGLShaderBuilder::VertexBuilder::VertexBuilder(GrGLShaderBuilder* parent,
+                                                const GrGLProgramDesc& desc)
+    : fVSAttrs(kVarsPerBlock)
+    , fVSOutputs(kVarsPerBlock)
+    , fGSInputs(kVarsPerBlock)
+    , fGSOutputs(kVarsPerBlock)
+    , fParent(parent)
+#if GR_GL_EXPERIMENTAL_GS
+    , fUsesGS(SkToBool(desc.getHeader().fExperimentalGS))
+#else
+    , fUsesGS(false)
+#endif
+{
+    const GrGLProgramDesc::KeyHeader& header = desc.getHeader();
+
+    fPositionVar = &fVSAttrs.push_back();
+    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
+    if (-1 != header.fLocalCoordAttributeIndex) {
+        fLocalCoordsVar = &fVSAttrs.push_back();
+        fLocalCoordsVar->set(kVec2f_GrSLType,
+                             GrGLShaderVar::kAttribute_TypeModifier,
+                             "aLocalCoords");
+    } else {
+        fLocalCoordsVar = fPositionVar;
+    }
+}
+
+bool GrGLShaderBuilder::VertexBuilder::addAttribute(GrSLType type,
+                                                    const char* name) {
+    for (int i = 0; i < fVSAttrs.count(); ++i) {
+        const GrGLShaderVar& attr = fVSAttrs[i];
+        // if attribute already added, don't add it again
+        if (attr.getName().equals(name)) {
+            SkASSERT(attr.getType() == type);
+            return false;
+        }
+    }
+    fVSAttrs.push_back().set(type,
+                             GrGLShaderVar::kAttribute_TypeModifier,
+                             name);
+    return true;
+}
+
+bool GrGLShaderBuilder::VertexBuilder::addEffectAttribute(int attributeIndex,
+                                                          GrSLType type,
+                                                          const SkString& name) {
+    if (!this->addAttribute(type, name.c_str())) {
+        return false;
+    }
+
+    fEffectAttributes.push_back().set(attributeIndex, name);
+    return true;
+}
+
+void GrGLShaderBuilder::VertexBuilder::addVarying(GrSLType type,
+                                                  const char* name,
+                                                  const char** vsOutName,
+                                                  const char** fsInName) {
+    fVSOutputs.push_back();
+    fVSOutputs.back().setType(type);
+    fVSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
+    fParent->nameVariable(fVSOutputs.back().accessName(), 'v', name);
+
+    if (vsOutName) {
+        *vsOutName = fVSOutputs.back().getName().c_str();
+    }
+    // input to FS comes either from VS or GS
+    const SkString* fsName;
+    if (fUsesGS) {
+        // if we have a GS take each varying in as an array
+        // and output as non-array.
+        fGSInputs.push_back();
+        fGSInputs.back().setType(type);
+        fGSInputs.back().setTypeModifier(GrGLShaderVar::kVaryingIn_TypeModifier);
+        fGSInputs.back().setUnsizedArray();
+        *fGSInputs.back().accessName() = fVSOutputs.back().getName();
+        fGSOutputs.push_back();
+        fGSOutputs.back().setType(type);
+        fGSOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
+        fParent->nameVariable(fGSOutputs.back().accessName(), 'g', name);
+        fsName = fGSOutputs.back().accessName();
+    } else {
+        fsName = fVSOutputs.back().accessName();
+    }
+    fParent->fsInputAppend().set(type,
+                                 GrGLShaderVar::kVaryingIn_TypeModifier,
+                                 *fsName);
+    if (fsInName) {
+        *fsInName = fsName->c_str();
+    }
+}
+
+void GrGLShaderBuilder::VertexBuilder::vsGetShader(SkString* shaderStr) const {
+    *shaderStr = GrGetGLSLVersionDecl(fParent->ctxInfo());
+    fParent->appendUniformDecls(kVertex_Visibility, shaderStr);
+    fParent->appendDecls(fVSAttrs, shaderStr);
+    fParent->appendDecls(fVSOutputs, shaderStr);
+    shaderStr->append("void main() {\n");
+    shaderStr->append(fVSCode);
+    shaderStr->append("}\n");
+}
+
+void GrGLShaderBuilder::VertexBuilder::gsGetShader(SkString* shaderStr) const {
+    if (!fUsesGS) {
+        shaderStr->reset();
+        return;
+    }
+
+    *shaderStr = GrGetGLSLVersionDecl(fParent->ctxInfo());
+    shaderStr->append(fGSHeader);
+    fParent->appendDecls(fGSInputs, shaderStr);
+    fParent->appendDecls(fGSOutputs, shaderStr);
+    shaderStr->append("void main() {\n");
+    shaderStr->append(fGSCode);
+    shaderStr->append("}\n");
+}
+
+
+const SkString* GrGLShaderBuilder::VertexBuilder::getEffectAttributeName(int attributeIndex) const {
     const AttributePair* attribEnd = this->getEffectAttributes().end();
     for (const AttributePair* attrib = this->getEffectAttributes().begin();
          attrib != attribEnd;

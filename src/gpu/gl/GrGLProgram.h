@@ -12,6 +12,7 @@
 #include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
+#include "GrGLShaderBuilder.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
 #include "GrGLUniformManager.h"
@@ -162,7 +163,7 @@ private:
 
     GrSLConstantVec genInputCoverage(GrGLShaderBuilder* builder, SkString* inCoverage);
 
-    void genGeometryShader(GrGLShaderBuilder* segments) const;
+    void genGeometryShader(GrGLShaderBuilder::VertexBuilder* vertexBuilder) const;
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,

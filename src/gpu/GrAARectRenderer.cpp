@@ -50,14 +50,17 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+
             // setup the varying for the Axis aligned rect effect
             //      xy -> interpolated offset
             //      zw -> w/2+0.5, h/2+0.5
             const char *vsRectName, *fsRectName;
-            builder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
+            vertexBuilder->addVarying(kVec4f_GrSLType, "Rect", &vsRectName, &fsRectName);
             const SkString* attr0Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsRectName, attr0Name->c_str());
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsRectName, attr0Name->c_str());
 
             // TODO: compute all these offsets, spans, and scales in the VS
             builder->fsCodeAppendf("\tfloat insetW = min(1.0, %s.z) - 0.5;\n", fsRectName);
@@ -167,22 +170,25 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+
             // setup the varying for the center point and the unit vector
             // that points down the height of the rect
             const char *vsRectEdgeName, *fsRectEdgeName;
-            builder->addVarying(kVec4f_GrSLType, "RectEdge",
-                                &vsRectEdgeName, &fsRectEdgeName);
+            vertexBuilder->addVarying(kVec4f_GrSLType, "RectEdge",
+                                      &vsRectEdgeName, &fsRectEdgeName);
             const SkString* attr0Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsRectEdgeName, attr0Name->c_str());
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsRectEdgeName, attr0Name->c_str());
 
             // setup the varying for width/2+.5 and height/2+.5
             const char *vsWidthHeightName, *fsWidthHeightName;
-            builder->addVarying(kVec2f_GrSLType, "WidthHeight",
-                                &vsWidthHeightName, &fsWidthHeightName);
+            vertexBuilder->addVarying(kVec2f_GrSLType, "WidthHeight",
+                                      &vsWidthHeightName, &fsWidthHeightName);
             const SkString* attr1Name =
-                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsWidthHeightName, attr1Name->c_str());
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsWidthHeightName, attr1Name->c_str());
 
             // TODO: compute all these offsets, spans, and scales in the VS
             builder->fsCodeAppendf("\tfloat insetW = min(1.0, %s.x) - 0.5;\n", fsWidthHeightName);

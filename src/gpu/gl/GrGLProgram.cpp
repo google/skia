@@ -222,10 +222,12 @@ void add_color_filter(GrGLShaderBuilder* builder,
 GrSLConstantVec GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
     switch (fDesc.getHeader().fColorInput) {
         case GrGLProgramDesc::kAttribute_ColorInput: {
-            builder->addAttribute(kVec4f_GrSLType, COL_ATTR_NAME);
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+            vertexBuilder->addAttribute(kVec4f_GrSLType, COL_ATTR_NAME);
             const char *vsName, *fsName;
-            builder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
-            builder->vsCodeAppendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
+            vertexBuilder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
+            vertexBuilder->vsCodeAppendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
             *inColor = fsName;
             return kNone_GrSLConstantVec;
         }
@@ -251,10 +253,12 @@ GrSLConstantVec GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString*
 GrSLConstantVec GrGLProgram::genInputCoverage(GrGLShaderBuilder* builder, SkString* inCoverage) {
     switch (fDesc.getHeader().fCoverageInput) {
         case GrGLProgramDesc::kAttribute_ColorInput: {
-            builder->addAttribute(kVec4f_GrSLType, COV_ATTR_NAME);
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+            vertexBuilder->addAttribute(kVec4f_GrSLType, COV_ATTR_NAME);
             const char *vsName, *fsName;
-            builder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
-            builder->vsCodeAppendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
+            vertexBuilder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
+            vertexBuilder->vsCodeAppendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
             *inCoverage = fsName;
             return kNone_GrSLConstantVec;
         }
@@ -278,28 +282,28 @@ GrSLConstantVec GrGLProgram::genInputCoverage(GrGLShaderBuilder* builder, SkStri
     }
 }
 
-void GrGLProgram::genGeometryShader(GrGLShaderBuilder* builder) const {
+void GrGLProgram::genGeometryShader(GrGLShaderBuilder::VertexBuilder* vertexBuilder) const {
 #if GR_GL_EXPERIMENTAL_GS
     // TODO: The builder should add all this glue code.
     if (fDesc.getHeader().fExperimentalGS) {
         SkASSERT(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
-        builder->fGSHeader.append("layout(triangles) in;\n"
-                                   "layout(triangle_strip, max_vertices = 6) out;\n");
-        builder->gsCodeAppend("\tfor (int i = 0; i < 3; ++i) {\n"
-                              "\t\tgl_Position = gl_in[i].gl_Position;\n");
+        vertexBuilder->fGSHeader.append("layout(triangles) in;\n"
+                                        "layout(triangle_strip, max_vertices = 6) out;\n");
+        vertexBuilder->gsCodeAppend("\tfor (int i = 0; i < 3; ++i) {\n"
+                                    "\t\tgl_Position = gl_in[i].gl_Position;\n");
         if (fDesc.getHeader().fEmitsPointSize) {
-            builder->gsCodeAppend("\t\tgl_PointSize = 1.0;\n");
+            vertexBuilder->gsCodeAppend("\t\tgl_PointSize = 1.0;\n");
         }
-        SkASSERT(builder->fGSInputs.count() == builder->fGSOutputs.count());
-        int count = builder->fGSInputs.count();
+        SkASSERT(vertexBuilder->fGSInputs.count() == vertexBuilder->fGSOutputs.count());
+        int count = vertexBuilder->fGSInputs.count();
         for (int i = 0; i < count; ++i) {
-            builder->gsCodeAppendf("\t\t%s = %s[i];\n",
-                                   builder->fGSOutputs[i].getName().c_str(),
-                                   builder->fGSInputs[i].getName().c_str());
+            vertexBuilder->gsCodeAppendf("\t\t%s = %s[i];\n",
+                                         vertexBuilder->fGSOutputs[i].getName().c_str(),
+                                         vertexBuilder->fGSInputs[i].getName().c_str());
         }
-        builder->gsCodeAppend("\t\tEmitVertex();\n"
-                              "\t}\n"
-                              "\tEndPrimitive();\n");
+        vertexBuilder->gsCodeAppend("\t\tEmitVertex();\n"
+                                    "\t}\n"
+                                    "\tEndPrimitive();\n");
     }
 #endif
 }
@@ -397,31 +401,34 @@ void expand_known_value4f(SkString* string, GrSLConstantVec vec) {
 // compiles all the shaders from builder and stores the shader IDs
 bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 
+    SkASSERT(!fVShaderID);
+    SkASSERT(!fGShaderID);
+    SkASSERT(!fFShaderID);
+
     SkString shader;
-
-    builder.vsGetShader(&shader);
-    if (c_PrintShaders) {
-        GrPrintf(shader.c_str());
-        GrPrintf("\n");
-    }
-
-    if (!(fVShaderID = compile_shader(fContext, GR_GL_VERTEX_SHADER, shader))) {
-        return false;
-    }
-
-    fGShaderID = 0;
-#if GR_GL_EXPERIMENTAL_GS
-    if (fDesc.getHeader().fExperimentalGS) {
-        builder.gsGetShader(&shader);
+    if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
+        vertexBuilder->vsGetShader(&shader);
         if (c_PrintShaders) {
             GrPrintf(shader.c_str());
             GrPrintf("\n");
         }
-        if (!(fGShaderID = compile_shader(fContext, GR_GL_GEOMETRY_SHADER, shader))) {
+        if (!(fVShaderID = compile_shader(fContext, GR_GL_VERTEX_SHADER, shader))) {
             return false;
         }
-    }
+
+#if GR_GL_EXPERIMENTAL_GS
+        if (fDesc.getHeader().fExperimentalGS) {
+            vertexBuilder->gsGetShader(&shader);
+            if (c_PrintShaders) {
+                GrPrintf(shader.c_str());
+                GrPrintf("\n");
+            }
+            if (!(fGShaderID = compile_shader(fContext, GR_GL_GEOMETRY_SHADER, shader))) {
+                return false;
+            }
+        }
 #endif
+    }
 
     builder.fsGetShader(&shader);
     if (c_PrintShaders) {
@@ -441,7 +448,28 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
-    GrGLShaderBuilder builder(fContext.info(), fUniformManager, fDesc);
+    bool needsVertexShader = true;
+
+    GrGLShaderBuilder builder(fContext.info(), fUniformManager, fDesc, needsVertexShader);
+
+    if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
+        const char* viewMName;
+        fUniformHandles.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_Visibility,
+                                                            kMat33f_GrSLType, "ViewM", &viewMName);
+
+        vertexBuilder->vsCodeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
+                                     "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
+                                     viewMName, vertexBuilder->positionAttribute().c_str());
+
+        // we output point size in the GS if present
+        if (header.fEmitsPointSize
+#if GR_GL_EXPERIMENTAL_GS
+            && !header.fExperimentalGS
+#endif
+            ) {
+            vertexBuilder->vsCodeAppend("\tgl_PointSize = 1.0;\n");
+        }
+    }
 
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
@@ -452,30 +480,12 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                                                    declared_color_output_name(),
                                                    &colorOutput);
     if (isColorDeclared) {
-        builder.fFSOutputs.push_back(colorOutput);
+        builder.fsOutputAppend(colorOutput);
     }
-
-    const char* viewMName;
-    fUniformHandles.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_Visibility,
-                                                        kMat33f_GrSLType, "ViewM", &viewMName);
-
-
-    builder.vsCodeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
-                          "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
-                          viewMName, builder.positionAttribute().getName().c_str());
 
     // incoming color to current stage being processed.
     SkString inColor;
     GrSLConstantVec knownColorValue = this->genInputColor(&builder, &inColor);
-
-    // we output point size in the GS if present
-    if (header.fEmitsPointSize
-#if GR_GL_EXPERIMENTAL_GS
-        && !header.fExperimentalGS
-#endif
-        ) {
-        builder.vsCodeAppend("\tgl_PointSize = 1.0;\n");
-    }
 
     // Get the coeffs for the Mode-based color filter, determine if color is needed.
     SkXfermode::Coeff colorCoeff;
@@ -567,9 +577,9 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     GrGLProgramDesc::CoverageOutput coverageOutput =
         static_cast<GrGLProgramDesc::CoverageOutput>(header.fCoverageOutput);
     if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(coverageOutput)) {
-        builder.fFSOutputs.push_back().set(kVec4f_GrSLType,
-                                           GrGLShaderVar::kOut_TypeModifier,
-                                           dual_source_output_name());
+        builder.fsOutputAppend().set(kVec4f_GrSLType,
+                                     GrGLShaderVar::kOut_TypeModifier,
+                                     dual_source_output_name());
         // default coeff to ones for kCoverage_DualSrcOutput
         SkString coeff;
         GrSLConstantVec knownCoeffValue = kOnes_GrSLConstantVec;
@@ -651,7 +661,9 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     ///////////////////////////////////////////////////////////////////////////
     // insert GS
 #ifdef SK_DEBUG
-    this->genGeometryShader(&builder);
+    if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
+        this->genGeometryShader(vertexBuilder);
+    }
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
@@ -686,7 +698,9 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
         return false;
     }
 
-    GL_CALL(AttachShader(fProgramID, fVShaderID));
+    if (fVShaderID) {
+        GL_CALL(AttachShader(fProgramID, fVShaderID));
+    }
     if (fGShaderID) {
         GL_CALL(AttachShader(fProgramID, fGShaderID));
     }
@@ -702,26 +716,28 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
     // Bind the attrib locations to same values for all shaders
-    GL_CALL(BindAttribLocation(fProgramID,
-                               header.fPositionAttributeIndex,
-                               builder.positionAttribute().c_str()));
-    if (-1 != header.fLocalCoordAttributeIndex) {
+    if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
         GL_CALL(BindAttribLocation(fProgramID,
-                                   header.fLocalCoordAttributeIndex,
-                                   builder.localCoordsAttribute().c_str()));
-    }
-    if (-1 != header.fColorAttributeIndex) {
-        GL_CALL(BindAttribLocation(fProgramID, header.fColorAttributeIndex, COL_ATTR_NAME));
-    }
-    if (-1 != header.fCoverageAttributeIndex) {
-        GL_CALL(BindAttribLocation(fProgramID, header.fCoverageAttributeIndex, COV_ATTR_NAME));
-    }
+                                   header.fPositionAttributeIndex,
+                                   vertexBuilder->positionAttribute().c_str()));
+        if (-1 != header.fLocalCoordAttributeIndex) {
+            GL_CALL(BindAttribLocation(fProgramID,
+                                       header.fLocalCoordAttributeIndex,
+                                       vertexBuilder->localCoordsAttribute().c_str()));
+        }
+        if (-1 != header.fColorAttributeIndex) {
+            GL_CALL(BindAttribLocation(fProgramID, header.fColorAttributeIndex, COL_ATTR_NAME));
+        }
+        if (-1 != header.fCoverageAttributeIndex) {
+            GL_CALL(BindAttribLocation(fProgramID, header.fCoverageAttributeIndex, COV_ATTR_NAME));
+        }
 
-    const GrGLShaderBuilder::AttributePair* attribEnd = builder.getEffectAttributes().end();
-    for (const GrGLShaderBuilder::AttributePair* attrib = builder.getEffectAttributes().begin();
-         attrib != attribEnd;
-         ++attrib) {
-         GL_CALL(BindAttribLocation(fProgramID, attrib->fIndex, attrib->fName.c_str()));
+        const GrGLShaderBuilder::VertexBuilder::AttributePair* attribEnd = vertexBuilder->getEffectAttributes().end();
+        for (const GrGLShaderBuilder::VertexBuilder::AttributePair* attrib = vertexBuilder->getEffectAttributes().begin();
+             attrib != attribEnd;
+             ++attrib) {
+             GL_CALL(BindAttribLocation(fProgramID, attrib->fIndex, attrib->fName.c_str()));
+        }
     }
 
     GL_CALL(LinkProgram(fProgramID));
