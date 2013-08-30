@@ -359,10 +359,6 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
 
-    GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
-    static const int kCircleEdgeAttrIndex = 1;
-    drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
-
     SkScalar innerRadius = 0.0f;
     SkScalar outerRadius = radius;
     SkScalar halfWidth = 0;
@@ -376,9 +372,12 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         outerRadius += halfWidth;
         if (isStroked) {
             innerRadius = radius - halfWidth;
-            isStroked = (innerRadius > 0);
         }
     }
+
+    GrEffectRef* effect = CircleEdgeEffect::Create(isStroked && innerRadius > 0);
+    static const int kCircleEdgeAttrIndex = 1;
+    drawState->addCoverageEffect(effect, kCircleEdgeAttrIndex)->unref();
 
     // The radii are outset for two reasons. First, it allows the shader to simply perform
     // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
@@ -489,7 +488,6 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         if (isStroked) {
             innerXRadius = xRadius - scaledStroke.fX;
             innerYRadius = yRadius - scaledStroke.fY;
-            isStroked = (innerXRadius > 0 && innerYRadius > 0);
         }
 
         xRadius += scaledStroke.fX;
@@ -512,7 +510,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());
 
-    GrEffectRef* effect = EllipseEdgeEffect::Create(isStroked);
+    GrEffectRef* effect = EllipseEdgeEffect::Create(isStroked &&
+                                                    innerXRadius > 0 && innerYRadius > 0);
 
     static const int kEllipseCenterAttrIndex = 1;
     static const int kEllipseEdgeAttrIndex = 2;
@@ -683,11 +682,12 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 
             if (isStroked) {
                 innerRadius = xRadius - halfWidth;
-                isStroked = (innerRadius > 0);
             }
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
         }
+
+	isStroked = (isStroked && innerRadius > 0);
 
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
@@ -776,13 +776,14 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             if (isStroked) {
                 innerXRadius = xRadius - scaledStroke.fX;
                 innerYRadius = yRadius - scaledStroke.fY;
-                isStroked = (innerXRadius > 0 && innerYRadius > 0);
             }
 
             xRadius += scaledStroke.fX;
             yRadius += scaledStroke.fY;
             bounds.outset(scaledStroke.fX, scaledStroke.fY);
         }
+
+	isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
