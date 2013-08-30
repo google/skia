@@ -48,11 +48,10 @@ public:
             fsCoordSLType = fEffectMatrix.get()->emitCode(builder, key, &fsCoordName);
         }
         builder->fsCodeAppendf("\t%s = ", outputColor);
-        builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
-                                                inputColor,
-                                                samplers[0],
-                                                fsCoordName.c_str(),
-                                                fsCoordSLType);
+        builder->fsAppendTextureLookupAndModulate(inputColor,
+                                                  samplers[0],
+                                                  fsCoordName.c_str(),
+                                                  fsCoordSLType);
         builder->fsCodeAppend(";\n");
     }
 

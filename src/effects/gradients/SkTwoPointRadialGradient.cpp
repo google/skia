@@ -541,9 +541,9 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
-    fVSParamUni = builder->addUniformArray(GrGLShaderBuilder::kVertex_ShaderType,
+    fVSParamUni = builder->addUniformArray(GrGLShaderBuilder::kVertex_Visibility,
                                            kFloat_GrSLType, "Radial2VSParams", 6);
-    fFSParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+    fFSParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
                                            kFloat_GrSLType, "Radial2FSParams", 6);
 
     // For radial gradients without perspective we can pass the linear

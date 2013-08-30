@@ -138,11 +138,11 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
         }
         fDstCopySampler.init(this, configMask, "rgba", 0);
 
-        fDstCopyTopLeftUniform = this->addUniform(kFragment_ShaderType,
+        fDstCopyTopLeftUniform = this->addUniform(kFragment_Visibility,
                                                   kVec2f_GrSLType,
                                                   "DstCopyUpperLeft",
                                                   &dstCopyTopLeftName);
-        fDstCopyScaleUniform     = this->addUniform(kFragment_ShaderType,
+        fDstCopyScaleUniform     = this->addUniform(kFragment_Visibility,
                                                     kVec2f_GrSLType,
                                                     "DstCopyCoordScale",
                                                     &dstCopyCoordScaleName);
@@ -154,7 +154,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
             this->fsCodeAppend("\t_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
         }
         this->fsCodeAppendf("\tvec4 %s = ", kDstCopyColorName);
-        this->appendTextureLookup(kFragment_ShaderType, fDstCopySampler, "_dstTexCoord");
+        this->fsAppendTextureLookup(fDstCopySampler, "_dstTexCoord");
         this->fsCodeAppend(";\n\n");
     }
 }
@@ -253,42 +253,6 @@ const char* GrGLShaderBuilder::dstColor() {
     }
 }
 
-void GrGLShaderBuilder::codeAppendf(ShaderType type, const char format[], va_list args) {
-    SkString* string = NULL;
-    switch (type) {
-        case kVertex_ShaderType:
-            string = &fVSCode;
-            break;
-        case kGeometry_ShaderType:
-            string = &fGSCode;
-            break;
-        case kFragment_ShaderType:
-            string = &fFSCode;
-            break;
-        default:
-            GrCrash("Invalid shader type");
-    }
-    string->appendf(format, args);
-}
-
-void GrGLShaderBuilder::codeAppend(ShaderType type, const char* str) {
-    SkString* string = NULL;
-    switch (type) {
-        case kVertex_ShaderType:
-            string = &fVSCode;
-            break;
-        case kGeometry_ShaderType:
-            string = &fGSCode;
-            break;
-        case kFragment_ShaderType:
-            string = &fFSCode;
-            break;
-        default:
-            GrCrash("Invalid shader type");
-    }
-    string->append(str);
-}
-
 void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
@@ -302,21 +266,17 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
     append_swizzle(out, sampler, *fCtxInfo.caps());
 }
 
-void GrGLShaderBuilder::appendTextureLookup(ShaderType type,
-                                            const GrGLShaderBuilder::TextureSampler& sampler,
-                                            const char* coordName,
-                                            GrSLType varyingType) {
-    SkASSERT(kFragment_ShaderType == type);
+void GrGLShaderBuilder::fsAppendTextureLookup(const GrGLShaderBuilder::TextureSampler& sampler,
+                                              const char* coordName,
+                                              GrSLType varyingType) {
     this->appendTextureLookup(&fFSCode, sampler, coordName, varyingType);
 }
 
-void GrGLShaderBuilder::appendTextureLookupAndModulate(
-                                            ShaderType type,
+void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
                                             const char* modulation,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
                                             GrSLType varyingType) {
-    SkASSERT(kFragment_ShaderType == type);
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     GrGLSLModulatef<4>(&fFSCode, modulation, lookup.c_str());
@@ -383,7 +343,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
                                                                      int count,
                                                                      const char** outName) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType);
+    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
     SkASSERT(0 == (~kVisibilityMask & visibility));
     SkASSERT(0 != visibility);
 
@@ -403,7 +363,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     // If it is visible in both the VS and FS, the precision must match.
     // We declare a default FS precision, but not a default VS. So set the var
     // to use the default FS precision.
-    if ((kVertex_ShaderType | kFragment_ShaderType) == visibility) {
+    if ((kVertex_Visibility | kFragment_Visibility) == visibility) {
         // the fragment and vertex precisions must match
         uni.fVariable.setPrecision(kDefaultFragmentPrecision);
     }
@@ -508,7 +468,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             SkASSERT(!fRTHeightUniform.isValid());
             const char* rtHeightName;
 
-            fRTHeightUniform = this->addUniform(kFragment_ShaderType,
+            fRTHeightUniform = this->addUniform(kFragment_Visibility,
                                                 kFloat_GrSLType,
                                                 "RTHeight",
                                                 &rtHeightName);
@@ -523,14 +483,12 @@ const char* GrGLShaderBuilder::fragmentPosition() {
 }
 
 
-void GrGLShaderBuilder::emitFunction(ShaderType shader,
-                                     GrSLType returnType,
-                                     const char* name,
-                                     int argCnt,
-                                     const GrGLShaderVar* args,
-                                     const char* body,
-                                     SkString* outName) {
-    SkASSERT(kFragment_ShaderType == shader);
+void GrGLShaderBuilder::fsEmitFunction(GrSLType returnType,
+                                       const char* name,
+                                       int argCnt,
+                                       const GrGLShaderVar* args,
+                                       const char* body,
+                                       SkString* outName) {
     fFSFunctions.append(GrGLSLTypeString(returnType));
     this->nameVariable(outName, '\0', name);
     fFSFunctions.appendf(" %s", outName->c_str());
@@ -579,59 +537,57 @@ void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     }
 }
 
-void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) const {
+void GrGLShaderBuilder::appendUniformDecls(ShaderVisibility visibility,
+                                           SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
-        if (fUniforms[i].fVisibility & stype) {
+        if (fUniforms[i].fVisibility & visibility) {
             fUniforms[i].fVariable.appendDecl(fCtxInfo, out);
             out->append(";\n");
         }
     }
 }
 
-void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
-    const char* version = GrGetGLSLVersionDecl(fCtxInfo);
+void GrGLShaderBuilder::vsGetShader(SkString* shaderStr) const {
+    *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
+    this->appendUniformDecls(kVertex_Visibility, shaderStr);
+    this->appendDecls(fVSAttrs, shaderStr);
+    this->appendDecls(fVSOutputs, shaderStr);
+    shaderStr->append("void main() {\n");
+    shaderStr->append(fVSCode);
+    shaderStr->append("}\n");
+}
 
-    switch (type) {
-        case kVertex_ShaderType:
-            *shaderStr = version;
-            this->appendUniformDecls(kVertex_ShaderType, shaderStr);
-            this->appendDecls(fVSAttrs, shaderStr);
-            this->appendDecls(fVSOutputs, shaderStr);
-            shaderStr->append("void main() {\n");
-            shaderStr->append(fVSCode);
-            shaderStr->append("}\n");
-            break;
-        case kGeometry_ShaderType:
-            if (fUsesGS) {
-                *shaderStr = version;
-                shaderStr->append(fGSHeader);
-                this->appendDecls(fGSInputs, shaderStr);
-                this->appendDecls(fGSOutputs, shaderStr);
-                shaderStr->append("void main() {\n");
-                shaderStr->append(fGSCode);
-                shaderStr->append("}\n");
-            } else {
-                shaderStr->reset();
-            }
-            break;
-        case kFragment_ShaderType:
-            *shaderStr = version;
-            shaderStr->append(fFSExtensions);
-            append_default_precision_qualifier(kDefaultFragmentPrecision,
-                                               fCtxInfo.binding(),
-                                               shaderStr);
-            this->appendUniformDecls(kFragment_ShaderType, shaderStr);
-            this->appendDecls(fFSInputs, shaderStr);
-            // We shouldn't have declared outputs on 1.10
-            SkASSERT(k110_GrGLSLGeneration != fCtxInfo.glslGeneration() || fFSOutputs.empty());
-            this->appendDecls(fFSOutputs, shaderStr);
-            shaderStr->append(fFSFunctions);
-            shaderStr->append("void main() {\n");
-            shaderStr->append(fFSCode);
-            shaderStr->append("}\n");
-            break;
+void GrGLShaderBuilder::gsGetShader(SkString* shaderStr) const {
+    if (!fUsesGS) {
+        shaderStr->reset();
+        return;
     }
- }
+
+    *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
+    shaderStr->append(fGSHeader);
+    this->appendDecls(fGSInputs, shaderStr);
+    this->appendDecls(fGSOutputs, shaderStr);
+    shaderStr->append("void main() {\n");
+    shaderStr->append(fGSCode);
+    shaderStr->append("}\n");
+}
+
+void GrGLShaderBuilder::fsGetShader(SkString* shaderStr) const {
+    *shaderStr = GrGetGLSLVersionDecl(fCtxInfo);
+    shaderStr->append(fFSExtensions);
+    append_default_precision_qualifier(kDefaultFragmentPrecision,
+                                       fCtxInfo.binding(),
+                                       shaderStr);
+    this->appendUniformDecls(kFragment_Visibility, shaderStr);
+    this->appendDecls(fFSInputs, shaderStr);
+    // We shouldn't have declared outputs on 1.10
+    SkASSERT(k110_GrGLSLGeneration != fCtxInfo.glslGeneration() || fFSOutputs.empty());
+    this->appendDecls(fFSOutputs, shaderStr);
+    shaderStr->append(fFSFunctions);
+    shaderStr->append("void main() {\n");
+    shaderStr->append(fFSCode);
+    shaderStr->append("}\n");
+}
 
 void GrGLShaderBuilder::finished(GrGLuint programID) {
     fUniformManager.getUniformLocations(programID, fUniforms);

@@ -409,7 +409,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                                          const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    fScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kVec2f_GrSLType, "Scale");
     const char* scaleUni = builder->getUniformCStr(fScaleUni);
 
@@ -428,10 +428,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                                    // leave room for 32-bit float GPU rounding errors.
 
     builder->fsCodeAppendf("\t\tvec4 %s = ", dColor);
-    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                 samplers[0],
-                                 dCoordsIn.c_str(),
-                                 dCoordsType);
+    builder->fsAppendTextureLookup(samplers[0], dCoordsIn.c_str(), dCoordsType);
     builder->fsCodeAppend(";\n");
 
     // Unpremultiply the displacement
@@ -484,10 +481,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
         "bool %s = (%s.x < 0.0) || (%s.y < 0.0) || (%s.x > 1.0) || (%s.y > 1.0);\t\t",
         outOfBounds, cCoords, cCoords, cCoords, cCoords);
     builder->fsCodeAppendf("%s = %s ? vec4(0.0) : ", outputColor, outOfBounds);
-    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                 samplers[1],
-                                 cCoords,
-                                 cCoordsType);
+    builder->fsAppendTextureLookup(samplers[1], cCoords, cCoordsType);
     builder->fsCodeAppend(";\n");
 }
 

@@ -53,7 +53,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
     SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     const char* domain;
-    fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kVec4f_GrSLType, "TexDom", &domain);
     if (GrTextureDomainEffect::kClamp_WrapMode == texDom.wrapMode()) {
 
@@ -61,10 +61,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                 coords.c_str(), domain, domain);
 
         builder->fsCodeAppendf("\t%s = ", outputColor);
-        builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
-                                                inputColor,
-                                                samplers[0],
-                                                "clampCoord");
+        builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], "clampCoord");
         builder->fsCodeAppend(";\n");
     } else {
         SkASSERT(GrTextureDomainEffect::kDecal_WrapMode == texDom.wrapMode());
@@ -78,10 +75,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             // result=white;" code fails to compile.
             builder->fsCodeAppend("\tvec4 outside = vec4(0.0, 0.0, 0.0, 0.0);\n");
             builder->fsCodeAppend("\tvec4 inside = ");
-            builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
-                                                    inputColor,
-                                                    samplers[0],
-                                                    coords.c_str());
+            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords.c_str());
             builder->fsCodeAppend(";\n");
 
             builder->fsCodeAppendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
@@ -95,10 +89,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords.c_str(), domain);
             builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords.c_str(), domain);
             builder->fsCodeAppendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ", outputColor);
-            builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
-                                                    inputColor,
-                                                    samplers[0],
-                                                    coords.c_str());
+            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords.c_str());
             builder->fsCodeAppend(";\n");
         }
     }

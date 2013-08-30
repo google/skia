@@ -952,10 +952,7 @@ public:
                 GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
                 dstColor = "bgColor";
                 builder->fsCodeAppendf("\t\tvec4 %s = ", dstColor);
-                builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                             samplers[0],
-                                             bgCoords.c_str(),
-                                             bgCoordsType);
+                builder->fsAppendTextureLookup(samplers[0], bgCoords.c_str(), bgCoordsType);
                 builder->fsCodeAppendf(";\n");
             } else {
                 dstColor = builder->dstColor();
@@ -1225,12 +1222,11 @@ public:
                 GrGLShaderVar("color", kVec3f_GrSLType),
             };
             SkString getLumBody("\treturn dot(vec3(0.3, 0.59, 0.11), color);\n");
-            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                                  kFloat_GrSLType,
-                                  "luminance",
-                                   SK_ARRAY_COUNT(getLumArgs), getLumArgs,
-                                   getLumBody.c_str(),
-                                   &getFunction);
+            builder->fsEmitFunction(kFloat_GrSLType,
+                                    "luminance",
+                                    SK_ARRAY_COUNT(getLumArgs), getLumArgs,
+                                    getLumBody.c_str(),
+                                    &getFunction);
 
             // Emit the set luminance function.
             GrGLShaderVar setLumArgs[] = {
@@ -1251,12 +1247,11 @@ public:
                               "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * (alpha - outLum)) / (maxComp - outLum);\n"
                               "\t}\n"
                               "\treturn outColor;\n");
-            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                        kVec3f_GrSLType,
-                        "set_luminance",
-                        SK_ARRAY_COUNT(setLumArgs), setLumArgs,
-                        setLumBody.c_str(),
-                        setLumFunction);
+            builder->fsEmitFunction(kVec3f_GrSLType,
+                                    "set_luminance",
+                                    SK_ARRAY_COUNT(setLumArgs), setLumArgs,
+                                    setLumBody.c_str(),
+                                    setLumFunction);
         }
 
         // Adds a function that creates a color with the hue and luminosity of one input color and
@@ -1269,12 +1264,11 @@ public:
             SkString getSatBody;
             getSatBody.printf("\treturn max(max(color.r, color.g), color.b) - "
                               "min(min(color.r, color.g), color.b);\n");
-            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                                  kFloat_GrSLType,
-                                  "saturation",
-                                  SK_ARRAY_COUNT(getSatArgs), getSatArgs,
-                                  getSatBody.c_str(),
-                                  &getFunction);
+            builder->fsEmitFunction(kFloat_GrSLType,
+                                    "saturation",
+                                    SK_ARRAY_COUNT(getSatArgs), getSatArgs,
+                                    getSatBody.c_str(),
+                                    &getFunction);
 
             // Emit a helper that sets the saturation given sorted input channels. This used
             // to use inout params for min, mid, and max components but that seems to cause
@@ -1296,12 +1290,11 @@ public:
                                               "\t} else {\n"
                                               "\t\treturn vec3(0, 0, 0);\n"
                                               "\t}\n";
-            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                                  kVec3f_GrSLType,
-                                  "set_saturation_helper",
-                                  SK_ARRAY_COUNT(helperArgs), helperArgs,
-                                  kHelperBody,
-                                  &helperFunction);
+            builder->fsEmitFunction(kVec3f_GrSLType,
+                                    "set_saturation_helper",
+                                    SK_ARRAY_COUNT(helperArgs), helperArgs,
+                                    kHelperBody,
+                                    &helperFunction);
 
             GrGLShaderVar setSatArgs[] = {
                 GrGLShaderVar("hueLumColor", kVec3f_GrSLType),
@@ -1328,12 +1321,11 @@ public:
                                "\treturn hueLumColor;\n",
                                getFunction.c_str(), helpFunc, helpFunc, helpFunc, helpFunc,
                                helpFunc, helpFunc);
-            builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
-                                  kVec3f_GrSLType,
-                                  "set_saturation",
-                                  SK_ARRAY_COUNT(setSatArgs), setSatArgs,
-                                  setSatBody.c_str(),
-                                  setSatFunction);
+            builder->fsEmitFunction(kVec3f_GrSLType,
+                                    "set_saturation",
+                                    SK_ARRAY_COUNT(setSatArgs), setSatArgs,
+                                    setSatBody.c_str(),
+                                    setSatFunction);
 
         }
 

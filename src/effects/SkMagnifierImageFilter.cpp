@@ -130,16 +130,16 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
     SkString coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fOffsetVar = builder->addUniform(
-        GrGLShaderBuilder::kFragment_ShaderType |
-        GrGLShaderBuilder::kVertex_ShaderType,
+        GrGLShaderBuilder::kFragment_Visibility |
+        GrGLShaderBuilder::kVertex_Visibility,
         kVec2f_GrSLType, "uOffset");
     fZoomVar = builder->addUniform(
-        GrGLShaderBuilder::kFragment_ShaderType |
-        GrGLShaderBuilder::kVertex_ShaderType,
+        GrGLShaderBuilder::kFragment_Visibility |
+        GrGLShaderBuilder::kVertex_Visibility,
         kVec2f_GrSLType, "uZoom");
     fInsetVar = builder->addUniform(
-        GrGLShaderBuilder::kFragment_ShaderType |
-        GrGLShaderBuilder::kVertex_ShaderType,
+        GrGLShaderBuilder::kFragment_Visibility |
+        GrGLShaderBuilder::kVertex_Visibility,
         kVec2f_GrSLType, "uInset");
 
     builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords.c_str());
@@ -165,7 +165,7 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
 
     builder->fsCodeAppend("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
     builder->fsCodeAppend("\t\tvec4 output_color = ");
-    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "mix_coord");
+    builder->fsAppendTextureLookup(samplers[0], "mix_coord");
     builder->fsCodeAppend(";\n");
 
     builder->fsCodeAppendf("\t\t%s = output_color;", outputColor);

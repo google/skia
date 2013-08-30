@@ -354,10 +354,7 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
         SkString bgCoords;
         GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
         builder->fsCodeAppend("\t\tvec4 bgColor = ");
-        builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                     samplers[0],
-                                     bgCoords.c_str(),
-                                     bgCoordsType);
+        builder->fsAppendTextureLookup(samplers[0], bgCoords.c_str(), bgCoordsType);
         builder->fsCodeAppendf(";\n");
         dstColor = "bgColor";
     } else {
@@ -365,7 +362,7 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
     }
 
     SkASSERT(NULL != dstColor);
-    fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fKUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                 kVec4f_GrSLType, "k");
     const char* kUni = builder->getUniformCStr(fKUni);
 

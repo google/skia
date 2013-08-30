@@ -832,7 +832,7 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
 void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
-    fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+    fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
 
@@ -877,10 +877,7 @@ void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
                            gradientTValue,
                            builder->getUniformVariable(fFSYUni).c_str());
     builder->fsCodeAppendf("\t%s = ", outputColor);
-    builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
-                                            inputColor,
-                                            sampler,
-                                            "coord");
+    builder->fsAppendTextureLookupAndModulate(inputColor, sampler, "coord");
     builder->fsCodeAppend(";\n");
 }
 

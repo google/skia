@@ -33,10 +33,7 @@ public:
         SkString coords;
         GrSLType coordsType = fEffectMatrix.emitCode(builder, key, &coords);
         builder->fsCodeAppendf("\t\t%s = ", outputColor);
-        builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
-                                     samplers[0],
-                                     coords.c_str(),
-                                     coordsType);
+        builder->fsAppendTextureLookup(samplers[0], coords.c_str(), coordsType);
         builder->fsCodeAppend(";\n");
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             SkASSERT(fSwapRedAndBlue);

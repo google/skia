@@ -400,10 +400,10 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray&) SK_OVERRIDE {
-            fMatrixHandle = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+            fMatrixHandle = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                                 kMat44f_GrSLType,
                                                 "ColorMatrix");
-            fVectorHandle = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+            fVectorHandle = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                                 kVec4f_GrSLType,
                                                 "ColorMatrixVector");
 
