@@ -42,9 +42,6 @@ SkExampleWindow::SkExampleWindow(void* hwnd)
     fCurrExample = fRegistry->factory()(this);
 
     if (FLAGS_match.count()) {
-        for(int i = 0; i < FLAGS_match.count(); ++i) {
-            fMatchStrs.push(FLAGS_match[i]);
-        }
         // Start with the a matching sample if possible.
         bool found = this->findNextMatch();
         if (!found) {
@@ -170,7 +167,7 @@ bool SkExampleWindow::findNextMatch() {
             fRegistry = SkExample::Registry::Head();
         }
         SkExample* next = fRegistry->factory()(this);
-        if (!SkCommandLineFlags::ShouldSkip(fMatchStrs, next->getName().c_str())) {
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, next->getName().c_str())) {
             fCurrExample = next;
             found = true;
         }

@@ -69,7 +69,6 @@ private:
 
     SkExample* fCurrExample;
     const SkExample::Registry* fRegistry;
-    SkTDArray<const char*> fMatchStrs;
     GrContext* fContext;
     GrRenderTarget* fRenderTarget;
     AttachmentInfo fAttachmentInfo;

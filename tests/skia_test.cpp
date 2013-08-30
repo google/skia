@@ -208,15 +208,10 @@ int tool_main(int argc, char** argv) {
     int toRun = 0;
     Test* test;
 
-    SkTDArray<const char*> matchStrs;
-    for(int i = 0; i < FLAGS_match.count(); ++i) {
-        matchStrs.push(FLAGS_match[i]);
-    }
-
     while ((test = iter.next()) != NULL) {
         SkAutoTDelete<Test> owned(test);
 
-        if(!SkCommandLineFlags::ShouldSkip(matchStrs, test->getName())) {
+        if(!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             toRun++;
         }
         total++;
@@ -232,7 +227,7 @@ int tool_main(int argc, char** argv) {
     SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
     for (int i = 0; i < total; i++) {
         SkAutoTDelete<Test> test(iter.next());
-        if (SkCommandLineFlags::ShouldSkip(matchStrs, test->getName())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             ++skipCount;
         } else if (!test->isThreadsafe()) {
             unsafeTests.push_back() = test.detach();
