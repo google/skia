@@ -26,13 +26,13 @@ SK_DEFINE_INST_COUNT(SkBitmapDevice)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) 
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : fBitmap(bitmap) {
     SkASSERT(SkBitmap::kARGB_4444_Config != bitmap.config());
 }
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkDeviceProperties::MakeDefault()) 
+    : fLeakyProperties(SkDeviceProperties::MakeDefault())
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -109,7 +109,7 @@ SkBaseDevice* SkBitmapDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                                        int width, int height,
                                                        bool isOpaque,
                                                        Usage usage) {
-    return SkNEW_ARGS(SkBitmapDevice,(config, width, height, isOpaque, 
+    return SkNEW_ARGS(SkBitmapDevice,(config, width, height, isOpaque,
                                       this->getDeviceProperties()));
 }
 
