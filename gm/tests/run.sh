@@ -163,6 +163,14 @@ function create_inputs_dir {
   $GM_BINARY --hierarchy --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
     --writeJsonSummaryPath $JSON_DIR/different-pixels.json
 
+  # Create another JSON expectations file which is identical to
+  # different-pixels.json, but in which the *first* ignore-failure is changed
+  # from false to true.
+  OLD='"ignore-failure" : false'
+  NEW='"ignore-failure" : true'
+  sed -e "0,/$OLD/{s/$OLD/$NEW/}" $JSON_DIR/different-pixels.json \
+      >$JSON_DIR/different-pixels-ignore-some-failures.json
+
   THIS_IMAGE_DIR=$IMAGES_DIR/different-pixels-no-hierarchy
   mkdir -p $THIS_IMAGE_DIR
   $GM_BINARY --match selftest2 $CONFIGS -w $THIS_IMAGE_DIR
@@ -193,6 +201,10 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/ide
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
+# Compare different pixels, but with a SUBSET of the expectations marked as
+# ignore-failure.
+gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-ignore-some-failures.json" "$GM_OUTPUTS/ignoring-some-failures"
+
 # Compare generated image against an empty "expected image" dir.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
@@ -205,9 +217,8 @@ gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" 
 # Add pdf to the list of configs.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS pdf -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/add-config-pdf"
 
-# If run without "-r", the JSON's "actual-results" section should contain
-# actual checksums marked as "failure-ignored", but the "expected-results"
-# section should be empty.
+# Test what happens if run without -r (no expected-results.json to compare
+# against).
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
 # Test what happens if a subset of the renderModes fail (e.g. pipe)

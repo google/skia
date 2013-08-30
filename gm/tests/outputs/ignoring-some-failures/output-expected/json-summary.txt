@@ -1,0 +1,26 @@
+{
+   "actual-results" : {
+      "failed" : {
+         "8888/selftest1.png" : [ "bitmap-64bitMD5", 1209453360120438698 ]
+      },
+      "failure-ignored" : {
+         "565/selftest1.png" : [ "bitmap-64bitMD5", 12927999507540085554 ]
+      },
+      "no-comparison" : null,
+      "succeeded" : null
+   },
+   "expected-results" : {
+      "565/selftest1.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 8863920166200910451 ]
+         ],
+         "ignore-failure" : true
+      },
+      "8888/selftest1.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 13451349865803053525 ]
+         ],
+         "ignore-failure" : false
+      }
+   }
+}
