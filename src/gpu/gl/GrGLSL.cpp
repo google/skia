@@ -33,26 +33,30 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
     }
 }
 
-const char* GrGetGLSLVersionDecl(GrGLBinding binding, GrGLSLGeneration gen) {
-    switch (gen) {
+const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
+    switch (info.glslGeneration()) {
         case k110_GrGLSLGeneration:
-            if (kES_GrGLBinding == binding) {
+            if (kES_GrGLBinding == info.binding()) {
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";
             } else {
-                SkASSERT(kDesktop_GrGLBinding == binding);
+                SkASSERT(kDesktop_GrGLBinding == info.binding());
                 return "#version 110\n";
             }
         case k130_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == binding);
+            SkASSERT(kDesktop_GrGLBinding == info.binding());
             return "#version 130\n";
         case k140_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == binding);
+            SkASSERT(kDesktop_GrGLBinding == info.binding());
             return "#version 140\n";
         case k150_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == binding);
-            return "#version 150\n";
+            SkASSERT(kDesktop_GrGLBinding == info.binding());
+            if (info.caps()->isCoreProfile()) {
+                return "#version 150\n";
+            } else {
+                return "#version 150 compatibility\n";
+            }
         default:
             GrCrash("Unknown GL version.");
             return ""; // suppress warning
