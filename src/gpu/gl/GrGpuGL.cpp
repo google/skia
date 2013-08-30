@@ -922,18 +922,20 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     }
 
     GL_CALL(GenTextures(1, &glTexDesc.fTextureID));
-    if (renderTarget && this->glCaps().textureUsageSupport()) {
-        // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                              GR_GL_TEXTURE_USAGE,
-                              GR_GL_FRAMEBUFFER_ATTACHMENT));
-    }
+
     if (!glTexDesc.fTextureID) {
         return return_null_texture();
     }
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
+
+    if (renderTarget && this->glCaps().textureUsageSupport()) {
+        // provides a hint about how this texture will be used
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_USAGE,
+                              GR_GL_FRAMEBUFFER_ATTACHMENT));
+    }
 
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
     // drivers have a bug where an FBO won't be complete if it includes a
