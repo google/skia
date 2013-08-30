@@ -589,7 +589,7 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) cons
 }
 
 void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
-    const char* version = GrGetGLSLVersionDecl(fCtxInfo.binding(), fCtxInfo.glslGeneration());
+    const char* version = GrGetGLSLVersionDecl(fCtxInfo);
 
     switch (type) {
         case kVertex_ShaderType:

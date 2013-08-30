@@ -12,6 +12,7 @@
 #include "GrColor.h"
 #include "GrTypesPriv.h"
 
+class GrGLContextInfo;
 class GrGLShaderVar;
 class SkString;
 
@@ -83,8 +84,7 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
  * Returns a string to include at the beginning of a shader to declare the GLSL
  * version.
  */
-const char* GrGetGLSLVersionDecl(GrGLBinding binding,
-                                 GrGLSLGeneration v);
+const char* GrGetGLSLVersionDecl(const GrGLContextInfo&);
 
 /**
  * Depending on the GLSL version being emitted there may be an assumed output
