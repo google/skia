@@ -168,16 +168,16 @@ static inline SkIRect make_XYordered_rects(SkMWCRandom& rand, int index, int num
     SkIRect out;
     out.fLeft = index % GRID_WIDTH;
     out.fTop = index / GRID_WIDTH;
-    out.fRight  = 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
-    out.fBottom = 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+    out.fRight  = fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+    out.fBottom = fTop + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
     return out;
 }
 static inline SkIRect make_YXordered_rects(SkMWCRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft = index / GRID_WIDTH;
     out.fTop = index % GRID_WIDTH;
-    out.fRight  = 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
-    out.fBottom = 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+    out.fRight  = fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
+    out.fBottom = fTop + 1 + rand.nextU() % (GENERATE_EXTENTS / 3);
     return out;
 }
 
