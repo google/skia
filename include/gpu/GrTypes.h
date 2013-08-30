@@ -615,7 +615,7 @@ enum GrGLBackendState {
     kStencil_GrGLBackendState          = 1 << 6,
     kPixelStore_GrGLBackendState       = 1 << 7,
     kProgram_GrGLBackendState          = 1 << 8,
-    kPathStencil_GrGLBackendState      = 1 << 9,
+    kFixedFunction_GrGLBackendState    = 1 << 9,
     kMisc_GrGLBackendState             = 1 << 10,
     kALL_GrGLBackendState              = 0xffff
 };

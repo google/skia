@@ -333,9 +333,9 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         fHWAAState.invalidate();
     }
 
-    // invalid
+    fHWActiveTextureUnitIdx = -1; // invalid
+
     if (resetBits & kTextureBinding_GrGLBackendState) {
-        fHWActiveTextureUnitIdx = -1;
         for (int s = 0; s < fHWBoundTextures.count(); ++s) {
             fHWBoundTextures[s] = NULL;
         }
@@ -364,12 +364,31 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         fHWBoundRenderTarget = NULL;
     }
 
-    if (resetBits & kPathStencil_GrGLBackendState) {
-        fHWPathStencilMatrixState.invalidate();
-        if (this->caps()->pathStencilingSupport()) {
-            // we don't use the model view matrix.
-            GL_CALL(MatrixMode(GR_GL_MODELVIEW));
-            GL_CALL(LoadIdentity());
+    if (resetBits & kFixedFunction_GrGLBackendState &&
+        kDesktop_GrGLBinding == this->glBinding() &&
+        !this->glCaps().isCoreProfile()) {
+
+        fHWProjectionMatrixState.invalidate();
+        // we don't use the model view matrix.
+        GL_CALL(MatrixMode(GR_GL_MODELVIEW));
+        GL_CALL(LoadIdentity());
+
+        // When we use fixed function vertex processing we always use the vertex array
+        // and none of the other arrays.
+        GL_CALL(EnableClientState(GR_GL_VERTEX_ARRAY));
+        GL_CALL(DisableClientState(GR_GL_NORMAL_ARRAY));
+        GL_CALL(DisableClientState(GR_GL_COLOR_ARRAY));
+        GL_CALL(DisableClientState(GR_GL_INDEX_ARRAY));
+        GL_CALL(DisableClientState(GR_GL_EDGE_FLAG_ARRAY));
+        for (int i = 0; i < this->glCaps().maxFixedFunctionTextureCoords(); ++i) {
+            GL_CALL(ClientActiveTexture(GR_GL_TEXTURE0 + i));
+            GL_CALL(DisableClientState(GR_GL_TEXTURE_COORD_ARRAY));
+
+            GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + i));
+            GL_CALL(Disable(GR_GL_TEXTURE_GEN_S));
+            GL_CALL(Disable(GR_GL_TEXTURE_GEN_T));
+            GL_CALL(Disable(GR_GL_TEXTURE_GEN_Q));
+            GL_CALL(Disable(GR_GL_TEXTURE_GEN_R));
         }
     }
 

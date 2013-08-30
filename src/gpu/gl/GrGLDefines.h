@@ -439,6 +439,7 @@
 #define GR_GL_TEXTURE31                      0x84DF
 #define GR_GL_ACTIVE_TEXTURE                 0x84E0
 #define GR_GL_MAX_TEXTURE_UNITS              0x84E2
+#define GR_GL_MAX_TEXTURE_COORDS             0x8871
 
 /* TextureWrapMode */
 #define GR_GL_REPEAT                         0x2901
@@ -464,6 +465,8 @@
 #define GR_GL_TEXTURE_ENV_COLOR             0x2201
 #define GR_GL_TEXTURE_GEN_S                 0x0C60
 #define GR_GL_TEXTURE_GEN_T                 0x0C61
+#define GR_GL_TEXTURE_GEN_R                 0x0C62
+#define GR_GL_TEXTURE_GEN_Q                 0x0C63
 #define GR_GL_TEXTURE_GEN_MODE              0x2500
 #define GR_GL_TEXTURE_BORDER_COLOR          0x1004
 #define GR_GL_TEXTURE_WIDTH                 0x1000

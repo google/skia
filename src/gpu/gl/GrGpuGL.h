@@ -417,7 +417,7 @@ private:
     } fHWAAState;
 
 
-    GrGLProgram::MatrixState    fHWPathStencilMatrixState;
+    GrGLProgram::MatrixState    fHWProjectionMatrixState;
 
     GrStencilSettings           fHWStencilSettings;
     TriState                    fHWStencilTestEnabled;
