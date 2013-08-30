@@ -145,9 +145,9 @@ static void test_rtree(skiatest::Reporter* reporter) {
     rtree_test_main(rtree, reporter);
 
     // Rtree that orders input rectangles on deferred insert.
-    SkRTree* unsortedRtree = SkRTree::Create(MIN_CHILDREN, MAX_CHILDREN, false);
-    SkAutoUnref auo(orderedRtree);
-    rtree_test_main(orderedRtree, reporter);
+    SkRTree* unsortedRtree = SkRTree::Create(MIN_CHILDREN, MAX_CHILDREN, 1, false);
+    SkAutoUnref auo(unsortedRtree);
+    rtree_test_main(unsortedRtree, reporter);
 }
 
 
