@@ -108,15 +108,6 @@ public:
      */
     static void Parse(int argc, char** argv);
 
-    /* Takes a list of the form [~][^]match[$]
-     ~ causes a matching test to always be skipped
-     ^ requires the start of the test to match
-     $ requires the end of the test to match
-     ^ and $ requires an exact match
-     If a test does not match any list entry, it is skipped unless some list entry starts with ~
-    */
-    static bool ShouldSkip(const SkTDArray<const char*>& strings, const char* name);
-
     /**
      *  Custom class for holding the arguments for a string flag.
      *  Publicly only has accessors so the strings cannot be modified.
@@ -149,6 +140,16 @@ public:
 
         friend class SkFlagInfo;
     };
+
+    /* Takes a list of the form [~][^]match[$]
+     ~ causes a matching test to always be skipped
+     ^ requires the start of the test to match
+     $ requires the end of the test to match
+     ^ and $ requires an exact match
+     If a test does not match any list entry, it is skipped unless some list entry starts with ~
+    */
+    static bool ShouldSkip(const SkTDArray<const char*>& strings, const char* name);
+    static bool ShouldSkip(const StringArray& strings, const char* name);
 
 private:
     static SkFlagInfo* gHead;

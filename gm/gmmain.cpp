@@ -2093,13 +2093,6 @@ static bool parse_flags_gmmain_paths(GMMain* gmmain) {
     return true;
 }
 
-static bool parse_flags_match_strs(SkTDArray<const char*>* matchStrs) {
-    for (int i = 0; i < FLAGS_match.count(); ++i) {
-        matchStrs->push(FLAGS_match[i]);
-    }
-    return true;
-}
-
 static bool parse_flags_resource_path() {
     if (FLAGS_resourcePath.count() == 1) {
         GM::SetResourcePath(FLAGS_resourcePath[0]);
@@ -2145,7 +2138,6 @@ int tool_main(int argc, char** argv) {
 #else
     GrContextFactory* grFactory = NULL;
 #endif
-    SkTDArray<const char*> matchStrs;
 
     if (!parse_flags_modulo(&moduloRemainder, &moduloDivisor) ||
         !parse_flags_ignore_error_types(&gmmain.fIgnorableErrorTypes) ||
@@ -2154,7 +2146,6 @@ int tool_main(int argc, char** argv) {
 #endif
         !parse_flags_tile_grid_replay_scales(&tileGridReplayScales) ||
         !parse_flags_resource_path() ||
-        !parse_flags_match_strs(&matchStrs) ||
         !parse_flags_jpeg_quality() ||
         !parse_flags_configs(&configs, grFactory) ||
         !parse_flags_pdf_rasterizers(configs, &pdfRasterizers) ||
@@ -2219,7 +2210,7 @@ int tool_main(int argc, char** argv) {
 
         const char* shortName = gm->shortName();
 
-        if (SkCommandLineFlags::ShouldSkip(matchStrs, shortName)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, shortName)) {
             continue;
         }
 
