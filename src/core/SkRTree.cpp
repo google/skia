@@ -21,21 +21,24 @@ static inline void join_no_empty_check(const SkIRect& joinWith, SkIRect* out);
 
 SK_DEFINE_INST_COUNT(SkRTree)
 
-SkRTree* SkRTree::Create(int minChildren, int maxChildren, SkScalar aspectRatio) {
+SkRTree* SkRTree::Create(int minChildren, int maxChildren, SkScalar aspectRatio,
+            bool sortWhenBulkLoading) {
     if (minChildren < maxChildren && (maxChildren + 1) / 2 >= minChildren &&
         minChildren > 0 && maxChildren < static_cast<int>(SK_MaxU16)) {
-        return new SkRTree(minChildren, maxChildren, aspectRatio);
+        return new SkRTree(minChildren, maxChildren, aspectRatio, sortWhenBulkLoading);
     }
     return NULL;
 }
 
-SkRTree::SkRTree(int minChildren, int maxChildren, SkScalar aspectRatio)
+SkRTree::SkRTree(int minChildren, int maxChildren, SkScalar aspectRatio,
+        bool sortWhenBulkLoading)
     : fMinChildren(minChildren)
     , fMaxChildren(maxChildren)
     , fNodeSize(sizeof(Node) + sizeof(Branch) * maxChildren)
     , fCount(0)
     , fNodes(fNodeSize * 256)
-    , fAspectRatio(aspectRatio) {
+    , fAspectRatio(aspectRatio)
+    , fSortWhenBulkLoading(sortWhenBulkLoading) {
     SkASSERT(minChildren < maxChildren && minChildren > 0 && maxChildren <
              static_cast<int>(SK_MaxU16));
     SkASSERT((maxChildren + 1) / 2 >= minChildren);
@@ -323,8 +326,14 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
         branches->rewind();
         return out;
     } else {
-        // First we sort the whole list by y coordinates
-        SkTQSort(branches->begin(), branches->end() - 1, RectLessY());
+        // We sort the whole list by y coordinates, if we are told to do so.
+        //
+        // We expect Webkit / Blink to give us a reasonable x,y order.
+        // Avoiding this call resulted in a 17% win for recording with
+        // negligible difference in playback speed.
+        if (fSortWhenBulkLoading) {
+            SkTQSort(branches->begin(), branches->end() - 1, RectLessY());
+        }
 
         int numBranches = branches->count() / fMaxChildren;
         int remainder = branches->count() % fMaxChildren;
@@ -348,15 +357,18 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
         int currentBranch = 0;
 
         for (int i = 0; i < numStrips; ++i) {
-            int begin = currentBranch;
-            int end = currentBranch + numTiles * fMaxChildren - SkMin32(remainder,
-                      (fMaxChildren - fMinChildren) * numTiles);
-            if (end > branches->count()) {
-                end = branches->count();
-            }
+            // Once again, if we are told to do so, we sort by x.
+            if (fSortWhenBulkLoading) {
+                int begin = currentBranch;
+                int end = currentBranch + numTiles * fMaxChildren - SkMin32(remainder,
+                        (fMaxChildren - fMinChildren) * numTiles);
+                if (end > branches->count()) {
+                    end = branches->count();
+                }
 
-            // Now we sort horizontal strips of rectangles by their x coords
-            SkTQSort(branches->begin() + begin, branches->begin() + end - 1, RectLessX());
+                // Now we sort horizontal strips of rectangles by their x coords
+                SkTQSort(branches->begin() + begin, branches->begin() + end - 1, RectLessX());
+            }
 
             for (int j = 0; j < numTiles && currentBranch < branches->count(); ++j) {
                 int incrementBy = fMaxChildren;
