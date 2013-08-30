@@ -821,12 +821,6 @@ public:
             this->fJsonActualResults_Succeeded[testName] = jsonActualResults;
         } else {
             if (ignoreFailure) {
-                // TODO: Once we have added the ability to compare
-                // actual results against expectations in a JSON file
-                // (where we can set ignore-failure to either true or
-                // false), add test cases that exercise ignored
-                // failures (both for kMissingExpectations_ErrorType
-                // and kExpectationsMismatch_ErrorType).
                 this->fJsonActualResults_FailureIgnored[testName] =
                     jsonActualResults;
             } else {
