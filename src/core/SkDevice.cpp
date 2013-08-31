@@ -118,4 +118,3 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
     }
     return result;
 }
-

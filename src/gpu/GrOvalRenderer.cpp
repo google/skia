@@ -693,7 +693,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(halfWidth, halfWidth);
         }
 
-	isStroked = (isStroked && innerRadius > 0);
+    isStroked = (isStroked && innerRadius > 0);
 
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
@@ -789,7 +789,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(scaledStroke.fX, scaledStroke.fY);
         }
 
-	isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
+    isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {

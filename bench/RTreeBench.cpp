@@ -309,4 +309,3 @@ static BenchRegistry gReg3(Fact3);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg0(Fact0);
-
