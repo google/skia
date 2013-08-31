@@ -112,8 +112,8 @@ bool SkBitmapDevice::onReadPixels(const SkBitmap& bitmap,
                                   SkCanvas::Config8888 config8888) {
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, 
-                                                                          bitmap.width(), 
+    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y,
+                                                                          bitmap.width(),
                                                                           bitmap.height())));
 
     SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
@@ -407,4 +407,3 @@ bool SkBitmapDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     // we're cool with the paint as is
     return false;
 }
-
