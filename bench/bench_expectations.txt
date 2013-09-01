@@ -494,7 +494,7 @@ desk_googlespreadsheetdashed.skp_record_,Perf-Win7-ShuttleA-HD2000-x86-Release-2
 desk_googlespreadsheetdashed.skp_record_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,29.848,8.863,42.833
 desk_googlespreadsheetdashed.skp_record_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.687,-8.481,11.856
 desk_googlespreadsheetdashed.skp_record_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.484,-8.664,11.632
-desk_googlespreadsheetdashed.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.177,10.059,44.295
+desk_googlespreadsheetdashed.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.177,7.059,44.295
 desk_googlespreadsheetdashed.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.936,-8.258,12.129
 desk_googlespreadsheetdashed.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.800,-8.380,11.980
 desk_googlespreadsheetdashed.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,71.280,44.152,88.408
@@ -638,7 +638,7 @@ desk_pokemonwiki.skp_record_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.334,-5
 desk_pokemonwiki.skp_record_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,105.773,35.196,126.350
 desk_pokemonwiki.skp_record_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,11.174,0.057,22.291
 desk_pokemonwiki.skp_record_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,10.591,-0.468,21.650
-desk_pokemonwiki.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,130.119,61.107,153.131
+desk_pokemonwiki.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,130.119,45.107,153.131
 desk_pokemonwiki.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,14.227,2.805,25.650
 desk_pokemonwiki.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,14.482,3.034,25.930
 desk_pokemonwiki.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.020,8.018,32.022
@@ -926,7 +926,7 @@ desk_yahoogames.skp_record_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.146,-8.
 desk_yahoogames.skp_record_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,22.086,9.877,34.295
 desk_yahoogames.skp_record_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.818,-7.464,13.100
 desk_yahoogames.skp_record_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.474,-7.773,12.722
-desk_yahoogames.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,25.628,13.065,38.191
+desk_yahoogames.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,25.628,10.065,38.191
 desk_yahoogames.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.205,-7.116,13.525
 desk_yahoogames.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.030,-7.273,13.333
 desk_yahoogames.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,37.970,24.173,51.767
@@ -1718,7 +1718,7 @@ tabl_mozilla.skp_record_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.479,-7.769
 tabl_mozilla.skp_record_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,54.129,20.716,69.542
 tabl_mozilla.skp_record_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.962,-4.634,16.558
 tabl_mozilla.skp_record_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.774,-4.803,16.352
-tabl_mozilla.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,60.549,30.494,76.604
+tabl_mozilla.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,60.549,25.494,76.604
 tabl_mozilla.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,6.504,-4.146,17.154
 tabl_mozilla.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,6.378,-4.260,17.016
 tabl_mozilla.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,66.330,49.697,82.963
