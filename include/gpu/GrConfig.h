@@ -85,16 +85,6 @@
     #endif
 #endif
 
-#if !defined(SK_DEBUG) && !GR_RELEASE
-    #ifdef NDEBUG
-        #define GR_RELEASE 1
-    #endif
-#endif
-
-#if defined(SK_DEBUG) && GR_RELEASE
-    #error "cannot define both SK_DEBUG and GR_RELEASE"
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

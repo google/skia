@@ -98,7 +98,6 @@
       'Release': {
         'defines': [
           'SK_RELEASE',
-          'GR_RELEASE=1',
         ],
       },
       'Release_Developer': {

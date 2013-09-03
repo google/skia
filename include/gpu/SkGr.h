@@ -25,10 +25,6 @@
 #include "SkRegion.h"
 #include "SkClipStack.h"
 
-#if (GR_RELEASE && defined(SK_DEBUG))
-//    #error "inconsistent GR_RELEASE and SK_DEBUG"
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 // Sk to Gr Type conversions
 
