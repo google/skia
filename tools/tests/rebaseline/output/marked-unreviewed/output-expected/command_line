@@ -1,0 +1,1 @@
+python tools/rebaseline.py --expectations-root tools/tests/rebaseline/output/marked-unreviewed/output-actual/gm-expectations --actuals-base-url tools/tests/rebaseline/input/json1 --bugs 1234 5678 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release --notes notes_content --unreviewed

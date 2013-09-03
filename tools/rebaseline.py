@@ -160,10 +160,18 @@ class JsonRebaseliner(object):
   #           rebaseline whatever configs the JSON results summary file tells
   #           us to
   #  add_new: if True, add expectations for tests which don't have any yet
+  #  bugs: optional list of bug numbers which pertain to these expectations
+  #  notes: free-form text notes to add to all updated expectations
+  #  mark_unreviewed: if True, mark these expectations as NOT having been
+  #                   reviewed by a human; otherwise, leave that field blank.
+  #                   Currently, there is no way to make this script mark
+  #                   expectations as reviewed-by-human=True.
+  #                   TODO(epoger): Add that capability to a review tool.
   def __init__(self, expectations_root, expectations_input_filename,
                expectations_output_filename, actuals_base_url,
                actuals_filename, exception_handler,
-               tests=None, configs=None, add_new=False):
+               tests=None, configs=None, add_new=False, bugs=None, notes=None,
+               mark_unreviewed=None):
     self._expectations_root = expectations_root
     self._expectations_input_filename = expectations_input_filename
     self._expectations_output_filename = expectations_output_filename
@@ -173,6 +181,9 @@ class JsonRebaseliner(object):
     self._actuals_filename = actuals_filename
     self._exception_handler = exception_handler
     self._add_new = add_new
+    self._bugs = bugs
+    self._notes = notes
+    self._mark_unreviewed = mark_unreviewed
     self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
     self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
 
@@ -246,11 +257,12 @@ class JsonRebaseliner(object):
     # results we need to update.
     actuals_url = '/'.join([self._actuals_base_url,
                             builder, self._actuals_filename])
-    # In most cases, we won't need to re-record results that are already
-    # succeeding, but including the SUCCEEDED results will allow us to
-    # re-record expectations if they somehow get out of sync.
-    sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED,
-                gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED]
+    # Only update results for tests that are currently failing.
+    # We don't want to rewrite results for tests that are already succeeding,
+    # because we don't want to add annotation fields (such as
+    # JSONKEY_EXPECTEDRESULTS_BUGS) except for tests whose expectations we
+    # are actually modifying.
+    sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
     if self._add_new:
       sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
     results_to_update = self._GetActualResults(json_url=actuals_url,
@@ -278,8 +290,21 @@ class JsonRebaseliner(object):
             continue
         if not expected_results.get(image_name):
           expected_results[image_name] = {}
-        expected_results[image_name][gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS] = \
-                        [image_results]
+        expected_results[image_name]\
+                        [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS]\
+                        = [image_results]
+        if self._mark_unreviewed:
+          expected_results[image_name]\
+                          [gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED]\
+                          = False
+        if self._bugs:
+          expected_results[image_name]\
+                          [gm_json.JSONKEY_EXPECTEDRESULTS_BUGS]\
+                          = self._bugs
+        if self._notes:
+          expected_results[image_name]\
+                          [gm_json.JSONKEY_EXPECTEDRESULTS_NOTES]\
+                          = self._notes
 
     # Write out updated expectations.
     expectations_output_filepath = os.path.join(
@@ -296,57 +321,71 @@ class JsonRebaseliner(object):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--actuals-base-url',
-                    help='base URL from which to read files containing JSON ' +
-                    'summaries of actual GM results; defaults to %(default)s',
+                    help=('base URL from which to read files containing JSON '
+                          'summaries of actual GM results; defaults to '
+                          '%(default)s'),
                     default='http://skia-autogen.googlecode.com/svn/gm-actual')
 parser.add_argument('--actuals-filename',
-                    help='filename (within builder-specific subdirectories ' +
-                    'of ACTUALS_BASE_URL) to read a summary of results from; ' +
-                    'defaults to %(default)s',
+                    help=('filename (within builder-specific subdirectories '
+                          'of ACTUALS_BASE_URL) to read a summary of results '
+                          'from; defaults to %(default)s'),
                     default='actual-results.json')
 # TODO(epoger): Add test that exercises --add-new argument.
 parser.add_argument('--add-new', action='store_true',
-                    help='in addition to the standard behavior of ' +
-                    'updating expectations for failing tests, add ' +
-                    'expectations for tests which don\'t have expectations ' +
-                    'yet.')
+                    help=('in addition to the standard behavior of '
+                          'updating expectations for failing tests, add '
+                          'expectations for tests which don\'t have '
+                          'expectations yet.'))
+parser.add_argument('--bugs', metavar='BUG', type=int, nargs='+',
+                    help=('Skia bug numbers (under '
+                          'https://code.google.com/p/skia/issues/list ) which '
+                          'pertain to this set of rebaselines.'))
 parser.add_argument('--builders', metavar='BUILDER', nargs='+',
-                    help='which platforms to rebaseline; ' +
-                    'if unspecified, rebaseline all platforms, same as ' +
-                    '"--builders %s"' % ' '.join(sorted(TEST_BUILDERS)))
+                    help=('which platforms to rebaseline; '
+                          'if unspecified, rebaseline all platforms, same as '
+                          '"--builders %s"' % ' '.join(sorted(TEST_BUILDERS))))
 # TODO(epoger): Add test that exercises --configs argument.
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
-                    help='which configurations to rebaseline, e.g. ' +
-                    '"--configs 565 8888", as a filter over the full set of ' +
-                    'results in ACTUALS_FILENAME; if unspecified, rebaseline ' +
-                    '*all* configs that are available.')
+                    help=('which configurations to rebaseline, e.g. '
+                          '"--configs 565 8888", as a filter over the full set '
+                          'of results in ACTUALS_FILENAME; if unspecified, '
+                          'rebaseline *all* configs that are available.'))
 parser.add_argument('--expectations-filename',
-                    help='filename (under EXPECTATIONS_ROOT) to read ' +
-                    'current expectations from, and to write new ' +
-                    'expectations into (unless a separate ' +
-                    'EXPECTATIONS_FILENAME_OUTPUT has been specified); ' +
-                    'defaults to %(default)s',
+                    help=('filename (under EXPECTATIONS_ROOT) to read '
+                          'current expectations from, and to write new '
+                          'expectations into (unless a separate '
+                          'EXPECTATIONS_FILENAME_OUTPUT has been specified); '
+                          'defaults to %(default)s'),
                     default='expected-results.json')
 parser.add_argument('--expectations-filename-output',
-                    help='filename (under EXPECTATIONS_ROOT) to write ' +
-                    'updated expectations into; by default, overwrites the ' +
-                    'input file (EXPECTATIONS_FILENAME)',
+                    help=('filename (under EXPECTATIONS_ROOT) to write '
+                          'updated expectations into; by default, overwrites '
+                          'the input file (EXPECTATIONS_FILENAME)'),
                     default='')
 parser.add_argument('--expectations-root',
-                    help='root of expectations directory to update-- should ' +
-                    'contain one or more builder subdirectories. Defaults to ' +
-                    '%(default)s',
+                    help=('root of expectations directory to update-- should '
+                          'contain one or more builder subdirectories. '
+                          'Defaults to %(default)s'),
                     default=os.path.join('expectations', 'gm'))
 parser.add_argument('--keep-going-on-failure', action='store_true',
-                    help='instead of halting at the first error encountered, ' +
-                    'keep going and rebaseline as many tests as possible, ' +
-                    'and then report the full set of errors at the end')
+                    help=('instead of halting at the first error encountered, '
+                          'keep going and rebaseline as many tests as '
+                          'possible, and then report the full set of errors '
+                          'at the end'))
+parser.add_argument('--notes',
+                    help=('free-form text notes to add to all updated '
+                          'expectations'))
 # TODO(epoger): Add test that exercises --tests argument.
 parser.add_argument('--tests', metavar='TEST', nargs='+',
-                    help='which tests to rebaseline, e.g. ' +
-                    '"--tests aaclip bigmatrix", as a filter over the full ' +
-                    'set of results in ACTUALS_FILENAME; if unspecified, ' +
-                    'rebaseline *all* tests that are available.')
+                    help=('which tests to rebaseline, e.g. '
+                          '"--tests aaclip bigmatrix", as a filter over the '
+                          'full set of results in ACTUALS_FILENAME; if '
+                          'unspecified, rebaseline *all* tests that are '
+                          'available.'))
+parser.add_argument('--unreviewed', action='store_true',
+                    help=('mark all expectations modified by this run as '
+                          '"%s": False' %
+                          gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED))
 args = parser.parse_args()
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
@@ -374,7 +413,8 @@ for builder in builders:
         actuals_base_url=args.actuals_base_url,
         actuals_filename=args.actuals_filename,
         exception_handler=exception_handler,
-        add_new=args.add_new)
+        add_new=args.add_new, bugs=args.bugs, notes=args.notes,
+        mark_unreviewed=args.unreviewed)
     try:
       rebaseliner.RebaselineSubdir(builder=builder)
     except BaseException as e:
