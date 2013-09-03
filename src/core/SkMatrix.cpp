@@ -2060,7 +2060,7 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
     // Now we need to compute eigenvalues of S (our scale factors)
     // and eigenvectors (bases for our rotation)
     // From this, should be able to reconstruct S as U*W*U^T
-    if (SkScalarNearlyZero(Sb)) {
+    if (SkScalarNearlyZero(SkDoubleToScalar(Sb))) {
         // already diagonalized
         cos1 = SK_Scalar1;
         sin1 = 0;
@@ -2080,7 +2080,7 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
             w2 = 0.5*(trace + discriminant);
         }
         
-        cos1 = Sb; sin1 = w1 - Sa;
+        cos1 = SkDoubleToScalar(Sb); sin1 = SkDoubleToScalar(w1 - Sa);
         SkScalar reciplen = SK_Scalar1/SkScalarSqrt(cos1*cos1 + sin1*sin1);
         cos1 *= reciplen;
         sin1 *= reciplen;
@@ -2094,8 +2094,8 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
     }
 
     if (NULL != scale) {
-        scale->fX = w1;
-        scale->fY = w2;
+        scale->fX = SkDoubleToScalar(w1);
+        scale->fY = SkDoubleToScalar(w2);
     }
     if (NULL != rotation1) {
         rotation1->fX = cos1;
