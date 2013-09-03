@@ -94,47 +94,42 @@ TEST_BUILDERS = [
 class _InternalException(Exception):
   pass
 
-# Object that handles exceptions, either raising them immediately or collecting
-# them to display later on.
 class ExceptionHandler(object):
+  """ Object that handles exceptions, either raising them immediately or
+  collecting them to display later on."""
 
   # params:
-  #  keep_going_on_failure: if False, report failures and quit right away;
-  #                         if True, collect failures until
-  #                         ReportAllFailures() is called
   def __init__(self, keep_going_on_failure=False):
+    """
+    params:
+      keep_going_on_failure: if False, report failures and quit right away;
+                             if True, collect failures until
+                             ReportAllFailures() is called
+    """
     self._keep_going_on_failure = keep_going_on_failure
     self._failures_encountered = []
-    self._exiting = False
 
-  # Exit the program with the given status value.
-  def _Exit(self, status=1):
-    self._exiting = True
-    sys.exit(status)
-
-  # We have encountered an exception; either collect the info and keep going,
-  # or exit the program right away.
-  def RaiseExceptionOrContinue(self, e):
-    # If we are already quitting the program, propagate any exceptions
-    # so that the proper exit status will be communicated to the shell.
-    if self._exiting:
-      raise e
+  def RaiseExceptionOrContinue(self):
+    """ We have encountered an exception; either collect the info and keep
+    going, or exit the program right away."""
+    # Get traceback information about the most recently raised exception.
+    exc_info = sys.exc_info()
 
     if self._keep_going_on_failure:
-      print >> sys.stderr, 'WARNING: swallowing exception %s' % e
-      self._failures_encountered.append(e)
+      print >> sys.stderr, ('WARNING: swallowing exception %s' %
+                            repr(exc_info[1]))
+      self._failures_encountered.append(exc_info)
     else:
-      print >> sys.stderr, e
       print >> sys.stderr, (
           'Halting at first exception; to keep going, re-run ' +
           'with the --keep-going-on-failure option set.')
-      self._Exit()
+      raise exc_info[1], None, exc_info[2]
 
   def ReportAllFailures(self):
     if self._failures_encountered:
       print >> sys.stderr, ('Encountered %d failures (see above).' %
                             len(self._failures_encountered))
-      self._Exit()
+      sys.exit(1)
 
 
 # Object that rebaselines a JSON expectations file (not individual image files).
@@ -272,7 +267,10 @@ class JsonRebaseliner(object):
     expectations_input_filepath = os.path.join(
         self._expectations_root, builder, self._expectations_input_filename)
     expectations_dict = gm_json.LoadFromFile(expectations_input_filepath)
-    expected_results = expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS]
+    expected_results = expectations_dict.get(gm_json.JSONKEY_EXPECTEDRESULTS)
+    if not expected_results:
+      expected_results = {}
+      expectations_dict[gm_json.JSONKEY_EXPECTEDRESULTS] = expected_results
 
     # Update the expectations in memory, skipping any tests/configs that
     # the caller asked to exclude.
@@ -330,7 +328,6 @@ parser.add_argument('--actuals-filename',
                           'of ACTUALS_BASE_URL) to read a summary of results '
                           'from; defaults to %(default)s'),
                     default='actual-results.json')
-# TODO(epoger): Add test that exercises --add-new argument.
 parser.add_argument('--add-new', action='store_true',
                     help=('in addition to the standard behavior of '
                           'updating expectations for failing tests, add '
@@ -417,10 +414,13 @@ for builder in builders:
         mark_unreviewed=args.unreviewed)
     try:
       rebaseliner.RebaselineSubdir(builder=builder)
-    except BaseException as e:
-      exception_handler.RaiseExceptionOrContinue(e)
+    except:
+      exception_handler.RaiseExceptionOrContinue()
   else:
-    exception_handler.RaiseExceptionOrContinue(_InternalException(
-        'expectations_json_file %s not found' % expectations_json_file))
+    try:
+      raise _InternalException('expectations_json_file %s not found' %
+                               expectations_json_file)
+    except:
+      exception_handler.RaiseExceptionOrContinue()
 
 exception_handler.ReportAllFailures()

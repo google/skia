@@ -1,0 +1,87 @@
+{
+  "expected-results": {
+    "3x3bitmaprect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16998423976396106083
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "3x3bitmaprect_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2054956815327187963
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "aaclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11899819492385205974
+        ]
+      ], 
+      "ignore-failure": false, 
+      "unknown-extra-field": "make sure that rebaseline.py maintains this unknown field within a record whose allowed-digest IS NOT modified"
+    }, 
+    "aarectmodes_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14760033689012826769
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "imageblur_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3359963596899141322
+        ]
+      ], 
+      "ignore-failure": false, 
+      "unknown-extra-field": "make sure that rebaseline.py maintains this unknown field within a record whose allowed-digest IS modified"
+    }, 
+    "imageblur_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4217923806027861152
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "shadertext3_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3713708307125704716
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodeimagefilter_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16502178848783208088
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "xfermodes_pdf.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9151974350149210736
+        ]
+      ], 
+      "ignore-failure": false
+    }
+  }
+}
