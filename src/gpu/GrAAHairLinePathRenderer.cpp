@@ -589,10 +589,8 @@ void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     c1.fPos = c;
     c1.fPos -= cbN;
 
-    // This point may not be within 1 pixel of a control point. We update the bounding box to
-    // include it.
     intersect_lines(a0.fPos, abN, c0.fPos, cbN, &b0.fPos);
-    devBounds->growToInclude(b0.fPos.fX, b0.fPos.fY);
+    devBounds->growToInclude(&verts[0].fPos, sizeof(BezierVertex), kVertsPerQuad);
 
     if (toSrc) {
         toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(BezierVertex), kVertsPerQuad);
@@ -723,8 +721,6 @@ bool GrAAHairLinePathRenderer::createLineGeom(
 
     const SkMatrix& viewM = drawState->getViewMatrix();
 
-    *devBounds = path.getBounds();
-    viewM.mapRect(devBounds);
     devBounds->outset(SK_Scalar1, SK_Scalar1);
 
     int vertCnt = kVertsPerLineSeg * lineCnt;
@@ -746,10 +742,14 @@ bool GrAAHairLinePathRenderer::createLineGeom(
             toSrc = &ivm;
         }
     }
-
+    devBounds->set(lines.begin(), lines.count());
     for (int i = 0; i < lineCnt; ++i) {
         add_line(&lines[2*i], rtHeight, toSrc, drawState->getCoverage(), &verts);
     }
+    // All the verts computed by add_line are within unit distance of the end points. Add a little
+    // extra to account for vector normalization precision.
+    static const SkScalar kOutset = SK_Scalar1 + SK_Scalar1 / 20;
+    devBounds->outset(kOutset, kOutset);
 
     return true;
 }
@@ -768,13 +768,6 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
     GrDrawState* drawState = target->drawState();
 
     const SkMatrix& viewM = drawState->getViewMatrix();
-
-    // All the vertices that we compute are within 1 of path control points with the exception of
-    // one of the bounding vertices for each quad. The add_quads() function will update the bounds
-    // for each quad added.
-    *devBounds = path.getBounds();
-    viewM.mapRect(devBounds);
-    devBounds->outset(SK_Scalar1, SK_Scalar1);
 
     int vertCnt = kVertsPerQuad * quadCnt + kVertsPerQuad * conicCnt;
 
@@ -797,6 +790,21 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
             toSrc = &ivm;
         }
     }
+
+    // Seed the dev bounds with some pts known to be inside. Each quad and conic grows the bounding
+    // box to include its vertices.
+    SkPoint seedPts[2];
+    if (quadCnt) {
+        seedPts[0] = quads[0];
+        seedPts[1] = quads[2];
+    } else if (conicCnt) {
+        seedPts[0] = conics[0];
+        seedPts[1] = conics[2];
+    }
+    if (NULL != toDevice) {
+        toDevice->mapPoints(seedPts, 2);
+    }
+    devBounds->set(seedPts[0], seedPts[1]);
 
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
@@ -830,7 +838,14 @@ template <class VertexType>
 bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertices, int vCount)
 {
     SkRect tolDevBounds = devBounds;
-    tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
+    // The bounds ought to be tight, but in perspective the below code runs the verts
+    // through the view matrix to get back to dev coords, which can introduce imprecision.
+    if (drawState->getViewMatrix().hasPerspective()) {
+        tolDevBounds.outset(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
+    } else {
+        // Non-persp matrices cause this path renderer to draw in device space.
+        SkASSERT(drawState->getViewMatrix().isIdentity());
+    }
     SkRect actualBounds;
 
     VertexType* verts = reinterpret_cast<VertexType*>(vertices);
@@ -880,7 +895,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     conicCnt = conics.count() / 3;
 
     // do lines first
-    {
+    if (lineCnt) {
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
@@ -926,7 +941,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     }
 
     // then quadratics/conics
-    {
+    if (quadCnt || conicCnt) {
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 

@@ -80,6 +80,30 @@ protected:
             unevenClosedQuad->quadTo(SkIntToScalar(100), SkIntToScalar(100),
                                      SkIntToScalar(75), SkIntToScalar(75));
         }
+
+        // Two problem cases for gpu hairline renderer found by shapeops testing. These used
+        // to assert that the computed bounding box didn't contain all the vertices.
+        {
+            SkPath* problem1 = &fPaths.push_back();
+            problem1->moveTo(SkIntToScalar(4), SkIntToScalar(6));
+            problem1->cubicTo(SkIntToScalar(5), SkIntToScalar(6),
+                              SkIntToScalar(5), SkIntToScalar(4),
+                              SkIntToScalar(4), SkIntToScalar(0));
+            problem1->close();
+        }
+
+        {
+            SkPath* problem2 = &fPaths.push_back();
+            problem2->moveTo(SkIntToScalar(5), SkIntToScalar(1));
+            problem2->lineTo(SkFloatToScalar(4.32787323f), SkFloatToScalar(1.67212653f));
+            problem2->cubicTo(SkFloatToScalar(2.75223875f), SkFloatToScalar(3.24776125f),
+                              SkFloatToScalar(3.00581908f), SkFloatToScalar(4.51236057f),
+                              SkFloatToScalar(3.7580452f), SkFloatToScalar(4.37367964f));
+            problem2->cubicTo(SkFloatToScalar(4.66472578f), SkFloatToScalar(3.888381f),
+                              SkFloatToScalar(5.f), SkFloatToScalar(2.875f),
+                              SkFloatToScalar(5.f), SkFloatToScalar(1.f));
+            problem2->close();
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
