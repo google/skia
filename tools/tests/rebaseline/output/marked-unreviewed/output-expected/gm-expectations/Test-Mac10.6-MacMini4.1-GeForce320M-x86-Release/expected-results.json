@@ -1,0 +1,26 @@
+{
+   "expected-results" : {
+      "aaclip_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 12345 ]
+         ],
+         "ignore-failure" : false
+      },
+      "aaclip_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 67890 ]
+         ],
+         "ignore-failure" : false
+      },
+      "aaclip_gpu.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 11899819492385205974 ]
+         ],
+         "ignore-failure" : false
+      },
+      "aaclip_pdf.png" : {
+         "allowed-digests" : null,
+         "ignore-failure" : false
+      }
+   }
+}

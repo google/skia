@@ -243,6 +243,7 @@ fi
 REBASELINE_INPUT=tools/tests/rebaseline/input
 REBASELINE_OUTPUT=tools/tests/rebaseline/output
 rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release" "$REBASELINE_OUTPUT/using-json1-expectations"
+rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --bugs 1234 5678 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release --notes notes_content --unreviewed" "$REBASELINE_OUTPUT/marked-unreviewed"
 
 #
 # Test jsondiff.py ...
