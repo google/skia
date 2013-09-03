@@ -1071,6 +1071,46 @@
       ], 
       "ignore-failure": false
     }, 
+    "hairlines_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3746520695784445157
+        ]
+      ]
+    }, 
+    "hairlines_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3168708530233280897
+        ]
+      ]
+    }, 
+    "hairlines_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          835389697160183142
+        ]
+      ]
+    }, 
+    "hairlines_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15472756963024450751
+        ]
+      ]
+    }, 
+    "hairlines_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10782250257906021607
+        ]
+      ]
+    }, 
     "hairmodes_angle.png": {
       "allowed-digests": [
         [
