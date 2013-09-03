@@ -21,6 +21,15 @@ static void check_contents(skiatest::Reporter* reporter, const SkWriter32& write
     REPORTER_ASSERT(reporter, !memcmp(storage.get(), expected, size));
 }
 
+
+static void test_reserve(skiatest::Reporter* reporter) {
+    // There used to be a bug where we'd assert your first reservation had to
+    // fit in external storage if you used it.  This would crash in debug mode.
+    uint8_t storage[4];
+    SkWriter32 writer(0, storage, sizeof(storage));
+    writer.reserve(40);
+}
+
 static void test_string_null(skiatest::Reporter* reporter) {
     uint8_t storage[8];
     SkWriter32 writer(0, storage, sizeof(storage));
@@ -238,6 +247,7 @@ static void Tests(skiatest::Reporter* reporter) {
         testWritePad(reporter, &writer);
     }
 
+    test_reserve(reporter);
     test_string_null(reporter);
     test_ptr(reporter);
     test_rewind(reporter);

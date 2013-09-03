@@ -61,7 +61,6 @@ SkWriter32::Block* SkWriter32::doReserve(size_t size) {
         fHead = fTail = block = Block::Create(SkMax32(size, fMinSize));
         SkASSERT(0 == fWrittenBeforeLastBlock);
     } else {
-        SkASSERT(fSize > 0);
         fWrittenBeforeLastBlock = fSize;
 
         fTail = Block::Create(SkMax32(size, fMinSize));
