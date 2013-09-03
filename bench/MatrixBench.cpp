@@ -7,6 +7,7 @@
  */
 #include "SkBenchmark.h"
 #include "SkMatrix.h"
+#include "SkMatrixUtils.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
@@ -345,6 +346,34 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     typedef MatrixBench INHERITED;
 };
 
+class DecomposeMatrixBench : public MatrixBench {
+public:
+    DecomposeMatrixBench(void* param) : INHERITED(param, "decompose") {}
+
+protected:
+    virtual void onPreDraw() {
+        for (int i = 0; i < 10; ++i) {
+            SkScalar rot0 = (fRandom.nextBool()) ? fRandom.nextRangeF(-180, 180) : 0.0f;
+            SkScalar sx = fRandom.nextRangeF(-3000.f, 3000.f);
+            SkScalar sy = (fRandom.nextBool()) ? fRandom.nextRangeF(-3000.f, 3000.f) : sx;
+            SkScalar rot1 = fRandom.nextRangeF(-180, 180);
+            fMatrix[i].setRotate(rot0);
+            fMatrix[i].postScale(sx, sy);
+            fMatrix[i].postRotate(rot1);
+        }
+    }
+    virtual void performTest() {
+        SkPoint rotation1, scale, rotation2;
+        for (int i = 0; i < 10; ++i) {
+            (void) SkDecomposeUpper2x2(fMatrix[i], &rotation1, &scale, &rotation2);
+        }
+    }
+private:
+    SkMatrix fMatrix[10];
+    SkMWCRandom fRandom;
+    typedef MatrixBench INHERITED;
+};
+
 class InvertMapRectMatrixBench : public MatrixBench {
 public:
     InvertMapRectMatrixBench(void* param, const char* name, int flags)
@@ -408,6 +437,8 @@ DEF_BENCH( return new FloatConcatMatrixBench(p); )
 DEF_BENCH( return new FloatDoubleConcatMatrixBench(p); )
 DEF_BENCH( return new DoubleConcatMatrixBench(p); )
 DEF_BENCH( return new GetTypeMatrixBench(p); )
+DEF_BENCH( return new DecomposeMatrixBench(p); )
+
 DEF_BENCH( return new InvertMapRectMatrixBench(p, "invert_maprect_identity", 0); )
 
 DEF_BENCH(return new InvertMapRectMatrixBench(p,
