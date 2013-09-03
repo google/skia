@@ -1,0 +1,1 @@
+python tools/rebaseline.py --expectations-root tools/tests/rebaseline/output/add-new/output-actual/gm-expectations --actuals-base-url tools/tests/rebaseline/input/json1 --add-new --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release Test-Win7-ShuttleA-HD2000-x86-Release
