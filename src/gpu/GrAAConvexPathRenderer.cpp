@@ -218,33 +218,44 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::
     return true;
 }
 
-static inline void add_line_to_segment(const SkPoint& pt, SegmentArray* segments) {
+static inline void add_line_to_segment(const SkPoint& pt,
+                                       SegmentArray* segments,
+                                       SkRect* devBounds) {
     segments->push_back();
     segments->back().fType = Segment::kLine;
     segments->back().fPts[0] = pt;
+    devBounds->growToInclude(pt.fX, pt.fY);
 }
 
-static inline void add_quad_segment(const SkPoint pts[3], SegmentArray* segments) {
+static inline bool contains_inclusive(const SkRect& rect, const SkPoint& p) {
+    return p.fX >= rect.fLeft && p.fX <= rect.fRight && p.fY >= rect.fTop && p.fY <= rect.fBottom;
+}
+static inline void add_quad_segment(const SkPoint pts[3],
+                                    SegmentArray* segments,
+                                    SkRect* devBounds) {
     if (pts[0].distanceToSqd(pts[1]) < kCloseSqd || pts[1].distanceToSqd(pts[2]) < kCloseSqd) {
         if (pts[0] != pts[2]) {
-            add_line_to_segment(pts[2], segments);
+            add_line_to_segment(pts[2], segments, devBounds);
         }
     } else {
         segments->push_back();
         segments->back().fType = Segment::kQuad;
         segments->back().fPts[0] = pts[1];
         segments->back().fPts[1] = pts[2];
+        SkASSERT(contains_inclusive(*devBounds, pts[0]));
+        devBounds->growToInclude(pts + 1, 2);
     }
 }
 
 static inline void add_cubic_segments(const SkPoint pts[4],
                                       SkPath::Direction dir,
-                                      SegmentArray* segments) {
+                                      SegmentArray* segments,
+                                      SkRect* devBounds) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
     int count = quads.count();
     for (int q = 0; q < count; q += 3) {
-        add_quad_segment(&quads[q], segments);
+        add_quad_segment(&quads[q], segments, devBounds);
     }
 }
 
@@ -253,7 +264,8 @@ static bool get_segments(const SkPath& path,
                          SegmentArray* segments,
                          SkPoint* fanPt,
                          int* vCount,
-                         int* iCount) {
+                         int* iCount,
+                         SkRect* devBounds) {
     SkPath::Iter iter(path, true);
     // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
@@ -276,25 +288,26 @@ static bool get_segments(const SkPath& path,
             case SkPath::kMove_Verb:
                 m.mapPoints(pts, 1);
                 update_degenerate_test(&degenerateData, pts[0]);
+                devBounds->set(pts->fX, pts->fY, pts->fX, pts->fY);
                 break;
             case SkPath::kLine_Verb: {
                 m.mapPoints(&pts[1], 1);
                 update_degenerate_test(&degenerateData, pts[1]);
-                add_line_to_segment(pts[1], segments);
+                add_line_to_segment(pts[1], segments, devBounds);
                 break;
             }
             case SkPath::kQuad_Verb:
                 m.mapPoints(pts, 3);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
-                add_quad_segment(pts, segments);
+                add_quad_segment(pts, segments, devBounds);
                 break;
             case SkPath::kCubic_Verb: {
                 m.mapPoints(pts, 4);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
                 update_degenerate_test(&degenerateData, pts[3]);
-                add_cubic_segments(pts, dir, segments);
+                add_cubic_segments(pts, dir, segments, devBounds);
                 break;
             };
             case SkPath::kDone_Verb:
@@ -645,9 +658,15 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
     SkPoint fanPt;
 
-    if (!get_segments(*path, viewMatrix, &segments, &fanPt, &vCount, &iCount)) {
+    // We can't simply use the path bounds because we may degenerate cubics to quads which produces
+    // new control points outside the original convex hull.
+    SkRect devBounds;
+    if (!get_segments(*path, viewMatrix, &segments, &fanPt, &vCount, &iCount, &devBounds)) {
         return false;
     }
+
+    // Our computed verts should all be within one pixel of the segment control points.
+    devBounds.outset(SK_Scalar1, SK_Scalar1);
 
     drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs));
 
@@ -665,12 +684,6 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     SkSTArray<kPreallocDrawCnt, Draw, true> draws;
     create_vertices(segments, fanPt, &draws, verts, idxs);
-
-    // This is valid because all the computed verts are within 1 pixel of the path control points.
-    SkRect devBounds;
-    devBounds = path->getBounds();
-    viewMatrix.mapRect(&devBounds);
-    devBounds.outset(SK_Scalar1, SK_Scalar1);
 
     // Check devBounds
 #ifdef SK_DEBUG
