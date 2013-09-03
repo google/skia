@@ -625,10 +625,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10725417271174656849
+          14489512954157301851
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "composeshader_gpu.png": {
       "allowed-digests": [
@@ -1036,7 +1036,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2469851025778145625
+          17996644678179592314
         ]
       ], 
       "ignore-failure": false
