@@ -2007,13 +2007,18 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
     return isrc == idst;
 }
 
+// A square matrix M can be decomposed (via polar decomposition) into two matrices --
+// an orthogonal matrix Q and a symmetric matrix S. In turn we can decompose S into U*W*U^T,
+// where U is another orthogonal matrix and W is a scale matrix. These can be recombined
+// to give M = (Q*U)*W*U^T, i.e., the product of two orthogonal matrices and a scale matrix.
+//
+// The one wrinkle is that traditionally Q may contain a reflection -- the
+// calculation has been rejiggered to put that reflection into W.
 bool SkDecomposeUpper2x2(const SkMatrix& matrix,
-                         SkScalar* rotation0,
-                         SkScalar* xScale, SkScalar* yScale,
-                         SkScalar* rotation1) {
+                         SkPoint* rotation1,
+                         SkPoint* scale,
+                         SkPoint* rotation2) {
 
-    // borrowed from Jim Blinn's article "Consider the Lowly 2x2 Matrix"
-    // Note: he uses row vectors, so we have to do some swapping of terms
     SkScalar A = matrix[SkMatrix::kMScaleX];
     SkScalar B = matrix[SkMatrix::kMSkewX];
     SkScalar C = matrix[SkMatrix::kMSkewY];
@@ -2023,70 +2028,82 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
         return false;
     }
 
-    SkScalar E = SK_ScalarHalf*(A + D);
-    SkScalar F = SK_ScalarHalf*(A - D);
-    SkScalar G = SK_ScalarHalf*(C + B);
-    SkScalar H = SK_ScalarHalf*(C - B);
+    double w1, w2;
+    SkScalar cos1, sin1;
+    SkScalar cos2, sin2;
 
-    SkScalar sqrt0 = SkScalarSqrt(E*E + H*H);
-    SkScalar sqrt1 = SkScalarSqrt(F*F + G*G);
+    // do polar decomposition (M = Q*S)
+    SkScalar cosQ, sinQ;
+    double Sa, Sb, Sd;
+    // if M is already symmetric (i.e., M = I*S)
+    if (SkScalarNearlyEqual(B, C)) {
+        cosQ = SK_Scalar1;
+        sinQ = 0;
 
-    SkScalar xs, ys, r0, r1;
-
-    xs = sqrt0 + sqrt1;
-    ys = sqrt0 - sqrt1;
-    // can't have zero yScale, must be degenerate
-    SkASSERT(!SkScalarNearlyZero(ys));
-
-    // uniformly scaled rotation
-    if (SkScalarNearlyZero(F) && SkScalarNearlyZero(G)) {
-        SkASSERT(!SkScalarNearlyZero(E) || !SkScalarNearlyZero(H));
-        r0 = SkScalarATan2(H, E);
-        r1 = 0;
-    // uniformly scaled reflection
-    } else if (SkScalarNearlyZero(E) && SkScalarNearlyZero(H)) {
-        SkASSERT(!SkScalarNearlyZero(F) || !SkScalarNearlyZero(G));
-        r0 = -SkScalarATan2(G, F);
-        r1 = 0;
+        Sa = A;
+        Sb = B;
+        Sd = D;
     } else {
-        SkASSERT(!SkScalarNearlyZero(E) || !SkScalarNearlyZero(H));
-        SkASSERT(!SkScalarNearlyZero(F) || !SkScalarNearlyZero(G));
+        cosQ = A + D;
+        sinQ = C - B;
+        SkScalar reciplen = SK_Scalar1/SkScalarSqrt(cosQ*cosQ + sinQ*sinQ);
+        cosQ *= reciplen;
+        sinQ *= reciplen;
 
-        SkScalar arctan0 = SkScalarATan2(H, E);
-        SkScalar arctan1 = SkScalarATan2(G, F);
-        r0 = SK_ScalarHalf*(arctan0 - arctan1);
-        r1 = SK_ScalarHalf*(arctan0 + arctan1);
+        // S = Q^-1*M
+        // we don't calc Sc since it's symmetric
+        Sa = A*cosQ + C*sinQ;
+        Sb = B*cosQ + D*sinQ;
+        Sd = -B*sinQ + D*cosQ;
+    }
 
-        // simplify the results
-        const SkScalar kHalfPI = SK_ScalarHalf*SK_ScalarPI;
-        if (SkScalarNearlyEqual(SkScalarAbs(r0), kHalfPI)) {
-            SkScalar tmp = xs;
-            xs = ys;
-            ys = tmp;
-
-            r1 += r0;
-            r0 = 0;
-        } else if (SkScalarNearlyEqual(SkScalarAbs(r1), kHalfPI)) {
-            SkScalar tmp = xs;
-            xs = ys;
-            ys = tmp;
-
-            r0 += r1;
-            r1 = 0;
+    // Now we need to compute eigenvalues of S (our scale factors)
+    // and eigenvectors (bases for our rotation)
+    // From this, should be able to reconstruct S as U*W*U^T
+    if (SkScalarNearlyZero(Sb)) {
+        // already diagonalized
+        cos1 = SK_Scalar1;
+        sin1 = 0;
+        w1 = Sa;
+        w2 = Sd;
+        cos2 = cosQ;
+        sin2 = sinQ;
+    } else {                
+        double diff = Sa - Sd;
+        double discriminant = sqrt(diff*diff + 4.0*Sb*Sb);
+        double trace = Sa + Sd;
+        if (diff > 0) {
+            w1 = 0.5*(trace + discriminant);
+            w2 = 0.5*(trace - discriminant);
+        } else {
+            w1 = 0.5*(trace - discriminant);
+            w2 = 0.5*(trace + discriminant);
         }
+        
+        cos1 = Sb; sin1 = w1 - Sa;
+        SkScalar reciplen = SK_Scalar1/SkScalarSqrt(cos1*cos1 + sin1*sin1);
+        cos1 *= reciplen;
+        sin1 *= reciplen;
+        
+        // rotation 2 is composition of Q and U
+        cos2 = cos1*cosQ - sin1*sinQ;
+        sin2 = sin1*cosQ + cos1*sinQ;
+        
+        // rotation 1 is U^T
+        sin1 = -sin1;
     }
 
-    if (NULL != xScale) {
-        *xScale = xs;
-    }
-    if (NULL != yScale) {
-        *yScale = ys;
-    }
-    if (NULL != rotation0) {
-        *rotation0 = r0;
+    if (NULL != scale) {
+        scale->fX = w1;
+        scale->fY = w2;
     }
     if (NULL != rotation1) {
-        *rotation1 = r1;
+        rotation1->fX = cos1;
+        rotation1->fY = sin1;
+    }
+    if (NULL != rotation2) {
+        rotation2->fX = cos2;
+        rotation2->fY = sin2;
     }
 
     return true;
