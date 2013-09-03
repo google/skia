@@ -691,6 +691,21 @@ struct SK_API SkRect {
         fBottom = SkMaxScalar(y, fBottom);
     }
 
+    /** Bulk version of growToInclude */
+    void growToInclude(const SkPoint pts[], int count) {
+        this->growToInclude(pts, sizeof(SkPoint), count);
+    }
+
+    /** Bulk version of growToInclude with stride. */
+    void growToInclude(const SkPoint pts[], size_t stride, int count) {
+        SkASSERT(count >= 0);
+        SkASSERT(stride >= sizeof(SkPoint));
+        const SkPoint* end = (const SkPoint*)((intptr_t)pts + count * stride);
+        for (; pts < end; pts = (const SkPoint*)((intptr_t)pts + stride)) {
+            this->growToInclude(pts->fX, pts->fY);
+        }
+    }
+
     /**
      *  Returns true if (p.fX,p.fY) is inside the rectangle, and the rectangle
      *  is not empty.
