@@ -220,7 +220,10 @@ public:
     GLPtr<GrGLGetUniformLocationProc> fGetUniformLocation;
     GLPtr<GrGLLineWidthProc> fLineWidth;
     GLPtr<GrGLLinkProgramProc> fLinkProgram;
+    GLPtr<GrGLLoadIdentityProc> fLoadIdentity;
+    GLPtr<GrGLLoadMatrixfProc> fLoadMatrixf;
     GLPtr<GrGLMapBufferProc> fMapBuffer;
+    GLPtr<GrGLMatrixModeProc> fMatrixMode;
     GLPtr<GrGLPixelStoreiProc> fPixelStorei;
     GLPtr<GrGLQueryCounterProc> fQueryCounter;
     GLPtr<GrGLReadBufferProc> fReadBuffer;
@@ -275,9 +278,6 @@ public:
     // Experimental: Functions for GL_NV_path_rendering. These will be
     // alphabetized with the above functions once this is fully supported
     // (and functions we are unlikely to use will possibly be omitted).
-    GLPtr<GrGLMatrixModeProc> fMatrixMode;
-    GLPtr<GrGLLoadIdentityProc> fLoadIdentity;
-    GLPtr<GrGLLoadMatrixfProc> fLoadMatrixf;
     GLPtr<GrGLPathCommandsProc> fPathCommands;
     GLPtr<GrGLPathCoordsProc> fPathCoords;
     GLPtr<GrGLPathSubCommandsProc> fPathSubCommands;
