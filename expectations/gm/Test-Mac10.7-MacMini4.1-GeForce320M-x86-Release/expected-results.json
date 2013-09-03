@@ -4329,6 +4329,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "hairlines_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3746520695784445157
+        ]
+      ]
+    }, 
+    "hairlines_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3168708530233280897
+        ]
+      ]
+    }, 
+    "hairlines_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16909729955382109573
+        ]
+      ]
+    }, 
+    "hairlines_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7662908577938642425
+        ]
+      ]
+    }, 
     "hairmodes_565.png": {
       "allowed-digests": [
         [
