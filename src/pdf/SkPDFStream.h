@@ -21,6 +21,8 @@ class SkPDFCatalog;
 
     A stream object in a PDF.  Note, all streams must be indirect objects (via
     SkObjRef).
+    TODO(vandebo): SkStream should be replaced by SkStreamRewindable when that
+    is feasible.
 */
 class SkPDFStream : public SkPDFDict {
 public:
