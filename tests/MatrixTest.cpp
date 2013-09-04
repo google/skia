@@ -378,7 +378,7 @@ static bool check_matrix_recomposition(const SkMatrix& mat,
     SkScalar scaleY = scale.fY;
     SkScalar c2 = rotation2.fX;
     SkScalar s2 = rotation2.fY;
-    
+
     // We do a relative check here because large scale factors cause problems with an absolute check
     bool result = scalar_nearly_equal_relative(mat[SkMatrix::kMScaleX],
                                                scaleX*c1*c2 - scaleY*s1*s2) &&
@@ -457,13 +457,13 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
     mat.postScale(kScale1, kScale0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
-    
+
     // anisotropic scale then rotation
     mat.setScale(kScale1, kScale0);
     mat.postRotate(kRotation0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
-    
+
     // anisotropic scale then rotation
     mat.setScale(kScale1, kScale0);
     mat.postRotate(90);
@@ -483,7 +483,7 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
     mat.postRotate(kRotation1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
-    
+
     // rotation, anisotropic scale + reflection, then different rotation
     mat.setRotate(kRotation0);
     mat.postScale(-kScale1, kScale0);
