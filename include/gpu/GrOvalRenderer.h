@@ -41,6 +41,9 @@ private:
     bool drawEllipse(GrDrawTarget* target, bool useAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
+    bool drawDIEllipse(GrDrawTarget* target, bool useAA,
+                       const SkRect& ellipse,
+                       const SkStrokeRec& stroke);
     void drawCircle(GrDrawTarget* target, bool useAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
