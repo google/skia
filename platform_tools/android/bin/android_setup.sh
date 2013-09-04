@@ -41,7 +41,7 @@ if [ -z "$ANDROID_SDK_ROOT" ]; then
   if [ -z "$ANDROID_TOOL" ]; then
     echo "ERROR: Please define ANDROID_SDK_ROOT in your environment to point"
     echo "       to a valid Android SDK installation."
-    return 1
+    exit 1
   fi
   ANDROID_SDK_ROOT=$(cd $(dirname "$ANDROID_TOOL")/.. && pwd)
   exportVar ANDROID_SDK_ROOT "$ANDROID_SDK_ROOT"
