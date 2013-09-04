@@ -66,6 +66,8 @@
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
+        '../src/utils/SkCanvasStack.h',
+        '../src/utils/SkCanvasStack.cpp',
         '../src/utils/SkCanvasStateUtils.cpp',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
