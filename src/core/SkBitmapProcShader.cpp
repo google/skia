@@ -11,8 +11,10 @@
 #include "SkErrorInternals.h"
 #include "SkBitmapProcShader.h"
 
+#if SK_SUPPORT_GPU
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
+#endif
 
 bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
     switch (bm.config()) {
