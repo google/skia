@@ -94,17 +94,16 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
 
     const int WIDTH = 400;
     const int HEIGHT = 400;
-    const SkScalar SPACER = SkIntToScalar(10);
+    const int SPACER = 10;
 
-    SkRect layerRect = SkRect::MakeWH(SkIntToScalar(WIDTH), SkIntToScalar(HEIGHT / 4));
+    SkIRect layerRect = SkIRect::MakeWH(WIDTH, HEIGHT / 4);
     layerRect.inset(2*SPACER, 2*SPACER);
 
-    SkRect clipRect = layerRect;
+    SkIRect clipRect = layerRect;
     clipRect.fRight = clipRect.fLeft + (clipRect.width() / 2) - (2*SPACER);
     clipRect.outset(SPACER, SPACER);
 
-    SkIRect regionBounds;
-    clipRect.roundIn(&regionBounds);
+    SkIRect regionBounds = clipRect;
     regionBounds.offset(clipRect.width() + (2*SPACER), 0);
 
     SkIRect regionInterior = regionBounds;
@@ -138,7 +137,8 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
         SkRegion localRegion = clipRegion;
 
         for (int j = 0; j < layerCombinations; ++j) {
-            canvas.saveLayerAlpha(&layerRect, 128, flags[j]);
+            SkRect layerBounds = SkRect::Make(layerRect);
+            canvas.saveLayerAlpha(&layerBounds, 128, flags[j]);
 
             SkCanvasState* state = NULL;
             SkCanvas* tmpCanvas = NULL;
@@ -152,7 +152,7 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
             }
 
             tmpCanvas->save();
-            tmpCanvas->clipRect(clipRect, clipOps[j]);
+            tmpCanvas->clipRect(SkRect::Make(clipRect), clipOps[j]);
             tmpCanvas->drawColor(SK_ColorBLUE);
             tmpCanvas->restore();
 
@@ -165,7 +165,7 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
             canvas.restore();
 
             // translate the canvas and region for the next iteration
-            canvas.translate(0, 2*(layerRect.height() + SPACER));
+            canvas.translate(0, SkIntToScalar(2*(layerRect.height() + (SPACER))));
             localRegion.translate(0, 2*(layerRect.height() + SPACER));
         }
     }
