@@ -6,6 +6,78 @@
     "succeeded": null
   }, 
   "expected-results": {
+    "3x3bitmaprect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12831071530564277917
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "3x3bitmaprect_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17528757113465644181
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "3x3bitmaprect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17528757113465644181
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "3x3bitmaprect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          943547538218683577
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "aaclip_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6190901827590820995
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "aaclip_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14456211900777561488
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "aaclip_gpu.png": {
       "allowed-digests": [
         [
@@ -14,6 +86,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "aaclip_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5566664971406635562
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "aarectmodes_565.png": {
       "allowed-digests": [
@@ -42,6 +126,66 @@
       ], 
       "ignore-failure": false
     }, 
+    "aarectmodes_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13537134638330432289
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "alphagradients_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1062660886109823876
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "alphagradients_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8685680158225267849
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "alphagradients_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6493698615497174672
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "alphagradients_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13421792939129133683
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "arcofzorro_565.png": {
       "allowed-digests": [
         [
@@ -65,6 +209,18 @@
           4170526865753739297
         ]
       ]
+    }, 
+    "arcofzorro_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14450298403049944499
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "arcofzorro_pdf.png": {
       "allowed-digests": [
@@ -101,6 +257,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "arithmode_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2238626511518042876
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "bezier_conic_effects_gpu.png": {
       "allowed-digests": [
         [
@@ -124,6 +292,150 @@
           10624276228484234093
         ]
       ]
+    }, 
+    "bicubicfilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13864700347231029854
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bicubicfilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10469536215464879914
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bicubicfilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10573214378214332517
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bicubicfilter_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12297352892272012287
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_i_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13015342363421751909
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_i_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          966524621168003506
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_i_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          966524621168003506
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_i_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11132704178876545930
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_s_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13015342363421751909
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_s_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          966524621168003506
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_s_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          966524621168003506
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigbitmaprect_s_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11132704178876545930
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "bigmatrix_565.png": {
       "allowed-digests": [
@@ -152,6 +464,66 @@
       ], 
       "ignore-failure": false
     }, 
+    "bigmatrix_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15717000308833126661
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigtext_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10690991833202333228
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigtext_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18012280510168355332
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigtext_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          707578552626433941
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bigtext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8689938548045974643
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "bitmapcopy_565.png": {
       "allowed-digests": [
         [
@@ -178,6 +550,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "bitmapcopy_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6765654084709102013
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "bitmapfilters_565.png": {
       "allowed-digests": [
@@ -206,6 +590,162 @@
       ], 
       "ignore-failure": false
     }, 
+    "bitmapfilters_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          709976893697950281
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_i_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15954400542104295064
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_i_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1263164671174760260
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_i_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12577769085367921770
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_i_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6133113338589416077
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_s_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15954400542104295064
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_s_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1263164671174760260
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_s_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12577769085367921770
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprect_s_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6133113338589416077
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprecttest_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1454528164630516875
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprecttest_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1454528164630516875
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprecttest_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5432165152598403513
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmaprecttest_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15490976168363655365
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "bitmapscroll_565.png": {
       "allowed-digests": [
         [
@@ -233,6 +773,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "bitmapscroll_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4092726214228949981
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "bleed_565.png": {
       "allowed-digests": [
         [
@@ -256,6 +808,18 @@
           6293990557705874658
         ]
       ]
+    }, 
+    "bleed_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10434884666398670192
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "bleed_pdf.png": {
       "allowed-digests": [
@@ -288,6 +852,18 @@
           15789142408508799055
         ]
       ]
+    }, 
+    "blurquickreject_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10154742945558178134
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurquickreject_pdf.png": {
       "allowed-digests": [
@@ -324,6 +900,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_20_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16243613494512186144
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_20_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -350,6 +938,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14908530793052169133
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_25_100_20_normal_fast_565.png": {
       "allowed-digests": [
@@ -378,6 +978,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_20_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7690574939853486143
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_20_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -404,6 +1016,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6931885948832327576
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_25_100_20_outer_fast_565.png": {
       "allowed-digests": [
@@ -432,6 +1056,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_20_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7739583519611201521
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_20_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -458,6 +1094,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_20_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15562860169113520296
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_inner_fast_565.png": {
       "allowed-digests": [
@@ -486,6 +1134,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_2_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13842133247953521107
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_2_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -512,6 +1172,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14418745697504188083
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_normal_fast_565.png": {
       "allowed-digests": [
@@ -540,6 +1212,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_2_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8561258759614946861
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_2_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -566,6 +1250,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8134644917242844262
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_outer_fast_565.png": {
       "allowed-digests": [
@@ -594,6 +1290,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_25_100_2_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1019090513727484560
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_25_100_2_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -620,6 +1328,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_25_100_2_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15228868550132649077
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_565.png": {
       "allowed-digests": [
@@ -657,6 +1377,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_20_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14027131909280688461
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_20_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -683,6 +1415,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14787227302149563835
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_100_20_normal_fast_565.png": {
       "allowed-digests": [
@@ -711,6 +1455,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_20_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1969953053314525495
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_20_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -737,6 +1493,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1654800768285215020
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_100_20_outer_fast_565.png": {
       "allowed-digests": [
@@ -765,6 +1533,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_20_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8530808780592208764
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_20_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -791,6 +1571,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_20_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16931265713175857135
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_inner_fast_565.png": {
       "allowed-digests": [
@@ -819,6 +1611,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_2_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10975264582309656798
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_2_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -845,6 +1649,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2506662843132278716
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_normal_fast_565.png": {
       "allowed-digests": [
@@ -873,6 +1689,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_2_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13077079049174589864
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_2_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -899,6 +1727,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9012020006166893307
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_outer_fast_565.png": {
       "allowed-digests": [
@@ -927,6 +1767,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_100_2_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16836291112129299432
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_100_2_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -953,6 +1805,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_100_2_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17042503249501023385
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_inner_fast_565.png": {
       "allowed-digests": [
@@ -981,6 +1845,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_20_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2197963275292981812
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_20_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -1007,6 +1883,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1454336842747551867
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_normal_fast_565.png": {
       "allowed-digests": [
@@ -1035,6 +1923,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_20_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9091617801963649892
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_20_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -1061,6 +1961,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12786268421154293979
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_outer_fast_565.png": {
       "allowed-digests": [
@@ -1089,6 +2001,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_20_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5369932522684959723
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_20_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -1115,6 +2039,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_5_20_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7282752040529114591
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_inner_fast_565.png": {
       "allowed-digests": [
@@ -1143,6 +2079,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_2_inner_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3673660553896390260
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_2_inner_slow_565.png": {
       "allowed-digests": [
         [
@@ -1169,6 +2117,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_inner_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9610290218862527805
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_normal_fast_565.png": {
       "allowed-digests": [
@@ -1197,6 +2157,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_2_normal_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8041824041293486506
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_2_normal_slow_565.png": {
       "allowed-digests": [
         [
@@ -1223,6 +2195,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_5_5_2_normal_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6645075562297861864
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_outer_fast_565.png": {
       "allowed-digests": [
@@ -1251,6 +2235,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_2_outer_fast_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15426463611717048660
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_5_5_2_outer_slow_565.png": {
       "allowed-digests": [
         [
@@ -1278,6 +2274,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_5_5_2_outer_slow_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16328345301263971455
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurrect_8888.png": {
       "allowed-digests": [
         [
@@ -1295,6 +2303,150 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "blurrect_inner_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          621096468045033319
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_inner_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5693351230273671931
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_inner_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9121282755099308746
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_inner_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          768381275550145047
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_normal_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17577119326547731450
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_normal_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17173516333093181363
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_normal_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12596228729070500216
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_normal_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          768381275550145047
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_outer_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8536417857503362352
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_outer_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15072338826980941066
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_outer_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2251243855918858714
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_outer_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          768381275550145047
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "blurrect_slow_100_100_10_565.png": {
       "allowed-digests": [
@@ -1386,6 +2538,54 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurrect_solid_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17328977028061879775
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_solid_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16067654207889334831
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_solid_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3909009467258575845
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurrect_solid_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          768381275550145047
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurs_565.png": {
       "allowed-digests": [
         [
@@ -1413,6 +2613,126 @@
       ], 
       "ignore-failure": false
     }, 
+    "blurs_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12215234780994604924
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-layer-state_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8656374752057403712
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-layer-state_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8656374752057403712
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-layer-state_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4668548986676603141
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-state_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11592955199341201053
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-state_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11592955199341201053
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-state_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5541967782360980927
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "canvas-state_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2093000810176756252
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "chrome_gradtext1_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5630935511407937833
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "chrome_gradtext1_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5630935511407937833
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "chrome_gradtext1_gpu.png": {
       "allowed-digests": [
         [
@@ -1421,6 +2741,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "chrome_gradtext1_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17951757912837868969
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "chrome_gradtext2_565.png": {
       "allowed-digests": [
@@ -1449,6 +2781,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "chrome_gradtext2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11053815872686935752
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "circles_565.png": {
       "allowed-digests": [
         [
@@ -1475,6 +2819,66 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "circles_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          425924134218556955
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "circular-clips_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5152108745492225309
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "circular-clips_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5152108745492225309
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "circular-clips_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1988347527319338472
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "circular-clips_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4682618806863520365
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "clamped_gradients_565.png": {
       "allowed-digests": [
@@ -1503,6 +2907,234 @@
       ], 
       "ignore-failure": false
     }, 
+    "clamped_gradients_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8264377152451149106
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-clamp_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6731999058828201370
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-clamp_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6731999058828201370
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-clamp_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6731999058828201370
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-clamp_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6731999058828201370
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-mirror_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10131313151475985201
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-mirror_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10131313151475985201
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-mirror_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10131313151475985201
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-mirror_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16108448605784434508
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          25307406092894825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          25307406092894825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          25307406092894825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          25307406092894825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clippedcubic_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2047816653827409443
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clippedcubic_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2047816653827409443
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clippedcubic_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2433752872333325525
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clippedcubic_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3311560533639750597
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "cmykjpeg_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13052709698662664204
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "cmykjpeg_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9927483517871541702
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "cmykjpeg_gpu.png": {
       "allowed-digests": [
         [
@@ -1511,6 +3143,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "cmykjpeg_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4659204300078138667
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "colorfilterimagefilter_565.png": {
       "allowed-digests": [
@@ -1538,6 +3182,114 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "colorfilterimagefilter_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15427569532983092888
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colormatrix_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3235581033534814469
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colormatrix_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5008998920935758481
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colormatrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1539225048519213519
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colormatrix_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17141284458901795298
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colortype_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4435635874507528843
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colortype_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11388847455044852750
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colortype_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11235313591528676486
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "colortype_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11959612121052896694
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [
@@ -1593,6 +3345,18 @@
       ], 
       "ignore-failure": true
     }, 
+    "complexclip2_path_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16333624854177111429
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "complexclip2_path_bw_565.png": {
       "allowed-digests": [
         [
@@ -1620,6 +3384,30 @@
       ], 
       "ignore-failure": true
     }, 
+    "complexclip2_path_bw_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14658110981814329983
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "complexclip2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12923310282749133071
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "complexclip2_rect_aa_565.png": {
       "allowed-digests": [
         [
@@ -1646,6 +3434,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "complexclip2_rect_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18110557533014404672
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
@@ -1701,6 +3501,30 @@
       ], 
       "ignore-failure": true
     }, 
+    "complexclip_aa_layer_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13584747364474495107
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "complexclip_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8250798054129089799
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "complexclip_bw_565.png": {
       "allowed-digests": [
         [
@@ -1755,6 +3579,78 @@
       ], 
       "ignore-failure": true
     }, 
+    "complexclip_bw_layer_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11057856380502905902
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "complexclip_bw_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2089070996768677014
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7056614224123361804
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11182963243517231903
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8335957777854187363
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8335957777854187363
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "convexpaths_565.png": {
       "allowed-digests": [
         [
@@ -1781,6 +3677,66 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "convexpaths_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3967168504876408314
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "copyTo4444_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13047964648578320887
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "copyTo4444_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13512184095617016052
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "copyTo4444_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13512184095617016052
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "copyTo4444_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7180412349101917022
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "cubicclosepath_565.png": {
       "allowed-digests": [
@@ -1809,6 +3765,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "cubicclosepath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17791613807953625829
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "cubicpath_565.png": {
       "allowed-digests": [
         [
@@ -1835,6 +3803,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "cubicpath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13394478757246993315
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "dashcubics_565.png": {
       "allowed-digests": [
@@ -1863,6 +3843,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "dashcubics_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6372281393962002709
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "dashing2_565.png": {
       "allowed-digests": [
         [
@@ -1889,6 +3881,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "dashing2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4486503885534337283
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "dashing3_565.png": {
       "allowed-digests": [
@@ -1926,6 +3930,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "dashing3_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10475351773979495594
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "dashing_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2587070015488181148
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "dashing_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11645276935331048518
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "dashing_gpu.png": {
       "allowed-digests": [
         [
@@ -1934,6 +3974,18 @@
         ]
       ], 
       "ignore-failure": true
+    }, 
+    "dashing_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18292104043667314195
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "degeneratesegments_565.png": {
       "allowed-digests": [
@@ -1962,6 +4014,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "degeneratesegments_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16474182876162770941
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "deviceproperties_565.png": {
       "allowed-digests": [
         [
@@ -1988,6 +4052,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "deviceproperties_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7819825549601859094
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "displacement_565.png": {
       "allowed-digests": [
@@ -2016,6 +4092,642 @@
       ], 
       "ignore-failure": false
     }, 
+    "displacement_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14735180539294353292
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "distantclip_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2455115578822786504
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "distantclip_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2455115578822786504
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "distantclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2455115578822786504
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "distantclip_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2455115578822786504
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          881367329424920190
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6945990311354009677
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12241316569839901585
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11009136916386101766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_low_512_256_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10232582998248890344
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_low_512_256_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1233814311003427744
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_low_512_256_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13397371426171817534
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_low_512_256_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11009136916386101766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_medium_512_256_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1203257848312793050
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_medium_512_256_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3984265676088058160
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_medium_512_256_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12241316569839901585
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_medium_512_256_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11009136916386101766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_none_512_256_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3646964297203490771
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_none_512_256_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17145060002425698132
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_none_512_256_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7922854781530363105
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_checkerboard_none_512_256_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11009136916386101766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8117864908693702930
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5040811071984066817
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1503976714167724830
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1665127685512746748
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_low_mandrill_512.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6765275404189723366
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_low_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6485054271692420021
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_low_mandrill_512.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12388921334436224745
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_low_mandrill_512.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1665127685512746748
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_medium_mandrill_512.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13571956230133077991
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_medium_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8840752418158714253
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_medium_mandrill_512.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1503976714167724830
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_medium_mandrill_512.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1665127685512746748
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_none_mandrill_512.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14270272450959568098
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_none_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13220718652543317787
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_none_mandrill_512.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12965470470056135172
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_image_none_mandrill_512.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1665127685512746748
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_high_72.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12287397231542624178
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_high_72.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2973164551369409317
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_high_72.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2141019891928343978
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_high_72.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11329132881296114860
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_low_72.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7530407115819228868
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_low_72.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8790219078085373164
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_low_72.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17351323733553391924
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_low_72.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11329132881296114860
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_medium_72.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7686945076313655877
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_medium_72.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10584874825669399103
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_medium_72.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2141019891928343978
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_medium_72.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11329132881296114860
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_none_72.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1511306226410583719
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_none_72.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14820504682169578033
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_none_72.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8546063919377166259
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "downsamplebitmap_text_none_72.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11329132881296114860
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "drawbitmapmatrix_565.png": {
       "allowed-digests": [
         [
@@ -2042,6 +4754,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "drawbitmapmatrix_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11854000393508106916
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "drawbitmaprect_565.png": {
       "allowed-digests": [
@@ -2070,6 +4794,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "drawbitmaprect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10205758304376865963
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "drawlooper_565.png": {
       "allowed-digests": [
         [
@@ -2096,6 +4832,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "drawlooper_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14765663757779575968
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "emptypath_565.png": {
       "allowed-digests": [
@@ -2124,6 +4872,162 @@
       ], 
       "ignore-failure": false
     }, 
+    "emptypath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10362382065145262844
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "extractbitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6262841086313421656
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "extractbitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6262841086313421656
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "extractbitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6262841086313421656
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "extractbitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10157615657775197358
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "factory_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4768741511907258218
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "factory_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11150486540244810089
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "factory_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11150486540244810089
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "factory_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3321350666216749569
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fatpathfill_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7781767658511133788
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fatpathfill_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15926472232550846517
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fatpathfill_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7552577289800077054
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fatpathfill_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17149952456267262208
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "filltypes_565.png": {
       "allowed-digests": [
         [
@@ -2150,6 +5054,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "filltypes_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16710702184284734752
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "filltypespersp_565.png": {
       "allowed-digests": [
@@ -2178,6 +5094,810 @@
       ], 
       "ignore-failure": false
     }, 
+    "filltypespersp_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          549674585114504358
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_192_192_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13270012198930365496
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_192_192_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14746826424040775628
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_192_192_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15582767112440028130
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_192_192_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4427412450230254707
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_2_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16197252621792695154
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_2_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7634650333321761866
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2072843956545316696
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13869326896548536312
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_32_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5885360109934996593
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_32_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16233015857657100226
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_32_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8933523985541548880
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_32_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4075616322670456035
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_8_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4335916121100078652
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_8_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11851994777822490056
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_8_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7648651636890455731
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_32_8_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15358045633896345106
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_4_4_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2019741233590260945
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_4_4_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11251934175553473515
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_4_4_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          450195442407711515
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_checkerboard_4_4_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6469355008067410964
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_128.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13770691296895765608
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_128.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          45158265468823306
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_128.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12759823388704007414
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_128.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1927310655351769469
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_16.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8601556852166638138
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_16.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14569497133950979824
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_16.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16632944975840358555
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_16.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3839747123012665825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_256.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6793460121858445055
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_256.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18319889960829260272
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_256.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18339133118465912849
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_256.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12289549291038324002
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_32.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4169681866520953097
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_32.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8205166433695541669
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_32.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13453809206297573059
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_32.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3005060272187674694
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_512.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3124545193009752528
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          496206197913631730
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_512.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17823610224422325191
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_512.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1866160515636785656
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_64.png_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13401836135491102758
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_64.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14326751673590949230
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_64.png_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6350853388016448478
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_image_mandrill_64.png_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7054065765090828569
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_10.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2805724817248709271
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_10.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7922282608670223320
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_10.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2815074307707441059
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_10.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6456457240544710745
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_3.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16598244189082008140
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_3.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3574054891803934812
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_3.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15408079042111318092
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_3.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11473848499279419638
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_7.00pt_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2214975584968035189
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_7.00pt_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6016831299213863992
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_7.00pt_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17728476395763870812
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "filterbitmap_text_7.00pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          446266135049084915
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8235727908523200854
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12300505832476339318
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_factory_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9634328461383126524
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_factory_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6727685461018676373
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_factory_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15532577507744171028
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_iter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1644179117241477020
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_match_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6832217877127725208
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_match_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10766119269193181024
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_match_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16666842658661744318
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "fontmgr_match_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8988479428315330063
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "fontscaler_565.png": {
       "allowed-digests": [
         [
@@ -2204,6 +5924,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "fontscaler_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3589446423481163612
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "gammatext_565.png": {
       "allowed-digests": [
@@ -2232,6 +5964,90 @@
       ], 
       "ignore-failure": false
     }, 
+    "gammatext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17641425810332821995
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "getpostextpath_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8085796325209380826
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "getpostextpath_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10909520016157880919
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "getpostextpath_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11818582371303245874
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "getpostextpath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13886297298752102744
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_bilerp_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8844253733895577971
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_bilerp_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          373739036198791129
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_clamp_bilerp_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2240,6 +6056,42 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_bilerp_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8034278263101317880
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_bilerp_scale_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3486485929104356236
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_bilerp_scale_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10633738215712183989
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_bilerp_scale_gpu.png": {
       "allowed-digests": [
@@ -2250,6 +6102,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_clamp_bilerp_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10161295094898335059
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_point_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17592263249674059658
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_point_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17592263249674059658
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_clamp_point_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2258,6 +6146,42 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_clamp_point_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8034278263101317880
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_point_scale_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9837143541713078189
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_clamp_point_scale_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9837143541713078189
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_point_scale_gpu.png": {
       "allowed-digests": [
@@ -2268,6 +6192,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_clamp_point_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10161295094898335059
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_bilerp_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4418651112090392588
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_bilerp_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12707263608068309424
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_mirror_bilerp_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2276,6 +6236,42 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_bilerp_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15202821749039117581
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_bilerp_scale_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3198037782278889365
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_bilerp_scale_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6252132392610996150
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_bilerp_scale_gpu.png": {
       "allowed-digests": [
@@ -2286,6 +6282,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_mirror_bilerp_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          561416556812940597
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_point_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7897959591317755434
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_point_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7897959591317755434
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_mirror_point_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2294,6 +6326,42 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_mirror_point_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15202821749039117581
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_point_scale_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18105452151182268887
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_mirror_point_scale_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18105452151182268887
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_point_scale_gpu.png": {
       "allowed-digests": [
@@ -2304,6 +6372,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_mirror_point_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          561416556812940597
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_bilerp_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14124862738846038338
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_bilerp_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18058439211441456286
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_repeat_bilerp_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2312,6 +6416,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_bilerp_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15902633023629940826
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "giantbitmap_repeat_bilerp_scale_565.png": {
       "allowed-digests": [
@@ -2340,6 +6456,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_repeat_bilerp_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2753677831554080556
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_point_rotate_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9093746103412643649
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_point_rotate_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9093746103412643649
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_repeat_point_rotate_gpu.png": {
       "allowed-digests": [
         [
@@ -2349,6 +6501,42 @@
       ], 
       "ignore-failure": false
     }, 
+    "giantbitmap_repeat_point_rotate_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15902633023629940826
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_point_scale_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14547059667322106211
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "giantbitmap_repeat_point_scale_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14547059667322106211
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "giantbitmap_repeat_point_scale_gpu.png": {
       "allowed-digests": [
         [
@@ -2357,6 +6545,114 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "giantbitmap_repeat_point_scale_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2753677831554080556
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_dirty_laundry_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16978210180572955621
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_dirty_laundry_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          637854104407104115
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_dirty_laundry_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9898697105564368249
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_dirty_laundry_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14879545126349478144
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_matrix_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9800597089191342482
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_matrix_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11303638772874009054
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_matrix_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6842686389776708835
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradient_matrix_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6435424937654608099
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "gradients_565.png": {
       "allowed-digests": [
@@ -2403,6 +6699,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "gradients_degenerate_2pt_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10552995703607727960
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "gradients_gpu.png": {
       "allowed-digests": [
         [
@@ -2439,6 +6747,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "gradients_local_perspective_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3509487264422908183
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradients_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13419642084390426319
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "gradients_view_perspective_565.png": {
       "allowed-digests": [
         [
@@ -2466,6 +6798,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "gradients_view_perspective_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9749250844822835346
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "gradtext_565.png": {
       "allowed-digests": [
         [
@@ -2492,6 +6836,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "gradtext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15531712043266648101
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "hairlines_565.png": {
       "allowed-digests": [
@@ -2552,6 +6908,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "hittestpath_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4828006313825982924
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "hittestpath_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6750687666132142674
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "hittestpath_gpu.png": {
       "allowed-digests": [
         [
@@ -2560,6 +6940,66 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "hittestpath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4411948001429166519
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "image-surface_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8577378458248323167
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "image-surface_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4782812657765405641
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "image-surface_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7396420009761502685
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "image-surface_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16481391784872125594
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "imageblur_565.png": {
       "allowed-digests": [
@@ -2588,6 +7028,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "imageblur_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          478198823776811003
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imagefiltersbase_565.png": {
       "allowed-digests": [
         [
@@ -2615,6 +7067,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "imagefiltersbase_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5968623706951431156
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
         [
@@ -2638,6 +7102,18 @@
           9540626140949731992
         ]
       ]
+    }, 
+    "imagefilterscropped_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4067981300698598188
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -2666,6 +7142,162 @@
       ], 
       "ignore-failure": false
     }, 
+    "imagefiltersgraph_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10885299458206218553
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagemagnifier_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15620403355558278402
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagemagnifier_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6376756846647613652
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagemagnifier_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4362384303872063275
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagemagnifier_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          478198823776811003
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "internal_links_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15109641821094815831
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "internal_links_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7127122112754348737
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "internal_links_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3877631189763401125
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "internal_links_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4944337612673914054
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "inverse_paths_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11821837020053508530
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "inverse_paths_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5261540702965720045
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "inverse_paths_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8294304353239725838
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "inverse_paths_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10571380610911525044
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "lcdtext_565.png": {
       "allowed-digests": [
         [
@@ -2692,6 +7324,66 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "lcdtext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16665185043418251848
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "lerpmode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12271636760963423766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "lerpmode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11952378473714520027
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "lerpmode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16271637167989743463
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "lerpmode_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          125470945696302801
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "lighting_565.png": {
       "allowed-digests": [
@@ -2720,6 +7412,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "lighting_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13070597695427346031
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "lineclosepath_565.png": {
       "allowed-digests": [
         [
@@ -2747,6 +7451,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "lineclosepath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10215073648981963288
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "linepath_565.png": {
       "allowed-digests": [
         [
@@ -2773,6 +7489,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "linepath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          807818410790385130
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "lumamode_565.png": {
       "allowed-digests": [
@@ -2834,6 +7562,174 @@
       ], 
       "ignore-failure": false
     }, 
+    "matrixconvolution_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8860105103137995664
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_0x0_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          899343682044846669
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_0x0_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4811817245879819217
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_0x0_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9920361084877460589
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_0x0_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2758551896219999523
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_1x4_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          899343682044846669
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_1x4_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4811817245879819217
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_1x4_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9920361084877460589
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_1x4_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14096836655867535987
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_4x1_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          899343682044846669
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_4x1_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4811817245879819217
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_4x1_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9920361084877460589
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "megalooper_4x1_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14096836655867535987
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "mixed_xfermodes_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3864924002886018954
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "mixed_xfermodes_8888.png": {
       "allowed-digests": [
         [
@@ -2851,6 +7747,54 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "modecolorfilters_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2595933616904054518
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "modecolorfilters_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5532792141023246970
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "modecolorfilters_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11302360056092717723
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "modecolorfilters_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4897549412921859425
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "morphology_565.png": {
       "allowed-digests": [
@@ -2879,6 +7823,114 @@
       ], 
       "ignore-failure": false
     }, 
+    "morphology_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14869814879014699806
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_aa_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13368313638144976985
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_aa_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15400201194960863407
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_aa_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9597568321818137910
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13966876451853453414
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_bw_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1642884649618332584
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_bw_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2247784507927793592
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_bw_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6638289994984814421
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "nested_bw_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13966876451853453414
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "ninepatch-stretch_565.png": {
       "allowed-digests": [
         [
@@ -2905,6 +7957,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "ninepatch-stretch_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          73449649865599504
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "nocolorbleed_565.png": {
       "allowed-digests": [
@@ -2933,6 +7997,54 @@
       ], 
       "ignore-failure": false
     }, 
+    "optimizations_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13811812839638384010
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "optimizations_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13857521313271479795
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "optimizations_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13857521313271479795
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "optimizations_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9820008929704962008
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "ovals_565.png": {
       "allowed-digests": [
         [
@@ -2959,6 +8071,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "ovals_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17099657634061871413
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "path-reverse_565.png": {
       "allowed-digests": [
@@ -2987,6 +8111,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "path-reverse_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17177250508075912766
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "patheffect_565.png": {
       "allowed-digests": [
         [
@@ -3013,6 +8149,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "patheffect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11374167470113636710
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "pathfill_565.png": {
       "allowed-digests": [
@@ -3041,6 +8189,66 @@
       ], 
       "ignore-failure": false
     }, 
+    "pathfill_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5577932092516740263
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathinterior_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5256789333859323566
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathinterior_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12154019601891195885
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathinterior_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2982375010120123030
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathinterior_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3195970560231649099
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "pathinvfill_565.png": {
       "allowed-digests": [
         [
@@ -3068,6 +8276,138 @@
       ], 
       "ignore-failure": false
     }, 
+    "pathinvfill_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10993442877907212694
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsinverse_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9203084105917442586
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsinverse_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14543745002649249442
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsinverse_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1228159308973265303
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsinverse_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1473281111378748058
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsskpclip_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17600675144457991335
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsskpclip_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          888248864640375674
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsskpclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          693368661475490253
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "pathopsskpclip_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          854717640088651026
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "perlinnoise_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7062830515847842724
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "perlinnoise_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3337960818819139745
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "perlinnoise_gpu.png": {
       "allowed-digests": [
         [
@@ -3076,6 +8416,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "perlinnoise_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16403770124424480382
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "points_565.png": {
       "allowed-digests": [
@@ -3104,6 +8456,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "points_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14208320379733166227
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "poly2poly_565.png": {
       "allowed-digests": [
         [
@@ -3130,6 +8494,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "poly2poly_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2769288847083845192
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "quadclosepath_565.png": {
       "allowed-digests": [
@@ -3158,6 +8534,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "quadclosepath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9966379758265121123
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "quadpath_565.png": {
       "allowed-digests": [
         [
@@ -3185,6 +8573,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "quadpath_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1573718235611216367
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "radial_gradient2_565.png": {
       "allowed-digests": [
         [
@@ -3208,6 +8608,18 @@
           6071935294942893742
         ]
       ]
+    }, 
+    "radial_gradient2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11341215534952942208
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "radial_gradient2_pdf.png": {
       "allowed-digests": [
@@ -3244,6 +8656,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "radial_gradient_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9840979663035601085
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "rects_565.png": {
       "allowed-digests": [
         [
@@ -3271,6 +8695,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "rects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10644096336682041166
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "roundrects_565.png": {
       "allowed-digests": [
         [
@@ -3297,6 +8733,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "roundrects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15908495008223763869
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "rrect_565.png": {
       "allowed-digests": [
@@ -3352,6 +8800,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "rrect_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11384222277027386872
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "rrect_bw_565.png": {
       "allowed-digests": [
         [
@@ -3388,6 +8848,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "rrect_bw_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11384222277027386872
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "rrect_clip_aa_565.png": {
       "allowed-digests": [
         [
@@ -3414,6 +8886,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "rrect_clip_aa_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15743980324978739041
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "rrect_clip_bw_565.png": {
       "allowed-digests": [
@@ -3442,6 +8926,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "rrect_clip_bw_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1912366238246132128
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "rrect_gpu.png": {
       "allowed-digests": [
         [
@@ -3450,6 +8946,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "rrect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13684452609014656772
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "samplerstress_565.png": {
       "allowed-digests": [
@@ -3478,6 +8986,114 @@
       ], 
       "ignore-failure": false
     }, 
+    "samplerstress_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8140221539396191890
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest1_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12927999507540085554
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest1_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1209453360120438698
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest1_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1149339852105949057
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest1_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1149339852105949057
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest2_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8863920166200910451
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest2_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13451349865803053525
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7903070799454133570
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "selftest2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7903070799454133570
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "shaderbounds_linear_565.png": {
       "allowed-digests": [
         [
@@ -3505,6 +9121,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "shaderbounds_linear_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3861587073991955167
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "shadertext2_8888.png": {
       "allowed-digests": [
         [
@@ -3522,6 +9150,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "shadertext2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3938784455448914382
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "shadertext3_565.png": {
       "allowed-digests": [
@@ -3550,6 +9190,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "shadertext3_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2378524875702361920
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "shadertext_565.png": {
       "allowed-digests": [
         [
@@ -3576,6 +9228,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "shadertext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15321527074633219383
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "shadows_565.png": {
       "allowed-digests": [
@@ -3604,6 +9268,258 @@
       ], 
       "ignore-failure": false
     }, 
+    "shadows_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3202298987386568393
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_conical_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17982294224537325140
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_conical_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10213220249745462631
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_conical_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8953987397603974540
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_conical_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11200986978138084393
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_linear_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2414118852281882343
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_linear_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2600596201303470577
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_linear_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12849456673775232294
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_linear_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6159317287087368010
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_radial_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7637358666429963225
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_radial_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12757191687259698018
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_radial_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10512822209849628277
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_radial_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1782214594164146403
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_sweep_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6974552498637279685
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_sweep_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          766715199662180977
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_sweep_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15798504320335497714
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "shallow_gradient_sweep_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5288641012874610000
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "simpleaaclip_aaclip_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5938343116989307836
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "simpleaaclip_aaclip_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18056380327696733609
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "simpleaaclip_aaclip_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16807280427580320825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "simpleaaclip_aaclip_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2048982207894061208
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "simpleaaclip_path_565.png": {
       "allowed-digests": [
         [
@@ -3630,6 +9546,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "simpleaaclip_path_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12419969844510790767
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "simpleaaclip_rect_565.png": {
       "allowed-digests": [
@@ -3658,6 +9586,114 @@
       ], 
       "ignore-failure": false
     }, 
+    "simpleaaclip_rect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12419969844510790767
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "spritebitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1830433234518217078
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "spritebitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9673051144735514103
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "spritebitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7356295585654995268
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "spritebitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2067125699055165577
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "srcmode_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10548024191560453076
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "srcmode_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4746025269070656018
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "srcmode_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12425812349948326825
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "srcmode_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15186163840089029846
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "stroke-fill_565.png": {
       "allowed-digests": [
         [
@@ -3685,6 +9721,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "stroke-fill_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6084879874830826477
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "strokerect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11244881473901930050
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "strokerect_8888.png": {
       "allowed-digests": [
         [
@@ -3702,6 +9762,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "strokerect_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6030778122508392152
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "strokerects_565.png": {
       "allowed-digests": [
@@ -3730,6 +9802,18 @@
       ], 
       "ignore-failure": true
     }, 
+    "strokerects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12459269287019925922
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "strokes3_565.png": {
       "allowed-digests": [
         [
@@ -3756,6 +9840,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "strokes3_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          690642312004948359
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "strokes_poly_565.png": {
       "allowed-digests": [
@@ -3784,6 +9880,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "strokes_poly_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6874636085752264778
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "strokes_round_565.png": {
       "allowed-digests": [
         [
@@ -3810,6 +9918,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "strokes_round_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10823722518852356136
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "tablecolorfilter_565.png": {
       "allowed-digests": [
@@ -3838,6 +9958,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "tablecolorfilter_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12706819480251708087
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "testimagefilters_565.png": {
       "allowed-digests": [
         [
@@ -3864,6 +9996,18 @@
         ]
       ], 
       "ignore-failure": true
+    }, 
+    "testimagefilters_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2776142962929484390
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "texdata_565.png": {
       "allowed-digests": [
@@ -3892,6 +10036,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "texdata_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8202463522803346863
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "texteffects_565.png": {
       "allowed-digests": [
         [
@@ -3918,6 +10074,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "texteffects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18141321179723096191
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "thinrects_565.png": {
       "allowed-digests": [
@@ -3946,6 +10114,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "thinrects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          666320551091630944
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "thinstrokedrects_565.png": {
       "allowed-digests": [
         [
@@ -3972,6 +10152,114 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "thinstrokedrects_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14526100002179430622
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_bitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10125532297314984362
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_bitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3340911701163539695
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_bitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4622238695270760791
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_bitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2591306619502274237
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_gradient_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13874028769247658002
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_gradient_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9870437677790705976
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12719045787798939975
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_gradient_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17656225558917530186
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "tilemodes_565.png": {
       "allowed-digests": [
@@ -4000,6 +10288,66 @@
       ], 
       "ignore-failure": false
     }, 
+    "tilemodes_npot_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          145504291240243590
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemodes_npot_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12105624345031540437
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemodes_npot_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14373696045085826620
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemodes_npot_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4282906709241887818
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemodes_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14511292464291878476
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "tinybitmap_565.png": {
       "allowed-digests": [
         [
@@ -4026,6 +10374,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "tinybitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8809171659405559850
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "twopointconical_565.png": {
       "allowed-digests": [
@@ -4054,6 +10414,114 @@
       ], 
       "ignore-failure": false
     }, 
+    "twopointconical_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          550233152074507549
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typeface_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9299054446323094621
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typeface_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9299054446323094621
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typeface_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9299054446323094621
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typeface_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13774935105013321479
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typefacestyles_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12659286956475364783
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typefacestyles_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15832913375493921878
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typefacestyles_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15832913375493921878
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typefacestyles_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10812930422738500642
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "verttext2_565.png": {
       "allowed-digests": [
         [
@@ -4071,6 +10539,30 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "verttext2_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12923408472393428718
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "verttext2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13621373474478397699
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "verttext_565.png": {
       "allowed-digests": [
@@ -4099,6 +10591,66 @@
       ], 
       "ignore-failure": true
     }, 
+    "verttext_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9944497576169714211
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "verylargebitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11184303908406748011
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "verylargebitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11184303908406748011
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "verylargebitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2449413405792813719
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "verylargebitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          306473084535604120
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "xfermodeimagefilter_565.png": {
       "allowed-digests": [
         [
@@ -4125,6 +10677,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "xfermodeimagefilter_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13692900446880898531
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "xfermodes2_565.png": {
       "allowed-digests": [
@@ -4153,6 +10717,18 @@
       ], 
       "ignore-failure": false
     }, 
+    "xfermodes2_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11267252550691497463
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
+    }, 
     "xfermodes3_565.png": {
       "allowed-digests": [
         [
@@ -4176,6 +10752,18 @@
           13777400238782053543
         ]
       ]
+    }, 
+    "xfermodes3_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9037369238116786949
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "xfermodes_565.png": {
       "allowed-digests": [
@@ -4203,6 +10791,18 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "xfermodes_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9206571293968307032
+        ]
+      ], 
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }
   }
 }
