@@ -37,6 +37,12 @@ struct EllipseVertex {
     GrPoint  fInnerRadii;
 };
 
+struct DIEllipseVertex {
+    GrPoint  fPos;
+    GrPoint  fOuterOffset;
+    GrPoint  fInnerOffset;
+};
+
 inline bool circle_stays_circle(const SkMatrix& m) {
     return m.isSimilarity();
 }
@@ -292,6 +298,157 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * The output of this effect is a modulation of the input color and coverage for an ellipse, 
+ * specified as a 2D offset from center for both the outer and inner paths (if stroked). The
+ * implict equation used is for a unit circle (x^2 + y^2 - 1 = 0) and the edge corrected by
+ * using differentials.
+ *
+ * The result is device-independent and can be used with any affine matrix.
+ */
+
+class DIEllipseEdgeEffect : public GrEffect {
+public:
+    enum Mode { kStroke = 0, kHairline, kFill };
+
+    static GrEffectRef* Create(Mode mode) {
+        GR_CREATE_STATIC_EFFECT(gEllipseStrokeEdge, DIEllipseEdgeEffect, (kStroke));
+        GR_CREATE_STATIC_EFFECT(gEllipseHairlineEdge, DIEllipseEdgeEffect, (kHairline));
+        GR_CREATE_STATIC_EFFECT(gEllipseFillEdge, DIEllipseEdgeEffect, (kFill));
+        
+        if (kStroke == mode) {
+            gEllipseStrokeEdge->ref();
+            return gEllipseStrokeEdge;
+        } else if (kHairline == mode) {
+            gEllipseHairlineEdge->ref();
+            return gEllipseHairlineEdge;
+        } else {
+            gEllipseFillEdge->ref();
+            return gEllipseFillEdge;
+        }
+    }
+    
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+    
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<DIEllipseEdgeEffect>::getInstance();
+    }
+    
+    virtual ~DIEllipseEdgeEffect() {}
+    
+    static const char* Name() { return "DIEllipseEdge"; }
+    
+    inline Mode getMode() const { return fMode; }
+    
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        : INHERITED (factory) {}
+        
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
+            SkASSERT(NULL != vertexBuilder);
+            
+            const DIEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<DIEllipseEdgeEffect>();
+            
+            const char *vsOffsetName, *fsOffsetName;
+            
+            vertexBuilder->addVarying(kVec4f_GrSLType, "EllipseOffsets", &vsOffsetName, &fsOffsetName);
+            const SkString* attr0Name =
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsOffsetName, attr0Name->c_str());
+            
+            // for outer curve
+            builder->fsCodeAppendf("\tvec2 scaledOffset = %s.xy;\n", fsOffsetName);
+            builder->fsCodeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
+            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsOffsetName);
+            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsOffsetName);
+            builder->fsCodeAppendf("\tvec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,\n"
+                                   "\t                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);\n",
+                                   fsOffsetName, fsOffsetName, fsOffsetName, fsOffsetName);
+            
+            builder->fsCodeAppend("\tfloat grad_dot = dot(grad, grad);\n");
+            // we need to clamp the length^2 of the gradiant vector to a non-zero value, because
+            // on the Nexus 4 the undefined result of inversesqrt(0) drops out an entire tile
+            // TODO: restrict this to Adreno-only
+            builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+            builder->fsCodeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
+            if (kHairline == ellipseEffect.getMode()) {
+                // can probably do this with one step
+                builder->fsCodeAppend("\tfloat edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);\n");
+                builder->fsCodeAppend("\tedgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);\n");
+            } else {
+                builder->fsCodeAppend("\tfloat edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);\n");
+            }
+            
+            // for inner curve
+            if (kStroke == ellipseEffect.getMode()) {
+                builder->fsCodeAppendf("\tscaledOffset = %s.wz;\n", fsOffsetName);
+                builder->fsCodeAppend("\ttest = dot(scaledOffset, scaledOffset) - 1.0;\n");
+                builder->fsCodeAppendf("\tduvdx = dFdx(%s.wz);\n", fsOffsetName);
+                builder->fsCodeAppendf("\tduvdy = dFdy(%s.wz);\n", fsOffsetName);
+                builder->fsCodeAppendf("\tgrad = vec2(2.0*%s.w*duvdx.x + 2.0*%s.z*duvdx.y,\n"
+                                       "\t            2.0*%s.w*duvdy.x + 2.0*%s.z*duvdy.y);\n",
+                                       fsOffsetName, fsOffsetName, fsOffsetName, fsOffsetName);
+                builder->fsCodeAppend("\tinvlen = inversesqrt(dot(grad, grad));\n");
+                builder->fsCodeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
+            }
+            
+            SkString modulate;
+            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+        
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            const DIEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<DIEllipseEdgeEffect>();
+            
+            return ellipseEffect.getMode();
+        }
+        
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
+        }
+        
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+    
+private:
+    DIEllipseEdgeEffect(Mode mode) : GrEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+        fMode = mode;
+    }
+    
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        const DIEllipseEdgeEffect& eee = CastEffect<DIEllipseEdgeEffect>(other);
+        return eee.fMode == fMode;
+    }
+    
+    Mode fMode;
+    
+    GR_DECLARE_EFFECT_TEST;
+    
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(DIEllipseEdgeEffect);
+
+GrEffectRef* DIEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
+                                             GrContext* context,
+                                             const GrDrawTargetCaps&,
+                                             GrTexture* textures[]) {
+    return DIEllipseEdgeEffect::Create((Mode)(random->nextRangeU(0,2)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void GrOvalRenderer::reset() {
     GrSafeSetNull(fRRectIndexBuffer);
 }
@@ -309,11 +466,12 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
         this->drawCircle(target, useAA, oval, stroke);
-
-    // and axis-aligned ellipses only
+    // if we have shader derivative support, render as device-independent
+    } else if (target->caps()->shaderDerivativeSupport()) {
+        return this->drawDIEllipse(target, useAA, oval, stroke);
+    // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
         return this->drawEllipse(target, useAA, oval, stroke);
-
     } else {
         return false;
     }
@@ -321,16 +479,12 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
     return true;
 }
 
-namespace {
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // position + edge
 extern const GrVertexAttrib gCircleVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
-};
-
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
@@ -424,15 +578,17 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace {
-
-// position + edge
+// position + offset + 1/radii
 extern const GrVertexAttrib gEllipseVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
     {kVec2f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding}
 };
 
+// position + offsets
+extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
@@ -469,8 +625,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
 
-    SkScalar innerXRadius = 0.0f;
-    SkScalar innerYRadius = 0.0f;
+    SkScalar innerXRadius = 0;
+    SkScalar innerYRadius = 0;
     if (SkStrokeRec::kFill_Style != style) {
         if (SkScalarNearlyZero(scaledStroke.length())) {
             scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
@@ -561,6 +717,118 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fOffset = SkPoint::Make(xRadius, yRadius);
     verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
+
+    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
+
+    return true;
+}
+
+bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
+                                   bool useAA,
+                                   const SkRect& ellipse,
+                                   const SkStrokeRec& stroke)
+{
+    GrDrawState* drawState = target->drawState();
+    const SkMatrix& vm = drawState->getViewMatrix();
+
+    GrPoint center = GrPoint::Make(ellipse.centerX(), ellipse.centerY());
+    SkScalar xRadius = SkScalarHalf(ellipse.width());
+    SkScalar yRadius = SkScalarHalf(ellipse.height());    
+    
+    SkStrokeRec::Style style = stroke.getStyle();
+    DIEllipseEdgeEffect::Mode mode = (SkStrokeRec::kStroke_Style == style) ? 
+                                    DIEllipseEdgeEffect::kStroke :
+                                    (SkStrokeRec::kHairline_Style == style) ? 
+                                    DIEllipseEdgeEffect::kHairline : DIEllipseEdgeEffect::kFill;
+
+    SkScalar innerXRadius = 0;
+    SkScalar innerYRadius = 0;
+    if (SkStrokeRec::kFill_Style != style && SkStrokeRec::kHairline_Style != style) {
+        SkScalar strokeWidth = stroke.getWidth();
+
+        if (SkScalarNearlyZero(strokeWidth)) {
+            strokeWidth = SK_ScalarHalf;
+        } else {
+            strokeWidth *= SK_ScalarHalf;
+        }
+
+        // we only handle thick strokes for near-circular ellipses
+        if (strokeWidth > SK_ScalarHalf &&
+            (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
+            return false;
+        }
+
+        // we don't handle it if curvature of the stroke is less than curvature of the ellipse
+        if (strokeWidth*(yRadius*yRadius) < (strokeWidth*strokeWidth)*xRadius ||
+            strokeWidth*(xRadius*xRadius) < (strokeWidth*strokeWidth)*yRadius) {
+            return false;
+        }
+
+        // set inner radius (if needed)
+        if (SkStrokeRec::kStroke_Style == style) {
+            innerXRadius = xRadius - strokeWidth;
+            innerYRadius = yRadius - strokeWidth;
+        }
+
+        xRadius += strokeWidth;
+        yRadius += strokeWidth;
+    }
+    if (DIEllipseEdgeEffect::kStroke == mode) {
+        mode = (innerXRadius > 0 && innerYRadius > 0) ? DIEllipseEdgeEffect::kStroke :
+                                                        DIEllipseEdgeEffect::kFill;
+    }
+    SkScalar innerRatioX = SkScalarDiv(xRadius, innerXRadius);
+    SkScalar innerRatioY = SkScalarDiv(yRadius, innerYRadius);
+
+    drawState->setVertexAttribs<gDIEllipseVertexAttribs>(SK_ARRAY_COUNT(gDIEllipseVertexAttribs));
+    SkASSERT(sizeof(DIEllipseVertex) == drawState->getVertexSize());
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return false;
+    }
+
+    DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(geo.vertices());
+
+    GrEffectRef* effect = DIEllipseEdgeEffect::Create(mode);
+
+    static const int kEllipseOffsetAttrIndex = 1;
+    drawState->addCoverageEffect(effect, kEllipseOffsetAttrIndex)->unref();
+    
+    // This expands the outer rect so that after CTM we end up with a half-pixel border
+    SkScalar a = vm[SkMatrix::kMScaleX];
+    SkScalar b = vm[SkMatrix::kMSkewX];
+    SkScalar c = vm[SkMatrix::kMSkewY];
+    SkScalar d = vm[SkMatrix::kMScaleY];
+    SkScalar geoDx = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(a*a + c*c));
+    SkScalar geoDy = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(b*b + d*d));
+    // This adjusts the "radius" to include the half-pixel border
+    SkScalar offsetDx = SkScalarDiv(geoDx, xRadius);
+    SkScalar offsetDy = SkScalarDiv(geoDy, yRadius);
+
+    SkRect bounds = SkRect::MakeLTRB(
+        center.fX - xRadius - geoDx,
+        center.fY - yRadius - geoDy,
+        center.fX + xRadius + geoDx,
+        center.fY + yRadius + geoDy
+    );
+
+    verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
+    verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
+    verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, -innerRatioY - offsetDy);
+
+    verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+    verts[1].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
+    verts[1].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
+
+    verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+    verts[2].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
+    verts[2].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
+
+    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+    verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
+    verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
 
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
 
@@ -693,7 +961,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(halfWidth, halfWidth);
         }
 
-    isStroked = (isStroked && innerRadius > 0);
+        isStroked = (isStroked && innerRadius > 0);
 
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
@@ -789,7 +1057,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(scaledStroke.fX, scaledStroke.fY);
         }
 
-    isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
+        isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
