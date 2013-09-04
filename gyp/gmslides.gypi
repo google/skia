@@ -122,6 +122,7 @@
     '../gm/thinrects.cpp',
     '../gm/thinstrokedrects.cpp',
     '../gm/tilemodes.cpp',
+    '../gm/tilemodes_scaled.cpp',
     '../gm/tinybitmap.cpp',
     '../gm/twopointradial.cpp',
     '../gm/typeface.cpp',
