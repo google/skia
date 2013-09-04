@@ -5,11 +5,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkBitmapProcShader.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkPixelRef.h"
 #include "SkErrorInternals.h"
+#include "SkBitmapProcShader.h"
+
+#include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrBicubicEffect.h"
 
 bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
     switch (bm.config()) {
@@ -367,11 +370,9 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
         case SkPaint::kHigh_FilterLevel:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't yet support high quality "
-                                        "filtering on the GPU; falling back to "
-                                        "MIPMaps.");
-            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            // fall back to no filtering here; we will install another
+            // shader that will do the HQ filtering.
+            textureFilterMode = GrTextureParams::kNone_FilterMode;
             break;
         default:
             SkErrorInternals::SetError( kInvalidPaint_SkError,
@@ -386,11 +387,17 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fRawBitmap, &params);
 
     if (NULL == texture) {
-        SkDebugf("Couldn't convert bitmap to texture.\n");
+        SkErrorInternals::SetError( kInternalError_SkError,
+                                    "Couldn't convert bitmap to texture.");
         return NULL;
     }
 
-    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
+    GrEffectRef* effect = NULL;
+    if (paintFilterLevel == SkPaint::kHigh_FilterLevel) {
+        effect = GrBicubicEffect::Create(texture, matrix, params);
+    } else {
+        effect = GrSimpleTextureEffect::Create(texture, matrix, params);
+    }
     GrUnlockAndUnrefCachedBitmapTexture(texture);
     return effect;
 }
