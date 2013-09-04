@@ -68,7 +68,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     if (!apiBound) {
         apiBound = eglBindAPI(EGL_OPENGL_ES_API);
-        renderableTypeBit = EGL_OPENGL_ES_BIT;
+        renderableTypeBit = EGL_OPENGL_ES2_BIT;
         contextAttribs = kEGLContextAttribsForOpenGLES;
     }
 
