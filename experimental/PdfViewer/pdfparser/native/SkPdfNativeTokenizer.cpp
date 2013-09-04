@@ -971,7 +971,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
         printf("break;\n");
     }
 #endif
-    printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? std::string(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
+    printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
 #endif
 
     return true;
@@ -982,7 +982,7 @@ void SkPdfNativeTokenizer::PutBack(PdfToken token) {
     fHasPutBack = true;
     fPutBack = token;
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("PUT_BACK %s %s\n", token.fType == kKeyword_TokenType ? "Keyword" : "Object", token.fKeyword ? std::string(token.fKeyword, token.fKeywordLength).c_str(): token.fObject->toString().c_str());
+    printf("PUT_BACK %s %s\n", token.fType == kKeyword_TokenType ? "Keyword" : "Object", token.fKeyword ? SkString(token.fKeyword, token.fKeywordLength).c_str(): token.fObject->toString().c_str());
 #endif
 }
 
@@ -991,7 +991,7 @@ bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
         *token = fPutBack;
         fHasPutBack = false;
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? std::string(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
+    printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
 #endif
         return true;
     }

@@ -8,7 +8,7 @@
 #ifndef SkTrackDevice_DEFINED
 #define SkTrackDevice_DEFINED
 
-#include "SkDevice.h"
+#include "SkBitmapDevice.h"
 #include "SkTracker.h"
 
 class SkTrackDevice : public SkBitmapDevice {

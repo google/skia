@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkForceLinking.h"
