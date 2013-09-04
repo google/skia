@@ -5,5 +5,32 @@
     "no-comparison": null, 
     "succeeded": null
   }, 
-  "expected-results": null
+  "expected-results": {
+    "imageblur_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10454118248946441190
+        ]
+      ], 
+      "bugs": [
+        1581
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
+    }, 
+    "imagefiltersbase_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14279379961438378421
+        ]
+      ], 
+      "bugs": [
+        1581
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
+    }
+  }
 }
