@@ -149,7 +149,7 @@ const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
 
 bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
     const GrBicubicEffect& s = CastEffect<GrBicubicEffect>(sBase);
-    return this->texture(0) == s.texture(0) &&
+    return this->textureAccess(0) == s.textureAccess(0) &&
            !memcmp(fCoefficients, s.coefficients(), 16);
 }
 
