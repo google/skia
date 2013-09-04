@@ -14,7 +14,6 @@
 #include "SkStream.h"
 #include "SkStreamHelpers.h"
 #include "SkTDArray.h"
-#include "SkTRegistry.h"
 
 class SkBMPImageDecoder : public SkImageDecoder {
 public:
@@ -52,7 +51,7 @@ static SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
     return NULL;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libbmp_dfactory);
+static SkImageDecoder_DecodeReg gReg(sk_libbmp_dfactory);
 
 static SkImageDecoder::Format get_format_bmp(SkStream* stream) {
     if (is_bmp(stream)) {
@@ -61,7 +60,7 @@ static SkImageDecoder::Format get_format_bmp(SkStream* stream) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_bmp);
+static SkImageDecoder_FormatReg gFormatReg(get_format_bmp);
 
 ///////////////////////////////////////////////////////////////////////////////
 

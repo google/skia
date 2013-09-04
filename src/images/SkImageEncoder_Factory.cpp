@@ -6,18 +6,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkImageEncoder.h"
-#include "SkTRegistry.h"
 
-typedef SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> EncodeReg;
-
-// Can't use the typedef here because of complex C++ corner cases
-template EncodeReg* SkTRegistry<SkImageEncoder*, SkImageEncoder::Type>::gHead;
+template SkImageEncoder_EncodeReg* SkImageEncoder_EncodeReg::gHead;
 
 SkImageEncoder* SkImageEncoder::Create(Type t) {
     SkImageEncoder* codec = NULL;
-    const EncodeReg* curr = EncodeReg::Head();
+    const SkImageEncoder_EncodeReg* curr = SkImageEncoder_EncodeReg::Head();
     while (curr) {
         if ((codec = curr->factory()(t)) != NULL) {
             return codec;

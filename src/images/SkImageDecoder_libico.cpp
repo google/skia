@@ -398,8 +398,6 @@ static bool is_ico(SkStream* stream) {
     return true;
 }
 
-#include "SkTRegistry.h"
-
 static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
     if (is_ico(stream)) {
         return SkNEW(SkICOImageDecoder);
@@ -407,7 +405,7 @@ static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
     return NULL;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libico_dfactory);
+static SkImageDecoder_DecodeReg gReg(sk_libico_dfactory);
 
 static SkImageDecoder::Format get_format_ico(SkStream* stream) {
     if (is_ico(stream)) {
@@ -416,4 +414,4 @@ static SkImageDecoder::Format get_format_ico(SkStream* stream) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_ico);
+static SkImageDecoder_FormatReg gFormatReg(get_format_ico);

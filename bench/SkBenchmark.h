@@ -154,6 +154,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
+typedef SkTRegistry<SkBenchmark*(*)(void*)> BenchRegistry;
 
 #endif

@@ -260,7 +260,7 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
     return SkNEW_ARGS(SkImageEncoder_CG, (t));
 }
 
-static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_imageencoder_cg_factory);
+static SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> gEReg(sk_imageencoder_cg_factory);
 
 struct FormatConversion {
     CFStringRef             fUTType;
@@ -302,4 +302,4 @@ static SkImageDecoder::Format get_format_cg(SkStream *stream) {
     return UTType_to_Format(name);
 }
 
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_cg);
+static SkTRegistry<SkImageDecoder::Format(*)(SkStream*)> gFormatReg(get_format_cg);

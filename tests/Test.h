@@ -86,7 +86,7 @@ namespace skiatest {
     private:
     };
 
-    typedef SkTRegistry<Test*, void*> TestRegistry;
+    typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
 }
 
 #define REPORTER_ASSERT(r, cond)                                        \

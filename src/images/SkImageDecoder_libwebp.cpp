@@ -582,8 +582,6 @@ DEFINE_DECODER_CREATOR(WEBPImageDecoder);
 DEFINE_ENCODER_CREATOR(WEBPImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
 static SkImageDecoder* sk_libwebp_dfactory(SkStream* stream) {
     int width, height, hasAlpha;
     if (!webp_parse_header(stream, &width, &height, &hasAlpha)) {
@@ -606,6 +604,6 @@ static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
       return (SkImageEncoder::kWEBP_Type == t) ? SkNEW(SkWEBPImageEncoder) : NULL;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libwebp_dfactory);
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_webp);
-static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libwebp_efactory);
+static SkImageDecoder_DecodeReg gDReg(sk_libwebp_dfactory);
+static SkImageDecoder_FormatReg gFormatReg(get_format_webp);
+static SkImageEncoder_EncodeReg gEReg(sk_libwebp_efactory);

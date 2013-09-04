@@ -368,8 +368,6 @@ static bool is_gif(SkStream* stream) {
     return false;
 }
 
-#include "SkTRegistry.h"
-
 static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
     if (is_gif(stream)) {
         return SkNEW(SkGIFImageDecoder);
@@ -377,7 +375,7 @@ static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
     return NULL;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libgif_dfactory);
+static SkImageDecoder_DecodeReg gReg(sk_libgif_dfactory);
 
 static SkImageDecoder::Format get_format_gif(SkStream* stream) {
     if (is_gif(stream)) {
@@ -386,4 +384,4 @@ static SkImageDecoder::Format get_format_gif(SkStream* stream) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_gif);
+static SkImageDecoder_FormatReg gFormatReg(get_format_gif);

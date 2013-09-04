@@ -1174,8 +1174,6 @@ DEFINE_DECODER_CREATOR(PNGImageDecoder);
 DEFINE_ENCODER_CREATOR(PNGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
 static bool is_png(SkStream* stream) {
     char buf[PNG_BYTES_TO_CHECK];
     if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&
@@ -1203,6 +1201,6 @@ SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
     return (SkImageEncoder::kPNG_Type == t) ? SkNEW(SkPNGImageEncoder) : NULL;
 }
 
-static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libpng_efactory);
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_png);
-static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libpng_dfactory);
+static SkImageDecoder_DecodeReg gDReg(sk_libpng_dfactory);
+static SkImageDecoder_FormatReg gFormatReg(get_format_png);
+static SkImageEncoder_EncodeReg gEReg(sk_libpng_efactory);
