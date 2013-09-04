@@ -9,7 +9,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
-#include "SkNWayCanvas.h"
+#include "SkCanvasStack.h"
 #include "SkWriter32.h"
 
 #define CANVAS_STATE_VERSION 1
@@ -316,18 +316,19 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
         return NULL;
     }
 
-    SkAutoTUnref<SkNWayCanvas> canvas(SkNEW_ARGS(SkNWayCanvas, (state->width, state->height)));
+    SkAutoTUnref<SkCanvasStack> canvas(SkNEW_ARGS(SkCanvasStack, (state->width, state->height)));
 
     // setup the matrix and clip on the n-way canvas
     setup_canvas_from_MC_state(state->mcState, canvas);
 
     // Iterate over the layers and add them to the n-way canvas
-    for (int i = 0; i < state->layerCount; ++i) {
+    for (int i = state->layerCount - 1; i >= 0; --i) {
         SkAutoTUnref<SkCanvas> canvasLayer(create_canvas_from_canvas_layer(state->layers[i]));
         if (!canvasLayer.get()) {
             return NULL;
         }
-        canvas->addCanvas(canvasLayer.get());
+        canvas->pushCanvas(canvasLayer.get(), SkIPoint::Make(state->layers[i].x,
+                                                             state->layers[i].y));
     }
 
     return canvas.detach();
