@@ -111,7 +111,7 @@ namespace skiagm {
         bool     fHaveCalledOnceBeforeDraw;
     };
 
-    typedef SkTRegistry<GM*, void*> GMRegistry;
+    typedef SkTRegistry<GM*(*)(void*)> GMRegistry;
 }
 
 #endif

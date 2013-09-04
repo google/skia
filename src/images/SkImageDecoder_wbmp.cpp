@@ -152,8 +152,6 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 DEFINE_DECODER_CREATOR(WBMPImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
 static SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
     wbmp_head   head;
 
@@ -171,5 +169,5 @@ static SkImageDecoder::Format get_format_wbmp(SkStream* stream) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_wbmp_dfactory);
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_wbmp);
+static SkImageDecoder_DecodeReg gDReg(sk_wbmp_dfactory);
+static SkImageDecoder_FormatReg gFormatReg(get_format_wbmp);

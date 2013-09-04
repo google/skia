@@ -9,7 +9,6 @@
 #include "SkImageDecoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
-#include "SkTRegistry.h"
 
 extern SkImageDecoder* image_decoder_from_stream(SkStream*);
 
@@ -19,7 +18,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
 
 /////////////////////////////////////////////////////////////////////////
 
-typedef SkTRegistry<SkMovie*, SkStream*> MovieReg;
+typedef SkTRegistry<SkMovie*(*)(SkStream*)> MovieReg;
 
 SkMovie* SkMovie::DecodeStream(SkStream* stream) {
     const MovieReg* curr = MovieReg::Head();

@@ -28,7 +28,7 @@ public:
 
     SkString getName() { return fName; };
     // Use this public registry to tell the world about your sample.
-    typedef SkTRegistry<SkExample*, SkExampleWindow*> Registry;
+    typedef SkTRegistry<SkExample*(*)(SkExampleWindow*)> Registry;
 
 protected:
     SkExampleWindow* fWindow;

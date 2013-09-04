@@ -15,6 +15,7 @@
 #include "SkImage.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkTRegistry.h"
 #include "SkTypes.h"
 
 class SkStream;
@@ -556,5 +557,11 @@ DECLARE_DECODER_CREATOR(JPEGImageDecoder);
 DECLARE_DECODER_CREATOR(PNGImageDecoder);
 DECLARE_DECODER_CREATOR(WBMPImageDecoder);
 DECLARE_DECODER_CREATOR(WEBPImageDecoder);
+
+
+// Typedefs to make registering decoder and formatter callbacks easier.
+// These have to be defined outside SkImageDecoder. :(
+typedef SkTRegistry<SkImageDecoder*(*)(SkStream*)>        SkImageDecoder_DecodeReg;
+typedef SkTRegistry<SkImageDecoder::Format(*)(SkStream*)> SkImageDecoder_FormatReg;
 
 #endif

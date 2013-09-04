@@ -432,7 +432,7 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     return SkNEW_ARGS(SkImageEncoder_WIC, (t));
 }
 
-static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_imageencoder_wic_factory);
+static SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> gEReg(sk_imageencoder_wic_factory);
 
 static SkImageDecoder::Format get_format_wic(SkStream* stream) {
     SkImageDecoder::Format format;
@@ -443,4 +443,4 @@ static SkImageDecoder::Format get_format_wic(SkStream* stream) {
     return format;
 }
 
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_wic);
+static SkTRegistry<SkImageDecoder::Format(*)(SkStream*)> gFormatReg(get_format_wic);

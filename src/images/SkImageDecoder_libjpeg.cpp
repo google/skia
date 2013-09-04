@@ -1136,8 +1136,6 @@ static bool is_jpeg(SkStream* stream) {
     return true;
 }
 
-#include "SkTRegistry.h"
-
 static SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
     if (is_jpeg(stream)) {
         return SkNEW(SkJPEGImageDecoder);
@@ -1157,6 +1155,6 @@ static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
 }
 
 
-static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libjpeg_dfactory);
-static SkTRegistry<SkImageDecoder::Format, SkStream*> gFormatReg(get_format_jpeg);
-static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libjpeg_efactory);
+static SkImageDecoder_DecodeReg gDReg(sk_libjpeg_dfactory);
+static SkImageDecoder_FormatReg gFormatReg(get_format_jpeg);
+static SkImageEncoder_EncodeReg gEReg(sk_libjpeg_efactory);

@@ -14,17 +14,13 @@
 // for checking all the the registered SkImageDecoders for one that matches an
 // input SkStream.
 
-typedef SkTRegistry<SkImageDecoder*, SkStream*> DecodeReg;
-
-// N.B. You can't use "DecodeReg::gHead here" due to complex C++
-// corner cases.
-template DecodeReg* SkTRegistry<SkImageDecoder*, SkStream*>::gHead;
+template SkImageDecoder_DecodeReg* SkImageDecoder_DecodeReg::gHead;
 
 SkImageDecoder* image_decoder_from_stream(SkStream*);
 
 SkImageDecoder* image_decoder_from_stream(SkStream* stream) {
     SkImageDecoder* codec = NULL;
-    const DecodeReg* curr = DecodeReg::Head();
+    const SkImageDecoder_DecodeReg* curr = SkImageDecoder_DecodeReg::Head();
     while (curr) {
         codec = curr->factory()(stream);
         // we rewind here, because we promise later when we call "decode", that
@@ -47,12 +43,10 @@ SkImageDecoder* image_decoder_from_stream(SkStream* stream) {
     return NULL;
 }
 
-typedef SkTRegistry<SkImageDecoder::Format, SkStream*> FormatReg;
-
-template FormatReg* SkTRegistry<SkImageDecoder::Format, SkStream*>::gHead;
+template SkImageDecoder_FormatReg* SkImageDecoder_FormatReg::gHead;
 
 SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStream* stream) {
-    const FormatReg* curr = FormatReg::Head();
+    const SkImageDecoder_FormatReg* curr = SkImageDecoder_FormatReg::Head();
     while (curr != NULL) {
         Format format = curr->factory()(stream);
         if (!stream->rewind()) {

@@ -446,4 +446,4 @@ SkMovie* Factory(SkStream* stream) {
     return NULL;
 }
 
-static SkTRegistry<SkMovie*, SkStream*> gReg(Factory);
+static SkTRegistry<SkMovie*(*)(SkStream*)> gReg(Factory);

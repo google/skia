@@ -9,6 +9,7 @@
 #define SkImageEncoder_DEFINED
 
 #include "SkTypes.h"
+#include "SkTRegistry.h"
 
 class SkBitmap;
 class SkData;
@@ -97,4 +98,7 @@ DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
 DECLARE_ENCODER_CREATOR(PNGImageEncoder);
 DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
+// Typedef to make registering encoder callback easier
+// This has to be defined outside SkImageEncoder. :(
+typedef SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> SkImageEncoder_EncodeReg;
 #endif
