@@ -26,8 +26,8 @@ public:
      * can share most of the other implementation of NWay we override those
      * methods to be no-ops.
      */
-    virtual void addCanvas(SkCanvas*) SK_OVERRIDE { SkASSERT(!"Invalid Op"); }
-    virtual void removeCanvas(SkCanvas*) SK_OVERRIDE { SkASSERT(!"Invalid Op"); }
+    virtual void addCanvas(SkCanvas*) SK_OVERRIDE { SkDEBUGFAIL("Invalid Op"); }
+    virtual void removeCanvas(SkCanvas*) SK_OVERRIDE { SkDEBUGFAIL("Invalid Op"); }
 
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
     virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
