@@ -2068,7 +2068,7 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
         w2 = Sd;
         cos2 = cosQ;
         sin2 = sinQ;
-    } else {                
+    } else {
         double diff = Sa - Sd;
         double discriminant = sqrt(diff*diff + 4.0*Sb*Sb);
         double trace = Sa + Sd;
@@ -2079,16 +2079,16 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
             w1 = 0.5*(trace - discriminant);
             w2 = 0.5*(trace + discriminant);
         }
-        
+
         cos1 = SkDoubleToScalar(Sb); sin1 = SkDoubleToScalar(w1 - Sa);
         SkScalar reciplen = SK_Scalar1/SkScalarSqrt(cos1*cos1 + sin1*sin1);
         cos1 *= reciplen;
         sin1 *= reciplen;
-        
+
         // rotation 2 is composition of Q and U
         cos2 = cos1*cosQ - sin1*sinQ;
         sin2 = sin1*cosQ + cos1*sinQ;
-        
+
         // rotation 1 is U^T
         sin1 = -sin1;
     }
