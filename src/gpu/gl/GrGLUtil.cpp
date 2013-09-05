@@ -7,6 +7,7 @@
 
 
 #include "GrGLUtil.h"
+#include "SkMatrix.h"
 
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fGetError()) {}
@@ -235,4 +236,47 @@ GrGLVendor GrGLGetVendor(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VENDOR));
     return GrGLGetVendorFromString((const char*) v);
+}
+
+template<> void GrGLGetMatrix<3>(GrGLfloat* dest, const SkMatrix& src) {
+    // Col 0
+    dest[0] = SkScalarToFloat(src[SkMatrix::kMScaleX]);
+    dest[1] = SkScalarToFloat(src[SkMatrix::kMSkewY]);
+    dest[2] = SkScalarToFloat(src[SkMatrix::kMPersp0]);
+
+    // Col 1
+    dest[3] = SkScalarToFloat(src[SkMatrix::kMSkewX]);
+    dest[4] = SkScalarToFloat(src[SkMatrix::kMScaleY]);
+    dest[5] = SkScalarToFloat(src[SkMatrix::kMPersp1]);
+
+    // Col 2
+    dest[6] = SkScalarToFloat(src[SkMatrix::kMTransX]);
+    dest[7] = SkScalarToFloat(src[SkMatrix::kMTransY]);
+    dest[8] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
+}
+
+template<> void GrGLGetMatrix<4>(GrGLfloat* dest, const SkMatrix& src) {
+    // Col 0
+    dest[0]  = SkScalarToFloat(src[SkMatrix::kMScaleX]);
+    dest[1]  = SkScalarToFloat(src[SkMatrix::kMSkewY]);
+    dest[2]  = 0;
+    dest[3]  = SkScalarToFloat(src[SkMatrix::kMPersp0]);
+
+    // Col 1
+    dest[4]  = SkScalarToFloat(src[SkMatrix::kMSkewX]);
+    dest[5]  = SkScalarToFloat(src[SkMatrix::kMScaleY]);
+    dest[6]  = 0;
+    dest[7]  = SkScalarToFloat(src[SkMatrix::kMPersp1]);
+
+    // Col 2
+    dest[8]  = 0;
+    dest[9]  = 0;
+    dest[10] = 1;
+    dest[11] = 0;
+
+    // Col 3
+    dest[12] = SkScalarToFloat(src[SkMatrix::kMTransX]);
+    dest[13] = SkScalarToFloat(src[SkMatrix::kMTransY]);
+    dest[14] = 0;
+    dest[15] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
 }

@@ -100,6 +100,20 @@ public:
             fRenderTargetSize.fHeight = -1;
             fRenderTargetOrigin = (GrSurfaceOrigin) -1;
         }
+        template<int Size> void getGLMatrix(GrGLfloat* destMatrix) {
+            SkMatrix combined;
+            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
+                                0, -SkIntToScalar(2) / fRenderTargetSize.fHeight, SK_Scalar1,
+                                0, 0, SkMatrix::I()[8]);
+            } else {
+                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
+                                0, SkIntToScalar(2) / fRenderTargetSize.fHeight, -SK_Scalar1,
+                                0, 0, SkMatrix::I()[8]);
+            }
+            combined.setConcat(combined, fViewMatrix);
+            GrGLGetMatrix<Size>(destMatrix, combined);
+        }
     };
 
     /**
