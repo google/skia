@@ -204,9 +204,8 @@ public:
 protected:
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The effect
-     * subclass manages the lifetime of the accesses (this function only stores a pointer). The
-     * GrTextureAccess is typically a member field of the GrEffet subclass. This must only be
-     * called from the constructor because GrEffects are immutable.
+     * subclass manages the lifetime of the accesses (this function only stores a pointer). This
+     * must only be called from the constructor because GrEffects are immutable.
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
