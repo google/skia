@@ -699,7 +699,7 @@ desk_sfgate.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0
 desk_sfgate.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.400,1.160,23.640
 desk_sfgate.skp_tile_512x512_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,12.650,1.385,23.915
 desk_techcrunch.skp_copy_tiles_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,31.020,17.918,44.122
-desk_techcrunch.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,42.390,20.151,56.629
+desk_techcrunch.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,42.390,17.151,56.629
 desk_techcrunch.skp_playback_creation_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.021,-9.981,10.023
 desk_techcrunch.skp_playback_creation_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.021,-9.981,10.024
 desk_techcrunch.skp_playback_creation_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.128,-9.885,10.141
