@@ -103,12 +103,26 @@ private:
     DataType fDataType;
 
 
-    // Keep this the last entrys
+    // Keep this the last entries
 #ifdef PDF_TRACK_OBJECT_USAGE
     mutable bool fUsed;
 #endif   // PDF_TRACK_OBJECT_USAGE
 
+#ifdef PDF_TRACK_STREAM_OFFSETS
 public:
+    int fStreamId;
+    int fOffsetStart;
+    int fOffsetEnd;
+#endif  // PDF_TRACK_STREAM_OFFSETS
+
+public:
+
+#ifdef PDF_TRACK_STREAM_OFFSETS
+    int streamId() const { return fStreamId; }
+    int offsetStart() const { return fOffsetStart; }
+    int offsetEnd() const { return fOffsetEnd; }
+#endif  // PDF_TRACK_STREAM_OFFSETS
+
 
     SkPdfNativeObject() : fInRendering(0)
                         , fObjectType(kInvalid_PdfObjectType)
@@ -118,6 +132,12 @@ public:
 #ifdef PDF_TRACK_OBJECT_USAGE
                         , fUsed(false)
 #endif   // PDF_TRACK_OBJECT_USAGE
+
+#ifdef PDF_TRACK_STREAM_OFFSETS
+                        , fStreamId(-1)
+                        , fOffsetStart(-1)
+                        , fOffsetEnd(-1)
+#endif  // PDF_TRACK_STREAM_OFFSETS
     {}
 
     bool inRendering() const { return fInRendering != 0; }
@@ -231,49 +251,63 @@ public:
         return nyi;
     }
 
-    static void makeBoolean(bool value, SkPdfNativeObject* obj) {
+    static void makeBoolean(bool value, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kBoolean_PdfObjectType;
         obj->fBooleanValue = value;
     }
 
-    static SkPdfNativeObject makeBoolean(bool value) {
+    static SkPdfNativeObject makeBoolean(bool value GET_TRACK_PARAMETERS) {
         SkPdfNativeObject obj;
+
+        STORE_TRACK_PARAMETERS(&obj);
+
         obj.fObjectType = kBoolean_PdfObjectType;
         obj.fBooleanValue = value;
         return obj;
     }
 
-    static void makeInteger(int64_t value, SkPdfNativeObject* obj) {
+    static void makeInteger(int64_t value, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kInteger_PdfObjectType;
         obj->fIntegerValue = value;
     }
 
-    static void makeReal(double value, SkPdfNativeObject* obj) {
+    static void makeReal(double value, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kReal_PdfObjectType;
         obj->fRealValue = value;
     }
 
-    static void makeNull(SkPdfNativeObject* obj) {
+    static void makeNull(SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kNull_PdfObjectType;
     }
 
-    static SkPdfNativeObject makeNull() {
+    static SkPdfNativeObject makeNull(GET_TRACK_PARAMETERS0) {
         SkPdfNativeObject obj;
+
+        STORE_TRACK_PARAMETERS(&obj);
+
         obj.fObjectType = kNull_PdfObjectType;
         return obj;
     }
 
     static SkPdfNativeObject kNull;
 
-    static void makeNumeric(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
+    static void makeNumeric(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         // TODO(edisonn): NYI properly
@@ -287,13 +321,15 @@ public:
             // TODO(edisonn): report parse issue with numbers like "24asdasd123"
         }
         if (isInt) {
-            makeInteger(atol((const char*)start), obj);
+            makeInteger(atol((const char*)start), obj PUT_TRACK_PARAMETERS);
         } else {
-            makeReal(atof((const char*)start), obj);
+            makeReal(atof((const char*)start), obj PUT_TRACK_PARAMETERS);
         }
     }
 
-    static void makeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj) {
+    static void makeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kReference_PdfObjectType;
@@ -301,62 +337,69 @@ public:
         obj->fRef.fGen = gen;
     }
 
-
-    static void makeString(const unsigned char* start, SkPdfNativeObject* obj) {
-        makeStringCore(start, strlen((const char*)start), obj, kString_PdfObjectType);
-    }
-
-    static void makeString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
-        makeStringCore(start, end - start, obj, kString_PdfObjectType);
-    }
-
-    static void makeString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
-        makeStringCore(start, bytes, obj, kString_PdfObjectType);
+    static void resetAndMakeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        obj->reset();
+        makeReference(id, gen, obj PUT_TRACK_PARAMETERS);
     }
 
 
-    static void makeHexString(const unsigned char* start, SkPdfNativeObject* obj) {
-        makeStringCore(start, strlen((const char*)start), obj, kHexString_PdfObjectType);
+    static void makeString(const unsigned char* start, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, strlen((const char*)start), obj, kString_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
-    static void makeHexString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
-        makeStringCore(start, end - start, obj, kHexString_PdfObjectType);
+    static void makeString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, end - start, obj, kString_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
-    static void makeHexString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
-        makeStringCore(start, bytes, obj, kHexString_PdfObjectType);
-    }
-
-
-    static void makeName(const unsigned char* start, SkPdfNativeObject* obj) {
-        makeStringCore(start, strlen((const char*)start), obj, kName_PdfObjectType);
-    }
-
-    static void makeName(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
-        makeStringCore(start, end - start, obj, kName_PdfObjectType);
-    }
-
-    static void makeName(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
-        makeStringCore(start, bytes, obj, kName_PdfObjectType);
+    static void makeString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, bytes, obj, kString_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
 
-    static void makeKeyword(const unsigned char* start, SkPdfNativeObject* obj) {
-        makeStringCore(start, strlen((const char*)start), obj, kKeyword_PdfObjectType);
+    static void makeHexString(const unsigned char* start, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, strlen((const char*)start), obj, kHexString_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
-    static void makeKeyword(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj) {
-        makeStringCore(start, end - start, obj, kKeyword_PdfObjectType);
+    static void makeHexString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, end - start, obj, kHexString_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
-    static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
-        makeStringCore(start, bytes, obj, kKeyword_PdfObjectType);
+    static void makeHexString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, bytes, obj, kHexString_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+
+    static void makeName(const unsigned char* start, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, strlen((const char*)start), obj, kName_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+    static void makeName(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, end - start, obj, kName_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+    static void makeName(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, bytes, obj, kName_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+
+    static void makeKeyword(const unsigned char* start, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, strlen((const char*)start), obj, kKeyword_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+    static void makeKeyword(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, end - start, obj, kKeyword_PdfObjectType PUT_TRACK_PARAMETERS);
+    }
+
+    static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        makeStringCore(start, bytes, obj, kKeyword_PdfObjectType PUT_TRACK_PARAMETERS);
     }
 
 
 
     // TODO(edisonn): make the functions to return SkPdfArray, move these functions in SkPdfArray
-    static void makeEmptyArray(SkPdfNativeObject* obj) {
+    static void makeEmptyArray(SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kArray_PdfObjectType;
@@ -427,7 +470,9 @@ public:
 
 
     // TODO(edisonn): make the functions to return SkPdfDictionary, move these functions in SkPdfDictionary
-    static void makeEmptyDictionary(SkPdfNativeObject* obj) {
+    static void makeEmptyDictionary(SkPdfNativeObject* obj GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kDictionary_PdfObjectType;
@@ -1144,15 +1189,17 @@ public:
     }
 
 private:
-    static void makeStringCore(const unsigned char* start, SkPdfNativeObject* obj, ObjectType type) {
-        makeStringCore(start, strlen((const char*)start), obj, type);
+    static void makeStringCore(const unsigned char* start, SkPdfNativeObject* obj, ObjectType type GET_TRACK_PARAMETERS) {
+        makeStringCore(start, strlen((const char*)start), obj, type PUT_TRACK_PARAMETERS);
     }
 
-    static void makeStringCore(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj, ObjectType type) {
-        makeStringCore(start, end - start, obj, type);
+    static void makeStringCore(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* obj, ObjectType type GET_TRACK_PARAMETERS) {
+        makeStringCore(start, end - start, obj, type PUT_TRACK_PARAMETERS);
     }
 
-    static void makeStringCore(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj, ObjectType type) {
+    static void makeStringCore(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj, ObjectType type GET_TRACK_PARAMETERS) {
+        STORE_TRACK_PARAMETERS(obj);
+
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = type;
@@ -1175,11 +1222,11 @@ class SkPdfNumber : public SkPdfNativeObject {};
 
 class SkPdfName : public SkPdfNativeObject {
     SkPdfName() : SkPdfNativeObject() {
-        SkPdfNativeObject::makeName((const unsigned char*)"", this);
+        SkPdfNativeObject::makeName((const unsigned char*)"", this PUT_TRACK_PARAMETERS_SRC);
     }
 public:
     SkPdfName(char* name) : SkPdfNativeObject() {
-        this->makeName((const unsigned char*)name, this);
+        this->makeName((const unsigned char*)name, this PUT_TRACK_PARAMETERS_SRC);
     }
 };
 
