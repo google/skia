@@ -54,13 +54,17 @@ public:
          */
         kNone_MSFBOType = 0,
         /**
-         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
+         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object). 
          */
         kDesktop_ARB_MSFBOType,
         /**
          * earlier GL_EXT_framebuffer* extensions
          */
         kDesktop_EXT_MSFBOType,
+        /**
+         * Similar to kDesktop_ARB but with additional restrictions on glBlitFramebuffer.
+         */
+        kES_3_0_MSFBOType,
         /**
          * GL_APPLE_framebuffer_multisample ES extension
          */

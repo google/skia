@@ -41,4 +41,8 @@
 // (const char* const instead of char**).
 #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       1
 
+#if !defined(GR_GL_IGNORE_ES3_MSAA)
+    #define GR_GL_IGNORE_ES3_MSAA 1
+#endif
+
 #endif

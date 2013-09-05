@@ -336,25 +336,45 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
             }
         }
     } else {
+#if GR_GL_IGNORE_ES3_MSAA
         if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
+            if (NULL == fRenderbufferStorageMultisample ||
+                NULL == fBlitFramebuffer) {
+                return false;
+            }
+        } else if (extensions.has("GL_APPLE_framebuffer_multisample")) {
+            if (NULL == fRenderbufferStorageMultisample ||
+                NULL == fResolveMultisampleFramebuffer) {
+                return false;
+            }
+        } else if (extensions.has("GL_IMG_multisampled_render_to_texture") ||
+                   extensions.has("GL_EXT_multisampled_render_to_texture")) {
+            if (NULL == fRenderbufferStorageMultisample ||
+                NULL == fFramebufferTexture2DMultisample) {
+                return false;
+            }
+        }
+#else
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
                 return false;
             }
         }
         if (extensions.has("GL_APPLE_framebuffer_multisample")) {
-            if (NULL == fRenderbufferStorageMultisample ||
+            if (NULL == fRenderbufferStorageMultisampleES2APPLE ||
                 NULL == fResolveMultisampleFramebuffer) {
                 return false;
             }
         }
         if (extensions.has("GL_IMG_multisampled_render_to_texture") ||
             extensions.has("GL_EXT_multisampled_render_to_texture")) {
-            if (NULL == fRenderbufferStorageMultisample ||
+            if (NULL == fRenderbufferStorageMultisampleES2EXT ||
                 NULL == fFramebufferTexture2DMultisample) {
                 return false;
             }
         }
+#endif
     }
 
     // On ES buffer mapping is an extension. On Desktop
