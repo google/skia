@@ -37,7 +37,7 @@ class GrGLProgram : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLProgram)
 
-    static GrGLProgram* Create(const GrGLContext& gl,
+    static GrGLProgram* Create(GrGpuGL* gpu,
                                const GrGLProgramDesc& desc,
                                const GrEffectStage* colorStages[],
                                const GrEffectStage* coverageStages[]);
@@ -108,8 +108,7 @@ public:
      * GrGpuGL object to bind the textures required by the GrGLEffects. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(GrGpuGL*,
-                 GrDrawState::BlendOptFlags,
+    void setData(GrDrawState::BlendOptFlags,
                  const GrEffectStage* colorStages[],
                  const GrEffectStage* coverageStages[],
                  const GrDeviceCoordTexture* dstCopy, // can be NULL
@@ -146,7 +145,7 @@ private:
         TextureUnitSArray   fTextureUnits; // texture unit used for each entry of fSamplerUnis
     };
 
-    GrGLProgram(const GrGLContext& gl,
+    GrGLProgram(GrGpuGL* gpu,
                 const GrGLProgramDesc& desc,
                 const GrEffectStage* colorStages[],
                 const GrEffectStage* coverageStages[]);
@@ -179,7 +178,7 @@ private:
     const char* adjustInColor(const SkString& inColor) const;
 
     // Helper for setData().
-    void setEffectData(GrGpuGL* gpu, const GrEffectStage& stage, const EffectAndSamplers& effect);
+    void setEffectData(const GrEffectStage& stage, const EffectAndSamplers& effect);
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
     // per-vertex colors.
@@ -209,7 +208,7 @@ private:
     SkTArray<EffectAndSamplers> fCoverageEffects;
 
     GrGLProgramDesc             fDesc;
-    const GrGLContext&          fContext;
+    GrGpuGL*                    fGpu;
 
     GrGLUniformManager          fUniformManager;
     UniformHandles              fUniformHandles;
