@@ -11,6 +11,8 @@
 #include "gl/GrGLInterface.h"
 #include "GrGLDefines.h"
 
+class SkMatrix;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef uint32_t GrGLVersion;
@@ -90,6 +92,11 @@ void GrGLCheckErr(const GrGLInterface* gl,
                   const char* call);
 
 void GrGLClearErr(const GrGLInterface* gl);
+
+/**
+ * Helper for converting SkMatrix to a column-major GL float array
+ */
+template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -980,35 +980,13 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
     if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
         !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix()) ||
         fMatrixState.fRenderTargetSize != size) {
-        SkMatrix m;
-        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            m.setAll(
-                SkIntToScalar(2) / size.fWidth, 0, -SK_Scalar1,
-                0,-SkIntToScalar(2) / size.fHeight, SK_Scalar1,
-            0, 0, SkMatrix::I()[8]);
-        } else {
-            m.setAll(
-                SkIntToScalar(2) / size.fWidth, 0, -SK_Scalar1,
-                0, SkIntToScalar(2) / size.fHeight,-SK_Scalar1,
-            0, 0, SkMatrix::I()[8]);
-        }
-        m.setConcat(m, drawState.getViewMatrix());
 
-        // ES doesn't allow you to pass true to the transpose param so we do our own transpose.
-        GrGLfloat mt[]  = {
-            SkScalarToFloat(m[SkMatrix::kMScaleX]),
-            SkScalarToFloat(m[SkMatrix::kMSkewY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp0]),
-            SkScalarToFloat(m[SkMatrix::kMSkewX]),
-            SkScalarToFloat(m[SkMatrix::kMScaleY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp1]),
-            SkScalarToFloat(m[SkMatrix::kMTransX]),
-            SkScalarToFloat(m[SkMatrix::kMTransY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp2])
-        };
-        fUniformManager.setMatrix3f(fUniformHandles.fViewMatrixUni, mt);
         fMatrixState.fViewMatrix = drawState.getViewMatrix();
         fMatrixState.fRenderTargetSize = size;
         fMatrixState.fRenderTargetOrigin = rt->origin();
+
+        GrGLfloat viewMatrix[3 * 3];
+        fMatrixState.getGLMatrix<3>(viewMatrix);
+        fUniformManager.setMatrix3f(fUniformHandles.fViewMatrixUni, viewMatrix);
     }
 }

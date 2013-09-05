@@ -212,46 +212,15 @@ void GrGpuGL::flushPathStencilMatrix() {
     if (fHWProjectionMatrixState.fRenderTargetOrigin != rt->origin() ||
         !fHWProjectionMatrixState.fViewMatrix.cheapEqualTo(viewMatrix) ||
         fHWProjectionMatrixState.fRenderTargetSize!= size) {
-        // rescale the coords from skia's "device" coords to GL's normalized coords,
-        // and perform a y-flip if required.
-        SkMatrix m;
-        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
-            m.postTranslate(-SK_Scalar1, SK_Scalar1);
-        } else {
-            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(2) / rt->height());
-            m.postTranslate(-SK_Scalar1, -SK_Scalar1);
-        }
-        m.preConcat(vm);
 
-        // GL wants a column-major 4x4.
-        GrGLfloat mv[]  = {
-            // col 0
-            SkScalarToFloat(m[SkMatrix::kMScaleX]),
-            SkScalarToFloat(m[SkMatrix::kMSkewY]),
-            0,
-            SkScalarToFloat(m[SkMatrix::kMPersp0]),
-
-            // col 1
-            SkScalarToFloat(m[SkMatrix::kMSkewX]),
-            SkScalarToFloat(m[SkMatrix::kMScaleY]),
-            0,
-            SkScalarToFloat(m[SkMatrix::kMPersp1]),
-
-            // col 2
-            0, 0, 0, 0,
-
-            // col3
-            SkScalarToFloat(m[SkMatrix::kMTransX]),
-            SkScalarToFloat(m[SkMatrix::kMTransY]),
-            0.0f,
-            SkScalarToFloat(m[SkMatrix::kMPersp2])
-        };
-        GL_CALL(MatrixMode(GR_GL_PROJECTION));
-        GL_CALL(LoadMatrixf(mv));
         fHWProjectionMatrixState.fViewMatrix = vm;
         fHWProjectionMatrixState.fRenderTargetSize = size;
         fHWProjectionMatrixState.fRenderTargetOrigin = rt->origin();
+
+        GrGLfloat projectionMatrix[4 * 4];
+        fHWProjectionMatrixState.getGLMatrix<4>(projectionMatrix);
+        GL_CALL(MatrixMode(GR_GL_PROJECTION));
+        GL_CALL(LoadMatrixf(projectionMatrix));
     }
 }
 
