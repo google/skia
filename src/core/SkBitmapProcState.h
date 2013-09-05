@@ -79,8 +79,6 @@ struct SkBitmapProcState {
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    SkConvolutionProcs* fConvolutionProcs;         // possiblyScaleImage
-
     SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     SkFixed             fInvSx;             // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
@@ -115,7 +113,7 @@ struct SkBitmapProcState {
         if we have SIMD versions of them.
       */
 
-    void platformConvolutionProcs();
+    void platformConvolutionProcs(SkConvolutionProcs*);
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,
         return the maximum number of resulting pixels that can be computed

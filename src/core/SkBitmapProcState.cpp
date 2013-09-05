@@ -124,15 +124,9 @@ void SkBitmapProcState::possiblyScaleImage() {
     // recompiles a lot less painful.
 
     SkConvolutionProcs simd;
-    fConvolutionProcs = &simd;
+    sk_bzero(&simd, sizeof(simd));
 
-    fConvolutionProcs->fExtraHorizontalReads = 0;
-    fConvolutionProcs->fConvolveVertically = NULL;
-    fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
-    fConvolutionProcs->fConvolveHorizontally = NULL;
-    fConvolutionProcs->fApplySIMDPadding = NULL;
-
-    this->platformConvolutionProcs();
+    this->platformConvolutionProcs(&simd);
 
     // STEP 1: Highest quality direct scale?
 
@@ -162,7 +156,7 @@ void SkBitmapProcState::possiblyScaleImage() {
                                         SkBitmapScaler::RESIZE_BEST,
                                         dest_width,
                                         dest_height,
-                                        fConvolutionProcs)) {
+                                        simd)) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
                 return;
