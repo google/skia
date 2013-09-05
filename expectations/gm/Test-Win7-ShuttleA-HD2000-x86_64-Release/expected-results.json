@@ -5846,8 +5846,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        1597
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "fontmgr_match_565.png": {
