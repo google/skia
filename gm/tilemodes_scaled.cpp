@@ -90,7 +90,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        
+
         float scale = 32.f/kPOTSize;
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
@@ -99,8 +99,8 @@ protected:
 
         static const char* gConfigNames[] = { "8888" , "565", "4444" };
 
-        static const SkPaint::FilterLevel           gFilterLevels[] = 
-            { SkPaint::kNone_FilterLevel, 
+        static const SkPaint::FilterLevel           gFilterLevels[] =
+            { SkPaint::kNone_FilterLevel,
               SkPaint::kLow_FilterLevel,
               SkPaint::kMedium_FilterLevel,
               SkPaint::kHigh_FilterLevel };

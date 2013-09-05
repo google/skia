@@ -48,7 +48,7 @@ enum SkError {
     /** Skia failed while trying to consume some external resource.
      */
     kParseError_SkError,
-    
+
     /** Something went wrong internally; could be resource exhaustion but
       * will often be a bug.
      */

@@ -33,7 +33,7 @@ public:
         return CreateEffectRef(effect);
     }
 
-    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16], 
+    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
                                CoordsType coordsType = kLocal_CoordsType) {
@@ -45,7 +45,7 @@ public:
         return Create(tex, gMitchellCoefficients);
     }
 
-    static GrEffectRef* Create(GrTexture* tex, 
+    static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
                                CoordsType coordsType = kLocal_CoordsType) {
@@ -54,13 +54,13 @@ public:
 
 private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16]);
-    GrBicubicEffect(GrTexture*, const SkScalar coefficients[16], 
+    GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const GrTextureParams &p, CoordsType coordsType);
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
     float    fCoefficients[16];
 
     GR_DECLARE_EFFECT_TEST;
-    
+
     static const SkScalar gMitchellCoefficients[16];
 
     typedef GrSingleTextureEffect INHERITED;
