@@ -194,10 +194,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2517464688252538320
+          10552604774821201076
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        1595
+      ], 
+      "ignore-failure": true
     }, 
     "bezier_conic_effects_gpu.png": {
       "allowed-digests": [
