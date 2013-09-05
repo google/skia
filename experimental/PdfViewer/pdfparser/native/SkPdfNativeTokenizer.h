@@ -8,6 +8,8 @@
 #ifndef SkPdfNativeTokenizer_DEFINED
 #define SkPdfNativeTokenizer_DEFINED
 
+#include "SkPdfConfig.h"
+
 #include "SkTDArray.h"
 #include "SkTDict.h"
 #include <math.h>
@@ -116,7 +118,7 @@ public:
 };
 
 class SkPdfNativeDoc;
-const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc GET_TRACK_STREAM);
 
 enum SkPdfTokenType {
     kKeyword_TokenType,
@@ -155,6 +157,10 @@ private:
     bool fEmpty;
     bool fHasPutBack;
     PdfToken fPutBack;
+
+#ifdef PDF_TRACK_STREAM_OFFSETS
+    int fStreamId;
+#endif  // PDF_TRACK_STREAM_OFFSETS
 };
 
 #endif  // SkPdfNativeTokenizer_DEFINED

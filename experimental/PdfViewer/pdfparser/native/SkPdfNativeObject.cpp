@@ -18,7 +18,7 @@
 #include "SkBitmap.h"
 #include "SkPdfFont.h"
 
-SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull();
+SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull(PUT_TRACK_PARAMETERS_SRC0);
 
 bool SkPdfNativeObject::applyFlateDecodeFilter() {
     if (!SkFlate::HaveFlate()) {
