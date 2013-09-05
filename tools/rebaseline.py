@@ -257,7 +257,7 @@ class JsonRebaseliner(object):
     # because we don't want to add annotation fields (such as
     # JSONKEY_EXPECTEDRESULTS_BUGS) except for tests whose expectations we
     # are actually modifying.
-    sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
+    sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED, gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON, gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED]
     if self._add_new:
       sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
     results_to_update = self._GetActualResults(json_url=actuals_url,
@@ -291,6 +291,9 @@ class JsonRebaseliner(object):
         expected_results[image_name]\
                         [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS]\
                         = [image_results]
+        expected_results[image_name]\
+                        [gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE]\
+                        = True
         if self._mark_unreviewed:
           expected_results[image_name]\
                           [gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED]\
