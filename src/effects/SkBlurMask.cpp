@@ -873,7 +873,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
 
     float variance = sigma * sigma;
 
-    int windowSize = SkScalarCeil(sigma*4);
+    int windowSize = SkScalarCeil(sigma*6);
     // round window size up to nearest odd number
     windowSize |= 1;
 
@@ -885,7 +885,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
 
     float windowSum = 1;
     for (int x = 1 ; x <= halfWindow ; ++x) {
-        float gaussian = expf(-x*x / variance);
+        float gaussian = expf(-x*x / (2*variance));
         gaussWindow[halfWindow + x] = gaussWindow[halfWindow-x] = gaussian;
         windowSum += 2*gaussian;
     }

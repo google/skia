@@ -6,10 +6,17 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkMath.h"
 #include "SkPaint.h"
+#if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
+#include "SkGpuDevice.h"
+#endif
+
+#define WRITE_CSV 0
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +95,7 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     return true;
 }
 
-static void test_blur(skiatest::Reporter* reporter) {
+static void test_blur_drawing(skiatest::Reporter* reporter) {
 
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
@@ -145,5 +152,236 @@ static void test_blur(skiatest::Reporter* reporter) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+// Use SkBlurMask::BlurGroundTruth to blur a 'width' x 'height' solid
+// white rect. Return the right half of the middle row in 'result'.
+static void ground_truth_2d(int width, int height, 
+                            SkScalar sigma,
+                            int* result, int resultCount) {
+    SkMask src, dst;
+
+    src.fBounds.set(0, 0, width, height);
+    src.fFormat = SkMask::kA8_Format;
+    src.fRowBytes = src.fBounds.width();
+    src.fImage = SkMask::AllocImage(src.computeTotalImageSize());
+
+    memset(src.fImage, 0xff, src.computeTotalImageSize());
+
+    dst.fImage = NULL;
+    SkBlurMask::BlurGroundTruth(sigma, &dst, src, SkBlurMask::kNormal_Style);
+
+    int midX = dst.fBounds.centerX();
+    int midY = dst.fBounds.centerY();
+    uint8_t* bytes = dst.getAddr8(midX, midY);
+    int i;
+    for (i = 0; i < dst.fBounds.width()-(midX-dst.fBounds.fLeft); ++i) {
+        if (i < resultCount) {
+            result[i] = bytes[i];
+        }
+    }
+    for ( ; i < resultCount; ++i) {
+        result[i] = 0;
+    }
+}
+
+// Implement a step function that is 255 between min and max; 0 elsewhere.
+static int step(int x, SkScalar min, SkScalar max) {
+    if (min < x && x < max) {
+        return 255;
+    }
+    return 0;
+}
+
+// Implement a Gaussian function with 0 mean and std.dev. of 'sigma'.
+static float gaussian(int x, SkScalar sigma) {
+    float k = SK_Scalar1/(sigma * sqrt(2.0f*SK_ScalarPI));
+    float exponent = -(x * x) / (2 * sigma * sigma);
+    return k * exp(exponent);
+}
+
+// Perform a brute force convolution of a step function with a Gaussian.
+// Return the right half in 'result'
+static void brute_force_1d(SkScalar stepMin, SkScalar stepMax, 
+                           SkScalar gaussianSigma,
+                           int* result, int resultCount) {
+
+    int gaussianRange = SkScalarCeilToInt(10 * gaussianSigma);
+
+    for (int i = 0; i < resultCount; ++i) {
+        SkScalar sum = 0.0f;
+        for (int j = -gaussianRange; j < gaussianRange; ++j) {
+            sum += gaussian(j, gaussianSigma) * step(i-j, stepMin, stepMax);
+        }
+
+        result[i] = SkClampMax(SkClampPos(int(sum + 0.5f)), 255);
+    }
+}
+
+static void blur_path(SkCanvas* canvas, const SkPath& path, 
+                      SkScalar gaussianSigma) {
+
+    SkScalar midX = path.getBounds().centerX();
+    SkScalar midY = path.getBounds().centerY();
+
+    canvas->translate(-midX, -midY);
+
+    SkPaint blurPaint;
+    blurPaint.setColor(SK_ColorWHITE);
+    SkMaskFilter* filter = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                                    gaussianSigma,
+                                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
+    blurPaint.setMaskFilter(filter)->unref();
+
+    canvas->drawColor(SK_ColorBLACK);
+    canvas->drawPath(path, blurPaint);
+}
+
+// Readback the blurred draw results from the canvas
+static void readback(SkCanvas* canvas, int* result, int resultCount) {
+    SkBitmap readback;
+    readback.setConfig(SkBitmap::kARGB_8888_Config, resultCount, 30);
+    readback.allocPixels();
+
+    SkIRect readBackRect = { 0, 0, resultCount, 30 };
+
+    canvas->readPixels(readBackRect, &readback);
+
+    readback.lockPixels();
+    SkPMColor* pixels = (SkPMColor*) readback.getAddr32(0, 15);
+
+    for (int i = 0; i < resultCount; ++i) {
+        result[i] = SkColorGetR(pixels[i]);
+    }
+}
+
+// Draw a blurred version of the provided path. 
+// Return the right half of the middle row in 'result'.
+static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
+                          int* result, int resultCount) {
+
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, resultCount, 30);
+    bitmap.allocPixels();
+    SkCanvas canvas(bitmap);
+
+    blur_path(&canvas, path, gaussianSigma);
+    readback(&canvas, result, resultCount);
+}
+
+#if SK_SUPPORT_GPU
+static void gpu_blur_path(GrContextFactory* factory, const SkPath& path, 
+                          SkScalar gaussianSigma,
+                          int* result, int resultCount) {
+
+    GrContext* grContext = factory->get(GrContextFactory::kNative_GLContextType);
+    if (NULL == grContext) {
+        return;
+    }
+
+    GrTextureDesc desc;
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = resultCount;
+    desc.fHeight = 30;
+    desc.fSampleCnt = 0;
+
+    SkAutoTUnref<GrTexture> texture(grContext->createUncachedTexture(desc, NULL, 0));
+    SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice, (grContext, texture.get())));
+    SkCanvas canvas(device.get());
+
+    blur_path(&canvas, path, gaussianSigma);
+    readback(&canvas, result, resultCount);
+}
+#endif
+
+#if WRITE_CSV
+static void write_as_csv(const char* label, SkScalar scale, int* data, int count) {
+    SkDebugf("%s_%.2f,", label, scale);
+    for (int i = 0; i < count-1; ++i) {
+        SkDebugf("%d,", data[i]);
+    }
+    SkDebugf("%d\n", data[count-1]);
+}
+#endif
+
+static bool match(int* first, int* second, int count, int tol) {
+    int delta;
+    for (int i = 0; i < count; ++i) {
+        delta = first[i] - second[i];
+        if (delta > tol || delta < -tol) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Test out the normal blur style with a wide range of sigmas
+static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* factory) {
+
+    static const int kSize = 100;
+
+    // The geometry is offset a smidge to trigger:
+    // https://code.google.com/p/chromium/issues/detail?id=282418
+    SkPath rectPath;
+    rectPath.addRect(0.3f, 0.3f, 100.3f, 100.3f);
+
+    SkPoint polyPts[] = {
+        { 0.3f, 0.3f },
+        { 100.3f, 0.3f },
+        { 100.3f, 100.3f },
+        { 0.3f, 100.3f },
+        { 2.3f, 50.3f }     // a little divet to throw off the rect special case
+    };
+    SkPath polyPath;
+    polyPath.addPoly(polyPts, SK_ARRAY_COUNT(polyPts), true);
+
+    int rectSpecialCaseResult[kSize];
+    int generalCaseResult[kSize];
+#if SK_SUPPORT_GPU
+    int gpuResult[kSize];
+#endif
+    int groundTruthResult[kSize];
+    int bruteForce1DResult[kSize];
+
+    SkScalar sigma = SkFloatToScalar(10.0f);
+
+    for (int i = 0; i < 4; ++i, sigma /= 10) {
+
+        cpu_blur_path(rectPath, sigma, rectSpecialCaseResult, kSize);
+        cpu_blur_path(polyPath, sigma, generalCaseResult, kSize);
+#if SK_SUPPORT_GPU
+        gpu_blur_path(factory, rectPath, sigma, gpuResult, kSize);
+#endif
+        ground_truth_2d(100, 100, sigma, groundTruthResult, kSize);
+        brute_force_1d(-50.0f, 50.0f, sigma, bruteForce1DResult, kSize);
+
+        REPORTER_ASSERT(reporter, match(rectSpecialCaseResult, bruteForce1DResult, kSize, 5));
+        REPORTER_ASSERT(reporter, match(generalCaseResult, bruteForce1DResult, kSize, 15));
+#if SK_SUPPORT_GPU
+        REPORTER_ASSERT(reporter, match(gpuResult, bruteForce1DResult, kSize, 1));
+#endif
+        REPORTER_ASSERT(reporter, match(groundTruthResult, bruteForce1DResult, kSize, 1));
+
+#if WRITE_CSV
+        write_as_csv("RectSpecialCase", sigma, rectSpecialCaseResult, kSize);
+        write_as_csv("GeneralCase", sigma, generalCaseResult, kSize);
+#if SK_SUPPORT_GPU
+        write_as_csv("GPU", sigma, gpuResult, kSize);
+#endif
+        write_as_csv("GroundTruth2D", sigma, groundTruthResult, kSize);
+        write_as_csv("BruteForce1D", sigma, bruteForce1DResult, kSize);
+#endif
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static void test_blur(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    test_blur_drawing(reporter);
+    test_sigma_range(reporter, factory);
+}
+
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("BlurMaskFilter", BlurTestClass, test_blur)
+DEFINE_GPUTESTCLASS("BlurMaskFilter", BlurTestClass, test_blur)
