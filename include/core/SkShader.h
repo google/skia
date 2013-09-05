@@ -318,11 +318,9 @@ public:
     virtual GradientType asAGradient(GradientInfo* info) const;
 
     /**
-     *  If the shader subclass has a GrEffect implementation, this resturns the effect to install.
-     *  The incoming color to the effect has r=g=b=a all extracted from the SkPaint's alpha.
-     *  The output color should be the computed SkShader premul color modulated by the incoming
-     *  color. The GrContext may be used by the effect to create textures. The GPU device does not
-     *  call setContext. Instead we pass the SkPaint here in case the shader needs paint info.
+     *  If the shader subclass has a GrEffect implementation, this installs an effect on the stage.
+     *  The GrContext may be used by the effect to create textures. The GPU device does not call
+     *  setContext. Instead we pass the paint here in case the shader needs paint info.
      */
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint) const;
 

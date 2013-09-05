@@ -18,7 +18,7 @@ class GrTexture;
  * Represents the filtering and tile modes used to access a texture. It is mostly used with
  * GrTextureAccess (defined below). Also, some of the texture cache methods require knowledge about
  * filtering and tiling to perform a cache lookup. If it wasn't for this latter usage this would
- * be folded into GrTextureAccess. The default is clamp tile modes and no filtering.
+ * be folded into GrTextureAccess.
  */
 class GrTextureParams {
 public:
