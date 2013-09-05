@@ -103,9 +103,22 @@ private:
     DataType fDataType;
 
 
+    // Keep this the last entrys
+#ifdef PDF_TRACK_OBJECT_USAGE
+    mutable bool fUsed;
+#endif   // PDF_TRACK_OBJECT_USAGE
+
 public:
 
-    SkPdfNativeObject() : fInRendering(0), fObjectType(kInvalid_PdfObjectType), fMap(NULL), fData(NULL), fDataType(kEmpty_Data) {}
+    SkPdfNativeObject() : fInRendering(0)
+                        , fObjectType(kInvalid_PdfObjectType)
+                        , fMap(NULL)
+                        , fData(NULL)
+                        , fDataType(kEmpty_Data)
+#ifdef PDF_TRACK_OBJECT_USAGE
+                        , fUsed(false)
+#endif   // PDF_TRACK_OBJECT_USAGE
+    {}
 
     bool inRendering() const { return fInRendering != 0; }
     void startRendering() {fInRendering = 1;}
@@ -132,6 +145,8 @@ public:
 //    }
 
     void reset() {
+        SkPdfMarkObjectUnused();
+
         switch (fObjectType) {
             case kArray_PdfObjectType:
                 delete fArray;
@@ -153,9 +168,15 @@ public:
         releaseData();
     }
 
-    ObjectType type() { return fObjectType; }
+    ObjectType type() {
+        SkPdfMarkObjectUsed();
+
+        return fObjectType;
+    }
 
     const char* c_str() const {
+        SkPdfMarkObjectUsed();
+
         switch (fObjectType) {
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
@@ -170,6 +191,8 @@ public:
     }
 
     size_t lenstr() const {
+        SkPdfMarkObjectUsed();
+
         switch (fObjectType) {
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
@@ -353,18 +376,24 @@ public:
     }
 
     size_t size() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return fArray->count();
     }
 
     SkPdfNativeObject* objAtAIndex(int i) {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
     }
 
     SkPdfNativeObject* removeLastInArray() {
+        // SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         SkPdfNativeObject* ret = NULL;
@@ -375,6 +404,8 @@ public:
 
 
     const SkPdfNativeObject* objAtAIndex(int i) const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
@@ -387,6 +418,8 @@ public:
     }
 
     const SkPdfNativeObject* operator[](int i) const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kArray_PdfObjectType);
 
         return (*fArray)[i];
@@ -411,6 +444,8 @@ public:
     // add function SkPdfFastNameKey key(const char* key);
     // TODO(edisonn): setting the same key twike, will make the value undefined!
     bool set(const SkPdfNativeObject* key, SkPdfNativeObject* value) {
+        //SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -426,10 +461,14 @@ public:
     }
 
     bool set(const char* key, SkPdfNativeObject* value) {
+        //SkPdfMarkObjectUsed();
+
         return set((const unsigned char*)key, strlen(key), value);
     }
 
     bool set(const unsigned char* key, size_t len, SkPdfNativeObject* value) {
+        //SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
 
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -441,6 +480,8 @@ public:
     }
 
     SkPdfNativeObject* get(const SkPdfNativeObject* key) {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -455,10 +496,14 @@ public:
     }
 
     SkPdfNativeObject* get(const char* key) {
+        SkPdfMarkObjectUsed();
+
         return get((const unsigned char*)key, strlen(key));
     }
 
     SkPdfNativeObject* get(const unsigned char* key, size_t len) {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -478,6 +523,8 @@ public:
     }
 
     const SkPdfNativeObject* get(const SkPdfNativeObject* key) const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key->fObjectType == kName_PdfObjectType);
 
@@ -492,10 +539,14 @@ public:
     }
 
     const SkPdfNativeObject* get(const char* key) const {
+        SkPdfMarkObjectUsed();
+
         return get((const unsigned char*)key, strlen(key));
     }
 
     const SkPdfNativeObject* get(const unsigned char* key, size_t len) const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kDictionary_PdfObjectType);
         SkASSERT(key);
         if (fObjectType != kDictionary_PdfObjectType) {
@@ -515,6 +566,8 @@ public:
     }
 
     const SkPdfNativeObject* get(const char* key, const char* abr) const {
+        SkPdfMarkObjectUsed();
+
         const SkPdfNativeObject* ret = get(key);
         // TODO(edisonn): / is a valid name, and it might be an abreviation, so "" should not be like NULL
         // make this distiontion in generator, and remove "" from condition
@@ -525,6 +578,8 @@ public:
     }
 
     SkPdfNativeObject* get(const char* key, const char* abr) {
+        SkPdfMarkObjectUsed();
+
         SkPdfNativeObject* ret = get(key);
         // TODO(edisonn): / is a valid name, and it might be an abreviation, so "" should not be like NULL
         // make this distiontion in generator, and remove "" from condition
@@ -535,6 +590,8 @@ public:
     }
 
     SkPdfDictionary* asDictionary() {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isDictionary());
         if (!isDictionary()) {
             return NULL;
@@ -543,6 +600,8 @@ public:
     }
 
     const SkPdfDictionary* asDictionary() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isDictionary());
         if (!isDictionary()) {
             return NULL;
@@ -552,34 +611,50 @@ public:
 
 
     bool isReference() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kReference_PdfObjectType;
     }
 
     bool isBoolean() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kBoolean_PdfObjectType;
     }
 
     bool isInteger() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kInteger_PdfObjectType;
     }
 private:
     bool isReal() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kReal_PdfObjectType;
     }
 public:
     bool isNumber() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kInteger_PdfObjectType || fObjectType == kReal_PdfObjectType;
     }
 
     bool isKeywordReference() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kKeyword_PdfObjectType && fStr.fBytes == 1 && fStr.fBuffer[0] == 'R';
     }
 
     bool isKeyword() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kKeyword_PdfObjectType;
     }
 
     bool isKeyword(const char* keyword) const {
+        SkPdfMarkObjectUsed();
+
         if (!isKeyword()) {
             return false;
         }
@@ -596,60 +671,88 @@ public:
     }
 
     bool isName() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kName_PdfObjectType;
     }
 
     bool isName(const char* name) const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kName_PdfObjectType && fStr.fBytes == strlen(name) && strncmp((const char*)fStr.fBuffer, name, fStr.fBytes) == 0;
     }
 
     bool isArray() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kArray_PdfObjectType;
     }
 
     bool isDate() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType;
     }
 
     bool isDictionary() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kDictionary_PdfObjectType;
     }
 
     bool isFunction() const {
+        SkPdfMarkObjectUsed();
+
         return false;  // NYI
     }
 
     bool isRectangle() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kArray_PdfObjectType && fArray->count() == 4; // NYI + and elems are numbers
     }
 
     // TODO(edisonn): has stream .. or is stream ... TBD
     bool hasStream() const {
+        SkPdfMarkObjectUsed();
+
         return isDictionary() && fStr.fBuffer != NULL;
     }
 
     // TODO(edisonn): has stream .. or is stream ... TBD
     const SkPdfStream* getStream() const {
+        SkPdfMarkObjectUsed();
+
         return hasStream() ? (const SkPdfStream*)this : NULL;
     }
 
     SkPdfStream* getStream() {
+        SkPdfMarkObjectUsed();
+
         return hasStream() ? (SkPdfStream*)this : NULL;
     }
 
     bool isAnyString() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType;
     }
 
     bool isHexString() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kHexString_PdfObjectType;
     }
 
     bool isMatrix() const {
+        SkPdfMarkObjectUsed();
+
         return fObjectType == kArray_PdfObjectType && fArray->count() == 6; // NYI + and elems are numbers
     }
 
     inline int64_t intValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kInteger_PdfObjectType);
 
         if (fObjectType != kInteger_PdfObjectType) {
@@ -660,6 +763,8 @@ public:
     }
 private:
     inline double realValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kReal_PdfObjectType);
 
         if (fObjectType != kReal_PdfObjectType) {
@@ -670,6 +775,8 @@ private:
     }
 public:
     inline double numberValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isNumber());
 
         if (!isNumber()) {
@@ -680,6 +787,8 @@ public:
     }
 
     inline SkScalar scalarValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isNumber());
 
         if (!isNumber()) {
@@ -691,16 +800,22 @@ public:
     }
 
     int referenceId() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kReference_PdfObjectType);
         return fRef.fId;
     }
 
     int referenceGeneration() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kReference_PdfObjectType);
         return fRef.fGen;
     }
 
     inline const char* nameValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kName_PdfObjectType);
 
         if (fObjectType != kName_PdfObjectType) {
@@ -711,6 +826,8 @@ public:
     }
 
     inline const char* stringValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType);
 
         if (fObjectType != kString_PdfObjectType && fObjectType != kHexString_PdfObjectType) {
@@ -721,6 +838,8 @@ public:
     }
 
     inline NotOwnedString strRef() {
+        SkPdfMarkObjectUsed();
+
         switch (fObjectType) {
             case kString_PdfObjectType:
             case kHexString_PdfObjectType:
@@ -738,6 +857,8 @@ public:
     // but it is not a performat way to do it, since it will create an extra copy
     // remove these functions and make code generated faster
     inline SkString nameValue2() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kName_PdfObjectType);
 
         if (fObjectType != kName_PdfObjectType) {
@@ -748,6 +869,8 @@ public:
     }
 
     inline SkString stringValue2() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType);
 
         if (fObjectType != kString_PdfObjectType && fObjectType != kHexString_PdfObjectType) {
@@ -758,6 +881,8 @@ public:
     }
 
     inline bool boolValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(fObjectType == kBoolean_PdfObjectType);
 
         if (fObjectType != kBoolean_PdfObjectType) {
@@ -768,6 +893,8 @@ public:
     }
 
     SkRect rectangleValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isRectangle());
         if (!isRectangle()) {
             return SkRect::MakeEmpty();
@@ -791,6 +918,8 @@ public:
     }
 
     SkMatrix matrixValue() const {
+        SkPdfMarkObjectUsed();
+
         SkASSERT(isMatrix());
         if (!isMatrix()) {
             return SkMatrix::I();
@@ -814,6 +943,8 @@ public:
 
 
     bool GetFilteredStreamRef(unsigned char const** buffer, size_t* len) {
+        SkPdfMarkObjectUsed();
+
         // TODO(edisonn): add params that couls let the last filter in place if it is jpeg or png to fast load images
         if (!hasStream()) {
             return false;
@@ -833,14 +964,20 @@ public:
     }
 
     bool isStreamFiltered() const {
+        SkPdfMarkObjectUsed();
+
         return hasStream() && ((fStr.fBytes & 1) == kFilteredStreamBit);
     }
 
     bool isStreamOwned() const {
+        SkPdfMarkObjectUsed();
+
         return hasStream() && ((fStr.fBytes & 2) == kOwnedStreamBit);
     }
 
     bool GetUnfilteredStreamRef(unsigned char const** buffer, size_t* len) const {
+        SkPdfMarkObjectUsed();
+
         if (isStreamFiltered()) {
             return false;
         }
@@ -861,6 +998,8 @@ public:
     }
 
     bool addStream(const unsigned char* buffer, size_t len) {
+        //SkPdfMarkObjectUsed();
+
         SkASSERT(!hasStream());
         SkASSERT(isDictionary());
 

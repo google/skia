@@ -66,6 +66,8 @@ bool SkPdfNativeObject::applyFilter(const char* name) {
 }
 
 bool SkPdfNativeObject::filterStream() {
+    SkPdfMarkObjectUsed();
+
     if (!hasStream()) {
         return false;
     }
@@ -100,6 +102,10 @@ bool SkPdfNativeObject::filterStream() {
 }
 
 void SkPdfNativeObject::releaseData() {
+    // TODO(edisonn): report here unused objects
+
+    SkPdfMarkObjectUnused();
+
     if (fData) {
         switch (fDataType) {
             case kFont_Data:
