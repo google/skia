@@ -401,10 +401,10 @@ void applySIMDPadding_arm(SkConvolutionFilter1D *filter) {
     }
 }
 
-void SkBitmapProcState::platformConvolutionProcs() {
+void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
     if (sk_cpu_arm_has_neon()) {
-        fConvolutionProcs->fExtraHorizontalReads = 3;
-        fConvolutionProcs->fConvolveVertically = &convolveVertically_arm;
+        procs->fExtraHorizontalReads = 3;
+        procs->fConvolveVertically = &convolveVertically_arm;
 
         // next line is commented out because the four-row convolution function above is
         // just a no-op.  Please see the comment above its definition, and the SSE implementation
@@ -412,11 +412,11 @@ void SkBitmapProcState::platformConvolutionProcs() {
         // leaving it as NULL will just cause the convolution system to not attempt
         // to operate on four rows at once, which is correct but not performance-optimal.
 
-        // fConvolutionProcs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_arm;
+        // procs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_arm;
 
-        fConvolutionProcs->fConvolve4RowsHorizontally = NULL;
+        procs->fConvolve4RowsHorizontally = NULL;
 
-        fConvolutionProcs->fConvolveHorizontally = &convolveHorizontally_arm;
-        fConvolutionProcs->fApplySIMDPadding = &applySIMDPadding_arm;
+        procs->fConvolveHorizontally = &convolveHorizontally_arm;
+        procs->fApplySIMDPadding = &applySIMDPadding_arm;
     }
 }

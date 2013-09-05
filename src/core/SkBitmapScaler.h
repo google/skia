@@ -92,7 +92,7 @@ public:
                        ResizeMethod method,
                        int dest_width, int dest_height,
                        const SkIRect& dest_subset,
-                       SkConvolutionProcs *convolveProcs = NULL,
+                       const SkConvolutionProcs&,
                        SkBitmap::Allocator* allocator = NULL);
 
     // Alternate version for resizing and returning the entire bitmap rather than
@@ -101,7 +101,7 @@ public:
                        const SkBitmap& source,
                        ResizeMethod method,
                        int dest_width, int dest_height,
-                       SkConvolutionProcs *convolveProcs = NULL,
+                       const SkConvolutionProcs&,
                        SkBitmap::Allocator* allocator = NULL);
 };
 

@@ -337,7 +337,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
                     const SkConvolutionFilter1D& filterY,
                     int outputByteRowStride,
                     unsigned char* output,
-                    SkConvolutionProcs* convolveProcs,
+                    const SkConvolutionProcs& convolveProcs,
                     bool useSimdIfPossible) {
 
     int maxYFilterSize = filterY.maxFilter();
@@ -364,7 +364,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
     // convolution pass yet. Somehow Windows does not like it.
     int rowBufferWidth = (filterX.numValues() + 15) & ~0xF;
     int rowBufferHeight = maxYFilterSize +
-                          (convolveProcs->fConvolve4RowsHorizontally ? 4 : 0);
+                          (convolveProcs.fConvolve4RowsHorizontally ? 4 : 0);
     CircularRowBuffer rowBuffer(rowBufferWidth,
                                 rowBufferHeight,
                                 filterOffset);
@@ -387,7 +387,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
     // rows we need to avoid the SSE implementation for here.
     filterX.FilterForValue(filterX.numValues() - 1, &lastFilterOffset,
                            &lastFilterLength);
-    int avoidSimdRows = 1 + convolveProcs->fExtraHorizontalReads /
+    int avoidSimdRows = 1 + convolveProcs.fExtraHorizontalReads /
         (lastFilterOffset + lastFilterLength);
 
     filterY.FilterForValue(numOutputRows - 1, &lastFilterOffset,
@@ -399,7 +399,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
 
         // Generate output rows until we have enough to run the current filter.
         while (nextXRow < filterOffset + filterLength) {
-            if (convolveProcs->fConvolve4RowsHorizontally &&
+            if (convolveProcs.fConvolve4RowsHorizontally &&
                 nextXRow + 3 < lastFilterOffset + lastFilterLength -
                 avoidSimdRows) {
                 const unsigned char* src[4];
@@ -408,14 +408,14 @@ void BGRAConvolve2D(const unsigned char* sourceData,
                     src[i] = &sourceData[(nextXRow + i) * sourceByteRowStride];
                     outRow[i] = rowBuffer.advanceRow();
                 }
-                convolveProcs->fConvolve4RowsHorizontally(src, filterX, outRow);
+                convolveProcs.fConvolve4RowsHorizontally(src, filterX, outRow);
                 nextXRow += 4;
             } else {
                 // Check if we need to avoid SSE2 for this row.
-                if (convolveProcs->fConvolveHorizontally &&
+                if (convolveProcs.fConvolveHorizontally &&
                     nextXRow < lastFilterOffset + lastFilterLength -
                     avoidSimdRows) {
-                    convolveProcs->fConvolveHorizontally(
+                    convolveProcs.fConvolveHorizontally(
                         &sourceData[nextXRow * sourceByteRowStride],
                         filterX, rowBuffer.advanceRow(), sourceHasAlpha);
                 } else {
@@ -446,8 +446,8 @@ void BGRAConvolve2D(const unsigned char* sourceData,
         unsigned char* const* firstRowForFilter =
             &rowsToConvolve[filterOffset - firstRowInCircularBuffer];
 
-        if (convolveProcs->fConvolveVertically) {
-            convolveProcs->fConvolveVertically(filterValues, filterLength,
+        if (convolveProcs.fConvolveVertically) {
+            convolveProcs.fConvolveVertically(filterValues, filterLength,
                                                firstRowForFilter,
                                                filterX.numValues(), curOutputRow,
                                                sourceHasAlpha);

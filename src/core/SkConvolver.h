@@ -197,7 +197,7 @@ SK_API void BGRAConvolve2D(const unsigned char* sourceData,
     const SkConvolutionFilter1D& yfilter,
     int outputByteRowStride,
     unsigned char* output,
-    SkConvolutionProcs* convolveProcs,
+    const SkConvolutionProcs&,
     bool useSimdIfPossible);
 
 #endif  // SK_CONVOLVER_H
