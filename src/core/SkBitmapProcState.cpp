@@ -179,8 +179,8 @@ void SkBitmapProcState::possiblyScaleImage() {
 
         // set the inv matrix type to translate-only;
 
-        fInvMatrix.setTranslate( 1/fInvMatrix.getScaleX() * fInvMatrix.getTranslateX(),
-                                 1/fInvMatrix.getScaleY() * fInvMatrix.getTranslateY() );
+        fInvMatrix.setTranslate(fInvMatrix.getTranslateX() / fInvMatrix.getScaleX(),
+                                fInvMatrix.getTranslateY() / fInvMatrix.getScaleY());
 
         // no need for any further filtering; we just did it!
 
