@@ -8,16 +8,13 @@
 #include "SkPerspIter.h"
 #include "SkShader.h"
 #include "SkUtilsArm.h"
+#include "SkBitmapProcState_utils.h"
 
 extern const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs_neon[];
 extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
 static void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 static void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
-
-static unsigned SK_USHIFT16(unsigned x) {
-    return x >> 16;
-}
 
 #define MAKENAME(suffix)        ClampX_ClampY ## suffix ## _neon
 #define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
@@ -35,93 +32,72 @@ static unsigned SK_USHIFT16(unsigned x) {
 #include "SkBitmapProcState_matrix_repeat_neon.h"
 
 
-void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count)
-{
-    int i;
 
+void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     if (count >= 8) {
-        /* SkFixed is 16.16 fixed point */
-        SkFixed dx2 = dx+dx;
-        SkFixed dx4 = dx2+dx2;
-        SkFixed dx8 = dx4+dx4;
+        // SkFixed is 16.16 fixed point
+        SkFixed dx8 = dx * 8;
+        int32x4_t vdx8 = vdupq_n_s32(dx8);
 
-        /* now build fx/fx+dx/fx+2dx/fx+3dx */
-        SkFixed fx1, fx2, fx3;
+        // setup lbase and hbase
         int32x4_t lbase, hbase;
-        uint16_t *dst16 = (uint16_t *)dst;
-
-        fx1 = fx+dx;
-        fx2 = fx1+dx;
-        fx3 = fx2+dx;
-
-        /* avoid an 'lbase unitialized' warning */
         lbase = vdupq_n_s32(fx);
-        lbase = vsetq_lane_s32(fx1, lbase, 1);
-        lbase = vsetq_lane_s32(fx2, lbase, 2);
-        lbase = vsetq_lane_s32(fx3, lbase, 3);
-        hbase = vaddq_s32(lbase, vdupq_n_s32(dx4));
+        lbase = vsetq_lane_s32(fx + dx, lbase, 1);
+        lbase = vsetq_lane_s32(fx + dx + dx, lbase, 2);
+        lbase = vsetq_lane_s32(fx + dx + dx + dx, lbase, 3);
+        hbase = lbase + vdupq_n_s32(4 * dx);
 
-        /* take upper 16 of each, store, and bump everything */
         do {
-            int32x4_t lout, hout;
-            uint16x8_t hi16;
+            // store the upper 16 bits
+            vst1q_u32(dst, vreinterpretq_u32_s16(
+                vuzpq_s16(vreinterpretq_s16_s32(lbase), vreinterpretq_s16_s32(hbase)).val[1]
+            ));
 
-            lout = lbase;
-            hout = hbase;
-            /* gets hi's of all louts then hi's of all houts */
-            asm ("vuzpq.16 %q0, %q1" : "+w" (lout), "+w" (hout));
-            hi16 = vreinterpretq_u16_s32(hout);
-            vst1q_u16(dst16, hi16);
-
-            /* on to the next */
-            lbase = vaddq_s32 (lbase, vdupq_n_s32(dx8));
-            hbase = vaddq_s32 (hbase, vdupq_n_s32(dx8));
-            dst16 += 8;
+            // on to the next group of 8
+            lbase += vdx8;
+            hbase += vdx8;
+            dst += 4; // we did 8 elements but the result is twice smaller
             count -= 8;
             fx += dx8;
         } while (count >= 8);
-        dst = (uint32_t *) dst16;
     }
 
     uint16_t* xx = (uint16_t*)dst;
-    for (i = count; i > 0; --i) {
+    for (int i = count; i > 0; --i) {
         *xx++ = SkToU16(fx >> 16); fx += dx;
     }
 }
 
-void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count)
-{
+void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     if (count >= 8) {
-        int32x4_t wide_fx;
-        int32x4_t wide_fx2;
-        int32x4_t wide_dx8 = vdupq_n_s32(dx*8);
+        SkFixed dx8 = dx * 8;
+        int32x4_t vdx8 = vdupq_n_s32(dx8);
 
+        int32x4_t wide_fx, wide_fx2;
         wide_fx = vdupq_n_s32(fx);
-        wide_fx = vsetq_lane_s32(fx+dx, wide_fx, 1);
-        wide_fx = vsetq_lane_s32(fx+dx+dx, wide_fx, 2);
-        wide_fx = vsetq_lane_s32(fx+dx+dx+dx, wide_fx, 3);
+        wide_fx = vsetq_lane_s32(fx + dx, wide_fx, 1);
+        wide_fx = vsetq_lane_s32(fx + dx + dx, wide_fx, 2);
+        wide_fx = vsetq_lane_s32(fx + dx + dx + dx, wide_fx, 3);
 
-        wide_fx2 = vaddq_s32(wide_fx, vdupq_n_s32(dx+dx+dx+dx));
+        wide_fx2 = vaddq_s32(wide_fx, vdupq_n_s32(4 * dx));
 
         while (count >= 8) {
             int32x4_t wide_out;
             int32x4_t wide_out2;
 
             wide_out = vshlq_n_s32(vshrq_n_s32(wide_fx, 12), 14);
-            wide_out = vorrq_s32(wide_out,
-            vaddq_s32(vshrq_n_s32(wide_fx,16), vdupq_n_s32(1)));
+            wide_out = wide_out | (vshrq_n_s32(wide_fx,16) + vdupq_n_s32(1));
 
             wide_out2 = vshlq_n_s32(vshrq_n_s32(wide_fx2, 12), 14);
-            wide_out2 = vorrq_s32(wide_out2,
-            vaddq_s32(vshrq_n_s32(wide_fx2,16), vdupq_n_s32(1)));
+            wide_out2 = wide_out2 | (vshrq_n_s32(wide_fx2,16) + vdupq_n_s32(1));
 
             vst1q_u32(dst, vreinterpretq_u32_s32(wide_out));
             vst1q_u32(dst+4, vreinterpretq_u32_s32(wide_out2));
 
             dst += 8;
-            fx += dx*8;
-            wide_fx = vaddq_s32(wide_fx, wide_dx8);
-            wide_fx2 = vaddq_s32(wide_fx2, wide_dx8);
+            fx += dx8;
+            wide_fx += vdx8;
+            wide_fx2 += vdx8;
             count -= 8;
         }
     }
