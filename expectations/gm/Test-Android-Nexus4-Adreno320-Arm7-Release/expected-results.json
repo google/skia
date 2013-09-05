@@ -5820,8 +5820,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        1596
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "modecolorfilters_565.png": {
