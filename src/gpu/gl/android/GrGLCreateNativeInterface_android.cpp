@@ -147,6 +147,8 @@ static const GrGLInterface* create_es_interface(GrGLVersion version,
     interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
     interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
     interface->fFramebufferTexture2D = glFramebufferTexture2D;
+#if GR_GL_IGNORE_ES3_MSAA
+
     if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
 #if GL_EXT_multisampled_render_to_texture
         interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleEXT;
@@ -164,6 +166,37 @@ static const GrGLInterface* create_es_interface(GrGLVersion version,
         interface->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleIMG");
 #endif
     }
+
+#else // GR_GL_IGNORE_ES3_MSAA
+
+        if (version >= GR_GL_VER(3,0)) {
+#if GL_ES_VERSION_3_0
+            interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
+            interface->fBlitFramebuffer = glBlitFramebuffer;
+#else
+            interface->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisample");
+            interface->fBlitFramebuffer = (GrGLBlitFramebufferProc) eglGetProcAddress("glBlitFramebuffer");
+#endif
+        }
+        if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
+#if GL_EXT_multisampled_render_to_texture
+            interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleEXT;
+            interface->fRenderbufferStorageMultisampleES2EXT = glRenderbufferStorageMultisampleEXT;
+#else
+            interface->fFramebufferTexture2DMultisample = (GrGLFramebufferTexture2DMultisampleProc) eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
+            interface->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
+#endif
+        } else if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
+#if GL_IMG_multisampled_render_to_texture
+            interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleIMG;
+            interface->fRenderbufferStorageMultisampleES2EXT = glRenderbufferStorageMultisampleIMG;
+#else
+            interface->fFramebufferTexture2DMultisample = (GrGLFramebufferTexture2DMultisampleProc) eglGetProcAddress("glFramebufferTexture2DMultisampleIMG");
+            interface->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleIMG");
+#endif
+        }
+
+#endif // GR_GL_IGNORE_ES3_MSAA
     interface->fGenFramebuffers = glGenFramebuffers;
     interface->fGenRenderbuffers = glGenRenderbuffers;
     interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;

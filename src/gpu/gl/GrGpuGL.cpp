@@ -789,11 +789,43 @@ bool renderbuffer_storage_msaa(GrGLContext& ctx,
         created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
     }
     if (!created) {
+#if GR_GL_IGNORE_ES3_MSAA
         GL_ALLOC_CALL(ctx.interface(),
                       RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                      sampleCount,
                                                      format,
                                                      width, height));
+#else
+        switch (ctx.info().caps()->msFBOType()) {
+            case GrGLCaps::kDesktop_ARB_MSFBOType:
+            case GrGLCaps::kDesktop_EXT_MSFBOType:
+            case GrGLCaps::kES_3_0_MSFBOType:
+                GL_ALLOC_CALL(ctx.interface(),
+                              RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
+                                                             sampleCount,
+                                                             format,
+                                                             width, height));
+                break;
+            case GrGLCaps::kES_Apple_MSFBOType:
+                GL_ALLOC_CALL(ctx.interface(),
+                              RenderbufferStorageMultisampleES2APPLE(GR_GL_RENDERBUFFER,
+                                                                     sampleCount,
+                                                                     format,
+                                                                     width, height));
+                break;
+            case GrGLCaps::kES_EXT_MsToTexture_MSFBOType:
+            case GrGLCaps::kES_IMG_MsToTexture_MSFBOType:
+                GL_ALLOC_CALL(ctx.interface(),
+                              RenderbufferStorageMultisampleES2EXT(GR_GL_RENDERBUFFER,
+                                                                   sampleCount,
+                                                                   format,
+                                                                   width, height));
+                break;
+            case GrGLCaps::kNone_MSFBOType:
+                GrCrash("Shouldn't be here if we don't support multisampled renderbuffers.");
+                break;
+        }
+#endif
         created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
     }
     return created;
@@ -2313,6 +2345,12 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
     if (gpu->isConfigRenderable(dst->config()) &&
         gpu->isConfigRenderable(src->config()) &&
         gpu->glCaps().usesMSAARenderBuffers()) {
+        // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
+        // or the rects are not the same (not just the same size but have the same edges).
+        if (GrGLCaps::kES_3_0_MSFBOType == gpu->glCaps().msFBOType() &&
+            (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
+           return false;
+        }
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == dst->asRenderTarget() || NULL == src->asRenderTarget();
         }
