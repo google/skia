@@ -7634,8 +7634,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        476
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "hairlines_565.png": {
