@@ -14,7 +14,7 @@
 
 #include "SkTArray.h"
 
-class GrGLContext;
+class GrGpuGL;
 class SkMatrix;
 
 /** Manages a program's uniforms.
@@ -46,7 +46,7 @@ public:
         friend class GrGLUniformManager; // For accessing toUniformIndex().
     };
 
-    GrGLUniformManager(const GrGLContext& context) : fContext(context) {}
+    GrGLUniformManager(GrGpuGL* gpu) : fGpu(gpu) {}
 
     UniformHandle appendUniform(GrSLType type, int arrayCount = GrGLShaderVar::kNonArray);
 
@@ -104,7 +104,7 @@ private:
     };
 
     SkTArray<Uniform, true> fUniforms;
-    const GrGLContext&  fContext;
+    GrGpuGL* fGpu;
 };
 
 #endif

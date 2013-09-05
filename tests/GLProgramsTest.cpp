@@ -186,7 +186,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                         numCoverageStages,
                         currAttribIndex);
 
-        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContext(),
+        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this,
                                                               pdesc,
                                                               stages,
                                                               stages + numColorStages));

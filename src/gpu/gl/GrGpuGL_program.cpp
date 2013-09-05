@@ -35,10 +35,10 @@ struct GrGpuGL::ProgramCache::ProgDescLess {
     }
 };
 
-GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
+GrGpuGL::ProgramCache::ProgramCache(GrGpuGL* gpu)
     : fCount(0)
     , fCurrLRUStamp(0)
-    , fGL(gl)
+    , fGpu(gpu)
 #ifdef PROGRAM_CACHE_STATS
     , fTotalRequests(0)
     , fCacheMisses(0)
@@ -119,7 +119,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgram::Create(fGL, desc, colorStages, coverageStages);
+        GrGLProgram* program = GrGLProgram::Create(fGpu, desc, colorStages, coverageStages);
         if (NULL == program) {
             return NULL;
         }
@@ -305,8 +305,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
         fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(this,
-                                 blendOpts,
+        fCurrentProgram->setData(blendOpts,
                                  colorStages.begin(),
                                  coverageStages.begin(),
                                  dstCopy,

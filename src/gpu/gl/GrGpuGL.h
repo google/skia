@@ -31,6 +31,7 @@ public:
     virtual ~GrGpuGL();
 
     const GrGLInterface* glInterface() const { return fGLContext.interface(); }
+    const GrGLContextInfo& ctxInfo() const { return fGLContext.info(); }
     GrGLBinding glBinding() const { return fGLContext.info().binding(); }
     GrGLVersion glVersion() const { return fGLContext.info().version(); }
     GrGLSLGeneration glslGeneration() const { return fGLContext.info().glslGeneration(); }
@@ -171,7 +172,7 @@ private:
 
     class ProgramCache : public ::GrNoncopyable {
     public:
-        ProgramCache(const GrGLContext& gl);
+        ProgramCache(GrGpuGL* gpu);
         ~ProgramCache();
 
         void abandon();
@@ -203,7 +204,7 @@ private:
 
         int                         fCount;
         unsigned int                fCurrLRUStamp;
-        const GrGLContext&          fGL;
+        GrGpuGL*                    fGpu;
 #ifdef PROGRAM_CACHE_STATS
         int                         fTotalRequests;
         int                         fCacheMisses;

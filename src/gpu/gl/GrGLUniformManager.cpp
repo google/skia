@@ -8,6 +8,7 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
+#include "gl/GrGpuGL.h"
 #include "SkMatrix.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, OFFSET, COUNT) \
@@ -34,10 +35,10 @@ void GrGLUniformManager::setSampler(UniformHandle u, GrGLint texUnit) const {
     // once stages insert their own samplers.
     // SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1i(uni.fFSLocation, texUnit));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fFSLocation, texUnit));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1i(uni.fVSLocation, texUnit));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fVSLocation, texUnit));
     }
 }
 
@@ -47,10 +48,10 @@ void GrGLUniformManager::set1f(UniformHandle u, GrGLfloat v0) const {
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1f(uni.fFSLocation, v0));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fFSLocation, v0));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1f(uni.fVSLocation, v0));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fVSLocation, v0));
     }
 }
 
@@ -67,10 +68,10 @@ void GrGLUniformManager::set1fv(UniformHandle u,
     // arrays in VS and FS driver bug workaround, this can be enabled.
     //SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1fv(uni.fFSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1fv(uni.fFSLocation + offset, arrayCount, v));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform1fv(uni.fVSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform1fv(uni.fVSLocation + offset, arrayCount, v));
     }
 }
 
@@ -80,10 +81,10 @@ void GrGLUniformManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) cons
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform2f(uni.fFSLocation, v0, v1));
+        GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fFSLocation, v0, v1));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform2f(uni.fVSLocation, v0, v1));
+        GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fVSLocation, v0, v1));
     }
 }
 
@@ -97,10 +98,10 @@ void GrGLUniformManager::set2fv(UniformHandle u,
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform2fv(uni.fFSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform2fv(uni.fFSLocation + offset, arrayCount, v));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform2fv(uni.fVSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform2fv(uni.fVSLocation + offset, arrayCount, v));
     }
 }
 
@@ -110,10 +111,10 @@ void GrGLUniformManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, GrGL
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform3f(uni.fFSLocation, v0, v1, v2));
+        GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fFSLocation, v0, v1, v2));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform3f(uni.fVSLocation, v0, v1, v2));
+        GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fVSLocation, v0, v1, v2));
     }
 }
 
@@ -127,10 +128,10 @@ void GrGLUniformManager::set3fv(UniformHandle u,
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform3fv(uni.fFSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform3fv(uni.fFSLocation + offset, arrayCount, v));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform3fv(uni.fVSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform3fv(uni.fVSLocation + offset, arrayCount, v));
     }
 }
 
@@ -144,10 +145,10 @@ void GrGLUniformManager::set4f(UniformHandle u,
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform4f(uni.fFSLocation, v0, v1, v2, v3));
+        GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fFSLocation, v0, v1, v2, v3));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform4f(uni.fVSLocation, v0, v1, v2, v3));
+        GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fVSLocation, v0, v1, v2, v3));
     }
 }
 
@@ -160,10 +161,10 @@ void GrGLUniformManager::set4fv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform4fv(uni.fFSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform4fv(uni.fFSLocation + offset, arrayCount, v));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), Uniform4fv(uni.fVSLocation + offset, arrayCount, v));
+        GR_GL_CALL(fGpu->glInterface(), Uniform4fv(uni.fVSLocation + offset, arrayCount, v));
     }
 }
 
@@ -174,10 +175,10 @@ void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) 
     // TODO: Re-enable this assert once texture matrices aren't forced on all effects
     // SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), UniformMatrix3fv(uni.fFSLocation, 1, false, matrix));
+        GR_GL_CALL(fGpu->glInterface(), UniformMatrix3fv(uni.fFSLocation, 1, false, matrix));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), UniformMatrix3fv(uni.fVSLocation, 1, false, matrix));
+        GR_GL_CALL(fGpu->glInterface(), UniformMatrix3fv(uni.fVSLocation, 1, false, matrix));
     }
 }
 
@@ -187,10 +188,10 @@ void GrGLUniformManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix[]) 
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), UniformMatrix4fv(uni.fFSLocation, 1, false, matrix));
+        GR_GL_CALL(fGpu->glInterface(), UniformMatrix4fv(uni.fFSLocation, 1, false, matrix));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(), UniformMatrix4fv(uni.fVSLocation, 1, false, matrix));
+        GR_GL_CALL(fGpu->glInterface(), UniformMatrix4fv(uni.fVSLocation, 1, false, matrix));
     }
 }
 
@@ -204,11 +205,11 @@ void GrGLUniformManager::setMatrix3fv(UniformHandle u,
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(),
+        GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix3fv(uni.fFSLocation + offset, arrayCount, false, matrices));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(),
+        GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix3fv(uni.fVSLocation + offset, arrayCount, false, matrices));
     }
 }
@@ -223,11 +224,11 @@ void GrGLUniformManager::setMatrix4fv(UniformHandle u,
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, offset, arrayCount);
     SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(),
+        GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix4fv(uni.fFSLocation + offset, arrayCount, false, matrices));
     }
     if (kUnusedUniform != uni.fVSLocation && uni.fVSLocation != uni.fFSLocation) {
-        GR_GL_CALL(fContext.interface(),
+        GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix4fv(uni.fVSLocation + offset, arrayCount, false, matrices));
     }
 }
@@ -257,7 +258,7 @@ void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUn
         SkASSERT(uniforms[i].fVariable.getArrayCount() == fUniforms[i].fArrayCount);
         GrGLint location;
         // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
-        GR_GL_CALL_RET(fContext.interface(), location,
+        GR_GL_CALL_RET(fGpu->glInterface(), location,
                        GetUniformLocation(programID, uniforms[i].fVariable.c_str()));
         if (GrGLShaderBuilder::kVertex_Visibility & uniforms[i].fVisibility) {
             fUniforms[i].fVSLocation = location;

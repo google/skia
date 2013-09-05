@@ -21,8 +21,8 @@
 
 SK_DEFINE_INST_COUNT(GrGLProgram)
 
-#define GL_CALL(X) GR_GL_CALL(fContext.interface(), X)
-#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContext.interface(), R, X)
+#define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
+#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
                 "Print the source code for all shaders generated.");
@@ -36,11 +36,11 @@ inline const char* declared_color_output_name() { return "fsColorOut"; }
 inline const char* dual_source_output_name() { return "dualSourceOut"; }
 }
 
-GrGLProgram* GrGLProgram::Create(const GrGLContext& gl,
+GrGLProgram* GrGLProgram::Create(GrGpuGL* gpu,
                                  const GrGLProgramDesc& desc,
                                  const GrEffectStage* colorStages[],
                                  const GrEffectStage* coverageStages[]) {
-    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, colorStages, coverageStages));
+    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gpu, desc, colorStages, coverageStages));
     if (!program->succeeded()) {
         delete program;
         program = NULL;
@@ -48,12 +48,12 @@ GrGLProgram* GrGLProgram::Create(const GrGLContext& gl,
     return program;
 }
 
-GrGLProgram::GrGLProgram(const GrGLContext& gl,
+GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          const GrGLProgramDesc& desc,
                          const GrEffectStage* colorStages[],
                          const GrEffectStage* coverageStages[])
-: fContext(gl)
-, fUniformManager(gl) {
+: fGpu(gpu)
+, fUniformManager(gpu) {
     fDesc = desc;
     fVShaderID = 0;
     fGShaderID = 0;
@@ -286,7 +286,7 @@ void GrGLProgram::genGeometryShader(GrGLShaderBuilder::VertexBuilder* vertexBuil
 #if GR_GL_EXPERIMENTAL_GS
     // TODO: The builder should add all this glue code.
     if (fDesc.getHeader().fExperimentalGS) {
-        SkASSERT(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
+        SkASSERT(fGpu->glslGeneration() >= k150_GrGLSLGeneration);
         vertexBuilder->fGSHeader.append("layout(triangles) in;\n"
                                         "layout(triangle_strip, max_vertices = 6) out;\n");
         vertexBuilder->gsCodeAppend("\tfor (int i = 0; i < 3; ++i) {\n"
@@ -335,7 +335,7 @@ void print_shader(GrGLint stringCnt,
 }
 
 // Compiles a GL shader, returns shader ID or 0 if failed params have same meaning as glShaderSource
-GrGLuint compile_shader(const GrGLContext& gl,
+GrGLuint compile_shader(const GrGLInterface* gli,
                         GrGLenum type,
                         int stringCnt,
                         const char** strings,
@@ -344,12 +344,11 @@ GrGLuint compile_shader(const GrGLContext& gl,
                     "stringCount", SkStringPrintf("%i", stringCnt).c_str());
 
     GrGLuint shader;
-    GR_GL_CALL_RET(gl.interface(), shader, CreateShader(type));
+    GR_GL_CALL_RET(gli, shader, CreateShader(type));
     if (0 == shader) {
         return 0;
     }
 
-    const GrGLInterface* gli = gl.interface();
     GrGLint compiled = GR_GL_INIT_ZERO;
     GR_GL_CALL(gli, ShaderSource(shader, stringCnt, strings, stringLengths));
     GR_GL_CALL(gli, CompileShader(shader));
@@ -376,10 +375,10 @@ GrGLuint compile_shader(const GrGLContext& gl,
 }
 
 // helper version of above for when shader is already flattened into a single SkString
-GrGLuint compile_shader(const GrGLContext& gl, GrGLenum type, const SkString& shader) {
+GrGLuint compile_shader(const GrGLInterface* gli, GrGLenum type, const SkString& shader) {
     const GrGLchar* str = shader.c_str();
     int length = shader.size();
-    return compile_shader(gl, type, 1, &str, &length);
+    return compile_shader(gli, type, 1, &str, &length);
 }
 
 void expand_known_value4f(SkString* string, GrSLConstantVec vec) {
@@ -412,7 +411,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
             GrPrintf(shader.c_str());
             GrPrintf("\n");
         }
-        if (!(fVShaderID = compile_shader(fContext, GR_GL_VERTEX_SHADER, shader))) {
+        if (!(fVShaderID = compile_shader(fGpu->glInterface(), GR_GL_VERTEX_SHADER, shader))) {
             return false;
         }
 
@@ -423,7 +422,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
                 GrPrintf(shader.c_str());
                 GrPrintf("\n");
             }
-            if (!(fGShaderID = compile_shader(fContext, GR_GL_GEOMETRY_SHADER, shader))) {
+            if (!(fGShaderID = compile_shader(fGpu->glInterface(), GR_GL_GEOMETRY_SHADER, shader))) {
                 return false;
             }
         }
@@ -435,7 +434,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         GrPrintf(shader.c_str());
         GrPrintf("\n");
     }
-    if (!(fFShaderID = compile_shader(fContext, GR_GL_FRAGMENT_SHADER, shader))) {
+    if (!(fFShaderID = compile_shader(fGpu->glInterface(), GR_GL_FRAGMENT_SHADER, shader))) {
         return false;
     }
 
@@ -450,7 +449,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
 
     bool needsVertexShader = true;
 
-    GrGLShaderBuilder builder(fContext.info(), fUniformManager, fDesc, needsVertexShader);
+    GrGLShaderBuilder builder(fGpu->ctxInfo(), fUniformManager, fDesc, needsVertexShader);
 
     if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
         const char* viewMName;
@@ -476,7 +475,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     bool dualSourceOutputWritten = false;
 
     GrGLShaderVar colorOutput;
-    bool isColorDeclared = GrGLSLSetupFSColorOuput(fContext.info().glslGeneration(),
+    bool isColorDeclared = GrGLSLSetupFSColorOuput(fGpu->glslGeneration(),
                                                    declared_color_output_name(),
                                                    &colorOutput);
     if (isColorDeclared) {
@@ -797,8 +796,7 @@ void GrGLProgram::initEffectSamplerUniforms(EffectAndSamplers* effect, int* texU
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setEffectData(GrGpuGL* gpu,
-                                const GrEffectStage& stage,
+void GrGLProgram::setEffectData(const GrEffectStage& stage,
                                 const EffectAndSamplers& effect) {
 
     // Let the GrGLEffect set its data.
@@ -815,18 +813,17 @@ void GrGLProgram::setEffectData(GrGpuGL* gpu,
             const GrTextureAccess& access = (*stage.getEffect())->textureAccess(s);
             GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
             int unit = effect.fTextureUnits[s];
-            gpu->bindTexture(unit, access.getParams(), texture);
+            fGpu->bindTexture(unit, access.getParams(), texture);
         }
     }
 }
 
-void GrGLProgram::setData(GrGpuGL* gpu,
-                          GrDrawState::BlendOptFlags blendOpts,
+void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
                           const GrEffectStage* colorStages[],
                           const GrEffectStage* coverageStages[],
                           const GrDeviceCoordTexture* dstCopy,
                           SharedGLState* sharedState) {
-    const GrDrawState& drawState = gpu->getDrawState();
+    const GrDrawState& drawState = fGpu->getDrawState();
 
     GrColor color;
     GrColor coverage;
@@ -864,7 +861,7 @@ void GrGLProgram::setData(GrGpuGL* gpu,
                                   1.f / dstCopy->texture()->height());
             GrGLTexture* texture = static_cast<GrGLTexture*>(dstCopy->texture());
             static GrTextureParams kParams; // the default is clamp, nearest filtering.
-            gpu->bindTexture(fDstCopyTexUnit, kParams, texture);
+            fGpu->bindTexture(fDstCopyTexUnit, kParams, texture);
         } else {
             SkASSERT(!fUniformHandles.fDstCopyScaleUni.isValid());
             SkASSERT(!fUniformHandles.fDstCopySamplerUni.isValid());
@@ -879,13 +876,13 @@ void GrGLProgram::setData(GrGpuGL* gpu,
         // We may have omitted the GrGLEffect because of the color filter logic in genProgram.
         // This can be removed when the color filter is an effect.
         if (NULL != fColorEffects[e].fGLEffect) {
-            this->setEffectData(gpu, *colorStages[e], fColorEffects[e]);
+            this->setEffectData(*colorStages[e], fColorEffects[e]);
         }
     }
 
     for (int e = 0; e < fCoverageEffects.count(); ++e) {
         if (NULL != fCoverageEffects[e].fGLEffect) {
-            this->setEffectData(gpu, *coverageStages[e], fCoverageEffects[e]);
+            this->setEffectData(*coverageStages[e], fCoverageEffects[e]);
         }
     }
 }

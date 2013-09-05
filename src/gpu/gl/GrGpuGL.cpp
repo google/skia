@@ -148,7 +148,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         ctx.info().caps()->print();
     }
 
-    fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContext()));
+    fProgramCache = SkNEW_ARGS(ProgramCache, (this));
 
     SkASSERT(this->glCaps().maxVertexAttributes() >= GrDrawState::kMaxVertexAttribCnt);
 
