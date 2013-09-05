@@ -9290,8 +9290,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        476
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "gradtext_pdf-poppler.png": {

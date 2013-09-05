@@ -9571,7 +9571,10 @@
           2307761468478746873
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        476
+      ], 
+      "ignore-failure": true
     }, 
     "gradtext_pdf-poppler.png": {
       "allowed-digests": [
