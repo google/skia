@@ -535,6 +535,11 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return skPaint2GrPaintNoShader(dev, skPaint, false, constantColor, grPaint);
     }
 
+    // SkShader::asNewEffect() may do offscreen rendering. Setup default drawing state
+    // Also require shader to set the render target .
+    GrContext::AutoWideOpenIdentityDraw awo(dev->context(), NULL);
+    GrContext::AutoRenderTarget(dev->context(), NULL);
+
     // setup the shader as the first color effect on the paint
     SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(dev->context(), skPaint));
     if (NULL != effect.get()) {
