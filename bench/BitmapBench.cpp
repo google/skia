@@ -137,7 +137,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkIPoint dim = this->getSize();
-        SkRandom rand;
+        SkMWCRandom rand;
 
         SkPaint paint(fPaint);
         this->setupPaint(&paint);

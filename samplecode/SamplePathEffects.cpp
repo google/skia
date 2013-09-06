@@ -102,7 +102,7 @@ class PathEffectView : public SampleView {
     SkPoint fClickPt;
 public:
     PathEffectView() {
-        SkRandom    rand;
+        SkMWCRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
         SkScalar    x = SkIntToScalar(20);

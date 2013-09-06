@@ -32,7 +32,7 @@ public:
         fDoAA = doAA;
         fName.printf("lines_%g_%s", width, doAA ? "AA" : "BW");
 
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < PTS; ++i) {
             fPts[i].set(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         }

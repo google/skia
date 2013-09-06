@@ -74,7 +74,7 @@ protected:
                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))));
         paint.getMaskFilter()->unref();
 
-        SkRandom rand;
+        SkMWCRandom rand;
 
         for (int ps = 6; ps <= 35; ps++) {
             paint.setColor(rand.nextU() | (0xFF << 24));

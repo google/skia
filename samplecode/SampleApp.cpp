@@ -2435,7 +2435,7 @@ template <typename T> void SkTBSort(T array[], int count) {
 
 #include "SkRandom.h"
 
-static void rand_rect(SkIRect* rect, SkRandom& rand) {
+static void rand_rect(SkIRect* rect, SkMWCRandom& rand) {
     int bits = 8;
     int shift = 32 - bits;
     rect->set(rand.nextU() >> shift, rand.nextU() >> shift,
@@ -2499,7 +2499,7 @@ static void test() {
         test_rects(gRecs[i].fRects, gRecs[i].fCount);
     }
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (i = 0; i < 10000; i++) {
         SkRegion rgn0, rgn1;
 

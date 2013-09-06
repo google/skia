@@ -132,7 +132,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    SkRandom rand;
+    SkMWCRandom rand;
 
     void drawSet(SkCanvas* canvas, SkPaint* paint) {
         SkAutoCanvasRestore acr(canvas, true);

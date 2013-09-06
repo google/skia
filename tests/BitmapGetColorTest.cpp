@@ -10,11 +10,11 @@
 #include "SkRect.h"
 #include "SkRandom.h"
 
-static int nextRand(SkRandom& rand, int min, int max) {
+static int nextRand(SkMWCRandom& rand, int min, int max) {
     return min + (int)rand.nextRangeU(0, max - min);
 }
 
-static void rand_irect(SkIRect* rect, int W, int H, SkRandom& rand) {
+static void rand_irect(SkIRect* rect, int W, int H, SkMWCRandom& rand) {
     const int DX = W / 2;
     const int DY = H / 2;
 
@@ -57,7 +57,7 @@ static void test_eraserect_A1(skiatest::Reporter* reporter) {
     bm8.setConfig(SkBitmap::kA8_Config, W, H);
     bm8.allocPixels();
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (int i = 0; i < 10000; ++i) {
         SkIRect area;
         rand_irect(&area, W, H, rand);

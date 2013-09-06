@@ -71,7 +71,7 @@ static void test_cmap(skiatest::Reporter* reporter) {
         { uni_to_utf32, SkPaint::kUTF32_TextEncoding },
     };
 
-    SkRandom rand;
+    SkMWCRandom rand;
     SkPaint paint;
     paint.setTypeface(SkTypeface::RefDefault())->unref();
     SkTypeface* face = paint.getTypeface();

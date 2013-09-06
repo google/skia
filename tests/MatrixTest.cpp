@@ -574,7 +574,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
     const int kTripleCount = 1000;
     const int kMatrixCount = 1000;
-    SkRandom rand;
+    SkMWCRandom rand;
 
     SkScalar randTriples[3*kTripleCount];
     for (int i = 0; i < 3*kTripleCount; ++i) {

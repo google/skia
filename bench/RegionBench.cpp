@@ -82,7 +82,7 @@ public:
         N = SkBENCHLOOP(2000)
     };
 
-    SkIRect randrect(SkRandom& rand) {
+    SkIRect randrect(SkMWCRandom& rand) {
         int x = rand.nextU() % W;
         int y = rand.nextU() % H;
         int w = rand.nextU() % W;
@@ -95,7 +95,7 @@ public:
         fName.printf("region_%s_%d", name, count);
         fLoopMul = mul;
 
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < count; i++) {
             fA.op(randrect(rand), SkRegion::kXOR_Op);
             fB.op(randrect(rand), SkRegion::kXOR_Op);
