@@ -8,7 +8,6 @@
 {
   'variables': {
     'skgpu_sources': [
-      '<(skia_include_path)/gpu/GrAARectRenderer.h',
       '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
@@ -22,7 +21,6 @@
       '<(skia_include_path)/gpu/GrGlyph.h',
       '<(skia_include_path)/gpu/GrKey.h',
       '<(skia_include_path)/gpu/GrNoncopyable.h',
-      '<(skia_include_path)/gpu/GrOvalRenderer.h',
       '<(skia_include_path)/gpu/GrPaint.h',
       '<(skia_include_path)/gpu/GrPathRendererChain.h',
       '<(skia_include_path)/gpu/GrPoint.h',
@@ -48,6 +46,7 @@
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.h',
       '<(skia_src_path)/gpu/GrAARectRenderer.cpp',
+      '<(skia_src_path)/gpu/GrAARectRenderer.h',
       '<(skia_src_path)/gpu/GrAddPathRenderers_default.cpp',
       '<(skia_src_path)/gpu/GrAllocator.h',
       '<(skia_src_path)/gpu/GrAllocPool.h',
@@ -86,6 +85,7 @@
       '<(skia_src_path)/gpu/GrMemoryPool.cpp',
       '<(skia_src_path)/gpu/GrMemoryPool.h',
       '<(skia_src_path)/gpu/GrOvalRenderer.cpp',
+      '<(skia_src_path)/gpu/GrOvalRenderer.h',
       '<(skia_src_path)/gpu/GrPaint.cpp',
       '<(skia_src_path)/gpu/GrPath.cpp',
       '<(skia_src_path)/gpu/GrPath.h',
