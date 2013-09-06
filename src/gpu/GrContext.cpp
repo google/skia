@@ -1536,10 +1536,10 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         // handle the unpremul step on the CPU if we couldn't create an effect to do it.
         if (NULL == effect) {
             SkCanvas::Config8888 srcConfig8888, dstConfig8888;
-            GR_DEBUGCODE(bool success = )
+            SkDEBUGCODE(bool success = )
             grconfig_to_config8888(srcConfig, true, &srcConfig8888);
             SkASSERT(success);
-            GR_DEBUGCODE(success = )
+            SkDEBUGCODE(success = )
             grconfig_to_config8888(srcConfig, false, &dstConfig8888);
             SkASSERT(success);
             const uint32_t* src = reinterpret_cast<const uint32_t*>(buffer);

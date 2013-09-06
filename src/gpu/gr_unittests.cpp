@@ -74,7 +74,7 @@ static void test_binHashKey()
 
 
 void gr_run_unittests() {
-    GR_DEBUGCODE(test_bsearch();)
+    SkDEBUGCODE(test_bsearch();)
     test_binHashKey();
     GrRedBlackTree<int>::UnitTest();
 }

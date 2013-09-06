@@ -57,7 +57,7 @@ struct GrAllocPool::Block {
 GrAllocPool::GrAllocPool(size_t blockSize) {
     fBlock = NULL;
     fMinBlockSize = GrMax(blockSize, GrAllocPool_MIN_BLOCK_SIZE);
-    GR_DEBUGCODE(fBlocksAllocated = 0;)
+    SkDEBUGCODE(fBlocksAllocated = 0;)
 }
 
 GrAllocPool::~GrAllocPool() {
@@ -74,7 +74,7 @@ void GrAllocPool::reset() {
         block = next;
     }
     fBlock = NULL;
-    GR_DEBUGCODE(fBlocksAllocated = 0;)
+    SkDEBUGCODE(fBlocksAllocated = 0;)
 }
 
 void* GrAllocPool::alloc(size_t size) {
@@ -83,7 +83,7 @@ void* GrAllocPool::alloc(size_t size) {
     if (!fBlock || !fBlock->canAlloc(size)) {
         size_t blockSize = GrMax(fMinBlockSize, size);
         fBlock = Block::Create(blockSize, fBlock);
-        GR_DEBUGCODE(fBlocksAllocated += 1;)
+        SkDEBUGCODE(fBlocksAllocated += 1;)
     }
     return fBlock->alloc(size);
 }
@@ -97,7 +97,7 @@ void GrAllocPool::release(size_t bytes) {
             Block* next = fBlock->fNext;
             GrFree(fBlock);
             fBlock = next;
-            GR_DEBUGCODE(fBlocksAllocated -= 1;)
+            SkDEBUGCODE(fBlocksAllocated -= 1;)
         }
     }
 }

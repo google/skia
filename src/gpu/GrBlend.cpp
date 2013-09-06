@@ -113,7 +113,7 @@ static GrColor simplify_blend_term(GrBlendCoeff* srcCoeff,
             break;
     }
     // We may have invalidated these above and shouldn't read them again.
-    GR_DEBUGCODE(dstColor = constantColor = GrColor_ILLEGAL;)
+    SkDEBUGCODE(dstColor = constantColor = GrColor_ILLEGAL;)
 
     if (kZero_GrBlendCoeff == *srcCoeff || (valid_color(srcCompFlags) && 0 == srcColor)) {
         *srcCoeff = kZero_GrBlendCoeff;

@@ -78,11 +78,11 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu, kIsWrapped
     path.getPoints(&pathPoints[0], pointCnt);
     path.getVerbs(&pathCommands[0], verbCnt);
 
-    GR_DEBUGCODE(int numPts = 0);
+    SkDEBUGCODE(int numPts = 0);
     for (int i = 0; i < verbCnt; ++i) {
         SkPath::Verb v = static_cast<SkPath::Verb>(pathCommands[i]);
         pathCommands[i] = verb_to_gl_path_cmd(v);
-        GR_DEBUGCODE(numPts += num_pts(v));
+        SkDEBUGCODE(numPts += num_pts(v));
     }
     SkASSERT(pathPoints.count() == numPts);
 

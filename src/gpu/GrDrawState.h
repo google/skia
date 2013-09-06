@@ -30,12 +30,12 @@ public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
     GrDrawState() {
-        GR_DEBUGCODE(fBlockEffectRemovalCnt = 0;)
+        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset();
     }
 
     GrDrawState(const SkMatrix& initialViewMatrix) {
-        GR_DEBUGCODE(fBlockEffectRemovalCnt = 0;)
+        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset(initialViewMatrix);
     }
 
@@ -43,7 +43,7 @@ public:
      * Copies another draw state.
      **/
     GrDrawState(const GrDrawState& state) : INHERITED() {
-        GR_DEBUGCODE(fBlockEffectRemovalCnt = 0;)
+        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
     }
 
@@ -51,7 +51,7 @@ public:
      * Copies another draw state with a preconcat to the view matrix.
      **/
     GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix) {
-        GR_DEBUGCODE(fBlockEffectRemovalCnt = 0;)
+        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
         if (!preConcatMatrix.isIdentity()) {
             for (int i = 0; i < fColorStages.count(); ++i) {
@@ -419,13 +419,13 @@ public:
                 n = fDrawState->fCoverageStages.count() - fCoverageEffectCnt;
                 SkASSERT(n >= 0);
                 fDrawState->fCoverageStages.pop_back_n(n);
-                GR_DEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
+                SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
             }
             fDrawState = ds;
             if (NULL != ds) {
                 fColorEffectCnt = ds->fColorStages.count();
                 fCoverageEffectCnt = ds->fCoverageStages.count();
-                GR_DEBUGCODE(++ds->fBlockEffectRemovalCnt;)
+                SkDEBUGCODE(++ds->fBlockEffectRemovalCnt;)
             }
         }
 
@@ -981,7 +981,7 @@ public:
     class DeferredState {
     public:
         DeferredState() : fRenderTarget(NULL) {
-            GR_DEBUGCODE(fInitialized = false;)
+            SkDEBUGCODE(fInitialized = false;)
         }
         // TODO: Remove this when DeferredState no longer holds a ref to the RT
         ~DeferredState() { SkSafeUnref(fRenderTarget); }
@@ -1002,7 +1002,7 @@ public:
             for (int i = 0; i < drawState.fCoverageStages.count(); ++i) {
                 fStages[i + fColorStageCnt].saveFrom(drawState.fCoverageStages[i]);
             }
-            GR_DEBUGCODE(fInitialized = true;)
+            SkDEBUGCODE(fInitialized = true;)
         }
 
         void restoreTo(GrDrawState* drawState) {
@@ -1053,7 +1053,7 @@ public:
         int                                   fColorStageCnt;
         DeferredStageArray                    fStages;
 
-        GR_DEBUGCODE(bool fInitialized;)
+        SkDEBUGCODE(bool fInitialized;)
     };
 
 private:
@@ -1067,7 +1067,7 @@ private:
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
-    GR_DEBUGCODE(int fBlockEffectRemovalCnt;)
+    SkDEBUGCODE(int fBlockEffectRemovalCnt;)
 
     /**
      *  Sets vertex attributes for next draw.

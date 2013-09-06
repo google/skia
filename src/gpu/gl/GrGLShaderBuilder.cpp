@@ -334,7 +334,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
 
     BuilderUniform& uni = fUniforms.push_back();
     UniformHandle h = GrGLUniformManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
-    GR_DEBUGCODE(UniformHandle h2 =)
+    SkDEBUGCODE(UniformHandle h2 =)
     fUniformManager.appendUniform(type, count);
     // We expect the uniform manager to initially have no uniforms and that all uniforms are added
     // by this function. Therefore, the handles should match.
