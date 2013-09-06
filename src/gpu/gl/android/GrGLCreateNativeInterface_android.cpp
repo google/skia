@@ -314,7 +314,6 @@ static const GrGLInterface* create_desktop_interface(GrGLVersion version,
     interface->fReadPixels = (GrGLReadPixelsProc) eglGetProcAddress("glReadPixels");
     interface->fRenderbufferStorage = (GrGLRenderbufferStorageProc) eglGetProcAddress("glRenderbufferStorage");
     interface->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisample");
-    interface->fRenderbufferStorageMultisampleCoverage = (GrGLRenderbufferStorageMultisampleCoverageProc) eglGetProcAddress("glRenderbufferStorageMultisampleCoverage");
     interface->fScissor = (GrGLScissorProc) eglGetProcAddress("glScissor");
     interface->fShaderSource = (GrGLShaderSourceProc) eglGetProcAddress("glShaderSource");
     interface->fStencilFunc = (GrGLStencilFuncProc) eglGetProcAddress("glStencilFunc");
