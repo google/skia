@@ -165,7 +165,7 @@ protected:
 
         // test that we can re-record a subpicture, and see the results
 
-        SkRandom rand(SampleCode::GetAnimTime());
+        SkMWCRandom rand(SampleCode::GetAnimTime());
         canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
         drawCircle(fSubPicture->beginRecording(50, 50), 25,
                    rand.nextU() | 0xFF000000);

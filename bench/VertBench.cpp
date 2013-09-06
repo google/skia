@@ -68,7 +68,7 @@ public:
         SkASSERT(PTS == pts - fPts);
         SkASSERT(IDX == idx - fIdx);
 
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < PTS; ++i) {
             fColors[i] = rand.nextU() | (0xFF << 24);
         }

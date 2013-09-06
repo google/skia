@@ -85,7 +85,7 @@ public:
         name->append("line");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand;
+        SkMWCRandom rand;
         int size = SK_ARRAY_COUNT(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -117,7 +117,7 @@ public:
         name->append("quad");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand;
+        SkMWCRandom rand;
         int size = SK_ARRAY_COUNT(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -149,8 +149,8 @@ public:
         name->append("conic");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand;
-        SkRandom randWeight;
+        SkMWCRandom rand;
+        SkMWCRandom randWeight;
         int size = SK_ARRAY_COUNT(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -184,7 +184,7 @@ public:
         name->append("cubic");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand;
+        SkMWCRandom rand;
         int size = SK_ARRAY_COUNT(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {

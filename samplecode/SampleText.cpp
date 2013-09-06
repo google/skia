@@ -135,7 +135,7 @@ static void test_breakText() {
     SkASSERT(mm == width);
 }
 
-static SkRandom gRand;
+static SkMWCRandom gRand;
 
 class SkPowerMode : public SkXfermode {
 public:
@@ -287,7 +287,7 @@ protected:
         canvas.drawText(s, strlen(s), SkIntToScalar(8), SkIntToScalar(14), paint);
     }
 
-    static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
+    static void fill_pts(SkPoint pts[], size_t n, SkMWCRandom* rand) {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }

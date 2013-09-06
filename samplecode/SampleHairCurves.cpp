@@ -34,8 +34,8 @@ protected:
         paint.setStrokeWidth(0);
         canvas->save();
         canvas->scale(1000 * SK_Scalar1, 1000 * SK_Scalar1);
-        SkRandom rand;
-        SkRandom randW;
+        SkMWCRandom rand;
+        SkMWCRandom randW;
         SkPath curves;
         SkPath hulls;
         SkPath ctrlPts;

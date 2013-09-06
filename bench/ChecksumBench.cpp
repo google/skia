@@ -30,7 +30,7 @@ class ComputeChecksumBench : public SkBenchmark {
 
 public:
     ComputeChecksumBench(void* param, ChecksumType type) : INHERITED(param), fType(type) {
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < U32COUNT; ++i) {
             fData[i] = rand.nextU();
         }

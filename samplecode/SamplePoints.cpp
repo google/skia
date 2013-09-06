@@ -41,7 +41,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
+    static void fill_pts(SkPoint pts[], size_t n, SkMWCRandom* rand) {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }
@@ -49,7 +49,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SK_Scalar1, SK_Scalar1);
 
-        SkRandom rand;
+        SkMWCRandom rand;
         SkPaint  p0, p1, p2, p3;
         const size_t n = 99;
 

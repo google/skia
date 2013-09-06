@@ -183,7 +183,7 @@ public:
         name->append("long_curved");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand (12);
+        SkMWCRandom rand (12);
         int i;
         for (i = 0; i < 100; i++) {
             path->quadTo(SkScalarMul(rand.nextUScalar1(), SkIntToScalar(640)),
@@ -208,7 +208,7 @@ public:
         name->append("long_line");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRandom rand;
+        SkMWCRandom rand;
         path->moveTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         for (size_t i = 1; i < 100; i++) {
             path->lineTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
@@ -316,7 +316,7 @@ private:
     int                         fCurrPath;
     int                         fCurrVerb;
     int                         fCurrPoint;
-    SkRandom                    fRandom;
+    SkMWCRandom                 fRandom;
     typedef SkBenchmark INHERITED;
 };
 
@@ -653,7 +653,7 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
         }
 
-        SkRandom rand;
+        SkMWCRandom rand;
 
         SkRect r;
 
@@ -754,7 +754,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkRandom rand;
+        SkMWCRandom rand;
         SkRect r;
 
         for (int i = 0; i < 5000; ++i) {
@@ -834,7 +834,7 @@ private:
     virtual void onPreDraw() SK_OVERRIDE {
         fQueryRects.setCount(kQueryRectCnt);
 
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < kQueryRectCnt; ++i) {
             SkSize size;
             SkPoint xy;
@@ -931,7 +931,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void rand_conic(SkConic* conic, SkRandom& rand) {
+static void rand_conic(SkConic* conic, SkMWCRandom& rand) {
     for (int i = 0; i < 3; ++i) {
         conic->fPts[i].set(rand.nextUScalar1() * 100, rand.nextUScalar1() * 100);
     }
@@ -945,7 +945,7 @@ static void rand_conic(SkConic* conic, SkRandom& rand) {
 class ConicBench : public SkBenchmark {
 public:
     ConicBench(void* param) : INHERITED(param) {
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < CONICS; ++i) {
             rand_conic(&fConics[i], rand);
         }

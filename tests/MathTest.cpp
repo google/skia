@@ -19,7 +19,7 @@ static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == SkCLZ(1 << 30));
     REPORTER_ASSERT(reporter, 0 == SkCLZ(~0U));
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (int i = 0; i < 1000; ++i) {
         uint32_t mask = rand.nextU();
         // need to get some zeros for testing, but in some obscure way so the
@@ -82,7 +82,7 @@ static void test_muldivround(skiatest::Reporter* reporter) {
     }
 #endif
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (int i = 0; i < 10000; ++i) {
         unsigned a = rand.nextU() & 0x7FFF;
         unsigned b = rand.nextU() & 0x7FFF;

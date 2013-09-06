@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkRandom.h"
 
-static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
+static void make_bitmap(SkBitmap* bm, SkMWCRandom& rand) {
     // for now, Build needs a min size of 2, otherwise it will return NULL.
     // should fix that to support 1 X N, where N > 1 to return non-null.
     int w = 2 + rand.nextU() % 1000;
@@ -22,7 +22,7 @@ static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
 
 static void TestMipMap(skiatest::Reporter* reporter) {
     SkBitmap bm;
-    SkRandom rand;
+    SkMWCRandom rand;
 
     for (int i = 0; i < 500; ++i) {
         make_bitmap(&bm, rand);

@@ -143,7 +143,7 @@ public:
 protected:
     virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < M; i++) {
             SkPaint paint;
             paint.setColor(rand.nextU());
@@ -167,7 +167,7 @@ class RecurringPaintDictionaryRecordBench : public PictureRecordBench {
 public:
     RecurringPaintDictionaryRecordBench(void* param)
         : INHERITED(param, "recurring_paint_dictionary") {
-        SkRandom rand;
+        SkMWCRandom rand;
         for (int i = 0; i < ObjCount; i++) {
             fPaint[i].setColor(rand.nextU());
         }
