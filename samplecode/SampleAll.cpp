@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkView.h"
 #include "Sk1DPathEffect.h"
@@ -79,8 +80,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 static void r0(SkLayerRasterizer* rast, SkPaint& p) {
-    p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                             SkBlurMaskFilter::kNormal_BlurStyle,
+    p.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)),
                                              SkBlurMaskFilter::kNone_BlurFlag))->unref();
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
@@ -255,10 +256,9 @@ static void apply_shader(SkPaint* paint, int index) {
 
 #if 1
     SkScalar dir[] = { SK_Scalar1, SK_Scalar1, SK_Scalar1 };
-    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(dir,
-                                                        SK_Scalar1/4,
-                                                        SkIntToScalar(4),
-                                                        SkIntToScalar(3)))->unref();
+    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(
+                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)), dir,
+                SK_Scalar1/4, SkIntToScalar(4)))->unref();
     paint->setColor(SK_ColorBLUE);
 #endif
 }
@@ -386,8 +386,8 @@ protected:
         light.fDirection[2] = SK_Scalar1/3;
         light.fAmbient        = 0x48;
         light.fSpecular        = 0x80;
-        SkScalar radius = SkIntToScalar(12)/5;
-        SkEmbossMaskFilter* embossFilter = new SkEmbossMaskFilter(light, radius);
+        SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(12)/5);
+        SkEmbossMaskFilter* embossFilter = new SkEmbossMaskFilter(sigma, light);
 
         SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
         SkColorFilter* lightingFilter = SkColorFilter::CreateLightingFilter(

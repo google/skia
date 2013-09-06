@@ -6,6 +6,7 @@
  */
 #include "gm.h"
 #include "SampleCode.h"
+#include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -85,7 +86,9 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(24));
         SkAutoTUnref<SkBlurDrawLooper> looper(SkNEW_ARGS(SkBlurDrawLooper,
-                                              (SkIntToScalar(2), 0, 0, SK_ColorBLUE)));
+                                              (SK_ColorBLUE,
+                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
+                                               0, 0)));
         paint.setLooper(looper);
         SkScalar height = paint.getFontMetrics(NULL);
         if (!fDecodeSucceeded) {

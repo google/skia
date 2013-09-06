@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SkBenchmark.h"
+#include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
@@ -32,12 +33,14 @@ class BlurBench : public SkBenchmark {
     SkString    fName;
 
 public:
-    BlurBench(void* param, SkScalar rad, SkBlurMaskFilter::BlurStyle bs, uint32_t flags = 0) : INHERITED(param) {
+    BlurBench(void* param, SkScalar rad, SkBlurMaskFilter::BlurStyle bs, uint32_t flags = 0) 
+        : INHERITED(param) {
         fRadius = rad;
         fStyle = bs;
         fFlags = flags;
         const char* name = rad > 0 ? gStyleName[bs] : "none";
-        const char* quality = flags & SkBlurMaskFilter::kHighQuality_BlurFlag ? "high_quality" : "low_quality";
+        const char* quality = flags & SkBlurMaskFilter::kHighQuality_BlurFlag ? "high_quality" 
+                                                                              : "low_quality";
         if (SkScalarFraction(rad) != 0) {
             fName.printf("blur_%.2f_%s_%s", SkScalarToFloat(rad), name, quality);
         } else {
@@ -63,7 +66,9 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(fRadius, fStyle, fFlags);
+                SkMaskFilter* mf = SkBlurMaskFilter::Create(fStyle, 
+                                            SkBlurMask::ConvertRadiusToSigma(fRadius), 
+                                            fFlags);
                 paint.setMaskFilter(mf)->unref();
             }
             canvas->drawOval(r, paint);

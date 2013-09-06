@@ -16,10 +16,12 @@
 class SkDrawBlur : public SkDrawMaskFilter {
     DECLARE_DRAW_MEMBER_INFO(Blur);
     SkDrawBlur();
-    virtual SkMaskFilter* getMaskFilter();
+    virtual SkMaskFilter* getMaskFilter() SK_OVERRIDE;
 protected:
-    SkScalar radius;
-    int /*SkBlurMaskFilter::BlurStyle*/ blurStyle;
+    SkScalar fSigma;
+    int /*SkBlurMaskFilter::BlurStyle*/ fBlurStyle;
+
+    typedef SkDrawMaskFilter INHERITED;
 };
 
 #endif // SkDrawBlur_DEFINED

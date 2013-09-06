@@ -28,8 +28,8 @@ protected:
         SkMWCRandom Random;
 
         for (int i = 0; i < N; i++) {
-            SkScalar blurRad = Random.nextRangeScalar(1.5f, 25.0f);
-            SkScalar size = Random.nextRangeScalar(20*blurRad, 50*blurRad);
+            SkScalar blurSigma = Random.nextRangeScalar(1.5f, 25.0f);
+            SkScalar size = Random.nextRangeScalar(20*blurSigma, 50*blurSigma);
 
             SkScalar x = Random.nextRangeScalar(0.0f, W - size);
             SkScalar y = Random.nextRangeScalar(0.0f, H - size);
@@ -38,7 +38,7 @@ protected:
 
             SkRect outer(inner);
             // outer is always outset either 2x or 4x the blur radius (we go with 2x)
-            outer.outset(2*blurRad, 2*blurRad);
+            outer.outset(2*blurSigma, 2*blurSigma);
 
             SkPath p;
 
@@ -51,7 +51,7 @@ protected:
             SkScalar translate = 2.0f * size;
 
             SkPaint paint;
-            paint.setLooper(this->createLooper(-translate, blurRad))->unref();
+            paint.setLooper(this->createLooper(-translate, blurSigma))->unref();
             paint.setColor(0xff000000 | Random.nextU());
             paint.setAntiAlias(true);
 
@@ -72,7 +72,7 @@ private:
 
     enum { N = SkBENCHLOOP(100) };
 
-    SkLayerDrawLooper* createLooper(SkScalar xOff, SkScalar radius) {
+    SkLayerDrawLooper* createLooper(SkScalar xOff, SkScalar sigma) {
         SkLayerDrawLooper* looper = new SkLayerDrawLooper;
 
         //-----------------------------------------------
@@ -88,8 +88,8 @@ private:
 
         SkPaint* paint = looper->addLayer(info);
 
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(radius,
-                                                    SkBlurMaskFilter::kNormal_BlurStyle,
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                                    sigma,
                                                     SkBlurMaskFilter::kHighQuality_BlurFlag);
         paint->setMaskFilter(mf)->unref();
 

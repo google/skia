@@ -6,13 +6,14 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkBlurMask.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkView.h"
 
-#include "SkBlurMaskFilter.h"
 
 static void test_huge_stroke(SkCanvas* canvas) {
     SkRect srcR = { 0, 0, 72000, 54000 };
@@ -41,7 +42,6 @@ static void test_huge_stroke(SkCanvas* canvas) {
 }
 
 #if 0
-#include "SkBlurMask.h"
 static void test_blur() {
     uint8_t cell[9];
     memset(cell, 0xFF, sizeof(cell));
@@ -168,14 +168,14 @@ protected:
             };
             for (int x = 0; x < 5; x++) {
                 SkMaskFilter* mf;
-                SkScalar radius = 4;
+                SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
                 for (int y = 0; y < 10; y++) {
                     if (x) {
-                        mf = SkBlurMaskFilter::Create(radius, gStyle[x - 1]);
+                        mf = SkBlurMaskFilter::Create(gStyle[x - 1], sigma);
                         paint.setMaskFilter(mf)->unref();
                     }
                     canvas->drawText("Title Bar", 9, x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
-                    radius *= 0.75f;
+                    sigma *= 0.75f;
                 }
 
             }

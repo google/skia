@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
@@ -34,10 +35,10 @@ static void textStrokePath(SkCanvas* canvas) {
 
     canvas->drawPath(path, paint);
 
-    paint.setLooper(new SkBlurDrawLooper(SkFloatToScalar(0.002f),
-                                          SkFloatToScalar(0.0f),
-                                          SkFloatToScalar(0.0f),
-                                          (SkColor)0xFF000000))->unref();
+    paint.setLooper(new SkBlurDrawLooper(SK_ColorBLACK,
+                                         SkBlurMask::ConvertRadiusToSigma(SkFloatToScalar(0.002f)),
+                                         SkFloatToScalar(0.0f),
+                                         SkFloatToScalar(0.0f)))->unref();
 
     const char* text = "DRAWING STROKED TEXT WITH A BLUR ON A PATH";
     size_t      len = strlen(text);

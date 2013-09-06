@@ -59,21 +59,35 @@ static float make_number() {
   float v = 0;
   int sel;
 
-  if (return_large == true && R(3) == 1) sel = R(6); else  sel = R(4);
-  if (return_undef == false && sel == 0) sel = 1;
-
-  if (R(2) == 1) v = (float)R(100); else
-
-  switch (sel) {
-    case 0: break;
-    case 1: v = 0; break;
-    case 2: v = 0.000001f; break;
-    case 3: v = 10000; break;
-    case 4: v = 2000000000; break;
-    case 5: v = huge(); break;
+  if (return_large == true && R(3) == 1) {
+      sel = R(6); 
+  } else {
+      sel = R(4);
   }
 
-  if (R(4) == 1) v = -v;
+  if (return_undef == false && sel == 0) {
+      sel = 1;
+  }
+
+  if (R(2) == 1) {
+      v = (float)R(100); 
+  } else {
+
+      switch (sel) {
+        case 0: break;
+        case 1: v = 0; break;
+        case 2: v = 0.000001f; break;
+        case 3: v = 10000; break;
+        case 4: v = 2000000000; break;
+        case 5: v = huge(); break;
+      }
+
+  }
+
+  if (R(4) == 1) { 
+      v = -v;
+  }
+
   return v;
 }
 
@@ -176,7 +190,9 @@ static void do_fuzz(SkCanvas* canvas) {
 
     case 7:
       if (quick == true) break;
-          SkSafeUnref(paint.setMaskFilter(SkBlurMaskFilter::Create(make_number(), SkBlurMaskFilter::kNormal_BlurStyle)));
+          SkSafeUnref(paint.setMaskFilter(SkBlurMaskFilter::Create(
+                                                  SkBlurMaskFilter::kNormal_BlurStyle,
+                                                  make_number())));
       break;
 
     case 8:
