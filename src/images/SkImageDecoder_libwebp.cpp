@@ -36,13 +36,6 @@ extern "C" {
 #include "webp/encode.h"
 }
 
-#ifdef ANDROID
-#include <cutils/properties.h>
-
-// Key to lookup the size of memory buffer set in system property
-static const char KEY_MEM_CAP[] = "ro.media.dec.webp.memcap";
-#endif
-
 // this enables timing code to report milliseconds for a decode
 //#define TIME_DECODE
 
