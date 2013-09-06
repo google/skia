@@ -362,21 +362,27 @@ public:
             SkAssertResult(builder->enableFeature(
                                               GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
 
-            const char *vsOffsetName, *fsOffsetName;
-            vertexBuilder->addVarying(kVec4f_GrSLType, "EllipseOffsets",
-                                      &vsOffsetName, &fsOffsetName);
+            const char *vsOffsetName0, *fsOffsetName0;
+            vertexBuilder->addVarying(kVec2f_GrSLType, "EllipseOffsets0",
+                                      &vsOffsetName0, &fsOffsetName0);
             const SkString* attr0Name =
                 vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsOffsetName, attr0Name->c_str());
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsOffsetName0, attr0Name->c_str());
+            const char *vsOffsetName1, *fsOffsetName1;
+            vertexBuilder->addVarying(kVec2f_GrSLType, "EllipseOffsets1",
+                                      &vsOffsetName1, &fsOffsetName1);
+            const SkString* attr1Name =
+                vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsOffsetName1, attr1Name->c_str());
 
             // for outer curve
-            builder->fsCodeAppendf("\tvec2 scaledOffset = %s.xy;\n", fsOffsetName);
+            builder->fsCodeAppendf("\tvec2 scaledOffset = %s.xy;\n", fsOffsetName0);
             builder->fsCodeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
-            builder->fsCodeAppendf("\tvec4 duvdx = dFdx(%s);\n", fsOffsetName);
-            builder->fsCodeAppendf("\tvec4 duvdy = dFdy(%s);\n", fsOffsetName);
+            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s);\n", fsOffsetName0);
+            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s);\n", fsOffsetName0);
             builder->fsCodeAppendf("\tvec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,\n"
                                    "\t                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);\n",
-                                   fsOffsetName, fsOffsetName, fsOffsetName, fsOffsetName);
+                                   fsOffsetName0, fsOffsetName0, fsOffsetName0, fsOffsetName0);
 
             builder->fsCodeAppend("\tfloat grad_dot = dot(grad, grad);\n");
             // we need to clamp the length^2 of the gradiant vector to a non-zero value, because
@@ -394,11 +400,13 @@ public:
 
             // for inner curve
             if (kStroke == ellipseEffect.getMode()) {
-                builder->fsCodeAppendf("\tscaledOffset = %s.zw;\n", fsOffsetName);
+                builder->fsCodeAppendf("\tscaledOffset = %s.xy;\n", fsOffsetName1);
                 builder->fsCodeAppend("\ttest = dot(scaledOffset, scaledOffset) - 1.0;\n");
-                builder->fsCodeAppendf("\tgrad = vec2(2.0*%s.z*duvdx.z + 2.0*%s.w*duvdx.w,\n"
-                                       "\t            2.0*%s.z*duvdy.z + 2.0*%s.w*duvdy.w);\n",
-                                       fsOffsetName, fsOffsetName, fsOffsetName, fsOffsetName);
+                builder->fsCodeAppendf("\tduvdx = dFdx(%s);\n", fsOffsetName1);
+                builder->fsCodeAppendf("\tduvdy = dFdy(%s);\n", fsOffsetName1);
+                builder->fsCodeAppendf("\tgrad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,\n"
+                                       "\t            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);\n",
+                                       fsOffsetName1, fsOffsetName1, fsOffsetName1, fsOffsetName1);
                 builder->fsCodeAppend("\tinvlen = inversesqrt(dot(grad, grad));\n");
                 builder->fsCodeAppend("\tedgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);\n");
             }
@@ -423,7 +431,8 @@ public:
 
 private:
     DIEllipseEdgeEffect(Mode mode) : GrEffect() {
-        this->addVertexAttrib(kVec4f_GrSLType);
+        this->addVertexAttrib(kVec2f_GrSLType);
+        this->addVertexAttrib(kVec2f_GrSLType);
         fMode = mode;
     }
 
@@ -589,7 +598,8 @@ extern const GrVertexAttrib gEllipseVertexAttribs[] = {
 // position + offsets
 extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding},
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
