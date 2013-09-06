@@ -44,6 +44,8 @@ public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
 
+        virtual bool requiresVertexShader(const GrDrawEffect&) const SK_OVERRIDE { return true; }
+
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               EffectKey key,
@@ -163,6 +165,8 @@ public:
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
         : INHERITED (factory) {}
+
+        virtual bool requiresVertexShader(const GrDrawEffect&) const SK_OVERRIDE { return true; }
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,

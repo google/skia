@@ -24,6 +24,11 @@ public:
         }
     }
 
+    virtual bool requiresVertexShader(const GrDrawEffect& drawEffect) const SK_OVERRIDE {
+        const GrSimpleTextureEffect& ste = drawEffect.castEffect<GrSimpleTextureEffect>();
+        return GrEffect::kCustom_CoordsType == ste.coordsType();
+    }
+
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
