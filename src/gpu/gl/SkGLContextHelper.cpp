@@ -82,7 +82,8 @@ bool SkGLContextHelper::init(int width, int height) {
         // depth stencil being available.
         bool supportsPackedDepthStencil;
         if (kES_GrGLBinding == bindingInUse) {
-            supportsPackedDepthStencil = this->hasExtension("GL_OES_packed_depth_stencil");
+            supportsPackedDepthStencil = version >= GR_GL_VER(3,0) ||
+                                         this->hasExtension("GL_OES_packed_depth_stencil");
         } else {
             supportsPackedDepthStencil = version >= GR_GL_VER(3,0) ||
                                          this->hasExtension("GL_EXT_packed_depth_stencil") ||
