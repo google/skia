@@ -116,18 +116,6 @@ void SkBitmapProcState::possiblyScaleImage() {
         return;
     }
 
-    // see if our platform has any specialized convolution code.
-
-
-    // Set up a pointer to a local (instead of storing the structure in the
-    // proc state) to avoid introducing a header dependency; this makes
-    // recompiles a lot less painful.
-
-    SkConvolutionProcs simd;
-    sk_bzero(&simd, sizeof(simd));
-
-    this->platformConvolutionProcs(&simd);
-
     // STEP 1: Highest quality direct scale?
 
     // Check to see if the transformation matrix is simple, and if we're
@@ -150,6 +138,10 @@ void SkBitmapProcState::possiblyScaleImage() {
             int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / invScaleY);
 
             // All the criteria are met; let's make a new bitmap.
+
+            SkConvolutionProcs simd;
+            sk_bzero(&simd, sizeof(simd));
+            this->platformConvolutionProcs(&simd);
 
             if (!SkBitmapScaler::Resize(&fScaledBitmap,
                                         fOrigBitmap,
