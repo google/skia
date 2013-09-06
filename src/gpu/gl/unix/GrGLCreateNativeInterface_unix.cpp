@@ -123,9 +123,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fPixelStorei = glPixelStorei;
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
-        if (extensions.has("GL_NV_framebuffer_multisample_coverage")) {
-            GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisampleCoverage, NV);
-        }
         interface->fScissor = glScissor;
         GR_GL_GET_PROC(ShaderSource);
         interface->fStencilFunc = glStencilFunc;

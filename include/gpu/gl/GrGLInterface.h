@@ -254,7 +254,6 @@ public:
     //  the standard function in ES3+ or GL 3.0+.
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisample;
 
-    GLPtr<GrGLRenderbufferStorageMultisampleCoverageProc> fRenderbufferStorageMultisampleCoverage;
     GLPtr<GrGLResolveMultisampleFramebufferProc> fResolveMultisampleFramebuffer;
     GLPtr<GrGLScissorProc> fScissor;
     GLPtr<GrGLShaderSourceProc> fShaderSource;
