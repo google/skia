@@ -121,8 +121,12 @@ class ExceptionHandler(object):
       self._failures_encountered.append(exc_info)
     else:
       print >> sys.stderr, (
-          'Halting at first exception; to keep going, re-run ' +
-          'with the --keep-going-on-failure option set.')
+          '\nHalting at first exception.\n' +
+          'Please file a bug to epoger@google.com at ' +
+          'https://code.google.com/p/skia/issues/entry, containing the ' +
+          'command you ran and the following stack trace.\n\n' +
+          'Afterwards, you can re-run with the --keep-going-on-failure ' +
+          'option set.\n')
       raise exc_info[1], None, exc_info[2]
 
   def ReportAllFailures(self):
