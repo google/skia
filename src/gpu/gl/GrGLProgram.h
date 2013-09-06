@@ -178,6 +178,14 @@ private:
 
     void genGeometryShader(GrGLShaderBuilder::VertexBuilder* vertexBuilder) const;
 
+    // Creates a set of GrGLEffects and GrGLDrawEffects.
+    void buildGLEffects(SkTArray<EffectAndSamplers> GrGLProgram::* effectSet,
+                        const GrEffectStage* stages[],
+                        int count,
+                        bool hasExplicitLocalCoords,
+                        SkTArray<GrDrawEffect>* drawEffects,
+                        bool* hasVertexShaderEffects);
+
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
                                           bool bindColorOut,

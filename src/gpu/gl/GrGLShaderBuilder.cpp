@@ -94,7 +94,7 @@ static const char kDstCopyColorName[] = "_dstColor";
 GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
                                      GrGLUniformManager& uniformManager,
                                      const GrGLProgramDesc& desc,
-                                     bool needsVertexShader)
+                                     bool hasVertexShaderEffects)
     : fUniforms(kVarsPerBlock)
     , fCtxInfo(ctxInfo)
     , fUniformManager(uniformManager)
@@ -106,9 +106,8 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
 
     const GrGLProgramDesc::KeyHeader& header = desc.getHeader();
 
-    if (needsVertexShader) {
-        fVertexBuilder.reset(SkNEW_ARGS(VertexBuilder, (this, desc)));
-    }
+    // TODO: go vertexless when possible.
+    fVertexBuilder.reset(SkNEW_ARGS(VertexBuilder, (this, desc)));
 
     // Emit code to read the dst copy textue if necessary.
     if (kNoDstRead_DstReadKey != header.fDstReadKey &&
@@ -217,7 +216,7 @@ void GrGLShaderBuilder::nameVariable(SkString* out, char prefix, const char* nam
 
 const char* GrGLShaderBuilder::dstColor() {
     if (fCodeStage.inStageCode()) {
-        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        const GrEffectRef& effect = *fCodeStage.effect();
         if (!effect->willReadDstColor()) {
             GrDebugCrash("GrGLEffect asked for dst color but its generating GrEffect "
                          "did not request access.");
@@ -363,7 +362,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
 
 const char* GrGLShaderBuilder::fragmentPosition() {
     if (fCodeStage.inStageCode()) {
-        const GrEffectRef& effect = *fCodeStage.effectStage()->getEffect();
+        const GrEffectRef& effect = *fCodeStage.effect();
         if (!effect->willReadFragmentPosition()) {
             GrDebugCrash("GrGLEffect asked for frag position but its generating GrEffect "
                          "did not request access.");
@@ -500,24 +499,23 @@ void GrGLShaderBuilder::finished(GrGLuint programID) {
 }
 
 void GrGLShaderBuilder::emitEffects(
-                        const GrEffectStage* effectStages[],
+                        GrGLEffect* const glEffects[],
+                        const GrDrawEffect drawEffects[],
                         const GrBackendEffectFactory::EffectKey effectKeys[],
                         int effectCnt,
                         SkString* fsInOutColor,
                         GrSLConstantVec* fsInOutColorKnownValue,
-                        SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
-                        GrGLEffect* glEffects[]) {
+                        SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[]) {
     bool effectEmitted = false;
 
     SkString inColor = *fsInOutColor;
     SkString outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
-        SkASSERT(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
-        const GrEffectStage& stage = *effectStages[e];
-        const GrEffectRef& effect = *stage.getEffect();
+        const GrDrawEffect& drawEffect = drawEffects[e];
+        const GrEffectRef& effect = *drawEffect.effect();
 
-        CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
+        CodeStage::AutoStageRestore csar(&fCodeStage, &effect);
 
         int numTextures = effect->numTextures();
         SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
@@ -526,11 +524,9 @@ void GrGLShaderBuilder::emitEffects(
             textureSamplers[t].init(this, &effect->textureAccess(t), t);
             effectSamplerHandles[e]->push_back(textureSamplers[t].fSamplerUniform);
         }
-        GrDrawEffect drawEffect(stage, fVertexBuilder.get()
-                                       && fVertexBuilder->hasExplicitLocalCoords());
 
-        int numAttributes = stage.getVertexAttribIndexCount();
-        const int* attributeIndices = stage.getVertexAttribIndices();
+        int numAttributes = drawEffect.getVertexAttribIndexCount();
+        const int* attributeIndices = drawEffect.getVertexAttribIndices();
         SkSTArray<GrEffect::kMaxVertexAttribs, SkString> attributeNames;
         for (int a = 0; a < numAttributes; ++a) {
             // TODO: Make addAttribute mangle the name.
@@ -541,8 +537,6 @@ void GrGLShaderBuilder::emitEffects(
                                                effect->vertexAttribType(a),
                                                attributeName);
         }
-
-        glEffects[e] = effect->getFactory().createGLInstance(drawEffect);
 
         if (kZeros_GrSLConstantVec == *fsInOutColorKnownValue) {
             // Effects have no way to communicate zeros, they treat an empty string as ones.
