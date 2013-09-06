@@ -236,17 +236,6 @@ inline void GrDebugCrash() { SkASSERT(false); }
 inline void GrDebugCrash(const char* msg) { GrPrintf(msg); SkASSERT(false); }
 
 /**
- *  GR_DEBUGCODE compiles the code X in debug builds only
- */
-#if !defined(GR_DEBUGCODE)
-    #ifdef SK_DEBUG
-        #define GR_DEBUGCODE(X) X
-    #else
-        #define GR_DEBUGCODE(X)
-    #endif
-#endif
-
-/**
  *  GR_STATIC_ASSERT is a compile time assertion. Depending on the platform
  *  it may print the message in the compiler log. Obviously, the condition must
  *  be evaluatable at compile time.

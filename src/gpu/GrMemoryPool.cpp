@@ -14,7 +14,7 @@
 #endif
 
 GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
-    GR_DEBUGCODE(fAllocationCnt = 0);
+    SkDEBUGCODE(fAllocationCnt = 0);
 
     minAllocSize = GrMax<size_t>(minAllocSize, 1 << 10);
     fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment),
@@ -61,7 +61,7 @@ void* GrMemoryPool::allocate(size_t size) {
     fTail->fCurrPtr += size;
     fTail->fFreeSize -= size;
     fTail->fLiveCount += 1;
-    GR_DEBUGCODE(++fAllocationCnt);
+    SkDEBUGCODE(++fAllocationCnt);
     VALIDATE;
     return reinterpret_cast<void*>(ptr);
 }
@@ -98,7 +98,7 @@ void GrMemoryPool::release(void* p) {
             block->fCurrPtr = block->fPrevPtr;
         }
     }
-    GR_DEBUGCODE(--fAllocationCnt);
+    SkDEBUGCODE(--fAllocationCnt);
     VALIDATE;
 }
 

@@ -87,7 +87,7 @@ public:
     private:
         bool fCoordChangeMatrixSet;
         SkMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectRef;)
+        SkDEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectRef;)
 
         friend class GrEffectStage;
     };
@@ -104,8 +104,8 @@ public:
             savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
         }
         SkASSERT(NULL == savedCoordChange->fEffectRef.get());
-        GR_DEBUGCODE(SkRef(fEffectRef.get());)
-        GR_DEBUGCODE(savedCoordChange->fEffectRef.reset(fEffectRef.get());)
+        SkDEBUGCODE(SkRef(fEffectRef.get());)
+        SkDEBUGCODE(savedCoordChange->fEffectRef.reset(fEffectRef.get());)
     }
 
     /**
@@ -117,7 +117,7 @@ public:
             fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
         }
         SkASSERT(savedCoordChange.fEffectRef.get() == fEffectRef);
-        GR_DEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
+        SkDEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
     }
 
     /**

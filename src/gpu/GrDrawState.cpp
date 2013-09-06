@@ -400,7 +400,7 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
 
 void GrDrawState::AutoViewMatrixRestore::restore() {
     if (NULL != fDrawState) {
-        GR_DEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
+        SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
         fDrawState->fCommon.fViewMatrix = fViewMatrix;
         SkASSERT(fDrawState->numColorStages() >= fNumColorStages);
         int numCoverageStages = fSavedCoordChanges.count() - fNumColorStages;
@@ -431,7 +431,7 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
     drawState->fCommon.fViewMatrix.preConcat(preconcatMatrix);
 
     this->doEffectCoordChanges(preconcatMatrix);
-    GR_DEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
+    SkDEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
 }
 
 bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
@@ -451,7 +451,7 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
         fDrawState = drawState;
         fNumColorStages = 0;
         fSavedCoordChanges.reset(0);
-        GR_DEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
+        SkDEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
         return true;
     } else {
         SkMatrix inv;
@@ -461,7 +461,7 @@ bool GrDrawState::AutoViewMatrixRestore::setIdentity(GrDrawState* drawState) {
         drawState->fCommon.fViewMatrix.reset();
         fDrawState = drawState;
         this->doEffectCoordChanges(inv);
-        GR_DEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
+        SkDEBUGCODE(++fDrawState->fBlockEffectRemovalCnt;)
         return true;
     }
 }
