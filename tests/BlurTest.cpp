@@ -156,7 +156,7 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
 
 // Use SkBlurMask::BlurGroundTruth to blur a 'width' x 'height' solid
 // white rect. Return the right half of the middle row in 'result'.
-static void ground_truth_2d(int width, int height, 
+static void ground_truth_2d(int width, int height,
                             SkScalar sigma,
                             int* result, int resultCount) {
     SkMask src, dst;
@@ -202,7 +202,7 @@ static float gaussian(int x, SkScalar sigma) {
 
 // Perform a brute force convolution of a step function with a Gaussian.
 // Return the right half in 'result'
-static void brute_force_1d(SkScalar stepMin, SkScalar stepMax, 
+static void brute_force_1d(SkScalar stepMin, SkScalar stepMax,
                            SkScalar gaussianSigma,
                            int* result, int resultCount) {
 
@@ -218,7 +218,7 @@ static void brute_force_1d(SkScalar stepMin, SkScalar stepMax,
     }
 }
 
-static void blur_path(SkCanvas* canvas, const SkPath& path, 
+static void blur_path(SkCanvas* canvas, const SkPath& path,
                       SkScalar gaussianSigma) {
 
     SkScalar midX = path.getBounds().centerX();
@@ -255,7 +255,7 @@ static void readback(SkCanvas* canvas, int* result, int resultCount) {
     }
 }
 
-// Draw a blurred version of the provided path. 
+// Draw a blurred version of the provided path.
 // Return the right half of the middle row in 'result'.
 static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
                           int* result, int resultCount) {
@@ -270,7 +270,7 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
 }
 
 #if SK_SUPPORT_GPU
-static void gpu_blur_path(GrContextFactory* factory, const SkPath& path, 
+static void gpu_blur_path(GrContextFactory* factory, const SkPath& path,
                           SkScalar gaussianSigma,
                           int* result, int resultCount) {
 
