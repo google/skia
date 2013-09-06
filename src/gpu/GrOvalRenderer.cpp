@@ -299,7 +299,7 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * The output of this effect is a modulation of the input color and coverage for an ellipse, 
+ * The output of this effect is a modulation of the input color and coverage for an ellipse,
  * specified as a 2D offset from center for both the outer and inner paths (if stroked). The
  * implict equation used is for a unit circle (x^2 + y^2 - 1 = 0) and the edge corrected by
  * using differentials.
@@ -315,7 +315,7 @@ public:
         GR_CREATE_STATIC_EFFECT(gEllipseStrokeEdge, DIEllipseEdgeEffect, (kStroke));
         GR_CREATE_STATIC_EFFECT(gEllipseHairlineEdge, DIEllipseEdgeEffect, (kHairline));
         GR_CREATE_STATIC_EFFECT(gEllipseFillEdge, DIEllipseEdgeEffect, (kFill));
-        
+
         if (kStroke == mode) {
             gEllipseStrokeEdge->ref();
             return gEllipseStrokeEdge;
@@ -410,7 +410,7 @@ public:
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
             const DIEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<DIEllipseEdgeEffect>();
-            
+
             return ellipseEffect.getMode();
         }
 
@@ -733,12 +733,12 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
 
     GrPoint center = GrPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
-    SkScalar yRadius = SkScalarHalf(ellipse.height());    
-    
+    SkScalar yRadius = SkScalarHalf(ellipse.height());
+
     SkStrokeRec::Style style = stroke.getStyle();
-    DIEllipseEdgeEffect::Mode mode = (SkStrokeRec::kStroke_Style == style) ? 
+    DIEllipseEdgeEffect::Mode mode = (SkStrokeRec::kStroke_Style == style) ?
                                     DIEllipseEdgeEffect::kStroke :
-                                    (SkStrokeRec::kHairline_Style == style) ? 
+                                    (SkStrokeRec::kHairline_Style == style) ?
                                     DIEllipseEdgeEffect::kHairline : DIEllipseEdgeEffect::kFill;
 
     SkScalar innerXRadius = 0;
@@ -797,7 +797,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     static const int kEllipseInnerOffsetAttrIndex = 2;
     drawState->addCoverageEffect(effect, kEllipseOuterOffsetAttrIndex,
                                          kEllipseInnerOffsetAttrIndex)->unref();
-    
+
     // This expands the outer rect so that after CTM we end up with a half-pixel border
     SkScalar a = vm[SkMatrix::kMScaleX];
     SkScalar b = vm[SkMatrix::kMSkewX];

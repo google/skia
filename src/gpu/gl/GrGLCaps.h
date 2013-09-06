@@ -54,7 +54,7 @@ public:
          */
         kNone_MSFBOType = 0,
         /**
-         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object). 
+         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object).
          */
         kDesktop_ARB_MSFBOType,
         /**
