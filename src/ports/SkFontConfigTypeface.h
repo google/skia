@@ -26,8 +26,8 @@ public:
             , fFamilyName(familyName)
             , fLocalStream(NULL) {}
 
-    FontConfigTypeface(Style style, SkStream* localStream)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), false) {
+    FontConfigTypeface(Style style, bool fixedWidth, SkStream* localStream)
+            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth) {
         // we default to empty fFamilyName and fIdentity
         fLocalStream = localStream;
         SkSafeRef(localStream);

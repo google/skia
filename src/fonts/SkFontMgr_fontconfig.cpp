@@ -272,9 +272,9 @@ protected:
             return NULL;  // don't accept too large fonts (>= 1GB) for safety.
         }
 
-        // TODO should the caller give us the style?
+        // TODO should the caller give us the style or should we get it from freetype?
         SkTypeface::Style style = SkTypeface::kNormal;
-        SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, stream));
+        SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, false, stream));
         return face;
     }
 
