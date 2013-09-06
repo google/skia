@@ -7,6 +7,7 @@
  */
 #include "SampleCode.h"
 #include "SkView.h"
+#include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "Sk64.h"
 #include "SkCornerPathEffect.h"
@@ -46,8 +47,9 @@ class XfermodesBlurView : public SampleView {
     void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
                    SkScalar x, SkScalar y) {
         SkPaint p;
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(5, SkBlurMaskFilter::kNormal_BlurStyle,
-                                                    SkBlurMaskFilter::kNone_BlurFlag);
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
+                                       SkBlurMaskFilter::kNone_BlurFlag);
         p.setMaskFilter(mf)->unref();
 
         SkScalar ww = SkIntToScalar(W);

@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
@@ -23,6 +23,7 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkView.h"
 
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -69,8 +70,8 @@ protected:
 
         paint.setARGB(fByte, 0xFF, 0xFF, 0xFF);
 
-        paint.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                        SkBlurMaskFilter::kNormal_BlurStyle));
+        paint.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))));
         paint.getMaskFilter()->unref();
 
         SkRandom rand;

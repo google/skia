@@ -102,7 +102,7 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(strokeWidth));
 
-    SkScalar radius = SkIntToScalar(5);
+    SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5));
     for (int style = 0; style < SkBlurMaskFilter::kBlurStyleCount; ++style) {
         SkBlurMaskFilter::BlurStyle blurStyle =
             static_cast<SkBlurMaskFilter::BlurStyle>(style);
@@ -110,7 +110,7 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
         const uint32_t flagPermutations = SkBlurMaskFilter::kAll_BlurFlag;
         for (uint32_t flags = 0; flags < flagPermutations; ++flags) {
             SkMaskFilter* filter;
-            filter = SkBlurMaskFilter::Create(radius, blurStyle, flags);
+            filter = SkBlurMaskFilter::Create(blurStyle, sigma, flags);
 
             paint.setMaskFilter(filter);
             filter->unref();

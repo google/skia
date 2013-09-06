@@ -28,9 +28,9 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
 
-        SkScalar blurRadius = SampleCode::GetAnimSinScalar(100 * SK_Scalar1,
-                                                           4 * SK_Scalar1,
-                                                           5 * SK_Scalar1);
+        SkScalar blurSigma = SampleCode::GetAnimSinScalar(100 * SK_Scalar1,
+                                                          4 * SK_Scalar1,
+                                                          5 * SK_Scalar1);
 
         SkScalar circleRadius = 3 * SK_Scalar1 +
                                 SampleCode::GetAnimSinScalar(150 * SK_Scalar1,
@@ -46,8 +46,9 @@ protected:
         SkRandom random;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
-            SkMaskFilter* mf = SkBlurMaskFilter::Create(blurRadius,
+            SkMaskFilter* mf = SkBlurMaskFilter::Create(
                                        gStyles[i],
+                                       blurSigma,
                                        SkBlurMaskFilter::kHighQuality_BlurFlag);
             SkPaint paint;
             SkSafeUnref(paint.setMaskFilter(mf));

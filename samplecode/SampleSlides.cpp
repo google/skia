@@ -6,11 +6,15 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlurMask.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkFlattenableBuffers.h"
+#include "SkGradientShader.h"
+#include "SkLayerRasterizer.h"
 #include "SkPaint.h"
+#include "SkView.h"
 
 #define BG_COLOR    0xFFDDDDDD
 
@@ -471,14 +475,10 @@ static void mesh_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGradientShader.h"
-#include "SkLayerRasterizer.h"
-#include "SkBlurMaskFilter.h"
-
 static void r0(SkLayerRasterizer* rast, SkPaint& p)
 {
-    p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                             SkBlurMaskFilter::kNormal_BlurStyle))->unref();
+    p.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))))->unref();
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
     p.setMaskFilter(NULL);

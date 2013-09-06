@@ -6,12 +6,13 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "SkTArray.h"
-#include "SkRandom.h"
-#include "SkMatrix.h"
+#include "SkBlurDrawLooper.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkGradientShader.h"
-#include "SkBlurDrawLooper.h"
+#include "SkMatrix.h"
+#include "SkRandom.h"
+#include "SkTArray.h"
 
 namespace skiagm {
 
@@ -50,8 +51,9 @@ protected:
         // AA with mask filter
         SkPaint p;
         p.setAntiAlias(true);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(5),
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(
                                SkBlurMaskFilter::kNormal_BlurStyle,
+                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                SkBlurMaskFilter::kHighQuality_BlurFlag);
         p.setMaskFilter(mf)->unref();
         fPaints.push_back(p);
@@ -79,8 +81,9 @@ protected:
         SkPaint p;
         p.setAntiAlias(true);
         SkBlurDrawLooper* shadowLooper =
-            new SkBlurDrawLooper (SkIntToScalar(10), SkIntToScalar(5),
-                                  SkIntToScalar(10), 0xFF0000FF,
+            new SkBlurDrawLooper (SK_ColorBLUE, 
+                                  SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)), 
+                                  SkIntToScalar(5), SkIntToScalar(10),
                                   SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                                   SkBlurDrawLooper::kOverrideColor_BlurFlag |
                                   SkBlurDrawLooper::kHighQuality_BlurFlag);

@@ -6,14 +6,15 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkView.h"
-
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkDiscretePathEffect.h"
 #include "SkGradientShader.h"
+#include "SkPaint.h"
+#include "SkView.h"
+
 
 //#define COLOR 0xFFFF8844
 #define COLOR 0xFF888888
@@ -22,14 +23,18 @@ static void paint_proc0(SkPaint*) {
 }
 
 static void paint_proc1(SkPaint* paint) {
-    paint->setMaskFilter(SkBlurMaskFilter::Create(2,
-                                SkBlurMaskFilter::kNormal_BlurStyle))->unref();
+    paint->setMaskFilter(SkBlurMaskFilter::Create(
+                                SkBlurMaskFilter::kNormal_BlurStyle,
+                                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2))))->unref();
 }
 
 static void paint_proc2(SkPaint* paint) {
     SkScalar dir[3] = { 1, 1, 1};
     paint->setMaskFilter(
-                     SkBlurMaskFilter::CreateEmboss(dir, 0.1f, 0.05f, 1))->unref();
+            SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)), 
+                                           dir,
+                                           SkFloatToScalar(0.1f),
+                                           SkFloatToScalar(0.05f)))->unref();
 }
 
 static void paint_proc3(SkPaint* paint) {

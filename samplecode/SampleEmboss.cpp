@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkBlurMask.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "Sk64.h"
@@ -53,7 +54,8 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(10));
-        paint.setMaskFilter(new SkEmbossMaskFilter(fLight, SkIntToScalar(4)))->unref();
+        paint.setMaskFilter(new SkEmbossMaskFilter(
+            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)), fLight))->unref();
         paint.setShader(new SkColorShader(SK_ColorBLUE))->unref();
         paint.setDither(true);
 

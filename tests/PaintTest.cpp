@@ -6,10 +6,11 @@
  */
 
 #include "Test.h"
+#include "SkBlurMask.h"
+#include "SkBlurMaskFilter.h"
+#include "SkLayerDrawLooper.h"
 #include "SkPath.h"
 #include "SkPaint.h"
-#include "SkLayerDrawLooper.h"
-#include "SkBlurMaskFilter.h"
 #include "SkRandom.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
@@ -142,7 +143,8 @@ static void test_copy(skiatest::Reporter* reporter) {
     // set a few pointers
     SkLayerDrawLooper* looper = new SkLayerDrawLooper();
     paint.setLooper(looper)->unref();
-    SkMaskFilter* mask = SkBlurMaskFilter::Create(1, SkBlurMaskFilter::kNormal_BlurStyle);
+    SkMaskFilter* mask = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle, 
+                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)));
     paint.setMaskFilter(mask)->unref();
 
     // copy the paint using the copy constructor and check they are the same

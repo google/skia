@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkCanvas.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -146,8 +147,8 @@ protected:
 
         SkPaint paint;
         paint.setFilterBitmap(filter);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                                    SkBlurMaskFilter::kNormal_BlurStyle);
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                         SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)));
         paint.setMaskFilter(mf)->unref();
 
         canvas->save();

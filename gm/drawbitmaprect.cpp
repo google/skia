@@ -6,13 +6,11 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "SkShader.h"
-#include "SkColorPriv.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-
-// effects
+#include "SkColorPriv.h"
 #include "SkGradientShader.h"
-
+#include "SkShader.h"
 
 namespace skiagm {
 
@@ -169,8 +167,8 @@ protected:
 
             srcRect.setXYWH(1, 1, 3, 3);
             SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                5,
                 SkBlurMaskFilter::kNormal_BlurStyle,
+                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                 SkBlurMaskFilter::kHighQuality_BlurFlag |
                 SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
             paint.setMaskFilter(mf)->unref();

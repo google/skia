@@ -6,13 +6,14 @@
  */
 
 #include "gm.h"
+#include "SkBlurMask.h"
+#include "SkBlurMaskFilter.h"
 #include "SkFlattenableBuffers.h"
 #include "SkLayerRasterizer.h"
-#include "SkBlurMaskFilter.h"
 
 static void r0(SkLayerRasterizer* rast, SkPaint& p) {
-    p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
-                                             SkBlurMaskFilter::kNormal_BlurStyle))->unref();
+    p.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                              SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))))->unref();
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
     p.setMaskFilter(NULL);

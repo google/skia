@@ -6,11 +6,12 @@
  */
 
 #include "gm.h"
+#include "SkBlurMask.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
-#include "SkRandom.h"
 #include "SkLayerDrawLooper.h"
-#include "SkBlurMaskFilter.h"
+#include "SkRandom.h"
 
 #define WIDTH   200
 #define HEIGHT  200
@@ -62,12 +63,12 @@ private:
             SkPaint::Style  fStyle;
             SkScalar        fWidth;
             SkScalar        fOffset;
-            int             fBlur;
+            SkScalar        fBlur;
         } gParams[] = {
             { SK_ColorWHITE, SkPaint::kStroke_Style, SkIntToScalar(1)*3/4, 0, 0 },
             { SK_ColorRED, SkPaint::kStroke_Style, SkIntToScalar(4), 0, 0 },
             { SK_ColorBLUE, SkPaint::kFill_Style, 0, 0, 0 },
-            { 0x88000000, SkPaint::kFill_Style, 0, SkIntToScalar(10), 3 }
+            { 0x88000000, SkPaint::kFill_Style, 0, SkIntToScalar(10), SkIntToScalar(3) }
         };
 
         fLooper = new SkLayerDrawLooper;
@@ -85,8 +86,8 @@ private:
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
             if (gParams[i].fBlur > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(gParams[i].fBlur),
-                                                            SkBlurMaskFilter::kNormal_BlurStyle);
+                SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                                         SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur));
                 paint->setMaskFilter(mf)->unref();
             }
         }
