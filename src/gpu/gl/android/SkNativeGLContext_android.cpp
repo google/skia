@@ -61,74 +61,100 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         EGL_NONE
     };
 
-    // Try first for OpenGL, then fall back to OpenGL ES.
-    EGLint renderableTypeBit = EGL_OPENGL_BIT;
-    const EGLint* contextAttribs = kEGLContextAttribsForOpenGL;
-    EGLBoolean apiBound = eglBindAPI(EGL_OPENGL_API);
-
-    if (!apiBound) {
-        apiBound = eglBindAPI(EGL_OPENGL_ES_API);
-        renderableTypeBit = EGL_OPENGL_ES2_BIT;
-        contextAttribs = kEGLContextAttribsForOpenGLES;
-    }
-
-    if (!apiBound) {
-        return NULL;
-    }
-
-    fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-    EGLint majorVersion;
-    EGLint minorVersion;
-    eglInitialize(fDisplay, &majorVersion, &minorVersion);
-
-    EGLint numConfigs;
-    const EGLint configAttribs[] = {
-        EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-        EGL_RENDERABLE_TYPE, renderableTypeBit,
-        EGL_RED_SIZE, 8,
-        EGL_GREEN_SIZE, 8,
-        EGL_BLUE_SIZE, 8,
-        EGL_ALPHA_SIZE, 8,
-        EGL_NONE
+    static const struct {
+        const EGLint* fContextAttribs;
+        EGLenum fAPI;
+        EGLint  fRenderableTypeBit;
+        GrGLBinding fBinding;
+    } kAPIs[] = {
+        {   // OpenGL
+            kEGLContextAttribsForOpenGL,
+            EGL_OPENGL_API,
+            EGL_OPENGL_BIT,
+            kDesktop_GrGLBinding
+        },
+        {   // OpenGL ES. This seems to work for both ES2 and 3 (when available).
+            kEGLContextAttribsForOpenGLES,
+            EGL_OPENGL_ES_API,
+            EGL_OPENGL_ES2_BIT,
+            kES_GrGLBinding
+        },
     };
 
-    EGLConfig surfaceConfig;
-    if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
-        SkDebugf("eglChooseConfig failed.\n");
-        return NULL;
-    }
+    const GrGLInterface* interface = NULL;
 
-    fContext = eglCreateContext(fDisplay, surfaceConfig, NULL, contextAttribs);
-    if (EGL_NO_CONTEXT == fContext) {
-        SkDebugf("eglCreateContext failed.\n");
-        return NULL;
-    }
+    for (size_t api = 0; NULL == interface && api < SK_ARRAY_COUNT(kAPIs); ++api) {
+        fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-    static const EGLint kSurfaceAttribs[] = {
-        EGL_WIDTH, 1,
-        EGL_HEIGHT, 1,
-        EGL_NONE
-    };
+        EGLint majorVersion;
+        EGLint minorVersion;
+        eglInitialize(fDisplay, &majorVersion, &minorVersion);
 
-    fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, kSurfaceAttribs);
-    if (EGL_NO_SURFACE == fSurface) {
-        SkDebugf("eglCreatePbufferSurface failed.\n");
-        this->destroyGLContext();
-        return NULL;
-    }
+#if 0
+        SkDebugf("VENDOR: %s\n", eglQueryString(fDisplay, EGL_VENDOR));
+        SkDebugf("APIS: %s\n", eglQueryString(fDisplay, EGL_CLIENT_APIS));
+        SkDebugf("VERSION: %s\n", eglQueryString(fDisplay, EGL_VERSION));
+        SkDebugf("EXTENSIONS %s\n", eglQueryString(fDisplay, EGL_EXTENSIONS));
+#endif
 
-    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        SkDebugf("eglMakeCurrent failed.\n");
-        this->destroyGLContext();
-        return NULL;
-    }
+        if (!eglBindAPI(kAPIs[api].fAPI)) {
+            continue;
+        }
 
-    const GrGLInterface* interface = GrGLCreateNativeInterface();
-    if (!interface) {
-        SkDebugf("Failed to create gl interface.\n");
-        this->destroyGLContext();
-        return NULL;
+        EGLint numConfigs;
+        const EGLint configAttribs[] = {
+            EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+            EGL_RENDERABLE_TYPE, kAPIs[api].fRenderableTypeBit,
+            EGL_RED_SIZE, 8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE, 8,
+            EGL_ALPHA_SIZE, 8,
+            EGL_NONE
+        };
+
+        EGLConfig surfaceConfig;
+        if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
+            SkDebugf("eglChooseConfig failed. EGL Error: 0x%08x\n", eglGetError());
+            continue;
+        }
+
+        fContext = eglCreateContext(fDisplay, surfaceConfig, NULL, kAPIs[api].fContextAttribs);
+        if (EGL_NO_CONTEXT == fContext) {
+            SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
+            continue;
+        }
+
+        static const EGLint kSurfaceAttribs[] = {
+            EGL_WIDTH, 1,
+            EGL_HEIGHT, 1,
+            EGL_NONE
+        };
+
+        fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, kSurfaceAttribs);
+        if (EGL_NO_SURFACE == fSurface) {
+            SkDebugf("eglCreatePbufferSurface failed. EGL Error: 0x%08x\n", eglGetError());
+            this->destroyGLContext();
+            continue;
+        }
+
+        if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+            SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
+            this->destroyGLContext();
+            continue;
+        }
+
+        interface = GrGLCreateNativeInterface();
+        if (NULL == interface) {
+            SkDebugf("Failed to create gl interface.\n");
+            this->destroyGLContext();
+            continue;
+        }
+
+        if (!interface->validate(kAPIs[api].fBinding)) {
+            interface->unref();
+            interface = NULL;
+            this->destroyGLContext();
+        }
     }
 
     return interface;
