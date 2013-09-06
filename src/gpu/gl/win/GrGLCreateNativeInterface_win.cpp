@@ -180,9 +180,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(GetStringi)
         WGL_SET_PROC(GetUniformLocation);
         WGL_SET_PROC(LinkProgram);
-        if (extensions.has("GL_NV_framebuffer_multisample_coverage")) {
-            WGL_SET_PROC_SUFFIX(RenderbufferStorageMultisampleCoverage, NV);
-        }
         WGL_SET_PROC(ShaderSource);
         WGL_SET_PROC(StencilFuncSeparate);
         WGL_SET_PROC(StencilMaskSeparate);

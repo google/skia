@@ -43,8 +43,6 @@
 #define SK_WGL_FULL_ACCELERATION                    0x2027
 #define SK_WGL_SAMPLE_BUFFERS                       0x2041
 #define SK_WGL_SAMPLES                              0x2042
-#define SK_WGL_COVERAGE_SAMPLES                     0x2042 /* same as SAMPLES */
-#define SK_WGL_COLOR_SAMPLES                        0x20B9
 #define SK_WGL_CONTEXT_MAJOR_VERSION                0x2091
 #define SK_WGL_CONTEXT_MINOR_VERSION                0x2092
 #define SK_WGL_CONTEXT_LAYER_PLANE                  0x2093
