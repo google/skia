@@ -9,6 +9,7 @@
 #include "GrClipMaskManager.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
+#include "GrAARectRenderer.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrPaint.h"

@@ -9,7 +9,6 @@
 #define GrContext_DEFINED
 
 #include "GrColor.h"
-#include "GrAARectRenderer.h"
 #include "GrClipData.h"
 #include "SkMatrix.h"
 #include "GrPaint.h"
@@ -19,6 +18,7 @@
 #include "GrRefCnt.h"
 #include "GrTexture.h"
 
+class GrAARectRenderer;
 class GrAutoScratchTexture;
 class GrDrawState;
 class GrDrawTarget;
