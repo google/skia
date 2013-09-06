@@ -15,6 +15,13 @@
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 
+// Defined in SkFontHost_FreeType.cpp
+bool find_name_and_attributes(SkStream* stream, SkString* name,
+                              SkTypeface::Style* style, bool* isFixedWidth);
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
 static SkFontConfigInterface* gFontConfigInterface;
 
@@ -129,9 +136,14 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
         return NULL;  // don't accept too large fonts (>= 1GB) for safety.
     }
 
-    // TODO should the caller give us the style?
+    // ask freetype for reported style and if it is a fixed width font
     SkTypeface::Style style = SkTypeface::kNormal;
-    SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, stream));
+    bool isFixedWidth = false;
+    if (!find_name_and_attributes(stream, NULL, &style, &isFixedWidth)) {
+        return NULL;
+    }
+
+    SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, isFixedWidth, stream));
     return face;
 }
 
