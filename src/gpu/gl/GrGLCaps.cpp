@@ -501,7 +501,8 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
 
         fStencilFormats.push_back() = gS8;
         //fStencilFormats.push_back() = gS16;
-        if (ctxInfo.hasExtension("GL_OES_packed_depth_stencil")) {
+        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+            ctxInfo.hasExtension("GL_OES_packed_depth_stencil")) {
             fStencilFormats.push_back() = gD24S8;
         }
         if (ctxInfo.hasExtension("GL_OES_stencil4")) {
