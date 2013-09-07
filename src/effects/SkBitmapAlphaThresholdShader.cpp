@@ -15,22 +15,22 @@ public:
     BATShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         // We should probably do something here.
     }
-    
-    
+
+
     virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE {};
-    
+
 #if SK_SUPPORT_GPU
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint) const SK_OVERRIDE;
 #endif
-    
+
     SK_DEVELOPER_TO_STRING();
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(BATShader)
-    
+
 private:
     SkBitmap fBitmap;
     SkRegion fRegion;
     U8CPU    fThreshold;
-    
+
     typedef SkShader INHERITED;
 };
 

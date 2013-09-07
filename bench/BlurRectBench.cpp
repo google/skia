@@ -90,7 +90,7 @@ class BlurRectDirectBench: public BlurRectBench {
 protected:
     virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
         SkMask mask;
-        SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()), 
+        SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                              &mask, r, SkBlurMask::kNormal_Style);
         SkMask::FreeImage(mask.fImage);
     }
@@ -164,7 +164,7 @@ public:
         } else {
             name.printf("blurrect_gaussian_%d", SkScalarRoundToInt(rad));
         }
- 
+
         this->setName(name);
     }
 

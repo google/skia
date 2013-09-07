@@ -67,7 +67,7 @@ class TilingView : public SampleView {
     SkBlurDrawLooper    fLooper;
 public:
     TilingView()
-            : fLooper(0x88000000, 
+            : fLooper(0x88000000,
                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
                       SkIntToScalar(2), SkIntToScalar(2)) {
         fTextPicture = new SkPicture();

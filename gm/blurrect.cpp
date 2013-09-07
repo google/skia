@@ -141,8 +141,8 @@ class BlurRectCompareGM : public skiagm::GM {
     SkScalar fRadius;
     SkBlurMask::Style fStyle;
 public:
-    BlurRectCompareGM(const char name[], unsigned int rectWidth, 
-                      unsigned int rectHeight, float radius, 
+    BlurRectCompareGM(const char name[], unsigned int rectWidth,
+                      unsigned int rectHeight, float radius,
                       SkBlurMask::Style style)
         : fName(name)
         , fRectWidth(rectWidth)
@@ -244,8 +244,8 @@ protected:
 
         memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-        return SkBlurMask::BoxBlur(m, src, 
-                                   SkBlurMask::ConvertRadiusToSigma(this->radius()), 
+        return SkBlurMask::BoxBlur(m, src,
+                                   SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                    this->style(), this->getQuality());
     }
 

@@ -143,7 +143,7 @@ static void test_copy(skiatest::Reporter* reporter) {
     // set a few pointers
     SkLayerDrawLooper* looper = new SkLayerDrawLooper();
     paint.setLooper(looper)->unref();
-    SkMaskFilter* mask = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle, 
+    SkMaskFilter* mask = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
                                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)));
     paint.setMaskFilter(mask)->unref();
 
