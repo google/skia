@@ -31,7 +31,7 @@ static void paint_proc1(SkPaint* paint) {
 static void paint_proc2(SkPaint* paint) {
     SkScalar dir[3] = { 1, 1, 1};
     paint->setMaskFilter(
-            SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)), 
+            SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
                                            dir,
                                            SkFloatToScalar(0.1f),
                                            SkFloatToScalar(0.05f)))->unref();

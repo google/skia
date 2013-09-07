@@ -20,7 +20,7 @@ const SkMemberInfo SkDrawBlur::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawBlur);
 
-SkDrawBlur::SkDrawBlur() 
+SkDrawBlur::SkDrawBlur()
     : fSigma(-1)
     , fBlurStyle(SkBlurMaskFilter::kNormal_BlurStyle) {
 }

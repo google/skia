@@ -60,7 +60,7 @@ static float make_number() {
   int sel;
 
   if (return_large == true && R(3) == 1) {
-      sel = R(6); 
+      sel = R(6);
   } else {
       sel = R(4);
   }
@@ -70,7 +70,7 @@ static float make_number() {
   }
 
   if (R(2) == 1) {
-      v = (float)R(100); 
+      v = (float)R(100);
   } else {
 
       switch (sel) {
@@ -84,7 +84,7 @@ static float make_number() {
 
   }
 
-  if (R(4) == 1) { 
+  if (R(4) == 1) {
       v = -v;
   }
 
