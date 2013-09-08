@@ -118,7 +118,7 @@ static void dcfontname_to_skstring(HDC deviceContext, const LOGFONT& lf, SkStrin
 }
 
 static void make_canonical(LOGFONT* lf) {
-    lf->lfHeight = -2048;
+    lf->lfHeight = -64;
     lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
     lf->lfCharSet = DEFAULT_CHARSET;
 //    lf->lfClipPrecision = 64;
