@@ -431,7 +431,7 @@ void GrInOrderDrawBuffer::reset() {
         // we always have a VB, but not always an IB
         SkASSERT(NULL != fDraws[d].fVertexBuffer);
         fDraws[d].fVertexBuffer->unref();
-        GrSafeUnref(fDraws[d].fIndexBuffer);
+        SkSafeUnref(fDraws[d].fIndexBuffer);
     }
     fCmds.reset();
     fDraws.reset();

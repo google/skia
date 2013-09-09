@@ -34,7 +34,6 @@
       'gpu/GrTypes.h',
       'gpu/GrFontScaler.h',
       'gpu/GrResource.h',
-      'gpu/GrRefCnt.h',
       'gpu/GrKey.h',
       'gpu/GrOvalRenderer.h',
       'gpu/GrEffectUnitTest.h',

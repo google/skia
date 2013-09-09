@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,20 +5,18 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
 #include "GrClipData.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
-#include "SkMatrix.h"
-#include "GrRefCnt.h"
 
 #include "SkClipStack.h"
+#include "SkMatrix.h"
 #include "SkPath.h"
-#include "SkTLazy.h"
 #include "SkTArray.h"
+#include "SkTLazy.h"
 #include "SkXfermode.h"
 
 class GrClipData;
@@ -28,7 +25,7 @@ class GrPath;
 class GrVertexBuffer;
 class SkStrokeRec;
 
-class GrDrawTarget : public GrRefCnt {
+class GrDrawTarget : public SkRefCnt {
 protected:
     class DrawInfo;
 
@@ -869,7 +866,7 @@ private:
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

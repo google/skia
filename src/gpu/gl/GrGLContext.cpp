@@ -73,13 +73,13 @@ GrGLContext::GrGLContext(const GrGLContext& ctx) {
 }
 
 GrGLContext& GrGLContext::operator = (const GrGLContext& ctx) {
-    GrSafeAssign(fInterface, ctx.fInterface);
+    SkRefCnt_SafeAssign(fInterface, ctx.fInterface);
     fInfo = ctx.fInfo;
     return *this;
 }
 
 void GrGLContext::reset() {
-    GrSafeSetNull(fInterface);
+    SkSafeSetNull(fInterface);
     fInfo.reset();
 }
 

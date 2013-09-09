@@ -231,7 +231,7 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
         return true;
     }
 
-    GrAutoRef ar(scaler);
+    SkAutoRef ar(scaler);
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
     size_t size = glyph->fBounds.area() * bytesPerPixel;

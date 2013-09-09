@@ -6,7 +6,6 @@
  */
 
 #include "GrAARectRenderer.h"
-#include "GrRefCnt.h"
 #include "GrGpu.h"
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
@@ -295,8 +294,8 @@ static void set_inset_fan(GrPoint* pts, size_t stride,
 };
 
 void GrAARectRenderer::reset() {
-    GrSafeSetNull(fAAFillRectIndexBuffer);
-    GrSafeSetNull(fAAStrokeRectIndexBuffer);
+    SkSafeSetNull(fAAFillRectIndexBuffer);
+    SkSafeSetNull(fAAStrokeRectIndexBuffer);
 }
 
 static const uint16_t gFillAARectIdx[] = {

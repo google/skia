@@ -66,7 +66,7 @@ void GrGpu::abandonResources() {
     }
 
     SkASSERT(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
-    GrSafeSetNull(fQuadIndexBuffer);
+    SkSafeSetNull(fQuadIndexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
     delete fIndexPool;
@@ -82,7 +82,7 @@ void GrGpu::releaseResources() {
     }
 
     SkASSERT(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
-    GrSafeSetNull(fQuadIndexBuffer);
+    SkSafeSetNull(fQuadIndexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
     delete fIndexPool;

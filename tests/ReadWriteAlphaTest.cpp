@@ -46,7 +46,7 @@ static void ReadWriteAlphaTest(skiatest::Reporter* reporter, GrContextFactory* f
             return;
         }
 
-        GrAutoUnref au(texture);
+        SkAutoUnref au(texture);
 
         // create a distinctive texture
         for (int y = 0; y < Y_SIZE; ++y) {
