@@ -250,6 +250,27 @@ public:
     const SkMatrix& getMatrix() const { return fMatrix;}
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+    
+    enum ColorType {
+        kTwo_ColorType,
+        kThree_ColorType,
+        kTexture_ColorType
+    };
+
+    ColorType getColorType() const { return fColorType; }
+
+    enum PremulType {
+        kBeforeInterp_PremulType,
+        kAfterInterp_PremulType,
+    };
+
+    PremulType getPremulType() const { return fPremulType; }
+
+    const SkColor* getColors(int pos) const {
+        SkASSERT(fColorType != kTexture_ColorType);
+        SkASSERT((pos-1) <= fColorType);
+        return &fColors[pos];
+    }
 
 protected:
 
@@ -270,13 +291,20 @@ protected:
 
 private:
 
+    enum {
+        kMaxAnalyticColors = 3 // if more colors use texture
+    };
+
     GrTextureAccess fTextureAccess;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
     SkMatrix fMatrix;
     bool fIsOpaque;
-
+    ColorType fColorType;
+    SkColor fColors[kMaxAnalyticColors];
+    PremulType fPremulType; // This only changes behavior for two and three color special cases.
+                            // It is already baked into to the table for texture gradients.
     typedef GrEffect INHERITED;
 
 };
@@ -299,13 +327,42 @@ protected:
     enum {
         kMatrixKeyBitCnt = GrGLEffectMatrix::kKeyBits,
         kMatrixKeyMask = (1 << kMatrixKeyBitCnt) - 1,
+
+        kPremulTypeKeyBitCnt = 1,
+        kPremulTypeMask = 1 << kMatrixKeyBitCnt,
+        kPremulBeforeInterpKey = kPremulTypeMask,
+
+        kTwoColorKey = 2 << (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt),
+        kThreeColorKey = 3 << (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt),
+        kColorKeyMask = kTwoColorKey | kThreeColorKey,
+        kColorKeyBitCnt = 2,
+
+        // Subclasses must shift any key bits they produce up by this amount
+        // and combine with the result of GenBaseGradientKey.
+        kBaseKeyBitCnt = (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt + kColorKeyBitCnt)
     };
 
+    static GrGradientEffect::ColorType ColorTypeFromKey(EffectKey key){
+        if (kTwoColorKey == (key & kColorKeyMask)) {
+            return GrGradientEffect::kTwo_ColorType;
+        } else if (kThreeColorKey == (key & kColorKeyMask)) {
+            return GrGradientEffect::kThree_ColorType;
+        } else {return GrGradientEffect::kTexture_ColorType;}
+    }
+
+    static GrGradientEffect::PremulType PremulTypeFromKey(EffectKey key){
+        if (kPremulBeforeInterpKey == (key & kPremulTypeMask)) {
+            return GrGradientEffect::kBeforeInterp_PremulType;
+        } else {
+            return GrGradientEffect::kAfterInterp_PremulType;
+        }
+    }
+
     /**
-     * Subclasses must call this. It will return a value restricted to the lower kMatrixKeyBitCnt
+     * Subclasses must call this. It will return a value restricted to the lower kBaseKeyBitCnt
      * bits.
      */
-    static EffectKey GenMatrixKey(const GrDrawEffect&);
+    static EffectKey GenBaseGradientKey(const GrDrawEffect&);
 
     /**
      * Inserts code to implement the GrGradientEffect's matrix. This should be called before a
@@ -323,22 +380,27 @@ protected:
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
-    void emitYCoordUniform(GrGLShaderBuilder* builder);
+    void emitUniforms(GrGLShaderBuilder* builder, EffectKey key);
 
-    // emit code that gets a fragment's color from an expression for t; for now this always uses the
-    // texture, but for simpler cases we'll be able to lerp. Subclasses should call this method from
-    // their emitCode().
-    void emitColorLookup(GrGLShaderBuilder* builder,
-                         const char* gradientTValue,
-                         const char* outputColor,
-                         const char* inputColor,
-                         const GrGLShaderBuilder::TextureSampler&);
+
+    // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
+    // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
+    // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
+    void emitColor(GrGLShaderBuilder* builder,
+                   const char* gradientTValue,
+                   EffectKey key,
+                   const char* outputColor,
+                   const char* inputColor,
+                   const GrGLShaderBuilder::TextureSamplerArray& samplers);
 
 private:
     static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
 
     SkScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
+    GrGLUniformManager::UniformHandle fColorStartUni;
+    GrGLUniformManager::UniformHandle fColorMidUni;
+    GrGLUniformManager::UniformHandle fColorEndUni;
     GrGLEffectMatrix fEffectMatrix;
 
     typedef GrGLEffect INHERITED;

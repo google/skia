@@ -58,6 +58,7 @@
     '../gm/getpostextpath.cpp',
     '../gm/giantbitmap.cpp',
     '../gm/gradients.cpp',
+    '../gm/gradients_no_texture.cpp',
     '../gm/gradientDirtyLaundry.cpp',
     '../gm/gradient_matrix.cpp',
     '../gm/gradtext.cpp',

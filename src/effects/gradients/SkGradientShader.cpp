@@ -831,28 +831,113 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
-    fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                  kFloat_GrSLType, "GradientYCoordFS");
+void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, EffectKey key) {
+
+    if (GrGradientEffect::kTwo_ColorType == ColorTypeFromKey(key)) { // 2 Color case
+        fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                             kVec4f_GrSLType, "GradientStartColor");
+        fColorEndUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                           kVec4f_GrSLType, "GradientEndColor");
+        
+    } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){ // 3 Color Case
+        fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                             kVec4f_GrSLType, "GradientStartColor");
+        fColorMidUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                           kVec4f_GrSLType, "GradientMidColor");
+        fColorEndUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                             kVec4f_GrSLType, "GradientEndColor");
+
+    } else { // if not a fast case
+        fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                      kFloat_GrSLType, "GradientYCoordFS");
+    }
+}
+
+static inline void set_color_uni(const GrGLUniformManager& uman,
+                                 const GrGLUniformManager::UniformHandle uni,
+                                 const SkColor* color) {
+       uman.set4f(uni,
+                  SkColorGetR(*color) / 255.f,
+                  SkColorGetG(*color) / 255.f,
+                  SkColorGetB(*color) / 255.f,
+                  SkColorGetA(*color) / 255.f);
+}
+
+static inline void set_mul_color_uni(const GrGLUniformManager& uman,
+                                     const GrGLUniformManager::UniformHandle uni,
+                                     const SkColor* color){
+       float a = SkColorGetA(*color) / 255.f;
+       float aDiv255 = a / 255.f;
+       uman.set4f(uni,
+                  SkColorGetR(*color) * aDiv255,
+                  SkColorGetG(*color) * aDiv255,
+                  SkColorGetB(*color) * aDiv255,
+                  a);
 }
 
 void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
                                  const GrDrawEffect& drawEffect) {
-    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
-    const GrTexture* texture = e.texture(0);
-    fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, texture);
 
-    SkScalar yCoord = e.getYCoord();
-    if (yCoord != fCachedYCoord) {
-        uman.set1f(fFSYUni, yCoord);
-        fCachedYCoord = yCoord;
+    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
+
+
+    if (GrGradientEffect::kTwo_ColorType == e.getColorType()){
+
+        fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, NULL);
+        if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
+            set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
+            set_mul_color_uni(uman, fColorEndUni,   e.getColors(1));
+        } else {
+            set_color_uni(uman, fColorStartUni, e.getColors(0));
+            set_color_uni(uman, fColorEndUni,   e.getColors(1));
+        }
+
+    } else if (GrGradientEffect::kThree_ColorType == e.getColorType()){
+
+        fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, NULL);
+        if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
+            set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
+            set_mul_color_uni(uman, fColorMidUni,   e.getColors(1));
+            set_mul_color_uni(uman, fColorEndUni,   e.getColors(2));
+        } else {
+            set_color_uni(uman, fColorStartUni, e.getColors(0));
+            set_color_uni(uman, fColorMidUni,   e.getColors(1));
+            set_color_uni(uman, fColorEndUni,   e.getColors(2));
+        }
+    } else {
+        const GrTexture* texture = e.texture(0);
+        fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, texture);
+        
+        SkScalar yCoord = e.getYCoord();
+        if (yCoord != fCachedYCoord) {
+            uman.set1f(fFSYUni, yCoord);
+            fCachedYCoord = yCoord;
+        }
     }
 }
 
-GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrDrawEffect& drawEffect) {
+
+GrGLEffect::EffectKey GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect& drawEffect) {
     const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
-    const GrTexture* texture = e.texture(0);
-    return GrGLEffectMatrix::GenKey(e.getMatrix(), drawEffect, kCoordsType, texture);
+    const GrTexture* texture = NULL;
+    
+    if (GrGradientEffect::kTexture_ColorType == e.getColorType()){
+        texture = e.texture(0);
+    }
+    
+    EffectKey key = GrGLEffectMatrix::GenKey(e.getMatrix(), drawEffect, kCoordsType, texture);
+
+    if (GrGradientEffect::kTwo_ColorType == e.getColorType()) {
+        key |= kTwoColorKey;
+    } else if (GrGradientEffect::kThree_ColorType == e.getColorType()){
+        key |= kThreeColorKey;
+    }
+
+    if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
+        key |= kPremulBeforeInterpKey;
+    }
+
+    return key;
 }
 
 void GrGLGradientEffect::setupMatrix(GrGLShaderBuilder* builder,
@@ -867,18 +952,57 @@ void GrGLGradientEffect::setupMatrix(GrGLShaderBuilder* builder,
                                          vsVaryingType);
 }
 
-void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
-                                         const char* gradientTValue,
-                                         const char* outputColor,
-                                         const char* inputColor,
-                                         const GrGLShaderBuilder::TextureSampler& sampler) {
+void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
+                                   const char* gradientTValue,
+                                   EffectKey key,
+                                   const char* outputColor,
+                                   const char* inputColor,
+                                   const GrGLShaderBuilder::TextureSamplerArray& samplers) {
+    if (GrGradientEffect::kTwo_ColorType == ColorTypeFromKey(key)){
+        builder->fsCodeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
+                               builder->getUniformVariable(fColorStartUni).c_str(),
+                               builder->getUniformVariable(fColorEndUni).c_str(),
+                               gradientTValue);
+        // Note that we could skip this step if both colors are known to be opaque. Two
+        // considerations:
+        // The gradient SkShader reporting opaque is more restrictive than necessary in the two pt
+        // case. Make sure the key reflects this optimization (and note that it can use the same
+        // shader as thekBeforeIterp case). This same optimization applies to the 3 color case below.
+        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(key)) {
+            builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
+        }
 
-    builder->fsCodeAppendf("\tvec2 coord = vec2(%s, %s);\n",
-                           gradientTValue,
-                           builder->getUniformVariable(fFSYUni).c_str());
-    builder->fsCodeAppendf("\t%s = ", outputColor);
-    builder->fsAppendTextureLookupAndModulate(inputColor, sampler, "coord");
-    builder->fsCodeAppend(";\n");
+        SkString output;
+        builder->fsCodeAppendf("\t%s = ", outputColor);
+        GrGLSLModulatef<4>(&output, inputColor, "colorTemp");
+        builder->fsCodeAppend(output.c_str());
+        builder->fsCodeAppend(";\n");
+    } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){
+        builder->fsCodeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
+                               gradientTValue);
+        builder->fsCodeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s +(1.0 - min(abs(oneMinus2t), 1.0)) * %s + clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
+                               builder->getUniformVariable(fColorStartUni).c_str(),
+                               builder->getUniformVariable(fColorMidUni).c_str(),
+                               builder->getUniformVariable(fColorEndUni).c_str());
+        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(key)) {
+            builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
+        }
+
+        SkString output;
+        builder->fsCodeAppendf("\t%s = ", outputColor);
+        GrGLSLModulatef<4>(&output, inputColor, "colorTemp");
+        builder->fsCodeAppend(output.c_str());
+        builder->fsCodeAppend(";\n");
+    } else {
+        builder->fsCodeAppendf("\tvec2 coord = vec2(%s, %s);\n",
+                               gradientTValue,
+                               builder->getUniformVariable(fFSYUni).c_str());
+        builder->fsCodeAppendf("\t%s = ", outputColor);
+        builder->fsAppendTextureLookupAndModulate(inputColor,
+                                                  samplers[0],
+                                                  "coord");
+        builder->fsCodeAppend(";\n");
+    }
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -887,48 +1011,77 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    const SkMatrix& matrix,
                                    SkShader::TileMode tileMode) {
-    // TODO: check for simple cases where we don't need a texture:
-    //GradientInfo info;
-    //shader.asAGradient(&info);
-    //if (info.fColorCount == 2) { ...
+
 
     fMatrix = matrix;
-
-    SkBitmap bitmap;
-    shader.getGradientTableBitmap(&bitmap);
-
     fIsOpaque = shader.isOpaque();
 
-    GrTextureStripAtlas::Desc desc;
-    desc.fWidth  = bitmap.width();
-    desc.fHeight = 32;
-    desc.fRowHeight = bitmap.height();
-    desc.fContext = ctx;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
-    fAtlas = GrTextureStripAtlas::GetAtlas(desc);
-    SkASSERT(NULL != fAtlas);
+    SkShader::GradientInfo info;
+    SkScalar pos[3] = {0};
 
-    // We always filter the gradient table. Each table is one row of a texture, so always y-clamp.
-    GrTextureParams params;
-    params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
-    params.setTileModeX(tileMode);
+    info.fColorCount = 3;
+    info.fColors = &fColors[0];
+    info.fColorOffsets = &pos[0];
+    shader.asAGradient(&info);
 
-    fRow = fAtlas->lockRow(bitmap);
-    if (-1 != fRow) {
-        fYCoord = fAtlas->getYOffset(fRow) + SK_ScalarHalf *
-                  fAtlas->getVerticalScaleFactor();
-        fTextureAccess.reset(fAtlas->getTexture(), params);
-    } else {
-        GrTexture* texture = GrLockAndRefCachedBitmapTexture(ctx, bitmap, &params);
-        fTextureAccess.reset(texture, params);
-        fYCoord = SK_ScalarHalf;
-
-        // Unlock immediately, this is not great, but we don't have a way of
-        // knowing when else to unlock it currently, so it may get purged from
-        // the cache, but it'll still be ref'd until it's no longer being used.
-        GrUnlockAndUnrefCachedBitmapTexture(texture);
+    // The two and three color specializations do not currently support tiling.
+    bool foundSpecialCase = false;
+    if (SkShader::kClamp_TileMode == info.fTileMode) {
+        if (2 == info.fColorCount) {
+            fRow = -1; // flag for no atlas
+            fColorType = kTwo_ColorType;
+            foundSpecialCase = true;
+        } else if (3 == info.fColorCount &&
+                   (SkScalarAbs(pos[1] - SK_ScalarHalf) < SK_Scalar1 / 1000)) { // 3 color symmetric
+            fRow = -1; // flag for no atlas
+            fColorType = kThree_ColorType;
+            foundSpecialCase = true;
+        }
     }
-    this->addTextureAccess(&fTextureAccess);
+    if (foundSpecialCase) {
+        if (SkGradientShader::kInterpolateColorsInPremul_Flag & info.fGradientFlags) {
+            fPremulType = kBeforeInterp_PremulType;
+        } else {
+            fPremulType = kAfterInterp_PremulType;
+        }
+    } else {
+        // doesn't matter how this is set, just be consistent because it is part of the effect key.
+        fPremulType = kBeforeInterp_PremulType;
+        SkBitmap bitmap;
+        shader.getGradientTableBitmap(&bitmap);
+        fColorType = kTexture_ColorType;
+        
+        GrTextureStripAtlas::Desc desc;
+        desc.fWidth  = bitmap.width();
+        desc.fHeight = 32;
+        desc.fRowHeight = bitmap.height();
+        desc.fContext = ctx;
+        desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
+        fAtlas = GrTextureStripAtlas::GetAtlas(desc);
+        SkASSERT(NULL != fAtlas);
+
+        // We always filter the gradient table. Each table is one row of a texture, always y-clamp.
+        GrTextureParams params;
+        params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
+        params.setTileModeX(tileMode);
+
+        fRow = fAtlas->lockRow(bitmap);
+        if (-1 != fRow) {
+            fYCoord = fAtlas->getYOffset(fRow) + SK_ScalarHalf *
+            fAtlas->getVerticalScaleFactor();
+            fTextureAccess.reset(fAtlas->getTexture(), params);
+        } else {
+            GrTexture* texture = GrLockAndRefCachedBitmapTexture(ctx, bitmap, &params);
+            fTextureAccess.reset(texture, params);
+            fYCoord = SK_ScalarHalf;
+
+            // Unlock immediately, this is not great, but we don't have a way of
+            // knowing when else to unlock it currently, so it may get purged from
+            // the cache, but it'll still be ref'd until it's no longer being used.
+            GrUnlockAndUnrefCachedBitmapTexture(texture);
+        }
+        this->addTextureAccess(&fTextureAccess);
+    }
 }
 
 GrGradientEffect::~GrGradientEffect() {
@@ -939,12 +1092,31 @@ GrGradientEffect::~GrGradientEffect() {
 
 bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
     const GrGradientEffect& s = CastEffect<GrGradientEffect>(effect);
-    return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
-           fTextureAccess.getParams().getTileModeX() ==
+
+    if (this->fColorType == s.getColorType()){
+
+        if (kTwo_ColorType == fColorType) {
+            if (*this->getColors(0) != *s.getColors(0) ||
+                *this->getColors(1) != *s.getColors(1)) {
+                return false;
+            }
+        } else if (kThree_ColorType == fColorType) {
+            if (*this->getColors(0) != *s.getColors(0) ||
+                *this->getColors(1) != *s.getColors(1) ||
+                *this->getColors(2) != *s.getColors(2)) {
+                return false;
+            }
+        }
+        
+        return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
+            fTextureAccess.getParams().getTileModeX() ==
                 s.fTextureAccess.getParams().getTileModeX() &&
-           this->useAtlas() == s.useAtlas() &&
-           fYCoord == s.getYCoord() &&
-           fMatrix.cheapEqualTo(s.getMatrix());
+            this->useAtlas() == s.useAtlas() &&
+            fYCoord == s.getYCoord() &&
+            fMatrix.cheapEqualTo(s.getMatrix());
+    }
+
+    return false;
 }
 
 void GrGradientEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

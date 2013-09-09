@@ -84,7 +84,7 @@ SkTCPServer gServer;
 #if SK_ANGLE
 //#define DEFAULT_TO_ANGLE 1
 #else
-//#define DEFAULT_TO_GPU 1
+#define DEFAULT_TO_GPU 0 // if 1 default rendering is on GPU
 #endif
 
 #define ANIMATING_EVENTTYPE "nextSample"
