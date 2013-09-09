@@ -559,6 +559,7 @@
 #define GR_GL_VERTEX_ARRAY                       0x8074
 #define GR_GL_NORMAL_ARRAY                       0x8075
 #define GR_GL_COLOR_ARRAY                        0x8076
+#define GR_GL_SECONDARY_COLOR_ARRAY              0x845E
 #define GR_GL_INDEX_ARRAY                        0x8077
 #define GR_GL_TEXTURE_COORD_ARRAY                0x8078
 #define GR_GL_EDGE_FLAG_ARRAY                    0x8079

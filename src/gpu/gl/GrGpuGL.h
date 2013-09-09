@@ -303,6 +303,9 @@ private:
             fDefaultVertexArrayBoundIndexBufferID = false;
             fDefaultVertexArrayBoundIndexBufferIDIsValid = false;
             fDefaultVertexArrayAttribState.invalidate();
+            if (NULL != fVBOVertexArray) {
+                fVBOVertexArray->invalidateCachedState();
+            }
         }
 
         void notifyVertexArrayDelete(GrGLuint id) {

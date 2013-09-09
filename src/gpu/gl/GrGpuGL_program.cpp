@@ -371,5 +371,5 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
                          vertexOffsetInBytes + vertexAttrib->fOffset));
     }
 
-    attribState->disableUnusedAttribArrays(this, usedAttribArraysMask);
+    attribState->disableUnusedArrays(this, usedAttribArraysMask, false);
 }
