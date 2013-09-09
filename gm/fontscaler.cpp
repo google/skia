@@ -49,7 +49,8 @@ protected:
         const size_t textLen = strlen(text);
 
         for (int j = 0; j < 2; ++j) {
-            for (int i = 0; i < 6; ++i) {
+            // This used to do 6 iterations but it causes the N4 to crash in the MSAA4 config.
+            for (int i = 0; i < 5; ++i) {
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
