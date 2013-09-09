@@ -281,16 +281,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         return false;
     }
 
-    bool trivialMatrix = (inv.getType() & ~SkMatrix::kTranslate_Mask) == 0;
-    bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
-                       SkShader::kClamp_TileMode == fTileModeY;
-
-    fInvMatrix = inv;
-    if (!(clampClamp || trivialMatrix)) {
-        fInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
-    }
-
     fBitmap = &fOrigBitmap;
+    fInvMatrix = inv;
 
     // initialize our filter quality to the one requested by the caller.
     // We may downgrade it later if we determine that we either don't need
@@ -307,6 +299,14 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     this->possiblyScaleImage();
 #endif
+
+    bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
+    bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
+                      SkShader::kClamp_TileMode == fTileModeY;
+    
+    if (!(clampClamp || trivialMatrix)) {
+        fInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
+    }
 
     // Now that all possible changes to the matrix have taken place, check
     // to see if we're really close to a no-scale matrix.  If so, explicitly
