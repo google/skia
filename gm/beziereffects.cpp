@@ -74,7 +74,7 @@ protected:
         };
 
         static const int kNumCubics = 15;
-        SkMWCRandom rand;
+        SkRandom rand;
 
         // Mult by 3 for each edge effect type
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumCubics*3)));
@@ -226,7 +226,7 @@ protected:
         };
 
         static const int kNumConics = 10;
-        SkMWCRandom rand;
+        SkRandom rand;
 
         // Mult by 3 for each edge effect type
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumConics*3)));
@@ -411,7 +411,7 @@ protected:
         };
 
         static const int kNumQuads = 5;
-        SkMWCRandom rand;
+        SkRandom rand;
 
         int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumQuads*3)));
         int numRows = SkScalarCeilToInt(SkIntToScalar(kNumQuads*3) / numCols);

@@ -14,7 +14,7 @@ static const uint16_t gTest2[] = { 0, 0, 0, 1, 2, 3, 3, 3 };
 static const uint16_t gTest3[] = { 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 0, 0, 1 };
 
 #include "SkRandom.h"
-static SkMWCRandom gRand;
+static SkRandom gRand;
 static void rand_fill(uint16_t buffer[], int count) {
     for (int i = 0; i < count; i++)
         buffer[i] = (uint16_t)gRand.nextU();

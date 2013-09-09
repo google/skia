@@ -15,7 +15,7 @@ extern "C" {
     }
 }
 
-static void rand_array(SkMWCRandom& rand, int array[], int n) {
+static void rand_array(SkRandom& rand, int array[], int n) {
     for (int j = 0; j < n; j++) {
         array[j] = rand.nextS() & 0xFF;
     }
@@ -40,7 +40,7 @@ static void TestSort(skiatest::Reporter* reporter) {
     /** The random numbers are copied into this array, sorted by an SkSort,
         then this array is compared against the reference sort. */
     int workingArray[SK_ARRAY_COUNT(randomArray)];
-    SkMWCRandom    rand;
+    SkRandom    rand;
 
     for (int i = 0; i < 10000; i++) {
         int count = rand.nextRangeU(1, SK_ARRAY_COUNT(randomArray));

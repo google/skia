@@ -31,7 +31,7 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
 
     SkPathMeasure   meas(src, doFill);
     uint32_t        seed = SkScalarRound(meas.getLength());
-    SkRandom        rand(seed ^ ((seed << 16) | (seed >> 16)));
+    SkLCGRandom     rand(seed ^ ((seed << 16) | (seed >> 16)));
     SkScalar        scale = fPerterb;
     SkPoint         p;
     SkVector        v;

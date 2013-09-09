@@ -291,7 +291,7 @@ void SkFloat::UnitTest()
     d.setAdd(c, b);
     SkDebugf("SkFloat: %d + %d = %d\n", c.getInt(), b.getInt(), d.getInt());
 
-    SkMWCRandom    rand;
+    SkRandom    rand;
 
     int i;
     for (i = 0; i < 1000; i++)

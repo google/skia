@@ -196,7 +196,7 @@ GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrDrawEffect& drawEffect
 
 GR_DEFINE_EFFECT_TEST(GrMagnifierEffect);
 
-GrEffectRef* GrMagnifierEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrMagnifierEffect::TestCreate(SkRandom* random,
                                            GrContext* context,
                                            const GrDrawTargetCaps&,
                                            GrTexture** textures) {

@@ -531,7 +531,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRadialGradient);
 
-GrEffectRef* GrRadialGradient::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrRadialGradient::TestCreate(SkRandom* random,
                                           GrContext* context,
                                           const GrDrawTargetCaps&,
                                           GrTexture**) {

@@ -152,9 +152,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkRandom rand;
+        SkLCGRandom rand;
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
-
         int i;
         for (i = 0; i < fPaints.count(); ++i) {
             canvas->save();
@@ -206,3 +205,4 @@ static GM* MyFactory(void*) { return new CircleGM; }
 static GMRegistry reg(MyFactory);
 
 }
+

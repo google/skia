@@ -32,7 +32,7 @@ protected:
 
     void drawShape(SkCanvas* canvas,
                    const SkPaint& paint,
-                   SkMWCRandom* random) {
+                   SkRandom* random) {
         static const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(-50), SkIntToScalar(-50),
                                                      SkIntToScalar(75), SkIntToScalar(105));
         int shape = random->nextULessThan(5);
@@ -102,7 +102,7 @@ protected:
         canvas->drawPaint(bgPaint);
         SkISize size = canvas->getDeviceSize();
         SkScalar maxScale = SkScalarSqrt((SkIntToScalar(size.fWidth * size.fHeight))) / 300;
-        SkMWCRandom random;
+        SkRandom random;
         for (int i = 0; i < kNumShapes; ++i) {
             SkScalar s = random.nextRangeScalar(SK_Scalar1 / 8, SK_Scalar1) * maxScale;
             SkScalar r = random.nextRangeScalar(0, SkIntToScalar(360));

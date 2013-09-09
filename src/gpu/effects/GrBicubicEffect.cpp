@@ -161,7 +161,7 @@ void GrBicubicEffect::getConstantColorComponents(GrColor* color, uint32_t* valid
 
 GR_DEFINE_EFFECT_TEST(GrBicubicEffect);
 
-GrEffectRef* GrBicubicEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrBicubicEffect::TestCreate(SkRandom* random,
                                          GrContext* context,
                                          const GrDrawTargetCaps&,
                                          GrTexture* textures[]) {

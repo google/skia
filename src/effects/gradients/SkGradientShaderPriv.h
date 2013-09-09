@@ -282,7 +282,7 @@ protected:
         passed to the gradient factory rather than the array.
     */
     static const int kMaxRandomGradientColors = 4;
-    static int RandomGradientParams(SkMWCRandom* r,
+    static int RandomGradientParams(SkRandom* r,
                                     SkColor colors[kMaxRandomGradientColors],
                                     SkScalar** stops,
                                     SkShader::TileMode* tm);

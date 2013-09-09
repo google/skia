@@ -27,7 +27,7 @@ public:
         : INHERITED(param)
         , fShift(shift)
         , fStroke(stroke) {
-        SkMWCRandom rand;
+        SkRandom rand;
         const SkScalar offset = SK_Scalar1/3;
         for (int i = 0; i < N; i++) {
             int x = rand.nextU() % W;
@@ -246,7 +246,7 @@ protected:
             gSizes[0] = this->getStrokeWidth();
             sizes = 1;
         }
-        SkMWCRandom rand;
+        SkRandom rand;
         SkColor color = 0xFF000000;
         U8CPU alpha = 0xFF;
         SkPaint paint;

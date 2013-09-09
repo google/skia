@@ -95,7 +95,7 @@ private:
 // handling NaN values is a lot slower. Anyway, this guy is just meant to put
 // reasonable values in our arrays.
 template <typename T> void init9(T array[9]) {
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < 9; i++) {
         array[i] = rand.nextSScalar1();
     }
@@ -261,7 +261,7 @@ protected:
 private:
     SkMatrix fMatrix;
     float fArray[9];
-    SkMWCRandom fRnd;
+    SkRandom fRnd;
     typedef MatrixBench INHERITED;
 };
 
@@ -302,7 +302,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     SkMatrix fMatrix;
     SkPoint fSrc [16];
     SkPoint fDst [16];
-    SkMWCRandom fRandom;
+    SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
 
@@ -342,7 +342,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     double fMatrix [9];
     SkPoint fSrc [16];
     SkPoint fDst [16];
-    SkMWCRandom fRandom;
+    SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
 
@@ -370,7 +370,7 @@ protected:
     }
 private:
     SkMatrix fMatrix[10];
-    SkMWCRandom fRandom;
+    SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
 

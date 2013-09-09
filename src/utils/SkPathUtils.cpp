@@ -21,7 +21,7 @@ typedef void (*line2path)(SkPath*, const char*, int, int);
 /*
 static void FillRandomBits( int chars, char* bits ){
     SkTime time;
-    SkMWCRandom rand = SkMWCRandom( time.GetMSecs() );
+    SkRandom rand = SkRandom( time.GetMSecs() );
 
     for (int i = 0; i < chars; ++i){
         bits[i] = rand.nextU();

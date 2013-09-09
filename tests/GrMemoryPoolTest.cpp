@@ -47,7 +47,7 @@ public:
 
     SK_DECLARE_INST_COUNT_ROOT(A);
 
-    static A* Create(SkMWCRandom* r);
+    static A* Create(SkRandom* r);
 
     static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
 #if SK_ENABLE_INST_COUNT
@@ -160,7 +160,7 @@ private:
     typedef A INHERITED;
 };
 
-A* A::Create(SkMWCRandom* r) {
+A* A::Create(SkRandom* r) {
     switch (r->nextRangeU(0, 4)) {
         case 0:
             return new A;
@@ -201,7 +201,7 @@ static void test_memory_pool(skiatest::Reporter* reporter) {
     // number of iterations
     static const int kCheckPeriod = 500;
 
-    SkMWCRandom r;
+    SkRandom r;
     for (size_t s = 0; s < SK_ARRAY_COUNT(gSizes); ++s) {
         A::SetAllocator(gSizes[s][0], gSizes[s][1]);
         for (size_t c = 0; c < SK_ARRAY_COUNT(gCreateFraction); ++c) {

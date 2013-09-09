@@ -19,7 +19,7 @@ static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == SkCLZ(1 << 30));
     REPORTER_ASSERT(reporter, 0 == SkCLZ(~0U));
 
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < 1000; ++i) {
         uint32_t mask = rand.nextU();
         // need to get some zeros for testing, but in some obscure way so the
@@ -82,7 +82,7 @@ static void test_muldivround(skiatest::Reporter* reporter) {
     }
 #endif
 
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < 10000; ++i) {
         unsigned a = rand.nextU() & 0x7FFF;
         unsigned b = rand.nextU() & 0x7FFF;
@@ -219,7 +219,7 @@ static void check_length(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, len > 0.999f && len < 1.001f);
 }
 
-static float nextFloat(SkMWCRandom& rand) {
+static float nextFloat(SkRandom& rand) {
     SkFloatIntUnion data;
     data.fSignBitInt = rand.nextU();
     return data.fFloat;
@@ -293,7 +293,7 @@ static void test_int2float(skiatest::Reporter* reporter, int ival) {
 }
 
 static void unittest_fastfloat(skiatest::Reporter* reporter) {
-    SkMWCRandom rand;
+    SkRandom rand;
     size_t i;
 
     static const float gFloats[] = {
@@ -414,7 +414,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, sk_float_copysign(x, y) == expected);
     }
 
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int j = 0; j < 1000; j++) {
         int ix = rand.nextS();
         REPORTER_ASSERT(reporter, SkCopySign32(ix, ix) == ix);
@@ -433,7 +433,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
 static void TestMath(skiatest::Reporter* reporter) {
     int         i;
     int32_t     x;
-    SkMWCRandom    rand;
+    SkRandom    rand;
 
     // these should assert
 #if 0

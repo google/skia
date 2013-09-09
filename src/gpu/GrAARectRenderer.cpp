@@ -117,7 +117,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrAlignedRectEffect);
 
-GrEffectRef* GrAlignedRectEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrAlignedRectEffect::TestCreate(SkRandom* random,
                                              GrContext* context,
                                              const GrDrawTargetCaps&,
                                              GrTexture* textures[]) {
@@ -256,7 +256,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRectEffect);
 
-GrEffectRef* GrRectEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrRectEffect::TestCreate(SkRandom* random,
                                       GrContext* context,
                                       const GrDrawTargetCaps&,
                                       GrTexture* textures[]) {

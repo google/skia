@@ -107,7 +107,7 @@ void TestClampRange(skiatest::Reporter* reporter) {
     test_range(ff(1)/2, ff(16384), 100);
     test_range(ff(1)/2, ff(-16384), 100);
 
-    SkMWCRandom rand;
+    SkRandom rand;
 
     // test non-overflow cases
     for (int i = 0; i < 1000000; i++) {

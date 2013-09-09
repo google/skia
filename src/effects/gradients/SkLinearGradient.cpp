@@ -496,7 +496,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrLinearGradient);
 
-GrEffectRef* GrLinearGradient::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrLinearGradient::TestCreate(SkRandom* random,
                                           GrContext* context,
                                           const GrDrawTargetCaps&,
                                           GrTexture**) {

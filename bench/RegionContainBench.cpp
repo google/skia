@@ -29,7 +29,7 @@ public:
         N = SkBENCHLOOP(20000)
     };
 
-    SkIRect randrect(SkMWCRandom& rand, int i) {
+    SkIRect randrect(SkRandom& rand, int i) {
         int w = rand.nextU() % W;
         return SkIRect::MakeXYWH(0, i*H/COUNT, w, H/COUNT);
     }
@@ -38,7 +38,7 @@ public:
         fProc = proc;
         fName.printf("region_contains_%s", name);
 
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < COUNT; i++) {
             fA.op(randrect(rand, i), SkRegion::kXOR_Op);
         }

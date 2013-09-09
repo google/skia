@@ -144,7 +144,7 @@ bool GrConicEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrConicEffect);
 
-GrEffectRef* GrConicEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrConicEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
@@ -278,7 +278,7 @@ bool GrQuadEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrQuadEffect);
 
-GrEffectRef* GrQuadEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrQuadEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
@@ -423,7 +423,7 @@ bool GrCubicEffect::onIsEqual(const GrEffect& other) const {
 
 GR_DEFINE_EFFECT_TEST(GrCubicEffect);
 
-GrEffectRef* GrCubicEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrCubicEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {

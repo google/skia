@@ -14,7 +14,7 @@
 #include "SkShader.h"
 #include "SkString.h"
 
-static int rand_pts(SkMWCRandom& rand, SkPoint pts[4]) {
+static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
     int n = rand.nextU() & 3;
     n += 1;
 
@@ -37,7 +37,7 @@ public:
         fName.printf("pathiter_%s", raw ? "raw" : "consume");
         fRaw = raw;
 
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < 1000; ++i) {
             SkPoint pts[4];
             int n = rand_pts(rand, pts);

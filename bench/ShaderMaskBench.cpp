@@ -59,7 +59,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         const SkIPoint dim = this->getSize();
-        SkMWCRandom rand;
+        SkRandom rand;
 
         SkPaint paint(fPaint);
         this->setupPaint(&paint);

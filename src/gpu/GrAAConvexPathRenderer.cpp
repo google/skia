@@ -593,7 +593,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(QuadEdgeEffect);
 
-GrEffectRef* QuadEdgeEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* QuadEdgeEffect::TestCreate(SkRandom* random,
                                         GrContext*,
                                         const GrDrawTargetCaps& caps,
                                         GrTexture*[]) {

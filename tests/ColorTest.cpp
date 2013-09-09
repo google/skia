@@ -146,7 +146,7 @@ static inline void test_premul(skiatest::Reporter* reporter) {
 */
 /*
 static void test_interp(skiatest::Reporter* reporter) {
-    SkMWCRandom r;
+    SkRandom r;
 
     U8CPU a0 = 0;
     U8CPU a255 = 255;
@@ -163,7 +163,7 @@ static void test_interp(skiatest::Reporter* reporter) {
 */
 
 static inline void test_fast_interp(skiatest::Reporter* reporter) {
-    SkMWCRandom r;
+    SkRandom r;
 
     U8CPU a0 = 0;
     U8CPU a255 = 255;

@@ -13,16 +13,16 @@
 #include "Sk64.h"
 #include "SkScalar.h"
 
-/** \class SkRandom
+/** \class SkLCGRandom
 
     Utility class that implements pseudo random 32bit numbers using a fast
     linear equation. Unlike rand(), this class holds its own seed (initially
     set to 0), so that multiple instances can be used with no side-effects.
 */
-class SkRandom {
+class SkLCGRandom {
 public:
-    SkRandom() : fSeed(0) {}
-    SkRandom(uint32_t seed) : fSeed(seed) {}
+    SkLCGRandom() : fSeed(0) {}
+    SkLCGRandom(uint32_t seed) : fSeed(seed) {}
 
     /** Return the next pseudo random number as an unsigned 32bit value.
     */
@@ -151,7 +151,7 @@ private:
     uint32_t fSeed;
 };
 
-/** \class SkMWCRandom
+/** \class SkRandom
 
  Utility class that implements pseudo random 32bit numbers using Marsaglia's
  multiply-with-carry "mother of all" algorithm. Unlike rand(), this class holds
@@ -159,13 +159,13 @@ private:
 
  Has a large period and all bits are well-randomized.
  */
-class SkMWCRandom {
+class SkRandom {
 public:
-    SkMWCRandom() { init(0); }
-    SkMWCRandom(uint32_t seed) { init(seed); }
-    SkMWCRandom(const SkMWCRandom& rand) : fK(rand.fK), fJ(rand.fJ) {}
+    SkRandom() { init(0); }
+    SkRandom(uint32_t seed) { init(seed); }
+    SkRandom(const SkRandom& rand) : fK(rand.fK), fJ(rand.fJ) {}
 
-    SkMWCRandom& operator=(const SkMWCRandom& rand) {
+    SkRandom& operator=(const SkRandom& rand) {
         fK = rand.fK;
         fJ = rand.fJ;
 

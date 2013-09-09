@@ -22,7 +22,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-void GrGLProgramDesc::setRandom(SkMWCRandom* random,
+void GrGLProgramDesc::setRandom(SkRandom* random,
                                 const GrGpuGL* gpu,
                                 const GrRenderTarget* dstRenderTarget,
                                 const GrTexture* dstCopyTexture,
@@ -132,7 +132,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
     static const int NUM_TESTS = 512;
 
-    SkMWCRandom random;
+    SkRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
 
 #if 0

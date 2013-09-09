@@ -47,7 +47,7 @@ public:
     uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
 
     // For unit testing.
-    void setRandom(SkMWCRandom*,
+    void setRandom(SkRandom*,
                    const GrGpuGL* gpu,
                    const GrRenderTarget* dummyDstRenderTarget,
                    const GrTexture* dummyDstCopyTexture,
