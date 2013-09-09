@@ -93,7 +93,7 @@ protected:
                 if (!texture) {
                     return;
                 }
-                GrAutoUnref au(texture);
+                SkAutoUnref au(texture);
 
                 GrContext::AutoClip acs(ctx, SkRect::MakeWH(2*S, 2*S));
 

@@ -27,7 +27,7 @@ struct GrPoint;
  *  stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
  *  filter masks).
  */
-class SK_API GrPathRenderer : public GrRefCnt {
+class SK_API GrPathRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrPathRenderer)
 
@@ -192,7 +192,7 @@ protected:
 
 private:
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

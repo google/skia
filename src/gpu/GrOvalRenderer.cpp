@@ -464,7 +464,7 @@ GrEffectRef* DIEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrOvalRenderer::reset() {
-    GrSafeSetNull(fRRectIndexBuffer);
+    SkSafeSetNull(fRRectIndexBuffer);
 }
 
 bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,

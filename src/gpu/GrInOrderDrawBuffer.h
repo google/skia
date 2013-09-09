@@ -108,7 +108,7 @@ private:
 
     struct Clear  : GrNoncopyable {
         Clear() : fRenderTarget(NULL) {}
-        ~Clear() { GrSafeUnref(fRenderTarget); }
+        ~Clear() { SkSafeUnref(fRenderTarget); }
 
         SkIRect         fRect;
         GrColor         fColor;

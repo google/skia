@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLInterface_DEFINED
 #define GrGLInterface_DEFINED
 
 #include "GrGLFunctions.h"
-#include "GrRefCnt.h"
+#include "SkRefCnt.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +108,7 @@ typedef intptr_t GrGLInterfaceCallbackData;
  * non-NULL or GrContext creation will fail. This can be tested with the
  * validate() method when the OpenGL context has been made current.
  */
-struct SK_API GrGLInterface : public GrRefCnt {
+struct SK_API GrGLInterface : public SkRefCnt {
 private:
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class GLPtr {
@@ -122,7 +120,7 @@ private:
         FNPTR_TYPE fPtr;
     };
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 
 public:
     SK_DECLARE_INST_COUNT(GrGLInterface)

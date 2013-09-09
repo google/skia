@@ -9,7 +9,6 @@
 #define GrGpu_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrRefCnt.h"
 #include "GrClipMaskManager.h"
 #include "SkPath.h"
 

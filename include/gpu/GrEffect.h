@@ -11,7 +11,6 @@
 #include "GrColor.h"
 #include "GrEffectUnitTest.h"
 #include "GrNoncopyable.h"
-#include "GrRefCnt.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 #include "GrTypesPriv.h"
@@ -74,13 +73,13 @@ private:
     member function of a GrEffect subclass.
 
     Because almost no code should ever handle a GrEffect directly outside of a GrEffectRef, we
-    privately inherit from GrRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
+    privately inherit from SkRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
 
     Dynamically allocated GrEffects and their corresponding GrEffectRefs are managed by a per-thread
     memory pool. The ref count of an effect must reach 0 before the thread terminates and the pool
     is destroyed. To create a static effect use the macro GR_CREATE_STATIC_EFFECT declared below.
   */
-class GrEffect : private GrRefCnt {
+class GrEffect : private SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
@@ -317,7 +316,7 @@ private:
     bool                                         fWillReadFragmentPosition;
     GrEffectRef*                                 fEffectRef;
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 inline GrEffectRef::GrEffectRef(GrEffect* effect) {

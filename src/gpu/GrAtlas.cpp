@@ -170,7 +170,7 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu) {
 
 GrAtlasMgr::~GrAtlasMgr() {
     for (size_t i = 0; i < GR_ARRAY_COUNT(fTexture); i++) {
-        GrSafeUnref(fTexture[i]);
+        SkSafeUnref(fTexture[i]);
     }
     delete fPlotMgr;
 

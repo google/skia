@@ -101,7 +101,7 @@ public:
      */
     GrGLContext(const GrGLContext& ctx);
 
-    ~GrGLContext() { GrSafeUnref(fInterface); }
+    ~GrGLContext() { SkSafeUnref(fInterface); }
 
     /**
      * Copies a GrGLContext

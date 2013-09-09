@@ -67,7 +67,7 @@ void GrTextContext::flushGlyphs() {
         fVertices = NULL;
         fMaxVertices = 0;
         fCurrVertex = 0;
-        GrSafeSetNull(fCurrTexture);
+        SkSafeSetNull(fCurrTexture);
     }
 }
 

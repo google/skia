@@ -94,7 +94,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
 #endif
 
     SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (dst));
-    GrSafeUnref(dst);
+    SkSafeUnref(dst);
     return pixelRef;
 }
 
@@ -114,7 +114,7 @@ SkGrPixelRef::SkGrPixelRef(GrSurface* surface, bool transferCacheLock) {
         fSurface = surface;
     }
     fUnlock = transferCacheLock;
-    GrSafeRef(surface);
+    SkSafeRef(surface);
 }
 
 SkGrPixelRef::~SkGrPixelRef() {
@@ -125,7 +125,7 @@ SkGrPixelRef::~SkGrPixelRef() {
             context->unlockScratchTexture(texture);
         }
     }
-    GrSafeUnref(fSurface);
+    SkSafeUnref(fSurface);
 }
 
 GrTexture* SkGrPixelRef::getTexture() {

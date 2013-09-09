@@ -14,7 +14,6 @@
 #include "GrEffectStage.h"
 #include "GrPaint.h"
 #include "GrPoint.h"
-#include "GrRefCnt.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
 #include "GrTemplates.h"
@@ -25,7 +24,7 @@
 #include "SkMatrix.h"
 #include "SkXfermode.h"
 
-class GrDrawState : public GrRefCnt {
+class GrDrawState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
@@ -675,7 +674,7 @@ public:
                 fDrawState->setRenderTarget(fSavedTarget);
                 fDrawState = NULL;
             }
-            GrSafeSetNull(fSavedTarget);
+            SkSafeSetNull(fSavedTarget);
         }
 
         void set(GrDrawState* ds, GrRenderTarget* newTarget) {
@@ -1077,7 +1076,7 @@ private:
      */
     void setVertexAttribs(const GrVertexAttrib attribs[], int count);
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);

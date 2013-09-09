@@ -15,7 +15,6 @@
 #include "GrPathRendererChain.h"
 #include "GrPoint.h"
 #include "GrRenderTarget.h"
-#include "GrRefCnt.h"
 #include "GrTexture.h"
 
 class GrAARectRenderer;
@@ -40,7 +39,7 @@ class GrVertexBufferAllocPool;
 class GrSoftwarePathRenderer;
 class SkStrokeRec;
 
-class SK_API GrContext : public GrRefCnt {
+class SK_API GrContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrContext)
 
@@ -635,20 +634,20 @@ public:
     public:
         AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
             fPrevTarget = context->getRenderTarget();
-            GrSafeRef(fPrevTarget);
+            SkSafeRef(fPrevTarget);
             context->setRenderTarget(target);
             fContext = context;
         }
         AutoRenderTarget(GrContext* context) {
             fPrevTarget = context->getRenderTarget();
-            GrSafeRef(fPrevTarget);
+            SkSafeRef(fPrevTarget);
             fContext = context;
         }
         ~AutoRenderTarget() {
             if (NULL != fContext) {
                 fContext->setRenderTarget(fPrevTarget);
             }
-            GrSafeUnref(fPrevTarget);
+            SkSafeUnref(fPrevTarget);
         }
     private:
         GrContext*      fContext;
@@ -934,7 +933,7 @@ private:
      */
     static bool OverbudgetCB(void* data);
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 /**

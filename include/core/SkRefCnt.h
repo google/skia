@@ -160,6 +160,13 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
     }
 }
 
+template<typename T> static inline void SkSafeSetNull(T*& obj) {
+    if (NULL != obj) {
+        obj->unref();
+        obj = NULL;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**

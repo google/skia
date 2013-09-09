@@ -10,7 +10,6 @@
 
 #include "GrContext.h"
 #include "GrPaint.h"
-#include "GrRefCnt.h"
 
 class GrContext;
 class GrDrawTarget;
@@ -21,7 +20,7 @@ class SkStrokeRec;
 /*
  * This class wraps helper functions that draw ovals and roundrects (filled & stroked)
  */
-class GrOvalRenderer : public GrRefCnt {
+class GrOvalRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrOvalRenderer)
 
@@ -52,7 +51,7 @@ private:
 
     GrIndexBuffer* fRRectIndexBuffer;
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif // GrOvalRenderer_DEFINED

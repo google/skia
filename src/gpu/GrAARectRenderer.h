@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrAARectRenderer_DEFINED
 #define GrAARectRenderer_DEFINED
 
-#include "GrRefCnt.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
 
 class GrGpu;
 class GrDrawTarget;
@@ -20,7 +19,7 @@ class GrIndexBuffer;
 /*
  * This class wraps helper functions that draw AA rects (filled & stroked)
  */
-class GrAARectRenderer : public GrRefCnt {
+class GrAARectRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrAARectRenderer)
 
@@ -108,7 +107,7 @@ private:
                               const SkRect& devInside,
                               bool useVertexCoverage);
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif // GrAARectRenderer_DEFINED

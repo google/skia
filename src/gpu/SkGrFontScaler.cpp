@@ -73,7 +73,7 @@ SkGrFontScaler::SkGrFontScaler(SkGlyphCache* strike) {
 }
 
 SkGrFontScaler::~SkGrFontScaler() {
-    GrSafeUnref(fKey);
+    SkSafeUnref(fKey);
 }
 
 GrMaskFormat SkGrFontScaler::getMaskFormat() {

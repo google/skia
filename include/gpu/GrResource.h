@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrResource_DEFINED
 #define GrResource_DEFINED
 
-#include "GrRefCnt.h"
-
+#include "SkRefCnt.h"
 #include "SkTInternalLList.h"
 
 class GrGpu;
@@ -21,7 +18,7 @@ class GrResourceEntry;
 /**
  * Base class for the GPU resources created by a GrContext.
  */
-class GrResource : public GrRefCnt {
+class GrResource : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrResource)
 
@@ -111,7 +108,7 @@ private:
     };
     uint32_t         fFlags;
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

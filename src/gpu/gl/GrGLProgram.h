@@ -33,7 +33,7 @@ class GrGLShaderBuilder;
  * Uniforms are program-local so we can't rely on fHWState to hold the
  * previous uniform state after a program change.
  */
-class GrGLProgram : public GrRefCnt {
+class GrGLProgram : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLProgram)
 
@@ -235,7 +235,7 @@ private:
     GrGLUniformManager          fUniformManager;
     UniformHandles              fUniformHandles;
 
-    typedef GrRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
