@@ -8993,6 +8993,198 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "scaled_tilemode_bitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14734224520381650902
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4170651425358488644
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16082731068168829077
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13861400797902638126
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12493441708245205764
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          62253971538251172
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14562223325280808530
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9458756962231124974
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          981828798598897800
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12735141991781284551
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9952928539718604877
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12484695141318124131
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3136242117065160135
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14604451948384203265
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16571085411601513800
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12728112554881594298
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
     "selftest1_565.png": {
       "allowed-digests": [
         [

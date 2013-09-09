@@ -5356,6 +5356,198 @@
       ], 
       "ignore-failure": false
     }, 
+    "scaled_tilemode_bitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5099131109880369158
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4009905383135708607
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18137657215366020734
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17495592995294371862
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9457306019489490704
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13423567944719082366
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6283964145338704351
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4901676366801670619
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14122798456831934450
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15128511075301441840
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13428184282774733704
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16696523348543754748
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10570768149143786460
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14975233714588830548
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15642590592673139918
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13628663996428354809
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
     "selftest1_565.png": {
       "allowed-digests": [
         [

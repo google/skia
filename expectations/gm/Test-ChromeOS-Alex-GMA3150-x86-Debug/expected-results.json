@@ -4944,6 +4944,102 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "scaled_tilemode_bitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16508282425176664232
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_bitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3526320593894849703
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17738937179566075942
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemode_gradient_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17554110573014893387
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1698918916238905964
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1047164542286529972
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9297290141121835722
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "scaled_tilemodes_npot_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14237263941048960063
+        ]
+      ], 
+      "bugs": [
+        1603
+      ], 
+      "reviewed-by-human": false
+    }, 
     "selftest1_565.png": {
       "allowed-digests": [
         [
