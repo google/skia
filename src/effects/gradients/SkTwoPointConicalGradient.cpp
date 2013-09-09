@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -495,7 +494,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
     GrSLType coordsVaryingType;
     this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
-    this->emitYCoordUniform(builder);
+    this->emitUniforms(builder, key);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -617,7 +616,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    p5.c_str(), p3.c_str());
 
             builder->fsCodeAppend("\t\t");
-            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+            this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
 
             // otherwise, if r(t) for the larger root was <= 0, try the other root
             builder->fsCodeAppend("\t\t} else {\n");
@@ -629,7 +628,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    tName.c_str(), p5.c_str(), p3.c_str());
 
             builder->fsCodeAppend("\t\t\t");
-            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+            this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
 
             // end if (r(t) > 0) for smaller root
             builder->fsCodeAppend("\t\t\t}\n");
@@ -647,7 +646,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                                    p5.c_str(), p3.c_str());
             builder->fsCodeAppend("\t");
-            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+            this->emitColor(builder, tName.c_str(), key, outputColor, inputColor, samplers);
             builder->fsCodeAppend("\t}\n");
         }
     }
@@ -693,10 +692,10 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
 GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrDrawEffect& drawEffect,
                                                    const GrGLCaps&) {
     enum {
-        kIsDegenerate = 1 << kMatrixKeyBitCnt,
+        kIsDegenerate = 1 << kBaseKeyBitCnt,
     };
 
-    EffectKey key = GenMatrixKey(drawEffect);
+    EffectKey key = GenBaseGradientKey(drawEffect);
     if (drawEffect.castEffect<GrConical2Gradient>().isDegenerate()) {
         key |= kIsDegenerate;
     }

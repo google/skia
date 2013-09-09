@@ -532,9 +532,10 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
 
-    this->emitYCoordUniform(builder);
+    this->emitUniforms(builder, key);
     SkString fsCoords;
     SkString vsCoordsVarying;
+
     GrSLType coordsVaryingType;
     this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
@@ -632,7 +633,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
             t.printf("-%s / %s", cName.c_str(), bVar.c_str());
         }
 
-        this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
+        this->emitColor(builder, t.c_str(), key, outputColor, inputColor, samplers);
     }
 }
 
@@ -674,10 +675,10 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
 GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect,
                                                   const GrGLCaps&) {
     enum {
-        kIsDegenerate = 1 << kMatrixKeyBitCnt,
+        kIsDegenerate = 1 << kBaseKeyBitCnt,
     };
 
-    EffectKey key = GenMatrixKey(drawEffect);
+    EffectKey key = GenBaseGradientKey(drawEffect);
     if (drawEffect.castEffect<GrRadial2Gradient>().isDegenerate()) {
         key |= kIsDegenerate;
     }
