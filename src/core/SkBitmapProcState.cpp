@@ -290,7 +290,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     fFilterLevel = paint.getFilterLevel();
 
-#ifndef SK_IGNORE_IMAGE_PRESCALE
     // possiblyScaleImage will look to see if it can rescale the image as a
     // preprocess; either by scaling up to the target size, or by selecting
     // a nearby mipmap level.  If it does, it will adjust the working
@@ -298,7 +297,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // quality to avoid re-filtering an already perfectly scaled image.
 
     this->possiblyScaleImage();
-#endif
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
