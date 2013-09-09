@@ -921,7 +921,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         add_oval,
     };
 
-    SkMWCRandom r;
+    SkRandom r;
 
     for (int i = 0; i < kNumTests; ++i) {
         // Randomly generate a clip stack.

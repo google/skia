@@ -219,7 +219,7 @@ bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrConvolutionEffect);
 
-GrEffectRef* GrConvolutionEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrConvolutionEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps&,
                                              GrTexture* textures[]) {

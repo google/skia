@@ -261,7 +261,7 @@ protected:
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkRandom rand;
+    SkLCGRandom rand;
     canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
 
     // As we've added more paths this has gotten pretty big. Scale the whole thing down.

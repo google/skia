@@ -155,7 +155,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(CircleEdgeEffect);
 
-GrEffectRef* CircleEdgeEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* CircleEdgeEffect::TestCreate(SkRandom* random,
                                           GrContext* context,
                                           const GrDrawTargetCaps&,
                                           GrTexture* textures[]) {
@@ -293,7 +293,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(EllipseEdgeEffect);
 
-GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* EllipseEdgeEffect::TestCreate(SkRandom* random,
                                            GrContext* context,
                                            const GrDrawTargetCaps&,
                                            GrTexture* textures[]) {
@@ -454,7 +454,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(DIEllipseEdgeEffect);
 
-GrEffectRef* DIEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
                                              GrContext* context,
                                              const GrDrawTargetCaps&,
                                              GrTexture* textures[]) {

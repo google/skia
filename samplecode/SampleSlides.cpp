@@ -350,7 +350,7 @@ public:
 
 static void make_tris(Rec* rec) {
     int n = 10;
-    SkMWCRandom    rand;
+    SkRandom    rand;
 
     rec->fMode = SkCanvas::kTriangles_VertexMode;
     rec->fCount = n * 3;

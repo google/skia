@@ -88,9 +88,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkMWCRandom scaleRand;
-        SkMWCRandom transRand;
-        SkMWCRandom rotRand;
+        SkRandom scaleRand;
+        SkRandom transRand;
+        SkRandom rotRand;
 
         int width, height;
         if (fUseAtlas) {
@@ -280,7 +280,7 @@ private:
 
     // Note: the resulting atlas has transparency
     void makeAtlas() {
-        SkMWCRandom rand;
+        SkRandom rand;
 
         SkColor colors[kNumAtlasedX][kNumAtlasedY];
 

@@ -126,7 +126,7 @@ protected:
         }
     }
 
-    SkColor genColor(SkMWCRandom* rand) {
+    SkColor genColor(SkRandom* rand) {
         SkScalar hsv[3];
         hsv[0] = SkFloatToScalar(rand->nextRangeF(0.0f, 360.0f));
         hsv[1] = SkFloatToScalar(rand->nextRangeF(0.75f, 1.0f));
@@ -136,7 +136,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkMWCRandom rand(1);
+        SkRandom rand(1);
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         SkRect rect = SkRect::MakeLTRB(-20, -30, 20, 30);
         SkRRect circleRect;

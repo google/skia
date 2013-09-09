@@ -23,7 +23,7 @@ struct DataRect {
     void* data;
 };
 
-static SkIRect random_rect(SkMWCRandom& rand) {
+static SkIRect random_rect(SkRandom& rand) {
     SkIRect rect = {0,0,0,0};
     while (rect.isEmpty()) {
         rect.fLeft   = rand.nextS() % 1000;
@@ -35,7 +35,7 @@ static SkIRect random_rect(SkMWCRandom& rand) {
     return rect;
 }
 
-static void random_data_rects(SkMWCRandom& rand, DataRect out[], int n) {
+static void random_data_rects(SkRandom& rand, DataRect out[], int n) {
     for (int i = 0; i < n; ++i) {
         out[i].rect = random_rect(rand);
         out[i].data = reinterpret_cast<void*>(i);
@@ -68,7 +68,7 @@ static bool verify_query(SkIRect query, DataRect rects[],
     return found == expected;
 }
 
-static void run_queries(skiatest::Reporter* reporter, SkMWCRandom& rand, DataRect rects[],
+static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, DataRect rects[],
                        SkRTree& tree) {
     for (size_t i = 0; i < NUM_QUERIES; ++i) {
         SkTDArray<void*> hits;
@@ -80,7 +80,7 @@ static void run_queries(skiatest::Reporter* reporter, SkMWCRandom& rand, DataRec
 
 static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
     DataRect rects[NUM_RECTS];
-    SkMWCRandom rand;
+    SkRandom rand;
     REPORTER_ASSERT(reporter, NULL != rtree);
 
     int expectedDepthMin = -1;

@@ -461,7 +461,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
 
-GrEffectRef* ColorMatrixEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* ColorMatrixEffect::TestCreate(SkRandom* random,
                                            GrContext*,
                                            const GrDrawTargetCaps&,
                                            GrTexture* dummyTextures[2]) {

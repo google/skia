@@ -949,7 +949,7 @@ template <typename T, typename C>
 void GrRedBlackTree<T,C>::UnitTest() {
     GrRedBlackTree<int> tree;
 
-    SkMWCRandom r;
+    SkRandom r;
 
     int count[100] = {0};
     // add 10K ints

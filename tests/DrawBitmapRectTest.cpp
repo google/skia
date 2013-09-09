@@ -12,7 +12,7 @@
 #include "SkRandom.h"
 #include "SkMatrixUtils.h"
 
-static void rand_matrix(SkMatrix* mat, SkMWCRandom& rand, unsigned mask) {
+static void rand_matrix(SkMatrix* mat, SkRandom& rand, unsigned mask) {
     mat->setIdentity();
     if (mask & SkMatrix::kTranslate_Mask) {
         mat->postTranslate(rand.nextSScalar1(), rand.nextSScalar1());
@@ -29,7 +29,7 @@ static void rand_matrix(SkMatrix* mat, SkMWCRandom& rand, unsigned mask) {
     }
 }
 
-static void rand_size(SkISize* size, SkMWCRandom& rand) {
+static void rand_size(SkISize* size, SkRandom& rand) {
     size->set(rand.nextU() & 0xFFFF, rand.nextU() & 0xFFFF);
 }
 
@@ -43,7 +43,7 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
 
     SkMatrix mat;
     SkISize  size;
-    SkMWCRandom rand;
+    SkRandom rand;
 
     // assert: translate-only no-filter can always be treated as sprite
     for (int i = 0; i < 1000; ++i) {

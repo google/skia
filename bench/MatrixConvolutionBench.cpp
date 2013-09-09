@@ -39,7 +39,7 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setAntiAlias(true);
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < SkBENCHLOOP(3); i++) {
             SkRect r = SkRect::MakeWH(rand.nextUScalar1() * 400,
                                       rand.nextUScalar1() * 400);

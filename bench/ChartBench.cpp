@@ -21,7 +21,7 @@ namespace {
 // Generates y values for the chart plots.
 void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
     dataPts->setCount(count);
-    static SkMWCRandom gRandom;
+    static SkRandom gRandom;
     for (int i = 0; i < count; ++i) {
         (*dataPts)[i] = gRandom.nextRangeScalar(yAvg - SkScalarHalf(ySpread),
                                                 yAvg + SkScalarHalf(ySpread));
@@ -131,7 +131,7 @@ protected:
 
             canvas->clear(0xFFE0F0E0);
 
-            static SkMWCRandom colorRand;
+            static SkRandom colorRand;
             static SkColor gColors[kNumGraphs] = { 0x0 };
             if (0 == gColors[0]) {
                 for (int i = 0; i < kNumGraphs; ++i) {

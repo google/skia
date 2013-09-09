@@ -56,7 +56,7 @@ int gScalarBench_NonStaticGlobal;
 // handling NaN values is a lot slower. Anyway, this guy is just meant to put
 // reasonable values in our arrays.
 template <typename T> void init9(T array[9]) {
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < 9; i++) {
         array[i] = rand.nextSScalar1();
     }
@@ -102,7 +102,7 @@ private:
 class IsFiniteScalarBench : public ScalarBench {
 public:
     IsFiniteScalarBench(void* param) : INHERITED(param, "isfinite") {
-        SkMWCRandom rand;
+        SkRandom rand;
         for (size_t i = 0; i < ARRAY_N; ++i) {
             fArray[i] = rand.nextSScalar1();
         }
@@ -141,7 +141,7 @@ class RectBoundsBench : public SkBenchmark {
 
 public:
     RectBoundsBench(void* param) : INHERITED(param) {
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < PTS; ++i) {
             fPts[i].fX = rand.nextSScalar1();
             fPts[i].fY = rand.nextSScalar1();

@@ -70,7 +70,7 @@ public:
             SkRegion::kReplace_Op,
         };
 
-        SkRandom r;
+        SkLCGRandom r;
         for (int i = 0; i < kRows; ++i) {
             for (int j = 0; j < kCols; ++j) {
                 for (int k = 0; k < 5; ++k) {

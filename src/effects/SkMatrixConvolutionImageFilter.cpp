@@ -530,7 +530,7 @@ GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);
 // Allows for a 5x5 kernel (or 25x1, for that matter).
 #define MAX_KERNEL_SIZE 25
 
-GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
                                                    GrTexture* textures[]) {

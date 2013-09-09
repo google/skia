@@ -134,7 +134,7 @@ void GrConfigConversionEffect::getConstantColorComponents(GrColor* color,
 
 GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
-GrEffectRef* GrConfigConversionEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrConfigConversionEffect::TestCreate(SkRandom* random,
                                                   GrContext*,
                                                   const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {

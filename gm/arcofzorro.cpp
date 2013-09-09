@@ -29,7 +29,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkMWCRandom rand;
+        SkRandom rand;
 
         SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
 

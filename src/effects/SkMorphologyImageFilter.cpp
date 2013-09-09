@@ -427,7 +427,7 @@ void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 
 GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
 
-GrEffectRef* GrMorphologyEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrMorphologyEffect::TestCreate(SkRandom* random,
                                             GrContext*,
                                             const GrDrawTargetCaps&,
                                             GrTexture* textures[]) {

@@ -123,7 +123,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
 static void test_search(skiatest::Reporter* reporter) {
     int         i, array[kSEARCH_COUNT];
-    SkMWCRandom    rand;
+    SkRandom    rand;
 
     for (i = 0; i < kSEARCH_COUNT; i++) {
         array[i] = rand.nextS();

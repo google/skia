@@ -27,7 +27,7 @@ protected:
 
     virtual void onPreDraw() SK_OVERRIDE {
         if (!fInit) {
-            SkMWCRandom rand;
+            SkRandom rand;
             static const SkScalar kMinOffset = 0;
             static const SkScalar kMaxOffset = 100 * SK_Scalar1;
             static const SkScalar kOffsetRange = kMaxOffset - kMinOffset;

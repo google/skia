@@ -25,7 +25,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkMWCRandom Random;
+        SkRandom Random;
 
         for (int i = 0; i < N; i++) {
             SkScalar blurSigma = Random.nextRangeScalar(1.5f, 25.0f);

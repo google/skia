@@ -17,7 +17,7 @@
 #define H   200
 
 static void show_text(SkCanvas* canvas, bool doAA) {
-    SkMWCRandom rand;
+    SkRandom rand;
     SkPaint paint;
     paint.setAntiAlias(doAA);
     paint.setLCDRenderText(true);
@@ -32,7 +32,7 @@ static void show_text(SkCanvas* canvas, bool doAA) {
 }
 
 static void show_fill(SkCanvas* canvas, bool doAA) {
-    SkMWCRandom rand;
+    SkRandom rand;
     SkPaint paint;
     paint.setAntiAlias(doAA);
 
@@ -53,13 +53,13 @@ static void show_fill(SkCanvas* canvas, bool doAA) {
     }
 }
 
-static SkScalar randRange(SkMWCRandom& rand, SkScalar min, SkScalar max) {
+static SkScalar randRange(SkRandom& rand, SkScalar min, SkScalar max) {
     SkASSERT(min <= max);
     return min + SkScalarMul(rand.nextUScalar1(), max - min);
 }
 
 static void show_stroke(SkCanvas* canvas, bool doAA, SkScalar strokeWidth, int n) {
-    SkMWCRandom rand;
+    SkRandom rand;
     SkPaint paint;
     paint.setAntiAlias(doAA);
     paint.setStyle(SkPaint::kStroke_Style);

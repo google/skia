@@ -37,7 +37,7 @@ protected:
 
         paint.setAntiAlias(true);
 
-        SkMWCRandom rand;
+        SkRandom rand;
         SkRect r = SkRect::MakeWH(40, 40);
         SkAutoTUnref<SkImageFilter> bicubic(SkBicubicImageFilter::CreateMitchell(fScale));
         paint.setImageFilter(bicubic);

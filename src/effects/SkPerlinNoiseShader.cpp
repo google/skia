@@ -712,7 +712,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_EFFECT_TEST(GrPerlinNoiseEffect);
 
-GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
                                              GrContext* context,
                                              const GrDrawTargetCaps&,
                                              GrTexture**) {

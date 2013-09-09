@@ -18,7 +18,7 @@
 //this function is redefined for sample, test, and bench. is there anywhere
 // I can put it to avoid code duplcation?
 static void fillRandomBits( int chars, char* bits ){
-    SkMWCRandom rand(SkTime::GetMSecs());
+    SkRandom rand(SkTime::GetMSecs());
 
     for (int i = 0; i < chars; ++i){
         bits[i] = rand.nextU();

@@ -169,7 +169,7 @@ static void test_matrix_max_stretch(skiatest::Reporter* reporter) {
         bool invertable = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
         REPORTER_ASSERT(reporter, invertable);
     }
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int m = 0; m < 1000; ++m) {
         SkMatrix mat;
         mat.reset();
@@ -492,7 +492,7 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // try some random matrices
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int m = 0; m < 1000; ++m) {
         SkScalar rot0 = rand.nextRangeF(-180, 180);
         SkScalar sx = rand.nextRangeF(-3000.f, 3000.f);
@@ -574,7 +574,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
     const int kTripleCount = 1000;
     const int kMatrixCount = 1000;
-    SkMWCRandom rand;
+    SkRandom rand;
 
     SkScalar randTriples[3*kTripleCount];
     for (int i = 0; i < 3*kTripleCount; ++i) {

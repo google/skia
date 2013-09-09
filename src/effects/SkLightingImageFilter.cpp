@@ -1026,13 +1026,13 @@ bool SkSpecularLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture*
 #if SK_SUPPORT_GPU
 
 namespace {
-SkPoint3 random_point3(SkMWCRandom* random) {
+SkPoint3 random_point3(SkRandom* random) {
     return SkPoint3(SkScalarToFloat(random->nextSScalar1()),
                     SkScalarToFloat(random->nextSScalar1()),
                     SkScalarToFloat(random->nextSScalar1()));
 }
 
-SkLight* create_random_light(SkMWCRandom* random) {
+SkLight* create_random_light(SkRandom* random) {
     int type = random->nextULessThan(3);
     switch (type) {
         case 0: {
@@ -1168,7 +1168,7 @@ bool GrDiffuseLightingEffect::onIsEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrDiffuseLightingEffect);
 
-GrEffectRef* GrDiffuseLightingEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
                                                  GrContext* context,
                                                  const GrDrawTargetCaps&,
                                                  GrTexture* textures[]) {
@@ -1386,7 +1386,7 @@ bool GrSpecularLightingEffect::onIsEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrSpecularLightingEffect);
 
-GrEffectRef* GrSpecularLightingEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrSpecularLightingEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
                                                   const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {

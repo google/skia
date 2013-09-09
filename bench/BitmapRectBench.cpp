@@ -86,7 +86,7 @@ protected:
 
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkMWCRandom rand;
+        SkRandom rand;
 
         SkPaint paint;
         this->setupPaint(&paint);

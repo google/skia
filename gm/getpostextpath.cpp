@@ -51,7 +51,7 @@ protected:
         SkAutoTArray<SkScalar> widths(len);
         paint.getTextWidths(text, len, &widths[0]);
 
-        SkRandom rand;
+        SkLCGRandom rand;
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(100);
         for (size_t i = 0; i < len; ++i) {

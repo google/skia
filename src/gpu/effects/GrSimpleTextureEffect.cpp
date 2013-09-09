@@ -103,7 +103,7 @@ const GrBackendEffectFactory& GrSimpleTextureEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(GrSimpleTextureEffect);
 
-GrEffectRef* GrSimpleTextureEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrSimpleTextureEffect::TestCreate(SkRandom* random,
                                                GrContext*,
                                                const GrDrawTargetCaps&,
                                                GrTexture* textures[]) {

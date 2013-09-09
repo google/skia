@@ -73,7 +73,7 @@ protected:
         };
 
         // draw a background pattern to make transparency errors more apparent
-        SkMWCRandom rand;
+        SkRandom rand;
 
         for (int y = 0; y < kImageHeight; y += 10) {
             for (int x = 0; x < kImageWidth; x += 10) {

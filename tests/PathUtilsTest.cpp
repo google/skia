@@ -17,7 +17,7 @@
 const int kNumIt = 100;
 
 static void fill_random_bits(int chars, char* bits){
-    SkMWCRandom rand(SkTime::GetMSecs());
+    SkRandom rand(SkTime::GetMSecs());
 
     for (int i = 0; i < chars; ++i){
         bits[i] = rand.nextU();

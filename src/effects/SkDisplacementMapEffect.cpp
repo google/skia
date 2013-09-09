@@ -366,7 +366,7 @@ void GrDisplacementMapEffect::getConstantColorComponents(GrColor*,
 
 GR_DEFINE_EFFECT_TEST(GrDisplacementMapEffect);
 
-GrEffectRef* GrDisplacementMapEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrDisplacementMapEffect::TestCreate(SkRandom* random,
                                                  GrContext*,
                                                  const GrDrawTargetCaps&,
                                                  GrTexture* textures[]) {

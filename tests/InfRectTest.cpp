@@ -35,7 +35,7 @@ static void test_center(skiatest::Reporter* reporter) {
                         gData[index].fRect.centerY() == gData[index].fCenter.y());
     }
 
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < 10000; ++i) {
         SkIRect r;
 

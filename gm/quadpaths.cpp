@@ -91,7 +91,7 @@ protected:
                             20 * SK_Scalar1,
                             titlePaint);
 
-        SkRandom rand;
+        SkLCGRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);
@@ -234,7 +234,7 @@ protected:
                             20 * SK_Scalar1,
                             titlePaint);
 
-        SkRandom rand;
+        SkLCGRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
         canvas->save();
         canvas->translate(10 * SK_Scalar1, 30 * SK_Scalar1);

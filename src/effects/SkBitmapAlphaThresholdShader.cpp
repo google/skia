@@ -235,7 +235,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(ThresholdEffect);
 
-GrEffectRef* ThresholdEffect::TestCreate(SkMWCRandom* rand,
+GrEffectRef* ThresholdEffect::TestCreate(SkRandom* rand,
                                          GrContext*,
                                          const GrDrawTargetCaps&,
                                          GrTexture* textures[]) {

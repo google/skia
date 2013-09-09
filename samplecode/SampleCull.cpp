@@ -96,7 +96,7 @@ FINISHED2:
     return array;
 }
 
-static SkScalar nextScalarRange(SkMWCRandom& rand, SkScalar min, SkScalar max) {
+static SkScalar nextScalarRange(SkRandom& rand, SkScalar min, SkScalar max) {
     return min + SkScalarMul(rand.nextUScalar1(), max - min);
 }
 
@@ -105,7 +105,7 @@ public:
     CullView() {
         fClip.set(0, 0, SkIntToScalar(160), SkIntToScalar(160));
 
-        SkMWCRandom    rand;
+        SkRandom    rand;
 
         for (int i = 0; i < 50; i++) {
             SkScalar x = nextScalarRange(rand, -fClip.width()*1, fClip.width()*2);

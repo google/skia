@@ -73,7 +73,7 @@ protected:
                          100*SK_Scalar1,
                          titlePaint);
 
-        SkMWCRandom rand;
+        SkRandom rand;
         SkRect rect = SkRect::MakeWH(125*SK_Scalar1, 100*SK_Scalar1);
         int i = 0;
         canvas->save();

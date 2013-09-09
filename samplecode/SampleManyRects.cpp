@@ -69,7 +69,7 @@ protected:
     }
 
 private:
-    SkMWCRandom fRandom;
+    SkRandom fRandom;
     typedef SampleView INHERITED;
 };
 

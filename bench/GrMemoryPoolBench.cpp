@@ -47,7 +47,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        SkMWCRandom r;
+        SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
         };
@@ -103,7 +103,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        SkMWCRandom r;
+        SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
         };
@@ -141,7 +141,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        SkMWCRandom r;
+        SkRandom r;
         A* objects[M];
         for (int i = 0; i < N; i++) {
             uint32_t count = r.nextRangeU(0, M-1);

@@ -415,7 +415,7 @@ GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffec
     return bgKey;
 }
 
-GrEffectRef* GrArithmeticEffect::TestCreate(SkMWCRandom* rand,
+GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
                                             GrContext*,
                                             const GrDrawTargetCaps&,
                                             GrTexture*[]) {

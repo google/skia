@@ -21,7 +21,7 @@ SkTArray<GrEffectTestFactory*, true>* GrEffectTestFactory::GetFactories() {
 #endif
 
 namespace GrEffectUnitTest {
-const SkMatrix& TestMatrix(SkMWCRandom* random) {
+const SkMatrix& TestMatrix(SkRandom* random) {
     static SkMatrix gMatrices[5];
     static bool gOnce;
     if (!gOnce) {

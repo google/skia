@@ -210,7 +210,7 @@ void GrTextureDomainEffect::getConstantColorComponents(GrColor* color, uint32_t*
 
 GR_DEFINE_EFFECT_TEST(GrTextureDomainEffect);
 
-GrEffectRef* GrTextureDomainEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrTextureDomainEffect::TestCreate(SkRandom* random,
                                                GrContext*,
                                                const GrDrawTargetCaps&,
                                                GrTexture* textures[]) {

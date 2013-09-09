@@ -375,7 +375,7 @@ void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
 
 GR_DEFINE_EFFECT_TEST(ColorTableEffect);
 
-GrEffectRef* ColorTableEffect::TestCreate(SkMWCRandom* random,
+GrEffectRef* ColorTableEffect::TestCreate(SkRandom* random,
                                           GrContext* context,
                                           const GrDrawTargetCaps&,
                                           GrTexture* textures[]) {

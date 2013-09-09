@@ -1359,7 +1359,7 @@ private:
 };
 
 GR_DEFINE_EFFECT_TEST(XferEffect);
-GrEffectRef* XferEffect::TestCreate(SkMWCRandom* rand,
+GrEffectRef* XferEffect::TestCreate(SkRandom* rand,
                                     GrContext*,
                                     const GrDrawTargetCaps&,
                                     GrTexture*[]) {

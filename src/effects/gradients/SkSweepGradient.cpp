@@ -447,7 +447,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrSweepGradient);
 
-GrEffectRef* GrSweepGradient::TestCreate(SkMWCRandom* random,
+GrEffectRef* GrSweepGradient::TestCreate(SkRandom* random,
                                          GrContext* context,
                                          const GrDrawTargetCaps&,
                                          GrTexture**) {

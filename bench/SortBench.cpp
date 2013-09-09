@@ -13,14 +13,14 @@
 static const int N = 1000;
 
 static void rand_proc(int array[], int count) {
-    SkMWCRandom rand;
+    SkRandom rand;
     for (int i = 0; i < count; ++i) {
         array[i] = rand.nextS();
     }
 }
 
 static void randN_proc(int array[], int count) {
-    SkMWCRandom rand;
+    SkRandom rand;
     int mod = N / 10;
     for (int i = 0; i < count; ++i) {
         array[i] = rand.nextU() % mod;

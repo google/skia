@@ -35,7 +35,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkISize size = canvas->getDeviceSize();
-        SkMWCRandom random;
+        SkRandom random;
         for (int i = 0; i < kNumRects; ++i) {
             SkPaint paint;
             paint.setXfermode(fXfermode.get());

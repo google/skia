@@ -38,7 +38,7 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        SkMWCRandom rand;
+        SkRandom rand;
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(20);

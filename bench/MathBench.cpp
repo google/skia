@@ -26,7 +26,7 @@ public:
     MathBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("math_%s", name);
 
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < kBuffer; ++i) {
             fSrc[i] = rand.nextSScalar1();
         }
@@ -254,7 +254,7 @@ class IsFiniteBench : public SkBenchmark {
 public:
 
     IsFiniteBench(void* param, int index) : INHERITED(param) {
-        SkMWCRandom rand;
+        SkRandom rand;
 
         for (int i = 0; i < N; ++i) {
             fData[i] = rand.nextSScalar1();
@@ -322,7 +322,7 @@ class FloorBench : public SkBenchmark {
 public:
 
     FloorBench(void* param, bool fast) : INHERITED(param), fFast(fast) {
-        SkMWCRandom rand;
+        SkRandom rand;
 
         for (int i = 0; i < ARRAY; ++i) {
             fData[i] = rand.nextSScalar1();
@@ -340,7 +340,7 @@ public:
 
 protected:
     virtual void onDraw(SkCanvas*) {
-        SkMWCRandom rand;
+        SkRandom rand;
         float accum = 0;
         const float* data = fData;
 
@@ -384,7 +384,7 @@ public:
         : INHERITED(param)
         , fUsePortable(usePortable) {
 
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < ARRAY; ++i) {
             fData[i] = rand.nextU();
         }
@@ -444,7 +444,7 @@ public:
     NormalizeBench(void* param)
     : INHERITED(param) {
 
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < ARRAY; ++i) {
             fVec[i].set(rand.nextSScalar1(), rand.nextSScalar1());
         }
@@ -490,7 +490,7 @@ class FixedMathBench : public SkBenchmark {
 public:
 
     FixedMathBench(void* param) : INHERITED(param) {
-        SkMWCRandom rand;
+        SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fData[i] = rand.nextSScalar1();
         }

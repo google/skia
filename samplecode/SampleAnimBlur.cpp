@@ -43,7 +43,7 @@ protected:
             SkBlurMaskFilter::kSolid_BlurStyle,
             SkBlurMaskFilter::kOuter_BlurStyle,
         };
-        SkMWCRandom random;
+        SkRandom random;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gStyles); ++i) {
             SkMaskFilter* mf = SkBlurMaskFilter::Create(
