@@ -63,8 +63,7 @@ protected:
             path.transform(m);
         }
 
-        int count = N;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawPath(path, paint);
         }
     }
@@ -73,7 +72,6 @@ private:
     SkPaint     fPaint;
     SkString    fName;
     Flags       fFlags;
-    enum { N = SkBENCHLOOP(200) };
     typedef SkBenchmark INHERITED;
 };
 

@@ -89,7 +89,6 @@ class RepeatTileBench : public SkBenchmark {
     SkBitmap         fBitmap;
     bool             fIsOpaque;
     SkBitmap::Config fConfig;
-    enum { N = SkBENCHLOOP(20) };
 public:
     RepeatTileBench(void* param, SkBitmap::Config c, bool isOpaque = false) : INHERITED(param) {
         const int w = 50;
@@ -135,7 +134,7 @@ protected:
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawPaint(paint);
         }
     }

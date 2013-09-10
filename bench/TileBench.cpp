@@ -34,7 +34,6 @@ class ConstXTileBench : public SkBenchmark {
     bool                fDoFilter;
     bool                fDoTrans;
     bool                fDoScale;
-    enum { N = SkBENCHLOOP(20) };
     static const int kWidth = 1;
     static const int kHeight = 300;
 
@@ -106,7 +105,7 @@ protected:
         SkPaint bgPaint;
         bgPaint.setColor(SK_ColorWHITE);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             if (fDoTrans) {
                 canvas->drawRect(r, bgPaint);
             }

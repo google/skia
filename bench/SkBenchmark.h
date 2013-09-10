@@ -10,7 +10,6 @@
 
 #include "SkRefCnt.h"
 #include "SkPoint.h"
-#include "SkTDict.h"
 #include "SkTRegistry.h"
 
 #define DEF_BENCH(code) \
@@ -27,12 +26,6 @@ static BenchRegistry SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
  */
 
 
-#ifdef SK_DEBUG
-    #define SkBENCHLOOP(n) 1
-#else
-    #define SkBENCHLOOP(n) n
-#endif
-
 class SkCanvas;
 class SkPaint;
 
@@ -43,6 +36,7 @@ public:
         kTrue,
         kFalse
     };
+    static const char* Name[];
 };
 
 class SkBenchmark : public SkRefCnt {
@@ -82,29 +76,12 @@ public:
         fDither = state;
     }
 
-    void setStrokeWidth(SkScalar width) {
-      strokeWidth = width;
-      fHasStrokeWidth = true;
-    }
-
-    SkScalar getStrokeWidth() {
-      return strokeWidth;
-    }
-
-    bool hasStrokeWidth() {
-      return fHasStrokeWidth;
-    }
-
     /** If true; the benchmark does rendering; if false, the benchmark
         doesn't, and so need not be re-run in every different rendering
         mode. */
     bool isRendering() {
         return fIsRendering;
     }
-
-    const char* findDefine(const char* key) const;
-    bool findDefine32(const char* key, int32_t* value) const;
-    bool findDefineScalar(const char* key, SkScalar* value) const;
 
     /** Assign masks for paint-flags. These will be applied when setupPaint()
      *  is called.
@@ -120,7 +97,14 @@ public:
         fClearMask = clearMask;
     }
 
-    float getDurationScale() { return this->onGetDurationScale(); }
+    // The bench framework calls this to control the runtime of a bench.
+    void setLoops(int loops) {
+        fLoops = loops;
+    }
+
+    // Each bench should do its main work in a loop like this:
+    //   for (int i = 0; i < this->getLoops(); i++) { <work here> }
+    int getLoops() const { return fLoops; }
 
 protected:
     virtual void setupPaint(SkPaint* paint);
@@ -129,27 +113,18 @@ protected:
     virtual void onPreDraw() {}
     virtual void onDraw(SkCanvas*) = 0;
     virtual void onPostDraw() {}
-    // the caller will scale the computed duration by this value. It allows a
-    // slow bench to run fewer inner loops, but return the corresponding scale
-    // so that its reported duration can be compared against other benches.
-    // e.g.
-    //      if I run 10x slower, I can run 1/10 the number of inner-loops, but
-    //      return 10.0 for my durationScale, so I "report" the honest duration.
-    virtual float onGetDurationScale() { return 1; }
 
     virtual SkIPoint onGetSize();
     /// Defaults to true.
     bool    fIsRendering;
 
 private:
-    const SkTDict<const char*>* fDict;
     int     fForceAlpha;
     bool    fForceAA;
     bool    fForceFilter;
     SkTriState::State  fDither;
-    bool    fHasStrokeWidth;
-    SkScalar strokeWidth;
     uint32_t    fOrMask, fClearMask;
+    int fLoops;
 
     typedef SkRefCnt INHERITED;
 };

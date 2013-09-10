@@ -16,7 +16,6 @@ public:
     }
 
     enum {
-        N = SkBENCHLOOP(25), // number of times to create the picture
         CANVAS_WIDTH = 200,
         CANVAS_HEIGHT = 200,
     };
@@ -34,7 +33,7 @@ protected:
 
         initDeferredCanvas(deferredCanvas);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             drawInDeferredCanvas(deferredCanvas);
         }
 
@@ -75,9 +74,6 @@ public:
         : INHERITED(param, "record") {
     }
 
-    enum {
-        M = SkBENCHLOOP(700),   // number of individual draws in each loop
-    };
 protected:
 
     virtual void initDeferredCanvas(SkDeferredCanvas* canvas) SK_OVERRIDE {
@@ -88,7 +84,7 @@ protected:
         SkRect rect;
         rect.setXYWH(0, 0, 10, 10);
         SkPaint paint;
-        for (int i = 0; i < M; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->save(SkCanvas::kMatrixClip_SaveFlag);
             canvas->translate(SkIntToScalar(i * 27 % CANVAS_WIDTH), SkIntToScalar(i * 13 % CANVAS_HEIGHT));
             canvas->drawRect(rect, paint);

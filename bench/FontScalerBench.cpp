@@ -35,14 +35,16 @@ protected:
         bool prev = gSkSuppressFontCachePurgeSpew;
         gSkSuppressFontCachePurgeSpew = true;
 
-        // this is critical - we want to time the creation process, so we
-        // explicitly flush our cache before each run
-        SkGraphics::PurgeFontCache();
+        for (int i = 0; i < this->getLoops(); i++) {
+            // this is critical - we want to time the creation process, so we
+            // explicitly flush our cache before each run
+            SkGraphics::PurgeFontCache();
 
-        for (int ps = 9; ps <= 24; ps += 2) {
-            paint.setTextSize(SkIntToScalar(ps));
-            canvas->drawText(fText.c_str(), fText.size(),
-                             0, SkIntToScalar(20), paint);
+            for (int ps = 9; ps <= 24; ps += 2) {
+                paint.setTextSize(SkIntToScalar(ps));
+                canvas->drawText(fText.c_str(), fText.size(),
+                        0, SkIntToScalar(20), paint);
+            }
         }
 
         gSkSuppressFontCachePurgeSpew = prev;

@@ -48,7 +48,10 @@ private:
                                                  seed, stitchTiles ? &fSize : NULL);
         SkPaint paint;
         paint.setShader(shader)->unref();
-        this->drawClippedRect(canvas, x, y, paint);
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            this->drawClippedRect(canvas, x, y, paint);
+        }
     }
 
     typedef SkBenchmark INHERITED;

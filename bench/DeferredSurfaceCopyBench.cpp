@@ -17,7 +17,6 @@
 
 class DeferredSurfaceCopyBench : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP(5),
         kSurfaceWidth = 1000,
         kSurfaceHeight = 1000,
     };
@@ -56,7 +55,7 @@ protected:
         SkAutoTUnref<SkDeferredCanvas> drawingCanvas(SkDeferredCanvas::Create(surface));
         surface->unref();
 
-        for (int iteration = 0; iteration < N; iteration++) {
+        for (int iteration = 0; iteration < this->getLoops(); iteration++) {
             drawingCanvas->clear(0);
             SkAutoTUnref<SkImage> image(drawingCanvas->newImageSnapshot());
             SkPaint paint;

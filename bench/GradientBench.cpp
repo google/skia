@@ -159,11 +159,10 @@ static const char* geomtypename(GeomType gt) {
 class GradientBench : public SkBenchmark {
     SkString fName;
     SkShader* fShader;
-    int      fCount;
+    int      fRepeat;
     enum {
         W   = 400,
         H   = 400,
-        N   = 1
     };
 public:
     GradientBench(void* param, GradType gradType,
@@ -187,7 +186,7 @@ public:
             { SkIntToScalar(W), SkIntToScalar(H) }
         };
 
-        fCount = SkBENCHLOOP(N * gGrads[gradType].fRepeat);
+        fRepeat = gGrads[gradType].fRepeat;
         fShader = gGrads[gradType].fMaker(pts, data, tm, NULL, scale);
         fGeomType = geomType;
     }
@@ -208,7 +207,7 @@ protected:
         paint.setShader(fShader);
 
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
-        for (int i = 0; i < fCount; i++) {
+        for (int i = 0; i < this->getLoops() * fRepeat; i++) {
             switch (fGeomType) {
                case kRect_GeomType:
                    canvas->drawRect(r, paint);
@@ -251,7 +250,7 @@ protected:
             { SkIntToScalar(100), SkIntToScalar(100) },
         };
 
-        for (int i = 0; i < SkBENCHLOOP(1000); i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             const int gray = i % 256;
             const int alpha = fHasAlpha ? gray : 0xFF;
             SkColor colors[] = {

@@ -24,7 +24,6 @@ public:
     }
 
     enum {
-        N = SkBENCHLOOP(25), // number of times to create the picture
         PICTURE_WIDTH = 1000,
         PICTURE_HEIGHT = 4000,
     };
@@ -34,25 +33,18 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        int n = (int)(N * this->innerLoopScale());
-        n = SkMax32(1, n);
+        SkPicture picture;
 
-        for (int i = 0; i < n; i++) {
+        SkCanvas* pCanvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+        recordCanvas(pCanvas);
 
-            SkPicture picture;
-
-            SkCanvas* pCanvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
-            recordCanvas(pCanvas);
-
-            // we don't need to draw the picture as the endRecording step will
-            // do the work of transferring the recorded content into a playback
-            // object.
-            picture.endRecording();
-        }
+        // we don't need to draw the picture as the endRecording step will
+        // do the work of transferring the recorded content into a playback
+        // object.
+        picture.endRecording();
     }
 
     virtual void recordCanvas(SkCanvas* canvas) = 0;
-    virtual float innerLoopScale() const { return 1; }
 
     SkString fName;
     SkScalar fPictureWidth;
@@ -72,18 +64,15 @@ public:
     DictionaryRecordBench(void* param)
         : INHERITED(param, "dictionaries") { }
 
-    enum {
-        M = SkBENCHLOOP(100),   // number of elements in each dictionary
-    };
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
 
-        const SkPoint translateDelta = getTranslateDelta();
+        const SkPoint translateDelta = getTranslateDelta(this->getLoops());
 
-        for (int i = 0; i < M; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
 
             SkColor color = SK_ColorYELLOW + (i % 255);
-            SkIRect rect = SkIRect::MakeWH(i,i);
+            SkIRect rect = SkIRect::MakeWH(i % PICTURE_WIDTH, i % PICTURE_HEIGHT);
 
             canvas->save();
 
@@ -119,7 +108,7 @@ protected:
         }
     }
 
-    SkPoint getTranslateDelta() {
+    SkPoint getTranslateDelta(int M) {
         SkIPoint canvasSize = onGetSize();
         return SkPoint::Make(SkIntToScalar((PICTURE_WIDTH - canvasSize.fX)/M),
                              SkIntToScalar((PICTURE_HEIGHT- canvasSize.fY)/M));
@@ -137,14 +126,10 @@ public:
     UniquePaintDictionaryRecordBench(void* param)
         : INHERITED(param, "unique_paint_dictionary") { }
 
-    enum {
-        M = SkBENCHLOOP(15000),   // number of unique paint objects
-    };
 protected:
-    virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
         SkRandom rand;
-        for (int i = 0; i < M; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkPaint paint;
             paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
@@ -174,14 +159,12 @@ public:
     }
 
     enum {
-        ObjCount = 100,           // number of unique paint objects
-        M = SkBENCHLOOP(50000),   // number of draw iterations
+        ObjCount = 100,  // number of unique paint objects
     };
 protected:
-    virtual float innerLoopScale() const SK_OVERRIDE { return 0.1f; }
     virtual void recordCanvas(SkCanvas* canvas) {
 
-        for (int i = 0; i < M; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawPaint(fPaint[i % ObjCount]);
         }
     }

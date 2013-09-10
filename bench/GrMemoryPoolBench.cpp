@@ -34,9 +34,6 @@ GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
  * This benchmark creates and deletes objects in stack order
  */
 class GrMemoryPoolBenchStack : public SkBenchmark {
-    enum {
-        N = SkBENCHLOOP(1 * (1 << 20)),
-    };
 public:
     GrMemoryPoolBenchStack(void* param) : INHERITED(param) {
         fIsRendering = false;
@@ -56,13 +53,11 @@ protected:
         // We delete if a random [-1, 1] fixed pt is < the thresh. Otherwise,
         // we allocate. We start allocate-biased and ping-pong to delete-biased
         SkFixed delThresh = -SK_FixedHalf;
-        enum {
-            kSwitchThreshPeriod = N / (2 * kMaxObjects),
-        };
+        const int kSwitchThreshPeriod = this->getLoops() / (2 * kMaxObjects);
         int s = 0;
 
         int count = 0;
-        for (int i = 0; i < N; i++, ++s) {
+        for (int i = 0; i < this->getLoops(); i++, ++s) {
             if (kSwitchThreshPeriod == s) {
                 delThresh = -delThresh;
                 s = 0;
@@ -90,9 +85,6 @@ private:
  * This benchmark creates objects and deletes them in random order
  */
 class GrMemoryPoolBenchRandom : public SkBenchmark {
-    enum {
-        N = SkBENCHLOOP(1 * (1 << 20)),
-    };
 public:
     GrMemoryPoolBenchRandom(void* param) : INHERITED(param) {
         fIsRendering = false;
@@ -109,7 +101,7 @@ protected:
         };
         SkAutoTDelete<A> objects[kMaxObjects];
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             uint32_t idx = r.nextRangeU(0, kMaxObjects-1);
             if (NULL == objects[idx].get()) {
                 objects[idx].reset(new A);
@@ -128,8 +120,7 @@ private:
  */
 class GrMemoryPoolBenchQueue : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP((1 << 8)),
-        M = SkBENCHLOOP(4 * (1 << 10)),
+        M = 4 * (1 << 10),
     };
 public:
     GrMemoryPoolBenchQueue(void* param) : INHERITED(param) {
@@ -143,7 +134,7 @@ protected:
     virtual void onDraw(SkCanvas*) {
         SkRandom r;
         A* objects[M];
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             uint32_t count = r.nextRangeU(0, M-1);
             for (uint32_t i = 0; i < count; i++) {
                 objects[i] = new A;

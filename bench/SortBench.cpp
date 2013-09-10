@@ -121,8 +121,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        int n = SkBENCHLOOP(200);
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             memcpy(fSorted, fUnsorted, fCount * sizeof(int));
             fSortProc(fSorted, fCount);
 #ifdef SK_DEBUG

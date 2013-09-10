@@ -38,7 +38,9 @@ protected:
                               SkRect::MakeWH(FILTER_WIDTH_LARGE, FILTER_HEIGHT_LARGE);
         SkPaint paint;
         paint.setImageFilter(mergeBitmaps())->unref();
-        canvas->drawRect(r, paint);
+        for (int i = 0; i < this->getLoops(); i++) {
+            canvas->drawRect(r, paint);
+        }
     }
 
 private:

@@ -127,7 +127,7 @@ protected:
             }
         }
 
-        for (int frame = 0; frame < kFramesPerRun; ++frame) {
+        for (int frame = 0; frame < this->getLoops(); ++frame) {
 
             canvas->clear(0xFFE0F0E0);
 
@@ -183,8 +183,6 @@ private:
         kNumGraphs = 5,
         kPixelsPerTick = 3,
         kShiftPerFrame = 1,
-
-        kFramesPerRun = SkBENCHLOOP(5),
     };
     int                 fShift;
     SkISize             fSize;

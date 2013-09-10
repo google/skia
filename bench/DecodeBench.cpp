@@ -7,29 +7,26 @@
  */
 #include "SkBenchmark.h"
 #include "SkBitmap.h"
+#include "SkCommandLineFlags.h"
 #include "SkImageDecoder.h"
 #include "SkString.h"
+
+DEFINE_string(decodeBenchFilename, "resources/CMYK.jpeg", "Path to image for DecodeBench.");
 
 static const char* gConfigName[] = {
     "ERROR", "a1", "a8", "index8", "565", "4444", "8888"
 };
 
 class DecodeBench : public SkBenchmark {
-    const char* fFilename;
     SkBitmap::Config fPrefConfig;
     SkString fName;
-    enum { N = SkBENCHLOOP(10) };
 public:
     DecodeBench(void* param, SkBitmap::Config c) : SkBenchmark(param) {
-        fFilename = this->findDefine("decode-filename");
         fPrefConfig = c;
 
-        const char* fname = NULL;
-        if (fFilename) {
-            fname = strrchr(fFilename, '/');
-            if (fname) {
-                fname += 1; // skip the slash
-            }
+        const char* fname = strrchr(FLAGS_decodeBenchFilename[0], '/');
+        if (fname) {
+            fname++; // skip the slash
         }
         fName.printf("decode_%s_%s", gConfigName[c], fname);
         fIsRendering = false;
@@ -41,12 +38,12 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        if (fFilename) {
-            for (int i = 0; i < N; i++) {
-                SkBitmap bm;
-                SkImageDecoder::DecodeFile(fFilename, &bm, fPrefConfig,
-                                           SkImageDecoder::kDecodePixels_Mode);
-            }
+        for (int i = 0; i < this->getLoops(); i++) {
+            SkBitmap bm;
+            SkImageDecoder::DecodeFile(FLAGS_decodeBenchFilename[0],
+                                       &bm,
+                                       fPrefConfig,
+                                       SkImageDecoder::kDecodePixels_Mode);
         }
     }
 

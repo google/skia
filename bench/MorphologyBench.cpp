@@ -60,7 +60,7 @@ protected:
         paint.setAntiAlias(true);
 
         SkRandom rand;
-        for (int i = 0; i < SkBENCHLOOP(3); i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkRect r = SkRect::MakeWH(rand.nextUScalar1() * 400,
                                       rand.nextUScalar1() * 400);
             r.offset(fRadius, fRadius);

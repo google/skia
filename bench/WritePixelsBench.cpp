@@ -56,14 +56,12 @@ protected:
         bmp.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
         canvas->readPixels(&bmp, 0, 0);
 
-        for (int loop = 0; loop < kLoopCount; ++loop) {
+        for (int loop = 0; loop < this->getLoops(); ++loop) {
             canvas->writePixels(bmp, 0, 0, fConfig);
         }
     }
 
 private:
-    static const int kLoopCount = SkBENCHLOOP(50);
-
     SkCanvas::Config8888 fConfig;
     SkString             fName;
 

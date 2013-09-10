@@ -23,10 +23,6 @@ class AAClipBench : public SkBenchmark {
     bool     fDoPath;
     bool     fDoAA;
 
-    enum {
-        N = SkBENCHLOOP(200),
-    };
-
 public:
     AAClipBench(void* param, bool doPath, bool doAA)
         : INHERITED(param)
@@ -53,7 +49,7 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
             fClipPath.reset();
@@ -96,7 +92,6 @@ class NestedAAClipBench : public SkBenchmark {
     SkRect   fDrawRect;
     SkRandom fRandom;
 
-    static const int kNumDraws = SkBENCHLOOP(2);
     static const int kNestingDepth = 3;
     static const int kImageSize = 400;
 
@@ -169,7 +164,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
 
-        for (int i = 0; i < kNumDraws; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkPoint offset = SkPoint::Make(0, 0);
             this->recurse(canvas, 0, offset);
         }
@@ -187,10 +182,6 @@ class AAClipBuilderBench : public SkBenchmark {
     SkRegion fRegion;
     bool     fDoPath;
     bool     fDoAA;
-
-    enum {
-        N = SkBENCHLOOP(200),
-    };
 
 public:
     AAClipBuilderBench(void* param, bool doPath, bool doAA) : INHERITED(param) {
@@ -212,7 +203,7 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkAAClip clip;
             if (fDoPath) {
                 clip.setPath(fPath, &fRegion, fDoAA);
@@ -244,16 +235,13 @@ public:
 protected:
     virtual const char* onGetName() { return "aaclip_setregion"; }
     virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkAAClip clip;
             clip.setRegion(fRegion);
         }
     }
 
 private:
-    enum {
-        N = SkBENCHLOOP(400),
-    };
     SkRegion fRegion;
     typedef SkBenchmark INHERITED;
 };

@@ -59,7 +59,7 @@ protected:
 #endif
         // Decode a bunch of times
         SkBitmap bm;
-        for (int i = 0; i < SkBENCHLOOP(1000); ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkDEBUGCODE(bool success =) SkImageDecoder::DecodeStream(&fStream, &bm);
 #ifdef SK_DEBUG
             if (!success) {

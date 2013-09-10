@@ -26,7 +26,6 @@ public:
     }
 
     enum {
-        N = SkBENCHLOOP(200),   // number of times to playback the picture
         PICTURE_WIDTH = 1000,
         PICTURE_HEIGHT = 4000,
         TEXT_SIZE = 10
@@ -44,16 +43,16 @@ protected:
         recordCanvas(pCanvas);
         picture.endRecording();
 
-        const SkPoint translateDelta = getTranslateDelta();
+        const SkPoint translateDelta = getTranslateDelta(this->getLoops());
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             picture.draw(canvas);
             canvas->translate(translateDelta.fX, translateDelta.fY);
         }
     }
 
     virtual void recordCanvas(SkCanvas* canvas) = 0;
-    virtual SkPoint getTranslateDelta() {
+    virtual SkPoint getTranslateDelta(int N) {
         SkIPoint canvasSize = onGetSize();
         return SkPoint::Make(SkIntToScalar((PICTURE_WIDTH - canvasSize.fX)/N),
                              SkIntToScalar((PICTURE_HEIGHT- canvasSize.fY)/N));

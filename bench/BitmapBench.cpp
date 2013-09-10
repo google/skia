@@ -81,8 +81,6 @@ class BitmapBench : public SkBenchmark {
     bool        fIsVolatile;
     SkBitmap::Config fConfig;
     SkString    fName;
-    enum { BICUBIC_DUR_SCALE = 20 };
-    enum { N = SkBENCHLOOP(15 * BICUBIC_DUR_SCALE) };
     enum { W = 128 };
     enum { H = 128 };
 public:
@@ -146,14 +144,7 @@ protected:
         const SkScalar x0 = SkIntToScalar(-bitmap.width() / 2);
         const SkScalar y0 = SkIntToScalar(-bitmap.height() / 2);
 
-        int count = N;
-#ifdef SK_RELEASE
-        // in DEBUG, N is always 1
-        if (SkPaint::kHigh_FilterLevel == paint.getFilterLevel()) {
-            count /= BICUBIC_DUR_SCALE;
-        }
-#endif
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
 
@@ -162,17 +153,6 @@ protected:
 
             canvas->drawBitmap(bitmap, x, y, &paint);
         }
-    }
-
-    virtual float onGetDurationScale() SK_OVERRIDE {
-        SkPaint paint;
-        this->setupPaint(&paint);
-#ifdef SK_DEBUG
-        return 1;
-#else
-        return SkPaint::kHigh_FilterLevel == paint.getFilterLevel() ?
-                (float)BICUBIC_DUR_SCALE : 1;
-#endif
     }
 
     virtual void onDrawIntoBitmap(const SkBitmap& bm) {
@@ -219,7 +199,6 @@ static bool isBicubic(uint32_t flags) {
 class FilterBitmapBench : public BitmapBench {
     uint32_t    fFlags;
     SkString    fFullName;
-    enum { N = SkBENCHLOOP(300) };
 public:
     FilterBitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
                       bool forceUpdate, bool isVolitile, uint32_t flags)

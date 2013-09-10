@@ -58,7 +58,6 @@ class StrokeRRectBench : public SkBenchmark {
     SkPaint::Join fJoin;
     RRectRec fRec;
     DrawProc fProc;
-    enum { N = SkBENCHLOOP(500) };
 public:
     StrokeRRectBench(void* param, SkPaint::Join j, DrawProc proc) : SkBenchmark(param) {
         static const char* gJoinName[] = {
@@ -85,7 +84,7 @@ protected:
         fRec.fPaint.setStyle(SkPaint::kStroke_Style);
         fRec.fPaint.setStrokeJoin(fJoin);
         fRec.fPaint.setStrokeWidth(5);
-        fProc(&fRec, N);
+        fProc(&fRec, this->getLoops());
     }
 
 private:

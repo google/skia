@@ -17,9 +17,9 @@
 #include "SkTArray.h"
 #include "TimerData.h"
 
-static const int kNumNormalRecordings = SkBENCHLOOP(10);
-static const int kNumRTreeRecordings = SkBENCHLOOP(10);
-static const int kNumPlaybacks = SkBENCHLOOP(1);
+static const int kNumNormalRecordings = 10;
+static const int kNumRTreeRecordings = 10;
+static const int kNumPlaybacks = 1;
 static const size_t kNumBaseBenchmarks = 3;
 static const size_t kNumTileSizes = 3;
 static const size_t kNumBbhPlaybackBenchmarks = 3;

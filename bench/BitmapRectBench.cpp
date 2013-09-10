@@ -47,7 +47,6 @@ class BitmapRectBench : public SkBenchmark {
     SkRect      fSrcR, fDstR;
     static const int kWidth = 128;
     static const int kHeight = 128;
-    enum { N = SkBENCHLOOP(300) };
 public:
     BitmapRectBench(void* param, U8CPU alpha, bool doFilter, bool slightMatrix) : INHERITED(param) {
         fAlpha = SkToU8(alpha);
@@ -93,7 +92,7 @@ protected:
         paint.setFilterBitmap(fDoFilter);
         paint.setAlpha(fAlpha);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR, &paint);
         }
     }

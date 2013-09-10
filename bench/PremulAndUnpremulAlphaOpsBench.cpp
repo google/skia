@@ -46,8 +46,7 @@ protected:
         bmp2.setConfig(SkBitmap::kARGB_8888_Config, size.width(),
                        size.height());
 
-        static const int kLoopCount = SkBENCHLOOP(10);
-        for (int loop = 0; loop < kLoopCount; ++loop) {
+        for (int loop = 0; loop < this->getLoops(); ++loop) {
             // Unpremul -> Premul
             canvas->writePixels(bmp1, 0, 0, fUnPremulConfig);
             // Premul -> Unpremul

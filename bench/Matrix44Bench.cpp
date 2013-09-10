@@ -12,7 +12,6 @@
 
 class Matrix44Bench : public SkBenchmark {
     SkString    fName;
-    enum { N = 10000 };
 public:
     Matrix44Bench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("matrix44_%s", name);
@@ -29,8 +28,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        int n = SkBENCHLOOP(N * this->mulLoopCount());
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             this->performTest();
         }
     }
