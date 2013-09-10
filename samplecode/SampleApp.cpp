@@ -769,7 +769,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
-        if (strcmp(*argv, "-i") == 0) {
+        if (!strcmp(*argv, "-i") || !strcmp(*argv, "--resourcePath")) {
             argv++;
             if (argv < stop && **argv) {
                 resourcePath = *argv;
