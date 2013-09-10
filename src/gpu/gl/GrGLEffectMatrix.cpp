@@ -58,6 +58,7 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     switch (key & kMatrixTypeKeyMask) {
         case kIdentity_MatrixType:
             fUniType = kVoid_GrSLType;
+            uniName = NULL;
             varyingType = kVec2f_GrSLType;
             break;
         case kTrans_MatrixType:
@@ -79,12 +80,12 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
             GrCrash("Unexpected key.");
     }
     SkString suffixedUniName;
-    if (NULL != suffix) {
-        suffixedUniName.append(uniName);
-        suffixedUniName.append(suffix);
-        uniName = suffixedUniName.c_str();
-    }
     if (kVoid_GrSLType != fUniType) {
+        if (NULL != suffix) {
+            suffixedUniName.append(uniName);
+            suffixedUniName.append(suffix);
+            uniName = suffixedUniName.c_str();
+        }
         fUni = builder->addUniform(GrGLShaderBuilder::kVertex_Visibility,
                                    fUniType,
                                    uniName,
