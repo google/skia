@@ -38,7 +38,7 @@ SK_DEFINE_INST_COUNT(GrDrawState)
 // It can be useful to set this to false to test whether a bug is caused by using the
 // InOrderDrawBuffer, to compare performance of using/not using InOrderDrawBuffer, or to make
 // debugging simpler.
-SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", false,
+SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true,
                 "Defers rendering in GrContext via GrInOrderDrawBuffer.");
 
 #define BUFFERED_DRAW (c_Defer ? kYes_BufferedDraw : kNo_BufferedDraw)
