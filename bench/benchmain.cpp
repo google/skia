@@ -21,6 +21,7 @@ class GrContext;
 #include "SkBenchmark.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkDeferredCanvas.h"
 #include "SkGraphics.h"
