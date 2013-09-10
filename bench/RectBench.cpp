@@ -148,7 +148,7 @@ protected:
         size_t sizes = SK_ARRAY_COUNT(gSizes);
 
         if (FLAGS_strokeWidth >= 0) {
-            gSizes[0] = FLAGS_strokeWidth;
+            gSizes[0] = (SkScalar)FLAGS_strokeWidth;
             sizes = 1;
         }
 
@@ -250,7 +250,7 @@ protected:
         size_t sizes = SK_ARRAY_COUNT(gSizes);
 
         if (FLAGS_strokeWidth >= 0) {
-            gSizes[0] = FLAGS_strokeWidth;
+            gSizes[0] = (SkScalar)FLAGS_strokeWidth;
             sizes = 1;
         }
         SkRandom rand;
