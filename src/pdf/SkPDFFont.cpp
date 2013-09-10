@@ -582,6 +582,7 @@ static int get_subset_font_stream(const char* fontName,
         *fontStream = subsetFontStream;
         return fontSize;
     }
+    fontData->rewind();
 #else
     sk_ignore_unused_variable(fontName);
     sk_ignore_unused_variable(subset);
