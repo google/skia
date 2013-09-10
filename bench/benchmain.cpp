@@ -923,23 +923,22 @@ int tool_main(int argc, char** argv) {
                     SkAssertResult(timerData.appendTimes(timer));
 
                 }
-                if (repeatDraw > 1) {
-                    const char* timeFormat;
-                    if (TimerData::kPerIter_Result == timerResult) {
-                        timeFormat = perIterTimeformat.c_str();
-                    } else {
-                        timeFormat = normalTimeFormat.c_str();
-                    }
-                    uint32_t filteredTimerTypes = timerTypes;
-                    if (NULL == context) {
-                        filteredTimerTypes &= ~TimerData::kGpu_Flag;
-                    }
-                    SkString result = timerData.getResult(timeFormat,
-                                        timerResult,
-                                        configName,
-                                        filteredTimerTypes);
-                    logger.logProgress(result);
+                const char* timeFormat;
+                if (repeatDraw > 1 && TimerData::kPerIter_Result == timerResult) {
+                    timeFormat = perIterTimeformat.c_str();
+                } else {
+                    timeFormat = normalTimeFormat.c_str();
                 }
+                uint32_t filteredTimerTypes = timerTypes;
+                if (NULL == context) {
+                    filteredTimerTypes &= ~TimerData::kGpu_Flag;
+                }
+                SkString result = timerData.getResult(timeFormat,
+                                    timerResult,
+                                    configName,
+                                    filteredTimerTypes);
+                logger.logProgress(result);
+
                 if (outDir.size() > 0 && kNonRendering_Backend != backend) {
                     saveFile(bench->getName(), configName, outDir.c_str(),
                              device->accessBitmap(false));
