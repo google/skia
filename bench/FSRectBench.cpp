@@ -44,9 +44,9 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
-        for (int i = 0; i < N; ++i) {
-            paint.setColor(fColors[i]);
-            canvas->drawRect(fRects[i], paint);
+        for (int i = 0; i < this->getLoops(); ++i) {
+            paint.setColor(fColors[i % N]);
+            canvas->drawRect(fRects[i % N], paint);
         }
     }
 
@@ -54,7 +54,7 @@ private:
     enum {
         W = 640,
         H = 480,
-        N = SkBENCHLOOP(300)
+        N = 300,
     };
     SkRect  fRects[N];
     SkColor fColors[N];

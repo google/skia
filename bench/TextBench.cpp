@@ -45,7 +45,6 @@ class TextBench : public SkBenchmark {
     FontQuality fFQ;
     bool        fDoPos;
     SkPoint*    fPos;
-    enum { N = SkBENCHLOOP(800) };
 public:
     TextBench(void* param, const char text[], int ps,
               SkColor color, FontQuality fq, bool doPos = false) : INHERITED(param) {
@@ -112,7 +111,7 @@ protected:
             canvas->translate(SK_Scalar1, SK_Scalar1);
         }
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             if (fDoPos) {
                 canvas->drawPosText(fText.c_str(), fText.size(), fPos, paint);
             } else {

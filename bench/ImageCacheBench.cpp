@@ -13,7 +13,6 @@ class ImageCacheBench : public SkBenchmark {
     SkBitmap            fBM;
 
     enum {
-        N = SkBENCHLOOP(1000),
         DIM = 1,
         CACHE_COUNT = 500
     };
@@ -46,7 +45,7 @@ protected:
 
         SkBitmap tmp;
         // search for a miss (-1 scale)
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             (void)fCache.findAndLock(fBM, -1, -1, &tmp);
         }
     }

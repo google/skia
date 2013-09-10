@@ -144,8 +144,7 @@ protected:
                                                   SkShader::kClamp_TileMode,
                                                   SkShader::kClamp_TileMode))->unref();
 
-        for (int i = 0; i < kNumRects; ++i, ++fNumSaved) {
-
+        for (int i = 0; i < this->getLoops(); ++i, ++fNumSaved) {
             if (0 == i % kNumBeforeClear) {
                 if (kPartial_Clear == fClear) {
                     for (int j = 0; j < fNumSaved; ++j) {
@@ -229,15 +228,7 @@ private:
                                        (kNumAtlasedX+1) * kAtlasSpacer;
     static const int kTotAtlasHeight = kNumAtlasedY * kAtlasCellHeight +
                                        (kNumAtlasedY+1) * kAtlasSpacer;
-
-#ifdef SK_DEBUG
-    static const int kNumRects = 100;
-    static const int kNumBeforeClear = 10;
-#else
-    static const int kNumRects = 5000;
-    static const int kNumBeforeClear = 300;
-#endif
-
+    static const int kNumBeforeClear = 100;
 
     Type     fType;
     Clear    fClear;

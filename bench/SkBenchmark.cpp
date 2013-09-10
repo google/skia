@@ -9,18 +9,19 @@
 #include "SkPaint.h"
 #include "SkParse.h"
 
+const char* SkTriState::Name[] = { "default", "true", "false" };
+
 SK_DEFINE_INST_COUNT(SkBenchmark)
 
 template BenchRegistry* BenchRegistry::gHead;
 
-SkBenchmark::SkBenchmark(void* defineDict) {
-    fDict = reinterpret_cast<const SkTDict<const char*>*>(defineDict);
+SkBenchmark::SkBenchmark(void* /*ignored*/) {
     fForceAlpha = 0xFF;
     fForceAA = true;
     fDither = SkTriState::kDefault;
-    fHasStrokeWidth = false;
     fIsRendering = true;
     fOrMask = fClearMask = 0;
+    fLoops = 1;
 }
 
 const char* SkBenchmark::getName() {
@@ -55,33 +56,6 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     }
 }
 
-const char* SkBenchmark::findDefine(const char* key) const {
-    if (fDict) {
-        const char* value;
-        if (fDict->find(key, &value)) {
-            return value;
-        }
-    }
-    return NULL;
-}
-
-bool SkBenchmark::findDefine32(const char* key, int32_t* value) const {
-    const char* valueStr = this->findDefine(key);
-    if (valueStr) {
-        SkParse::FindS32(valueStr, value);
-        return true;
-    }
-    return false;
-}
-
-bool SkBenchmark::findDefineScalar(const char* key, SkScalar* value) const {
-    const char* valueStr = this->findDefine(key);
-    if (valueStr) {
-        SkParse::FindScalar(valueStr, value);
-        return true;
-    }
-    return false;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

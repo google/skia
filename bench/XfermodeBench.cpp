@@ -36,7 +36,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkISize size = canvas->getDeviceSize();
         SkRandom random;
-        for (int i = 0; i < kNumRects; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkPaint paint;
             paint.setXfermode(fXfermode.get());
             paint.setColor(random.nextU());
@@ -54,7 +54,6 @@ protected:
 
 private:
     enum {
-        kNumRects = SkBENCHLOOP(75),
         kMinSize = 50,
         kMaxSize = 100,
     };

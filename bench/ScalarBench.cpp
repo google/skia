@@ -13,7 +13,6 @@
 
 class ScalarBench : public SkBenchmark {
     SkString    fName;
-    enum { N = 100000 };
 public:
     ScalarBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("scalar_%s", name);
@@ -30,8 +29,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        int n = SkBENCHLOOP(N * this->mulLoopCount());
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             this->performTest();
         }
     }
@@ -135,7 +133,6 @@ private:
 class RectBoundsBench : public SkBenchmark {
     enum {
         PTS = 100,
-        N = SkBENCHLOOP(10000)
     };
     SkPoint fPts[PTS];
 
@@ -156,7 +153,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRect r;
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             r.set(fPts, PTS);
         }
     }

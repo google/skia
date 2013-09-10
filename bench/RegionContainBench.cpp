@@ -26,7 +26,6 @@ public:
         W = 200,
         H = 200,
         COUNT = 10,
-        N = SkBENCHLOOP(20000)
     };
 
     SkIRect randrect(SkRandom& rand, int i) {
@@ -54,7 +53,7 @@ protected:
     virtual void onDraw(SkCanvas*) {
         Proc proc = fProc;
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
            proc(fA, fB);
         }
     }

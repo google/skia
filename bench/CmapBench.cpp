@@ -11,7 +11,6 @@
 #include "SkTypeface.h"
 
 enum {
-    LOOP = SkBENCHLOOP(1000),
     NGLYPHS = 100
 };
 
@@ -21,44 +20,44 @@ static SkTypeface::Encoding paint2Encoding(const SkPaint& paint) {
     return (SkTypeface::Encoding)enc;
 }
 
-typedef void (*TypefaceProc)(const SkPaint&, const void* text, size_t len,
+typedef void (*TypefaceProc)(int loops, const SkPaint&, const void* text, size_t len,
                              int glyphCount);
 
-static void containsText_proc(const SkPaint& paint, const void* text, size_t len,
+static void containsText_proc(int loops, const SkPaint& paint, const void* text, size_t len,
                               int glyphCount) {
-    for (int i = 0; i < LOOP; ++i) {
+    for (int i = 0; i < loops; ++i) {
         paint.containsText(text, len);
     }
 }
 
-static void textToGlyphs_proc(const SkPaint& paint, const void* text, size_t len,
+static void textToGlyphs_proc(int loops, const SkPaint& paint, const void* text, size_t len,
                               int glyphCount) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
 
-    for (int i = 0; i < LOOP; ++i) {
+    for (int i = 0; i < loops; ++i) {
         paint.textToGlyphs(text, len, glyphs);
     }
 }
 
-static void charsToGlyphs_proc(const SkPaint& paint, const void* text,
+static void charsToGlyphs_proc(int loops, const SkPaint& paint, const void* text,
                                size_t len, int glyphCount) {
     SkTypeface::Encoding encoding = paint2Encoding(paint);
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
 
     SkTypeface* face = paint.getTypeface();
-    for (int i = 0; i < LOOP; ++i) {
+    for (int i = 0; i < loops; ++i) {
         face->charsToGlyphs(text, encoding, glyphs, glyphCount);
     }
 }
 
-static void charsToGlyphsNull_proc(const SkPaint& paint, const void* text,
+static void charsToGlyphsNull_proc(int loops, const SkPaint& paint, const void* text,
                                    size_t len, int glyphCount) {
     SkTypeface::Encoding encoding = paint2Encoding(paint);
 
     SkTypeface* face = paint.getTypeface();
-    for (int i = 0; i < LOOP; ++i) {
+    for (int i = 0; i < loops; ++i) {
         face->charsToGlyphs(text, encoding, NULL, glyphCount);
     }
 }
@@ -87,7 +86,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        fProc(fPaint, fText, sizeof(fText), NGLYPHS);
+        fProc(this->getLoops(), fPaint, fText, sizeof(fText), NGLYPHS);
     }
 
 private:

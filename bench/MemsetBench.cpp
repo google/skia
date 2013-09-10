@@ -17,7 +17,6 @@ protected:
     size_t      fMinSize;
     size_t      fMaxSize;
     enum {
-        kLoop = 100,
         kBufferSize = 10000,
         VALUE32 = 0x12345678,
         VALUE16 = 0x1234
@@ -46,7 +45,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        for (int i = 0; i < kLoop; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             this->performTest();
         }
     }

@@ -75,7 +75,7 @@ protected:
 
         preBenchSetup();
 
-        for (int i = 0; i < SkBENCHLOOP(fLoopCount); i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             doScaleImage();
         }
     }

@@ -16,7 +16,6 @@
 static const int GENERATE_EXTENTS = 1000;
 static const int NUM_BUILD_RECTS = 500;
 static const int NUM_QUERY_RECTS = 5000;
-static const int NUM_QUERIES = 1000;
 static const int GRID_WIDTH = 100;
 
 typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
@@ -47,7 +46,7 @@ protected:
     }
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
-        for (int i = 0; i < SkBENCHLOOP(100); ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             for (int j = 0; j < NUM_BUILD_RECTS; ++j) {
                 fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j, NUM_BUILD_RECTS),
                               fBulkLoad);
@@ -98,16 +97,17 @@ protected:
     }
     virtual void onPreDraw() SK_OVERRIDE {
         SkRandom rand;
-        for (int j = 0; j < SkBENCHLOOP(NUM_QUERY_RECTS); ++j) {
-            fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j,
-                           SkBENCHLOOP(NUM_QUERY_RECTS)), fBulkLoad);
+        for (int j = 0; j < NUM_QUERY_RECTS; ++j) {
+            fTree->insert(reinterpret_cast<void*>(j),
+                          fProc(rand, j, NUM_QUERY_RECTS),
+                          fBulkLoad);
         }
         fTree->flushDeferredInserts();
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
-        for (int i = 0; i < SkBENCHLOOP(NUM_QUERIES); ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkTDArray<void*> hits;
             SkIRect query;
             switch(fQuery) {

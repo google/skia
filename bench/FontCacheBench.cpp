@@ -24,10 +24,6 @@ static int count_glyphs(const uint16_t start[]) {
 }
 
 class FontCacheBench : public SkBenchmark {
-    enum {
-        N = SkBENCHLOOP(50)
-    };
-
 public:
     FontCacheBench(void* param) : INHERITED(param) {}
 
@@ -44,7 +40,7 @@ protected:
         const uint16_t* array = gUniqueGlyphIDs;
         while (*array != gUniqueGlyphIDs_Sentinel) {
             size_t count = count_glyphs(array);
-            for (int i = 0; i < N; ++i) {
+            for (int i = 0; i < this->getLoops(); ++i) {
                 paint.measureText(array, count * sizeof(uint16_t));
             }
             array += count + 1;    // skip the sentinel

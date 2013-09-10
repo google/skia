@@ -15,10 +15,6 @@
 class ChunkAllocBench : public SkBenchmark {
     SkString    fName;
     size_t      fMinSize;
-
-    enum {
-        N = SkBENCHLOOP(1000)
-    };
 public:
     ChunkAllocBench(void* param, size_t minSize) : INHERITED(param) {
         fMinSize = minSize;
@@ -38,7 +34,7 @@ protected:
 
         SkChunkAlloc alloc(fMinSize);
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             size_t size = 0;
             int calls = 0;
             while (size < total) {

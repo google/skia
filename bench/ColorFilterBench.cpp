@@ -76,11 +76,14 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (float brightness = -1.0f; brightness <= 1.0f; brightness += 0.4f) {
-            SkAutoTUnref<SkImageFilter> dim(make_brightness(-brightness));
-            SkAutoTUnref<SkImageFilter> bright(make_brightness(brightness, dim));
-            paint.setImageFilter(bright);
-            canvas->drawRect(r, paint);
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            for (float brightness = -1.0f; brightness <= 1.0f; brightness += 0.4f) {
+                SkAutoTUnref<SkImageFilter> dim(make_brightness(-brightness));
+                SkAutoTUnref<SkImageFilter> bright(make_brightness(brightness, dim));
+                paint.setImageFilter(bright);
+                canvas->drawRect(r, paint);
+            }
         }
     }
 
@@ -103,7 +106,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f));
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale(brightness));
             paint.setImageFilter(grayscale);
@@ -130,7 +133,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale());
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f, grayscale));
             paint.setImageFilter(brightness);
@@ -157,7 +160,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f, blue));
             paint.setImageFilter(brightness);
@@ -184,7 +187,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f));
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue(brightness));
             paint.setImageFilter(blue);
@@ -211,7 +214,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f));
             paint.setImageFilter(brightness);
             canvas->drawRect(r, paint);
@@ -237,7 +240,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
             paint.setImageFilter(blue);
             canvas->drawRect(r, paint);
@@ -263,7 +266,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale());
             paint.setImageFilter(grayscale);
             canvas->drawRect(r, paint);
@@ -289,7 +292,7 @@ protected:
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkAutoTUnref<SkColorFilter> table_filter(make_table_filter());
             paint.setColorFilter(table_filter);
             canvas->drawRect(r, paint);

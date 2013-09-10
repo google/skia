@@ -27,7 +27,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRandom Random;
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkScalar blurSigma = Random.nextRangeScalar(1.5f, 25.0f);
             SkScalar size = Random.nextRangeScalar(20*blurSigma, 50*blurSigma);
 
@@ -69,8 +69,6 @@ private:
         W = 640,
         H = 480,
     };
-
-    enum { N = SkBENCHLOOP(100) };
 
     SkLayerDrawLooper* createLooper(SkScalar xOff, SkScalar sigma) {
         SkLayerDrawLooper* looper = new SkLayerDrawLooper;

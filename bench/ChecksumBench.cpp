@@ -23,7 +23,6 @@ class ComputeChecksumBench : public SkBenchmark {
     enum {
         U32COUNT  = 256,
         SIZE      = U32COUNT * 4,
-        N         = SkBENCHLOOP(100000),
     };
     uint32_t    fData[U32COUNT];
     ChecksumType fType;
@@ -52,13 +51,13 @@ protected:
     virtual void onDraw(SkCanvas*) {
         switch (fType) {
             case kChecksum_ChecksumType: {
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < this->getLoops(); i++) {
                     volatile uint32_t result = SkChecksum::Compute(fData, sizeof(fData));
                     sk_ignore_unused_variable(result);
                 }
             } break;
             case kMD5_ChecksumType: {
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < this->getLoops(); i++) {
                     SkMD5 md5;
                     md5.update(reinterpret_cast<uint8_t*>(fData), sizeof(fData));
                     SkMD5::Digest digest;
@@ -66,7 +65,7 @@ protected:
                 }
             } break;
             case kSHA1_ChecksumType: {
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < this->getLoops(); i++) {
                     SkSHA1 sha1;
                     sha1.update(reinterpret_cast<uint8_t*>(fData), sizeof(fData));
                     SkSHA1::Digest digest;
@@ -74,7 +73,7 @@ protected:
                 }
             } break;
             case kMurmur3_ChecksumType: {
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < this->getLoops(); i++) {
                     volatile uint32_t result = SkChecksum::Murmur3(fData, sizeof(fData));
                     sk_ignore_unused_variable(result);
                 }

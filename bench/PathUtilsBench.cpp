@@ -41,8 +41,6 @@ class PathUtilsBench : public SkBenchmark {
     SkString fName;
     char* bits[H * STRIDE];
 
-    enum { N = SkBENCHLOOP(20) };
-
 public:
     PathUtilsBench(void* param, Proc proc, const char name[]) : INHERITED(param) {
         fProc = proc;
@@ -56,7 +54,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
 
-        for (int i = 0; i < N; ++i){
+        for (int i = 0; i < this->getLoops(); ++i){
             //create a random 16x16 bitmap
             fillRandomBits(H * STRIDE, (char*) &bits);
 

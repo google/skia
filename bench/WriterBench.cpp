@@ -25,7 +25,7 @@ protected:
         static const char gStr[] = "abcdefghimjklmnopqrstuvwxyz";
         static const size_t gLen = strlen(gStr);
         SkWriter32 writer(256 * 4);
-        for (int i = 0; i < SkBENCHLOOP(800); i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             for (size_t j = 0; j <= gLen; j++) {
                 writer.writeString(gStr, j);
             }

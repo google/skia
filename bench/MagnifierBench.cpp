@@ -43,7 +43,10 @@ protected:
                                  SkIntToScalar(h / 4),
                                  SkIntToScalar(w / 2),
                                  SkIntToScalar(h / 2)), 100))->unref();
-        canvas->drawBitmap(fCheckerboard, 0, 0, &paint);
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            canvas->drawBitmap(fCheckerboard, 0, 0, &paint);
+        }
     }
 
 private:

@@ -22,7 +22,6 @@ class LineBench : public SkBenchmark {
     SkString    fName;
     enum {
         PTS = 500,
-        N = SkBENCHLOOP(10)
     };
     SkPoint fPts[PTS];
 
@@ -51,7 +50,7 @@ protected:
         paint.setAntiAlias(fDoAA);
         paint.setStrokeWidth(fStrokeWidth);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawPoints(SkCanvas::kLines_PointMode, PTS, fPts, paint);
         }
     }

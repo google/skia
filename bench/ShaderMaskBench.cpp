@@ -37,7 +37,6 @@ class ShaderMaskBench : public SkBenchmark {
     SkString    fText;
     SkString    fName;
     FontQuality fFQ;
-    enum { N = SkBENCHLOOP(500) };
 public:
     ShaderMaskBench(void* param, bool isOpaque, FontQuality fq) : INHERITED(param) {
         fFQ = fq;
@@ -72,14 +71,14 @@ protected:
         const SkScalar y0 = SkIntToScalar(-10);
 
         paint.setTextSize(SkIntToScalar(12));
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
             canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
         }
 
         paint.setTextSize(SkIntToScalar(48));
-        for (int i = 0; i < N/4; i++) {
+        for (int i = 0; i < this->getLoops() / 4 ; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
             canvas->drawText(fText.c_str(), fText.size(), x, y, paint);

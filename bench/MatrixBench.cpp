@@ -13,7 +13,6 @@
 
 class MatrixBench : public SkBenchmark {
     SkString    fName;
-    enum { N = 100000 };
 public:
     MatrixBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("matrix_%s", name);
@@ -30,8 +29,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        int n = SkBENCHLOOP(N * this->mulLoopCount());
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             this->performTest();
         }
     }
@@ -297,11 +295,11 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     }
  private:
     enum {
-        kCount = SkBENCHLOOP(16)
+        kCount = 16
     };
     SkMatrix fMatrix;
-    SkPoint fSrc [16];
-    SkPoint fDst [16];
+    SkPoint fSrc [kCount];
+    SkPoint fDst [kCount];
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
@@ -337,11 +335,11 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     }
  private:
     enum {
-        kCount = SkBENCHLOOP(16)
+        kCount = 16
     };
     double fMatrix [9];
-    SkPoint fSrc [16];
-    SkPoint fDst [16];
+    SkPoint fSrc [kCount];
+    SkPoint fDst [kCount];
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };

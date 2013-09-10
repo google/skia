@@ -11,8 +11,7 @@
 #include <memory>
 
 enum {
-    N = SkBENCHLOOP(100000),
-    M = SkBENCHLOOP(2)
+    M = 2
 };
 
 class RefCntBench_Stack : public SkBenchmark {
@@ -26,7 +25,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkRefCnt ref;
             for (int j = 0; j < M; ++j) {
                 ref.ref();
@@ -64,7 +63,7 @@ protected:
 
     virtual void onDraw(SkCanvas*) {
         char memory[sizeof(PlacedRefCnt)];
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             PlacedRefCnt* ref = new (memory) PlacedRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -89,7 +88,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkRefCnt* ref = new SkRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -116,7 +115,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkWeakRefCnt ref;
             for (int j = 0; j < M; ++j) {
                 ref.ref();
@@ -147,7 +146,7 @@ protected:
 
     virtual void onDraw(SkCanvas*) {
         char memory[sizeof(PlacedWeakRefCnt)];
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             PlacedWeakRefCnt* ref = new (memory) PlacedWeakRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -172,7 +171,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkWeakRefCnt* ref = new SkWeakRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();

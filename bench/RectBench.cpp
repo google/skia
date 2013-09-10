@@ -7,10 +7,13 @@
  */
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
+#include "SkCommandLineFlags.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
-#include "SkString.h"
 #include "SkShader.h"
+#include "SkString.h"
+
+DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");
 
 class RectBench : public SkBenchmark {
 public:
@@ -18,7 +21,7 @@ public:
     enum {
         W = 640,
         H = 480,
-        N = SkBENCHLOOP(300)
+        N = 300,
     };
     SkRect  fRects[N];
     SkColor fColors[N];
@@ -66,10 +69,10 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(SkIntToScalar(fStroke));
         }
-        for (int i = 0; i < N; i++) {
-            paint.setColor(fColors[i]);
+        for (int i = 0; i < this->getLoops(); i++) {
+            paint.setColor(fColors[i % N]);
             this->setupPaint(&paint);
-            this->drawThisRect(canvas, fRects[i], paint);
+            this->drawThisRect(canvas, fRects[i % N], paint);
         }
     }
 private:
@@ -144,19 +147,21 @@ protected:
         };
         size_t sizes = SK_ARRAY_COUNT(gSizes);
 
-        if (this->hasStrokeWidth()) {
-            gSizes[0] = this->getStrokeWidth();
+        if (FLAGS_strokeWidth >= 0) {
+            gSizes[0] = FLAGS_strokeWidth;
             sizes = 1;
         }
 
         SkPaint paint;
         paint.setStrokeCap(SkPaint::kRound_Cap);
 
-        for (size_t i = 0; i < sizes; i++) {
-            paint.setStrokeWidth(gSizes[i]);
-            this->setupPaint(&paint);
-            canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
-            paint.setColor(fColors[i]);
+        for (int loop = 0; loop < this->getLoops(); loop++) {
+            for (size_t i = 0; i < sizes; i++) {
+                paint.setStrokeWidth(gSizes[i]);
+                this->setupPaint(&paint);
+                canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
+                paint.setColor(fColors[i % N]);
+            }
         }
     }
     virtual const char* onGetName() { return fName; }
@@ -190,21 +195,23 @@ protected:
         SkRect r = { -kHalfRectSize, -kHalfRectSize, kHalfRectSize, kHalfRectSize };
         int rot = 0;
 
-        // Draw small aa rects in a grid across the screen
-        for (SkScalar y = kHalfRectSize+SK_Scalar1; y < H; y += 2*kHalfRectSize+2) {
-            for (SkScalar x = kHalfRectSize+SK_Scalar1; x < W; x += 2*kHalfRectSize+2) {
-                canvas->save();
-                canvas->translate(x, y);
+        for (int i = 0; i < this->getLoops(); i++) {
+            // Draw small aa rects in a grid across the screen
+            for (SkScalar y = kHalfRectSize+SK_Scalar1; y < H; y += 2*kHalfRectSize+2) {
+                for (SkScalar x = kHalfRectSize+SK_Scalar1; x < W; x += 2*kHalfRectSize+2) {
+                    canvas->save();
+                    canvas->translate(x, y);
 
-                if (fRotate) {
-                    SkMatrix rotate;
-                    rotate.setRotate(SkIntToScalar(rot));
-                    canvas->concat(rotate);
-                    rot += 10;
+                    if (fRotate) {
+                        SkMatrix rotate;
+                        rotate.setRotate(SkIntToScalar(rot));
+                        canvas->concat(rotate);
+                        rot += 10;
+                    }
+
+                    canvas->drawRect(r, paint);
+                    canvas->restore();
                 }
-
-                canvas->drawRect(r, paint);
-                canvas->restore();
             }
         }
 
@@ -242,8 +249,8 @@ protected:
         };
         size_t sizes = SK_ARRAY_COUNT(gSizes);
 
-        if (this->hasStrokeWidth()) {
-            gSizes[0] = this->getStrokeWidth();
+        if (FLAGS_strokeWidth >= 0) {
+            gSizes[0] = FLAGS_strokeWidth;
             sizes = 1;
         }
         SkRandom rand;
@@ -262,29 +269,31 @@ protected:
                                               SkShader::kClamp_TileMode);
             paint.setShader(s)->unref();
         }
-        for (size_t i = 0; i < sizes; i++) {
-            switch (_type) {
-                case kMaskOpaque:
-                    color = fColors[i];
-                    alpha = 0xFF;
-                    break;
-                case kMaskBlack:
-                    alpha = 0xFF;
-                    color = 0xFF000000;
-                    break;
-                case kMaskColor:
-                    color = fColors[i];
-                    alpha = rand.nextU() & 255;
-                    break;
-                case KMaskShader:
-                    break;
-            }
-            paint.setStrokeWidth(gSizes[i]);
-            this->setupPaint(&paint);
-            paint.setColor(color);
-            paint.setAlpha(alpha);
-            canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
-       }
+        for (int loop = 0; loop < this->getLoops(); loop++) {
+            for (size_t i = 0; i < sizes; i++) {
+                switch (_type) {
+                    case kMaskOpaque:
+                        color = fColors[i];
+                        alpha = 0xFF;
+                        break;
+                    case kMaskBlack:
+                        alpha = 0xFF;
+                        color = 0xFF000000;
+                        break;
+                    case kMaskColor:
+                        color = fColors[i];
+                        alpha = rand.nextU() & 255;
+                        break;
+                    case KMaskShader:
+                        break;
+                }
+                paint.setStrokeWidth(gSizes[i]);
+                this->setupPaint(&paint);
+                paint.setColor(color);
+                paint.setAlpha(alpha);
+                canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
+           }
+        }
     }
     virtual const char* onGetName() { return fName; }
 private:

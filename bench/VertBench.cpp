@@ -26,7 +26,6 @@ class VertBench : public SkBenchmark {
         COL = 20,
         PTS = (ROW + 1) * (COL + 1),
         IDX = ROW * COL * 6,
-        N = SkBENCHLOOP(10)
     };
 
     SkPoint fPts[PTS];
@@ -82,7 +81,7 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawVertices(SkCanvas::kTriangles_VertexMode, PTS,
                                  fPts, NULL, fColors, NULL, fIdx, IDX, paint);
         }

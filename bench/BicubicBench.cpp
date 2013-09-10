@@ -7,7 +7,6 @@
 
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
-#include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkBicubicImageFilter.h"
@@ -37,14 +36,16 @@ protected:
 
         paint.setAntiAlias(true);
 
-        SkRandom rand;
         SkRect r = SkRect::MakeWH(40, 40);
         SkAutoTUnref<SkImageFilter> bicubic(SkBicubicImageFilter::CreateMitchell(fScale));
         paint.setImageFilter(bicubic);
-        canvas->save();
-        canvas->clipRect(r);
-        canvas->drawOval(r, paint);
-        canvas->restore();
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            canvas->save();
+            canvas->clipRect(r);
+            canvas->drawOval(r, paint);
+            canvas->restore();
+        }
     }
 
 private:

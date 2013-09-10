@@ -37,9 +37,6 @@ protected:
     SkPoint             fPts[2];
     bool                fDoClip;
 
-    enum {
-        N = SkBENCHLOOP(100)
-    };
 public:
     DashBench(void* param, const SkScalar intervals[], int count, int width,
               bool doClip = false) : INHERITED(param) {
@@ -85,7 +82,7 @@ protected:
             canvas->clipRect(r);
         }
 
-        this->handlePath(canvas, path, paint, N);
+        this->handlePath(canvas, path, paint, this->getLoops());
     }
 
     virtual void handlePath(SkCanvas* canvas, const SkPath& path,
@@ -183,10 +180,6 @@ class MakeDashBench : public SkBenchmark {
     SkPath   fPath;
     SkAutoTUnref<SkPathEffect> fPE;
 
-    enum {
-        N = SkBENCHLOOP(400)
-    };
-
 public:
     MakeDashBench(void* param, void (*proc)(SkPath*), const char name[]) : INHERITED(param) {
         fName.printf("makedash_%s", name);
@@ -203,7 +196,7 @@ protected:
 
     virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkPath dst;
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
             fPE->filterPath(&dst, fPath, &rec, NULL);
@@ -223,10 +216,6 @@ class DashLineBench : public SkBenchmark {
     SkScalar fStrokeWidth;
     bool     fIsRound;
     SkAutoTUnref<SkPathEffect> fPE;
-
-    enum {
-        N = SkBENCHLOOP(200)
-    };
 
 public:
     DashLineBench(void* param, SkScalar width, bool isRound) : INHERITED(param) {
@@ -249,7 +238,7 @@ protected:
         paint.setStrokeWidth(fStrokeWidth);
         paint.setStrokeCap(fIsRound ? SkPaint::kRound_Cap : SkPaint::kSquare_Cap);
         paint.setPathEffect(fPE);
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < this->getLoops(); ++i) {
             canvas->drawLine(10 * SK_Scalar1, 10 * SK_Scalar1,
                              640 * SK_Scalar1, 10 * SK_Scalar1, paint);
         }
@@ -265,10 +254,6 @@ class DrawPointsDashingBench : public SkBenchmark {
     bool     fDoAA;
 
     SkAutoTUnref<SkPathEffect> fPathEffect;
-
-    enum {
-        N = SkBENCHLOOP(480)
-    };
 
 public:
     DrawPointsDashingBench(void* param, int dashLength, int strokeWidth, bool doAA)
@@ -287,7 +272,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-
         SkPaint p;
         this->setupPaint(&p);
         p.setColor(SK_ColorBLACK);
@@ -301,8 +285,7 @@ protected:
             { SkIntToScalar(640), 0 }
         };
 
-        for (int i = 0; i < N; ++i) {
-
+        for (int i = 0; i < this->getLoops(); ++i) {
             pts[0].fY = pts[1].fY = SkIntToScalar(i % 480);
             canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
         }
@@ -381,7 +364,9 @@ protected:
         p.setStrokeWidth(fStrokeWidth);
         p.setPathEffect(fPathEffect);
 
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
+        for (int i = 0; i < this->getLoops(); i++) {
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
+        }
     }
 
 private:

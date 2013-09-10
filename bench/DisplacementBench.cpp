@@ -105,7 +105,10 @@ protected:
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
              SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ)))->unref();
-        drawClippedBitmap(canvas, 0, 0, paint);
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            drawClippedBitmap(canvas, 0, 0, paint);
+        }
     }
 
 private:
@@ -129,7 +132,9 @@ protected:
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kB_ChannelSelectorType,
              SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ)))->unref();
-        drawClippedBitmap(canvas, 100, 0, paint);
+        for (int i = 0; i < this->getLoops(); i++) {
+            drawClippedBitmap(canvas, 100, 0, paint);
+        }
     }
 
 private:
@@ -153,7 +158,9 @@ protected:
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
              SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ)))->unref();
-        drawClippedBitmap(canvas, 200, 0, paint);
+        for (int i = 0; i < this->getLoops(); i++) {
+            drawClippedBitmap(canvas, 200, 0, paint);
+        }
     }
 
 private:

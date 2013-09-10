@@ -18,7 +18,6 @@ static float fast_floor(float x) {
 class MathBench : public SkBenchmark {
     enum {
         kBuffer = 100,
-        kLoop   = 10000
     };
     SkString    fName;
     float       fSrc[kBuffer], fDst[kBuffer];
@@ -46,7 +45,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas*) {
-        int n = SkBENCHLOOP(kLoop * this->mulLoopCount());
+        int n = this->getLoops() * this->mulLoopCount();
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fSrc, kBuffer);
         }
@@ -247,8 +246,7 @@ static bool isFinite(const SkRect& r) {
 
 class IsFiniteBench : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP(1000),
-        NN = SkBENCHLOOP(1000),
+        N = 1000,
     };
     float fData[N];
 public:
@@ -278,13 +276,13 @@ protected:
         int counter = 0;
 
         if (proc) {
-            for (int j = 0; j < NN; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     counter += proc(&data[i]);
                 }
             }
         } else {
-            for (int j = 0; j < NN; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     const SkRect* r = reinterpret_cast<const SkRect*>(&data[i]);
                     if (false) { // avoid bit rot, suppress warning
@@ -314,8 +312,7 @@ private:
 
 class FloorBench : public SkBenchmark {
     enum {
-        ARRAY = SkBENCHLOOP(1000),
-        LOOP = SkBENCHLOOP(1000),
+        ARRAY = 1000,
     };
     float fData[ARRAY];
     bool fFast;
@@ -345,14 +342,14 @@ protected:
         const float* data = fData;
 
         if (fFast) {
-            for (int j = 0; j < LOOP; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += fast_floor(data[i]);
                 }
                 this->process(accum);
             }
         } else {
-            for (int j = 0; j < LOOP; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += sk_float_floor(data[i]);
                 }
@@ -373,8 +370,7 @@ private:
 
 class CLZBench : public SkBenchmark {
     enum {
-        ARRAY = SkBENCHLOOP(1000),
-        LOOP = SkBENCHLOOP(5000),
+        ARRAY = 1000,
     };
     uint32_t fData[ARRAY];
     bool fUsePortable;
@@ -405,14 +401,14 @@ protected:
         int accum = 0;
 
         if (fUsePortable) {
-            for (int j = 0; j < LOOP; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += SkCLZ_portable(fData[i]);
                 }
                 this->process(accum);
             }
         } else {
-            for (int j = 0; j < LOOP; ++j) {
+            for (int j = 0; j < this->getLoops(); ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += SkCLZ(fData[i]);
                 }
@@ -435,8 +431,7 @@ private:
 
 class NormalizeBench : public SkBenchmark {
     enum {
-        ARRAY = SkBENCHLOOP(1000),
-        LOOP = SkBENCHLOOP(1000),
+        ARRAY =1000,
     };
     SkVector fVec[ARRAY];
 
@@ -460,7 +455,7 @@ protected:
     virtual void onDraw(SkCanvas*) {
         int accum = 0;
 
-        for (int j = 0; j < LOOP; ++j) {
+        for (int j = 0; j < this->getLoops(); ++j) {
             for (int i = 0; i < ARRAY; ++i) {
                 accum += fVec[i].normalize();
             }
@@ -482,8 +477,7 @@ private:
 
 class FixedMathBench : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP(1000),
-        NN = SkBENCHLOOP(1000),
+        N = 1000,
     };
     float fData[N];
     SkFixed fResult[N];
@@ -491,8 +485,8 @@ public:
 
     FixedMathBench(void* param) : INHERITED(param) {
         SkRandom rand;
-        for (int i = 0; i < N; ++i) {
-            fData[i] = rand.nextSScalar1();
+        for (int i = 0; i < this->getLoops(); ++i) {
+            fData[i%N] = rand.nextSScalar1();
         }
 
         fIsRendering = false;
@@ -500,7 +494,7 @@ public:
 
 protected:
     virtual void onDraw(SkCanvas*) {
-        for (int j = 0; j < NN; ++j) {
+        for (int j = 0; j < this->getLoops(); ++j) {
             for (int i = 0; i < N - 4; ++i) {
                 fResult[i] = SkFloatToFixed(fData[i]);
             }
