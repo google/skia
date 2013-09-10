@@ -838,7 +838,7 @@ void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, EffectKey key)
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorEndUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, "GradientEndColor");
-        
+
     } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){ // 3 Color Case
         fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
@@ -907,7 +907,7 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
     } else {
         const GrTexture* texture = e.texture(0);
         fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, texture);
-        
+
         SkScalar yCoord = e.getYCoord();
         if (yCoord != fCachedYCoord) {
             uman.set1f(fFSYUni, yCoord);
@@ -920,11 +920,11 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
 GrGLEffect::EffectKey GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect& drawEffect) {
     const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
     const GrTexture* texture = NULL;
-    
+
     if (GrGradientEffect::kTexture_ColorType == e.getColorType()){
         texture = e.texture(0);
     }
-    
+
     EffectKey key = GrGLEffectMatrix::GenKey(e.getMatrix(), drawEffect, kCoordsType, texture);
 
     if (GrGradientEffect::kTwo_ColorType == e.getColorType()) {
@@ -1050,7 +1050,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         SkBitmap bitmap;
         shader.getGradientTableBitmap(&bitmap);
         fColorType = kTexture_ColorType;
-        
+
         GrTextureStripAtlas::Desc desc;
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
@@ -1107,7 +1107,7 @@ bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
                 return false;
             }
         }
-        
+
         return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
             fTextureAccess.getParams().getTileModeX() ==
                 s.fTextureAccess.getParams().getTileModeX() &&

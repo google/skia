@@ -250,7 +250,7 @@ public:
     const SkMatrix& getMatrix() const { return fMatrix;}
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
-    
+
     enum ColorType {
         kTwo_ColorType,
         kThree_ColorType,

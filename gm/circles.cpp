@@ -205,4 +205,3 @@ static GM* MyFactory(void*) { return new CircleGM; }
 static GMRegistry reg(MyFactory);
 
 }
-
