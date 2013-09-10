@@ -691,7 +691,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                                     innerXRadius > 0 && innerYRadius > 0);
 
     static const int kEllipseCenterAttrIndex = 1;
-    drawState->addCoverageEffect(effect, kEllipseCenterAttrIndex)->unref();
+    static const int kEllipseEdgeAttrIndex = 2;
+    drawState->addCoverageEffect(effect, kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
 
     // Compute the reciprocals of the radii here to save time in the shader
     SkScalar xRadRecip = SkScalarInvert(xRadius);
