@@ -301,7 +301,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
                       SkShader::kClamp_TileMode == fTileModeY;
-    
+
     if (!(clampClamp || trivialMatrix)) {
         fInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
     }
