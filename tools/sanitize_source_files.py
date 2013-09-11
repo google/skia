@@ -13,7 +13,7 @@ import sys
 
 _FILE_EXTENSIONS_TO_SANITIZE = ['cpp', 'h', 'c', 'gyp', 'gypi']
 
-_SUBDIRS_TO_IGNORE = ['.svn', 'third_party']
+_SUBDIRS_TO_IGNORE = ['.git', '.svn', 'third_party']
 
 
 def SanitizeFilesWithModifiers(directory, file_modifiers, line_modifiers):
