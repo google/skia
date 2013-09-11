@@ -165,7 +165,7 @@ setup_device() {
       TARGET_DEVICE=$(cat .android_config)
       echo "INFO: no target device was specified so using the device (${TARGET_DEVICE}) from the most recent build"
     else
-      TARGET_DEVICE="arm_v7"  
+      TARGET_DEVICE="arm_v7_thumb"  
       echo "INFO: no target device type was specified so using the default '${TARGET_DEVICE}'"
     fi
   fi
@@ -264,7 +264,11 @@ adb_pull_if_needed() {
   then
     #get the MD5 for dst and src
     ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_SRC`
-    HOST_MD5=`md5sum $HOST_DST`
+    if [ $(uname) == "Darwin" ]; then
+      HOST_MD5=`md5 -q $HOST_DST`
+    else
+      HOST_MD5=`md5sum $HOST_DST`
+    fi
 
     if [ "${ANDROID_MD5:0:32}" != "${HOST_MD5:0:32}" ];
     then
@@ -300,7 +304,11 @@ adb_push_if_needed() {
   then
     #get the MD5 for dst and src
     ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
-    HOST_MD5=`md5sum $HOST_SRC`
+    if [ $(uname) == "Darwin" ]; then
+      HOST_MD5=`md5 -q $HOST_SRC`
+    else
+      HOST_MD5=`md5sum $HOST_SRC`
+    fi
 
     if [ "${ANDROID_MD5:0:32}" != "${HOST_MD5:0:32}" ];
     then
