@@ -34,6 +34,7 @@
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
         '../tests/CanvasTest.cpp',
+        '../tests/CanvasStateTest.cpp',
         '../tests/ChecksumTest.cpp',
         '../tests/ClampRangeTest.cpp',
         '../tests/ClipCacheTest.cpp',

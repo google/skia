@@ -114,6 +114,10 @@ public:
         *(SkRect*)this->reserve(sizeof(rect)) = rect;
     }
 
+    void writeIRect(const SkIRect& rect) {
+        *(SkIRect*)this->reserve(sizeof(rect)) = rect;
+    }
+
     void writeRRect(const SkRRect& rrect) {
         rrect.writeToMemory(this->reserve(SkRRect::kSizeInMemory));
     }
