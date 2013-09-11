@@ -16,9 +16,9 @@ public:
     SkNWayCanvas(int width, int height);
     virtual ~SkNWayCanvas();
 
-    void addCanvas(SkCanvas*);
-    void removeCanvas(SkCanvas*);
-    void removeAll();
+    virtual void addCanvas(SkCanvas*);
+    virtual void removeCanvas(SkCanvas*);
+    virtual void removeAll();
 
     ///////////////////////////////////////////////////////////////////////////
     // These are forwarded to the N canvases we're referencing
@@ -78,11 +78,12 @@ public:
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;
 
-private:
+protected:
     SkTDArray<SkCanvas*> fList;
 
     class Iter;
 
+private:
     typedef SkCanvas INHERITED;
 };
 
