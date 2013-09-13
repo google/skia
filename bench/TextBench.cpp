@@ -46,8 +46,8 @@ class TextBench : public SkBenchmark {
     bool        fDoPos;
     SkPoint*    fPos;
 public:
-    TextBench(void* param, const char text[], int ps,
-              SkColor color, FontQuality fq, bool doPos = false) : INHERITED(param) {
+    TextBench(const char text[], int ps,
+              SkColor color, FontQuality fq, bool doPos = false)  {
         fPos = NULL;
         fFQ = fq;
         fDoPos = doPos;
@@ -130,30 +130,16 @@ private:
 
 #define STR     "Hamburgefons"
 
-static SkBenchmark* Fact01(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kBW); }
-static SkBenchmark* Fact02(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kBW); }
-static SkBenchmark* Fact03(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kBW); }
+DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kBW); )
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kBW); )
+DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kBW); )
 
-static SkBenchmark* Fact11(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kAA); }
-static SkBenchmark* Fact12(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kAA); }
-static SkBenchmark* Fact13(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kAA); }
+DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kAA); )
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kAA); )
+DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kAA); )
 
-static SkBenchmark* Fact21(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kLCD); }
-static SkBenchmark* Fact22(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kLCD); }
-static SkBenchmark* Fact23(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kLCD); }
+DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kLCD); )
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kLCD); )
+DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kLCD); )
 
-static SkBenchmark* Fact111(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kAA, true); }
-
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg02(Fact02);
-static BenchRegistry gReg03(Fact03);
-
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg12(Fact12);
-static BenchRegistry gReg13(Fact13);
-
-static BenchRegistry gReg21(Fact21);
-static BenchRegistry gReg22(Fact22);
-static BenchRegistry gReg23(Fact23);
-
-static BenchRegistry gReg111(Fact111);
+DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kAA, true); )

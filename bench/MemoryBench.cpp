@@ -16,7 +16,7 @@ class ChunkAllocBench : public SkBenchmark {
     SkString    fName;
     size_t      fMinSize;
 public:
-    ChunkAllocBench(void* param, size_t minSize) : INHERITED(param) {
+    ChunkAllocBench(size_t minSize)  {
         fMinSize = minSize;
         fName.printf("chunkalloc_" SK_SIZE_T_SPECIFIER, minSize);
         fIsRendering = false;
@@ -50,8 +50,5 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* F0(void* p) { return new ChunkAllocBench(p, 64); }
-static SkBenchmark* F1(void* p) { return new ChunkAllocBench(p, 8*1024); }
-
-static BenchRegistry gR0(F0);
-static BenchRegistry gR1(F1);
+DEF_BENCH( return new ChunkAllocBench(64); )
+DEF_BENCH( return new ChunkAllocBench(8*1024); )

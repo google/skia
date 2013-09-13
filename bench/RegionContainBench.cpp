@@ -33,7 +33,7 @@ public:
         return SkIRect::MakeXYWH(0, i*H/COUNT, w, H/COUNT);
     }
 
-    RegionContainBench(void* param, Proc proc, const char name[]) : INHERITED(param) {
+    RegionContainBench(Proc proc, const char name[])  {
         fProc = proc;
         fName.printf("region_contains_%s", name);
 
@@ -62,6 +62,4 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionContainBench, (p, sect_proc, "sect")); }
-
-static BenchRegistry gR0(gF0);
+DEF_BENCH( return SkNEW_ARGS(RegionContainBench, (sect_proc, "sect")); )

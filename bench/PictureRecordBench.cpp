@@ -16,7 +16,7 @@
 
 class PictureRecordBench : public SkBenchmark {
 public:
-    PictureRecordBench(void* param, const char name[]) : INHERITED(param) {
+    PictureRecordBench(const char name[])  {
         fName.printf("picture_record_%s", name);
         fPictureWidth = SkIntToScalar(PICTURE_WIDTH);
         fPictureHeight = SkIntToScalar(PICTURE_HEIGHT);
@@ -61,8 +61,8 @@ private:
  */
 class DictionaryRecordBench : public PictureRecordBench {
 public:
-    DictionaryRecordBench(void* param)
-        : INHERITED(param, "dictionaries") { }
+    DictionaryRecordBench()
+        : INHERITED("dictionaries") { }
 
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
@@ -123,8 +123,8 @@ private:
  */
 class UniquePaintDictionaryRecordBench : public PictureRecordBench {
 public:
-    UniquePaintDictionaryRecordBench(void* param)
-        : INHERITED(param, "unique_paint_dictionary") { }
+    UniquePaintDictionaryRecordBench()
+        : INHERITED("unique_paint_dictionary") { }
 
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
@@ -150,8 +150,8 @@ private:
  */
 class RecurringPaintDictionaryRecordBench : public PictureRecordBench {
 public:
-    RecurringPaintDictionaryRecordBench(void* param)
-        : INHERITED(param, "recurring_paint_dictionary") {
+    RecurringPaintDictionaryRecordBench()
+        : INHERITED("recurring_paint_dictionary") {
         SkRandom rand;
         for (int i = 0; i < ObjCount; i++) {
             fPaint[i].setColor(rand.nextU());
@@ -176,10 +176,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new DictionaryRecordBench(p); }
-static SkBenchmark* Fact1(void* p) { return new UniquePaintDictionaryRecordBench(p); }
-static SkBenchmark* Fact2(void* p) { return new RecurringPaintDictionaryRecordBench(p); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
+DEF_BENCH( return new DictionaryRecordBench(); )
+DEF_BENCH( return new UniquePaintDictionaryRecordBench(); )
+DEF_BENCH( return new RecurringPaintDictionaryRecordBench(); )

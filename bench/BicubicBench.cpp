@@ -19,10 +19,10 @@ class BicubicBench : public SkBenchmark {
     SkString       fName;
 
 public:
-    BicubicBench(void* param, float x, float y)
-        :  INHERITED(param), fScale(SkSize::Make(SkFloatToScalar(x), SkFloatToScalar(y))) {
+    BicubicBench(float x, float y)
+        : fScale(SkSize::Make(SkFloatToScalar(x), SkFloatToScalar(y))) {
         fName.printf("bicubic_%gx%g",
-            SkScalarToFloat(fScale.fWidth), SkScalarToFloat(fScale.fHeight));
+                     SkScalarToFloat(fScale.fWidth), SkScalarToFloat(fScale.fHeight));
     }
 
 protected:
@@ -52,12 +52,7 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact00(void* p) { return new BicubicBench(p, 10.0f, 10.0f); }
-static SkBenchmark* Fact01(void* p) { return new BicubicBench(p, 2.5f, 10.0f); }
-static SkBenchmark* Fact02(void* p) { return new BicubicBench(p, 10.0f, 2.5f); }
-static SkBenchmark* Fact03(void* p) { return new BicubicBench(p, 2.5f, 2.5f); }
-
-static BenchRegistry gReg00(Fact00);
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg02(Fact02);
-static BenchRegistry gReg03(Fact03);
+DEF_BENCH( return new BicubicBench(10.0f, 10.0f); )
+DEF_BENCH( return new BicubicBench(2.5f, 10.0f); )
+DEF_BENCH( return new BicubicBench(10.0f, 2.5f); )
+DEF_BENCH( return new BicubicBench(2.5f, 2.5f); )

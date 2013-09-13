@@ -17,7 +17,7 @@
  */
 class ReadPixBench : public SkBenchmark {
 public:
-    ReadPixBench(void* param) : INHERITED(param) {}
+    ReadPixBench() {}
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
@@ -64,5 +64,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* fact(void* p) { return new ReadPixBench(p); }
-static BenchRegistry gReg(fact);
+DEF_BENCH( return new ReadPixBench(); )

@@ -21,8 +21,7 @@ class SkCanvas;
 class ImageDecodeBench : public SkBenchmark {
 public:
     ImageDecodeBench(void* p, const char* filename)
-    : INHERITED(p)
-    , fName("image_decode_")
+    : fName("image_decode_")
     , fFilename(filename)
     , fStream()
     , fValid(false) {
@@ -87,5 +86,5 @@ private:
 };
 
 // These are files which call decodePalette
-//DEF_BENCH( return SkNEW_ARGS(ImageDecodeBench, (p, "/usr/local/google/home/scroggo/Downloads/images/hal_163x90.png")); )
-//DEF_BENCH( return SkNEW_ARGS(ImageDecodeBench, (p, "/usr/local/google/home/scroggo/Downloads/images/box_19_top-left.png")); )
+//DEF_BENCH( return SkNEW_ARGS(ImageDecodeBench, ("/usr/local/google/home/scroggo/Downloads/images/hal_163x90.png")); )
+//DEF_BENCH( return SkNEW_ARGS(ImageDecodeBench, ("/usr/local/google/home/scroggo/Downloads/images/box_19_top-left.png")); )

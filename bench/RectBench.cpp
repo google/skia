@@ -26,9 +26,8 @@ public:
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench(void* param, int shift, int stroke = 0)
-        : INHERITED(param)
-        , fShift(shift)
+    RectBench(int shift, int stroke = 0)
+        : fShift(shift)
         , fStroke(stroke) {
         SkRandom rand;
         const SkScalar offset = SK_Scalar1/3;
@@ -81,7 +80,7 @@ private:
 
 class SrcModeRectBench : public RectBench {
 public:
-    SrcModeRectBench(void* param) : INHERITED(param, 1, 0) {
+    SrcModeRectBench() : INHERITED(1, 0) {
         fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
     }
 
@@ -112,7 +111,7 @@ private:
 
 class OvalBench : public RectBench {
 public:
-    OvalBench(void* param, int shift, int stroke = 0) : RectBench(param, shift, stroke) {}
+    OvalBench(int shift, int stroke = 0) : RectBench(shift, stroke) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawOval(r, p);
@@ -122,7 +121,7 @@ protected:
 
 class RRectBench : public RectBench {
 public:
-    RRectBench(void* param, int shift, int stroke = 0) : RectBench(param, shift, stroke) {}
+    RRectBench(int shift, int stroke = 0) : RectBench(shift, stroke) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
@@ -135,8 +134,9 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    PointsBench(void* param, SkCanvas::PointMode mode, const char* name) :
-        RectBench(param, 2), fMode(mode) {
+    PointsBench(SkCanvas::PointMode mode, const char* name)
+        : RectBench(2)
+        , fMode(mode) {
         fName = name;
     }
 
@@ -174,7 +174,7 @@ public:
         H = 480,
     };
 
-    AARectBench(void* param, bool rotate) : INHERITED(param), fRotate(rotate) {}
+    AARectBench(bool rotate) : fRotate(rotate) {}
 
 protected:
 
@@ -236,9 +236,9 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    BlitMaskBench(void* param, SkCanvas::PointMode mode,
+    BlitMaskBench(SkCanvas::PointMode mode,
                   BlitMaskBench::kMaskType type, const char* name) :
-                  RectBench(param, 2), fMode(mode), _type(type) {
+        RectBench(2), fMode(mode), _type(type) {
         fName = name;
     }
 
@@ -302,42 +302,42 @@ private:
 };
 
 
-DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 1)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points")); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines")); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon")); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (1)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (1, 4)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (3)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (3, 4)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (1)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (3)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (1, 4)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (3, 4)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (1)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (1, 4)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (3)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (3, 4)); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kPoints_PointMode, "points")); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kLines_PointMode, "lines")); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon")); )
 
-DEF_BENCH( return SkNEW_ARGS(SrcModeRectBench, (p)); )
+DEF_BENCH( return SkNEW_ARGS(SrcModeRectBench, ()); )
 
-DEF_BENCH( return SkNEW_ARGS(AARectBench, (p, false)); )
-DEF_BENCH( return SkNEW_ARGS(AARectBench, (p, true)); )
+DEF_BENCH( return SkNEW_ARGS(AARectBench, (false)); )
+DEF_BENCH( return SkNEW_ARGS(AARectBench, (true)); )
 
 /* init the blitmask bench
  */
 DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (p, SkCanvas::kPoints_PointMode,
+                      (SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskOpaque, "maskopaque")
                       ); )
 DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (p, SkCanvas::kPoints_PointMode,
+                      (SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskBlack, "maskblack")
                       ); )
 DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (p, SkCanvas::kPoints_PointMode,
+                      (SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskColor, "maskcolor")
                       ); )
 DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                     (p, SkCanvas::kPoints_PointMode,
+                     (SkCanvas::kPoints_PointMode,
                      BlitMaskBench::KMaskShader, "maskshader")
                      ); )

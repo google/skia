@@ -35,7 +35,7 @@ GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
  */
 class GrMemoryPoolBenchStack : public SkBenchmark {
 public:
-    GrMemoryPoolBenchStack(void* param) : INHERITED(param) {
+    GrMemoryPoolBenchStack()  {
         fIsRendering = false;
     }
 protected:
@@ -86,7 +86,7 @@ private:
  */
 class GrMemoryPoolBenchRandom : public SkBenchmark {
 public:
-    GrMemoryPoolBenchRandom(void* param) : INHERITED(param) {
+    GrMemoryPoolBenchRandom()  {
         fIsRendering = false;
     }
 protected:
@@ -123,7 +123,7 @@ class GrMemoryPoolBenchQueue : public SkBenchmark {
         M = 4 * (1 << 10),
     };
 public:
-    GrMemoryPoolBenchQueue(void* param) : INHERITED(param) {
+    GrMemoryPoolBenchQueue()  {
         fIsRendering = false;
     }
 protected:
@@ -151,12 +151,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact1(void* p) { return new GrMemoryPoolBenchStack(p); }
-static SkBenchmark* Fact2(void* p) { return new GrMemoryPoolBenchRandom(p); }
-static SkBenchmark* Fact3(void* p) { return new GrMemoryPoolBenchQueue(p); }
-
-static BenchRegistry gReg01(Fact1);
-static BenchRegistry gReg02(Fact2);
-static BenchRegistry gReg03(Fact3);
-
+DEF_BENCH( return new GrMemoryPoolBenchStack(); )
+DEF_BENCH( return new GrMemoryPoolBenchRandom(); )
+DEF_BENCH( return new GrMemoryPoolBenchQueue(); )
 #endif

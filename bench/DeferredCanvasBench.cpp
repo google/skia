@@ -11,7 +11,7 @@
 
 class DeferredCanvasBench : public SkBenchmark {
 public:
-    DeferredCanvasBench(void* param, const char name[]) : INHERITED(param) {
+    DeferredCanvasBench(const char name[])  {
         fName.printf("deferred_canvas_%s", name);
     }
 
@@ -70,8 +70,8 @@ private:
 // overhead of SkDeferredCanvas
 class DeferredRecordBench : public DeferredCanvasBench {
 public:
-    DeferredRecordBench(void* param)
-        : INHERITED(param, "record") {
+    DeferredRecordBench()
+        : INHERITED("record") {
     }
 
 protected:
@@ -105,6 +105,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new DeferredRecordBench(p); }
-
-static BenchRegistry gReg0(Fact0);
+DEF_BENCH( return new DeferredRecordBench(); )

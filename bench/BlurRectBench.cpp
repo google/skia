@@ -26,7 +26,7 @@ class BlurRectBench: public SkBenchmark {
     SkString    fName;
 
 public:
-    BlurRectBench(void *param, SkScalar rad) : INHERITED(param) {
+    BlurRectBench(SkScalar rad) {
         fRadius = rad;
 
         if (fRadius > SkIntToScalar(25)) {
@@ -76,7 +76,7 @@ private:
 
 class BlurRectDirectBench: public BlurRectBench {
  public:
-    BlurRectDirectBench(void *param, SkScalar rad) : INHERITED(param, rad) {
+    BlurRectDirectBench(SkScalar rad) : INHERITED(rad) {
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
@@ -101,7 +101,7 @@ private:
 class BlurRectSeparableBench: public BlurRectBench {
 
 public:
-    BlurRectSeparableBench(void *param, SkScalar rad) : INHERITED(param, rad) {
+    BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) {
         fSrcMask.fImage = NULL;
     }
 
@@ -128,7 +128,7 @@ private:
 
 class BlurRectBoxFilterBench: public BlurRectSeparableBench {
 public:
-    BlurRectBoxFilterBench(void *param, SkScalar rad) : INHERITED(param, rad) {
+    BlurRectBoxFilterBench(SkScalar rad) : INHERITED(rad) {
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
@@ -156,7 +156,7 @@ private:
 
 class BlurRectGaussianBench: public BlurRectSeparableBench {
 public:
-    BlurRectGaussianBench(void *param, SkScalar rad) : INHERITED(param, rad) {
+    BlurRectGaussianBench(SkScalar rad) : INHERITED(rad) {
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
@@ -181,24 +181,24 @@ private:
     typedef BlurRectSeparableBench INHERITED;
 };
 
-DEF_BENCH(return new BlurRectBoxFilterBench(p, SMALL);)
-DEF_BENCH(return new BlurRectBoxFilterBench(p, BIG);)
-DEF_BENCH(return new BlurRectBoxFilterBench(p, REALBIG);)
-DEF_BENCH(return new BlurRectBoxFilterBench(p, REAL);)
-DEF_BENCH(return new BlurRectGaussianBench(p, SMALL);)
-DEF_BENCH(return new BlurRectGaussianBench(p, BIG);)
-DEF_BENCH(return new BlurRectGaussianBench(p, REALBIG);)
-DEF_BENCH(return new BlurRectGaussianBench(p, REAL);)
-DEF_BENCH(return new BlurRectDirectBench(p, SMALL);)
-DEF_BENCH(return new BlurRectDirectBench(p, BIG);)
-DEF_BENCH(return new BlurRectDirectBench(p, REALBIG);)
-DEF_BENCH(return new BlurRectDirectBench(p, REAL);)
+DEF_BENCH(return new BlurRectBoxFilterBench(SMALL);)
+DEF_BENCH(return new BlurRectBoxFilterBench(BIG);)
+DEF_BENCH(return new BlurRectBoxFilterBench(REALBIG);)
+DEF_BENCH(return new BlurRectBoxFilterBench(REAL);)
+DEF_BENCH(return new BlurRectGaussianBench(SMALL);)
+DEF_BENCH(return new BlurRectGaussianBench(BIG);)
+DEF_BENCH(return new BlurRectGaussianBench(REALBIG);)
+DEF_BENCH(return new BlurRectGaussianBench(REAL);)
+DEF_BENCH(return new BlurRectDirectBench(SMALL);)
+DEF_BENCH(return new BlurRectDirectBench(BIG);)
+DEF_BENCH(return new BlurRectDirectBench(REALBIG);)
+DEF_BENCH(return new BlurRectDirectBench(REAL);)
 
-DEF_BENCH(return new BlurRectDirectBench(p, kMedium);)
-DEF_BENCH(return new BlurRectDirectBench(p, kMedBig);)
+DEF_BENCH(return new BlurRectDirectBench(kMedium);)
+DEF_BENCH(return new BlurRectDirectBench(kMedBig);)
 
-DEF_BENCH(return new BlurRectBoxFilterBench(p, kMedium);)
-DEF_BENCH(return new BlurRectBoxFilterBench(p, kMedBig);)
+DEF_BENCH(return new BlurRectBoxFilterBench(kMedium);)
+DEF_BENCH(return new BlurRectBoxFilterBench(kMedBig);)
 
 #if 0
 // disable Gaussian benchmarks; the algorithm works well enough
@@ -206,24 +206,24 @@ DEF_BENCH(return new BlurRectBoxFilterBench(p, kMedBig);)
 // to use in production for non-trivial radii, so no real point
 // in having the bots benchmark it all the time.
 
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(1));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(2));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(3));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(4));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(5));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(6));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(7));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(8));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(9));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(10));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(11));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(12));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(13));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(14));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(15));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(16));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(17));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(18));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(19));)
-DEF_BENCH(return new BlurRectGaussianBench(p, SkIntToScalar(20));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(1));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(2));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(3));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(4));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(5));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(6));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(7));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(8));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(9));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(10));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(11));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(12));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(13));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(14));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(15));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(16));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(17));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(18));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(19));)
+DEF_BENCH(return new BlurRectGaussianBench(SkIntToScalar(20));)
 #endif

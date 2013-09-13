@@ -36,8 +36,8 @@ class MorphologyBench : public SkBenchmark {
     SkString       fName;
 
 public:
-    MorphologyBench(void* param, SkScalar rad, MorphologyType style)
-        :  INHERITED(param) {
+    MorphologyBench(SkScalar rad, MorphologyType style)
+         {
         fRadius = rad;
         fStyle = style;
         const char* name = rad > 0 ? gStyleName[style] : "none";
@@ -87,30 +87,17 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact00(void* p) { return new MorphologyBench(p, SMALL, kErode_MT); }
-static SkBenchmark* Fact01(void* p) { return new MorphologyBench(p, SMALL, kDilate_MT); }
-
-static SkBenchmark* Fact10(void* p) { return new MorphologyBench(p, BIG, kErode_MT); }
-static SkBenchmark* Fact11(void* p) { return new MorphologyBench(p, BIG, kDilate_MT); }
-
-static SkBenchmark* Fact20(void* p) { return new MorphologyBench(p, REAL, kErode_MT); }
-static SkBenchmark* Fact21(void* p) { return new MorphologyBench(p, REAL, kDilate_MT); }
-
-static SkBenchmark* FactNone(void* p) { return new MorphologyBench(p, 0, kErode_MT); }
-
 // Fixed point can be 100x slower than float on these tests, causing
 // bench to timeout.
 #ifndef SK_SCALAR_IS_FIXED
+DEF_BENCH( return new MorphologyBench(SMALL, kErode_MT); )
+DEF_BENCH( return new MorphologyBench(SMALL, kDilate_MT); )
 
-static BenchRegistry gReg00(Fact00);
-static BenchRegistry gReg01(Fact01);
+DEF_BENCH( return new MorphologyBench(BIG, kErode_MT); )
+DEF_BENCH( return new MorphologyBench(BIG, kDilate_MT); )
 
-static BenchRegistry gReg10(Fact10);
-static BenchRegistry gReg11(Fact11);
+DEF_BENCH( return new MorphologyBench(REAL, kErode_MT); )
+DEF_BENCH( return new MorphologyBench(REAL, kDilate_MT); )
 
-static BenchRegistry gReg20(Fact20);
-static BenchRegistry gReg21(Fact21);
-
-static BenchRegistry gRegNone(FactNone);
-
+DEF_BENCH( return new MorphologyBench(0, kErode_MT); )
 #endif

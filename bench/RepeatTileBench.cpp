@@ -90,7 +90,7 @@ class RepeatTileBench : public SkBenchmark {
     bool             fIsOpaque;
     SkBitmap::Config fConfig;
 public:
-    RepeatTileBench(void* param, SkBitmap::Config c, bool isOpaque = false) : INHERITED(param) {
+    RepeatTileBench(SkBitmap::Config c, bool isOpaque = false)  {
         const int w = 50;
         const int h = 50;
         fConfig = c;
@@ -143,7 +143,7 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, true))
-DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, false))
-DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kRGB_565_Config))
-DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kIndex8_Config))
+DEF_BENCH(return new RepeatTileBench(SkBitmap::kARGB_8888_Config, true))
+DEF_BENCH(return new RepeatTileBench(SkBitmap::kARGB_8888_Config, false))
+DEF_BENCH(return new RepeatTileBench(SkBitmap::kRGB_565_Config))
+DEF_BENCH(return new RepeatTileBench(SkBitmap::kIndex8_Config))

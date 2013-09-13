@@ -13,7 +13,7 @@
 class Matrix44Bench : public SkBenchmark {
     SkString    fName;
 public:
-    Matrix44Bench(void* param, const char name[]) : INHERITED(param) {
+    Matrix44Bench(const char name[])  {
         fName.printf("matrix44_%s", name);
         fIsRendering = false;
     }
@@ -39,7 +39,7 @@ private:
 
 class EqualsMatrix44Bench : public Matrix44Bench {
 public:
-    EqualsMatrix44Bench(void* param) : INHERITED(param, "equals") {
+    EqualsMatrix44Bench() : INHERITED("equals") {
         fM1.set(0, 0, 0);
         fM2.set(3, 3, 0);
     }
@@ -58,7 +58,7 @@ private:
 
 class SetIdentityMatrix44Bench : public Matrix44Bench {
 public:
-    SetIdentityMatrix44Bench(void* param) : INHERITED(param, "setidentity") {
+    SetIdentityMatrix44Bench() : INHERITED("setidentity") {
         double rowMajor[16] =
                 { 1, 2, 3, 4,
                   5, 6, 7, 8,
@@ -79,7 +79,7 @@ private:
 
 class PreScaleMatrix44Bench : public Matrix44Bench {
 public:
-    PreScaleMatrix44Bench(void* param) : INHERITED(param, "prescale") {
+    PreScaleMatrix44Bench() : INHERITED("prescale") {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
 protected:
@@ -97,7 +97,7 @@ private:
 
 class InvertMatrix44Bench : public Matrix44Bench {
 public:
-    InvertMatrix44Bench(void* param) : INHERITED(param, "invert") {
+    InvertMatrix44Bench() : INHERITED("invert") {
         fM0.set(0, 0, -1.1);
         fM0.set(0, 1, 2.1);
         fM0.set(0, 2, -3.1);
@@ -128,7 +128,7 @@ private:
 
 class InvertAffineMatrix44Bench : public Matrix44Bench {
 public:
-    InvertAffineMatrix44Bench(void* param) : INHERITED(param, "invertaffine") {
+    InvertAffineMatrix44Bench() : INHERITED("invertaffine") {
         fM0.set(0, 0, -1.1);
         fM0.set(0, 1, 2.1);
         fM0.set(0, 2, -3.1);
@@ -156,7 +156,7 @@ private:
 
 class InvertScaleTranslateMatrix44Bench : public Matrix44Bench {
 public:
-    InvertScaleTranslateMatrix44Bench(void* param) : INHERITED(param, "invertscaletranslate") {
+    InvertScaleTranslateMatrix44Bench() : INHERITED("invertscaletranslate") {
         fM0.set(0, 0, -1.1);
         fM0.set(0, 3, 4.1);
 
@@ -179,7 +179,7 @@ private:
 
 class InvertTranslateMatrix44Bench : public Matrix44Bench {
 public:
-    InvertTranslateMatrix44Bench(void* param) : INHERITED(param, "inverttranslate") {
+    InvertTranslateMatrix44Bench() : INHERITED("inverttranslate") {
         fM0.set(0, 3, 4.1);
         fM0.set(1, 3, 8.1);
         fM0.set(2, 3, -12.1);
@@ -197,7 +197,7 @@ private:
 
 class PostScaleMatrix44Bench : public Matrix44Bench {
 public:
-    PostScaleMatrix44Bench(void* param) : INHERITED(param, "postscale") {
+    PostScaleMatrix44Bench() : INHERITED("postscale") {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
 protected:
@@ -215,7 +215,7 @@ private:
 
 class SetConcatMatrix44Bench : public Matrix44Bench {
 public:
-    SetConcatMatrix44Bench(void* param) : INHERITED(param, "setconcat") {
+    SetConcatMatrix44Bench() : INHERITED("setconcat") {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
         fM1.setScale(fX, fY, fZ);
         fM2.setTranslate(fX, fY, fZ);
@@ -235,7 +235,7 @@ private:
 
 class GetTypeMatrix44Bench : public Matrix44Bench {
 public:
-    GetTypeMatrix44Bench(void* param) : INHERITED(param, "gettype") {}
+    GetTypeMatrix44Bench() : INHERITED("gettype") {}
 protected:
     // Putting random generation of the matrix inside performTest()
     // would help us avoid anomalous runs, but takes up 25% or
@@ -251,13 +251,13 @@ private:
     typedef Matrix44Bench INHERITED;
 };
 
-DEF_BENCH( return new SetIdentityMatrix44Bench(p); )
-DEF_BENCH( return new EqualsMatrix44Bench(p); )
-DEF_BENCH( return new PreScaleMatrix44Bench(p); )
-DEF_BENCH( return new PostScaleMatrix44Bench(p); )
-DEF_BENCH( return new InvertMatrix44Bench(p); )
-DEF_BENCH( return new InvertAffineMatrix44Bench(p); )
-DEF_BENCH( return new InvertScaleTranslateMatrix44Bench(p); )
-DEF_BENCH( return new InvertTranslateMatrix44Bench(p); )
-DEF_BENCH( return new SetConcatMatrix44Bench(p); )
-DEF_BENCH( return new GetTypeMatrix44Bench(p); )
+DEF_BENCH( return new SetIdentityMatrix44Bench(); )
+DEF_BENCH( return new EqualsMatrix44Bench(); )
+DEF_BENCH( return new PreScaleMatrix44Bench(); )
+DEF_BENCH( return new PostScaleMatrix44Bench(); )
+DEF_BENCH( return new InvertMatrix44Bench(); )
+DEF_BENCH( return new InvertAffineMatrix44Bench(); )
+DEF_BENCH( return new InvertScaleTranslateMatrix44Bench(); )
+DEF_BENCH( return new InvertTranslateMatrix44Bench(); )
+DEF_BENCH( return new SetConcatMatrix44Bench(); )
+DEF_BENCH( return new GetTypeMatrix44Bench(); )

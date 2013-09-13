@@ -31,7 +31,7 @@ class PathIterBench : public SkBenchmark {
     bool        fRaw;
 
 public:
-    PathIterBench(void* param, bool raw) : INHERITED(param) {
+    PathIterBench(bool raw)  {
         fName.printf("pathiter_%s", raw ? "raw" : "consume");
         fRaw = raw;
 
@@ -89,8 +89,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* F0(void* p) { return new PathIterBench(p, false); }
-static SkBenchmark* F1(void* p) { return new PathIterBench(p, true); }
-
-static BenchRegistry gR0(F0);
-static BenchRegistry gR1(F1);
+DEF_BENCH( return new PathIterBench(false); )
+DEF_BENCH( return new PathIterBench(true); )

@@ -17,7 +17,7 @@ class ImageCacheBench : public SkBenchmark {
         CACHE_COUNT = 500
     };
 public:
-    ImageCacheBench(void* param) : INHERITED(param) , fCache(CACHE_COUNT * 100) {
+    ImageCacheBench()  : fCache(CACHE_COUNT * 100) {
         fBM.setConfig(SkBitmap::kARGB_8888_Config, DIM, DIM);
         fBM.allocPixels();
     }
@@ -56,4 +56,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new ImageCacheBench(p); )
+DEF_BENCH( return new ImageCacheBench(); )

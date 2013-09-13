@@ -13,9 +13,8 @@
 
 class WritePixelsBench : public SkBenchmark {
 public:
-    WritePixelsBench(void* param, SkCanvas::Config8888 config)
-        : INHERITED(param)
-        , fConfig(config)
+    WritePixelsBench(SkCanvas::Config8888 config)
+        : fConfig(config)
         , fName("writepix") {
         switch (config) {
             case SkCanvas::kNative_Premul_Config8888:
@@ -70,5 +69,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (p, SkCanvas::kRGBA_Premul_Config8888)); )
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (p, SkCanvas::kRGBA_Unpremul_Config8888)); )
+DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (SkCanvas::kRGBA_Premul_Config8888)); )
+DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (SkCanvas::kRGBA_Unpremul_Config8888)); )

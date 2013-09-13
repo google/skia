@@ -88,7 +88,7 @@ public:
         return SkIRect::MakeXYWH(x, y, w >> 1, h >> 1);
     }
 
-    RegionBench(void* param, int count, Proc proc, const char name[]) : INHERITED(param) {
+    RegionBench(int count, Proc proc, const char name[])  {
         fProc = proc;
         fName.printf("region_%s_%d", name, count);
 
@@ -116,22 +116,12 @@ private:
 
 #define SMALL   16
 
-static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, union_proc, "union")); }
-static SkBenchmark* gF1(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sect_proc, "intersect")); }
-static SkBenchmark* gF2(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diff_proc, "difference")); }
-static SkBenchmark* gF3(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diffrect_proc, "differencerect")); }
-static SkBenchmark* gF4(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, diffrectbig_proc, "differencerectbig")); }
-static SkBenchmark* gF5(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsrect_proc, "containsrect")); }
-static SkBenchmark* gF6(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrgn_proc, "intersectsrgn")); }
-static SkBenchmark* gF7(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, sectsrect_proc, "intersectsrect")); }
-static SkBenchmark* gF8(void* p) { return SkNEW_ARGS(RegionBench, (p, SMALL, containsxy_proc, "containsxy")); }
-
-static BenchRegistry gR0(gF0);
-static BenchRegistry gR1(gF1);
-static BenchRegistry gR2(gF2);
-static BenchRegistry gR3(gF3);
-static BenchRegistry gR4(gF4);
-static BenchRegistry gR5(gF5);
-static BenchRegistry gR6(gF6);
-static BenchRegistry gR7(gF7);
-static BenchRegistry gR8(gF8);
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, union_proc, "union")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sect_proc, "intersect")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diff_proc, "difference")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diffrect_proc, "differencerect")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diffrectbig_proc, "differencerectbig")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsrect_proc, "containsrect")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrgn_proc, "intersectsrgn")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrect_proc, "intersectsrect")); )
+DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsxy_proc, "containsxy")); )

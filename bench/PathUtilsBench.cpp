@@ -42,7 +42,7 @@ class PathUtilsBench : public SkBenchmark {
     char* bits[H * STRIDE];
 
 public:
-    PathUtilsBench(void* param, Proc proc, const char name[]) : INHERITED(param) {
+    PathUtilsBench(Proc proc, const char name[])  {
         fProc = proc;
         fName.printf("pathUtils_%s", name);
 
@@ -68,8 +68,5 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* PU_path(void* p) { return SkNEW_ARGS(PathUtilsBench, (p, path_proc, "path")); }
-static SkBenchmark* PU_region(void* p) { return SkNEW_ARGS(PathUtilsBench, (p, region_proc, "region")); }
-
-static BenchRegistry PU_Path(PU_path);
-static BenchRegistry PU_Region(PU_region);
+DEF_BENCH( return SkNEW_ARGS(PathUtilsBench, (path_proc, "path")); )
+DEF_BENCH( return SkNEW_ARGS(PathUtilsBench, (region_proc, "region")); )

@@ -18,8 +18,7 @@
 class ColorFilterBaseBench : public SkBenchmark {
 
 public:
-    ColorFilterBaseBench(void* param, bool small) : INHERITED(param), fIsSmall(small) {
-    }
+    ColorFilterBaseBench(bool small) : fIsSmall(small) { }
 
 protected:
     SkRect getFilterRect() const {
@@ -64,7 +63,7 @@ private:
 class ColorFilterDimBrightBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterDimBrightBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterDimBrightBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -94,7 +93,7 @@ private:
 class ColorFilterBrightGrayBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterBrightGrayBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterBrightGrayBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -121,7 +120,7 @@ private:
 class ColorFilterGrayBrightBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterGrayBrightBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterGrayBrightBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -148,7 +147,7 @@ private:
 class ColorFilterBlueBrightBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterBlueBrightBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterBlueBrightBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -175,7 +174,7 @@ private:
 class ColorFilterBrightBlueBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterBrightBlueBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterBrightBlueBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -202,7 +201,7 @@ private:
 class ColorFilterBrightBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterBrightBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterBrightBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -228,7 +227,7 @@ private:
 class ColorFilterBlueBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterBlueBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterBlueBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -254,7 +253,7 @@ private:
 class ColorFilterGrayBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterGrayBench(void* param, bool small) : INHERITED(param, small) {
+    ColorFilterGrayBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -280,7 +279,7 @@ private:
 class TableColorFilterBench : public ColorFilterBaseBench {
 
 public:
-    TableColorFilterBench(void* param, bool small) : INHERITED(param, small) {
+    TableColorFilterBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -317,22 +316,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new ColorFilterDimBrightBench(p, true); )
-DEF_BENCH( return new ColorFilterBrightGrayBench(p, true); )
-DEF_BENCH( return new ColorFilterGrayBrightBench(p, true); )
-DEF_BENCH( return new ColorFilterBlueBrightBench(p, true); )
-DEF_BENCH( return new ColorFilterBrightBlueBench(p, true); )
-DEF_BENCH( return new ColorFilterBrightBench(p, true); )
-DEF_BENCH( return new ColorFilterBlueBench(p, true); )
-DEF_BENCH( return new ColorFilterGrayBench(p, true); )
-DEF_BENCH( return new TableColorFilterBench(p, true); )
+DEF_BENCH( return new ColorFilterDimBrightBench(true); )
+DEF_BENCH( return new ColorFilterBrightGrayBench(true); )
+DEF_BENCH( return new ColorFilterGrayBrightBench(true); )
+DEF_BENCH( return new ColorFilterBlueBrightBench(true); )
+DEF_BENCH( return new ColorFilterBrightBlueBench(true); )
+DEF_BENCH( return new ColorFilterBrightBench(true); )
+DEF_BENCH( return new ColorFilterBlueBench(true); )
+DEF_BENCH( return new ColorFilterGrayBench(true); )
+DEF_BENCH( return new TableColorFilterBench(true); )
 
-DEF_BENCH( return new ColorFilterDimBrightBench(p, false); )
-DEF_BENCH( return new ColorFilterBrightGrayBench(p, false); )
-DEF_BENCH( return new ColorFilterGrayBrightBench(p, false); )
-DEF_BENCH( return new ColorFilterBlueBrightBench(p, false); )
-DEF_BENCH( return new ColorFilterBrightBlueBench(p, false); )
-DEF_BENCH( return new ColorFilterBrightBench(p, false); )
-DEF_BENCH( return new ColorFilterBlueBench(p, false); )
-DEF_BENCH( return new ColorFilterGrayBench(p, false); )
-DEF_BENCH( return new TableColorFilterBench(p, false); )
+DEF_BENCH( return new ColorFilterDimBrightBench(false); )
+DEF_BENCH( return new ColorFilterBrightGrayBench(false); )
+DEF_BENCH( return new ColorFilterGrayBrightBench(false); )
+DEF_BENCH( return new ColorFilterBlueBrightBench(false); )
+DEF_BENCH( return new ColorFilterBrightBlueBench(false); )
+DEF_BENCH( return new ColorFilterBrightBench(false); )
+DEF_BENCH( return new ColorFilterBlueBench(false); )
+DEF_BENCH( return new ColorFilterGrayBench(false); )
+DEF_BENCH( return new TableColorFilterBench(false); )

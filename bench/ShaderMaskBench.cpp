@@ -38,7 +38,7 @@ class ShaderMaskBench : public SkBenchmark {
     SkString    fName;
     FontQuality fFQ;
 public:
-    ShaderMaskBench(void* param, bool isOpaque, FontQuality fq) : INHERITED(param) {
+    ShaderMaskBench(bool isOpaque, FontQuality fq)  {
         fFQ = fq;
         fText.set(STR);
 
@@ -91,16 +91,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact00(void* p) { return new ShaderMaskBench(p, true,  kBW); }
-static SkBenchmark* Fact01(void* p) { return new ShaderMaskBench(p, false, kBW); }
-static SkBenchmark* Fact10(void* p) { return new ShaderMaskBench(p, true,  kAA); }
-static SkBenchmark* Fact11(void* p) { return new ShaderMaskBench(p, false, kAA); }
-static SkBenchmark* Fact20(void* p) { return new ShaderMaskBench(p, true,  kLCD); }
-static SkBenchmark* Fact21(void* p) { return new ShaderMaskBench(p, false, kLCD); }
-
-static BenchRegistry gReg00(Fact00);
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg10(Fact10);
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg20(Fact20);
-static BenchRegistry gReg21(Fact21);
+DEF_BENCH( return new ShaderMaskBench(true,  kBW); )
+DEF_BENCH( return new ShaderMaskBench(false, kBW); )
+DEF_BENCH( return new ShaderMaskBench(true,  kAA); )
+DEF_BENCH( return new ShaderMaskBench(false, kAA); )
+DEF_BENCH( return new ShaderMaskBench(true,  kLCD); )
+DEF_BENCH( return new ShaderMaskBench(false, kLCD); )

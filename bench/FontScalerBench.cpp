@@ -19,7 +19,7 @@ class FontScalerBench : public SkBenchmark {
     SkString fText;
     bool     fDoLCD;
 public:
-    FontScalerBench(void* param, bool doLCD) : INHERITED(param) {
+    FontScalerBench(bool doLCD)  {
         fName.printf("fontscaler_%s", doLCD ? "lcd" : "aa");
         fText.set("abcdefghijklmnopqrstuvwxyz01234567890");
         fDoLCD = doLCD;
@@ -55,8 +55,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return SkNEW_ARGS(FontScalerBench, (p, false)); }
-static SkBenchmark* Fact1(void* p) { return SkNEW_ARGS(FontScalerBench, (p, true)); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
+DEF_BENCH( return SkNEW_ARGS(FontScalerBench, (false)); )
+DEF_BENCH( return SkNEW_ARGS(FontScalerBench, (true)); )

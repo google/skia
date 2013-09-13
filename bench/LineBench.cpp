@@ -26,7 +26,7 @@ class LineBench : public SkBenchmark {
     SkPoint fPts[PTS];
 
 public:
-    LineBench(void* param, SkScalar width, bool doAA) : INHERITED(param) {
+    LineBench(SkScalar width, bool doAA)  {
         fStrokeWidth = width;
         fDoAA = doAA;
         fName.printf("lines_%g_%s", width, doAA ? "AA" : "BW");
@@ -59,8 +59,8 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new LineBench(p, 0,            false);)
-DEF_BENCH(return new LineBench(p, SK_Scalar1,   false);)
-DEF_BENCH(return new LineBench(p, 0,            true);)
-DEF_BENCH(return new LineBench(p, SK_Scalar1/2, true);)
-DEF_BENCH(return new LineBench(p, SK_Scalar1,   true);)
+DEF_BENCH(return new LineBench(0,            false);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   false);)
+DEF_BENCH(return new LineBench(0,            true);)
+DEF_BENCH(return new LineBench(SK_Scalar1/2, true);)
+DEF_BENCH(return new LineBench(SK_Scalar1,   true);)

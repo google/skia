@@ -84,10 +84,9 @@ class BitmapBench : public SkBenchmark {
     enum { W = 128 };
     enum { H = 128 };
 public:
-    BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
+    BitmapBench(bool isOpaque, SkBitmap::Config c,
                 bool forceUpdate = false, bool bitmapVolatile = false)
-        : INHERITED(param)
-        , fIsOpaque(isOpaque)
+        : fIsOpaque(isOpaque)
         , fForceUpdate(forceUpdate)
         , fIsVolatile(bitmapVolatile)
         , fConfig(c) {
@@ -200,9 +199,9 @@ class FilterBitmapBench : public BitmapBench {
     uint32_t    fFlags;
     SkString    fFullName;
 public:
-    FilterBitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
+    FilterBitmapBench(bool isOpaque, SkBitmap::Config c,
                       bool forceUpdate, bool isVolitile, uint32_t flags)
-        : INHERITED(param, isOpaque, c, forceUpdate, isVolitile)
+        : INHERITED(isOpaque, c, forceUpdate, isVolitile)
         , fFlags(flags) {
     }
 
@@ -279,9 +278,9 @@ private:
     SkString    fFullName;
     SourceAlpha fSourceAlpha;
 public:
-    SourceAlphaBitmapBench(void* param, SourceAlpha alpha, SkBitmap::Config c,
+    SourceAlphaBitmapBench(SourceAlpha alpha, SkBitmap::Config c,
                 bool forceUpdate = false, bool bitmapVolatile = false)
-        : INHERITED(param, false, c, forceUpdate, bitmapVolatile)
+        : INHERITED(false, c, forceUpdate, bitmapVolatile)
         , fSourceAlpha(alpha) {
     }
 
@@ -358,31 +357,31 @@ private:
     typedef BitmapBench INHERITED;
 };
 
-DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); )
-DEF_BENCH( return new BitmapBench(p, false, SkBitmap::kIndex8_Config); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kIndex8_Config); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); )
-DEF_BENCH( return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); )
+DEF_BENCH( return new BitmapBench(false, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new BitmapBench(true, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new BitmapBench(true, SkBitmap::kRGB_565_Config); )
+DEF_BENCH( return new BitmapBench(false, SkBitmap::kIndex8_Config); )
+DEF_BENCH( return new BitmapBench(true, SkBitmap::kIndex8_Config); )
+DEF_BENCH( return new BitmapBench(true, SkBitmap::kARGB_8888_Config, true, true); )
+DEF_BENCH( return new BitmapBench(true, SkBitmap::kARGB_8888_Config, true, false); )
 
 // scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kBilerp_Flag); )
 
 // scale rotate filter -> S32_opaque_D32_filter_DXDY_{SSE2,SSSE3}
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, true, true, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
+DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, true, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
 
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag | kBicubic_Flag); )
-DEF_BENCH( return new FilterBitmapBench(p, false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag | kBicubic_Flag); )
+DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag | kBicubic_Flag); )
+DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag | kBicubic_Flag); )
 
 // source alpha tests -> S32A_Opaque_BlitRow32_{arm,neon}
-DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTransparent_SourceAlpha, SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kTwoStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )
-DEF_BENCH( return new SourceAlphaBitmapBench(p, SourceAlphaBitmapBench::kThreeStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(SourceAlphaBitmapBench::kTransparent_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(SourceAlphaBitmapBench::kTwoStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new SourceAlphaBitmapBench(SourceAlphaBitmapBench::kThreeStripes_SourceAlpha, SkBitmap::kARGB_8888_Config); )

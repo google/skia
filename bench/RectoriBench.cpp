@@ -16,7 +16,7 @@
 // to create an inner blurred rect
 class RectoriBench : public SkBenchmark {
 public:
-    RectoriBench(void* param) : INHERITED(param) {}
+    RectoriBench() {}
 
 protected:
 
@@ -102,5 +102,4 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-
-DEF_BENCH( return SkNEW_ARGS(RectoriBench, (p)); )
+DEF_BENCH( return SkNEW_ARGS(RectoriBench, ()); )
