@@ -22,4 +22,8 @@ class SkFlattenable;
 SK_API SkData* SkValidatingSerializeFlattenable(SkFlattenable*);
 SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size);
 
+// Temporary fix for canary build
+#define SkSerializeFlattenable SkValidatingSerializeFlattenable
+#define SkDeserializeFlattenable SkValidatingDeserializeFlattenable
+
 #endif
