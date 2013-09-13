@@ -78,4 +78,5 @@ void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 SkDownSampleImageFilter::SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fScale = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fScale));
 }
