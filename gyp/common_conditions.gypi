@@ -205,6 +205,10 @@
           'SK_BUILD_FOR_UNIX',
         ],
         'configurations': {
+          'Coverage': {
+            'cflags': ['-g --coverage'],
+            'ldflags': ['--coverage'],
+          },
           'Debug': {
             'cflags': ['-g']
           },
