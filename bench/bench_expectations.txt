@@ -750,7 +750,7 @@ desk_twitter.skp_record_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12.1
 desk_twitter.skp_record_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.201,-8.919,11.321
 desk_twitter.skp_record_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.099,-9.011,11.209
 desk_twitter.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,57.280,41.552,113.008
-desk_twitter.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,195.290,165.761,224.819
+desk_twitter.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,195.290,160.761,224.819
 desk_twitter.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,56.550,40.895,112.205
 desk_twitter.skp_tile_1024x256_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,26.170,13.553,38.787
 desk_twitter.skp_tile_1024x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,29.810,16.829,42.791
@@ -798,10 +798,10 @@ desk_weather.skp_tile_256x256_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,9.630,
 desk_weather.skp_tile_256x256_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,132.650,109.385,155.915
 desk_weather.skp_tile_256x256_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,28.220,15.398,41.042
 desk_weather.skp_tile_256x256_gpu_c,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,23.400,11.060,35.740
-desk_weather.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,198.980,169.082,228.878
+desk_weather.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,198.980,160.082,228.878
 desk_weather.skp_tile_256x256_grid_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.320,-3.412,18.052
 desk_weather.skp_tile_256x256_grid_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.710,-3.061,18.481
-desk_weather.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,193.840,164.456,223.224
+desk_weather.skp_tile_256x256_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,193.840,154.456,223.224
 desk_weather.skp_tile_256x256_rtree_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.360,-3.376,18.096
 desk_weather.skp_tile_256x256_rtree_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.910,-2.881,18.701
 desk_weather.skp_tile_512x512_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,7.610,-3.151,18.371
