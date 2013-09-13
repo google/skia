@@ -30,6 +30,8 @@ class GrContext;
 #include "SkPicture.h"
 #include "SkString.h"
 
+#include <limits>
+
 enum BenchMode {
     kNormal_BenchMode,
     kDeferred_BenchMode,
@@ -549,7 +551,7 @@ int tool_main(int argc, char** argv) {
             BenchTimer timer;
 #endif
 
-            double previous = 1.0/0.0;
+            double previous = std::numeric_limits<double>::infinity();
             bool converged = false;
             bench->setLoops(0);
             if (FLAGS_verbose) { SkDebugf("%s %s: ", bench->getName(), config.name); }
