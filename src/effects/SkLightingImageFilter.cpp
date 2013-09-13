@@ -64,9 +64,9 @@ public:
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
         SkPoint3 color(lightColor * colorScale);
         return SkPackARGB32(255,
-                            SkScalarFloorToInt(color.fX),
-                            SkScalarFloorToInt(color.fY),
-                            SkScalarFloorToInt(color.fZ));
+                            SkClampMax(SkScalarFloorToInt(color.fX), 255),
+                            SkClampMax(SkScalarFloorToInt(color.fY), 255),
+                            SkClampMax(SkScalarFloorToInt(color.fZ), 255));
     }
 private:
     SkScalar fKD;
@@ -84,10 +84,10 @@ public:
             SkScalarPow(normal.dot(halfDir), fShininess));
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
         SkPoint3 color(lightColor * colorScale);
-        return SkPackARGB32(SkScalarFloorToInt(color.maxComponent()),
-                            SkScalarFloorToInt(color.fX),
-                            SkScalarFloorToInt(color.fY),
-                            SkScalarFloorToInt(color.fZ));
+        return SkPackARGB32(SkClampMax(SkScalarFloorToInt(color.maxComponent()), 255),
+                            SkClampMax(SkScalarFloorToInt(color.fX), 255),
+                            SkClampMax(SkScalarFloorToInt(color.fY), 255),
+                            SkClampMax(SkScalarFloorToInt(color.fZ), 255));
     }
 private:
     SkScalar fKS;
@@ -676,7 +676,7 @@ public:
      : INHERITED(color),
        fLocation(location),
        fTarget(target),
-       fSpecularExponent(specularExponent)
+       fSpecularExponent(SkScalarPin(specularExponent, kSpecularExponentMin, kSpecularExponentMax))
     {
        fS = target - location;
        fS.normalize();
@@ -785,6 +785,9 @@ protected:
     }
 
 private:
+    static const SkScalar kSpecularExponentMin;
+    static const SkScalar kSpecularExponentMax;
+
     typedef SkLight INHERITED;
     SkPoint3 fLocation;
     SkPoint3 fTarget;
@@ -794,6 +797,11 @@ private:
     SkScalar fConeScale;
     SkPoint3 fS;
 };
+
+// According to the spec, the specular term should be in the range [1, 128] :
+// http://www.w3.org/TR/SVG/filters.html#feSpecularLightingSpecularExponentAttribute
+const SkScalar SkSpotLight::kSpecularExponentMin = SkFloatToScalar(1.0f);
+const SkScalar SkSpotLight::kSpecularExponentMax = SkFloatToScalar(128.0f);
 
 ///////////////////////////////////////////////////////////////////////////////
 
