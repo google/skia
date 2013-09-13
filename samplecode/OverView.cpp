@@ -12,14 +12,10 @@
 #include "SkCanvas.h"
 #include "SkView.h"
 
-namespace {
-
-const int N = 8;
-const SkScalar kWidth = SkIntToScalar(640);
-const SkScalar kHeight = SkIntToScalar(480);
-const char gIsOverview[] = "is-overview";
-
-}  // namespace
+static const int N = 8;
+static const SkScalar kWidth = SkIntToScalar(640);
+static const SkScalar kHeight = SkIntToScalar(480);
+static const char gIsOverview[] = "is-overview";
 
 class OverView : public SkView {
 public:

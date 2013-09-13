@@ -1,18 +1,17 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 
-namespace {
-SkBitmap make_bitmap() {
+static SkBitmap make_bitmap() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config , 5, 5);
     bm.allocPixels();
@@ -26,7 +25,6 @@ SkBitmap make_bitmap() {
     bm.unlockPixels();
     return bm;
 }
-} // unnamed namespace
 
 class TextureDomainView : public SampleView {
     SkBitmap    fBM;
