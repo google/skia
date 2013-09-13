@@ -5484,12 +5484,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12313280019537804469
+          494968569550831091
         ]
       ], 
       "bugs": [
         1603
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "scaled_tilemodes_npot_565.png": {
