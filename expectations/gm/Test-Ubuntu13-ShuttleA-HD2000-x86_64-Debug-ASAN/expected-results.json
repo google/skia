@@ -7528,12 +7528,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16914316580397099250
+          13492285551522995556
         ]
       ], 
       "bugs": [
         1578
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "hittestpath_565.png": {
