@@ -12,6 +12,7 @@
 #include "SkFlattenableBuffers.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
+#include "SkValidationUtils.h"
 
 SK_DEFINE_INST_COUNT(SkXfermode)
 
@@ -1438,6 +1439,10 @@ protected:
         fDstCoeff = rec.fDC;
         // now update our function-ptr in the super class
         this->INHERITED::setProc(rec.fProc);
+
+        buffer.validate(SkIsValidMode(fMode) &&
+                        SkIsValidCoeff(fSrcCoeff) &&
+                        SkIsValidCoeff(fDstCoeff));
     }
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {

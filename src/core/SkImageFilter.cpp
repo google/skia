@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkFlattenableBuffers.h"
 #include "SkRect.h"
+#include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
@@ -62,6 +63,7 @@ SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
         }
     }
     buffer.readIRect(&fCropRect);
+    buffer.validate(SkIsValidRect(fCropRect));
 }
 
 void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

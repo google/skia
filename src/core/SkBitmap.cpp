@@ -19,6 +19,7 @@
 #include "SkThread.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
+#include "SkValidationUtils.h"
 #include "SkPackBits.h"
 #include <new>
 
@@ -1607,9 +1608,11 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     int width = buffer.readInt();
     int height = buffer.readInt();
     int rowBytes = buffer.readInt();
-    int config = buffer.readInt();
+    Config config = (Config)buffer.readInt();
+    buffer.validate((width >= 0) && (height >= 0) && (rowBytes >= 0) &&
+                    SkIsValidConfig(config));
 
-    this->setConfig((Config)config, width, height, rowBytes);
+    this->setConfig(config, width, height, rowBytes);
     this->setIsOpaque(buffer.readBool());
 
     int reftype = buffer.readInt();
@@ -1623,6 +1626,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
         case SERIALIZE_PIXELTYPE_NONE:
             break;
         default:
+            buffer.validate(false);
             SkDEBUGFAIL("unrecognized pixeltype in serialized data");
             sk_throw();
     }

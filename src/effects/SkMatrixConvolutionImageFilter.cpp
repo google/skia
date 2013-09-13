@@ -22,6 +22,22 @@
 
 #endif
 
+namespace {
+
+bool TileModeIsValid(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    switch (tileMode) {
+    case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+    case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+    case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+}
+
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input)
   : INHERITED(input),
     fKernelSize(kernelSize),
@@ -51,6 +67,9 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     fTarget.fY = buffer.readInt();
     fTileMode = (TileMode) buffer.readInt();
     fConvolveAlpha = buffer.readBool();
+    buffer.validate(SkScalarIsFinite(fGain) &&
+                    SkScalarIsFinite(fBias) &&
+                    TileModeIsValid(fTileMode));
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
