@@ -37,7 +37,9 @@ enum BenchMode {
     kRecord_BenchMode,
     kPictureRecord_BenchMode
 };
-const char* BenchMode_Name[] = { "normal", "deferred", "deferredSilent", "record", "picturerecord" };
+const char* BenchMode_Name[] = {
+    "normal", "deferred", "deferredSilent", "record", "picturerecord"
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -271,8 +273,23 @@ DEFINE_string(mode, "normal",
              "picturerecord:  draw from an SkPicture to an SkPicture.\n");
 DEFINE_string(config, "", "Run configs given.  If empty, runs the defaults set in gConfigs.");
 DEFINE_string(logFile, "", "Also write stdout here.");
-DEFINE_int32(benchMs, 20, "Target time in ms to run each benchmark config.");
+DEFINE_int32(minMs, 20,  "Shortest time we'll allow a benchmark to run.");
+DEFINE_int32(maxMs, 4000, "Longest time we'll allow a benchmark to run.");
+DEFINE_double(error, 0.01,
+              "Ratio of subsequent bench measurements must drop within 1±error to converge.");
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
+DEFINE_bool2(verbose, v, false, "Print more.");
+
+// Has this bench converged?  First arguments are milliseconds / loop iteration,
+// last is overall runtime in milliseconds.
+static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw) {
+    if (currRaw < FLAGS_minMs) {
+        return false;
+    }
+    const double low = 1 - FLAGS_error, high = 1 + FLAGS_error;
+    const double ratio = currPerLoop / prevPerLoop;
+    return low < ratio && ratio < high;
+}
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -339,20 +356,17 @@ int tool_main(int argc, char** argv) {
         if (kGPU_Backend == config.backend) {
             GrContext* context = gContextFactory.get(config.contextType);
             if (NULL == context) {
-                SkString error;
-                error.printf("Error creating GrContext for config %s. Config will be skipped.\n",
-                             config.name);
-                logger.logError(error);
+                logger.logError(SkStringPrintf(
+                    "Error creating GrContext for config %s. Config will be skipped.\n",
+                    config.name));
                 configs.remove(i);
                 --i;
                 continue;
             }
             if (config.sampleCount > context->getMaxSampleCount()){
-                SkString error;
-                error.printf("Sample count (%d) for config %s is unsupported. "
-                             "Config will be skipped.\n",
-                             config.sampleCount, config.name);
-                logger.logError(error);
+                logger.logError(SkStringPrintf(
+                    "Sample count (%d) for config %s is unsupported. Config will be skipped.\n",
+                    config.sampleCount, config.name));
                 configs.remove(i);
                 --i;
                 continue;
@@ -484,9 +498,8 @@ int tool_main(int argc, char** argv) {
                                          config.sampleCount,
                                          context));
                 if (!device.get()) {
-                    SkString error;
-                    error.printf("Device creation failure for config %s. Will skip.\n", config.name);
-                    logger.logError(error);
+                    logger.logError(SkStringPrintf(
+                        "Device creation failure for config %s. Will skip.\n", config.name));
                     continue;
                 }
 
@@ -536,20 +549,23 @@ int tool_main(int argc, char** argv) {
             BenchTimer timer;
 #endif
 
+            double previous = 1.0/0.0;
+            bool converged = false;
             bench->setLoops(0);
+            if (FLAGS_verbose) { SkDebugf("%s %s: ", bench->getName(), config.name); }
             do {
                 // Ramp up 1 -> 4 -> 16 -> ... -> ~1 billion.
                 const int loops = bench->getLoops();
-                if (loops >= (1<<30)) {
+                if (loops >= (1<<30) || timer.fWall > FLAGS_maxMs) {
                     // If you find it takes more than a billion loops to get up to 20ms of runtime,
                     // you've got a computer clocked at several THz or have a broken benchmark.  ;)
                     //     "1B ought to be enough for anybody."
-                    SkString str;
-                    str.printf("Can't ramp %s to %dms.\n", bench->getName(), FLAGS_benchMs);
-                    logger.logError(str);
+                    logger.logError(SkStringPrintf(
+                        "Can't get %s %s to converge in %dms.\n",
+                         bench->getName(), config.name, FLAGS_maxMs));
                     break;
                 }
-                bench->setLoops(loops == 0 ? 1 : loops * 4);
+                bench->setLoops(loops == 0 ? 1 : loops * 2);
 
                 if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
                     // Clear the recorded commands so that they do not accumulate.
@@ -586,7 +602,13 @@ int tool_main(int argc, char** argv) {
                 }
 #endif
                 timer.end();
-            } while (!kIsDebug && timer.fWall < FLAGS_benchMs);  // One loop only in debug mode.
+                const double current = timer.fWall / bench->getLoops();
+                if (FLAGS_verbose && current > previous) { SkDebugf("↑"); }
+                if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
+                converged = HasConverged(previous, current, timer.fWall);
+                previous = current;
+            } while (!kIsDebug && !converged);
+            if (FLAGS_verbose) { SkDebugf("\n"); }
 
             if (FLAGS_outDir.count() && kNonRendering_Backend != config.backend) {
                 saveFile(bench->getName(),
