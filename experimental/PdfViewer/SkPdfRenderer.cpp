@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkPdfRenderer.h"
+
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
@@ -21,10 +23,12 @@
 
 #include "SkPdfGraphicsState.h"
 #include "SkPdfNativeTokenizer.h"
+#include "SkPdfReporter.h"
 
 extern "C" SkPdfContext* gPdfContext;
 extern "C" SkBitmap* gDumpBitmap;
 extern "C" SkCanvas* gDumpCanvas;
+
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -72,8 +76,11 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
  * - deal with specific type in spec directly, add all dictionary types to known types
 */
 
-#define EXPECT_OPERANDS(pdfContext,n) \
+#define EXPECT_OPERANDS(name,pdfContext,n) \
     bool __failed = pdfContext->fObjectStack.count() < n; \
+    SkPdfREPORTCODE(const char* __operator_name = name); \
+    SkPdfREPORTCODE((void)__operator_name); \
+    SkPdfReportIf(pdfContext->fObjectStack.count() < n, kIgnoreError_SkPdfIssueSeverity, kStackOverflow_SkPdfIssue, "Not enought parameters.", NULL, pdfContext); \
     SkDEBUGCODE(int __cnt = n);
 
 #define POP_OBJ(pdfContext,name) \
@@ -86,18 +93,21 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
         pdfContext->fObjectStack.pop(); \
     }
 
+// TODO(edisonn): make all pop function to use name##_obj
 #define POP_NUMBER(pdfContext,name) \
     SkDEBUGCODE(__cnt--); \
     SkASSERT(__cnt >= 0); \
     double name = 0; \
+    SkPdfNativeObject* name##_obj = NULL; \
     __failed = __failed || pdfContext->fObjectStack.count() == 0; \
     if (pdfContext->fObjectStack.count() > 0) { \
-        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        name##_obj = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
-        if (!tmp || !tmp->isNumber()) { \
+        if (!name##_obj || !name##_obj->isNumber()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, name##_obj, SkPdfNativeObject::_kNumber_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
-            name = tmp->numberValue(); \
+            name = name##_obj->numberValue(); \
         } \
     }
 
@@ -106,13 +116,15 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
     SkASSERT(__cnt >= 0); \
     int64_t name = 0; \
     __failed = __failed || pdfContext->fObjectStack.count() == 0; \
+    SkPdfNativeObject* name##_obj = NULL; \
     if (pdfContext->fObjectStack.count() > 0) { \
-        SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
+        name##_obj = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
-        if (!tmp || !tmp->isInteger()) { \
+        if (!name##_obj || !name##_obj->isInteger()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, name##_obj, SkPdfNativeObject::kInteger_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
-            name = tmp->intValue(); \
+            name = name##_obj->intValue(); \
         } \
     }
 
@@ -124,6 +136,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
         SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
         if (!tmp || !tmp->isNumber()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, tmp, SkPdfNativeObject::kInteger_PdfObjectType | SkPdfNativeObject::kReal_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
             var = tmp->numberValue(); \
@@ -140,6 +153,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
         SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
         if (!tmp || !tmp->isName()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, tmp, SkPdfNativeObject::kName_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
             name = tmp; \
@@ -155,6 +169,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
         SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
         if (!tmp || !tmp->isAnyString()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, tmp, SkPdfNativeObject::kString_PdfObjectType | SkPdfNativeObject::kHexString_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
             name = tmp; \
@@ -170,6 +185,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
         SkPdfNativeObject* tmp = pdfContext->fObjectStack.top(); \
         pdfContext->fObjectStack.pop(); \
         if (!tmp || !tmp->isArray()) { \
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, __operator_name, tmp, SkPdfNativeObject::kArray_PdfObjectType, NULL);\
             __failed = true;\
         } else { \
             name = (SkPdfArray*)tmp; \
@@ -300,10 +316,21 @@ SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray) {
     double array[6];
 
     // TODO(edisonn): security issue, ret if size() != 6
+    if (pdfArray == NULL) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue, "null array passed to build matrix", NULL, NULL);
+        return SkMatrix::I();
+    }
+
+    if (pdfArray->size() != 6) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kUnexpectedArraySize_SkPdfIssue, "null array passed to build matrix", pdfArray, NULL);
+        return SkMatrix::I();
+    }
+
     for (int i = 0; i < 6; i++) {
         const SkPdfNativeObject* elem = pdfArray->operator [](i);
         if (elem == NULL || !elem->isNumber()) {
-            return SkMatrix::I();  // TODO(edisonn): report issue
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, elem, SkPdfNativeObject::_kNumber_PdfObjectType, NULL);
+            return SkMatrix::I();
         }
         array[i] = elem->numberValue();
     }
@@ -462,9 +489,8 @@ static SkPdfResult DrawText(SkPdfContext* pdfContext,
         skfont = SkPdfFont::Default();
     }
 
-
     if (_str == NULL || !_str->isAnyString()) {
-        // TODO(edisonn): report warning
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "DrawText", _str, SkPdfNativeObject::_kAnyString_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
     const SkPdfString* str = (const SkPdfString*)_str;
@@ -474,7 +500,7 @@ static SkPdfResult DrawText(SkPdfContext* pdfContext,
     SkDecodedText decoded;
 
     if (skfont->encoding() == NULL) {
-        // TODO(edisonn): report warning
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingEncoding_SkPdfIssue, "draw text", _str, pdfContext);
         return kNYI_SkPdfResult;
     }
 
@@ -518,10 +544,11 @@ static SkColorTable* getGrayColortable() {
     return grayColortable;
 }
 
-static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedStream, size_t uncompressedStreamLength,
-                                     int width, int height, int bytesPerLine,
-                                     int bpc, const SkString& colorSpace,
-                                     bool transparencyMask) {
+static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedStream,
+                                             size_t uncompressedStreamLength,
+                                             int width, int height, int bytesPerLine,
+                                             int bpc, const SkString& colorSpace,
+                                             bool transparencyMask) {
     SkBitmap* bitmap = new SkBitmap();
 
     //int components = GetColorSpaceComponents(colorSpace);
@@ -566,7 +593,8 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
         bitmap->setPixels(uncompressedStreamA8, transparencyMask ? NULL : getGrayColortable());
     }
 
-    // TODO(edisonn): Report Warning, NYI, or error
+    // TODO(edisonn): pass color space and context here?
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "Color space NYI", NULL, NULL);
     return bitmap;
 }
 
@@ -581,7 +609,7 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
 
 static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDictionary* image, bool transparencyMask) {
     if (image == NULL || !image->hasStream()) {
-        // TODO(edisonn): report warning to be used in testing.
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", image, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return NULL;
     }
 
@@ -594,7 +622,6 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
     SkPMColor colors[256];
     int cnt = 0;
 
-    // TODO(edisonn): color space can be an array too!
     if (image->isColorSpaceAName(pdfContext->fPdfDoc)) {
         colorSpace = image->getColorSpaceAsName(pdfContext->fPdfDoc);
     } else if (image->isColorSpaceAArray(pdfContext->fPdfDoc)) {
@@ -604,17 +631,17 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
                                            array->objAtAIndex(2)->isInteger() &&
                                            array->objAtAIndex(3)->isHexString()
                                            ) {
-            // TODO(edisonn): suport only DeviceRGB for now.
+            SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "Color space NYI", image, pdfContext);
             indexed = true;
             cnt = (int)array->objAtAIndex(2)->intValue() + 1;
             if (cnt > 256) {
-                // TODO(edionn): report NYIs
+                SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "Color space feature NYI, cnt > 256", image, pdfContext);
                 return NULL;
             }
             SkColorTable colorTable(cnt);
             NotOwnedString data = array->objAtAIndex(3)->strRef();
             if (data.fBytes != (unsigned int)cnt * 3) {
-                // TODO(edionn): report error/warning
+                SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "Image color table mismatch color space specs", array, pdfContext);
                 return NULL;
             }
             for (int i = 0 ; i < cnt; i++) {
@@ -642,7 +669,7 @@ static SkBitmap* getImageFromObjectCore(SkPdfContext* pdfContext, SkPdfImageDict
 
     if (!stream || !stream->GetFilteredStreamRef(&uncompressedStream, &uncompressedStreamLength) ||
             uncompressedStream == NULL || uncompressedStreamLength == 0) {
-        // TODO(edisonn): report warning to be used in testing.
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", stream, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return NULL;
     }
 
@@ -718,6 +745,8 @@ static SkBitmap* getSmaskFromObject(SkPdfContext* pdfContext, SkPdfImageDictiona
     }
 
     // TODO(edisonn): implement GS SMask. Default to empty right now.
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "implement GS SMask. Default to empty right now.", obj, pdfContext);
+
     return pdfContext->fGraphicsState.fSMask;
 }
 
@@ -756,6 +785,8 @@ static SkPdfResult doXObject_Image(SkPdfContext* pdfContext, SkCanvas* canvas, S
     SkRect dst = SkRect::MakeXYWH(SkDoubleToScalar(0.0), SkDoubleToScalar(0.0), SkDoubleToScalar(1.0), SkDoubleToScalar(1.0));
 
     // TODO(edisonn): soft mask type? alpha/luminosity.
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "implement soft mask type", skpdfimage, pdfContext);
+
     SkPaint paint;
     pdfContext->fGraphicsState.applyGraphicsState(&paint, false);
 
@@ -818,10 +849,12 @@ static void doGroup_before(SkPdfContext* pdfContext, SkCanvas* canvas, SkRect bb
 
 static SkPdfResult doXObject_Form(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfType1FormDictionary* skobj) {
     if (!skobj || !skobj->hasStream()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", skobj, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
     if (!skobj->has_BBox()) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingRequiredKey_SkPdfIssue, "BBox", skobj, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -885,10 +918,12 @@ static SkPdfResult doXObject_Form(SkPdfContext* pdfContext, SkCanvas* canvas, Sk
 // TODO(edisonn): Extract a class like ObjWithStream
 static SkPdfResult doXObject_Pattern(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfType1PatternDictionary* skobj) {
     if (!skobj || !skobj->hasStream()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", skobj, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
     if (!skobj->has_BBox()) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingRequiredKey_SkPdfIssue, "BBox", skobj, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -940,6 +975,7 @@ static SkPdfResult doXObject_Pattern(SkPdfContext* pdfContext, SkCanvas* canvas,
 
 SkPdfResult doType3Char(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfNativeObject* skobj, SkRect bBox, SkMatrix matrix, double textSize) {
     if (!skobj || !skobj->hasStream()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", skobj, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1003,7 +1039,7 @@ public:
 
 static SkPdfResult doXObject(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfNativeObject* obj) {
     if (CheckRecursiveRendering::IsInRendering(obj)) {
-        // Oops, corrupt PDF!
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kRecursiveReferencing_SkPdfIssue, "Recursive reverencing is invalid in draw objects", obj, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1022,23 +1058,22 @@ static SkPdfResult doXObject(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfNa
                 SkPdfType1PatternDictionary* pattern = (SkPdfType1PatternDictionary*)obj;
                 return doXObject_Pattern(pdfContext, canvas, pattern);
             }
+            SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "doXObject", obj, pdfContext);
         }
     }
     return kIgnoreError_SkPdfResult;
 }
 
 static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageObjectDictionary* skobj) {
-    if (!skobj) {
-        return kIgnoreError_SkPdfResult;
-    }
-
-    if (!skobj->isContentsAStream(pdfContext->fPdfDoc)) {
+    if (!skobj || !skobj->isContentsAStream(pdfContext->fPdfDoc)) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", skobj, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return kNYI_SkPdfResult;
     }
 
     SkPdfStream* stream = skobj->getContentsAsStream(pdfContext->fPdfDoc);
 
     if (!stream) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Missing stream", skobj, SkPdfNativeObject::_kStream_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1049,7 +1084,7 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageO
     }
 
     if (CheckRecursiveRendering::IsInRendering(skobj)) {
-        // Oops, corrupt PDF!
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kRecursiveReferencing_SkPdfIssue, "Recursive reverencing is invalid in draw objects", skobj, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
     CheckRecursiveRendering checkRecursion(skobj);
@@ -1058,6 +1093,8 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfPageO
     PdfOp_q(pdfContext, canvas, NULL);
 
     // TODO(edisonn): MediaBox can be inherited!!!!
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "MediaBox inheritance NYI", NULL, pdfContext);
+
     SkRect bbox = skobj->MediaBox(pdfContext->fPdfDoc);
     if (skobj->has_Group()) {
         SkPdfTransparencyGroupDictionary* tgroup = skobj->Group(pdfContext->fPdfDoc);
@@ -1097,12 +1134,14 @@ SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
         pdfContext->fStateStack.pop();
         canvas->restore();
 
-        if (pdfContext->fObjectStack.nests() <= 0) {
+        if (pdfContext->fObjectStack.nests() == 0) {
+            SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kStackNestingOverflow_SkPdfIssue, "stack nesting overflow (q/Q)", NULL, pdfContext);
             return kIgnoreError_SkPdfResult;
         } else {
             pdfContext->fObjectStack.unnest();
         }
     } else {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kStackOverflow_SkPdfIssue, "stack overflow (q/Q)", NULL, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1110,7 +1149,7 @@ SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
 }
 
 static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 6);
+    EXPECT_OPERANDS("cm", pdfContext, 6);
     POP_NUMBER(pdfContext, f);
     POP_NUMBER(pdfContext, e);
     POP_NUMBER(pdfContext, d);
@@ -1151,7 +1190,7 @@ static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //, to leading, which is a number expressed in unscaled text
 //space units. Text leading is used only by the T*, ', and " operators. Initial value: 0.
 static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1)
+    EXPECT_OPERANDS("TL", pdfContext, 1);
     POP_NUMBER(pdfContext, ty);
     CHECK_PARAMETERS();
 
@@ -1161,7 +1200,7 @@ static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("Td", pdfContext, 2);
     POP_NUMBER(pdfContext, ty);
     POP_NUMBER(pdfContext, tx);
     CHECK_PARAMETERS();
@@ -1176,7 +1215,7 @@ static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2)
+    EXPECT_OPERANDS("TD", pdfContext, 2)
     POP_NUMBER(pdfContext, ty);
     POP_NUMBER(pdfContext, tx);
     CHECK_PARAMETERS();
@@ -1202,7 +1241,7 @@ static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 6);
+    EXPECT_OPERANDS("Tm", pdfContext, 6);
     POP_NUMBER(pdfContext, f);
     POP_NUMBER(pdfContext, e);
     POP_NUMBER(pdfContext, d);
@@ -1224,6 +1263,8 @@ static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     matrix.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
 
     // TODO(edisonn): Text positioning.
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "Text positioning not implemented for 2+ chars", NULL, pdfContext);
+
     pdfContext->fGraphicsState.fMatrixTm = matrix;
     pdfContext->fGraphicsState.fMatrixTlm = matrix;;
 
@@ -1251,7 +1292,7 @@ static SkPdfResult PdfOp_m(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("m", pdfContext, 2);
     POP_NUMBER(pdfContext, y);
     POP_NUMBER(pdfContext, x);
     CHECK_PARAMETERS();
@@ -1271,7 +1312,7 @@ static SkPdfResult PdfOp_l(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("l", pdfContext, 2);
     POP_NUMBER(pdfContext, y);
     POP_NUMBER(pdfContext, x);
     CHECK_PARAMETERS();
@@ -1291,7 +1332,7 @@ static SkPdfResult PdfOp_c(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 6);
+    EXPECT_OPERANDS("c", pdfContext, 6);
     POP_NUMBER(pdfContext, y3);
     POP_NUMBER(pdfContext, x3);
     POP_NUMBER(pdfContext, y2);
@@ -1316,7 +1357,7 @@ static SkPdfResult PdfOp_v(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 4);
+    EXPECT_OPERANDS("v", pdfContext, 4);
     POP_NUMBER(pdfContext, y3);
     POP_NUMBER(pdfContext, x3);
     POP_NUMBER(pdfContext, y2);
@@ -1342,7 +1383,7 @@ static SkPdfResult PdfOp_y(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 4);
+    EXPECT_OPERANDS("y", pdfContext, 4);
     POP_NUMBER(pdfContext, y3);
     POP_NUMBER(pdfContext, x3);
     POP_NUMBER(pdfContext, y1);
@@ -1368,7 +1409,7 @@ static SkPdfResult PdfOp_re(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
         pdfContext->fGraphicsState.fPathClosed = false;
     }
 
-    EXPECT_OPERANDS(pdfContext, 4);
+    EXPECT_OPERANDS("re", pdfContext, 4);
     POP_NUMBER(pdfContext, height);
     POP_NUMBER(pdfContext, width);
     POP_NUMBER(pdfContext, y);
@@ -1434,6 +1475,8 @@ static SkPdfResult PdfOp_fillAndStroke(SkPdfContext* pdfContext, SkCanvas* canva
                         // it will change the result iterating in reverse
                         int xStep = abs((int)pattern->XStep(pdfContext->fPdfDoc));
                         int yStep = abs((int)pattern->YStep(pdfContext->fPdfDoc));
+
+                        SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "paterns x/y step is forced to positive number", pattern, pdfContext);
 
                         SkRect bounds = path.getBounds();
 
@@ -1564,7 +1607,6 @@ static SkPdfResult PdfOp_n(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 #endif
     }
 
-    //pdfContext->fGraphicsState.fClipPath.reset();
     pdfContext->fGraphicsState.fHasClipPathToApply = false;
 
     pdfContext->fGraphicsState.fPathClosed = true;
@@ -1584,6 +1626,8 @@ static SkPdfResult PdfOp_BT(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 static SkPdfResult PdfOp_ET(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "ET without BT", NULL, pdfContext);
+
         return kIgnoreError_SkPdfResult;
     }
     // TODO(edisonn): anything else to be done once we are done with draw text? Like restore stack?
@@ -1597,6 +1641,7 @@ static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, con
 
     if (!pdfContext->fGraphicsState.fResources->Font(pdfContext->fPdfDoc)) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingFont_SkPdfIssue, "No font", fontName, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1604,6 +1649,7 @@ static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, con
     objFont = pdfContext->fPdfDoc->resolveReference(objFont);
     if (kNone_SkPdfNativeObjectType == pdfContext->fPdfDoc->mapper()->mapFontDictionary(objFont)) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kInvalidFont_SkPdfIssue, "Invalid font", objFont, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1624,7 +1670,7 @@ static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext, con
 //a number representing a scale factor. There is no initial value for either font or
 //size; they must be speciﬁed explicitly using Tf before any text is shown.
 static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("Tf", pdfContext, 2);
     POP_NUMBER(pdfContext, fontSize);
     POP_NAME(pdfContext, fontName);
     CHECK_PARAMETERS();
@@ -1633,12 +1679,13 @@ static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tj", pdfContext, 1);
     POP_STRING(pdfContext, str);
     CHECK_PARAMETERS();
 
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "Tj without BT", NULL, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1650,6 +1697,7 @@ static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 static SkPdfResult PdfOp_quote(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "' without BT", NULL, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -1661,10 +1709,11 @@ static SkPdfResult PdfOp_quote(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTo
 static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "\" without BT", NULL, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
-    EXPECT_OPERANDS(pdfContext, 3);
+    EXPECT_OPERANDS("\"", pdfContext, 3);
     POP_OBJ(pdfContext, str);
     POP_OBJ(pdfContext, ac);
     POP_OBJ(pdfContext, aw);
@@ -1683,22 +1732,26 @@ static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas,
 }
 
 static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tf", pdfContext, 1);
     POP_ARRAY(pdfContext, array);
     CHECK_PARAMETERS();
 
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "TJ without BT", NULL, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
     if (!array->isArray()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, array, SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
     for( int i=0; i<static_cast<int>(array->size()); i++ )
     {
-        if( (*array)[i]->isAnyString()) {
+        if (!(*array)[i]) {
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "element [i] is null, no element should be null", array, SkPdfNativeObject::_kAnyString_PdfObjectType || SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
+        } else if( (*array)[i]->isAnyString()) {
             SkPdfNativeObject* obj = (*array)[i];
             DrawText(pdfContext, obj, canvas);
         } else if ((*array)[i]->isNumber()) {
@@ -1716,13 +1769,15 @@ static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
                           SkDoubleToScalar(1));
 
             pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
+        } else {
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "wrong type", (*array)[i], SkPdfNativeObject::kArray_PdfObjectType || SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
         }
     }
     return kPartial_SkPdfResult;  // TODO(edisonn): Implement fully DrawText before returing OK.
 }
 
 static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("CS/cs", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
 
@@ -1742,6 +1797,7 @@ static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdf
         } else if (colorSpace->isArray()) {
             int cnt = colorSpace->size();
             if (cnt == 0) {
+                SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "color space has length 0", colorSpace, pdfContext);
                 return kIgnoreError_SkPdfResult;
             }
             SkPdfNativeObject* type = colorSpace->objAtAIndex(0);
@@ -1749,6 +1805,7 @@ static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdf
 
             if (type->isName("ICCBased")) {
                 if (cnt != 2) {
+                    SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "ICCBased color space must have an array with 2 elements", colorSpace, pdfContext);
                     return kIgnoreError_SkPdfResult;
                 }
                 SkPdfNativeObject* prop = colorSpace->objAtAIndex(1);
@@ -1792,7 +1849,7 @@ static SkPdfResult PdfOp_SC_sc(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdf
     printf("color space = %s, N = %i\n", colorOperator->fColorSpace.fBuffer, n);
 #endif
 
-    EXPECT_OPERANDS(pdfContext, n);
+    EXPECT_OPERANDS("SC/sc", pdfContext, n);
 
     for (int i = n - 1; i >= 0 ; i--) {
         if (doubles) {
@@ -1852,7 +1909,7 @@ static SkPdfResult PdfOp_scn(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 }
 
 static SkPdfResult PdfOp_G_g(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("G/g", pdfContext, 1);
     POP_NUMBER(pdfContext, gray);
     CHECK_PARAMETERS();
 
@@ -1871,7 +1928,7 @@ static SkPdfResult PdfOp_g(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 static SkPdfResult PdfOp_RG_rg(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
-    EXPECT_OPERANDS(pdfContext, 3);
+    EXPECT_OPERANDS("RG/rg", pdfContext, 3);
     POP_NUMBER(pdfContext, b);
     POP_NUMBER(pdfContext, g);
     POP_NUMBER(pdfContext, r);
@@ -1892,7 +1949,7 @@ static SkPdfResult PdfOp_rg(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 static SkPdfResult PdfOp_K_k(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfColorOperator* colorOperator) {
     // TODO(edisonn): spec has some rules about overprint, implement them.
-    EXPECT_OPERANDS(pdfContext, 4);
+    EXPECT_OPERANDS("K/k", pdfContext, 4);
     POP_NUMBER(pdfContext, k);
     POP_NUMBER(pdfContext, y);
     POP_NUMBER(pdfContext, m);
@@ -1939,10 +1996,8 @@ static SkPdfResult PdfOp_BX(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_EX(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-#ifdef ASSERT_BAD_PDF_OPS
-    SkASSERT(false);  // EX must be consumed by PdfCompatibilitySectionLooper, but let's
-                      // have the assert when testing good pdfs.
-#endif
+    SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue, "EX operator should not be called, it is habdled in a looper, unless the file is corrupted, we should assert", NULL, pdfContext);
+
     return kIgnoreError_SkPdfResult;
 }
 
@@ -1952,21 +2007,14 @@ static SkPdfResult PdfOp_BI(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_ID(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-#ifdef ASSERT_BAD_PDF_OPS
-    SkASSERT(false);  // must be processed in inline image looper, but let's
-                      // have the assert when testing good pdfs.
-#endif
+    SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue, "ID operator should not be called, it is habdled in a looper, unless the file is corrupted, we should assert", NULL, pdfContext);
     return kIgnoreError_SkPdfResult;
 }
 
 static SkPdfResult PdfOp_EI(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-#ifdef ASSERT_BAD_PDF_OPS
-    SkASSERT(false);  // must be processed in inline image looper, but let's
-                      // have the assert when testing good pdfs.
-#endif
+    SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue, "EI operator should not be called, it is habdled in a looper, unless the file is corrupted, we should assert", NULL, pdfContext);
     return kIgnoreError_SkPdfResult;
 }
-
 
 // TODO(edisonn): security review here, make sure all parameters are valid, and safe.
 static SkPdfResult skpdfGraphicsStateApply_ca(SkPdfContext* pdfContext, double ca) {
@@ -2010,15 +2058,25 @@ static SkPdfResult skpdfGraphicsStateApplyML(SkPdfContext* pdfContext, double mi
  */
 
 static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* intervals, SkPdfNativeObject* phase) {
+    if (intervals == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, intervals, SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
+        return kIgnoreError_SkPdfResult;
+    }
+
+    if (phase == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, phase, SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
+        return kIgnoreError_SkPdfResult;
+    }
+
     int cnt = intervals->size();
     if (cnt >= 256) {
-        // TODO(edisonn): report error/warning, unsuported;
         // TODO(edisonn): alloc memory
+        SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "dash array size unssuported, cnt > 256", intervals, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
     for (int i = 0; i < cnt; i++) {
-        if (!intervals->objAtAIndex(i)->isNumber()) {
-            // TODO(edisonn): report error/warning
+        if (!intervals->objAtAIndex(i) || !intervals->objAtAIndex(i)->isNumber()) {
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, intervals->objAtAIndex(i), SkPdfNativeObject::_kNumber_PdfObjectType, NULL);
             return kIgnoreError_SkPdfResult;
         }
     }
@@ -2048,26 +2106,58 @@ static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray
 }
 
 static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray* dash) {
-    // TODO(edisonn): verify input
-    if (!dash || dash->isArray() || dash->size() != 2 || !dash->objAtAIndex(0)->isArray() || !dash->objAtAIndex(1)->isNumber()) {
-        // TODO(edisonn): report error/warning
+    if (!dash || dash->isArray()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, dash, SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
+
+    if (dash->size() != 2) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "hash array must have 2 elements", dash, pdfContext);
+        return kIgnoreError_SkPdfResult;
+    }
+
+    if (!dash->objAtAIndex(0) || !dash->objAtAIndex(0)->isArray()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, dash->objAtAIndex(0), SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
+        return kIgnoreError_SkPdfResult;
+    }
+
+    if (!dash->objAtAIndex(1) || !dash->objAtAIndex(1)->isNumber()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, dash->objAtAIndex(1), SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
+        return kIgnoreError_SkPdfResult;
+    }
+
     return skpdfGraphicsStateApplyD(pdfContext, (SkPdfArray*)dash->objAtAIndex(0), dash->objAtAIndex(1));
 }
 
 static void skpdfGraphicsStateApplyFont(SkPdfContext* pdfContext, SkPdfArray* fontAndSize) {
-    if (!fontAndSize || fontAndSize->isArray() || fontAndSize->size() != 2 || !fontAndSize->objAtAIndex(0)->isName() || !fontAndSize->objAtAIndex(1)->isNumber()) {
-        // TODO(edisonn): report error/warning
+    if (!fontAndSize || !fontAndSize->isArray()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, fontAndSize, SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
         return;
     }
+
+    if (fontAndSize->size() != 2) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "font array must have 2 elements", fontAndSize, pdfContext);
+        return;
+    }
+
+    if (!fontAndSize->objAtAIndex(0) || !fontAndSize->objAtAIndex(0)->isName()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, fontAndSize->objAtAIndex(0), SkPdfNativeObject::kName_PdfObjectType, pdfContext);
+        return;
+    }
+
+
+    if (!fontAndSize->objAtAIndex(1) || !fontAndSize->objAtAIndex(1)->isNumber()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, fontAndSize->objAtAIndex(0), SkPdfNativeObject::_kNumber_PdfObjectType, pdfContext);
+        return;
+    }
+
     skpdfGraphicsStateApplyFontCore(pdfContext, fontAndSize->objAtAIndex(0), fontAndSize->objAtAIndex(1)->numberValue());
 }
 
 
 //lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
 static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("w", pdfContext, 1);
     POP_NUMBER(pdfContext, lw);
     CHECK_PARAMETERS();
 
@@ -2077,7 +2167,7 @@ static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
 static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("J", pdfContext, 1);
     POP_NUMBER(pdfContext, lc);
     CHECK_PARAMETERS();
 
@@ -2087,7 +2177,7 @@ static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
 static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("j", pdfContext, 1);
     POP_NUMBER(pdfContext, lj);
     CHECK_PARAMETERS();
 
@@ -2096,7 +2186,7 @@ static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 
 //miterLimit M Set the miter limit in the graphics state (see “Miter Limit” on page 153).
 static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("M", pdfContext, 1);
     POP_NUMBER(pdfContext, ml);
     CHECK_PARAMETERS();
     return skpdfGraphicsStateApplyML(pdfContext, ml);
@@ -2105,7 +2195,7 @@ static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 //dashArray dashPhase d Set the line dash pattern in the graphics state (see “Line Dash Pattern” on
 //page 155).
 static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("d", pdfContext, 2);
     POP_OBJ(pdfContext, phase);
     POP_ARRAY(pdfContext, array);
     CHECK_PARAMETERS();
@@ -2117,6 +2207,8 @@ static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
     pdfContext->fObjectStack.pop();
 
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "render intent NYI", NULL, pdfContext);
+
     return kNYI_SkPdfResult;
 }
 
@@ -2124,12 +2216,13 @@ static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //Tolerance”). ﬂatness is a number in the range 0 to 100; a value of 0 speci-
 //ﬁes the output device’s default ﬂatness tolerance.
 static SkPdfResult PdfOp_i(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("i", pdfContext, 1);
     POP_NUMBER(pdfContext, flatness);
     CHECK_PARAMETERS();
 
     if (flatness < 0 || flatness > 100) {
-        return kError_SkPdfResult;
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "flatness must be a real in [0, 100] range", flatness_obj, pdfContext);
+        return kIgnoreError_SkPdfResult;
     }
 
     return kNYI_SkPdfResult;
@@ -2180,26 +2273,32 @@ static void skpdfGraphicsStateApplyBM_name(SkPdfContext* pdfContext, const SkStr
         pdfContext->fGraphicsState.fBlendModesLength = 1;
         pdfContext->fGraphicsState.fBlendModes[0] = mode;
     } else {
-        // TODO(edisonn): report unknown blend mode
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kUnknownBlendMode_SkPdfIssue, blendMode.c_str(), NULL, pdfContext);
     }
 }
 
 static void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray* blendModes) {
-    if (!blendModes || blendModes->isArray() || blendModes->size() == 0 || blendModes->size() > 256) {
-        // TODO(edisonn): report error/warning
+    if (!blendModes || !blendModes->isArray()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, blendModes, SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
         return;
     }
+
+    if (blendModes->size() == 0 || blendModes->size() > 256) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue, "length of blendmodes, 0, is an erro, 256+, is NYI", blendModes, pdfContext);
+        return;
+    }
+
     SkXfermode::Mode modes[256];
     int cnt = blendModes->size();
     for (int i = 0; i < cnt; i++) {
         SkPdfNativeObject* name = blendModes->objAtAIndex(i);
-        if (!name->isName()) {
-            // TODO(edisonn): report error/warning
+        if (!name || !name->isName()) {
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, name, SkPdfNativeObject::kName_PdfObjectType, pdfContext);
             return;
         }
         SkXfermode::Mode mode = xferModeFromBlendMode(name->c_str(), name->lenstr());
         if (mode > SkXfermode::kLastMode) {
-            // TODO(edisonn): report error/warning
+            SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kUnknownBlendMode_SkPdfIssue, NULL, name, pdfContext);
             return;
         }
     }
@@ -2211,14 +2310,19 @@ static void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray
 }
 
 static void skpdfGraphicsStateApplySMask_dict(SkPdfContext* pdfContext, SkPdfDictionary* sMask) {
-    // TODO(edisonn): verify input
+    if (!sMask || !sMask->isName()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, sMask, SkPdfNativeObject::kArray_PdfObjectType, pdfContext);
+        return;
+    }
+
     if (pdfContext->fPdfDoc->mapper()->mapSoftMaskDictionary(sMask)) {
         pdfContext->fGraphicsState.fSoftMaskDictionary = (SkPdfSoftMaskDictionary*)sMask;
     } else if (pdfContext->fPdfDoc->mapper()->mapSoftMaskImageDictionary(sMask)) {
         SkPdfSoftMaskImageDictionary* smid = (SkPdfSoftMaskImageDictionary*)sMask;
         pdfContext->fGraphicsState.fSMask = getImageFromObject(pdfContext, smid, true);
     } else {
-        // TODO (edisonn): report error/warning
+        // TODO(edisonn): make the dictionary types an enum?
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "Dictionary must be SoftMask, or SoftMaskImage", sMask, SkPdfNativeObject::kDictionary_PdfObjectType, pdfContext);
     }
 }
 
@@ -2233,16 +2337,13 @@ static void skpdfGraphicsStateApplySMask_name(SkPdfContext* pdfContext, const Sk
     SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->ExtGState(pdfContext->fPdfDoc);
 
     if (extGStateDictionary == NULL) {
-#ifdef PDF_TRACE
-        printf("ExtGState is NULL!\n");
-#endif
-        // TODO (edisonn): report error/warning
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingExtGState_SkPdfIssue, NULL, pdfContext->fGraphicsState.fResources, pdfContext);
         return;
     }
 
     SkPdfNativeObject* obj = pdfContext->fPdfDoc->resolveReference(extGStateDictionary->get(sMask.c_str()));
     if (!obj || !obj->isDictionary()) {
-        // TODO (edisonn): report error/warning
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, obj, SkPdfNativeObject::kDictionary_PdfObjectType, pdfContext);
         return;
     }
 
@@ -2260,7 +2361,7 @@ static void skpdfGraphicsStateApplyAIS(SkPdfContext* pdfContext, bool alphaSourc
 //dictName gs (PDF 1.2) Set the speciﬁed parameters in the graphics state. dictName is
 //the name of a graphics state parameter dictionary in the ExtGState subdictionary of the current resource dictionary (see the next section).
 static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("gs", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
 
@@ -2272,9 +2373,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     SkPdfDictionary* extGStateDictionary = pdfContext->fGraphicsState.fResources->ExtGState(pdfContext->fPdfDoc);
 
     if (extGStateDictionary == NULL) {
-#ifdef PDF_TRACE
-        printf("ExtGState is NULL!\n");
-#endif
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingExtGState_SkPdfIssue, NULL, pdfContext->fGraphicsState.fResources, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -2287,6 +2386,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
     // TODO(edisonn): now load all those properties in graphic state.
     if (gs == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, gs, SkPdfNativeObject::kDictionary_PdfObjectType, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
@@ -2320,7 +2420,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
         } else if (gs->isBMAArray(pdfContext->fPdfDoc)) {
             skpdfGraphicsStateApplyBM_array(pdfContext, gs->getBMAsArray(pdfContext->fPdfDoc));
         } else {
-            // TODO(edisonn): report/warn
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "wrong type", gs->get("BM"), SkPdfNativeObject::kArray_PdfObjectType || SkPdfNativeObject::kName_PdfObjectType, pdfContext);
         }
     }
 
@@ -2330,7 +2430,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
         } else if (gs->isSMaskADictionary(pdfContext->fPdfDoc)) {
             skpdfGraphicsStateApplySMask_dict(pdfContext, gs->getSMaskAsDictionary(pdfContext->fPdfDoc));
         } else {
-            // TODO(edisonn): report/warn
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "wrong type", gs->get("BM"), SkPdfNativeObject::kDictionary_PdfObjectType || SkPdfNativeObject::kName_PdfObjectType, pdfContext);
         }
     }
 
@@ -2353,7 +2453,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //, to charSpace, which is a number expressed in unscaled text space units. Character spacing is used by the Tj, TJ, and ' operators.
 //Initial value: 0.
 SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tc", pdfContext, 1);
     POP_NUMBER(pdfContext, charSpace);
     CHECK_PARAMETERS();
 
@@ -2368,7 +2468,7 @@ SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //text space units. Word spacing is used by the Tj, TJ, and ' operators. Initial
 //value: 0.
 SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tw", pdfContext, 1);
     POP_NUMBER(pdfContext, wordSpace);
     CHECK_PARAMETERS();
 
@@ -2381,11 +2481,12 @@ SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //, to (scale ˜ 100). scale is a number specifying the
 //percentage of the normal width. Initial value: 100 (normal width).
 static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tz", pdfContext, 1);
     POP_NUMBER(pdfContext, scale);
     CHECK_PARAMETERS();
 
     if (scale < 0) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "scale must a positive real number", scale_obj, pdfContext);
         return kError_SkPdfResult;
     }
 
@@ -2395,11 +2496,12 @@ static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //render Tr Set the text rendering mode, T
 //mode, to render, which is an integer. Initial value: 0.
 static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Tr", pdfContext, 1);
     POP_INTEGER(pdfContext, mode);
     CHECK_PARAMETERS();
 
     if (mode < 0) {  // TODO(edisonn): function/enums with supported modes
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "mode must a positive integer or 0", mode_obj, pdfContext);
         return kError_SkPdfResult;
     }
 
@@ -2408,11 +2510,12 @@ static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //rise Ts Set the text rise, Trise, to rise, which is a number expressed in unscaled text space
 //units. Initial value: 0.
 static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Ts", pdfContext, 1);
     POP_NUMBER(pdfContext, rise);
     CHECK_PARAMETERS();
 
     if (rise < 0) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "rise must a positive real number", rise_obj, pdfContext);
         return kNYI_SkPdfResult;
     }
 
@@ -2421,12 +2524,18 @@ static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //wx wy d0
 static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("d0", pdfContext, 2);
     POP_NUMBER(pdfContext, wy);
     POP_NUMBER(pdfContext, wx);
     CHECK_PARAMETERS();
 
-    if (wx < 0 || wy < 0) {
+    if (wx < 0) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "wx must a positive real number", wx_obj, pdfContext);
+        return kError_SkPdfResult;
+    }
+
+    if (wy < 0) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kOutOfRange_SkPdfIssue, "wy must a positive real number", wy_obj, pdfContext);
         return kError_SkPdfResult;
     }
 
@@ -2435,7 +2544,7 @@ static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //wx wy llx lly urx ury d1
 static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 6);
+    EXPECT_OPERANDS("d1", pdfContext, 6);
     POP_NUMBER(pdfContext, ury);
     POP_NUMBER(pdfContext, urx);
     POP_NUMBER(pdfContext, lly);
@@ -2444,6 +2553,7 @@ static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     POP_NUMBER(pdfContext, wx);
     CHECK_PARAMETERS();
 
+    // TODO(edisonn): silly way to remove warning
     if (wx + wy + llx + lly + urx + ury) {
         return kNYI_SkPdfResult;
     }
@@ -2453,11 +2563,12 @@ static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //name sh
 static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("sh", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
 
     if (name == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, name, SkPdfNativeObject::kName_PdfObjectType, pdfContext);
         return kError_SkPdfResult;
     }
 
@@ -2466,26 +2577,19 @@ static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //name Do
 static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("Do", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
 
     SkPdfDictionary* xObject =  pdfContext->fGraphicsState.fResources->XObject(pdfContext->fPdfDoc);
 
     if (xObject == NULL) {
-#ifdef PDF_TRACE
-        printf("XObject is NULL!\n");
-#endif
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingXObject_SkPdfIssue, NULL, pdfContext->fGraphicsState.fResources, pdfContext);
         return kIgnoreError_SkPdfResult;
     }
 
     SkPdfNativeObject* value = xObject->get(name);
     value = pdfContext->fPdfDoc->resolveReference(value);
-
-#ifdef PDF_TRACE
-//    value->ToString(str);
-//    printf("Do object value: %s\n", str);
-#endif
 
     return doXObject(pdfContext, canvas, value);
 }
@@ -2493,14 +2597,16 @@ static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //tag MP Designate a marked-content point. tag is a name object indicating the role or
 //signiﬁcance of the point.
 static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("MP", pdfContext, 1);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
 
     if (tag == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, tag, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
         return kNYI_SkPdfResult;
     }
 
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "MP NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
 
@@ -2510,29 +2616,38 @@ static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //associated with it in the Properties subdictionary of the current resource
 //dictionary (see Section 9.5.1, “Property Lists”).
 static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("DP", pdfContext, 2);
     POP_OBJ(pdfContext, properties);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
 
-    if (tag == NULL || properties == NULL) {
+    if (tag == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, tag, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
         return kNYI_SkPdfResult;
     }
 
+    if (properties == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, properties, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
+        return kNYI_SkPdfResult;
+    }
+
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "DP NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
 
 //tag BMC Begin a marked-content sequence terminated by a balancing EMC operator.
 //tag is a name object indicating the role or signiﬁcance of the sequence.
 static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 1);
+    EXPECT_OPERANDS("BMC", pdfContext, 1);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
 
     if (tag == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, tag, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
         return kNYI_SkPdfResult;
     }
 
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "BMC NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
 
@@ -2540,20 +2655,28 @@ static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 //by a balancing EMCoperator. tag is a name object indicating the role or significance of the sequence; propertiesis either an inline dictionary containing the
 //property list or a name object associated with it in the Properties subdictionary of the current resource dictionary (see Section 9.5.1, “Property Lists”).
 static SkPdfResult PdfOp_BDC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
-    EXPECT_OPERANDS(pdfContext, 2);
+    EXPECT_OPERANDS("BDC", pdfContext, 2);
     POP_OBJ(pdfContext, properties);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
 
-    if (tag == NULL || properties == NULL) {
+    if (tag == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, tag, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
         return kNYI_SkPdfResult;
     }
 
+    if (properties == NULL) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, NULL, properties, SkPdfNativeObject::_kObject_PdfObjectType, pdfContext);
+        return kNYI_SkPdfResult;
+    }
+
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "BDC NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
 
 //— EMC End a marked-content sequence begun by a BMC or BDC operator.
 static SkPdfResult PdfOp_EMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "EMC NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
 
@@ -2705,7 +2828,8 @@ SkPdfResult PdfMainLooper::consumeToken(PdfToken& token) {
         fPdfContext->fObjectStack.push( token.fObject );
     }
     else {
-        // TODO(edisonn): deine or use assert not reached
+        // TODO(edisonn): store the keyword as a object, so we can track the location in file, and report it
+        SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, token.fKeyword, NULL, fPdfContext);
         return kIgnoreError_SkPdfResult;
     }
     return kOK_SkPdfResult;

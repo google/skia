@@ -8,8 +8,12 @@
 #ifndef SkPdfConfig_DEFINED
 #define SkPdfConfig_DEFINED
 
+#include "stddef.h"
+class SkPdfNativeObject;
+
 //#define PDF_TRACK_OBJECT_USAGE
 //#define PDF_TRACK_STREAM_OFFSETS
+//#define PDF_REPORT
 //#define PDF_TRACE
 //#define PDF_TRACE_READ_TOKEN
 //#define PDF_TRACE_DRAWTEXT
@@ -72,6 +76,35 @@
 #define STORE_TRACK_PARAMETERS(obj)
 #define STORE_TRACK_PARAMETER_OFFSET_END(obj,offsetEnd)
 #endif   //PDF_TRACK_STREAM_OFFSETS
+
+// TODO(edisonn): move it somewhere else?
+struct SkPdfInputStream {
+#ifdef PDF_TRACK_STREAM_OFFSETS
+    // no parent object -> original file to be rendered
+    // no parent file -> stream object
+    // both -> external stream object
+    int fParentFileID;
+    const SkPdfNativeObject* fParentObject;
+
+    size_t fDelta;  // delta in parent stream
+    const unsigned char* fStart;
+#endif  //  PDF_TRACK_STREAM_OFFSETS
+
+    const unsigned char* fEnd;
+};
+
+struct SkPdfInputStreamLocation {
+    SkPdfInputStream fInputStream;
+    const unsigned char* fNow;
+};
+
+#ifdef PDF_TRACK_STREAM_OFFSETS
+struct SkPdfInputStreamRange {
+    SkPdfInputStream fInputStream;
+    const unsigned char* fRangeStart;
+    const unsigned char* fRangeEnd;
+};
+#endif  //  PDF_TRACK_STREAM_OFFSETS
 
 
 #endif  // SkPdfConfig_DEFINED

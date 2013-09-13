@@ -18,11 +18,13 @@
 #include "SkBitmap.h"
 #include "SkPdfFont.h"
 
+#include "SkPdfReporter.h"
+
 SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull(PUT_TRACK_PARAMETERS_SRC0);
 
 bool SkPdfNativeObject::applyFlateDecodeFilter() {
     if (!SkFlate::HaveFlate()) {
-        // TODO(edisonn): warn, make callers handle it
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNoFlateLibrary_SkPdfIssue, "forgot to link with flate library?", NULL, NULL);
         return false;
     }
 
@@ -43,7 +45,7 @@ bool SkPdfNativeObject::applyFlateDecodeFilter() {
 
         return true;
     } else {
-        // TODO(edisonn): warn, make callers handle it
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kBadStream_SkPdfIssue, "inflate failed", this, NULL);
         return false;
     }
 }
@@ -61,7 +63,7 @@ bool SkPdfNativeObject::applyFilter(const char* name) {
     } else if (strcmp(name, "DCTDecode") == 0) {
         return applyDCTDecodeFilter();
     }
-    // TODO(edisonn): allert, not supported, but should be implemented asap
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "filter not supported", this, NULL);
     return false;
 }
 
@@ -69,6 +71,7 @@ bool SkPdfNativeObject::filterStream() {
     SkPdfMarkObjectUsed();
 
     if (!hasStream()) {
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kBadStream_SkPdfIssue, "No Stream", this, NULL);
         return false;
     }
 
@@ -93,7 +96,7 @@ bool SkPdfNativeObject::filterStream() {
                     break;
                 }
             } else {
-                // TODO(edisonn): report warning
+                SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncositentSyntax_SkPdfIssue, "filter name should be a Name", this, NULL);
             }
         }
     }
@@ -102,7 +105,9 @@ bool SkPdfNativeObject::filterStream() {
 }
 
 void SkPdfNativeObject::releaseData() {
-    // TODO(edisonn): report here unused objects
+#ifdef PDF_TRACK_OBJECT_USAGE
+    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, NULL, this, "Unused object in rendering");
+#endif  // PDF_TRACK_OBJECT_USAGE
 
     SkPdfMarkObjectUnused();
 

@@ -12,6 +12,7 @@
         '../experimental/PdfViewer/SkPdfGraphicsState.cpp',
         '../experimental/PdfViewer/SkPdfFont.cpp',
         '../experimental/PdfViewer/SkPdfRenderer.cpp',
+        '../experimental/PdfViewer/SkPdfReporter.cpp',
         '../experimental/PdfViewer/SkPdfUtils.cpp',
         #'../experimental/PdfViewer/SkPdfNYI.cpp',
         '../experimental/PdfViewer/SkTrackDevice.cpp',

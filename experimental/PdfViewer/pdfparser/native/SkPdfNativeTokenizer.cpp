@@ -811,11 +811,15 @@ const unsigned char* nextObject(int level, const unsigned char* start, const uns
     // skip white spaces
     start = skipPdfWhiteSpaces(level, start, end);
 
+    if (start >= end) {
+        return end;
+    }
+
     current = endOfPdfToken(level, start, end);
 
     // no token, len would be 0
-    if (current == start) {
-        return NULL;
+    if (current == start || current == end) {
+        return end;
     }
 
     int tokenLen = current - start;
