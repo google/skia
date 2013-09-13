@@ -296,7 +296,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         const char* name = SkFlattenable::FactoryToName(factory);
         this->writeString(name);
         if (NULL == name) {
-            SkASSERT(!"Missing factory name");
+            SkASSERT(0); // Missing factory name
             return;
         }
     } else if (fFactorySet) {
