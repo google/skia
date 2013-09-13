@@ -24,9 +24,8 @@ class AAClipBench : public SkBenchmark {
     bool     fDoAA;
 
 public:
-    AAClipBench(void* param, bool doPath, bool doAA)
-        : INHERITED(param)
-        , fDoPath(doPath)
+    AAClipBench(bool doPath, bool doAA)
+        : fDoPath(doPath)
         , fDoAA(doAA) {
 
         fName.printf("aaclip_%s_%s",
@@ -98,10 +97,7 @@ class NestedAAClipBench : public SkBenchmark {
     SkPoint fSizes[kNestingDepth+1];
 
 public:
-    NestedAAClipBench(void* param, bool doAA)
-        : INHERITED(param)
-        , fDoAA(doAA) {
-
+    NestedAAClipBench(bool doAA) : fDoAA(doAA) {
         fName.printf("nested_aaclip_%s", doAA ? "AA" : "BW");
 
         fDrawRect = SkRect::MakeLTRB(0, 0,
@@ -184,7 +180,7 @@ class AAClipBuilderBench : public SkBenchmark {
     bool     fDoAA;
 
 public:
-    AAClipBuilderBench(void* param, bool doPath, bool doAA) : INHERITED(param) {
+    AAClipBuilderBench(bool doPath, bool doAA)  {
         fDoPath = doPath;
         fDoAA = doAA;
 
@@ -219,7 +215,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 class AAClipRegionBench : public SkBenchmark {
 public:
-    AAClipRegionBench(void* param) : INHERITED(param) {
+    AAClipRegionBench()  {
         SkPath path;
         // test conversion of a complex clip to a aaclip
         path.addCircle(0, 0, SkIntToScalar(200));
@@ -248,31 +244,15 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return SkNEW_ARGS(AAClipBuilderBench, (p, false, false)); }
-static SkBenchmark* Fact1(void* p) { return SkNEW_ARGS(AAClipBuilderBench, (p, false, true)); }
-static SkBenchmark* Fact2(void* p) { return SkNEW_ARGS(AAClipBuilderBench, (p, true, false)); }
-static SkBenchmark* Fact3(void* p) { return SkNEW_ARGS(AAClipBuilderBench, (p, true, true)); }
+DEF_BENCH( return SkNEW_ARGS(AAClipBuilderBench, (false, false)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBuilderBench, (false, true)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBuilderBench, (true, false)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBuilderBench, (true, true)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipRegionBench, ()); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBench, (false, false)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBench, (false, true)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBench, (true, false)); )
+DEF_BENCH( return SkNEW_ARGS(AAClipBench, (true, true)); )
+DEF_BENCH( return SkNEW_ARGS(NestedAAClipBench, (false)); )
+DEF_BENCH( return SkNEW_ARGS(NestedAAClipBench, (true)); )
 
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg3(Fact3);
-
-static SkBenchmark* Fact01(void* p) { return SkNEW_ARGS(AAClipRegionBench, (p)); }
-static BenchRegistry gReg01(Fact01);
-
-static SkBenchmark* Fact000(void* p) { return SkNEW_ARGS(AAClipBench, (p, false, false)); }
-static SkBenchmark* Fact001(void* p) { return SkNEW_ARGS(AAClipBench, (p, false, true)); }
-static SkBenchmark* Fact002(void* p) { return SkNEW_ARGS(AAClipBench, (p, true, false)); }
-static SkBenchmark* Fact003(void* p) { return SkNEW_ARGS(AAClipBench, (p, true, true)); }
-
-static BenchRegistry gReg000(Fact000);
-static BenchRegistry gReg001(Fact001);
-static BenchRegistry gReg002(Fact002);
-static BenchRegistry gReg003(Fact003);
-
-static SkBenchmark* Fact004(void* p) { return SkNEW_ARGS(NestedAAClipBench, (p, false)); }
-static SkBenchmark* Fact005(void* p) { return SkNEW_ARGS(NestedAAClipBench, (p, true)); }
-
-static BenchRegistry gReg004(Fact004);
-static BenchRegistry gReg005(Fact005);

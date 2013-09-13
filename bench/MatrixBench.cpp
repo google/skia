@@ -14,7 +14,7 @@
 class MatrixBench : public SkBenchmark {
     SkString    fName;
 public:
-    MatrixBench(void* param, const char name[]) : INHERITED(param) {
+    MatrixBench(const char name[])  {
         fName.printf("matrix_%s", name);
         fIsRendering = false;
     }
@@ -52,7 +52,7 @@ int gMatrixBench_NonStaticGlobal;
 
 class EqualsMatrixBench : public MatrixBench {
 public:
-    EqualsMatrixBench(void* param) : INHERITED(param, "equals") {}
+    EqualsMatrixBench() : INHERITED("equals") {}
 protected:
     virtual void performTest() {
         SkMatrix m0, m1, m2;
@@ -70,7 +70,7 @@ private:
 
 class ScaleMatrixBench : public MatrixBench {
 public:
-    ScaleMatrixBench(void* param) : INHERITED(param, "scale") {
+    ScaleMatrixBench() : INHERITED("scale") {
         fSX = fSY = SkFloatToScalar(1.5f);
         fM0.reset();
         fM1.setScale(fSX, fSY);
@@ -103,7 +103,7 @@ template <typename T> void init9(T array[9]) {
 // using floating point precision only.
 class FloatConcatMatrixBench : public MatrixBench {
 public:
-    FloatConcatMatrixBench(void* p) : INHERITED(p, "concat_floatfloat") {
+    FloatConcatMatrixBench() : INHERITED("concat_floatfloat") {
         init9(mya);
         init9(myb);
         init9(myr);
@@ -146,7 +146,7 @@ static inline float SkDoubleToFloat(double x) {
 // intermediate results during computations.
 class FloatDoubleConcatMatrixBench : public MatrixBench {
 public:
-    FloatDoubleConcatMatrixBench(void* p) : INHERITED(p, "concat_floatdouble") {
+    FloatDoubleConcatMatrixBench() : INHERITED("concat_floatdouble") {
         init9(mya);
         init9(myb);
         init9(myr);
@@ -184,7 +184,7 @@ private:
 // using double precision only.
 class DoubleConcatMatrixBench : public MatrixBench {
 public:
-    DoubleConcatMatrixBench(void* p) : INHERITED(p, "concat_double") {
+    DoubleConcatMatrixBench() : INHERITED("concat_double") {
         init9(mya);
         init9(myb);
         init9(myr);
@@ -220,8 +220,8 @@ private:
 
 class GetTypeMatrixBench : public MatrixBench {
 public:
-    GetTypeMatrixBench(void* param)
-        : INHERITED(param, "gettype") {
+    GetTypeMatrixBench()
+        : INHERITED("gettype") {
         fArray[0] = (float) fRnd.nextS();
         fArray[1] = (float) fRnd.nextS();
         fArray[2] = (float) fRnd.nextS();
@@ -265,7 +265,7 @@ private:
 
 class ScaleTransMixedMatrixBench : public MatrixBench {
  public:
-    ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed") {
+    ScaleTransMixedMatrixBench() : INHERITED("scaletrans_mixed") {
         fMatrix.setAll(fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
                        fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
                        fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1());
@@ -306,7 +306,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
 
 class ScaleTransDoubleMatrixBench : public MatrixBench {
  public:
-    ScaleTransDoubleMatrixBench(void* p) : INHERITED(p, "scaletrans_double") {
+    ScaleTransDoubleMatrixBench() : INHERITED("scaletrans_double") {
         init9(fMatrix);
         int i;
         for (i = 0; i < kCount; i++) {
@@ -346,7 +346,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
 
 class DecomposeMatrixBench : public MatrixBench {
 public:
-    DecomposeMatrixBench(void* param) : INHERITED(param, "decompose") {}
+    DecomposeMatrixBench() : INHERITED("decompose") {}
 
 protected:
     virtual void onPreDraw() {
@@ -374,8 +374,8 @@ private:
 
 class InvertMapRectMatrixBench : public MatrixBench {
 public:
-    InvertMapRectMatrixBench(void* param, const char* name, int flags)
-        : INHERITED(param, name)
+    InvertMapRectMatrixBench(const char* name, int flags)
+        : INHERITED(name)
         , fFlags(flags) {
         fMatrix.reset();
         fIteration = 0;
@@ -429,47 +429,47 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new EqualsMatrixBench(p); )
-DEF_BENCH( return new ScaleMatrixBench(p); )
-DEF_BENCH( return new FloatConcatMatrixBench(p); )
-DEF_BENCH( return new FloatDoubleConcatMatrixBench(p); )
-DEF_BENCH( return new DoubleConcatMatrixBench(p); )
-DEF_BENCH( return new GetTypeMatrixBench(p); )
-DEF_BENCH( return new DecomposeMatrixBench(p); )
+DEF_BENCH( return new EqualsMatrixBench(); )
+DEF_BENCH( return new ScaleMatrixBench(); )
+DEF_BENCH( return new FloatConcatMatrixBench(); )
+DEF_BENCH( return new FloatDoubleConcatMatrixBench(); )
+DEF_BENCH( return new DoubleConcatMatrixBench(); )
+DEF_BENCH( return new GetTypeMatrixBench(); )
+DEF_BENCH( return new DecomposeMatrixBench(); )
 
-DEF_BENCH( return new InvertMapRectMatrixBench(p, "invert_maprect_identity", 0); )
+DEF_BENCH( return new InvertMapRectMatrixBench("invert_maprect_identity", 0); )
 
-DEF_BENCH(return new InvertMapRectMatrixBench(p,
+DEF_BENCH(return new InvertMapRectMatrixBench(
                                   "invert_maprect_rectstaysrect",
                                   InvertMapRectMatrixBench::kScale_Flag |
                                   InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH(return new InvertMapRectMatrixBench(p,
+DEF_BENCH(return new InvertMapRectMatrixBench(
                                   "invert_maprect_translate",
                                   InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH(return new InvertMapRectMatrixBench(p,
+DEF_BENCH(return new InvertMapRectMatrixBench(
                                   "invert_maprect_nonpersp",
                                   InvertMapRectMatrixBench::kScale_Flag |
                                   InvertMapRectMatrixBench::kRotate_Flag |
                                   InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH( return new InvertMapRectMatrixBench(p,
+DEF_BENCH( return new InvertMapRectMatrixBench(
                                "invert_maprect_persp",
                                InvertMapRectMatrixBench::kPerspective_Flag); )
 
-DEF_BENCH( return new InvertMapRectMatrixBench(p,
+DEF_BENCH( return new InvertMapRectMatrixBench(
                            "invert_maprect_typemask_rectstaysrect",
                            InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
                            InvertMapRectMatrixBench::kScale_Flag |
                            InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH( return new InvertMapRectMatrixBench(p,
+DEF_BENCH( return new InvertMapRectMatrixBench(
                            "invert_maprect_typemask_nonpersp",
                            InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
                            InvertMapRectMatrixBench::kScale_Flag |
                            InvertMapRectMatrixBench::kRotate_Flag |
                            InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH( return new ScaleTransMixedMatrixBench(p); )
-DEF_BENCH( return new ScaleTransDoubleMatrixBench(p); )
+DEF_BENCH( return new ScaleTransMixedMatrixBench(); )
+DEF_BENCH( return new ScaleTransDoubleMatrixBench(); )

@@ -12,9 +12,7 @@
 
 class WriterBench : public SkBenchmark {
 public:
-    WriterBench(void* param) : INHERITED(param) {
-        fIsRendering = false;
-    }
+    WriterBench() { fIsRendering = false; }
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
@@ -38,5 +36,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* fact(void* p) { return new WriterBench(p); }
-static BenchRegistry gReg(fact);
+DEF_BENCH( return new WriterBench(); )

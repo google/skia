@@ -25,7 +25,7 @@ static int count_glyphs(const uint16_t start[]) {
 
 class FontCacheBench : public SkBenchmark {
 public:
-    FontCacheBench(void* param) : INHERITED(param) {}
+    FontCacheBench()  {}
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
@@ -109,7 +109,7 @@ static void dump_array(const uint16_t array[], int count) {
 
 class FontCacheEfficiency : public SkBenchmark {
 public:
-    FontCacheEfficiency(void* param) : INHERITED(param) {
+    FontCacheEfficiency()  {
         if (false) dump_array(NULL, 0);
         if (false) rotr(0, 0);
     }
@@ -152,7 +152,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new FontCacheBench(p); )
+DEF_BENCH( return new FontCacheBench(); )
 
 // undefine this to run the efficiency test
-//DEF_BENCH( return new FontCacheEfficiency(p); )
+//DEF_BENCH( return new FontCacheEfficiency(); )

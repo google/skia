@@ -18,7 +18,7 @@
 
 class PicturePlaybackBench : public SkBenchmark {
 public:
-    PicturePlaybackBench(void* param, const char name[]) : INHERITED(param) {
+    PicturePlaybackBench(const char name[])  {
         fName.printf("picture_playback_%s", name);
         fPictureWidth = SkIntToScalar(PICTURE_WIDTH);
         fPictureHeight = SkIntToScalar(PICTURE_HEIGHT);
@@ -69,7 +69,7 @@ private:
 
 class TextPlaybackBench : public PicturePlaybackBench {
 public:
-    TextPlaybackBench(void* param) : INHERITED(param, "drawText") { }
+    TextPlaybackBench() : INHERITED("drawText") { }
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
         SkPaint paint;
@@ -92,8 +92,8 @@ private:
 
 class PosTextPlaybackBench : public PicturePlaybackBench {
 public:
-    PosTextPlaybackBench(void* param, bool drawPosH)
-        : INHERITED(param, drawPosH ? "drawPosTextH" : "drawPosText")
+    PosTextPlaybackBench(bool drawPosH)
+        : INHERITED(drawPosH ? "drawPosTextH" : "drawPosText")
         , fDrawPosH(drawPosH) { }
 protected:
     virtual void recordCanvas(SkCanvas* canvas) {
@@ -136,10 +136,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new TextPlaybackBench(p); }
-static SkBenchmark* Fact1(void* p) { return new PosTextPlaybackBench(p, true); }
-static SkBenchmark* Fact2(void* p) { return new PosTextPlaybackBench(p, false); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
+DEF_BENCH( return new TextPlaybackBench(); )
+DEF_BENCH( return new PosTextPlaybackBench(true); )
+DEF_BENCH( return new PosTextPlaybackBench(false); )

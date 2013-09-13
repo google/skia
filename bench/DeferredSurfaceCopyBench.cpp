@@ -21,7 +21,7 @@ class DeferredSurfaceCopyBench : public SkBenchmark {
         kSurfaceHeight = 1000,
     };
 public:
-    DeferredSurfaceCopyBench(void* param, bool discardableContents) : SkBenchmark(param) {
+    DeferredSurfaceCopyBench(bool discardableContents) {
         fDiscardableContents = discardableContents;
     }
 
@@ -78,8 +78,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new DeferredSurfaceCopyBench(p, false); }
-static SkBenchmark* Fact1(void* p) { return new DeferredSurfaceCopyBench(p, true); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
+DEF_BENCH( return new DeferredSurfaceCopyBench(false); )
+DEF_BENCH( return new DeferredSurfaceCopyBench(true); )

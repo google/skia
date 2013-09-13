@@ -23,10 +23,9 @@ typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
 // Time how long it takes to build an R-Tree either bulk-loaded or not
 class BBoxBuildBench : public SkBenchmark {
 public:
-    BBoxBuildBench(void* param, const char* name, MakeRectProc proc, bool bulkLoad,
+    BBoxBuildBench(const char* name, MakeRectProc proc, bool bulkLoad,
                     SkBBoxHierarchy* tree)
-        : INHERITED(param)
-        , fTree(tree)
+        : fTree(tree)
         , fProc(proc)
         , fBulkLoad(bulkLoad) {
         fName.append("rtree_");
@@ -73,10 +72,9 @@ public:
         kFull_QueryType   // queries that cover everything
     };
 
-    BBoxQueryBench(void* param, const char* name, MakeRectProc proc, bool bulkLoad,
+    BBoxQueryBench(const char* name, MakeRectProc proc, bool bulkLoad,
                     QueryType q, SkBBoxHierarchy* tree)
-        : INHERITED(param)
-        , fTree(tree)
+        : fTree(tree)
         , fProc(proc)
         , fBulkLoad(bulkLoad)
         , fQuery(q) {
@@ -210,102 +208,82 @@ static inline SkIRect make_large_rects(SkRandom& rand, int index, int numRects) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline SkBenchmark* Fact0(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "XYordered", &make_XYordered_rects, false,
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects, false,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact1(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "XYordered", &make_XYordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects, true,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact2(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "(unsorted)XYordered", &make_XYordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
-}
-static inline SkBenchmark* Fact3(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "XYordered", &make_XYordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("XYordered", &make_XYordered_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact4(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "(unsorted)XYordered", &make_XYordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
-}
+)
 
-static inline SkBenchmark* Fact5(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "YXordered", &make_YXordered_rects, false,
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects, false,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact6(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "YXordered", &make_YXordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects, true,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact7(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "(unsorted)YXordered", &make_YXordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
-}
-static inline SkBenchmark* Fact8(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "YXordered", &make_YXordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("YXordered", &make_YXordered_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact9(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "(unsorted)YXordered", &make_YXordered_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
-}
+)
 
-static inline SkBenchmark* Fact10(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "random", &make_random_rects, false,
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects, false,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact11(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "random", &make_random_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects, true,
                       SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact12(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "(unsorted)random", &make_random_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)random", &make_random_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
-}
-static inline SkBenchmark* Fact13(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "random", &make_random_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("random", &make_random_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact14(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "(unsorted)random", &make_random_rects, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)random", &make_random_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
-}
+)
 
-static inline SkBenchmark* Fact15(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "concentric",
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("concentric",
                       &make_concentric_rects_increasing, true, SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact16(void* p) {
-    return SkNEW_ARGS(BBoxBuildBench, (p, "(unsorted)concentric",
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)concentric",
                       &make_concentric_rects_increasing, true, SkRTree::Create(5, 16, 1, false)));
-}
-static inline SkBenchmark* Fact17(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "concentric", &make_concentric_rects_increasing, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("concentric", &make_concentric_rects_increasing, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
-}
-static inline SkBenchmark* Fact18(void* p) {
-    return SkNEW_ARGS(BBoxQueryBench, (p, "(unsorted)concentric", &make_concentric_rects_increasing, true,
+)
+DEF_BENCH(
+    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)concentric", &make_concentric_rects_increasing, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
-}
-
-static BenchRegistry gReg18(Fact18);
-static BenchRegistry gReg17(Fact17);
-static BenchRegistry gReg16(Fact16);
-static BenchRegistry gReg15(Fact15);
-static BenchRegistry gReg14(Fact14);
-static BenchRegistry gReg13(Fact13);
-static BenchRegistry gReg12(Fact12);
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg10(Fact10);
-static BenchRegistry gReg9(Fact9);
-static BenchRegistry gReg8(Fact8);
-static BenchRegistry gReg7(Fact7);
-static BenchRegistry gReg6(Fact6);
-static BenchRegistry gReg5(Fact5);
-static BenchRegistry gReg4(Fact4);
-static BenchRegistry gReg3(Fact3);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg0(Fact0);
+)

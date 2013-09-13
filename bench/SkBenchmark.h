@@ -13,16 +13,16 @@
 #include "SkTRegistry.h"
 
 #define DEF_BENCH(code) \
-static SkBenchmark* SK_MACRO_APPEND_LINE(F_)(void* p) { code; } \
+static SkBenchmark* SK_MACRO_APPEND_LINE(F_)() { code; } \
 static BenchRegistry SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
 /*
  *  With the above macros, you can register benches as follows (at the bottom
  *  of your .cpp)
  *
- *  DEF_BENCH(new MyBenchmark(p, ...))
- *  DEF_BENCH(new MyBenchmark(p, ...))
- *  DEF_BENCH(new MyBenchmark(p, ...))
+ *  DEF_BENCH(return new MyBenchmark(...))
+ *  DEF_BENCH(return new MyBenchmark(...))
+ *  DEF_BENCH(return new MyBenchmark(...))
  */
 
 
@@ -43,7 +43,7 @@ class SkBenchmark : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkBenchmark)
 
-    SkBenchmark(void* defineDict);
+    SkBenchmark();
 
     const char* getName();
     SkIPoint getSize();
@@ -129,6 +129,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef SkTRegistry<SkBenchmark*(*)(void*)> BenchRegistry;
+typedef SkTRegistry<SkBenchmark*(*)()> BenchRegistry;
 
 #endif

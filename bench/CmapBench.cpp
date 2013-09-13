@@ -69,7 +69,7 @@ class CMAPBench : public SkBenchmark {
     SkPaint      fPaint;
 
 public:
-    CMAPBench(void* param, TypefaceProc proc, const char name[]) : SkBenchmark(param) {
+    CMAPBench(TypefaceProc proc, const char name[]) {
         fProc = proc;
         fName.printf("cmap_%s", name);
 
@@ -96,7 +96,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new CMAPBench(p, containsText_proc, "paint_containsText"); )
-DEF_BENCH( return new CMAPBench(p, textToGlyphs_proc, "paint_textToGlyphs"); )
-DEF_BENCH( return new CMAPBench(p, charsToGlyphs_proc, "face_charsToGlyphs"); )
-DEF_BENCH( return new CMAPBench(p, charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )
+DEF_BENCH( return new CMAPBench(containsText_proc, "paint_containsText"); )
+DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "paint_textToGlyphs"); )
+DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charsToGlyphs"); )
+DEF_BENCH( return new CMAPBench(charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )

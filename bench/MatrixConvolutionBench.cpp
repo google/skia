@@ -13,8 +13,8 @@
 
 class MatrixConvolutionBench : public SkBenchmark {
 public:
-    MatrixConvolutionBench(void* param, SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
-        : INHERITED(param), fName("matrixconvolution") {
+    MatrixConvolutionBench(SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
+        : fName("matrixconvolution") {
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
@@ -54,12 +54,7 @@ private:
     SkString fName;
 };
 
-static SkBenchmark* Fact00(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClamp_TileMode, true); }
-static SkBenchmark* Fact01(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); }
-static SkBenchmark* Fact02(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); }
-static SkBenchmark* Fact03(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); }
-
-static BenchRegistry gReg00(Fact00);
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg02(Fact02);
-static BenchRegistry gReg03(Fact03);
+DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClamp_TileMode, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); )
+DEF_BENCH( return new MatrixConvolutionBench(SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); )

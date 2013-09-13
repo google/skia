@@ -28,7 +28,7 @@ protected:
     };
 
 public:
-    MemsetBench(void* param, MemsetType type, size_t minSize, size_t maxSize) : INHERITED(param) {
+    MemsetBench(MemsetType type, size_t minSize, size_t maxSize)  {
         SkASSERT((minSize < maxSize) && (maxSize <= kBufferSize));
         fMinSize = minSize;
         fMaxSize = maxSize;
@@ -57,8 +57,8 @@ private:
 class Memset32Bench : public MemsetBench {
     uint32_t kBuffer[kBufferSize + 3];
 public:
-    Memset32Bench(void* param, size_t minSize, size_t maxSize)
-        : INHERITED(param, MEMSET32, minSize, maxSize) {}
+    Memset32Bench(size_t minSize, size_t maxSize)
+        : INHERITED(MEMSET32, minSize, maxSize) {}
 
 protected:
     virtual void performTest() SK_OVERRIDE {
@@ -76,8 +76,8 @@ private:
 class Memset16Bench : public MemsetBench {
     uint16_t kBuffer[kBufferSize + 7];
 public:
-    Memset16Bench(void* param, size_t minSize, size_t maxSize)
-        : INHERITED(param, MEMSET16, minSize, maxSize) {}
+    Memset16Bench(size_t minSize, size_t maxSize)
+        : INHERITED(MEMSET16, minSize, maxSize) {}
 
 protected:
     virtual void performTest() SK_OVERRIDE {
@@ -96,18 +96,18 @@ private:
     typedef MemsetBench INHERITED;
 };
 
-DEF_BENCH(return new Memset32Bench(p, 1, 600);)
-DEF_BENCH(return new Memset32Bench(p, 600, 800);)
-DEF_BENCH(return new Memset32Bench(p, 800, 1000);)
-DEF_BENCH(return new Memset32Bench(p, 1000, 2000);)
-DEF_BENCH(return new Memset32Bench(p, 2000, 3000);)
-DEF_BENCH(return new Memset32Bench(p, 3000, 4000);)
-DEF_BENCH(return new Memset32Bench(p, 4000, 5000);)
+DEF_BENCH(return new Memset32Bench(1, 600);)
+DEF_BENCH(return new Memset32Bench(600, 800);)
+DEF_BENCH(return new Memset32Bench(800, 1000);)
+DEF_BENCH(return new Memset32Bench(1000, 2000);)
+DEF_BENCH(return new Memset32Bench(2000, 3000);)
+DEF_BENCH(return new Memset32Bench(3000, 4000);)
+DEF_BENCH(return new Memset32Bench(4000, 5000);)
 
-DEF_BENCH(return new Memset16Bench(p, 1, 600);)
-DEF_BENCH(return new Memset16Bench(p, 600, 800);)
-DEF_BENCH(return new Memset16Bench(p, 800, 1000);)
-DEF_BENCH(return new Memset16Bench(p, 1000, 2000);)
-DEF_BENCH(return new Memset16Bench(p, 2000, 3000);)
-DEF_BENCH(return new Memset16Bench(p, 3000, 4000);)
-DEF_BENCH(return new Memset16Bench(p, 4000, 5000);)
+DEF_BENCH(return new Memset16Bench(1, 600);)
+DEF_BENCH(return new Memset16Bench(600, 800);)
+DEF_BENCH(return new Memset16Bench(800, 1000);)
+DEF_BENCH(return new Memset16Bench(1000, 2000);)
+DEF_BENCH(return new Memset16Bench(2000, 3000);)
+DEF_BENCH(return new Memset16Bench(3000, 4000);)
+DEF_BENCH(return new Memset16Bench(4000, 5000);)

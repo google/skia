@@ -17,8 +17,8 @@
 
 class MagnifierBench : public SkBenchmark {
 public:
-    MagnifierBench(void* param, bool small) :
-        INHERITED(param), fIsSmall(small), fInitialized(false) {
+    MagnifierBench(bool small) :
+        fIsSmall(small), fInitialized(false) {
     }
 
 protected:
@@ -83,5 +83,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new MagnifierBench(p, true); )
-DEF_BENCH( return new MagnifierBench(p, false); )
+DEF_BENCH( return new MagnifierBench(true); )
+DEF_BENCH( return new MagnifierBench(false); )

@@ -17,10 +17,7 @@
  */
 class FSRectBench : public SkBenchmark {
 public:
-    FSRectBench(void* param)
-        : INHERITED(param)
-        , fInit(false) {
-    }
+    FSRectBench() : fInit(false) { }
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE { return "fullscreen_rects"; }
@@ -63,4 +60,4 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH( return SkNEW_ARGS(FSRectBench, (p)); )
+DEF_BENCH( return SkNEW_ARGS(FSRectBench, ()); )

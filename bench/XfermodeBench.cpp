@@ -17,14 +17,13 @@
 // Benchmark that draws non-AA rects with an SkXfermode::Mode
 class XfermodeBench : public SkBenchmark {
 public:
-    XfermodeBench(void* param, SkXfermode::Mode mode) : SkBenchmark(param) {
+    XfermodeBench(SkXfermode::Mode mode) {
         fXfermode.reset(SkXfermode::Create(mode));
         SkASSERT(NULL != fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
         fName.printf("Xfermode_%s", SkXfermode::ModeName(mode));
     }
 
-    XfermodeBench(void* param, SkXfermode* xferMode, const char* name)
-        : SkBenchmark(param) {
+    XfermodeBench(SkXfermode* xferMode, const char* name) {
         SkASSERT(NULL != xferMode);
         fXfermode.reset(xferMode);
         fName.printf("Xfermode_%s", name);
@@ -68,8 +67,8 @@ private:
 #define CONCAT_I(x, y) x ## y
 #define CONCAT(x, y) CONCAT_I(x, y) // allow for macro expansion
 #define BENCH(...) \
-    static SkBenchmark* CONCAT(Fact, __LINE__)(void *p) { return new XfermodeBench(p, __VA_ARGS__); };\
-    static BenchRegistry CONCAT(gReg, __LINE__)(CONCAT(Fact, __LINE__));
+    DEF_BENCH( return new XfermodeBench(__VA_ARGS__); );\
+
 
 BENCH(SkXfermode::kClear_Mode)
 BENCH(SkXfermode::kSrc_Mode)

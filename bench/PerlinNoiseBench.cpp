@@ -12,7 +12,7 @@ class PerlinNoiseBench : public SkBenchmark {
     SkISize fSize;
 
 public:
-    PerlinNoiseBench(void* param) : INHERITED(param) {
+    PerlinNoiseBench()  {
         fSize = SkISize::Make(80, 80);
     }
 
@@ -59,4 +59,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new PerlinNoiseBench(p); )
+DEF_BENCH( return new PerlinNoiseBench(); )

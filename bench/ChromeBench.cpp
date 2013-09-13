@@ -456,7 +456,7 @@ class ScrollGmailBench : public SkBenchmark {
         N = 431
     };
 public:
-    ScrollGmailBench(void* param) : INHERITED(param) { }
+    ScrollGmailBench()  { }
 
 protected:
 
@@ -491,10 +491,6 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static inline SkBenchmark* ScrollGmailFactory(void* p) {
-    return SkNEW_ARGS(ScrollGmailBench, (p));
-}
-
 // Disabled this benchmark: it takes 15x longer than any other benchmark
 // and is probably not giving us important information.
-//static BenchRegistry gScrollGmailReg(ScrollGmailFactory);
+// DEF_BENCH(return SkNEW(ScrollGmailBench));

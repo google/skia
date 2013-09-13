@@ -21,7 +21,7 @@ class DecodeBench : public SkBenchmark {
     SkBitmap::Config fPrefConfig;
     SkString fName;
 public:
-    DecodeBench(void* param, SkBitmap::Config c) : SkBenchmark(param) {
+    DecodeBench(SkBitmap::Config c) {
         fPrefConfig = c;
 
         const char* fname = strrchr(FLAGS_decodeBenchFilename[0], '/');
@@ -51,10 +51,6 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void* p) { return new DecodeBench(p, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void* p) { return new DecodeBench(p, SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact2(void* p) { return new DecodeBench(p, SkBitmap::kARGB_4444_Config); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
+DEF_BENCH( return new DecodeBench(SkBitmap::kARGB_8888_Config); )
+DEF_BENCH( return new DecodeBench(SkBitmap::kRGB_565_Config); )
+DEF_BENCH( return new DecodeBench(SkBitmap::kARGB_4444_Config); )

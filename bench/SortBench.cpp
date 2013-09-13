@@ -104,7 +104,7 @@ class SortBench : public SkBenchmark {
     SortProc    fSortProc;
 
 public:
-    SortBench(void* param, Type t, int n, SortType s) : INHERITED(param) {
+    SortBench(Type t, int n, SortType s)  {
         if (n > MAX) {
             n = MAX;
         }
@@ -138,32 +138,32 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* NewSkQSort(void* param, Type t) {
-    return new SortBench(param, t, N, kSKQSort);
+static SkBenchmark* NewSkQSort(Type t) {
+    return new SortBench(t, N, kSKQSort);
 }
-static SkBenchmark* NewSkHeap(void* param, Type t) {
-    return new SortBench(param, t, N, kSKHeap);
+static SkBenchmark* NewSkHeap(Type t) {
+    return new SortBench(t, N, kSKHeap);
 }
-static SkBenchmark* NewQSort(void* param, Type t) {
-    return new SortBench(param, t, N, kQSort);
+static SkBenchmark* NewQSort(Type t) {
+    return new SortBench(t, N, kQSort);
 }
 
-DEF_BENCH( return NewSkQSort(p, kRand); )
-DEF_BENCH( return NewSkHeap(p, kRand); )
-DEF_BENCH( return NewQSort(p, kRand); )
+DEF_BENCH( return NewSkQSort(kRand); )
+DEF_BENCH( return NewSkHeap(kRand); )
+DEF_BENCH( return NewQSort(kRand); )
 
-DEF_BENCH( return NewSkQSort(p, kRandN); )
-DEF_BENCH( return NewSkHeap(p, kRandN); )
-DEF_BENCH( return NewQSort(p, kRandN); )
+DEF_BENCH( return NewSkQSort(kRandN); )
+DEF_BENCH( return NewSkHeap(kRandN); )
+DEF_BENCH( return NewQSort(kRandN); )
 
-DEF_BENCH( return NewSkQSort(p, kFore); )
-DEF_BENCH( return NewSkHeap(p, kFore); )
-DEF_BENCH( return NewQSort(p, kFore); )
+DEF_BENCH( return NewSkQSort(kFore); )
+DEF_BENCH( return NewSkHeap(kFore); )
+DEF_BENCH( return NewQSort(kFore); )
 
-DEF_BENCH( return NewSkQSort(p, kBack); )
-DEF_BENCH( return NewSkHeap(p, kBack); )
-DEF_BENCH( return NewQSort(p, kBack); )
+DEF_BENCH( return NewSkQSort(kBack); )
+DEF_BENCH( return NewSkHeap(kBack); )
+DEF_BENCH( return NewQSort(kBack); )
 
-DEF_BENCH( return NewSkQSort(p, kSame); )
-DEF_BENCH( return NewSkHeap(p, kSame); )
-DEF_BENCH( return NewQSort(p, kSame); )
+DEF_BENCH( return NewSkQSort(kSame); )
+DEF_BENCH( return NewSkHeap(kSame); )
+DEF_BENCH( return NewQSort(kSame); )

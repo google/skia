@@ -48,7 +48,7 @@ class BitmapRectBench : public SkBenchmark {
     static const int kWidth = 128;
     static const int kHeight = 128;
 public:
-    BitmapRectBench(void* param, U8CPU alpha, bool doFilter, bool slightMatrix) : INHERITED(param) {
+    BitmapRectBench(U8CPU alpha, bool doFilter, bool slightMatrix)  {
         fAlpha = SkToU8(alpha);
         fDoFilter = doFilter;
         fSlightMatrix = slightMatrix;
@@ -101,10 +101,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, false, false))
-DEF_BENCH(return new BitmapRectBench(p, 0x80, false, false))
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, true, false))
-DEF_BENCH(return new BitmapRectBench(p, 0x80, true, false))
+DEF_BENCH(return new BitmapRectBench(0xFF, false, false))
+DEF_BENCH(return new BitmapRectBench(0x80, false, false))
+DEF_BENCH(return new BitmapRectBench(0xFF, true, false))
+DEF_BENCH(return new BitmapRectBench(0x80, true, false))
 
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, false, true))
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, true, true))
+DEF_BENCH(return new BitmapRectBench(0xFF, false, true))
+DEF_BENCH(return new BitmapRectBench(0xFF, true, true))

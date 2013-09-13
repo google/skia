@@ -22,7 +22,7 @@ class MathBench : public SkBenchmark {
     SkString    fName;
     float       fSrc[kBuffer], fDst[kBuffer];
 public:
-    MathBench(void* param, const char name[]) : INHERITED(param) {
+    MathBench(const char name[])  {
         fName.printf("math_%s", name);
 
         SkRandom rand;
@@ -57,7 +57,7 @@ private:
 
 class MathBenchU32 : public MathBench {
 public:
-    MathBenchU32(void* param, const char name[]) : INHERITED(param, name) {}
+    MathBenchU32(const char name[]) : INHERITED(name) {}
 
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
@@ -79,7 +79,7 @@ private:
 
 class NoOpMathBench : public MathBench {
 public:
-    NoOpMathBench(void* param) : INHERITED(param, "noOp") {}
+    NoOpMathBench() : INHERITED("noOp") {}
 protected:
     virtual void performTest(float* SK_RESTRICT dst,
                               const float* SK_RESTRICT src,
@@ -94,7 +94,7 @@ private:
 
 class SlowISqrtMathBench : public MathBench {
 public:
-    SlowISqrtMathBench(void* param) : INHERITED(param, "slowIsqrt") {}
+    SlowISqrtMathBench() : INHERITED("slowIsqrt") {}
 protected:
     virtual void performTest(float* SK_RESTRICT dst,
                               const float* SK_RESTRICT src,
@@ -119,7 +119,7 @@ static inline float SkFastInvSqrt(float x) {
 
 class FastISqrtMathBench : public MathBench {
 public:
-    FastISqrtMathBench(void* param) : INHERITED(param, "fastIsqrt") {}
+    FastISqrtMathBench() : INHERITED("fastIsqrt") {}
 protected:
     virtual void performTest(float* SK_RESTRICT dst,
                               const float* SK_RESTRICT src,
@@ -144,7 +144,7 @@ static inline uint32_t QMul64(uint32_t value, U8CPU alpha) {
 
 class QMul64Bench : public MathBenchU32 {
 public:
-    QMul64Bench(void* param) : INHERITED(param, "qmul64") {}
+    QMul64Bench() : INHERITED("qmul64") {}
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
@@ -159,7 +159,7 @@ private:
 
 class QMul32Bench : public MathBenchU32 {
 public:
-    QMul32Bench(void* param) : INHERITED(param, "qmul32") {}
+    QMul32Bench() : INHERITED("qmul32") {}
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
@@ -251,7 +251,7 @@ class IsFiniteBench : public SkBenchmark {
     float fData[N];
 public:
 
-    IsFiniteBench(void* param, int index) : INHERITED(param) {
+    IsFiniteBench(int index)  {
         SkRandom rand;
 
         for (int i = 0; i < N; ++i) {
@@ -318,7 +318,7 @@ class FloorBench : public SkBenchmark {
     bool fFast;
 public:
 
-    FloorBench(void* param, bool fast) : INHERITED(param), fFast(fast) {
+    FloorBench(bool fast) : fFast(fast) {
         SkRandom rand;
 
         for (int i = 0; i < ARRAY; ++i) {
@@ -376,9 +376,7 @@ class CLZBench : public SkBenchmark {
     bool fUsePortable;
 
 public:
-    CLZBench(void* param, bool usePortable)
-        : INHERITED(param)
-        , fUsePortable(usePortable) {
+    CLZBench(bool usePortable) : fUsePortable(usePortable) {
 
         SkRandom rand;
         for (int i = 0; i < ARRAY; ++i) {
@@ -436,9 +434,7 @@ class NormalizeBench : public SkBenchmark {
     SkVector fVec[ARRAY];
 
 public:
-    NormalizeBench(void* param)
-    : INHERITED(param) {
-
+    NormalizeBench() {
         SkRandom rand;
         for (int i = 0; i < ARRAY; ++i) {
             fVec[i].set(rand.nextSScalar1(), rand.nextSScalar1());
@@ -483,7 +479,7 @@ class FixedMathBench : public SkBenchmark {
     SkFixed fResult[N];
 public:
 
-    FixedMathBench(void* param) : INHERITED(param) {
+    FixedMathBench()  {
         SkRandom rand;
         for (int i = 0; i < this->getLoops(); ++i) {
             fData[i%N] = rand.nextSScalar1();
@@ -516,26 +512,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new NoOpMathBench(p); )
-DEF_BENCH( return new SlowISqrtMathBench(p); )
-DEF_BENCH( return new FastISqrtMathBench(p); )
-DEF_BENCH( return new QMul64Bench(p); )
-DEF_BENCH( return new QMul32Bench(p); )
+DEF_BENCH( return new NoOpMathBench(); )
+DEF_BENCH( return new SlowISqrtMathBench(); )
+DEF_BENCH( return new FastISqrtMathBench(); )
+DEF_BENCH( return new QMul64Bench(); )
+DEF_BENCH( return new QMul32Bench(); )
 
-DEF_BENCH( return new IsFiniteBench(p, -1); )
-DEF_BENCH( return new IsFiniteBench(p, 0); )
-DEF_BENCH( return new IsFiniteBench(p, 1); )
-DEF_BENCH( return new IsFiniteBench(p, 2); )
-DEF_BENCH( return new IsFiniteBench(p, 3); )
-DEF_BENCH( return new IsFiniteBench(p, 4); )
-DEF_BENCH( return new IsFiniteBench(p, 5); )
+DEF_BENCH( return new IsFiniteBench(-1); )
+DEF_BENCH( return new IsFiniteBench(0); )
+DEF_BENCH( return new IsFiniteBench(1); )
+DEF_BENCH( return new IsFiniteBench(2); )
+DEF_BENCH( return new IsFiniteBench(3); )
+DEF_BENCH( return new IsFiniteBench(4); )
+DEF_BENCH( return new IsFiniteBench(5); )
 
-DEF_BENCH( return new FloorBench(p, false); )
-DEF_BENCH( return new FloorBench(p, true); )
+DEF_BENCH( return new FloorBench(false); )
+DEF_BENCH( return new FloorBench(true); )
 
-DEF_BENCH( return new CLZBench(p, false); )
-DEF_BENCH( return new CLZBench(p, true); )
+DEF_BENCH( return new CLZBench(false); )
+DEF_BENCH( return new CLZBench(true); )
 
-DEF_BENCH( return new NormalizeBench(p); )
+DEF_BENCH( return new NormalizeBench(); )
 
-DEF_BENCH( return new FixedMathBench(p); )
+DEF_BENCH( return new FixedMathBench(); )

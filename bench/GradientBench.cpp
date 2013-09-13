@@ -165,13 +165,13 @@ class GradientBench : public SkBenchmark {
         H   = 400,
     };
 public:
-    GradientBench(void* param, GradType gradType,
+    GradientBench(GradType gradType,
                   GradData data = gGradData[0],
                   SkShader::TileMode tm = SkShader::kClamp_TileMode,
                   GeomType geomType = kRect_GeomType,
                   float scale = 1.0f
         )
-        : INHERITED(param) {
+         {
         fName.printf("gradient_%s_%s", gGrads[gradType].fName,
                      tilemodename(tm));
         if (geomType != kRect_GeomType) {
@@ -230,7 +230,7 @@ class Gradient2Bench : public SkBenchmark {
     bool     fHasAlpha;
 
 public:
-    Gradient2Bench(void* param, bool hasAlpha) : INHERITED(param) {
+    Gradient2Bench(bool hasAlpha)  {
         fName.printf("gradient_create_%s", hasAlpha ? "alpha" : "opaque");
         fHasAlpha = hasAlpha;
     }
@@ -269,26 +269,26 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH( return new GradientBench(p, kLinear_GradType); )
-DEF_BENCH( return new GradientBench(p, kLinear_GradType, gGradData[1]); )
-DEF_BENCH( return new GradientBench(p, kLinear_GradType, gGradData[0], SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(kLinear_GradType); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkShader::kMirror_TileMode); )
 
 // Draw a radial gradient of radius 1/2 on a rectangle; half the lines should
 // be completely pinned, the other half should pe partially pinned
-DEF_BENCH( return new GradientBench(p, kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kRect_GeomType, 0.5f); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kRect_GeomType, 0.5f); )
 
 // Draw a radial gradient on a circle of equal size; all the lines should
 // hit the unpinned fast path (so long as GradientBench.W == H)
-DEF_BENCH( return new GradientBench(p, kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kOval_GeomType); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kOval_GeomType); )
 
-DEF_BENCH( return new GradientBench(p, kRadial_GradType, gGradData[0], SkShader::kMirror_TileMode); )
-DEF_BENCH( return new GradientBench(p, kSweep_GradType); )
-DEF_BENCH( return new GradientBench(p, kSweep_GradType, gGradData[1]); )
-DEF_BENCH( return new GradientBench(p, kRadial2_GradType); )
-DEF_BENCH( return new GradientBench(p, kRadial2_GradType, gGradData[1]); )
-DEF_BENCH( return new GradientBench(p, kRadial2_GradType, gGradData[0], SkShader::kMirror_TileMode); )
-DEF_BENCH( return new GradientBench(p, kConical_GradType); )
-DEF_BENCH( return new GradientBench(p, kConical_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(kSweep_GradType); )
+DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kRadial2_GradType); )
+DEF_BENCH( return new GradientBench(kRadial2_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kRadial2_GradType, gGradData[0], SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(kConical_GradType); )
+DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[1]); )
 
-DEF_BENCH( return new Gradient2Bench(p, false); )
-DEF_BENCH( return new Gradient2Bench(p, true); )
+DEF_BENCH( return new Gradient2Bench(false); )
+DEF_BENCH( return new Gradient2Bench(true); )

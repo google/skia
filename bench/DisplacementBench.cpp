@@ -17,8 +17,8 @@
 
 class DisplacementBaseBench : public SkBenchmark {
 public:
-    DisplacementBaseBench(void* param, bool small) :
-        INHERITED(param), fInitialized(false), fIsSmall(small) {
+    DisplacementBaseBench(bool small) :
+        fInitialized(false), fIsSmall(small) {
     }
 
 protected:
@@ -90,7 +90,7 @@ private:
 
 class DisplacementZeroBench : public DisplacementBaseBench {
 public:
-    DisplacementZeroBench(void* param, bool small) : INHERITED(param, small) {
+    DisplacementZeroBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -117,7 +117,7 @@ private:
 
 class DisplacementAlphaBench : public DisplacementBaseBench {
 public:
-    DisplacementAlphaBench(void* param, bool small) : INHERITED(param, small) {
+    DisplacementAlphaBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -143,7 +143,7 @@ private:
 
 class DisplacementFullBench : public DisplacementBaseBench {
 public:
-    DisplacementFullBench(void* param, bool small) : INHERITED(param, small) {
+    DisplacementFullBench(bool small) : INHERITED(small) {
     }
 
 protected:
@@ -169,9 +169,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new DisplacementZeroBench(p, true); )
-DEF_BENCH( return new DisplacementAlphaBench(p, true); )
-DEF_BENCH( return new DisplacementFullBench(p, true); )
-DEF_BENCH( return new DisplacementZeroBench(p, false); )
-DEF_BENCH( return new DisplacementAlphaBench(p, false); )
-DEF_BENCH( return new DisplacementFullBench(p, false); )
+DEF_BENCH( return new DisplacementZeroBench(true); )
+DEF_BENCH( return new DisplacementAlphaBench(true); )
+DEF_BENCH( return new DisplacementFullBench(true); )
+DEF_BENCH( return new DisplacementZeroBench(false); )
+DEF_BENCH( return new DisplacementAlphaBench(false); )
+DEF_BENCH( return new DisplacementFullBench(false); )

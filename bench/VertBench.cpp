@@ -39,7 +39,7 @@ class VertBench : public SkBenchmark {
     }
 
 public:
-    VertBench(void* param) : INHERITED(param) {
+    VertBench() {
         const SkScalar dx = SkIntToScalar(W) / COL;
         const SkScalar dy = SkIntToScalar(H) / COL;
 
@@ -92,6 +92,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact(void* p) { return SkNEW_ARGS(VertBench, (p)); }
-
-static BenchRegistry gReg(Fact);
+DEF_BENCH( return SkNEW_ARGS(VertBench, ()); )

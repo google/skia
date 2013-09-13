@@ -9,7 +9,7 @@
 
 class MutexBench : public SkBenchmark {
 public:
-    MutexBench(void* param) : INHERITED(param) {
+    MutexBench()  {
         fIsRendering = false;
     }
 protected:
@@ -31,6 +31,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact(void* p) { return new MutexBench(p); }
-
-static BenchRegistry gReg01(Fact);
+DEF_BENCH( return new MutexBench(); )

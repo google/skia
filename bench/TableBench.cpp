@@ -28,10 +28,6 @@ public:
     static const int kNumRows = 48;
     static const int kNumCols = 32;
 
-    TableBench(void* param)
-        : INHERITED(param) {
-    }
-
 protected:
     virtual const char* onGetName() {
         return "tablebench";
@@ -73,6 +69,4 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* gFactory(void* p) { return new TableBench(p); }
-
-static BenchRegistry gRegistry(gFactory);
+DEF_BENCH( return new TableBench(); )

@@ -91,7 +91,7 @@ void gen_paths(const SkTDArray<SkScalar>& topData,
 // filling
 class ChartBench : public SkBenchmark {
 public:
-    ChartBench(void* param, bool aa) : SkBenchmark(param) {
+    ChartBench(bool aa) {
         fShift = 0;
         fAA = aa;
         fSize.fWidth = -1;
@@ -194,8 +194,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) { return new ChartBench(p, true); }
-static SkBenchmark* Fact1(void* p) { return new ChartBench(p, false); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
+DEF_BENCH( return new ChartBench(true); )
+DEF_BENCH( return new ChartBench(false); )

@@ -57,7 +57,7 @@ public:
         if (fBench) {
             BenchRegistry::Factory f = fBench->factory();
             fBench = fBench->next();
-            return f(NULL);
+            return f();
         }
         return NULL;
     }

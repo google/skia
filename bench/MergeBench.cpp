@@ -17,8 +17,7 @@
 
 class MergeBench : public SkBenchmark {
 public:
-    MergeBench(void* param, bool small) : INHERITED(param), fIsSmall(small), fInitialized(false) {
-    }
+    MergeBench(bool small) : fIsSmall(small), fInitialized(false) { }
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
@@ -98,5 +97,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new MergeBench(p, true); )
-DEF_BENCH( return new MergeBench(p, false); )
+DEF_BENCH( return new MergeBench(true); )
+DEF_BENCH( return new MergeBench(false); )

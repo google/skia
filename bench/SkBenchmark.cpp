@@ -15,7 +15,7 @@ SK_DEFINE_INST_COUNT(SkBenchmark)
 
 template BenchRegistry* BenchRegistry::gHead;
 
-SkBenchmark::SkBenchmark(void* /*ignored*/) {
+SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;
     fForceAA = true;
     fDither = SkTriState::kDefault;

@@ -23,8 +23,8 @@
 
 class BlurImageFilterBench : public SkBenchmark {
 public:
-    BlurImageFilterBench(void* param, SkScalar sigmaX, SkScalar sigmaY,  bool small) :
-        INHERITED(param), fIsSmall(small), fInitialized(false), fSigmaX(sigmaX), fSigmaY(sigmaY) {
+    BlurImageFilterBench(SkScalar sigmaX, SkScalar sigmaY,  bool small) :
+        fIsSmall(small), fInitialized(false), fSigmaX(sigmaX), fSigmaY(sigmaY) {
         fName.printf("blur_image_filter_%s_%.2f_%.2f", fIsSmall ? "small" : "large",
             SkScalarToFloat(sigmaX), SkScalarToFloat(sigmaY));
     }
@@ -84,7 +84,7 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new BlurImageFilterBench(p, BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, true);)
-DEF_BENCH(return new BlurImageFilterBench(p, BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, false);)
-DEF_BENCH(return new BlurImageFilterBench(p, BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, true);)
-DEF_BENCH(return new BlurImageFilterBench(p, BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, false);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, true);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, false);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, true);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, false);)
