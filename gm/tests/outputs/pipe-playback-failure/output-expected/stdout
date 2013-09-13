@@ -6,9 +6,9 @@ GM: writing images without expectations to gm/tests/outputs/pipe-playback-failur
 GM: drawing... selftest1 [300 200]
 GM: Ran 1 GMs
 GM: ... over  2 configs ["8888", "565"]
-GM: ...  and  5 modes   ["pipe", "replay", "rtree", "serialize", "tilegrid"]
-GM: ... so there should be a total of 7 tests.
-GM: Ran 7 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=1 ExpectationsMismatch=0 MissingExpectations=0 WritingReferenceImage=0
+GM: ...  and  1 modes   ["pipe"]
+GM: ... so there should be a total of 3 tests.
+GM: Ran 3 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=1 ExpectationsMismatch=0 MissingExpectations=0 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
 GM: [ ] 0 IntentionallySkipped:
 GM: [*] 1 RenderModeMismatch: comparison/selftest1-pipe
