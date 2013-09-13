@@ -26,7 +26,8 @@ public:
         return fX > fY ? (fX > fZ ? fX : fZ) : (fY > fZ ? fY : fZ);
     }
     void normalize() {
-        SkScalar scale = SkScalarInvert(SkScalarSqrt(dot(*this)));
+        // Small epsilon is added to prevent division by 0.
+        SkScalar scale = SkScalarInvert(SkScalarSqrt(dot(*this)) + SK_ScalarNearlyZero);
         fX = SkScalarMul(fX, scale);
         fY = SkScalarMul(fY, scale);
         fZ = SkScalarMul(fZ, scale);
