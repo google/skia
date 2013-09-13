@@ -7,82 +7,86 @@
  */
 
 
+#include <arm_neon.h>
 #include "SkColorPriv.h"
 
 /*
-    Filter_32_opaque
-
-    There is no hard-n-fast rule that the filtering must produce
-    exact results for the color components, but if the 4 incoming colors are
-    all opaque, then the output color must also be opaque. Subsequent parts of
-    the drawing pipeline may rely on this (e.g. which blitrow proc to use).
+ * Filter_32_opaque
+ *
+ * There is no hard-n-fast rule that the filtering must produce
+ * exact results for the color components, but if the 4 incoming colors are
+ * all opaque, then the output color must also be opaque. Subsequent parts of
+ * the drawing pipeline may rely on this (e.g. which blitrow proc to use).
  */
 
 static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
                                          SkPMColor a00, SkPMColor a01,
                                          SkPMColor a10, SkPMColor a11,
                                          SkPMColor *dst) {
-    asm volatile(
-                 "vdup.8         d0, %[y]                \n\t"   // duplicate y into d0
-                 "vmov.u8        d16, #16                \n\t"   // set up constant in d16
-                 "vsub.u8        d1, d16, d0             \n\t"   // d1 = 16-y
+    uint8x8_t vy, vconst16_8, v16_y, vres;
+    uint16x4_t vx, vconst16_16, v16_x, tmp;
+    uint32x2_t va0, va1;
+    uint16x8_t tmp1, tmp2;
 
-                 "vdup.32        d4, %[a00]              \n\t"   // duplicate a00 into d4
-                 "vdup.32        d5, %[a10]              \n\t"   // duplicate a10 into d5
-                 "vmov.32        d4[1], %[a01]           \n\t"   // set top of d4 to a01
-                 "vmov.32        d5[1], %[a11]           \n\t"   // set top of d5 to a11
+    vy = vdup_n_u8(y);                // duplicate y into vy
+    vconst16_8 = vmov_n_u8(16);       // set up constant in vconst16_8
+    v16_y = vsub_u8(vconst16_8, vy);  // v16_y = 16-y
 
-                 "vmull.u8       q3, d4, d1              \n\t"   // q3 = [a01|a00] * (16-y)
-                 "vmull.u8       q0, d5, d0              \n\t"   // q0 = [a11|a10] * y
+    va0 = vdup_n_u32(a00);            // duplicate a00
+    va1 = vdup_n_u32(a10);            // duplicate a10
+    va0 = vset_lane_u32(a01, va0, 1); // set top to a01
+    va1 = vset_lane_u32(a11, va1, 1); // set top to a11
 
-                 "vdup.16        d5, %[x]                \n\t"   // duplicate x into d5
-                 "vmov.u16       d16, #16                \n\t"   // set up constant in d16
-                 "vsub.u16       d3, d16, d5             \n\t"   // d3 = 16-x
+    tmp1 = vmull_u8(vreinterpret_u8_u32(va0), v16_y); // tmp1 = [a01|a00] * (16-y)
+    tmp2 = vmull_u8(vreinterpret_u8_u32(va1), vy);    // tmp2 = [a11|a10] * y
 
-                 "vmul.i16       d4, d7, d5              \n\t"   // d4  = a01 * x
-                 "vmla.i16       d4, d1, d5              \n\t"   // d4 += a11 * x
-                 "vmla.i16       d4, d6, d3              \n\t"   // d4 += a00 * (16-x)
-                 "vmla.i16       d4, d0, d3              \n\t"   // d4 += a10 * (16-x)
-                 "vshrn.i16      d0, q2, #8              \n\t"   // shift down result by 8
-                 "vst1.32        {d0[0]}, [%[dst]]       \n\t"   // store result
-                 :
-                 : [x] "r" (x), [y] "r" (y), [a00] "r" (a00), [a01] "r" (a01), [a10] "r" (a10), [a11] "r" (a11), [dst] "r" (dst)
-                 : "cc", "memory", "d0", "d1", "d3", "d4", "d5", "d6", "d7", "d16"
-                 );
+    vx = vdup_n_u16(x);                // duplicate x into vx
+    vconst16_16 = vmov_n_u16(16);      // set up constant in vconst16_16
+    v16_x = vsub_u16(vconst16_16, vx); // v16_x = 16-x
+
+    tmp = vmul_u16(vget_high_u16(tmp1), vx);        // tmp  = a01 * x
+    tmp = vmla_u16(tmp, vget_high_u16(tmp2), vx);   // tmp += a11 * x
+    tmp = vmla_u16(tmp, vget_low_u16(tmp1), v16_x); // tmp += a00 * (16-x)
+    tmp = vmla_u16(tmp, vget_low_u16(tmp2), v16_x); // tmp += a10 * (16-x)
+
+    vres = vshrn_n_u16(vcombine_u16(tmp, vcreate_u16(0)), 8); // shift down result by 8
+    vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);         // store result
 }
 
 static inline void Filter_32_alpha_neon(unsigned x, unsigned y,
                                         SkPMColor a00, SkPMColor a01,
                                         SkPMColor a10, SkPMColor a11,
                                         SkPMColor *dst, uint16_t scale) {
-    asm volatile(
-                 "vdup.8         d0, %[y]                \n\t"   // duplicate y into d0
-                 "vmov.u8        d16, #16                \n\t"   // set up constant in d16
-                 "vsub.u8        d1, d16, d0             \n\t"   // d1 = 16-y
+    uint8x8_t vy, vconst16_8, v16_y, vres;
+    uint16x4_t vx, vconst16_16, v16_x, tmp, vscale;
+    uint32x2_t va0, va1;
+    uint16x8_t tmp1, tmp2;
 
-                 "vdup.32        d4, %[a00]              \n\t"   // duplicate a00 into d4
-                 "vdup.32        d5, %[a10]              \n\t"   // duplicate a10 into d5
-                 "vmov.32        d4[1], %[a01]           \n\t"   // set top of d4 to a01
-                 "vmov.32        d5[1], %[a11]           \n\t"   // set top of d5 to a11
+    vy = vdup_n_u8(y);                // duplicate y into vy
+    vconst16_8 = vmov_n_u8(16);       // set up constant in vconst16_8
+    v16_y = vsub_u8(vconst16_8, vy);  // v16_y = 16-y
 
-                 "vmull.u8       q3, d4, d1              \n\t"   // q3 = [a01|a00] * (16-y)
-                 "vmull.u8       q0, d5, d0              \n\t"   // q0 = [a11|a10] * y
+    va0 = vdup_n_u32(a00);            // duplicate a00
+    va1 = vdup_n_u32(a10);            // duplicate a10
+    va0 = vset_lane_u32(a01, va0, 1); // set top to a01
+    va1 = vset_lane_u32(a11, va1, 1); // set top to a11
 
-                 "vdup.16        d5, %[x]                \n\t"   // duplicate x into d5
-                 "vmov.u16       d16, #16                \n\t"   // set up constant in d16
-                 "vsub.u16       d3, d16, d5             \n\t"   // d3 = 16-x
+    tmp1 = vmull_u8(vreinterpret_u8_u32(va0), v16_y); // tmp1 = [a01|a00] * (16-y)
+    tmp2 = vmull_u8(vreinterpret_u8_u32(va1), vy);    // tmp2 = [a11|a10] * y
 
-                 "vmul.i16       d4, d7, d5              \n\t"   // d4  = a01 * x
-                 "vmla.i16       d4, d1, d5              \n\t"   // d4 += a11 * x
-                 "vmla.i16       d4, d6, d3              \n\t"   // d4 += a00 * (16-x)
-                 "vmla.i16       d4, d0, d3              \n\t"   // d4 += a10 * (16-x)
-                 "vdup.16        d3, %[scale]            \n\t"   // duplicate scale into d3
-                 "vshr.u16       d4, d4, #8              \n\t"   // shift down result by 8
-                 "vmul.i16       d4, d4, d3              \n\t"   // multiply result by scale
-                 "vshrn.i16      d0, q2, #8              \n\t"   // shift down result by 8
-                 "vst1.32        {d0[0]}, [%[dst]]       \n\t"   // store result
-                 :
-                 : [x] "r" (x), [y] "r" (y), [a00] "r" (a00), [a01] "r" (a01), [a10] "r" (a10), [a11] "r" (a11), [dst] "r" (dst), [scale] "r" (scale)
-                 : "cc", "memory", "d0", "d1", "d3", "d4", "d5", "d6", "d7", "d16"
-                 );
+    vx = vdup_n_u16(x);                // duplicate x into vx
+    vconst16_16 = vmov_n_u16(16);      // set up constant in vconst16_16
+    v16_x = vsub_u16(vconst16_16, vx); // v16_x = 16-x
+
+    tmp = vmul_u16(vget_high_u16(tmp1), vx);        // tmp  = a01 * x
+    tmp = vmla_u16(tmp, vget_high_u16(tmp2), vx);   // tmp += a11 * x
+    tmp = vmla_u16(tmp, vget_low_u16(tmp1), v16_x); // tmp += a00 * (16-x)
+    tmp = vmla_u16(tmp, vget_low_u16(tmp2), v16_x); // tmp += a10 * (16-x)
+
+    vscale = vdup_n_u16(scale);        // duplicate scale
+    tmp = vshr_n_u16(tmp, 8);          // shift down result by 8
+    tmp = vmul_u16(tmp, vscale);       // multiply result by scale
+
+    vres = vshrn_n_u16(vcombine_u16(tmp, vcreate_u16(0)), 8); // shift down result by 8
+    vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);         // store result
 }
