@@ -7780,12 +7780,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3509487264422908183
+          9749250844822835346
         ]
       ], 
       "bugs": [
         1578
       ], 
+      "ignore-failure": true,
       "reviewed-by-human": false
     }, 
     "gradients_mesa.png": {
