@@ -9,11 +9,17 @@
 #ifndef SkPdfRenderer_DEFINED
 #define SkPdfRenderer_DEFINED
 
+// TODO(edisonn): how to remove this dependency? Should I remove the ref counting?
+#include "SkRefCnt.h"
+// TODO(edisonn): remove this dependency
+#include "SkString.h"
+
 class SkBitmap;
 class SkCanvas;
 class SkPdfNativeDoc;
 struct SkRect;
 class SkStream;
+class SkString;
 
 enum SkPdfContent {
     kNoForms_SkPdfContent,

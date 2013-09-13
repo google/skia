@@ -8,6 +8,7 @@
 #include "SkPdfNativeDoc.h"
 #include "SkPdfNativeTokenizer.h"
 #include "SkPdfNativeObject.h"
+#include "SkPdfReporter.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -107,7 +108,7 @@ SkPdfNativeDoc::SkPdfNativeDoc(const char* path)
         fclose(file);
         if (!ok) {
             sk_free(content);
-            // TODO(edisonn): report read error
+            SkPdfReport(kFatalError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "could not read file", NULL, NULL);
             // TODO(edisonn): not nice to return like this from constructor, create a static
             // function that can report NULL for failures.
             return;  // Doc will have 0 pages
@@ -125,7 +126,7 @@ void SkPdfNativeDoc::init(const void* bytes, size_t length) {
     const unsigned char* xrefstartKeywordLine = previousLineHome(fFileContent, xrefByteOffsetLine);
 
     if (strcmp((char*)xrefstartKeywordLine, "startxref") != 0) {
-        // TODO(edisonn): report/issue
+        SkPdfReport(kWarning_SkPdfIssueSeverity, kMissingToken_SkPdfIssue, "Could not find startxref", NULL, NULL);
     }
 
     long xrefByteOffset = atol((const char*)xrefByteOffsetLine);
@@ -189,6 +190,7 @@ void SkPdfNativeDoc::loadWithoutXRef() {
             current = nextObject(0, current, end, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
             // TODO(edisonn): must be obj, return error if not? ignore ?
             if (!token.isKeyword("obj")) {
+                SkPdfReport(kWarning_SkPdfIssueSeverity, kMissingToken_SkPdfIssue, "Could not find obj", NULL, NULL);
                 continue;
             }
 
@@ -203,6 +205,8 @@ void SkPdfNativeDoc::loadWithoutXRef() {
 
             fObjects[id].fResolvedReference = obj;
             fObjects[id].fObj = obj;
+            fObjects[id].fIsReferenceResolved = true;
+
 
             // set objects
         } else if (token.isKeyword("trailer")) {
@@ -226,7 +230,6 @@ void SkPdfNativeDoc::loadWithoutXRef() {
             }
         }
     }
-
 
     if (fRootCatalogRef) {
         fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
@@ -252,6 +255,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
     const unsigned char* current = nextObject(0, xrefStart, trailerEnd, &xref, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
 
     if (!xref.isKeyword("xref")) {
+        SkPdfReport(kWarning_SkPdfIssueSeverity, kMissingToken_SkPdfIssue, "Could not find sref", NULL, NULL);
         return trailerEnd;
     }
 
@@ -261,6 +265,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
         const unsigned char* previous = current;
         current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
         if (!token.isInteger()) {
+            SkPdfReport(kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue, "Done readCrossReferenceSection", NULL, NULL);
             return previous;
         }
 
@@ -269,7 +274,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
         current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
 
         if (!token.isInteger()) {
-            // TODO(edisonn): report/warning
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
             return current;
         }
 
@@ -279,7 +284,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
             token.reset();
             current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
             if (!token.isInteger()) {
-                // TODO(edisonn): report/warning
+                SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
                 return current;
             }
             int offset = (int)token.intValue();
@@ -287,7 +292,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
             token.reset();
             current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
             if (!token.isInteger()) {
-                // TODO(edisonn): report/warning
+                SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
                 return current;
             }
             int generation = (int)token.intValue();
@@ -295,14 +300,14 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
             token.reset();
             current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
             if (!token.isKeyword() || token.lenstr() != 1 || (*token.c_str() != 'f' && *token.c_str() != 'n')) {
-                // TODO(edisonn): report/warning
+                SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection: f or n expected", &token, SkPdfNativeObject::kKeyword_PdfObjectType, NULL);
                 return current;
             }
 
             addCrossSectionInfo(startId + i, generation, offset, *token.c_str() == 'f');
         }
     }
-    // TODO(edisonn): it should never get here? there is no trailer?
+    SkPdfReport(kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue, "Unexpected end of readCrossReferenceSection", NULL, NULL);
     return current;
 }
 
@@ -319,6 +324,7 @@ const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerSta
         if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.lenstr() ||
             strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
             // TODO(edisonn): report warning, rebuild trailer from objects.
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readTrailer: trailer keyword expected", &trailerKeyword, SkPdfNativeObject::kKeyword_PdfObjectType, NULL);
             return current;
         }
     }
@@ -336,7 +342,7 @@ const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerSta
     if (storeCatalog) {
         SkPdfNativeObject* ref = trailer->Root(NULL);
         if (ref == NULL || !ref->isReference()) {
-            // TODO(edisonn): oops, we have to fix the corrup pdf file
+            SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readTrailer: unexpected root reference", ref, SkPdfNativeObject::kReference_PdfObjectType, NULL);
             return current;
         }
         fRootCatalogRef = ref;
@@ -381,28 +387,33 @@ SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/
 
     current = nextObject(0, current, end, &idObj, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
     if (current >= end) {
-        // TODO(edisonn): report warning/error
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading id", NULL, NULL);
         return NULL;
     }
 
     current = nextObject(0, current, end, &generationObj, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
     if (current >= end) {
-        // TODO(edisonn): report warning/error
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading generation", NULL, NULL);
         return NULL;
     }
 
     current = nextObject(0, current, end, &objKeyword, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
     if (current >= end) {
-        // TODO(edisonn): report warning/error
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading keyword obj", NULL, NULL);
         return NULL;
     }
 
-    if (!idObj.isInteger() || !generationObj.isInteger() || id != idObj.intValue()/* || generation != generationObj.intValue()*/) {
-        // TODO(edisonn): report warning/error
+    if (!idObj.isInteger() || id != idObj.intValue()) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readObject: unexpected id", &idObj, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
+    }
+
+    // TODO(edisonn): verify that the generation is the right one
+    if (!generationObj.isInteger() /* || generation != generationObj.intValue()*/) {
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readObject: unexpected generation", &generationObj, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
     }
 
     if (!objKeyword.isKeyword() || strcmp(objKeyword.c_str(), "obj") != 0) {
-        // TODO(edisonn): report warning/error
+        SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readObject: unexpected obj keyword", &objKeyword, SkPdfNativeObject::kKeyword_PdfObjectType, NULL);
     }
 
     current = nextObject(1, current, end, dict, fAllocator, this PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
@@ -543,7 +554,7 @@ SkPdfNativeObject* SkPdfNativeDoc::resolveReference(SkPdfNativeObject* ref) {
 
         // TODO(edisonn): verify id and gen expected
         if (id < 0 || id >= fObjects.count()) {
-            // TODO(edisonn): report error/warning
+            SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "resolve reference id out of bounds", NULL, NULL);
             return NULL;
         }
 
@@ -553,7 +564,7 @@ SkPdfNativeObject* SkPdfNativeDoc::resolveReference(SkPdfNativeObject* ref) {
             printf("\nresolve(%s) = %s\n", ref->toString(0).c_str(), fObjects[id].fResolvedReference->toString(0, ref->toString().size() + 13).c_str());
 #endif
 
-            // TODO(edisonn): for known good documents, assert here THAT THE REFERENCE IS NOT null
+            SkPdfReportIf(!fObjects[id].fResolvedReference, kIgnoreError_SkPdfIssueSeverity, kBadReference_SkPdfIssue, "ref is NULL", NULL, NULL);
             return fObjects[id].fResolvedReference;
         }
 

@@ -38,25 +38,31 @@ SkMatrix SkMatrixFromPdfMatrix(double array[6]);
 class SkPdfNativeObject {
  public:
      enum ObjectType {
-         kInvalid_PdfObjectType,
+         // The type will have only one of these values, but for error reporting, we make it an enum
+         // so it can easily report that something was expected to be one of a few types
+         kInvalid_PdfObjectType = 1 << 1,
 
-         kBoolean_PdfObjectType,
-         kInteger_PdfObjectType,
-         kReal_PdfObjectType,
-         kString_PdfObjectType,
-         kHexString_PdfObjectType,
-         kName_PdfObjectType,
-         kKeyword_PdfObjectType,
-         //kStream_PdfObjectType,  //  attached to a Dictionary
-         kArray_PdfObjectType,
-         kDictionary_PdfObjectType,
-         kNull_PdfObjectType,
+         kBoolean_PdfObjectType = 1 << 2,
+         kInteger_PdfObjectType = 1 << 3,
+         kReal_PdfObjectType = 1 << 4,
+         _kNumber_PdfObjectType = kInteger_PdfObjectType | kReal_PdfObjectType,
+         kString_PdfObjectType = 1 << 5,
+         kHexString_PdfObjectType = 1 << 6,
+         _kAnyString_PdfObjectType = kString_PdfObjectType | kHexString_PdfObjectType,
+         kName_PdfObjectType = 1 << 7,
+         kKeyword_PdfObjectType = 1 << 8,
+         _kStream_PdfObjectType = 1 << 9,  //  attached to a Dictionary, do not use
+         kArray_PdfObjectType = 1 << 10,
+         kDictionary_PdfObjectType = 1 << 11,
+         kNull_PdfObjectType = 1 << 12,
 
          // TODO(edisonn): after the pdf has been loaded completely, resolve all references
          // try the same thing with delayed loaded ...
-         kReference_PdfObjectType,
+         kReference_PdfObjectType = 1 << 13,
 
-         kUndefined_PdfObjectType,  // per 1.4 spec, if the same key appear twice in the dictionary, the value is undefined
+         kUndefined_PdfObjectType = 1 << 14,  // per 1.4 spec, if the same key appear twice in the dictionary, the value is undefined
+
+         _kObject_PdfObjectType = -1,
      };
 
      enum DataType {
