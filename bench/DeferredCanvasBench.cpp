@@ -32,11 +32,7 @@ protected:
         device->unref();
 
         initDeferredCanvas(deferredCanvas);
-
-        for (int i = 0; i < this->getLoops(); i++) {
-            drawInDeferredCanvas(deferredCanvas);
-        }
-
+        drawInDeferredCanvas(deferredCanvas);
         finalizeDeferredCanvas(deferredCanvas);
         deferredCanvas->flush();
     }
