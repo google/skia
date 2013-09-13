@@ -13,6 +13,7 @@
 #include "SkUtilsArm.h"
 #include "SkBitmapScaler.h"
 #include "SkMipMap.h"
+#include "SkPixelRef.h"
 #include "SkScaledImageCache.h"
 
 #if !SK_ARM_NEON_IS_NONE
@@ -109,14 +110,13 @@ static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
 // the portion of the image that we're going to need.  This will complicate
 // the interface to the cache, but might be well worth it.
 
-void SkBitmapProcState::possiblyScaleImage() {
+bool SkBitmapProcState::possiblyScaleImage() {
+    SkASSERT(NULL == fBitmap);
+    SkASSERT(NULL == fScaledCacheID);
 
     if (fFilterLevel <= SkPaint::kLow_FilterLevel) {
-        // none or low (bilerp) does not need to look any further
-        return;
+        return false;
     }
-
-    // STEP 1: Highest quality direct scale?
 
     // Check to see if the transformation matrix is simple, and if we're
     // doing high quality scaling.  If so, do the bitmap scale here and
@@ -129,7 +129,6 @@ void SkBitmapProcState::possiblyScaleImage() {
         SkScalar invScaleX = fInvMatrix.getScaleX();
         SkScalar invScaleY = fInvMatrix.getScaleY();
 
-        SkASSERT(NULL == fScaledCacheID);
         fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
                                                          invScaleX, invScaleY,
                                                          &fScaledBitmap);
@@ -151,7 +150,7 @@ void SkBitmapProcState::possiblyScaleImage() {
                                         simd)) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
-                return;
+                return true;
 
             }
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
@@ -159,25 +158,19 @@ void SkBitmapProcState::possiblyScaleImage() {
                                                             invScaleY,
                                                             fScaledBitmap);
         }
-        fScaledBitmap.lockPixels();
-
+        fScaledBitmap.lockPixels(); // wonder if Resize() should have locked this
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;
-
         fInvMatrix.setTranslate(fInvMatrix.getTranslateX() / fInvMatrix.getScaleX(),
                                 fInvMatrix.getTranslateY() / fInvMatrix.getScaleY());
 
         // no need for any further filtering; we just did it!
-
         fFilterLevel = SkPaint::kNone_FilterLevel;
-
-        return;
+        return true;
     }
 
     /*
-     *  If we get here, the caller has requested either Med or High filter-level
-     *
      *  If High, then our special-case for scale-only did not take, and so we
      *  have to make a choice:
      *      1. fall back on mipmaps + bilerp
@@ -202,7 +195,7 @@ void SkBitmapProcState::possiblyScaleImage() {
         const SkScalar bicubicLimit = SkFloatToScalar(4.0f);
         const SkScalar bicubicLimitSqd = bicubicLimit * bicubicLimit;
         if (scaleSqd < bicubicLimitSqd) {  // use bicubic scanline
-            return;
+            return false;
         }
 
         // else set the filter-level to Medium, since we're scaling down and
@@ -247,15 +240,61 @@ void SkBitmapProcState::possiblyScaleImage() {
                                         level.fRowBytes);
                 fScaledBitmap.setPixels(level.fPixels);
                 fBitmap = &fScaledBitmap;
+                fFilterLevel = SkPaint::kLow_FilterLevel;
+                return true;
             }
         }
     }
 
+    return false;
+}
+
+static bool get_locked_pixels(const SkBitmap& src, int pow2, SkBitmap* dst) {
+    SkPixelRef* pr = src.pixelRef();
+    if (pr && pr->decodeInto(pow2, dst)) {
+        return true;
+    }
+
     /*
-     *  At this point, we may or may not have built a mipmap. Regardless, we
-     *  now fall back on Low so will bilerp whatever fBitmap now points at.
+     *  If decodeInto() fails, it is possibe that we have an old subclass that
+     *  does not, or cannot, implement that. In that case we fall back to the
+     *  older protocol of having the pixelRef handle the caching for us.
      */
-    fFilterLevel = SkPaint::kLow_FilterLevel;
+    *dst = src;
+    dst->lockPixels();
+    return SkToBool(dst->getPixels());
+}
+
+bool SkBitmapProcState::lockBaseBitmap() {
+    SkPixelRef* pr = fOrigBitmap.pixelRef();
+
+    if (pr->isLocked() || !pr->implementsDecodeInto()) {
+        // fast-case, no need to look in our cache
+        fScaledBitmap = fOrigBitmap;
+    } else {
+        fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
+                                                         SK_Scalar1, SK_Scalar1,
+                                                         &fScaledBitmap);
+        if (NULL == fScaledCacheID) {
+            if (!get_locked_pixels(fOrigBitmap, 0, &fScaledBitmap)) {
+                return false;
+            }
+
+            // TODO: if fScaled comes back at a different width/height than fOrig,
+            // we need to update the matrix we are using to sample from this guy.
+
+            fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
+                                                            SK_Scalar1, SK_Scalar1,
+                                                            fScaledBitmap);
+            if (!fScaledCacheID) {
+                fScaledBitmap.reset();
+                return false;
+            }
+        }
+    }
+    fScaledBitmap.lockPixels(); // just 'cause the cache made a copy :(
+    fBitmap = &fScaledBitmap;
+    return true;
 }
 
 void SkBitmapProcState::endContext() {
@@ -277,17 +316,10 @@ SkBitmapProcState::~SkBitmapProcState() {
 }
 
 bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
-    if (fOrigBitmap.width() == 0 || fOrigBitmap.height() == 0) {
-        return false;
-    }
+    SkASSERT(fOrigBitmap.width() && fOrigBitmap.height());
 
-    fBitmap = &fOrigBitmap;
+    fBitmap = NULL;
     fInvMatrix = inv;
-
-    // initialize our filter quality to the one requested by the caller.
-    // We may downgrade it later if we determine that we either don't need
-    // or can't provide as high a quality filtering as the user requested.
-
     fFilterLevel = paint.getFilterLevel();
 
     // possiblyScaleImage will look to see if it can rescale the image as a
@@ -295,8 +327,13 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // a nearby mipmap level.  If it does, it will adjust the working
     // matrix as well as the working bitmap.  It may also adjust the filter
     // quality to avoid re-filtering an already perfectly scaled image.
-
-    this->possiblyScaleImage();
+    if (!this->possiblyScaleImage()) {
+        if (!this->lockBaseBitmap()) {
+            return false;
+        }
+    }
+    
+    SkASSERT(fBitmap);
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
@@ -322,7 +359,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
                 SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
                 fInvMatrix.setTranslate(tx, ty);
-
             }
         }
     }

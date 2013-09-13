@@ -145,3 +145,56 @@ SkData* SkLazyPixelRef::onRefEncodedData() {
     fData->ref();
     return fData;
 }
+
+#include "SkImagePriv.h"
+
+static bool init_from_info(SkBitmap* bm, const SkImage::Info& info,
+                           size_t rowBytes) {
+    bool isOpaque;
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    if (SkBitmap::kNo_Config == config) {
+        return false;
+    }
+
+    bm->setConfig(config, info.fWidth, info.fHeight, rowBytes);
+    bm->setIsOpaque(isOpaque);
+    return bm->allocPixels();
+}
+
+bool SkLazyPixelRef::onImplementsDecodeInto() {
+    return true;
+}
+
+bool SkLazyPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
+    SkASSERT(fData != NULL && fData->size() > 0);
+    if (fErrorInDecoding) {
+        return false;
+    }
+
+    SkImage::Info info;
+    // Determine the size of the image in order to determine how much memory to allocate.
+    // FIXME: As an optimization, only do this part once.
+    fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
+    if (fErrorInDecoding) {
+        return false;
+    }
+    
+    SkBitmapFactory::Target target;
+    (void)ComputeMinRowBytesAndSize(info, &target.fRowBytes);
+    
+    SkBitmap tmp;
+    if (!init_from_info(&tmp, info, target.fRowBytes)) {
+        return false;
+    }
+    
+    target.fAddr = tmp.getPixels();
+    fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, &target);
+    if (fErrorInDecoding) {
+        return false;
+    }
+
+    *bitmap = tmp;
+    return true;
+}
+
+

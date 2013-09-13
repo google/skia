@@ -61,6 +61,8 @@ protected:
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
     virtual SkData* onRefEncodedData() SK_OVERRIDE;
+    virtual bool onImplementsDecodeInto() SK_OVERRIDE;
+    virtual bool onDecodeInto(int pow2, SkBitmap*) SK_OVERRIDE;
 
 private:
     bool                        fErrorInDecoding;

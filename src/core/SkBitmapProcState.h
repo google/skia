@@ -13,6 +13,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapFilter.h"
 #include "SkMatrix.h"
+#include "SkPaint.h"
 #include "SkScaledImageCache.h"
 
 #define FractionalInt_IS_64BIT
@@ -160,7 +161,13 @@ private:
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
 
-    void possiblyScaleImage();
+    // returns false if we did not try to scale the image. In that case, we
+    // will need to "lock" its pixels some other way.
+    bool possiblyScaleImage();
+
+    // returns false if we failed to "lock" the pixels at all. Typically this
+    // means we have to abort the shader.
+    bool lockBaseBitmap();
 
     SkBitmapFilter* fBitmapFilter;
 
