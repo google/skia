@@ -80,24 +80,37 @@ bool SkBitmapProcShader::isOpaque() const {
     return fRawBitmap.isOpaque();
 }
 
+static bool valid_for_drawing(const SkBitmap& bm) {
+    if (0 == bm.width() || 0 == bm.height()) {
+        return false;   // nothing to draw
+    }
+    if (NULL == bm.pixelRef()) {
+        return false;   // no pixels to read
+    }
+    if (SkBitmap::kIndex8_Config == bm.config()) {
+        // ugh, I have to lock-pixels to inspect the colortable
+        SkAutoLockPixels alp(bm);
+        if (!bm.getColorTable()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SkBitmapProcShader::setContext(const SkBitmap& device,
                                     const SkPaint& paint,
                                     const SkMatrix& matrix) {
+    if (!fRawBitmap.getTexture() && !valid_for_drawing(fRawBitmap)) {
+        return false;
+    }
+
     // do this first, so we have a correct inverse matrix
     if (!this->INHERITED::setContext(device, paint, matrix)) {
         return false;
     }
 
     fState.fOrigBitmap = fRawBitmap;
-    fState.fOrigBitmap.lockPixels();
-    if (!fState.fOrigBitmap.getTexture() && !fState.fOrigBitmap.readyToDraw()) {
-        fState.fOrigBitmap.unlockPixels();
-        this->INHERITED::endContext();
-        return false;
-    }
-
     if (!fState.chooseProcs(this->getTotalInverse(), paint)) {
-        fState.fOrigBitmap.unlockPixels();
         this->INHERITED::endContext();
         return false;
     }
@@ -147,7 +160,6 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 }
 
 void SkBitmapProcShader::endContext() {
-    fState.fOrigBitmap.unlockPixels();
     fState.endContext();
     this->INHERITED::endContext();
 }
