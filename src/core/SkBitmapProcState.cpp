@@ -332,7 +332,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             return false;
         }
     }
-    
+
     SkASSERT(fBitmap);
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
