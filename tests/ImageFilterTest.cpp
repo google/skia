@@ -37,20 +37,20 @@ public:
             for (int x = 0; x < kBitmapSize; x += i) {
                 canvas.save();
                 canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 
-                                                 SkIntToScalar(i), 
+                canvas.drawRect(SkRect::MakeXYWH(0, 0,
+                                                 SkIntToScalar(i),
                                                  SkIntToScalar(i)), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i), 
+                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
                                                  0,
-                                                 SkIntToScalar(i), 
+                                                 SkIntToScalar(i),
                                                  SkIntToScalar(i)), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 
-                                                 SkIntToScalar(i), 
-                                                 SkIntToScalar(i), 
+                canvas.drawRect(SkRect::MakeXYWH(0,
+                                                 SkIntToScalar(i),
+                                                 SkIntToScalar(i),
                                                  SkIntToScalar(i)), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i), 
-                                                 SkIntToScalar(i), 
-                                                 SkIntToScalar(i), 
+                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
+                                                 SkIntToScalar(i),
+                                                 SkIntToScalar(i),
                                                  SkIntToScalar(i)), darkPaint);
                 canvas.restore();
             }
@@ -129,14 +129,14 @@ public:
                 SkPoint3 target(location.fX, location.fY, location.fZ);
                 // 3 ) large negative specular exponent value
                 SkScalar specularExponent = SkFloatToScalar(-1000);
-        
+
                 SkPaint paint;
                 paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                         location, target, specularExponent, SkFloatToScalar(180),
                         0xFFFFFFFF, SK_Scalar1, SK_Scalar1, SK_Scalar1,
                         new SkBitmapSource(bitmap)))->unref();
                 SkCanvas canvas(result);
-                SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize), 
+                SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                           SkIntToScalar(kBitmapSize));
                 canvas.drawRect(r, paint);
             }
