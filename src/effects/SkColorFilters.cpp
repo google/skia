@@ -13,7 +13,6 @@
 #include "SkFlattenableBuffers.h"
 #include "SkUtils.h"
 #include "SkString.h"
-#include "SkValidationUtils.h"
 
 #define ILLEGAL_XFERMODE_MODE   ((SkXfermode::Mode)-1)
 
@@ -99,7 +98,6 @@ protected:
         fColor = buffer.readColor();
         fMode = (SkXfermode::Mode)buffer.readUInt();
         this->updateCache();
-        buffer.validate(SkIsValidMode(fMode));
     }
 
 private:

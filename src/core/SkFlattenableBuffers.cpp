@@ -9,8 +9,7 @@
 #include "SkPaint.h"
 #include "SkTypeface.h"
 
-SkFlattenableReadBuffer::SkFlattenableReadBuffer() :
-    fError(false) {
+SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
     // Set default values. These should be explicitly set by our client
     // via setFlags() if the buffer came from serialization.
     fFlags = 0;

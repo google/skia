@@ -9,7 +9,6 @@
 #include "SkMagnifierImageFilter.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
-#include "SkValidationUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
@@ -253,8 +252,6 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
     float height = buffer.readScalar();
     fSrcRect = SkRect::MakeXYWH(x, y, width, height);
     fInset = buffer.readScalar();
-
-    buffer.validate(SkIsValidRect(fSrcRect) && SkScalarIsFinite(fInset));
 }
 
 // FIXME:  implement single-input semantics

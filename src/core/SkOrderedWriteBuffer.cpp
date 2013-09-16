@@ -270,9 +270,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         factory = flattenable->getFactory();
     }
     if (NULL == factory) {
-        if (this->isValidating()) {
-            this->writeString(NULL);
-        } else if (fFactorySet != NULL || fNamedFactorySet != NULL) {
+        if (fFactorySet != NULL || fNamedFactorySet != NULL) {
             this->write32(0);
         } else {
             this->writeFunctionPtr(NULL);
@@ -292,14 +290,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
      *      name. SkGPipe uses this technique so it can write the name to its
      *      stream before writing the flattenable.
      */
-    if (this->isValidating()) {
-        const char* name = SkFlattenable::FactoryToName(factory);
-        this->writeString(name);
-        if (NULL == name) {
-            SkASSERT(0); // Missing factory name
-            return;
-        }
-    } else if (fFactorySet) {
+    if (fFactorySet) {
         this->write32(fFactorySet->add(factory));
     } else if (fNamedFactorySet) {
         int32_t index = fNamedFactorySet->find(factory);
