@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkBlurImageFilter.h"
+#include "SkRandom.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -33,14 +34,15 @@ protected:
         paint.setImageFilter(new SkBlurImageFilter(24.0f, 0.0f))->unref();
         canvas->saveLayer(NULL, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
-        srand(1234);
+
+        SkRandom rand;
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
         for (int i = 0; i < 25; ++i) {
-            int x = rand() % WIDTH;
-            int y = rand() % HEIGHT;
-            textPaint.setColor(rand() % 0x1000000 | 0xFF000000);
-            textPaint.setTextSize(SkIntToScalar(rand() % 300));
+            int x = rand.nextULessThan(WIDTH);
+            int y = rand.nextULessThan(HEIGHT);
+            textPaint.setColor(rand.nextBits(24) | 0xFF000000);
+            textPaint.setTextSize(rand.nextULessThan(300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
                              SkIntToScalar(y), textPaint);
         }
