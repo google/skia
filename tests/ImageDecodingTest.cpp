@@ -232,7 +232,7 @@ static void test_stream_life() {
         SkImageEncoder::kWEBP_Type,
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTypes); ++i) {
-        SkDebugf("encoding to %i\n", i);
+        //SkDebugf("encoding to %i\n", i);
         SkAutoTUnref<SkStream> stream(create_image_stream(gTypes[i]));
         if (NULL == stream.get()) {
             SkDebugf("no stream\n");
