@@ -52,7 +52,6 @@ public:
         kRGB_565_Config,    //!< 16-bits per pixel, (see SkColorPriv.h for packing)
         kARGB_4444_Config,  //!< 16-bits per pixel, (see SkColorPriv.h for packing)
         kARGB_8888_Config,  //!< 32-bits per pixel, (see SkColorPriv.h for packing)
-        kLastConfig = kARGB_8888_Config,
     };
 
     // do not add this to the Config enum, otherwise the compiler will let us

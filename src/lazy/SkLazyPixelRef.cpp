@@ -178,15 +178,15 @@ bool SkLazyPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
     if (fErrorInDecoding) {
         return false;
     }
-
+    
     SkBitmapFactory::Target target;
     (void)ComputeMinRowBytesAndSize(info, &target.fRowBytes);
-
+    
     SkBitmap tmp;
     if (!init_from_info(&tmp, info, target.fRowBytes)) {
         return false;
     }
-
+    
     target.fAddr = tmp.getPixels();
     fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, &target);
     if (fErrorInDecoding) {
@@ -196,3 +196,5 @@ bool SkLazyPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
     *bitmap = tmp;
     return true;
 }
+
+

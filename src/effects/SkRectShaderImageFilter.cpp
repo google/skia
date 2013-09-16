@@ -11,7 +11,6 @@
 #include "SkDevice.h"
 #include "SkFlattenableBuffers.h"
 #include "SkShader.h"
-#include "SkValidationUtils.h"
 
 SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) {
     SkASSERT(s);
@@ -30,7 +29,6 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkFlattenableReadBuffer& buffer
   : INHERITED(buffer) {
     fShader = buffer.readFlattenableT<SkShader>();
     buffer.readRect(&fRect);
-    buffer.validate(SkIsValidRect(fRect));
 }
 
 void SkRectShaderImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
