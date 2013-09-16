@@ -43,6 +43,8 @@ const char* BenchMode_Name[] = {
     "normal", "deferred", "deferredSilent", "record", "picturerecord"
 };
 
+static const char kDefaultsConfigStr[] = "defaults";
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void erase(SkBitmap& bm) {
@@ -273,7 +275,8 @@ DEFINE_string(mode, "normal",
              "deferredSilent: deferred with silent playback;\n"
              "record:         draw to an SkPicture;\n"
              "picturerecord:  draw from an SkPicture to an SkPicture.\n");
-DEFINE_string(config, "", "Run configs given.  If empty, runs the defaults set in gConfigs.");
+DEFINE_string(config, kDefaultsConfigStr,
+              "Run configs given.  By default, runs the configs marked \"runByDefault\" in gConfigs.");
 DEFINE_string(logFile, "", "Also write stdout here.");
 DEFINE_int32(minMs, 20,  "Shortest time we'll allow a benchmark to run.");
 DEFINE_int32(maxMs, 4000, "Longest time we'll allow a benchmark to run.");
@@ -324,16 +327,19 @@ int tool_main(int argc, char** argv) {
     }
 
     SkTDArray<int> configs;
+    bool runDefaultConfigs = false;
     // Try user-given configs first.
     for (int i = 0; i < FLAGS_config.count(); i++) {
         for (size_t j = 0; j < SK_ARRAY_COUNT(gConfigs); j++) {
             if (0 == strcmp(FLAGS_config[i], gConfigs[j].name)) {
                 *configs.append() = j;
+            } else if (0 == strcmp(FLAGS_config[i], kDefaultsConfigStr)) {
+                runDefaultConfigs = true;
             }
         }
     }
     // If there weren't any, fill in with defaults.
-    if (configs.count() == 0) {
+    if (runDefaultConfigs) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
             if (gConfigs[i].runByDefault) {
                 *configs.append() = i;
