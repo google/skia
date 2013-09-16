@@ -9,7 +9,11 @@
 
 #include "GrEffect.h"
 #include "GrGLEffect.h"
+#include "SkRTConf.h"
 #include "SkTSearch.h"
+
+SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
+                "Display program cache usage.");
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
@@ -56,15 +60,17 @@ GrGpuGL::ProgramCache::~ProgramCache() {
     }
     // dump stats
 #ifdef PROGRAM_CACHE_STATS
-    SkDebugf("--- Program Cache ---\n");
-    SkDebugf("Total requests: %d\n", fTotalRequests);
-    SkDebugf("Cache misses: %d\n", fCacheMisses);
-    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
-                                        100.f * fCacheMisses / fTotalRequests :
-                                        0.f);
-    int cacheHits = fTotalRequests - fCacheMisses;
-    SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
-    SkDebugf("---------------------\n");
+    if (c_DisplayCache) {
+        SkDebugf("--- Program Cache ---\n");
+        SkDebugf("Total requests: %d\n", fTotalRequests);
+        SkDebugf("Cache misses: %d\n", fCacheMisses);
+        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
+                                            100.f * fCacheMisses / fTotalRequests :
+                                            0.f);
+        int cacheHits = fTotalRequests - fCacheMisses;
+        SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
+        SkDebugf("---------------------\n");
+    }
 #endif
 }
 
