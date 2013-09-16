@@ -340,3 +340,16 @@ void SkDQuad::SetABC(const double* quad, double* a, double* b, double* c) {
     *a -= *b;          // a = A - 2*B +   C
     *b -= *c;          // b =     2*B - 2*C
 }
+
+#ifdef SK_DEBUG
+void SkDQuad::dump() {
+    SkDebugf("{{");
+    int index = 0;
+    do {
+        fPts[index].dump();
+        SkDebugf(", ");
+    } while (++index < 2);
+    fPts[index].dump();
+    SkDebugf("}}\n");
+}
+#endif

@@ -250,6 +250,9 @@ static SkOpSegment* findSortableTop(const SkTArray<SkOpContour*, true>& contourL
         *topLeft = bestXY;
         result = topStart->findTop(index, endIndex, unsortable, onlySortable);
     } while (!result);
+    if (result) {
+        *unsortable = false;
+    }
     return result;
 }
 
@@ -288,9 +291,9 @@ static void skipVertical(const SkTArray<SkOpContour*, true>& contourList,
     }
 }
 
-SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bool* firstContour,
-                             int* indexPtr, int* endIndexPtr, SkPoint* topLeft, bool* unsortable,
-                             bool* done,  bool binary) {
+SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
+        SkOpAngle::IncludeType angleIncludeType, bool* firstContour, int* indexPtr,
+        int* endIndexPtr, SkPoint* topLeft, bool* unsortable, bool* done) {
     SkOpSegment* current = findSortableTop(contourList, indexPtr, endIndexPtr, topLeft, unsortable,
             done, true);
     if (!current) {
@@ -308,8 +311,11 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bo
     if (sumWinding != SK_MinS32) {
         return current;
     }
-    sumWinding = current->computeSum(index, endIndex, binary);
-    if (sumWinding != SK_MinS32) {
+    SkASSERT(current->windSum(SkMin32(index, endIndex)) == SK_MinS32);
+    SkSTArray<SkOpAngle::kStackBasedCount, SkOpAngle, true> angles;
+    SkSTArray<SkOpAngle::kStackBasedCount, SkOpAngle*, true> sorted;
+    sumWinding = current->computeSum(index, endIndex, angleIncludeType, &angles, &sorted);
+    if (sumWinding != SK_MinS32 && sumWinding != SK_NaN32) {
         return current;
     }
     int contourWinding;
@@ -333,7 +339,7 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList, bo
         if (tryAgain) {
             continue;
         }
-        if (!binary) {
+        if (angleIncludeType < SkOpAngle::kBinarySingle) {
             break;
         }
         oppContourWinding = rightAngleWinding(contourList, &current, indexPtr, endIndexPtr, &tHit,
@@ -351,6 +357,15 @@ void CheckEnds(SkTArray<SkOpContour*, true>* contourList) {
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
         contour->checkEnds();
+    }
+}
+
+// A tiny interval may indicate an undiscovered coincidence. Find and fix.
+void CheckTiny(SkTArray<SkOpContour*, true>* contourList) {
+    int contourCount = (*contourList).count();
+    for (int cTest = 0; cTest < contourCount; ++cTest) {
+        SkOpContour* contour = (*contourList)[cTest];
+        contour->checkTiny();
     }
 }
 

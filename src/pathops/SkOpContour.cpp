@@ -12,8 +12,7 @@
 void SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, bool swap) {
     SkCoincidence& coincidence = fCoincidences.push_back();
-    coincidence.fContours[0] = this;  // FIXME: no need to store
-    coincidence.fContours[1] = other;
+    coincidence.fOther = other;
     coincidence.fSegments[0] = index;
     coincidence.fSegments[1] = otherIndex;
     coincidence.fTs[swap][0] = ts[0][0];
@@ -48,10 +47,9 @@ void SkOpContour::addCoincidentPoints() {
     int count = fCoincidences.count();
     for (int index = 0; index < count; ++index) {
         SkCoincidence& coincidence = fCoincidences[index];
-        SkASSERT(coincidence.fContours[0] == this);
         int thisIndex = coincidence.fSegments[0];
         SkOpSegment& thisOne = fSegments[thisIndex];
-        SkOpContour* otherContour = coincidence.fContours[1];
+        SkOpContour* otherContour = coincidence.fOther;
         int otherIndex = coincidence.fSegments[1];
         SkOpSegment& other = otherContour->fSegments[otherIndex];
         if ((thisOne.done() || other.done()) && thisOne.complete() && other.complete()) {
@@ -103,51 +101,84 @@ void SkOpContour::addCoincidentPoints() {
     }
 }
 
+void SkOpContour::addPartialCoincident(int index, SkOpContour* other, int otherIndex,
+        const SkIntersections& ts, int ptIndex, bool swap) {
+    SkCoincidence& coincidence = fPartialCoincidences.push_back();
+    coincidence.fOther = other;
+    coincidence.fSegments[0] = index;
+    coincidence.fSegments[1] = otherIndex;
+    coincidence.fTs[swap][0] = ts[0][index];
+    coincidence.fTs[swap][1] = ts[0][index + 1];
+    coincidence.fTs[!swap][0] = ts[1][index];
+    coincidence.fTs[!swap][1] = ts[1][index + 1];
+    coincidence.fPts[0] = ts.pt(index).asSkPoint();
+    coincidence.fPts[1] = ts.pt(index + 1).asSkPoint();
+}
+
 void SkOpContour::calcCoincidentWinding() {
     int count = fCoincidences.count();
+#if DEBUG_CONCIDENT
+    if (count > 0) {
+        SkDebugf("%s count=%d\n", __FUNCTION__, count);
+    }
+#endif
     for (int index = 0; index < count; ++index) {
         SkCoincidence& coincidence = fCoincidences[index];
-        SkASSERT(coincidence.fContours[0] == this);
-        int thisIndex = coincidence.fSegments[0];
-        SkOpSegment& thisOne = fSegments[thisIndex];
-        if (thisOne.done()) {
-            continue;
-        }
-        SkOpContour* otherContour = coincidence.fContours[1];
-        int otherIndex = coincidence.fSegments[1];
-        SkOpSegment& other = otherContour->fSegments[otherIndex];
-        if (other.done()) {
-            continue;
-        }
-        double startT = coincidence.fTs[0][0];
-        double endT = coincidence.fTs[0][1];
-        bool cancelers;
-        if ((cancelers = startT > endT)) {
-            SkTSwap<double>(startT, endT);
-        }
-        SkASSERT(!approximately_negative(endT - startT));
-        double oStartT = coincidence.fTs[1][0];
-        double oEndT = coincidence.fTs[1][1];
-        if (oStartT > oEndT) {
-            SkTSwap<double>(oStartT, oEndT);
-            cancelers ^= true;
-        }
-        SkASSERT(!approximately_negative(oEndT - oStartT));
-        if (cancelers) {
-            // make sure startT and endT have t entries
-            if (!thisOne.done() && !other.done()) {
-                thisOne.addTCancel(startT, endT, &other, oStartT, oEndT);
-            }
-        } else {
-            if (!thisOne.done() && !other.done()) {
-                thisOne.addTCoincident(startT, endT, &other, oStartT, oEndT);
-            }
-        }
-    #if DEBUG_CONCIDENT
-        thisOne.debugShowTs();
-        other.debugShowTs();
-    #endif
+         calcCommonCoincidentWinding(coincidence);
     }
+}
+
+void SkOpContour::calcPartialCoincidentWinding() {
+    int count = fPartialCoincidences.count();
+#if DEBUG_CONCIDENT
+    if (count > 0) {
+        SkDebugf("%s count=%d\n", __FUNCTION__, count);
+    }
+#endif
+    for (int index = 0; index < count; ++index) {
+        SkCoincidence& coincidence = fPartialCoincidences[index];
+         calcCommonCoincidentWinding(coincidence);
+    }
+}
+
+void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) {
+    int thisIndex = coincidence.fSegments[0];
+    SkOpSegment& thisOne = fSegments[thisIndex];
+    if (thisOne.done()) {
+        return;
+    }
+    SkOpContour* otherContour = coincidence.fOther;
+    int otherIndex = coincidence.fSegments[1];
+    SkOpSegment& other = otherContour->fSegments[otherIndex];
+    if (other.done()) {
+        return;
+    }
+    double startT = coincidence.fTs[0][0];
+    double endT = coincidence.fTs[0][1];
+    const SkPoint* startPt = &coincidence.fPts[0];
+    const SkPoint* endPt = &coincidence.fPts[1];
+    bool cancelers;
+    if ((cancelers = startT > endT)) {
+        SkTSwap<double>(startT, endT);
+        SkTSwap<const SkPoint*>(startPt, endPt);
+    }
+    SkASSERT(!approximately_negative(endT - startT));
+    double oStartT = coincidence.fTs[1][0];
+    double oEndT = coincidence.fTs[1][1];
+    if (oStartT > oEndT) {
+        SkTSwap<double>(oStartT, oEndT);
+        cancelers ^= true;
+    }
+    SkASSERT(!approximately_negative(oEndT - oStartT));
+    if (cancelers) {
+        thisOne.addTCancel(*startPt, *endPt, &other);
+    } else {
+        thisOne.addTCoincident(*startPt, *endPt, &other);
+    }
+#if DEBUG_CONCIDENT
+    thisOne.debugShowTs();
+    other.debugShowTs();
+#endif
 }
 
 void SkOpContour::sortSegments() {
@@ -229,7 +260,7 @@ int SkOpContour::debugShowWindingValues(int totalSegments, int ofInterest) {
     return sum;
 }
 
-static void SkOpContour::debugShowWindingValues(const SkTArray<SkOpContour*, true>& contourList) {
+void SkOpContour::debugShowWindingValues(const SkTArray<SkOpContour*, true>& contourList) {
 //     int ofInterest = 1 << 1 | 1 << 5 | 1 << 9 | 1 << 13;
 //    int ofInterest = 1 << 4 | 1 << 8 | 1 << 12 | 1 << 16;
     int ofInterest = 1 << 5 | 1 << 8;

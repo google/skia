@@ -554,11 +554,12 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path) {
 }
 
 #if DEBUG_SHOW_TEST_NAME
-void DebugShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp, const char* testName) {
-        ShowFunctionHeader(testName);
-        showPath(a, "path", true);
-        showPath(b, "pathB", true);
-        ShowOp(shapeOp, "path", "pathB");
+void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp,
+        const char* testName) {
+    ShowFunctionHeader(testName);
+    showPath(a, "path", true);
+    showPath(b, "pathB", true);
+    ShowOp(shapeOp, "path", "pathB");
 }
 #endif
 
@@ -571,7 +572,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
         showOp(shapeOp);
         showPathData(b);
     } else {
-        DebugShowPath(a, b, shapeOp, testName);
+        SkPathOpsDebug::ShowPath(a, b, shapeOp, testName);
     }
 #endif
     SkPath out;
@@ -628,8 +629,8 @@ bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
 
 int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #ifdef SK_DEBUG
-    gDebugMaxWindSum = 4;
-    gDebugMaxWindValue = 4;
+    SkPathOpsDebug::gMaxWindSum = 4;
+    SkPathOpsDebug::gMaxWindValue = 4;
 #endif
     testName = test;
     size_t testNameSize = strlen(test);

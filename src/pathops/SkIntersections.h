@@ -23,6 +23,7 @@ public:
         sk_bzero(fPt, sizeof(fPt));
         sk_bzero(fT, sizeof(fT));
         sk_bzero(fIsCoincident, sizeof(fIsCoincident));
+        sk_bzero(&fIsNear, sizeof(fIsNear));
         reset();
     }
 
@@ -40,6 +41,7 @@ public:
         memcpy(fPt, i.fPt, sizeof(fPt));
         memcpy(fT, i.fT, sizeof(fT));
         memcpy(fIsCoincident, i.fIsCoincident, sizeof(fIsCoincident));
+        memcpy(&fIsNear, &i.fIsNear, sizeof(fIsNear));
         fUsed = i.fUsed;
         fSwap = i.fSwap;
         SkDEBUGCODE(fDepth = i.fDepth);
@@ -107,6 +109,10 @@ public:
 
     bool isCoincident(int index) {
         return (fIsCoincident[0] & 1 << index) != 0;
+    }
+
+    bool isNear(int index) {
+        return (fIsNear & 1 << index) != 0;
     }
 
     int lineHorizontal(const SkPoint a[2], SkScalar left, SkScalar right, SkScalar y,
@@ -206,6 +212,7 @@ public:
     int horizontal(const SkDCubic&, double left, double right, double y, double tRange[3]);
     // FIXME : does not respect swap
     int insert(double one, double two, const SkDPoint& pt);
+    void insertNear(double one, double two, const SkDPoint& pt);
     // start if index == 0 : end if index == 1
     void insertCoincident(double one, double two, const SkDPoint& pt);
     int intersect(const SkDLine&, const SkDLine&);
@@ -243,9 +250,10 @@ private:
     // used by addCoincident to remove ordinary intersections in range
  //   void remove(double one, double two, const SkDPoint& startPt, const SkDPoint& endPt);
 
-    SkDPoint fPt[9];
+    SkDPoint fPt[9];  // FIXME: since scans store points as SkPoint, this should also
     double fT[2][9];
-    uint16_t fIsCoincident[2];  // bit arrays, one bit set for each coincident T
+    uint16_t fIsCoincident[2];  // bit set for each curve's coincident T
+    uint16_t fIsNear;  // bit set for each T if 2nd curve's point is near but not equal to 1st
     unsigned char fUsed;
     bool fAllowNear;
     bool fSwap;

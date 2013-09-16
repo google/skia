@@ -137,6 +137,9 @@ public:
 
     int intersect() {
         addExactEndPoints();
+        if (fAllowNear) {
+            addNearEndPoints();
+        }
         double rootVals[2];
         int roots = intersectRay(rootVals);
         for (int index = 0; index < roots; ++index) {
@@ -146,9 +149,6 @@ public:
             if (pinTs(&quadT, &lineT, &pt, kPointUninitialized)) {
                 fIntersections->insert(quadT, lineT, pt);
             }
-        }
-        if (fAllowNear) {
-            addNearEndPoints();
         }
         return fIntersections->used();
     }
@@ -165,6 +165,9 @@ public:
 
     int horizontalIntersect(double axisIntercept, double left, double right, bool flipped) {
         addExactHorizontalEndPoints(left, right, axisIntercept);
+        if (fAllowNear) {
+            addNearHorizontalEndPoints(left, right, axisIntercept);
+        }
         double rootVals[2];
         int roots = horizontalIntersect(axisIntercept, rootVals);
         for (int index = 0; index < roots; ++index) {
@@ -174,9 +177,6 @@ public:
             if (pinTs(&quadT, &lineT, &pt, kPointInitialized)) {
                 fIntersections->insert(quadT, lineT, pt);
             }
-        }
-        if (fAllowNear) {
-            addNearHorizontalEndPoints(left, right, axisIntercept);
         }
         if (flipped) {
             fIntersections->flip();
@@ -196,6 +196,9 @@ public:
 
     int verticalIntersect(double axisIntercept, double top, double bottom, bool flipped) {
         addExactVerticalEndPoints(top, bottom, axisIntercept);
+        if (fAllowNear) {
+            addNearVerticalEndPoints(top, bottom, axisIntercept);
+        }
         double rootVals[2];
         int roots = verticalIntersect(axisIntercept, rootVals);
         for (int index = 0; index < roots; ++index) {
@@ -205,9 +208,6 @@ public:
             if (pinTs(&quadT, &lineT, &pt, kPointInitialized)) {
                 fIntersections->insert(quadT, lineT, pt);
             }
-        }
-        if (fAllowNear) {
-            addNearVerticalEndPoints(top, bottom, axisIntercept);
         }
         if (flipped) {
             fIntersections->flip();
@@ -323,6 +323,17 @@ protected:
             *pt = fLine.ptAtT(lT);
         } else if (ptSet == kPointUninitialized) {
             *pt = fQuad.ptAtT(qT);
+        }
+        SkPoint gridPt = pt->asSkPoint();
+        if (gridPt == fLine[0].asSkPoint()) {
+            *lineT = 0;
+        } else if (gridPt == fLine[1].asSkPoint()) {
+            *lineT = 1;
+        }
+        if (gridPt == fQuad[0].asSkPoint()) {
+            *quadT = 0;
+        } else if (gridPt == fQuad[2].asSkPoint()) {
+            *quadT = 1;
         }
         return true;
     }

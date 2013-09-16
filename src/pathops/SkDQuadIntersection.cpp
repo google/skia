@@ -391,11 +391,19 @@ static void lookNearEnd(const SkDQuad& q1, const SkDQuad& q2, int testT,
 
 int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     // if the quads share an end point, check to see if they overlap
-
     for (int i1 = 0; i1 < 3; i1 += 2) {
         for (int i2 = 0; i2 < 3; i2 += 2) {
-            if (q1[i1].approximatelyEqualHalf(q2[i2])) {
+            if (q1[i1] == q2[i2]) {
                 insert(i1 >> 1, i2 >> 1, q1[i1]);
+            }
+        }
+    }
+    if (fAllowNear || true) {   // FIXME ? cubic/cubic intersection fails without (cubicOp67u)
+        for (int i1 = 0; i1 < 3; i1 += 2) {
+            for (int i2 = 0; i2 < 3; i2 += 2) {
+                if (q1[i1] != q2[i2] && q1[i1].approximatelyEqualHalf(q2[i2])) {
+                    insertNear(i1 >> 1, i2 >> 1, q1[i1]);
+                }
             }
         }
     }

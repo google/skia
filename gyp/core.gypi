@@ -365,7 +365,6 @@
         '<(skia_src_path)/pathops/SkPathOpsPoint.h',
         '<(skia_src_path)/pathops/SkPathOpsQuad.h',
         '<(skia_src_path)/pathops/SkPathOpsRect.h',
-        '<(skia_src_path)/pathops/SkPathOpsSpan.h',
         '<(skia_src_path)/pathops/SkPathOpsTriangle.h',
         '<(skia_src_path)/pathops/SkPathOpsTypes.h',
         '<(skia_src_path)/pathops/SkPathWriter.h',

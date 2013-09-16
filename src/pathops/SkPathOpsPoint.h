@@ -159,6 +159,24 @@ struct SkDPoint {
     double roughlyEqual(const SkDPoint& a) const {
         return roughly_equal(a.fY, fY) && roughly_equal(a.fX, fX);
     }
+
+    #ifdef SK_DEBUG
+    void dump() {
+        SkDebugf("{");
+        DebugDumpDouble(fX);
+        SkDebugf(", ");
+        DebugDumpDouble(fY);
+        SkDebugf("}");
+    }
+
+    static void DumpSkPoint(const SkPoint& pt) {
+        SkDebugf("{");
+        DebugDumpFloat(pt.fX);
+        SkDebugf(", ");
+        DebugDumpFloat(pt.fY);
+        SkDebugf("}");
+    }
+   #endif
 };
 
 #endif

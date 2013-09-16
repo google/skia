@@ -13,9 +13,9 @@ void SkOpEdgeBuilder::init() {
     fOperand = false;
     fXorMask[0] = fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;
-#if DEBUG_DUMP
-    gContourID = 0;
-    gSegmentID = 0;
+#ifdef SK_DEBUG
+    SkPathOpsDebug::gContourID = 0;
+    SkPathOpsDebug::gSegmentID = 0;
 #endif
     fUnparseable = false;
     fSecondHalf = preFetch();
@@ -84,6 +84,9 @@ int SkOpEdgeBuilder::preFetch() {
             case SkPath::kLine_Verb:
                 if (AlmostEqualUlps(curve[0].fX, pts[1].fX)
                         && AlmostEqualUlps(curve[0].fY, pts[1].fY)) {
+                    if (fPathVerbs.back() != SkPath::kLine_Verb) {
+                        fPathPts.back() = pts[1];
+                    }
                     continue;  // skip degenerate points
                 }
                 break;
