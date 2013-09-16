@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkFlattenableBuffers.h"
+#include "SkValidationUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -157,8 +158,12 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERI
     bool hasModes = buffer.readBool();
     if (hasModes) {
         this->initAllocModes();
-        SkASSERT(buffer.getArrayCount() == countInputs() * sizeof(fModes[0]));
+        int nbInputs = countInputs();
+        SkASSERT(buffer.getArrayCount() == nbInputs * sizeof(fModes[0]));
         buffer.readByteArray(fModes);
+        for (int i = 0; i < nbInputs; ++i) {
+            buffer.validate(SkIsValidMode((SkXfermode::Mode)fModes[i]));
+        }
     } else {
         fModes = 0;
     }

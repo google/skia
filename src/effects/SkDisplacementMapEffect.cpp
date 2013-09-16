@@ -128,6 +128,20 @@ void computeDisplacement(SkDisplacementMapEffect::ChannelSelectorType xChannelSe
     }
 }
 
+bool ChannelSelectorTypeIsValid(SkDisplacementMapEffect::ChannelSelectorType channelSelector) {
+    switch (channelSelector) {
+    case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
+    case SkDisplacementMapEffect::kR_ChannelSelectorType:
+    case SkDisplacementMapEffect::kG_ChannelSelectorType:
+    case SkDisplacementMapEffect::kB_ChannelSelectorType:
+    case SkDisplacementMapEffect::kA_ChannelSelectorType:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
 } // end namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,6 +167,9 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(SkFlattenableReadBuffer& buffer
     fXChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
     fYChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
     fScale            = buffer.readScalar();
+    buffer.validate(ChannelSelectorTypeIsValid(fXChannelSelector) &&
+                    ChannelSelectorTypeIsValid(fYChannelSelector) &&
+                    SkScalarIsFinite(fScale));
 }
 
 void SkDisplacementMapEffect::flatten(SkFlattenableWriteBuffer& buffer) const {

@@ -9,12 +9,12 @@
 
 #include "SkData.h"
 #include "SkFlattenable.h"
-#include "SkOrderedReadBuffer.h"
+#include "SkValidatingReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 
-SkData* SkSerializeFlattenable(SkFlattenable* flattenable) {
+SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
     SkOrderedWriteBuffer writer(1024);
-    writer.setFlags(SkOrderedWriteBuffer::kCrossProcess_Flag);
+    writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
     writer.writeFlattenable(flattenable);
     uint32_t size = writer.bytesWritten();
     void* data = sk_malloc_throw(size);
@@ -22,7 +22,7 @@ SkData* SkSerializeFlattenable(SkFlattenable* flattenable) {
     return SkData::NewFromMalloc(data, size);
 }
 
-SkFlattenable* SkDeserializeFlattenable(const void* data, size_t size) {
-    SkOrderedReadBuffer buffer(data, size);
-    return buffer.readFlattenable();
+SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size) {
+    SkValidatingReadBuffer reader(data, size);
+    return reader.readFlattenable();
 }
