@@ -82,7 +82,7 @@ public:
 private:
     GrGpu*      fGpu;
     GrTexture*  fTexture[kCount_GrMaskFormats];
-    GrPlotMgr*  fPlotMgr;
+    GrPlotMgr*  fPlotMgr[kCount_GrMaskFormats];
 };
 
 #endif
