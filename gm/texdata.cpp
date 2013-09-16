@@ -18,8 +18,6 @@
 
 namespace skiagm {
 
-extern GrContext* GetGr();
-
 static const int S = 200;
 
 class TexDataGM : public GM {
@@ -40,7 +38,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkBaseDevice* device = canvas->getTopDevice();
         GrRenderTarget* target = device->accessRenderTarget();
-        GrContext* ctx = GetGr();
+        GrContext* ctx = GM::GetGr(canvas);
         if (ctx && target) {
             SkPMColor gTextureData[(2 * S) * (2 * S)];
             static const int stride = 2 * S;
