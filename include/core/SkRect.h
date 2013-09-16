@@ -100,8 +100,6 @@ struct SK_API SkIRect {
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
 
-    bool isInverted() const { return fLeft > fRight || fTop > fBottom; }
-
     bool isLargest() const { return SK_MinS32 == fLeft &&
                                     SK_MinS32 == fTop &&
                                     SK_MaxS32 == fRight &&
@@ -420,8 +418,6 @@ struct SK_API SkRect {
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-
-    bool isInverted() const { return fLeft > fRight || fTop > fBottom; }
 
     /**
      *  Returns true iff all values in the rect are finite. If any are

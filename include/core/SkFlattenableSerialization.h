@@ -13,14 +13,8 @@
 class SkData;
 class SkFlattenable;
 
-/**
- *  These utility functions are used by the chromium codebase to safely
- *  serialize and deserialize SkFlattenable objects. These aren't made for
- *  optimal speed, but rather designed with security in mind in order to
- *  prevent Skia from being an entry point for potential attacks.
- */
-SK_API SkData* SkValidatingSerializeFlattenable(SkFlattenable*);
-SK_API SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size);
+SK_API SkData* SkSerializeFlattenable(SkFlattenable*);
+SK_API SkFlattenable* SkDeserializeFlattenable(const void* data, size_t size);
 
 // Temporary fix for canary build
 #define SkSerializeFlattenable SkValidatingSerializeFlattenable

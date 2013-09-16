@@ -45,10 +45,6 @@ SkBicubicImageFilter::SkBicubicImageFilter(SkFlattenableReadBuffer& buffer) : IN
     SkASSERT(readSize == 16);
     fScale.fWidth = buffer.readScalar();
     fScale.fHeight = buffer.readScalar();
-    buffer.validate(SkScalarIsFinite(fScale.fWidth) &&
-                    SkScalarIsFinite(fScale.fHeight) &&
-                    (fScale.fWidth >= 0) &&
-                    (fScale.fHeight >= 0));
 }
 
 void SkBicubicImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

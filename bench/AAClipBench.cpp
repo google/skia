@@ -255,3 +255,4 @@ DEF_BENCH( return SkNEW_ARGS(AAClipBench, (true, false)); )
 DEF_BENCH( return SkNEW_ARGS(AAClipBench, (true, true)); )
 DEF_BENCH( return SkNEW_ARGS(NestedAAClipBench, (false)); )
 DEF_BENCH( return SkNEW_ARGS(NestedAAClipBench, (true)); )
+
