@@ -13,10 +13,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-
-namespace skiagm {
-extern GrContext* GetGr();
-};
 #endif
 
 static SkData* fileToData(const char path[]) {
@@ -193,7 +189,7 @@ protected:
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));
         SkAutoTUnref<SkSurface> surf3(SkSurface::NewPicture(info.fWidth, info.fHeight));
 #if SK_SUPPORT_GPU
-        GrContext* ctx = skiagm::GetGr();
+        GrContext* ctx = GM::GetGr(canvas);
 
         SkAutoTUnref<SkSurface> surf4(SkSurface::NewRenderTarget(ctx, info, 0));
 #endif

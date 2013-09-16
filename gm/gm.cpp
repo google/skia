@@ -62,5 +62,18 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     canvas->drawRect(r, paint);
 }
 
+#if SK_SUPPORT_GPU
+// canvas could almost be a const&, but accessRenderTarget isn't const.
+/*static*/ GrContext* GM::GetGr(SkCanvas* canvas) {
+    SkASSERT(NULL != canvas);
+    SkBaseDevice* device = canvas->getTopDevice();
+    GrRenderTarget* renderTarget = device->accessRenderTarget();
+    if (NULL != renderTarget) {
+        return renderTarget->getContext();
+    }
+    return NULL;
+}
+#endif
+
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* SkTRegistry<GM*(*)(void*)>::gHead;

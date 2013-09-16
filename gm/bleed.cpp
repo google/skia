@@ -12,10 +12,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-
-namespace skiagm {
-extern GrContext* GetGr();
-};
 #endif
 
 // Create a black&white checked texture with a 1-pixel red ring
@@ -175,7 +171,7 @@ protected:
 
 
 #if SK_SUPPORT_GPU
-        GrContext* ctx = skiagm::GetGr();
+        GrContext* ctx = GM::GetGr(canvas);
         int oldMaxTextureSize = 0;
         if (NULL != ctx) {
             // shrink the max texture size so all our textures can be reasonably sized

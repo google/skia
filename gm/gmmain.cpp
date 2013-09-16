@@ -1464,48 +1464,6 @@ static const PDFRasterizerData* findPDFRasterizer(const char rasterizer[]) {
     return NULL;
 }
 
-namespace skiagm {
-#if SK_SUPPORT_GPU
-SkAutoTUnref<GrContext> gGrContext;
-/**
- * Sets the global GrContext, accessible by individual GMs
- */
-static void SetGr(GrContext* grContext) {
-    SkSafeRef(grContext);
-    gGrContext.reset(grContext);
-}
-
-/**
- * Gets the global GrContext, can be called by GM tests.
- */
-GrContext* GetGr();
-GrContext* GetGr() {
-    return gGrContext.get();
-}
-
-/**
- * Sets the global GrContext and then resets it to its previous value at
- * destruction.
- */
-class AutoResetGr : SkNoncopyable {
-public:
-    AutoResetGr() : fOld(NULL) {}
-    void set(GrContext* context) {
-        SkASSERT(NULL == fOld);
-        fOld = GetGr();
-        SkSafeRef(fOld);
-        SetGr(context);
-    }
-    ~AutoResetGr() { SetGr(fOld); SkSafeUnref(fOld); }
-private:
-    GrContext* fOld;
-};
-#else
-GrContext* GetGr();
-GrContext* GetGr() { return NULL; }
-#endif
-}
-
 template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
     int index = array->find(value);
     if (index < 0) {
@@ -1573,7 +1531,6 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
         GrSurface* gpuTarget = NULL;
 #if SK_SUPPORT_GPU
         SkAutoTUnref<GrSurface> auGpuTarget;
-        AutoResetGr autogr;
         if ((errorsForThisConfig.isEmpty()) && (kGPU_Backend == config.fBackend)) {
             GrContext* gr = grFactory->get(config.fGLContextType);
             bool grSuccess = false;
@@ -1589,7 +1546,6 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                 if (NULL != auGpuTarget) {
                     gpuTarget = auGpuTarget;
                     grSuccess = true;
-                    autogr.set(gr);
                     // Set the user specified cache limits if non-default.
                     size_t bytes;
                     int count;
