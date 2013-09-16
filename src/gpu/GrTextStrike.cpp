@@ -69,10 +69,12 @@ void GrFontCache::freeAll() {
 }
 
 void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
+    SkASSERT(NULL != preserveStrike);
     GrTextStrike* strike = fTail;
     bool purge = true;
+    GrMaskFormat maskFormat = preserveStrike->fMaskFormat;
     while (strike) {
-        if (strike == preserveStrike) {
+        if (strike == preserveStrike || maskFormat != strike->fMaskFormat) {
             strike = strike->fPrev;
             continue;
         }
@@ -94,9 +96,11 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
 }
 
 void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
+    SkASSERT(NULL != preserveStrike);
     GrTextStrike* strike = fTail;
+    GrMaskFormat maskFormat = preserveStrike->fMaskFormat;
     while (strike) {
-        if (strike == preserveStrike) {
+        if (strike == preserveStrike || maskFormat != strike->fMaskFormat) {
             strike = strike->fPrev;
             continue;
         }

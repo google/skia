@@ -165,14 +165,18 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu) {
     fGpu = gpu;
     gpu->ref();
     Gr_bzero(fTexture, sizeof(fTexture));
-    fPlotMgr = SkNEW_ARGS(GrPlotMgr, (GR_PLOT_WIDTH, GR_PLOT_HEIGHT));
+    for (int i = 0; i < kCount_GrMaskFormats; ++i) {
+        fPlotMgr[i] = SkNEW_ARGS(GrPlotMgr, (GR_PLOT_WIDTH, GR_PLOT_HEIGHT));
+    }
 }
 
 GrAtlasMgr::~GrAtlasMgr() {
     for (size_t i = 0; i < GR_ARRAY_COUNT(fTexture); i++) {
         SkSafeUnref(fTexture[i]);
     }
-    delete fPlotMgr;
+    for (int i = 0; i < kCount_GrMaskFormats; ++i) {
+        delete fPlotMgr[i];
+    }
 
     fGpu->unref();
 #if FONT_CACHE_STATS
@@ -213,7 +217,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
     // atlas list is full. Either way we need to allocate a new atlas
 
     GrIPoint16 plot;
-    if (!fPlotMgr->newPlot(&plot)) {
+    if (!fPlotMgr[format]->newPlot(&plot)) {
         return NULL;
     }
 
@@ -247,6 +251,6 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
 }
 
 void GrAtlasMgr::freePlot(GrMaskFormat format, int x, int y) {
-    SkASSERT(fPlotMgr->isBusy(x, y));
-    fPlotMgr->freePlot(x, y);
+    SkASSERT(fPlotMgr[format]->isBusy(x, y));
+    fPlotMgr[format]->freePlot(x, y);
 }
