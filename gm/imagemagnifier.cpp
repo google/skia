@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkMagnifierImageFilter.h"
+#include "SkRandom.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -44,12 +45,12 @@ protected:
         canvas->saveLayer(NULL, &paint);
         paint.setAntiAlias(true);
         const char* str = "The quick brown fox jumped over the lazy dog.";
-        srand(1234);
+        SkRandom rand;
         for (int i = 0; i < 25; ++i) {
-            int x = rand() % WIDTH;
-            int y = rand() % HEIGHT;
-            paint.setColor(rand() % 0x1000000 | 0xFF000000);
-            paint.setTextSize(SkIntToScalar(rand() % 300));
+            int x = rand.nextULessThan(WIDTH);
+            int y = rand.nextULessThan(HEIGHT);
+            paint.setColor(rand.nextBits(24) | 0xFF000000);
+            paint.setTextSize(rand.nextULessThan(300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
                              SkIntToScalar(y), paint);
         }
