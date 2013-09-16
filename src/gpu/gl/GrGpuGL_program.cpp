@@ -12,8 +12,10 @@
 #include "SkRTConf.h"
 #include "SkTSearch.h"
 
+#ifdef PROGRAM_CACHE_STATS
 SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
                 "Display program cache usage.");
+#endif
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
