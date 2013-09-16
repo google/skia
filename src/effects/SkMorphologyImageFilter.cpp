@@ -24,10 +24,6 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer
   : INHERITED(buffer) {
     fRadius.fWidth = buffer.readInt();
     fRadius.fHeight = buffer.readInt();
-    buffer.validate(SkScalarIsFinite(SkIntToScalar(fRadius.fWidth)) &&
-                    SkScalarIsFinite(SkIntToScalar(fRadius.fHeight)) &&
-                    (fRadius.fWidth >= 0) &&
-                    (fRadius.fHeight >= 0));
 }
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input)

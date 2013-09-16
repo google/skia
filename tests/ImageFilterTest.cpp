@@ -37,21 +37,10 @@ public:
             for (int x = 0; x < kBitmapSize; x += i) {
                 canvas.save();
                 canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0,
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i)), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
-                                                 0,
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i)), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0,
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i)), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i),
-                                                 SkIntToScalar(i)), darkPaint);
+                canvas.drawRect(SkRect::MakeXYWH(0, 0, i, i), darkPaint);
+                canvas.drawRect(SkRect::MakeXYWH(i, 0, i, i), lightPaint);
+                canvas.drawRect(SkRect::MakeXYWH(0, i, i, i), lightPaint);
+                canvas.drawRect(SkRect::MakeXYWH(i, i, i, i), darkPaint);
                 canvas.restore();
             }
         }
@@ -129,21 +118,20 @@ public:
                 SkPoint3 target(location.fX, location.fY, location.fZ);
                 // 3 ) large negative specular exponent value
                 SkScalar specularExponent = SkFloatToScalar(-1000);
-
+        
                 SkPaint paint;
                 paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                         location, target, specularExponent, SkFloatToScalar(180),
                         0xFFFFFFFF, SK_Scalar1, SK_Scalar1, SK_Scalar1,
                         new SkBitmapSource(bitmap)))->unref();
                 SkCanvas canvas(result);
-                SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize),
-                                          SkIntToScalar(kBitmapSize));
+                SkRect r = SkRect::MakeWH(kBitmapSize, kBitmapSize);
                 canvas.drawRect(r, paint);
             }
 
             {
                 // This tests for scale bringing width to 0
-                SkSize scale = SkSize::Make(SkFloatToScalar(-0.001f), SK_Scalar1);
+                SkSize scale = SkSize::Make(SkFloatToScalar(-0.001), SK_Scalar1);
                 SkAutoTUnref<SkBicubicImageFilter> bicubic(
                     SkBicubicImageFilter::CreateMitchell(
                         scale, new SkBitmapSource(bitmap)));

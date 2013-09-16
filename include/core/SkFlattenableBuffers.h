@@ -41,20 +41,14 @@ public:
         kCrossProcess_Flag      = 1 << 0,
         kScalarIsFloat_Flag     = 1 << 1,
         kPtrIs64Bit_Flag        = 1 << 2,
-        /** The kValidation_Flag is used to force stream validations (by making
-         * sure that no operation reads past the end of the stream, for example)
-         * and error handling if any reading operation yields an invalid value.
-         */
-        kValidation_Flag        = 1 << 3,
     };
 
     void setFlags(uint32_t flags) { fFlags = flags; }
     uint32_t getFlags() const { return fFlags; }
 
-    bool isCrossProcess() const { return SkToBool(fFlags & (kCrossProcess_Flag | kValidation_Flag)); }
+    bool isCrossProcess() const { return SkToBool(fFlags & kCrossProcess_Flag); }
     bool isScalarFloat() const { return SkToBool(fFlags & kScalarIsFloat_Flag); }
     bool isPtr64Bit() const { return SkToBool(fFlags & kPtrIs64Bit_Flag); }
-    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
 
     // primitives
     virtual bool readBool() = 0;
@@ -108,13 +102,6 @@ public:
         return static_cast<T*>(this->readFlattenable());
     }
 
-    void validate(bool isValid) {
-        fError |= !isValid;
-    }
-
-protected:
-    bool fError;
-
 private:
     uint32_t fFlags;
 };
@@ -167,22 +154,13 @@ public:
 
     enum Flags {
         kCrossProcess_Flag               = 0x01,
-        /** The kValidation_Flag is used here to make sure the write operation
-         *  is symmetric with the read operation using the equivalent flag
-         *  SkFlattenableReadBuffer::kValidation_Flag.
-         */
-        kValidation_Flag                 = 0x02,
     };
 
     uint32_t getFlags() const { return fFlags; }
     void setFlags(uint32_t flags) { fFlags = flags; }
 
     bool isCrossProcess() const {
-        return SkToBool(fFlags & (kCrossProcess_Flag | kValidation_Flag));
-    }
-
-    bool isValidating() const {
-        return SkToBool(fFlags & kValidation_Flag);
+        return SkToBool(fFlags & kCrossProcess_Flag);
     }
 
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }
