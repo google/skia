@@ -35,21 +35,18 @@ int SkIntersections::computePoints(const SkDLine& line, int used) {
 }
 
 int SkIntersections::intersectRay(const SkDLine& a, const SkDLine& b) {
-    double axLen = a[1].fX - a[0].fX;
-    double ayLen = a[1].fY - a[0].fY;
-    double bxLen = b[1].fX - b[0].fX;
-    double byLen = b[1].fY - b[0].fY;
+    SkDVector aLen = a[1] - a[0];
+    SkDVector bLen = b[1] - b[0];
     /* Slopes match when denom goes to zero:
                       axLen / ayLen ==                   bxLen / byLen
     (ayLen * byLen) * axLen / ayLen == (ayLen * byLen) * bxLen / byLen
              byLen  * axLen         ==  ayLen          * bxLen
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
-    double denom = byLen * axLen - ayLen * bxLen;
-    double ab0y = a[0].fY - b[0].fY;
-    double ab0x = a[0].fX - b[0].fX;
-    double numerA = ab0y * bxLen - byLen * ab0x;
-    double numerB = ab0y * axLen - ayLen * ab0x;
+    double denom = bLen.fY * aLen.fX - aLen.fY * bLen.fX;
+    SkDVector ab0 = a[0] - b[0];
+    double numerA = ab0.fY * bLen.fX - bLen.fY * ab0.fX;
+    double numerB = ab0.fY * aLen.fX - aLen.fY * ab0.fX;
     numerA /= denom;
     numerB /= denom;
     int used;
@@ -63,8 +60,8 @@ int SkIntersections::intersectRay(const SkDLine& a, const SkDLine& b) {
          axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
          axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
         */
-        if (!AlmostEqualUlps(axLen * a[0].fY - ayLen * a[0].fX,
-                axLen * b[0].fY - ayLen * b[0].fX)) {
+        if (!AlmostEqualUlps(aLen.fX * a[0].fY - aLen.fY * a[0].fX,
+                aLen.fX * b[0].fY - aLen.fY * b[0].fX)) {
             return fUsed = 0;
         }
         // there's no great answer for intersection points for coincident rays, but return something
@@ -106,8 +103,8 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
     double ayBxLen = ayLen * bxLen;
     // detect parallel lines the same way here and in SkOpAngle operator <
     // so that non-parallel means they are also sortable
-    bool parallel = AlmostEqualUlps(axByLen, ayBxLen);
-    if (!parallel) {
+    bool unparallel = NotAlmostEqualUlps(axByLen, ayBxLen);
+    if (unparallel) {
         double ab0y = a[0].fY - b[0].fY;
         double ab0x = a[0].fX - b[0].fX;
         double numerA = ab0y * bxLen - byLen * ab0x;
@@ -119,7 +116,7 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
             computePoints(a, 1);
         }
     }
-    if (fAllowNear || parallel) {
+    if (fAllowNear || !unparallel) {
         for (int iA = 0; iA < 2; ++iA) {
             if ((t = b.nearPoint(a[iA])) >= 0) {
                 insert(iA, t, a[iA]);
@@ -129,6 +126,17 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
             if ((t = a.nearPoint(b[iB])) >= 0) {
                 insert(t, iB, b[iB]);
             }
+        }
+    }
+    while (fUsed > 2) {
+        removeOne(1);
+    }
+    if (fUsed == 2 && unparallel) {
+        bool startMatch = fT[0][0] == 0 || fT[1][0] == 0 || fT[1][0] == 1;
+        bool endMatch = fT[0][1] == 1 || fT[1][1] == 0 || fT[1][1] == 1;
+        if (!startMatch && !endMatch) {
+            SkASSERT(startMatch || endMatch);
+            removeOne(endMatch);
         }
     }
     return fUsed;

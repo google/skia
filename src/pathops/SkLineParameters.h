@@ -39,6 +39,14 @@ public:
         c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
     }
 
+    double cubicPart(const SkDCubic& part) {
+        cubicEndPoints(part);
+        if (part[0] == part[1] || ((const SkDLine& ) part[0]).nearRay(part[2])) {
+            return pointDistance(part[3]);
+        }
+        return pointDistance(part[2]);
+    }
+
     void lineEndPoints(const SkDLine& pts) {
         a = pts[0].fY - pts[1].fY;
         b = pts[1].fX - pts[0].fX;
@@ -56,6 +64,11 @@ public:
         a = pts[s].fY - pts[e].fY;
         b = pts[e].fX - pts[s].fX;
         c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
+    }
+
+    double quadPart(const SkDQuad& part) {
+        quadEndPoints(part);
+        return pointDistance(part[2]);
     }
 
     double normalSquared() const {

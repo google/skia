@@ -28,9 +28,30 @@ inline bool AlmostEqualUlps(double a, double b) {
     return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
+bool NotAlmostEqualUlps(float a, float b);
+inline bool NotAlmostEqualUlps(double a, double b) {
+    return NotAlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+// Use Almost Bequal when comparing coordinates in conjunction with between.
+bool AlmostBequalUlps(float a, float b);
+inline bool AlmostBequalUlps(double a, double b) {
+    return AlmostBequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
 bool RoughlyEqualUlps(float a, float b);
 inline bool RoughlyEqualUlps(double a, double b) {
     return RoughlyEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool AlmostLessUlps(float a, float b);
+inline bool AlmostLessUlps(double a, double b) {
+    return AlmostLessUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool AlmostLessOrEqualUlps(float a, float b);
+inline bool AlmostLessOrEqualUlps(double a, double b) {
+    return AlmostLessOrEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 bool AlmostBetweenUlps(float a, float b, float c);
@@ -273,5 +294,23 @@ inline int SkDSideBit(double x) {
 inline double SkPinT(double t) {
     return precisely_less_than_zero(t) ? 0 : precisely_greater_than_one(t) ? 1 : t;
 }
+
+#ifdef SK_DEBUG
+inline void DebugDumpDouble(double x) {
+    if (x == floor(x)) {
+        SkDebugf("%.0f", x);
+    } else {
+        SkDebugf("%1.17g", x);
+    }
+}
+
+inline void DebugDumpFloat(float x) {
+    if (x == floorf(x)) {
+        SkDebugf("%.0f", x);
+    } else {
+        SkDebugf("%1.9gf", x);
+    }
+}
+#endif
 
 #endif

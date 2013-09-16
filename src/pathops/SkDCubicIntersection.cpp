@@ -108,11 +108,13 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
                 SkDebugf("%.*s %s t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)", i.depth()*2, tab,
                         __FUNCTION__, t1Start, t1, t2Start, t2);
                 SkIntersections xlocals;
+                xlocals.allowNear(false);
                 intersectWithOrder(s1.fQuad, o1, s2.fQuad, o2, xlocals);
                 SkDebugf(" xlocals.fUsed=%d\n", xlocals.used());
             }
         #endif
             SkIntersections locals;
+            locals.allowNear(false);
             intersectWithOrder(s1.fQuad, o1, s2.fQuad, o2, locals);
             int tCount = locals.used();
             for (int tIdx = 0; tIdx < tCount; ++tIdx) {

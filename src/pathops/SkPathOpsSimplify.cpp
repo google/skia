@@ -17,8 +17,8 @@ static bool bridgeWinding(SkTArray<SkOpContour*, true>& contourList, SkPathWrite
     do {
         int index, endIndex;
         bool topDone;
-        SkOpSegment* current = FindSortableTop(contourList, &firstContour, &index, &endIndex,
-                &topLeft, &topUnsortable, &topDone, false);
+        SkOpSegment* current = FindSortableTop(contourList, SkOpAngle::kUnaryWinding, &firstContour,
+                &index, &endIndex, &topLeft, &topUnsortable, &topDone);
         if (!current) {
             if (topUnsortable || !topDone) {
                 topUnsortable = false;
@@ -149,7 +149,7 @@ static bool bridgeXor(SkTArray<SkOpContour*, true>& contourList, SkPathWriter* s
 // FIXME : add this as a member of SkPath
 bool Simplify(const SkPath& path, SkPath* result) {
 #if DEBUG_SORT || DEBUG_SWAP_TOP
-    gDebugSortCount = gDebugSortCountDefault;
+    SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
@@ -186,6 +186,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     CoincidenceCheck(&contourList, 0);
     FixOtherTIndex(&contourList);
     CheckEnds(&contourList);
+    CheckTiny(&contourList);
     SortSegments(&contourList);
 #if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
     DebugShowActiveSpans(contourList);

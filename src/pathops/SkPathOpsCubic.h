@@ -77,6 +77,10 @@ struct SkDCubic {
     SkDPoint top(double startT, double endT) const;
     void toQuadraticTs(double precision, SkTArray<double, true>* ts) const;
     SkDQuad toQuad() const;
+
+#ifdef SK_DEBUG
+    void dump();
+#endif
 };
 
 #endif

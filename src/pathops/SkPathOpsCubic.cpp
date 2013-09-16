@@ -129,7 +129,7 @@ int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
     sk_bzero(str, sizeof(str));
     SK_SNPRINTF(str, sizeof(str), "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
             A, B, C, D);
-    mathematica_ize(str, sizeof(str));
+    SkPathOpsDebug::MathematicaIze(str, sizeof(str));
 #if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
     SkDebugf("%s\n", str);
 #endif
@@ -508,3 +508,16 @@ SkDCubicPair SkDCubic::chopAt(double t) const {
     interp_cubic_coords(&fPts[0].fY, &dst.pts[0].fY, t);
     return dst;
 }
+
+#ifdef SK_DEBUG
+void SkDCubic::dump() {
+    SkDebugf("{{");
+    int index = 0;
+    do {
+        fPts[index].dump();
+        SkDebugf(", ");
+    } while (++index < 3);
+    fPts[index].dump();
+    SkDebugf("}}\n");
+}
+#endif

@@ -2813,6 +2813,7 @@ static void testQuadratic53(skiatest::Reporter* reporter) {
     path.close();
     testSimplify(reporter, path);
 }
+
 static void testQuadratic55(skiatest::Reporter* reporter) {
     SkPath path;
 path.moveTo(303.12088f, 141.299606f);
@@ -3828,9 +3829,90 @@ static void skphealth_com76(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = testQuad6;
+static void tooCloseTest(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.lineTo(1,-1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1,-2);
+    path.lineTo(1, 2);
+    path.lineTo(2, 0);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testRect1(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.addRect(0, 0, 60, 60, SkPath::kCCW_Direction);
+    path.addRect(30, 20, 50, 50, SkPath::kCCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 24, 36, 41, SkPath::kCCW_Direction);
+    testSimplify(reporter, path);
+}
+
+static void testRect2(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(60, 0);
+    path.lineTo(60, 60);
+    path.lineTo(0, 60);
+    path.close();
+    path.moveTo(30, 20);
+    path.lineTo(30, 50);
+    path.lineTo(50, 50);
+    path.lineTo(50, 20);
+    path.close();
+    path.moveTo(24, 20);
+    path.lineTo(24, 30);
+    path.lineTo(36, 30);
+    path.lineTo(36, 20);
+    path.close();
+    path.moveTo(32, 24);
+    path.lineTo(32, 41);
+    path.lineTo(36, 41);
+    path.lineTo(36, 24);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testTriangles3x(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(1, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(2, 1, 0, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void testQuad8(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.quadTo(1, 1, 2, 2);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = testRect2;
 
 static TestDesc tests[] = {
+    TEST(testQuad8),
+    TEST(testTriangles3x),
+    TEST(testRect2),
+    TEST(testRect1),
+    TEST(tooCloseTest),
     TEST(skphealth_com76),
     TEST(testQuadLineIntersect1),
     TEST(testQuadLineIntersect2),
@@ -4199,8 +4281,8 @@ static void (*stopTest)(skiatest::Reporter* ) = 0;
 
 static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
-    gDebugMaxWindSum = 4;
-    gDebugMaxWindValue = 4;
+    SkPathOpsDebug::gMaxWindSum = 4;
+    SkPathOpsDebug::gMaxWindValue = 4;
 #endif
     if (runSubTestsFirst) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
@@ -4210,8 +4292,8 @@ static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
 #ifdef SK_DEBUG
-    gDebugMaxWindSum = SK_MaxS32;
-    gDebugMaxWindValue = SK_MaxS32;
+    SkPathOpsDebug::gMaxWindSum = SK_MaxS32;
+    SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
 #endif
 }
 

@@ -10,10 +10,23 @@
 
 #if defined SK_DEBUG || !FORCE_RELEASE
 
-int gDebugMaxWindSum = SK_MaxS32;
-int gDebugMaxWindValue = SK_MaxS32;
+int SkPathOpsDebug::gMaxWindSum = SK_MaxS32;
+int SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
 
-void mathematica_ize(char* str, size_t bufferLen) {
+const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
+int SkPathOpsDebug::gContourID;
+int SkPathOpsDebug::gSegmentID;
+
+#if DEBUG_SORT || DEBUG_SWAP_TOP
+int SkPathOpsDebug::gSortCountDefault = SK_MaxS32;
+int SkPathOpsDebug::gSortCount;
+#endif
+
+#if DEBUG_ACTIVE_OP
+const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor"};
+#endif
+
+void SkPathOpsDebug::MathematicaIze(char* str, size_t bufferLen) {
     size_t len = strlen(str);
     bool num = false;
     for (size_t idx = 0; idx < len; ++idx) {
@@ -29,48 +42,29 @@ void mathematica_ize(char* str, size_t bufferLen) {
         num = str[idx] >= '0' && str[idx] <= '9';
     }
 }
-#endif
 
-#if DEBUG_SORT || DEBUG_SWAP_TOP
-bool valid_wind(int wind) {
+bool SkPathOpsDebug::ValidWind(int wind) {
     return wind > SK_MinS32 + 0xFFFF && wind < SK_MaxS32 - 0xFFFF;
 }
 
-void winding_printf(int wind) {
+void SkPathOpsDebug::WindingPrintf(int wind) {
     if (wind == SK_MinS32) {
         SkDebugf("?");
     } else {
         SkDebugf("%d", wind);
     }
 }
-#endif
-
-#if DEBUG_DUMP
-const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
-// static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
-int gContourID;
-int gSegmentID;
-#endif
-
-#if DEBUG_SORT || DEBUG_SWAP_TOP
-int gDebugSortCountDefault = SK_MaxS32;
-int gDebugSortCount;
-#endif
-
-#if DEBUG_ACTIVE_OP
-const char* kPathOpStr[] = {"diff", "sect", "union", "xor"};
-#endif
 
 #if DEBUG_SHOW_TEST_NAME
-void* PathOpsDebugCreateNameStr() {
+void* SkPathOpsDebug::CreateNameStr() {
     return SkNEW_ARRAY(char, DEBUG_FILENAME_STRING_LENGTH);
 }
 
-void PathOpsDebugDeleteNameStr(void* v) {
+void SkPathOpsDebug::DeleteNameStr(void* v) {
     SkDELETE_ARRAY(reinterpret_cast<char* >(v));
 }
 
-void DebugBumpTestName(char* test) {
+void SkPathOpsDebug::BumpTestName(char* test) {
     char* num = test + strlen(test);
     while (num[-1] >= '0' && num[-1] <= '9') {
         --num;
@@ -84,5 +78,58 @@ void DebugBumpTestName(char* test) {
     }
     ++dec;
     SK_SNPRINTF(num, DEBUG_FILENAME_STRING_LENGTH - (num - test), "%d", dec);
+}
+#endif
+
+#include "SkOpSegment.h"
+
+void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle, true>& angles) {
+    int count = angles.count();
+    for (int index = 0; index < count; ++index) {
+        angles[index].dump();
+    }
+}
+#endif  // SK_DEBUG || !FORCE_RELEASE
+
+#ifdef SK_DEBUG
+void SkOpSpan::dump() const {
+    SkDebugf("t=");
+    DebugDumpDouble(fT);
+    SkDebugf(" pt=");
+    SkDPoint::DumpSkPoint(fPt);
+    SkDebugf(" other.fID=%d", fOther->debugID());
+    SkDebugf(" [%d] otherT=", fOtherIndex);
+    DebugDumpDouble(fOtherT);
+    SkDebugf(" windSum=");
+    SkPathOpsDebug::WindingPrintf(fWindSum);
+    if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
+        SkDebugf(" oppSum=");
+        SkPathOpsDebug::WindingPrintf(fOppSum);
+    }
+    SkDebugf(" windValue=%d", fWindValue);
+    if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
+        SkDebugf(" oppValue=%d", fOppValue);
+    }
+    if (fDone) {
+        SkDebugf(" done");
+    }
+    if (fUnsortableStart) {
+        SkDebugf("  unsortable-start");
+    }
+    if (fUnsortableEnd) {
+        SkDebugf(" unsortable-end");
+    }
+    if (fTiny) {
+        SkDebugf(" tiny");
+    } else if (fSmall) {
+        SkDebugf(" small");
+    }
+    if (fLoop) {
+        SkDebugf(" loop");
+    }
+    if (fNear) {
+        SkDebugf(" near");
+    }
+    SkDebugf("\n");
 }
 #endif

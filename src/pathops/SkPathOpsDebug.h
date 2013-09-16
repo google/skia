@@ -30,15 +30,6 @@
     #define SK_SNPRINTF snprintf
 #endif
 
-#if defined SK_DEBUG || !FORCE_RELEASE
-
-void mathematica_ize(char* str, size_t bufferSize);
-
-extern int gDebugMaxWindSum;
-extern int gDebugMaxWindValue;
-
-#endif
-
 #if FORCE_RELEASE
 
 #define DEBUG_ACTIVE_OP 0
@@ -50,6 +41,8 @@ extern int gDebugMaxWindValue;
 #define DEBUG_ANGLE 0
 #define DEBUG_AS_C_CODE 1
 #define DEBUG_ASSEMBLE 0
+#define DEBUG_CHECK_ENDS 0
+#define DEBUG_CHECK_TINY 0
 #define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_FLAT_QUADS 0
@@ -61,6 +54,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
 #define DEBUG_SORT_COMPACT 0
+#define DEBUG_SORT_RAW 0
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 0
 #define DEBUG_UNSORTABLE 0
@@ -80,8 +74,10 @@ extern int gDebugMaxWindValue;
 #define DEBUG_ANGLE 1
 #define DEBUG_AS_C_CODE 1
 #define DEBUG_ASSEMBLE 1
+#define DEBUG_CHECK_ENDS 1
+#define DEBUG_CHECK_TINY 1
 #define DEBUG_CONCIDENT 1
-#define DEBUG_CROSS 0
+#define DEBUG_CROSS 01
 #define DEBUG_FLAT_QUADS 0
 #define DEBUG_FLOW 1
 #define DEBUG_MARK_DONE 1
@@ -91,6 +87,7 @@ extern int gDebugMaxWindValue;
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
 #define DEBUG_SORT_COMPACT 0
+#define DEBUG_SORT_RAW 0
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
@@ -100,9 +97,6 @@ extern int gDebugMaxWindValue;
 #define DEBUG_WINDING_AT_T 1
 
 #endif
-
-#define DEBUG_DUMP (DEBUG_ACTIVE_OP | DEBUG_ACTIVE_SPANS | DEBUG_CONCIDENT | DEBUG_SORT | \
-        DEBUG_SORT_SINGLE | DEBUG_PATH_CONSTRUCTION)
 
 #if DEBUG_AS_C_CODE
 #define CUBIC_DEBUG_STR "{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}"
@@ -122,39 +116,52 @@ extern int gDebugMaxWindValue;
 #define LINE_DEBUG_DATA(l)  l[0].fX, l[0].fY, l[1].fX, l[1].fY
 #define PT_DEBUG_DATA(i, n) i.pt(n).fX, i.pt(n).fY
 
-#if DEBUG_DUMP
-extern const char* kLVerbStr[];
-// extern const char* kUVerbStr[];
-extern int gContourID;
-extern int gSegmentID;
-#endif
-
-#if DEBUG_SORT || DEBUG_SWAP_TOP
-extern int gDebugSortCountDefault;
-extern int gDebugSortCount;
-
-bool valid_wind(int winding);
-void winding_printf(int winding);
-#endif
-
-#if DEBUG_ACTIVE_OP
-extern const char* kPathOpStr[];
-#endif
-
-#if DEBUG_SHOW_TEST_NAME
-#include "SkTLS.h"
-
-extern void* PathOpsDebugCreateNameStr();
-extern void PathOpsDebugDeleteNameStr(void* v);
-#define DEBUG_FILENAME_STRING_LENGTH 64
-#define DEBUG_FILENAME_STRING \
-    (reinterpret_cast<char* >(SkTLS::Get(PathOpsDebugCreateNameStr, PathOpsDebugDeleteNameStr)))
-extern void DebugBumpTestName(char* );
-extern void DebugShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
-#endif
-
 #ifndef DEBUG_TEST
 #define DEBUG_TEST 0
 #endif
+
+#if defined SK_DEBUG || !FORCE_RELEASE
+
+#if DEBUG_SHOW_TEST_NAME
+#include "SkTLS.h"
+#endif
+
+#include "SkTArray.h"
+
+class SkPathOpsDebug {
+public:
+    static int gMaxWindSum;
+    static int gMaxWindValue;
+
+    static const char* kLVerbStr[];
+    static int gContourID;
+    static int gSegmentID;
+
+#if DEBUG_SORT || DEBUG_SWAP_TOP
+    static int gSortCountDefault;
+    static int gSortCount;
+#endif
+
+#if DEBUG_ACTIVE_OP
+    static const char* kPathOpStr[];
+#endif
+
+    static void MathematicaIze(char* str, size_t bufferSize);
+    static bool ValidWind(int winding);
+    static void WindingPrintf(int winding);
+
+#if DEBUG_SHOW_TEST_NAME
+    static void* CreateNameStr();
+    static void DeleteNameStr(void* v);
+#define DEBUG_FILENAME_STRING_LENGTH 64
+#define DEBUG_FILENAME_STRING (reinterpret_cast<char* >(SkTLS::Get(SkPathOpsDebug::CreateNameStr, \
+        SkPathOpsDebug::DeleteNameStr)))
+    static void BumpTestName(char* );
+    static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
+#endif
+    static void DumpAngles(const SkTArray<class SkOpAngle, true>& angles);
+};
+
+#endif  // SK_DEBUG || !FORCE_RELEASE
 
 #endif

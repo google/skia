@@ -233,7 +233,7 @@ static const SortSetTests tests[] = {
     { TEST_ENTRY(set3), {0, 0}},
     { TEST_ENTRY(set2), {0, 0}},
 //    { TEST_ENTRY(set1a), {3.70370364f,3.14814806f} },
-    { TEST_ENTRY(set1), {0, 0}},
+//    { TEST_ENTRY(set1), {0, 0}},
 };
 
 #undef TEST_ENTRY
@@ -287,13 +287,13 @@ static void setup(const SortSet* set, const size_t idx,
     }
     double tStart = set[idx].tStart;
     double tEnd = set[idx].tEnd;
-    seg->addT(NULL, start, tStart);
-    seg->addT(NULL, end, tEnd);
+    seg->addT(NULL, start, tStart, SkOpSpan::kPointIsExact);
+    seg->addT(NULL, end, tEnd, SkOpSpan::kPointIsExact);
     if (tStart != 0 && tEnd != 0) {
-        seg->addT(NULL, set[idx].ptData[0], 0);
+        seg->addT(NULL, set[idx].ptData[0], 0, SkOpSpan::kPointIsExact);
     }
     if (tStart != 1 && tEnd != 1) {
-        seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], 1);
+        seg->addT(NULL, set[idx].ptData[set[idx].ptCount - 1], 1, SkOpSpan::kPointIsExact);
     }
     int tIndex = 0;
     ts[0] = 0;
