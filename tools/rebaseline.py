@@ -91,6 +91,10 @@ TEST_BUILDERS = [
     'Test-Win7-ShuttleA-HD2000-x86_64-Release',
 ]
 
+# TODO: Get this from builder_name_schema in buildbot.
+TRYBOT_SUFFIX = '-Trybot'
+
+
 class _InternalException(Exception):
   pass
 
@@ -170,7 +174,7 @@ class JsonRebaseliner(object):
                expectations_output_filename, actuals_base_url,
                actuals_filename, exception_handler,
                tests=None, configs=None, add_new=False, bugs=None, notes=None,
-               mark_unreviewed=None):
+               mark_unreviewed=None, from_trybot=False):
     self._expectations_root = expectations_root
     self._expectations_input_filename = expectations_input_filename
     self._expectations_output_filename = expectations_output_filename
@@ -185,6 +189,7 @@ class JsonRebaseliner(object):
     self._mark_unreviewed = mark_unreviewed
     self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
     self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
+    self._from_trybot = from_trybot
 
   # Executes subprocess.call(cmd).
   # Raises an Exception if the command fails.
@@ -254,8 +259,11 @@ class JsonRebaseliner(object):
   def RebaselineSubdir(self, builder):
     # Read in the actual result summary, and extract all the tests whose
     # results we need to update.
-    actuals_url = '/'.join([self._actuals_base_url,
-                            builder, self._actuals_filename])
+    results_builder = str(builder)
+    if self._from_trybot:
+      results_builder = results_builder + TRYBOT_SUFFIX
+    actuals_url = '/'.join([self._actuals_base_url, results_builder,
+                            self._actuals_filename])
     # Only update results for tests that are currently failing.
     # We don't want to rewrite results for tests that are already succeeding,
     # because we don't want to add annotation fields (such as
@@ -387,6 +395,9 @@ parser.add_argument('--unreviewed', action='store_true',
                     help=('mark all expectations modified by this run as '
                           '"%s": False' %
                           gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED))
+parser.add_argument('--from-trybot', action='store_true',
+                    help=('pull the actual-results.json file from the '
+                          'corresponding trybot, rather than the main builder'))
 args = parser.parse_args()
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
@@ -415,7 +426,8 @@ for builder in builders:
         actuals_filename=args.actuals_filename,
         exception_handler=exception_handler,
         add_new=args.add_new, bugs=args.bugs, notes=args.notes,
-        mark_unreviewed=args.unreviewed)
+        mark_unreviewed=args.unreviewed,
+        from_trybot=args.from_trybot)
     try:
       rebaseliner.RebaselineSubdir(builder=builder)
     except:
