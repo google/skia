@@ -367,7 +367,7 @@ public:
 
 protected:
     SkString onShortName() { return SkString("radial_gradient2"); }
-    virtual SkISize onISize() { return make_isize(400, 400); }
+    virtual SkISize onISize() { return make_isize(800, 400); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
@@ -388,24 +388,35 @@ protected:
         SkPoint center;
         center.set(cx, cy);
 
-        SkAutoTUnref<SkShader> sweep(
-                SkGradientShader::CreateSweep(cx, cy, sweep_colors,
-                                              NULL, SK_ARRAY_COUNT(sweep_colors)));
-        SkAutoTUnref<SkShader> radial1(
-                SkGradientShader::CreateRadial(center, radius, colors1,
-                                               NULL, SK_ARRAY_COUNT(colors1),
-                                               SkShader::kClamp_TileMode));
-        SkAutoTUnref<SkShader> radial2(
-                SkGradientShader::CreateRadial(center, radius, colors2,
-                                               NULL, SK_ARRAY_COUNT(colors2),
-                                               SkShader::kClamp_TileMode));
-        paint1.setShader(sweep);
-        paint2.setShader(radial1);
-        paint3.setShader(radial2);
+        // We can either interpolate endpoints and premultiply each point (default, more precision),
+        // or premultiply the endpoints first, avoiding the need to premultiply each point (cheap).
+        const uint32_t flags[] = { 0, SkGradientShader::kInterpolateColorsInPremul_Flag };
 
-        canvas->drawCircle(cx, cy, radius, paint1);
-        canvas->drawCircle(cx, cy, radius, paint3);
-        canvas->drawCircle(cx, cy, radius, paint2);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(flags); i++) {
+            SkAutoTUnref<SkShader> sweep(
+                    SkGradientShader::CreateSweep(cx, cy, sweep_colors,
+                                                  NULL, SK_ARRAY_COUNT(sweep_colors),
+                                                  NULL, flags[i]));
+            SkAutoTUnref<SkShader> radial1(
+                    SkGradientShader::CreateRadial(center, radius, colors1,
+                                                   NULL, SK_ARRAY_COUNT(colors1),
+                                                   SkShader::kClamp_TileMode,
+                                                   NULL, flags[i]));
+            SkAutoTUnref<SkShader> radial2(
+                    SkGradientShader::CreateRadial(center, radius, colors2,
+                                                   NULL, SK_ARRAY_COUNT(colors2),
+                                                   SkShader::kClamp_TileMode,
+                                                   NULL, flags[i]));
+            paint1.setShader(sweep);
+            paint2.setShader(radial1);
+            paint3.setShader(radial2);
+
+            canvas->drawCircle(cx, cy, radius, paint1);
+            canvas->drawCircle(cx, cy, radius, paint3);
+            canvas->drawCircle(cx, cy, radius, paint2);
+
+            canvas->translate(400, 0);
+        }
     }
 
 private:
