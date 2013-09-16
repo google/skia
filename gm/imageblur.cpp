@@ -42,7 +42,7 @@ protected:
             int x = rand.nextULessThan(WIDTH);
             int y = rand.nextULessThan(HEIGHT);
             textPaint.setColor(rand.nextBits(24) | 0xFF000000);
-            textPaint.setTextSize(rand.nextULessThan(300));
+            textPaint.setTextSize(rand.nextRangeScalar(0, 300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
                              SkIntToScalar(y), textPaint);
         }

@@ -50,7 +50,7 @@ protected:
             int x = rand.nextULessThan(WIDTH);
             int y = rand.nextULessThan(HEIGHT);
             paint.setColor(rand.nextBits(24) | 0xFF000000);
-            paint.setTextSize(rand.nextULessThan(300));
+            paint.setTextSize(rand.nextRangeScalar(0, 300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
                              SkIntToScalar(y), paint);
         }
