@@ -55,6 +55,7 @@ static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
  */
 static void interpolateColorCode(SkScalar range, SkScalar* curColor,
                                  SkScalar* prevColor, SkString* result) {
+    SkASSERT(range != SkIntToScalar(0));
     static const int kColorComponents = 3;
 
     // Figure out how to scale each color component.
@@ -152,7 +153,13 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
     result->append(" }\n");
 
     // The gradient colors.
+    int gradients = 0;
     for (int i = 1 ; i < info.fColorCount; i++) {
+        if (info.fColorOffsets[i] == info.fColorOffsets[i - 1]) {
+            continue;
+        }
+        gradients++;
+
         result->append("{dup ");
         result->appendScalar(info.fColorOffsets[i]);
         result->append(" le {");
@@ -174,7 +181,7 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
     result->append(" ");
     result->appendScalar(colorData[info.fColorCount - 1][2]);
 
-    for (int i = 0 ; i < info.fColorCount; i++) {
+    for (int i = 0 ; i < gradients + 1; i++) {
         result->append("} ifelse\n");
     }
 }
