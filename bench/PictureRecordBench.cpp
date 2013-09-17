@@ -18,8 +18,6 @@ class PictureRecordBench : public SkBenchmark {
 public:
     PictureRecordBench(const char name[])  {
         fName.printf("picture_record_%s", name);
-        fPictureWidth = SkIntToScalar(PICTURE_WIDTH);
-        fPictureHeight = SkIntToScalar(PICTURE_HEIGHT);
         fIsRendering = false;
     }
 
@@ -47,9 +45,6 @@ protected:
     virtual void recordCanvas(SkCanvas* canvas) = 0;
 
     SkString fName;
-    SkScalar fPictureWidth;
-    SkScalar fPictureHeight;
-    SkScalar fTextSize;
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -127,10 +122,21 @@ public:
         : INHERITED("unique_paint_dictionary") { }
 
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) {
+    virtual void recordCanvas(SkCanvas* /*ignored*/) {
+        // We ignore the parent's canvas (which is just there for our
+        // convenience) because we've got to have more careful control over it.
+        // We start a new one every so often to prevent unbounded memory growth.
+
         SkRandom rand;
+        SkPaint paint;
+        SkAutoTDelete<SkPicture> picture;
+        SkCanvas* canvas = NULL;
+        const int kMaxPaintsPerCanvas = 10000;
         for (int i = 0; i < this->getLoops(); i++) {
-            SkPaint paint;
+            if (0 == i % kMaxPaintsPerCanvas) {
+                picture.reset(SkNEW(SkPicture));
+                canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+            }
             paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
         }
