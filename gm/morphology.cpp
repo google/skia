@@ -8,8 +8,8 @@
 #include "gm.h"
 #include "SkMorphologyImageFilter.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 700
+#define HEIGHT 560
 
 namespace skiagm {
 
@@ -44,6 +44,16 @@ protected:
     virtual SkISize onISize() {
         return make_isize(WIDTH, HEIGHT);
     }
+
+    void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x, int y) {
+        canvas->save();
+        canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+        canvas->clipRect(SkRect::MakeWH(
+          SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
+        canvas->drawBitmap(fBitmap, 0, 0, &paint);
+        canvas->restore();
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
         if (!fOnce) {
             make_bitmap();
@@ -60,26 +70,25 @@ protected:
             {  24,  24,  25,  25 },
         };
         SkPaint paint;
-        for (unsigned j = 0; j < 2; ++j) {
+        SkIRect cropRect = SkIRect::MakeXYWH(25, 20, 100, 80);
+
+        for (unsigned j = 0; j < 4; ++j) {
             for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
-                SkScalar x = SkIntToScalar(i * 140), y = SkIntToScalar(j * 140);
-                if (j) {
+                const SkIRect* cr = j & 0x02 ? &cropRect : NULL;
+                if (j & 0x01) {
                     paint.setImageFilter(new SkErodeImageFilter(
                         samples[i].fRadiusX,
-                        samples[i].fRadiusY))->unref();
+                        samples[i].fRadiusY,
+                        NULL,
+                        cr))->unref();
                 } else {
                     paint.setImageFilter(new SkDilateImageFilter(
                         samples[i].fRadiusX,
-                        samples[i].fRadiusY))->unref();
+                        samples[i].fRadiusY,
+                        NULL,
+                        cr))->unref();
                 }
-                SkRect bounds = SkRect::MakeXYWH(
-                    x,
-                    y,
-                    SkIntToScalar(samples[i].fWidth),
-                    SkIntToScalar(samples[i].fHeight));
-                canvas->saveLayer(&bounds, &paint);
-                canvas->drawBitmap(fBitmap, x, y);
-                canvas->restore();
+                drawClippedBitmap(canvas, paint, i * 140, j * 140);
             }
         }
     }
