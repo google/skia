@@ -17,7 +17,22 @@
 #include "GrTBackendEffectFactory.h"
 #endif
 
-static inline SkPMColor luma_proc(const SkPMColor a, const SkPMColor b) {
+class SkLumaMaskXfermodeSrcOver : public SkLumaMaskXfermode {
+public:
+    SkLumaMaskXfermodeSrcOver();
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaMaskXfermodeSrcOver)
+
+protected:
+    SkLumaMaskXfermodeSrcOver(SkFlattenableReadBuffer&);
+
+private:
+    typedef SkLumaMaskXfermode INHERITED;
+
+    virtual SkPMColor lumaProc(const SkPMColor a, const SkPMColor b) const;
+};
+
+SkPMColor SkLumaMaskXfermode::lumaProc(const SkPMColor a, const SkPMColor b) const {
     unsigned luma = SkComputeLuminance(SkGetPackedR32(b),
                                        SkGetPackedG32(b),
                                        SkGetPackedB32(b));
@@ -40,18 +55,22 @@ SkXfermode* SkLumaMaskXfermode::Create(SkXfermode::Mode mode) {
     if (kSrcIn_Mode == mode || kDstIn_Mode == mode) {
         return SkNEW_ARGS(SkLumaMaskXfermode, (mode));
     }
+    if (kSrcOver_Mode == mode) {
+        return SkNEW_ARGS(SkLumaMaskXfermodeSrcOver, ());
+    }
+
     return NULL;
 }
 
 SkLumaMaskXfermode::SkLumaMaskXfermode(SkXfermode::Mode mode)
     : fMode(mode) {
-    SkASSERT(kSrcIn_Mode == mode || kDstIn_Mode == mode);
+    SkASSERT(kSrcIn_Mode == mode || kDstIn_Mode == mode || kSrcOver_Mode == mode);
 }
 
 SkLumaMaskXfermode::SkLumaMaskXfermode(SkFlattenableReadBuffer& buffer)
     : INHERITED(buffer)
     , fMode((SkXfermode::Mode)buffer.readUInt()) {
-    SkASSERT(kSrcIn_Mode == fMode || kDstIn_Mode == fMode);
+    SkASSERT(kSrcIn_Mode == fMode || kDstIn_Mode == fMode || kSrcOver_Mode == fMode);
 }
 
 void SkLumaMaskXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -62,7 +81,7 @@ void SkLumaMaskXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
 SkPMColor SkLumaMaskXfermode::xferColor(SkPMColor src, SkPMColor dst) const {
     const SkPMColor* a = lumaOpA<SkPMColor>(fMode, &src, &dst);
     const SkPMColor* b = lumaOpB<SkPMColor>(fMode, &src, &dst);
-    return luma_proc(*a, *b);
+    return this->lumaProc(*a, *b);
 }
 
 void SkLumaMaskXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
@@ -74,7 +93,7 @@ void SkLumaMaskXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
         for (int i = 0; i < count; ++i) {
             unsigned cov = aa[i];
             if (cov) {
-                unsigned resC = luma_proc(a[i], b[i]);
+                unsigned resC = this->lumaProc(a[i], b[i]);
                 if (cov < 255) {
                     resC = SkFastFourByteInterp256(resC, dst[i],
                                                    SkAlpha255To256(cov));
@@ -84,7 +103,7 @@ void SkLumaMaskXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            dst[i] = luma_proc(a[i], b[i]);
+            dst[i] = this->lumaProc(a[i], b[i]);
         }
     }
 }
@@ -92,9 +111,40 @@ void SkLumaMaskXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
 #ifdef SK_DEVELOPER
 void SkLumaMaskXfermode::toString(SkString* str) const {
     str->printf("SkLumaMaskXfermode: mode: %s",
-                fMode == kSrcIn_Mode ? "SRC_IN" : "DST_IN");
+                fMode == kSrcIn_Mode ? "SRC_IN" :
+                fMode == kDstIn_Mode ? "DST_IN" : "SRC_OVER");
 }
 #endif
+
+SkLumaMaskXfermodeSrcOver::SkLumaMaskXfermodeSrcOver() : SkLumaMaskXfermode(kSrcOver_Mode) {}
+
+SkLumaMaskXfermodeSrcOver::SkLumaMaskXfermodeSrcOver(SkFlattenableReadBuffer& buffer)
+    : INHERITED(buffer) {
+}
+
+SkPMColor SkLumaMaskXfermodeSrcOver::lumaProc(const SkPMColor a, const SkPMColor b) const {
+    unsigned luma = SkComputeLuminance(SkGetPackedR32(b),
+                                       SkGetPackedG32(b),
+                                       SkGetPackedB32(b));
+
+    unsigned oldAlpha = SkGetPackedA32(b);
+    unsigned newR = 0, newG = 0, newB = 0;
+
+    if (oldAlpha > 0) {
+        newR = SkGetPackedR32(b) * 255 / oldAlpha;
+        newG = SkGetPackedG32(b) * 255 / oldAlpha;
+        newB = SkGetPackedB32(b) * 255 / oldAlpha;
+    }
+
+    SkPMColor colorB = SkPremultiplyARGBInline(luma, newR, newG, newB);
+
+    return SkPMSrcOver(colorB, a);
+}
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkLumaMaskXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaMaskXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaMaskXfermodeSrcOver)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #if SK_SUPPORT_GPU
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +224,12 @@ void GrGLLumaMaskEffect::emitCode(GrGLShaderBuilder* builder,
                            SK_ITU_BT709_LUM_COEFF_G,
                            SK_ITU_BT709_LUM_COEFF_B,
                            opB);
-    builder->fsCodeAppendf("\t\t%s = %s * luma;\n", outputColor, opA);
+    if (SkXfermode::kSrcOver_Mode == lumaEffect.getMode()) {
+        builder->fsCodeAppendf("\t\tvec4 newB = %s;\n\t\tif (newB.a > 0.0) { newB *= luma / newB.a; }\n\t\tnewB.a = luma;\n", opB);
+        builder->fsCodeAppendf("\t\t%s = newB + %s * (1.0 - luma); \n", outputColor, opA);
+    } else {
+        builder->fsCodeAppendf("\t\t%s = %s * luma;\n", outputColor, opA);
+    }
 }
 
 GrGLEffect::EffectKey GrGLLumaMaskEffect::GenKey(const GrDrawEffect& drawEffect,

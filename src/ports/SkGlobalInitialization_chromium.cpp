@@ -25,12 +25,12 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaMaskXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMallocPixelRef)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMagnifierImageFilter)
 
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
+    SkLumaMaskXfermode::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }

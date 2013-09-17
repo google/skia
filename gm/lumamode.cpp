@@ -76,6 +76,7 @@ public:
     LumaXfermodeGM() {
         fSrcInXfer.reset(SkLumaMaskXfermode::Create(SkXfermode::kSrcIn_Mode));
         fDstInXfer.reset(SkLumaMaskXfermode::Create(SkXfermode::kDstIn_Mode));
+        fSrcOverXfer.reset(SkLumaMaskXfermode::Create(SkXfermode::kSrcOver_Mode));
 
         SkColor  g1Colors[] = { kColor1, SkColorSetA(kColor1, 0x20) };
         SkColor  g2Colors[] = { kColor2, SkColorSetA(kColor2, 0x20) };
@@ -101,11 +102,11 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(600, 420);
+        return SkISize::Make(800, 420);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkXfermode* modes[] = { NULL, fSrcInXfer, fDstInXfer };
+        SkXfermode* modes[] = { NULL, fSrcInXfer, fDstInXfer, fSrcOverXfer };
         struct {
             SkShader*   fShader1;
             SkShader*   fShader2;
@@ -120,6 +121,7 @@ protected:
         draw_label(canvas, "SrcOver", SkPoint::Make(gridStep, 20));
         draw_label(canvas, "SrcInLuma", SkPoint::Make(gridStep * 3, 20));
         draw_label(canvas, "DstInLuma", SkPoint::Make(gridStep * 5, 20));
+        draw_label(canvas, "SrcOverLuma", SkPoint::Make(gridStep * 7, 20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
             canvas->save();
             canvas->translate(kInset, gridStep * i + 30);
@@ -137,7 +139,7 @@ protected:
 
 private:
     SkAutoTUnref<SkShader>   fGr1, fGr2;
-    SkAutoTUnref<SkXfermode> fSrcInXfer, fDstInXfer;
+    SkAutoTUnref<SkXfermode> fSrcInXfer, fDstInXfer, fSrcOverXfer;
 
     typedef skiagm::GM INHERITED;
 };
