@@ -63,6 +63,21 @@ public:
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     // overrides from SkBaseDevice
+    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE {
+        return 0;
+    }
+    virtual int width() const SK_OVERRIDE {
+        return NULL == fRenderTarget ? 0 : fRenderTarget->width();
+    }
+    virtual int height() const SK_OVERRIDE {
+        return NULL == fRenderTarget ? 0 : fRenderTarget->height();
+    }
+    virtual void getGlobalBounds(SkIRect* bounds) const SK_OVERRIDE;
+    virtual bool isOpaque() const SK_OVERRIDE { 
+        return NULL == fRenderTarget ? false 
+                                     : kRGB_565_GrPixelConfig == fRenderTarget->config(); 
+    }
+    virtual SkBitmap::Config config() const SK_OVERRIDE;
 
     virtual void clear(SkColor color) SK_OVERRIDE;
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
