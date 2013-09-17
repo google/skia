@@ -7813,7 +7813,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          161335792809857237
+          12549360642438897235
         ]
       ], 
       "ignore-failure": false
@@ -7822,7 +7822,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12474442051338988377
+          17476718297850315478
         ]
       ], 
       "ignore-failure": false
@@ -7831,7 +7831,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12474442051338988377
+          15753416375761750628
         ]
       ], 
       "ignore-failure": false
@@ -7840,7 +7840,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13082803464346819459
+          16854423898679382966
         ]
       ], 
       "bugs": [
