@@ -19,10 +19,14 @@ SkDeviceLooper::SkDeviceLooper(const SkBitmap& base,
     fCurrBitmap = NULL;
     fCurrRC = NULL;
 
-    SkIRect bitmapBounds = SkIRect::MakeWH(base.width(), base.height());
-    if (!fClippedBounds.intersect(bounds, bitmapBounds)) {
+    if (!rc.isEmpty()) {
+        // clip must be contained by the bitmap
+        SkASSERT(SkIRect::MakeWH(base.width(), base.height()).contains(rc.getBounds()));
+    }
+
+    if (rc.isEmpty() || !fClippedBounds.intersect(bounds, rc.getBounds())) {
         fState = kDone_State;
-    } else if (this->fitsInDelta(bounds)) {
+    } else if (this->fitsInDelta(fClippedBounds)) {
         fState = kSimple_State;
     } else {
         // back up by 1 DX, so that next() will put us in a correct starting
@@ -62,17 +66,35 @@ bool SkDeviceLooper::computeCurrBitmapAndClip() {
     SkIRect r = SkIRect::MakeXYWH(fCurrOffset.x(), fCurrOffset.y(),
                                   fDelta, fDelta);
     if (!fBaseBitmap.extractSubset(&fSubsetBitmap, r)) {
-        fState = kDone_State;
-        return false;
+        fSubsetRC.setEmpty();
+    } else {
+        fSubsetBitmap.lockPixels();
+        fBaseRC.translate(-r.left(), -r.top(), &fSubsetRC);
+        (void)fSubsetRC.op(SkIRect::MakeWH(fDelta, fDelta),
+                           SkRegion::kIntersect_Op);
     }
-    fSubsetBitmap.lockPixels();
-
-    fBaseRC.translate(-r.left(), -r.top(), &fSubsetRC);
-    (void)fSubsetRC.op(SkIRect::MakeWH(fDelta, fDelta), SkRegion::kIntersect_Op);
 
     fCurrBitmap = &fSubsetBitmap;
     fCurrRC = &fSubsetRC;
-    return true;
+    return !fCurrRC->isEmpty();
+}
+
+static bool next_tile(const SkIRect& boundary, int delta, SkIPoint* offset) {
+    // can we move to the right?
+    if (offset->x() + delta < boundary.right()) {
+        offset->fX += delta;
+        return true;
+    }
+
+    // reset to the left, but move down a row
+    offset->fX = boundary.left();
+    if (offset->y() + delta < boundary.bottom()) {
+        offset->fY += delta;
+        return true;
+    }
+    
+    // offset is now outside of boundary, so we're done
+    return false;
 }
 
 bool SkDeviceLooper::next() {
@@ -97,18 +119,13 @@ bool SkDeviceLooper::next() {
             // need to propogate fCurrOffset through clippedbounds
             // left to right, until we wrap around and move down
 
-            if (fCurrOffset.x() + fDelta < fClippedBounds.right()) {
-                fCurrOffset.fX += fDelta;
-                return this->computeCurrBitmapAndClip();
-            }
-            fCurrOffset.fX = fClippedBounds.left();
-            if (fCurrOffset.y() + fDelta < fClippedBounds.bottom()) {
-                fCurrOffset.fY += fDelta;
-                return this->computeCurrBitmapAndClip();
+            while (next_tile(fClippedBounds, fDelta, &fCurrOffset)) {
+                if (this->computeCurrBitmapAndClip()) {
+                    return true;
+                }
             }
             break;
     }
-
     fState = kDone_State;
     return false;
 }

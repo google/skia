@@ -47,6 +47,18 @@ public:
     static SkSurface* NewRaster(const SkImage::Info&);
 
     /**
+     *  Helper version of NewRaster. It creates a SkImage::Info with the
+     *  specified width and height, and populates the rest of info to match
+     *  pixels in SkPMColor format.
+     */
+    static SkSurface* NewRasterPMColor(int width, int height) {
+        SkImage::Info info = {
+            width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+        };
+        return NewRaster(info);
+    }
+
+    /**
      *  Return a new surface whose contents will be recorded into a picture.
      *  When this surface is drawn into another canvas, its contents will be
      *  "replayed" into that canvas.

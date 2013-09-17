@@ -46,6 +46,7 @@
         '../tests/DataRefTest.cpp',
         '../tests/DeferredCanvasTest.cpp',
         '../tests/DequeTest.cpp',
+        '../tests/DeviceLooperTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
         '../tests/DrawPathTest.cpp',
         '../tests/DrawTextTest.cpp',
