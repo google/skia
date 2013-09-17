@@ -26,28 +26,16 @@ public:
         PICTURE_HEIGHT = 4000,
     };
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-
-    virtual void onDraw(SkCanvas*) {
-        SkPicture picture;
-
-        SkCanvas* pCanvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
-        recordCanvas(pCanvas);
-
-        // we don't need to draw the picture as the endRecording step will
-        // do the work of transferring the recorded content into a playback
-        // object.
-        picture.endRecording();
-    }
-
-    virtual void recordCanvas(SkCanvas* canvas) = 0;
-
-    SkString fName;
 private:
+    SkString fName;
     typedef SkBenchmark INHERITED;
 };
+
+
+static const int kMaxLoopsPerCanvas = 10000;
 
 /*
  *  An SkPicture has internal dictionaries to store bitmaps, matrices, paints,
@@ -56,15 +44,20 @@ private:
  */
 class DictionaryRecordBench : public PictureRecordBench {
 public:
-    DictionaryRecordBench()
-        : INHERITED("dictionaries") { }
+    DictionaryRecordBench() : INHERITED("dictionaries") {}
 
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        SkAutoTDelete<SkPicture> picture;
+        SkCanvas* canvas = NULL;
 
         const SkPoint translateDelta = getTranslateDelta(this->getLoops());
 
         for (int i = 0; i < this->getLoops(); i++) {
+            if (0 == i % kMaxLoopsPerCanvas) {
+                picture.reset(SkNEW(SkPicture));
+                canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+            }
 
             SkColor color = SK_ColorYELLOW + (i % 255);
             SkIRect rect = SkIRect::MakeWH(i % PICTURE_WIDTH, i % PICTURE_HEIGHT);
@@ -118,22 +111,16 @@ private:
  */
 class UniquePaintDictionaryRecordBench : public PictureRecordBench {
 public:
-    UniquePaintDictionaryRecordBench()
-        : INHERITED("unique_paint_dictionary") { }
+    UniquePaintDictionaryRecordBench() : INHERITED("unique_paint_dictionary") { }
 
 protected:
-    virtual void recordCanvas(SkCanvas* /*ignored*/) {
-        // We ignore the parent's canvas (which is just there for our
-        // convenience) because we've got to have more careful control over it.
-        // We start a new one every so often to prevent unbounded memory growth.
-
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkRandom rand;
         SkPaint paint;
         SkAutoTDelete<SkPicture> picture;
         SkCanvas* canvas = NULL;
-        const int kMaxPaintsPerCanvas = 10000;
         for (int i = 0; i < this->getLoops(); i++) {
-            if (0 == i % kMaxPaintsPerCanvas) {
+            if (0 == i % kMaxLoopsPerCanvas) {
                 picture.reset(SkNEW(SkPicture));
                 canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
             }
@@ -156,8 +143,7 @@ private:
  */
 class RecurringPaintDictionaryRecordBench : public PictureRecordBench {
 public:
-    RecurringPaintDictionaryRecordBench()
-        : INHERITED("recurring_paint_dictionary") {
+    RecurringPaintDictionaryRecordBench() : INHERITED("recurring_paint_dictionary") {
         SkRandom rand;
         for (int i = 0; i < ObjCount; i++) {
             fPaint[i].setColor(rand.nextU());
@@ -168,8 +154,9 @@ public:
         ObjCount = 100,  // number of unique paint objects
     };
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) {
-
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        SkPicture picture;
+        SkCanvas* canvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
         for (int i = 0; i < this->getLoops(); i++) {
             canvas->drawPaint(fPaint[i % ObjCount]);
         }
