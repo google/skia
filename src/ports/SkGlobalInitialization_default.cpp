@@ -88,7 +88,6 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLerpXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaMaskXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Sk2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
@@ -115,6 +114,7 @@ void SkFlattenable::InitializeFlattenables() {
     SkGradientShader::InitializeFlattenables();
     SkImages::InitializeFlattenables();
     SkLightingImageFilter::InitializeFlattenables();
+    SkLumaMaskXfermode::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }

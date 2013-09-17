@@ -105,3 +105,4 @@ BENCH(SkXfermode::kLuminosity_Mode)
 
 BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcIn_Mode), "SrcInLuma")
 BENCH(SkLumaMaskXfermode::Create(SkXfermode::kDstIn_Mode), "DstInLuma")
+BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcOver_Mode), "SrcOverLuma")

@@ -16,7 +16,7 @@
  *  http://www.w3.org/TR/css-masking/#MaskValues
  *
  *  The luminance-to-alpha function is applied before performing a standard
- *  SrcIn/DstIn xfer:
+ *  SrcIn/DstIn/SrcOver xfer:
  *
  *    luma(C) = (0.2125 * C.r + 0.7154 * C.g + 0.0721 * C.b) * C.a
  *
@@ -26,7 +26,7 @@ class SK_API SkLumaMaskXfermode : public SkXfermode {
 public:
     /** Return an SkLumaMaskXfermode object for the specified submode.
      *
-     *  Only kSrcIn_Mode and kDstIn_Mode are supported - for everything else,
+     *  Only kSrcIn_Mode, kDstIn_Mode kSrcOver_Mode are supported - for everything else,
      *  the factory returns NULL.
      */
     static SkXfermode* Create(SkXfermode::Mode);
@@ -37,6 +37,7 @@ public:
 
     SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaMaskXfermode)
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 #if SK_SUPPORT_GPU
     virtual bool asNewEffectOrCoeff(GrContext*, GrEffectRef**, Coeff*, Coeff*,
@@ -47,12 +48,14 @@ protected:
     SkLumaMaskXfermode(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
-private:
     SkLumaMaskXfermode(SkXfermode::Mode);
 
+private:
     const SkXfermode::Mode fMode;
 
     typedef SkXfermode INHERITED;
+
+    virtual SkPMColor lumaProc(const SkPMColor a, const SkPMColor b) const;
 };
 
 #endif
