@@ -569,6 +569,23 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void SkGpuDevice::getGlobalBounds(SkIRect* bounds) const {
+    if (NULL != bounds) {
+        const SkIPoint& origin = this->getOrigin();
+        bounds->setXYWH(origin.x(), origin.y(),
+                        this->width(), this->height());
+    }
+}
+
+SkBitmap::Config SkGpuDevice::config() const {
+    if (NULL == fRenderTarget) {
+        return SkBitmap::kNo_Config;
+    }
+
+    bool isOpaque;
+    return grConfig2skConfig(fRenderTarget->config(), &isOpaque);
+}
+
 void SkGpuDevice::clear(SkColor color) {
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, SkColor2GrColor(color), fRenderTarget);
@@ -1554,7 +1571,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // drawDevice is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw, true);
 
-    GrRenderTarget* devRT = device->accessRenderTarget();
+    GrRenderTarget* devRT = dev->accessRenderTarget();
     GrTexture* devTex;
     if (NULL == (devTex = devRT->asTexture())) {
         return;

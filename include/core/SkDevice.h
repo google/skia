@@ -85,7 +85,7 @@ public:
      */
     virtual void getGlobalBounds(SkIRect* bounds) const = 0;
 
-    /** Returns true if the device's bitmap's config treats every pixels as
+    /** Returns true if the device's bitmap's config treats every pixel as
         implicitly opaque.
     */
     virtual bool isOpaque() const = 0;
@@ -332,7 +332,7 @@ protected:
                               int x, int y,
                               SkCanvas::Config8888 config8888) = 0;
 
-    /** Called when this device is installed into a Canvas. Balanaced by a call
+    /** Called when this device is installed into a Canvas. Balanced by a call
         to unlockPixels() when the device is removed from a Canvas.
     */
     virtual void lockPixels() = 0;
