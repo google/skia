@@ -59,8 +59,8 @@ protected:
         const int textYOffset[] = { 10, 40, 100};
         SkASSERT(sizeof(textSize) == sizeof(textYOffset));
         for (size_t y = 0; y < sizeof(textSize) / sizeof(int); ++y) {
-            paint.setTextSize(textSize[y]);
-            canvas->drawText(text, strlen(text), 10, textYOffset[y], paint);
+            paint.setTextSize(SkIntToScalar(textSize[y]));
+            canvas->drawText(text, strlen(text), 10, SkIntToScalar(textYOffset[y]), paint);
         }
 
         // setup work needed to draw text with different clips
@@ -110,7 +110,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
+#if !defined(SK_BUILD_FOR_ANDROID)
+// fail for now until the appropriate freetype changes are submitted
 static GM* MyFactory(void*) { return new ColorEmojiGM; }
 static GMRegistry reg(MyFactory);
+#endif
 
 }
