@@ -51,6 +51,7 @@
         '../samplecode/SampleCamera.cpp',
         '../samplecode/SampleChart.cpp',
         '../samplecode/SampleCircle.cpp',
+        '../samplecode/SampleClock.cpp',
         '../samplecode/SampleClip.cpp',
         '../samplecode/SampleCode.h',
         '../samplecode/SampleColorFilter.cpp',
