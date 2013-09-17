@@ -27,6 +27,7 @@
 #include "SkXfermode.h"
 
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkXMLParser.h"
 
 class PictFileView : public SampleView {
@@ -53,6 +54,11 @@ class PictFileView : public SampleView {
                 SkDebugf("coun't load picture at \"path\"\n", path);
             }
 
+            if (false) {
+                SkSurface* surf = SkSurface::NewRasterPMColor(pic->width(), pic->height());
+                surf->getCanvas()->drawPicture(*pic);
+                surf->unref();
+            }
             if (false) { // re-record
                 SkPicture p2;
                 pic->draw(p2.beginRecording(pic->width(), pic->height()));
