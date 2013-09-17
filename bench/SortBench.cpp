@@ -12,40 +12,40 @@
 
 static const int N = 1000;
 
-static void rand_proc(int array[], int count) {
+static void rand_proc(int array[N]) {
     SkRandom rand;
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < N; ++i) {
         array[i] = rand.nextS();
     }
 }
 
-static void randN_proc(int array[], int count) {
+static void randN_proc(int array[N]) {
     SkRandom rand;
     int mod = N / 10;
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < N; ++i) {
         array[i] = rand.nextU() % mod;
     }
 }
 
-static void forward_proc(int array[], int count) {
-    for (int i = 0; i < count; ++i) {
+static void forward_proc(int array[N]) {
+    for (int i = 0; i < N; ++i) {
         array[i] = i;
     }
 }
 
-static void backward_proc(int array[], int count) {
-    for (int i = 0; i < count; ++i) {
+static void backward_proc(int array[N]) {
+    for (int i = 0; i < N; ++i) {
         array[i] = -i;
     }
 }
 
-static void same_proc(int array[], int count) {
-    for (int i = 0; i < count; ++i) {
-        array[i] = count;
+static void same_proc(int array[N]) {
+    for (int i = 0; i < N; ++i) {
+        array[i] = N;
     }
 }
 
-typedef void (*SortProc)(int array[], int count);
+typedef void (*SortProc)(int array[N]);
 
 enum Type {
     kRand, kRandN, kFore, kBack, kSame
@@ -62,12 +62,13 @@ static const struct {
     { "repeated", same_proc },
 };
 
-static void skqsort_sort(int array[], int count) {
-    SkTQSort<int>(array, array + count);
+static void skqsort_sort(int array[N]) {
+    // End is inclusive for SkTQSort!
+    SkTQSort<int>(array, array + N - 1);
 }
 
-static void skheap_sort(int array[], int count) {
-    SkTHeapSort<int>(array, count);
+static void skheap_sort(int array[N]) {
+    SkTHeapSort<int>(array, N);
 }
 
 extern "C" {
@@ -78,8 +79,8 @@ extern "C" {
     }
 }
 
-static void qsort_sort(int array[], int count) {
-    qsort(array, count, sizeof(int), int_compare);
+static void qsort_sort(int array[N]) {
+    qsort(array, N, sizeof(int), int_compare);
 }
 
 enum SortType {
@@ -96,23 +97,15 @@ static const struct {
 };
 
 class SortBench : public SkBenchmark {
-    SkString    fName;
-    enum { MAX = 100000 };
-    int         fUnsorted[MAX];
-    int         fSorted[MAX];
-    int         fCount;
-    SortProc    fSortProc;
+    SkString           fName;
+    const Type         fType;
+    const SortProc     fSortProc;
+    SkAutoTMalloc<int> fUnsorted;
 
 public:
-    SortBench(Type t, int n, SortType s)  {
-        if (n > MAX) {
-            n = MAX;
-        }
-        fName.printf("sort_%s_%s", gSorts[s].fName, gRec[t].fName);
-        fCount = n;
-        gRec[t].fProc(fUnsorted, n);
-        fSortProc = gSorts[s].fProc;
+    SortBench(Type t, SortType s) : fType(t), fSortProc(gSorts[s].fProc) {
         fIsRendering = false;
+        fName.printf("sort_%s_%s", gSorts[s].fName, gRec[t].fName);
     }
 
 protected:
@@ -120,13 +113,20 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) {
+    // Delayed initialization only done if onDraw will be called.
+    virtual void onPreDraw() SK_OVERRIDE {
+        fUnsorted.reset(N);
+        gRec[fType].fProc(fUnsorted.get());
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        SkAutoTMalloc<int> sorted(N);
         for (int i = 0; i < this->getLoops(); i++) {
-            memcpy(fSorted, fUnsorted, fCount * sizeof(int));
-            fSortProc(fSorted, fCount);
+            memcpy(sorted.get(), fUnsorted.get(), N*sizeof(int));
+            fSortProc(sorted.get());
 #ifdef SK_DEBUG
-            for (int j = 1; j < fCount; ++j) {
-                SkASSERT(fSorted[j - 1] <= fSorted[j]);
+            for (int j = 1; j < N; ++j) {
+                SkASSERT(sorted[j - 1] <= sorted[j]);
             }
 #endif
         }
@@ -139,13 +139,13 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkBenchmark* NewSkQSort(Type t) {
-    return new SortBench(t, N, kSKQSort);
+    return new SortBench(t, kSKQSort);
 }
 static SkBenchmark* NewSkHeap(Type t) {
-    return new SortBench(t, N, kSKHeap);
+    return new SortBench(t, kSKHeap);
 }
 static SkBenchmark* NewQSort(Type t) {
-    return new SortBench(t, N, kQSort);
+    return new SortBench(t, kQSort);
 }
 
 DEF_BENCH( return NewSkQSort(kRand); )
