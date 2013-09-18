@@ -214,6 +214,15 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
     return kOther_GrGLVendor;
 }
 
+GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
+    if (NULL != rendererString) {
+        if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
+            return kTegra3_GrGLRenderer;
+        }
+    }
+    return kOther_GrGLRenderer;
+}
+
 GrGLBinding GrGLGetBindingInUse(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
@@ -236,6 +245,12 @@ GrGLVendor GrGLGetVendor(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VENDOR));
     return GrGLGetVendorFromString((const char*) v);
+}
+
+GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_RENDERER));
+    return GrGLGetRendererFromString((const char*) v);
 }
 
 template<> void GrGLGetMatrix<3>(GrGLfloat* dest, const SkMatrix& src) {

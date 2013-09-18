@@ -19,7 +19,7 @@ typedef uint32_t GrGLVersion;
 typedef uint32_t GrGLSLVersion;
 
 /**
- * This list is lazily updated as required.
+ * The Vendor and Renderer enum values are lazily updated as required.
  */
 enum GrGLVendor {
     kARM_GrGLVendor,
@@ -28,6 +28,12 @@ enum GrGLVendor {
     kQualcomm_GrGLVendor,
 
     kOther_GrGLVendor
+};
+
+enum GrGLRenderer {
+    kTegra3_GrGLRenderer,
+
+    kOther_GrGLRenderer
 };
 
 #define GR_GL_VER(major, minor) ((static_cast<int>(major) << 16) | \
@@ -76,12 +82,14 @@ GrGLBinding GrGLGetBindingInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 bool GrGLIsMesaFromVersionString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
+GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
 
 // these variants call glGetString()
 GrGLBinding GrGLGetBindingInUse(const GrGLInterface*);
 GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
+GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
 
 /**
  * Helpers for glGetError()

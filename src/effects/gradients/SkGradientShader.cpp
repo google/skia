@@ -980,9 +980,20 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
     } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){
         builder->fsCodeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
                                gradientTValue);
-        builder->fsCodeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s +(1.0 - min(abs(oneMinus2t), 1.0)) * %s + clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
-                               builder->getUniformVariable(fColorStartUni).c_str(),
-                               builder->getUniformVariable(fColorMidUni).c_str(),
+        builder->fsCodeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
+                               builder->getUniformVariable(fColorStartUni).c_str());
+        if (kTegra3_GrGLRenderer == builder->ctxInfo().renderer()) {
+            // The Tegra3 compiler will sometimes never return if we have
+            // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
+            builder->fsCodeAppend("\tfloat minAbs = abs(oneMinus2t);\n");
+            builder->fsCodeAppend("\tminAbs = minAbs > 1.0 ? 1.0 : minAbs;\n");
+            builder->fsCodeAppendf("\tcolorTemp += (1.0 - minAbs) * %s;\n",
+                                   builder->getUniformVariable(fColorMidUni).c_str());
+        } else {
+            builder->fsCodeAppendf("\tcolorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s;\n",
+                                   builder->getUniformVariable(fColorMidUni).c_str());
+        }
+        builder->fsCodeAppendf("\tcolorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
                                builder->getUniformVariable(fColorEndUni).c_str());
         if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(key)) {
             builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
