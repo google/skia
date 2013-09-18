@@ -13,6 +13,7 @@ GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& ctxInfo) {
     fGLVersion = ctxInfo.fGLVersion;
     fGLSLGeneration = ctxInfo.fGLSLGeneration;
     fVendor = ctxInfo.fVendor;
+    fRenderer = ctxInfo.fRenderer;
     fExtensions = ctxInfo.fExtensions;
     fIsMesa = ctxInfo.fIsMesa;
     *fGLCaps = *ctxInfo.fGLCaps.get();
@@ -38,6 +39,8 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 
             fVendor = GrGLGetVendor(interface);
 
+            fRenderer = GrGLGetRenderer(interface);
+
             fIsMesa = GrGLIsMesaFromVersionString(ver);
 
             fGLCaps->init(*this, interface);
@@ -56,6 +59,7 @@ void GrGLContextInfo::reset() {
     fGLVersion = GR_GL_VER(0, 0);
     fGLSLGeneration = static_cast<GrGLSLGeneration>(0);
     fVendor = kOther_GrGLVendor;
+    fRenderer = kOther_GrGLRenderer;
     fIsMesa = false;
     fExtensions.reset();
     fGLCaps->reset();
