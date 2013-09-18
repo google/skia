@@ -567,9 +567,8 @@ void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrTexture
     fDstGpu->initCopySurfaceDstDesc(src, desc);
 }
 
-void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
-                                int vertexCount,
-                                int indexCount) {
+void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
+                                                         int indexCount) {
     // We use geometryHints() to know whether to flush the draw buffer. We
     // can't flush if we are inside an unbalanced pushGeometrySource.
     // Moreover, flushing blows away vertex and index data that was
