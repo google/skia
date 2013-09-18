@@ -28,8 +28,16 @@ namespace {
 static const int kVertsPerQuad = 5;
 static const int kIdxsPerQuad = 9;
 
+// lines are rendered as:
+//      *______________*
+//      |\ -_______   /|
+//      | \        \ / |
+//      |  *--------*  |
+//      | /  ______/ \ |
+//      */_-__________\*
+// For: 6 vertices and 18 indices (for 6 triangles)
 static const int kVertsPerLineSeg = 6;
-static const int kIdxsPerLineSeg = 12;
+static const int kIdxsPerLineSeg = 18;
 
 static const int kNumQuadsInIdxBuffer = 256;
 static const size_t kQuadIdxSBufize = kIdxsPerQuad *
@@ -90,32 +98,41 @@ static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
         data = SkNEW_ARRAY(uint16_t, kNumLineSegsInIdxBuffer * kIdxsPerLineSeg);
     }
     for (int i = 0; i < kNumLineSegsInIdxBuffer; ++i) {
-        // Each line segment is rendered as two quads, with alpha = 1 along the
-        // spine of the segment, and alpha = 0 along the outer edges, represented
-        // horizontally (i.e., the line equation is t*(p1-p0) + p0)
+        // Each line segment is rendered as two quads and two triangles.
+        // p0 and p1 have alpha = 1 while all other points have alpha = 0.
+        // The four external points are offset 1 pixel perpendicular to the
+        // line and half a pixel parallel to the line.
         //
         // p4                  p5
-        // p0                  p1
+        //      p0         p1
         // p2                  p3
         //
-        // Each is drawn as four triangles specified by these 12 indices:
+        // Each is drawn as six triangles specified by these 18 indices:
         int baseIdx = i * kIdxsPerLineSeg;
         uint16_t baseVert = (uint16_t)(i * kVertsPerLineSeg);
-        data[0 + baseIdx] = baseVert + 0; // p0
-        data[1 + baseIdx] = baseVert + 1; // p1
-        data[2 + baseIdx] = baseVert + 2; // p2
+        data[0 + baseIdx] = baseVert + 0;
+        data[1 + baseIdx] = baseVert + 1;
+        data[2 + baseIdx] = baseVert + 3;
 
-        data[3 + baseIdx] = baseVert + 2; // p2
-        data[4 + baseIdx] = baseVert + 1; // p1
-        data[5 + baseIdx] = baseVert + 3; // p3
+        data[3 + baseIdx] = baseVert + 0;
+        data[4 + baseIdx] = baseVert + 3;
+        data[5 + baseIdx] = baseVert + 2;
 
-        data[6 + baseIdx] = baseVert + 0; // p0
-        data[7 + baseIdx] = baseVert + 5; // p5
-        data[8 + baseIdx] = baseVert + 1; // p1
+        data[6 + baseIdx] = baseVert + 0;
+        data[7 + baseIdx] = baseVert + 4;
+        data[8 + baseIdx] = baseVert + 5;
 
-        data[9 + baseIdx] = baseVert + 0; // p0
-        data[10+ baseIdx] = baseVert + 4; // p4
-        data[11+ baseIdx] = baseVert + 5; // p5
+        data[9 + baseIdx] = baseVert + 0;
+        data[10+ baseIdx] = baseVert + 5;
+        data[11+ baseIdx] = baseVert + 1;
+
+        data[12 + baseIdx] = baseVert + 0;
+        data[13 + baseIdx] = baseVert + 2;
+        data[14 + baseIdx] = baseVert + 4;
+
+        data[15 + baseIdx] = baseVert + 1;
+        data[16 + baseIdx] = baseVert + 5;
+        data[17 + baseIdx] = baseVert + 3;
     }
     if (tempData) {
         bool ret = lIdxBuffer->updateData(data, kLineSegIdxSBufize);
@@ -649,31 +666,33 @@ void add_quads(const SkPoint p[3],
 }
 
 void add_line(const SkPoint p[2],
-              int rtHeight,
               const SkMatrix* toSrc,
               GrColor coverage,
               LineVertex** vert) {
     const SkPoint& a = p[0];
     const SkPoint& b = p[1];
 
-    SkVector orthVec = b;
-    orthVec -= a;
+    SkVector ortho, vec = b;
+    vec -= a;
 
-    if (orthVec.setLength(SK_Scalar1)) {
-        orthVec.setOrthog(orthVec);
+    if (vec.setLength(SK_ScalarHalf)) {
+        // Create a vector orthogonal to 'vec' and of unit length
+        ortho.fX = 2.0f * vec.fY;
+        ortho.fY = -2.0f * vec.fX;
 
-        for (int i = 0; i < kVertsPerLineSeg; ++i) {
-            (*vert)[i].fPos = (i & 0x1) ? b : a;
-            if (i & 0x2) {
-                (*vert)[i].fPos += orthVec;
-                (*vert)[i].fCoverage = 0;
-            } else if (i & 0x4) {
-                (*vert)[i].fPos -= orthVec;
-                (*vert)[i].fCoverage = 0;
-            } else {
-                (*vert)[i].fCoverage = coverage;
-            }
-        }
+        (*vert)[0].fPos = a;
+        (*vert)[0].fCoverage = coverage;
+        (*vert)[1].fPos = b;
+        (*vert)[1].fCoverage = coverage;
+        (*vert)[2].fPos = a - vec + ortho;
+        (*vert)[2].fCoverage = 0;
+        (*vert)[3].fPos = b + vec + ortho;
+        (*vert)[3].fCoverage = 0;
+        (*vert)[4].fPos = a - vec - ortho;
+        (*vert)[4].fCoverage = 0;
+        (*vert)[5].fPos = b + vec - ortho;
+        (*vert)[5].fCoverage = 0;
+
         if (NULL != toSrc) {
             toSrc->mapPointsWithStride(&(*vert)->fPos,
                                        sizeof(LineVertex),
@@ -709,15 +728,13 @@ extern const GrVertexAttrib gHairlineLineAttribs[] = {
 
 };
 
-bool GrAAHairLinePathRenderer::createLineGeom(
-            const SkPath& path,
-            GrDrawTarget* target,
-            const PtArray& lines,
-            int lineCnt,
-            GrDrawTarget::AutoReleaseGeometry* arg,
-            SkRect* devBounds) {
+bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
+                                              GrDrawTarget* target,
+                                              const PtArray& lines,
+                                              int lineCnt,
+                                              GrDrawTarget::AutoReleaseGeometry* arg,
+                                              SkRect* devBounds) {
     GrDrawState* drawState = target->drawState();
-    int rtHeight = drawState->getRenderTarget()->height();
 
     const SkMatrix& viewM = drawState->getViewMatrix();
 
@@ -725,8 +742,8 @@ bool GrAAHairLinePathRenderer::createLineGeom(
 
     int vertCnt = kVertsPerLineSeg * lineCnt;
 
-    target->drawState()->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
-    SkASSERT(sizeof(LineVertex) == target->getDrawState().getVertexSize());
+    drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
+    SkASSERT(sizeof(LineVertex) == drawState->getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {
         return false;
@@ -744,7 +761,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(
     }
     devBounds->set(lines.begin(), lines.count());
     for (int i = 0; i < lineCnt; ++i) {
-        add_line(&lines[2*i], rtHeight, toSrc, drawState->getCoverage(), &verts);
+        add_line(&lines[2*i], toSrc, drawState->getCoverage(), &verts);
     }
     // All the verts computed by add_line are within unit distance of the end points. Add a little
     // extra to account for vector normalization precision.
@@ -910,7 +927,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         GrDrawTarget::AutoStateRestore asr;
 
-        // createGeom transforms the geometry to device space when the matrix does not have
+        // createLineGeom transforms the geometry to device space when the matrix does not have
         // perspective.
         if (target->getDrawState().getViewMatrix().hasPerspective()) {
             asr.set(target, GrDrawTarget::kPreserve_ASRInit);
@@ -933,8 +950,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                     kVertsPerLineSeg*lines,     // startV
                                     0,                          // startI
                                     kVertsPerLineSeg*n,         // vCount
-                                    kIdxsPerLineSeg*n,
-                                    &devBounds);                // iCount
+                                    kIdxsPerLineSeg*n,          // iCount
+                                    &devBounds);
                 lines += n;
             }
         }
