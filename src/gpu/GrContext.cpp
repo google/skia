@@ -322,8 +322,8 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
     rtDesc.fFlags =  rtDesc.fFlags |
                      kRenderTarget_GrTextureFlagBit |
                      kNoStencil_GrTextureFlagBit;
-    rtDesc.fWidth  = GrNextPow2(GrMax(desc.fWidth, 64));
-    rtDesc.fHeight = GrNextPow2(GrMax(desc.fHeight, 64));
+    rtDesc.fWidth  = GrNextPow2(desc.fWidth);
+    rtDesc.fHeight = GrNextPow2(desc.fHeight);
 
     GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
