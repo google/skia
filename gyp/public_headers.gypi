@@ -44,7 +44,6 @@
       'gpu/GrDrawEffect.h',
       'gpu/GrTextContext.h',
       'gpu/GrEffect.h',
-      'gpu/GrNoncopyable.h',
       'gpu/SkGrTexturePixelRef.h',
       'gpu/GrTextureAccess.h',
       'gpu/GrRect.h',

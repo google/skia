@@ -8,9 +8,9 @@
 #ifndef GrEffectUnitTest_DEFINED
 #define GrEffectUnitTest_DEFINED
 
-#include "GrNoncopyable.h"
 #include "SkRandom.h"
 #include "SkTArray.h"
+#include "SkTypes.h"
 
 class SkMatrix;
 class GrDrawTargetCaps;
@@ -35,7 +35,7 @@ class GrContext;
 class GrEffectRef;
 class GrTexture;
 
-class GrEffectTestFactory : GrNoncopyable {
+class GrEffectTestFactory : public SkNoncopyable {
 public:
 
     typedef GrEffectRef* (*CreateProc)(SkRandom*,

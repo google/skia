@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,9 +8,9 @@
 #ifndef GrClipMaskManager_DEFINED
 #define GrClipMaskManager_DEFINED
 
+#include "GrClipMaskCache.h"
 #include "GrContext.h"
 #include "GrDrawState.h"
-#include "GrNoncopyable.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
@@ -21,14 +20,13 @@
 #include "SkPath.h"
 #include "SkRefCnt.h"
 #include "SkTLList.h"
-
-#include "GrClipMaskCache.h"
+#include "SkTypes.h"
 
 class GrGpu;
 class GrPathRenderer;
 class GrPathRendererChain;
-class SkPath;
 class GrTexture;
+class SkPath;
 
 /**
  * The clip mask creator handles the generation of the clip mask. If anti
@@ -38,7 +36,7 @@ class GrTexture;
  * mask can be represented as a rectangle then scissoring is used. In all
  * cases scissoring is used to bound the range of the clip mask.
  */
-class GrClipMaskManager : public GrNoncopyable {
+class GrClipMaskManager : public SkNoncopyable {
 public:
     GrClipMaskManager()
         : fGpu(NULL)
@@ -164,7 +162,7 @@ private:
                              StencilClipMode mode,
                              int stencilBitCnt);
 
-    typedef GrNoncopyable INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif // GrClipMaskManager_DEFINED

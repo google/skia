@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrAllocator_DEFINED
 #define GrAllocator_DEFINED
 
-#include "GrNoncopyable.h"
 #include "GrConfig.h"
+#include "GrTypes.h"
 #include "SkTArray.h"
+#include "SkTypes.h"
 
-class GrAllocator : GrNoncopyable {
+class GrAllocator : public SkNoncopyable {
 public:
     ~GrAllocator() {
         reset();
@@ -135,12 +133,11 @@ private:
     bool                                    fOwnFirstBlock;
     int                                     fCount;
 
-    typedef GrNoncopyable INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 template <typename T>
-class GrTAllocator : GrNoncopyable {
-
+class GrTAllocator : public SkNoncopyable {
 public:
     virtual ~GrTAllocator() { this->reset(); };
 
@@ -232,7 +229,7 @@ protected:
 
 private:
     GrAllocator fAllocator;
-    typedef GrNoncopyable INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 template <int N, typename T> class GrSTAllocator : public GrTAllocator<T> {

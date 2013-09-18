@@ -9,8 +9,8 @@
 #define GrClipMaskCache_DEFINED
 
 #include "GrContext.h"
-#include "GrNoncopyable.h"
 #include "SkClipStack.h"
+#include "SkTypes.h"
 
 class GrTexture;
 
@@ -18,7 +18,7 @@ class GrTexture;
  * The stencil buffer stores the last clip path - providing a single entry
  * "cache". This class provides similar functionality for AA clip paths
  */
-class GrClipMaskCache : public GrNoncopyable {
+class GrClipMaskCache : public SkNoncopyable {
 public:
     GrClipMaskCache();
 
@@ -233,7 +233,7 @@ private:
     GrContext*   fContext;
     SkDeque      fStack;
 
-    typedef GrNoncopyable INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif // GrClipMaskCache_DEFINED

@@ -17,6 +17,7 @@
 #include "SkPath.h"
 #include "SkTArray.h"
 #include "SkTLazy.h"
+#include "SkTypes.h"
 #include "SkXfermode.h"
 
 class GrClipData;
@@ -472,7 +473,7 @@ public:
      *                             // destructor rather than target's current
      *                             // GrDrawState.
      */
-    class AutoStateRestore : ::GrNoncopyable {
+    class AutoStateRestore : public ::SkNoncopyable {
     public:
         /**
          * Default ASR will have no effect unless set() is subsequently called.
@@ -525,7 +526,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    class AutoReleaseGeometry : ::GrNoncopyable {
+    class AutoReleaseGeometry : public ::SkNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,
                             int            vertexCount,
@@ -552,7 +553,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    class AutoClipRestore : ::GrNoncopyable {
+    class AutoClipRestore : public ::SkNoncopyable {
     public:
         AutoClipRestore(GrDrawTarget* target) {
             fTarget = target;
@@ -577,7 +578,7 @@ public:
      * Saves the geometry src state at construction and restores in the destructor. It also saves
      * and then restores the vertex attrib state.
      */
-    class AutoGeometryPush : ::GrNoncopyable {
+    class AutoGeometryPush : public ::SkNoncopyable {
     public:
         AutoGeometryPush(GrDrawTarget* target)
             : fAttribRestore(target->drawState()) {
@@ -597,7 +598,7 @@ public:
      * Combination of AutoGeometryPush and AutoStateRestore. The vertex attribs will be in default
      * state regardless of ASRInit value.
      */
-    class AutoGeometryAndStatePush : ::GrNoncopyable {
+    class AutoGeometryAndStatePush : public ::SkNoncopyable {
     public:
         AutoGeometryAndStatePush(GrDrawTarget* target,
                                  ASRInit init,

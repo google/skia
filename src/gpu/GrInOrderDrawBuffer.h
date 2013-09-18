@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef GrInOrderDrawBuffer_DEFINED
 #define GrInOrderDrawBuffer_DEFINED
@@ -19,6 +16,7 @@
 #include "SkClipStack.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
+#include "SkTypes.h"
 
 class GrGpu;
 class GrIndexBufferAllocPool;
@@ -98,7 +96,7 @@ private:
         const GrIndexBuffer*    fIndexBuffer;
     };
 
-    struct StencilPath : GrNoncopyable {
+    struct StencilPath : public ::SkNoncopyable {
         StencilPath();
 
         SkAutoTUnref<const GrPath>  fPath;
@@ -106,7 +104,7 @@ private:
         SkPath::FillType            fFill;
     };
 
-    struct Clear  : GrNoncopyable {
+    struct Clear : public ::SkNoncopyable {
         Clear() : fRenderTarget(NULL) {}
         ~Clear() { SkSafeUnref(fRenderTarget); }
 
@@ -115,7 +113,7 @@ private:
         GrRenderTarget* fRenderTarget;
     };
 
-    struct CopySurface  : GrNoncopyable {
+    struct CopySurface : public ::SkNoncopyable {
         SkAutoTUnref<GrSurface> fDst;
         SkAutoTUnref<GrSurface> fSrc;
         SkIRect                 fSrcRect;

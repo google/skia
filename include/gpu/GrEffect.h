@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 #include "GrEffectUnitTest.h"
-#include "GrNoncopyable.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 #include "GrTypesPriv.h"

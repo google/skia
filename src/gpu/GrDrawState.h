@@ -22,6 +22,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 #include "SkMatrix.h"
+#include "SkTypes.h"
 #include "SkXfermode.h"
 
 class GrDrawState : public SkRefCnt {
@@ -279,7 +280,7 @@ public:
     /**
      * Constructor sets the color to be 'color' which is undone by the destructor.
      */
-    class AutoColorRestore : public ::GrNoncopyable {
+    class AutoColorRestore : public ::SkNoncopyable {
     public:
         AutoColorRestore() : fDrawState(NULL), fOldColor(0) {}
 
@@ -400,7 +401,7 @@ public:
      * When this object is destroyed it will remove any effects from the draw state that were added
      * after its constructor.
      */
-    class AutoRestoreEffects : public ::GrNoncopyable {
+    class AutoRestoreEffects : public ::SkNoncopyable {
     public:
         AutoRestoreEffects() : fDrawState(NULL), fColorEffectCnt(0), fCoverageEffectCnt(0) {}
 
@@ -605,7 +606,7 @@ public:
      * Preconcats the current view matrix and restores the previous view matrix in the destructor.
      * Effect matrices are automatically adjusted to compensate and adjusted back in the destructor.
      */
-    class AutoViewMatrixRestore : public ::GrNoncopyable {
+    class AutoViewMatrixRestore : public ::SkNoncopyable {
     public:
         AutoViewMatrixRestore() : fDrawState(NULL) {}
 
@@ -659,7 +660,7 @@ public:
     const GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
     GrRenderTarget* getRenderTarget() { return fRenderTarget.get(); }
 
-    class AutoRenderTargetRestore : public ::GrNoncopyable {
+    class AutoRenderTargetRestore : public ::SkNoncopyable {
     public:
         AutoRenderTargetRestore() : fDrawState(NULL), fSavedTarget(NULL) {}
         AutoRenderTargetRestore(GrDrawState* ds, GrRenderTarget* newTarget) {

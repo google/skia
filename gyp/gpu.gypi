@@ -20,7 +20,6 @@
       '<(skia_include_path)/gpu/GrFontScaler.h',
       '<(skia_include_path)/gpu/GrGlyph.h',
       '<(skia_include_path)/gpu/GrKey.h',
-      '<(skia_include_path)/gpu/GrNoncopyable.h',
       '<(skia_include_path)/gpu/GrPaint.h',
       '<(skia_include_path)/gpu/GrPathRendererChain.h',
       '<(skia_include_path)/gpu/GrPoint.h',

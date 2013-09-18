@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,15 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
-#include "GrNoncopyable.h"
-
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTypes.h"
 
 class GrGeometryBuffer;
 class GrGpu;
@@ -31,8 +27,7 @@ class GrGpu;
  * a number of buffers to preallocate can be specified. These will
  * be allocated at the min size and kept around until the pool is destroyed.
  */
-class GrBufferAllocPool : GrNoncopyable {
-
+class GrBufferAllocPool : public SkNoncopyable {
 public:
     /**
      * Ensures all buffers are unlocked and have all data written to them.

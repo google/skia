@@ -11,7 +11,7 @@
 #include "GrTypes.h"
 #include "SkTemplates.h"
 #include "SkThread_platform.h"
-#include "GrNoncopyable.h"
+#include "SkTypes.h"
 
 /** Given a GrEffect of a particular type, creates the corresponding graphics-backend-specific
     effect object. Also tracks equivalence of shaders generated via a key. Each factory instance
@@ -28,7 +28,7 @@ class GrGLEffect;
 class GrGLCaps;
 class GrDrawEffect;
 
-class GrBackendEffectFactory : public GrNoncopyable {
+class GrBackendEffectFactory : public SkNoncopyable {
 public:
     typedef uint32_t EffectKey;
     enum {

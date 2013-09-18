@@ -28,7 +28,7 @@
  * factory is destroyed (though the caller can always grab a ref on the returned
  * GrContext to make it outlive the factory).
  */
-class GrContextFactory : GrNoncopyable {
+class GrContextFactory : public SkNoncopyable {
 public:
     /**
      * Types of GL contexts supported.

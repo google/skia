@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "GrAllocPool.h"
+
+#include "GrTypes.h"
 
 #define GrAllocPool_MIN_BLOCK_SIZE      ((size_t)128)
 

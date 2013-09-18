@@ -12,6 +12,7 @@
 #include "GrBackendEffectFactory.h"
 #include "GrColor.h"
 #include "GrEffect.h"
+#include "SkTypes.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
 
@@ -386,7 +387,7 @@ private:
     GrGLUniformManager::BuilderUniformArray fUniforms;
 
 private:
-    class CodeStage : GrNoncopyable {
+    class CodeStage : public SkNoncopyable {
     public:
         CodeStage() : fNextIndex(0), fCurrentIndex(-1), fEffect(NULL) {}
 
@@ -405,7 +406,7 @@ private:
             return fCurrentIndex;
         }
 
-        class AutoStageRestore : GrNoncopyable {
+        class AutoStageRestore : public SkNoncopyable {
         public:
             AutoStageRestore(CodeStage* codeStage, const GrEffectRef* effect) {
                 SkASSERT(NULL != codeStage);

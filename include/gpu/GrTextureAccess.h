@@ -8,9 +8,9 @@
 #ifndef GrTextureAccess_DEFINED
 #define GrTextureAccess_DEFINED
 
-#include "GrNoncopyable.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
+#include "SkTypes.h"
 
 class GrTexture;
 
@@ -112,7 +112,7 @@ private:
  *  key. However, if a GrEffect uses different swizzles based on its input then it must
  *  consider that variation in its key-generation.
  */
-class GrTextureAccess : GrNoncopyable {
+class GrTextureAccess : public SkNoncopyable {
 public:
     /**
      * A default GrTextureAccess must have reset() called on it in a GrEffect subclass's
@@ -182,7 +182,7 @@ private:
     uint32_t                fSwizzleMask;
     char                    fSwizzle[5];
 
-    typedef GrNoncopyable INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
 
 #endif

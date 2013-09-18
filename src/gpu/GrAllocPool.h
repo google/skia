@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrAllocPool_DEFINED
 #define GrAllocPool_DEFINED
 
-#include "GrNoncopyable.h"
+#include "SkTypes.h"
 
-class GrAllocPool : GrNoncopyable {
+class GrAllocPool : public SkNoncopyable {
 public:
     GrAllocPool(size_t blockSize = 0);
     ~GrAllocPool();
