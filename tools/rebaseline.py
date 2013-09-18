@@ -170,11 +170,14 @@ class JsonRebaseliner(object):
   #                   Currently, there is no way to make this script mark
   #                   expectations as reviewed-by-human=True.
   #                   TODO(epoger): Add that capability to a review tool.
+  #  mark_ignore_failure: if True, mark failures of a given test as being
+  #                       ignored.
   def __init__(self, expectations_root, expectations_input_filename,
                expectations_output_filename, actuals_base_url,
                actuals_filename, exception_handler,
                tests=None, configs=None, add_new=False, bugs=None, notes=None,
-               mark_unreviewed=None, from_trybot=False):
+               mark_unreviewed=None, mark_ignore_failure=False,
+               from_trybot=False):
     self._expectations_root = expectations_root
     self._expectations_input_filename = expectations_input_filename
     self._expectations_output_filename = expectations_output_filename
@@ -187,6 +190,7 @@ class JsonRebaseliner(object):
     self._bugs = bugs
     self._notes = notes
     self._mark_unreviewed = mark_unreviewed
+    self._mark_ignore_failure = mark_ignore_failure;
     self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
     self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
     self._from_trybot = from_trybot
@@ -307,6 +311,10 @@ class JsonRebaseliner(object):
           expected_results[image_name]\
                           [gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED]\
                           = False
+        if self._mark_ignore_failure:
+          expected_results[image_name]\
+                          [gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE]\
+                          = True
         if self._bugs:
           expected_results[image_name]\
                           [gm_json.JSONKEY_EXPECTEDRESULTS_BUGS]\
@@ -398,6 +406,10 @@ parser.add_argument('--unreviewed', action='store_true',
                     help=('mark all expectations modified by this run as '
                           '"%s": False' %
                           gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED))
+parser.add_argument('--ignore-failure', action='store_true',
+                    help=('mark all expectations modified by this run as '
+                          '"%s": True' %
+                          gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED))
 parser.add_argument('--from-trybot', action='store_true',
                     help=('pull the actual-results.json file from the '
                           'corresponding trybot, rather than the main builder'))
@@ -430,6 +442,7 @@ for builder in builders:
         exception_handler=exception_handler,
         add_new=args.add_new, bugs=args.bugs, notes=args.notes,
         mark_unreviewed=args.unreviewed,
+        mark_ignore_failure=args.ignore_failure,
         from_trybot=args.from_trybot)
     try:
       rebaseliner.RebaselineSubdir(builder=builder)
