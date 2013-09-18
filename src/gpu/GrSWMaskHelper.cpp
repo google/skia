@@ -7,6 +7,7 @@
 
 #include "GrSWMaskHelper.h"
 #include "GrDrawState.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
 #include "SkStrokeRec.h"
@@ -133,9 +134,14 @@ bool GrSWMaskHelper::getTexture(GrAutoScratchTexture* texture) {
 void GrSWMaskHelper::toTexture(GrTexture *texture) {
     SkAutoLockPixels alp(fBM);
 
+    // If we aren't reusing scratch textures we don't need to flush before
+    // writing since no one else will be using 'texture'
+    bool reuseScratch = fContext->getGpu()->caps()->reuseScratchTextures();
+
     texture->writePixels(0, 0, fBM.width(), fBM.height(),
                          kAlpha_8_GrPixelConfig,
-                         fBM.getPixels(), fBM.rowBytes());
+                         fBM.getPixels(), fBM.rowBytes(),
+                         reuseScratch ? 0 : GrContext::kDontFlush_PixelOpsFlag);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
