@@ -44,6 +44,7 @@
         '../tests/ColorFilterTest.cpp',
         '../tests/ColorTest.cpp',
         '../tests/DataRefTest.cpp',
+        '../tests/DebugCanvasTest.cpp',
         '../tests/DeferredCanvasTest.cpp',
         '../tests/DequeTest.cpp',
         '../tests/DeviceLooperTest.cpp',
@@ -145,6 +146,7 @@
         'experimental.gyp:experimental',
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
+        'debugger.gyp:debugger_lib',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {

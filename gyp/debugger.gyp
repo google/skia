@@ -87,14 +87,9 @@
       ],
       'sources': [
         '../debugger/SkDebugger.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
+        'debugger_lib',
         'skia_lib.gyp:skia_lib',
         'bench.gyp:bench_timer',
         'tools.gyp:picture_renderer',
@@ -153,6 +148,24 @@
           },
         }],
       ],
+    },
+    {
+      'target_name': 'debugger_lib',
+      'type': 'static_library',
+      'include_dirs' : [
+        '../src/core',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
+      'sources': [
+        '../src/utils/debugger/SkDebugCanvas.h',
+        '../src/utils/debugger/SkDebugCanvas.cpp',
+        '../src/utils/debugger/SkDrawCommand.h',
+        '../src/utils/debugger/SkDrawCommand.cpp',
+        '../src/utils/debugger/SkObjectParser.h',
+        '../src/utils/debugger/SkObjectParser.cpp',
+      ]
     },
   ],
   'conditions': [
