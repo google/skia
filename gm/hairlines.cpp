@@ -104,6 +104,35 @@ protected:
                               SkFloatToScalar(5.f), SkFloatToScalar(1.f));
             problem2->close();
         }
+
+        // Three paths that show the same bug (missing end caps)
+        {
+            // A caret (crbug.com/131770)
+            SkPath* bug0 = &fPaths.push_back();
+            bug0->moveTo(6.5f,5.5f);
+            bug0->lineTo(3.5f,0.5f);
+            bug0->moveTo(0.5f,5.5f);
+            bug0->lineTo(3.5f,0.5f);
+        }
+
+        {
+            // An X (crbug.com/137317)
+            SkPath* bug1 = &fPaths.push_back();
+
+            bug1->moveTo(1, 1);
+            bug1->lineTo(6, 6);
+            bug1->moveTo(1, 6);
+            bug1->lineTo(6, 1);
+        }
+
+        {
+            // A right angle (crbug.com/137465 and crbug.com/256776)
+            SkPath* bug2 = &fPaths.push_back();
+
+            bug2->moveTo(5.5f, 5.5f);
+            bug2->lineTo(5.5f, 0.5f);
+            bug2->lineTo(0.5f, 0.5f);
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
