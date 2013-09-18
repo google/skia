@@ -5533,7 +5533,7 @@
         ]
       ], 
       "bugs": [
-        1603
+        1656
       ], 
       "reviewed-by-human": false
     }, 
@@ -5541,11 +5541,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13628663996428354809
+          16485479097888567500
         ]
       ], 
       "bugs": [
-        1603
+        1656
       ], 
       "reviewed-by-human": false
     }, 
