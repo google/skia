@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrRedBlackTree_DEFINED
 #define GrRedBlackTree_DEFINED
 
-#include "GrNoncopyable.h"
+#include "SkTypes.h"
 
 template <typename T>
 class GrLess {
@@ -36,7 +34,7 @@ public:
  * will be created and used for all comparisons.
  */
 template <typename T, typename C = GrLess<T> >
-class GrRedBlackTree : public GrNoncopyable {
+class GrRedBlackTree : public SkNoncopyable {
 public:
     /**
      * Creates an empty tree.

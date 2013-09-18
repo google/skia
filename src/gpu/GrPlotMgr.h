@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrPlotMgr_DEFINED
 #define GrPlotMgr_DEFINED
 
 #include "GrTypes.h"
 #include "GrPoint.h"
+#include "SkTypes.h"
 
-class GrPlotMgr : GrNoncopyable {
+class GrPlotMgr : public SkNoncopyable {
 public:
     GrPlotMgr(int width, int height) {
         fDim.set(width, height);

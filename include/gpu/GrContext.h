@@ -8,14 +8,15 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrColor.h"
 #include "GrClipData.h"
-#include "SkMatrix.h"
+#include "GrColor.h"
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
 #include "GrPoint.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
+#include "SkMatrix.h"
+#include "SkTypes.h"
 
 class GrAARectRenderer;
 class GrAutoScratchTexture;
@@ -630,7 +631,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
-    class AutoRenderTarget : public ::GrNoncopyable {
+    class AutoRenderTarget : public ::SkNoncopyable {
     public:
         AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
             fPrevTarget = context->getRenderTarget();
@@ -668,7 +669,7 @@ public:
      * paint if necessary. Hint: use SkTCopyOnFirstWrite if the AutoMatrix is conditionally
      * initialized.
      */
-    class AutoMatrix : GrNoncopyable {
+    class AutoMatrix : public ::SkNoncopyable {
     public:
         AutoMatrix() : fContext(NULL) {}
 
@@ -761,7 +762,7 @@ public:
         SkMatrix    fMatrix;
     };
 
-    class AutoClip : GrNoncopyable {
+    class AutoClip : public ::SkNoncopyable {
     public:
         // This enum exists to require a caller of the constructor to acknowledge that the clip will
         // initially be wide open. It also could be extended if there are other desirable initial
@@ -940,7 +941,7 @@ private:
  * Gets and locks a scratch texture from a descriptor using either exact or approximate criteria.
  * Unlocks texture in the destructor.
  */
-class GrAutoScratchTexture : ::GrNoncopyable {
+class GrAutoScratchTexture : public ::SkNoncopyable {
 public:
     GrAutoScratchTexture()
         : fContext(NULL)

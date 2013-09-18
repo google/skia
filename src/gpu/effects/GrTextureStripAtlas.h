@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,11 +8,12 @@
 #ifndef GrTextureStripAtlas_DEFINED
 #define GrTextureStripAtlas_DEFINED
 
-#include "SkBitmap.h"
+#include "GrBinHashKey.h"
 #include "GrTHashCache.h"
+#include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkTDArray.h"
-#include "GrBinHashKey.h"
+#include "SkTypes.h"
 
 /**
  * Maintains a single large texture whose rows store many textures of a small fixed height,
@@ -79,7 +79,7 @@ private:
      * The state of a single row in our cache, next/prev pointers allow these to be chained
      * together to represent LRU status
      */
-    struct AtlasRow : public GrNoncopyable {
+    struct AtlasRow : public SkNoncopyable {
         AtlasRow() : fKey(kEmptyAtlasRowKey), fLocks(0), fNext(NULL), fPrev(NULL) { }
         // GenerationID of the bitmap that is represented by this row, 0xffffffff means "empty"
         uint32_t fKey;
@@ -137,7 +137,7 @@ private:
     // Hash table entry for atlases
     class AtlasEntry;
     typedef GrTBinHashKey<AtlasEntry, sizeof(GrTextureStripAtlas::Desc)> AtlasHashKey;
-    class AtlasEntry : public ::GrNoncopyable {
+    class AtlasEntry : public ::SkNoncopyable {
     public:
         AtlasEntry() : fAtlas(NULL) {}
         ~AtlasEntry() { SkDELETE(fAtlas); }

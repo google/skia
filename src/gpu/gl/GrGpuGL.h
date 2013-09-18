@@ -10,15 +10,16 @@
 
 #include "GrBinHashKey.h"
 #include "GrDrawState.h"
-#include "GrGpu.h"
 #include "GrGLContext.h"
-#include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
+#include "GrGLIndexBuffer.h"
 #include "GrGLProgram.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
+#include "GrGpu.h"
+#include "SkTypes.h"
 #include "../GrTHashCache.h"
 
 #ifdef SK_DEVELOPER
@@ -170,7 +171,7 @@ private:
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
-    class ProgramCache : public ::GrNoncopyable {
+    class ProgramCache : public ::SkNoncopyable {
     public:
         ProgramCache(GrGpuGL* gpu);
         ~ProgramCache();
