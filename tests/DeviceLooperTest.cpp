@@ -37,23 +37,23 @@ static void test_simple(skiatest::Reporter* reporter) {
         { { 32000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 32000, 32000 } },
         { { 10, 32000 }, { 0, 0, 10, 4000 }, { 0, 0, 32000, 32000 } },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkBitmap bitmap;
         make_bm(&bitmap, gRec[i].fDevSize.width(), gRec[i].fDevSize.height());
-        
+
         SkRasterClip rc(gRec[i].fRCBounds);
-        
+
         for (int aa = 0; aa <= 1; ++aa) {
             SkDeviceLooper looper(bitmap, rc, gRec[i].fRect, SkToBool(aa));
-            
+
             bool valid = looper.next();
             REPORTER_ASSERT(reporter, valid);
             if (valid) {
                 REPORTER_ASSERT(reporter, looper.getBitmap().width() == bitmap.width());
                 REPORTER_ASSERT(reporter, looper.getBitmap().height() == bitmap.height());
                 REPORTER_ASSERT(reporter, equal(looper.getRC(), rc));
-                
+
                 REPORTER_ASSERT(reporter, !looper.next());
             }
         }
@@ -103,7 +103,7 @@ static void test_complex(skiatest::Reporter* reporter) {
         { { BW_SIZE, BW_SIZE }, false },
         { {  AA_SIZE, AA_SIZE }, true },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         const int w = gRec[i].fSize.width();
         const int h = gRec[i].fSize.height();

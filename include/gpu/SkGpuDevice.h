@@ -73,9 +73,9 @@ public:
         return NULL == fRenderTarget ? 0 : fRenderTarget->height();
     }
     virtual void getGlobalBounds(SkIRect* bounds) const SK_OVERRIDE;
-    virtual bool isOpaque() const SK_OVERRIDE { 
-        return NULL == fRenderTarget ? false 
-                                     : kRGB_565_GrPixelConfig == fRenderTarget->config(); 
+    virtual bool isOpaque() const SK_OVERRIDE {
+        return NULL == fRenderTarget ? false
+                                     : kRGB_565_GrPixelConfig == fRenderTarget->config();
     }
     virtual SkBitmap::Config config() const SK_OVERRIDE;
 
