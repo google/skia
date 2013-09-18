@@ -329,7 +329,10 @@ class JsonRebaseliner(object):
 
 # main...
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    epilog='Here is the full set of builders we know about:' +
+           '\n    '.join([''] + sorted(TEST_BUILDERS)))
 parser.add_argument('--actuals-base-url',
                     help=('base URL from which to read files containing JSON '
                           'summaries of actual GM results; defaults to '
@@ -351,8 +354,8 @@ parser.add_argument('--bugs', metavar='BUG', type=int, nargs='+',
                           'pertain to this set of rebaselines.'))
 parser.add_argument('--builders', metavar='BUILDER', nargs='+',
                     help=('which platforms to rebaseline; '
-                          'if unspecified, rebaseline all platforms, same as '
-                          '"--builders %s"' % ' '.join(sorted(TEST_BUILDERS))))
+                          'if unspecified, rebaseline all known platforms '
+                          '(see below for a list)'))
 # TODO(epoger): Add test that exercises --configs argument.
 parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help=('which configurations to rebaseline, e.g. '
