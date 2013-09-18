@@ -7789,8 +7789,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        1657
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "nested_aa_565.png": {
