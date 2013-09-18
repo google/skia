@@ -22,21 +22,22 @@ static bool equal(const SkRasterClip& a, const SkRasterClip& b) {
     }
 }
 
+static const struct {
+    SkISize fDevSize;
+    SkIRect fRCBounds;
+    SkIRect fRect;
+} gRec[] = {
+    { { 4000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 4000, 4000 } },
+    { { 10, 4000 }, { 0, 0, 10, 4000 }, { 0, 0, 4000, 4000 } },
+    // very large devce, small rect
+    { { 32000, 10 }, { 0, 0, 32000, 10 }, { 0, 0, 4000, 4000 } },
+    { { 10, 32000 }, { 0, 0, 10, 32000 }, { 0, 0, 4000, 4000 } },
+    // very large device, small clip
+    { { 32000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 32000, 32000 } },
+    { { 10, 32000 }, { 0, 0, 10, 4000 }, { 0, 0, 32000, 32000 } },
+};
+
 static void test_simple(skiatest::Reporter* reporter) {
-    static const struct {
-        SkISize fDevSize;
-        SkIRect fRCBounds;
-        SkIRect fRect;
-    } gRec[] = {
-        { { 4000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 4000, 4000 } },
-        { { 10, 4000 }, { 0, 0, 10, 4000 }, { 0, 0, 4000, 4000 } },
-        // very large devce, small rect
-        { { 32000, 10 }, { 0, 0, 32000, 10 }, { 0, 0, 4000, 4000 } },
-        { { 10, 32000 }, { 0, 0, 10, 32000 }, { 0, 0, 4000, 4000 } },
-        // very large device, small clip
-        { { 32000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 32000, 32000 } },
-        { { 10, 32000 }, { 0, 0, 10, 4000 }, { 0, 0, 32000, 32000 } },
-    };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkBitmap bitmap;
