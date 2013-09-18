@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkCanvasStateUtils.h"
 #include "SkDrawFilter.h"
+#include "SkError.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRRect.h"
@@ -205,6 +206,9 @@ static void test_draw_filters(skiatest::Reporter* reporter) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// we need this function to prevent SkError from printing to stdout
+static void error_callback(SkError code, void* ctx) {}
+
 static void test_soft_clips(skiatest::Reporter* reporter) {
     SkBitmapDevice device(SkBitmap::kARGB_8888_Config, 10, 10);
     SkCanvas canvas(&device);
@@ -214,8 +218,13 @@ static void test_soft_clips(skiatest::Reporter* reporter) {
 
     canvas.clipRRect(roundRect, SkRegion::kIntersect_Op, true);
 
+    SkSetErrorCallback(error_callback, NULL);
+
     SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
     REPORTER_ASSERT(reporter, !state);
+
+    REPORTER_ASSERT(reporter, kInvalidOperation_SkError == SkGetLastError());
+    SkClearLastError();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

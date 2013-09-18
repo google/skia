@@ -10,6 +10,7 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStack.h"
+#include "SkErrorInternals.h"
 #include "SkWriter32.h"
 
 #define CANVAS_STATE_VERSION 1
@@ -183,7 +184,8 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     ClipValidator validator;
     canvas->replayClips(&validator);
     if (validator.failed()) {
-        SkDEBUGF(("CaptureCanvasState does not support canvases with antialiased clips.\n"));
+        SkErrorInternals::SetError(kInvalidOperation_SkError,
+                "CaptureCanvasState does not support canvases with antialiased clips.\n");
         return NULL;
     }
 
@@ -244,7 +246,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
 
     // for now, just ignore any client supplied DrawFilter.
     if (canvas->getDrawFilter()) {
-        SkDEBUGF(("CaptureCanvasState will ignore the canvases draw filter.\n"));
+//        SkDEBUGF(("CaptureCanvasState will ignore the canvases draw filter.\n"));
     }
 
     return canvasState.detach();
