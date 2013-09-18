@@ -342,7 +342,9 @@ SkPDFArray* composeAdvanceData(
 
 }  // namespace
 
-static void append_tounicode_header(SkDynamicMemoryWStream* cmap) {
+static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
+                                    uint16_t firstGlyphID,
+                                    uint16_t lastGlyphID) {
     // 12 dict begin: 12 is an Adobe-suggested value. Shall not change.
     // It's there to prevent old version Adobe Readers from malfunctioning.
     const char* kHeader =
@@ -365,17 +367,20 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap) {
 
     // The CMapName must be consistent to /CIDSystemInfo above.
     // /CMapType 2 means ToUnicode.
-    // We specify codespacerange from 0x0000 to 0xFFFF because we convert our
-    // code table from unsigned short (16-bits). Codespace range just tells the
-    // PDF processor the valid range. It does not matter whether a complete
-    // mapping is provided or not.
-    const char* kTypeInfo =
+    // Codespace range just tells the PDF processor the valid range.
+    const char* kTypeInfoHeader =
         "/CMapName /Adobe-Identity-UCS def\n"
         "/CMapType 2 def\n"
-        "1 begincodespacerange\n"
-        "<0000> <FFFF>\n"
-        "endcodespacerange\n";
-    cmap->writeText(kTypeInfo);
+        "1 begincodespacerange\n";
+    cmap->writeText(kTypeInfoHeader);
+    
+    // e.g.     "<0000> <FFFF>\n"
+    SkString range;
+    range.appendf("<%04X> <%04X>\n", firstGlyphID, lastGlyphID);
+    cmap->writeText(range.c_str());
+    
+    const char* kTypeInfoFooter = "endcodespacerange\n";
+    cmap->writeText(kTypeInfoFooter);
 }
 
 static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
@@ -469,11 +474,15 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // ( see caller in tests/ToUnicode.cpp )
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap);
+                          SkDynamicMemoryWStream* cmap,
+                          uint16_t firstGlyphID,
+                          uint16_t lastGlyphID);
 
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap) {
+                          SkDynamicMemoryWStream* cmap,
+                          uint16_t firstGlyphID,
+                          uint16_t lastGlyphID) {
     if (glyphToUnicode.isEmpty()) {
         return;
     }
@@ -483,10 +492,11 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
 
     BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;
-    const int count = glyphToUnicode.count();
+    const int limit = SkMin32(lastGlyphID + 1, glyphToUnicode.count());
 
-    for (int i = 0; i < count + 1; ++i) {
-        bool inSubset = i < count && (subset == NULL || subset->has(i));
+    for (int i = firstGlyphID; i < limit + 1; ++i) {
+        bool inSubset = i < limit &&
+                        (subset == NULL || subset->has(i));
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
@@ -494,7 +504,7 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
             bool inRange =
                 i == currentRangeEntry.fEnd + 1 &&
                 i >> 8 == currentRangeEntry.fStart >> 8 &&
-                i < count &&
+                i < limit &&
                 glyphToUnicode[i] == currentRangeEntry.fUnicode + i -
                                          currentRangeEntry.fStart;
             if (!inSubset || !inRange) {
@@ -526,10 +536,13 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
 
 static SkPDFStream* generate_tounicode_cmap(
         const SkTDArray<SkUnichar>& glyphToUnicode,
-        const SkPDFGlyphSet* subset) {
+        const SkPDFGlyphSet* subset,
+        uint16_t firstGlyphID,
+        uint16_t lastGlyphID) {
     SkDynamicMemoryWStream cmap;
-    append_tounicode_header(&cmap);
-    append_cmap_sections(glyphToUnicode, subset, &cmap);
+    append_tounicode_header(&cmap, firstGlyphID, lastGlyphID);
+    append_cmap_sections(glyphToUnicode, subset, &cmap,
+                         firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);
     SkAutoTUnref<SkMemoryStream> cmapStream(new SkMemoryStream());
     cmapStream->setData(cmap.copyToData())->unref();
@@ -1015,7 +1028,8 @@ void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
         return;
     }
     SkAutoTUnref<SkPDFStream> pdfCmap(
-        generate_tounicode_cmap(fFontInfo->fGlyphToUnicode, subset));
+        generate_tounicode_cmap(fFontInfo->fGlyphToUnicode, subset,
+                                firstGlyphID(), lastGlyphID()));
     addResource(pdfCmap.get());
     insert("ToUnicode", new SkPDFObjRef(pdfCmap.get()))->unref();
 }
