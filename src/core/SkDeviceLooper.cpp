@@ -92,7 +92,7 @@ static bool next_tile(const SkIRect& boundary, int delta, SkIPoint* offset) {
         offset->fY += delta;
         return true;
     }
-    
+
     // offset is now outside of boundary, so we're done
     return false;
 }
