@@ -27,7 +27,9 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
-                          SkDynamicMemoryWStream* cmap);
+                          SkDynamicMemoryWStream* cmap,
+                          uint16_t firstGlypthID,
+                          uint16_t lastGlypthID);
 
 static void TestToUnicode(skiatest::Reporter* reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
@@ -56,7 +58,9 @@ static void TestToUnicode(skiatest::Reporter* reporter) {
     glyphToUnicode.push(0x35);  // 11
     glyphsInSubset.push(12);
     glyphToUnicode.push(0x36);  // 12
-    for (uint16_t i = 13; i < 0xFE; ++i) {
+    glyphsInSubset.push(13);
+    glyphToUnicode.push(0x37);  // 13
+    for (uint16_t i = 14; i < 0xFE; ++i) {
         glyphToUnicode.push(0);  // Zero from index 0x9 to 0xFD
     }
     glyphsInSubset.push(0xFE);
@@ -70,7 +74,7 @@ static void TestToUnicode(skiatest::Reporter* reporter) {
 
     SkDynamicMemoryWStream buffer;
     subset.set(glyphsInSubset.begin(), glyphsInSubset.count());
-    append_cmap_sections(glyphToUnicode, &subset, &buffer);
+    append_cmap_sections(glyphToUnicode, &subset, &buffer, 0, 0xFFFF);
 
     char expectedResult[] =
 "4 beginbfchar\n\
@@ -81,12 +85,44 @@ static void TestToUnicode(skiatest::Reporter* reporter) {
 endbfchar\n\
 4 beginbfrange\n\
 <0005> <0007> <0027>\n\
-<000B> <000C> <0035>\n\
+<000B> <000D> <0035>\n\
 <00FE> <00FF> <1010>\n\
 <0100> <0101> <1012>\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
+                                            buffer.getOffset()));
+
+    // Remove characters and ranges.
+    buffer.reset();
+
+    append_cmap_sections(glyphToUnicode, &subset, &buffer, 8, 0x00FF);
+
+    char expectedResultChop1[] =
+"2 beginbfchar\n\
+<0008> <002F>\n\
+<0009> <0033>\n\
+endbfchar\n\
+2 beginbfrange\n\
+<000B> <000D> <0035>\n\
+<00FE> <00FF> <1010>\n\
+endbfrange\n";
+
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop1,
+                                            buffer.getOffset()));
+
+    // Remove characters from range to downdrade it to one char.
+    buffer.reset();
+
+    append_cmap_sections(glyphToUnicode, &subset, &buffer, 0x00D, 0x00FE);
+
+    char expectedResultChop2[] =
+"2 beginbfchar\n\
+<000D> <0037>\n\
+<00FE> <1010>\n\
+endbfchar\n";
+
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop2,
                                             buffer.getOffset()));
 
     glyphToUnicode.reset();
@@ -110,7 +146,7 @@ endbfrange\n";
 
     SkDynamicMemoryWStream buffer2;
     subset2.set(glyphsInSubset.begin(), glyphsInSubset.count());
-    append_cmap_sections(glyphToUnicode, &subset2, &buffer2);
+    append_cmap_sections(glyphToUnicode, &subset2, &buffer2, 0, 0xffff);
 
     char expectedResult2[] =
 "4 beginbfchar\n\
