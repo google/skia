@@ -23,11 +23,11 @@ static bool equal(const SkRasterClip& a, const SkRasterClip& b) {
 }
 
 static void test_simple(skiatest::Reporter* reporter) {
-    struct {
+    static const struct {
         SkISize fDevSize;
         SkIRect fRCBounds;
         SkIRect fRect;
-    } const gRec[] = {
+    } gRec[] = {
         { { 4000, 10 }, { 0, 0, 4000, 10 }, { 0, 0, 4000, 4000 } },
         { { 10, 4000 }, { 0, 0, 10, 4000 }, { 0, 0, 4000, 4000 } },
         // very large devce, small rect
