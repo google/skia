@@ -11,6 +11,27 @@
 #include "SkFontMgr.h"
 #include "SkTypeface.h"
 
+/*
+ *  If the font backend is going to "alias" some font names to other fonts
+ *  (e.g. sans -> Arial) then we want to at least get the same typeface back
+ *  if we request the alias name multiple times.
+ */
+static void test_badnames(skiatest::Reporter* reporter) {
+    const char* inName = "sans";
+    SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inName, SkTypeface::kNormal));
+    
+    SkString name;
+    for (int i = 0; i < 10; ++i) {
+        SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(inName, SkTypeface::kNormal));
+#if 0
+        face->getFamilyName(&name);
+        printf("request %s, received %s, first id %x received %x\n",
+               inName, name.c_str(), first->uniqueID(), face->uniqueID());
+#endif
+        REPORTER_ASSERT(reporter, first->uniqueID() == face->uniqueID());
+    }
+}
+
 static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     int count = fm->countFamilies();
@@ -49,6 +70,7 @@ DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
 static void TestFontMgr(skiatest::Reporter* reporter) {
     test_fontiter(reporter, FLAGS_verboseFontMgr);
+    test_badnames(reporter);
 }
 
 #include "TestClassDef.h"
