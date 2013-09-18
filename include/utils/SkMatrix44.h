@@ -224,6 +224,12 @@ public:
     inline void setDouble(int row, int col, double value) {
         this->set(row, col, SkDoubleToMScalar(value));
     }
+    inline float getFloat(int row, int col) const {
+        return SkMScalarToFloat(this->get(row, col));
+    }
+    inline void setFloat(int row, int col, float value) {
+        this->set(row, col, SkFloatToMScalar(value));
+    }
 
     /** These methods allow one to efficiently read matrix entries into an
      *  array. The given array must have room for exactly 16 entries. Whenever
