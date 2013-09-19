@@ -11,6 +11,7 @@
 #include "SkFontMgr.h"
 #include "SkTypeface.h"
 
+#if !defined(SK_BUILD_FOR_ANDROID)
 /*
  *  If the font backend is going to "alias" some font names to other fonts
  *  (e.g. sans -> Arial) then we want to at least get the same typeface back
@@ -31,6 +32,7 @@ static void test_badnames(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, first->uniqueID() == face->uniqueID());
     }
 }
+#endif
 
 static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
