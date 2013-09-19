@@ -7840,12 +7840,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2042594177985516213
+          18221340919266374351
         ]
       ], 
       "bugs": [
-        1578
+        1643
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "imagefiltersbase_565.png": {
@@ -8034,12 +8035,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2042594177985516213
+          18221340919266374351
         ]
       ], 
       "bugs": [
-        1578
+        1643
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "internal_links_565.png": {
