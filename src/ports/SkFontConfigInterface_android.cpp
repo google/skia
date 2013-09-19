@@ -413,10 +413,11 @@ bool SkFontConfigInterfaceAndroid::matchFamilyName(const char familyName[],
 
     }
 
+    // If no matching family name is found then return false. This allows clients
+    // to be able to search for other fonts instead of forcing them to use the
+    // default font.
     if (INVALID_FAMILY_REC_ID == familyRecID) {
-        //TODO this ensures that we always return something
-        familyRecID = fDefaultFamilyRecID;
-        //return false;
+        return false;
     }
 
     FontRecID fontRecID = find_best_style(fFontFamilies[familyRecID], style);
