@@ -19,7 +19,7 @@
 static void test_badnames(skiatest::Reporter* reporter) {
     const char* inName = "sans";
     SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inName, SkTypeface::kNormal));
-    
+
     SkString name;
     for (int i = 0; i < 10; ++i) {
         SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(inName, SkTypeface::kNormal));

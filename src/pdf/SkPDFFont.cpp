@@ -373,12 +373,12 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
         "/CMapType 2 def\n"
         "1 begincodespacerange\n";
     cmap->writeText(kTypeInfoHeader);
-    
+
     // e.g.     "<0000> <FFFF>\n"
     SkString range;
     range.appendf("<%04X> <%04X>\n", firstGlyphID, lastGlyphID);
     cmap->writeText(range.c_str());
-    
+
     const char* kTypeInfoFooter = "endcodespacerange\n";
     cmap->writeText(kTypeInfoFooter);
 }
