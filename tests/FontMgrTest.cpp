@@ -70,7 +70,10 @@ DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
 static void TestFontMgr(skiatest::Reporter* reporter) {
     test_fontiter(reporter, FLAGS_verboseFontMgr);
+// The badnames test fails on Android because "sans" is not a valid alias
+#if !defined(SK_BUILD_FOR_ANDROID)
     test_badnames(reporter);
+#endif
 }
 
 #include "TestClassDef.h"
