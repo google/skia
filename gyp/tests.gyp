@@ -128,6 +128,7 @@
         '../tests/TLSTest.cpp',
         '../tests/TSetTest.cpp',
         '../tests/ToUnicode.cpp',
+        '../tests/Typeface.cpp',
         '../tests/UnicodeTest.cpp',
         '../tests/UnitTestTest.cpp',
         '../tests/UtilsTest.cpp',
