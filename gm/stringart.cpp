@@ -11,8 +11,8 @@
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
-static const int kWidth = 640;
-static const int kHeight = 480;
+static const SkScalar kWidth = SkIntToScalar(640);
+static const SkScalar kHeight = SkIntToScalar(480);
 static const SkScalar kAngle = 0.305f;
 
 // Renders a string art shape.
@@ -33,7 +33,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
-        SkScalar size = SkMin32(kWidth, kHeight);
+        SkScalar size = SkMinScalar(kWidth, kHeight);
         SkPoint center = SkPoint::Make(SkScalarHalf(kWidth), SkScalarHalf(kHeight));
         SkScalar length = 5;
         SkScalar step = angle;
