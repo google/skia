@@ -10,21 +10,32 @@
 #include "SkPath.h"
 #include "SkRect.h"
 
+typedef struct {
+    skiatest::Reporter *fReporter;
+    unsigned int *fIntPointer;
+} ErrorContext;
+
 #define CHECK(errcode)                                                        \
   REPORTER_ASSERT( reporter, (err = SkGetLastError()) == errcode);            \
   if (err != kNoError_SkError)                                                \
   {                                                                           \
-     SkDebugf("Last error string: %s\n", SkGetLastErrorString());             \
      SkClearLastError();                                                      \
   }
 
 static void cb(SkError err, void *context) {
-    int *context_ptr = static_cast<int *>(context);
-    SkDebugf("CB (0x%x): %s\n", *context_ptr, SkGetLastErrorString());
+    ErrorContext *context_ptr = static_cast<ErrorContext *>(context);
+    REPORTER_ASSERT( context_ptr->fReporter, (*(context_ptr->fIntPointer) == 0xdeadbeef) );
 }
 
 static void ErrorTest(skiatest::Reporter* reporter) {
     SkError err;
+    
+    unsigned int test_value = 0xdeadbeef;
+    ErrorContext context;
+    context.fReporter = reporter;
+    context.fIntPointer = &test_value;
+    
+    SkSetErrorCallback(cb, &context);
 
     CHECK(kNoError_SkError);
 
@@ -43,16 +54,7 @@ static void ErrorTest(skiatest::Reporter* reporter) {
     CHECK(kInvalidArgument_SkError);
     CHECK(kNoError_SkError);
 
-    int test_value = 0xdeadbeef;
-    SkSetErrorCallback(cb, &test_value);
-
     // should trigger *our* callback.
-    path.addRoundRect(r, -10, -10);
-    CHECK(kInvalidArgument_SkError);
-    CHECK(kNoError_SkError);
-
-    // Should trigger the default one again.
-    SkSetErrorCallback(NULL, NULL);
     path.addRoundRect(r, -10, -10);
     CHECK(kInvalidArgument_SkError);
     CHECK(kNoError_SkError);
