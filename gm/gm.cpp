@@ -14,6 +14,7 @@ GM::GM() {
     fBGColor = SK_ColorWHITE;
     fCanvasIsDeferred = false;
     fHaveCalledOnceBeforeDraw = false;
+    fIgnoreFailures = false;
 }
 GM::~GM() {}
 

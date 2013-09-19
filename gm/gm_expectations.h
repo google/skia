@@ -133,6 +133,11 @@ namespace skiagm {
         bool ignoreFailure() const { return this->fIgnoreFailure; }
 
         /**
+         * Override default setting of fIgnoreFailure.
+         */
+        void setIgnoreFailure(bool val) { this->fIgnoreFailure = val; }
+
+        /**
          * Returns true iff there are no allowed results.
          */
         bool empty() const { return this->fAllowedResultDigests.empty(); }
