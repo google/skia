@@ -20,3 +20,7 @@
 # EXAMPLE: (remove the first '#' on each line)
 ## Added by edisonn as part of https://codereview.chromium.org/23851037/
 #gradients
+# Added by edisonn as part of https://codereview.chromium.org/23851037/
+gradients
+gradients_local_perspective
+gradients_view_perspective
