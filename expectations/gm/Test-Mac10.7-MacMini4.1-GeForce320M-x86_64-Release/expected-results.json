@@ -4060,7 +4060,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7160419301820025365
+          3279767288317951464
         ]
       ], 
       "ignore-failure": false
@@ -4087,7 +4087,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13751801635493588193
+          3994792385541458911
         ]
       ], 
       "ignore-failure": false
@@ -4183,7 +4183,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17370620596608304309
+          3496769658120585633
         ]
       ], 
       "ignore-failure": false
@@ -4210,7 +4210,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15418320744310807254
+          2224628325386697114
         ]
       ], 
       "ignore-failure": false
@@ -8032,7 +8032,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3746520695784445157
+          1563669411226163927
         ]
       ]
     }, 
@@ -8040,7 +8040,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3168708530233280897
+          15892813490397278600
         ]
       ]
     }, 
@@ -8048,7 +8048,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16909729955382109573
+          2899735295776257698
         ]
       ]
     }, 
@@ -8056,7 +8056,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13640137413760935377
+          9090875904377725364
         ]
       ]
     }, 
@@ -9679,7 +9679,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2650681231781744741
+          9363709709852153652
         ]
       ], 
       "bugs": [
@@ -10527,7 +10527,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16297598713072423912
+          5250561507509919605
         ]
       ], 
       "ignore-failure": false
@@ -11010,7 +11010,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13875154102822435533
+          5104319538868279404
         ]
       ], 
       "ignore-failure": false
