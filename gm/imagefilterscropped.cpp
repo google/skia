@@ -13,6 +13,8 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkMergeImageFilter.h"
+#include "SkOffsetImageFilter.h"
 #include "SkTestImageFilters.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,22 +131,27 @@ protected:
             draw_sprite, draw_bitmap, draw_path, draw_paint, draw_text
         };
 
-        SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,
-                                                     SkXfermode::kSrcIn_Mode);
+        SkAutoTUnref<SkColorFilter> cf(
+            SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
         SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
         SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
 
+        SkAutoTUnref<SkImageFilter> offset(new SkOffsetImageFilter(
+            SkIntToScalar(-10), SkIntToScalar(-10)));
+
+        SkAutoTUnref<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
+
         SkImageFilter* filters[] = {
             NULL,
-            SkColorFilterImageFilter::Create(cf, NULL, &cropRect),
+            SkColorFilterImageFilter::Create(cf.get(), NULL, &cropRect),
             new SkBlurImageFilter(1.0f, 1.0f, NULL, &cropRect),
             new SkBlurImageFilter(8.0f, 0.0f, NULL, &cropRect),
             new SkBlurImageFilter(0.0f, 8.0f, NULL, &cropRect),
             new SkBlurImageFilter(8.0f, 8.0f, NULL, &cropRect),
+            new SkMergeImageFilter(NULL, cfOffset.get(), SkXfermode::kSrcOver_Mode, &cropRect),
             new SkBlurImageFilter(8.0f, 8.0f, NULL, &bogusRect),
-            SkColorFilterImageFilter::Create(cf, NULL, &bogusRect),
+            SkColorFilterImageFilter::Create(cf.get(), NULL, &bogusRect),
         };
-        cf->unref();
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(16);
