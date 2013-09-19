@@ -738,8 +738,6 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
 
     const SkMatrix& viewM = drawState->getViewMatrix();
 
-    devBounds->outset(SK_Scalar1, SK_Scalar1);
-
     int vertCnt = kVertsPerLineSeg * lineCnt;
 
     drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs));
@@ -763,9 +761,10 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
     for (int i = 0; i < lineCnt; ++i) {
         add_line(&lines[2*i], toSrc, drawState->getCoverage(), &verts);
     }
-    // All the verts computed by add_line are within unit distance of the end points. Add a little
-    // extra to account for vector normalization precision.
-    static const SkScalar kOutset = SK_Scalar1 + SK_Scalar1 / 20;
+    // All the verts computed by add_line are within sqrt(1^2 + 0.5^2) of the end points. 
+    static const SkScalar kSqrtOfOneAndAQuarter = SkFloatToScalar(1.118f);
+    // Add a little extra to account for vector normalization precision.
+    static const SkScalar kOutset = kSqrtOfOneAndAQuarter + SK_Scalar1 / 20;
     devBounds->outset(kOutset, kOutset);
 
     return true;
@@ -937,8 +936,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrDrawState* drawState = target->drawState();
 
         // Check devBounds
-//        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
-//                                          kVertsPerLineSeg * lineCnt));
+        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
+                                          kVertsPerLineSeg * lineCnt));
 
         {
             GrDrawState::AutoRestoreEffects are(drawState);
