@@ -9411,7 +9411,7 @@
           "bitmap-64bitMD5", 
           10267199484925399365
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_8888.png": {
@@ -9420,7 +9420,7 @@
           "bitmap-64bitMD5", 
           16225020407926229569
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_angle.png": {
@@ -9429,7 +9429,7 @@
           "bitmap-64bitMD5", 
           15873738807574929761
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_gpu.png": {
@@ -9438,7 +9438,7 @@
           "bitmap-64bitMD5", 
           9540626140949731992
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_pdf-poppler.png": {
@@ -9451,8 +9451,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -13556,8 +13556,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -13569,8 +13569,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_angle.png": {
       "allowed-digests": [
@@ -13591,8 +13591,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_pdf-poppler.png": {
       "allowed-digests": [
@@ -13604,8 +13604,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "texdata_565.png": {
       "allowed-digests": [
