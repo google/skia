@@ -108,7 +108,7 @@ protected:
         return SkString("gradients");
     }
 
-    virtual SkISize onISize() { return make_isize(640, 615); }
+    virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
     virtual void onDraw(SkCanvas* canvas) {
 
@@ -161,7 +161,7 @@ protected:
         return SkString("gradients_local_perspective");
     }
 
-    virtual SkISize onISize() { return make_isize(640, 615); }
+    virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
     virtual void onDraw(SkCanvas* canvas) {
 
@@ -212,7 +212,7 @@ protected:
         return SkString("gradients_view_perspective");
     }
 
-    virtual SkISize onISize() { return make_isize(640, 400); }
+    virtual SkISize onISize() { return SkISize::Make(840, 500); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkMatrix perspective;
@@ -252,7 +252,7 @@ protected:
         return SkString("gradients_degenerate_2pt");
     }
 
-    virtual SkISize onISize() { return make_isize(320, 320); }
+    virtual SkISize onISize() { return SkISize::Make(320, 320); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorBLUE);
@@ -290,7 +290,7 @@ public:
 protected:
     SkString onShortName() { return SkString("clamped_gradients"); }
 
-    virtual SkISize onISize() { return make_isize(640, 510); }
+    virtual SkISize onISize() { return SkISize::Make(640, 510); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
@@ -328,7 +328,7 @@ public:
 
 protected:
     SkString onShortName() { return SkString("radial_gradient"); }
-    virtual SkISize onISize() { return make_isize(1280, 1280); }
+    virtual SkISize onISize() { return SkISize::Make(1280, 1280); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
@@ -367,7 +367,7 @@ public:
 
 protected:
     SkString onShortName() { return SkString("radial_gradient2"); }
-    virtual SkISize onISize() { return make_isize(800, 400); }
+    virtual SkISize onISize() { return SkISize::Make(800, 400); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
