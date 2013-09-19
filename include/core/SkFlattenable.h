@@ -27,7 +27,7 @@ class SkFlattenableWriteBuffer;
     }
 
 #define SK_DECLARE_UNFLATTENABLE_OBJECT() \
-    virtual Factory getFactory() SK_OVERRIDE { return NULL; }; \
+    virtual Factory getFactory() SK_OVERRIDE { return NULL; }
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable) \
     virtual Factory getFactory() SK_OVERRIDE { return CreateProc; } \

@@ -69,6 +69,7 @@
         '../samplecode/SampleFillType.cpp',
         '../samplecode/SampleFilter.cpp',
         '../samplecode/SampleFilter2.cpp',
+        '../samplecode/SampleFilterFuzz.cpp',
         '../samplecode/SampleFontCache.cpp',
         '../samplecode/SampleFontScalerTest.cpp',
         '../samplecode/SampleFuzz.cpp',
