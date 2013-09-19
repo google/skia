@@ -394,7 +394,8 @@ static void test_regressions() {
     }
 }
 
-static void TestAAClip(skiatest::Reporter* reporter) {
+#include "TestClassDef.h"
+DEF_TEST(AAClip, reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);
     test_irect(reporter);
@@ -403,6 +404,3 @@ static void TestAAClip(skiatest::Reporter* reporter) {
     test_regressions();
     test_nearly_integral(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("AAClip", AAClipTestClass, TestAAClip)

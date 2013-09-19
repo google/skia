@@ -55,3 +55,15 @@
         };                                                                              \
         static TestRegistry gReg_##classname(classname::Factory);                       \
     }
+
+
+// Yet shorter way to define a test.  E.g.
+//
+// DEF_TEST(some_test_name, r) {
+//   ...
+//   REPORTER_ASSERT(r, x == 15);
+// }
+#define DEF_TEST(name, reporter) \
+    static void name(skiatest::Reporter* reporter); \
+    DEFINE_TESTCLASS_SHORT(name) \
+    static void name(skiatest::Reporter* reporter)
