@@ -6,11 +6,11 @@ GM: drawing... selftest2 [300 200]
 GM: drawing... selftest1 [300 200]
 GM: Ran 2 GMs
 GM: ... over  2 configs ["8888", "565"]
-GM: ...  and  0 modes   []
-GM: ... so there should be a total of 4 tests.
-GM: Ran 4 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=4 WritingReferenceImage=0
+GM: ...  and  7 modes   ["pipe", "pipe cross-process", "pipe cross-process, shared address", "replay", "rtree", "serialize", "tilegrid"]
+GM: ... so there should be a total of 18 tests.
+GM: Ran 18 tests: NoGpuContext=0 IntentionallySkipped=3 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=4 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
-GM: [ ] 0 IntentionallySkipped:
+GM: [ ] 3 IntentionallySkipped: comparison/selftest2-pipe comparison/selftest2-pipe cross-process comparison/selftest2-pipe cross-process, shared address
 GM: [*] 0 RenderModeMismatch:
 GM: [*] 0 ExpectationsMismatch:
 GM: [ ] 4 MissingExpectations: 8888/selftest2 565/selftest2 8888/selftest1 565/selftest1
