@@ -37,7 +37,7 @@ protected:
         SkPath path;
         path.moveTo(center);
 
-        while (length < (SkScalarHalf(SkMin32(this->width(), this->height())) - 10.f))
+        while (length < (SkScalarHalf(SkMinScalar(this->width(), this->height())) - 10.f))
         {
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
