@@ -228,9 +228,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     {
         SkAutoTUnref<SkShader> shader((R(2) == 1) ?
             SkPerlinNoiseShader::CreateFractalNoise(
-                make_scalar(true), make_scalar(true), SkIntToScalar(R(10)), make_scalar()) :
+                make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
             SkPerlinNoiseShader::CreateTubulence(
-                make_scalar(true), make_scalar(true), SkIntToScalar(R(10)), make_scalar()));
+                make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
         filter = SkRectShaderImageFilter::Create(shader, SkRect::MakeWH(kBitmapSize, kBitmapSize));
     }
         break;
@@ -240,11 +240,11 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case MORPHOLOGY:
         if (R(2) == 1)
-            filter = new SkDilateImageFilter(SkIntToScalar(R(kBitmapSize)),
-                SkIntToScalar(R(kBitmapSize)), make_image_filter());
+            filter = new SkDilateImageFilter(R(static_cast<float>(kBitmapSize)),
+                R(static_cast<float>(kBitmapSize)), make_image_filter());
         else
-            filter = new SkErodeImageFilter(SkIntToScalar(R(kBitmapSize)),
-                SkIntToScalar(R(kBitmapSize)), make_image_filter());
+            filter = new SkErodeImageFilter(R(static_cast<float>(kBitmapSize)),
+                R(static_cast<float>(kBitmapSize)), make_image_filter());
         break;
     case BITMAP:
         filter = new SkBitmapSource(make_bitmap());
@@ -260,7 +260,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     return (filter || canBeNull) ? filter : make_image_filter(canBeNull);
 }
 
-void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
+static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
     canvas->save();
     canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
         SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)));
