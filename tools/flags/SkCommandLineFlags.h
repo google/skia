@@ -125,6 +125,18 @@ public:
 
         bool isEmpty() const { return this->count() == 0; }
 
+        /**
+         * Returns true iff string is equal to one of the strings in this array.
+         */
+        bool contains(const char* string) const {
+            for (int i = 0; i < fStrings.count(); i++) {
+                if (fStrings[i].equals(string)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     private:
         void reset() { fStrings.reset(); }
 

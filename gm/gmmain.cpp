@@ -905,6 +905,9 @@ public:
                  * See comments above complete_bitmap() for more detail.
                  */
                 Expectations expectations = expectationsSource->get(nameWithExtension.c_str());
+                if (gm->isIgnoringFailures()) {
+                    expectations.setIgnoreFailure(true);
+                }
                 errors.add(compare_to_expectations(expectations, *actualBitmapAndDigest,
                                                    gm->shortName(), configName, "", true));
             } else {
@@ -1380,6 +1383,8 @@ DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
 DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(),
               "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
               "types are encountered, the tool will exit with a nonzero return value.");
+DEFINE_string(ignoreTests, "", "Space delimited list of tests for which we should ignore "
+              "failures.");
 DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
               "Multiple matches may be separated by spaces.\n"
               "~ causes a matching test to always be skipped\n"
@@ -2162,6 +2167,9 @@ int tool_main(int argc, char** argv) {
 
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, shortName)) {
             continue;
+        }
+        if (FLAGS_ignoreTests.contains(shortName)) {
+            gm->setIgnoreFailures(true);
         }
 
         gmsRun++;

@@ -92,6 +92,11 @@ namespace skiagm {
             return gResourcePath;
         }
 
+        bool isIgnoringFailures() const { return fIgnoreFailures; }
+        void setIgnoreFailures(bool val) {
+            fIgnoreFailures = val;
+        }
+
         bool isCanvasDeferred() const { return fCanvasIsDeferred; }
         void setCanvasIsDeferred(bool isDeferred) {
             fCanvasIsDeferred = isDeferred;
@@ -117,6 +122,7 @@ namespace skiagm {
         SkColor  fBGColor;
         bool     fCanvasIsDeferred; // work-around problem in srcmode.cpp
         bool     fHaveCalledOnceBeforeDraw;
+        bool     fIgnoreFailures; // whether to file any failures as failure-ignored
     };
 
     typedef SkTRegistry<GM*(*)(void*)> GMRegistry;

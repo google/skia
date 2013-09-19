@@ -201,6 +201,9 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/ide
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
+# Exercise --ignoreTests flag.
+gm_test "--verbose --hierarchy --match selftest1 --ignoreTests selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignoring-one-test"
+
 # Compare different pixels, but with a SUBSET of the expectations marked as
 # ignore-failure.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-ignore-some-failures.json" "$GM_OUTPUTS/ignoring-some-failures"
