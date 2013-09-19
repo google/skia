@@ -937,8 +937,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrDrawState* drawState = target->drawState();
 
         // Check devBounds
-        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
-                                          kVertsPerLineSeg * lineCnt));
+//        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
+//                                          kVertsPerLineSeg * lineCnt));
 
         {
             GrDrawState::AutoRestoreEffects are(drawState);
