@@ -103,6 +103,7 @@
         '../samplecode/SampleShaderText.cpp',
         '../samplecode/SampleSkLayer.cpp',
         '../samplecode/SampleSlides.cpp',
+        '../samplecode/SampleStringArt.cpp',
         '../samplecode/SampleStrokePath.cpp',
         '../samplecode/SampleTests.cpp',
         '../samplecode/SampleText.cpp',
