@@ -112,6 +112,7 @@
     '../gm/shadows.cpp',
     '../gm/shallowgradient.cpp',
     '../gm/simpleaaclip.cpp',
+    '../gm/stringart.cpp',
     '../gm/spritebitmap.cpp',
     '../gm/srcmode.cpp',
     '../gm/strokefill.cpp',
