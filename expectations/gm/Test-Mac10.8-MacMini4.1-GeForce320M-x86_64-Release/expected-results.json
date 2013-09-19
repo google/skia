@@ -5494,7 +5494,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          826789059975889115
+          11932022091428212752
         ]
       ], 
       "bugs": [
@@ -5902,7 +5902,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9380124012591731935
+          549674585114504358
         ]
       ], 
       "bugs": [
@@ -8117,8 +8117,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagefilterscropped_8888.png": {
       "allowed-digests": [
@@ -8130,8 +8130,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagefilterscropped_gpu.png": {
       "allowed-digests": [
@@ -8143,8 +8143,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagefilterscropped_pdf-mac.png": {
       "allowed-digests": [
@@ -8156,8 +8156,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -9711,7 +9711,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7002442605521893851
+          7026596419551871598
         ]
       ], 
       "bugs": [
@@ -10767,7 +10767,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8922512615413644410
+          7733200668980642213
         ]
       ], 
       "bugs": [
@@ -11757,8 +11757,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -11770,8 +11770,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_gpu.png": {
       "allowed-digests": [
@@ -11783,8 +11783,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "testimagefilters_pdf-mac.png": {
       "allowed-digests": [
@@ -11796,8 +11796,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "texdata_565.png": {
       "allowed-digests": [

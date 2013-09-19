@@ -4144,7 +4144,7 @@
           "bitmap-64bitMD5", 
           15874902076289220233
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_8888.png": {
@@ -4153,7 +4153,7 @@
           "bitmap-64bitMD5", 
           16938546007537835588
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_gpu.png": {
@@ -4162,7 +4162,7 @@
           "bitmap-64bitMD5", 
           7671216771353139320
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefilterscropped_msaa4.png": {
@@ -4171,7 +4171,7 @@
           "bitmap-64bitMD5", 
           10336696603410756485
         ]
-      ],
+      ], 
       "ignore-failure": true
     }, 
     "imagefiltersgraph_565.png": {
