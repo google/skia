@@ -7,9 +7,9 @@ GM: writing images without expectations to gm/tests/outputs/add-config-pdf/outpu
 GM: drawing... selftest1 [300 200]
 GM: Ran 1 GMs
 GM: ... over  3 configs ["8888", "565", "pdf"]
-GM: ...  and  7 modes   ["pipe", "pipe cross-process", "pipe cross-process, shared address", "replay", "rtree", "serialize", "tilegrid"]
-GM: ... so there should be a total of 10 tests.
-GM: Ran 10 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=1 WritingReferenceImage=0
+GM: ...  and  0 modes   []
+GM: ... so there should be a total of 3 tests.
+GM: Ran 3 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 ExpectationsMismatch=0 MissingExpectations=1 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:
 GM: [ ] 0 IntentionallySkipped:
 GM: [*] 0 RenderModeMismatch:
