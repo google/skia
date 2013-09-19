@@ -94,7 +94,7 @@ public:
 
 
     enum FontVariant {
-       kDefault_Variant = 0x01, // Currently setting yourself to Default gives you Compact Variant
+       kDefault_Variant = 0x01,
        kCompact_Variant = 0x02,
        kElegant_Variant = 0x04,
        kLast_Variant = kElegant_Variant,
