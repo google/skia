@@ -8618,8 +8618,7 @@
           "bitmap-64bitMD5", 
           9010244868032724951
         ]
-      ], 
-      "ignore-failure": true
+      ]
     }, 
     "imagefilterscropped_8888.png": {
       "allowed-digests": [
@@ -8627,8 +8626,7 @@
           "bitmap-64bitMD5", 
           14556033403593425541
         ]
-      ], 
-      "ignore-failure": true
+      ]
     }, 
     "imagefilterscropped_gpu.png": {
       "allowed-digests": [
@@ -8636,8 +8634,7 @@
           "bitmap-64bitMD5", 
           14524592360975847383
         ]
-      ], 
-      "ignore-failure": true
+      ]
     }, 
     "imagefilterscropped_mesa.png": {
       "allowed-digests": [
@@ -8645,8 +8642,7 @@
           "bitmap-64bitMD5", 
           11689026128422767692
         ]
-      ], 
-      "ignore-failure": true
+      ]
     }, 
     "imagefilterscropped_pdf-mac.png": {
       "allowed-digests": [
@@ -8654,8 +8650,7 @@
           "bitmap-64bitMD5", 
           5741308506239316783
         ]
-      ], 
-      "ignore-failure": true
+      ]
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -12464,7 +12459,7 @@
           3304366110715188942
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -12473,7 +12468,7 @@
           5928970899626338354
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_gpu.png": {
       "allowed-digests": [
@@ -12482,7 +12477,7 @@
           5115665870392462534
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_mesa.png": {
       "allowed-digests": [
@@ -12491,7 +12486,7 @@
           11994470484843641171
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_msaa16.png": {
       "allowed-digests": [
@@ -12500,7 +12495,7 @@
           6475206245654802895
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_pdf-mac.png": {
       "allowed-digests": [
@@ -12509,7 +12504,7 @@
           15599343203393787421
         ]
       ], 
-      "ignore-failure": true
+      "ignore-failure": false
     }, 
     "testimagefilters_pdf-poppler.png": {
       "allowed-digests": [
@@ -12521,7 +12516,6 @@
       "bugs": [
         1578
       ], 
-      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "texdata_565.png": {
