@@ -1209,10 +1209,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
         case SkPaint::kHigh_FilterLevel:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't yet support high quality "
-                                        "filtering on the GPU.  Falling back to "
-                                        "MIPMaps.");
+            // Fall back to mips for now
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
         default:
