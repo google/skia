@@ -9910,7 +9910,8 @@
           "bitmap-64bitMD5", 
           2524338253018381328
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_8888.png": {
       "allowed-digests": [
@@ -9918,7 +9919,8 @@
           "bitmap-64bitMD5", 
           12087951868014485958
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_gpu.png": {
       "allowed-digests": [
@@ -9926,7 +9928,8 @@
           "bitmap-64bitMD5", 
           17206709515863774772
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_mesa.png": {
       "allowed-digests": [
@@ -9934,7 +9937,8 @@
           "bitmap-64bitMD5", 
           11689026128422767692
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_pdf-mac.png": {
       "allowed-digests": [
@@ -9942,7 +9946,8 @@
           "bitmap-64bitMD5", 
           5741308506239316783
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_pdf-poppler.png": {
       "allowed-digests": [
@@ -9954,7 +9959,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -14252,7 +14258,7 @@
           2449762981896068609
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -14261,7 +14267,7 @@
           91395995868500721
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_gpu.png": {
       "allowed-digests": [
@@ -14270,7 +14276,7 @@
           4555034283268968588
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_mesa.png": {
       "allowed-digests": [
@@ -14279,7 +14285,7 @@
           11994470484843641171
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_msaa16.png": {
       "allowed-digests": [
@@ -14288,7 +14294,7 @@
           6475206245654802895
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_pdf-mac.png": {
       "allowed-digests": [
@@ -14297,7 +14303,7 @@
           15599343203393787421
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_pdf-poppler.png": {
       "allowed-digests": [
@@ -14309,7 +14315,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "texdata_565.png": {
       "allowed-digests": [

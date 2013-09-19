@@ -3613,7 +3613,7 @@
           2449762981896068609
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -3622,7 +3622,7 @@
           91395995868500721
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_gpu.png": {
       "allowed-digests": [
@@ -3631,7 +3631,7 @@
           3345453265832461500
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "texdata_565.png": {
       "allowed-digests": [

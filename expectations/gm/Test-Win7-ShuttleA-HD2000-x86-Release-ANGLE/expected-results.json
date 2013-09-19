@@ -9411,7 +9411,8 @@
           "bitmap-64bitMD5", 
           10267199484925399365
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_8888.png": {
       "allowed-digests": [
@@ -9419,7 +9420,8 @@
           "bitmap-64bitMD5", 
           16225020407926229569
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_angle.png": {
       "allowed-digests": [
@@ -9427,7 +9429,8 @@
           "bitmap-64bitMD5", 
           15873738807574929761
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_gpu.png": {
       "allowed-digests": [
@@ -9435,7 +9438,8 @@
           "bitmap-64bitMD5", 
           9540626140949731992
         ]
-      ]
+      ],
+      "ignore-failure": true
     }, 
     "imagefilterscropped_pdf-poppler.png": {
       "allowed-digests": [
@@ -9447,7 +9451,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "imagefiltersgraph_565.png": {
       "allowed-digests": [
@@ -13551,7 +13556,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "testimagefilters_8888.png": {
       "allowed-digests": [
@@ -13563,7 +13569,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "testimagefilters_angle.png": {
       "allowed-digests": [
@@ -13572,7 +13579,7 @@
           2986097465932380981
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "testimagefilters_gpu.png": {
       "allowed-digests": [
@@ -13584,7 +13591,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "testimagefilters_pdf-poppler.png": {
       "allowed-digests": [
@@ -13596,7 +13604,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "texdata_565.png": {
       "allowed-digests": [

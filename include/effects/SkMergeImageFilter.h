@@ -15,9 +15,11 @@
 class SK_API SkMergeImageFilter : public SkImageFilter {
 public:
     SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
-                       SkXfermode::Mode = SkXfermode::kSrcOver_Mode);
+                       SkXfermode::Mode = SkXfermode::kSrcOver_Mode,
+                       const SkIRect* cropRect = NULL);
     SkMergeImageFilter(SkImageFilter* filters[], int count,
-                       const SkXfermode::Mode modes[] = NULL);
+                       const SkXfermode::Mode modes[] = NULL,
+                       const SkIRect* cropRect = NULL);
     virtual ~SkMergeImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
