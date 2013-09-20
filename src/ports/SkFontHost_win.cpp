@@ -1391,16 +1391,20 @@ public:
         : fHeaderIter(glyphbuf, total_size), fCurveIter(), fPointIter()
     { }
 
-    POINTFX next() {
+    POINTFX const * next() {
 nextHeader:
         if (!fCurveIter.isSet()) {
             const TTPOLYGONHEADER* header = fHeaderIter.next();
-            SkASSERT(header);
+            if (NULL == header) {
+                return NULL;
+            }
             fCurveIter.set(header);
             const TTPOLYCURVE* curve = fCurveIter.next();
-            SkASSERT(curve);
+            if (NULL == curve) {
+                return NULL;
+            }
             fPointIter.set(curve);
-            return header->pfxStart;
+            return &header->pfxStart;
         }
 
         const POINTFX* nextPoint = fPointIter.next();
@@ -1413,9 +1417,8 @@ nextHeader:
                 fPointIter.set(curve);
             }
             nextPoint = fPointIter.next();
-            SkASSERT(nextPoint);
         }
-        return *nextPoint;
+        return nextPoint;
     }
 
     WORD currentCurveType() {
@@ -1573,10 +1576,20 @@ static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD t
     }
 }
 
-static void sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD total_size,
+#define move_next_expected_hinted_point(iter, pElem) do {\
+    pElem = iter.next(); \
+    if (NULL == pElem) return false; \
+} while(0)
+
+// It is possible for the hinted and unhinted versions of the same path to have
+// a different number of points due to GDI's handling of flipped points.
+// If this is detected, this will return false.
+static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD total_size,
                                    GDIGlyphbufferPointIter hintedYs) {
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
+
+    POINTFX const * hintedPoint;
 
     while (cur_glyph < end_glyph) {
         const TTPOLYGONHEADER* th = (TTPOLYGONHEADER*)cur_glyph;
@@ -1584,33 +1597,35 @@ static void sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
         const uint8_t* end_poly = cur_glyph + th->cb;
         const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
 
+        move_next_expected_hinted_point(hintedYs, hintedPoint);
         path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
-                     SkFixedToScalar(-SkFIXEDToFixed(hintedYs.next().y)));
+                     SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
 
         while (cur_poly < end_poly) {
             const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
 
             if (pc->wType == TT_PRIM_LINE) {
                 for (uint16_t i = 0; i < pc->cpfx; i++) {
+                    move_next_expected_hinted_point(hintedYs, hintedPoint);
                     path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(hintedYs.next().y)));
+                                 SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
                 }
             }
 
             if (pc->wType == TT_PRIM_QSPLINE) {
                 POINTFX currentPoint = pc->apfx[0];
-                POINTFX hintedY = hintedYs.next();
+                move_next_expected_hinted_point(hintedYs, hintedPoint);
                 // only take the hinted y if it wasn't flipped
                 if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
-                    currentPoint.y = hintedY.y;
+                    currentPoint.y = hintedPoint->y;
                 }
                 for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
                     POINTFX pnt_b = currentPoint;//pc->apfx[u]; // B is always the current point
                     POINTFX pnt_c = pc->apfx[u+1];
-                    POINTFX hintedY = hintedYs.next();
+                    move_next_expected_hinted_point(hintedYs, hintedPoint);
                     // only take the hinted y if it wasn't flipped
                     if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
-                        pnt_c.y = hintedY.y;
+                        pnt_c.y = hintedPoint->y;
                     }
                     currentPoint.x = pnt_c.x;
                     currentPoint.y = pnt_c.y;
@@ -1634,6 +1649,7 @@ static void sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
         cur_glyph += th->cb;
         path->close();
     }
+    return true;
 }
 
 DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
@@ -1710,8 +1726,12 @@ void SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
             return;
         }
 
-        sk_path_from_gdi_paths(path, glyphbuf, total_size,
-                               GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size));
+        if (!sk_path_from_gdi_paths(path, glyphbuf, total_size,
+                                    GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size)))
+        {
+            path->reset();
+            sk_path_from_gdi_path(path, glyphbuf, total_size);
+        }
     }
 }
 
