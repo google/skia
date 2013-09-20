@@ -696,7 +696,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
         10,  // width
         10,  // height
         SkImage::kPMColor_ColorType,
-        SkImage::kPremul_AlphaType
+        kPremul_SkAlphaType
     };
     SkSurface* surface;
     bool useGpu = NULL != factory;
@@ -763,7 +763,7 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
         10,  // width
         10,  // height
         SkImage::kPMColor_ColorType,
-        SkImage::kPremul_AlphaType
+        kPremul_SkAlphaType
     };
     SkSurface* surface;
     SkSurface* alternateSurface;

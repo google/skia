@@ -14,16 +14,16 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
     switch (info.fColorType) {
         case SkImage::kAlpha_8_ColorType:
             switch (info.fAlphaType) {
-                case SkImage::kIgnore_AlphaType:
+                case kIgnore_SkAlphaType:
                     // makes no sense
                     return SkBitmap::kNo_Config;
 
-                case SkImage::kOpaque_AlphaType:
+                case kOpaque_SkAlphaType:
                     *isOpaque = true;
                     return SkBitmap::kA8_Config;
 
-                case SkImage::kPremul_AlphaType:
-                case SkImage::kUnpremul_AlphaType:
+                case kPremul_SkAlphaType:
+                case kUnpremul_SkAlphaType:
                     *isOpaque = false;
                     return SkBitmap::kA8_Config;
             }
@@ -34,27 +34,25 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
             *isOpaque = true;
             return SkBitmap::kRGB_565_Config;
 
-        case SkImage::kRGBA_8888_ColorType:
-        case SkImage::kBGRA_8888_ColorType:
-            // not supported yet
-            return SkBitmap::kNo_Config;
-
         case SkImage::kPMColor_ColorType:
             switch (info.fAlphaType) {
-                case SkImage::kIgnore_AlphaType:
-                case SkImage::kUnpremul_AlphaType:
+                case kIgnore_SkAlphaType:
+                case kUnpremul_SkAlphaType:
                     // not supported yet
                     return SkBitmap::kNo_Config;
-                case SkImage::kOpaque_AlphaType:
+                case kOpaque_SkAlphaType:
                     *isOpaque = true;
                     return SkBitmap::kARGB_8888_Config;
-                case SkImage::kPremul_AlphaType:
+                case kPremul_SkAlphaType:
                     *isOpaque = false;
                     return SkBitmap::kARGB_8888_Config;
             }
             break;
+        
+        default:
+            // break for unsupported colortypes
+            break;
     }
-    SkDEBUGFAIL("how did we get here");
     return SkBitmap::kNo_Config;
 }
 
@@ -91,8 +89,8 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImage::Info* info) {
 
     info->fWidth = bm.width();
     info->fHeight = bm.height();
-    info->fAlphaType = bm.isOpaque() ? SkImage::kOpaque_AlphaType :
-                                       SkImage::kPremul_AlphaType;
+    info->fAlphaType = bm.isOpaque() ? kOpaque_SkAlphaType :
+                                       kPremul_SkAlphaType;
     return true;
 }
 

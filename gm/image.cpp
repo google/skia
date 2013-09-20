@@ -178,12 +178,9 @@ protected:
         // since we draw into this directly, we need to start fresh
         sk_bzero(fBuffer, fBufferSize);
 
-        SkImage::Info info;
-
-        info.fWidth = W;
-        info.fHeight = H;
-        info.fColorType = SkImage::kPMColor_ColorType;
-        info.fAlphaType = SkImage::kPremul_AlphaType;
+        SkImage::Info info = {
+            W, H, SkImage::kPMColor_ColorType, kPremul_SkAlphaType
+        };
         SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, fBuffer, RB));
         SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info));
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));

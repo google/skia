@@ -36,10 +36,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     output.setConfig(SkBitmap::kARGB_8888_Config, 1, 1, 4);
     output.setPixels(pixel);
 
-    SkImage::Info info = {
-        300, 33300, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
-    };
-    SkSurface* surf = SkSurface::NewRaster(info);
+    SkSurface* surf = SkSurface::NewRasterPMColor(300, 33300);
     SkCanvas* canvas = surf->getCanvas();
 
     SkRect r = { 0, 33000, 300, 33300 };

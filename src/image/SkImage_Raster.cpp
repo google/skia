@@ -27,7 +27,7 @@ public:
         if ((unsigned)info.fColorType > (unsigned)kLastEnum_ColorType) {
             return false;
         }
-        if ((unsigned)info.fAlphaType > (unsigned)kLastEnum_AlphaType) {
+        if ((unsigned)info.fAlphaType > (unsigned)kLastEnum_SkAlphaType) {
             return false;
         }
 

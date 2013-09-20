@@ -53,7 +53,7 @@ public:
      */
     static SkSurface* NewRasterPMColor(int width, int height) {
         SkImage::Info info = {
-            width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+            width, height, SkImage::kPMColor_ColorType, kPremul_SkAlphaType
         };
         return NewRaster(info);
     }

@@ -91,13 +91,10 @@ public:
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
         fShader->setLocalMatrix(fMatrix);
 
-        SkImage::Info info = {
-            width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
-        };
-        fMinSurface.reset(SkSurface::NewRaster(info));
-        info.fWidth *= zoom;
-        info.fHeight *= zoom;
-        fMaxSurface.reset(SkSurface::NewRaster(info));
+        fMinSurface.reset(SkSurface::NewRasterPMColor(width, height));
+        width *= zoom;
+        height *= zoom;
+        fMaxSurface.reset(SkSurface::NewRasterPMColor(width, height));
     }
 
     void drawBG(SkCanvas*);
