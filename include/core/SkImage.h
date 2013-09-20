@@ -48,7 +48,7 @@ public:
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
         kPMColor_ColorType = kRGBA_8888_ColorType,
 #else
-        #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order
+        #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
 #endif
 
         kLastEnum_ColorType = kBGRA_8888_ColorType
