@@ -15,8 +15,44 @@
 #include "SkUtils.h"
 
 #include "SkCachePreload_arm.h"
-
+#include "SkColor_opts_neon.h"
 #include <arm_neon.h>
+
+void S32_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
+                           const SkPMColor* SK_RESTRICT src, int count,
+                           U8CPU alpha, int /*x*/, int /*y*/) {
+    SkASSERT(255 == alpha);
+
+    while (count >= 8) {
+        uint8x8x4_t vsrc;
+        uint16x8_t vdst;
+
+        // Load
+        vsrc = vld4_u8((uint8_t*)src);
+
+        // Convert src to 565
+        vdst = vshll_n_u8(vsrc.val[NEON_R], 8);
+        vdst = vsriq_n_u16(vdst, vshll_n_u8(vsrc.val[NEON_G], 8), 5);
+        vdst = vsriq_n_u16(vdst, vshll_n_u8(vsrc.val[NEON_B], 8), 5+6);
+
+        // Store
+        vst1q_u16(dst, vdst);
+
+        // Prepare next iteration
+        dst += 8;
+        src += 8;
+        count -= 8;
+    };
+
+    // Leftovers
+    while (count > 0) {
+        SkPMColor c = *src++;
+        SkPMColorAssert(c);
+        *dst = SkPixel32ToPixel16_ToU16(c);
+        dst++;
+        count--;
+    };
+}
 
 void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
@@ -1330,10 +1366,10 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
     // no dither
-    // NOTE: For the two functions below, we don't have a special version
-    //       that assumes that each source pixel is opaque. But our S32A is
-    //       still faster than the default, so use it.
-    S32A_D565_Opaque_neon,  // really S32_D565_Opaque
+    // NOTE: For the S32_D565_Blend function below, we don't have a special
+    //       version that assumes that each source pixel is opaque. But our
+    //       S32A is still faster than the default, so use it.
+    S32_D565_Opaque_neon,
     S32A_D565_Blend_neon,   // really S32_D565_Blend
     S32A_D565_Opaque_neon,
     S32A_D565_Blend_neon,
