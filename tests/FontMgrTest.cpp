@@ -20,7 +20,7 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     const char* inNames[] = {
         "sans", "sans-serif", "serif", "monospace", "times", "helvetica"
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
         SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inNames[i],
                                                           SkTypeface::kNormal));
