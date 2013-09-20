@@ -1632,8 +1632,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
 
 SkBitmap::RLEPixels::RLEPixels(int width, int height) {
     fHeight = height;
-    fYPtrs = (uint8_t**)sk_malloc_throw(height * sizeof(uint8_t*));
-    sk_bzero(fYPtrs, height * sizeof(uint8_t*));
+    fYPtrs = (uint8_t**)sk_calloc_throw(height * sizeof(uint8_t*));
 }
 
 SkBitmap::RLEPixels::~RLEPixels() {
