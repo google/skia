@@ -20,7 +20,7 @@ SkImageWidget::SkImageWidget(SkDebugger *debugger)
     info.fWidth = kImageWidgetWidth;
     info.fHeight = kImageWidgetHeight;
     info.fColorType = SkImage::kPMColor_ColorType;
-    info.fAlphaType = SkImage::kPremul_AlphaType;
+    info.fAlphaType = kPremul_SkAlphaType;
 
     fSurface = SkSurface::NewRasterDirect(info, fPixels, 4 * kImageWidgetWidth);
 }
