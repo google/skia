@@ -214,6 +214,7 @@
 
         '<(skia_include_path)/core/Sk64.h',
         '<(skia_include_path)/core/SkAdvancedTypefaceMetrics.h',
+        '<(skia_include_path)/core/SkAlpha.h',
         '<(skia_include_path)/core/SkBitmap.h',
         '<(skia_include_path)/core/SkBitmapDevice.h',
         '<(skia_include_path)/core/SkBlitRow.h',

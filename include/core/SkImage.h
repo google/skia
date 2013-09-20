@@ -8,6 +8,7 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#include "SkAlpha.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -41,25 +42,32 @@ public:
         kRGB_565_ColorType,
         kRGBA_8888_ColorType,
         kBGRA_8888_ColorType,
-        kPMColor_ColorType,
+    
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+        kPMColor_ColorType = kBGRA_8888_ColorType,
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+        kPMColor_ColorType = kRGBA_8888_ColorType,
+#else
+        #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order
+#endif
 
-        kLastEnum_ColorType = kPMColor_ColorType
+        kLastEnum_ColorType = kBGRA_8888_ColorType
     };
 
+#ifdef SK_ENABLE_LEGACY_API_ALIASING
     enum AlphaType {
-        kIgnore_AlphaType,
-        kOpaque_AlphaType,
-        kPremul_AlphaType,
-        kUnpremul_AlphaType,
-
-        kLastEnum_AlphaType = kUnpremul_AlphaType
+        kIgnore_AlphaType   = kIgnore_SkAlphaType,
+        kOpaque_AlphaType   = kOpaque_SkAlphaType,
+        kPremul_AlphaType   = kPremul_SkAlphaType,
+        kUnpremul_AlphaType = kUnpremul_SkAlphaType,
     };
+#endif
 
     struct Info {
         int         fWidth;
         int         fHeight;
         ColorType   fColorType;
-        AlphaType   fAlphaType;
+        SkAlphaType fAlphaType;
     };
 
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);

@@ -28,7 +28,7 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
         10,  // width
         10,  // height
         SkImage::kPMColor_ColorType,
-        SkImage::kPremul_AlphaType
+        kPremul_SkAlphaType
     };
 
     switch (surfaceType) {

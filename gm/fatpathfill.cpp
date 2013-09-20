@@ -16,13 +16,7 @@
 #define REPEAT_LOOP 5
 
 static SkSurface* new_surface(int width, int height) {
-    SkImage::Info info = {
-        width,
-        height,
-        SkImage::kPMColor_ColorType,
-        SkImage::kPremul_AlphaType
-    };
-    return SkSurface::NewRaster(info);
+    return SkSurface::NewRasterPMColor(width, height);
 }
 
 static void draw_pixel_centers(SkCanvas* canvas) {

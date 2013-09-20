@@ -121,7 +121,7 @@ protected:
             size.width(),
             size.height(),
             SkImage::kPMColor_ColorType,
-            SkImage::kPremul_AlphaType
+            kPremul_SkAlphaType
         };
 #if SK_SUPPORT_GPU
         SkBaseDevice* dev = canvas->getDevice();

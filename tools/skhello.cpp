@@ -30,10 +30,7 @@ static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
 
 static bool do_surface(int w, int h, const char path[], const char text[],
                        const SkPaint& paint) {
-    SkImage::Info info = {
-        w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
-    };
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(w, h));
     doDraw(surface->getCanvas(), paint, text);
 
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
