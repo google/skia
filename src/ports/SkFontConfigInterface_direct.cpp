@@ -172,6 +172,7 @@ enum FontEquivClass
     PMINGLIUHK,
     MINGLIUHK,
     CAMBRIA,
+    CALIBRI,
 };
 
 // Match the font name against a whilelist of fonts, returning the equivalence
@@ -284,6 +285,10 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         // Cambria
         { CAMBRIA, "Cambria" },
         { CAMBRIA, "Caladea" },
+
+        // Calibri
+        { CALIBRI, "Calibri" },
+        { CALIBRI, "Carlito" },
     };
 
     static const size_t kFontCount =
