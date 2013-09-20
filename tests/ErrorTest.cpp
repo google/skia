@@ -29,12 +29,12 @@ static void cb(SkError err, void *context) {
 
 static void ErrorTest(skiatest::Reporter* reporter) {
     SkError err;
-    
+
     unsigned int test_value = 0xdeadbeef;
     ErrorContext context;
     context.fReporter = reporter;
     context.fIntPointer = &test_value;
-    
+
     SkSetErrorCallback(cb, &context);
 
     CHECK(kNoError_SkError);
