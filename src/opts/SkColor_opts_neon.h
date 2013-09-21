@@ -9,4 +9,3 @@
 #define NEON_B (SK_B32_SHIFT / 8)
 
 #endif /* #ifndef SkColor_opts_neon_DEFINED */
-

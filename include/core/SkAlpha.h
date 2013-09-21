@@ -43,7 +43,7 @@ enum SkAlphaType {
      *  generate this on output.
      */
     kUnpremul_SkAlphaType,
-    
+
     kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
 };
 
