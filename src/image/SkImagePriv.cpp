@@ -48,7 +48,7 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
                     return SkBitmap::kARGB_8888_Config;
             }
             break;
-        
+
         default:
             // break for unsupported colortypes
             break;

@@ -42,7 +42,7 @@ public:
         kRGB_565_ColorType,
         kRGBA_8888_ColorType,
         kBGRA_8888_ColorType,
-    
+
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
         kPMColor_ColorType = kBGRA_8888_ColorType,
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
