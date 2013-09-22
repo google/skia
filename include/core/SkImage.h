@@ -54,12 +54,12 @@ public:
         kLastEnum_ColorType = kBGRA_8888_ColorType
     };
 
-    enum AlphaType {
-        kIgnore_AlphaType   = kIgnore_SkAlphaType,
-        kOpaque_AlphaType   = kOpaque_SkAlphaType,
-        kPremul_AlphaType   = kPremul_SkAlphaType,
-        kUnpremul_AlphaType = kUnpremul_SkAlphaType,
-    };
+    typedef SkAlphaType AlphaType;
+
+    static const SkAlphaType kIgnore_AlphaType   = kIgnore_SkAlphaType;
+    static const SkAlphaType kOpaque_AlphaType   = kOpaque_SkAlphaType;
+    static const SkAlphaType kPremul_AlphaType   = kPremul_SkAlphaType;
+    static const SkAlphaType kUnpremul_AlphaType = kUnpremul_SkAlphaType;
 
     struct Info {
         int         fWidth;
