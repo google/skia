@@ -54,14 +54,12 @@ public:
         kLastEnum_ColorType = kBGRA_8888_ColorType
     };
 
-#ifdef SK_ENABLE_LEGACY_API_ALIASING
     enum AlphaType {
         kIgnore_AlphaType   = kIgnore_SkAlphaType,
         kOpaque_AlphaType   = kOpaque_SkAlphaType,
         kPremul_AlphaType   = kPremul_SkAlphaType,
         kUnpremul_AlphaType = kUnpremul_SkAlphaType,
     };
-#endif
 
     struct Info {
         int         fWidth;
