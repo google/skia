@@ -92,7 +92,9 @@ private:
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
     static T** AllocArray(int capacity) {
-        return (T**)sk_calloc_throw(sizeof(T*) * capacity);  // All cells == Empty().
+        T** array = (T**)sk_malloc_throw(sizeof(T*) * capacity);
+        sk_bzero(array, sizeof(T*) * capacity);  // All cells == Empty().
+        return array;
     }
 
     void reset(int capacity) {
