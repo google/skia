@@ -16,7 +16,6 @@
 #include "SkTypeface.h"
 
 //#define SPEW_PURGE_STATUS
-//#define USE_CACHE_HASH
 //#define RECORD_HASH_EFFICIENCY
 
 bool gSkSuppressFontCachePurgeSpew;
@@ -402,25 +401,6 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
     #define SK_DEFAULT_FONT_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
 
-#ifdef USE_CACHE_HASH
-    #define HASH_BITCOUNT   6
-    #define HASH_COUNT      (1 << HASH_BITCOUNT)
-    #define HASH_MASK       (HASH_COUNT - 1)
-
-    static unsigned desc_to_hashindex(const SkDescriptor* desc)
-    {
-        SkASSERT(HASH_MASK < 256);  // since our munging reduces to 8 bits
-
-        uint32_t n = *(const uint32_t*)desc;    //desc->getChecksum();
-        SkASSERT(n == desc->getChecksum());
-
-        // don't trust that the low bits of checksum vary enough, so...
-        n ^= (n >> 24) ^ (n >> 16) ^ (n >> 8) ^ (n >> 30);
-
-        return n & HASH_MASK;
-    }
-#endif
-
 #include "SkThread.h"
 
 class SkGlyphCache_Globals {
@@ -435,10 +415,6 @@ public:
         fTotalMemoryUsed = 0;
         fFontCacheLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
         fMutex = (kYes_UseMutex == um) ? SkNEW(SkMutex) : NULL;
-
-#ifdef USE_CACHE_HASH
-        sk_bzero(fHash, sizeof(fHash));
-#endif
     }
 
     ~SkGlyphCache_Globals() {
@@ -455,9 +431,6 @@ public:
     SkMutex*        fMutex;
     SkGlyphCache*   fHead;
     size_t          fTotalMemoryUsed;
-#ifdef USE_CACHE_HASH
-    SkGlyphCache*   fHash[HASH_COUNT];
-#endif
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -567,16 +540,6 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
 
     globals.validate();
 
-#ifdef USE_CACHE_HASH
-    SkGlyphCache** hash = globals.fHash;
-    unsigned index = desc_to_hashindex(desc);
-    cache = hash[index];
-    if (cache && *cache->fDesc == *desc) {
-        cache->detach(&globals.fHead);
-        goto FOUND_IT;
-    }
-#endif
-
     for (cache = globals.fHead; cache != NULL; cache = cache->fNext) {
         if (cache->fDesc->equals(*desc)) {
             cache->detach(&globals.fHead);
@@ -613,16 +576,10 @@ FOUND_IT:
         if (insideMutex) {
             SkASSERT(globals.fTotalMemoryUsed >= cache->fMemoryUsed);
             globals.fTotalMemoryUsed -= cache->fMemoryUsed;
-#ifdef USE_CACHE_HASH
-            hash[index] = NULL;
-#endif
         }
     } else {                        // reattach
         if (insideMutex) {
             cache->attachToHead(&globals.fHead);
-#ifdef USE_CACHE_HASH
-            hash[index] = cache;
-#endif
         } else {
             AttachCache(cache);
         }
@@ -652,12 +609,6 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
 
     cache->attachToHead(&globals.fHead);
     globals.fTotalMemoryUsed += cache->fMemoryUsed;
-
-#ifdef USE_CACHE_HASH
-    unsigned index = desc_to_hashindex(cache->fDesc);
-    SkASSERT(globals.fHash[index] != cache);
-    globals.fHash[index] = cache;
-#endif
 
     globals.validate();
 }
@@ -706,13 +657,6 @@ size_t SkGlyphCache::InternalFreeCache(SkGlyphCache_Globals* globals,
     while (cache != NULL && bytesFreed < bytesNeeded) {
         SkGlyphCache* prev = cache->fPrev;
         bytesFreed += cache->fMemoryUsed;
-
-#ifdef USE_CACHE_HASH
-        unsigned index = desc_to_hashindex(cache->fDesc);
-        if (cache == globals->fHash[index]) {
-            globals->fHash[index] = NULL;
-        }
-#endif
 
         cache->detach(&globals->fHead);
         SkDELETE(cache);
