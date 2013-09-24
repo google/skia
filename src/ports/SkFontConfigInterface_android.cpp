@@ -67,6 +67,7 @@ struct FamilyRec {
     static const int FONT_STYLE_COUNT = 4;
     FontRecID fFontRecID[FONT_STYLE_COUNT];
     bool fIsFallbackFont;
+    SkString fFallbackName;
     SkPaintOptionsAndroid fPaintOptions;
 };
 
@@ -263,10 +264,6 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
                 familyRec->fIsFallbackFont = family->fIsFallbackFont;
                 familyRec->fPaintOptions = family->fFontFiles[j]->fPaintOptions;
 
-                // if this is a fallback font then add it to the appropriate fallback chains
-                if (familyRec->fIsFallbackFont) {
-                    addFallbackFamily(familyRecID);
-                }
             } else if (familyRec->fPaintOptions != family->fFontFiles[j]->fPaintOptions) {
                 SkDebugf("Every font file within a family must have identical"
                          "language and variant attributes");
@@ -280,28 +277,26 @@ SkFontConfigInterfaceAndroid::SkFontConfigInterfaceAndroid(SkTDArray<FontFamily*
                             fontRecID));
             }
             familyRec->fFontRecID[fontRec.fStyle] = fontRecID;
-
-            // add the fallback file name to the name dictionary.  This is needed
-            // by getFallbackFamilyNameForChar() so that fallback families can be
-            // requested by the filenames of the fonts they contain.
-            if (familyRec && familyRec->fIsFallbackFont) {
-                insert_into_name_dict(fFamilyNameDict, fontRec.fFileName.c_str(), familyRecID);
-            }
         }
 
-        // add the names that map to this family to the dictionary for easy lookup
-        if (familyRec && !familyRec->fIsFallbackFont) {
-            SkTDArray<const char*> names = family->fNames;
-            if (names.isEmpty()) {
-                SkDEBUGFAIL("ERROR: non-fallback font with no name");
-                continue;
-            }
+        if (familyRec) {
+            if (familyRec->fIsFallbackFont) {
+                // add the font to the appropriate fallback chains and also insert a
+                // unique name into the familyNameDict for internal usage
+                addFallbackFamily(familyRecID);
+            } else {
+                // add the names that map to this family to the dictionary for easy lookup
+                const SkTDArray<const char*>& names = family->fNames;
+                if (names.isEmpty()) {
+                    SkDEBUGFAIL("ERROR: non-fallback font with no name");
+                    continue;
+                }
 
-            for (int i = 0; i < names.count(); i++) {
-                insert_into_name_dict(fFamilyNameDict, names[i], familyRecID);
+                for (int i = 0; i < names.count(); i++) {
+                    insert_into_name_dict(fFamilyNameDict, names[i], familyRecID);
+                }
             }
         }
-
     }
 
     DEBUG_FONT(("---- We have %d system fonts", fFonts.count()));
@@ -341,8 +336,15 @@ SkFontConfigInterfaceAndroid::~SkFontConfigInterfaceAndroid() {
 
 void SkFontConfigInterfaceAndroid::addFallbackFamily(FamilyRecID familyRecID) {
     SkASSERT(familyRecID < fFontFamilies.count());
-    const FamilyRec& familyRec = fFontFamilies[familyRecID];
+    FamilyRec& familyRec = fFontFamilies[familyRecID];
     SkASSERT(familyRec.fIsFallbackFont);
+
+    // add the fallback family to the name dictionary.  This is
+    // needed by getFallbackFamilyNameForChar() so that fallback
+    // families can be identified by a unique name. The unique
+    // identifier that we've chosen is the familyID in hex (e.g. '0F##fallback').
+    familyRec.fFallbackName.printf("%.2x##fallback", familyRecID);
+    insert_into_name_dict(fFamilyNameDict, familyRec.fFallbackName.c_str(), familyRecID);
 
     // add to the default fallback list
     fDefaultFallbackList.push(familyRecID);
@@ -529,7 +531,7 @@ bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
         uint16_t glyphID;
         paint.textToGlyphs(&uni, sizeof(uni), &glyphID);
         if (glyphID != 0) {
-            name->set(fFonts[fontRecID].fFileName);
+            name->set(fFontFamilies[familyRecID].fFallbackName);
             return true;
         }
     }
