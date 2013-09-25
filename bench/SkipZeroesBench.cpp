@@ -64,6 +64,12 @@ protected:
                     // Disabling until the feature is checked in.
                     // See https://codereview.chromium.org/24269006/
                     //fDecoder->setSkipWritingZeroes(fSkipZeroes);
+                    if (fSkipZeroes) {
+                        // This printf will never happen since this bench is
+                        // only currently created with false. Remove once
+                        // the above code is uncommented.
+                        SkDebugf("Should be skipping zeroes...\n");
+                    }
                 } else {
                     fValid = false;
                 }
