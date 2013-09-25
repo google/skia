@@ -286,6 +286,15 @@
               '-fsanitize=address',
             ],
           }],
+          [ 'skia_tsan_build', {
+            'cflags': [
+              '-fsanitize=thread',
+              '-fno-omit-frame-pointer',
+            ],
+            'ldflags': [
+              '-fsanitize=thread',
+            ],
+          }],
           [ 'skia_clang_build', {
             'cflags': [
               '-Wstring-conversion',

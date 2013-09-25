@@ -84,9 +84,9 @@ public:
 
 protected:
     virtual void onStart(Test* test) {
-        const int index = sk_atomic_inc(&fNextIndex);
-        sk_atomic_inc(&fPending);
-        SkDebugf("[%3d/%3d] (%d) %s\n", index+1, fTotal, fPending, test->getName());
+        const int index = sk_atomic_inc(&fNextIndex)+1;
+        const int pending = sk_atomic_inc(&fPending)+1;
+        SkDebugf("[%3d/%3d] (%d) %s\n", index, fTotal, pending, test->getName());
     }
     virtual void onReportFailed(const SkString& desc) {
         SkDebugf("\tFAILED: %s\n", desc.c_str());
