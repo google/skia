@@ -194,7 +194,7 @@ static void test_unpremul(skiatest::Reporter* reporter) {
 
 #ifdef SK_DEBUG
 // Create a stream containing a bitmap encoded to Type type.
-static SkStream* create_image_stream(SkImageEncoder::Type type) {
+static SkMemoryStream* create_image_stream(SkImageEncoder::Type type) {
     SkBitmap bm;
     const int size = 50;
     bm.setConfig(SkBitmap::kARGB_8888_Config, size, size);
@@ -233,7 +233,7 @@ static void test_stream_life() {
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTypes); ++i) {
         //SkDebugf("encoding to %i\n", i);
-        SkAutoTUnref<SkStream> stream(create_image_stream(gTypes[i]));
+        SkAutoTUnref<SkMemoryStream> stream(create_image_stream(gTypes[i]));
         if (NULL == stream.get()) {
             SkDebugf("no stream\n");
             continue;

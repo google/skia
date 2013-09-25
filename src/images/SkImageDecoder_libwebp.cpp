@@ -110,7 +110,7 @@ public:
     }
 
 protected:
-    virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
+    virtual bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
     virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
@@ -300,7 +300,7 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
     return true;
 }
 
-bool SkWEBPImageDecoder::onBuildTileIndex(SkStream* stream,
+bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
                                           int *width, int *height) {
     int origWidth, origHeight, hasAlpha;
     if (!webp_parse_header(stream, &origWidth, &origHeight, &hasAlpha)) {
@@ -575,7 +575,7 @@ DEFINE_DECODER_CREATOR(WEBPImageDecoder);
 DEFINE_ENCODER_CREATOR(WEBPImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkImageDecoder* sk_libwebp_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_libwebp_dfactory(SkStreamRewindable* stream) {
     int width, height, hasAlpha;
     if (!webp_parse_header(stream, &width, &height, &hasAlpha)) {
         return NULL;
@@ -585,7 +585,7 @@ static SkImageDecoder* sk_libwebp_dfactory(SkStream* stream) {
     return SkNEW(SkWEBPImageDecoder);
 }
 
-static SkImageDecoder::Format get_format_webp(SkStream* stream) {
+static SkImageDecoder::Format get_format_webp(SkStreamRewindable* stream) {
     int width, height, hasAlpha;
     if (webp_parse_header(stream, &width, &height, &hasAlpha)) {
         return SkImageDecoder::kWEBP_Format;

@@ -152,7 +152,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 DEFINE_DECODER_CREATOR(WBMPImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_wbmp_dfactory(SkStreamRewindable* stream) {
     wbmp_head   head;
 
     if (head.init(stream)) {
@@ -161,7 +161,7 @@ static SkImageDecoder* sk_wbmp_dfactory(SkStream* stream) {
     return NULL;
 }
 
-static SkImageDecoder::Format get_format_wbmp(SkStream* stream) {
+static SkImageDecoder::Format get_format_wbmp(SkStreamRewindable* stream) {
     wbmp_head head;
     if (head.init(stream)) {
         return SkImageDecoder::kWBMP_Format;

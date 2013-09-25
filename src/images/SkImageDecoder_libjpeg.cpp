@@ -65,7 +65,7 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
 #ifdef SK_BUILD_FOR_ANDROID
 class SkJPEGImageIndex {
 public:
-    SkJPEGImageIndex(SkStream* stream, SkImageDecoder* decoder)
+    SkJPEGImageIndex(SkStreamRewindable* stream, SkImageDecoder* decoder)
         : fSrcMgr(stream, decoder)
         , fInfoInitialized(false)
         , fHuffmanCreated(false)
@@ -195,7 +195,7 @@ public:
 
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
-    virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
+    virtual bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
     virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
 #endif
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
@@ -638,7 +638,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
-bool SkJPEGImageDecoder::onBuildTileIndex(SkStream* stream, int *width, int *height) {
+bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width, int *height) {
 
     SkAutoTDelete<SkJPEGImageIndex> imageIndex(SkNEW_ARGS(SkJPEGImageIndex, (stream, this)));
     jpeg_decompress_struct* cinfo = imageIndex->cinfo();
@@ -1121,7 +1121,7 @@ DEFINE_DECODER_CREATOR(JPEGImageDecoder);
 DEFINE_ENCODER_CREATOR(JPEGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool is_jpeg(SkStream* stream) {
+static bool is_jpeg(SkStreamRewindable* stream) {
     static const unsigned char gHeader[] = { 0xFF, 0xD8, 0xFF };
     static const size_t HEADER_SIZE = sizeof(gHeader);
 
@@ -1137,14 +1137,15 @@ static bool is_jpeg(SkStream* stream) {
     return true;
 }
 
-static SkImageDecoder* sk_libjpeg_dfactory(SkStream* stream) {
+
+static SkImageDecoder* sk_libjpeg_dfactory(SkStreamRewindable* stream) {
     if (is_jpeg(stream)) {
         return SkNEW(SkJPEGImageDecoder);
     }
     return NULL;
 }
 
-static SkImageDecoder::Format get_format_jpeg(SkStream* stream) {
+static SkImageDecoder::Format get_format_jpeg(SkStreamRewindable* stream) {
     if (is_jpeg(stream)) {
         return SkImageDecoder::kJPEG_Format;
     }
@@ -1154,7 +1155,6 @@ static SkImageDecoder::Format get_format_jpeg(SkStream* stream) {
 static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
     return (SkImageEncoder::kJPEG_Type == t) ? SkNEW(SkJPEGImageEncoder) : NULL;
 }
-
 
 static SkImageDecoder_DecodeReg gDReg(sk_libjpeg_dfactory);
 static SkImageDecoder_FormatReg gFormatReg(get_format_jpeg);

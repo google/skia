@@ -356,7 +356,7 @@ DONE:
 DEFINE_DECODER_CREATOR(GIFImageDecoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool is_gif(SkStream* stream) {
+static bool is_gif(SkStreamRewindable* stream) {
     char buf[GIF_STAMP_LEN];
     if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
@@ -368,7 +368,7 @@ static bool is_gif(SkStream* stream) {
     return false;
 }
 
-static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
+static SkImageDecoder* sk_libgif_dfactory(SkStreamRewindable* stream) {
     if (is_gif(stream)) {
         return SkNEW(SkGIFImageDecoder);
     }
@@ -377,7 +377,7 @@ static SkImageDecoder* sk_libgif_dfactory(SkStream* stream) {
 
 static SkImageDecoder_DecodeReg gReg(sk_libgif_dfactory);
 
-static SkImageDecoder::Format get_format_gif(SkStream* stream) {
+static SkImageDecoder::Format get_format_gif(SkStreamRewindable* stream) {
     if (is_gif(stream)) {
         return SkImageDecoder::kGIF_Format;
     }

@@ -24,7 +24,7 @@ static SkImageRefPool* GetGlobalPool() {
     return gPool;
 }
 
-SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkStream* stream,
+SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkStreamRewindable* stream,
                                              SkBitmap::Config config,
                                              int sampleSize)
         : SkImageRef(stream, config, sampleSize, &gGlobalPoolMutex) {
@@ -44,7 +44,7 @@ SkImageRef_GlobalPool::~SkImageRef_GlobalPool() {
  *  that we also are already inside the mutex. Hence, we can reference
  *  the global-pool directly.
  */
-bool SkImageRef_GlobalPool::onDecode(SkImageDecoder* codec, SkStream* stream,
+bool SkImageRef_GlobalPool::onDecode(SkImageDecoder* codec, SkStreamRewindable* stream,
                                      SkBitmap* bitmap, SkBitmap::Config config,
                                      SkImageDecoder::Mode mode) {
     if (!this->INHERITED::onDecode(codec, stream, bitmap, config, mode)) {

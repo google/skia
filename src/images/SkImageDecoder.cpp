@@ -213,8 +213,8 @@ bool SkImageDecoder::decodeSubset(SkBitmap* bm, const SkIRect& rect,
     return this->onDecodeSubset(bm, rect);
 }
 
-bool SkImageDecoder::buildTileIndex(SkStream* stream,
-                                int *width, int *height) {
+bool SkImageDecoder::buildTileIndex(SkStreamRewindable* stream,
+                                    int *width, int *height) {
     // we reset this to false before calling onBuildTileIndex
     fShouldCancelDecode = false;
 
@@ -276,7 +276,7 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
     SkASSERT(file);
     SkASSERT(bm);
 
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(file));
+    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(file));
     if (stream.get()) {
         if (SkImageDecoder::DecodeStream(stream, bm, pref, mode, format)) {
             bm->pixelRef()->setURI(file);
@@ -445,8 +445,9 @@ bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
 }
 
 
-bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode mode, Format* format) {
+bool SkImageDecoder::DecodeStream(SkStreamRewindable* stream, SkBitmap* bm,
+                                  SkBitmap::Config pref, Mode mode,
+                                  Format* format) {
     SkASSERT(stream);
     SkASSERT(bm);
 

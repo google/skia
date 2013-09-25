@@ -12,13 +12,13 @@
 
 // This file is used for registration of SkImageDecoders. It also holds a function
 // for checking all the the registered SkImageDecoders for one that matches an
-// input SkStream.
+// input SkStreamRewindable.
 
 template SkImageDecoder_DecodeReg* SkImageDecoder_DecodeReg::gHead;
 
-SkImageDecoder* image_decoder_from_stream(SkStream*);
+SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
 
-SkImageDecoder* image_decoder_from_stream(SkStream* stream) {
+SkImageDecoder* image_decoder_from_stream(SkStreamRewindable* stream) {
     SkImageDecoder* codec = NULL;
     const SkImageDecoder_DecodeReg* curr = SkImageDecoder_DecodeReg::Head();
     while (curr) {
@@ -45,7 +45,7 @@ SkImageDecoder* image_decoder_from_stream(SkStream* stream) {
 
 template SkImageDecoder_FormatReg* SkImageDecoder_FormatReg::gHead;
 
-SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStream* stream) {
+SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStreamRewindable* stream) {
     const SkImageDecoder_FormatReg* curr = SkImageDecoder_FormatReg::Head();
     while (curr != NULL) {
         Format format = curr->factory()(stream);

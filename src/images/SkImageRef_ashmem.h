@@ -19,7 +19,7 @@ struct SkAshmemRec {
 
 class SkImageRef_ashmem : public SkImageRef {
 public:
-    SkImageRef_ashmem(SkStream*, SkBitmap::Config, int sampleSize = 1);
+    SkImageRef_ashmem(SkStreamRewindable*, SkBitmap::Config, int sampleSize = 1);
     virtual ~SkImageRef_ashmem();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageRef_ashmem)
@@ -28,7 +28,7 @@ protected:
     SkImageRef_ashmem(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
-    virtual bool onDecode(SkImageDecoder* codec, SkStream* stream,
+    virtual bool onDecode(SkImageDecoder* codec, SkStreamRewindable* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,
                           SkImageDecoder::Mode mode);
 

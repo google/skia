@@ -18,7 +18,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImageRef::SkImageRef(SkStream* stream, SkBitmap::Config config,
+SkImageRef::SkImageRef(SkStreamRewindable* stream, SkBitmap::Config config,
                        int sampleSize, SkBaseMutex* mutex)
         : SkPixelRef(mutex), fErrorInDecoding(false) {
     SkASSERT(stream);
@@ -79,7 +79,7 @@ SkImageDecoderFactory* SkImageRef::setDecoderFactory(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkImageRef::onDecode(SkImageDecoder* codec, SkStream* stream,
+bool SkImageRef::onDecode(SkImageDecoder* codec, SkStreamRewindable* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,
                           SkImageDecoder::Mode mode) {
     return codec->decode(stream, bitmap, config, mode);

@@ -16,7 +16,7 @@
 #include "SkString.h"
 
 class SkImageRefPool;
-class SkStream;
+class SkStreamRewindable;
 
 // define this to enable dumping whenever we add/remove/purge an imageref
 //#define DUMP_IMAGEREF_LIFECYCLE
@@ -34,7 +34,8 @@ public:
         @param config The preferred config of the decoded bitmap.
         @param sampleSize Requested sampleSize for decoding. Defaults to 1.
     */
-    SkImageRef(SkStream*, SkBitmap::Config config, int sampleSize = 1, SkBaseMutex* mutex = NULL);
+    SkImageRef(SkStreamRewindable*, SkBitmap::Config config, int sampleSize = 1,
+               SkBaseMutex* mutex = NULL);
     virtual ~SkImageRef();
 
     /** this value is passed onto the decoder. Default is true
@@ -64,7 +65,7 @@ protected:
     /** Override if you want to install a custom allocator.
         When this is called we will have already acquired the mutex!
     */
-    virtual bool onDecode(SkImageDecoder* codec, SkStream*, SkBitmap*,
+    virtual bool onDecode(SkImageDecoder* codec, SkStreamRewindable*, SkBitmap*,
                           SkBitmap::Config, SkImageDecoder::Mode);
 
     /*  Overrides from SkPixelRef
@@ -81,13 +82,13 @@ protected:
     SkBitmap fBitmap;
 
 private:
-    SkStream* setStream(SkStream*);
+    SkStreamRewindable* setStream(SkStreamRewindable*);
     // called with mutex already held. returns true if the bitmap is in the
     // requested state (or further, i.e. has pixels)
     bool prepareBitmap(SkImageDecoder::Mode);
 
     SkImageDecoderFactory*  fFactory;    // may be null
-    SkStream*               fStream;
+    SkStreamRewindable*     fStream;
     SkBitmap::Config        fConfig;
     int                     fSampleSize;
     bool                    fDoDither;

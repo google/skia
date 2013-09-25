@@ -230,9 +230,9 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
 
 /////////////////////////////////////////////////////////////////////////
 
-extern SkImageDecoder* image_decoder_from_stream(SkStream*);
+extern SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
 
-SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
+SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
     SkImageDecoder* decoder = image_decoder_from_stream(stream);
     if (NULL == decoder) {
         // If no image decoder specific to the stream exists, use SkImageDecoder_WIC.
@@ -244,7 +244,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
 
 /////////////////////////////////////////////////////////////////////////
 
-SkMovie* SkMovie::DecodeStream(SkStream* stream) {
+SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
     return NULL;
 }
 
@@ -417,8 +417,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
 static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     switch (t) {
         case SkImageEncoder::kBMP_Type:
@@ -432,9 +430,9 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
     return SkNEW_ARGS(SkImageEncoder_WIC, (t));
 }
 
-static SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> gEReg(sk_imageencoder_wic_factory);
+static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
 
-static SkImageDecoder::Format get_format_wic(SkStream* stream) {
+static SkImageDecoder::Format get_format_wic(SkStreamRewindable* stream) {
     SkImageDecoder::Format format;
     SkImageDecoder_WIC codec;
     if (!codec.decodeStream(stream, NULL, SkImageDecoder_WIC::kDecodeFormat_WICMode, &format)) {
@@ -443,4 +441,4 @@ static SkImageDecoder::Format get_format_wic(SkStream* stream) {
     return format;
 }
 
-static SkTRegistry<SkImageDecoder::Format(*)(SkStream*)> gFormatReg(get_format_wic);
+static SkImageDecoder_FormatReg gFormatReg(get_format_wic);

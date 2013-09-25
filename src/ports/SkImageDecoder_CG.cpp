@@ -126,9 +126,9 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-extern SkImageDecoder* image_decoder_from_stream(SkStream*);
+extern SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
 
-SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
+SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
     SkImageDecoder* decoder = image_decoder_from_stream(stream);
     if (NULL == decoder) {
         // If no image decoder specific to the stream exists, use SkImageDecoder_CG.
@@ -140,7 +140,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
 
 /////////////////////////////////////////////////////////////////////////
 
-SkMovie* SkMovie::DecodeStream(SkStream* stream) {
+SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
     return NULL;
 }
 
@@ -244,8 +244,6 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTRegistry.h"
-
 static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
     switch (t) {
         case SkImageEncoder::kICO_Type:
@@ -260,7 +258,7 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
     return SkNEW_ARGS(SkImageEncoder_CG, (t));
 }
 
-static SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> gEReg(sk_imageencoder_cg_factory);
+static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_cg_factory);
 
 struct FormatConversion {
     CFStringRef             fUTType;
@@ -287,7 +285,7 @@ static SkImageDecoder::Format UTType_to_Format(const CFStringRef uttype) {
     return SkImageDecoder::kUnknown_Format;
 }
 
-static SkImageDecoder::Format get_format_cg(SkStream *stream) {
+static SkImageDecoder::Format get_format_cg(SkStreamRewindable* stream) {
     CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
 
     if (NULL == imageSrc) {
@@ -302,4 +300,4 @@ static SkImageDecoder::Format get_format_cg(SkStream *stream) {
     return UTType_to_Format(name);
 }
 
-static SkTRegistry<SkImageDecoder::Format(*)(SkStream*)> gFormatReg(get_format_cg);
+static SkImageDecoder_FormatReg gFormatReg(get_format_cg);

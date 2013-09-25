@@ -42,7 +42,7 @@ extern "C" {
 
 class SkPNGImageIndex {
 public:
-    SkPNGImageIndex(SkStream* stream, png_structp png_ptr, png_infop info_ptr)
+    SkPNGImageIndex(SkStreamRewindable* stream, png_structp png_ptr, png_infop info_ptr)
         : fStream(stream)
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
@@ -56,10 +56,10 @@ public:
         }
     }
 
-    SkAutoTUnref<SkStream>  fStream;
-    png_structp             fPng_ptr;
-    png_infop               fInfo_ptr;
-    SkBitmap::Config        fConfig;
+    SkAutoTUnref<SkStreamRewindable>    fStream;
+    png_structp                         fPng_ptr;
+    png_infop                           fInfo_ptr;
+    SkBitmap::Config                    fConfig;
 };
 
 class SkPNGImageDecoder : public SkImageDecoder {
@@ -77,7 +77,7 @@ public:
 
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
-    virtual bool onBuildTileIndex(SkStream *stream, int *width, int *height) SK_OVERRIDE;
+    virtual bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
     virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& region) SK_OVERRIDE;
 #endif
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
@@ -123,7 +123,7 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
 
 #ifdef SK_BUILD_FOR_ANDROID
 static void sk_seek_fn(png_structp png_ptr, png_uint_32 offset) {
-    SkStream* sk_stream = (SkStream*) png_get_io_ptr(png_ptr);
+    SkStreamRewindable* sk_stream = (SkStreamRewindable*) png_get_io_ptr(png_ptr);
     if (!sk_stream->rewind()) {
         png_error(png_ptr, "Failed to rewind stream!");
     }
@@ -667,7 +667,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
 
 #ifdef SK_BUILD_FOR_ANDROID
 
-bool SkPNGImageDecoder::onBuildTileIndex(SkStream* sk_stream, int *width, int *height) {
+bool SkPNGImageDecoder::onBuildTileIndex(SkStreamRewindable* sk_stream, int *width, int *height) {
     png_structp png_ptr;
     png_infop   info_ptr;
 
@@ -1174,7 +1174,7 @@ DEFINE_DECODER_CREATOR(PNGImageDecoder);
 DEFINE_ENCODER_CREATOR(PNGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool is_png(SkStream* stream) {
+static bool is_png(SkStreamRewindable* stream) {
     char buf[PNG_BYTES_TO_CHECK];
     if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&
         !png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
@@ -1183,14 +1183,14 @@ static bool is_png(SkStream* stream) {
     return false;
 }
 
-SkImageDecoder* sk_libpng_dfactory(SkStream* stream) {
+SkImageDecoder* sk_libpng_dfactory(SkStreamRewindable* stream) {
     if (is_png(stream)) {
         return SkNEW(SkPNGImageDecoder);
     }
     return NULL;
 }
 
-static SkImageDecoder::Format get_format_png(SkStream* stream) {
+static SkImageDecoder::Format get_format_png(SkStreamRewindable* stream) {
     if (is_png(stream)) {
         return SkImageDecoder::kPNG_Format;
     }

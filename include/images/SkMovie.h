@@ -13,7 +13,7 @@
 #include "SkRefCnt.h"
 #include "SkCanvas.h"
 
-class SkStream;
+class SkStreamRewindable;
 
 class SkMovie : public SkRefCnt {
 public:
@@ -22,7 +22,7 @@ public:
     /** Try to create a movie from the stream. If the stream format is not
         supported, return NULL.
     */
-    static SkMovie* DecodeStream(SkStream*);
+    static SkMovie* DecodeStream(SkStreamRewindable*);
     /** Try to create a movie from the specified file path. If the file is not
         found, or the format is not supported, return NULL. If a movie is
         returned, the stream may be retained by the movie (via ref()) until

@@ -34,7 +34,7 @@
 
 static SkBitmap load_bitmap() {
     SkBitmap bm;
-    SkStream* stream = SkStream::NewFromFile("/skimages/sesame_street_ensemble-hp.jpg");
+    SkStreamAsset* stream = SkStream::NewFromFile("/skimages/sesame_street_ensemble-hp.jpg");
     if (stream) {
         SkAutoUnref aur(stream);
 

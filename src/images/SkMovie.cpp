@@ -92,6 +92,6 @@ SkMovie* SkMovie::DecodeMemory(const void* data, size_t length) {
 }
 
 SkMovie* SkMovie::DecodeFile(const char path[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(path));
     return stream.get() ? SkMovie::DecodeStream(stream) : NULL;
 }
