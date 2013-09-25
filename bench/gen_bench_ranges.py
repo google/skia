@@ -5,13 +5,13 @@
 
 """ Analyze recent SkPicture or Microbench data, and output suggested ranges.
 
-The outputs can be edited and pasted to bench_expectations.txt to trigger
-buildbot alerts if the actual benches are out of range. Details are documented
-in the .txt file.
+The outputs can be edited and pasted to bench_expectations_<builder>.txt to
+trigger buildbot alerts if the actual benches are out of range. Details are
+documented in the corresponding .txt file for each builder.
 
-Currently the easiest way to batch update bench_expectations.txt is to delete
-all bench lines, run this script, and redirect outputs (">>") to be added to the
-.txt file.
+Currently the easiest way to batch update bench_expectations_<builder>.txt is to
+delete all bench lines, run this script, and redirect outputs (">>") to be added
+to the corresponding .txt file for each perf builder.
 You can also just manually change a few lines of interest, of course.
 
 Note: since input data are stored in Google Storage, you will need to set up
