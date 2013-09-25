@@ -25,31 +25,6 @@
         'sources/': [ ['exclude', '_nacl.(h|cpp)$'],
         ],
       }],
-      [ 'skia_os == "android"', {
-        'defines': [
-          'GR_ANDROID_BUILD=1',
-        ],
-      }],
-      [ 'skia_os == "mac"', {
-        'defines': [
-          'GR_MAC_BUILD=1',
-        ],
-      }],
-      [ 'skia_os == "linux" or skia_os == "chromeos"', {
-        'defines': [
-          'GR_LINUX_BUILD=1',
-        ],
-      }],
-      [ 'skia_os == "ios"', {
-        'defines': [
-          'GR_IOS_BUILD=1',
-        ],
-      }],
-      [ 'skia_os == "win"', {
-        'defines': [
-          'GR_WIN32_BUILD=1',
-        ],
-      }],
       # nullify the targets in this gyp file if skia_gpu is 0
       [ 'skia_gpu == 0', {
         'sources/': [
@@ -83,29 +58,8 @@
     ],
     'direct_dependent_settings': {
       'conditions': [
-        [ 'skia_os == "android"', {
-          'defines': [
-            'GR_ANDROID_BUILD=1',
-          ],
-        }],
-        [ 'skia_os == "mac"', {
-          'defines': [
-            'GR_MAC_BUILD=1',
-          ],
-        }],
-        [ 'skia_os == "linux"', {
-          'defines': [
-            'GR_LINUX_BUILD=1',
-          ],
-        }],
-        [ 'skia_os == "ios"', {
-          'defines': [
-            'GR_IOS_BUILD=1',
-          ],
-        }],
         [ 'skia_os == "win"', {
           'defines': [
-            'GR_WIN32_BUILD=1',
             'GR_GL_FUNCTION_TYPE=__stdcall',
           ],
         }],

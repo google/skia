@@ -32,63 +32,14 @@
  *  Gr defines are set to 0 or 1, rather than being undefined or defined
  */
 
-#if !defined(GR_ANDROID_BUILD)
-    #define GR_ANDROID_BUILD    0
-#endif
-#if !defined(GR_IOS_BUILD)
-    #define GR_IOS_BUILD        0
-#endif
-#if !defined(GR_LINUX_BUILD)
-    #define GR_LINUX_BUILD      0
-#endif
-#if !defined(GR_MAC_BUILD)
-    #define GR_MAC_BUILD        0
-#endif
-#if !defined(GR_WIN32_BUILD)
-    #define GR_WIN32_BUILD      0
-#endif
-#if !defined(GR_QNX_BUILD)
-    #define GR_QNX_BUILD        0
-#endif
 #if !defined(GR_CACHE_STATS)
     #define GR_CACHE_STATS      0
 #endif
 
-/**
- *  If no build target has been defined, attempt to infer.
- */
-#if !GR_ANDROID_BUILD && !GR_IOS_BUILD && !GR_LINUX_BUILD && !GR_MAC_BUILD && !GR_WIN32_BUILD && !GR_QNX_BUILD
-    #if defined(_WIN32)
-        #undef GR_WIN32_BUILD
-        #define GR_WIN32_BUILD      1
-//      #error "WIN"
-    #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-        #undef GR_IOS_BUILD
-        #define GR_IOS_BUILD        1
-//      #error "IOS"
-    #elif defined(SK_BUILD_FOR_ANDROID)
-        #undef GR_ANDROID_BUILD
-        #define GR_ANDROID_BUILD    1
-//      #error "ANDROID"
-    #elif TARGET_OS_MAC
-        #undef GR_MAC_BUILD
-        #define GR_MAC_BUILD        1
-//      #error "MAC"
-    #elif TARGET_OS_QNX || defined(__QNXNTO__)
-        #undef GR_QNX_BUILD
-        #define GR_QNX_BUILD        1
-//      #error "QNX"
-    #else
-        #undef GR_LINUX_BUILD
-        #define GR_LINUX_BUILD      1
-//      #error "LINUX"
-    #endif
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_WIN32_BUILD
+#if defined(SK_BUILD_FOR_WIN32)
 // VC8 doesn't support stdint.h, so we define those types here.
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -176,7 +127,7 @@ typedef unsigned __int64 uint64_t;
  *  GR_ALWAYSBREAK is an unconditional break in all builds.
  */
 #if !defined(GR_ALWAYSBREAK)
-    #if     GR_WIN32_BUILD
+    #if     defined(SK_BUILD_FOR_WIN32)
         #define GR_ALWAYSBREAK SkNO_RETURN_HINT(); __debugbreak()
     #else
         // TODO: do other platforms really not have continuable breakpoints?
@@ -279,45 +230,6 @@ inline void GrDebugCrash(const char* msg) { GrPrintf(msg); SkASSERT(false); }
  */
 #if !defined(GR_STROKE_PATH_RENDERING)
     #define GR_STROKE_PATH_RENDERING                 0
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// tail section:
-//
-// Now we just assert if we are missing some required define, or if we detect
-// and inconsistent combination of defines
-//
-
-
-/**
- *  Only one build target macro should be 1 and the rest should be 0.
- */
-#define GR_BUILD_SUM    (GR_WIN32_BUILD + GR_MAC_BUILD + GR_IOS_BUILD + GR_ANDROID_BUILD + GR_LINUX_BUILD + GR_QNX_BUILD)
-#if 0 == GR_BUILD_SUM
-    #error "Missing a GR_BUILD define"
-#elif 1 != GR_BUILD_SUM
-    #error "More than one GR_BUILD defined"
-#endif
-
-#if 0
-#if GR_WIN32_BUILD
-//    #pragma message GR_WARN("GR_WIN32_BUILD")
-#endif
-#if GR_MAC_BUILD
-//    #pragma message GR_WARN("GR_MAC_BUILD")
-#endif
-#if GR_IOS_BUILD
-//    #pragma message GR_WARN("GR_IOS_BUILD")
-#endif
-#if GR_ANDROID_BUILD
-//    #pragma message GR_WARN("GR_ANDROID_BUILD")
-#endif
-#if GR_LINUX_BUILD
-//    #pragma message GR_WARN("GR_LINUX_BUILD")
-#endif
-#if GR_QNX_BUILD
-//    #pragma message GR_WARN("GR_QNX_BUILD")
-#endif
 #endif
 
 #endif

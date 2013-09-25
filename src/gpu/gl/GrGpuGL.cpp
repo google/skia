@@ -1604,9 +1604,9 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #define SWAP_PER_DRAW 0
 
 #if SWAP_PER_DRAW
-    #if GR_MAC_BUILD
+    #if defined(SK_BUILD_FOR_MAC)
         #include <AGL/agl.h>
-    #elif GR_WIN32_BUILD
+    #elif defined(SK_BUILD_FOR_WIN32)
         #include <gl/GL.h>
         void SwapBuf() {
             DWORD procID = GetCurrentProcessId();
@@ -1645,11 +1645,11 @@ void GrGpuGL::onGpuDraw(const DrawInfo& info) {
     }
 #if SWAP_PER_DRAW
     glFlush();
-    #if GR_MAC_BUILD
+    #if defined(SK_BUILD_FOR_MAC)
         aglSwapBuffers(aglGetCurrentContext());
         int set_a_break_pt_here = 9;
         aglSwapBuffers(aglGetCurrentContext());
-    #elif GR_WIN32_BUILD
+    #elif defined(SK_BUILD_FOR_WIN32)
         SwapBuf();
         int set_a_break_pt_here = 9;
         SwapBuf();

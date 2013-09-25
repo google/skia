@@ -205,7 +205,7 @@
  * OS/driver level fix.
  */
 #define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND   \
-    (GR_MAC_BUILD &&                                    \
+    (defined(SK_BUILD_FOR_MAC) &&                       \
      !GR_GL_USE_BUFFER_DATA_NULL_HINT)
 
 #endif
