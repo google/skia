@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -14,6 +13,8 @@ const char* SkTriState::Name[] = { "default", "true", "false" };
 SK_DEFINE_INST_COUNT(SkBenchmark)
 
 template BenchRegistry* BenchRegistry::gHead;
+
+SkString SkBenchmark::gResourcePath;
 
 SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;

@@ -10,6 +10,7 @@
 
 #include "SkRefCnt.h"
 #include "SkPoint.h"
+#include "SkString.h"
 #include "SkTRegistry.h"
 
 #define DEF_BENCH(code) \
@@ -106,6 +107,10 @@ public:
     //   for (int i = 0; i < this->getLoops(); i++) { <work here> }
     int getLoops() const { return fLoops; }
 
+    static void SetResourcePath(const char* resPath) { gResourcePath.set(resPath); }
+
+    static SkString& GetResourcePath() { return gResourcePath; }
+
 protected:
     virtual void setupPaint(SkPaint* paint);
 
@@ -125,6 +130,7 @@ private:
     SkTriState::State  fDither;
     uint32_t    fOrMask, fClearMask;
     int fLoops;
+    static  SkString gResourcePath;
 
     typedef SkRefCnt INHERITED;
 };

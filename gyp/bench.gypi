@@ -62,6 +62,7 @@
     '../bench/RTreeBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
+    '../bench/SkipZeroesBench.cpp',
     '../bench/SortBench.cpp',
     '../bench/StrokeBench.cpp',
     '../bench/TableBench.cpp',

@@ -284,6 +284,7 @@ DEFINE_double(error, 0.01,
               "Ratio of subsequent bench measurements must drop within 1±error to converge.");
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
 DEFINE_bool2(verbose, v, false, "Print more.");
+DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
 
 // Has this bench converged?  First arguments are milliseconds / loop iteration,
 // last is overall runtime in milliseconds.
@@ -357,6 +358,11 @@ int tool_main(int argc, char** argv) {
             }
         }
     }
+    // Set the resource path.
+    if (!FLAGS_resourcePath.isEmpty()) {
+        SkBenchmark::SetResourcePath(FLAGS_resourcePath[0]);
+    }
+
 #if SK_SUPPORT_GPU
     for (int i = 0; i < configs.count(); ++i) {
         const Config& config = gConfigs[configs[i]];

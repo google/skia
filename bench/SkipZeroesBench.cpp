@@ -1,0 +1,115 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkBenchmark.h"
+#include "SkBitmap.h"
+#include "SkData.h"
+#include "SkForceLinking.h"
+#include "SkImageDecoder.h"
+#include "SkOSFile.h"
+#include "SkStream.h"
+#include "SkString.h"
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
+
+class SkCanvas;
+
+class SkipZeroesBench : public SkBenchmark {
+public:
+    SkipZeroesBench(const char* filename, bool skipZeroes)
+    : fName("SkipZeroes_")
+    , fDecoder(NULL)
+    , fFilename(filename)
+    , fStream()
+    , fSkipZeroes(skipZeroes)
+    , fValid(false) {
+        fName.append(filename);
+        if (skipZeroes) {
+            fName.append("_skip_zeroes");
+        } else {
+            fName.append("_write_zeroes");
+        }
+        fIsRendering = false;
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        const char* resPath = GetResourcePath().c_str();
+        if (NULL == resPath) {
+            fValid = false;
+            return;
+        }
+
+        SkString fullPath = SkOSPath::SkPathJoin(resPath, fFilename.c_str());
+        SkFILEStream fileStream(fullPath.c_str());
+        fValid = fileStream.isValid() && fileStream.getLength() > 0;
+        if (fValid) {
+            const size_t size = fileStream.getLength();
+            void* data = sk_malloc_throw(size);
+            if (fileStream.read(data, size) < size) {
+                fValid = false;
+            } else {
+                SkAutoTUnref<SkData> skdata(SkData::NewFromMalloc(data, size));
+                fStream.setData(skdata.get());
+                fDecoder.reset(SkImageDecoder::Factory(&fStream));
+                if (fDecoder.get()) {
+                    // Disabling until the feature is checked in.
+                    // See https://codereview.chromium.org/24269006/
+                    //fDecoder->setSkipWritingZeroes(fSkipZeroes);
+                } else {
+                    fValid = false;
+                }
+            }
+        }
+    }
+
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+        if (!fValid) {
+#ifdef SK_DEBUG
+            SkDebugf("stream was invalid: %s\n", fFilename.c_str());
+#endif
+            return;
+        }
+        // Decode a bunch of times
+        SkBitmap bm;
+        for (int i = 0; i < this->getLoops(); ++i) {
+            SkDEBUGCODE(bool success =) fDecoder->decode(&fStream, &bm,
+                                                         SkImageDecoder::kDecodePixels_Mode);
+#ifdef SK_DEBUG
+            if (!success) {
+                SkDebugf("failed to decode %s\n", fFilename.c_str());
+                return;
+            }
+#endif
+            SkDEBUGCODE(success =) fStream.rewind();
+#ifdef SK_DEBUG
+            if (!success) {
+                SkDebugf("failed to rewind %s\n", fFilename.c_str());
+                return;
+            }
+#endif
+        }
+    }
+
+private:
+    SkString                        fName;
+    SkAutoTDelete<SkImageDecoder>   fDecoder;
+    const SkString                  fFilename;
+    SkMemoryStream                  fStream;
+    bool                            fSkipZeroes;
+    bool                            fValid;
+
+    typedef SkBenchmark INHERITED;
+};
+
+// Enable the true version once the feature is checked in.
+//DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", true)));
+DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", false)));
