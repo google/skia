@@ -54,6 +54,25 @@ public:
     static size_t GetFontCacheUsed();
 
     /**
+     *  Return the number of entries in the font cache.
+     *  A cache "entry" is associated with each typeface + pointSize + matrix.
+     */
+    static int GetFontCacheCountUsed();
+
+    /**
+     *  Return the current limit to the number of entries in the font cache.
+     *  A cache "entry" is associated with each typeface + pointSize + matrix.
+     */
+    static int GetFontCacheCountLimit();
+
+    /**
+     *  Set the limit to the number of entries in the font cache, and return
+     *  the previous value. If this new value is lower than the previous,
+     *  it will automatically try to purge entries to meet the new limit.
+     */
+    static int SetFontCacheCountLimit(int count);
+    
+    /**
      *  For debugging purposes, this will attempt to purge the font cache. It
      *  does not change the limit, but will cause subsequent font measures and
      *  draws to be recreated, since they will no longer be in the cache.
