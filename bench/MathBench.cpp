@@ -512,6 +512,42 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
+class DivModBench : public SkBenchmark {
+    const char* fName;
+public:
+    explicit DivModBench(const char* name) : fName(name) {
+        fIsRendering = false;
+    }
+
+protected:
+    virtual const char* onGetName() {
+        return SkStringPrintf("divmod_%s", fName).c_str();
+    }
+
+    virtual void onDraw(SkCanvas*) {
+        volatile T a = 0, b = 0;
+        T div = 0, mod = 0;
+        for (int i = 0; i < this->getLoops(); i++) {
+            if ((T)i == 0) continue;  // Small T will wrap around.
+            SkTDivMod((T)(i+1), (T)i, &div, &mod);
+            a ^= div;
+            b ^= mod;
+        }
+    }
+};
+DEF_BENCH(return new DivModBench<uint8_t>("uint8_t"))
+DEF_BENCH(return new DivModBench<uint16_t>("uint16_t"))
+DEF_BENCH(return new DivModBench<uint32_t>("uint32_t"))
+DEF_BENCH(return new DivModBench<uint64_t>("uint64_t"))
+
+DEF_BENCH(return new DivModBench<int8_t>("int8_t"))
+DEF_BENCH(return new DivModBench<int16_t>("int16_t"))
+DEF_BENCH(return new DivModBench<int32_t>("int32_t"))
+DEF_BENCH(return new DivModBench<int64_t>("int64_t"))
+
+///////////////////////////////////////////////////////////////////////////////
+
 DEF_BENCH( return new NoOpMathBench(); )
 DEF_BENCH( return new SlowISqrtMathBench(); )
 DEF_BENCH( return new FastISqrtMathBench(); )

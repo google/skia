@@ -173,4 +173,26 @@ static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+/**
+ * Stores numer/denom and numer%denom into div and mod respectively.
+ */
+template <typename In, typename Out>
+inline void SkTDivMod(In numer, In denom, Out* div, Out* mod) {
+#ifdef SK_CPU_ARM
+    // If we wrote this as in the else branch, GCC won't fuse the two into one
+    // divmod call, but rather a div call followed by a divmod.  Silly!  This
+    // version is just as fast as calling __aeabi_[u]idivmod manually, but with
+    // prettier code.
+    //
+    // This benches as around 2x faster than the code in the else branch.
+    const In d = numer/denom;
+    *div = static_cast<Out>(d);
+    *mod = static_cast<Out>(numer-d*denom);
+#else
+    // On x86 this will just be a single idiv.
+    *div = static_cast<Out>(numer/denom);
+    *mod = static_cast<Out>(numer%denom);
+#endif  // SK_CPU_ARM
+}
+
 #endif

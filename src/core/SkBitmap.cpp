@@ -911,9 +911,8 @@ bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t r
         return true;
     }
     // Use integer division to find the correct y position.
-    *y = SkToS32(offset / rowBytes);
     // The remainder will be the x position, after we reverse get_sub_offset.
-    *x = SkToS32(offset % rowBytes);
+    SkTDivMod(offset, rowBytes, y, x);
     switch (config) {
         case SkBitmap::kA8_Config:
             // Fall through.

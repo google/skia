@@ -48,10 +48,9 @@ struct Key {
             return false;
         }
 
-        size_t offset = bm.pixelRefOffset();
-        size_t rowBytes = bm.rowBytes();
-        int x = (offset % rowBytes) >> 2;
-        int y = offset / rowBytes;
+        size_t x, y;
+        SkTDivMod(bm.pixelRefOffset(), bm.rowBytes(), &y, &x);
+        x >>= 2;
 
         fGenID = pr->getGenerationID();
         fBounds.set(x, y, x + bm.width(), y + bm.height());
