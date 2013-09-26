@@ -24,4 +24,6 @@
 # Added by robertphillips as part of https://codereview.chromium.org/23532082/
 hairlines
 
+# Added by sugoi as part of https://codereview.chromium.org/24157005/
+xfermodes
 
