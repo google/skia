@@ -358,88 +358,130 @@ static const uint8_t gDitherMatrix_Neon[48] = {
 void S32_D565_Blend_Dither_neon(uint16_t *dst, const SkPMColor *src,
                                 int count, U8CPU alpha, int x, int y)
 {
-    /* select row and offset for dither array */
-    const uint8_t *dstart = &gDitherMatrix_Neon[(y&3)*12 + (x&3)];
 
-    /* rescale alpha to range 0 - 256 */
+    SkASSERT(255 > alpha);
+
+    // rescale alpha to range 1 - 256
     int scale = SkAlpha255To256(alpha);
 
-    asm volatile (
-                  "vld1.8         {d31}, [%[dstart]]              \n\t"   // load dither values
-                  "vshr.u8        d30, d31, #1                    \n\t"   // calc. green dither values
-                  "vdup.16        d6, %[scale]                    \n\t"   // duplicate scale into neon reg
-                  "vmov.i8        d29, #0x3f                      \n\t"   // set up green mask
-                  "vmov.i8        d28, #0x1f                      \n\t"   // set up blue mask
-                  "1:                                                 \n\t"
-                  "vld4.8         {d0, d1, d2, d3}, [%[src]]!     \n\t"   // load 8 pixels and split into argb
-                  "vshr.u8        d22, d0, #5                     \n\t"   // calc. red >> 5
-                  "vshr.u8        d23, d1, #6                     \n\t"   // calc. green >> 6
-                  "vshr.u8        d24, d2, #5                     \n\t"   // calc. blue >> 5
-                  "vaddl.u8       q8, d0, d31                     \n\t"   // add in dither to red and widen
-                  "vaddl.u8       q9, d1, d30                     \n\t"   // add in dither to green and widen
-                  "vaddl.u8       q10, d2, d31                    \n\t"   // add in dither to blue and widen
-                  "vsubw.u8       q8, q8, d22                     \n\t"   // sub shifted red from result
-                  "vsubw.u8       q9, q9, d23                     \n\t"   // sub shifted green from result
-                  "vsubw.u8       q10, q10, d24                   \n\t"   // sub shifted blue from result
-                  "vshrn.i16      d22, q8, #3                     \n\t"   // shift right and narrow to 5 bits
-                  "vshrn.i16      d23, q9, #2                     \n\t"   // shift right and narrow to 6 bits
-                  "vshrn.i16      d24, q10, #3                    \n\t"   // shift right and narrow to 5 bits
-                  // load 8 pixels from dst, extract rgb
-                  "vld1.16        {d0, d1}, [%[dst]]              \n\t"   // load 8 pixels
-                  "vshrn.i16      d17, q0, #5                     \n\t"   // shift green down to bottom 6 bits
-                  "vmovn.i16      d18, q0                         \n\t"   // narrow to get blue as bytes
-                  "vshr.u16       q0, q0, #11                     \n\t"   // shift down to extract red
-                  "vand           d17, d17, d29                   \n\t"   // and green with green mask
-                  "vand           d18, d18, d28                   \n\t"   // and blue with blue mask
-                  "vmovn.i16      d16, q0                         \n\t"   // narrow to get red as bytes
-                  // src = {d22 (r), d23 (g), d24 (b)}
-                  // dst = {d16 (r), d17 (g), d18 (b)}
-                  // subtract dst from src and widen
-                  "vsubl.s8       q0, d22, d16                    \n\t"   // subtract red src from dst
-                  "vsubl.s8       q1, d23, d17                    \n\t"   // subtract green src from dst
-                  "vsubl.s8       q2, d24, d18                    \n\t"   // subtract blue src from dst
-                  // multiply diffs by scale and shift
-                  "vmul.i16       q0, q0, d6[0]                   \n\t"   // multiply red by scale
-                  "vmul.i16       q1, q1, d6[0]                   \n\t"   // multiply blue by scale
-                  "vmul.i16       q2, q2, d6[0]                   \n\t"   // multiply green by scale
-                  "subs           %[count], %[count], #8          \n\t"   // decrement loop counter
-                  "vshrn.i16      d0, q0, #8                      \n\t"   // shift down red by 8 and narrow
-                  "vshrn.i16      d2, q1, #8                      \n\t"   // shift down green by 8 and narrow
-                  "vshrn.i16      d4, q2, #8                      \n\t"   // shift down blue by 8 and narrow
-                  // add dst to result
-                  "vaddl.s8       q0, d0, d16                     \n\t"   // add dst to red
-                  "vaddl.s8       q1, d2, d17                     \n\t"   // add dst to green
-                  "vaddl.s8       q2, d4, d18                     \n\t"   // add dst to blue
-                  // put result into 565 format
-                  "vsli.i16       q2, q1, #5                      \n\t"   // shift up green and insert into blue
-                  "vsli.i16       q2, q0, #11                     \n\t"   // shift up red and insert into blue
-                  "vst1.16        {d4, d5}, [%[dst]]!             \n\t"   // store result
-                  "bgt            1b                              \n\t"   // loop if count > 0
-                  : [src] "+r" (src), [dst] "+r" (dst), [count] "+r" (count)
-                  : [dstart] "r" (dstart), [scale] "r" (scale)
-                  : "cc", "memory", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d28", "d29", "d30", "d31"
-                  );
+    if (count >= 8) {
+        /* select row and offset for dither array */
+        const uint8_t *dstart = &gDitherMatrix_Neon[(y&3)*12 + (x&3)];
 
-    DITHER_565_SCAN(y);
+        uint8x8_t vdither = vld1_u8(dstart);         // load dither values
+        uint8x8_t vdither_g = vshr_n_u8(vdither, 1); // calc. green dither values
 
-    while((count & 7) > 0)
-    {
-        SkPMColor c = *src++;
+        int16x8_t vscale = vdupq_n_s16(scale);        // duplicate scale into neon reg
+        uint16x8_t vmask_b = vdupq_n_u16(0x1F);         // set up blue mask
 
-        int dither = DITHER_VALUE(x);
-        int sr = SkGetPackedR32(c);
-        int sg = SkGetPackedG32(c);
-        int sb = SkGetPackedB32(c);
-        sr = SkDITHER_R32To565(sr, dither);
-        sg = SkDITHER_G32To565(sg, dither);
-        sb = SkDITHER_B32To565(sb, dither);
+        do {
 
-        uint16_t d = *dst;
-        *dst++ = SkPackRGB16(SkAlphaBlend(sr, SkGetPackedR16(d), scale),
-                             SkAlphaBlend(sg, SkGetPackedG16(d), scale),
-                             SkAlphaBlend(sb, SkGetPackedB16(d), scale));
-        DITHER_INC_X(x);
-        count--;
+            uint8x8_t vsrc_r, vsrc_g, vsrc_b;
+            uint8x8_t vsrc565_r, vsrc565_g, vsrc565_b;
+            uint16x8_t vsrc_dit_r, vsrc_dit_g, vsrc_dit_b;
+            uint16x8_t vsrc_res_r, vsrc_res_g, vsrc_res_b;
+            uint16x8_t vdst;
+            uint16x8_t vdst_r, vdst_g, vdst_b;
+            int16x8_t vres_r, vres_g, vres_b;
+            int8x8_t vres8_r, vres8_g, vres8_b;
+
+            // Load source and add dither
+            {
+            register uint8x8_t d0 asm("d0");
+            register uint8x8_t d1 asm("d1");
+            register uint8x8_t d2 asm("d2");
+            register uint8x8_t d3 asm("d3");
+
+            asm (
+                "vld4.8    {d0-d3},[%[src]]!  /* r=%P0 g=%P1 b=%P2 a=%P3 */"
+                : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3), [src] "+&r" (src)
+                :
+            );
+            vsrc_g = d1;
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+            vsrc_r = d2; vsrc_b = d0;
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+            vsrc_r = d0; vsrc_b = d2;
+#endif
+            }
+
+            vsrc565_g = vshr_n_u8(vsrc_g, 6); // calc. green >> 6
+            vsrc565_r = vshr_n_u8(vsrc_r, 5); // calc. red >> 5
+            vsrc565_b = vshr_n_u8(vsrc_b, 5); // calc. blue >> 5
+
+            vsrc_dit_g = vaddl_u8(vsrc_g, vdither_g); // add in dither to green and widen
+            vsrc_dit_r = vaddl_u8(vsrc_r, vdither);   // add in dither to red and widen
+            vsrc_dit_b = vaddl_u8(vsrc_b, vdither);   // add in dither to blue and widen
+
+            vsrc_dit_r = vsubw_u8(vsrc_dit_r, vsrc565_r);  // sub shifted red from result
+            vsrc_dit_g = vsubw_u8(vsrc_dit_g, vsrc565_g);  // sub shifted green from result
+            vsrc_dit_b = vsubw_u8(vsrc_dit_b, vsrc565_b);  // sub shifted blue from result
+
+            vsrc_res_r = vshrq_n_u16(vsrc_dit_r, 3);
+            vsrc_res_g = vshrq_n_u16(vsrc_dit_g, 2);
+            vsrc_res_b = vshrq_n_u16(vsrc_dit_b, 3);
+
+            // Load dst and unpack
+            vdst = vld1q_u16(dst);
+            vdst_g = vshrq_n_u16(vdst, 5);                   // shift down to get green
+            vdst_r = vshrq_n_u16(vshlq_n_u16(vdst, 5), 5+5); // double shift to extract red
+            vdst_b = vandq_u16(vdst, vmask_b);               // mask to get blue
+
+            // subtract dst from src and widen
+            vres_r = vsubq_s16(vreinterpretq_s16_u16(vsrc_res_r), vreinterpretq_s16_u16(vdst_r));
+            vres_g = vsubq_s16(vreinterpretq_s16_u16(vsrc_res_g), vreinterpretq_s16_u16(vdst_g));
+            vres_b = vsubq_s16(vreinterpretq_s16_u16(vsrc_res_b), vreinterpretq_s16_u16(vdst_b));
+
+            // multiply diffs by scale and shift
+            vres_r = vmulq_s16(vres_r, vscale);
+            vres_g = vmulq_s16(vres_g, vscale);
+            vres_b = vmulq_s16(vres_b, vscale);
+
+            vres8_r = vshrn_n_s16(vres_r, 8);
+            vres8_g = vshrn_n_s16(vres_g, 8);
+            vres8_b = vshrn_n_s16(vres_b, 8);
+
+            // add dst to result
+            vres_r = vaddw_s8(vreinterpretq_s16_u16(vdst_r), vres8_r);
+            vres_g = vaddw_s8(vreinterpretq_s16_u16(vdst_g), vres8_g);
+            vres_b = vaddw_s8(vreinterpretq_s16_u16(vdst_b), vres8_b);
+
+            // put result into 565 format
+            vres_b = vsliq_n_s16(vres_b, vres_g, 5);   // shift up green and insert into blue
+            vres_b = vsliq_n_s16(vres_b, vres_r, 6+5); // shift up red and insert into blue
+
+            // Store result
+            vst1q_u16(dst, vreinterpretq_u16_s16(vres_b));
+
+            // Next iteration
+            dst += 8;
+            count -= 8;
+
+        } while (count >= 8);
+    }
+
+    // Leftovers
+    if (count > 0) {
+        int scale = SkAlpha255To256(alpha);
+        DITHER_565_SCAN(y);
+        do {
+            SkPMColor c = *src++;
+            SkPMColorAssert(c);
+
+            int dither = DITHER_VALUE(x);
+            int sr = SkGetPackedR32(c);
+            int sg = SkGetPackedG32(c);
+            int sb = SkGetPackedB32(c);
+            sr = SkDITHER_R32To565(sr, dither);
+            sg = SkDITHER_G32To565(sg, dither);
+            sb = SkDITHER_B32To565(sb, dither);
+
+            uint16_t d = *dst;
+            *dst++ = SkPackRGB16(SkAlphaBlend(sr, SkGetPackedR16(d), scale),
+                                 SkAlphaBlend(sg, SkGetPackedG16(d), scale),
+                                 SkAlphaBlend(sb, SkGetPackedB16(d), scale));
+            DITHER_INC_X(x);
+        } while (--count != 0);
     }
 }
 
