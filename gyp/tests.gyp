@@ -22,6 +22,7 @@
       ],
       'sources': [
         '../tests/AAClipTest.cpp',
+        '../tests/AndroidPaintTest.cpp',
         '../tests/AnnotationTest.cpp',
         '../tests/ARGBImageEncoderTest.cpp',
         '../tests/AtomicTest.cpp',

@@ -12,14 +12,12 @@
 #include "SkThread.h"
 #include <cstring>
 
-#ifdef SK_BUILD_FOR_ANDROID
-
 SkLanguage SkLanguage::getParent() const {
     SkASSERT(!fTag.isEmpty());
     const char* tag = fTag.c_str();
 
     // strip off the rightmost "-.*"
-    char* parentTagEnd = strrchr(tag, '-');
+    const char* parentTagEnd = strrchr(tag, '-');
     if (parentTagEnd == NULL) {
         return SkLanguage();
     }
@@ -40,5 +38,3 @@ void SkPaintOptionsAndroid::unflatten(SkFlattenableReadBuffer& buffer) {
     fLanguage = SkLanguage(tag);
     fUseFontFallbacks = buffer.readBool();
 }
-
-#endif

@@ -13,8 +13,6 @@
 #include "SkTypes.h"
 #include "SkString.h"
 
-#ifdef SK_BUILD_FOR_ANDROID
-
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 
@@ -72,6 +70,10 @@ public:
         return *this;
     }
 
+    bool operator==(const SkPaintOptionsAndroid& b) const {
+        return !(*this != b);
+    }
+
     bool operator!=(const SkPaintOptionsAndroid& b) const {
         return fLanguage != b.fLanguage ||
                fFontVariant != b.fFontVariant ||
@@ -125,5 +127,4 @@ private:
     bool fUseFontFallbacks;
 };
 
-#endif // #ifdef SK_BUILD_FOR_ANDROID
 #endif // #ifndef SkPaintOptionsAndroid_DEFINED

@@ -76,9 +76,6 @@
           ],
         }],
         [ 'skia_os == "android"', {
-          'sources': [
-            '../src/core/SkPaintOptionsAndroid.cpp',
-          ],
           'dependencies': [
             'android_deps.gyp:cpu_features',
           ],
