@@ -77,12 +77,12 @@ private:
     (usually a new contour, but not required).
 
     It captures some state about the path up front (i.e. if it already has a
-    cached bounds), and the if it can, it updates the cache bounds explicitly,
+    cached bounds), and then if it can, it updates the cache bounds explicitly,
     avoiding the need to revisit all of the points in getBounds().
 
     It also notes if the path was originally degenerate, and if so, sets
     isConvex to true. Thus it can only be used if the contour being added is
-    convex.
+    convex (which is always true since we only allow the addition of rects).
  */
 class SkAutoPathBoundsUpdate {
 public:
@@ -98,47 +98,32 @@ public:
 
     ~SkAutoPathBoundsUpdate() {
         fPath->setIsConvex(fDegenerate);
-        if (fEmpty) {
-            fPath->fBounds = fRect;
-            fPath->fBoundsIsDirty = false;
-            fPath->fIsFinite = fPath->fBounds.isFinite();
-        } else if (!fDirty) {
-            joinNoEmptyChecks(&fPath->fBounds, fRect);
-            fPath->fBoundsIsDirty = false;
-            fPath->fIsFinite = fPath->fBounds.isFinite();
+        if (fEmpty || fHasValidBounds) {
+            fPath->setBounds(fRect);
         }
     }
 
 private:
     SkPath* fPath;
     SkRect  fRect;
-    bool    fDirty;
+    bool    fHasValidBounds;
     bool    fDegenerate;
     bool    fEmpty;
 
-    // returns true if we should proceed
     void init(SkPath* path) {
+        // Cannot use fRect for our bounds unless we know it is sorted
+        fRect.sort();
         fPath = path;
         // Mark the path's bounds as dirty if (1) they are, or (2) the path
         // is non-finite, and therefore its bounds are not meaningful
-        fDirty = SkToBool(path->fBoundsIsDirty) || !path->fIsFinite;
-        fDegenerate = is_degenerate(*path);
+        fHasValidBounds = path->hasComputedBounds() && path->isFinite();
         fEmpty = path->isEmpty();
-        // Cannot use fRect for our bounds unless we know it is sorted
-        fRect.sort();
+        if (fHasValidBounds && !fEmpty) {
+            joinNoEmptyChecks(&fRect, fPath->getBounds());
+        }
+        fDegenerate = is_degenerate(*path);
     }
 };
-
-// Return true if the computed bounds are finite.
-static bool compute_pt_bounds(SkRect* bounds, const SkPathRef& ref) {
-    int count = ref.countPoints();
-    if (count <= 1) {  // we ignore just 1 point (moveto)
-        bounds->setEmpty();
-        return count ? ref.points()->isFinite() : true;
-    } else {
-        return bounds->setBoundsCheck(ref.points(), count);
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -173,10 +158,8 @@ void SkPath::resetFields() {
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fFillType = kWinding_FillType;
     fSegmentMask = 0;
-    fBoundsIsDirty = true;
     fConvexity = kUnknown_Convexity;
     fDirection = kUnknown_Direction;
-    fIsFinite = false;
     fIsOval = false;
 #ifdef SK_BUILD_FOR_ANDROID
     GEN_ID_INC;
@@ -216,14 +199,11 @@ SkPath& SkPath::operator=(const SkPath& that) {
 
 void SkPath::copyFields(const SkPath& that) {
     //fPathRef is assumed to have been set by the caller.
-    fBounds          = that.fBounds;
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
     fSegmentMask     = that.fSegmentMask;
-    fBoundsIsDirty   = that.fBoundsIsDirty;
     fConvexity       = that.fConvexity;
     fDirection       = that.fDirection;
-    fIsFinite        = that.fIsFinite;
     fIsOval          = that.fIsOval;
 }
 
@@ -245,14 +225,11 @@ void SkPath::swap(SkPath& that) {
 
     if (this != &that) {
         fPathRef.swap(&that.fPathRef);
-        SkTSwap<SkRect>(fBounds, that.fBounds);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
         SkTSwap<uint8_t>(fSegmentMask, that.fSegmentMask);
-        SkTSwap<uint8_t>(fBoundsIsDirty, that.fBoundsIsDirty);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
-        SkTSwap<SkBool8>(fIsFinite, that.fIsFinite);
         SkTSwap<SkBool8>(fIsOval, that.fIsOval);
 #ifdef SK_BUILD_FOR_ANDROID
         // It doesn't really make sense to swap the generation IDs here, because they might go
@@ -377,11 +354,6 @@ void SkPath::rewind() {
 
     SkPathRef::Rewind(&fPathRef);
     this->resetFields();
-}
-
-bool SkPath::isEmpty() const {
-    SkDEBUGCODE(this->validate();)
-    return 0 == fPathRef->countVerbs();
 }
 
 bool SkPath::isLine(SkPoint line[2]) const {
@@ -665,14 +637,6 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
     }
 }
 
-void SkPath::computeBounds() const {
-    SkDEBUGCODE(this->validate();)
-    SkASSERT(fBoundsIsDirty);
-
-    fIsFinite = compute_pt_bounds(&fBounds, *fPathRef.get());
-    fBoundsIsDirty = false;
-}
-
 void SkPath::setConvexity(Convexity c) {
     if (fConvexity != c) {
         fConvexity = c;
@@ -685,15 +649,9 @@ void SkPath::setConvexity(Convexity c) {
 
 #define DIRTY_AFTER_EDIT                 \
     do {                                 \
-        fBoundsIsDirty = true;           \
         fConvexity = kUnknown_Convexity; \
         fDirection = kUnknown_Direction; \
         fIsOval = false;                 \
-    } while (0)
-
-#define DIRTY_AFTER_EDIT_NO_CONVEXITY_OR_DIRECTION_CHANGE   \
-    do {                                                    \
-        fBoundsIsDirty = true;                              \
     } while (0)
 
 void SkPath::incReserve(U16CPU inc) {
@@ -713,7 +671,6 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     ed.growForVerb(kMove_Verb)->set(x, y);
 
     GEN_ID_INC;
-    DIRTY_AFTER_EDIT_NO_CONVEXITY_OR_DIRECTION_CHANGE;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
@@ -1682,35 +1639,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         matrix.mapPoints(ed.points(), ed.pathRef()->countPoints());
         dst->fDirection = kUnknown_Direction;
     } else {
-        /*
-         *  If we're not in perspective, we can transform all of the points at
-         *  once.
-         *
-         *  Here we also want to optimize bounds, by noting if the bounds are
-         *  already known, and if so, we just transform those as well and mark
-         *  them as "known", rather than force the transformed path to have to
-         *  recompute them.
-         *
-         *  Special gotchas if the path is effectively empty (<= 1 point) or
-         *  if it is non-finite. In those cases bounds need to stay empty,
-         *  regardless of the matrix.
-         */
-        if (!fBoundsIsDirty && matrix.rectStaysRect() && fPathRef->countPoints() > 1) {
-            dst->fBoundsIsDirty = false;
-            if (fIsFinite) {
-                matrix.mapRect(&dst->fBounds, fBounds);
-                if (!(dst->fIsFinite = dst->fBounds.isFinite())) {
-                    dst->fBounds.setEmpty();
-                }
-            } else {
-                dst->fIsFinite = false;
-                dst->fBounds.setEmpty();
-            }
-        } else {
-            GEN_ID_PTR_INC(dst);
-            dst->fBoundsIsDirty = true;
-        }
-
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
 
         if (this != dst) {
@@ -1720,7 +1648,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         }
 
 #ifdef SK_BUILD_FOR_ANDROID
-        if (!matrix.isIdentity()) {
+        if (!matrix.isIdentity() && !dst->hasComputedBounds()) {
             GEN_ID_PTR_INC(dst);
         }
 #endif
@@ -2089,31 +2017,24 @@ uint32_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
     if (NULL == storage) {
-        const int byteCount = sizeof(int32_t)
-                      + fPathRef->writeSize()
-                      + sizeof(SkRect);
+        const int byteCount = sizeof(int32_t) + fPathRef->writeSize();
         return SkAlign4(byteCount);
     }
 
     SkWBuffer   buffer(storage);
 
-    // Call getBounds() to ensure (as a side-effect) that fBounds
-    // and fIsFinite are computed.
-    const SkRect& bounds = this->getBounds();
-    SkASSERT(!fBoundsIsDirty);
-
-    int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift) |
-                     ((fIsOval & 1) << kIsOval_SerializationShift) |
+    int32_t packed = ((fIsOval & 1) << kIsOval_SerializationShift) |
                      (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
                      (fSegmentMask << kSegmentMask_SerializationShift) |
-                     (fDirection << kDirection_SerializationShift);
+                     (fDirection << kDirection_SerializationShift)
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+                     | (0x1 << kNewFormat_SerializationShift);
+#endif
 
     buffer.write32(packed);
 
     fPathRef->writeToBuffer(&buffer);
-
-    buffer.write(&bounds, sizeof(bounds));
 
     buffer.padToAlign4();
     return SkToU32(buffer.pos());
@@ -2123,17 +2044,20 @@ uint32_t SkPath::readFromMemory(const void* storage) {
     SkRBuffer   buffer(storage);
 
     uint32_t packed = buffer.readS32();
-    fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
     fIsOval = (packed >> kIsOval_SerializationShift) & 1;
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
     fSegmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     fDirection = (packed >> kDirection_SerializationShift) & 0x3;
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+    bool newFormat = (packed >> kNewFormat_SerializationShift) & 1;
+#endif
 
-    fPathRef.reset(SkPathRef::CreateFromBuffer(&buffer));
-
-    buffer.read(&fBounds, sizeof(fBounds));
-    fBoundsIsDirty = false;
+    fPathRef.reset(SkPathRef::CreateFromBuffer(&buffer
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+        , newFormat, packed)
+#endif
+        );
 
     buffer.skipToAlign4();
 

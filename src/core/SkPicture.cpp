@@ -278,7 +278,11 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (PICTURE_VERSION != info.fVersion
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
         // V13 is backwards compatible with V12
-        && PRIOR_PICTURE_VERSION != info.fVersion  // TODO: remove when .skps regenerated
+        && PRIOR_PRIOR_PICTURE_VERSION != info.fVersion  // TODO: remove when .skps regenerated
+#endif
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+        // V14 is backwards compatible with V13
+        && PRIOR_PICTURE_VERSION2 != info.fVersion  // TODO: remove when .skps regenerated
 #endif
         ) {
         return false;

@@ -9,8 +9,17 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
+#include "SkMatrix.h"
+#include "SkPoint.h"
+#include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkTDArray.h"
 #include <stddef.h> // ptrdiff_t
+
+class SkRBuffer;
+class SkWBuffer;
+
+// TODO: refactor this header to move more of the implementation into the .cpp
 
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
@@ -26,8 +35,6 @@
  * verb array use ref.verbs()[~i] (because verbs() returns a pointer just beyond the first
  * logical verb or the last verb in memory).
  */
-
-class SkPathRef;
 
 class SkPathRef : public ::SkRefCnt {
 public:
@@ -70,17 +77,9 @@ public:
          * Adds the verb and allocates space for the number of points indicated by the verb. The
          * return value is a pointer to where the points for the verb should be written.
          */
-        SkPoint* growForVerb(SkPath::Verb verb) {
-            fPathRef->validate();
-            return fPathRef->growForVerb(verb);
-        }
+        SkPoint* growForVerb(int /*SkPath::Verb*/ verb);
 
-        SkPoint* growForConic(SkScalar w) {
-            fPathRef->validate();
-            SkPoint* pts = fPathRef->growForVerb(SkPath::kConic_Verb);
-            *fPathRef->fConicWeights.append() = w;
-            return pts;
-        }
+        SkPoint* growForConic(SkScalar w);
 
         /**
          * Allocates space for additional verbs and points and returns pointers to the new verbs and
@@ -129,6 +128,40 @@ public:
     }
 
     /**
+     *  Returns true if all of the points in this path are finite, meaning there
+     *  are no infinities and no NaNs.
+     */
+    bool isFinite() const {
+        if (fBoundsIsDirty) {
+            this->computeBounds();
+        }
+        return SkToBool(fIsFinite);
+    }
+
+    bool hasComputedBounds() const {
+        return !fBoundsIsDirty;
+    }
+
+    /** Returns the bounds of the path's points. If the path contains 0 or 1
+        points, the bounds is set to (0,0,0,0), and isEmpty() will return true.
+        Note: this bounds may be larger than the actual shape, since curves
+        do not extend as far as their control points.
+    */
+    const SkRect& getBounds() const {        
+        if (fBoundsIsDirty) {
+            this->computeBounds();
+        }
+        return fBounds;
+    }
+
+    void setBounds(const SkRect& rect) {
+        SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
+        fBounds = rect;
+        fBoundsIsDirty = false;
+        fIsFinite = fBounds.isFinite();
+    }
+
+    /**
      * Transforms a path ref by a matrix, allocating a new one only if necessary.
      */
     static void CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
@@ -143,36 +176,53 @@ public:
             }
             return;
         }
+
         bool dstUnique = (*dst)->unique();
-        if (&src == *dst && dstUnique) {
-            matrix.mapPoints((*dst)->fPoints, (*dst)->fPointCnt);
-            return;
-        } else if (!dstUnique) {
+        if (!dstUnique) {
             dst->reset(SkNEW(SkPathRef));
+            (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
+            memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
+            (*dst)->fConicWeights = src.fConicWeights;
         }
-        (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
-        memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
+
+        // Need to check this here in case (&src == dst)
+        bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;
+
         matrix.mapPoints((*dst)->fPoints, src.points(), src.fPointCnt);
-        (*dst)->fConicWeights = src.fConicWeights;
+
+        /*
+         *  Here we optimize the bounds computation, by noting if the bounds are
+         *  already known, and if so, we just transform those as well and mark
+         *  them as "known", rather than force the transformed path to have to
+         *  recompute them.
+         *
+         *  Special gotchas if the path is effectively empty (<= 1 point) or
+         *  if it is non-finite. In those cases bounds need to stay empty,
+         *  regardless of the matrix.
+         */
+        if (canXformBounds) {
+            (*dst)->fBoundsIsDirty = false;
+            if (src.fIsFinite) {
+                matrix.mapRect(&(*dst)->fBounds, src.fBounds);
+                if (!((*dst)->fIsFinite = (*dst)->fBounds.isFinite())) {
+                    (*dst)->fBounds.setEmpty();
+                }
+            } else {
+                (*dst)->fIsFinite = false;
+                (*dst)->fBounds.setEmpty();
+            }
+        } else {
+            (*dst)->fBoundsIsDirty = true;
+        }
+
         (*dst)->validate();
     }
 
-    static SkPathRef* CreateFromBuffer(SkRBuffer* buffer) {
-        SkPathRef* ref = SkNEW(SkPathRef);
-        ref->fGenerationID = buffer->readU32();
-        int32_t verbCount = buffer->readS32();
-        int32_t pointCount = buffer->readS32();
-        int32_t conicCount = buffer->readS32();
-        ref->resetToSize(verbCount, pointCount, conicCount);
-
-        SkASSERT(verbCount == ref->countVerbs());
-        SkASSERT(pointCount == ref->countPoints());
-        SkASSERT(conicCount == ref->fConicWeights.count());
-        buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t));
-        buffer->read(ref->fPoints, pointCount * sizeof(SkPoint));
-        buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar));
-        return ref;
-    }
+    static SkPathRef* CreateFromBuffer(SkRBuffer* buffer
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+        , bool newFormat, int32_t oldPacked
+#endif
+        );
 
     /**
      * Rollsback a path ref to zero verbs and points with the assumption that the path ref will be
@@ -182,6 +232,7 @@ public:
     static void Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
         if ((*pathRef)->unique()) {
             (*pathRef)->validate();
+            (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
             (*pathRef)->fVerbCnt = 0;
             (*pathRef)->fPointCnt = 0;
             (*pathRef)->fFreeSpace = (*pathRef)->currSize();
@@ -290,35 +341,26 @@ public:
     /**
      * Writes the path points and verbs to a buffer.
      */
-    void writeToBuffer(SkWBuffer* buffer) {
-        this->validate();
-        SkDEBUGCODE(size_t beforePos = buffer->pos();)
-
-        // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
-        // SkWBuffer. Until this is fixed we write 0.
-        buffer->write32(0);
-        buffer->write32(fVerbCnt);
-        buffer->write32(fPointCnt);
-        buffer->write32(fConicWeights.count());
-        buffer->write(verbsMemBegin(), fVerbCnt * sizeof(uint8_t));
-        buffer->write(fPoints, fPointCnt * sizeof(SkPoint));
-        buffer->write(fConicWeights.begin(), fConicWeights.bytes());
-
-        SkASSERT(buffer->pos() - beforePos == (size_t) this->writeSize());
-    }
+    void writeToBuffer(SkWBuffer* buffer);
 
     /**
      * Gets the number of bytes that would be written in writeBuffer()
      */
     uint32_t writeSize() {
-        return 4 * sizeof(uint32_t) +
+        return 5 * sizeof(uint32_t) +
                fVerbCnt * sizeof(uint8_t) +
                fPointCnt * sizeof(SkPoint) +
-               fConicWeights.bytes();
+               fConicWeights.bytes() +
+               sizeof(SkRect);
     }
 
 private:
+    enum SerializationOffsets {
+        kIsFinite_SerializationShift = 25,  // requires 1 bit
+    };
+
     SkPathRef() {
+        fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fPointCnt = 0;
         fVerbCnt = 0;
         fVerbs = NULL;
@@ -339,7 +381,32 @@ private:
         // We could call genID() here to force a real ID (instead of 0). However, if we're making
         // a copy then presumably we intend to make a modification immediately afterwards.
         fGenerationID = ref.fGenerationID;
+        fBoundsIsDirty = ref.fBoundsIsDirty;
+        if (!fBoundsIsDirty) {
+            fBounds = ref.fBounds;
+            fIsFinite = ref.fIsFinite;
+        }
         this->validate();
+    }
+
+    // Return true if the computed bounds are finite.
+    static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
+        int count = ref.countPoints();
+        if (count <= 1) {  // we ignore just 1 point (moveto)
+            bounds->setEmpty();
+            return count ? ref.points()->isFinite() : true;
+        } else {
+            return bounds->setBoundsCheck(ref.points(), count);
+        }
+    }
+
+    // called, if dirty, by getBounds()
+    void computeBounds() const {
+        SkDEBUGCODE(this->validate();)
+        SkASSERT(fBoundsIsDirty);
+
+        fIsFinite = ComputePtBounds(&fBounds, *this);
+        fBoundsIsDirty = false;
     }
 
     /** Makes additional room but does not change the counts or change the genID */
@@ -350,11 +417,12 @@ private:
         this->validate();
     }
 
-    /** Resets the path ref with verbCount verbs and pointCount points, all unitialized. Also
+    /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
                      int reserveVerbs = 0, int reservePoints = 0) {
         this->validate();
+        fBoundsIsDirty = true;      // this also invalidates fIsFinite
         fGenerationID = 0;
 
         size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
@@ -394,6 +462,7 @@ private:
         fVerbCnt += newVerbs;
         fPointCnt += newPoints;
         fFreeSpace -= space;
+        fBoundsIsDirty = true;  // this also invalidates fIsFinite
         this->validate();
     }
 
@@ -402,44 +471,7 @@ private:
      * of additional points. A pointer to the first point is returned. Any new points are
      * uninitialized.
      */
-    SkPoint* growForVerb(SkPath::Verb verb) {
-        this->validate();
-        int pCnt;
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                pCnt = 1;
-                break;
-            case SkPath::kLine_Verb:
-                pCnt = 1;
-                break;
-            case SkPath::kQuad_Verb:
-                // fall through
-            case SkPath::kConic_Verb:
-                pCnt = 2;
-                break;
-            case SkPath::kCubic_Verb:
-                pCnt = 3;
-                break;
-            case SkPath::kClose_Verb:
-                pCnt = 0;
-                break;
-            case SkPath::kDone_Verb:
-                SkDEBUGFAIL("growForVerb called for kDone");
-                // fall through
-            default:
-                SkDEBUGFAIL("default is not reached");
-                pCnt = 0;
-        }
-        size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
-        this->makeSpace(space);
-        this->fVerbs[~fVerbCnt] = verb;
-        SkPoint* ret = fPoints + fPointCnt;
-        fVerbCnt += 1;
-        fPointCnt += pCnt;
-        fFreeSpace -= space;
-        this->validate();
-        return ret;
-    }
+    SkPoint* growForVerb(int /*SkPath::Verb*/ verb);
 
     /**
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
@@ -524,11 +556,29 @@ private:
         SkASSERT(!(NULL == fVerbs && fVerbCnt));
         SkASSERT(this->currSize() ==
                  fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
+
+#ifdef SK_DEBUG
+        if (!fBoundsIsDirty && !fBounds.isEmpty()) {
+            bool isFinite = true;
+            for (int i = 0; i < fPointCnt; ++i) {
+                SkASSERT(fPoints[i].fX >= fBounds.fLeft && fPoints[i].fX <= fBounds.fRight &&
+                         fPoints[i].fY >= fBounds.fTop && fPoints[i].fY <= fBounds.fBottom);
+                if (!fPoints[i].isFinite()) {
+                    isFinite = false;
+                }
+            }
+            SkASSERT(SkToBool(fIsFinite) == isFinite);
+        }
+#endif
     }
 
     enum {
         kMinSize = 256,
     };
+
+    mutable SkRect      fBounds;
+    mutable uint8_t     fBoundsIsDirty;
+    mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
 
     SkPoint*            fPoints; // points to begining of the allocation
     uint8_t*            fVerbs; // points just past the end of the allocation (verbs grow backwards)
@@ -545,7 +595,5 @@ private:
 
     typedef SkRefCnt INHERITED;
 };
-
-SK_DEFINE_INST_COUNT(SkPathRef);
 
 #endif
