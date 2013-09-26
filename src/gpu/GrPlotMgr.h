@@ -32,7 +32,7 @@ public:
     }
 
     void reset() {
-        Gr_bzero(fBusy, fDim.fX * fDim.fY);
+        sk_bzero(fBusy, fDim.fX * fDim.fY);
     }
 
     bool newPlot(GrIPoint16* loc) {

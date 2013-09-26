@@ -18,7 +18,7 @@ public:
     GrRectanizerPow2(int w, int h) : GrRectanizer(w, h) {
         fNextStripY = 0;
         fAreaSoFar = 0;
-        Gr_bzero(fRows, sizeof(fRows));
+        sk_bzero(fRows, sizeof(fRows));
     }
 
     virtual ~GrRectanizerPow2() {

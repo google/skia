@@ -49,9 +49,9 @@ public:
         // we always have at least one block
         if (0 == indexInBlock) {
             if (0 != fCount) {
-                fBlocks.push_back() = GrMalloc(fBlockSize);
+                fBlocks.push_back() = sk_malloc_throw(fBlockSize);
             } else if (fOwnFirstBlock) {
-                fBlocks[0] = GrMalloc(fBlockSize);
+                fBlocks[0] = sk_malloc_throw(fBlockSize);
             }
         }
         void* ret = (char*)fBlocks[fCount/fItemsPerBlock] +
@@ -67,10 +67,10 @@ public:
         int blockCount = GrMax((unsigned)1,
                                GrUIDivRoundUp(fCount, fItemsPerBlock));
         for (int i = 1; i < blockCount; ++i) {
-            GrFree(fBlocks[i]);
+            sk_free(fBlocks[i]);
         }
         if (fOwnFirstBlock) {
-            GrFree(fBlocks[0]);
+            sk_free(fBlocks[0]);
             fBlocks[0] = NULL;
         }
         fBlocks.pop_back_n(blockCount-1);

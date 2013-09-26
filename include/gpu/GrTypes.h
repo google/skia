@@ -125,16 +125,6 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
  */
 #define GR_ARRAY_COUNT(array)  SK_ARRAY_COUNT(array)
 
-//!< allocate a block of memory, will never return NULL
-extern void* GrMalloc(size_t bytes);
-
-//!< free block allocated by GrMalloc. ptr may be NULL
-extern void GrFree(void* ptr);
-
-static inline void Gr_bzero(void* dst, size_t size) {
-    memset(dst, 0, size);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**

@@ -125,7 +125,7 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
     if (BORDER) {
         const size_t dstRB = dstW * fBytesPerPixel;
         uint8_t* dst = (uint8_t*)storage.reset(dstH * dstRB);
-        Gr_bzero(dst, dstRB);                // zero top row
+        sk_bzero(dst, dstRB);                // zero top row
         dst += dstRB;
         for (int y = 0; y < height; y++) {
             dst = zerofill(dst, fBytesPerPixel);   // zero left edge
@@ -134,7 +134,7 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
             dst = zerofill(dst, fBytesPerPixel);   // zero right edge
             image = (const void*)((const char*)image + width * fBytesPerPixel);
         }
-        Gr_bzero(dst, dstRB);                // zero bottom row
+        sk_bzero(dst, dstRB);                // zero bottom row
         image = storage.get();
     }
     adjustForPlot(loc, fPlot);

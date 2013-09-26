@@ -20,7 +20,7 @@ struct GrAllocPool::Block {
     static Block* Create(size_t size, Block* next) {
         SkASSERT(size >= GrAllocPool_MIN_BLOCK_SIZE);
 
-        Block* block = (Block*)GrMalloc(sizeof(Block) + size);
+        Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->fNext = next;
         block->fPtr = (char*)block + sizeof(Block);
         block->fBytesFree = size;
@@ -69,7 +69,7 @@ void GrAllocPool::reset() {
     Block* block = fBlock;
     while (block) {
         Block* next = block->fNext;
-        GrFree(block);
+        sk_free(block);
         block = next;
     }
     fBlock = NULL;
@@ -94,7 +94,7 @@ void GrAllocPool::release(size_t bytes) {
         bytes = fBlock->release(bytes);
         if (fBlock->empty()) {
             Block* next = fBlock->fNext;
-            GrFree(fBlock);
+            sk_free(fBlock);
             fBlock = next;
             SkDEBUGCODE(fBlocksAllocated -= 1;)
         }

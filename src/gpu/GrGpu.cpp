@@ -276,14 +276,14 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
                 fill_indices(indices, MAX_QUADS);
                 fQuadIndexBuffer->unlock();
             } else {
-                indices = (uint16_t*)GrMalloc(SIZE);
+                indices = (uint16_t*)sk_malloc_throw(SIZE);
                 fill_indices(indices, MAX_QUADS);
                 if (!fQuadIndexBuffer->updateData(indices, SIZE)) {
                     fQuadIndexBuffer->unref();
                     fQuadIndexBuffer = NULL;
                     GrCrash("Can't get indices into buffer!");
                 }
-                GrFree(indices);
+                sk_free(indices);
             }
         }
     }

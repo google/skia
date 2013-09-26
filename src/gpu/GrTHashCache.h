@@ -34,7 +34,7 @@ public:
  */
 template <typename T, typename Key, size_t kHashBits> class GrTHashTable {
 public:
-    GrTHashTable() { Gr_bzero(fHash, sizeof(fHash)); }
+    GrTHashTable() { sk_bzero(fHash, sizeof(fHash)); }
     ~GrTHashTable() {}
 
     int count() const { return fSorted.count(); }
@@ -210,19 +210,19 @@ T* GrTHashTable<T, Key, kHashBits>::removeAt(int elemIndex, uint32_t hash) {
 template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::removeAll() {
     fSorted.reset();
-    Gr_bzero(fHash, sizeof(fHash));
+    sk_bzero(fHash, sizeof(fHash));
 }
 
 template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::deleteAll() {
     fSorted.deleteAll();
-    Gr_bzero(fHash, sizeof(fHash));
+    sk_bzero(fHash, sizeof(fHash));
 }
 
 template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::unrefAll() {
     fSorted.unrefAll();
-    Gr_bzero(fHash, sizeof(fHash));
+    sk_bzero(fHash, sizeof(fHash));
 }
 
 #ifdef SK_DEBUG
