@@ -17,7 +17,6 @@
 // change this to 0 to compare GrMemoryPool to default new / delete
 #define OVERRIDE_NEW    1
 
-namespace {
 struct A {
     int gStuff[10];
 #if OVERRIDE_NEW
@@ -27,8 +26,6 @@ struct A {
     static GrMemoryPool gPool;
 };
 GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
-}
-
 
 /**
  * This benchmark creates and deletes objects in stack order
@@ -154,4 +151,5 @@ private:
 DEF_BENCH( return new GrMemoryPoolBenchStack(); )
 DEF_BENCH( return new GrMemoryPoolBenchRandom(); )
 DEF_BENCH( return new GrMemoryPoolBenchQueue(); )
+
 #endif

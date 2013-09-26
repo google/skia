@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -16,10 +15,8 @@
  * to write one subclass that can be a GM, bench, and/or Sample.
  */
 
-namespace {
-
 // Generates y values for the chart plots.
-void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
+static void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
     dataPts->setCount(count);
     static SkRandom gRandom;
     for (int i = 0; i < count; ++i) {
@@ -32,12 +29,12 @@ void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* d
 // plot. The fill path is bounded below by the bottomData plot points or a horizontal line at
 // yBase if bottomData == NULL.
 // The plots are animated by rotating the data points by leftShift.
-void gen_paths(const SkTDArray<SkScalar>& topData,
-               const SkTDArray<SkScalar>* bottomData,
-               SkScalar yBase,
-               SkScalar xLeft, SkScalar xDelta,
-               int leftShift,
-               SkPath* plot, SkPath* fill) {
+static void gen_paths(const SkTDArray<SkScalar>& topData,
+                      const SkTDArray<SkScalar>* bottomData,
+                      SkScalar yBase,
+                      SkScalar xLeft, SkScalar xDelta,
+                      int leftShift,
+                      SkPath* plot, SkPath* fill) {
     plot->rewind();
     fill->rewind();
     plot->incReserve(topData.count());
@@ -83,8 +80,6 @@ void gen_paths(const SkTDArray<SkScalar>& topData,
         fill->lineTo(x - xDelta, yBase);
         fill->lineTo(xLeft, yBase);
     }
-}
-
 }
 
 // A set of scrolling line plots with the area between each plot filled. Stresses out GPU path

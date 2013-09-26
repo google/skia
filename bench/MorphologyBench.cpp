@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -16,14 +17,10 @@
 #define REAL    SkFloatToScalar(1.5f)
 #define BIG     SkIntToScalar(10)
 
-namespace {
-
 enum MorphologyType {
     kErode_MT,
     kDilate_MT
 };
-
-}
 
 static const char* gStyleName[] = {
     "erode",
