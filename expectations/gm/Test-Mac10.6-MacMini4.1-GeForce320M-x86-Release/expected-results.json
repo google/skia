@@ -5443,7 +5443,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "drawbitmaprect_565.png": {
       "allowed-digests": [
@@ -10527,7 +10528,8 @@
       "bugs": [
         1603
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": false,
+      "ignore-failure": true
     }, 
     "scaled_tilemode_gradient_pdf-poppler.png": {
       "allowed-digests": [
