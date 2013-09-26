@@ -138,7 +138,7 @@ size_t SkFrontBufferedStream::read(void* voidDst, size_t size) {
     }
 
     if (size > 0 && !fStream->isAtEnd()) {
-        const size_t bytesReadDirectly = this->readDirectlyFromStream(dst, size);
+        SkDEBUGCODE(const size_t bytesReadDirectly =) this->readDirectlyFromStream(dst, size);
         SkDEBUGCODE(size -= bytesReadDirectly;)
         SkASSERT(size + (fOffset - start) == totalSize);
     }
