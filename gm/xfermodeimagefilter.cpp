@@ -189,6 +189,41 @@ protected:
                                           SkIntToScalar(fBitmap.height() + 4)));
         canvas->drawPaint(paint);
         canvas->restore();
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
+        }
+        // Test cropping
+        static const size_t nbSamples = 3;
+        SkXfermode::Mode sampledModes[nbSamples] = {SkXfermode::kOverlay_Mode,
+                                                    SkXfermode::kSrcOver_Mode,
+                                                    SkXfermode::kPlus_Mode};
+        int offsets[nbSamples][4] = {{ 10,  10, -16, -16},
+                                     { 10,  10,  10,  10},
+                                     {-10, -10,  -6,  -6}};
+        for (size_t i = 0; i < nbSamples; ++i) {
+            SkIRect cropRect = SkIRect::MakeXYWH(x + offsets[i][0],
+                                                 y + offsets[i][1],
+                                                 fBitmap.width()  + offsets[i][2],
+                                                 fBitmap.height() + offsets[i][3]);
+            mode.reset(SkXfermode::Create(sampledModes[i]));
+            filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
+                                    (mode, offsetBackground, offsetForeground, &cropRect)));
+            paint.setImageFilter(filter);
+            canvas->save();
+            canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                                              SkIntToScalar(y),
+                                              SkIntToScalar(fBitmap.width() + 4),
+                                              SkIntToScalar(fBitmap.height() + 4)));
+            canvas->drawPaint(paint);
+            canvas->restore();
+            x += fBitmap.width() + MARGIN;
+            if (x + fBitmap.width() > WIDTH) {
+                x = 0;
+                y += fBitmap.height() + MARGIN;
+            }
+        }
     }
 private:
     typedef GM INHERITED;

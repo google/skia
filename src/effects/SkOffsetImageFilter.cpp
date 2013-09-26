@@ -7,24 +7,51 @@
 
 #include "SkOffsetImageFilter.h"
 #include "SkBitmap.h"
-#include "SkMatrix.h"
+#include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkFlattenableBuffers.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
 
 bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
                                         SkIPoint* loc) {
+    SkImageFilter* input = getInput(0);
     SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc)) {
-        return false;
+    if (cropRect().isLargest()) {
+        if (input && !input->filterImage(proxy, source, matrix, &src, loc)) {
+            return false;
+        }
+
+        SkVector vec;
+        matrix.mapVectors(&vec, &fOffset, 1);
+
+        loc->fX += SkScalarRoundToInt(vec.fX);
+        loc->fY += SkScalarRoundToInt(vec.fY);
+        *result = src;
+    } else {
+        SkIPoint srcOffset = SkIPoint::Make(0, 0);
+        if (input && !input->filterImage(proxy, source, matrix, &src, &srcOffset)) {
+            return false;
+        }
+
+        SkIRect bounds;
+        src.getBounds(&bounds);
+
+        if (!applyCropRect(&bounds, matrix)) {
+            return false;
+        }
+
+        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
+        SkCanvas canvas(device);
+        SkPaint paint;
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        canvas.drawBitmap(src, fOffset.fX - bounds.left(), fOffset.fY - bounds.top(), &paint);
+        *result = device->accessBitmap(false);
+        loc->fX += bounds.left();
+        loc->fY += bounds.top();
     }
-
-    SkVector vec;
-    matrix.mapVectors(&vec, &fOffset, 1);
-
-    loc->fX += SkScalarRoundToInt(vec.fX);
-    loc->fY += SkScalarRoundToInt(vec.fY);
-    *result = src;
     return true;
 }
 
@@ -43,8 +70,8 @@ void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writePoint(fOffset);
 }
 
-SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy,
-                                         SkImageFilter* input) : INHERITED(input) {
+SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input,
+                                         const SkIRect* cropRect) : INHERITED(input, cropRect) {
     fOffset.set(dx, dy);
 }
 
