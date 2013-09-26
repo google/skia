@@ -62,6 +62,7 @@
         '../tests/FontHostTest.cpp',
         '../tests/FontMgrTest.cpp',
         '../tests/FontNamesTest.cpp',
+        '../tests/FrontBufferedStreamTest.cpp',
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',

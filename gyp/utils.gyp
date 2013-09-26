@@ -34,6 +34,7 @@
         '../src/utils/SkThreadPool.cpp',
 
         '../include/utils/SkBoundaryPatch.h',
+        '../include/utils/SkFrontBufferedStream.h',
         '../include/utils/SkCamera.h',
         '../include/utils/SkCanvasStateUtils.h',
         '../include/utils/SkCubicInterval.h',
@@ -65,6 +66,7 @@
         '../src/utils/SkBitSet.cpp',
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
+        '../src/utils/SkFrontBufferedStream.cpp',
         '../src/utils/SkCamera.cpp',
         '../src/utils/SkCanvasStack.h',
         '../src/utils/SkCanvasStack.cpp',
