@@ -15,6 +15,7 @@ GM::GM() {
     fCanvasIsDeferred = false;
     fHaveCalledOnceBeforeDraw = false;
     fIgnoreFailures = false;
+    fStarterMatrix.reset();
 }
 GM::~GM() {}
 

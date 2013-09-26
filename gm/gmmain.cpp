@@ -1423,6 +1423,14 @@ DEFINE_int32(pdfJpegQuality, -1, "Encodes images in JPEG at quality level N, "
              "which can be in range 0-100). N = -1 will disable JPEG compression. "
              "Default is N = 100, maximum quality.");
 
+// TODO(edisonn): pass a matrix instead of forcePerspectiveMatrix
+// Either the 9 numbers defining the matrix
+// or probably more readable would be to replace it with a set of a few predicates
+// Like --prerotate 100 200 10 --posttranslate 10, 10
+// Probably define spacial names like centerx, centery, top, bottom, left, right
+// then we can write something reabable like --rotate centerx centery 90
+DEFINE_bool(forcePerspectiveMatrix, false, "Force a perspective matrix.");
+
 static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
     // Filter output of warnings that JPEG is not available for the image.
     if (bitmap.width() >= 65500 || bitmap.height() >= 65500) return false;
@@ -2154,6 +2162,15 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
+        if (FLAGS_forcePerspectiveMatrix) {
+            SkMatrix perspective;
+            perspective.setIdentity();
+            perspective.setPerspY(SkScalarDiv(SK_Scalar1, SkIntToScalar(1000)));
+            perspective.setSkewX(SkScalarDiv(SkIntToScalar(8),
+                                 SkIntToScalar(25)));
+
+            gm->setStarterMatrix(perspective);
+        }        
         SkAutoTDelete<GM> adgm(gm);
         ++gmIndex;
         if (moduloRemainder >= 0) {
