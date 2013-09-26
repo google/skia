@@ -25,5 +25,5 @@
 hairlines
 
 # Added by sugoi as part of https://codereview.chromium.org/24157005/
-xfermodes
+xfermodeimagefilter
 
