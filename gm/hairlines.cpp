@@ -133,6 +133,31 @@ protected:
             bug2->lineTo(5.5f, 0.5f);
             bug2->lineTo(0.5f, 0.5f);
         }
+
+        {
+            // Arc example to test imperfect truncation bug (crbug.com/295626) 
+            static const SkScalar kRad = SkIntToScalar(2000);
+            static const SkScalar kStartAngle = SkFloatToScalar(262.59717f);
+            static const SkScalar kSweepAngle = SkScalarHalf(SkFloatToScalar(17.188717f));
+
+            SkPath* bug = &fPaths.push_back();
+
+            // Add a circular arc
+            SkRect circle = SkRect::MakeLTRB(-kRad, -kRad, kRad, kRad);
+            bug->addArc(circle, kStartAngle, kSweepAngle);
+
+            // Now add the chord that should cap the circular arc
+            SkScalar cosV, sinV = SkScalarSinCos(SkDegreesToRadians(kStartAngle), &cosV);
+
+            SkPoint p0 = SkPoint::Make(kRad * cosV, kRad * sinV);
+
+            sinV = SkScalarSinCos(SkDegreesToRadians(kStartAngle + kSweepAngle), &cosV);
+
+            SkPoint p1 = SkPoint::Make(kRad * cosV, kRad * sinV);
+
+            bug->moveTo(p0);
+            bug->lineTo(p1);
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {

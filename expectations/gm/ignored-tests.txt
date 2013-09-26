@@ -21,3 +21,7 @@
 ## Added by edisonn as part of https://codereview.chromium.org/23851037/
 #gradients
 
+# Added by robertphillips as part of https://codereview.chromium.org/23532082/
+hairlines
+
+
