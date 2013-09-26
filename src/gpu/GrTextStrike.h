@@ -111,7 +111,7 @@ private:
     GrTextStrike* fTail;
 
     GrGpu*      fGpu;
-    GrAtlasMgr* fAtlasMgr;
+    GrAtlasMgr* fAtlasMgr[kMaskFormatCount];
 
 
     GrTextStrike* generateStrike(GrFontScaler*, const Key&);

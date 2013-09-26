@@ -55,7 +55,7 @@ GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY, GrMaskFormat format) :
     fAtlasMgr = mgr;    // just a pointer, not an owner
     fNext = NULL;
 
-    fTexture = mgr->getTexture(format); // we're not an owner, just a pointer
+    fTexture = mgr->getTexture(); // we're not an owner, just a pointer
     fPlot.set(plotX, plotY);
 
     fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH - BORDER,
@@ -70,7 +70,7 @@ GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY, GrMaskFormat format) :
 }
 
 GrAtlas::~GrAtlas() {
-    fAtlasMgr->freePlot(fMaskFormat, fPlot.fX, fPlot.fY);
+    fAtlasMgr->freePlot(fPlot.fX, fPlot.fY);
 
     delete fRects;
 
@@ -161,22 +161,17 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrAtlasMgr::GrAtlasMgr(GrGpu* gpu) {
+GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrMaskFormat format) {
     fGpu = gpu;
+    fMaskFormat = format;
     gpu->ref();
-    Gr_bzero(fTexture, sizeof(fTexture));
-    for (int i = 0; i < kCount_GrMaskFormats; ++i) {
-        fPlotMgr[i] = SkNEW_ARGS(GrPlotMgr, (GR_PLOT_WIDTH, GR_PLOT_HEIGHT));
-    }
+    fTexture = NULL;
+    fPlotMgr = SkNEW_ARGS(GrPlotMgr, (GR_PLOT_WIDTH, GR_PLOT_HEIGHT));
 }
 
 GrAtlasMgr::~GrAtlasMgr() {
-    for (size_t i = 0; i < GR_ARRAY_COUNT(fTexture); i++) {
-        SkSafeUnref(fTexture[i]);
-    }
-    for (int i = 0; i < kCount_GrMaskFormats; ++i) {
-        delete fPlotMgr[i];
-    }
+    SkSafeUnref(fTexture);
+    delete fPlotMgr;
 
     fGpu->unref();
 #if FONT_CACHE_STATS
@@ -200,10 +195,7 @@ static GrPixelConfig maskformat2pixelconfig(GrMaskFormat format) {
 
 GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
                                 int width, int height, const void* image,
-                                GrMaskFormat format,
                                 GrIPoint16* loc) {
-    SkASSERT(NULL == *atlas || (*atlas)->getMaskFormat() == format);
-
     // iterate through entire atlas list, see if we can find a hole
     GrAtlas* atlasIter = *atlas;
     while (atlasIter) {
@@ -217,27 +209,25 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
     // atlas list is full. Either way we need to allocate a new atlas
 
     GrIPoint16 plot;
-    if (!fPlotMgr[format]->newPlot(&plot)) {
+    if (!fPlotMgr->newPlot(&plot)) {
         return NULL;
     }
 
-    SkASSERT(0 == kA8_GrMaskFormat);
-    SkASSERT(1 == kA565_GrMaskFormat);
-    if (NULL == fTexture[format]) {
+    if (NULL == fTexture) {
         // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
         desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
         desc.fWidth = GR_ATLAS_TEXTURE_WIDTH;
         desc.fHeight = GR_ATLAS_TEXTURE_HEIGHT;
-        desc.fConfig = maskformat2pixelconfig(format);
+        desc.fConfig = maskformat2pixelconfig(fMaskFormat);
 
-        fTexture[format] = fGpu->createTexture(desc, NULL, 0);
-        if (NULL == fTexture[format]) {
+        fTexture = fGpu->createTexture(desc, NULL, 0);
+        if (NULL == fTexture) {
             return NULL;
         }
     }
 
-    GrAtlas* newAtlas = SkNEW_ARGS(GrAtlas, (this, plot.fX, plot.fY, format));
+    GrAtlas* newAtlas = SkNEW_ARGS(GrAtlas, (this, plot.fX, plot.fY, fMaskFormat));
     if (!newAtlas->addSubImage(width, height, image, loc)) {
         delete newAtlas;
         return NULL;
@@ -250,7 +240,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas** atlas,
     return newAtlas;
 }
 
-void GrAtlasMgr::freePlot(GrMaskFormat format, int x, int y) {
-    SkASSERT(fPlotMgr[format]->isBusy(x, y));
-    fPlotMgr[format]->freePlot(x, y);
+void GrAtlasMgr::freePlot(int x, int y) {
+    SkASSERT(fPlotMgr->isBusy(x, y));
+    fPlotMgr->freePlot(x, y);
 }

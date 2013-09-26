@@ -23,14 +23,18 @@ static int g_PurgeCount = 0;
 
 GrFontCache::GrFontCache(GrGpu* gpu) : fGpu(gpu) {
     gpu->ref();
-    fAtlasMgr = NULL;
+    for (int i = 0; i < kMaskFormatCount; ++i) {
+        fAtlasMgr[i] = NULL;
+    }
 
     fHead = fTail = NULL;
 }
 
 GrFontCache::~GrFontCache() {
     fCache.deleteAll();
-    delete fAtlasMgr;
+    for (int i = 0; i < kMaskFormatCount; ++i) {
+        delete fAtlasMgr[i];
+    }
     fGpu->unref();
 #if FONT_CACHE_STATS
       GrPrintf("Num purges: %d\n", g_PurgeCount);
@@ -39,12 +43,13 @@ GrFontCache::~GrFontCache() {
 
 GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
                                           const Key& key) {
-    if (NULL == fAtlasMgr) {
-        fAtlasMgr = SkNEW_ARGS(GrAtlasMgr, (fGpu));
+    GrMaskFormat format = scaler->getMaskFormat();
+    if (NULL == fAtlasMgr[format]) {
+        fAtlasMgr[format] = SkNEW_ARGS(GrAtlasMgr, (fGpu, format));
     }
     GrTextStrike* strike = SkNEW_ARGS(GrTextStrike,
                                       (this, scaler->getKey(),
-                                       scaler->getMaskFormat(), fAtlasMgr));
+                                       scaler->getMaskFormat(), fAtlasMgr[format]));
     fCache.insert(key, strike);
 
     if (fHead) {
@@ -62,8 +67,10 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
 
 void GrFontCache::freeAll() {
     fCache.deleteAll();
-    delete fAtlasMgr;
-    fAtlasMgr = NULL;
+    for (int i = 0; i < kMaskFormatCount; ++i) {
+        delete fAtlasMgr[i];
+        fAtlasMgr[i] = NULL;
+    }
     fHead = NULL;
     fTail = NULL;
 }
@@ -249,7 +256,6 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
 
     GrAtlas* atlas = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
                                            glyph->height(), storage.get(),
-                                           fMaskFormat,
                                            &glyph->fAtlasLocation);
     if (NULL == atlas) {
         return false;
