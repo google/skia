@@ -41,15 +41,29 @@ GrFontCache::~GrFontCache() {
 #endif
 }
 
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_GrPixelConfig;
+        case kA565_GrMaskFormat:
+            return kRGB_565_GrPixelConfig;
+        case kA888_GrMaskFormat:
+            return kSkia8888_GrPixelConfig;
+        default:
+            SkDEBUGFAIL("unknown maskformat");
+    }
+    return kUnknown_GrPixelConfig;
+}
+
 GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
                                           const Key& key) {
     GrMaskFormat format = scaler->getMaskFormat();
+    GrPixelConfig config = mask_format_to_pixel_config(format);
     if (NULL == fAtlasMgr[format]) {
-        fAtlasMgr[format] = SkNEW_ARGS(GrAtlasMgr, (fGpu, format));
+        fAtlasMgr[format] = SkNEW_ARGS(GrAtlasMgr, (fGpu, config));
     }
     GrTextStrike* strike = SkNEW_ARGS(GrTextStrike,
-                                      (this, scaler->getKey(),
-                                       scaler->getMaskFormat(), fAtlasMgr[format]));
+                                      (this, scaler->getKey(), format, fAtlasMgr[format]));
     fCache.insert(key, strike);
 
     if (fHead) {

@@ -65,7 +65,7 @@ private:
     GrAtlasMgr*     fAtlasMgr;
     GrAtlas*        fAtlas;     // linklist
 
-    GrMaskFormat fMaskFormat;
+    GrMaskFormat    fMaskFormat;
 
     GrGlyph* generateGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler);
     // returns true if after the purge, the strike is empty
