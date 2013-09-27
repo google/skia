@@ -1205,8 +1205,7 @@ static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
 }
 
 /*  given a quad-curve and a point (x,y), chop the quad at that point and place
-    the new off-curve point and endpoint into 'dest'. The new end point is used
-    (rather than (x,y)) to compensate for numerical inaccuracies.
+    the new off-curve point and endpoint into 'dest'. 
     Should only return false if the computed pos is the start of the curve
     (i.e. root == 0)
 */
@@ -1232,7 +1231,7 @@ static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, S
         SkPoint tmp[5];
         SkChopQuadAt(quad, tmp, t);
         dest[0] = tmp[1];
-        dest[1] = tmp[2];
+        dest[1].set(x, y);
         return true;
     } else {
         /*  t == 0 means either the value triggered a root outside of [0, 1)
@@ -1260,44 +1259,38 @@ static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, S
 #ifdef SK_SCALAR_IS_FLOAT
 
 // Due to floating point issues (i.e., 1.0f - SK_ScalarRoot2Over2 !=
-// SK_ScalarRoot2Over2 - SK_ScalarTanPIOver8) a cruder root2over2
-// approximation is required to make the quad circle points convex. The
-// root of the problem is that with the root2over2 value in SkScalar.h
-// the arcs really are ever so slightly concave. Some alternative fixes
-// to this problem (besides just arbitrarily pushing out the mid-point as
-// is done here) are:
-//    Adjust all the points (not just the middle) to both better approximate
-//             the curve and remain convex
-//    Switch over to using cubics rather then quads
-//    Use a different method to create the mid-point (e.g., compute
-//             the two side points, average them, then move it out as needed
-#define SK_ScalarRoot2Over2_QuadCircle    0.7072f
-
+// SK_ScalarRoot2Over2 - SK_ScalarTanPIOver8), the "correct" off curve
+// control points cause the quadratic circle approximation to be concave.
+// SK_OffEps is used to pull in the off-curve control points a bit
+// to make the quadratic approximation convex.
+// Pulling the off-curve controls points in is preferable to pushing some
+// of the on-curve points off.
+#define SK_OffEps 0.0001f
 #else
-    #define SK_ScalarRoot2Over2_QuadCircle    SK_FixedRoot2Over2
+#define SK_OffEps 0
 #endif
 
 
 static const SkPoint gQuadCirclePts[kSkBuildQuadArcStorage] = {
     { SK_Scalar1,                      0                                  },
-    { SK_Scalar1,                      SK_ScalarTanPIOver8                },
-    { SK_ScalarRoot2Over2_QuadCircle,  SK_ScalarRoot2Over2_QuadCircle     },
-    { SK_ScalarTanPIOver8,             SK_Scalar1                         },
+    { SK_Scalar1 - SK_OffEps,          SK_ScalarTanPIOver8 - SK_OffEps    },
+    { SK_ScalarRoot2Over2,             SK_ScalarRoot2Over2                },
+    { SK_ScalarTanPIOver8 - SK_OffEps, SK_Scalar1 - SK_OffEps             },
 
     { 0,                               SK_Scalar1                         },
-    { -SK_ScalarTanPIOver8,            SK_Scalar1                         },
-    { -SK_ScalarRoot2Over2_QuadCircle, SK_ScalarRoot2Over2_QuadCircle     },
-    { -SK_Scalar1,                     SK_ScalarTanPIOver8                },
+    { -SK_ScalarTanPIOver8 + SK_OffEps,SK_Scalar1 - SK_OffEps             },
+    { -SK_ScalarRoot2Over2,            SK_ScalarRoot2Over2                },
+    { -SK_Scalar1 + SK_OffEps,         SK_ScalarTanPIOver8 - SK_OffEps    },
 
     { -SK_Scalar1,                     0                                  },
-    { -SK_Scalar1,                     -SK_ScalarTanPIOver8               },
-    { -SK_ScalarRoot2Over2_QuadCircle, -SK_ScalarRoot2Over2_QuadCircle    },
-    { -SK_ScalarTanPIOver8,            -SK_Scalar1                        },
+    { -SK_Scalar1 + SK_OffEps,         -SK_ScalarTanPIOver8 + SK_OffEps   },
+    { -SK_ScalarRoot2Over2,            -SK_ScalarRoot2Over2               },
+    { -SK_ScalarTanPIOver8 + SK_OffEps,-SK_Scalar1 + SK_OffEps            },
 
     { 0,                               -SK_Scalar1                        },
-    { SK_ScalarTanPIOver8,             -SK_Scalar1                        },
-    { SK_ScalarRoot2Over2_QuadCircle,  -SK_ScalarRoot2Over2_QuadCircle    },
-    { SK_Scalar1,                      -SK_ScalarTanPIOver8               },
+    { SK_ScalarTanPIOver8 - SK_OffEps, -SK_Scalar1 + SK_OffEps            },
+    { SK_ScalarRoot2Over2,             -SK_ScalarRoot2Over2               },
+    { SK_Scalar1 - SK_OffEps,          -SK_ScalarTanPIOver8 + SK_OffEps   },
 
     { SK_Scalar1,                      0                                  }
 };

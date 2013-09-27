@@ -1230,7 +1230,8 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
     matrix.postTranslate(oval.centerX(), oval.centerY());
 
     return SkBuildQuadArc(start, stop,
-          sweepAngle > 0 ? kCW_SkRotationDirection : kCCW_SkRotationDirection,
+                          sweepAngle > 0 ? kCW_SkRotationDirection : 
+                                           kCCW_SkRotationDirection,
                           &matrix, pts);
 }
 

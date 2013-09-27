@@ -21,3 +21,15 @@
 ## Added by edisonn as part of https://codereview.chromium.org/23851037/
 #gradients
 
+# Added by robertphillips as part of https://codereview.chromium.org/24810002/
+shadertext
+shadertext2
+rrect
+rrect_aa
+rrect_clip_aa
+hairlines
+arcofzorro
+convexpaths
+strokerect
+degeneratesegments
+convexpaths
