@@ -33,3 +33,6 @@ convexpaths
 strokerect
 degeneratesegments
 convexpaths
+rrect_bw
+rrect_clip_bw
+
