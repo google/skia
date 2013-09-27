@@ -19,8 +19,6 @@
 class SkRBuffer;
 class SkWBuffer;
 
-// TODO: refactor this header to move more of the implementation into the .cpp
-
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
@@ -44,19 +42,7 @@ public:
     public:
         Editor(SkAutoTUnref<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
-               int incReservePoints = 0)
-        {
-            if ((*pathRef)->unique()) {
-                (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
-            } else {
-                SkPathRef* copy = SkNEW(SkPathRef);
-                copy->copy(**pathRef, incReserveVerbs, incReservePoints);
-                pathRef->reset(copy);
-            }
-            fPathRef = *pathRef;
-            fPathRef->fGenerationID = 0;
-            SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
-        }
+               int incReservePoints = 0);
 
         ~Editor() { SkDEBUGCODE(sk_atomic_dec(&fPathRef->fEditorsAttached);) }
 
@@ -77,7 +63,10 @@ public:
          * Adds the verb and allocates space for the number of points indicated by the verb. The
          * return value is a pointer to where the points for the verb should be written.
          */
-        SkPoint* growForVerb(int /*SkPath::Verb*/ verb);
+        SkPoint* growForVerb(int /*SkPath::Verb*/ verb) {
+            fPathRef->validate();
+            return fPathRef->growForVerb(verb);
+        }
 
         SkPoint* growForConic(SkScalar w);
 
@@ -166,57 +155,7 @@ public:
      */
     static void CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
                                       const SkPathRef& src,
-                                      const SkMatrix& matrix) {
-        src.validate();
-        if (matrix.isIdentity()) {
-            if (*dst != &src) {
-                src.ref();
-                dst->reset(const_cast<SkPathRef*>(&src));
-                (*dst)->validate();
-            }
-            return;
-        }
-
-        bool dstUnique = (*dst)->unique();
-        if (!dstUnique) {
-            dst->reset(SkNEW(SkPathRef));
-            (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
-            memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
-            (*dst)->fConicWeights = src.fConicWeights;
-        }
-
-        // Need to check this here in case (&src == dst)
-        bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;
-
-        matrix.mapPoints((*dst)->fPoints, src.points(), src.fPointCnt);
-
-        /*
-         *  Here we optimize the bounds computation, by noting if the bounds are
-         *  already known, and if so, we just transform those as well and mark
-         *  them as "known", rather than force the transformed path to have to
-         *  recompute them.
-         *
-         *  Special gotchas if the path is effectively empty (<= 1 point) or
-         *  if it is non-finite. In those cases bounds need to stay empty,
-         *  regardless of the matrix.
-         */
-        if (canXformBounds) {
-            (*dst)->fBoundsIsDirty = false;
-            if (src.fIsFinite) {
-                matrix.mapRect(&(*dst)->fBounds, src.fBounds);
-                if (!((*dst)->fIsFinite = (*dst)->fBounds.isFinite())) {
-                    (*dst)->fBounds.setEmpty();
-                }
-            } else {
-                (*dst)->fIsFinite = false;
-                (*dst)->fBounds.setEmpty();
-            }
-        } else {
-            (*dst)->fBoundsIsDirty = true;
-        }
-
-        (*dst)->validate();
-    }
+                                      const SkMatrix& matrix);
 
     static SkPathRef* CreateFromBuffer(SkRBuffer* buffer
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
@@ -229,23 +168,7 @@ public:
      * repopulated with approximately the same number of verbs and points. A new path ref is created
      * only if necessary.
      */
-    static void Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
-        if ((*pathRef)->unique()) {
-            (*pathRef)->validate();
-            (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
-            (*pathRef)->fVerbCnt = 0;
-            (*pathRef)->fPointCnt = 0;
-            (*pathRef)->fFreeSpace = (*pathRef)->currSize();
-            (*pathRef)->fGenerationID = 0;
-            (*pathRef)->fConicWeights.rewind();
-            (*pathRef)->validate();
-        } else {
-            int oldVCnt = (*pathRef)->countVerbs();
-            int oldPCnt = (*pathRef)->countPoints();
-            pathRef->reset(SkNEW(SkPathRef));
-            (*pathRef)->resetToSize(0, 0, 0, oldVCnt, oldPCnt);
-        }
-    }
+    static void Rewind(SkAutoTUnref<SkPathRef>* pathRef);
 
     virtual ~SkPathRef() {
         this->validate();
@@ -298,45 +221,7 @@ public:
         return this->points()[index];
     }
 
-    bool operator== (const SkPathRef& ref) const {
-        this->validate();
-        ref.validate();
-        bool genIDMatch = fGenerationID && fGenerationID == ref.fGenerationID;
-#ifdef SK_RELEASE
-        if (genIDMatch) {
-            return true;
-        }
-#endif
-        if (fPointCnt != ref.fPointCnt ||
-            fVerbCnt != ref.fVerbCnt) {
-            SkASSERT(!genIDMatch);
-            return false;
-        }
-        if (0 != memcmp(this->verbsMemBegin(),
-                        ref.verbsMemBegin(),
-                        ref.fVerbCnt * sizeof(uint8_t))) {
-            SkASSERT(!genIDMatch);
-            return false;
-        }
-        if (0 != memcmp(this->points(),
-                        ref.points(),
-                        ref.fPointCnt * sizeof(SkPoint))) {
-            SkASSERT(!genIDMatch);
-            return false;
-        }
-        if (fConicWeights != ref.fConicWeights) {
-            SkASSERT(!genIDMatch);
-            return false;
-        }
-        // We've done the work to determine that these are equal. If either has a zero genID, copy
-        // the other's. If both are 0 then genID() will compute the next ID.
-        if (0 == fGenerationID) {
-            fGenerationID = ref.genID();
-        } else if (0 == ref.fGenerationID) {
-            ref.fGenerationID = this->genID();
-        }
-        return true;
-    }
+    bool operator== (const SkPathRef& ref) const;
 
     /**
      * Writes the path points and verbs to a buffer.
@@ -346,13 +231,7 @@ public:
     /**
      * Gets the number of bytes that would be written in writeBuffer()
      */
-    uint32_t writeSize() {
-        return uint32_t(5 * sizeof(uint32_t) +
-                        fVerbCnt * sizeof(uint8_t) +
-                        fPointCnt * sizeof(SkPoint) +
-                        fConicWeights.bytes() +
-                        sizeof(SkRect));
-    }
+    uint32_t writeSize();
 
 private:
     enum SerializationOffsets {
@@ -371,23 +250,7 @@ private:
         this->validate();
     }
 
-    void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints) {
-        this->validate();
-        this->resetToSize(ref.fVerbCnt, ref.fPointCnt, ref.fConicWeights.count(),
-                          additionalReserveVerbs, additionalReservePoints);
-        memcpy(this->verbsMemWritable(), ref.verbsMemBegin(), ref.fVerbCnt * sizeof(uint8_t));
-        memcpy(this->fPoints, ref.fPoints, ref.fPointCnt * sizeof(SkPoint));
-        fConicWeights = ref.fConicWeights;
-        // We could call genID() here to force a real ID (instead of 0). However, if we're making
-        // a copy then presumably we intend to make a modification immediately afterwards.
-        fGenerationID = ref.fGenerationID;
-        fBoundsIsDirty = ref.fBoundsIsDirty;
-        if (!fBoundsIsDirty) {
-            fBounds = ref.fBounds;
-            fIsFinite = ref.fIsFinite;
-        }
-        this->validate();
-    }
+    void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints);
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
@@ -420,36 +283,7 @@ private:
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
-                     int reserveVerbs = 0, int reservePoints = 0) {
-        this->validate();
-        fBoundsIsDirty = true;      // this also invalidates fIsFinite
-        fGenerationID = 0;
-
-        size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
-        size_t newReserve = sizeof(uint8_t) * reserveVerbs + sizeof(SkPoint) * reservePoints;
-        size_t minSize = newSize + newReserve;
-
-        ptrdiff_t sizeDelta = this->currSize() - minSize;
-
-        if (sizeDelta < 0 || static_cast<size_t>(sizeDelta) >= 3 * minSize) {
-            sk_free(fPoints);
-            fPoints = NULL;
-            fVerbs = NULL;
-            fFreeSpace = 0;
-            fVerbCnt = 0;
-            fPointCnt = 0;
-            this->makeSpace(minSize);
-            fVerbCnt = verbCount;
-            fPointCnt = pointCount;
-            fFreeSpace -= newSize;
-        } else {
-            fPointCnt = pointCount;
-            fVerbCnt = verbCount;
-            fFreeSpace = this->currSize() - minSize;
-        }
-        fConicWeights.setCount(conicCount);
-        this->validate();
-    }
+                     int reserveVerbs = 0, int reservePoints = 0);
 
     /**
      * Increases the verb count by newVerbs and the point count be newPoints. New verbs and points
@@ -477,36 +311,7 @@ private:
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
      * are not changed.
      */
-    void makeSpace(size_t size) {
-        this->validate();
-        ptrdiff_t growSize = size - fFreeSpace;
-        if (growSize <= 0) {
-            return;
-        }
-        size_t oldSize = this->currSize();
-        // round to next multiple of 8 bytes
-        growSize = (growSize + 7) & ~static_cast<size_t>(7);
-        // we always at least double the allocation
-        if (static_cast<size_t>(growSize) < oldSize) {
-            growSize = oldSize;
-        }
-        if (growSize < kMinSize) {
-            growSize = kMinSize;
-        }
-        size_t newSize = oldSize + growSize;
-        // Note that realloc could memcpy more than we need. It seems to be a win anyway. TODO:
-        // encapsulate this.
-        fPoints = reinterpret_cast<SkPoint*>(sk_realloc_throw(fPoints, newSize));
-        size_t oldVerbSize = fVerbCnt * sizeof(uint8_t);
-        void* newVerbsDst = reinterpret_cast<void*>(
-                                reinterpret_cast<intptr_t>(fPoints) + newSize - oldVerbSize);
-        void* oldVerbsSrc = reinterpret_cast<void*>(
-                                reinterpret_cast<intptr_t>(fPoints) + oldSize - oldVerbSize);
-        memmove(newVerbsDst, oldVerbsSrc, oldVerbSize);
-        fVerbs = reinterpret_cast<uint8_t*>(reinterpret_cast<intptr_t>(fPoints) + newSize);
-        fFreeSpace += growSize;
-        this->validate();
-    }
+    void makeSpace(size_t size);
 
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
@@ -529,48 +334,9 @@ private:
      * contents but different genIDs. Zero is reserved and means an ID has not yet been determined
      * for the path ref.
      */
-    int32_t genID() const {
-        SkASSERT(!fEditorsAttached);
-        if (!fGenerationID) {
-            if (0 == fPointCnt && 0 == fVerbCnt) {
-                fGenerationID = kEmptyGenID;
-            } else {
-                static int32_t  gPathRefGenerationID;
-                // do a loop in case our global wraps around, as we never want to return a 0 or the
-                // empty ID
-                do {
-                    fGenerationID = sk_atomic_inc(&gPathRefGenerationID) + 1;
-                } while (fGenerationID <= kEmptyGenID);
-            }
-        }
-        return fGenerationID;
-    }
+    int32_t genID() const;
 
-    void validate() const {
-        SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
-        SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
-        SkASSERT((NULL == fPoints) == (NULL == fVerbs));
-        SkASSERT(!(NULL == fPoints && 0 != fFreeSpace));
-        SkASSERT(!(NULL == fPoints && 0 != fFreeSpace));
-        SkASSERT(!(NULL == fPoints && fPointCnt));
-        SkASSERT(!(NULL == fVerbs && fVerbCnt));
-        SkASSERT(this->currSize() ==
-                 fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
-
-#ifdef SK_DEBUG
-        if (!fBoundsIsDirty && !fBounds.isEmpty()) {
-            bool isFinite = true;
-            for (int i = 0; i < fPointCnt; ++i) {
-                SkASSERT(fPoints[i].fX >= fBounds.fLeft && fPoints[i].fX <= fBounds.fRight &&
-                         fPoints[i].fY >= fBounds.fTop && fPoints[i].fY <= fBounds.fBottom);
-                if (!fPoints[i].isFinite()) {
-                    isFinite = false;
-                }
-            }
-            SkASSERT(SkToBool(fIsFinite) == isFinite);
-        }
-#endif
-    }
+    void validate() const;
 
     enum {
         kMinSize = 256,
