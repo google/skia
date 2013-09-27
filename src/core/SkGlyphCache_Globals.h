@@ -29,17 +29,17 @@ public:
         kNo_UseMutex,  // thread-local cache
         kYes_UseMutex  // shared cache
     };
-    
+
     SkGlyphCache_Globals(UseMutex um) {
         fHead = NULL;
         fTotalMemoryUsed = 0;
         fCacheSizeLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
         fCacheCount = 0;
         fCacheCountLimit = SK_DEFAULT_FONT_CACHE_COUNT_LIMIT;
-    
+
         fMutex = (kYes_UseMutex == um) ? SkNEW(SkMutex) : NULL;
     }
-    
+
     ~SkGlyphCache_Globals() {
         SkGlyphCache* cache = fHead;
         while (cache) {
@@ -47,10 +47,10 @@ public:
             SkDELETE(cache);
             cache = next;
         }
-        
+
         SkDELETE(fMutex);
     }
-    
+
     SkMutex*        fMutex;
 
     SkGlyphCache* internalGetHead() const { return fHead; }
@@ -82,7 +82,7 @@ public:
 
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachCacheToHead(SkGlyphCache*);
-    
+
     // can only be called when the mutex is already held
     void internalDetachCache(SkGlyphCache*);
     void internalAttachCacheToHead(SkGlyphCache*);
@@ -91,20 +91,20 @@ public:
     static SkGlyphCache_Globals* FindTLS() {
         return (SkGlyphCache_Globals*)SkTLS::Find(CreateTLS);
     }
-    
+
     static SkGlyphCache_Globals& GetTLS() {
         return *(SkGlyphCache_Globals*)SkTLS::Get(CreateTLS, DeleteTLS);
     }
-    
+
     static void DeleteTLS() { SkTLS::Delete(CreateTLS); }
-    
+
 private:
     SkGlyphCache* fHead;
     size_t  fTotalMemoryUsed;
     size_t  fCacheSizeLimit;
     int32_t fCacheCountLimit;
     int32_t fCacheCount;
-    
+
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
     // Returns number of bytes freed.
@@ -113,7 +113,7 @@ private:
     static void* CreateTLS() {
         return SkNEW_ARGS(SkGlyphCache_Globals, (kNo_UseMutex));
     }
-    
+
     static void DeleteTLS(void* ptr) {
         SkDELETE((SkGlyphCache_Globals*)ptr);
     }

@@ -71,7 +71,7 @@ public:
      *  it will automatically try to purge entries to meet the new limit.
      */
     static int SetFontCacheCountLimit(int count);
-    
+
     /**
      *  For debugging purposes, this will attempt to purge the font cache. It
      *  does not change the limit, but will cause subsequent font measures and

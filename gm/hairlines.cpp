@@ -135,7 +135,7 @@ protected:
         }
 
         {
-            // Arc example to test imperfect truncation bug (crbug.com/295626) 
+            // Arc example to test imperfect truncation bug (crbug.com/295626)
             static const SkScalar kRad = SkIntToScalar(2000);
             static const SkScalar kStartAngle = SkFloatToScalar(262.59717f);
             static const SkScalar kSweepAngle = SkScalarHalf(SkFloatToScalar(17.188717f));

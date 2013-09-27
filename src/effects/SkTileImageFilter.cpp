@@ -43,7 +43,7 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const S
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
-    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset, 
+    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset,
                                   SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
     paint.setShader(shader);
     SkRect dstRect = fDstRect;
@@ -63,4 +63,3 @@ void SkTileImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
 }
-

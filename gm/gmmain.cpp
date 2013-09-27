@@ -2170,7 +2170,7 @@ int tool_main(int argc, char** argv) {
                                  SkIntToScalar(25)));
 
             gm->setStarterMatrix(perspective);
-        }        
+        }
         SkAutoTDelete<GM> adgm(gm);
         ++gmIndex;
         if (moduloRemainder >= 0) {

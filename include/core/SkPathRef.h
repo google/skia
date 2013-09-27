@@ -147,7 +147,7 @@ public:
         Note: this bounds may be larger than the actual shape, since curves
         do not extend as far as their control points.
     */
-    const SkRect& getBounds() const {        
+    const SkRect& getBounds() const {
         if (fBoundsIsDirty) {
             this->computeBounds();
         }

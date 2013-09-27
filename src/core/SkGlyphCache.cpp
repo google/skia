@@ -419,9 +419,9 @@ size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     if (newLimit < minLimit) {
         newLimit = minLimit;
     }
-    
+
     SkAutoMutexAcquire    ac(fMutex);
-    
+
     size_t prevLimit = fCacheSizeLimit;
     fCacheSizeLimit = newLimit;
     this->internalPurge();
@@ -432,9 +432,9 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
     if (newCount < 0) {
         newCount = 0;
     }
-    
+
     SkAutoMutexAcquire    ac(fMutex);
-    
+
     int prevCount = fCacheCountLimit;
     fCacheCountLimit = newCount;
     this->internalPurge();
@@ -618,7 +618,7 @@ void SkGlyphCache_Globals::internalAttachCacheToHead(SkGlyphCache* cache) {
         cache->fNext = fHead;
     }
     fHead = cache;
-    
+
     fCacheCount += 1;
     fTotalMemoryUsed += cache->fMemoryUsed;
 }
@@ -660,14 +660,14 @@ void SkGlyphCache::validate() const {
 void SkGlyphCache_Globals::validate() const {
     size_t computedBytes = 0;
     int computedCount = 0;
-    
+
     const SkGlyphCache* head = fHead;
     while (head != NULL) {
         computedBytes += head->fMemoryUsed;
         computedCount += 1;
         head = head->fNext;
     }
-    
+
     SkASSERT(fTotalMemoryUsed == computedBytes);
     SkASSERT(fCacheCount == computedCount);
 }
