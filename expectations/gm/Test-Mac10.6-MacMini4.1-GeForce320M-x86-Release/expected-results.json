@@ -5443,8 +5443,8 @@
       "bugs": [
         1578
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "drawbitmaprect_565.png": {
       "allowed-digests": [
@@ -7945,7 +7945,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1563669411226163927
+          17024602512928277966
         ]
       ]
     }, 
@@ -7953,7 +7953,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15892813490397278600
+          12119136699631166875
         ]
       ]
     }, 
@@ -7961,7 +7961,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2899735295776257698
+          16074934336365439993
         ]
       ]
     }, 
@@ -7969,7 +7969,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11791059557096740435
+          13599179024765857177
         ]
       ]
     }, 
@@ -10528,8 +10528,8 @@
       "bugs": [
         1603
       ], 
-      "reviewed-by-human": false,
-      "ignore-failure": true
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "scaled_tilemode_gradient_pdf-poppler.png": {
       "allowed-digests": [
