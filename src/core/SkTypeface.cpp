@@ -253,7 +253,12 @@ SkTypeface* SkTypeface::refMatchingStyle(Style style) const {
 
 int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const {
-    SkDebugf("onCharsToGlyphs unimplemented\n");
+    static bool printed = false;
+    if (!printed) {
+        // Only want to see this message once
+        SkDebugf("\n *** onCharsToGlyphs unimplemented ***\n");
+        printed = true;
+    }
     if (glyphs && glyphCount > 0) {
         sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
     }
