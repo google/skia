@@ -102,6 +102,15 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(
         return NULL;
     }
 
+    // check if we, in fact, already have this. perhaps fontconfig aliased the
+    // requested name to some other name we actually have...
+    rec.fFamilyName = outFamilyName.c_str();
+    rec.fStyle = outStyle;
+    face = SkTypefaceCache::FindByProcAndRef(find_proc, &rec);
+    if (face) {
+        return face;
+    }
+
     face = SkNEW_ARGS(FontConfigTypeface, (outStyle, indentity, outFamilyName));
     SkTypefaceCache::Add(face, style);
 //    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
