@@ -190,7 +190,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16152065030750953710
+          16206093933823793653
         ]
       ]
     }, 
@@ -198,7 +198,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7634371874392183923
+          5759467649919582351
         ]
       ]
     }, 
@@ -206,7 +206,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4170526865753739297
+          17272070082421238289
         ]
       ]
     }, 
@@ -214,7 +214,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14450298403049944499
+          5941249492573279253
         ]
       ], 
       "bugs": [
@@ -3655,7 +3655,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          384705706809958819
+          9994220322587451901
         ]
       ], 
       "ignore-failure": false
@@ -3664,7 +3664,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9645239680457923128
+          547293323706939447
         ]
       ], 
       "ignore-failure": false
@@ -3673,7 +3673,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16499487709202775897
+          17538715812816685652
         ]
       ], 
       "ignore-failure": false
@@ -4009,7 +4009,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6265473433173343557
+          5375673450726446602
         ]
       ], 
       "ignore-failure": false
@@ -6854,7 +6854,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17024602512928277966
+          6089856661303997607
         ]
       ]
     }, 
@@ -6862,7 +6862,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12119136699631166875
+          12239917702685165914
         ]
       ]
     }, 
@@ -6870,7 +6870,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12176511422137579557
+          1998410420696088574
         ]
       ]
     }, 
@@ -6878,7 +6878,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8774612010448565388
+          440153242910186760
         ]
       ]
     }, 
@@ -8783,7 +8783,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4424546546261698980
+          1088651288841107202
         ]
       ], 
       "ignore-failure": false
@@ -8792,7 +8792,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1753841853060536953
+          3643810981030699795
         ]
       ], 
       "ignore-failure": false
@@ -8801,7 +8801,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1198839551852256917
+          4415411539668728280
         ]
       ], 
       "ignore-failure": false
@@ -8810,7 +8810,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15155268739436071174
+          4930814228292398375
         ]
       ], 
       "ignore-failure": false
@@ -8819,7 +8819,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6710257713411315519
+          1201550021273934878
         ]
       ], 
       "ignore-failure": false
@@ -8837,7 +8837,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11384222277027386872
+          5237333031845401484
         ]
       ], 
       "bugs": [
@@ -8885,7 +8885,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11384222277027386872
+          5237333031845401484
         ]
       ], 
       "bugs": [
@@ -8897,7 +8897,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1198839551852256917
+          4415411539668728280
         ]
       ], 
       "ignore-failure": false
@@ -8906,7 +8906,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15155268739436071174
+          4930814228292398375
         ]
       ], 
       "ignore-failure": false
@@ -8915,7 +8915,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18079457378222058748
+          11511430940574224209
         ]
       ], 
       "ignore-failure": false
@@ -8975,7 +8975,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5999821848020337368
+          14015554448220442061
         ]
       ], 
       "ignore-failure": false
@@ -8984,7 +8984,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13684452609014656772
+          13601410097130905566
         ]
       ], 
       "bugs": [
@@ -9362,7 +9362,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7854446225265341538
+          16070267802361900826
         ]
       ], 
       "ignore-failure": false
@@ -9371,7 +9371,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14196109018328960453
+          10103746089237143894
         ]
       ], 
       "ignore-failure": false
@@ -9380,7 +9380,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12960567122654750030
+          9977294875551125317
         ]
       ], 
       "bugs": [
@@ -9431,7 +9431,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15203112209923790874
+          4346399312744572347
         ]
       ], 
       "ignore-failure": false
@@ -9440,7 +9440,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7777775544069545317
+          7420323777284747744
         ]
       ], 
       "ignore-failure": false
@@ -9449,7 +9449,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15488904747240473509
+          12573522522271210031
         ]
       ], 
       "ignore-failure": false
@@ -9458,7 +9458,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15321527074633219383
+          10210581685407621827
         ]
       ], 
       "bugs": [
@@ -9983,7 +9983,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10149612688155203869
+          10414886409658539671
         ]
       ], 
       "ignore-failure": false
@@ -9992,7 +9992,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6030778122508392152
+          8678062996600544499
         ]
       ], 
       "bugs": [
