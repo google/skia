@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html ng-app="Loader">
+
+<head>
+  <title>Current GM Results</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+  <script src="loader.js"></script>
+</head>
+
+<body>
+  <div ng-controller="Loader.Controller">
+
+  <!-- TODO(epoger): Add a warning banner if the server is running in
+  --export mode
+  -->
+
+ Settings:
+  <ul>
+    <!-- TODO(epoger): Now that we get multiple result types in a single
+    fetch, modify the UI: add a column showing resultType, and allow
+    the user to sort/filter on that column just like all the
+    others. -->
+    <li>show results of type
+      <select ng-model="showResultsOfType"
+              ng-init="showResultsOfType='failed'">
+        <option>failed</option>
+        <option>failure-ignored</option>
+        <!--
+        <option>no-comparison</option>
+
+        TODO(epoger): For now, I have disabled viewing the
+        no-comparison results because there are so many of them, and
+        the browser takes forever to download all the images.  Maybe
+        we should use some sort of lazy-loading technique
+        (e.g. http://www.appelsiini.net/projects/lazyload ), so that
+        the images are only loaded as they become viewable...
+        -->
+        <!--
+        <option>succeeded</option>
+
+        TODO(epoger): See results.py: for now, I have disabled
+        returning succeeded tests as part of the JSON, because it
+        makes the returned JSON too big (and slows down the client).
+        -->
+      </select>
+    </li>
+    <li>image size
+      <input type="text" ng-model="imageSize" ng-init="imageSize=100"
+             maxlength="4"/>
+    </li>
+  </ul>
+
+    <p>
+      <!-- TODO(epoger): Show some sort of "loading" message, instead of
+           an empty table, while the data is loading.  Otherwise, if there are
+           a lot of failures and it takes a long time to load them, the user
+           might think there are NO failures and leave the page! -->
+      <table border="1">
+        <tr>
+          <th ng:click="sortColumn='builder'">Builder</th>
+          <th ng:click="sortColumn='test'">Test</th>
+          <th ng:click="sortColumn='config'">Config</th>
+          <th ng:click="sortColumn='expectedHashDigest'">Expected Image</th>
+          <th ng:click="sortColumn='actualHashDigest'">Actual Image</th>
+          <!-- TODO(epoger): Add more columns, such as...
+               pixel diff
+               notes/bugs
+               ignoreFailure boolean
+          -->
+        </tr>
+        <!-- TODO(epoger): improve the column sorting, as per
+             http://jsfiddle.net/vojtajina/js64b/14/ -->
+        <tr ng-repeat="result in results | filter: { resultType: showResultsOfType } | orderBy: sortColumn">
+          <td>{{result.builder}}</td>
+          <td>{{result.test}}</td>
+          <td>{{result.config}}</td>
+          <td>
+	    <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
+              <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>
+            </a>
+          </td>
+          <td>
+	    <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
+	      <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
+            </a>
+          </td>
+        </tr>
+      </table>
+  </div>
+
+  <!-- TODO(epoger): Can we get the base URLs (commondatastorage and
+       issues list) from
+       http://skia.googlecode.com/svn/buildbot/site_config/global_variables.json
+       ?  I tried importing the
+       http://skia.googlecode.com/svn/buildbot/skia_tools.js script and using
+       that to do so, but I got Access-Control-Allow-Origin errors.
+    -->
+
+</body>
+</html>
