@@ -103,7 +103,7 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
         strike = strikeToPurge->fPrev;
         if (purge) {
             // keep purging if we won't free up any atlases with this strike.
-            purge = (NULL == strikeToPurge->fAtlas);
+            purge = strikeToPurge->fAtlas.isEmpty();
             int index = fCache.slowFindIndex(strikeToPurge);
             SkASSERT(index >= 0);
             fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
@@ -116,7 +116,7 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
 #endif
 }
 
-void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
+void GrFontCache::freePlotExceptFor(GrTextStrike* preserveStrike) {
     SkASSERT(NULL != preserveStrike);
     GrTextStrike* strike = fTail;
     GrMaskFormat maskFormat = preserveStrike->fMaskFormat;
@@ -127,8 +127,8 @@ void GrFontCache::freeAtlasExceptFor(GrTextStrike* preserveStrike) {
         }
         GrTextStrike* strikeToPurge = strike;
         strike = strikeToPurge->fPrev;
-        if (strikeToPurge->removeUnusedAtlases()) {
-            if (NULL == strikeToPurge->fAtlas) {
+        if (strikeToPurge->removeUnusedPlots()) {
+            if (strikeToPurge->fAtlas.isEmpty()) {
                 int index = fCache.slowFindIndex(strikeToPurge);
                 SkASSERT(index >= 0);
                 fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
@@ -186,13 +186,12 @@ void GrFontCache::validate() const {
 
 GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
                            GrMaskFormat format,
-                           GrAtlasMgr* atlasMgr) : fPool(64) {
+                           GrAtlasMgr* atlasMgr) : fPool(64), fAtlas(atlasMgr) {
     fFontScalerKey = key;
     fFontScalerKey->ref();
 
     fFontCache = cache;     // no need to ref, it won't go away before we do
     fAtlasMgr = atlasMgr;   // no need to ref, it won't go away before we do
-    fAtlas = NULL;
 
     fMaskFormat = format;
 
@@ -207,13 +206,12 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
 static void free_glyph(GrGlyph*& glyph) { glyph->free(); }
 
 static void invalidate_glyph(GrGlyph*& glyph) {
-    if (glyph->fAtlas && glyph->fAtlas->drawToken().isIssued()) {
-        glyph->fAtlas = NULL;
+    if (glyph->fPlot && glyph->fPlot->drawToken().isIssued()) {
+        glyph->fPlot = NULL;
     }
 }
 
 GrTextStrike::~GrTextStrike() {
-    GrAtlas::FreeLList(fAtlas);
     fFontScalerKey->unref();
     fCache.getArray().visitAll(free_glyph);
 
@@ -236,9 +234,9 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
     return glyph;
 }
 
-bool GrTextStrike::removeUnusedAtlases() {
+bool GrTextStrike::removeUnusedPlots() {
     fCache.getArray().visitAll(invalidate_glyph);
-    return GrAtlas::RemoveUnusedAtlases(fAtlasMgr, &fAtlas);
+    return fAtlasMgr->removeUnusedPlots(&fAtlas);
 }
 
 bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
@@ -251,8 +249,8 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
     SkASSERT(glyph);
     SkASSERT(scaler);
     SkASSERT(fCache.contains(glyph));
-    if (glyph->fAtlas) {
-        glyph->fAtlas->setDrawToken(currentDrawToken);
+    if (glyph->fPlot) {
+        glyph->fPlot->setDrawToken(currentDrawToken);
         return true;
     }
 
@@ -268,14 +266,14 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
         return false;
     }
 
-    GrAtlas* atlas = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
-                                           glyph->height(), storage.get(),
-                                           &glyph->fAtlasLocation);
-    if (NULL == atlas) {
+    GrPlot* plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
+                                         glyph->height(), storage.get(),
+                                         &glyph->fAtlasLocation);
+    if (NULL == plot) {
         return false;
     }
 
-    glyph->fAtlas = atlas;
-    atlas->setDrawToken(currentDrawToken);
+    glyph->fPlot = plot;
+    plot->setDrawToken(currentDrawToken);
     return true;
 }

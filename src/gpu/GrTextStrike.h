@@ -17,8 +17,8 @@
 #include "GrPoint.h"
 #include "GrGlyph.h"
 #include "GrDrawTarget.h"
+#include "GrAtlas.h"
 
-class GrAtlasMgr;
 class GrFontCache;
 class GrGpu;
 class GrFontPurgeListener;
@@ -45,10 +45,9 @@ public:
     const GrGlyph* glyphAt(int index) const {
         return fCache.getArray()[index];
     }
-    GrAtlas* getAtlas() const { return fAtlas; }
 
-    // returns true if an atlas was removed
-    bool removeUnusedAtlases();
+    // returns true if a plot was removed
+    bool removeUnusedPlots();
 
 public:
     // for LRU
@@ -63,13 +62,11 @@ private:
 
     GrFontCache*    fFontCache;
     GrAtlasMgr*     fAtlasMgr;
-    GrAtlas*        fAtlas;     // linklist
+    GrAtlas         fAtlas;     
 
     GrMaskFormat    fMaskFormat;
 
     GrGlyph* generateGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler);
-    // returns true if after the purge, the strike is empty
-    bool purgeAtlasAtY(GrAtlas* atlas, int yCoord);
 
     friend class GrFontCache;
 };
@@ -85,8 +82,8 @@ public:
 
     void purgeExceptFor(GrTextStrike*);
 
-    // remove an unused atlas and its strike (if necessary)
-    void freeAtlasExceptFor(GrTextStrike*);
+    // remove an unused plot and its strike (if necessary)
+    void freePlotExceptFor(GrTextStrike*);
 
     // testing
     int countStrikes() const { return fCache.getArray().count(); }
@@ -112,7 +109,6 @@ private:
 
     GrGpu*      fGpu;
     GrAtlasMgr* fAtlasMgr[kMaskFormatCount];
-
 
     GrTextStrike* generateStrike(GrFontScaler*, const Key&);
     inline void detachStrikeFromList(GrTextStrike*);

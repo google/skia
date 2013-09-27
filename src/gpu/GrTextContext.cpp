@@ -139,7 +139,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     GrFixed height = glyph->fBounds.height();
 
     // check if we clipped out
-    if (true || NULL == glyph->fAtlas) {
+    if (true || NULL == glyph->fPlot) {
         int x = vx >> 16;
         int y = vy >> 16;
         if (fClipRect.quickReject(x, y, x + width, y + height)) {
@@ -149,13 +149,13 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     }
 
     GrDrawTarget::DrawToken drawToken = fDrawTarget->getCurrentDrawToken();
-    if (NULL == glyph->fAtlas) {
+    if (NULL == glyph->fPlot) {
         if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
         }
 
-        // try to clear out an unused atlas before we flush
-        fContext->getFontCache()->freeAtlasExceptFor(fStrike);
+        // try to clear out an unused plot before we flush
+        fContext->getFontCache()->freePlotExceptFor(fStrike);
         if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
         }
@@ -193,13 +193,13 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     }
 
 HAS_ATLAS:
-    SkASSERT(glyph->fAtlas);
+    SkASSERT(glyph->fPlot);
 
     // now promote them to fixed (TODO: Rethink using fixed pt).
     width = SkIntToFixed(width);
     height = SkIntToFixed(height);
 
-    GrTexture* texture = glyph->fAtlas->texture();
+    GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
 
     if (fCurrTexture != texture || fCurrVertex + 4 > fMaxVertices) {

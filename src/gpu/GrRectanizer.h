@@ -26,6 +26,8 @@ public:
 
     virtual ~GrRectanizer() {}
 
+    virtual void reset() = 0;
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 

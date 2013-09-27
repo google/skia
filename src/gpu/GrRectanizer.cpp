@@ -24,6 +24,12 @@ public:
     virtual ~GrRectanizerPow2() {
     }
 
+    virtual void reset() {
+        fNextStripY = 0;
+        fAreaSoFar = 0;
+        sk_bzero(fRows, sizeof(fRows));        
+    }
+
     virtual bool addRect(int w, int h, GrIPoint16* loc);
 
     virtual float percentFull() const {
