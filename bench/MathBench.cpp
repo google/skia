@@ -514,15 +514,16 @@ private:
 
 template <typename T>
 class DivModBench : public SkBenchmark {
-    const char* fName;
+    SkString fName;
 public:
-    explicit DivModBench(const char* name) : fName(name) {
+    explicit DivModBench(const char* name) {
+        fName.printf("divmod_%s", name);
         fIsRendering = false;
     }
 
 protected:
     virtual const char* onGetName() {
-        return SkStringPrintf("divmod_%s", fName).c_str();
+        return fName.c_str();
     }
 
     virtual void onDraw(SkCanvas*) {
