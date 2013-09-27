@@ -5900,7 +5900,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18285403550986146407
+          12363556987362898128
         ]
       ], 
       "bugs": [
@@ -5912,13 +5912,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17728923405020117084
+          2884129524511338165
         ]
       ], 
       "bugs": [
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "xfermodeimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7195849753969942492
+        ]
+      ]
     }, 
     "xfermodes2_565.png": {
       "allowed-digests": [

@@ -6475,7 +6475,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14231015529251890440
+          2743499503521234071
         ]
       ], 
       "ignore-failure": false
@@ -6484,7 +6484,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1723366060701858194
+          9397902199232661802
         ]
       ], 
       "ignore-failure": false
@@ -6493,10 +6493,18 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18150139383787909890
+          9932446970225617668
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "xfermodeimagefilter_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9932446970225617668
+        ]
+      ]
     }, 
     "xfermodes2_565.png": {
       "allowed-digests": [

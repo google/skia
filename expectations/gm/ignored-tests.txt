@@ -21,6 +21,3 @@
 ## Added by edisonn as part of https://codereview.chromium.org/23851037/
 #gradients
 
-# Added by sugoi as part of https://codereview.chromium.org/24157005/
-xfermodeimagefilter
-
