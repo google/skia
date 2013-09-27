@@ -347,11 +347,11 @@ public:
      * Gets the number of bytes that would be written in writeBuffer()
      */
     uint32_t writeSize() {
-        return 5 * sizeof(uint32_t) +
-               fVerbCnt * sizeof(uint8_t) +
-               fPointCnt * sizeof(SkPoint) +
-               fConicWeights.bytes() +
-               sizeof(SkRect);
+        return uint32_t(5 * sizeof(uint32_t) +
+                        fVerbCnt * sizeof(uint8_t) +
+                        fPointCnt * sizeof(SkPoint) +
+                        fConicWeights.bytes() +
+                        sizeof(SkRect));
     }
 
 private:
