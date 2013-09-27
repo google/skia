@@ -4708,6 +4708,22 @@
       ], 
       "ignore-failure": false
     }, 
+    "offsetimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16575349906192308148
+        ]
+      ]
+    }, 
+    "offsetimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          723388919971839176
+        ]
+      ]
+    }, 
     "optimizations_565.png": {
       "allowed-digests": [
         [
@@ -6218,6 +6234,22 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "tileimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17206571034145286370
+        ]
+      ]
+    }, 
+    "tileimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          433187816103434815
+        ]
+      ]
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [

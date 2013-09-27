@@ -4368,6 +4368,22 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "offsetimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1772722438632981263
+        ]
+      ]
+    }, 
+    "offsetimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15520809136164016503
+        ]
+      ]
+    }, 
     "optimizations_565.png": {
       "allowed-digests": [
         [
@@ -5675,6 +5691,22 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "tileimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10941852866183938977
+        ]
+      ]
+    }, 
+    "tileimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10791106283850821834
+        ]
+      ]
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [

@@ -9289,6 +9289,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "offsetimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1858520064918100435
+        ]
+      ]
+    }, 
+    "offsetimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15629341810003689678
+        ]
+      ]
+    }, 
+    "offsetimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15629341810003689678
+        ]
+      ]
+    }, 
+    "offsetimagefilter_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9071334189360219939
+        ]
+      ]
+    }, 
     "optimizations_565.png": {
       "allowed-digests": [
         [
@@ -12138,6 +12170,38 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "tileimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13925008955074677919
+        ]
+      ]
+    }, 
+    "tileimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2235937702615840455
+        ]
+      ]
+    }, 
+    "tileimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2235937702615840455
+        ]
+      ]
+    }, 
+    "tileimagefilter_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9071334189360219939
+        ]
+      ]
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [

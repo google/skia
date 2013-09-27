@@ -9405,6 +9405,38 @@
       ], 
       "ignore-failure": false
     }, 
+    "offsetimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4595617427676025695
+        ]
+      ]
+    }, 
+    "offsetimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5685905250977183551
+        ]
+      ]
+    }, 
+    "offsetimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5685905250977183551
+        ]
+      ]
+    }, 
+    "offsetimagefilter_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10971596167986869613
+        ]
+      ]
+    }, 
     "optimizations_565.png": {
       "allowed-digests": [
         [
@@ -12232,6 +12264,38 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "tileimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13925008955074677919
+        ]
+      ]
+    }, 
+    "tileimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8152900881985511745
+        ]
+      ]
+    }, 
+    "tileimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8152900881985511745
+        ]
+      ]
+    }, 
+    "tileimagefilter_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10971596167986869613
+        ]
+      ]
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [
