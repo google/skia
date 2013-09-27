@@ -7,10 +7,12 @@
 
 #include "SkCanvasStateUtils.h"
 
-#include "SkBitmapDevice.h"
+#include "SkDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStack.h"
 #include "SkWriter32.h"
+
+typedef SkDevice SkBitmapDevice;
 
 #define CANVAS_STATE_VERSION 1
 /*
