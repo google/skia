@@ -216,8 +216,8 @@ uint32_t SkPathRef::writeSize() {
                     sizeof(SkRect));
 }
 
-void SkPathRef::copy(const SkPathRef& ref, 
-                     int additionalReserveVerbs, 
+void SkPathRef::copy(const SkPathRef& ref,
+                     int additionalReserveVerbs,
                      int additionalReservePoints) {
     this->validate();
     this->resetToSize(ref.fVerbCnt, ref.fPointCnt, ref.fConicWeights.count(),

@@ -126,7 +126,7 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
     fPixelConfig = config;
     gpu->ref();
     fTexture = NULL;
-    
+
     // set up allocated plots
     int bpp = GrBytesPerPixel(fPixelConfig);
     fPlots = SkNEW_ARRAY(GrPlot, (GR_PLOT_WIDTH*GR_PLOT_HEIGHT));
@@ -137,11 +137,11 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
             currPlot->fAtlasMgr = this;
             currPlot->fOffset.set(x, y);
             currPlot->fBytesPerPixel = bpp;
-            
+
             // add to free list
             currPlot->fNext = fFreePlots;
             fFreePlots = currPlot;
-            
+
             ++currPlot;
         }
     }
@@ -189,9 +189,9 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
             return NULL;
         }
     }
-    // be sure to set texture for fast lookup 
+    // be sure to set texture for fast lookup
     newPlot->fTexture = fTexture;
-    
+
     if (!newPlot->addSubImage(width, height, image, loc)) {
         this->freePlot(newPlot);
         return NULL;
@@ -221,7 +221,7 @@ bool GrAtlasMgr::removeUnusedPlots(GrAtlas* atlas) {
             plot = plot->fNext;
         }
     }
-    
+
     return removed;
 }
 
@@ -245,16 +245,16 @@ GrPlot* GrAtlasMgr::allocPlot() {
 #endif
         return alloc;
     }
-    
+
 }
 
 void GrAtlasMgr::freePlot(GrPlot* plot) {
     SkASSERT(this == plot->fAtlasMgr);
-    
+
     plot->fRects->reset();
     plot->fNext = fFreePlots;
     fFreePlots = plot;
-    
+
 #ifdef SK_DEBUG
     --gCounter;
 //    GrPrintf("~GrPlot %p [%d %d] %d\n", this, plot->fOffset.fX, plot->fOffset.fY, gCounter);

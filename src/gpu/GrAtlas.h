@@ -67,13 +67,13 @@ public:
     // add subimage of width, height dimensions to atlas
     // returns the containing GrPlot and location relative to the backing texture
     GrPlot* addToAtlas(GrAtlas*, int width, int height, const void*, GrIPoint16*);
-    
+
     // free up any plots that are not waiting on a draw call
     bool removeUnusedPlots(GrAtlas* atlas);
-    
+
     // to be called by ~GrAtlas()
     void deletePlotList(GrPlot* plot);
-    
+
     GrTexture* getTexture() const {
         return fTexture;
     }
@@ -81,11 +81,11 @@ public:
 private:
     GrPlot* allocPlot();
     void freePlot(GrPlot* plot);
-    
+
     GrGpu*        fGpu;
     GrPixelConfig fPixelConfig;
     GrTexture*    fTexture;
-    
+
     // allocated array of GrPlots
     GrPlot*       fPlots;
     // linked list of free GrPlots
@@ -96,13 +96,13 @@ class GrAtlas {
 public:
     GrAtlas(GrAtlasMgr* mgr) : fPlots(NULL), fAtlasMgr(mgr) { }
     ~GrAtlas() { fAtlasMgr->deletePlotList(fPlots); }
-    
+
     bool isEmpty() { return NULL == fPlots; }
-    
+
 private:
     GrPlot*     fPlots;
     GrAtlasMgr* fAtlasMgr;
-    
+
     friend class GrAtlasMgr;
 };
 

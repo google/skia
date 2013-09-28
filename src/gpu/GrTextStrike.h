@@ -62,7 +62,7 @@ private:
 
     GrFontCache*    fFontCache;
     GrAtlasMgr*     fAtlasMgr;
-    GrAtlas         fAtlas;     
+    GrAtlas         fAtlas;
 
     GrMaskFormat    fMaskFormat;
 

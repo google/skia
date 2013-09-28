@@ -1205,7 +1205,7 @@ static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
 }
 
 /*  given a quad-curve and a point (x,y), chop the quad at that point and place
-    the new off-curve point and endpoint into 'dest'. 
+    the new off-curve point and endpoint into 'dest'.
     Should only return false if the computed pos is the start of the curve
     (i.e. root == 0)
 */
