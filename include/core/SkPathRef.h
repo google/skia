@@ -34,7 +34,7 @@ class SkWBuffer;
  * logical verb or the last verb in memory).
  */
 
-class SkPathRef : public ::SkRefCnt {
+class SK_API SkPathRef : public ::SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPathRef);
 
