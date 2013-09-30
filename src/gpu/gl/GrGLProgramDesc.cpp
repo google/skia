@@ -19,7 +19,8 @@ inline GrGLEffect::EffectKey get_key_and_update_stats(const GrEffectStage& stage
                                                       const GrGLCaps& caps,
                                                       bool useExplicitLocalCoords,
                                                       bool* setTrueIfReadsDst,
-                                                      bool* setTrueIfReadsPos) {
+                                                      bool* setTrueIfReadsPos,
+                                                      bool* setTrueIfHasVertexCode) {
     const GrEffectRef& effect = *stage.getEffect();
     const GrBackendEffectFactory& factory = effect->getFactory();
     GrDrawEffect drawEffect(stage, useExplicitLocalCoords);
@@ -28,6 +29,9 @@ inline GrGLEffect::EffectKey get_key_and_update_stats(const GrEffectStage& stage
     }
     if (effect->willReadFragmentPosition()) {
         *setTrueIfReadsPos = true;
+    }
+    if (effect->hasVertexCode()) {
+        *setTrueIfHasVertexCode = true;
     }
     return factory.glEffectKey(drawEffect, caps);
 }
@@ -87,21 +91,25 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     int currEffectKey = 0;
     bool readsDst = false;
     bool readFragPosition = false;
+    bool hasVertexCode = false;
     if (!skipColor) {
         for (int s = 0; s < drawState.numColorStages(); ++s) {
             effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getColorStage(s), gpu->glCaps(),
-                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition);
+                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition,
+                                         &hasVertexCode);
         }
     }
     if (!skipCoverage) {
         for (int s = 0; s < drawState.numCoverageStages(); ++s) {
             effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getCoverageStage(s), gpu->glCaps(),
-                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition);
+                                         requiresLocalCoordAttrib, &readsDst, &readFragPosition,
+                                         &hasVertexCode);
         }
     }
 
+    header->fHasVertexCode = hasVertexCode || requiresLocalCoordAttrib;
     header->fEmitsPointSize = isPoints;
     header->fColorFilterXfermode = skipColor ? SkXfermode::kDst_Mode : drawState.getColorFilterMode();
 
@@ -122,6 +130,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         header->fColorInput = kUniform_ColorInput;
     } else {
         header->fColorInput = kAttribute_ColorInput;
+        header->fHasVertexCode = true;
     }
 
     bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverage();
@@ -134,6 +143,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         header->fCoverageInput = kUniform_ColorInput;
     } else {
         header->fCoverageInput = kAttribute_ColorInput;
+        header->fHasVertexCode = true;
     }
 
     if (readsDst) {

@@ -128,7 +128,7 @@ const GrBackendEffectFactory& GrConicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConicEffect>::getInstance();
 }
 
-GrConicEffect::GrConicEffect(GrBezierEdgeType edgeType) : GrEffect() {
+GrConicEffect::GrConicEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }
@@ -260,7 +260,7 @@ const GrBackendEffectFactory& GrQuadEffect::getFactory() const {
     return GrTBackendEffectFactory<GrQuadEffect>::getInstance();
 }
 
-GrQuadEffect::GrQuadEffect(GrBezierEdgeType edgeType) : GrEffect() {
+GrQuadEffect::GrQuadEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }
@@ -403,7 +403,7 @@ const GrBackendEffectFactory& GrCubicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrCubicEffect>::getInstance();
 }
 
-GrCubicEffect::GrCubicEffect(GrBezierEdgeType edgeType) : GrEffect() {
+GrCubicEffect::GrCubicEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }

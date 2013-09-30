@@ -9,6 +9,7 @@
 #define GrCustomCoordsTextureEffect_DEFINED
 
 #include "GrEffect.h"
+#include "GrVertexEffect.h"
 
 class GrGLCustomCoordsTextureEffect;
 
@@ -17,7 +18,7 @@ class GrGLCustomCoordsTextureEffect;
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute.
  */
-class GrCustomCoordsTextureEffect : public GrEffect {
+class GrCustomCoordsTextureEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(GrTexture* tex, const GrTextureParams& p) {
         AutoEffectUnref effect(SkNEW_ARGS(GrCustomCoordsTextureEffect, (tex, p)));
@@ -43,7 +44,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 #endif

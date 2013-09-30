@@ -158,6 +158,7 @@ private:
         uint8_t                     fCoverageInput;         // casts to enum ColorInput
         uint8_t                     fCoverageOutput;        // casts to enum CoverageOutput
 
+        SkBool8                     fHasVertexCode;
         SkBool8                     fEmitsPointSize;
         uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
 

@@ -10,6 +10,7 @@
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkColorPriv.h"
+#include "effects/GrVertexEffect.h"
 
 SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
@@ -17,7 +18,7 @@ SK_DEFINE_INST_COUNT(GrAARectRenderer)
 class GrGLAlignedRectEffect;
 
 // Axis Aligned special case
-class GrAlignedRectEffect : public GrEffect {
+class GrAlignedRectEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create() {
         GR_CREATE_STATIC_EFFECT(gAlignedRectEffect, GrAlignedRectEffect, ());
@@ -101,7 +102,7 @@ public:
 
 
 private:
-    GrAlignedRectEffect() : GrEffect() {
+    GrAlignedRectEffect() : GrVertexEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
     }
 
@@ -109,7 +110,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 
@@ -137,7 +138,7 @@ class GrGLRectEffect;
  * The munged width and height are stored in a vec2 varying ("WidthHeight")
  * with the width in x and the height in y.
  */
-class GrRectEffect : public GrEffect {
+class GrRectEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create() {
         GR_CREATE_STATIC_EFFECT(gRectEffect, GrRectEffect, ());
@@ -236,7 +237,7 @@ public:
 
 
 private:
-    GrRectEffect() : GrEffect() {
+    GrRectEffect() : GrVertexEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
         this->addVertexAttrib(kVec2f_GrSLType);
         this->setWillReadFragmentPosition();
@@ -246,7 +247,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 

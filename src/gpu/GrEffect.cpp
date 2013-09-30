@@ -90,11 +90,6 @@ void GrEffect::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
 }
 
-void GrEffect::addVertexAttrib(GrSLType type) {
-    SkASSERT(fVertexAttribTypes.count() < kMaxVertexAttribs);
-    fVertexAttribTypes.push_back(type);
-}
-
 void* GrEffect::operator new(size_t size) {
     return GrEffect_Globals::GetTLS()->allocate(size);
 }

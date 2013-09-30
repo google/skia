@@ -19,6 +19,8 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 
+#include "effects/GrVertexEffect.h"
+
 SK_DEFINE_INST_COUNT(GrOvalRenderer)
 
 namespace {
@@ -56,7 +58,7 @@ inline bool circle_stays_circle(const SkMatrix& m) {
  * specified as offset_x, offset_y (both from center point), outer radius and inner radius.
  */
 
-class CircleEdgeEffect : public GrEffect {
+class CircleEdgeEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(bool stroke) {
         GR_CREATE_STATIC_EFFECT(gCircleStrokeEdge, CircleEdgeEffect, (true));
@@ -134,7 +136,7 @@ public:
 
 
 private:
-    CircleEdgeEffect(bool stroke) : GrEffect() {
+    CircleEdgeEffect(bool stroke) : GrVertexEffect() {
         this->addVertexAttrib(kVec4f_GrSLType);
         fStroke = stroke;
     }
@@ -148,7 +150,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(CircleEdgeEffect);
@@ -170,7 +172,7 @@ GrEffectRef* CircleEdgeEffect::TestCreate(SkRandom* random,
  * We are using an implicit function of x^2/a^2 + y^2/b^2 - 1 = 0.
  */
 
-class EllipseEdgeEffect : public GrEffect {
+class EllipseEdgeEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(bool stroke) {
         GR_CREATE_STATIC_EFFECT(gEllipseStrokeEdge, EllipseEdgeEffect, (true));
@@ -269,7 +271,7 @@ public:
     };
 
 private:
-    EllipseEdgeEffect(bool stroke) : GrEffect() {
+    EllipseEdgeEffect(bool stroke) : GrVertexEffect() {
         this->addVertexAttrib(kVec2f_GrSLType);
         this->addVertexAttrib(kVec4f_GrSLType);
         fStroke = stroke;
@@ -284,7 +286,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(EllipseEdgeEffect);
@@ -307,7 +309,7 @@ GrEffectRef* EllipseEdgeEffect::TestCreate(SkRandom* random,
  * The result is device-independent and can be used with any affine matrix.
  */
 
-class DIEllipseEdgeEffect : public GrEffect {
+class DIEllipseEdgeEffect : public GrVertexEffect {
 public:
     enum Mode { kStroke = 0, kHairline, kFill };
 
@@ -430,7 +432,7 @@ public:
     };
 
 private:
-    DIEllipseEdgeEffect(Mode mode) : GrEffect() {
+    DIEllipseEdgeEffect(Mode mode) : GrVertexEffect() {
         this->addVertexAttrib(kVec2f_GrSLType);
         this->addVertexAttrib(kVec2f_GrSLType);
         fMode = mode;
@@ -445,7 +447,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(DIEllipseEdgeEffect);

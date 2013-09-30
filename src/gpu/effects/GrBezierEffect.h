@@ -8,8 +8,9 @@
 #ifndef GrBezierEffect_DEFINED
 #define GrBezierEffect_DEFINED
 
-#include "GrEffect.h"
 #include "GrDrawTargetCaps.h"
+#include "GrEffect.h"
+#include "GrVertexEffect.h"
 
 enum GrBezierEdgeType {
     kFillAA_GrBezierEdgeType,
@@ -67,7 +68,7 @@ static inline bool GrBezierEdgeTypeIsAA(const GrBezierEdgeType edgeType) {
  */
 class GrGLConicEffect;
 
-class GrConicEffect : public GrEffect {
+class GrConicEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrBezierEdgeType));
@@ -117,7 +118,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,7 +132,7 @@ private:
  */
 class GrGLQuadEffect;
 
-class GrQuadEffect : public GrEffect {
+class GrQuadEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gQuadFillAA, GrQuadEffect, (kFillAA_GrBezierEdgeType));
@@ -181,7 +182,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -197,7 +198,7 @@ private:
  */
 class GrGLCubicEffect;
 
-class GrCubicEffect : public GrEffect {
+class GrCubicEffect : public GrVertexEffect {
 public:
     static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
         GR_CREATE_STATIC_EFFECT(gCubicFillAA, GrCubicEffect, (kFillAA_GrBezierEdgeType));
@@ -247,7 +248,7 @@ private:
 
     GR_DECLARE_EFFECT_TEST;
 
-    typedef GrEffect INHERITED;
+    typedef GrVertexEffect INHERITED;
 };
 
 #endif
