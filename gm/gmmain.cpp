@@ -1370,7 +1370,7 @@ static SkString pdfRasterizerUsage() {
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
 DEFINE_string(config, "", configUsage().c_str());
 DEFINE_string(pdfRasterizers, "", pdfRasterizerUsage().c_str());
-DEFINE_bool(deferred, false, "Exercise the deferred rendering test pass.");
+DEFINE_bool(deferred, true, "Exercise the deferred rendering test pass.");
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
 #if SK_SUPPORT_GPU
@@ -1400,16 +1400,16 @@ DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
 DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
               "testIndex %% divisor == remainder.");
 DEFINE_bool(pdf, true, "Exercise the pdf rendering test pass.");
-DEFINE_bool(pipe, false, "Exercise the SkGPipe replay test pass.");
+DEFINE_bool(pipe, true, "Exercise the SkGPipe replay test pass.");
 DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
                "any differences between those and the newly generated ones.");
-DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
+DEFINE_bool(replay, true, "Exercise the SkPicture replay test pass.");
 DEFINE_string2(resourcePath, i, "", "Directory that stores image resources.");
-DEFINE_bool(rtree, false, "Exercise the R-Tree variant of SkPicture test pass.");
-DEFINE_bool(serialize, false, "Exercise the SkPicture serialization & deserialization test pass.");
+DEFINE_bool(rtree, true, "Exercise the R-Tree variant of SkPicture test pass.");
+DEFINE_bool(serialize, true, "Exercise the SkPicture serialization & deserialization test pass.");
 DEFINE_bool(simulatePipePlaybackFailure, false, "Simulate a rendering failure in pipe mode only.");
 DEFINE_bool(tiledPipe, false, "Exercise tiled SkGPipe replay.");
-DEFINE_bool(tileGrid, false, "Exercise the tile grid variant of SkPicture.");
+DEFINE_bool(tileGrid, true, "Exercise the tile grid variant of SkPicture.");
 DEFINE_string(tileGridReplayScales, "", "Space separated list of floating-point scale "
               "factors to be used for tileGrid playback testing. Default value: 1.0");
 DEFINE_bool2(verbose, v, false, "Give more detail (e.g. list all GMs run, more info about "
