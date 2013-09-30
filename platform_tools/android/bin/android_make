@@ -12,11 +12,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 
 if [ $(basename $0) = "android_make" ]; then
-    GYP_GENERATORS=make-android make $APP_ARGS
+    GYP_GENERATORS=make-android make ${APP_ARGS[@]}
 else
     GYP_GENERATORS=ninja ./gyp_skia
     OUT=$SKIA_OUT/${BUILDTYPE-Debug}   # Defaults to Debug if BUILDTYPE isn't set.
-    ninja -C $OUT $APP_ARGS
+    ninja -C $OUT ${APP_ARGS[@]}
     ln -sf lib $OUT/lib.target         # android_run_skia looks in lib.target; ninja writes to lib.
 fi
 
