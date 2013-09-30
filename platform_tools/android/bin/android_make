@@ -1,46 +1,26 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Fail-fast if anything in the script fails.
+set -e
 
-# remove the existing .android_config file prior to running android_setup. If
-# we did not remove this here then we would build for whatever device type was
+# Remove any existing .android_config file before running android_setup. If we
+# did not remove this now then we would build for whatever device type was
 # listed in the .android_config instead of the default device type.
-if [ -f .android_config ]
-then
-  rm .android_config
-fi
+rm -f .android_config
 
-# run the config to setup the environment
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 
-# write the device id into the .android_config file
+if [ $(basename $0) = "android_make" ]; then
+    GYP_GENERATORS=make-android make $APP_ARGS
+else
+    GYP_GENERATORS=ninja ./gyp_skia
+    OUT=$SKIA_OUT/${BUILDTYPE-Debug}   # Defaults to Debug if BUILDTYPE isn't set.
+    ninja -C $OUT $APP_ARGS
+    ln -sf lib $OUT/lib.target         # android_run_skia looks in lib.target; ninja writes to lib.
+fi
+
+# Write the device id into the .android_config file.  This tells
+# android_run_skia the last build we completed.
 echo $DEVICE_ID > .android_config
 
-for arg in ${APP_ARGS[@]}
-do
-  if [[ "${arg}" == "--use-ccache" ]];
-  then
-    if [[ -z "$ANDROID_MAKE_CCACHE" ]];
-    then
-      ANDROID_MAKE_CCACHE=$(which ccache)
-    fi
-  else
-    makeVars=("${makeVars[@]}" "${arg}")
-  fi
-
-shift
-done
-
-if [[ -n "$ANDROID_MAKE_CCACHE" ]]; then
-  $ANDROID_MAKE_CCACHE --version &> /dev/null
-  if [[ "$?" != "0" ]]; then
-    echo "Unable to find ccache!"
-    exit 1
-  fi
-fi
-
-make ${makeVars[@]}
-if [ $? != 0 ]
-then
-  exit 1;
-fi

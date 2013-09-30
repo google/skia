@@ -165,7 +165,7 @@ setup_device() {
       TARGET_DEVICE=$(cat .android_config)
       echo "INFO: no target device was specified so using the device (${TARGET_DEVICE}) from the most recent build"
     else
-      TARGET_DEVICE="arm_v7_thumb"  
+      TARGET_DEVICE="arm_v7_thumb"
       echo "INFO: no target device type was specified so using the default '${TARGET_DEVICE}'"
     fi
   fi
@@ -237,8 +237,6 @@ setup_device() {
   fi
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
 
-  # Use the "android" flavor of the Makefile generator for both Linux and OS X.
-  exportVar GYP_GENERATORS "make-android"
   exportVar GYP_DEFINES "$DEFINES"
   exportVar SKIA_OUT "out/config/android-${TARGET_DEVICE}"
 }
