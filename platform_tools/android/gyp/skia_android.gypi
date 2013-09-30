@@ -31,8 +31,8 @@
         {
           'destination': '<(PRODUCT_DIR)/android/libs/<(android_arch)',
           'files': [
-            '<(PRODUCT_DIR)/<(SHARED_LIB_DIR)/libSampleApp.so',
-            '<(PRODUCT_DIR)/<(SHARED_LIB_DIR)/libskia_android.so',
+            '<(SHARED_LIB_DIR)/libSampleApp.so',
+            '<(SHARED_LIB_DIR)/libskia_android.so',
           ],
         },
       ],
