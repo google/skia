@@ -17,6 +17,7 @@
 #include "GrTextStrike_impl.h"
 #include "SkPath.h"
 #include "SkStrokeRec.h"
+#include "effects/GrCustomCoordsTextureEffect.h"
 
 static const int kGlyphCoordsAttributeIndex = 1;
 
@@ -37,7 +38,7 @@ void GrTextContext::flushGlyphs() {
 
         // This effect could be stored with one of the cache objects (atlas?)
         drawState->addCoverageEffect(
-                                GrSimpleTextureEffect::CreateWithCustomCoords(fCurrTexture, params),
+                                GrCustomCoordsTextureEffect::Create(fCurrTexture, params),
                                 kGlyphCoordsAttributeIndex)->unref();
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {

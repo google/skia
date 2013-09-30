@@ -85,15 +85,11 @@ public:
     /**
      * The types of vertex coordinates available to an effect in the vertex shader. Effects can
      * require their own vertex attribute but these coordinates are made available by the framework
-     * in all programs. kCustom_CoordsType is provided to signify that an alternative set of coords
-     * is used (usually an explicit vertex attribute) but its meaning is determined by the effect
-     * subclass.
+     * in all programs.
      */
     enum CoordsType {
         kLocal_CoordsType,
         kPosition_CoordsType,
-
-        kCustom_CoordsType,
     };
 
     virtual ~GrEffect();

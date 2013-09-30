@@ -26,7 +26,6 @@ public:
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                CoordsType coordsType = kLocal_CoordsType) {
-        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode, coordsType)));
         return CreateEffectRef(effect);
     }
@@ -36,7 +35,6 @@ public:
                                const SkMatrix& matrix,
                                GrTextureParams::FilterMode filterMode,
                                CoordsType coordsType = kLocal_CoordsType) {
-        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(
             SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordsType)));
         return CreateEffectRef(effect);
@@ -46,18 +44,7 @@ public:
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
                                CoordsType coordsType = kLocal_CoordsType) {
-        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
         AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordsType)));
-        return CreateEffectRef(effect);
-    }
-
-    /** Variant that requires the client to install a custom kVec2 vertex attribute that will be
-        the source of the coords. No matrix is allowed in this mode. */
-    static GrEffectRef* CreateWithCustomCoords(GrTexture* tex, const GrTextureParams& p) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex,
-                                                                  SkMatrix::I(),
-                                                                  p,
-                                                                  kCustom_CoordsType)));
         return CreateEffectRef(effect);
     }
 
@@ -77,7 +64,6 @@ private:
                           GrTextureParams::FilterMode filterMode,
                           CoordsType coordsType)
         : GrSingleTextureEffect(texture, matrix, filterMode, coordsType) {
-        SkASSERT(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
     }
 
     GrSimpleTextureEffect(GrTexture* texture,
@@ -85,10 +71,6 @@ private:
                           const GrTextureParams& params,
                           CoordsType coordsType)
         : GrSingleTextureEffect(texture, matrix, params, coordsType) {
-        if (kCustom_CoordsType == coordsType) {
-            SkASSERT(matrix.isIdentity());
-            this->addVertexAttrib(kVec2f_GrSLType);
-        }
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {

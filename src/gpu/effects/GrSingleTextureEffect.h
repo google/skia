@@ -41,10 +41,8 @@ protected:
      * Helper for subclass onIsEqual() functions.
      */
     bool hasSameTextureParamsMatrixAndCoordsType(const GrSingleTextureEffect& other) const {
-        const GrTextureAccess& otherAccess = other.fTextureAccess;
         // We don't have to check the accesses' swizzles because they are inferred from the texture.
-        return fTextureAccess.getTexture() == otherAccess.getTexture() &&
-               fTextureAccess.getParams() == otherAccess.getParams() &&
+        return fTextureAccess == other.fTextureAccess &&
                this->getMatrix().cheapEqualTo(other.getMatrix()) &&
                fCoordsType == other.fCoordsType;
     }
