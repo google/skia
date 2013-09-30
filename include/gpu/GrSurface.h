@@ -126,6 +126,12 @@ public:
                              size_t rowBytes = 0,
                              uint32_t pixelOpsFlags = 0) = 0;
 
+    /**
+     * Write the contents of the surface to a PNG. Returns true if successful.
+     * @param filename      Full path to desired file
+     */
+    bool savePixels(const char* filename);
+
 protected:
     GrSurface(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped)
