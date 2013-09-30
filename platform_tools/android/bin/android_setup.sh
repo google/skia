@@ -27,7 +27,7 @@ while (( "$#" )); do
 done
 
 function verbose {
-    if [[ -n $VERBOSE ]]; then
+    if [[ -n $SKIA_ANDROID_VERBOSE_SETUP ]]; then
         echo $@
     fi
 }
