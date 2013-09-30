@@ -25,6 +25,9 @@
         '../third_party/cpufeatures/cpu-features.c',
         '../third_party/cpufeatures/cpu-features.h',
       ],
+      'cflags': [
+        '-w',
+      ],
     },
     {
       'target_name': 'expat',
@@ -172,15 +175,13 @@
         '../third_party/externals/jpeg',
       ],
       'cflags': [
+        '-w',
         '-fvisibility=hidden',
         '-DAVOID_TABLES',
         '-O3',
         '-fstrict-aliasing',
         '-fprefetch-loop-arrays',
         '-DANDROID_TILE_BASED_DECODE',
-      ],
-      'cflags!': [
-        '-Wall',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
