@@ -51,13 +51,6 @@ public:
 
     virtual ~GrGLEffect();
 
-    /** Called when GrGLProgram is about to create its GrGLShaderBuilder. When possible, effects
-        should handle programs that don't have a vertex shader. But if an effect requires special
-        vertex processing that can't be accomplished with the fixed pipeline, it can override this
-        method and return true to guarantee the GrGLShaderBuilder in emitCode has a VertexBuilder.
-        */
-    virtual bool requiresVertexShader(const GrDrawEffect&) const { return false; }
-
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
         stages.

@@ -48,7 +48,6 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                     SkString* fsCoordName,
                                     SkString* vsCoordName,
                                     const char* suffix) {
-    // TODO: Handle vertexless shaders here before we start enabling them.
     GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
     SkASSERT(NULL != vertexBuilder);
 

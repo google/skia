@@ -15,8 +15,6 @@ class GrGLConicEffect : public GrGLEffect {
 public:
     GrGLConicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual bool requiresVertexShader(const GrDrawEffect&) const SK_OVERRIDE { return true; }
-
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
@@ -160,8 +158,6 @@ class GrGLQuadEffect : public GrGLEffect {
 public:
     GrGLQuadEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual bool requiresVertexShader(const GrDrawEffect&) const SK_OVERRIDE { return true; }
-
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
@@ -293,8 +289,6 @@ GrEffectRef* GrQuadEffect::TestCreate(SkRandom* random,
 class GrGLCubicEffect : public GrGLEffect {
 public:
     GrGLCubicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
-
-    virtual bool requiresVertexShader(const GrDrawEffect&) const SK_OVERRIDE { return true; }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,

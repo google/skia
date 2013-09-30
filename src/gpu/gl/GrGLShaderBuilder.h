@@ -108,7 +108,7 @@ public:
     GrGLShaderBuilder(const GrGLContextInfo&,
                       GrGLUniformManager&,
                       const GrGLProgramDesc&,
-                      bool hasVertexShaderEffects);
+                      bool needsVertexShader);
 
     /**
      * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
@@ -257,13 +257,13 @@ public:
      * glEffects array is updated to contain the GrGLEffect generated for each entry in
      * effectStages.
      */
-    void emitEffects(GrGLEffect* const glEffects[],
-                     const GrDrawEffect drawEffects[],
+    void emitEffects(const GrEffectStage* effectStages[],
                      const GrBackendEffectFactory::EffectKey effectKeys[],
                      int effectCnt,
                      SkString*  inOutFSColor,
                      GrSLConstantVec* fsInOutColorKnownValue,
-                     SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[]);
+                     SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
+                     GrGLEffect* glEffects[]);
 
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
     GrGLUniformManager::UniformHandle getDstCopyTopLeftUniform() const {
@@ -389,16 +389,16 @@ private:
 private:
     class CodeStage : public SkNoncopyable {
     public:
-        CodeStage() : fNextIndex(0), fCurrentIndex(-1), fEffect(NULL) {}
+        CodeStage() : fNextIndex(0), fCurrentIndex(-1), fEffectStage(NULL) {}
 
         bool inStageCode() const {
             this->validate();
-            return NULL != fEffect;
+            return NULL != fEffectStage;
         }
 
-        const GrEffectRef* effect() const {
+        const GrEffectStage* effectStage() const {
             this->validate();
-            return fEffect;
+            return fEffectStage;
         }
 
         int stageIndex() const {
@@ -408,34 +408,34 @@ private:
 
         class AutoStageRestore : public SkNoncopyable {
         public:
-            AutoStageRestore(CodeStage* codeStage, const GrEffectRef* effect) {
+            AutoStageRestore(CodeStage* codeStage, const GrEffectStage* newStage) {
                 SkASSERT(NULL != codeStage);
                 fSavedIndex = codeStage->fCurrentIndex;
-                fSavedEffect = codeStage->fEffect;
+                fSavedEffectStage = codeStage->fEffectStage;
 
-                if (NULL == effect) {
+                if (NULL == newStage) {
                     codeStage->fCurrentIndex = -1;
                 } else {
                     codeStage->fCurrentIndex = codeStage->fNextIndex++;
                 }
-                codeStage->fEffect = effect;
+                codeStage->fEffectStage = newStage;
 
                 fCodeStage = codeStage;
             }
             ~AutoStageRestore() {
                 fCodeStage->fCurrentIndex = fSavedIndex;
-                fCodeStage->fEffect = fSavedEffect;
+                fCodeStage->fEffectStage = fSavedEffectStage;
             }
         private:
-            CodeStage*            fCodeStage;
-            int                   fSavedIndex;
-            const GrEffectRef*    fSavedEffect;
+            CodeStage*              fCodeStage;
+            int                     fSavedIndex;
+            const GrEffectStage*    fSavedEffectStage;
         };
     private:
-        void validate() const { SkASSERT((NULL == fEffect) == (-1 == fCurrentIndex)); }
-        int                   fNextIndex;
-        int                   fCurrentIndex;
-        const GrEffectRef*    fEffect;
+        void validate() const { SkASSERT((NULL == fEffectStage) == (-1 == fCurrentIndex)); }
+        int                     fNextIndex;
+        int                     fCurrentIndex;
+        const GrEffectStage*    fEffectStage;
     } fCodeStage;
 
     /**

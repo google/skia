@@ -446,32 +446,10 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     SkASSERT(0 == fProgramID);
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-    bool hasExplicitLocalCoords = -1 != header.fLocalCoordAttributeIndex;
 
-    // Get the coeffs for the Mode-based color filter, determine if color is needed.
-    SkXfermode::Coeff colorCoeff;
-    SkXfermode::Coeff filterColorCoeff;
-    SkAssertResult(
-        SkXfermode::ModeAsCoeff(static_cast<SkXfermode::Mode>(header.fColorFilterXfermode),
-                                &filterColorCoeff,
-                                &colorCoeff));
-    bool needColor, needFilterColor;
-    need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
+    bool needsVertexShader = true;
 
-    // Create the GL effects.
-    bool hasVertexShaderEffects = false;
-
-    SkTArray<GrDrawEffect> colorDrawEffects(needColor ? fDesc.numColorEffects() : 0);
-    if (needColor) {
-        this->buildGLEffects(&GrGLProgram::fColorEffects, colorStages, fDesc.numColorEffects(),
-                             hasExplicitLocalCoords, &colorDrawEffects, &hasVertexShaderEffects);
-    }
-
-    SkTArray<GrDrawEffect> coverageDrawEffects(fDesc.numCoverageEffects());
-    this->buildGLEffects(&GrGLProgram::fCoverageEffects, coverageStages, fDesc.numCoverageEffects(),
-                         hasExplicitLocalCoords, &coverageDrawEffects, &hasVertexShaderEffects);
-
-    GrGLShaderBuilder builder(fGpu->ctxInfo(), fUniformManager, fDesc, hasVertexShaderEffects);
+    GrGLShaderBuilder builder(fGpu->ctxInfo(), fUniformManager, fDesc, needsVertexShader);
 
     if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
         const char* viewMName;
@@ -508,6 +486,16 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     SkString inColor;
     GrSLConstantVec knownColorValue = this->genInputColor(&builder, &inColor);
 
+    // Get the coeffs for the Mode-based color filter, determine if color is needed.
+    SkXfermode::Coeff colorCoeff;
+    SkXfermode::Coeff filterColorCoeff;
+    SkAssertResult(
+        SkXfermode::ModeAsCoeff(static_cast<SkXfermode::Mode>(header.fColorFilterXfermode),
+                                &filterColorCoeff,
+                                &colorCoeff));
+    bool needColor, needFilterColor;
+    need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
+
     // used in order for builder to return the per-stage uniform handles.
     typedef SkTArray<GrGLUniformManager::UniformHandle, true>* UniHandleArrayPtr;
     int maxColorOrCovEffectCnt = GrMax(fDesc.numColorEffects(), fDesc.numCoverageEffects());
@@ -516,17 +504,20 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
 
     if (needColor) {
         for (int e = 0; e < fDesc.numColorEffects(); ++e) {
-            glEffects[e] = fColorEffects[e].fGLEffect;
             effectUniformArrays[e] = &fColorEffects[e].fSamplerUnis;
         }
 
-        builder.emitEffects(glEffects.get(),
-                            colorDrawEffects.begin(),
+        builder.emitEffects(colorStages,
                             fDesc.effectKeys(),
                             fDesc.numColorEffects(),
                             &inColor,
                             &knownColorValue,
-                            effectUniformArrays.get());
+                            effectUniformArrays.get(),
+                            glEffects.get());
+
+        for (int e = 0; e < fDesc.numColorEffects(); ++e) {
+            fColorEffects[e].fGLEffect = glEffects[e];
+        }
     }
 
     // Insert the color filter. This will soon be replaced by a color effect.
@@ -557,17 +548,19 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     GrSLConstantVec knownCoverageValue = this->genInputCoverage(&builder, &inCoverage);
 
     for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
-        glEffects[e] = fCoverageEffects[e].fGLEffect;
         effectUniformArrays[e] = &fCoverageEffects[e].fSamplerUnis;
     }
 
-    builder.emitEffects(glEffects.get(),
-                        coverageDrawEffects.begin(),
+    builder.emitEffects(coverageStages,
                         fDesc.getEffectKeys() + fDesc.numColorEffects(),
                         fDesc.numCoverageEffects(),
                         &inCoverage,
                         &knownCoverageValue,
-                        effectUniformArrays.get());
+                        effectUniformArrays.get(),
+                        glEffects.get());
+    for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
+        fCoverageEffects[e].fGLEffect = glEffects[e];
+    }
 
     // discard if coverage is zero
     if (header.fDiscardIfZeroCoverage && kOnes_GrSLConstantVec != knownCoverageValue) {
@@ -694,28 +687,6 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     this->initSamplerUniforms();
 
     return true;
-}
-
-void GrGLProgram::buildGLEffects(SkTArray<EffectAndSamplers> GrGLProgram::* effectSet,
-                                 const GrEffectStage* stages[],
-                                 int count,
-                                 bool hasExplicitLocalCoords,
-                                 SkTArray<GrDrawEffect>* drawEffects,
-                                 bool* hasVertexShaderEffects) {
-    for (int e = 0; e < count; ++e) {
-        SkASSERT(NULL != stages[e] && NULL != stages[e]->getEffect());
-
-        const GrEffectStage& stage = *stages[e];
-        SkNEW_APPEND_TO_TARRAY(drawEffects, GrDrawEffect, (stage, hasExplicitLocalCoords));
-
-        const GrDrawEffect& drawEffect = (*drawEffects)[e];
-        GrGLEffect* effect = (this->*effectSet)[e].fGLEffect =
-            (*stage.getEffect())->getFactory().createGLInstance(drawEffect);
-
-        if (!*hasVertexShaderEffects && effect->requiresVertexShader(drawEffect)) {
-            *hasVertexShaderEffects = true;
-        }
-    }
 }
 
 bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
