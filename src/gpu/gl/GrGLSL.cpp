@@ -63,14 +63,6 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     }
 }
 
-bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen, const char* nameIfDeclared, GrGLShaderVar* var) {
-    bool declaredOutput = k110_GrGLSLGeneration != gen;
-    var->set(kVec4f_GrSLType,
-             GrGLShaderVar::kOut_TypeModifier,
-             declaredOutput ? nameIfDeclared : "gl_FragColor");
-    return declaredOutput;
-}
-
 const char* GrGLSLVectorHomogCoord(int count) {
     static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
     SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));

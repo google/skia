@@ -105,7 +105,7 @@ public:
         kFragment_Visibility = 0x4,
     };
 
-    GrGLShaderBuilder(const GrGLContextInfo&,
+    GrGLShaderBuilder(GrGpuGL*,
                       GrGLUniformManager&,
                       const GrGLProgramDesc&,
                       bool needsVertexShader);
@@ -171,9 +171,6 @@ public:
 
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
-    GrGLShaderVar& fsOutputAppend() { return fFSOutputs.push_back(); }
-    GrGLShaderVar& fsInputAppend(const GrGLShaderVar& var) { return fFSInputs.push_back(var); }
-    GrGLShaderVar& fsOutputAppend(const GrGLShaderVar& var) { return fFSOutputs.push_back(var); }
 
     /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
@@ -238,13 +235,13 @@ public:
 
     /**
      * Interfaces used by GrGLProgram.
-     * TODO: Hide these from the GrEffects using friend or splitting this into two related classes.
-     * Also, GrGLProgram's shader string construction should be moved to this class.
+     * TODO: These are used by GrGLProgram to insert a mode color filter. Remove these when the
+     * color filter is expressed as a GrEffect.
      */
-
-    /** Called after building is complete to get the final shader string. To acces the vertex
-        and geometry shaders, use the VertexBuilder. */
-    void fsGetShader(SkString*) const;
+    const SkString& getInputColor() const { return fInputColor; }
+    GrSLConstantVec getKnownColorValue() const { return fKnownColorValue; }
+    const SkString& getInputCoverage() const { return fInputCoverage; }
+    GrSLConstantVec getKnownCoverageValue() const { return fKnownCoverageValue; }
 
     /**
      * Adds code for effects. effectStages contains the effects to add. effectKeys[i] is the key
@@ -265,6 +262,9 @@ public:
                      SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
                      GrGLEffect* glEffects[]);
 
+    const char* getColorOutputName() const;
+    const char* enableSecondaryOutput();
+
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
     GrGLUniformManager::UniformHandle getDstCopyTopLeftUniform() const {
         return fDstCopyTopLeftUniform;
@@ -272,6 +272,8 @@ public:
     GrGLUniformManager::UniformHandle getDstCopyScaleUniform() const {
         return fDstCopyScaleUniform;
     }
+    GrGLUniformManager::UniformHandle getColorUniform() const { return fColorUniform; }
+    GrGLUniformManager::UniformHandle getCoverageUniform() const { return fCoverageUniform; }
     GrGLUniformManager::UniformHandle getDstCopySamplerUniform() const {
         return fDstCopySampler.fSamplerUniform;
     }
@@ -281,7 +283,7 @@ public:
         that only use the fragment shader. */
     class VertexBuilder {
     public:
-        VertexBuilder(GrGLShaderBuilder* parent, const GrGLProgramDesc&);
+        VertexBuilder(GrGLShaderBuilder* parent, GrGpuGL* gpu, const GrGLProgramDesc&);
 
         /**
          * Called by GrGLEffects to add code to one of the shaders.
@@ -293,15 +295,7 @@ public:
             va_end(args);
         }
 
-        void gsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-            va_list args;
-            va_start(args, format);
-            fGSCode.appendf(format, args);
-            va_end(args);
-        }
-
         void vsCodeAppend(const char* str) { fVSCode.append(str); }
-        void gsCodeAppend(const char* str) { fGSCode.append(str); }
 
        /** Add a vertex attribute to the current program that is passed in from the vertex data.
            Returns false if the attribute was already there, true otherwise. */
@@ -330,9 +324,26 @@ public:
          */
         bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
 
-        /** Called after building is complete to get the final shader string. */
-        void vsGetShader(SkString*) const;
-        void gsGetShader(SkString*) const;
+        bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
+        const SkString* getEffectAttributeName(int attributeIndex) const;
+
+        GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
+            return fViewMatrixUniform;
+        }
+
+        bool compileAndAttachShaders(GrGLuint programId) const;
+        void bindProgramLocations(GrGLuint programId) const;
+
+    private:
+        GrGLShaderBuilder*                  fParent;
+        GrGpuGL*                            fGpu;
+        const GrGLProgramDesc&              fDesc;
+        VarArray                            fVSAttrs;
+        VarArray                            fVSOutputs;
+        VarArray                            fGSInputs;
+        VarArray                            fGSOutputs;
+
+        SkString                            fVSCode;
 
         struct AttributePair {
             void set(int index, const SkString& name) {
@@ -341,30 +352,9 @@ public:
             int      fIndex;
             SkString fName;
         };
-        const SkTArray<AttributePair, true>& getEffectAttributes() const {
-            return fEffectAttributes;
-        }
-        bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
-        const SkString* getEffectAttributeName(int attributeIndex) const;
-
-        // TODO: Everything below here private.
-    public:
-
-        VarArray    fVSAttrs;
-        VarArray    fVSOutputs;
-        VarArray    fGSInputs;
-        VarArray    fGSOutputs;
-        SkString    fGSHeader; // layout qualifiers specific to GS
-
-    private:
-        GrGLShaderBuilder*                  fParent;
-
-        bool                                fUsesGS;
-
-        SkString                            fVSCode;
-        SkString                            fGSCode;
-
         SkSTArray<10, AttributePair, true>  fEffectAttributes;
+
+        GrGLUniformManager::UniformHandle   fViewMatrixUniform;
 
         GrGLShaderVar*                      fPositionVar;
         GrGLShaderVar*                      fLocalCoordsVar;
@@ -374,14 +364,16 @@ public:
         It may be NULL if this shader program is only meant to have a fragment shader. */
     VertexBuilder* getVertexBuilder() const { return fVertexBuilder.get(); }
 
-    // TODO: Make this do all the compiling, linking, etc.
-    void finished(GrGLuint programID);
+    bool finish(GrGLuint* outProgramId);
 
-    const GrGLContextInfo& ctxInfo() const { return fCtxInfo; }
+    const GrGLContextInfo& ctxInfo() const;
 
 private:
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderVisibility, SkString*) const;
+
+    bool compileAndAttachShaders(GrGLuint programId) const;
+    void bindProgramLocations(GrGLuint programId) const;
 
     typedef GrGLUniformManager::BuilderUniform BuilderUniform;
     GrGLUniformManager::BuilderUniformArray fUniforms;
@@ -471,7 +463,7 @@ private:
         kBottomLeftFragPosRead_FragPosKey   = 0x2,// Read frag pos relative to bottom-left.
     };
 
-    const GrGLContextInfo&              fCtxInfo;
+    GrGpuGL*                            fGpu;
     GrGLUniformManager&                 fUniformManager;
     uint32_t                            fFSFeaturesAddedMask;
     SkString                            fFSFunctions;
@@ -484,13 +476,23 @@ private:
     bool                                fSetupFragPosition;
     TextureSampler                      fDstCopySampler;
 
+    SkString                            fInputColor;
+    GrSLConstantVec                     fKnownColorValue;
+    SkString                            fInputCoverage;
+    GrSLConstantVec                     fKnownCoverageValue;
+
+    bool                                fHasCustomColorOutput;
+    bool                                fHasSecondaryOutput;
+
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
     GrGLUniformManager::UniformHandle   fDstCopyTopLeftUniform;
     GrGLUniformManager::UniformHandle   fDstCopyScaleUniform;
+    GrGLUniformManager::UniformHandle   fColorUniform;
+    GrGLUniformManager::UniformHandle   fCoverageUniform;
 
     bool                                fTopLeftFragPosRead;
 
-    SkAutoTDelete<VertexBuilder> fVertexBuilder;
+    SkAutoTDelete<VertexBuilder>        fVertexBuilder;
 };
 
 #endif

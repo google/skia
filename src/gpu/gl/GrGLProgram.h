@@ -172,24 +172,9 @@ private:
      */
     bool genProgram(const GrEffectStage* colorStages[], const GrEffectStage* coverageStages[]);
 
-    GrSLConstantVec genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
-
-    GrSLConstantVec genInputCoverage(GrGLShaderBuilder* builder, SkString* inCoverage);
-
-    void genGeometryShader(GrGLShaderBuilder::VertexBuilder* vertexBuilder) const;
-
-    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
-    bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
-                                          bool bindColorOut,
-                                          bool bindDualSrcOut);
-
     // Sets the texture units for samplers
     void initSamplerUniforms();
     void initEffectSamplerUniforms(EffectAndSamplers* effect, int* texUnitIdx);
-
-    bool compileShaders(const GrGLShaderBuilder& builder);
-
-    const char* adjustInColor(const SkString& inColor) const;
 
     // Helper for setData().
     void setEffectData(const GrEffectStage& stage, const EffectAndSamplers& effect);
@@ -205,10 +190,7 @@ private:
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setMatrixAndRenderTargetHeight(const GrDrawState&);
 
-    // GL IDs
-    GrGLuint                    fVShaderID;
-    GrGLuint                    fGShaderID;
-    GrGLuint                    fFShaderID;
+    // GL program ID
     GrGLuint                    fProgramID;
 
     // these reflect the current values of uniforms (GL uniform values travel with program)

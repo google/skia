@@ -87,24 +87,6 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
 const char* GrGetGLSLVersionDecl(const GrGLContextInfo&);
 
 /**
- * Depending on the GLSL version being emitted there may be an assumed output
- * variable from the fragment shader for the color. Otherwise, the shader must
- * declare an output variable for the color. If this function returns true:
- *    * Parameter var's name will be set to nameIfDeclared
- *    * The variable must be declared in the fragment shader
- *    * The variable has to be bound as the color output
- *      (using glBindFragDataLocation)
- *    If the function returns false:
- *    * Parameter var's name will be set to the GLSL built-in color output name.
- *    * Do not declare the variable in the shader.
- *    * Do not use glBindFragDataLocation to bind the variable
- * In either case var is initialized to represent the color output in the
- * shader.
- */
-bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
-                             const char* nameIfDeclared,
-                             GrGLShaderVar* var);
-/**
  * Converts a GrSLType to a string containing the name of the equivalent GLSL type.
  */
 static const char* GrGLSLTypeString(GrSLType t) {
