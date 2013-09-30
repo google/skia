@@ -23,14 +23,6 @@
         ],
       },
       'copies': [
-        # Copy gdbserver into the lib.target directory, so that it gets packaged
-        # in the APK.  This is necessary for debugging.
-        {
-          'destination': '<(PRODUCT_DIR)/lib.target',
-          'files': [
-            '<(android_base)/toolchains/<(android_toolchain)/gdbserver',
-          ],
-        },
         # Copy all shared libraries into the Android app's libs folder.  Note
         # that this copy requires us to build SkiaAndroidApp after those
         # libraries, so that they exist by the time it occurs.  If there are no
@@ -40,7 +32,6 @@
           'destination': '<(PRODUCT_DIR)/android/libs/<(android_arch)',
           'files': [
             '<(PRODUCT_DIR)/lib.target/libSampleApp.so',
-            '<(PRODUCT_DIR)/lib.target/gdbserver',
             '<(PRODUCT_DIR)/lib.target/libskia_android.so',
           ],
         },
