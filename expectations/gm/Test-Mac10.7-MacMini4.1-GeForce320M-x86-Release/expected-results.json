@@ -11412,8 +11412,9 @@
         ]
       ], 
       "bugs": [
-        1578
+        1578, 1692
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "shadertext3_565.png": {
