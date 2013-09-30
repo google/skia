@@ -214,10 +214,10 @@ def main():
                             'to access this server.  WARNING: doing so will '
                             'allow users on other hosts to modify your '
                             'GM expectations!'))
-  parser.add_argument('--port',
-                    help=('Which TCP port to listen on for HTTP requests; '
-                          'defaults to %(default)s'),
-                    default=DEFAULT_PORT)
+  parser.add_argument('--port', type=int,
+                      help=('Which TCP port to listen on for HTTP requests; '
+                            'defaults to %(default)s'),
+                      default=DEFAULT_PORT)
   args = parser.parse_args()
   global _SERVER
   _SERVER = Server(expectations_dir=args.expectations_dir,
