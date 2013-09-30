@@ -126,6 +126,9 @@
           '../third_party/externals/poppler/poppler',
         ],
       },
+      'cflags': [
+        '-w'
+      ],
       'conditions': [
         ['skia_os == "linux"', {
           'include_dirs': [

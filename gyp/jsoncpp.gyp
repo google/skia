@@ -49,12 +49,8 @@
           '../third_party/externals/jsoncpp/include/',
         ],
       },
-      'conditions': [
-        [ 'skia_os == "android"', {
-          'cflags!': [
-            '-Wall',
-          ],
-        }],
+      'cflags': [
+        '-w',
       ],
     },
   ],
