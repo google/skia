@@ -40,7 +40,7 @@ public:
          * GrGLEffects' control. So there is a dedicated part of the key which is combined
          * automatically with the bits produced by GrGLEffect::GenKey().
          */
-        kTextureKeyBits = 6,
+        kTextureKeyBits = 4,
         kAttribKeyBits = 6
     };
 
