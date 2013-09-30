@@ -26,10 +26,16 @@ while (( "$#" )); do
   shift
 done
 
+function verbose {
+    if [[ -n $VERBOSE ]]; then
+        echo $@
+    fi
+}
+
 function exportVar {
   NAME=$1
   VALUE=$2
-  echo export $NAME=\"$VALUE\"
+  verbose export $NAME=\"$VALUE\"
   export $NAME="$VALUE"
 }
 
@@ -81,13 +87,13 @@ setup_toolchain() {
 
   TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
   if [ $(uname) == "Linux" ]; then
-    echo "Using Linux toolchain."
+    verbose "Using Linux toolchain."
     TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
   elif [ $(uname) == "Darwin" ]; then
-    echo "Using Mac toolchain."
+    verbose "Using Mac toolchain."
     TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
   else
-    echo "Could not automatically determine toolchain!  Defaulting to Linux."
+    verbose "Could not automatically determine toolchain!  Defaulting to Linux."
     TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
   fi
   exportVar ANDROID_TOOLCHAIN ${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin
@@ -121,7 +127,7 @@ setup_toolchain() {
     return 1;
   fi
 
-  echo "The build is targeting NDK API level $API_LEVEL for use on Android 4.0 (NDK Revision $NDK_REV) and above"
+  verbose "The build is targeting NDK API level $API_LEVEL for use on Android 4.0 (NDK Revision $NDK_REV) and above"
 
   LS="/bin/ls"  # Use directly to avoid any 'ls' alias that might be defined.
   GCC=$($LS $ANDROID_TOOLCHAIN/*-gcc | head -n1)
@@ -163,10 +169,10 @@ setup_device() {
   if [ -z "$TARGET_DEVICE" ]; then
     if [ -f .android_config ]; then
       TARGET_DEVICE=$(cat .android_config)
-      echo "INFO: no target device was specified so using the device (${TARGET_DEVICE}) from the most recent build"
+      verbose "INFO: no target device was specified so using the device (${TARGET_DEVICE}) from the most recent build"
     else
       TARGET_DEVICE="arm_v7_thumb"
-      echo "INFO: no target device type was specified so using the default '${TARGET_DEVICE}'"
+      verbose "INFO: no target device type was specified so using the default '${TARGET_DEVICE}'"
     fi
   fi
 
@@ -227,7 +233,7 @@ setup_device() {
       ;;
   esac
 
-  echo "The build is targeting the device: $TARGET_DEVICE"
+  verbose "The build is targeting the device: $TARGET_DEVICE"
   export DEVICE_ID="$TARGET_DEVICE"
 
   # Set up the toolchain.

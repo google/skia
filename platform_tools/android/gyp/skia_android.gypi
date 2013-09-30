@@ -31,8 +31,8 @@
         {
           'destination': '<(PRODUCT_DIR)/android/libs/<(android_arch)',
           'files': [
-            '<(PRODUCT_DIR)/lib.target/libSampleApp.so',
-            '<(PRODUCT_DIR)/lib.target/libskia_android.so',
+            '<(PRODUCT_DIR)/<(SHARED_LIB_DIR)/libSampleApp.so',
+            '<(PRODUCT_DIR)/<(SHARED_LIB_DIR)/libskia_android.so',
           ],
         },
       ],
@@ -71,6 +71,7 @@
           ],
           'action': [
             'ant',
+            '-quiet',
             '-f',
             '<(android_base)/app/build.xml',
             '-Dout.dir=<(PRODUCT_DIR)/android/bin',
