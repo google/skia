@@ -17,13 +17,13 @@ bool GrSurface::savePixels(const char* filename) {
     bm.setConfig(SkBitmap::kARGB_8888_Config, this->width(), this->height());
     bm.allocPixels();
 
-    bool result = readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig, 
+    bool result = readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
                              bm.getPixels());
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;
     }
-    
+
     // remove any previous version of this file
     remove(filename);
 
