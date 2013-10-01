@@ -30,6 +30,7 @@ DEFINE_string(readExpectationsPath, "", "Path to read JSON expectations from.");
 DEFINE_bool(reencode, true, "Reencode the images to test encoding.");
 DEFINE_bool(testSubsetDecoding, true, "Test decoding subsets of images.");
 DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
+DEFINE_bool(skip, false, "Skip writing zeroes.");
 
 struct Format {
     SkImageEncoder::Type    fType;
@@ -383,6 +384,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
 
     SkAutoTDelete<SkImageDecoder> ad(codec);
 
+    codec->setSkipWritingZeroes(FLAGS_skip);
     stream.rewind();
 
     // Create a string representing just the filename itself, for use in json expectations.

@@ -91,7 +91,7 @@ private:
                        SkColorTable **colorTablep);
     bool getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                          SkBitmap::Config *config, bool *hasAlpha,
-                         bool *doDither, SkPMColor *theTranspColor);
+                         SkPMColor *theTranspColor);
 
     typedef SkImageDecoder INHERITED;
 };
@@ -294,10 +294,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
     SkBitmap::Config    config;
     bool                hasAlpha = false;
-    bool                doDither = this->getDitherImage();
     SkPMColor           theTranspColor = 0; // 0 tells us not to try to match
 
-    if (!getBitmapConfig(png_ptr, info_ptr, &config, &hasAlpha, &doDither, &theTranspColor)) {
+    if (!this->getBitmapConfig(png_ptr, info_ptr, &config, &hasAlpha, &theTranspColor)) {
         return false;
     }
 
@@ -377,8 +376,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             upscale png's palette to a direct model
          */
         SkAutoLockColors ctLock(colorTable);
-        if (!sampler.begin(decodedBitmap, sc, doDither, ctLock.colors(),
-                           this->getRequireUnpremultipliedColors())) {
+        if (!sampler.begin(decodedBitmap, sc, *this, ctLock.colors())) {
             return false;
         }
         const int height = decodedBitmap->height();
@@ -446,7 +444,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                                         SkBitmap::Config* SK_RESTRICT configp,
                                         bool* SK_RESTRICT hasAlphap,
-                                        bool* SK_RESTRICT doDitherp,
                                         SkPMColor* SK_RESTRICT theTranspColorp) {
     png_uint_32 origWidth, origHeight;
     int bitDepth, colorType;
@@ -456,7 +453,7 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
     // check for sBIT chunk data, in case we should disable dithering because
     // our data is not truely 8bits per component
     png_color_8p sig_bit;
-    if (*doDitherp && png_get_sBIT(png_ptr, info_ptr, &sig_bit)) {
+    if (this->getDitherImage() && png_get_sBIT(png_ptr, info_ptr, &sig_bit)) {
 #if 0
         SkDebugf("----- sBIT %d %d %d %d\n", sig_bit->red, sig_bit->green,
                  sig_bit->blue, sig_bit->alpha);
@@ -465,7 +462,7 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
         if (pos_le(sig_bit->red, SK_R16_BITS) &&
             pos_le(sig_bit->green, SK_G16_BITS) &&
             pos_le(sig_bit->blue, SK_B16_BITS)) {
-            *doDitherp = false;
+            this->setDitherImage(false);
         }
     }
 
@@ -724,10 +721,9 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
 
     SkBitmap::Config    config;
     bool                hasAlpha = false;
-    bool                doDither = this->getDitherImage();
     SkPMColor           theTranspColor = 0; // 0 tells us not to try to match
 
-    if (!getBitmapConfig(png_ptr, info_ptr, &config, &hasAlpha, &doDither, &theTranspColor)) {
+    if (!this->getBitmapConfig(png_ptr, info_ptr, &config, &hasAlpha, &theTranspColor)) {
         return false;
     }
 
@@ -834,8 +830,7 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             upscale png's palette to a direct model
          */
         SkAutoLockColors ctLock(colorTable);
-        if (!sampler.begin(&decodedBitmap, sc, doDither, ctLock.colors(),
-                           this->getRequireUnpremultipliedColors())) {
+        if (!sampler.begin(&decodedBitmap, sc, *this, ctLock.colors())) {
             return false;
         }
         const int height = decodedBitmap.height();

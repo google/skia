@@ -61,15 +61,7 @@ protected:
                 fStream.setData(skdata.get());
                 fDecoder.reset(SkImageDecoder::Factory(&fStream));
                 if (fDecoder.get()) {
-                    // Disabling until the feature is checked in.
-                    // See https://codereview.chromium.org/24269006/
-                    //fDecoder->setSkipWritingZeroes(fSkipZeroes);
-                    if (fSkipZeroes) {
-                        // This printf will never happen since this bench is
-                        // only currently created with false. Remove once
-                        // the above code is uncommented.
-                        SkDebugf("Should be skipping zeroes...\n");
-                    }
+                    fDecoder->setSkipWritingZeroes(fSkipZeroes);
                 } else {
                     fValid = false;
                 }
@@ -117,5 +109,5 @@ private:
 };
 
 // Enable the true version once the feature is checked in.
-//DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", true)));
+DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", true)));
 DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", false)));

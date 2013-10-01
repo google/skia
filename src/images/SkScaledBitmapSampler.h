@@ -10,6 +10,7 @@
 
 #include "SkTypes.h"
 #include "SkColor.h"
+#include "SkImageDecoder.h"
 
 class SkBitmap;
 
@@ -35,11 +36,16 @@ public:
     // Given a dst bitmap (with pixels already allocated) and a src-config,
     // prepares iterator to process the src colors and write them into dst.
     // Returns false if the request cannot be fulfulled.
-    bool begin(SkBitmap* dst, SrcConfig sc, bool doDither,
-               const SkPMColor* = NULL, bool requireUnPremul = false);
+    bool begin(SkBitmap* dst, SrcConfig sc, const SkImageDecoder& decoder,
+               const SkPMColor* = NULL);
     // call with row of src pixels, for y = 0...scaledHeight-1.
     // returns true if the row had non-opaque alpha in it
     bool next(const uint8_t* SK_RESTRICT src);
+
+    typedef bool (*RowProc)(void* SK_RESTRICT dstRow,
+                            const uint8_t* SK_RESTRICT src,
+                            int width, int deltaSrc, int y,
+                            const SkPMColor[]);
 
 private:
     int fScaledWidth;
@@ -50,11 +56,6 @@ private:
     int fDX;    // step between X samples
     int fDY;    // step between Y samples
 
-    typedef bool (*RowProc)(void* SK_RESTRICT dstRow,
-                            const uint8_t* SK_RESTRICT src,
-                            int width, int deltaSrc, int y,
-                            const SkPMColor[]);
-
     // setup state
     char*   fDstRow; // points into bitmap's pixels
     size_t  fDstRowBytes;
@@ -64,6 +65,11 @@ private:
 
     // optional reference to the src colors if the src is a palette model
     const SkPMColor* fCTable;
+
+#ifdef SK_DEBUG
+    // Helper class allowing a test to have access to fRowProc.
+    friend class RowProcTester;
+#endif
 };
 
 #endif

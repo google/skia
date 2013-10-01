@@ -255,13 +255,18 @@ static void test_stream_life() {
                               SkBitmap::kARGB_8888_Config);
     }
 }
-#endif
+
+// Test inside SkScaledBitmapSampler.cpp
+extern void test_row_proc_choice();
+
+#endif // SK_DEBUG
 
 static void test_imageDecodingTests(skiatest::Reporter* reporter) {
     test_unpremul(reporter);
     test_pref_config_table(reporter);
 #ifdef SK_DEBUG
     test_stream_life();
+    test_row_proc_choice();
 #endif
 }
 

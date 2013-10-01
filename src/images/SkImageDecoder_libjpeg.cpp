@@ -588,7 +588,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         return return_false(cinfo, *bm, "jpeg colorspace");
     }
 
-    if (!sampler.begin(bm, sc, this->getDitherImage())) {
+    if (!sampler.begin(bm, sc, *this)) {
         return return_false(cinfo, *bm, "sampler.begin");
     }
 
@@ -827,7 +827,7 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
         return return_false(*cinfo, *bm, "jpeg colorspace");
     }
 
-    if (!sampler.begin(&bitmap, sc, this->getDitherImage())) {
+    if (!sampler.begin(&bitmap, sc, *this)) {
         return return_false(*cinfo, bitmap, "sampler.begin");
     }
 

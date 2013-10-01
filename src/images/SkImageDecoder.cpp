@@ -40,6 +40,7 @@ SkImageDecoder::SkImageDecoder()
     , fDefaultPref(SkBitmap::kNo_Config)
     , fDitherImage(true)
     , fUsePrefTable(false)
+    , fSkipWritingZeroes(false)
     , fPreferQualityOverSpeed(false)
     , fRequireUnpremultipliedColors(false) {
 }
@@ -63,6 +64,8 @@ void SkImageDecoder::copyFieldsToOther(SkImageDecoder* other) {
     } else {
         other->fDefaultPref = fDefaultPref;
     }
+    other->setDitherImage(fDitherImage);
+    other->setSkipWritingZeroes(fSkipWritingZeroes);
     other->setPreferQualityOverSpeed(fPreferQualityOverSpeed);
     other->setRequireUnpremultipliedColors(fRequireUnpremultipliedColors);
 }

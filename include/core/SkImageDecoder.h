@@ -60,6 +60,23 @@ public:
     */
     const char* getFormatName() const;
 
+    /** Whether the decoder should skip writing zeroes to output if possible.
+    */
+    bool getSkipWritingZeroes() const { return fSkipWritingZeroes; }
+
+    /** Set to true if the decoder should skip writing any zeroes when
+        creating the output image.
+        This is a hint that may not be respected by the decoder.
+        It should only be used if it is known that the memory to write
+        to has already been set to 0; otherwise the resulting image will
+        have garbage.
+        This is ideal for images that contain a lot of completely transparent
+        pixels, but may be a performance hit for an image that has only a
+        few transparent pixels.
+        The default is false.
+    */
+    void setSkipWritingZeroes(bool skip) { fSkipWritingZeroes = skip; }
+
     /** Returns true if the decoder should try to dither the resulting image.
         The default setting is true.
     */
@@ -508,6 +525,7 @@ private:
     PrefConfigTable         fPrefTable;     // use if fUsePrefTable is true
     bool                    fDitherImage;
     bool                    fUsePrefTable;
+    bool                    fSkipWritingZeroes;
     mutable bool            fShouldCancelDecode;
     bool                    fPreferQualityOverSpeed;
     bool                    fRequireUnpremultipliedColors;
