@@ -39,8 +39,8 @@ SkThreadPool::SkThreadPool(int count)
 }
 
 SkThreadPool::~SkThreadPool() {
-    fDone = true;
     fReady.lock();
+    fDone = true;
     fReady.broadcast();
     fReady.unlock();
 

@@ -43,7 +43,7 @@ public:
     SkTInternalLList<LinkedRunnable>    fQueue;
     SkCondVar                           fReady;
     SkTDArray<SkThread*>                fThreads;
-    bool                            fDone;
+    bool                                fDone;
 
     static void Loop(void*);  // Static because we pass in this.
 };
