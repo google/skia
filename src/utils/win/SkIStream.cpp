@@ -122,6 +122,9 @@ HRESULT SkIStream::CreateFromSkStream(SkStream* stream
                                     , bool unrefOnRelease
                                     , IStream ** ppStream)
 {
+    if (NULL == stream) {
+        return E_INVALIDARG;
+    }
     *ppStream = new SkIStream(stream, unrefOnRelease);
     return S_OK;
 }

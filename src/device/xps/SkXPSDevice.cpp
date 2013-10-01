@@ -2051,6 +2051,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     SkTScopedComPtr<IStream> fontStream;
     int ttcIndex;
     SkStream* fontData = typeface->openStream(&ttcIndex);
+    //TODO: cannot handle FON fonts.
     HRM(SkIStream::CreateFromSkStream(fontData, true, &fontStream),
         "Could not create font stream.");
 
@@ -2286,6 +2287,7 @@ void SkXPSDevice::drawText(const SkDraw& d,
     HRV(CreateTypefaceUse(paint, &typeface));
 
     SkDraw myDraw(d);
+    myDraw.fMatrix = &SkMatrix::I();
     SkXPSDrawProcs procs;
     text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
 
@@ -2336,6 +2338,7 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
     HRV(CreateTypefaceUse(paint, &typeface));
 
     SkDraw myDraw(d);
+    myDraw.fMatrix = &SkMatrix::I();
     SkXPSDrawProcs procs;
     text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
 
@@ -2411,6 +2414,9 @@ SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                                     int width, int height,
                                                     bool isOpaque,
                                                     Usage usage) {
+
+//Conditional for bug compatibility with PDF device.
+#if 0
     if (SkBaseDevice::kGeneral_Usage == usage) {
         return NULL;
         SK_CRASH();
@@ -2420,7 +2426,7 @@ SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
         //dev->BeginCanvas(s, s, SkMatrix::I());
         //return dev;
     }
-
+#endif
     return new SkXPSDevice(this->fXpsFactory.get());
 }
 
