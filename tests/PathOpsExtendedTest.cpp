@@ -632,6 +632,7 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
     SkPathOpsDebug::gMaxWindSum = 4;
     SkPathOpsDebug::gMaxWindValue = 4;
 #endif
+#if DEBUG_SHOW_TEST_NAME
     testName = test;
     size_t testNameSize = strlen(test);
     SkFILEStream inFile("../../experimental/Intersection/op.htm");
@@ -648,6 +649,7 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
             testNumber = atoi(numLoc) + 1;
         }
     }
+#endif
     return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
 }
 
