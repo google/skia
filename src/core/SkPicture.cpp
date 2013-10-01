@@ -310,7 +310,10 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
     SkPicturePlayback* playback;
     // Check to see if there is a playback to recreate.
     if (stream->readBool()) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (stream, info, proc));
+        playback = SkPicturePlayback::CreateFromStream(stream, info, proc);
+        if (NULL == playback) {
+            return NULL;
+        }
     } else {
         playback = NULL;
     }

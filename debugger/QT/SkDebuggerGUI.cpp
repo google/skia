@@ -147,10 +147,20 @@ void SkDebuggerGUI::showDeletes() {
 // offsets to individual commands.
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
-    SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                           SkPicture::InstallPixelRefProc proc,
-                           const SkTDArray<bool>& deletedCommands)
-        : INHERITED(stream, info, proc)
+    static SkTimedPicturePlayback* CreateFromStream(SkStream* stream, const SkPictInfo& info,
+                                                    SkPicture::InstallPixelRefProc proc,
+                                                    const SkTDArray<bool>& deletedCommands) {
+        // Mimics SkPicturePlayback::CreateFromStream
+        SkAutoTDelete<SkTimedPicturePlayback> playback(SkNEW_ARGS(SkTimedPicturePlayback,
+                                                                  (deletedCommands)));
+        if (!playback->parseStream(stream, info, proc)) {
+            return NULL; // we're invalid
+        }
+        return playback.detach();
+    }
+
+    SkTimedPicturePlayback(const SkTDArray<bool>& deletedCommands)
+        : INHERITED()
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
         , fCurCommand(0) {
@@ -232,6 +242,14 @@ protected:
 #endif
 
 private:
+    // SkPicturePlayback::parseStream is protected, so it can be
+    // called here, but not by our static factory function. This
+    // allows the factory function to call it.
+    bool parseStream(SkStream* stream, const SkPictInfo& info,
+                     SkPicture::InstallPixelRefProc proc) {
+        return this->INHERITED::parseStream(stream, info, proc);
+    }
+
     typedef SkPicturePlayback INHERITED;
 };
 
@@ -249,8 +267,11 @@ public:
         SkTimedPicturePlayback* playback;
         // Check to see if there is a playback to recreate.
         if (stream->readBool()) {
-            playback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                  (stream, info, proc, deletedCommands));
+            playback = SkTimedPicturePlayback::CreateFromStream(stream, info, proc,
+                                                                deletedCommands);
+            if (NULL == playback) {
+                return NULL;
+            }
         } else {
             playback = NULL;
         }
