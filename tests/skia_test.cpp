@@ -84,20 +84,23 @@ public:
 
 protected:
     virtual void onStart(Test* test) {
-        const int index = sk_atomic_inc(&fNextIndex)+1;
-        const int pending = sk_atomic_inc(&fPending)+1;
-        SkDebugf("[%3d/%3d] (%d) %s\n", index, fTotal, pending, test->getName());
+        SkAutoMutexAcquire lock(fStartEndMutex);
+        fNextIndex++;
+        fPending++;
+        SkDebugf("[%3d/%3d] (%d) %s\n", fNextIndex, fTotal, fPending, test->getName());
     }
+
     virtual void onReportFailed(const SkString& desc) {
         SkDebugf("\tFAILED: %s\n", desc.c_str());
     }
 
     virtual void onEnd(Test* test) {
+        SkAutoMutexAcquire lock(fStartEndMutex);
         if (!test->passed()) {
             SkDebugf("---- %s FAILED\n", test->getName());
         }
 
-        sk_atomic_dec(&fPending);
+        fPending--;
         if (fNextIndex == fTotal) {
             // Just waiting on straggler tests.  Shame them by printing their name and runtime.
             SkDebugf("          (%d) %5.1fs %s\n",
@@ -106,8 +109,11 @@ protected:
     }
 
 private:
+    SkMutex fStartEndMutex;  // Guards fNextIndex and fPending.
     int32_t fNextIndex;
     int32_t fPending;
+
+    // Once the tests get going, these are logically const.
     int fTotal;
     bool fAllowExtendedTest;
     bool fAllowThreaded;
