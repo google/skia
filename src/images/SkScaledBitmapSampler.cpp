@@ -791,6 +791,7 @@ protected:
     }
 };
 
+void test_row_proc_choice();
 void test_row_proc_choice() {
     SkBitmap dummyBitmap;
     DummyDecoder dummyDecoder;
