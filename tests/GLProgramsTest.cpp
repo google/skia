@@ -44,7 +44,8 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
     // if the effects have used up all off the available attributes,
     // don't try to use color or coverage attributes as input
     do {
-        header->fColorInput = random->nextULessThan(kColorInputCnt);
+        header->fColorInput = static_cast<GrGLProgramDesc::ColorInput>(
+                                  random->nextULessThan(kColorInputCnt));
     } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex &&
              kAttribute_ColorInput == header->fColorInput);
     header->fColorAttributeIndex = (header->fColorInput == kAttribute_ColorInput) ?
@@ -52,14 +53,16 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
                                         -1;
 
     do {
-        header->fCoverageInput = random->nextULessThan(kColorInputCnt);
+        header->fCoverageInput = static_cast<GrGLProgramDesc::ColorInput>(
+                                     random->nextULessThan(kColorInputCnt));
     } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex  &&
              kAttribute_ColorInput == header->fCoverageInput);
     header->fCoverageAttributeIndex = (header->fCoverageInput == kAttribute_ColorInput) ?
                                         currAttribIndex++ :
                                         -1;
 
-    header->fColorFilterXfermode = random->nextULessThan(SkXfermode::kLastCoeffMode + 1);
+    header->fColorFilterXfermode = static_cast<SkXfermode::Mode>(
+                                       random->nextULessThan(SkXfermode::kLastCoeffMode + 1));
 
 #if GR_GL_EXPERIMENTAL_GS
     header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();

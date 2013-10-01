@@ -228,7 +228,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     SkXfermode::Coeff colorCoeff;
     SkXfermode::Coeff filterColorCoeff;
     SkAssertResult(
-        SkXfermode::ModeAsCoeff(static_cast<SkXfermode::Mode>(header.fColorFilterXfermode),
+        SkXfermode::ModeAsCoeff(header.fColorFilterXfermode,
                                 &filterColorCoeff,
                                 &colorCoeff));
     bool needColor, needFilterColor;
@@ -311,9 +311,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
         }
     }
 
-    GrGLProgramDesc::CoverageOutput coverageOutput =
-        static_cast<GrGLProgramDesc::CoverageOutput>(header.fCoverageOutput);
-    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(coverageOutput)) {
+    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
         const char* secondaryOutputName = builder.enableSecondaryOutput();
 
         // default coeff to ones for kCoverage_DualSrcOutput
@@ -333,7 +331,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                                                  kOnes_GrSLConstantVec,
                                                  knownColorValue,
                                                  true);
-        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == coverageOutput) {
+        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == header.fCoverageOutput) {
             // Get (1-RGBA) into coeff
             knownCoeffValue = GrGLSLSubtractf<4>(&coeff,
                                                  NULL,
@@ -365,7 +363,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                                                              knownCoverageValue,
                                                              true);
     // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
-    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == coverageOutput) {
+    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == header.fCoverageOutput) {
         SkString dstCoeff;
         GrSLConstantVec knownDstCoeffValue = GrGLSLSubtractf<4>(&dstCoeff,
                                                                 NULL,
