@@ -19,6 +19,10 @@ class SkStreamRewindable;
 
 // Empty implementations for SkImageDecoder.
 
+SkImageDecoder::SkImageDecoder() {}
+
+SkImageDecoder::~SkImageDecoder() {}
+
 SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable*) {
     return NULL;
 }
