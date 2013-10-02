@@ -124,6 +124,13 @@ class Results(object):
     """
     test_data = []
     category_dict = {}
+    Results._EnsureIncludedInCategoryDict(category_dict, 'resultType', [
+        gm_json.JSONKEY_ACTUALRESULTS_FAILED,
+        gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED,
+        gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON,
+        gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED,
+        ])
+
     for builder in sorted(actual_builder_dicts.keys()):
       actual_results_for_this_builder = (
           actual_builder_dicts[builder][gm_json.JSONKEY_ACTUALRESULTS])
@@ -205,17 +212,13 @@ class Results(object):
               "expectedHashDigest": str(expected_image[1]),
           }
           Results._AddToCategoryDict(category_dict, results_for_this_test)
-
-          # TODO(epoger): For now, don't include succeeded results in the raw
-          # data. There are so many of them that they make the client too slow.
-          if updated_result_type != gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
-            test_data.append(results_for_this_test)
+          test_data.append(results_for_this_test)
     return {"categories": category_dict, "testData": test_data}
 
   @staticmethod
   def _AddToCategoryDict(category_dict, test_results):
-    """Add test_results to the category dictionary we are building
-    (see documentation of self.GetAll() for the format of this dictionary).
+    """Add test_results to the category dictionary we are building.
+    (See documentation of self.GetAll() for the format of this dictionary.)
 
     params:
       category_dict: category dict-of-dicts to add to; modify this in-place
@@ -235,3 +238,22 @@ class Results(object):
       if not category_dict[category].get(category_value):
         category_dict[category][category_value] = 0
       category_dict[category][category_value] += 1
+
+  @staticmethod
+  def _EnsureIncludedInCategoryDict(category_dict,
+                                    category_name, category_values):
+    """Ensure that the category name/value pairs are included in category_dict,
+    even if there aren't any results with that name/value pair.
+    (See documentation of self.GetAll() for the format of this dictionary.)
+
+    params:
+      category_dict: category dict-of-dicts to modify
+      category_name: category name, as a string
+      category_values: list of values we want to make sure are represented
+                       for this category
+    """
+    if not category_dict.get(category_name):
+      category_dict[category_name] = {}
+    for category_value in category_values:
+      if not category_dict[category_name].get(category_value):
+        category_dict[category_name][category_value] = 0

@@ -18,67 +18,122 @@
   <!-- TODO(epoger): Add some indication of how old the
   expected/actual data is -->
 
- Settings:
-  <ul>
-    <!-- TODO(epoger): Now that we get multiple result types in a single
-    fetch, modify the UI: add a column showing resultType, and allow
-    the user to sort/filter on that column just like all the
-    others. -->
-    <li>show results of type
-      <select ng-model="showResultsOfType"
-              ng-init="showResultsOfType='failed'">
-        <option ng-repeat="(resultType, count) in categories['resultType']"
-                value="{{resultType}}">
-          {{resultType}} ({{count}})
-        </option>
-      </select>
-      <!--
-        TODO(epoger): See results.py: for now, I have disabled
-        returning succeeded tests as part of the JSON, because it
-        makes the returned JSON too big (and slows down the client).
+  <em ng-hide="categories">
+    Loading data, please wait...
+  </em>
 
-        Also, we should use some sort of lazy-loading technique
-        (e.g. http://www.appelsiini.net/projects/lazyload ), so that
-        the images are only loaded as they become viewable...
-        that will help with long lists like resultType='no-comparison'.
-      -->
-      <br>
-      TODO(epoger): 'no-comparison' will probably take forever;
-      see HTML source for details
-      <br>
-      TODO(epoger): 'succeeded' will not show any results;
-      see HTML source for details
-    </li>
-    <li>image size
-      <input type="text" ng-model="imageSizePending"
-             ng-init="imageSizePending=100; imageSize=100"
-             maxlength="4"/>
-      <button ng:click="imageSize=imageSizePending">apply</button>
-    </li>
-  </ul>
+  <div ng-hide="!categories">
+  <table border="1">
+    <tr>
+      <th colspan="2">
+        Filters
+      </th>
+      <th>
+        Settings
+      </th>
+    </tr>
+    <tr valign="top">
+      <td>
+        resultType<br>
+        <label ng-repeat="(resultType, count) in categories['resultType']">
+          <input type="checkbox"
+                 name="resultTypes"
+                 value="{{resultType}}"
+                 ng-checked="!isHiddenResultType(resultType)"
+                 ng-click="toggleHiddenResultType(resultType)">
+          {{resultType}} ({{count}})<br>
+        </label>
+      </td>
+      <td>
+        config<br>
+        <label ng-repeat="(config, count) in categories['config']">
+          <input type="checkbox"
+                 name="configs"
+                 value="{{config}}"
+                 ng-checked="!isHiddenConfig(config)"
+                 ng-click="toggleHiddenConfig(config)">
+          {{config}} ({{count}})<br>
+        </label>
+      </td>
+      <td><table>
+        <tr><td>
+          Image size
+          <input type="text" ng-model="imageSizePending"
+                 ng-init="imageSizePending=100"
+                 ng-change="areUpdatesPending = true"
+                 maxlength="4"/>
+        </td></tr>
+        <tr><td>
+          Max records to display
+          <input type="text" ng-model="displayLimitPending"
+                 ng-init="displayLimitPending=50"
+                 ng-change="areUpdatesPending = true"
+                 maxlength="4"/>
+        </td></tr>
+        <tr><td>
+          <button style="font-size:30px"
+                  ng-click="updateResults()"
+                  ng-disabled="!areUpdatesPending">
+            Update Results
+          </button>
+        </td></tr>
+      </tr></table></td>
+    </tr>
+  </table>
 
     <p>
-      Click on the column header radio buttons to re-sort by that column...<br>
-      <!-- TODO(epoger): Show some sort of "loading" message, instead of
-           an empty table, while the data is loading.  Otherwise, if there are
-           a lot of failures and it takes a long time to load them, the user
-           might think there are NO failures and leave the page! -->
+      TODO(epoger): Add ability to filter builder and test names
+      (using a free-form text field, with partial string match)
+      <br>
+      TODO(epoger): Add more columns, such as pixel diffs, notes/bugs,
+      ignoreFailure boolean
+      <br>
+      TODO(epoger): Improve the column sorting, as per
+      <a href="http://jsfiddle.net/vojtajina/js64b/14/">
+        http://jsfiddle.net/vojtajina/js64b/14/
+      </a>
+      <br>
+      TODO(epoger): Right now, if you change which column is used to
+      sort the data, the column widths may fluctuate based on the
+      longest string <i>currently visible</i> within the top {{displayLimit}}
+      results.  Can we fix the column widths to be wide enough to hold
+      any result, even the currently hidden results?
+      <p>
+      Found {{filteredTestData.length}} matches, and displaying the first
+      {{displayLimit}}: <br>
+      <!-- TODO(epoger): If (displayLimit <= filteredTestData.length),
+           modify this message to indicate that all results are shown. -->
+      (click on the column header radio buttons to re-sort by that column)
+      <br>
       <table border="1">
         <tr>
-          <th><input ng-model="sortColumn" name="sortColumnRadio" type="radio" value="builder">Builder</input></th>
-          <th><input ng-model="sortColumn" name="sortColumnRadio" type="radio" value="test">Test</input></th>
-          <th><input ng-model="sortColumn" name="sortColumnRadio" type="radio" value="config">Config</input></th>
-          <th><input ng-model="sortColumn" name="sortColumnRadio" type="radio" value="expectedHashDigest">Expected Image</input></th>
-          <th><input ng-model="sortColumn" name="sortColumnRadio" type="radio" value="actualHashDigest">Actual Image</input></th>
-          <!-- TODO(epoger): Add more columns, such as...
-               pixel diff
-               notes/bugs
-               ignoreFailure boolean
-          -->
+          <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="{{categoryName}}"
+                   ng-checked="(sortColumn == categoryName)"
+                   ng-click="sortResultsBy(categoryName)">
+            {{categoryName}}
+          </th>
+          <th>
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="expectedHashDigest"
+                   ng-checked="(sortColumn == 'expectedHashDigest')"
+                   ng-click="sortResultsBy('expectedHashDigest')">
+            expected image
+          </th>
+          <th>
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="actualHashDigest"
+                   ng-checked="(sortColumn == 'actualHashDigest')"
+                   ng-click="sortResultsBy('actualHashDigest')">
+            actual image
+          </th>
         </tr>
-        <!-- TODO(epoger): improve the column sorting, as per
-             http://jsfiddle.net/vojtajina/js64b/14/ -->
-        <tr ng-repeat="result in testData | filter: { resultType: showResultsOfType } | orderBy: sortColumn">
+        <tr ng-repeat="result in limitedTestData">
+          <td>{{result.resultType}}</td>
           <td>{{result.builder}}</td>
           <td>{{result.test}}</td>
           <td>{{result.config}}</td>
@@ -94,6 +149,7 @@
           </td>
         </tr>
       </table>
+  </div>
   </div>
 
   <!-- TODO(epoger): Can we get the base URLs (commondatastorage and
