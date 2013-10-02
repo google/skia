@@ -447,8 +447,9 @@ static int comparePaths(skiatest::Reporter* reporter, const SkPath& one, const S
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-static int testNumber;
-static const char* testName;
+// Default values for when reporter->verbose() is false.
+static int testNumber = 1;
+static const char* testName = "pathOpTest";
 
 static void writeTestName(const char* nameSuffix, SkMemoryWStream& outFile) {
     outFile.writeText(testName);
@@ -655,9 +656,6 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
                 testNumber = atoi(numLoc) + 1;
             }
         }
-    } else {
-        testName = "pathOpTest";
-        testNumber = 1;
     }
     return reporter->allowThreaded() ? SkThreadPool::kThreadPerCore : 1;
 }
