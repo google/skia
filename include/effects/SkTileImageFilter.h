@@ -10,7 +10,7 @@
 
 #include "SkImageFilter.h"
 
-class SkTileImageFilter : public SkImageFilter {
+class SK_API SkTileImageFilter : public SkImageFilter {
     typedef SkImageFilter INHERITED;
 
 public:
