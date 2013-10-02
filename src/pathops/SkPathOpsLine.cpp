@@ -152,8 +152,6 @@ double SkDLine::NearPointH(const SkDPoint& xy, double left, double right, double
     if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
-    t = SkPinT(t);
-    SkASSERT(between(0, t, 1));
     return t;
 }
 
@@ -189,8 +187,6 @@ double SkDLine::NearPointV(const SkDPoint& xy, double top, double bottom, double
     if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
-    t = SkPinT(t);
-    SkASSERT(between(0, t, 1));
     return t;
 }
 

@@ -9,8 +9,17 @@
 #include "SkPathWriter.h"
 #include "SkTSort.h"
 
-void SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
+bool SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, bool swap) {
+    SkPoint pt0 = ts.pt(0).asSkPoint();
+    SkPoint pt1 = ts.pt(1).asSkPoint();
+    if (pt0 == pt1) {
+        // FIXME: one could imagine a case where it would be incorrect to ignore this
+        // suppose two self-intersecting cubics overlap to be coincident --
+        // this needs to check that by some measure the t values are far enough apart
+        // or needs to check to see if the self-intersection bit was set on the cubic segment
+        return false;
+    }
     SkCoincidence& coincidence = fCoincidences.push_back();
     coincidence.fOther = other;
     coincidence.fSegments[0] = index;
@@ -19,8 +28,9 @@ void SkOpContour::addCoincident(int index, SkOpContour* other, int otherIndex,
     coincidence.fTs[swap][1] = ts[0][1];
     coincidence.fTs[!swap][0] = ts[1][0];
     coincidence.fTs[!swap][1] = ts[1][1];
-    coincidence.fPts[0] = ts.pt(0).asSkPoint();
-    coincidence.fPts[1] = ts.pt(1).asSkPoint();
+    coincidence.fPts[0] = pt0;
+    coincidence.fPts[1] = pt1;
+    return true;
 }
 
 SkOpSegment* SkOpContour::nonVerticalSegment(int* start, int* end) {
@@ -57,14 +67,23 @@ void SkOpContour::addCoincidentPoints() {
             continue;
         }
     #if DEBUG_CONCIDENT
-        thisOne.debugShowTs();
-        other.debugShowTs();
+        thisOne.debugShowTs("-");
+        other.debugShowTs("o");
     #endif
         double startT = coincidence.fTs[0][0];
         double endT = coincidence.fTs[0][1];
         bool startSwapped, oStartSwapped, cancelers;
         if ((cancelers = startSwapped = startT > endT)) {
             SkTSwap(startT, endT);
+        }
+        if (startT == endT) { // if one is very large the smaller may have collapsed to nothing
+            if (endT <= 1 - FLT_EPSILON) {
+                endT += FLT_EPSILON;
+                SkASSERT(endT <= 1);
+            } else {
+                startT -= FLT_EPSILON;
+                SkASSERT(startT >= 0);
+            }
         }
         SkASSERT(!approximately_negative(endT - startT));
         double oStartT = coincidence.fTs[1][0];
@@ -76,43 +95,57 @@ void SkOpContour::addCoincidentPoints() {
         SkASSERT(!approximately_negative(oEndT - oStartT));
         if (cancelers) {
             // make sure startT and endT have t entries
+            const SkPoint& startPt = coincidence.fPts[startSwapped];
             if (startT > 0 || oEndT < 1
-                    || thisOne.isMissing(startT) || other.isMissing(oEndT)) {
-                thisOne.addTPair(startT, &other, oEndT, true, coincidence.fPts[startSwapped]);
+                    || thisOne.isMissing(startT, startPt) || other.isMissing(oEndT, startPt)) {
+                thisOne.addTPair(startT, &other, oEndT, true, startPt);
             }
+            const SkPoint& oStartPt = coincidence.fPts[oStartSwapped];
             if (oStartT > 0 || endT < 1
-                    || thisOne.isMissing(endT) || other.isMissing(oStartT)) {
-                other.addTPair(oStartT, &thisOne, endT, true, coincidence.fPts[oStartSwapped]);
+                    || thisOne.isMissing(endT, oStartPt) || other.isMissing(oStartT, oStartPt)) {
+                other.addTPair(oStartT, &thisOne, endT, true, oStartPt);
             }
         } else {
+            const SkPoint& startPt = coincidence.fPts[startSwapped];
             if (startT > 0 || oStartT > 0
-                    || thisOne.isMissing(startT) || other.isMissing(oStartT)) {
-                thisOne.addTPair(startT, &other, oStartT, true, coincidence.fPts[startSwapped]);
+                    || thisOne.isMissing(startT, startPt) || other.isMissing(oStartT, startPt)) {
+                thisOne.addTPair(startT, &other, oStartT, true, startPt);
             }
+            const SkPoint& oEndPt = coincidence.fPts[!oStartSwapped];
             if (endT < 1 || oEndT < 1
-                    || thisOne.isMissing(endT) || other.isMissing(oEndT)) {
-                other.addTPair(oEndT, &thisOne, endT, true, coincidence.fPts[!oStartSwapped]);
+                    || thisOne.isMissing(endT, oEndPt) || other.isMissing(oEndT, oEndPt)) {
+                other.addTPair(oEndT, &thisOne, endT, true, oEndPt);
             }
         }
     #if DEBUG_CONCIDENT
-        thisOne.debugShowTs();
-        other.debugShowTs();
+        thisOne.debugShowTs("+");
+        other.debugShowTs("o");
     #endif
     }
 }
 
-void SkOpContour::addPartialCoincident(int index, SkOpContour* other, int otherIndex,
+bool SkOpContour::addPartialCoincident(int index, SkOpContour* other, int otherIndex,
         const SkIntersections& ts, int ptIndex, bool swap) {
+    SkPoint pt0 = ts.pt(ptIndex).asSkPoint();
+    SkPoint pt1 = ts.pt(ptIndex + 1).asSkPoint();
+    if (SkDPoint::ApproximatelyEqual(pt0, pt1)) {
+        // FIXME: one could imagine a case where it would be incorrect to ignore this
+        // suppose two self-intersecting cubics overlap to form a partial coincidence --
+        // although it isn't clear why the regular coincidence could wouldn't pick this up
+        // this is exceptional enough to ignore for now
+        return false;
+    }
     SkCoincidence& coincidence = fPartialCoincidences.push_back();
     coincidence.fOther = other;
     coincidence.fSegments[0] = index;
     coincidence.fSegments[1] = otherIndex;
-    coincidence.fTs[swap][0] = ts[0][index];
-    coincidence.fTs[swap][1] = ts[0][index + 1];
-    coincidence.fTs[!swap][0] = ts[1][index];
-    coincidence.fTs[!swap][1] = ts[1][index + 1];
-    coincidence.fPts[0] = ts.pt(index).asSkPoint();
-    coincidence.fPts[1] = ts.pt(index + 1).asSkPoint();
+    coincidence.fTs[swap][0] = ts[0][ptIndex];
+    coincidence.fTs[swap][1] = ts[0][ptIndex + 1];
+    coincidence.fTs[!swap][0] = ts[1][ptIndex];
+    coincidence.fTs[!swap][1] = ts[1][ptIndex + 1];
+    coincidence.fPts[0] = pt0;
+    coincidence.fPts[1] = pt1;
+    return true;
 }
 
 void SkOpContour::calcCoincidentWinding() {
@@ -162,6 +195,15 @@ void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) 
         SkTSwap<double>(startT, endT);
         SkTSwap<const SkPoint*>(startPt, endPt);
     }
+    if (startT == endT) { // if span is very large, the smaller may have collapsed to nothing
+        if (endT <= 1 - FLT_EPSILON) {
+            endT += FLT_EPSILON;
+            SkASSERT(endT <= 1);
+        } else {
+            startT -= FLT_EPSILON;
+            SkASSERT(startT >= 0);
+        }
+    }
     SkASSERT(!approximately_negative(endT - startT));
     double oStartT = coincidence.fTs[1][0];
     double oEndT = coincidence.fTs[1][1];
@@ -173,11 +215,11 @@ void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) 
     if (cancelers) {
         thisOne.addTCancel(*startPt, *endPt, &other);
     } else {
-        thisOne.addTCoincident(*startPt, *endPt, &other);
+        thisOne.addTCoincident(*startPt, *endPt, endT, &other);
     }
 #if DEBUG_CONCIDENT
-    thisOne.debugShowTs();
-    other.debugShowTs();
+    thisOne.debugShowTs("p");
+    other.debugShowTs("o");
 #endif
 }
 

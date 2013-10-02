@@ -17,8 +17,8 @@ public:
         kCubic_Segment = SkPath::kCubic_Verb,
     };
 
-    void addCoincident(SkIntersectionHelper& other, const SkIntersections& ts, bool swap) {
-        fContour->addCoincident(fIndex, other.fContour, other.fIndex, ts, swap);
+    bool addCoincident(SkIntersectionHelper& other, const SkIntersections& ts, bool swap) {
+        return fContour->addCoincident(fIndex, other.fContour, other.fIndex, ts, swap);
     }
 
     // FIXME: does it make sense to write otherIndex now if we're going to
@@ -27,9 +27,10 @@ public:
         fContour->addOtherT(fIndex, index, otherT, otherIndex);
     }
 
-    void addPartialCoincident(SkIntersectionHelper& other, const SkIntersections& ts, int index,
+    bool addPartialCoincident(SkIntersectionHelper& other, const SkIntersections& ts, int index,
             bool swap) {
-        fContour->addPartialCoincident(fIndex, other.fContour, other.fIndex, ts, index, swap);
+        return fContour->addPartialCoincident(fIndex, other.fContour, other.fIndex, ts, index,
+                swap);
     }
 
     // Avoid collapsing t values that are close to the same since
@@ -77,7 +78,7 @@ public:
         double mid = (t1 + t2) / 2;
         SkDPoint midPtByT = segment.dPtAtT(mid);
         SkDPoint midPtByAvg = SkDPoint::Mid(pt1, pt2);
-        return midPtByT.approximatelyEqualHalf(midPtByAvg);
+        return midPtByT.approximatelyEqual(midPtByAvg);
     }
 
     SkScalar left() const {

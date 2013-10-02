@@ -3905,9 +3905,24 @@ static void testQuad8(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = testRect2;
+static void testTriangles4x(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(2, 0, 0, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+    testSimplify(reporter, path);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testTriangles4x),
     TEST(testQuad8),
     TEST(testTriangles3x),
     TEST(testRect2),

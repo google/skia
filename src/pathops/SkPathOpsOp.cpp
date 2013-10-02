@@ -165,8 +165,8 @@ static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp o
             #endif
                         if (simple->isEmpty()) {
                             simple->init();
-                            break;
                         }
+                        break;
                     }
                     SkASSERT(unsortable || !current->done());
                     int nextStart = index;

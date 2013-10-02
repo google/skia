@@ -90,7 +90,7 @@ void SkPathWriter::init() {
 }
 
 bool SkPathWriter::isClosed() const {
-    return !fEmpty && fFirstPt == fDefer[1];
+    return !fEmpty && SkDPoint::ApproximatelyEqual(fFirstPt, fDefer[1]);
 }
 
 void SkPathWriter::lineTo() {

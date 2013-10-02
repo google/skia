@@ -89,6 +89,13 @@ void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle, true>& angles) {
         angles[index].dump();
     }
 }
+
+void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle* , true>& angles) {
+    int count = angles.count();
+    for (int index = 0; index < count; ++index) {
+        angles[index]->dump();
+    }
+}
 #endif  // SK_DEBUG || !FORCE_RELEASE
 
 #ifdef SK_DEBUG
@@ -132,4 +139,22 @@ void SkOpSpan::dump() const {
     }
     SkDebugf("\n");
 }
+
+void Dump(const SkTArray<class SkOpAngle, true>& angles) {
+    SkPathOpsDebug::DumpAngles(angles);
+}
+
+void Dump(const SkTArray<class SkOpAngle* , true>& angles) {
+    SkPathOpsDebug::DumpAngles(angles);
+}
+
+void Dump(const SkTArray<class SkOpAngle, true>* angles) {
+    SkPathOpsDebug::DumpAngles(*angles);
+}
+
+void Dump(const SkTArray<class SkOpAngle* , true>* angles) {
+    SkPathOpsDebug::DumpAngles(*angles);
+}
+
 #endif
+

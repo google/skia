@@ -99,6 +99,7 @@ public:
         , fLine(l)
         , fIntersections(i)
         , fAllowNear(true) {
+        i->setMax(2);
     }
 
     void allowNear(bool allow) {

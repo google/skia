@@ -116,6 +116,8 @@ static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
         order = reducer.reduce(cubic, SkReduceOrder::kAllow_Quadratics, SkReduceOrder::kFill_Style);
         if (order == 1) {
             SkDebugf("[%d] notPointDegenerates order=%d\n", static_cast<int>(index), order);
+            order = reducer.reduce(cubic, SkReduceOrder::kAllow_Quadratics,
+                    SkReduceOrder::kFill_Style);
             REPORTER_ASSERT(reporter, 0);
         }
     }
@@ -152,6 +154,8 @@ static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
         order = reducer.reduce(cubic, SkReduceOrder::kAllow_Quadratics, SkReduceOrder::kFill_Style);
         if (order != 2) {
             SkDebugf("[%d] line less by epsilon/2 order=%d\n", static_cast<int>(index), order);
+            order = reducer.reduce(cubic, SkReduceOrder::kAllow_Quadratics,
+                    SkReduceOrder::kFill_Style);
             REPORTER_ASSERT(reporter, 0);
         }
     }
@@ -235,4 +239,5 @@ static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
 }
 
 #include "TestClassDef.h"
+
 DEFINE_TESTCLASS_SHORT(PathOpsReduceOrderCubicTest)

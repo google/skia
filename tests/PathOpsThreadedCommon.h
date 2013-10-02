@@ -7,6 +7,7 @@
 #ifndef PathOpsThreadedCommon_DEFINED
 #define PathOpsThreadedCommon_DEFINED
 
+#include "SkGraphics.h"
 #include "SkRunnable.h"
 #include "SkTDArray.h"
 
@@ -25,7 +26,7 @@ struct PathOpsThreadState {
     unsigned char fD;
     char* fPathStr;
     const char* fKey;
-    char fSerialNo[64];
+    char fSerialNo[256];
     skiatest::Reporter* fReporter;
     SkBitmap* fBitmap;
 };
@@ -72,6 +73,7 @@ public:
         fState.fBitmap = &bitmap;
         char pathStr[PATH_STR_SIZE];
         fState.fPathStr = pathStr;
+        SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
 

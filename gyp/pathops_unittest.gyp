@@ -22,6 +22,7 @@
         'pathops_unittest.gypi',
       ],
       'sources': [
+        '../tests/PathOpsSkpClipTest.cpp',
         '../tests/Test.cpp',
         '../tests/skia_test.cpp',
         '../tests/Test.h',

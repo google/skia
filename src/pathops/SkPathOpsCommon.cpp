@@ -399,10 +399,6 @@ void MakeContourList(SkTArray<SkOpContour>& contours, SkTArray<SkOpContour*, tru
     SkTQSort<SkOpContour>(list.begin(), list.end() - 1);
 }
 
-static bool approximatelyEqual(const SkPoint& a, const SkPoint& b) {
-    return AlmostEqualUlps(a.fX, b.fX) && AlmostEqualUlps(a.fY, b.fY);
-}
-
 class DistanceLessThan {
 public:
     DistanceLessThan(double* distances) : fDistances(distances) { }
@@ -435,7 +431,7 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
         const SkPoint& eEnd = eContour.end();
 #if DEBUG_ASSEMBLE
         SkDebugf("%s contour", __FUNCTION__);
-        if (!approximatelyEqual(eStart, eEnd)) {
+        if (!SkDPoint::ApproximatelyEqual(eStart, eEnd)) {
             SkDebugf("[%d]", runs.count());
         } else {
             SkDebugf("   ");
@@ -443,7 +439,7 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
         SkDebugf(" start=(%1.9g,%1.9g) end=(%1.9g,%1.9g)\n",
                 eStart.fX, eStart.fY, eEnd.fX, eEnd.fY);
 #endif
-        if (approximatelyEqual(eStart, eEnd)) {
+        if (SkDPoint::ApproximatelyEqual(eStart, eEnd)) {
             eContour.toPath(simple);
             continue;
         }

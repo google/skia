@@ -248,7 +248,8 @@ public:
     int addSelfT(SkOpSegment* other, const SkPoint& pt, double newT);
     int addT(SkOpSegment* other, const SkPoint& pt, double newT, bool isNear);
     void addTCancel(const SkPoint& startPt, const SkPoint& endPt, SkOpSegment* other);
-    void addTCoincident(const SkPoint& startPt, const SkPoint& endPt, SkOpSegment* other);
+    void addTCoincident(const SkPoint& startPt, const SkPoint& endPt, double endT,
+            SkOpSegment* other);
     void addTPair(double t, SkOpSegment* other, double otherT, bool borrowWind, const SkPoint& pt);
     bool betweenTs(int lesser, double testT, int greater) const;
     void checkEnds();
@@ -269,7 +270,7 @@ public:
     void initWinding(int start, int end);
     void initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
                      SkScalar hitOppDx);
-    bool isMissing(double startT) const;
+    bool isMissing(double startT, const SkPoint& pt) const;
     bool isTiny(const SkOpAngle* angle) const;
     SkOpSpan* markAndChaseDoneBinary(int index, int endIndex);
     SkOpSpan* markAndChaseDoneUnary(int index, int endIndex);
@@ -316,7 +317,7 @@ public:
             bool sortable);
 #endif
 #if DEBUG_CONCIDENT
-    void debugShowTs() const;
+    void debugShowTs(const char* prefix) const;
 #endif
 #if DEBUG_SHOW_WINDING
     int debugShowWindingValues(int slotCount, int ofInterest) const;

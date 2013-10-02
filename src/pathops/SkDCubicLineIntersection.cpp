@@ -86,6 +86,7 @@ public:
         , fLine(l)
         , fIntersections(i)
         , fAllowNear(true) {
+        i->setMax(3);
     }
 
     void allowNear(bool allow) {
@@ -122,7 +123,24 @@ public:
                 SkDebugf("%s pt=(%1.9g,%1.9g) cPt=(%1.9g,%1.9g)\n", __FUNCTION__, pt.fX, pt.fY,
                         cPt.fX, cPt.fY);
     #endif
+                for (int inner = 0; inner < fIntersections->used(); ++inner) {
+                    if (fIntersections->pt(inner) != pt) {
+                        continue;
+                    }
+                    double existingCubicT = (*fIntersections)[0][inner];
+                    if (cubicT == existingCubicT) {
+                        goto skipInsert;
+                    }
+                    // check if midway on cubic is also same point. If so, discard this
+                    double cubicMidT = (existingCubicT + cubicT) / 2;
+                    SkDPoint cubicMidPt = fCubic.ptAtT(cubicMidT);
+                    if (cubicMidPt.approximatelyEqual(pt)) {
+                        goto skipInsert;
+                    }
+                }
                 fIntersections->insert(cubicT, lineT, pt);
+        skipInsert:
+                ;
             }
         }
         return fIntersections->used();

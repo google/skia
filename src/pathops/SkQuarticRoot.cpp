@@ -152,7 +152,7 @@ int SkQuarticRootsReal(int firstCubicRoot, const double A, const double B, const
     // eliminate duplicates
     for (int i = 0; i < num - 1; ++i) {
         for (int j = i + 1; j < num; ) {
-            if (AlmostEqualUlps(s[i], s[j])) {
+            if (AlmostDequalUlps(s[i], s[j])) {
                 if (j < --num) {
                     s[j] = s[num];
                 }

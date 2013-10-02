@@ -36,7 +36,7 @@ public:
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
-    void addCoincident(int index, SkOpContour* other, int otherIndex,
+    bool addCoincident(int index, SkOpContour* other, int otherIndex,
                        const SkIntersections& ts, bool swap);
     void addCoincidentPoints();
 
@@ -63,7 +63,7 @@ public:
         fSegments[segIndex].addOtherT(tIndex, otherT, otherIndex);
     }
 
-    void addPartialCoincident(int index, SkOpContour* other, int otherIndex,
+    bool addPartialCoincident(int index, SkOpContour* other, int otherIndex,
                        const SkIntersections& ts, int ptIndex, bool swap);
 
     int addQuad(const SkPoint pts[3]) {
@@ -99,6 +99,9 @@ public:
             SkOpSegment* segment = &fSegments[sIndex];
             if (segment->verb() == SkPath::kLine_Verb) {
                 continue;
+            }
+            if (segment->done()) {
+                continue;   // likely coincident, nothing to do
             }
             segment->checkEnds();
         }

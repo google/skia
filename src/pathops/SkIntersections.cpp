@@ -45,6 +45,7 @@ int SkIntersections::coincidentUsed() const {
 int SkIntersections::cubicRay(const SkPoint pts[4], const SkDLine& line) {
     SkDCubic cubic;
     cubic.set(pts);
+    fMax = 3;
     return intersectRay(cubic, line);
 }
 
@@ -87,7 +88,12 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
             break;
         }
     }
-    SkASSERT(fUsed < 9);
+    if (fUsed >= fMax) {
+        SkASSERT(0);  // FIXME : this error, if it is to be handled at runtime in release, must
+                      // be propagated all the way back down to the caller, and return failure.
+        fUsed = 0;
+        return 0;
+    }
     int remaining = fUsed - index;
     if (remaining > 0) {
         memmove(&fPt[index + 1], &fPt[index], sizeof(fPt[0]) * remaining);
@@ -132,6 +138,7 @@ void SkIntersections::offset(int base, double start, double end) {
 int SkIntersections::quadRay(const SkPoint pts[3], const SkDLine& line) {
     SkDQuad quad;
     quad.set(pts);
+    fMax = 2;
     return intersectRay(quad, line);
 }
 

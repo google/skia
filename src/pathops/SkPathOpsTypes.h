@@ -28,9 +28,20 @@ inline bool AlmostEqualUlps(double a, double b) {
     return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
+// Use Almost Dequal when comparing should not special case denormalized values.
+bool AlmostDequalUlps(float a, float b);
+inline bool AlmostDequalUlps(double a, double b) {
+    return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
 bool NotAlmostEqualUlps(float a, float b);
 inline bool NotAlmostEqualUlps(double a, double b) {
     return NotAlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
+bool NotAlmostDequalUlps(float a, float b);
+inline bool NotAlmostDequalUlps(double a, double b) {
+    return NotAlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
 // Use Almost Bequal when comparing coordinates in conjunction with between.

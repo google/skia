@@ -35,6 +35,7 @@
     '../tests/PathOpsSimplifyRectThreadedTest.cpp',
     '../tests/PathOpsSimplifyTest.cpp',
     '../tests/PathOpsSimplifyTrianglesThreadedTest.cpp',
+    '../tests/PathOpsSkpTest.cpp',
     '../tests/PathOpsTestCommon.cpp',
     '../tests/PathOpsThreadedCommon.cpp',
     '../tests/PathOpsCubicIntersectionTestData.h',

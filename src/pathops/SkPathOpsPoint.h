@@ -100,30 +100,40 @@ struct SkDPoint {
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
     // because that will not take the magnitude of the values
     bool approximatelyEqual(const SkDPoint& a) const {
-        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
-                SkTMax(fabs(a.fX), fabs(a.fY))));
-        if (precisely_zero(denom)) {
+        if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
             return true;
         }
-        double inv = 1 / denom;
-        return approximately_equal(fX * inv, a.fX * inv)
-                && approximately_equal(fY * inv, a.fY * inv);
+        if (!RoughlyEqualUlps(fX, a.fX) || !RoughlyEqualUlps(fY, a.fY)) {
+            return false;
+        }
+        double dist = distance(a);  // OPTIMIZATION: can we compare against distSq instead ?
+        double tiniest = SkTMin(SkTMin(SkTMin(fX, a.fX), fY), a.fY);
+        double largest = SkTMax(SkTMax(SkTMax(fX, a.fX), fY), a.fY);
+        largest = SkTMax(largest, -tiniest);
+        return AlmostBequalUlps(largest, largest + dist); // is the dist within ULPS tolerance?
     }
 
     bool approximatelyEqual(const SkPoint& a) const {
-        return AlmostEqualUlps(SkDoubleToScalar(fX), a.fX)
-                && AlmostEqualUlps(SkDoubleToScalar(fY), a.fY);
+        SkDPoint dA;
+        dA.set(a);
+        return approximatelyEqual(dA);
     }
 
-    bool approximatelyEqualHalf(const SkDPoint& a) const {
-        double denom = SkTMax(fabs(fX), SkTMax(fabs(fY),
-                SkTMax(fabs(a.fX), fabs(a.fY))));
-        if (denom == 0) {
+    static bool ApproximatelyEqual(const SkPoint& a, const SkPoint& b) {
+        if (approximately_equal(a.fX, b.fX) && approximately_equal(a.fY, b.fY)) {
             return true;
         }
-        double inv = 1 / denom;
-        return approximately_equal_half(fX * inv, a.fX * inv)
-                && approximately_equal_half(fY * inv, a.fY * inv);
+        if (!RoughlyEqualUlps(a.fX, b.fX) || !RoughlyEqualUlps(a.fY, b.fY)) {
+            return false;
+        }
+        SkDPoint dA, dB;
+        dA.set(a);
+        dB.set(b);
+        double dist = dA.distance(dB);  // OPTIMIZATION: can we compare against distSq instead ?
+        float tiniest = SkTMin(SkTMin(SkTMin(a.fX, b.fX), a.fY), b.fY);
+        float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
+        largest = SkTMax(largest, -tiniest);
+        return AlmostBequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
     }
 
     bool approximatelyZero() const {
@@ -152,11 +162,18 @@ struct SkDPoint {
         return result;
     }
 
-    double moreRoughlyEqual(const SkDPoint& a) const {
-        return more_roughly_equal(a.fY, fY) && more_roughly_equal(a.fX, fX);
+    bool moreRoughlyEqual(const SkDPoint& a) const {
+        if (roughly_equal(fX, a.fX) && roughly_equal(fY, a.fY)) {
+            return true;
+        }
+        double dist = distance(a);  // OPTIMIZATION: can we compare against distSq instead ?
+        double tiniest = SkTMin(SkTMin(SkTMin(fX, a.fX), fY), a.fY);
+        double largest = SkTMax(SkTMax(SkTMax(fX, a.fX), fY), a.fY);
+        largest = SkTMax(largest, -tiniest);
+        return RoughlyEqualUlps(largest, largest + dist); // is the dist within ULPS tolerance?
     }
 
-    double roughlyEqual(const SkDPoint& a) const {
+    bool roughlyEqual(const SkDPoint& a) const {
         return roughly_equal(a.fY, fY) && roughly_equal(a.fX, fX);
     }
 

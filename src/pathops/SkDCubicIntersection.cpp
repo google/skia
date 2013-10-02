@@ -15,8 +15,8 @@
 #include "SkTSort.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits1[2][2] = {{0.388600450, 0.388600452}, {0.245852802, 0.245852804}};
-static const double tLimits2[2][2] = {{-0.865211397, -0.865215212}, {-0.865207696, -0.865208078}};
+static const double tLimits1[2][2] = {{0.3, 0.4}, {0.8, 0.9}};
+static const double tLimits2[2][2] = {{-0.8, -0.9}, {-0.8, -0.9}};
 #endif
 
 #define DEBUG_QUAD_PART ONE_OFF_DEBUG && 1
@@ -124,7 +124,8 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
                 SkDPoint p1 = cubic1.ptAtT(to1);
                 SkDPoint p2 = cubic2.ptAtT(to2);
                 if (p1.approximatelyEqual(p2)) {
-                    SkASSERT(!locals.isCoincident(tIdx));
+    // FIXME: local edge may be coincident -- experiment with not propagating coincidence to caller
+//                    SkASSERT(!locals.isCoincident(tIdx));
                     if (&cubic1 != &cubic2 || !approximately_equal(to1, to2)) {
                         if (i.swapped()) {  //  FIXME: insert should respect swap
                             i.insert(to2, to1, p1);
@@ -249,39 +250,70 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
     i.downDepth();
 }
 
+    // if two ends intersect, check middle for coincidence
+bool SkIntersections::cubicCheckCoincidence(const SkDCubic& c1, const SkDCubic& c2) {
+    if (fUsed < 2) {
+        return false;
+    }
+    int last = fUsed - 1;
+    double tRange1 = fT[0][last] - fT[0][0];
+    double tRange2 = fT[1][last] - fT[1][0];
+    for (int index = 1; index < 5; ++index) {
+        double testT1 = fT[0][0] + tRange1 * index / 5;
+        double testT2 = fT[1][0] + tRange2 * index / 5;
+        SkDPoint testPt1 = c1.ptAtT(testT1);
+        SkDPoint testPt2 = c2.ptAtT(testT2);
+        if (!testPt1.approximatelyEqual(testPt2)) {
+            return false;
+        }
+    }
+    if (fUsed > 2) {
+        fPt[1] = fPt[last];
+        fT[0][1] = fT[0][last];
+        fT[1][1] = fT[1][last];
+        fUsed = 2;
+    }
+    fIsCoincident[0] = fIsCoincident[1] = 0x03;
+    return true;
+}
+
 #define LINE_FRACTION 0.1
 
 // intersect the end of the cubic with the other. Try lines from the end to control and opposite
 // end to determine range of t on opposite cubic.
-static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cubic2,
-                         const SkDRect& bounds2, bool selfIntersect, SkIntersections& i) {
-    SkDLine line;
+bool SkIntersections::cubicExactEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cubic2) {
     int t1Index = start ? 0 : 3;
-    bool swap = i.swapped();
     double testT = (double) !start;
+    bool swap = swapped();
     // quad/quad at this point checks to see if exact matches have already been found
     // cubic/cubic can't reject so easily since cubics can intersect same point more than once
-    if (!selfIntersect) {
-        SkDLine tmpLine;
-        tmpLine[0] = tmpLine[1] = cubic2[t1Index];
-        tmpLine[1].fX += cubic2[2 - start].fY - cubic2[t1Index].fY;
-        tmpLine[1].fY -= cubic2[2 - start].fX - cubic2[t1Index].fX;
-        SkIntersections impTs;
-        impTs.intersectRay(cubic1, tmpLine);
-        for (int index = 0; index < impTs.used(); ++index) {
-            SkDPoint realPt = impTs.pt(index);
-            if (!tmpLine[0].approximatelyEqualHalf(realPt)) {
-                continue;
-            }
-            if (swap) {
-                i.insert(testT, impTs[0][index], tmpLine[0]);
-            } else {
-                i.insert(impTs[0][index], testT, tmpLine[0]);
-            }
-            return;
+    SkDLine tmpLine;
+    tmpLine[0] = tmpLine[1] = cubic2[t1Index];
+    tmpLine[1].fX += cubic2[2 - start].fY - cubic2[t1Index].fY;
+    tmpLine[1].fY -= cubic2[2 - start].fX - cubic2[t1Index].fX;
+    SkIntersections impTs;
+    impTs.intersectRay(cubic1, tmpLine);
+    for (int index = 0; index < impTs.used(); ++index) {
+        SkDPoint realPt = impTs.pt(index);
+        if (!tmpLine[0].approximatelyEqual(realPt)) {
+            continue;
         }
+        if (swap) {
+            insert(testT, impTs[0][index], tmpLine[0]);
+        } else {
+            insert(impTs[0][index], testT, tmpLine[0]);
+        }
+        return true;
     }
-    // don't bother if the two cubics are connnected
+    return false;
+}
+
+void SkIntersections::cubicNearEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cubic2,
+                         const SkDRect& bounds2) {
+    SkDLine line;
+    int t1Index = start ? 0 : 3;
+    double testT = (double) !start;
+   // don't bother if the two cubics are connnected
     static const int kPointsInCubic = 4; // FIXME: move to DCubic, replace '4' with this
     static const int kMaxLineCubicIntersections = 3;
     SkSTArray<(kMaxLineCubicIntersections - 1) * kMaxLineCubicIntersections, double, true> tVals;
@@ -310,10 +342,10 @@ static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cub
                 continue;
             }
             if (local.pt(idx2).approximatelyEqual(line[0])) {
-                if (i.swapped()) {  // FIXME: insert should respect swap
-                    i.insert(foundT, testT, line[0]);
+                if (swapped()) {  // FIXME: insert should respect swap
+                    insert(foundT, testT, line[0]);
                 } else {
-                    i.insert(testT, foundT, line[0]);
+                    insert(testT, foundT, line[0]);
                 }
             } else {
                 tVals.push_back(foundT);
@@ -334,12 +366,12 @@ static void intersectEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cub
         }
         double tMin2 = SkTMax(tVals[tIdx] - LINE_FRACTION, 0.0);
         double tMax2 = SkTMin(tVals[tLast] + LINE_FRACTION, 1.0);
-        int lastUsed = i.used();
-        intersect(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
-        if (lastUsed == i.used()) {
+        int lastUsed = used();
+        ::intersect(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, *this);
+        if (lastUsed == used()) {
             tMin2 = SkTMax(tVals[tIdx] - (1.0 / SkDCubic::gPrecisionUnit), 0.0);
             tMax2 = SkTMin(tVals[tLast] + (1.0 / SkDCubic::gPrecisionUnit), 1.0);
-            intersect(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
+            ::intersect(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, *this);
         }
         tIdx = tLast + 1;
     } while (tIdx < tVals.count());
@@ -404,15 +436,19 @@ tryNextHalfPlane:
 }
 
 int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
+    if (fMax == 0) {
+        fMax = 9;
+    }
     bool selfIntersect = &c1 == &c2;
     if (selfIntersect) {
-        if (c1[0].approximatelyEqualHalf(c1[3])) {
+        if (c1[0].approximatelyEqual(c1[3])) {
             insert(0, 1, c1[0]);
+            return fUsed;
         }
     } else {
         for (int i1 = 0; i1 < 4; i1 += 3) {
             for (int i2 = 0; i2 < 4; i2 += 3) {
-                if (c1[i1].approximatelyEqualHalf(c2[i2])) {
+                if (c1[i1].approximatelyEqual(c2[i2])) {
                     insert(i1 >> 1, i2 >> 1, c1[i1]);
                 }
             }
@@ -429,47 +465,47 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
     }
     // quad/quad does linear test here -- cubic does not
     // cubics which are really lines should have been detected in reduce step earlier
-    SkDRect c1Bounds, c2Bounds;
-    // FIXME: pass in cached bounds from caller
-    c1Bounds.setBounds(c1);  // OPTIMIZE use setRawBounds ?
-    c2Bounds.setBounds(c2);
-    intersectEnd(c1, false, c2, c2Bounds, selfIntersect, *this);
-    intersectEnd(c1, true, c2, c2Bounds, selfIntersect, *this);
+    int exactEndBits = 0;
     if (selfIntersect) {
         if (fUsed) {
             return fUsed;
         }
     } else {
+        exactEndBits |= cubicExactEnd(c1, false, c2) << 0;
+        exactEndBits |= cubicExactEnd(c1, true, c2) << 1;
         swap();
-        intersectEnd(c2, false, c1, c1Bounds, false, *this);
-        intersectEnd(c2, true, c1, c1Bounds, false, *this);
+        exactEndBits |= cubicExactEnd(c2, false, c1) << 2;
+        exactEndBits |= cubicExactEnd(c2, true, c1) << 3;
         swap();
     }
-    // if two ends intersect, check middle for coincidence
-    if (fUsed >= 2) {
+    if (cubicCheckCoincidence(c1, c2)) {
         SkASSERT(!selfIntersect);
-        int last = fUsed - 1;
-        double tRange1 = fT[0][last] - fT[0][0];
-        double tRange2 = fT[1][last] - fT[1][0];
-        for (int index = 1; index < 5; ++index) {
-            double testT1 = fT[0][0] + tRange1 * index / 5;
-            double testT2 = fT[1][0] + tRange2 * index / 5;
-            SkDPoint testPt1 = c1.ptAtT(testT1);
-            SkDPoint testPt2 = c2.ptAtT(testT2);
-            if (!testPt1.approximatelyEqual(testPt2)) {
-                goto skipCoincidence;
-            }
-        }
-        if (fUsed > 2) {
-            fPt[1] = fPt[last];
-            fT[0][1] = fT[0][last];
-            fT[1][1] = fT[1][last];
-            fUsed = 2;
-        }
-        fIsCoincident[0] = fIsCoincident[1] = 0x03;
         return fUsed;
     }
-skipCoincidence:
+    // FIXME: pass in cached bounds from caller
+    SkDRect c1Bounds, c2Bounds;
+    c1Bounds.setBounds(c1);  // OPTIMIZE use setRawBounds ?
+    c2Bounds.setBounds(c2);
+    if (!(exactEndBits & 1)) {
+        cubicNearEnd(c1, false, c2, c2Bounds);
+    }
+    if (!(exactEndBits & 2)) {
+        cubicNearEnd(c1, true, c2, c2Bounds);
+    }
+    if (!selfIntersect) {
+        swap();
+        if (!(exactEndBits & 4)) {
+            cubicNearEnd(c2, false, c1, c1Bounds);
+        }
+        if (!(exactEndBits & 8)) {
+            cubicNearEnd(c2, true, c1, c1Bounds);
+        }
+        swap();
+    }
+    if (cubicCheckCoincidence(c1, c2)) {
+        SkASSERT(!selfIntersect);
+        return fUsed;
+    }
     ::intersect(c1, 0, 1, c2, 0, 1, 1, *this);
     // If an end point and a second point very close to the end is returned, the second
     // point may have been detected because the approximate quads
@@ -501,9 +537,11 @@ skipCoincidence:
             }
         }
         if (match) {
+#if DEBUG_CONCIDENT
             if (((match + 1) & match) != 0) {
                 SkDebugf("%s coincident hole\n", __FUNCTION__);
             }
+#endif
             // for now, assume that everything from start to finish is coincident
             if (fUsed > 2) {
                   fPt[1] = fPt[last];
@@ -522,6 +560,7 @@ skipCoincidence:
 // OPTIMIZATION If this is a common use case, optimize by duplicating
 // the intersect 3 loop to avoid the promotion  / demotion code
 int SkIntersections::intersect(const SkDCubic& cubic, const SkDQuad& quad) {
+    fMax = 6;
     SkDCubic up = quad.toCubic();
     (void) intersect(cubic, up);
     return used();
@@ -535,6 +574,7 @@ describes a method to find the self intersection of a cubic by taking the gradie
 form dotted with the normal, and solving for the roots. My math foo is too poor to implement this.*/
 
 int SkIntersections::intersect(const SkDCubic& c) {
+    fMax = 1;
     // check to see if x or y end points are the extrema. Are other quick rejects possible?
     if (c.endsAreExtremaInXOrY()) {
         return false;

@@ -139,7 +139,7 @@ static bool add_intercept(const SkDQuad& q1, const SkDQuad& q2, double tMin, dou
         return false;
     }
     SkDPoint pt2 = q1.ptAtT(rootTs[0][0]);
-    if (!pt2.approximatelyEqualHalf(mid)) {
+    if (!pt2.approximatelyEqual(mid)) {
         return false;
     }
     i->insertSwap(rootTs[0][0], tMid, pt2);
@@ -249,31 +249,36 @@ static bool is_linear(const SkDQuad& q1, const SkDQuad& q2, SkIntersections* i) 
 }
 
 // FIXME: if flat measure is sufficiently large, then probably the quartic solution failed
-static void relaxed_is_linear(const SkDQuad& q1, const SkDQuad& q2, SkIntersections* i) {
-    double m1 = flat_measure(q1);
-    double m2 = flat_measure(q2);
-#if DEBUG_FLAT_QUADS
-    double min = SkTMin(m1, m2);
-    if (min > 5) {
-        SkDebugf("%s maybe not flat enough.. %1.9g\n", __FUNCTION__, min);
-    }
-#endif
+// avoid imprecision incurred with chopAt
+static void relaxed_is_linear(const SkDQuad* q1, double s1, double e1, const SkDQuad* q2, 
+        double s2, double e2, SkIntersections* i) {
+    double m1 = flat_measure(*q1);
+    double m2 = flat_measure(*q2);
     i->reset();
-    const SkDQuad& rounder = m2 < m1 ? q1 : q2;
-    const SkDQuad& flatter = m2 < m1 ? q2 : q1;
+    const SkDQuad* rounder, *flatter;
+    double sf, midf, ef, sr, er;
+    if (m2 < m1) {
+        rounder = q1;
+        sr = s1;
+        er = e1;
+        flatter = q2;
+        sf = s2;
+        midf = (s2 + e2) / 2;
+        ef = e2;
+    } else {
+        rounder = q2;
+        sr = s2;
+        er = e2;
+        flatter = q1;
+        sf = s1;
+        midf = (s1 + e1) / 2;
+        ef = e1;
+    }
     bool subDivide = false;
-    is_linear_inner(flatter, 0, 1, rounder, 0, 1, i, &subDivide);
+    is_linear_inner(*flatter, sf, ef, *rounder, sr, er, i, &subDivide);
     if (subDivide) {
-        SkDQuadPair pair = flatter.chopAt(0.5);
-        SkIntersections firstI, secondI;
-        relaxed_is_linear(pair.first(), rounder, &firstI);
-        for (int index = 0; index < firstI.used(); ++index) {
-            i->insert(firstI[0][index] * 0.5, firstI[1][index], firstI.pt(index));
-        }
-        relaxed_is_linear(pair.second(), rounder, &secondI);
-        for (int index = 0; index < secondI.used(); ++index) {
-            i->insert(0.5 + secondI[0][index] * 0.5, secondI[1][index], secondI.pt(index));
-        }
+        relaxed_is_linear(flatter, sf, midf, rounder, sr, er, i);
+        relaxed_is_linear(flatter, midf, ef, rounder, sr, er, i);
     }
     if (m2 < m1) {
         i->swapPts();
@@ -378,7 +383,7 @@ static void lookNearEnd(const SkDQuad& q1, const SkDQuad& q2, int testT,
     impTs.intersectRay(q1, tmpLine);
     for (int index = 0; index < impTs.used(); ++index) {
         SkDPoint realPt = impTs.pt(index);
-        if (!tmpLine[0].approximatelyEqualHalf(realPt)) {
+        if (!tmpLine[0].approximatelyEqual(realPt)) {
             continue;
         }
         if (swap) {
@@ -390,6 +395,7 @@ static void lookNearEnd(const SkDQuad& q1, const SkDQuad& q2, int testT,
 }
 
 int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
+    fMax = 4;
     // if the quads share an end point, check to see if they overlap
     for (int i1 = 0; i1 < 3; i1 += 2) {
         for (int i2 = 0; i2 < 3; i2 += 2) {
@@ -401,7 +407,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     if (fAllowNear || true) {   // FIXME ? cubic/cubic intersection fails without (cubicOp67u)
         for (int i1 = 0; i1 < 3; i1 += 2) {
             for (int i2 = 0; i2 < 3; i2 += 2) {
-                if (q1[i1] != q2[i2] && q1[i1].approximatelyEqualHalf(q2[i2])) {
+                if (q1[i1] != q2[i2] && q1[i1].approximatelyEqual(q2[i2])) {
                     insertNear(i1 >> 1, i2 >> 1, q1[i1]);
                 }
             }
@@ -420,6 +426,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         return fUsed;
     }
     SkIntersections swapped;
+    swapped.setMax(fMax);
     if (is_linear(q2, q1, &swapped)) {
         swapped.swapPts();
         set(swapped);
@@ -484,7 +491,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
     }
     if (r1Count == r2Count && r1Count <= 1) {
         if (r1Count == 1) {
-            if (pts1[0].approximatelyEqualHalf(pts2[0])) {
+            if (pts1[0].approximatelyEqual(pts2[0])) {
                 insert(roots1Copy[0], roots2Copy[0], pts1[0]);
             } else if (pts1[0].moreRoughlyEqual(pts2[0])) {
                 // experiment: try to find intersection by chasing t
@@ -506,7 +513,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         dist[index] = DBL_MAX;
         closest[index] = -1;
         for (int ndex2 = 0; ndex2 < r2Count; ++ndex2) {
-            if (!pts2[ndex2].approximatelyEqualHalf(pts1[index])) {
+            if (!pts2[ndex2].approximatelyEqual(pts1[index])) {
                 continue;
             }
             double dx = pts2[ndex2].fX - pts1[index].fX;
@@ -532,7 +539,7 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         }
     }
     if (r1Count && r2Count && !foundSomething) {
-        relaxed_is_linear(q1, q2, this);
+        relaxed_is_linear(&q1, 0, 1, &q2, 0, 1, this);
         return fUsed;
     }
     int used = 0;
