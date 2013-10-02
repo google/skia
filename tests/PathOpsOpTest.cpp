@@ -2122,7 +2122,7 @@ static void issue1435(skiatest::Reporter* reporter) {
 
 static void bufferOverflow(skiatest::Reporter* reporter) {
     SkPath path;
-    path.addRect(0,0, 300,170141183460469231731687303715884105728.);
+    path.addRect(0,0, 300,170141183460469231731687303715884105728.f);
     SkPath pathB;
     pathB.addRect(0,0, 300,16);
     testPathOp(reporter, path, pathB, kUnion_PathOp);
