@@ -27,8 +27,8 @@ import sys
 # that directory.
 # Make sure that the 'tools' dir is in the PYTHONPATH, but add it at the *end*
 # so any dirs that are already in the PYTHONPATH will be preferred.
-TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.realpath(__file__))))
+PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(PARENT_DIRECTORY))
 TOOLS_DIRECTORY = os.path.join(TRUNK_DIRECTORY, 'tools')
 if TOOLS_DIRECTORY not in sys.path:
   sys.path.append(TOOLS_DIRECTORY)
@@ -157,9 +157,18 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_error(404)
 
   def do_GET_static(self, path):
-    """ Handle a GET request for a file under the 'static' directory. """
+    """ Handle a GET request for a file under the 'static' directory.
+    Only allow serving of files within the 'static' directory that is a
+    filesystem sibling of this script. """
     print 'do_GET_static: sending file "%s"' % path
-    self.send_file(posixpath.join('static', path))
+    static_dir = os.path.realpath(os.path.join(PARENT_DIRECTORY, 'static'))
+    full_path = os.path.realpath(os.path.join(static_dir, path))
+    if full_path.startswith(static_dir):
+      self.send_file(full_path)
+    else:
+      print ('Attempted do_GET_static() of path [%s] outside of static dir [%s]'
+             % (full_path, static_dir))
+      self.send_error(404)
 
   def redirect_to(self, url):
     """ Redirect the HTTP client to a different url. """
