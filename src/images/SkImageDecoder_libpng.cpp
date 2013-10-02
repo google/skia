@@ -532,9 +532,13 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                 *configp = SkBitmap::kARGB_8888_Config;
             }
         } else {
-            if (*configp != SkBitmap::kRGB_565_Config &&
-                *configp != SkBitmap::kARGB_4444_Config &&
-                *configp != SkBitmap::kA8_Config) {
+            if (SkBitmap::kA8_Config == *configp) {
+                if (k8BitGray_SrcDepth != srcDepth) {
+                    // Converting a non grayscale image to A8 is not currently supported.
+                    *configp = SkBitmap::kARGB_8888_Config;
+                }
+            } else if (*configp != SkBitmap::kRGB_565_Config &&
+                       *configp != SkBitmap::kARGB_4444_Config) {
                 *configp = SkBitmap::kARGB_8888_Config;
             }
         }
