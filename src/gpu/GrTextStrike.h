@@ -98,6 +98,10 @@ public:
     void validate() const {}
 #endif
 
+#ifdef SK_DEVELOPER
+    void dump() const;
+#endif
+
 private:
     friend class GrFontPurgeListener;
 

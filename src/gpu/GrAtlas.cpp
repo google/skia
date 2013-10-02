@@ -179,7 +179,13 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
     if (NULL == fTexture) {
         // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
+#ifdef SK_DEVELOPER
+        // RenderTarget so we can read the pixels to dump them
+        desc.fFlags = kDynamicUpdate_GrTextureFlagBit|kRenderTarget_GrTextureFlagBit
+                                                     |kNoStencil_GrTextureFlagBit;
+#else
         desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
+#endif
         desc.fWidth = GR_ATLAS_TEXTURE_WIDTH;
         desc.fHeight = GR_ATLAS_TEXTURE_HEIGHT;
         desc.fConfig = fPixelConfig;
@@ -205,6 +211,7 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
 }
 
 bool GrAtlasMgr::removeUnusedPlots(GrAtlas* atlas) {
+
     // GrPlot** is used so that the head element can be easily
     // modified when the first element is deleted
     GrPlot** plotRef = &atlas->fPlots;

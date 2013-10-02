@@ -628,6 +628,10 @@ public:
      */
     void resolveRenderTarget(GrRenderTarget* target);
 
+#ifdef SK_DEVELOPER
+    void dumpFontCache() const;
+#endif
+
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 

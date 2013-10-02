@@ -440,8 +440,10 @@ int tool_main(int argc, char** argv) {
 #if GR_CACHE_STATS
     if (renderer->isUsingGpuDevice()) {
         GrContext* ctx = renderer->getGrContext();
-
         ctx->printCacheStats();
+#ifdef SK_DEVELOPER
+        ctx->dumpFontCache();
+#endif
     }
 #endif
 #endif

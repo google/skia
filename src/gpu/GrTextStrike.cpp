@@ -10,6 +10,7 @@
 #include "GrRectanizer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
+#include "SkString.h"
 
 SK_DEFINE_INST_COUNT(GrFontScaler)
 SK_DEFINE_INST_COUNT(GrKey)
@@ -167,6 +168,23 @@ void GrFontCache::validate() const {
         strike = strike->fPrev;
     }
     SkASSERT(count == count2);
+}
+#endif
+
+#ifdef SK_DEVELOPER
+void GrFontCache::dump() const {
+    static int gDumpCount = 0;
+    for (int i = 0; i < kMaskFormatCount; ++i) {
+        if (NULL != fAtlasMgr[i]) {
+            GrTexture* texture = fAtlasMgr[i]->getTexture();
+            if (NULL != texture) {
+                SkString filename;
+                filename.printf("fontcache_%d%d.png", gDumpCount, i);
+                texture->savePixels(filename.c_str());
+            }
+        }
+    }
+    ++gDumpCount;
 }
 #endif
 

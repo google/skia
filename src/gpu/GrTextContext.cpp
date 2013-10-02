@@ -16,10 +16,14 @@
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "SkPath.h"
+#include "SkRTConf.h"
 #include "SkStrokeRec.h"
 #include "effects/GrCustomCoordsTextureEffect.h"
 
 static const int kGlyphCoordsAttributeIndex = 1;
+
+SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
+                "Dump the contents of the font cache before every purge.");
 
 void GrTextContext::flushGlyphs() {
     if (NULL == fDrawTarget) {
@@ -159,6 +163,12 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         fContext->getFontCache()->freePlotExceptFor(fStrike);
         if (fStrike->getGlyphAtlas(glyph, scaler, drawToken)) {
             goto HAS_ATLAS;
+        }
+
+        if (c_DumpFontCache) {
+#ifdef SK_DEVELOPER
+            fContext->getFontCache()->dump();
+#endif
         }
 
         // before we purge the cache, we must flush any accumulated draws

@@ -642,6 +642,12 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     this->drawRect(*paint, r);
 }
 
+#ifdef SK_DEVELOPER
+void GrContext::dumpFontCache() const {
+    fFontCache->dump();
+}
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
