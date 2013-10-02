@@ -122,6 +122,7 @@ bool GrRectanizerPow2::addRect(int width, int height, GrIPoint16* loc) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRectanizer* GrRectanizer::Factory(int width, int height) {
-    return SkNEW_ARGS(GrRectanizerPow2, (width, height));
-}
+// factory is now in GrRectanizer_skyline.cpp
+//GrRectanizer* GrRectanizer::Factory(int width, int height) {
+//    return SkNEW_ARGS(GrRectanizerPow2, (width, height));
+//}
