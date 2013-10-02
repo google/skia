@@ -14,7 +14,6 @@
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
@@ -99,26 +98,21 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
-
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
 
 private:
     UniformHandle       fOffsetVar;
     UniformHandle       fZoomVar;
     UniformHandle       fInsetVar;
 
-    GrGLEffectMatrix    fEffectMatrix;
-
     typedef GrGLEffect INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
-                                         const GrDrawEffect& drawEffect)
-    : INHERITED(factory)
-    , fEffectMatrix(drawEffect.castEffect<GrMagnifierEffect>().coordsType()) {
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+    : INHERITED(factory) {
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
@@ -126,9 +120,9 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
                                    EffectKey key,
                                    const char* outputColor,
                                    const char* inputColor,
+                                   const TransformedCoordsArray& coords,
                                    const TextureSamplerArray& samplers) {
-    SkString coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
+    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     fOffsetVar = builder->addUniform(
         GrGLShaderBuilder::kFragment_Visibility |
         GrGLShaderBuilder::kVertex_Visibility,
@@ -142,10 +136,10 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
         GrGLShaderBuilder::kVertex_Visibility,
         kVec2f_GrSLType, "uInset");
 
-    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords.c_str());
+    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     builder->fsCodeAppendf("\t\tvec2 zoom_coord = %s + %s / %s;\n",
                            builder->getUniformCStr(fOffsetVar),
-                           coords.c_str(),
+                           coords2D.c_str(),
                            builder->getUniformCStr(fZoomVar));
 
     builder->fsCodeAppend("\t\tvec2 delta = min(coord, vec2(1.0, 1.0) - coord);\n");
@@ -180,16 +174,6 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
     uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     uman.set2f(fZoomVar, zoom.x_zoom(), zoom.y_zoom());
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
-    fEffectMatrix.setData(uman, zoom.getMatrix(), drawEffect, zoom.texture(0));
-}
-
-GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrDrawEffect& drawEffect,
-                                                  const GrGLCaps&) {
-    const GrMagnifierEffect& zoom = drawEffect.castEffect<GrMagnifierEffect>();
-    return GrGLEffectMatrix::GenKey(zoom.getMatrix(),
-                                    drawEffect,
-                                    zoom.coordsType(),
-                                    zoom.texture(0));
 }
 
 /////////////////////////////////////////////////////////////////////

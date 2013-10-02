@@ -18,8 +18,8 @@ class GrGLTexture;
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
-    GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
-    must have a function:
+    GLSL code that implements a GrEffect and for uploading uniforms at draw time. If they don't
+    always emit the same GLSL code, they must have a function:
         static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
@@ -45,6 +45,7 @@ public:
         kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
     };
 
+    typedef GrGLShaderBuilder::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
 
     GrGLEffect(const GrBackendEffectFactory&);
@@ -76,6 +77,7 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) = 0;
 
     /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
@@ -89,7 +91,10 @@ public:
 
     const char* name() const { return fFactory.name(); }
 
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+
     static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
+    static EffectKey GenTransformKey(const GrDrawEffect&);
     static EffectKey GenAttribKey(const GrDrawEffect& stage);
 
 protected:

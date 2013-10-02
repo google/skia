@@ -14,8 +14,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkGr.h"
 #endif
@@ -515,7 +515,6 @@ protected:
     GrGLUniformManager::UniformHandle   fBaseFrequencyUni;
     GrGLUniformManager::UniformHandle   fAlphaUni;
     GrGLUniformManager::UniformHandle   fInvMatrixUni;
-    GrGLEffectMatrix                    fEffectMatrix;
 
 private:
     typedef GrGLEffect INHERITED;
@@ -533,6 +532,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
@@ -557,6 +557,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
@@ -577,9 +578,8 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-    const SkMatrix& matrix() const { return fMatrix; }
+    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
     uint8_t alpha() const { return fAlpha; }
-    GrGLEffectMatrix::CoordsType coordsType() const { return GrEffect::kLocal_CoordsType; }
 
     void getConstantColorComponents(GrColor*, uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0; // This is noise. Nothing is constant.
@@ -592,7 +592,7 @@ protected:
                fBaseFrequency == s.fBaseFrequency &&
                fNumOctaves == s.fNumOctaves &&
                fStitchTiles == s.fStitchTiles &&
-               fMatrix == s.fMatrix &&
+               fCoordTransform.getMatrix() == s.fCoordTransform.getMatrix() &&
                fAlpha == s.fAlpha;
     }
 
@@ -604,9 +604,16 @@ protected:
       , fStitchTiles(stitchTiles)
       , fMatrix(matrix)
       , fAlpha(alpha) {
+        // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
+        // (as opposed to 0 based, usually). The same adjustment is in the shadeSpan() functions.
+        SkMatrix m = matrix;
+        m.postTranslate(SK_Scalar1, SK_Scalar1);
+        fCoordTransform.reset(kLocal_GrCoordSet, m);
+        this->addCoordTransform(&fCoordTransform);
     }
 
     SkPerlinNoiseShader::Type       fType;
+    GrCoordTransform                fCoordTransform;
     SkVector                        fBaseFrequency;
     int                             fNumOctaves;
     bool                            fStitchTiles;
@@ -746,11 +753,11 @@ void GrGLSimplexNoise::emitCode(GrGLShaderBuilder* builder,
                                 EffectKey key,
                                 const char* outputColor,
                                 const char* inputColor,
+                                const TransformedCoordsArray& coords,
                                 const TextureSamplerArray&) {
     sk_ignore_unused_variable(inputColor);
 
-    SkString vCoords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
+    SkString vCoords = builder->ensureFSCoords2D(coords, 0);
 
     fSeedUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "seed");
@@ -962,11 +969,11 @@ void GrGLPerlinNoise::emitCode(GrGLShaderBuilder* builder,
                                EffectKey key,
                                const char* outputColor,
                                const char* inputColor,
+                               const TransformedCoordsArray& coords,
                                const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    SkString vCoords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &vCoords);
+    SkString vCoords = builder->ensureFSCoords2D(coords, 0);
 
     fInvMatrixUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                         kMat33f_GrSLType, "invMatrix");
@@ -1217,8 +1224,7 @@ GrGLNoise::GrGLNoise(const GrBackendEffectFactory& factory, const GrDrawEffect& 
   : INHERITED (factory)
   , fType(drawEffect.castEffect<GrPerlinNoiseEffect>().type())
   , fStitchTiles(drawEffect.castEffect<GrPerlinNoiseEffect>().stitchTiles())
-  , fNumOctaves(drawEffect.castEffect<GrPerlinNoiseEffect>().numOctaves())
-  , fEffectMatrix(drawEffect.castEffect<GrPerlinNoiseEffect>().coordsType()) {
+  , fNumOctaves(drawEffect.castEffect<GrPerlinNoiseEffect>().numOctaves()) {
 }
 
 GrGLEffect::EffectKey GrGLNoise::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -1244,12 +1250,7 @@ GrGLEffect::EffectKey GrGLNoise::GenKey(const GrDrawEffect& drawEffect, const Gr
         key |= 0x4; // Flip the 3rd bit if tile stitching is on
     }
 
-    key = key << GrGLEffectMatrix::kKeyBits;
-
-    SkMatrix m = turbulence.matrix();
-    m.postTranslate(SK_Scalar1, SK_Scalar1);
-    return key | GrGLEffectMatrix::GenKey(m, drawEffect,
-                 drawEffect.castEffect<GrPerlinNoiseEffect>().coordsType(), NULL);
+    return key;
 }
 
 void GrGLNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
@@ -1260,6 +1261,7 @@ void GrGLNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& draw
     uman.set1f(fAlphaUni, SkScalarDiv(SkIntToScalar(turbulence.alpha()), SkIntToScalar(255)));
 
     SkMatrix m = turbulence.matrix();
+    m.postTranslate(-SK_Scalar1, -SK_Scalar1);
     SkMatrix invM;
     if (!m.invert(&invM)) {
         invM.reset();
@@ -1267,11 +1269,6 @@ void GrGLNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& draw
         invM.postConcat(invM); // Square the matrix
     }
     uman.setSkMatrix(fInvMatrixUni, invM);
-
-    // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
-    // (as opposed to 0 based, usually). The same adjustment is in the shadeSpan() functions.
-    m.postTranslate(SK_Scalar1, SK_Scalar1);
-    fEffectMatrix.setData(uman, m, drawEffect, NULL);
 }
 
 void GrGLPerlinNoise::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {

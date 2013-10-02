@@ -39,7 +39,7 @@ public:
                                const SkRect& domain,
                                WrapMode,
                                GrTextureParams::FilterMode filterMode,
-                               CoordsType = kLocal_CoordsType);
+                               GrCoordSet = kLocal_GrCoordSet);
 
     virtual ~GrTextureDomainEffect();
 
@@ -77,7 +77,7 @@ private:
                           const SkRect& domain,
                           WrapMode,
                           GrTextureParams::FilterMode filterMode,
-                          CoordsType type);
+                          GrCoordSet);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 

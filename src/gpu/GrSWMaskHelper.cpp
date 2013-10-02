@@ -204,7 +204,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                          GrSimpleTextureEffect::Create(texture,
                                                        maskMatrix,
                                                        GrTextureParams::kNone_FilterMode,
-                                                       GrEffect::kPosition_CoordsType))->unref();
+                                                       kPosition_GrCoordSet))->unref();
 
     target->drawSimpleRect(dstRect);
 }

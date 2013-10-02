@@ -10,15 +10,13 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrSimpleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "SkMatrix.h"
 
 class GrGLConfigConversionEffect : public GrGLEffect {
 public:
     GrGLConfigConversionEffect(const GrBackendEffectFactory& factory,
                                const GrDrawEffect& drawEffect)
-    : INHERITED (factory)
-    , fEffectMatrix(drawEffect.castEffect<GrConfigConversionEffect>().coordsType()) {
+    : INHERITED (factory) {
         const GrConfigConversionEffect& effect = drawEffect.castEffect<GrConfigConversionEffect>();
         fSwapRedAndBlue = effect.swapsRedAndBlue();
         fPMConversion = effect.pmConversion();
@@ -29,11 +27,10 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        SkString coords;
-        GrSLType coordsType = fEffectMatrix.emitCode(builder, key, &coords);
         builder->fsCodeAppendf("\t\t%s = ", outputColor);
-        builder->fsAppendTextureLookup(samplers[0], coords.c_str(), coordsType);
+        builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
         builder->fsCodeAppend(";\n");
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             SkASSERT(fSwapRedAndBlue);
@@ -73,27 +70,14 @@ public:
         builder->fsCodeAppend(modulate.c_str());
     }
 
-    void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
-        const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
-        fEffectMatrix.setData(uman, conv.getMatrix(), drawEffect, conv.texture(0));
-    }
-
     static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
         const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
-        EffectKey key = static_cast<EffectKey>(conv.swapsRedAndBlue()) | (conv.pmConversion() << 1);
-        key <<= GrGLEffectMatrix::kKeyBits;
-        EffectKey matrixKey =  GrGLEffectMatrix::GenKey(conv.getMatrix(),
-                                                        drawEffect,
-                                                        conv.coordsType(),
-                                                        conv.texture(0));
-        SkASSERT(!(matrixKey & key));
-        return matrixKey | key;
+        return static_cast<EffectKey>(conv.swapsRedAndBlue()) | (conv.pmConversion() << 1);
     }
 
 private:
     bool                                    fSwapRedAndBlue;
     GrConfigConversionEffect::PMConversion  fPMConversion;
-    GrGLEffectMatrix                        fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
 

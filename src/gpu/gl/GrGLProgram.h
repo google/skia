@@ -11,6 +11,7 @@
 
 #include "GrDrawState.h"
 #include "GrGLContext.h"
+#include "GrGLCoordTransform.h"
 #include "GrGLProgramDesc.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLSL.h"
@@ -148,15 +149,17 @@ private:
         UniformHandle       fDstCopySamplerUni;
     };
 
+    typedef SkSTArray<4, GrGLCoordTransform, false> CoordTransformSArray;
     typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
     typedef SkSTArray<4, int, true> TextureUnitSArray;
 
     struct EffectAndSamplers {
         EffectAndSamplers() : fGLEffect(NULL) {}
         ~EffectAndSamplers() { delete fGLEffect; }
-        GrGLEffect*         fGLEffect;
-        SamplerUniSArray    fSamplerUnis;  // sampler uni handles for effect's GrTextureAccess
-        TextureUnitSArray   fTextureUnits; // texture unit used for each entry of fSamplerUnis
+        GrGLEffect*          fGLEffect;
+        CoordTransformSArray fCoordTransforms;
+        SamplerUniSArray     fSamplerUnis;  // sampler uni handles for effect's GrTextureAccess
+        TextureUnitSArray    fTextureUnits; // texture unit used for each entry of fSamplerUnis
     };
 
     GrGLProgram(GrGpuGL* gpu,
@@ -177,7 +180,7 @@ private:
     void initEffectSamplerUniforms(EffectAndSamplers* effect, int* texUnitIdx);
 
     // Helper for setData().
-    void setEffectData(const GrEffectStage& stage, const EffectAndSamplers& effect);
+    void setEffectData(const GrEffectStage& stage, EffectAndSamplers& effect);
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
     // per-vertex colors.

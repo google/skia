@@ -11,7 +11,6 @@
 #include "GrSingleTextureEffect.h"
 #include "GrDrawEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
 
 class GrGLBicubicEffect;
@@ -36,8 +35,8 @@ public:
     static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, p, coordsType)));
+                               GrCoordSet coordSet = kLocal_GrCoordSet) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, p, coordSet)));
         return CreateEffectRef(effect);
     }
 
@@ -48,14 +47,14 @@ public:
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        return Create(tex, gMitchellCoefficients, matrix, p, coordsType);
+                               GrCoordSet coordSet = kLocal_GrCoordSet) {
+        return Create(tex, gMitchellCoefficients, matrix, p, coordSet);
     }
 
 private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16]);
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
-                    const SkMatrix &matrix, const GrTextureParams &p, CoordsType coordsType);
+                    const SkMatrix &matrix, const GrTextureParams &p, GrCoordSet coordSet);
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
     float    fCoefficients[16];
 

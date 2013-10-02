@@ -55,7 +55,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                                       GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
                                       GrTextureDomainEffect::kDecal_WrapMode,
                                       GrTextureParams::kNone_FilterMode,
-                                      GrEffect::kPosition_CoordsType))->unref();
+                                      kPosition_GrCoordSet))->unref();
 }
 
 bool path_needs_SW_renderer(GrContext* context,

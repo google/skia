@@ -402,6 +402,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -471,12 +472,12 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
                                  EffectKey key,
                                  const char* outputColor,
                                  const char* inputColor,
+                                 const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
     this->emitUniforms(builder, key);
-    SkString coords;
-    this->setupMatrix(builder, key, &coords);
+    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     SkString t;
-    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords.c_str(), coords.c_str());
+    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords2D.c_str(), coords2D.c_str());
     this->emitColor(builder, t.c_str(), key,
                           outputColor, inputColor, samplers);
 }

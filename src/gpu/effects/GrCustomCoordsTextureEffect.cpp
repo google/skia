@@ -7,7 +7,6 @@
 
 #include "GrCustomCoordsTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
@@ -23,6 +22,7 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
         SkASSERT(NULL != vertexBuilder);
@@ -44,10 +44,6 @@ public:
                                                   fsCoordName.c_str(),
                                                   kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-    }
-
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-        return 1 << GrGLEffectMatrix::kKeyBits;
     }
 
     virtual void setData(const GrGLUniformManager& uman,

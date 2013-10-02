@@ -8,6 +8,7 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
+#include "GrCoordTransform.h"
 #include "GrDrawEffect.h"
 #include "GrGpuGL.h"
 #include "GrTexture.h"
@@ -347,9 +348,8 @@ void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
     GrGLSLModulatef<4>(&fFSCode, modulation, lookup.c_str());
 }
 
-GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
-                                                            const GrTextureAccess& access,
-                                                            const GrGLCaps& caps) {
+GrGLShaderBuilder::EffectKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
+                                                                    const GrGLCaps& caps) {
     uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
     if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
         return 1;
@@ -438,6 +438,21 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     }
 
     return h;
+}
+
+SkString GrGLShaderBuilder::ensureFSCoords2D(const TransformedCoordsArray& coords, int index) {
+    if (kVec3f_GrSLType != coords[index].type()) {
+        SkASSERT(kVec2f_GrSLType == coords[index].type());
+        return coords[index].getName();
+    }
+
+    SkString coords2D("coords2D");
+    if (0 != index) {
+        coords2D.appendf("_%i", index);
+    }
+    this->fsCodeAppendf("\tvec2 %s = %s.xy / %s.z;",
+                        coords2D.c_str(), coords[index].c_str(), coords[index].c_str());
+    return coords2D;
 }
 
 const char* GrGLShaderBuilder::fragmentPosition() {
@@ -559,10 +574,11 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderVisibility visibility,
 
 void GrGLShaderBuilder::emitEffects(
                         const GrEffectStage* effectStages[],
-                        const GrBackendEffectFactory::EffectKey effectKeys[],
+                        const EffectKey effectKeys[],
                         int effectCnt,
                         SkString* fsInOutColor,
                         GrSLConstantVec* fsInOutColorKnownValue,
+                        SkTArray<GrGLCoordTransform, false>* effectCoordTransformArrays[],
                         SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
                         GrGLEffect* glEffects[]) {
     bool effectEmitted = false;
@@ -577,6 +593,17 @@ void GrGLShaderBuilder::emitEffects(
 
         CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
 
+        int numTransforms = effect->numTransforms();
+        SkSTArray<8, GrGLCoordTransform::TransformedCoords> transformedCoords;
+        transformedCoords.push_back_n(numTransforms);
+        EffectKey transformKey = GrBackendEffectFactory::GetTransformKey(effectKeys[e]);
+        for (int c = 0; c < numTransforms; ++c) {
+            GrGLCoordTransform& ct = effectCoordTransformArrays[e]->push_back();
+            EffectKey key = (transformKey >> (c * GrGLCoordTransform::kKeyBits)) &
+                            (GrGLCoordTransform::kKeyMask);
+            ct.emitCode(this, key, &transformedCoords[c], c);
+        }
+
         int numTextures = effect->numTextures();
         SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
         textureSamplers.push_back_n(numTextures);
@@ -584,6 +611,7 @@ void GrGLShaderBuilder::emitEffects(
             textureSamplers[t].init(this, &effect->textureAccess(t), t);
             effectSamplerHandles[e]->push_back(textureSamplers[t].fSamplerUniform);
         }
+
         GrDrawEffect drawEffect(stage, NULL != fVertexBuilder.get()
                                        && fVertexBuilder->hasExplicitLocalCoords());
 
@@ -625,6 +653,7 @@ void GrGLShaderBuilder::emitEffects(
                                effectKeys[e],
                                outColor.c_str(),
                                inColor.isEmpty() ? NULL : inColor.c_str(),
+                               transformedCoords,
                                textureSamplers);
 
         if (NULL != fVertexBuilder.get()) {

@@ -7,7 +7,6 @@
 
 #include "GrSimpleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
@@ -15,9 +14,8 @@
 
 class GrGLSimpleTextureEffect : public GrGLEffect {
 public:
-    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
-        : INHERITED (factory)
-        , fEffectMatrix(drawEffect.castEffect<GrSimpleTextureEffect>().coordsType()) {
+    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        : INHERITED (factory) {
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
@@ -25,35 +23,17 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        SkString fsCoordName;
-        GrSLType fsCoordSLType;
-        fsCoordSLType = fEffectMatrix.emitCode(builder, key, &fsCoordName);
-
         builder->fsCodeAppendf("\t%s = ", outputColor);
         builder->fsAppendTextureLookupAndModulate(inputColor,
                                                   samplers[0],
-                                                  fsCoordName.c_str(),
-                                                  fsCoordSLType);
+                                                  coords[0].c_str(),
+                                                  coords[0].type());
         builder->fsCodeAppend(";\n");
     }
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-        const GrSimpleTextureEffect& ste = drawEffect.castEffect<GrSimpleTextureEffect>();
-        return GrGLEffectMatrix::GenKey(ste.getMatrix(),
-                                        drawEffect,
-                                        ste.coordsType(),
-                                        ste.texture(0));
-    }
-
-    virtual void setData(const GrGLUniformManager& uman,
-                         const GrDrawEffect& drawEffect) SK_OVERRIDE {
-        const GrSimpleTextureEffect& ste = drawEffect.castEffect<GrSimpleTextureEffect>();
-        fEffectMatrix.setData(uman, ste.getMatrix(), drawEffect, ste.texture(0));
-    }
-
 private:
-    GrGLEffectMatrix fEffectMatrix;
     typedef GrGLEffect INHERITED;
 };
 
@@ -89,12 +69,12 @@ GrEffectRef* GrSimpleTextureEffect::TestCreate(SkRandom* random,
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    static const CoordsType kCoordsTypes[] = {
-        kLocal_CoordsType,
-        kPosition_CoordsType
+    static const GrCoordSet kCoordSets[] = {
+        kLocal_GrCoordSet,
+        kPosition_GrCoordSet
     };
-    CoordsType coordsType = kCoordsTypes[random->nextULessThan(GR_ARRAY_COUNT(kCoordsTypes))];
+    GrCoordSet coordSet = kCoordSets[random->nextULessThan(GR_ARRAY_COUNT(kCoordSets))];
 
     const SkMatrix& matrix = GrEffectUnitTest::TestMatrix(random);
-    return GrSimpleTextureEffect::Create(textures[texIdx], matrix, coordsType);
+    return GrSimpleTextureEffect::Create(textures[texIdx], matrix, coordSet);
 }

@@ -14,8 +14,7 @@
  * The typical use case is that sometime after an effect was installed a decision was made to draw
  * in device coordinates (i.e. use an identity view-matrix). In such a case the GrDrawEffect's
  * coord-change-matrix would be the inverse of the view matrix that was set when the effect was
- * installed. GrGLEffectMatrix is a handy class that implements a local coordinate matrix that
- * automatically accounts for the coord-change matrix.
+ * installed.
  */
 class GrDrawEffect {
 public:

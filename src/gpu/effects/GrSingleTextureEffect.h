@@ -10,6 +10,7 @@
 
 #include "GrEffect.h"
 #include "SkMatrix.h"
+#include "GrCoordTransform.h"
 
 class GrTexture;
 
@@ -21,30 +22,25 @@ class GrSingleTextureEffect : public GrEffect {
 public:
     virtual ~GrSingleTextureEffect();
 
-    const SkMatrix& getMatrix() const { return fMatrix; }
-
-    /** Indicates whether the matrix operates on local coords or positions */
-    CoordsType coordsType() const { return fCoordsType; }
-
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, CoordsType = kLocal_CoordsType);
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrCoordSet = kLocal_GrCoordSet);
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrTextureParams::FilterMode filterMode,
-                          CoordsType = kLocal_CoordsType);
+                          GrCoordSet = kLocal_GrCoordSet);
     GrSingleTextureEffect(GrTexture*,
                           const SkMatrix&,
                           const GrTextureParams&,
-                          CoordsType = kLocal_CoordsType);
+                          GrCoordSet = kLocal_GrCoordSet);
 
     /**
      * Helper for subclass onIsEqual() functions.
      */
-    bool hasSameTextureParamsMatrixAndCoordsType(const GrSingleTextureEffect& other) const {
+    bool hasSameTextureParamsMatrixAndSourceCoords(const GrSingleTextureEffect& other) const {
         // We don't have to check the accesses' swizzles because they are inferred from the texture.
         return fTextureAccess == other.fTextureAccess &&
-               this->getMatrix().cheapEqualTo(other.getMatrix()) &&
-               fCoordsType == other.fCoordsType;
+               fCoordTransform.getMatrix().cheapEqualTo(other.fCoordTransform.getMatrix()) &&
+               fCoordTransform.sourceCoords() == other.fCoordTransform.sourceCoords();
     }
 
     /**
@@ -62,9 +58,8 @@ protected:
     }
 
 private:
-    GrTextureAccess fTextureAccess;
-    SkMatrix        fMatrix;
-    CoordsType      fCoordsType;
+    GrCoordTransform fCoordTransform;
+    GrTextureAccess  fTextureAccess;
 
     typedef GrEffect INHERITED;
 };

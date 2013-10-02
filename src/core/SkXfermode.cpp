@@ -895,10 +895,10 @@ void SkProcXfermode::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 #include "GrEffect.h"
+#include "GrCoordTransform.h"
 #include "GrEffectUnitTest.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 
 /**
  * GrEffect that implements the all the separable xfer modes that cannot be expressed as Coeffs.
@@ -935,24 +935,22 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
-            : GrGLEffect(factory )
-            , fBackgroundEffectMatrix(kCoordsType) {
+            : GrGLEffect(factory) {
         }
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               EffectKey key,
                               const char* outputColor,
                               const char* inputColor,
+                              const TransformedCoordsArray& coords,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             SkXfermode::Mode mode = drawEffect.castEffect<XferEffect>().mode();
             const GrTexture* backgroundTex = drawEffect.castEffect<XferEffect>().backgroundAccess().getTexture();
             const char* dstColor;
             if (backgroundTex) {
-                SkString bgCoords;
-                GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
                 dstColor = "bgColor";
                 builder->fsCodeAppendf("\t\tvec4 %s = ", dstColor);
-                builder->fsAppendTextureLookup(samplers[0], bgCoords.c_str(), bgCoordsType);
+                builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
                 builder->fsCodeAppendf(";\n");
             } else {
                 dstColor = builder->dstColor();
@@ -1088,28 +1086,7 @@ public:
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            const XferEffect& xfer = drawEffect.castEffect<XferEffect>();
-            GrTexture* bgTex = xfer.backgroundAccess().getTexture();
-            EffectKey bgKey = 0;
-            if (bgTex) {
-                bgKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(bgTex),
-                                                 drawEffect,
-                                                 GLEffect::kCoordsType,
-                                                 bgTex);
-            }
-            EffectKey modeKey = xfer.mode() << GrGLEffectMatrix::kKeyBits;
-            return modeKey | bgKey;
-        }
-
-        virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) SK_OVERRIDE {
-            const XferEffect& xfer = drawEffect.castEffect<XferEffect>();
-            GrTexture* bgTex = xfer.backgroundAccess().getTexture();
-            if (bgTex) {
-                fBackgroundEffectMatrix.setData(uman,
-                                                GrEffect::MakeDivByTextureWHMatrix(bgTex),
-                                                drawEffect,
-                                                bgTex);
-            }
+            return drawEffect.castEffect<XferEffect>().mode();
         }
 
     private:
@@ -1329,8 +1306,6 @@ public:
 
         }
 
-        static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
-        GrGLEffectMatrix   fBackgroundEffectMatrix;
         typedef GrGLEffect INHERITED;
     };
 
@@ -1340,6 +1315,8 @@ private:
     XferEffect(SkXfermode::Mode mode, GrTexture* background)
         : fMode(mode) {
         if (background) {
+            fBackgroundTransform.reset(kLocal_GrCoordSet, background);
+            this->addCoordTransform(&fBackgroundTransform);
             fBackgroundAccess.reset(background);
             this->addTextureAccess(&fBackgroundAccess);
         } else {
@@ -1353,6 +1330,7 @@ private:
     }
 
     SkXfermode::Mode fMode;
+    GrCoordTransform fBackgroundTransform;
     GrTextureAccess  fBackgroundAccess;
 
     typedef GrEffect INHERITED;

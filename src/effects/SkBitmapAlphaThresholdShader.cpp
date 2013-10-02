@@ -62,9 +62,9 @@ void BATShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrCoordTransform.h"
 #include "GrEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTextureAccess.h"
 
@@ -109,36 +109,24 @@ public:
         GLEffect(const GrBackendEffectFactory& factory,
                     const GrDrawEffect& e)
         : GrGLEffect(factory)
-        , fBmpMatrix(GrEffect::kLocal_CoordsType)
-        , fMaskMatrix(GrEffect::kLocal_CoordsType)
         , fPrevThreshold(-SK_Scalar1) {
         }
 
         virtual void emitCode(GrGLShaderBuilder* builder,
-                                const GrDrawEffect& drawEffect,
-                                EffectKey key,
-                                const char* outputColor,
-                                const char* inputColor,
-                                const TextureSamplerArray& samplers) SK_OVERRIDE {
-            SkString bmpCoord;
-            SkString maskCoord;
-
-            GrSLType bmpCoordType = fBmpMatrix.emitCode(builder, key, &bmpCoord, NULL, "Bmp");
-            EffectKey maskMatrixKey = key >> GrGLEffectMatrix::kKeyBits;
-            GrSLType maskCoordType = fMaskMatrix.emitCode(builder,
-                                                          maskMatrixKey,
-                                                          &maskCoord,
-                                                          NULL,
-                                                          "Mask");
-
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TransformedCoordsArray& coords,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
             // put bitmap color in "color"
             builder->fsCodeAppend("\t\tvec4 color = ");
-            builder->fsAppendTextureLookup(samplers[0], bmpCoord.c_str(), bmpCoordType);
+            builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
             builder->fsCodeAppend(";\n");
 
             // put alpha from mask texture in "mask"
             builder->fsCodeAppend("\t\tfloat mask = ");
-            builder->fsAppendTextureLookup(samplers[1], maskCoord.c_str(), maskCoordType);
+            builder->fsAppendTextureLookup(samplers[1], coords[1].c_str(), coords[1].type());
             builder->fsCodeAppend(".a;\n");
 
             const char* threshold;
@@ -171,31 +159,12 @@ public:
 
         virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& e) SK_OVERRIDE {
             const ThresholdEffect& effect = e.castEffect<ThresholdEffect>();
-            fBmpMatrix.setData(uman, effect.fBmpMatrix, e, effect.fBmpAccess.getTexture());
-            fMaskMatrix.setData(uman, effect.fMaskMatrix, e, effect.fMaskAccess.getTexture());
             if (fPrevThreshold != effect.fThreshold) {
                 uman.set1f(fThresholdUniHandle, effect.fThreshold);
             }
         }
 
-        static inline EffectKey GenKey(const GrDrawEffect& e, const GrGLCaps&) {
-            const ThresholdEffect& effect = e.castEffect<ThresholdEffect>();
-
-            EffectKey bmpMKey = GrGLEffectMatrix::GenKey(effect.fBmpMatrix,
-                                                         e,
-                                                         GrEffect::kLocal_CoordsType,
-                                                         effect.fBmpAccess.getTexture());
-            EffectKey maskMKey = GrGLEffectMatrix::GenKey(effect.fMaskMatrix,
-                                                          e,
-                                                          GrEffect::kLocal_CoordsType,
-                                                          effect.fMaskAccess.getTexture());
-            return bmpMKey | (maskMKey << GrGLEffectMatrix::kKeyBits);
-        }
-
     private:
-        GrGLEffectMatrix fBmpMatrix;
-        GrGLEffectMatrix fMaskMatrix;
-
         GrGLUniformManager::UniformHandle fThresholdUniHandle;
         SkScalar                          fPrevThreshold;
     };
@@ -206,12 +175,14 @@ private:
     ThresholdEffect(GrTexture* bmpTexture, const SkMatrix& bmpMatrix,
                     GrTexture* maskTexture, const SkMatrix& maskMatrix,
                     SkScalar threshold)
-    : fBmpAccess(bmpTexture, GrTextureParams())
+    : fBmpTransform(kLocal_GrCoordSet, bmpMatrix, bmpTexture)
+    , fBmpAccess(bmpTexture, GrTextureParams())
+    , fMaskTransform(kLocal_GrCoordSet, maskMatrix, maskTexture)
     , fMaskAccess(maskTexture, GrTextureParams())
-    , fBmpMatrix(bmpMatrix)
-    , fMaskMatrix(maskMatrix)
     , fThreshold(threshold) {
+        this->addCoordTransform(&fBmpTransform);
         this->addTextureAccess(&fBmpAccess);
+        this->addCoordTransform(&fMaskTransform);
         this->addTextureAccess(&fMaskAccess);
     }
 
@@ -219,16 +190,15 @@ private:
         const ThresholdEffect& e = CastEffect<ThresholdEffect>(other);
         return e.fBmpAccess.getTexture() == fBmpAccess.getTexture() &&
                e.fMaskAccess.getTexture() == fMaskAccess.getTexture() &&
-               e.fBmpMatrix == fBmpMatrix &&
-               e.fMaskMatrix == fMaskMatrix &&
+               e.fBmpTransform.getMatrix() == fBmpTransform.getMatrix() &&
+               e.fMaskTransform.getMatrix() == fMaskTransform.getMatrix() &&
                e.fThreshold == fThreshold;
     }
 
-    GrTextureAccess fBmpAccess;
-    GrTextureAccess fMaskAccess;
-
-    SkMatrix fBmpMatrix;
-    SkMatrix fMaskMatrix;
+    GrCoordTransform fBmpTransform;
+    GrTextureAccess  fBmpAccess;
+    GrCoordTransform fMaskTransform;
+    GrTextureAccess  fMaskAccess;
 
     SkScalar fThreshold;
 };

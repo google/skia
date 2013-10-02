@@ -49,6 +49,7 @@ public:
                               EffectKey key,
                               const char* outputColor,
                               const char* inputColor,
+                              const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
             SkASSERT(NULL != vertexBuilder);
@@ -169,6 +170,7 @@ public:
                               EffectKey key,
                               const char* outputColor,
                               const char* inputColor,
+                              const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
             SkASSERT(NULL != vertexBuilder);

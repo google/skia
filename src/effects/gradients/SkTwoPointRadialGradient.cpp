@@ -389,6 +389,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
@@ -530,15 +531,10 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    EffectKey key,
                                    const char* outputColor,
                                    const char* inputColor,
+                                   const TransformedCoordsArray& coords,
                                    const TextureSamplerArray& samplers) {
 
     this->emitUniforms(builder, key);
-    SkString fsCoords;
-    SkString vsCoordsVarying;
-
-    GrSLType coordsVaryingType;
-    this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
-
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -550,7 +546,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
     GrGLShaderBuilder::VertexBuilder* vertexBuilder =
-        (kVec2f_GrSLType == coordsVaryingType) ? builder->getVertexBuilder() : NULL;
+        (kVec2f_GrSLType == coords[0].type()) ? builder->getVertexBuilder() : NULL;
     if (NULL != vertexBuilder) {
         vertexBuilder->addVarying(kFloat_GrSLType, "Radial2BCoeff",
                                     &fVSVaryingName, &fFSVaryingName);
@@ -569,12 +565,13 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
             // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
             vertexBuilder->vsCodeAppendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
                                            fVSVaryingName, p2.c_str(),
-                                           vsCoordsVarying.c_str(), p3.c_str());
+                                           coords[0].getVSName().c_str(), p3.c_str());
         }
     }
 
     // FS
     {
+        SkString coords2D = builder->ensureFSCoords2D(coords, 0);
         SkString cName("c");
         SkString ac4Name("ac4");
         SkString rootName("root");
@@ -600,14 +597,14 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
         } else {
             bVar = "b";
             builder->fsCodeAppendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                                   bVar.c_str(), p2.c_str(), fsCoords.c_str(), p3.c_str());
+                                   bVar.c_str(), p2.c_str(), coords2D.c_str(), p3.c_str());
         }
 
         // c = (x^2)+(y^2) - params[4]
         builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
                                cName.c_str(),
-                               fsCoords.c_str(),
-                               fsCoords.c_str(),
+                               coords2D.c_str(),
+                               coords2D.c_str(),
                                p4.c_str());
 
         // If we aren't degenerate, emit some extra code, and accept a slightly

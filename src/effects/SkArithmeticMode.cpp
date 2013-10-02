@@ -12,8 +12,8 @@
 #include "SkUnPreMultiply.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
 #include "SkImageFilterUtils.h"
 #endif
@@ -246,15 +246,12 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
-
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
-    static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
-    GrGLEffectMatrix fBackgroundEffectMatrix;
     GrGLUniformManager::UniformHandle fKUni;
 
     typedef GrGLEffect INHERITED;
@@ -289,6 +286,7 @@ private:
 
     GrArithmeticEffect(float k1, float k2, float k3, float k4, GrTexture* background);
     float                       fK1, fK2, fK3, fK4;
+    GrCoordTransform            fBackgroundTransform;
     GrTextureAccess             fBackgroundAccess;
 
     GR_DECLARE_EFFECT_TEST;
@@ -302,6 +300,8 @@ GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
                                        GrTexture* background)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4) {
     if (background) {
+        fBackgroundTransform.reset(kLocal_GrCoordSet, background);
+        this->addCoordTransform(&fBackgroundTransform);
         fBackgroundAccess.reset(background);
         this->addTextureAccess(&fBackgroundAccess);
     } else {
@@ -334,8 +334,7 @@ void GrArithmeticEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 
 GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendEffectFactory& factory,
                                            const GrDrawEffect& drawEffect)
-   : INHERITED(factory)
-   , fBackgroundEffectMatrix(kCoordsType) {
+   : INHERITED(factory) {
 }
 
 GrGLArithmeticEffect::~GrGLArithmeticEffect() {
@@ -346,15 +345,14 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
                                     EffectKey key,
                                     const char* outputColor,
                                     const char* inputColor,
+                                    const TransformedCoordsArray& coords,
                                     const TextureSamplerArray& samplers) {
 
     GrTexture* backgroundTex = drawEffect.castEffect<GrArithmeticEffect>().backgroundTexture();
     const char* dstColor;
     if (backgroundTex) {
-        SkString bgCoords;
-        GrSLType bgCoordsType = fBackgroundEffectMatrix.emitCode(builder, key, &bgCoords, NULL, "BG");
         builder->fsCodeAppend("\t\tvec4 bgColor = ");
-        builder->fsAppendTextureLookup(samplers[0], bgCoords.c_str(), bgCoordsType);
+        builder->fsAppendTextureLookup(samplers[0], coords[0].c_str(), coords[0].type());
         builder->fsCodeAppendf(";\n");
         dstColor = "bgColor";
     } else {
@@ -393,26 +391,6 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
 void GrGLArithmeticEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
     const GrArithmeticEffect& arith = drawEffect.castEffect<GrArithmeticEffect>();
     uman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
-    GrTexture* bgTex = arith.backgroundTexture();
-    if (bgTex) {
-        fBackgroundEffectMatrix.setData(uman,
-                                        GrEffect::MakeDivByTextureWHMatrix(bgTex),
-                                        drawEffect,
-                                        bgTex);
-    }
-}
-
-GrGLEffect::EffectKey GrGLArithmeticEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-    const GrArithmeticEffect& effect = drawEffect.castEffect<GrArithmeticEffect>();
-    GrTexture* bgTex = effect.backgroundTexture();
-    EffectKey bgKey = 0;
-    if (bgTex) {
-        bgKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(bgTex),
-                                         drawEffect,
-                                         GrGLArithmeticEffect::kCoordsType,
-                                         bgTex);
-    }
-    return bgKey;
 }
 
 GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,

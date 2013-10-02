@@ -7,6 +7,7 @@
 
 #include "GrGLSL.h"
 #include "GrGLEffect.h"
+#include "GrCoordTransform.h"
 #include "GrDrawEffect.h"
 
 GrGLEffect::GrGLEffect(const GrBackendEffectFactory& factory)
@@ -29,6 +30,18 @@ GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrDrawEffect& drawEffect,
         const GrTextureAccess& access = (*drawEffect.effect())->textureAccess(index);
         EffectKey value = GrGLShaderBuilder::KeyForTextureAccess(access, caps) << index;
         SkASSERT(0 == (value & key)); // keys for each access ought not to overlap
+        key |= value;
+    }
+    return key;
+}
+
+GrGLEffect::EffectKey GrGLEffect::GenTransformKey(const GrDrawEffect& drawEffect) {
+    EffectKey key = 0;
+    int numTransforms = (*drawEffect.effect())->numTransforms();
+    for (int index = 0; index < numTransforms; ++index) {
+        EffectKey value = GrGLCoordTransform::GenKey(drawEffect, index);
+        value <<= index * GrGLCoordTransform::kKeyBits;
+        SkASSERT(0 == (value & key)); // keys for each transform ought not to overlap
         key |= value;
     }
     return key;

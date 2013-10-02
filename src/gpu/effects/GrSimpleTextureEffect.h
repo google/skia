@@ -25,8 +25,8 @@ public:
     /* unfiltered, clamp mode */
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode, coordsType)));
+                               GrCoordSet coordSet = kLocal_GrCoordSet) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode, coordSet)));
         return CreateEffectRef(effect);
     }
 
@@ -34,17 +34,17 @@ public:
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                GrTextureParams::FilterMode filterMode,
-                               CoordsType coordsType = kLocal_CoordsType) {
+                               GrCoordSet coordSet = kLocal_GrCoordSet) {
         AutoEffectUnref effect(
-            SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordsType)));
+            SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordSet)));
         return CreateEffectRef(effect);
     }
 
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
                                const GrTextureParams& p,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordsType)));
+                               GrCoordSet coordSet = kLocal_GrCoordSet) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordSet)));
         return CreateEffectRef(effect);
     }
 
@@ -62,20 +62,20 @@ private:
     GrSimpleTextureEffect(GrTexture* texture,
                           const SkMatrix& matrix,
                           GrTextureParams::FilterMode filterMode,
-                          CoordsType coordsType)
-        : GrSingleTextureEffect(texture, matrix, filterMode, coordsType) {
+                          GrCoordSet coordSet)
+        : GrSingleTextureEffect(texture, matrix, filterMode, coordSet) {
     }
 
     GrSimpleTextureEffect(GrTexture* texture,
                           const SkMatrix& matrix,
                           const GrTextureParams& params,
-                          CoordsType coordsType)
-        : GrSingleTextureEffect(texture, matrix, params, coordsType) {
+                          GrCoordSet coordSet)
+        : GrSingleTextureEffect(texture, matrix, params, coordSet) {
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = CastEffect<GrSimpleTextureEffect>(other);
-        return this->hasSameTextureParamsMatrixAndCoordsType(ste);
+        return this->hasSameTextureParamsMatrixAndSourceCoords(ste);
     }
 
     GR_DECLARE_EFFECT_TEST;

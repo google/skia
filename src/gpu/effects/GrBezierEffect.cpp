@@ -20,6 +20,7 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
@@ -44,6 +45,7 @@ void GrGLConicEffect::emitCode(GrGLShaderBuilder* builder,
                                EffectKey key,
                                const char* outputColor,
                                const char* inputColor,
+                               const TransformedCoordsArray&,
                                const TextureSamplerArray& samplers) {
     GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
     SkASSERT(NULL != vertexBuilder);
@@ -163,6 +165,7 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
@@ -187,6 +190,7 @@ void GrGLQuadEffect::emitCode(GrGLShaderBuilder* builder,
                               EffectKey key,
                               const char* outputColor,
                               const char* inputColor,
+                              const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) {
     GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
     SkASSERT(NULL != vertexBuilder);
@@ -295,6 +299,7 @@ public:
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
@@ -319,6 +324,7 @@ void GrGLCubicEffect::emitCode(GrGLShaderBuilder* builder,
                                EffectKey key,
                                const char* outputColor,
                                const char* inputColor,
+                               const TransformedCoordsArray&,
                                const TextureSamplerArray& samplers) {
     GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
     SkASSERT(NULL != vertexBuilder);

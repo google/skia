@@ -33,15 +33,15 @@ public:
     typedef uint32_t EffectKey;
     enum {
         kNoEffectKey = 0,
-        kEffectKeyBits = 15,
+        kEffectKeyBits = 10,
         /**
-         * Some aspects of the generated code may be determined by the particular textures that are
-         * associated with the effect. These manipulations are performed by GrGLShaderBuilder beyond
-         * GrGLEffects' control. So there is a dedicated part of the key which is combined
-         * automatically with the bits produced by GrGLEffect::GenKey().
+         * The framework automatically includes coord transforms and texture accesses in their
+         * effect's EffectKey, so effects don't need to account for them in GenKey().
          */
         kTextureKeyBits = 4,
-        kAttribKeyBits = 6
+        kTransformKeyBits = 6,
+        kAttribKeyBits = 6,
+        kClassIDBits = 6
     };
 
     virtual EffectKey glEffectKey(const GrDrawEffect&, const GrGLCaps&) const = 0;
@@ -55,6 +55,10 @@ public:
     }
 
     virtual const char* name() const = 0;
+
+    static EffectKey GetTransformKey(EffectKey key) {
+        return key >> (kEffectKeyBits + kTextureKeyBits) & ((1U << kTransformKeyBits) - 1);
+    }
 
 protected:
     enum {

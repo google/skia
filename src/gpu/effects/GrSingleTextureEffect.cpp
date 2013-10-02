@@ -9,30 +9,30 @@
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
-                                             CoordsType coordsType)
-    : fTextureAccess(texture)
-    , fMatrix(m)
-    , fCoordsType(coordsType) {
+                                             GrCoordSet coordSet)
+    : fCoordTransform(coordSet, m, texture)
+    , fTextureAccess(texture) {
+    this->addCoordTransform(&fCoordTransform);
     this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
                                              GrTextureParams::FilterMode filterMode,
-                                             CoordsType coordsType)
-    : fTextureAccess(texture, filterMode)
-    , fMatrix(m)
-    , fCoordsType(coordsType) {
+                                             GrCoordSet coordSet)
+    : fCoordTransform(coordSet, m, texture)
+    , fTextureAccess(texture, filterMode) {
+    this->addCoordTransform(&fCoordTransform);
     this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
                                              const GrTextureParams& params,
-                                             CoordsType coordsType)
-    : fTextureAccess(texture, params)
-    , fMatrix(m)
-    , fCoordsType(coordsType) {
+                                             GrCoordSet coordSet)
+    : fCoordTransform(coordSet, m, texture)
+    , fTextureAccess(texture, params) {
+    this->addCoordTransform(&fCoordTransform);
     this->addTextureAccess(&fTextureAccess);
 }
 

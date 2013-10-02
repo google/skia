@@ -203,8 +203,8 @@ static inline int next_dither_toggle16(int toggle) {
 
 #if SK_SUPPORT_GPU
 
+#include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 
 class GrEffectStage;
 class GrBackendEffectFactory;
@@ -247,7 +247,6 @@ public:
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     SkScalar getYCoord() const { return fYCoord; };
-    const SkMatrix& getMatrix() const { return fMatrix;}
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
@@ -290,16 +289,17 @@ protected:
     virtual bool onIsEqual(const GrEffect& effect) const SK_OVERRIDE;
 
 private:
+    static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
 
     enum {
         kMaxAnalyticColors = 3 // if more colors use texture
     };
 
+    GrCoordTransform fCoordTransform;
     GrTextureAccess fTextureAccess;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
-    SkMatrix fMatrix;
     bool fIsOpaque;
     ColorType fColorType;
     SkColor fColors[kMaxAnalyticColors];
@@ -320,26 +320,19 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 protected:
-    /**
-     * Subclasses must reserve the lower kMatrixKeyBitCnt of their key for use by
-     * GrGLGradientEffect.
-     */
     enum {
-        kMatrixKeyBitCnt = GrGLEffectMatrix::kKeyBits,
-        kMatrixKeyMask = (1 << kMatrixKeyBitCnt) - 1,
-
         kPremulTypeKeyBitCnt = 1,
-        kPremulTypeMask = 1 << kMatrixKeyBitCnt,
+        kPremulTypeMask = 1,
         kPremulBeforeInterpKey = kPremulTypeMask,
 
-        kTwoColorKey = 2 << (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt),
-        kThreeColorKey = 3 << (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt),
+        kTwoColorKey = 2 << kPremulTypeKeyBitCnt,
+        kThreeColorKey = 3 << kPremulTypeKeyBitCnt,
         kColorKeyMask = kTwoColorKey | kThreeColorKey,
         kColorKeyBitCnt = 2,
 
         // Subclasses must shift any key bits they produce up by this amount
         // and combine with the result of GenBaseGradientKey.
-        kBaseKeyBitCnt = (kMatrixKeyBitCnt + kPremulTypeKeyBitCnt + kColorKeyBitCnt)
+        kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
     };
 
     static GrGradientEffect::ColorType ColorTypeFromKey(EffectKey key){
@@ -364,20 +357,6 @@ protected:
      */
     static EffectKey GenBaseGradientKey(const GrDrawEffect&);
 
-    /**
-     * Inserts code to implement the GrGradientEffect's matrix. This should be called before a
-     * subclass emits its own code. The name of the 2D coords is output via fsCoordName and already
-     * incorporates any perspective division. The caller can also optionally retrieve the name of
-     * the varying inserted in the VS and its type, which may be either vec2f or vec3f depending
-     * upon whether the matrix has perspective or not. It is not necessary to mask the key before
-     * calling.
-     */
-    void setupMatrix(GrGLShaderBuilder* builder,
-                     EffectKey key,
-                     SkString* fsCoordName,
-                     SkString* vsVaryingName = NULL,
-                     GrSLType* vsVaryingType = NULL);
-
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
     void emitUniforms(GrGLShaderBuilder* builder, EffectKey key);
@@ -394,14 +373,11 @@ protected:
                    const GrGLShaderBuilder::TextureSamplerArray& samplers);
 
 private:
-    static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
-
     SkScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
     GrGLUniformManager::UniformHandle fColorStartUni;
     GrGLUniformManager::UniformHandle fColorMidUni;
     GrGLUniformManager::UniformHandle fColorEndUni;
-    GrGLEffectMatrix fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
 };

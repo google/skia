@@ -13,6 +13,7 @@
 #include "GrColor.h"
 #include "GrEffect.h"
 #include "SkTypes.h"
+#include "gl/GrGLCoordTransform.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
 
@@ -96,8 +97,10 @@ public:
         friend class GrGLShaderBuilder; // to call init().
     };
 
+    typedef SkTArray<GrGLCoordTransform::TransformedCoords> TransformedCoordsArray;
     typedef SkTArray<TextureSampler> TextureSamplerArray;
     typedef GrTAllocator<GrGLShaderVar> VarArray;
+    typedef GrBackendEffectFactory::EffectKey EffectKey;
 
     enum ShaderVisibility {
         kVertex_Visibility   = 0x1,
@@ -175,8 +178,7 @@ public:
     /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
-    static GrBackendEffectFactory::EffectKey KeyForTextureAccess(const GrTextureAccess&,
-                                                                 const GrGLCaps&);
+    static EffectKey KeyForTextureAccess(const GrTextureAccess&, const GrGLCaps&);
 
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
@@ -225,6 +227,13 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
+    /**
+     * This returns a variable name to access the 2D, perspective correct version of the coords in
+     * the fragment shader. If the coordinates at index are 3-dimensional, it immediately emits a
+     * perspective divide into the fragment shader (xy / z) to convert them to 2D.
+     */
+    SkString ensureFSCoords2D(const TransformedCoordsArray&, int index);
+
     /** Returns a variable name that represents the position of the fragment in the FS. The position
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     const char* fragmentPosition();
@@ -255,10 +264,11 @@ public:
      * effectStages.
      */
     void emitEffects(const GrEffectStage* effectStages[],
-                     const GrBackendEffectFactory::EffectKey effectKeys[],
+                     const EffectKey effectKeys[],
                      int effectCnt,
                      SkString*  inOutFSColor,
                      GrSLConstantVec* fsInOutColorKnownValue,
+                     SkTArray<GrGLCoordTransform, false>* effectCoordTransformArrays[],
                      SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
                      GrGLEffect* glEffects[]);
 

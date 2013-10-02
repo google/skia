@@ -12,7 +12,6 @@
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrContext.h"
 #include "GrTBackendEffectFactory.h"
 #endif
@@ -159,6 +158,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
@@ -203,11 +203,12 @@ GrGLLumaMaskEffect::~GrGLLumaMaskEffect() {
 }
 
 void GrGLLumaMaskEffect::emitCode(GrGLShaderBuilder* builder,
-                                    const GrDrawEffect& effect,
-                                    EffectKey key,
-                                    const char* outputColor,
-                                    const char* inputColor,
-                                    const TextureSamplerArray& samplers) {
+                                  const GrDrawEffect& effect,
+                                  EffectKey key,
+                                  const char* outputColor,
+                                  const char* inputColor,
+                                  const TransformedCoordsArray&,
+                                  const TextureSamplerArray& samplers) {
 
     const GrLumaMaskEffect& lumaEffect = effect.castEffect<GrLumaMaskEffect>();
     const char* dstColor = builder->dstColor();

@@ -9,7 +9,6 @@
 #include "GrSimpleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "SkFloatingPoint.h"
 
 class GrGLTextureDomainEffect : public GrGLEffect {
@@ -21,6 +20,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
@@ -29,16 +29,14 @@ public:
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
-    GrGLEffectMatrix                  fEffectMatrix;
     GrGLfloat                         fPrevDomain[4];
 
     typedef GrGLEffect INHERITED;
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
-                                                 const GrDrawEffect& drawEffect)
-    : INHERITED(factory)
-    , fEffectMatrix(drawEffect.castEffect<GrTextureDomainEffect>().coordsType()) {
+                                                 const GrDrawEffect&)
+    : INHERITED(factory) {
     fPrevDomain[0] = SK_FloatNaN;
 }
 
@@ -47,18 +45,18 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                        EffectKey key,
                                        const char* outputColor,
                                        const char* inputColor,
+                                       const TransformedCoordsArray& coords,
                                        const TextureSamplerArray& samplers) {
     const GrTextureDomainEffect& texDom = drawEffect.castEffect<GrTextureDomainEffect>();
 
-    SkString coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
+    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     const char* domain;
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                     kVec4f_GrSLType, "TexDom", &domain);
     if (GrTextureDomainEffect::kClamp_WrapMode == texDom.wrapMode()) {
 
         builder->fsCodeAppendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
-                                coords.c_str(), domain, domain);
+                                coords2D.c_str(), domain, domain);
 
         builder->fsCodeAppendf("\t%s = ", outputColor);
         builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], "clampCoord");
@@ -75,21 +73,21 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             // result=white;" code fails to compile.
             builder->fsCodeAppend("\tvec4 outside = vec4(0.0, 0.0, 0.0, 0.0);\n");
             builder->fsCodeAppend("\tvec4 inside = ");
-            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords.c_str());
+            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords2D.c_str());
             builder->fsCodeAppend(";\n");
 
             builder->fsCodeAppendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
-                                   coords.c_str(), domain, domain, domain);
+                                   coords2D.c_str(), domain, domain, domain);
             builder->fsCodeAppendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
-                                   coords.c_str(), domain, domain, domain);
+                                   coords2D.c_str(), domain, domain, domain);
             builder->fsCodeAppend("\tfloat blend = step(1.0, max(x, y));\n");
             builder->fsCodeAppendf("\t%s = mix(inside, outside, blend);\n", outputColor);
         } else {
             builder->fsCodeAppend("\tbvec4 outside;\n");
-            builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords.c_str(), domain);
-            builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords.c_str(), domain);
+            builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords2D.c_str(), domain);
+            builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords2D.c_str(), domain);
             builder->fsCodeAppendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ", outputColor);
-            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords.c_str());
+            builder->fsAppendTextureLookupAndModulate(inputColor, samplers[0], coords2D.c_str());
             builder->fsCodeAppend(";\n");
         }
     }
@@ -118,22 +116,11 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
         uman.set4fv(fNameUni, 0, 1, values);
         memcpy(fPrevDomain, values, 4 * sizeof(GrGLfloat));
     }
-    fEffectMatrix.setData(uman,
-                          texDom.getMatrix(),
-                          drawEffect,
-                          texDom.texture(0));
 }
 
 GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrDrawEffect& drawEffect,
                                                       const GrGLCaps&) {
-    const GrTextureDomainEffect& texDom = drawEffect.castEffect<GrTextureDomainEffect>();
-    EffectKey key = texDom.wrapMode();
-    key <<= GrGLEffectMatrix::kKeyBits;
-    EffectKey matrixKey = GrGLEffectMatrix::GenKey(texDom.getMatrix(),
-                                                   drawEffect,
-                                                   texDom.coordsType(),
-                                                   texDom.texture(0));
-    return key | matrixKey;
+    return drawEffect.castEffect<GrTextureDomainEffect>().wrapMode();
 }
 
 
@@ -144,7 +131,7 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
                                            const SkRect& domain,
                                            WrapMode wrapMode,
                                            GrTextureParams::FilterMode filterMode,
-                                           CoordsType coordsType) {
+                                           GrCoordSet coordSet) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (kClamp_WrapMode == wrapMode && domain.contains(kFullRect)) {
         return GrSimpleTextureEffect::Create(texture, matrix, filterMode);
@@ -167,7 +154,7 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
                                                                   clippedDomain,
                                                                   wrapMode,
                                                                   filterMode,
-                                                                  coordsType)));
+                                                                  coordSet)));
         return CreateEffectRef(effect);
 
     }
@@ -178,8 +165,8 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
                                              const SkRect& domain,
                                              WrapMode wrapMode,
                                              GrTextureParams::FilterMode filterMode,
-                                             CoordsType coordsType)
-    : GrSingleTextureEffect(texture, matrix, filterMode, coordsType)
+                                             GrCoordSet coordSet)
+    : GrSingleTextureEffect(texture, matrix, filterMode, coordSet)
     , fWrapMode(wrapMode)
     , fTextureDomain(domain) {
 }
@@ -194,7 +181,7 @@ const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
 
 bool GrTextureDomainEffect::onIsEqual(const GrEffect& sBase) const {
     const GrTextureDomainEffect& s = CastEffect<GrTextureDomainEffect>(sBase);
-    return this->hasSameTextureParamsMatrixAndCoordsType(s) &&
+    return this->hasSameTextureParamsMatrixAndSourceCoords(s) &&
            this->fTextureDomain == s.fTextureDomain;
 }
 
@@ -224,7 +211,7 @@ GrEffectRef* GrTextureDomainEffect::TestCreate(SkRandom* random,
     WrapMode wrapMode = random->nextBool() ? kClamp_WrapMode : kDecal_WrapMode;
     const SkMatrix& matrix = GrEffectUnitTest::TestMatrix(random);
     bool bilerp = random->nextBool();
-    CoordsType coords = random->nextBool() ? kLocal_CoordsType : kPosition_CoordsType;
+    GrCoordSet coords = random->nextBool() ? kLocal_GrCoordSet : kPosition_GrCoordSet;
     return GrTextureDomainEffect::Create(textures[texIdx],
                                          matrix,
                                          domain,

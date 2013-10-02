@@ -9,6 +9,7 @@
 
 #include "GrAllocator.h"
 #include "GrEffect.h"
+#include "GrCoordTransform.h"
 #include "GrDrawEffect.h"
 #include "GrGLEffect.h"
 #include "GrGpuGL.h"
@@ -235,13 +236,16 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
 
     // used in order for builder to return the per-stage uniform handles.
+    typedef SkTArray<GrGLCoordTransform, false>* CoordTransformArrayPtr;
     typedef SkTArray<GrGLUniformManager::UniformHandle, true>* UniHandleArrayPtr;
     int maxColorOrCovEffectCnt = GrMax(fDesc.numColorEffects(), fDesc.numCoverageEffects());
+    SkAutoTArray<CoordTransformArrayPtr> effectCoordTransformArrays(maxColorOrCovEffectCnt);
     SkAutoTArray<UniHandleArrayPtr> effectUniformArrays(maxColorOrCovEffectCnt);
     SkAutoTArray<GrGLEffect*> glEffects(maxColorOrCovEffectCnt);
 
     if (needColor) {
         for (int e = 0; e < fDesc.numColorEffects(); ++e) {
+            effectCoordTransformArrays[e] = &fColorEffects[e].fCoordTransforms;
             effectUniformArrays[e] = &fColorEffects[e].fSamplerUnis;
         }
 
@@ -250,6 +254,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                             fDesc.numColorEffects(),
                             &inColor,
                             &knownColorValue,
+                            effectCoordTransformArrays.get(),
                             effectUniformArrays.get(),
                             glEffects.get());
 
@@ -286,6 +291,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     GrSLConstantVec knownCoverageValue = builder.getKnownCoverageValue();
 
     for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
+        effectCoordTransformArrays[e] = &fCoverageEffects[e].fCoordTransforms;
         effectUniformArrays[e] = &fCoverageEffects[e].fSamplerUnis;
     }
 
@@ -294,6 +300,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                         fDesc.numCoverageEffects(),
                         &inCoverage,
                         &knownCoverageValue,
+                        effectCoordTransformArrays.get(),
                         effectUniformArrays.get(),
                         glEffects.get());
     for (int e = 0; e < fDesc.numCoverageEffects(); ++e) {
@@ -439,12 +446,19 @@ void GrGLProgram::initEffectSamplerUniforms(EffectAndSamplers* effect, int* texU
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::setEffectData(const GrEffectStage& stage,
-                                const EffectAndSamplers& effect) {
+                                EffectAndSamplers& effect) {
 
     // Let the GrGLEffect set its data.
     bool explicitLocalCoords = -1 != fDesc.getHeader().fLocalCoordAttributeIndex;
     GrDrawEffect drawEffect(stage, explicitLocalCoords);
     effect.fGLEffect->setData(fUniformManager, drawEffect);
+
+    // Set the effect's coord transform matrices.
+    int numTransforms = effect.fCoordTransforms.count();
+    SkASSERT((*stage.getEffect())->numTransforms() == numTransforms);
+    for (int c = 0; c < numTransforms; ++c) {
+        effect.fCoordTransforms[c].setData(fUniformManager, drawEffect, c);
+    }
 
     // Bind the texures for the effect.
     int numSamplers = effect.fSamplerUnis.count();

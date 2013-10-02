@@ -16,7 +16,6 @@
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 
@@ -1075,6 +1074,7 @@ public:
                           EffectKey,
                           const char* outputColor,
                           const char* inputColor,
+                          const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
@@ -1093,7 +1093,6 @@ private:
     UniformHandle       fImageIncrementUni;
     UniformHandle       fSurfaceScaleUni;
     GrGLLight*          fLight;
-    GrGLEffectMatrix    fEffectMatrix;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1196,8 +1195,7 @@ GrEffectRef* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
 
 GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
                                        const GrDrawEffect& drawEffect)
-    : INHERITED(factory)
-    , fEffectMatrix(drawEffect.castEffect<GrLightingEffect>().coordsType()) {
+    : INHERITED(factory) {
     const GrLightingEffect& m = drawEffect.castEffect<GrLightingEffect>();
     fLight = m.light()->createGLLight();
 }
@@ -1211,9 +1209,9 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
                                   EffectKey key,
                                   const char* outputColor,
                                   const char* inputColor,
+                                  const TransformedCoordsArray& coords,
                                   const TextureSamplerArray& samplers) {
-    SkString coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
+    SkString coords2D = builder->ensureFSCoords2D(coords, 0);
 
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType,
@@ -1272,7 +1270,7 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
                             interiorNormalBody.c_str(),
                             &interiorNormalName);
 
-    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords.c_str());
+    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     builder->fsCodeAppend("\t\tfloat m[9];\n");
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
@@ -1304,14 +1302,7 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
 
 GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrDrawEffect& drawEffect,
                                                  const GrGLCaps& caps) {
-    const GrLightingEffect& lighting = drawEffect.castEffect<GrLightingEffect>();
-    EffectKey key = lighting.light()->type();
-    key <<= GrGLEffectMatrix::kKeyBits;
-    EffectKey matrixKey = GrGLEffectMatrix::GenKey(lighting.getMatrix(),
-                                                   drawEffect,
-                                                   lighting.coordsType(),
-                                                   lighting.texture(0));
-    return key | matrixKey;
+    return drawEffect.castEffect<GrLightingEffect>().light()->type();
 }
 
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman,
@@ -1323,10 +1314,6 @@ void GrGLLightingEffect::setData(const GrGLUniformManager& uman,
     uman.set1f(fSurfaceScaleUni, lighting.surfaceScale());
     SkAutoTUnref<SkLight> transformedLight(lighting.light()->transform(lighting.filterMatrix()));
     fLight->setData(uman, transformedLight);
-    fEffectMatrix.setData(uman,
-                          lighting.getMatrix(),
-                          drawEffect,
-                          lighting.texture(0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
