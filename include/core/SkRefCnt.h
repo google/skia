@@ -79,9 +79,11 @@ public:
         }
     }
 
+#ifdef SK_DEBUG
     void validate() const {
         SkASSERT(fRefCnt > 0);
     }
+#endif
 
     /**
      * Alias for unref(), for compatibility with WTF::RefPtr.

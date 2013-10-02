@@ -73,10 +73,12 @@ public:
     */
     int32_t getWeakCnt() const { return fWeakCnt; }
 
+#ifdef SK_DEBUG
     void validate() const {
-        SkRefCnt::validate();
+        this->INHERITED::validate();
         SkASSERT(fWeakCnt > 0);
     }
+#endif
 
     /** Creates a strong reference from a weak reference, if possible. The
         caller must already be an owner. If try_ref() returns true the owner

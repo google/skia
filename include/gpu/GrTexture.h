@@ -126,9 +126,8 @@ public:
 
         this->validateDesc();
     }
-#else
-    void validate() const {}
 #endif
+
     static GrResourceKey ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,

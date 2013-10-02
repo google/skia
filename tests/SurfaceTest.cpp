@@ -209,22 +209,22 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
         SkSurface* surface = createSurface(surfaceType, context);
         SkAutoTUnref<SkSurface> aur_surface(surface);
         surface->notifyContentWillChange(mode);
-        surface->validate();
+        SkDEBUGCODE(surface->validate();)
     }
     {
         SkSurface* surface = createSurface(surfaceType, context);
         SkAutoTUnref<SkSurface> aur_surface(surface);
         SkImage* image1 = surface->newImageSnapshot();
         SkAutoTUnref<SkImage> aur_image1(image1);
-        image1->validate();
-        surface->validate();
+        SkDEBUGCODE(image1->validate();)
+        SkDEBUGCODE(surface->validate();)
         surface->notifyContentWillChange(mode);
-        image1->validate();
-        surface->validate();
+        SkDEBUGCODE(image1->validate();)
+        SkDEBUGCODE(surface->validate();)
         SkImage* image2 = surface->newImageSnapshot();
         SkAutoTUnref<SkImage> aur_image2(image2);
-        image2->validate();
-        surface->validate();
+        SkDEBUGCODE(image2->validate();)
+        SkDEBUGCODE(surface->validate();)
         REPORTER_ASSERT(reporter, image1 != image2);
     }
 
