@@ -181,8 +181,9 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
         GrTextureDesc desc;
 #ifdef SK_DEVELOPER
         // RenderTarget so we can read the pixels to dump them
-        desc.fFlags = kDynamicUpdate_GrTextureFlagBit|kRenderTarget_GrTextureFlagBit
-                                                     |kNoStencil_GrTextureFlagBit;
+        // TODO: Fix to support RT
+        desc.fFlags = kDynamicUpdate_GrTextureFlagBit;//|kRenderTarget_GrTextureFlagBit;
+                                                      //|kNoStencil_GrTextureFlagBit;
 #else
         desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
 #endif
