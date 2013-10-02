@@ -284,7 +284,36 @@ private:
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
-                     int reserveVerbs = 0, int reservePoints = 0);
+                     int reserveVerbs = 0, int reservePoints = 0) {
+        SkDEBUGCODE(this->validate();)
+        fBoundsIsDirty = true;      // this also invalidates fIsFinite
+        fGenerationID = 0;
+
+        size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
+        size_t newReserve = sizeof(uint8_t) * reserveVerbs + sizeof(SkPoint) * reservePoints;
+        size_t minSize = newSize + newReserve;
+
+        ptrdiff_t sizeDelta = this->currSize() - minSize;
+
+        if (sizeDelta < 0 || static_cast<size_t>(sizeDelta) >= 3 * minSize) {
+            sk_free(fPoints);
+            fPoints = NULL;
+            fVerbs = NULL;
+            fFreeSpace = 0;
+            fVerbCnt = 0;
+            fPointCnt = 0;
+            this->makeSpace(minSize);
+            fVerbCnt = verbCount;
+            fPointCnt = pointCount;
+            fFreeSpace -= newSize;
+        } else {
+            fPointCnt = pointCount;
+            fVerbCnt = verbCount;
+            fFreeSpace = this->currSize() - minSize;
+        }
+        fConicWeights.setCount(conicCount);
+        SkDEBUGCODE(this->validate();)
+    }
 
     /**
      * Increases the verb count by newVerbs and the point count be newPoints. New verbs and points
@@ -312,7 +341,36 @@ private:
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
      * are not changed.
      */
-    void makeSpace(size_t size);
+    void makeSpace(size_t size) {
+        SkDEBUGCODE(this->validate();)
+        ptrdiff_t growSize = size - fFreeSpace;
+        if (growSize <= 0) {
+            return;
+        }
+        size_t oldSize = this->currSize();
+        // round to next multiple of 8 bytes
+        growSize = (growSize + 7) & ~static_cast<size_t>(7);
+        // we always at least double the allocation
+        if (static_cast<size_t>(growSize) < oldSize) {
+            growSize = oldSize;
+        }
+        if (growSize < kMinSize) {
+            growSize = kMinSize;
+        }
+        size_t newSize = oldSize + growSize;
+        // Note that realloc could memcpy more than we need. It seems to be a win anyway. TODO:
+        // encapsulate this.
+        fPoints = reinterpret_cast<SkPoint*>(sk_realloc_throw(fPoints, newSize));
+        size_t oldVerbSize = fVerbCnt * sizeof(uint8_t);
+        void* newVerbsDst = reinterpret_cast<void*>(
+                                reinterpret_cast<intptr_t>(fPoints) + newSize - oldVerbSize);
+        void* oldVerbsSrc = reinterpret_cast<void*>(
+                                reinterpret_cast<intptr_t>(fPoints) + oldSize - oldVerbSize);
+        memmove(newVerbsDst, oldVerbsSrc, oldVerbSize);
+        fVerbs = reinterpret_cast<uint8_t*>(reinterpret_cast<intptr_t>(fPoints) + newSize);
+        fFreeSpace += growSize;
+        SkDEBUGCODE(this->validate();)
+    }
 
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
