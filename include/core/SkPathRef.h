@@ -112,6 +112,7 @@ public:
         static SkPathRef* gEmptyPathRef;
         if (!gEmptyPathRef) {
             gEmptyPathRef = SkNEW(SkPathRef); // leak!
+            gEmptyPathRef->computeBounds();   // Premptively avoid a race to clear fBoundsIsDirty.
         }
         return SkRef(gEmptyPathRef);
     }
