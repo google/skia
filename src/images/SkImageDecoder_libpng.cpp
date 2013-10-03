@@ -435,6 +435,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         // return false, since the result will have premultiplied colors.
         return false;
     }
+    if (SkBitmap::kA8_Config == decodedBitmap->config()) {
+        reallyHasAlpha = true;
+    }
     decodedBitmap->setIsOpaque(!reallyHasAlpha);
     return true;
 }
@@ -887,6 +890,9 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
 
     if (0 != theTranspColor) {
         reallyHasAlpha |= substituteTranspColor(&decodedBitmap, theTranspColor);
+    }
+    if (SkBitmap::kA8_Config == decodedBitmap.config()) {
+        reallyHasAlpha = true;
     }
     decodedBitmap.setIsOpaque(!reallyHasAlpha);
 

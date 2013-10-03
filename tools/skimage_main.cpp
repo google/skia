@@ -111,7 +111,19 @@ static SkBitmap::Config gPrefConfig(SkBitmap::kNo_Config);
 SkAutoTUnref<skiagm::JsonExpectationsSource> gJsonExpectations;
 
 static bool write_bitmap(const char outName[], const SkBitmap& bm) {
-    return SkImageEncoder::EncodeFile(outName, bm, SkImageEncoder::kPNG_Type, 100);
+    const SkBitmap* bmPtr;
+    SkBitmap bm8888;
+    if (bm.config() == SkBitmap::kA8_Config) {
+        // Copy A8 into ARGB_8888, since our image encoders do not currently
+        // support A8.
+        if (!bm.copyTo(&bm8888, SkBitmap::kARGB_8888_Config)) {
+            return false;
+        }
+        bmPtr = &bm8888;
+    } else {
+        bmPtr = &bm;
+    }
+    return SkImageEncoder::EncodeFile(outName, *bmPtr, SkImageEncoder::kPNG_Type, 100);
 }
 
 /**
@@ -495,7 +507,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
         }
     }
 
-    if (FLAGS_reencode) {
+    // Do not attempt to re-encode A8, since our image encoders do not support encoding to A8.
+    if (FLAGS_reencode && bitmap.config() != SkBitmap::kA8_Config) {
         // Encode to the format the file was originally in, or PNG if the encoder for the same
         // format is unavailable.
         SkImageDecoder::Format format = codec->getFormat();
