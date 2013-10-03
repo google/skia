@@ -6569,7 +6569,7 @@
       "bugs": [
         1655
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "hairmodes_msaa4.png": {
       "allowed-digests": [
@@ -6581,7 +6581,7 @@
       "bugs": [
         1655
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "hittestpath_565.png": {
       "allowed-digests": [
