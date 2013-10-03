@@ -30,7 +30,7 @@ protected:
         paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
         paint.setTextSize(24);
 
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         SkPaintOptionsAndroid options = paint.getPaintOptionsAndroid();
         options.setUseFontFallbacks(true);
         paint.setPaintOptionsAndroid(options);
@@ -58,7 +58,7 @@ protected:
         canvas->translate(0, SkIntToScalar(75));
         canvas->drawPosTextH(unicodeStr, strByteLength, posX, 0, paint);
 
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         options.setLanguage("ja");
         paint.setPaintOptionsAndroid(options);
 #endif
@@ -80,7 +80,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 DEF_GM( return SkNEW(AndroidFallbackGM); )
 #endif
 
