@@ -10,6 +10,7 @@
 #ifndef SkPDFImage_DEFINED
 #define SkPDFImage_DEFINED
 
+#include "SkPicture.h"
 #include "SkPDFDevice.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
@@ -38,7 +39,7 @@ public:
      */
     static SkPDFImage* CreateImage(const SkBitmap& bitmap,
                                    const SkIRect& srcRect,
-                                   EncodeToDCTStream encoder);
+                                   SkPicture::EncodeBitmap encoder);
 
     virtual ~SkPDFImage();
 
@@ -60,7 +61,7 @@ private:
     SkBitmap fBitmap;
     bool fIsAlpha;
     SkIRect fSrcRect;
-    EncodeToDCTStream fEncoder;
+    SkPicture::EncodeBitmap fEncoder;
     bool fStreamValid;
 
     SkTDArray<SkPDFObject*> fResources;
@@ -80,7 +81,7 @@ private:
      *                    May be NULL.
      */
     SkPDFImage(SkStream* stream, const SkBitmap& bitmap, bool isAlpha,
-               const SkIRect& srcRect, EncodeToDCTStream encoder);
+               const SkIRect& srcRect, SkPicture::EncodeBitmap encoder);
 
     /** Copy constructor, used to generate substitutes.
      *  @param image      The SkPDFImage to copy.

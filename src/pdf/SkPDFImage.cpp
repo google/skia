@@ -339,7 +339,7 @@ static SkPDFArray* make_indexed_color_space(SkColorTable* table) {
 // static
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
                                     const SkIRect& srcRect,
-                                    EncodeToDCTStream encoder) {
+                                    SkPicture::EncodeBitmap encoder) {
     if (bitmap.getConfig() == SkBitmap::kNo_Config) {
         return NULL;
     }
@@ -390,7 +390,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
                        const SkBitmap& bitmap,
                        bool isAlpha,
                        const SkIRect& srcRect,
-                       EncodeToDCTStream encoder)
+                       SkPicture::EncodeBitmap encoder)
     : fIsAlpha(isAlpha),
       fSrcRect(srcRect),
       fEncoder(encoder) {
@@ -482,19 +482,28 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         // Initializing image data for the first time.
         SkDynamicMemoryWStream dctCompressedWStream;
         if (!skip_compression(catalog) && fEncoder &&
-                get_uncompressed_size(fBitmap, fSrcRect) > 1 &&
-                fEncoder(&dctCompressedWStream, fBitmap, fSrcRect) &&
-                dctCompressedWStream.getOffset() <
-                            get_uncompressed_size(fBitmap, fSrcRect)) {
-            SkAutoTUnref<SkData> data(dctCompressedWStream.copyToData());
-            SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
-            setData(stream.get());
+                get_uncompressed_size(fBitmap, fSrcRect) > 1) {
+            SkBitmap subset;
+            // Extract subset
+            if (!fBitmap.extractSubset(&subset, fSrcRect)) {
+                // TODO(edisonn) It fails only for kA1_Config, if that is a
+                // major concern we will fix it later, so far it is NYI.
+                return false;
+            }
+            size_t pixelRefOffset = 0;
+            SkAutoTUnref<SkData> data(fEncoder(&pixelRefOffset, subset));
+            if (data.get() && data->size() < get_uncompressed_size(fBitmap,
+                                                                   fSrcRect)) {
+                SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream,
+                                                         (data)));
+                setData(stream.get());
 
-            insertName("Filter", "DCTDecode");
-            insertInt("ColorTransform", kNoColorTransform);
-            insertInt("Length", getData()->getLength());
-            setState(kCompressed_State);
-            return true;
+                insertName("Filter", "DCTDecode");
+                insertInt("ColorTransform", kNoColorTransform);
+                insertInt("Length", getData()->getLength());
+                setState(kCompressed_State);
+                return true;
+            }
         }
         // Fallback method
         if (!fStreamValid) {

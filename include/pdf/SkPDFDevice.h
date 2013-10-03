@@ -14,6 +14,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPicture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
@@ -37,8 +38,6 @@ template <typename T> class SkTSet;
 struct ContentEntry;
 struct GraphicStateEntry;
 struct NamedDestination;
-
-typedef bool (*EncodeToDCTStream)(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect);
 
 /** \class SkPDFDevice
 
@@ -140,7 +139,7 @@ public:
      *         encoding and decoding might not be worth the space savings,
      *         if any at all.
      */
-    void setDCTEncoder(EncodeToDCTStream encoder) {
+    void setDCTEncoder(SkPicture::EncodeBitmap encoder) {
         fEncoder = encoder;
     }
 
@@ -232,7 +231,7 @@ private:
     // Glyph ids used for each font on this device.
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
 
-    EncodeToDCTStream fEncoder;
+    SkPicture::EncodeBitmap fEncoder;
 
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);

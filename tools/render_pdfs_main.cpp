@@ -12,6 +12,7 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "PdfRenderer.h"
@@ -81,30 +82,33 @@ static bool replace_filename_extension(SkString* path,
 }
 
 int gJpegQuality = 100;
-static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
-    if (gJpegQuality == -1) return false;
+static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
+    if (gJpegQuality == -1) {
+        return NULL;
+    }
 
-        SkIRect bitmapBounds;
-        SkBitmap subset;
-        const SkBitmap* bitmapToUse = &bitmap;
-        bitmap.getBounds(&bitmapBounds);
-        if (rect != bitmapBounds) {
-            SkAssertResult(bitmap.extractSubset(&subset, rect));
-            bitmapToUse = &subset;
-        }
-
+    SkBitmap bm = bitmap;
 #if defined(SK_BUILD_FOR_MAC)
-        // Workaround bug #1043 where bitmaps with referenced pixels cause
-        // CGImageDestinationFinalize to crash
-        SkBitmap copy;
-        bitmapToUse->deepCopyTo(&copy, bitmapToUse->config());
-        bitmapToUse = &copy;
+    // Workaround bug #1043 where bitmaps with referenced pixels cause
+    // CGImageDestinationFinalize to crash
+    SkBitmap copy;
+    bitmap.deepCopyTo(&copy, bitmap.config());
+    bm = copy;
 #endif
 
-    return SkImageEncoder::EncodeStream(stream,
-                                        *bitmapToUse,
-                                        SkImageEncoder::kJPEG_Type,
-                                        gJpegQuality);
+    SkPixelRef* pr = bm.pixelRef();
+    if (pr != NULL) {
+        SkData* data = pr->refEncodedData();
+        if (data != NULL) {
+            *pixelRefOffset = bm.pixelRefOffset();
+            return data;
+        }
+    }
+
+    *pixelRefOffset = 0;
+    return SkImageEncoder::EncodeData(bm,
+                                      SkImageEncoder::kJPEG_Type,
+                                      gJpegQuality);
 }
 
 /** Builds the output filename. path = dir/name, and it replaces expected
@@ -264,7 +268,7 @@ int tool_main_core(int argc, char** argv) {
     SkTArray<SkString> inputs;
 
     SkAutoTUnref<sk_tools::PdfRenderer>
-        renderer(SkNEW_ARGS(sk_tools::SimplePdfRenderer, (encode_to_dct_stream)));
+        renderer(SkNEW_ARGS(sk_tools::SimplePdfRenderer, (encode_to_dct_data)));
     SkASSERT(renderer.get());
 
     SkString outputDir;

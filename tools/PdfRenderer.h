@@ -33,7 +33,7 @@ public:
     virtual void render() = 0;
     virtual void end();
 
-    PdfRenderer(EncodeToDCTStream encoder)
+    PdfRenderer(SkPicture::EncodeBitmap encoder)
         : fPicture(NULL)
         , fPDFDevice(NULL)
         , fEncoder(encoder)
@@ -48,7 +48,7 @@ protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
     SkPDFDevice* fPDFDevice;
-    EncodeToDCTStream fEncoder;
+    SkPicture::EncodeBitmap fEncoder;
 
 private:
     typedef SkRefCnt INHERITED;
@@ -56,7 +56,7 @@ private:
 
 class SimplePdfRenderer : public PdfRenderer {
 public:
-    SimplePdfRenderer(EncodeToDCTStream encoder)
+    SimplePdfRenderer(SkPicture::EncodeBitmap encoder)
         : PdfRenderer(encoder) {}
     virtual void render() SK_OVERRIDE;
 

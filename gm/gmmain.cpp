@@ -193,7 +193,7 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
         | SkGPipeWriter::kSharedAddressSpace_Flag }
 };
 
-static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect);
+static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap);
 
 const static ErrorCombination kDefaultIgnorableErrorTypes = ErrorCombination()
     .plus(kMissingExpectations_ErrorType)
@@ -633,7 +633,7 @@ public:
                               SkScalarRoundToInt(content.height()));
             dev = new SkPDFDevice(pageSize, contentSize, initialTransform);
         }
-        dev->setDCTEncoder(encode_to_dct_stream);
+        dev->setDCTEncoder(encode_to_dct_data);
         SkAutoUnref aur(dev);
 
         SkCanvas c(dev);
@@ -1422,7 +1422,6 @@ DEFINE_string2(writePicturePath, p, "", "Write .skp files into this directory.")
 DEFINE_int32(pdfJpegQuality, -1, "Encodes images in JPEG at quality level N, "
              "which can be in range 0-100). N = -1 will disable JPEG compression. "
              "Default is N = 100, maximum quality.");
-
 // TODO(edisonn): pass a matrix instead of forcePerspectiveMatrix
 // Either the 9 numbers defining the matrix
 // or probably more readable would be to replace it with a set of a few predicates
@@ -1431,32 +1430,33 @@ DEFINE_int32(pdfJpegQuality, -1, "Encodes images in JPEG at quality level N, "
 // then we can write something reabable like --rotate centerx centery 90
 DEFINE_bool(forcePerspectiveMatrix, false, "Force a perspective matrix.");
 
-static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
+static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
     // Filter output of warnings that JPEG is not available for the image.
-    if (bitmap.width() >= 65500 || bitmap.height() >= 65500) return false;
-    if (FLAGS_pdfJpegQuality == -1) return false;
+    if (bitmap.width() >= 65500 || bitmap.height() >= 65500) return NULL;
+    if (FLAGS_pdfJpegQuality == -1) return NULL;
 
-    SkIRect bitmapBounds;
-    SkBitmap subset;
-    const SkBitmap* bitmapToUse = &bitmap;
-    bitmap.getBounds(&bitmapBounds);
-    if (rect != bitmapBounds) {
-        SkAssertResult(bitmap.extractSubset(&subset, rect));
-        bitmapToUse = &subset;
-    }
-
+    SkBitmap bm = bitmap;
 #if defined(SK_BUILD_FOR_MAC)
     // Workaround bug #1043 where bitmaps with referenced pixels cause
     // CGImageDestinationFinalize to crash
     SkBitmap copy;
-    bitmapToUse->deepCopyTo(&copy, bitmapToUse->config());
-    bitmapToUse = &copy;
+    bitmap.deepCopyTo(&copy, bitmap.config());
+    bm = copy;
 #endif
 
-    return SkImageEncoder::EncodeStream(stream,
-                                        *bitmapToUse,
-                                        SkImageEncoder::kJPEG_Type,
-                                        FLAGS_pdfJpegQuality);
+    SkPixelRef* pr = bm.pixelRef();
+    if (pr != NULL) {
+        SkData* data = pr->refEncodedData();
+        if (data != NULL) {
+            *pixelRefOffset = bm.pixelRefOffset();
+            return data;
+        }
+    }
+
+    *pixelRefOffset = 0;
+    return SkImageEncoder::EncodeData(bm,
+                                      SkImageEncoder::kJPEG_Type,
+                                      FLAGS_pdfJpegQuality);
 }
 
 static int findConfig(const char config[]) {

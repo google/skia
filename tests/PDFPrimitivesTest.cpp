@@ -39,9 +39,11 @@ private:
     SkTDArray<SkPDFObject*> fResources;
 };
 
-static bool encode_to_dct_stream(SkWStream* stream, const SkBitmap& bitmap, const SkIRect& rect) {
-    stream->writeText("DCT compessed stream.");
-    return true;
+#define DUMMY_TEXT "DCT compessed stream."
+
+static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
+    *pixelRefOffset = 0;
+    return SkData::NewWithProc(DUMMY_TEXT, sizeof(DUMMY_TEXT) - 1, NULL, NULL);
 }
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
@@ -253,7 +255,7 @@ static void TestImage(skiatest::Reporter* reporter, const SkBitmap& bitmap,
     SkAutoTUnref<SkPDFDevice> dev(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
 
     if (useDCTEncoder) {
-        dev->setDCTEncoder(encode_to_dct_stream);
+        dev->setDCTEncoder(encode_to_dct_data);
     }
 
     SkCanvas c(dev);
