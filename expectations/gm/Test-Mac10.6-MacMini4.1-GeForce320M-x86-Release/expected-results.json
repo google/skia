@@ -12295,9 +12295,9 @@
         ]
       ], 
       "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+        1100
+      ],
+      "ignore-failure": true
     }, 
     "tilemode_gradient_pdf-poppler.png": {
       "allowed-digests": [
