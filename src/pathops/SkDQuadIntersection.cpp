@@ -250,7 +250,7 @@ static bool is_linear(const SkDQuad& q1, const SkDQuad& q2, SkIntersections* i) 
 
 // FIXME: if flat measure is sufficiently large, then probably the quartic solution failed
 // avoid imprecision incurred with chopAt
-static void relaxed_is_linear(const SkDQuad* q1, double s1, double e1, const SkDQuad* q2, 
+static void relaxed_is_linear(const SkDQuad* q1, double s1, double e1, const SkDQuad* q2,
         double s2, double e2, SkIntersections* i) {
     double m1 = flat_measure(*q1);
     double m2 = flat_measure(*q2);

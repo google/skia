@@ -700,4 +700,3 @@ static void PathOpsSkpTest(skiatest::Reporter* reporter) {
 #include "TestClassDef.h"
 
 DEFINE_TESTCLASS_SHORT(PathOpsSkpTest)
-

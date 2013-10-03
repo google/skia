@@ -104,13 +104,13 @@ bool GrRectanizerSkyline::rectangleFits(int skylineIndex, int width, int height,
     int i = skylineIndex;
     int y = fSkyline[skylineIndex].fY;
     while (widthLeft > 0) {
-	y = SkMax32(y, fSkyline[i].fY);
+    y = SkMax32(y, fSkyline[i].fY);
         if (y + height > this->height()) {
             return false;
         }
-	widthLeft -= fSkyline[i].fWidth;
-	++i;
-	SkASSERT(i < fSkyline.count() || widthLeft <= 0);
+    widthLeft -= fSkyline[i].fWidth;
+    ++i;
+    SkASSERT(i < fSkyline.count() || widthLeft <= 0);
     }
 
     *ypos = y;
@@ -163,4 +163,3 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
 GrRectanizer* GrRectanizer::Factory(int width, int height) {
     return SkNEW_ARGS(GrRectanizerSkyline, (width, height));
 }
-

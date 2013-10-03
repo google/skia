@@ -157,4 +157,3 @@ void Dump(const SkTArray<class SkOpAngle* , true>* angles) {
 }
 
 #endif
-
