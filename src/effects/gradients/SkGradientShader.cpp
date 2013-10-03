@@ -935,7 +935,7 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
                                    EffectKey key,
                                    const char* outputColor,
                                    const char* inputColor,
-                                   const GrGLShaderBuilder::TextureSamplerArray& samplers) {
+                                   const TextureSamplerArray& samplers) {
     if (GrGradientEffect::kTwo_ColorType == ColorTypeFromKey(key)){
         builder->fsCodeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),

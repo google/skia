@@ -10,6 +10,7 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrDrawEffect.h"
+#include "gl/GrGLProgramEffects.h"
 
 /**
  * Implements GrBackendEffectFactory for a GrEffect subclass as a singleton.
@@ -34,9 +35,9 @@ public:
                                   const GrGLCaps& caps) const SK_OVERRIDE {
         SkASSERT(kIllegalEffectClassID != fEffectClassID);
         EffectKey effectKey = GLEffect::GenKey(drawEffect, caps);
-        EffectKey textureKey = GLEffect::GenTextureKey(drawEffect, caps);
-        EffectKey transformKey = GLEffect::GenTransformKey(drawEffect);
-        EffectKey attribKey = GLEffect::GenAttribKey(drawEffect);
+        EffectKey textureKey = GrGLProgramEffects::GenTextureKey(drawEffect, caps);
+        EffectKey transformKey = GrGLProgramEffects::GenTransformKey(drawEffect);
+        EffectKey attribKey = GrGLProgramEffects::GenAttribKey(drawEffect);
 #ifdef SK_DEBUG
         static const EffectKey kIllegalEffectKeyMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
         SkASSERT(!(kIllegalEffectKeyMask & effectKey));

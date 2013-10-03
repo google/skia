@@ -13,7 +13,7 @@
 #include "GrColor.h"
 #include "GrEffect.h"
 #include "SkTypes.h"
-#include "gl/GrGLCoordTransform.h"
+#include "gl/GrGLProgramEffects.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
 
@@ -29,78 +29,10 @@ class GrGLProgramDesc;
 */
 class GrGLShaderBuilder {
 public:
-    /**
-     * Passed to GrGLEffects to add texture reads to their shader code.
-     */
-    class TextureSampler {
-    public:
-        TextureSampler()
-            : fConfigComponentMask(0) {
-            // we will memcpy the first 4 bytes from passed in swizzle. This ensures the string is
-            // terminated.
-            fSwizzle[4] = '\0';
-        }
-
-        TextureSampler(const TextureSampler& other) { *this = other; }
-
-        TextureSampler& operator= (const TextureSampler& other) {
-            SkASSERT(0 == fConfigComponentMask);
-            SkASSERT(!fSamplerUniform.isValid());
-
-            fConfigComponentMask = other.fConfigComponentMask;
-            fSamplerUniform = other.fSamplerUniform;
-            return *this;
-        }
-
-        // bitfield of GrColorComponentFlags present in the texture's config.
-        uint32_t configComponentMask() const { return fConfigComponentMask; }
-
-        const char* swizzle() const { return fSwizzle; }
-
-        bool isInitialized() const { return 0 != fConfigComponentMask; }
-
-    private:
-        // The idx param is used to ensure multiple samplers within a single effect have unique
-        // uniform names. swizzle is a four char max string made up of chars 'r', 'g', 'b', and 'a'.
-        void init(GrGLShaderBuilder* builder,
-                  uint32_t configComponentMask,
-                  const char* swizzle,
-                  int idx) {
-            SkASSERT(!this->isInitialized());
-            SkASSERT(0 != configComponentMask);
-            SkASSERT(!fSamplerUniform.isValid());
-
-            SkASSERT(NULL != builder);
-            SkString name;
-            name.printf("Sampler%d", idx);
-            fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                                  kSampler2D_GrSLType,
-                                                  name.c_str());
-            SkASSERT(fSamplerUniform.isValid());
-
-            fConfigComponentMask = configComponentMask;
-            memcpy(fSwizzle, swizzle, 4);
-        }
-
-        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access, int idx) {
-            SkASSERT(NULL != access);
-            this->init(builder,
-                       GrPixelConfigComponentMask(access->getTexture()->config()),
-                       access->getSwizzle(),
-                       idx);
-        }
-
-        uint32_t                          fConfigComponentMask;
-        char                              fSwizzle[5];
-        GrGLUniformManager::UniformHandle fSamplerUniform;
-
-        friend class GrGLShaderBuilder; // to call init().
-    };
-
-    typedef SkTArray<GrGLCoordTransform::TransformedCoords> TransformedCoordsArray;
-    typedef SkTArray<TextureSampler> TextureSamplerArray;
     typedef GrTAllocator<GrGLShaderVar> VarArray;
     typedef GrBackendEffectFactory::EffectKey EffectKey;
+    typedef GrGLProgramEffects::TextureSampler TextureSampler;
+    typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
 
     enum ShaderVisibility {
         kVertex_Visibility   = 0x1,
@@ -175,11 +107,6 @@ public:
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
 
-    /** Generates a EffectKey for the shader code based on the texture access parameters and the
-        capabilities of the GL context.  This is useful for keying the shader programs that may
-        have multiple representations, based on the type/format of textures used. */
-    static EffectKey KeyForTextureAccess(const GrTextureAccess&, const GrGLCaps&);
-
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
 
@@ -253,24 +180,19 @@ public:
     GrSLConstantVec getKnownCoverageValue() const { return fKnownCoverageValue; }
 
     /**
-     * Adds code for effects. effectStages contains the effects to add. effectKeys[i] is the key
-     * generated from effectStages[i]. An entry in effectStages can be NULL, in which case it is
-     * skipped. Moreover, if the corresponding key is GrGLEffect::NoEffectKey then it is skipped.
-     * inOutFSColor specifies the input color to the first stage and is updated to be the
-     * output color of the last stage. fsInOutColorKnownValue specifies whether the input color
-     * has a known constant value and is updated to refer to the status of the output color.
-     * The handles to texture samplers for effectStage[i] are added to effectSamplerHandles[i]. The
-     * glEffects array is updated to contain the GrGLEffect generated for each entry in
-     * effectStages.
+     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
+     * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
+     * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
+     * is updated to be the output color of the last stage. fsInOutColorKnownValue specifies whether
+     * the input color has a known constant value and is updated to refer to the status of the
+     * output color. The handles to texture samplers for effectStage[i] are added to
+     * effectSamplerHandles[i].
      */
-    void emitEffects(const GrEffectStage* effectStages[],
-                     const EffectKey effectKeys[],
-                     int effectCnt,
-                     SkString*  inOutFSColor,
-                     GrSLConstantVec* fsInOutColorKnownValue,
-                     SkTArray<GrGLCoordTransform, false>* effectCoordTransformArrays[],
-                     SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
-                     GrGLEffect* glEffects[]);
+    GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
+                                             const EffectKey effectKeys[],
+                                             int effectCnt,
+                                             SkString* inOutFSColor,
+                                             GrSLConstantVec* fsInOutColorKnownValue);
 
     const char* getColorOutputName() const;
     const char* enableSecondaryOutput();
@@ -285,7 +207,7 @@ public:
     GrGLUniformManager::UniformHandle getColorUniform() const { return fColorUniform; }
     GrGLUniformManager::UniformHandle getCoverageUniform() const { return fCoverageUniform; }
     GrGLUniformManager::UniformHandle getDstCopySamplerUniform() const {
-        return fDstCopySampler.fSamplerUniform;
+        return fDstCopySamplerUniform;
     }
 
     /** Helper class used to build the vertex and geometry shaders. This functionality
@@ -484,7 +406,7 @@ private:
     SkString                            fFSCode;
 
     bool                                fSetupFragPosition;
-    TextureSampler                      fDstCopySampler;
+    GrGLUniformManager::UniformHandle   fDstCopySamplerUniform;
 
     SkString                            fInputColor;
     GrSLConstantVec                     fKnownColorValue;

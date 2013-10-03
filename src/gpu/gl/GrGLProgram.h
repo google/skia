@@ -11,7 +11,6 @@
 
 #include "GrDrawState.h"
 #include "GrGLContext.h"
-#include "GrGLCoordTransform.h"
 #include "GrGLProgramDesc.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLSL.h"
@@ -23,6 +22,7 @@
 
 class GrBinHashKeyBuilder;
 class GrGLEffect;
+class GrGLProgramEffects;
 class GrGLShaderBuilder;
 
 /**
@@ -149,19 +149,6 @@ private:
         UniformHandle       fDstCopySamplerUni;
     };
 
-    typedef SkSTArray<4, GrGLCoordTransform, false> CoordTransformSArray;
-    typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
-    typedef SkSTArray<4, int, true> TextureUnitSArray;
-
-    struct EffectAndSamplers {
-        EffectAndSamplers() : fGLEffect(NULL) {}
-        ~EffectAndSamplers() { delete fGLEffect; }
-        GrGLEffect*          fGLEffect;
-        CoordTransformSArray fCoordTransforms;
-        SamplerUniSArray     fSamplerUnis;  // sampler uni handles for effect's GrTextureAccess
-        TextureUnitSArray    fTextureUnits; // texture unit used for each entry of fSamplerUnis
-    };
-
     GrGLProgram(GrGpuGL* gpu,
                 const GrGLProgramDesc& desc,
                 const GrEffectStage* colorStages[],
@@ -177,10 +164,6 @@ private:
 
     // Sets the texture units for samplers
     void initSamplerUniforms();
-    void initEffectSamplerUniforms(EffectAndSamplers* effect, int* texUnitIdx);
-
-    // Helper for setData().
-    void setEffectData(const GrEffectStage& stage, EffectAndSamplers& effect);
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
     // per-vertex colors.
@@ -197,20 +180,20 @@ private:
     GrGLuint                    fProgramID;
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
-    MatrixState                 fMatrixState;
-    GrColor                     fColor;
-    GrColor                     fCoverage;
-    GrColor                     fColorFilterColor;
-    int                         fDstCopyTexUnit;
+    MatrixState                       fMatrixState;
+    GrColor                           fColor;
+    GrColor                           fCoverage;
+    GrColor                           fColorFilterColor;
+    int                               fDstCopyTexUnit;
 
-    SkTArray<EffectAndSamplers> fColorEffects;
-    SkTArray<EffectAndSamplers> fCoverageEffects;
+    SkAutoTDelete<GrGLProgramEffects> fColorEffects;
+    SkAutoTDelete<GrGLProgramEffects> fCoverageEffects;
 
-    GrGLProgramDesc             fDesc;
-    GrGpuGL*                    fGpu;
+    GrGLProgramDesc                   fDesc;
+    GrGpuGL*                          fGpu;
 
-    GrGLUniformManager          fUniformManager;
-    UniformHandles              fUniformHandles;
+    GrGLUniformManager                fUniformManager;
+    UniformHandles                    fUniformHandles;
 
     typedef SkRefCnt INHERITED;
 };

@@ -9,6 +9,7 @@
 #define GrGLEffect_DEFINED
 
 #include "GrBackendEffectFactory.h"
+#include "GrGLProgramEffects.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
@@ -38,6 +39,8 @@ class GrGLEffect {
 
 public:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
+    typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
 
     enum {
         kNoEffectKey = GrBackendEffectFactory::kNoEffectKey,
@@ -45,12 +48,9 @@ public:
         kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
     };
 
-    typedef GrGLShaderBuilder::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
+    GrGLEffect(const GrBackendEffectFactory& factory) : fFactory(factory) {}
 
-    GrGLEffect(const GrBackendEffectFactory&);
-
-    virtual ~GrGLEffect();
+    virtual ~GrGLEffect() {}
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -87,15 +87,11 @@ public:
         EffectKey as the one that created this GrGLEffect. Effects that use local coords have
         to consider whether the GrEffectStage's coord change matrix should be used. When explicit
         local coordinates are used it can be ignored. */
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&);
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) {}
 
     const char* name() const { return fFactory.name(); }
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
-
-    static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
-    static EffectKey GenTransformKey(const GrDrawEffect&);
-    static EffectKey GenAttribKey(const GrDrawEffect& stage);
 
 protected:
     const GrBackendEffectFactory& fFactory;

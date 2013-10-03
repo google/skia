@@ -370,7 +370,7 @@ protected:
                    EffectKey key,
                    const char* outputColor,
                    const char* inputColor,
-                   const GrGLShaderBuilder::TextureSamplerArray& samplers);
+                   const TextureSamplerArray& samplers);
 
 private:
     SkScalar fCachedYCoord;

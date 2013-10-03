@@ -49,44 +49,27 @@ inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen)
     }
 }
 
-/**
- * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
- * present in the texture's config. swizzleComponentMask indicates the channels present in the
- * shader swizzle.
- */
-inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
-                                             uint32_t configComponentMask,
-                                             uint32_t swizzleComponentMask) {
-    if (caps.textureSwizzleSupport()) {
-        // Any remapping is handled using texture swizzling not shader modifications.
-        return false;
-    }
-    // check if the texture is alpha-only
-    if (kA_GrColorComponentFlag == configComponentMask) {
-        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & swizzleComponentMask)) {
-            // we must map the swizzle 'a's to 'r'.
-            return true;
-        }
-        if (kRGB_GrColorComponentFlags & swizzleComponentMask) {
-            // The 'r', 'g', and/or 'b's must be mapped to 'a' according to our semantics that
-            // alpha-only textures smear alpha across all four channels when read.
-            return true;
-        }
-    }
-    return false;
-}
+void append_texture_lookup(SkString* out,
+                           GrGpuGL* gpu,
+                           const char* samplerName,
+                           const char* coordName,
+                           uint32_t configComponentMask,
+                           const char* swizzle,
+                           GrSLType varyingType = kVec2f_GrSLType) {
+    SkASSERT(NULL != coordName);
 
-void append_swizzle(SkString* outAppend,
-                    const GrGLShaderBuilder::TextureSampler& texSampler,
-                    const GrGLCaps& caps) {
-    const char* swizzle = texSampler.swizzle();
+    out->appendf("%s(%s, %s)",
+                 sample_function_name(varyingType, gpu->glslGeneration()),
+                 samplerName,
+                 coordName);
+
     char mangledSwizzle[5];
 
     // The swizzling occurs using texture params instead of shader-mangling if ARB_texture_swizzle
     // is available.
-    if (!caps.textureSwizzleSupport() &&
-        (kA_GrColorComponentFlag == texSampler.configComponentMask())) {
-        char alphaChar = caps.textureRedSupport() ? 'r' : 'a';
+    if (!gpu->glCaps().textureSwizzleSupport() &&
+        (kA_GrColorComponentFlag == configComponentMask)) {
+        char alphaChar = gpu->glCaps().textureRedSupport() ? 'r' : 'a';
         int i;
         for (i = 0; '\0' != swizzle[i]; ++i) {
             mangledSwizzle[i] = alphaChar;
@@ -96,7 +79,7 @@ void append_swizzle(SkString* outAppend,
     }
     // For shader prettiness we omit the swizzle rather than appending ".rgba".
     if (memcmp(swizzle, "rgba", 4)) {
-        outAppend->appendf(".%s", swizzle);
+        out->appendf(".%s", swizzle);
     }
 }
 
@@ -141,8 +124,9 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
         } else {
             configMask = kRGBA_GrColorComponentFlags;
         }
-        fDstCopySampler.init(this, configMask, "rgba", 0);
-
+        fDstCopySamplerUniform = this->addUniform(kFragment_Visibility,
+                                                  kSampler2D_GrSLType,
+                                                  "DstCopySampler");
         fDstCopyTopLeftUniform = this->addUniform(kFragment_Visibility,
                                                   kVec2f_GrSLType,
                                                   "DstCopyUpperLeft",
@@ -159,7 +143,12 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
             this->fsCodeAppend("\t_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
         }
         this->fsCodeAppendf("\tvec4 %s = ", kDstCopyColorName);
-        this->fsAppendTextureLookup(fDstCopySampler, "_dstTexCoord");
+        append_texture_lookup(&fFSCode,
+                              fGpu,
+                              this->getUniformCStr(fDstCopySamplerUniform),
+                              "_dstTexCoord",
+                              configMask,
+                              "rgba");
         this->fsCodeAppend(";\n\n");
     }
 
@@ -312,7 +301,7 @@ const char* GrGLShaderBuilder::dstColor() {
     } else if (GrGLCaps::kNV_FBFetchType == fetchType) {
         SkAssertResult(this->enablePrivateFeature(kNVShaderFramebufferFetch_GLSLPrivateFeature));
         return kFBFetchColorName;
-    } else if (fDstCopySampler.isInitialized()) {
+    } else if (fDstCopySamplerUniform.isValid()) {
         return kDstCopyColorName;
     } else {
         return "";
@@ -323,13 +312,13 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
                                             GrSLType varyingType) const {
-    SkASSERT(NULL != coordName);
-
-    out->appendf("%s(%s, %s)",
-                 sample_function_name(varyingType, fGpu->glslGeneration()),
-                 this->getUniformCStr(sampler.fSamplerUniform),
-                 coordName);
-    append_swizzle(out, sampler, fGpu->glCaps());
+    append_texture_lookup(out,
+                          fGpu,
+                          this->getUniformCStr(sampler.samplerUniform()),
+                          coordName,
+                          sampler.configComponentMask(),
+                          sampler.swizzle(),
+                          varyingType);
 }
 
 void GrGLShaderBuilder::fsAppendTextureLookup(const GrGLShaderBuilder::TextureSampler& sampler,
@@ -346,16 +335,6 @@ void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     GrGLSLModulatef<4>(&fFSCode, modulation, lookup.c_str());
-}
-
-GrGLShaderBuilder::EffectKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
-                                                                    const GrGLCaps& caps) {
-    uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
-    if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
-        return 1;
-    } else {
-        return 0;
-    }
 }
 
 GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
@@ -572,15 +551,14 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderVisibility visibility,
     }
 }
 
-void GrGLShaderBuilder::emitEffects(
-                        const GrEffectStage* effectStages[],
-                        const EffectKey effectKeys[],
-                        int effectCnt,
-                        SkString* fsInOutColor,
-                        GrSLConstantVec* fsInOutColorKnownValue,
-                        SkTArray<GrGLCoordTransform, false>* effectCoordTransformArrays[],
-                        SkTArray<GrGLUniformManager::UniformHandle, true>* effectSamplerHandles[],
-                        GrGLEffect* glEffects[]) {
+GrGLProgramEffects* GrGLShaderBuilder::createAndEmitEffects(
+        const GrEffectStage* effectStages[],
+        const EffectKey effectKeys[],
+        int effectCnt,
+        SkString* fsInOutColor,
+        GrSLConstantVec* fsInOutColorKnownValue) {
+
+    GrGLProgramEffectsBuilder programEffectsBuilder(this, effectCnt);
     bool effectEmitted = false;
 
     SkString inColor = *fsInOutColor;
@@ -589,46 +567,8 @@ void GrGLShaderBuilder::emitEffects(
     for (int e = 0; e < effectCnt; ++e) {
         SkASSERT(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
         const GrEffectStage& stage = *effectStages[e];
-        const GrEffectRef& effect = *stage.getEffect();
 
         CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
-
-        int numTransforms = effect->numTransforms();
-        SkSTArray<8, GrGLCoordTransform::TransformedCoords> transformedCoords;
-        transformedCoords.push_back_n(numTransforms);
-        EffectKey transformKey = GrBackendEffectFactory::GetTransformKey(effectKeys[e]);
-        for (int c = 0; c < numTransforms; ++c) {
-            GrGLCoordTransform& ct = effectCoordTransformArrays[e]->push_back();
-            EffectKey key = (transformKey >> (c * GrGLCoordTransform::kKeyBits)) &
-                            (GrGLCoordTransform::kKeyMask);
-            ct.emitCode(this, key, &transformedCoords[c], c);
-        }
-
-        int numTextures = effect->numTextures();
-        SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
-        textureSamplers.push_back_n(numTextures);
-        for (int t = 0; t < numTextures; ++t) {
-            textureSamplers[t].init(this, &effect->textureAccess(t), t);
-            effectSamplerHandles[e]->push_back(textureSamplers[t].fSamplerUniform);
-        }
-
-        GrDrawEffect drawEffect(stage, NULL != fVertexBuilder.get()
-                                       && fVertexBuilder->hasExplicitLocalCoords());
-
-        int numAttributes = stage.getVertexAttribIndexCount();
-        const int* attributeIndices = stage.getVertexAttribIndices();
-        SkSTArray<GrEffect::kMaxVertexAttribs, SkString> attributeNames;
-        for (int a = 0; a < numAttributes; ++a) {
-            // TODO: Make addAttribute mangle the name.
-            SkASSERT(NULL != fVertexBuilder.get());
-            SkString attributeName("aAttr");
-            attributeName.appendS32(attributeIndices[a]);
-            fVertexBuilder->addEffectAttribute(attributeIndices[a],
-                                               effect->vertexAttribType(a),
-                                               attributeName);
-        }
-
-        glEffects[e] = effect->getFactory().createGLInstance(drawEffect);
 
         if (kZeros_GrSLConstantVec == *fsInOutColorKnownValue) {
             // Effects have no way to communicate zeros, they treat an empty string as ones.
@@ -640,26 +580,11 @@ void GrGLShaderBuilder::emitEffects(
         this->nameVariable(&outColor, '\0', "output");
         this->fsCodeAppendf("\tvec4 %s;\n", outColor.c_str());
 
-        // Enclose custom code in a block to avoid namespace conflicts
-        SkString openBrace;
-        openBrace.printf("\t{ // Stage %d: %s\n", fCodeStage.stageIndex(), glEffects[e]->name());
-        if (NULL != fVertexBuilder.get()) {
-            fVertexBuilder->vsCodeAppend(openBrace.c_str());
-        }
-        this->fsCodeAppend(openBrace.c_str());
-
-        glEffects[e]->emitCode(this,
-                               drawEffect,
-                               effectKeys[e],
-                               outColor.c_str(),
-                               inColor.isEmpty() ? NULL : inColor.c_str(),
-                               transformedCoords,
-                               textureSamplers);
-
-        if (NULL != fVertexBuilder.get()) {
-            fVertexBuilder->vsCodeAppend("\t}\n");
-        }
-        this->fsCodeAppend("\t}\n");
+        programEffectsBuilder.emitEffect(stage,
+                                         effectKeys[e],
+                                         outColor.c_str(),
+                                         inColor.isEmpty() ? NULL : inColor.c_str(),
+                                         fCodeStage.stageIndex());
 
         inColor = outColor;
         *fsInOutColorKnownValue = kNone_GrSLConstantVec;
@@ -669,6 +594,8 @@ void GrGLShaderBuilder::emitEffects(
     if (effectEmitted) {
         *fsInOutColor = outColor;
     }
+
+    return programEffectsBuilder.finish();
 }
 
 const char* GrGLShaderBuilder::getColorOutputName() const {

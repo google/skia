@@ -486,6 +486,10 @@ public:
         : INHERITED(array, &fStorage) {
     }
 
+    explicit SkSTArray(int reserveCount)
+        : INHERITED(reserveCount) {
+    }
+
     SkSTArray(const T* array, int count)
         : INHERITED(array, count, &fStorage) {
     }
