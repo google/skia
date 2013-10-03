@@ -4,6 +4,7 @@
     '../gm/aaclip.cpp',
     '../gm/aarectmodes.cpp',
     '../gm/alphagradients.cpp',
+    '../gm/androidfallback.cpp',
     '../gm/arcofzorro.cpp',
     '../gm/arithmode.cpp',
     '../gm/beziereffects.cpp',

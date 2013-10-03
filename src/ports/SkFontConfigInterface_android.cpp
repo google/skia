@@ -104,6 +104,9 @@ public:
                                    SkPaintOptionsAndroid::FontVariant fontVariant);
     SkTypeface* nextLogicalTypeface(SkFontID currFontID, SkFontID origFontID,
                                     const SkPaintOptionsAndroid& options);
+    SkTypeface* getTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origTypeface,
+                                      const SkPaintOptionsAndroid& options,
+                                      int* lowerBounds, int* upperBounds);
 
 private:
     void addFallbackFamily(FamilyRecID fontRecID);
@@ -672,6 +675,61 @@ SkTypeface* SkFontConfigInterfaceAndroid::nextLogicalTypeface(SkFontID currFontI
     return SkSafeRef(nextLogicalTypeface);
 }
 
+SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForGlyphID(uint16_t glyphID,
+                                                                const SkTypeface* origTypeface,
+                                                                const SkPaintOptionsAndroid& opts,
+                                                                int* lBounds, int* uBounds) {
+    // If we aren't using fallbacks then we shouldn't be calling this
+    SkASSERT(opts.isUsingFontFallbacks());
+    SkASSERT(origTypeface);
+
+    SkTypeface* currentTypeface = NULL;
+    int lowerBounds = 0; //inclusive
+    int upperBounds = origTypeface->countGlyphs(); //exclusive
+
+    // check to see if the glyph is in the bounds of the origTypeface
+    if (glyphID < upperBounds) {
+        currentTypeface = const_cast<SkTypeface*>(origTypeface);
+    } else {
+        FallbackFontList* currentFallbackList = findFallbackFontList(opts.getLanguage());
+        SkASSERT(currentFallbackList);
+
+        // If an object is set to prefer "kDefault_Variant" it means they have no preference
+        // In this case, we set the value to "kCompact_Variant"
+        SkPaintOptionsAndroid::FontVariant variant = opts.getFontVariant();
+        if (variant == SkPaintOptionsAndroid::kDefault_Variant) {
+            variant = SkPaintOptionsAndroid::kCompact_Variant;
+        }
+
+        int32_t acceptedVariants = SkPaintOptionsAndroid::kDefault_Variant | variant;
+        SkTypeface::Style origStyle = origTypeface->style();
+
+        for (int x = 0; x < currentFallbackList->count(); ++x) {
+            const FamilyRecID familyRecID = currentFallbackList->getAt(x);
+            const SkPaintOptionsAndroid& familyOptions = fFontFamilies[familyRecID].fPaintOptions;
+            if ((familyOptions.getFontVariant() & acceptedVariants) != 0) {
+                FontRecID matchedFont = find_best_style(fFontFamilies[familyRecID], origStyle);
+                currentTypeface = this->getTypefaceForFontRec(matchedFont);
+                lowerBounds = upperBounds;
+                upperBounds += currentTypeface->countGlyphs();
+                if (glyphID < upperBounds) {
+                    break;
+                }
+            }
+        }
+    }
+
+    if (NULL != currentTypeface) {
+        if (lBounds) {
+            *lBounds = lowerBounds;
+        }
+        if (uBounds) {
+            *uBounds = upperBounds;
+        }
+    }
+    return currentTypeface;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
@@ -702,6 +760,14 @@ SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontI
     SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
     return fontConfig->nextLogicalTypeface(currFontID, origFontID, options);
 
+}
+
+SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origTypeface,
+                                    const SkPaintOptionsAndroid& options,
+                                    int* lowerBounds, int* upperBounds) {
+    SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
+    return fontConfig->getTypefaceForGlyphID(glyphID, origTypeface, options,
+                                             lowerBounds, upperBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
