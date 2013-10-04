@@ -211,12 +211,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
-    bool needsVertexShader = true;
-
-    GrGLShaderBuilder builder(fGpu, fUniformManager, fDesc, needsVertexShader);
-    if (GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder.getVertexBuilder()) {
-        fUniformHandles.fViewMatrixUni = vertexBuilder->getViewMatrixUniform();
-    }
+    GrGLFullShaderBuilder builder(fGpu, fUniformManager, fDesc);
+    fUniformHandles.fViewMatrixUni = builder.getViewMatrixUniform();
 
     // incoming color to current stage being processed.
     SkString inColor = builder.getInputColor();

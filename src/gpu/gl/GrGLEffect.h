@@ -14,8 +14,6 @@
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 
-class GrGLTexture;
-
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
@@ -34,6 +32,8 @@ class GrGLTexture;
 */
 
 class GrDrawEffect;
+class GrGLTexture;
+class GrGLVertexEffect;
 
 class GrGLEffect {
 
@@ -48,7 +48,10 @@ public:
         kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
     };
 
-    GrGLEffect(const GrBackendEffectFactory& factory) : fFactory(factory) {}
+    GrGLEffect(const GrBackendEffectFactory& factory)
+        : fFactory(factory)
+        , fIsVertexEffect(false) {
+    }
 
     virtual ~GrGLEffect() {}
 
@@ -93,8 +96,17 @@ public:
 
     static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
 
+    /** Used by the system when generating shader code, to see if this effect can be downcasted to
+        the internal GrGLVertexEffect type */
+    bool isVertexEffect() const { return fIsVertexEffect; }
+
 protected:
     const GrBackendEffectFactory& fFactory;
+
+private:
+    friend class GrGLVertexEffect; // to set fIsVertexEffect
+
+    bool fIsVertexEffect;
 };
 
 #endif

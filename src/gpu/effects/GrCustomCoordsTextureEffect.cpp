@@ -9,34 +9,33 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
+#include "gl/GrGLVertexEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 
-class GrGLCustomCoordsTextureEffect : public GrGLEffect {
+class GrGLCustomCoordsTextureEffect : public GrGLVertexEffect {
 public:
     GrGLCustomCoordsTextureEffect(const GrBackendEffectFactory& factory, const GrDrawEffect& drawEffect)
         : INHERITED (factory) {}
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
-        SkASSERT(NULL != vertexBuilder);
         SkASSERT(1 == drawEffect.castEffect<GrCustomCoordsTextureEffect>().numVertexAttribs());
 
         SkString fsCoordName;
         const char* vsVaryingName;
         const char* fsVaryingNamePtr;
-        vertexBuilder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
+        builder->addVarying(kVec2f_GrSLType, "textureCoords", &vsVaryingName, &fsVaryingNamePtr);
         fsCoordName = fsVaryingNamePtr;
 
         const char* attrName =
-            vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
-        vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
+            builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0])->c_str();
+        builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, attrName);
 
         builder->fsCodeAppendf("\t%s = ", outputColor);
         builder->fsAppendTextureLookupAndModulate(inputColor,
@@ -50,7 +49,7 @@ public:
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {}
 
 private:
-    typedef GrGLEffect INHERITED;
+    typedef GrGLVertexEffect INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

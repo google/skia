@@ -9,6 +9,7 @@
 #include "GrDrawEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLShaderBuilder.h"
+#include "gl/GrGLVertexEffect.h"
 #include "gl/GrGpuGL.h"
 
 typedef GrGLProgramEffects::EffectKey EffectKey;
@@ -157,9 +158,9 @@ void GrGLProgramEffects::initSamplers(const GrGLUniformManager& uniformManager, 
     }
 }
 
-void GrGLProgramEffects::setData(GrGpuGL* gpu,
-                                 const GrGLUniformManager& uniformManager,
-                                 const GrEffectStage* effectStages[]) {
+void GrGLVertexProgramEffects::setData(GrGpuGL* gpu,
+                                       const GrGLUniformManager& uniformManager,
+                                       const GrEffectStage* effectStages[]) {
     int numEffects = fGLEffects.count();
     SkASSERT(numEffects == fTransforms.count());
     SkASSERT(numEffects == fSamplers.count());
@@ -171,9 +172,9 @@ void GrGLProgramEffects::setData(GrGpuGL* gpu,
     }
 }
 
-void GrGLProgramEffects::setTransformData(const GrGLUniformManager& uniformManager,
-                                          const GrDrawEffect& drawEffect,
-                                          int effectIdx) {
+void GrGLVertexProgramEffects::setTransformData(const GrGLUniformManager& uniformManager,
+                                                const GrDrawEffect& drawEffect,
+                                                int effectIdx) {
     SkTArray<Transform, true>& transforms = fTransforms[effectIdx];
     int numTransforms = transforms.count();
     SkASSERT(numTransforms == (*drawEffect.effect())->numTransforms());
@@ -243,21 +244,18 @@ void GrGLProgramEffects::bindTextures(GrGpuGL* gpu, const GrEffectRef& effect, i
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramEffectsBuilder::GrGLProgramEffectsBuilder(GrGLShaderBuilder* builder, int reserveCount)
-    : fBuilder(builder) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = fBuilder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-    fProgramEffects.reset(SkNEW_ARGS(GrGLProgramEffects,
-                                     (reserveCount, vertexBuilder->hasExplicitLocalCoords())));
+GrGLVertexProgramEffectsBuilder::GrGLVertexProgramEffectsBuilder(GrGLFullShaderBuilder* builder,
+                                                                 int reserveCount)
+    : fBuilder(builder)
+    , fProgramEffects(SkNEW_ARGS(GrGLVertexProgramEffects,
+                                 (reserveCount, fBuilder->hasExplicitLocalCoords()))) {
 }
 
-void GrGLProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
-                                           EffectKey key,
-                                           const char* outColor,
-                                           const char* inColor,
-                                           int stageIndex) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = fBuilder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
+void GrGLVertexProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
+                                                 EffectKey key,
+                                                 const char* outColor,
+                                                 const char* inColor,
+                                                 int stageIndex) {
     SkASSERT(NULL != fProgramEffects.get());
 
     GrDrawEffect drawEffect(stage, fProgramEffects->fHasExplicitLocalCoords);
@@ -267,7 +265,7 @@ void GrGLProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
 
     this->emitAttributes(stage);
     this->emitTransforms(effect, key, &coords);
-    this->emitSamplers(effect, &samplers);
+    INHERITED::emitSamplers(fBuilder, fProgramEffects.get(), effect, &samplers);
 
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
     fProgramEffects->fGLEffects.push_back(glEffect);
@@ -275,38 +273,37 @@ void GrGLProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
     openBrace.printf("\t{ // Stage %d: %s\n", stageIndex, glEffect->name());
-    vertexBuilder->vsCodeAppend(openBrace.c_str());
+    fBuilder->vsCodeAppend(openBrace.c_str());
     fBuilder->fsCodeAppend(openBrace.c_str());
 
-    glEffect->emitCode(fBuilder, drawEffect, key, outColor, inColor, coords, samplers);
+    if (glEffect->isVertexEffect()) {
+        GrGLVertexEffect* vertexEffect = static_cast<GrGLVertexEffect*>(glEffect);
+        vertexEffect->emitCode(fBuilder, drawEffect, key, outColor, inColor, coords, samplers);
+    } else {
+        glEffect->emitCode(fBuilder, drawEffect, key, outColor, inColor, coords, samplers);
+    }
 
-    vertexBuilder->vsCodeAppend("\t}\n");
+    fBuilder->vsCodeAppend("\t}\n");
     fBuilder->fsCodeAppend("\t}\n");
 }
 
-void GrGLProgramEffectsBuilder::emitAttributes(const GrEffectStage& stage) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = fBuilder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-
+void GrGLVertexProgramEffectsBuilder::emitAttributes(const GrEffectStage& stage) {
     int numAttributes = stage.getVertexAttribIndexCount();
     const int* attributeIndices = stage.getVertexAttribIndices();
     for (int a = 0; a < numAttributes; ++a) {
         // TODO: Make addAttribute mangle the name.
         SkString attributeName("aAttr");
         attributeName.appendS32(attributeIndices[a]);
-        vertexBuilder->addEffectAttribute(attributeIndices[a],
-                                          (*stage.getEffect())->vertexAttribType(a),
-                                          attributeName);
+        fBuilder->addEffectAttribute(attributeIndices[a],
+                                     (*stage.getEffect())->vertexAttribType(a),
+                                     attributeName);
     }
 }
 
-void GrGLProgramEffectsBuilder::emitTransforms(const GrEffectRef& effect,
-                                               EffectKey effectKey,
-                                               TransformedCoordsArray* outCoords) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = fBuilder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-
-    typedef GrGLProgramEffects::Transform Transform;
+void GrGLVertexProgramEffectsBuilder::emitTransforms(const GrEffectRef& effect,
+                                                     EffectKey effectKey,
+                                                     TransformedCoordsArray* outCoords) {
+    typedef GrGLVertexProgramEffects::Transform Transform;
     SkTArray<Transform, true>& transforms = fProgramEffects->fTransforms.push_back();
     EffectKey totalKey = GrBackendEffectFactory::GetTransformKey(effectKey);
     int numTransforms = effect->numTransforms();
@@ -361,30 +358,30 @@ void GrGLProgramEffectsBuilder::emitTransforms(const GrEffectRef& effect,
         }
         const char* vsVaryingName;
         const char* fsVaryingName;
-        vertexBuilder->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
+        fBuilder->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
 
         const GrGLShaderVar& coords = (kPositionCoords_Flag & key) ?
-                                          vertexBuilder->positionAttribute() :
-                                          vertexBuilder->localCoordsAttribute();
+                                          fBuilder->positionAttribute() :
+                                          fBuilder->localCoordsAttribute();
         // varying = matrix * coords (logically)
         switch (transforms[t].fType) {
             case kVoid_GrSLType:
                 SkASSERT(kVec2f_GrSLType == varyingType);
-                vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords.c_str());
+                fBuilder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords.c_str());
                 break;
             case kVec2f_GrSLType:
                 SkASSERT(kVec2f_GrSLType == varyingType);
-                vertexBuilder->vsCodeAppendf("\t%s = %s + %s;\n",
-                                             vsVaryingName, uniName, coords.c_str());
+                fBuilder->vsCodeAppendf("\t%s = %s + %s;\n",
+                                        vsVaryingName, uniName, coords.c_str());
                 break;
             case kMat33f_GrSLType: {
                 SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
                 if (kVec2f_GrSLType == varyingType) {
-                    vertexBuilder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
-                                                 vsVaryingName, uniName, coords.c_str());
+                    fBuilder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
+                                            vsVaryingName, uniName, coords.c_str());
                 } else {
-                    vertexBuilder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
-                                                 vsVaryingName, uniName, coords.c_str());
+                    fBuilder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
+                                            vsVaryingName, uniName, coords.c_str());
                 }
                 break;
             }
@@ -395,18 +392,20 @@ void GrGLProgramEffectsBuilder::emitTransforms(const GrEffectRef& effect,
     }
 }
 
-void GrGLProgramEffectsBuilder::emitSamplers(const GrEffectRef& effect,
+void GrGLProgramEffectsBuilder::emitSamplers(GrGLShaderBuilder* builder,
+                                             GrGLProgramEffects* programEffects,
+                                             const GrEffectRef& effect,
                                              TextureSamplerArray* outSamplers) {
     typedef GrGLProgramEffects::Sampler Sampler;
-    SkTArray<Sampler, true>& samplers = fProgramEffects->fSamplers.push_back();
+    SkTArray<Sampler, true>& samplers = programEffects->fSamplers.push_back();
     int numTextures = effect->numTextures();
     samplers.push_back_n(numTextures);
     SkString name;
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
-        samplers[t].fUniform = fBuilder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                                    kSampler2D_GrSLType,
-                                                    name.c_str());
+        samplers[t].fUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                                   kSampler2D_GrSLType,
+                                                   name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, TextureSampler,
                                (samplers[t].fUniform, effect->textureAccess(t)));
     }

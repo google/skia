@@ -15,7 +15,9 @@
 
 class GrEffectStage;
 class GrGLProgramEffectsBuilder;
+class GrGLVertexProgramEffectsBuilder;
 class GrGLShaderBuilder;
+class GrGLFullShaderBuilder;
 
 /**
  * This class encapsulates an array of GrGLEffects and their supporting data (coord transforms
@@ -34,7 +36,7 @@ public:
     static EffectKey GenTransformKey(const GrDrawEffect&);
     static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
 
-    ~GrGLProgramEffects();
+    virtual ~GrGLProgramEffects();
 
     /**
      * Assigns a texture unit to each sampler. It starts on *texUnitIdx and writes the next
@@ -45,9 +47,9 @@ public:
     /**
      * Calls setData() on each effect, and sets their transformation matrices and texture bindings.
      */
-    void setData(GrGpuGL*,
-                 const GrGLUniformManager&,
-                 const GrEffectStage* effectStages[]);
+    virtual void setData(GrGpuGL*,
+                         const GrGLUniformManager&,
+                         const GrEffectStage* effectStages[]) = 0;
 
     /**
      * Passed to GrGLEffects so they can add transformed coordinates to their shader code.
@@ -94,13 +96,44 @@ public:
 
     typedef SkTArray<TextureSampler> TextureSamplerArray;
 
-private:
+protected:
     friend class GrGLProgramEffectsBuilder;
 
-    GrGLProgramEffects(int reserveCount, bool explicitLocalCoords)
+    GrGLProgramEffects(int reserveCount)
         : fGLEffects(reserveCount)
+        , fSamplers(reserveCount) {
+    }
+
+    /**
+     * Helper for setData(). Binds all the textures for an effect.
+     */
+    void bindTextures(GrGpuGL*, const GrEffectRef&, int effectIdx);
+
+    struct Sampler {
+        SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
+        UniformHandle fUniform;
+        int           fTextureUnit;
+    };
+
+    SkTArray<GrGLEffect*>                  fGLEffects;
+    SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
+};
+
+/**
+ * This is a GrGLProgramEffects implementation that does coord transforms with the vertex shader.
+ */
+class GrGLVertexProgramEffects : public GrGLProgramEffects {
+public:
+    virtual void setData(GrGpuGL*,
+                         const GrGLUniformManager&,
+                         const GrEffectStage* effectStages[]) SK_OVERRIDE;
+
+private:
+    friend class GrGLVertexProgramEffectsBuilder;
+
+    GrGLVertexProgramEffects(int reserveCount, bool explicitLocalCoords)
+        : INHERITED(reserveCount)
         , fTransforms(reserveCount)
-        , fSamplers(reserveCount)
         , fHasExplicitLocalCoords(explicitLocalCoords) {
     }
 
@@ -109,11 +142,6 @@ private:
      */
     void setTransformData(const GrGLUniformManager&, const GrDrawEffect&, int effectIdx);
 
-    /**
-     * Helper for setData(). Binds all the textures for an effect.
-     */
-    void bindTextures(GrGpuGL*, const GrEffectRef&, int effectIdx);
-
     struct Transform {
         Transform() { fCurrentValue = SkMatrix::InvalidMatrix(); }
         UniformHandle fHandle;
@@ -121,35 +149,51 @@ private:
         SkMatrix      fCurrentValue;
     };
 
-    struct Sampler {
-        SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
-        UniformHandle fUniform;
-        int           fTextureUnit;
-    };
-
-    SkTArray<GrGLEffect*>                    fGLEffects;
     SkTArray<SkSTArray<2, Transform, true> > fTransforms;
-    SkTArray<SkSTArray<4, Sampler, true> >   fSamplers;
     bool                                     fHasExplicitLocalCoords;
+
+    typedef GrGLProgramEffects INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * This class is used to construct a GrGLProgramEffects.
+ * This is an abstract base class for constructing different types of GrGLProgramEffects objects.
  */
 class GrGLProgramEffectsBuilder {
 public:
-    GrGLProgramEffectsBuilder(GrGLShaderBuilder* builder, int reserveCount);
-
     /**
      * Emits the effect's shader code, and stores the necessary uniforms internally.
      */
-    void emitEffect(const GrEffectStage&,
-                    GrGLProgramEffects::EffectKey,
-                    const char* outColor,
-                    const char* inColor,
-                    int stageIndex);
+    virtual void emitEffect(const GrEffectStage&,
+                            GrGLProgramEffects::EffectKey,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) = 0;
+
+protected:
+    /**
+     * Helper for emitEffect(). Emits uniforms for an effect's texture accesses and appends the
+     * necessary data to the TextureSamplerArray* object so effects can add texture lookups.
+     */
+    static void emitSamplers(GrGLShaderBuilder*,
+                             GrGLProgramEffects*,
+                             const GrEffectRef&,
+                             GrGLProgramEffects::TextureSamplerArray*);
+};
+
+/**
+ * This class is used to construct a GrGLVertexProgramEffects object.
+ */
+class GrGLVertexProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
+public:
+    GrGLVertexProgramEffectsBuilder(GrGLFullShaderBuilder*, int reserveCount);
+
+    virtual void emitEffect(const GrEffectStage&,
+                            GrGLProgramEffects::EffectKey,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) SK_OVERRIDE;
 
     /**
      * Finalizes the building process and returns the effect array. After this call, the builder
@@ -174,16 +218,10 @@ private:
                         GrGLProgramEffects::EffectKey,
                         GrGLProgramEffects::TransformedCoordsArray*);
 
-    /**
-     * Helper for emitEffect(). Emits uniforms for an effect's texture accesses. The uniform info
-     * as well as texture access parameters are appended to the TextureSamplerArray* object, which
-     * is in turn passed to the effect's emitCode() function.
-     */
-    void emitSamplers(const GrEffectRef&,
-                      GrGLProgramEffects::TextureSamplerArray*);
+    GrGLFullShaderBuilder*                  fBuilder;
+    SkAutoTDelete<GrGLVertexProgramEffects> fProgramEffects;
 
-    GrGLShaderBuilder*                fBuilder;
-    SkAutoTDelete<GrGLProgramEffects> fProgramEffects;
+    typedef GrGLProgramEffectsBuilder INHERITED;
 };
 
 #endif

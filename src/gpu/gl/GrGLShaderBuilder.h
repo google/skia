@@ -33,6 +33,7 @@ public:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
     typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLUniformManager::BuilderUniform BuilderUniform;
 
     enum ShaderVisibility {
         kVertex_Visibility   = 0x1,
@@ -40,10 +41,8 @@ public:
         kFragment_Visibility = 0x4,
     };
 
-    GrGLShaderBuilder(GrGpuGL*,
-                      GrGLUniformManager&,
-                      const GrGLProgramDesc&,
-                      bool needsVertexShader);
+    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+    virtual ~GrGLShaderBuilder() {}
 
     /**
      * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
@@ -103,9 +102,6 @@ public:
                         const GrGLShaderVar* args,
                         const char* body,
                         SkString* outName);
-
-    /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
-    GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
 
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
@@ -174,10 +170,22 @@ public:
      * TODO: These are used by GrGLProgram to insert a mode color filter. Remove these when the
      * color filter is expressed as a GrEffect.
      */
-    const SkString& getInputColor() const { return fInputColor; }
-    GrSLConstantVec getKnownColorValue() const { return fKnownColorValue; }
-    const SkString& getInputCoverage() const { return fInputCoverage; }
-    GrSLConstantVec getKnownCoverageValue() const { return fKnownCoverageValue; }
+    const SkString& getInputColor() const {
+        SkASSERT(fInputColor.isEmpty() != (kNone_GrSLConstantVec == fKnownColorValue));
+        return fInputColor;
+    }
+    GrSLConstantVec getKnownColorValue() const {
+        SkASSERT(fInputColor.isEmpty() != (kNone_GrSLConstantVec == fKnownColorValue));
+        return fKnownColorValue;
+    }
+    const SkString& getInputCoverage() const {
+        SkASSERT(fInputCoverage.isEmpty() != (kNone_GrSLConstantVec == fKnownCoverageValue));
+        return fInputCoverage;
+    }
+    GrSLConstantVec getKnownCoverageValue() const {
+        SkASSERT(fInputCoverage.isEmpty() != (kNone_GrSLConstantVec == fKnownCoverageValue));
+        return fKnownCoverageValue;
+    }
 
     /**
      * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
@@ -188,11 +196,11 @@ public:
      * output color. The handles to texture samplers for effectStage[i] are added to
      * effectSamplerHandles[i].
      */
-    GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                             const EffectKey effectKeys[],
-                                             int effectCnt,
-                                             SkString* inOutFSColor,
-                                             GrSLConstantVec* fsInOutColorKnownValue);
+    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
+                                                     const EffectKey effectKeys[],
+                                                     int effectCnt,
+                                                     SkString* inOutFSColor,
+                                                     GrSLConstantVec* fsInOutColorKnownValue) = 0;
 
     const char* getColorOutputName() const;
     const char* enableSecondaryOutput();
@@ -210,105 +218,37 @@ public:
         return fDstCopySamplerUniform;
     }
 
-    /** Helper class used to build the vertex and geometry shaders. This functionality
-        is kept separate from the rest of GrGLShaderBuilder to allow for shaders programs
-        that only use the fragment shader. */
-    class VertexBuilder {
-    public:
-        VertexBuilder(GrGLShaderBuilder* parent, GrGpuGL* gpu, const GrGLProgramDesc&);
-
-        /**
-         * Called by GrGLEffects to add code to one of the shaders.
-         */
-        void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-            va_list args;
-            va_start(args, format);
-            fVSCode.appendf(format, args);
-            va_end(args);
-        }
-
-        void vsCodeAppend(const char* str) { fVSCode.append(str); }
-
-       /** Add a vertex attribute to the current program that is passed in from the vertex data.
-           Returns false if the attribute was already there, true otherwise. */
-        bool addAttribute(GrSLType type, const char* name);
-
-       /** Add a varying variable to the current program to pass values between vertex and fragment
-            shaders. If the last two parameters are non-NULL, they are filled in with the name
-            generated. */
-        void addVarying(GrSLType type,
-                        const char* name,
-                        const char** vsOutName = NULL,
-                        const char** fsInName = NULL);
-
-        /** Returns a vertex attribute that represents the vertex position in the VS. This is the
-            pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
-          */
-        const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
-
-        /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
-            as positionAttribute() or it may not be. It depends upon whether the rendering code
-            specified explicit local coords or not in the GrDrawState. */
-        const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
-
-        /**
-         * Are explicit local coordinates provided as input to the vertex shader.
-         */
-        bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
-
-        bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
-        const SkString* getEffectAttributeName(int attributeIndex) const;
-
-        GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
-            return fViewMatrixUniform;
-        }
-
-        bool compileAndAttachShaders(GrGLuint programId) const;
-        void bindProgramLocations(GrGLuint programId) const;
-
-    private:
-        GrGLShaderBuilder*                  fParent;
-        GrGpuGL*                            fGpu;
-        const GrGLProgramDesc&              fDesc;
-        VarArray                            fVSAttrs;
-        VarArray                            fVSOutputs;
-        VarArray                            fGSInputs;
-        VarArray                            fGSOutputs;
-
-        SkString                            fVSCode;
-
-        struct AttributePair {
-            void set(int index, const SkString& name) {
-                fIndex = index; fName = name;
-            }
-            int      fIndex;
-            SkString fName;
-        };
-        SkSTArray<10, AttributePair, true>  fEffectAttributes;
-
-        GrGLUniformManager::UniformHandle   fViewMatrixUniform;
-
-        GrGLShaderVar*                      fPositionVar;
-        GrGLShaderVar*                      fLocalCoordsVar;
-    };
-
-    /** Gets the vertex builder that is used to construct the vertex and geometry shaders.
-        It may be NULL if this shader program is only meant to have a fragment shader. */
-    VertexBuilder* getVertexBuilder() const { return fVertexBuilder.get(); }
-
     bool finish(GrGLuint* outProgramId);
 
     const GrGLContextInfo& ctxInfo() const;
 
-private:
+protected:
+    GrGpuGL* gpu() const { return fGpu; }
+
+    void setInputColor(const char* inputColor) { fInputColor = inputColor; }
+    void setInputCoverage(const char* inputCoverage) { fInputCoverage = inputCoverage; }
+
+    /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
+    GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
+
+    // Generates a name for a variable. The generated string will be name prefixed by the prefix
+    // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
+    // generating stage code.
+    void nameVariable(SkString* out, char prefix, const char* name);
+
+    // Helper for emitEffects().
+    void createAndEmitEffects(GrGLProgramEffectsBuilder*,
+                              const GrEffectStage* effectStages[],
+                              const EffectKey effectKeys[],
+                              int effectCnt,
+                              SkString* inOutFSColor,
+                              GrSLConstantVec* fsInOutColorKnownValue);
+
+    virtual bool compileAndAttachShaders(GrGLuint programId) const;
+    virtual void bindProgramLocations(GrGLuint programId) const;
+
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderVisibility, SkString*) const;
-
-    bool compileAndAttachShaders(GrGLuint programId) const;
-    void bindProgramLocations(GrGLuint programId) const;
-
-    typedef GrGLUniformManager::BuilderUniform BuilderUniform;
-    GrGLUniformManager::BuilderUniformArray fUniforms;
 
 private:
     class CodeStage : public SkNoncopyable {
@@ -376,11 +316,6 @@ private:
     // track the enables separately for each shader.
     void addFSFeature(uint32_t featureBit, const char* extensionName);
 
-    // Generates a name for a variable. The generated string will be name prefixed by the prefix
-    // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
-    // generating stage code.
-    void nameVariable(SkString* out, char prefix, const char* name);
-
     // Interpretation of DstReadKey when generating code
     enum {
         kNoDstRead_DstReadKey         = 0,
@@ -395,36 +330,124 @@ private:
         kBottomLeftFragPosRead_FragPosKey   = 0x2,// Read frag pos relative to bottom-left.
     };
 
-    GrGpuGL*                            fGpu;
-    GrGLUniformManager&                 fUniformManager;
-    uint32_t                            fFSFeaturesAddedMask;
-    SkString                            fFSFunctions;
-    SkString                            fFSExtensions;
-    VarArray                            fFSInputs;
-    VarArray                            fFSOutputs;
+    GrGpuGL*                                fGpu;
+    GrGLUniformManager&                     fUniformManager;
+    uint32_t                                fFSFeaturesAddedMask;
+    SkString                                fFSFunctions;
+    SkString                                fFSExtensions;
+    VarArray                                fFSInputs;
+    VarArray                                fFSOutputs;
+    GrGLUniformManager::BuilderUniformArray fUniforms;
 
-    SkString                            fFSCode;
+    SkString                                fFSCode;
 
-    bool                                fSetupFragPosition;
-    GrGLUniformManager::UniformHandle   fDstCopySamplerUniform;
+    bool                                    fSetupFragPosition;
+    GrGLUniformManager::UniformHandle       fDstCopySamplerUniform;
 
-    SkString                            fInputColor;
-    GrSLConstantVec                     fKnownColorValue;
-    SkString                            fInputCoverage;
-    GrSLConstantVec                     fKnownCoverageValue;
+    SkString                                fInputColor;
+    GrSLConstantVec                         fKnownColorValue;
+    SkString                                fInputCoverage;
+    GrSLConstantVec                         fKnownCoverageValue;
 
-    bool                                fHasCustomColorOutput;
-    bool                                fHasSecondaryOutput;
+    bool                                    fHasCustomColorOutput;
+    bool                                    fHasSecondaryOutput;
 
-    GrGLUniformManager::UniformHandle   fRTHeightUniform;
-    GrGLUniformManager::UniformHandle   fDstCopyTopLeftUniform;
-    GrGLUniformManager::UniformHandle   fDstCopyScaleUniform;
-    GrGLUniformManager::UniformHandle   fColorUniform;
-    GrGLUniformManager::UniformHandle   fCoverageUniform;
+    GrGLUniformManager::UniformHandle       fRTHeightUniform;
+    GrGLUniformManager::UniformHandle       fDstCopyTopLeftUniform;
+    GrGLUniformManager::UniformHandle       fDstCopyScaleUniform;
+    GrGLUniformManager::UniformHandle       fColorUniform;
+    GrGLUniformManager::UniformHandle       fCoverageUniform;
 
-    bool                                fTopLeftFragPosRead;
+    bool                                    fTopLeftFragPosRead;
+};
 
-    SkAutoTDelete<VertexBuilder>        fVertexBuilder;
+////////////////////////////////////////////////////////////////////////////////
+
+class GrGLFullShaderBuilder : public GrGLShaderBuilder {
+public:
+    GrGLFullShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+
+    /**
+     * Called by GrGLEffects to add code to one of the shaders.
+     */
+    void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+        va_list args;
+        va_start(args, format);
+        fVSCode.appendf(format, args);
+        va_end(args);
+    }
+
+    void vsCodeAppend(const char* str) { fVSCode.append(str); }
+
+   /** Add a vertex attribute to the current program that is passed in from the vertex data.
+       Returns false if the attribute was already there, true otherwise. */
+    bool addAttribute(GrSLType type, const char* name);
+
+   /** Add a varying variable to the current program to pass values between vertex and fragment
+        shaders. If the last two parameters are non-NULL, they are filled in with the name
+        generated. */
+    void addVarying(GrSLType type,
+                    const char* name,
+                    const char** vsOutName = NULL,
+                    const char** fsInName = NULL);
+
+    /** Returns a vertex attribute that represents the vertex position in the VS. This is the
+        pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
+      */
+    const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
+
+    /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
+        as positionAttribute() or it may not be. It depends upon whether the rendering code
+        specified explicit local coords or not in the GrDrawState. */
+    const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
+
+    /**
+     * Are explicit local coordinates provided as input to the vertex shader.
+     */
+    bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
+
+    bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
+    const SkString* getEffectAttributeName(int attributeIndex) const;
+
+    virtual GrGLProgramEffects* createAndEmitEffects(
+                const GrEffectStage* effectStages[],
+                const EffectKey effectKeys[],
+                int effectCnt,
+                SkString* inOutFSColor,
+                GrSLConstantVec* fsInOutColorKnownValue) SK_OVERRIDE;
+
+    GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
+        return fViewMatrixUniform;
+    }
+
+protected:
+    virtual bool compileAndAttachShaders(GrGLuint programId) const SK_OVERRIDE;
+    virtual void bindProgramLocations(GrGLuint programId) const SK_OVERRIDE;
+
+private:
+    const GrGLProgramDesc&              fDesc;
+    VarArray                            fVSAttrs;
+    VarArray                            fVSOutputs;
+    VarArray                            fGSInputs;
+    VarArray                            fGSOutputs;
+
+    SkString                            fVSCode;
+
+    struct AttributePair {
+        void set(int index, const SkString& name) {
+            fIndex = index; fName = name;
+        }
+        int      fIndex;
+        SkString fName;
+    };
+    SkSTArray<10, AttributePair, true>  fEffectAttributes;
+
+    GrGLUniformManager::UniformHandle   fViewMatrixUniform;
+
+    GrGLShaderVar*                      fPositionVar;
+    GrGLShaderVar*                      fLocalCoordsVar;
+
+    typedef GrGLShaderBuilder INHERITED;
 };
 
 #endif

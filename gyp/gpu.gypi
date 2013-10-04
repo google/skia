@@ -156,6 +156,7 @@
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_none.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLEffect.h',
+      '<(skia_src_path)/gpu/gl/GrGLVertexEffect.h',
       '<(skia_src_path)/gpu/gl/GrGLExtensions.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.h',

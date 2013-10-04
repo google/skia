@@ -9,13 +9,14 @@
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
+#include "gl/GrGLVertexEffect.h"
 #include "GrTBackendEffectFactory.h"
 
-class GrGLConicEffect : public GrGLEffect {
+class GrGLConicEffect : public GrGLVertexEffect {
 public:
     GrGLConicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
                           const char* outputColor,
@@ -30,7 +31,7 @@ public:
 private:
     GrBezierEdgeType fEdgeType;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLVertexEffect INHERITED;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrBackendEffectFactory& factory,
@@ -40,23 +41,20 @@ GrGLConicEffect::GrGLConicEffect(const GrBackendEffectFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLConicEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
                                const GrDrawEffect& drawEffect,
                                EffectKey key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray&,
                                const TextureSamplerArray& samplers) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-
     const char *vsName, *fsName;
 
-    vertexBuilder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
+    builder->addVarying(kVec4f_GrSLType, "ConicCoeffs",
                               &vsName, &fsName);
     const SkString* attr0Name =
-        vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+    builder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
 
     builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
 
@@ -156,11 +154,11 @@ GrEffectRef* GrConicEffect::TestCreate(SkRandom* random,
 // Quad
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLQuadEffect : public GrGLEffect {
+class GrGLQuadEffect : public GrGLVertexEffect {
 public:
     GrGLQuadEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
                           const char* outputColor,
@@ -175,7 +173,7 @@ public:
 private:
     GrBezierEdgeType fEdgeType;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLVertexEffect INHERITED;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrBackendEffectFactory& factory,
@@ -185,23 +183,20 @@ GrGLQuadEffect::GrGLQuadEffect(const GrBackendEffectFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLQuadEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
                               const GrDrawEffect& drawEffect,
                               EffectKey key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-
     const char *vsName, *fsName;
 
     const SkString* attrName =
-        vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
     builder->fsCodeAppendf("\t\tfloat edgeAlpha;\n");
 
-    vertexBuilder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
+    builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
     switch (fEdgeType) {
         case kHairAA_GrBezierEdgeType: {
@@ -248,7 +243,7 @@ void GrGLQuadEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
 
-    vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+    builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
 }
 
 GrGLEffect::EffectKey GrGLQuadEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -290,11 +285,11 @@ GrEffectRef* GrQuadEffect::TestCreate(SkRandom* random,
 // Cubic
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLCubicEffect : public GrGLEffect {
+class GrGLCubicEffect : public GrGLVertexEffect {
 public:
     GrGLCubicEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
-    virtual void emitCode(GrGLShaderBuilder* builder,
+    virtual void emitCode(GrGLFullShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
                           EffectKey key,
                           const char* outputColor,
@@ -309,7 +304,7 @@ public:
 private:
     GrBezierEdgeType fEdgeType;
 
-    typedef GrGLEffect INHERITED;
+    typedef GrGLVertexEffect INHERITED;
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrBackendEffectFactory& factory,
@@ -319,23 +314,20 @@ GrGLCubicEffect::GrGLCubicEffect(const GrBackendEffectFactory& factory,
     fEdgeType = ce.getEdgeType();
 }
 
-void GrGLCubicEffect::emitCode(GrGLShaderBuilder* builder,
+void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
                                const GrDrawEffect& drawEffect,
                                EffectKey key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray&,
                                const TextureSamplerArray& samplers) {
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder = builder->getVertexBuilder();
-    SkASSERT(NULL != vertexBuilder);
-
     const char *vsName, *fsName;
 
-    vertexBuilder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
+    builder->addVarying(kVec4f_GrSLType, "CubicCoeffs",
                               &vsName, &fsName);
     const SkString* attr0Name =
-        vertexBuilder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
-    vertexBuilder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
+        builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+    builder->vsCodeAppendf("\t%s = %s;\n", vsName, attr0Name->c_str());
 
     builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
 
