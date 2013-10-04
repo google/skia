@@ -113,6 +113,18 @@ protected:
                                                unsigned styleBits) SK_OVERRIDE;
 
 private:
+    SkMutex fTFCacheMutex;
+    void Add(SkTypeface* face, SkTypeface::Style requestedStyle, bool strong) {
+        SkAutoMutexAcquire ama(fTFCacheMutex);
+        fTFCache.add(face, requestedStyle, strong);
+    }
+
+    SkTypeface* FindByProcAndRef(SkTypefaceCache::FindProc proc, void* ctx) {
+        SkAutoMutexAcquire ama(fTFCacheMutex);
+        SkTypeface* typeface = fTFCache.findByProcAndRef(proc, ctx);
+        return typeface;
+    }
+
     friend class SkFontStyleSet_DirectWrite;
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
@@ -1710,12 +1722,12 @@ SkTypeface* SkFontMgr_DirectWrite::createTypefaceFromDWriteFont(
                                            IDWriteFontFamily* fontFamily,
                                            StreamFontFileLoader* fontFileLoader,
                                            IDWriteFontCollectionLoader* fontCollectionLoader) {
-    SkTypeface* face = fTFCache.findByProcAndRef(FindByDWriteFont, font);
+    SkTypeface* face = FindByProcAndRef(FindByDWriteFont, font);
     if (NULL == face) {
         face = DWriteFontTypeface::Create(fontFace, font, fontFamily,
                                           fontFileLoader, fontCollectionLoader);
         if (face) {
-            fTFCache.add(face, get_style(font), fontCollectionLoader != NULL);
+            Add(face, get_style(font), fontCollectionLoader != NULL);
         }
     }
     return face;
