@@ -397,8 +397,7 @@ public:
 
 protected:
 
-    UniformHandle   fVSParamUni;
-    UniformHandle   fFSParamUni;
+    UniformHandle fParamUni;
 
     const char* fVSVaryingName;
     const char* fFSVaryingName;
@@ -463,7 +462,19 @@ private:
         : INHERITED(ctx, shader, matrix, tm)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
-        , fPosRoot(shader.getDiffRadius() < 0) { }
+        , fPosRoot(shader.getDiffRadius() < 0) {
+        // We pass the linear part of the quadratic as a varying.
+        //    float b = 2.0 * (fCenterX1 * x - fRadius0 * z)
+        fBTransform = this->getCoordTransform();
+        SkMatrix& bMatrix = *fBTransform.accessMatrix();
+        bMatrix[SkMatrix::kMScaleX] = 2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMScaleX]) -
+                                           SkScalarMul(fRadius0, bMatrix[SkMatrix::kMPersp0]));
+        bMatrix[SkMatrix::kMSkewX] = 2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMSkewX]) -
+                                          SkScalarMul(fRadius0, bMatrix[SkMatrix::kMPersp1]));
+        bMatrix[SkMatrix::kMTransX] = 2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMTransX]) -
+                                           SkScalarMul(fRadius0, bMatrix[SkMatrix::kMPersp2]));
+        this->addCoordTransform(&fBTransform);
+    }
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -471,9 +482,10 @@ private:
     // Cache of values - these can change arbitrarily, EXCEPT
     // we shouldn't change between degenerate and non-degenerate?!
 
-    SkScalar fCenterX1;
-    SkScalar fRadius0;
-    SkBool8  fPosRoot;
+    GrCoordTransform fBTransform;
+    SkScalar         fCenterX1;
+    SkScalar         fRadius0;
+    SkBool8          fPosRoot;
 
     // @}
 
@@ -535,103 +547,68 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
                                    const TextureSamplerArray& samplers) {
 
     this->emitUniforms(builder, key);
-    // 2 copies of uniform array, 1 for each of vertex & fragment shader,
-    // to work around Xoom bug. Doesn't seem to cause performance decrease
-    // in test apps, but need to keep an eye on it.
-    fVSParamUni = builder->addUniformArray(GrGLShaderBuilder::kVertex_Visibility,
-                                           kFloat_GrSLType, "Radial2VSParams", 6);
-    fFSParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
-                                           kFloat_GrSLType, "Radial2FSParams", 6);
+    fParamUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_Visibility,
+                                         kFloat_GrSLType, "Radial2FSParams", 6);
 
-    // For radial gradients without perspective we can pass the linear
-    // part of the quadratic as a varying.
-    GrGLShaderBuilder::VertexBuilder* vertexBuilder =
-        (kVec2f_GrSLType == coords[0].type()) ? builder->getVertexBuilder() : NULL;
-    if (NULL != vertexBuilder) {
-        vertexBuilder->addVarying(kFloat_GrSLType, "Radial2BCoeff",
-                                    &fVSVaryingName, &fFSVaryingName);
+    SkString cName("c");
+    SkString ac4Name("ac4");
+    SkString rootName("root");
+    SkString t;
+    SkString p0;
+    SkString p1;
+    SkString p2;
+    SkString p3;
+    SkString p4;
+    SkString p5;
+    builder->getUniformVariable(fParamUni).appendArrayAccess(0, &p0);
+    builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
+    builder->getUniformVariable(fParamUni).appendArrayAccess(2, &p2);
+    builder->getUniformVariable(fParamUni).appendArrayAccess(3, &p3);
+    builder->getUniformVariable(fParamUni).appendArrayAccess(4, &p4);
+    builder->getUniformVariable(fParamUni).appendArrayAccess(5, &p5);
+
+    // We interpolate the linear component in coords[1].
+    SkASSERT(coords[0].type() == coords[1].type());
+    const char* coords2D;
+    SkString bVar;
+    if (kVec3f_GrSLType == coords[0].type()) {
+        builder->fsCodeAppendf("\tvec3 interpolants = vec3(%s.xy, %s.x) / %s.z;\n",
+                               coords[0].c_str(), coords[1].c_str(), coords[0].c_str());
+        coords2D = "interpolants.xy";
+        bVar = "interpolants.z";
+    } else {
+        coords2D = coords[0].c_str();
+        bVar.printf("%s.x", coords[1].c_str());
     }
 
-    // VS
-    {
-        SkString p2;
-        SkString p3;
-        builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
-        builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
+    // c = (x^2)+(y^2) - params[4]
+    builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
+                           cName.c_str(), coords2D, coords2D, p4.c_str());
 
-        // For radial gradients without perspective we can pass the linear
-        // part of the quadratic as a varying.
-        if (NULL != vertexBuilder) {
-            // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
-            vertexBuilder->vsCodeAppendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
-                                           fVSVaryingName, p2.c_str(),
-                                           coords[0].getVSName().c_str(), p3.c_str());
-        }
+    // If we aren't degenerate, emit some extra code, and accept a slightly
+    // more complex coord.
+    if (!fIsDegenerate) {
+
+        // ac4 = 4.0 * params[0] * c
+        builder->fsCodeAppendf("\tfloat %s = %s * 4.0 * %s;\n",
+                               ac4Name.c_str(), p0.c_str(),
+                               cName.c_str());
+
+        // root = sqrt(b^2-4ac)
+        // (abs to avoid exception due to fp precision)
+        builder->fsCodeAppendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
+                               rootName.c_str(), bVar.c_str(), bVar.c_str(),
+                               ac4Name.c_str());
+
+        // t is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
+        t.printf("(-%s + %s * %s) * %s", bVar.c_str(), p5.c_str(),
+                 rootName.c_str(), p1.c_str());
+    } else {
+        // t is: -c/b
+        t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
 
-    // FS
-    {
-        SkString coords2D = builder->ensureFSCoords2D(coords, 0);
-        SkString cName("c");
-        SkString ac4Name("ac4");
-        SkString rootName("root");
-        SkString t;
-        SkString p0;
-        SkString p1;
-        SkString p2;
-        SkString p3;
-        SkString p4;
-        SkString p5;
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(0, &p0);
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(1, &p1);
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(2, &p2);
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(3, &p3);
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(4, &p4);
-        builder->getUniformVariable(fFSParamUni).appendArrayAccess(5, &p5);
-
-        // If we we're able to interpolate the linear component,
-        // bVar is the varying; otherwise compute it
-        SkString bVar;
-        if (NULL != vertexBuilder) {
-            bVar = fFSVaryingName;
-        } else {
-            bVar = "b";
-            builder->fsCodeAppendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                                   bVar.c_str(), p2.c_str(), coords2D.c_str(), p3.c_str());
-        }
-
-        // c = (x^2)+(y^2) - params[4]
-        builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                               cName.c_str(),
-                               coords2D.c_str(),
-                               coords2D.c_str(),
-                               p4.c_str());
-
-        // If we aren't degenerate, emit some extra code, and accept a slightly
-        // more complex coord.
-        if (!fIsDegenerate) {
-
-            // ac4 = 4.0 * params[0] * c
-            builder->fsCodeAppendf("\tfloat %s = %s * 4.0 * %s;\n",
-                                   ac4Name.c_str(), p0.c_str(),
-                                   cName.c_str());
-
-            // root = sqrt(b^2-4ac)
-            // (abs to avoid exception due to fp precision)
-            builder->fsCodeAppendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
-                                   rootName.c_str(), bVar.c_str(), bVar.c_str(),
-                                   ac4Name.c_str());
-
-            // t is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
-            t.printf("(-%s + %s * %s) * %s", bVar.c_str(), p5.c_str(),
-                     rootName.c_str(), p1.c_str());
-        } else {
-            // t is: -c/b
-            t.printf("-%s / %s", cName.c_str(), bVar.c_str());
-        }
-
-        this->emitColor(builder, t.c_str(), key, outputColor, inputColor, samplers);
-    }
+    this->emitColor(builder, t.c_str(), key, outputColor, inputColor, samplers);
 }
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
@@ -661,8 +638,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
             data.isPosRoot() ? 1.f : -1.f
         };
 
-        uman.set1fv(fVSParamUni, 0, 6, values);
-        uman.set1fv(fFSParamUni, 0, 6, values);
+        uman.set1fv(fParamUni, 0, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedPosRoot = data.isPosRoot();

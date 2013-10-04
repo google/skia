@@ -54,20 +54,17 @@ public:
      */
     class TransformedCoords {
     public:
-        TransformedCoords(const char* name, GrSLType type, const char* vsName)
-            : fName(name), fType(type), fVSName(vsName) {
+        TransformedCoords(const char* name, GrSLType type)
+            : fName(name), fType(type) {
         }
 
         const char* c_str() const { return fName.c_str(); }
         GrSLType type() const { return fType; }
         const SkString& getName() const { return fName; }
-        // TODO: Remove the VS name when we have vertexless shaders, and gradients are reworked.
-        const SkString& getVSName() const { return fVSName; }
 
     private:
         SkString fName;
         GrSLType fType;
-        SkString fVSName;
     };
 
     typedef SkTArray<TransformedCoords> TransformedCoordsArray;

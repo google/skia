@@ -391,8 +391,7 @@ void GrGLProgramEffectsBuilder::emitTransforms(const GrEffectRef& effect,
             default:
                 GrCrash("Unexpected uniform type.");
         }
-        SkNEW_APPEND_TO_TARRAY(outCoords, TransformedCoords,
-                               (fsVaryingName, varyingType, vsVaryingName));
+        SkNEW_APPEND_TO_TARRAY(outCoords, TransformedCoords, (fsVaryingName, varyingType));
     }
 }
 

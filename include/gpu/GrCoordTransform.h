@@ -41,12 +41,13 @@ enum GrCoordSet {
  */
 class GrCoordTransform : public SkNoncopyable {
 public:
-    GrCoordTransform() {}
+    GrCoordTransform() { SkDEBUGCODE(fInEffect = false); }
 
     /**
      * Create a transformation that maps [0, 1] to a texture's boundaries.
      */
     GrCoordTransform(GrCoordSet sourceCoords, const GrTexture* texture) {
+        SkDEBUGCODE(fInEffect = false);
         this->reset(sourceCoords, texture);
     }
 
@@ -56,18 +57,38 @@ public:
      * coord convention.
      */
     GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture = NULL) {
+        SkDEBUGCODE(fInEffect = false);
         this->reset(sourceCoords, m, texture);
     }
 
     void reset(GrCoordSet sourceCoords, const GrTexture* texture) {
+        SkASSERT(!fInEffect);
         SkASSERT(NULL != texture);
         this->reset(sourceCoords, GrEffect::MakeDivByTextureWHMatrix(texture), texture);
     }
 
     void reset(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture = NULL) {
+        SkASSERT(!fInEffect);
         fSourceCoords = sourceCoords;
         fMatrix = m;
         fReverseY = NULL != texture && kBottomLeft_GrSurfaceOrigin == texture->origin();
+    }
+
+    GrCoordTransform& operator= (const GrCoordTransform& other) {
+        SkASSERT(!fInEffect);
+        fSourceCoords = other.fSourceCoords;
+        fMatrix = other.fMatrix;
+        fReverseY = other.fReverseY;
+        return *this;
+    }
+
+    /**
+     * Access the matrix for editing. Note, this must be done before adding the transform to an
+     * effect, since effects are immutable.
+     */
+    SkMatrix* accessMatrix() {
+        SkASSERT(!fInEffect);
+        return &fMatrix;
     }
 
     bool operator== (const GrCoordTransform& other) const {
@@ -86,6 +107,13 @@ private:
     bool       fReverseY;
 
     typedef SkNoncopyable INHERITED;
+
+#ifdef SK_DEBUG
+public:
+    void setInEffect() const { fInEffect = true; }
+private:
+    mutable bool fInEffect;
+#endif
 };
 
 #endif

@@ -288,6 +288,8 @@ protected:
 
     virtual bool onIsEqual(const GrEffect& effect) const SK_OVERRIDE;
 
+    const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
+
 private:
     static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
 

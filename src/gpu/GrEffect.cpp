@@ -89,6 +89,7 @@ const char* GrEffect::name() const {
 
 void GrEffect::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
+    SkDEBUGCODE(transform->setInEffect();)
 }
 
 void GrEffect::addTextureAccess(const GrTextureAccess* access) {

@@ -21,3 +21,8 @@
 ## Added by edisonn as part of https://codereview.chromium.org/23851037/
 #gradients
 
+# Added by cdalton as part of https://codereview.chromium.org/25645006/
+gradients_no_texture
+gradients_view_perspective
+gradients_local_perspective
+gradients
