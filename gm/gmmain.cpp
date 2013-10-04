@@ -1404,6 +1404,9 @@ DEFINE_bool(pipe, false, "Exercise the SkGPipe replay test pass.");
 DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
                "any differences between those and the newly generated ones.");
 DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
+#if SK_SUPPORT_GPU
+DEFINE_bool(resetGpuContext, false, "Reset the GrContext prior to running each GM.");
+#endif
 DEFINE_string2(resourcePath, i, "", "Directory that stores image resources.");
 DEFINE_bool(rtree, false, "Exercise the R-Tree variant of SkPicture test pass.");
 DEFINE_bool(serialize, false, "Exercise the SkPicture serialization & deserialization test pass.");
@@ -1545,6 +1548,9 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
 #if SK_SUPPORT_GPU
         SkAutoTUnref<GrSurface> auGpuTarget;
         if ((errorsForThisConfig.isEmpty()) && (kGPU_Backend == config.fBackend)) {
+            if (FLAGS_resetGpuContext) {
+                grFactory->destroyContexts();
+            }
             GrContext* gr = grFactory->get(config.fGLContextType);
             bool grSuccess = false;
             if (gr) {
