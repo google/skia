@@ -7288,7 +7288,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11885625700130899332
+          15042386048756413155
         ]
       ], 
       "bugs": [
@@ -7324,7 +7324,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2498088389334169329
+          4580791674210593331
         ]
       ], 
       "bugs": [
@@ -7343,6 +7343,14 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "gradients_no_texture_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5180348659936661669
+        ]
+      ]
     }, 
     "gradients_pdf-poppler.png": {
       "allowed-digests": [
@@ -7384,7 +7392,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16785101592593616998
+          7557416690364172901
         ]
       ], 
       "bugs": [
