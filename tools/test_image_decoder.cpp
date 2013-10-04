@@ -15,7 +15,8 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 /**
    Simple program to test Skia's ability to decode images without
    errors or debug messages. */
-int main(int argc, char ** argv) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     if (argc < 2) {
         SkDebugf("Usage:\n %s imagefile\n\n", argv[0]);
         return 3;
@@ -30,3 +31,8 @@ int main(int argc, char ** argv) {
     return 0;
 }
 
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif
