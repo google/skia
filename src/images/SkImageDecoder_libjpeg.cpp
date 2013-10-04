@@ -474,9 +474,9 @@ static void adjust_out_color_space_and_dither(jpeg_decompress_struct* cinfo,
    Used when decoding fails partway through reading scanlines to fill
    remaining lines. */
 static void fill_below_level(int y, SkBitmap* bitmap) {
-    SkRect rect = SkRect::MakeLTRB(0, y, bitmap->width(), bitmap->height());
+    SkIRect rect = SkIRect::MakeLTRB(0, y, bitmap->width(), bitmap->height());
     SkCanvas canvas(*bitmap);
-    canvas.clipRect(rect);
+    canvas.clipRect(SkRect::Make(rect));
     canvas.drawColor(SK_ColorWHITE);
 }
 
