@@ -3618,9 +3618,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10254241103880935992
+          10047289731704020189
         ]
-      ]
+      ], 
+      "ignore-failure": true
     }, 
     "gradients_view_perspective_565.png": {
       "allowed-digests": [
@@ -3650,9 +3651,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6101476002919827056
+          18184323868453549029
         ]
-      ]
+      ], 
+      "ignore-failure": true
     }, 
     "gradtext_565.png": {
       "allowed-digests": [

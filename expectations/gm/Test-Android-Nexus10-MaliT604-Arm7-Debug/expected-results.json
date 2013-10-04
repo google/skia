@@ -6367,10 +6367,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7251420371100718730
+          9451134602021568603
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradients_local_perspective_565.png": {
       "allowed-digests": [
@@ -6394,28 +6394,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10084055273987918769
+          15183075585594141298
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradients_local_perspective_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10084055273987918769
+          15183075585594141298
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradients_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7251420371100718730
+          9451134602021568603
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradients_view_perspective_565.png": {
       "allowed-digests": [
@@ -6445,19 +6445,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9216381584500916688
+          7199498252327758502
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradients_view_perspective_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4794967520772142546
+          16438360411309571758
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": true
     }, 
     "gradtext_565.png": {
       "allowed-digests": [

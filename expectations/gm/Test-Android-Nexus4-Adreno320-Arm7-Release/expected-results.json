@@ -4990,12 +4990,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          566627481984638338
+          1519265178917908835
         ]
       ], 
       "bugs": [
         1578
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "gradients_local_perspective_565.png": {
@@ -5026,12 +5027,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9961531411644325085
+          7894968237305173737
         ]
       ], 
       "bugs": [
         1578
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "gradients_view_perspective_565.png": {
@@ -5062,12 +5064,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9117672881866692898
+          16191503273007422011
         ]
       ], 
       "bugs": [
         1578
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "gradtext_565.png": {
