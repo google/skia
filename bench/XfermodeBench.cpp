@@ -62,6 +62,28 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class XferCreateBench : public SkBenchmark {
+public:
+    XferCreateBench() {
+        fIsRendering = false;
+    }
+    
+protected:
+    virtual const char* onGetName() SK_OVERRIDE { return "xfermode_create"; }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        for (int outer = 0; outer < this->getLoops() * 10; ++outer) {
+            for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
+                SkXfermode* xfer = SkXfermode::Create(SkXfermode::Mode(i));
+                SkSafeUnref(xfer);
+            }
+        }
+    }
+    
+private:
+    typedef SkBenchmark INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 #define CONCAT_I(x, y) x ## y
@@ -106,3 +128,5 @@ BENCH(SkXfermode::kLuminosity_Mode)
 BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcIn_Mode), "SrcInLuma")
 BENCH(SkLumaMaskXfermode::Create(SkXfermode::kDstIn_Mode), "DstInLuma")
 BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcOver_Mode), "SrcOverLuma")
+
+DEF_BENCH(return new XferCreateBench;)

@@ -1688,26 +1688,66 @@ void SkDstOutXfermode::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SK_DECLARE_STATIC_MUTEX(gCachedXfermodesMutex);
+static SkXfermode* gCachedXfermodes[SkXfermode::kLastMode + 1];
+
+void SkXfermode::Term() {
+    SkAutoMutexAcquire ac(gCachedXfermodesMutex);
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gCachedXfermodes); ++i) {
+        SkSafeUnref(gCachedXfermodes[i]);
+        gCachedXfermodes[i] = NULL;
+    }
+}
+
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
-    SkASSERT((unsigned)mode < kModeCount);
+    SkASSERT(SK_ARRAY_COUNT(gCachedXfermodes) == kModeCount);
 
-    const ProcCoeff& rec = gProcCoeffs[mode];
-
-    switch (mode) {
-        case kClear_Mode:
-            return SkNEW_ARGS(SkClearXfermode, (rec));
-        case kSrc_Mode:
-            return SkNEW_ARGS(SkSrcXfermode, (rec));
-        case kSrcOver_Mode:
-            return NULL;
-        case kDstIn_Mode:
-            return SkNEW_ARGS(SkDstInXfermode, (rec));
-        case kDstOut_Mode:
-            return SkNEW_ARGS(SkDstOutXfermode, (rec));
-        default:
-            return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
+    if ((unsigned)mode >= kModeCount) {
+        // report error
+        return NULL;
     }
+
+    // Skia's "defaut" mode is srcover. NULL in SkPaint is interpreted as srcover
+    // so we can just return NULL from the factory.
+    if (kSrcOver_Mode == mode) {
+        return NULL;
+    }
+
+    // guard our access to gCachedXfermodes, since we may write into it
+    SkAutoMutexAcquire ac(gCachedXfermodesMutex);
+
+    SkXfermode* xfer = gCachedXfermodes[mode];
+    if (NULL == xfer) {
+        const ProcCoeff& rec = gProcCoeffs[mode];
+        // All modes can in theory be represented by the ProcCoeff rec, since
+        // it contains function ptrs. However, a few modes are both simple and
+        // commonly used, so we call those out for their own subclasses here.
+        switch (mode) {
+            case kClear_Mode:
+                xfer = SkNEW_ARGS(SkClearXfermode, (rec));
+                break;
+            case kSrc_Mode:
+                xfer = SkNEW_ARGS(SkSrcXfermode, (rec));
+                break;
+            case kSrcOver_Mode:
+                SkASSERT(false);    // should not land here
+                break;
+            case kDstIn_Mode:
+                xfer = SkNEW_ARGS(SkDstInXfermode, (rec));
+                break;
+            case kDstOut_Mode:
+                xfer = SkNEW_ARGS(SkDstOutXfermode, (rec));
+                break;
+            default:
+                // no special-case, just rely in the rec and its function-ptrs
+                xfer = SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
+                break;
+        }
+        gCachedXfermodes[mode] = xfer;
+    }
+    return SkSafeRef(xfer);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {

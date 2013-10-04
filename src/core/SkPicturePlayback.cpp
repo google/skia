@@ -152,11 +152,11 @@ static bool needs_deep_copy(const SkPaint& paint) {
      *
      *  getTypeface();
      *  getAnnotation();
+     *  getXfermode();
      */
 
     return paint.getPathEffect() ||
            paint.getShader() ||
-           paint.getXfermode() ||
            paint.getMaskFilter() ||
            paint.getColorFilter() ||
            paint.getRasterizer() ||
