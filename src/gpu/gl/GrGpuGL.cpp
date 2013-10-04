@@ -1271,14 +1271,16 @@ GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
 }
 
 void GrGpuGL::flushScissor() {
-    const GrDrawState& drawState = this->getDrawState();
-    const GrGLRenderTarget* rt =
-        static_cast<const GrGLRenderTarget*>(drawState.getRenderTarget());
-
-    SkASSERT(NULL != rt);
-    const GrGLIRect& vp = rt->getViewport();
-
     if (fScissorState.fEnabled) {
+        // Only access the RT if scissoring is being enabled. We can call this before performing
+        // a glBitframebuffer for a surface->surface copy, which requires no RT to be bound to the
+        // GrDrawState.
+        const GrDrawState& drawState = this->getDrawState();
+        const GrGLRenderTarget* rt =
+            static_cast<const GrGLRenderTarget*>(drawState.getRenderTarget());
+
+        SkASSERT(NULL != rt);
+        const GrGLIRect& vp = rt->getViewport();
         GrGLIRect scissor;
         scissor.setRelativeTo(vp,
                               fScissorState.fRect.fLeft,
