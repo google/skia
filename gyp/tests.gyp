@@ -77,6 +77,7 @@
         '../tests/ImageDecodingTest.cpp',
         '../tests/ImageFilterTest.cpp',
         '../tests/InfRectTest.cpp',
+        '../tests/JpegTest.cpp',
         '../tests/LListTest.cpp',
         '../tests/LayerDrawLooperTest.cpp',
         '../tests/MD5Test.cpp',

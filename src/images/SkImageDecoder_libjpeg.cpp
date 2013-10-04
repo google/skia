@@ -19,6 +19,10 @@
 #include "SkRect.h"
 #include "SkCanvas.h"
 
+#if defined(SK_DEBUG)
+#include "SkRTConf.h"  // SK_CONF_DECLARE
+#endif  // defined(SK_DEBUG)
+
 #include <stdio.h>
 extern "C" {
     #include "jpeglib.h"
@@ -34,6 +38,12 @@ extern "C" {
 
 // If ANDROID_RGB is defined by in the jpeg headers it indicates that jpeg offers
 // support for two additional formats (1) JCS_RGBA_8888 and (2) JCS_RGB_565.
+
+#if defined(SK_DEBUG)
+SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
+    "images.jpeg.suppressDecoderWarnings", false,
+    "Suppress most JPG warnings when calling decode functions.");
+#endif  // defined(SK_DEBUG)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -54,12 +64,27 @@ static void overwrite_mem_buffer_size(jpeg_decompress_struct* cinfo) {
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+static void do_nothing_emit_message(jpeg_common_struct*, int) {
+    /* do nothing */
+}
+
 static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* src_mgr) {
     SkASSERT(cinfo != NULL);
     SkASSERT(src_mgr != NULL);
     jpeg_create_decompress(cinfo);
     overwrite_mem_buffer_size(cinfo);
     cinfo->src = src_mgr;
+#if defined(SK_DEBUG)
+    /* To suppress warnings with a SK_DEBUG binary, set the
+     * environment variable "skia_images_jpeg_suppressDecoderWarnings"
+     * to "true".  Inside a program that links to skia:
+     * SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true); */
+    if (c_suppressJPEGImageDecoderWarnings) {
+        cinfo->err->emit_message = &do_nothing_emit_message;
+    }
+#else  // Always suppress in release mode.
+    cinfo->err->emit_message = &do_nothing_emit_message;
+#endif  // defined(SK_DEBUG)
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -443,6 +468,19 @@ static void adjust_out_color_space_and_dither(jpeg_decompress_struct* cinfo,
 }
 #endif
 
+
+/**
+   Sets all pixels in given bitmap to SK_ColorWHITE for all rows >= y.
+   Used when decoding fails partway through reading scanlines to fill
+   remaining lines. */
+static void fill_below_level(int y, SkBitmap* bitmap) {
+    SkRect rect = SkRect::MakeLTRB(0, y, bitmap->width(), bitmap->height());
+    SkCanvas canvas(*bitmap);
+    canvas.clipRect(rect);
+    canvas.drawColor(SK_ColorWHITE);
+}
+
+
 bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #ifdef TIME_DECODE
     SkAutoTime atm("JPEG Decode");
@@ -553,10 +591,12 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
         while (cinfo.output_scanline < cinfo.output_height) {
             int row_count = jpeg_read_scanlines(&cinfo, &rowptr, 1);
-            // if row_count == 0, then we didn't get a scanline, so abort.
-            // if we supported partial images, we might return true in this case
             if (0 == row_count) {
-                return return_false(cinfo, *bm, "read_scanlines");
+                // if row_count == 0, then we didn't get a scanline,
+                // so return early.  We will return a partial image.
+                fill_below_level(cinfo.output_scanline, bm);
+                cinfo.output_scanline = cinfo.output_height;
+                break;  // Skip to jpeg_finish_decompress()
             }
             if (this->shouldCancelDecode()) {
                 return return_false(cinfo, *bm, "shouldCancelDecode");
@@ -606,7 +646,11 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         JSAMPLE* rowptr = (JSAMPLE*)srcRow;
         int row_count = jpeg_read_scanlines(&cinfo, &rowptr, 1);
         if (0 == row_count) {
-            return return_false(cinfo, *bm, "read_scanlines");
+            // if row_count == 0, then we didn't get a scanline,
+            // so return early.  We will return a partial image.
+            fill_below_level(y, bm);
+            cinfo.output_scanline = cinfo.output_height;
+            break;  // Skip to jpeg_finish_decompress()
         }
         if (this->shouldCancelDecode()) {
             return return_false(cinfo, *bm, "shouldCancelDecode");
@@ -785,8 +829,9 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
             int rowCount = jpeg_read_tile_scanline(cinfo,
                                                    fImageIndex->huffmanIndex(),
                                                    &rowptr);
-            // if row_count == 0, then we didn't get a scanline, so abort.
-            // if we supported partial images, we might return true in this case
+            // if rowCount == 0, then we didn't get a scanline, so abort.
+            // onDecodeSubset() relies on onBuildTileIndex(), which
+            // needs a complete image to succeed.
             if (0 == rowCount) {
                 return return_false(*cinfo, bitmap, "read_scanlines");
             }
@@ -844,6 +889,9 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     for (int y = 0;; y++) {
         JSAMPLE* rowptr = (JSAMPLE*)srcRow;
         int row_count = jpeg_read_tile_scanline(cinfo, fImageIndex->huffmanIndex(), &rowptr);
+        // if row_count == 0, then we didn't get a scanline, so abort.
+        // onDecodeSubset() relies on onBuildTileIndex(), which
+        // needs a complete image to succeed.
         if (0 == row_count) {
             return return_false(*cinfo, bitmap, "read_scanlines");
         }

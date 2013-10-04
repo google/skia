@@ -25,6 +25,7 @@
         'skpdiff',
         'skhello',
         'skimage',
+        'test_image_decoder',
       ],
       'conditions': [
         ['skia_shared_lib',
@@ -399,6 +400,16 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',
+      ],
+    },
+    {
+      'target_name': 'test_image_decoder',
+      'type': 'executable',
+      'sources': [
+        '../tools/test_image_decoder.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
       ],
     },
   ],

@@ -19,6 +19,10 @@
 #include "SkUtils.h"
 #include "transform_scanline.h"
 
+#if defined(SK_DEBUG)
+#include "SkRTConf.h"  // SK_CONF_DECLARE
+#endif  // defined(SK_DEBUG)
+
 extern "C" {
 #include "png.h"
 }
@@ -39,6 +43,13 @@ extern "C" {
 #ifndef png_flush_ptr_NULL
 #define png_flush_ptr_NULL NULL
 #endif
+
+#if defined(SK_DEBUG)
+SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
+    "images.png.suppressDecoderWarnings", false,
+    "Suppress most PNG warnings when calling image decode functions.");
+#endif  // defined(SK_DEBUG)
+
 
 class SkPNGImageIndex {
 public:
@@ -199,6 +210,10 @@ static bool hasTransparencyInPalette(png_structp png_ptr, png_infop info_ptr) {
     return false;
 }
 
+void do_nothing_warning_fn(png_structp, png_const_charp) {
+    /* do nothing */
+}
+
 bool SkPNGImageDecoder::onDecodeInit(SkStream* sk_stream, png_structp *png_ptrp,
                                      png_infop *info_ptrp) {
     /* Create and initialize the png_struct with the desired error handler
@@ -206,12 +221,27 @@ bool SkPNGImageDecoder::onDecodeInit(SkStream* sk_stream, png_structp *png_ptrp,
     * you can supply NULL for the last three parameters.  We also supply the
     * the compiler header file version, so that we know if the application
     * was compiled with a compatible version of the library.  */
+
+#if defined(SK_DEBUG)
+    png_error_ptr user_warning_fn =
+        (c_suppressPNGImageDecoderWarnings) ? (&do_nothing_warning_fn) : NULL;
+    /* NULL means to leave as default library behavior. */
+    /* c_suppressPNGImageDecoderWarnings defaults to false. */
+    /* To suppress warnings with a SK_DEBUG binary, set the
+     * environment variable "skia_images_png_suppressDecoderWarnings"
+     * to "true".  Inside a program that links to skia:
+     * SK_CONF_SET("images.png.suppressDecoderWarnings", true); */
+#else  // Always suppress in release mode
+    png_error_ptr user_warning_fn = &do_nothing_warning_fn;
+#endif  // defined(SK_DEBUG)
+
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-        NULL, sk_error_fn, NULL);
+        NULL, sk_error_fn, user_warning_fn);
     //   png_voidp user_error_ptr, user_error_fn, user_warning_fn);
     if (png_ptr == NULL) {
         return false;
     }
+
     *png_ptrp = png_ptr;
 
     /* Allocate/initialize the memory for image information. */
@@ -498,9 +528,13 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                                                     transpColor->green >> 8,
                                                     transpColor->blue >> 8);
                 } else {
-                    *theTranspColorp = SkPackARGB32(0xFF, transpColor->red,
-                                                    transpColor->green,
-                                                    transpColor->blue);
+                    /* We apply the mask because in a very small
+                       number of corrupt PNGs, (transpColor->red > 255)
+                       and (bitDepth == 8), for certain versions of libpng. */
+                    *theTranspColorp = SkPackARGB32(0xFF,
+                                                    0xFF & (transpColor->red),
+                                                    0xFF & (transpColor->green),
+                                                    0xFF & (transpColor->blue));
                 }
             } else {    // gray
                 if (16 == bitDepth) {
@@ -508,9 +542,15 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
                                                     transpColor->gray >> 8,
                                                     transpColor->gray >> 8);
                 } else {
-                    *theTranspColorp = SkPackARGB32(0xFF, transpColor->gray,
-                                                    transpColor->gray,
-                                                    transpColor->gray);
+                    /* We apply the mask because in a very small
+                       number of corrupt PNGs, (transpColor->red >
+                       255) and (bitDepth == 8), for certain versions
+                       of libpng.  For safety we assume the same could
+                       happen with a grayscale PNG.  */
+                    *theTranspColorp = SkPackARGB32(0xFF,
+                                                    0xFF & (transpColor->gray),
+                                                    0xFF & (transpColor->gray),
+                                                    0xFF & (transpColor->gray));
                 }
             }
         }
