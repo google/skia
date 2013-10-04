@@ -137,14 +137,6 @@ public:
         return !(other == *this);
     }
 
-    /* When converting from SkMatrix44 to SkMatrix, the third row and
-     * column is dropped.  When converting from SkMatrix to SkMatrix44
-     * the third row and column remain as identity:
-     * [ a b c ]      [ a b 0 c ]
-     * [ d e f ]  ->  [ d e 0 f ]
-     * [ g h i ]      [ 0 0 1 0 ]
-     *                [ g h 0 i ]
-     */
     SkMatrix44(const SkMatrix&);
     SkMatrix44& operator=(const SkMatrix& src);
     operator SkMatrix() const;
@@ -267,8 +259,6 @@ public:
     void setRowMajor(const SkMScalar data[]) { this->setRowMajord(data); }
 #endif
 
-    /* This sets the top-left of the matrix and clears the translation and
-     * perspective components (with [3][3] set to 1). */
     void set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
                 SkMScalar m10, SkMScalar m11, SkMScalar m12,
                 SkMScalar m20, SkMScalar m21, SkMScalar m22);
