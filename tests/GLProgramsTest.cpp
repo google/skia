@@ -78,6 +78,7 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
 
     bool dstRead = false;
     bool fragPos = false;
+    bool vertexCode = false;
     int numStages = numColorStages + numCoverageStages;
     for (int s = 0; s < numStages; ++s) {
         const GrBackendEffectFactory& factory = (*stages[s]->getEffect())->getFactory();
@@ -88,6 +89,9 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
         }
         if ((*stages[s]->getEffect())->willReadFragmentPosition()) {
             fragPos = true;
+        }
+        if ((*stages[s]->getEffect())->hasVertexCode()) {
+            vertexCode = true;
         }
     }
 
@@ -102,6 +106,11 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
     } else {
         header->fFragPosKey = 0;
     }
+
+    header->fHasVertexCode = vertexCode ||
+                             useLocalCoords ||
+                             kAttribute_ColorInput == header->fColorInput ||
+                             kAttribute_ColorInput == header->fCoverageInput;
 
     CoverageOutput coverageOutput;
     bool illegalCoverageOutput;

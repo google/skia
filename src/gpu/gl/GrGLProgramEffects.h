@@ -14,10 +14,10 @@
 #include "GrGLUniformManager.h"
 
 class GrEffectStage;
-class GrGLProgramEffectsBuilder;
 class GrGLVertexProgramEffectsBuilder;
 class GrGLShaderBuilder;
 class GrGLFullShaderBuilder;
+class GrGLFragmentOnlyShaderBuilder;
 
 /**
  * This class encapsulates an array of GrGLEffects and their supporting data (coord transforms
@@ -56,7 +56,7 @@ public:
      */
     class TransformedCoords {
     public:
-        TransformedCoords(const char* name, GrSLType type)
+        TransformedCoords(const SkString& name, GrSLType type)
             : fName(name), fType(type) {
         }
 
@@ -97,12 +97,17 @@ public:
     typedef SkTArray<TextureSampler> TextureSamplerArray;
 
 protected:
-    friend class GrGLProgramEffectsBuilder;
-
     GrGLProgramEffects(int reserveCount)
         : fGLEffects(reserveCount)
         , fSamplers(reserveCount) {
     }
+
+    /**
+     * Helper for emitEffect() in a subclasses. Emits uniforms for an effect's texture accesses and
+     * appends the necessary data to the TextureSamplerArray* object so effects can add texture
+     * lookups to their code. This method is only meant to be called during the construction phase.
+     */
+    void emitSamplers(GrGLShaderBuilder*, const GrEffectRef&, TextureSamplerArray*);
 
     /**
      * Helper for setData(). Binds all the textures for an effect.
@@ -118,6 +123,23 @@ protected:
     SkTArray<GrGLEffect*>                  fGLEffects;
     SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
 };
+
+/**
+ * This is an abstract base class for constructing different types of GrGLProgramEffects objects.
+ */
+class GrGLProgramEffectsBuilder {
+public:
+    /**
+     * Emits the effect's shader code, and stores the necessary uniforms internally.
+     */
+    virtual void emitEffect(const GrEffectStage&,
+                            GrGLProgramEffects::EffectKey,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) = 0;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * This is a GrGLProgramEffects implementation that does coord transforms with the vertex shader.
@@ -138,6 +160,34 @@ private:
     }
 
     /**
+     * Helper for GrGLProgramEffectsBuilder::emitEfffect(). This method is meant to only be called
+     * during the construction phase.
+     */
+    void emitEffect(GrGLFullShaderBuilder*,
+                    const GrEffectStage&,
+                    GrGLProgramEffects::EffectKey,
+                    const char* outColor,
+                    const char* inColor,
+                    int stageIndex);
+
+    /**
+     * Helper for emitEffect(). Emits any attributes an effect may have.
+     */
+    void emitAttributes(GrGLFullShaderBuilder*, const GrEffectStage&);
+
+    /**
+     * Helper for emitEffect(). Emits code to implement an effect's coord transforms in the VS.
+     * Varyings are added as an outputs of the VS and inputs to the FS. The varyings may be either a
+     * vec2f or vec3f depending upon whether perspective interpolation is required or not. The names
+     * of the varyings in the VS and FS as well their types are appended to the
+     * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
+     */
+    void emitTransforms(GrGLFullShaderBuilder*,
+                        const GrEffectRef&,
+                        EffectKey,
+                        TransformedCoordsArray*);
+
+    /**
      * Helper for setData(). Sets all the transform matrices for an effect.
      */
     void setTransformData(const GrGLUniformManager&, const GrDrawEffect&, int effectIdx);
@@ -155,35 +205,8 @@ private:
     typedef GrGLProgramEffects INHERITED;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-
 /**
- * This is an abstract base class for constructing different types of GrGLProgramEffects objects.
- */
-class GrGLProgramEffectsBuilder {
-public:
-    /**
-     * Emits the effect's shader code, and stores the necessary uniforms internally.
-     */
-    virtual void emitEffect(const GrEffectStage&,
-                            GrGLProgramEffects::EffectKey,
-                            const char* outColor,
-                            const char* inColor,
-                            int stageIndex) = 0;
-
-protected:
-    /**
-     * Helper for emitEffect(). Emits uniforms for an effect's texture accesses and appends the
-     * necessary data to the TextureSamplerArray* object so effects can add texture lookups.
-     */
-    static void emitSamplers(GrGLShaderBuilder*,
-                             GrGLProgramEffects*,
-                             const GrEffectRef&,
-                             GrGLProgramEffects::TextureSamplerArray*);
-};
-
-/**
- * This class is used to construct a GrGLVertexProgramEffects object.
+ * This class is used to construct a GrGLVertexProgramEffects* object.
  */
 class GrGLVertexProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
@@ -202,24 +225,95 @@ public:
     GrGLProgramEffects* finish() { return fProgramEffects.detach(); }
 
 private:
-    /**
-     * Helper for emitEffect(). Emits any attributes an effect might have.
-     */
-    void emitAttributes(const GrEffectStage&);
-
-    /**
-     * Helper for emitEffect(). Emits code to implement an effect's coord transforms in the VS.
-     * Varyings are added as an outputs of the VS and inputs to the FS. The varyings may be either a
-     * vec2f or vec3f depending upon whether perspective interpolation is required or not. The names
-     * of the varyings in the VS and FS as well their types are appended to the
-     * TransformedCoordsArray* object, which is in turn passed to the effect's emitCode() function.
-     */
-    void emitTransforms(const GrEffectRef&,
-                        GrGLProgramEffects::EffectKey,
-                        GrGLProgramEffects::TransformedCoordsArray*);
-
     GrGLFullShaderBuilder*                  fBuilder;
     SkAutoTDelete<GrGLVertexProgramEffects> fProgramEffects;
+
+    typedef GrGLProgramEffectsBuilder INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This is a GrGLProgramEffects implementation that does coord transforms with the the built-in GL
+ * TexGen functionality.
+ */
+class GrGLTexGenProgramEffects : public GrGLProgramEffects {
+public:
+    virtual void setData(GrGpuGL*,
+                         const GrGLUniformManager&,
+                         const GrEffectStage* effectStages[]) SK_OVERRIDE;
+
+private:
+    friend class GrGLTexGenProgramEffectsBuilder;
+
+    GrGLTexGenProgramEffects(int reserveCount)
+        : INHERITED(reserveCount)
+        , fTransforms(reserveCount) {
+    }
+
+    /**
+     * Helper for GrGLProgramEffectsBuilder::emitEfffect(). This method is meant to only be called
+     * during the construction phase.
+     */
+    void emitEffect(GrGLFragmentOnlyShaderBuilder*,
+                    const GrEffectStage&,
+                    GrGLProgramEffects::EffectKey,
+                    const char* outColor,
+                    const char* inColor,
+                    int stageIndex);
+
+    /**
+     * Helper for emitEffect(). Allocates texture units from the builder for each transform in an
+     * effect. The transforms all use adjacent texture units. They either use two or three of the
+     * coordinates at a given texture unit, depending on if they need perspective interpolation.
+     * The expressions to access the transformed coords (i.e. 'vec2(gl_TexCoord[0])') as well as the
+     * types are appended to the TransformedCoordsArray* object, which is in turn passed to the
+     * effect's emitCode() function.
+     */
+    void setupTexGen(GrGLFragmentOnlyShaderBuilder*,
+                     const GrEffectRef&,
+                     EffectKey,
+                     TransformedCoordsArray*);
+
+    /**
+     * Helper for setData(). Sets the TexGen state for each transform in an effect.
+     */
+    void setTexGenState(GrGpuGL*, const GrDrawEffect&, int effectIdx);
+
+    struct Transforms {
+        Transforms(EffectKey transformKey, int texCoordIndex)
+            : fTransformKey(transformKey), fTexCoordIndex(texCoordIndex) {}
+        EffectKey fTransformKey;
+        int fTexCoordIndex;
+    };
+
+    SkTArray<Transforms> fTransforms;
+
+    typedef GrGLProgramEffects INHERITED;
+};
+
+/**
+ * This class is used to construct a GrGLTexGenProgramEffects* object.
+ */
+class GrGLTexGenProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
+public:
+    GrGLTexGenProgramEffectsBuilder(GrGLFragmentOnlyShaderBuilder*, int reserveCount);
+
+    virtual void emitEffect(const GrEffectStage&,
+                            GrGLProgramEffects::EffectKey,
+                            const char* outColor,
+                            const char* inColor,
+                            int stageIndex) SK_OVERRIDE;
+
+    /**
+     * Finalizes the building process and returns the effect array. After this call, the builder
+     * becomes invalid.
+     */
+    GrGLProgramEffects* finish() { return fProgramEffects.detach(); }
+
+private:
+    GrGLFragmentOnlyShaderBuilder*          fBuilder;
+    SkAutoTDelete<GrGLTexGenProgramEffects> fProgramEffects;
 
     typedef GrGLProgramEffectsBuilder INHERITED;
 };

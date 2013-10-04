@@ -450,4 +450,26 @@ private:
     typedef GrGLShaderBuilder INHERITED;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+class GrGLFragmentOnlyShaderBuilder : public GrGLShaderBuilder {
+public:
+    GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+
+    int getNumTexCoordSets() const { return fNumTexCoordSets; }
+    int addTexCoordSets(int count) { return (fNumTexCoordSets += count) - count; }
+
+    virtual GrGLProgramEffects* createAndEmitEffects(
+                const GrEffectStage* effectStages[],
+                const EffectKey effectKeys[],
+                int effectCnt,
+                SkString* inOutFSColor,
+                GrSLConstantVec* fsInOutColorKnownValue) SK_OVERRIDE;
+
+private:
+    int fNumTexCoordSets;
+
+    typedef GrGLShaderBuilder INHERITED;
+};
+
 #endif

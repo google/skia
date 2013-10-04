@@ -39,7 +39,9 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          const GrEffectStage* colorStages[],
                          const GrEffectStage* coverageStages[])
 : fGpu(gpu)
-, fUniformManager(gpu) {
+, fUniformManager(gpu)
+, fHasVertexShader(false)
+, fNumTexCoordSets(0) {
     fDesc = desc;
     fProgramID = 0;
 
@@ -48,7 +50,21 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     fColor = GrColor_ILLEGAL;
     fColorFilterColor = GrColor_ILLEGAL;
 
-    this->genProgram(colorStages, coverageStages);
+    if (fDesc.getHeader().fHasVertexCode ||
+        !fGpu->glCaps().fixedFunctionSupport() ||
+        !fGpu->glCaps().pathStencilingSupport()) {
+
+        GrGLFullShaderBuilder fullBuilder(fGpu, fUniformManager, fDesc);
+        if (this->genProgram(&fullBuilder, colorStages, coverageStages)) {
+            fUniformHandles.fViewMatrixUni = fullBuilder.getViewMatrixUniform();
+            fHasVertexShader = true;
+        }
+    } else {
+        GrGLFragmentOnlyShaderBuilder fragmentOnlyBuilder(fGpu, fUniformManager, fDesc);
+        if (this->genProgram(&fragmentOnlyBuilder, colorStages, coverageStages)) {
+            fNumTexCoordSets = fragmentOnlyBuilder.getNumTexCoordSets();
+        }
+    }
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -205,18 +221,16 @@ void expand_known_value4f(SkString* string, GrSLConstantVec vec) {
 
 }
 
-bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
+bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
+                             const GrEffectStage* colorStages[],
                              const GrEffectStage* coverageStages[]) {
     SkASSERT(0 == fProgramID);
 
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
-    GrGLFullShaderBuilder builder(fGpu, fUniformManager, fDesc);
-    fUniformHandles.fViewMatrixUni = builder.getViewMatrixUniform();
-
     // incoming color to current stage being processed.
-    SkString inColor = builder.getInputColor();
-    GrSLConstantVec knownColorValue = builder.getKnownColorValue();
+    SkString inColor = builder->getInputColor();
+    GrSLConstantVec knownColorValue = builder->getKnownColorValue();
 
     // Get the coeffs for the Mode-based color filter, determine if color is needed.
     SkXfermode::Coeff colorCoeff;
@@ -229,20 +243,20 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
 
     fColorEffects.reset(
-        builder.createAndEmitEffects(colorStages,
-                                     fDesc.effectKeys(),
-                                     needColor ? fDesc.numColorEffects() : 0,
-                                     &inColor,
-                                     &knownColorValue));
+        builder->createAndEmitEffects(colorStages,
+                                      fDesc.effectKeys(),
+                                      needColor ? fDesc.numColorEffects() : 0,
+                                      &inColor,
+                                      &knownColorValue));
 
     // Insert the color filter. This will soon be replaced by a color effect.
     if (SkXfermode::kDst_Mode != header.fColorFilterXfermode) {
         const char* colorFilterColorUniName = NULL;
-        fUniformHandles.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                                             kVec4f_GrSLType, "FilterColor",
-                                                             &colorFilterColorUniName);
+        fUniformHandles.fColorFilterUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                                              kVec4f_GrSLType, "FilterColor",
+                                                              &colorFilterColorUniName);
 
-        builder.fsCodeAppend("\tvec4 filteredColor;\n");
+        builder->fsCodeAppend("\tvec4 filteredColor;\n");
         const char* color;
         // add_color_filter requires a real input string.
         if (knownColorValue == kOnes_GrSLConstantVec) {
@@ -252,36 +266,36 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
         } else {
             color = inColor.c_str();
         }
-        add_color_filter(&builder, "filteredColor", filterColorCoeff,
+        add_color_filter(builder, "filteredColor", filterColorCoeff,
                          colorCoeff, colorFilterColorUniName, color);
         inColor = "filteredColor";
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // compute the partial coverage
-    SkString inCoverage = builder.getInputCoverage();
-    GrSLConstantVec knownCoverageValue = builder.getKnownCoverageValue();
+    SkString inCoverage = builder->getInputCoverage();
+    GrSLConstantVec knownCoverageValue = builder->getKnownCoverageValue();
 
     fCoverageEffects.reset(
-        builder.createAndEmitEffects(coverageStages,
-                                     fDesc.getEffectKeys() + fDesc.numColorEffects(),
-                                     fDesc.numCoverageEffects(),
-                                     &inCoverage,
-                                     &knownCoverageValue));
+        builder->createAndEmitEffects(coverageStages,
+                                      fDesc.getEffectKeys() + fDesc.numColorEffects(),
+                                      fDesc.numCoverageEffects(),
+                                      &inCoverage,
+                                      &knownCoverageValue));
 
     // discard if coverage is zero
     if (header.fDiscardIfZeroCoverage && kOnes_GrSLConstantVec != knownCoverageValue) {
         if (kZeros_GrSLConstantVec == knownCoverageValue) {
             // This is unfortunate.
-            builder.fsCodeAppend("\tdiscard;\n");
+            builder->fsCodeAppend("\tdiscard;\n");
         } else {
-            builder.fsCodeAppendf("\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n",
-                                  inCoverage.c_str());
+            builder->fsCodeAppendf("\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n",
+                                   inCoverage.c_str());
         }
     }
 
     if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
-        const char* secondaryOutputName = builder.enableSecondaryOutput();
+        const char* secondaryOutputName = builder->enableSecondaryOutput();
 
         // default coeff to ones for kCoverage_DualSrcOutput
         SkString coeff;
@@ -317,7 +331,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
                            knownCoeffValue,
                            knownCoverageValue,
                            false);
-        builder.fsCodeAppendf("\t%s = %s;\n", secondaryOutputName, modulate.c_str());
+        builder->fsCodeAppendf("\t%s = %s;\n", secondaryOutputName, modulate.c_str());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -343,7 +357,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
         SkString dstContribution;
         GrSLConstantVec knownDstContributionValue = GrGLSLModulatef<4>(&dstContribution,
                                                                        dstCoeff.c_str(),
-                                                                       builder.dstColor(),
+                                                                       builder->dstColor(),
                                                                        knownDstCoeffValue,
                                                                        kNone_GrSLConstantVec,
                                                                        true);
@@ -358,18 +372,18 @@ bool GrGLProgram::genProgram(const GrEffectStage* colorStages[],
     } else {
         expand_known_value4f(&fragColor, knownFragColorValue);
     }
-    builder.fsCodeAppendf("\t%s = %s;\n", builder.getColorOutputName(), fragColor.c_str());
+    builder->fsCodeAppendf("\t%s = %s;\n", builder->getColorOutputName(), fragColor.c_str());
 
-    if (!builder.finish(&fProgramID)) {
+    if (!builder->finish(&fProgramID)) {
         return false;
     }
 
-    fUniformHandles.fRTHeightUni = builder.getRTHeightUniform();
-    fUniformHandles.fDstCopyTopLeftUni = builder.getDstCopyTopLeftUniform();
-    fUniformHandles.fDstCopyScaleUni = builder.getDstCopyScaleUniform();
-    fUniformHandles.fColorUni = builder.getColorUniform();
-    fUniformHandles.fCoverageUni = builder.getCoverageUniform();
-    fUniformHandles.fDstCopySamplerUni = builder.getDstCopySamplerUniform();
+    fUniformHandles.fRTHeightUni = builder->getRTHeightUniform();
+    fUniformHandles.fDstCopyTopLeftUni = builder->getDstCopyTopLeftUniform();
+    fUniformHandles.fDstCopyScaleUni = builder->getDstCopyScaleUniform();
+    fUniformHandles.fColorUni = builder->getColorUniform();
+    fUniformHandles.fCoverageUni = builder->getCoverageUniform();
+    fUniformHandles.fDstCopySamplerUni = builder->getDstCopySamplerUniform();
     // This must be called after we set fDstCopySamplerUni above.
     this->initSamplerUniforms();
 
@@ -445,6 +459,10 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
 
     fColorEffects->setData(fGpu, fUniformManager, colorStages);
     fCoverageEffects->setData(fGpu, fUniformManager, coverageStages);
+
+    if (!fHasVertexShader) {
+        fGpu->disableUnusedTexGen(fNumTexCoordSets);
+    }
 }
 
 void GrGLProgram::setColor(const GrDrawState& drawState,
@@ -537,9 +555,13 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
         fUniformManager.set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(size.fHeight));
     }
 
-    if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
-        !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix()) ||
-        fMatrixState.fRenderTargetSize != size) {
+    if (!fHasVertexShader) {
+        SkASSERT(!fUniformHandles.fViewMatrixUni.isValid());
+        fGpu->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
+    } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
+               fMatrixState.fRenderTargetSize != size ||
+               !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix())) {
+        SkASSERT(fUniformHandles.fViewMatrixUni.isValid());
 
         fMatrixState.fViewMatrix = drawState.getViewMatrix();
         fMatrixState.fRenderTargetSize = size;

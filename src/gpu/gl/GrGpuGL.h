@@ -37,8 +37,19 @@ public:
     GrGLVersion glVersion() const { return fGLContext.info().version(); }
     GrGLSLGeneration glslGeneration() const { return fGLContext.info().glslGeneration(); }
 
-    // Used by GrGLProgram to bind necessary textures for GrGLEffects.
+    // Used by GrGLProgram and GrGLTexGenProgramEffects to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
+    void setProjectionMatrix(const SkMatrix& matrix,
+                             const SkISize& renderTargetSize,
+                             GrSurfaceOrigin renderTargetOrigin);
+    enum TexGenComponents {
+        kS_TexGenComponents = 1,
+        kST_TexGenComponents = 2,
+        kSTR_TexGenComponents = 3
+    };
+    void enableTexGen(int unitIdx, TexGenComponents, const GrGLfloat* coefficients);
+    void enableTexGen(int unitIdx, TexGenComponents, const SkMatrix& matrix);
+    void disableUnusedTexGen(int numUsedTexCoordSets);
 
     bool programUnitTest(int maxStages);
 
@@ -212,9 +223,6 @@ private:
         int                         fHashMisses; // cache hit but hash table missed
 #endif
     };
-
-    // sets the matrix for path stenciling (uses the GL fixed pipe matrices)
-    void flushPathStencilMatrix();
 
     // flushes dithering, color-mask, and face culling stat
     void flushMiscFixedFunctionState();
@@ -432,6 +440,14 @@ private:
     TriState                    fHWDitherEnabled;
     GrRenderTarget*             fHWBoundRenderTarget;
     SkTArray<GrTexture*, true>  fHWBoundTextures;
+
+    struct TexGenData {
+        GrGLenum  fMode;
+        GrGLint   fNumComponents;
+        GrGLfloat fCoefficients[3 * 3];
+    };
+    int                         fHWActiveTexGenSets;
+    SkTArray<TexGenData, true>  fHWTexGenSettings;
     ///@}
 
     // we record what stencil format worked last time to hopefully exit early

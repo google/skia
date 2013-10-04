@@ -210,28 +210,6 @@ void GrGpuGL::abandonResources(){
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-void GrGpuGL::flushPathStencilMatrix() {
-    const SkMatrix& viewMatrix = this->getDrawState().getViewMatrix();
-    const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
-    SkISize size;
-    size.set(rt->width(), rt->height());
-    const SkMatrix& vm = this->getDrawState().getViewMatrix();
-
-    if (fHWProjectionMatrixState.fRenderTargetOrigin != rt->origin() ||
-        !fHWProjectionMatrixState.fViewMatrix.cheapEqualTo(viewMatrix) ||
-        fHWProjectionMatrixState.fRenderTargetSize!= size) {
-
-        fHWProjectionMatrixState.fViewMatrix = vm;
-        fHWProjectionMatrixState.fRenderTargetSize = size;
-        fHWProjectionMatrixState.fRenderTargetOrigin = rt->origin();
-
-        GrGLfloat projectionMatrix[4 * 4];
-        fHWProjectionMatrixState.getGLMatrix<4>(projectionMatrix);
-        GL_CALL(MatrixMode(GR_GL_PROJECTION));
-        GL_CALL(LoadMatrixf(projectionMatrix));
-    }
-}
-
 bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -239,7 +217,10 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
     SkASSERT(NULL != drawState.getRenderTarget());
 
     if (kStencilPath_DrawType == type) {
-        this->flushPathStencilMatrix();
+        const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
+        SkISize size;
+        size.set(rt->width(), rt->height());
+        this->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else {
         this->flushMiscFixedFunctionState();
 
@@ -360,24 +341,40 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
     GrGLAttribArrayState* attribState =
         fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
-    uint32_t usedAttribArraysMask = 0;
-    const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
-    int vertexAttribCount = this->getDrawState().getVertexAttribCount();
-    for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
-         ++vertexAttribIndex, ++vertexAttrib) {
+    if (!fCurrentProgram->hasVertexShader()) {
+        int posIdx = this->getDrawState().positionAttributeIndex();
+        const GrVertexAttrib* vertexArray = this->getDrawState().getVertexAttribs() + posIdx;
+        GrVertexAttribType vertexArrayType = vertexArray->fType;
+        SkASSERT(!GrGLAttribTypeToLayout(vertexArrayType).fNormalized);
+        SkASSERT(GrGLAttribTypeToLayout(vertexArrayType).fCount == 2);
+        attribState->setFixedFunctionVertexArray(this,
+                                                 vbuf,
+                                                 2,
+                                                 GrGLAttribTypeToLayout(vertexArrayType).fType,
+                                                 stride,
+                                                 reinterpret_cast<GrGLvoid*>(
+                                                 vertexOffsetInBytes + vertexArray->fOffset));
+        attribState->disableUnusedArrays(this, 0, true);
+    } else {
+        uint32_t usedAttribArraysMask = 0;
+        const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
+        int vertexAttribCount = this->getDrawState().getVertexAttribCount();
+        for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
+             ++vertexAttribIndex, ++vertexAttrib) {
 
-        usedAttribArraysMask |= (1 << vertexAttribIndex);
-        GrVertexAttribType attribType = vertexAttrib->fType;
-        attribState->set(this,
-                         vertexAttribIndex,
-                         vbuf,
-                         GrGLAttribTypeToLayout(attribType).fCount,
-                         GrGLAttribTypeToLayout(attribType).fType,
-                         GrGLAttribTypeToLayout(attribType).fNormalized,
-                         stride,
-                         reinterpret_cast<GrGLvoid*>(
-                         vertexOffsetInBytes + vertexAttrib->fOffset));
+            usedAttribArraysMask |= (1 << vertexAttribIndex);
+            GrVertexAttribType attribType = vertexAttrib->fType;
+            attribState->set(this,
+                             vertexAttribIndex,
+                             vbuf,
+                             GrGLAttribTypeToLayout(attribType).fCount,
+                             GrGLAttribTypeToLayout(attribType).fType,
+                             GrGLAttribTypeToLayout(attribType).fNormalized,
+                             stride,
+                             reinterpret_cast<GrGLvoid*>(
+                             vertexOffsetInBytes + vertexAttrib->fOffset));
+        }
+
+        attribState->disableUnusedArrays(this, usedAttribArraysMask, false);
     }
-
-    attribState->disableUnusedArrays(this, usedAttribArraysMask, false);
 }

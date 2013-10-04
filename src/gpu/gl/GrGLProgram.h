@@ -62,6 +62,8 @@ public:
      */
     GrGLuint programID() const { return fProgramID; }
 
+    bool hasVertexShader() const { return fHasVertexShader; }
+
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular color
      * and coverage attributes can be global state. This struct is read and updated by
@@ -160,7 +162,9 @@ private:
      * This is the heavy initialization routine for building a GLProgram. colorStages and
      * coverageStages correspond to the output of GrGLProgramDesc::Build().
      */
-    bool genProgram(const GrEffectStage* colorStages[], const GrEffectStage* coverageStages[]);
+    bool genProgram(GrGLShaderBuilder* builder,
+                    const GrEffectStage* colorStages[],
+                    const GrEffectStage* coverageStages[]);
 
     // Sets the texture units for samplers
     void initSamplerUniforms();
@@ -194,6 +198,9 @@ private:
 
     GrGLUniformManager                fUniformManager;
     UniformHandles                    fUniformHandles;
+
+    bool                              fHasVertexShader;
+    int                               fNumTexCoordSets;
 
     typedef SkRefCnt INHERITED;
 };

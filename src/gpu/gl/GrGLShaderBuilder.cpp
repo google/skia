@@ -441,7 +441,6 @@ const char* GrGLShaderBuilder::fragmentPosition() {
     }
 }
 
-
 void GrGLShaderBuilder::fsEmitFunction(GrSLType returnType,
                                        const char* name,
                                        int argCnt,
@@ -919,4 +918,36 @@ void GrGLFullShaderBuilder::bindProgramLocations(GrGLuint programId) const {
     for (const AttributePair* attrib = fEffectAttributes.begin(); attrib != attribEnd; ++attrib) {
          GL_CALL(BindAttribLocation(programId, attrib->fIndex, attrib->fName.c_str()));
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
+                                                             GrGLUniformManager& uniformManager,
+                                                             const GrGLProgramDesc& desc)
+    : INHERITED(gpu, uniformManager, desc)
+    , fNumTexCoordSets(0) {
+
+    SkASSERT(!desc.getHeader().fHasVertexCode);
+    SkASSERT(gpu->glCaps().fixedFunctionSupport());
+    SkASSERT(gpu->glCaps().pathStencilingSupport());
+    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
+    SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
+}
+
+GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
+        const GrEffectStage* effectStages[],
+        const EffectKey effectKeys[],
+        int effectCnt,
+        SkString* inOutFSColor,
+        GrSLConstantVec* fsInOutColorKnownValue) {
+
+    GrGLTexGenProgramEffectsBuilder texGenEffectsBuilder(this, effectCnt);
+    this->INHERITED::createAndEmitEffects(&texGenEffectsBuilder,
+                                          effectStages,
+                                          effectKeys,
+                                          effectCnt,
+                                          inOutFSColor,
+                                          fsInOutColorKnownValue);
+    return texGenEffectsBuilder.finish();
 }

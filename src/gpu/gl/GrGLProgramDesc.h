@@ -233,6 +233,7 @@ private:
     friend class GrGLProgram;
     friend class GrGLShaderBuilder;
     friend class GrGLFullShaderBuilder;
+    friend class GrGLFragmentOnlyShaderBuilder;
 };
 
 #endif
