@@ -16,7 +16,13 @@ static bool nearly_equal_double(double a, double b) {
     return diff <= tolerance;
 }
 
-static bool nearly_equal_scalar(SkMScalar a, SkMScalar b) {
+static bool nearly_equal_mscalar(SkMScalar a, SkMScalar b) {
+    const SkMScalar tolerance = SK_MScalar1 / 200000;
+
+    return SkTAbs<SkMScalar>(a - b) <= tolerance;
+}
+
+static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     // Note that we get more compounded error for multiple operations when
     // SK_SCALAR_IS_FIXED.
 #ifdef SK_SCALAR_IS_FLOAT
@@ -25,7 +31,7 @@ static bool nearly_equal_scalar(SkMScalar a, SkMScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 1024;
 #endif
 
-    return SkTAbs<SkMScalar>(a - b) <= tolerance;
+    return SkScalarAbs(a - b) <= tolerance;
 }
 
 template <typename T> void assert16(skiatest::Reporter* reporter, const T data[],
@@ -57,7 +63,7 @@ template <typename T> void assert16(skiatest::Reporter* reporter, const T data[]
 static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if (!nearly_equal_scalar(a.get(i, j), b.get(i, j))) {
+            if (!nearly_equal_mscalar(a.get(i, j), b.get(i, j))) {
                 printf("not equal %g %g\n", a.get(i, j), b.get(i, j));
                 return false;
             }
@@ -471,6 +477,50 @@ static void test_set_row_col_major(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nearly_equal(a, b));
 }
 
+static void test_3x3_conversion(skiatest::Reporter* reporter) {
+    SkMScalar values4x4[16] = { 1, 2, 3, 4,
+                                5, 6, 7, 8,
+                                9, 10, 11, 12,
+                                13, 14, 15, 16 };
+    SkScalar values3x3[9] = { 1, 2, 4,
+                              5, 6, 8,
+                              13, 14, 16 };
+    SkMScalar values4x4flattened[16] = { 1, 2, 0, 4,
+                                         5, 6, 0, 8,
+                                         0, 0, 1, 0,
+                                         13, 14, 0, 16 };
+    SkMatrix44 a44;
+    a44.setRowMajor(values4x4);
+
+    SkMatrix a33 = a44;
+    SkMatrix expected33;
+    for (int i = 0; i < 9; i++) expected33[i] = values3x3[i];
+    REPORTER_ASSERT(reporter, expected33 == a33);
+
+    SkMatrix44 a44flattened = a33;
+    SkMatrix44 expected44flattened;
+    expected44flattened.setRowMajor(values4x4flattened);
+    REPORTER_ASSERT(reporter, nearly_equal(a44flattened, expected44flattened));
+
+    // Test that a point with a Z value of 0 is transformed the same way.
+    SkScalar vec4[4] = { 2, 4, 0, 8 };
+    SkScalar vec3[3] = { 2, 4, 8 };
+
+    SkScalar vec4transformed[4];
+    SkScalar vec3transformed[3];
+    SkScalar vec4transformed2[4];
+    a44.mapScalars(vec4, vec4transformed);
+    a33.mapHomogeneousPoints(vec3transformed, vec3, 1);
+    a44flattened.mapScalars(vec4, vec4transformed2);
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec3transformed[0]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec3transformed[1]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec3transformed[2]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec4transformed2[0]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec4transformed2[1]));
+    REPORTER_ASSERT(reporter, !nearly_equal_scalar(vec4transformed[2], vec4transformed2[2]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec4transformed2[3]));
+}
+
 static void TestMatrix44(skiatest::Reporter* reporter) {
     SkMatrix44 mat, inverse, iden1, iden2, rot;
 
@@ -572,6 +622,7 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     test_translate(reporter);
     test_scale(reporter);
     test_map2(reporter);
+    test_3x3_conversion(reporter);
 }
 
 #include "TestClassDef.h"
