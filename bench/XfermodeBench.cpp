@@ -67,7 +67,7 @@ public:
     XferCreateBench() {
         fIsRendering = false;
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE { return "xfermode_create"; }
 
@@ -79,7 +79,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

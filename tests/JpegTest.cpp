@@ -453,4 +453,3 @@ static void TestJpeg(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("JpegTest", JpegTestClass, TestJpeg)
-
