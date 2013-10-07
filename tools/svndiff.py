@@ -147,10 +147,13 @@ def _CallJsonDiff(old_json_path, new_json_path,
                 imagename=imagename,
                 hash_type=gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5,
                 hash_digest=old_checksum)
-            _DownloadUrlToFile(
-                source_url=old_image_url,
-                dest_path=os.path.join(old_flattened_dir,
-                                       filename_prefix + imagename))
+            try:
+                _DownloadUrlToFile(
+                    source_url=old_image_url,
+                    dest_path=os.path.join(old_flattened_dir,
+                                           filename_prefix + imagename))
+            except:
+                print "unable to find image ",  os.path.join(old_flattened_dir, filename_prefix + imagename)
 
         new_checksum = results['new']
         if new_checksum:
