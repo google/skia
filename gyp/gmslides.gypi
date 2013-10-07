@@ -72,6 +72,7 @@
     '../gm/inversepaths.cpp',
     '../gm/lerpmode.cpp',
     '../gm/lighting.cpp',
+    '../gm/lumafilter.cpp',
     '../gm/lumamode.cpp',
     '../gm/image.cpp',
     '../gm/imagefiltersbase.cpp',

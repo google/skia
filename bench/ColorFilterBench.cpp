@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
+#include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
@@ -314,6 +315,33 @@ private:
     typedef ColorFilterBaseBench INHERITED;
 };
 
+class LumaColorFilterBench : public ColorFilterBaseBench {
+
+public:
+    LumaColorFilterBench(bool small) : INHERITED(small) {
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return isSmall() ? "luma_colorfilter_small" : "luma_colorfilter_large";
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkRect r = getFilterRect();
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+
+        for (int i = 0; i < this->getLoops(); i++) {
+            SkAutoTUnref<SkColorFilter> luma_filter(SkLumaColorFilter::Create());
+            paint.setColorFilter(luma_filter);
+            canvas->drawRect(r, paint);
+        }
+    }
+
+private:
+    typedef ColorFilterBaseBench INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new ColorFilterDimBrightBench(true); )
@@ -325,6 +353,7 @@ DEF_BENCH( return new ColorFilterBrightBench(true); )
 DEF_BENCH( return new ColorFilterBlueBench(true); )
 DEF_BENCH( return new ColorFilterGrayBench(true); )
 DEF_BENCH( return new TableColorFilterBench(true); )
+DEF_BENCH( return new LumaColorFilterBench(true); )
 
 DEF_BENCH( return new ColorFilterDimBrightBench(false); )
 DEF_BENCH( return new ColorFilterBrightGrayBench(false); )
@@ -335,3 +364,4 @@ DEF_BENCH( return new ColorFilterBrightBench(false); )
 DEF_BENCH( return new ColorFilterBlueBench(false); )
 DEF_BENCH( return new ColorFilterGrayBench(false); )
 DEF_BENCH( return new TableColorFilterBench(false); )
+DEF_BENCH( return new LumaColorFilterBench(false); )

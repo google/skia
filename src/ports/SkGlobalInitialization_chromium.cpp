@@ -13,6 +13,7 @@
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkLayerDrawLooper.h"
+#include "SkLumaColorFilter.h"
 #include "SkMallocPixelRef.h"
 #include "SkXfermode.h"
 #include "SkLumaXfermode.h"
@@ -25,6 +26,7 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMallocPixelRef)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMagnifierImageFilter)
 
