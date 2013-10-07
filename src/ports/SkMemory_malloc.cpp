@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static inline void* throwOnFailure(size_t size, void* p) {
+static inline void* throw_on_failure(size_t size, void* p) {
     if (size > 0 && p == NULL) {
         // If we've got a NULL here, the only reason we should have failed is running out of RAM.
         sk_out_of_memory();
@@ -32,7 +32,7 @@ void* sk_malloc_throw(size_t size) {
 }
 
 void* sk_realloc_throw(void* addr, size_t size) {
-    return throwOnFailure(size, realloc(addr, size));
+    return throw_on_failure(size, realloc(addr, size));
 }
 
 void sk_free(void* p) {
@@ -44,7 +44,7 @@ void sk_free(void* p) {
 void* sk_malloc_flags(size_t size, unsigned flags) {
     void* p = malloc(size);
     if (flags & SK_MALLOC_THROW) {
-        return throwOnFailure(size, p);
+        return throw_on_failure(size, p);
     } else {
         return p;
     }
@@ -55,5 +55,5 @@ void* sk_calloc(size_t size) {
 }
 
 void* sk_calloc_throw(size_t size) {
-    return throwOnFailure(size, sk_calloc(size));
+    return throw_on_failure(size, sk_calloc(size));
 }
