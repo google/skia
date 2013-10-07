@@ -973,16 +973,16 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
     }
 
 #ifdef SK_PDF_USE_PATHOPS
-    if (handleInversePath(d, origPath, paint, pathIsMutable)) {
+    if (handleInversePath(d, origPath, paint, pathIsMutable, prePathMatrix)) {
         return;
     }
 #endif
 
-    if (handleRectAnnotation(pathPtr->getBounds(), *d.fMatrix, paint)) {
+    if (handleRectAnnotation(pathPtr->getBounds(), matrix, paint)) {
         return;
     }
 
-    ScopedContentEntry content(this, d, paint);
+    ScopedContentEntry content(this, d.fClipStack, *d.fClip, matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -1485,7 +1485,8 @@ SkData* SkPDFDevice::copyContentToData() const {
  * in the first place.
  */
 bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
-                                    const SkPaint& paint, bool pathIsMutable) {
+                                    const SkPaint& paint, bool pathIsMutable,
+                                    const SkMatrix* prePathMatrix) {
     if (!origPath.isInverseFillType()) {
         return false;
     }
@@ -1519,7 +1520,11 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
     // (clip bounds are given in device space).
     SkRect bounds;
     SkMatrix transformInverse;
-    if (!d.fMatrix->invert(&transformInverse)) {
+    SkMatrix totalMatrix = *d.fMatrix;
+    if (prePathMatrix) {
+        totalMatrix.preConcat(*prePathMatrix);
+    }
+    if (!totalMatrix.invert(&transformInverse)) {
         return false;
     }
     bounds.set(d.fClip->getBounds());
@@ -1534,7 +1539,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
         return false;
     }
 
-    drawPath(d, modifiedPath, noInversePaint, NULL, true);
+    drawPath(d, modifiedPath, noInversePaint, prePathMatrix, true);
     return true;
 }
 #endif

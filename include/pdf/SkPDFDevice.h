@@ -295,7 +295,8 @@ private:
 
 #ifdef SK_PDF_USE_PATHOPS
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
-                           const SkPaint& paint, bool pathIsMutable);
+                           const SkPaint& paint, bool pathIsMutable,
+                           const SkMatrix* prePathMatrix = NULL);
 #endif
     bool handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
                               const SkPaint& paint);
