@@ -111,19 +111,22 @@ static SkBitmap::Config gPrefConfig(SkBitmap::kNo_Config);
 SkAutoTUnref<skiagm::JsonExpectationsSource> gJsonExpectations;
 
 static bool write_bitmap(const char outName[], const SkBitmap& bm) {
-    const SkBitmap* bmPtr;
-    SkBitmap bm8888;
-    if (bm.config() == SkBitmap::kA8_Config) {
-        // Copy A8 into ARGB_8888, since our image encoders do not currently
-        // support A8.
-        if (!bm.copyTo(&bm8888, SkBitmap::kARGB_8888_Config)) {
-            return false;
-        }
-        bmPtr = &bm8888;
-    } else {
-        bmPtr = &bm;
+    if (SkImageEncoder::EncodeFile(outName, bm, SkImageEncoder::kPNG_Type, 100)) {
+        return true;
     }
-    return SkImageEncoder::EncodeFile(outName, *bmPtr, SkImageEncoder::kPNG_Type, 100);
+
+    if (bm.config() == SkBitmap::kARGB_8888_Config) {
+        // First attempt at encoding failed, and the bitmap was already 8888. Making
+        // a copy is not going to help.
+        return false;
+    }
+
+    // Encoding failed. Copy to 8888 and try again.
+    SkBitmap bm8888;
+    if (!bm.copyTo(&bm8888, SkBitmap::kARGB_8888_Config)) {
+        return false;
+    }
+    return SkImageEncoder::EncodeFile(outName, bm8888, SkImageEncoder::kPNG_Type, 100);
 }
 
 /**
