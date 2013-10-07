@@ -36,7 +36,9 @@ SK_API bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name);
  *
  *  @param uni  The unicode character to use for the lookup.
  *  @param lang The null terminated string representing the BCP 47 language
- *              identifier for the preferred language
+ *              identifier for the preferred language. If there is no unique
+ *              fallback chain for that language the system's default language
+ *              will be used.
  *  @param name The family name of the font file containing the unicode character
  *              in the preferred language
  *  @return     true if a font is found and false otherwise

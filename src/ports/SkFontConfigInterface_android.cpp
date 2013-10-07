@@ -513,7 +513,14 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForFontRec(FontRecID fontRe
 bool SkFontConfigInterfaceAndroid::getFallbackFamilyNameForChar(SkUnichar uni,
                                                                 const char* lang,
                                                                 SkString* name) {
-    FallbackFontList* fallbackFontList = this->findFallbackFontList(lang);
+    FallbackFontList* fallbackFontList = NULL;
+    const SkString langTag(lang);
+    if (langTag.isEmpty()) {
+        fallbackFontList = this->getCurrentLocaleFallbackFontList();
+    } else {
+        fallbackFontList = this->findFallbackFontList(langTag);
+    }
+
     for (int i = 0; i < fallbackFontList->count(); i++) {
         FamilyRecID familyRecID = fallbackFontList->getAt(i);
 
@@ -733,9 +740,8 @@ SkTypeface* SkFontConfigInterfaceAndroid::getTypefaceForGlyphID(uint16_t glyphID
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
-    SkString locale = SkFontConfigParser::GetLocale();
     SkFontConfigInterfaceAndroid* fontConfig = getSingletonInterface();
-    return fontConfig->getFallbackFamilyNameForChar(uni, locale.c_str(), name);
+    return fontConfig->getFallbackFamilyNameForChar(uni, NULL, name);
 }
 
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, const char* lang, SkString* name) {
