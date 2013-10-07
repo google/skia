@@ -329,6 +329,18 @@ public:
     }
 
     /**
+     * Returns true if failures on this test should be ignored.
+     */
+    bool ShouldIgnoreTest(const SkString &name) const {
+        for (int i = 0; i < fIgnorableTestSubstrings.count(); i++) {
+            if (name.contains(fIgnorableTestSubstrings[i].c_str())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Records the results of this test in fTestsRun and fFailedTests.
      *
      * We even record successes, and errors that we regard as
@@ -905,7 +917,7 @@ public:
                  * See comments above complete_bitmap() for more detail.
                  */
                 Expectations expectations = expectationsSource->get(nameWithExtension.c_str());
-                if (gm->isIgnoringFailures()) {
+                if (this->ShouldIgnoreTest(shortNamePlusConfig)) {
                     expectations.setIgnoreFailure(true);
                 }
                 errors.add(compare_to_expectations(expectations, *actualBitmapAndDigest,
@@ -1212,6 +1224,7 @@ public:
 
     bool fUseFileHierarchy, fWriteChecksumBasedFilenames;
     ErrorCombination fIgnorableErrorTypes;
+    SkTArray<SkString> fIgnorableTestSubstrings;
 
     const char* fMismatchPath;
     const char* fMissingExpectationsPath;
@@ -1979,6 +1992,18 @@ static bool parse_flags_ignore_error_types(ErrorCombination* outErrorTypes) {
     return true;
 }
 
+/**
+ * Replace contents of ignoreTestSubstrings with a list of testname/config substrings, indicating
+ * which tests' failures should be ignored.
+ */
+static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestSubstrings) {
+    ignoreTestSubstrings.reset();
+    for (int i = 0; i < FLAGS_ignoreTests.count(); i++) {
+        ignoreTestSubstrings.push_back(SkString(FLAGS_ignoreTests[i]));
+    }
+    return true;
+}
+
 static bool parse_flags_modulo(int* moduloRemainder, int* moduloDivisor) {
     if (FLAGS_modulo.count() == 2) {
         *moduloRemainder = atoi(FLAGS_modulo[0]);
@@ -2110,6 +2135,7 @@ int tool_main(int argc, char** argv) {
 
     if (!parse_flags_modulo(&moduloRemainder, &moduloDivisor) ||
         !parse_flags_ignore_error_types(&gmmain.fIgnorableErrorTypes) ||
+        !parse_flags_ignore_tests(gmmain.fIgnorableTestSubstrings) ||
 #if SK_SUPPORT_GPU
         !parse_flags_gpu_cache(&gGpuCacheSizeBytes, &gGpuCacheSizeCount) ||
 #endif
@@ -2190,9 +2216,6 @@ int tool_main(int argc, char** argv) {
 
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, shortName)) {
             continue;
-        }
-        if (FLAGS_ignoreTests.contains(shortName)) {
-            gm->setIgnoreFailures(true);
         }
 
         gmsRun++;
