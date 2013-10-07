@@ -344,7 +344,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--actuals-base-url',
                     help=('base URL from which to read files containing JSON '
                           'summaries of actual GM results; defaults to '
-                          '%(default)s'),
+                          '%(default)s. To get a specific revision (useful for'
+                          'trybots) replace "svn" with "svn-history/r123".'),
                     default='http://skia-autogen.googlecode.com/svn/gm-actual')
 parser.add_argument('--actuals-filename',
                     help=('filename (within builder-specific subdirectories '
