@@ -577,43 +577,37 @@
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 15513164475782874663 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "desk_yahoonews_0.jpg_[267,80,750,373]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 12225925284010552222 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "desk_yahoonews_0.jpg_[514,132,623,377]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 15440849105754683173 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "desk_yahoonews_0.jpg_[562,745,863,820]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 2147994177060454628 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "desk_yahoonews_0.jpg_[743,348,794,945]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 11504031998708540792 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "desk_yahoonews_0.jpg_[902,45,1027,936]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 3873094620673643045 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "kokteylogo.png" : {
          "allowed-digests" : [
@@ -829,43 +823,37 @@
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 13794277939360474741 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "tabl_mozilla_0.jpg_[187,29,1065,403]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 15218424923460721156 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "tabl_mozilla_0.jpg_[194,100,951,214]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 8959693599713165172 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "tabl_mozilla_0.jpg_[443,259,934,572]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 15008094838525915745 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "tabl_mozilla_0.jpg_[567,322,737,425]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 16780045327644706587 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "tabl_mozilla_0.jpg_[809,359,1249,532]" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 12617142532141333242 ]
          ],
-         "ignore-failure" : false,
-         "reviewed-by-human": false
+         "ignore-failure" : true
       },
       "webp_test.webp" : {
          "allowed-digests" : [
