@@ -406,18 +406,6 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline SkMScalar det2x2(double m00, double m01, double m10, double m11) {
-    return SkDoubleToMScalar(m00 * m11 - m10 * m01);
-}
-
-static inline double det3x3(double m00, double m01, double m02,
-                            double m10, double m11, double m12,
-                            double m20, double m21, double m22) {
-    return  m00 * det2x2(m11, m12, m21, m22) -
-    m10 * det2x2(m01, m02, m21, m22) +
-    m20 * det2x2(m01, m02, m11, m12);
-}
-
 /** We always perform the calculation in doubles, to avoid prematurely losing
     precision along the way. This relies on the compiler automatically
     promoting our SkMScalar values to double (if needed).
@@ -465,13 +453,6 @@ double SkMatrix44::determinant() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-static inline double dabs(double x) {
-    if (x < 0) {
-        x = -x;
-    }
-    return x;
-}
 
 bool SkMatrix44::invert(SkMatrix44* inverse) const {
     if (this->isIdentity()) {

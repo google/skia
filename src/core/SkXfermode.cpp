@@ -61,13 +61,6 @@ static inline int clamp_div255round(int prod) {
     }
 }
 
-static inline int clamp_max(int value, int max) {
-    if (value > max) {
-        value = max;
-    }
-    return value;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 //  kClear_Mode,    //!< [0, 0]

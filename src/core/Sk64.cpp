@@ -133,15 +133,6 @@ void Sk64::abs()
     }
 }
 
-////////////////////////////////////////////////////////////////
-
-static inline int32_t round_right_16(int32_t hi, uint32_t lo)
-{
-    uint32_t sum = lo + (1 << 15);
-    hi += (sum < lo);
-    return (hi << 16) | (sum >> 16);
-}
-
 SkBool Sk64::isFixed() const
 {
     Sk64 tmp = *this;
