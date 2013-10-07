@@ -38,7 +38,7 @@ public:
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
 
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
-    bool getGlyphAtlas(GrGlyph*, GrFontScaler*, GrDrawTarget::DrawToken currentDrawToken);
+    bool getGlyphAtlas(GrGlyph*, GrFontScaler*);
 
     // testing
     int countGlyphs() const { return fCache.getArray().count(); }

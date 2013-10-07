@@ -259,8 +259,7 @@ bool GrTextStrike::removeUnusedPlots() {
     return fAtlasMgr->removeUnusedPlots(&fAtlas);
 }
 
-bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
-                                 GrDrawTarget::DrawToken currentDrawToken) {
+bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 #if 0   // testing hack to force us to flush our cache often
     static int gCounter;
     if ((++gCounter % 10) == 0) return false;
@@ -269,10 +268,7 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
     SkASSERT(glyph);
     SkASSERT(scaler);
     SkASSERT(fCache.contains(glyph));
-    if (glyph->fPlot) {
-        glyph->fPlot->setDrawToken(currentDrawToken);
-        return true;
-    }
+    SkASSERT(NULL == glyph->fPlot);
 
     SkAutoRef ar(scaler);
 
@@ -294,6 +290,5 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler,
     }
 
     glyph->fPlot = plot;
-    plot->setDrawToken(currentDrawToken);
     return true;
 }
