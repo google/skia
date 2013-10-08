@@ -873,6 +873,9 @@ private:
     GrIndexBufferAllocPool*         fDrawBufferIBAllocPool;
     GrInOrderDrawBuffer*            fDrawBuffer;
 
+    // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
+    bool                            fFlushToReduceCacheSize;
+
     GrAARectRenderer*               fAARectRenderer;
     GrOvalRenderer*                 fOvalRenderer;
 
@@ -895,9 +898,10 @@ private:
     void setupDrawBuffer();
 
     class AutoRestoreEffects;
+    class AutoCheckFlush;
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
     /// draw state is left unmodified.
-    GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw, AutoRestoreEffects*);
+    GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw, AutoRestoreEffects*, AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                           const SkStrokeRec& stroke);
