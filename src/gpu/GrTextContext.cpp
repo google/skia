@@ -152,13 +152,13 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
-
+#if 0 // M30 specific revert of font cache improvement to fix https://code.google.com/p/chromium/issues/detail?id=303803
         // try to clear out an unused atlas before we flush
         fContext->getFontCache()->freeAtlasExceptFor(fStrike);
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
-
+#endif
         // before we purge the cache, we must flush any accumulated draws
         this->flushGlyphs();
         fContext->flush();
