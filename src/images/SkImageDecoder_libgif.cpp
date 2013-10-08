@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -7,12 +6,13 @@
  */
 
 
-#include "SkImageDecoder.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkColorTable.h"
+#include "SkImageDecoder.h"
+#include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkPackBits.h"
 
 #include "gif_lib.h"
 
@@ -154,6 +154,23 @@ static bool error_return(GifFileType* gif, const SkBitmap& bm,
     return false;
 }
 
+/**
+ *  Skip rows in the source gif image.
+ *  @param gif Source image.
+ *  @param dst Scratch output needed by gif library call. Must be >= width bytes.
+ *  @param width Bytes per row in the source image.
+ *  @param rowsToSkip Number of rows to skip.
+ *  @return True on success, false on GIF_ERROR.
+ */
+static bool skip_src_rows(GifFileType* gif, uint8_t* dst, int width, int rowsToSkip) {
+    for (int i = 0; i < rowsToSkip; i++) {
+        if (DGifGetLine(gif, dst, width) == GIF_ERROR) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 #if GIFLIB_MAJOR < 5
     GifFileType* gif = DGifOpen(sk_stream, DecodeCallBackProc);
@@ -196,13 +213,20 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 
             width = gif->SWidth;
             height = gif->SHeight;
-            if (width <= 0 || height <= 0 ||
-                !this->chooseFromOneChoice(SkBitmap::kIndex8_Config,
-                                           width, height)) {
+            if (width <= 0 || height <= 0) {
+                return error_return(gif, *bm, "invalid dimensions");
+            }
+
+            // FIXME: We could give the caller a choice of images or configs.
+            if (!this->chooseFromOneChoice(SkBitmap::kIndex8_Config, width, height)) {
                 return error_return(gif, *bm, "chooseFromOneChoice");
             }
 
-            bm->setConfig(SkBitmap::kIndex8_Config, width, height);
+            SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
+
+            bm->setConfig(SkBitmap::kIndex8_Config, sampler.scaledWidth(),
+                          sampler.scaledHeight());
+
             if (SkImageDecoder::kDecodeBounds_Mode == mode) {
                 return true;
             }
@@ -226,33 +250,28 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 }
 
                 colorCount = cmap->ColorCount;
-                SkColorTable* ctable = SkNEW_ARGS(SkColorTable, (colorCount));
-                SkPMColor* colorPtr = ctable->lockColors();
-                for (int index = 0; index < colorCount; index++)
+                SkAutoTMalloc<SkPMColor> colorStorage(colorCount);
+                SkPMColor* colorPtr = colorStorage.get();
+                for (int index = 0; index < colorCount; index++) {
                     colorPtr[index] = SkPackARGB32(0xFF,
                                                    cmap->Colors[index].Red,
                                                    cmap->Colors[index].Green,
                                                    cmap->Colors[index].Blue);
+                }
 
                 transpIndex = find_transpIndex(temp_save, colorCount);
-                if (transpIndex < 0)
-                    ctable->setFlags(ctable->getFlags() | SkColorTable::kColorsAreOpaque_Flag);
-                else
-                    colorPtr[transpIndex] = 0; // ram in a transparent SkPMColor
-                ctable->unlockColors(true);
+                bool reallyHasAlpha = transpIndex >= 0;
+                if (reallyHasAlpha) {
+                    colorPtr[transpIndex] = SK_ColorTRANSPARENT; // ram in a transparent SkPMColor
+                }
 
-                SkAutoUnref aurts(ctable);
+                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colorPtr, colorCount)));
+                ctable->setIsOpaque(!reallyHasAlpha);
                 if (!this->allocPixelRef(bm, ctable)) {
                     return error_return(gif, *bm, "allocPixelRef");
                 }
             }
 
-            SkAutoLockPixels alp(*bm);
-
-            // time to decode the scanlines
-            //
-            uint8_t*  scanline = bm->getAddr8(0, 0);
-            const int rowBytes = bm->rowBytes();
             const int innerWidth = desc.Width;
             const int innerHeight = desc.Height;
 
@@ -261,10 +280,19 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 return error_return(gif, *bm, "non-pos inner width/height");
             }
 
+            SkAutoLockPixels alp(*bm);
+
+            SkAutoMalloc storage(innerWidth);
+            uint8_t* scanline = (uint8_t*) storage.get();
+
+            // GIF has an option to store the scanlines of an image, plus a larger background,
+            // filled by a fill color. In this case, we will use a subset of the larger bitmap
+            // for sampling.
+            SkBitmap subset;
+            SkBitmap* workingBitmap;
             // are we only a subset of the total bounds?
             if ((desc.Top | desc.Left) > 0 ||
-                 innerWidth < width || innerHeight < height)
-            {
+                 innerWidth < width || innerHeight < height) {
                 int fill;
                 if (transpIndex >= 0) {
                     fill = transpIndex;
@@ -276,33 +304,62 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                         static_cast<unsigned>(colorCount)) {
                     fill = 0;
                 }
-                memset(scanline, fill, bm->getSize());
-                // bump our starting address
-                scanline += desc.Top * rowBytes + desc.Left;
+                // Fill the background.
+                memset(bm->getPixels(), fill, bm->getSize());
+
+                // Create a subset of the bitmap.
+                SkIRect subsetRect(SkIRect::MakeXYWH(desc.Left / sampler.srcDX(),
+                                                     desc.Top / sampler.srcDY(),
+                                                     innerWidth / sampler.srcDX(),
+                                                     innerHeight / sampler.srcDY()));
+                if (!bm->extractSubset(&subset, subsetRect)) {
+                    return error_return(gif, *bm, "Extract failed.");
+                }
+                // Update the sampler. We'll now be only sampling into the subset.
+                sampler = SkScaledBitmapSampler(innerWidth, innerHeight, this->getSampleSize());
+                workingBitmap = &subset;
+            } else {
+                workingBitmap = bm;
+            }
+
+            // bm is already locked, but if we had to take a subset, it must be locked also,
+            // so that getPixels() will point to its pixels.
+            SkAutoLockPixels alpWorking(*workingBitmap);
+
+            if (!sampler.begin(workingBitmap, SkScaledBitmapSampler::kIndex, *this)) {
+                return error_return(gif, *bm, "Sampler failed to begin.");
             }
 
             // now decode each scanline
-            if (gif->Image.Interlace)
-            {
+            if (gif->Image.Interlace) {
+                // Iterate over the height of the source data. The sampler will
+                // take care of skipping unneeded rows.
                 GifInterlaceIter iter(innerHeight);
-                for (int y = 0; y < innerHeight; y++)
-                {
-                    uint8_t* row = scanline + iter.currY() * rowBytes;
-                    if (DGifGetLine(gif, row, innerWidth) == GIF_ERROR) {
+                for (int y = 0; y < innerHeight; y++){
+                    if (DGifGetLine(gif, scanline, innerWidth) == GIF_ERROR) {
                         return error_return(gif, *bm, "interlace DGifGetLine");
                     }
+                    sampler.sampleInterlaced(scanline, iter.currY());
                     iter.next();
                 }
-            }
-            else
-            {
+            } else {
                 // easy, non-interlace case
-                for (int y = 0; y < innerHeight; y++) {
+                const int outHeight = workingBitmap->height();
+                skip_src_rows(gif, scanline, innerWidth, sampler.srcY0());
+                for (int y = 0; y < outHeight; y++) {
                     if (DGifGetLine(gif, scanline, innerWidth) == GIF_ERROR) {
                         return error_return(gif, *bm, "DGifGetLine");
                     }
-                    scanline += rowBytes;
+                    // scanline now contains the raw data. Sample it.
+                    sampler.next(scanline);
+                    if (y < outHeight - 1) {
+                        skip_src_rows(gif, scanline, innerWidth, sampler.srcDY() - 1);
+                    }
                 }
+                // skip the rest of the rows (if any)
+                int read = (outHeight - 1) * sampler.srcDY() + sampler.srcY0() + 1;
+                SkASSERT(read <= innerHeight);
+                skip_src_rows(gif, scanline, innerWidth, innerHeight - read);
             }
             goto DONE;
             } break;

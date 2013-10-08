@@ -576,6 +576,8 @@ SkScaledBitmapSampler::SkScaledBitmapSampler(int width, int height,
         sk_throw();
     }
 
+    SkDEBUGCODE(fSampleMode = kUninitialized_SampleMode);
+
     if (sampleSize <= 1) {
         fScaledWidth = width;
         fScaledHeight = height;
@@ -711,6 +713,8 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc,
 }
 
 bool SkScaledBitmapSampler::next(const uint8_t* SK_RESTRICT src) {
+    SkASSERT(kInterlaced_SampleMode != fSampleMode);
+    SkDEBUGCODE(fSampleMode = kConsecutive_SampleMode);
     SkASSERT((unsigned)fCurrY < (unsigned)fScaledHeight);
 
     bool hadAlpha = fRowProc(fDstRow, src + fX0 * fSrcPixelSize, fScaledWidth,
@@ -718,6 +722,29 @@ bool SkScaledBitmapSampler::next(const uint8_t* SK_RESTRICT src) {
     fDstRow += fDstRowBytes;
     fCurrY += 1;
     return hadAlpha;
+}
+
+bool SkScaledBitmapSampler::sampleInterlaced(const uint8_t* SK_RESTRICT src, int srcY) {
+    SkASSERT(kConsecutive_SampleMode != fSampleMode);
+    SkDEBUGCODE(fSampleMode = kInterlaced_SampleMode);
+    // Any line that should be a part of the destination can be created by the formula:
+    // fY0 + (some multiplier) * fDY
+    // so if srcY - fY0 is not an integer multiple of fDY that srcY will be skipped.
+    const int srcYMinusY0 = srcY - fY0;
+    if (srcYMinusY0 % fDY != 0) {
+        // This line is not part of the output, so return false for alpha, since we have
+        // not added an alpha to the output.
+        return false;
+    }
+    // Unlike in next(), where the data is used sequentially, this function skips around,
+    // so fDstRow and fCurrY are never updated. fDstRow must always be the starting point
+    // of the destination bitmap's pixels, which is used to calculate the destination row
+    // each time this function is called.
+    const int dstY = srcYMinusY0 / fDY;
+    SkASSERT(dstY < fScaledHeight);
+    char* dstRow = fDstRow + dstY * fDstRowBytes;
+    return fRowProc(dstRow, src + fX0 * fSrcPixelSize, fScaledWidth,
+                    fDX * fSrcPixelSize, dstY, fCTable);
 }
 
 #ifdef SK_DEBUG
