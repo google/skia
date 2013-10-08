@@ -21,11 +21,11 @@
 
 bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
   size_t size = pdf->getLength();
-  void* buffer = sk_malloc_throw(size);
-  pdf->read(buffer, size);
+  SkAutoFree buffer(sk_malloc_throw(size));
+  pdf->read(buffer.get(), size);
 
   SkAutoTDelete<poppler::document> doc(
-      poppler::document::load_from_raw_data((const char*)buffer, size));
+      poppler::document::load_from_raw_data((const char*)buffer.get(), size));
   if (!doc.get() || doc->is_locked()) {
     return false;
   }
@@ -45,7 +45,7 @@ bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (!bitmap.allocPixels()) {
-      return false;
+    return false;
   }
   bitmap.eraseColor(SK_ColorWHITE);
   SkPMColor* bitmapPixels = (SkPMColor*)bitmap.getPixels();
