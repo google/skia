@@ -14,6 +14,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkGlyph.h"
+#include "SkHRESULT.h"
 #include "SkMaskGamma.h"
 #include "SkOTTable_maxp.h"
 #include "SkOTTable_name.h"
@@ -849,18 +850,29 @@ uint16_t SkScalerContext_GDI::generateCharToGlyph(SkUnichar utf32) {
         }
     } else {
         // Use uniscribe to detemine glyph index for non-BMP characters.
-        // Need to add extra item to SCRIPT_ITEM to work around a bug in older
-        // windows versions. https://bugzilla.mozilla.org/show_bug.cgi?id=366643
-        SCRIPT_ITEM si[2 + 1];
-        int items;
-        SkAssertResult(
-            SUCCEEDED(ScriptItemize(utf16, 2, 2, NULL, NULL, si, &items)));
+        static const int numWCHAR = 2;
+        static const int maxItems = 2;
+        // MSDN states that this can be NULL, but some things don't work then.
+        SCRIPT_CONTROL sc = { 0 };
+        // Add extra item to SCRIPT_ITEM to work around a bug (now documented).
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=366643
+        SCRIPT_ITEM si[maxItems + 1];
+        int numItems;
+        HRZM(ScriptItemize(utf16, numWCHAR, maxItems, &sc, NULL, si, &numItems),
+             "Could not itemize character.");
 
-        WORD log[2];
-        SCRIPT_VISATTR vsa;
-        int glyphs;
-        SkAssertResult(SUCCEEDED(ScriptShape(
-            fDDC, &fSC, utf16, 2, 1, &si[0].a, &index, log, &vsa, &glyphs)));
+        // Sometimes ScriptShape cannot find a glyph for a non-BMP and returns 2 space glyphs.
+        static const int maxGlyphs = 2;
+        SCRIPT_VISATTR vsa[maxGlyphs];
+        WORD outGlyphs[maxGlyphs];
+        WORD logClust[numWCHAR];
+        int numGlyphs;
+        HRZM(ScriptShape(fDDC, &fSC, utf16, numWCHAR, maxGlyphs, &si[0].a,
+                         outGlyphs, logClust, vsa, &numGlyphs),
+             "Could not shape character.");
+        if (1 == numGlyphs) {
+            index = outGlyphs[0];
+        }
     }
     return index;
 }
