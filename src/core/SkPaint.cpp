@@ -2038,7 +2038,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         asint(this->getImageFilter())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     if (this->getPaintOptionsAndroid() != SkPaintOptionsAndroid()) {
         flatFlags |= kHasNonDefaultPaintOptionsAndroid_FlatFlag;
     }
@@ -2101,7 +2101,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeFlattenable(this->getImageFilter());
         buffer.writeFlattenable(this->getAnnotation());
     }
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     if (flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
         this->getPaintOptionsAndroid().flatten(buffer);
     }
@@ -2192,13 +2192,13 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setImageFilter(NULL);
     }
 
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
     this->setPaintOptionsAndroid(SkPaintOptionsAndroid());
 #endif
     if (flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
         SkPaintOptionsAndroid options;
         options.unflatten(buffer);
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
         this->setPaintOptionsAndroid(options);
 #endif
     }
