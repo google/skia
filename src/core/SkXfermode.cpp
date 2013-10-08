@@ -8,7 +8,6 @@
 
 
 #include "SkXfermode.h"
-#include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMathPriv.h"
@@ -625,7 +624,16 @@ static SkPMColor luminosity_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
-const ProcCoeff gProcCoeffs[] = {
+
+struct ProcCoeff {
+    SkXfermodeProc      fProc;
+    SkXfermode::Coeff   fSC;
+    SkXfermode::Coeff   fDC;
+};
+
+#define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
+
+static const ProcCoeff gProcCoeffs[] = {
     { clear_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
     { src_modeproc,     SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
     { dst_modeproc,     SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff },
@@ -1337,51 +1345,83 @@ GrEffectRef* XferEffect::TestCreate(SkRandom* rand,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkProcCoeffXfermode::asMode(Mode* mode) const {
-    if (mode) {
-        *mode = fMode;
-    }
-    return true;
-}
-
-bool SkProcCoeffXfermode::asCoeff(Coeff* sc, Coeff* dc) const {
-    if (CANNOT_USE_COEFF == fSrcCoeff) {
-        return false;
+class SkProcCoeffXfermode : public SkProcXfermode {
+public:
+    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
+            : INHERITED(rec.fProc) {
+        fMode = mode;
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
     }
 
-    if (sc) {
-        *sc = fSrcCoeff;
-    }
-    if (dc) {
-        *dc = fDstCoeff;
-    }
-    return true;
-}
-
-#if SK_SUPPORT_GPU
-bool SkProcCoeffXfermode::asNewEffectOrCoeff(GrContext*,
-                                             GrEffectRef** effect,
-                                             Coeff* src,
-                                             Coeff* dst,
-                                             GrTexture* background) const {
-    if (this->asCoeff(src, dst)) {
-        return true;
-    }
-    if (XferEffect::IsSupportedMode(fMode)) {
-        if (NULL != effect) {
-            *effect = XferEffect::Create(fMode, background);
-            SkASSERT(NULL != *effect);
+    virtual bool asMode(Mode* mode) const SK_OVERRIDE {
+        if (mode) {
+            *mode = fMode;
         }
         return true;
     }
-    return false;
-}
+
+    virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE {
+        if (CANNOT_USE_COEFF == fSrcCoeff) {
+            return false;
+        }
+
+        if (sc) {
+            *sc = fSrcCoeff;
+        }
+        if (dc) {
+            *dc = fDstCoeff;
+        }
+        return true;
+    }
+
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffectOrCoeff(GrContext*,
+                                    GrEffectRef** effect,
+                                    Coeff* src,
+                                    Coeff* dst,
+                                    GrTexture* background) const SK_OVERRIDE {
+        if (this->asCoeff(src, dst)) {
+            return true;
+        }
+        if (XferEffect::IsSupportedMode(fMode)) {
+            if (NULL != effect) {
+                *effect = XferEffect::Create(fMode, background);
+                SkASSERT(NULL != *effect);
+            }
+            return true;
+        }
+        return false;
+    }
 #endif
 
-void SkProcCoeffXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.write32(fMode);
-}
+    SK_DEVELOPER_TO_STRING()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
+
+protected:
+    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+        fMode = (SkXfermode::Mode)buffer.read32();
+
+        const ProcCoeff& rec = gProcCoeffs[fMode];
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
+        // now update our function-ptr in the super class
+        this->INHERITED::setProc(rec.fProc);
+    }
+
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        this->INHERITED::flatten(buffer);
+        buffer.write32(fMode);
+    }
+
+private:
+    Mode    fMode;
+    Coeff   fSrcCoeff, fDstCoeff;
+
+    typedef SkProcXfermode INHERITED;
+};
 
 const char* SkXfermode::ModeName(Mode mode) {
     SkASSERT((unsigned) mode <= (unsigned)kLastMode);
@@ -1653,9 +1693,6 @@ void SkXfermode::Term() {
     }
 }
 
-extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
-                                                      SkXfermode::Mode mode);
-
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
     SkASSERT(SK_ARRAY_COUNT(gCachedXfermodes) == kModeCount);
@@ -1677,36 +1714,29 @@ SkXfermode* SkXfermode::Create(Mode mode) {
     SkXfermode* xfer = gCachedXfermodes[mode];
     if (NULL == xfer) {
         const ProcCoeff& rec = gProcCoeffs[mode];
-
-        // check if we have a platform optim for that
-        SkProcCoeffXfermode* xfm = SkPlatformXfermodeFactory(rec, mode);
-        if (xfm != NULL) {
-            xfer = xfm;
-        } else {
-            // All modes can in theory be represented by the ProcCoeff rec, since
-            // it contains function ptrs. However, a few modes are both simple and
-            // commonly used, so we call those out for their own subclasses here.
-            switch (mode) {
-                case kClear_Mode:
-                    xfer = SkNEW_ARGS(SkClearXfermode, (rec));
-                    break;
-                case kSrc_Mode:
-                    xfer = SkNEW_ARGS(SkSrcXfermode, (rec));
-                    break;
-                case kSrcOver_Mode:
-                    SkASSERT(false);    // should not land here
-                    break;
-                case kDstIn_Mode:
-                    xfer = SkNEW_ARGS(SkDstInXfermode, (rec));
-                    break;
-                case kDstOut_Mode:
-                    xfer = SkNEW_ARGS(SkDstOutXfermode, (rec));
-                    break;
-                default:
-                    // no special-case, just rely in the rec and its function-ptrs
-                    xfer = SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
-                    break;
-            }
+        // All modes can in theory be represented by the ProcCoeff rec, since
+        // it contains function ptrs. However, a few modes are both simple and
+        // commonly used, so we call those out for their own subclasses here.
+        switch (mode) {
+            case kClear_Mode:
+                xfer = SkNEW_ARGS(SkClearXfermode, (rec));
+                break;
+            case kSrc_Mode:
+                xfer = SkNEW_ARGS(SkSrcXfermode, (rec));
+                break;
+            case kSrcOver_Mode:
+                SkASSERT(false);    // should not land here
+                break;
+            case kDstIn_Mode:
+                xfer = SkNEW_ARGS(SkDstInXfermode, (rec));
+                break;
+            case kDstOut_Mode:
+                xfer = SkNEW_ARGS(SkDstOutXfermode, (rec));
+                break;
+            default:
+                // no special-case, just rely in the rec and its function-ptrs
+                xfer = SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
+                break;
         }
         gCachedXfermodes[mode] = xfer;
     }

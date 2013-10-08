@@ -275,10 +275,6 @@ protected:
         fProc = proc;
     }
 
-    SkXfermodeProc getProc() const {
-        return fProc;
-    }
-
 private:
     SkXfermodeProc  fProc;
 
