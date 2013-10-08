@@ -277,26 +277,19 @@
               }],
             ],
           }],
-          [ 'skia_asan_build', {
+          # Enable asan, tsan, etc.
+          [ 'skia_sanitizer', {
             'cflags': [
-              '-fsanitize=address',
+              '-fsanitize=<(skia_sanitizer)',
               '-fno-omit-frame-pointer',
             ],
             'ldflags': [
-              '-fsanitize=address',
-            ],
-          }],
-          [ 'skia_tsan_build', {
-            'cflags': [
-              '-fsanitize=thread',
-              '-fno-omit-frame-pointer',
-            ],
-            'ldflags': [
-              '-fsanitize=thread',
+              '-fsanitize=<(skia_sanitizer)',
             ],
           }],
           [ 'skia_clang_build', {
             'cflags': [
+              # Extra warnings we like but that only Clang knows about.
               '-Wstring-conversion',
             ],
           }],
