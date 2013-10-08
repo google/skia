@@ -1097,13 +1097,16 @@ bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
                 *this->getColors(2) != *s.getColors(2)) {
                 return false;
             }
+        } else {
+            if (fYCoord != s.getYCoord()) {
+                return false;
+            }
         }
 
         return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
             fTextureAccess.getParams().getTileModeX() ==
                 s.fTextureAccess.getParams().getTileModeX() &&
             this->useAtlas() == s.useAtlas() &&
-            fYCoord == s.getYCoord() &&
             fCoordTransform.getMatrix().cheapEqualTo(s.fCoordTransform.getMatrix());
     }
 
