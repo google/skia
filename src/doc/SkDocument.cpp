@@ -60,12 +60,12 @@ void SkDocument::endPage() {
     }
 }
 
-void SkDocument::close() {
+bool SkDocument::close() {
     for (;;) {
         switch (fState) {
-            case kBetweenPages_State:
+            case kBetweenPages_State: {
                 fState = kClosed_State;
-                this->onClose(fStream);
+                bool success = this->onClose(fStream);
 
                 if (fDoneProc) {
                     fDoneProc(fStream);
@@ -73,12 +73,17 @@ void SkDocument::close() {
                 // we don't own the stream, but we mark it NULL since we can
                 // no longer write to it.
                 fStream = NULL;
-                return;
+                return success;
+            }
             case kInPage_State:
                 this->endPage();
                 break;
             case kClosed_State:
-                return;
+                return false;
         }
     }
+}
+
+void SkDocument::abort() {
+    fState = kClosed_State;
 }
