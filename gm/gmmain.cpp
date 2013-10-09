@@ -1412,7 +1412,6 @@ DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
               "pixel mismatches into this directory.");
 DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
               "testIndex %% divisor == remainder.");
-DEFINE_bool(pdf, true, "Exercise the pdf rendering test pass.");
 DEFINE_bool(pipe, false, "Exercise the SkGPipe replay test pass.");
 DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
                "any differences between those and the newly generated ones.");
@@ -1528,9 +1527,6 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
         // If any of these were skipped on a per-GM basis, record them as
         // kIntentionallySkipped.
         if (kPDF_Backend == config.fBackend) {
-            if (!FLAGS_pdf) {
-                continue;
-            }
             if (gmFlags & GM::kSkipPDF_Flag) {
                 gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                          renderModeDescriptor);
