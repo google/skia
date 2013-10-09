@@ -84,6 +84,7 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
     SkBitmap testBitmap;
     testBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
     testBitmap.allocPixels();
+    testBitmap.eraseColor(0);
 
     SkRRect testRRect;
     testRRect.setRectXY(testRect, SK_Scalar1, SK_Scalar1);
