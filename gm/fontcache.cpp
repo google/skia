@@ -20,7 +20,7 @@ const SkTypeface::Style gStyles[] = {
     SkTypeface::kNormal, SkTypeface::kItalic
 };
 
-const int gTextSizes[] = {
+const SkScalar gTextSizes[] = {
     12, 14, 16, 18, 20, 22, 24, 26, 28, 30
 };
 
