@@ -52,6 +52,7 @@
             '../src/opts/SkBlitRow_opts_SSE2.cpp',
             '../src/opts/SkBlitRect_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
+            '../src/opts/SkXfermode_opts_none.cpp',
           ],
         }],
         [ 'skia_arch_type == "arm" and arm_version >= 7', {
@@ -76,6 +77,7 @@
             '../src/opts/SkBlitMask_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.h',
+            '../src/opts/SkXfermode_opts_arm.cpp',
           ],
           'conditions': [
             [ 'arm_neon == 1 or arm_neon_optional == 1', {
@@ -99,6 +101,7 @@
             '../src/opts/SkBlitMask_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',
             '../src/opts/SkUtils_opts_none.cpp',
+            '../src/opts/SkXfermode_opts_none.cpp',
           ],
         }],
       ],
