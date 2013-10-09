@@ -286,6 +286,11 @@
             'ldflags': [
               '-fsanitize=<(skia_sanitizer)',
             ],
+            'conditions' : [
+              [ 'skia_sanitizer == "thread"', {
+                'defines': [ 'DYNAMIC_ANNOTATIONS_ENABLED=1' ],
+              }],
+            ],
           }],
           [ 'skia_clang_build', {
             'cflags': [

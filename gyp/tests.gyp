@@ -88,6 +88,7 @@
         '../tests/MemsetTest.cpp',
         '../tests/MetaDataTest.cpp',
         '../tests/MipMapTest.cpp',
+        '../tests/OnceTest.cpp',
         '../tests/OSPathTest.cpp',
         '../tests/PackBitsTest.cpp',
         '../tests/PaintTest.cpp',

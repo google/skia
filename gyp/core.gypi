@@ -116,6 +116,7 @@
         '<(skia_src_path)/core/SkMatrix.cpp',
         '<(skia_src_path)/core/SkMetaData.cpp',
         '<(skia_src_path)/core/SkMipMap.cpp',
+        '<(skia_src_path)/core/SkOnce.h',
         '<(skia_src_path)/core/SkOrderedReadBuffer.cpp',
         '<(skia_src_path)/core/SkOrderedWriteBuffer.cpp',
         '<(skia_src_path)/core/SkPackBits.cpp',
