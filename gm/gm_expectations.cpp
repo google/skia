@@ -34,6 +34,11 @@ namespace skiagm {
         va_start(args, format);
         fprintf(stream, "GM: ");
         vfprintf(stream, format, args);
+#ifdef SK_BUILD_FOR_WIN
+        if (stderr == stream || stdout == stream) {
+            fflush(stream);
+        }
+#endif
         va_end(args);
     }
 
