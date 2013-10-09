@@ -51,7 +51,7 @@
 //   SK_ONCE(my_onetime_setup, &foo);
 //   SkASSERT(5 == foo);
 #define SK_ONCE(name, arg) \
-    sk_once_impl(&sk_once_##name##_done, &sk_once_##name##_mutex, sk_once_##name##_function, arg)
+    sk_once(&sk_once_##name##_done, &sk_once_##name##_mutex, sk_once_##name##_function, arg)
 
 
 //  ----------------------  Implementation details below here. -----------------------------
@@ -98,10 +98,10 @@ inline static void acquire_barrier() {
 // one-time code hasn't run yet.
 
 // This is the guts of the code, called when we suspect the one-time code hasn't been run yet.
-// This should be rarely called, so we separate it from sk_once_impl and don't mark it as inline.
+// This should be rarely called, so we separate it from sk_once and don't mark it as inline.
 // (We don't mind if this is an actual function call, but odds are it'll be inlined anyway.)
 template <typename Arg>
-static void sk_once_impl_slow(bool* done, SkBaseMutex* mutex, void (*once)(Arg), Arg arg) {
+static void sk_once_slow(bool* done, SkBaseMutex* mutex, void (*once)(Arg), Arg arg) {
     const SkAutoMutexAcquire lock(*mutex);
     if (!*done) {
         once(arg);
@@ -136,10 +136,10 @@ void AnnotateBenignRace(const char* file, int line, const volatile void* mem, co
 
 // This is our fast path, called all the time.  We do really want it to be inlined.
 template <typename Arg>
-inline static void sk_once_impl(bool* done, SkBaseMutex* mutex, void (*once)(Arg), Arg arg) {
+inline static void sk_once(bool* done, SkBaseMutex* mutex, void (*once)(Arg), Arg arg) {
     ANNOTATE_BENIGN_RACE(done, "Don't worry TSAN, we're sure this is safe.");
     if (!*done) {
-        sk_once_impl_slow(done, mutex, once, arg);
+        sk_once_slow(done, mutex, once, arg);
     }
     // Also known as a load-load/load-store barrier, this acquire barrier makes
     // sure that anything we read from memory---in particular, memory written by
@@ -148,7 +148,7 @@ inline static void sk_once_impl(bool* done, SkBaseMutex* mutex, void (*once)(Arg
     // In version control terms, this is a lot like saying "sync up to the
     // commit where we wrote *done = true".
     //
-    // The release barrier in sk_once_impl_slow guaranteed that *done = true
+    // The release barrier in sk_once_slow guaranteed that *done = true
     // happens after once(arg), so by syncing to *done = true here we're
     // forcing ourselves to also wait until the effects of once(arg) are readble.
     acquire_barrier();
