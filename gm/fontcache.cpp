@@ -48,7 +48,7 @@ public:
     
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
-        return fName;
+        return SkString("fontcache");
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
@@ -110,7 +110,6 @@ protected:
 
 private:
     SkTypeface* fTypefaces[TYPEFACE_COUNT];
-    SkString fName;
     typedef GM INHERITED;
 };
 
