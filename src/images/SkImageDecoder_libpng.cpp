@@ -648,6 +648,8 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
     png_colorp palette;
     png_bytep trans;
     int numTrans;
+    bool reallyHasAlpha = false;
+    SkColorTable* colorTable = NULL;
 
     png_get_PLTE(png_ptr, info_ptr, &palette, &numPalette);
 
@@ -658,16 +660,17 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
         the colortable by 1 (if its < 256) and duplicate the last color into that slot.
     */
     int colorCount = numPalette + (numPalette < 256);
-    SkPMColor colorStorage[256];    // worst-case storage
-    SkPMColor* colorPtr = colorStorage;
 
+    colorTable = SkNEW_ARGS(SkColorTable, (colorCount));
+
+    SkPMColor* colorPtr = colorTable->lockColors();
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
         png_get_tRNS(png_ptr, info_ptr, &trans, &numTrans, NULL);
         *hasAlphap = (numTrans > 0);
     } else {
         numTrans = 0;
+        colorTable->setFlags(colorTable->getFlags() | SkColorTable::kColorsAreOpaque_Flag);
     }
-
     // check for bad images that might make us crash
     if (numTrans > numPalette) {
         numTrans = numPalette;
@@ -689,7 +692,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
         *colorPtr++ = proc(*trans++, palette->red, palette->green, palette->blue);
         palette++;
     }
-    bool reallyHasAlpha = (transLessThanFF < 0);
+    reallyHasAlpha |= (transLessThanFF < 0);
 
     for (; index < numPalette; index++) {
         *colorPtr++ = SkPackARGB32(0xFF, palette->red, palette->green, palette->blue);
@@ -700,18 +703,8 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
     if (numPalette < 256) {
         *colorPtr = colorPtr[-1];
     }
-
-    SkAlphaType alphaType = kOpaque_SkAlphaType;
-    if (reallyHasAlpha) {
-        if (this->getRequireUnpremultipliedColors()) {
-            alphaType = kUnpremul_SkAlphaType;
-        } else {
-            alphaType = kPremul_SkAlphaType;
-        }
-    }
-
-    *colorTablep = SkNEW_ARGS(SkColorTable,
-                              (colorStorage, colorCount, alphaType));
+    colorTable->unlockColors(true);
+    *colorTablep = colorTable;
     *reallyHasAlphap = reallyHasAlpha;
     return true;
 }

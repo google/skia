@@ -31,7 +31,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     char* dst = (char*)buffer;
 
     memcpy(dst, ctable->lockColors(), ctable->count() * sizeof(SkPMColor));
-    ctable->unlockColors();
+    ctable->unlockColors(false);
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += kGrColorTableSize;

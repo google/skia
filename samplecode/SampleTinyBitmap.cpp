@@ -13,15 +13,15 @@
 #include "SkUtils.h"
 
 static SkBitmap make_bitmap() {
+    SkBitmap bm;
     const int N = 1;
+    SkColorTable* ctable = new SkColorTable(N);
 
-    SkPMColor c[N];
+    SkPMColor* c = ctable->lockColors();
     for (int i = 0; i < N; i++) {
         c[i] = SkPackARGB32(0x80, 0x80, 0, 0);
     }
-    SkColorTable* ctable = new SkColorTable(c, N);
-
-    SkBitmap bm;
+    ctable->unlockColors(true);
     bm.setConfig(SkBitmap::kIndex8_Config, 1, 1);
     bm.allocPixels(ctable);
     ctable->unref();
@@ -58,13 +58,10 @@ protected:
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setIsOpaque(isOpaque);
-#if 0
-        // TODO - I think we just want to not allow this anymore
         SkColorTable* ctable = bm->getColorTable();
         if (ctable) {
             ctable->setIsOpaque(isOpaque);
         }
-#endif
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {

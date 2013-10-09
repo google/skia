@@ -47,7 +47,4 @@ enum SkAlphaType {
     kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
 };
 
-static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
-    return (unsigned)at <= kOpaque_SkAlphaType;
-}
 #endif

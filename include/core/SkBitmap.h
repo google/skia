@@ -748,7 +748,7 @@ public:
     }
     ~SkAutoLockColors() {
         if (fCTable) {
-            fCTable->unlockColors();
+            fCTable->unlockColors(false);
         }
     }
 
@@ -762,7 +762,7 @@ public:
      */
     const SkPMColor* lockColors(SkColorTable* ctable) {
         if (fCTable) {
-            fCTable->unlockColors();
+            fCTable->unlockColors(false);
         }
         fCTable = ctable;
         fColors = ctable ? ctable->lockColors() : NULL;

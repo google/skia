@@ -248,13 +248,10 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 if (NULL == cmap) {
                     return error_return(gif, *bm, "null cmap");
                 }
-                colorCount = cmap->ColorCount;
-                if (colorCount > 256) {
-                    colorCount = 256;   // our kIndex8 can't support more
-                }
 
-                SkPMColor colorPtr[256]; // storage for worst-case
-                SkAlphaType alphaType = kOpaque_SkAlphaType;
+                colorCount = cmap->ColorCount;
+                SkAutoTMalloc<SkPMColor> colorStorage(colorCount);
+                SkPMColor* colorPtr = colorStorage.get();
                 for (int index = 0; index < colorCount; index++) {
                     colorPtr[index] = SkPackARGB32(0xFF,
                                                    cmap->Colors[index].Red,
@@ -266,12 +263,10 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 bool reallyHasAlpha = transpIndex >= 0;
                 if (reallyHasAlpha) {
                     colorPtr[transpIndex] = SK_ColorTRANSPARENT; // ram in a transparent SkPMColor
-                    alphaType = kPremul_SkAlphaType;
                 }
 
-                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable,
-                                                  (colorPtr, colorCount,
-                                                   alphaType)));
+                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colorPtr, colorCount)));
+                ctable->setIsOpaque(!reallyHasAlpha);
                 if (!this->allocPixelRef(bm, ctable)) {
                     return error_return(gif, *bm, "allocPixelRef");
                 }

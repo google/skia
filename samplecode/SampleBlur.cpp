@@ -15,14 +15,14 @@
 #include "SkView.h"
 
 static SkBitmap make_bitmap() {
-    SkPMColor c[256];
+    SkBitmap bm;
+    SkColorTable* ctable = new SkColorTable(256);
+
+    SkPMColor* c = ctable->lockColors();
     for (int i = 0; i < 256; i++) {
         c[i] = SkPackARGB32(255 - i, 0, 0, 0);
     }
-
-    SkBitmap bm;
-    SkColorTable* ctable = new SkColorTable(c, 256);
-
+    ctable->unlockColors(true);
     bm.setConfig(SkBitmap::kIndex8_Config, 256, 256);
     bm.allocPixels(ctable);
     ctable->unref();

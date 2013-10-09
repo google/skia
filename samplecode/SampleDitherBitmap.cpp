@@ -54,13 +54,14 @@ static void test_pathregion() {
 }
 
 static SkBitmap make_bitmap() {
-    SkPMColor c[256];
+    SkBitmap bm;
+    SkColorTable* ctable = new SkColorTable(256);
+
+    SkPMColor* c = ctable->lockColors();
     for (int i = 0; i < 256; i++) {
         c[i] = SkPackARGB32(0xFF, i, 0, 0);
     }
-    SkColorTable* ctable = new SkColorTable(c, 256, kOpaque_SkAlphaType);
-
-    SkBitmap bm;
+    ctable->unlockColors(true);
     bm.setConfig(SkBitmap::kIndex8_Config, 256, 32);
     bm.allocPixels(ctable);
     ctable->unref();
@@ -101,14 +102,10 @@ protected:
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setIsOpaque(isOpaque);
-#if 0
         SkColorTable* ctable = bm->getColorTable();
         if (ctable) {
-            if (ctable->isOpaque() != isOpaque) {
-                // how do we change a colortable? don't want to
-            }
+            ctable->setIsOpaque(isOpaque);
         }
-#endif
     }
 
     static void draw2(SkCanvas* canvas, const SkBitmap& bm) {

@@ -36,7 +36,7 @@ public:
         }
 
         if fSource.getColorTable())
-            fSource.getColorTable()->unlockColors();
+            fSource.getColorTable()->unlockColors(false);
     }
 
 private:
