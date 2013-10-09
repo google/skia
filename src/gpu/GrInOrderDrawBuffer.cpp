@@ -384,11 +384,10 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     }
 }
 
-GrInOrderDrawBuffer::StencilPath::StencilPath() : fStroke(SkStrokeRec::kFill_InitStyle) {}
-GrInOrderDrawBuffer::FillPath::FillPath() : fStroke(SkStrokeRec::kFill_InitStyle) {}
+GrInOrderDrawBuffer::StencilPath::StencilPath() {}
+GrInOrderDrawBuffer::DrawPath::DrawPath() {}
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStrokeRec& stroke,
-                                        SkPath::FillType fill) {
+void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, SkPath::FillType fill) {
     if (this->needsNewClip()) {
         this->recordClip();
     }
@@ -400,10 +399,9 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStrokeRec& s
     sp->fPath.reset(path);
     path->ref();
     sp->fFill = fill;
-    sp->fStroke = stroke;
 }
 
-void GrInOrderDrawBuffer::onFillPath(const GrPath* path, const SkStrokeRec& stroke,
+void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
                                      SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
     if (this->needsNewClip()) {
         this->recordClip();
@@ -412,11 +410,10 @@ void GrInOrderDrawBuffer::onFillPath(const GrPath* path, const SkStrokeRec& stro
     if (this->needsNewState()) {
         this->recordState();
     }
-    FillPath* cp = this->recordFillPath();
+    DrawPath* cp = this->recordDrawPath();
     cp->fPath.reset(path);
     path->ref();
     cp->fFill = fill;
-    cp->fStroke = stroke;
     if (NULL != dstCopy) {
         cp->fDstCopy = *dstCopy;
     }
@@ -456,7 +453,7 @@ void GrInOrderDrawBuffer::reset() {
     fCmds.reset();
     fDraws.reset();
     fStencilPaths.reset();
-    fFillPaths.reset();
+    fDrawPaths.reset();
     fStates.reset();
     fClears.reset();
     fVertexPool.reset();
@@ -501,7 +498,7 @@ void GrInOrderDrawBuffer::flush() {
     int currClear       = 0;
     int currDraw        = 0;
     int currStencilPath = 0;
-    int currFillPath    = 0;
+    int currDrawPath    = 0;
     int currCopySurface = 0;
 
     for (int c = 0; c < numCmds; ++c) {
@@ -519,15 +516,15 @@ void GrInOrderDrawBuffer::flush() {
             }
             case kStencilPath_Cmd: {
                 const StencilPath& sp = fStencilPaths[currStencilPath];
-                fDstGpu->stencilPath(sp.fPath.get(), sp.fStroke, sp.fFill);
+                fDstGpu->stencilPath(sp.fPath.get(), sp.fFill);
                 ++currStencilPath;
                 break;
             }
-            case kFillPath_Cmd: {
-                const FillPath& cp = fFillPaths[currFillPath];
-                fDstGpu->executeFillPath(cp.fPath.get(), cp.fStroke, cp.fFill,
+            case kDrawPath_Cmd: {
+                const DrawPath& cp = fDrawPaths[currDrawPath];
+                fDstGpu->executeDrawPath(cp.fPath.get(), cp.fFill,
                                          NULL != cp.fDstCopy.texture() ? &cp.fDstCopy : NULL);
-                ++currFillPath;
+                ++currDrawPath;
                 break;
             }
             case kSetState_Cmd:
@@ -839,9 +836,9 @@ GrInOrderDrawBuffer::StencilPath* GrInOrderDrawBuffer::recordStencilPath() {
     return &fStencilPaths.push_back();
 }
 
-GrInOrderDrawBuffer::FillPath* GrInOrderDrawBuffer::recordFillPath() {
-    fCmds.push_back(kFillPath_Cmd);
-    return &fFillPaths.push_back();
+GrInOrderDrawBuffer::DrawPath* GrInOrderDrawBuffer::recordDrawPath() {
+    fCmds.push_back(kDrawPath_Cmd);
+    return &fDrawPaths.push_back();
 }
 
 GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear() {

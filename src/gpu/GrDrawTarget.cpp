@@ -517,20 +517,18 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
     }
 }
 
-void GrDrawTarget::stencilPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
+void GrDrawTarget::stencilPath(const GrPath* path, SkPath::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(NULL != path);
     SkASSERT(this->caps()->pathRenderingSupport());
-    SkASSERT(!stroke.isHairlineStyle());
     SkASSERT(!SkPath::IsInverseFillType(fill));
-    this->onStencilPath(path, stroke, fill);
+    this->onStencilPath(path, fill);
 }
 
-void GrDrawTarget::fillPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
+void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(NULL != path);
     SkASSERT(this->caps()->pathRenderingSupport());
-    SkASSERT(!stroke.isHairlineStyle());
     const GrDrawState* drawState = &getDrawState();
 
     SkRect devBounds;
@@ -548,7 +546,7 @@ void GrDrawTarget::fillPath(const GrPath* path, const SkStrokeRec& stroke, SkPat
         return;
     }
 
-    this->onFillPath(path, stroke, fill, dstCopy.texture() ? &dstCopy : NULL);
+    this->onDrawPath(path, fill, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

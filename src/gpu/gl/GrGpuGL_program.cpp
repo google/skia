@@ -253,7 +253,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
             return false;
         }
 
-        SkASSERT(kFillPath_DrawType != type || !fCurrentProgram->hasVertexShader());
+        SkASSERT(kDrawPath_DrawType != type || !fCurrentProgram->hasVertexShader());
 
         fCurrentProgram.get()->ref();
 

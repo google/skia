@@ -12,6 +12,7 @@
 #include "GrGLShaderBuilder.h"
 #include "GrTemplates.h"
 #include "GrTypes.h"
+#include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
 static const GrGLuint GR_MAX_GLUINT = ~0U;
@@ -1276,9 +1277,9 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     }
 }
 
-GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
+GrPath* GrGpuGL::onCreatePath(const SkPath& inPath, const SkStrokeRec& stroke) {
     SkASSERT(this->caps()->pathRenderingSupport());
-    return SkNEW_ARGS(GrGLPath, (this, inPath));
+    return SkNEW_ARGS(GrGLPath, (this, inPath, stroke));
 }
 
 void GrGpuGL::flushScissor() {
@@ -1700,7 +1701,7 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, SkPath::FillType fill) {
     GL_CALL(StencilFillPath(id, fillMode, writeMask));
 }
 
-void GrGpuGL::onGpuFillPath(const GrPath* path, SkPath::FillType fill) {
+void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
 
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
@@ -1709,16 +1710,27 @@ void GrGpuGL::onGpuFillPath(const GrPath* path, SkPath::FillType fill) {
     SkASSERT(!fCurrentProgram->hasVertexShader());
 
     flushPathStencilSettings(fill);
+    const SkStrokeRec& stroke = path->getStroke();
 
     SkPath::FillType nonInvertedFill = SkPath::ConvertToNonInverseFillType(fill);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
     GrGLenum fillMode =
         gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
     GrGLint writeMask = fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
-    GL_CALL(StencilFillPath(id, fillMode, writeMask));
+
+    if (stroke.isFillStyle() || SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle()) {
+        GL_CALL(StencilFillPath(id, fillMode, writeMask));
+    }
+    if (stroke.needToApply()) {
+        GL_CALL(StencilStrokePath(id, 0xffff, writeMask));
+    }
 
     if (nonInvertedFill == fill) {
-        GL_CALL(CoverFillPath(id, GR_GL_BOUNDING_BOX));
+        if (stroke.needToApply()) {
+            GL_CALL(CoverStrokePath(id, GR_GL_BOUNDING_BOX));
+        } else {
+            GL_CALL(CoverFillPath(id, GR_GL_BOUNDING_BOX));
+        }
     } else {
         GrDrawState* drawState = this->drawState();
         GrDrawState::AutoViewMatrixRestore avmr;

@@ -197,10 +197,10 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
-GrPath* GrGpu::createPath(const SkPath& path) {
+GrPath* GrGpu::createPath(const SkPath& path, const SkStrokeRec& stroke) {
     SkASSERT(this->caps()->pathRenderingSupport());
     this->handleDirtyContext();
-    return this->onCreatePath(path);
+    return this->onCreatePath(path, stroke);
 }
 
 void GrGpu::clear(const SkIRect* rect,
@@ -382,7 +382,7 @@ void GrGpu::onDraw(const DrawInfo& info) {
     this->onGpuDraw(info);
 }
 
-void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillType fill) {
+void GrGpu::onStencilPath(const GrPath* path, SkPath::FillType fill) {
     this->handleDirtyContext();
 
     GrDrawState::AutoRestoreEffects are;
@@ -393,18 +393,19 @@ void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillTy
     this->onGpuStencilPath(path, fill);
 }
 
-void GrGpu::onFillPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill,
+
+void GrGpu::onDrawPath(const GrPath* path, SkPath::FillType fill,
                        const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
     drawState()->setDefaultVertexAttribs();
 
     GrDrawState::AutoRestoreEffects are;
-    if (!this->setupClipAndFlushState(kFillPath_DrawType, dstCopy, &are)) {
+    if (!this->setupClipAndFlushState(kDrawPath_DrawType, dstCopy, &are)) {
         return;
     }
 
-    this->onGpuFillPath(path, fill);
+    this->onGpuDrawPath(path, fill);
 }
 
 void GrGpu::finalizeReservedVertices() {

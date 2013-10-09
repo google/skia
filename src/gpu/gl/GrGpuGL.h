@@ -121,7 +121,7 @@ private:
                                                  bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) SK_OVERRIDE;
-    virtual GrPath* onCreatePath(const SkPath&) SK_OVERRIDE;
+    virtual GrPath* onCreatePath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
@@ -152,7 +152,7 @@ private:
     virtual void onGpuDraw(const DrawInfo&) SK_OVERRIDE;
 
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onGpuFillPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const SkIRect& rect,

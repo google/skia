@@ -326,13 +326,13 @@ public:
      * winding (not inverse or hairline). It will respect the HW antialias flag
      * on the draw state (if possible in the 3D API).
      */
-    void stencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill);
+    void stencilPath(const GrPath*, SkPath::FillType fill);
 
     /**
-     * Fills a path. Fill must not be a hairline. It will respect the HW
+     * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      */
-    void fillPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill);
+    void drawPath(const GrPath*, SkPath::FillType fill);
 
     /**
      * Helper function for drawing rects. It performs a geometry src push and pop
@@ -455,11 +455,11 @@ public:
     void executeDraw(const DrawInfo& info) { this->onDraw(info); }
 
     /**
-     * For subclass internal use to invoke a call to onFillPath().
+     * For subclass internal use to invoke a call to onDrawPath().
      */
-    void executeFillPath(const GrPath* path, const SkStrokeRec& stroke,
-                         SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
-        this->onFillPath(path, stroke, fill, dstCopy);
+    void executeDrawPath(const GrPath* path, SkPath::FillType fill,
+                         const GrDeviceCoordTexture* dstCopy) {
+        this->onDrawPath(path, fill, dstCopy);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -838,8 +838,9 @@ private:
                             const SkMatrix* matrix,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix);
-    virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
-    virtual void onFillPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill,
+
+    virtual void onStencilPath(const GrPath*, SkPath::FillType) = 0;
+    virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) = 0;
 
     // helpers for reserving vertex and index space.

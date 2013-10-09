@@ -14,7 +14,6 @@
 #include "GrPath.h"
 
 #include "SkClipStack.h"
-#include "SkStrokeRec.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
@@ -87,7 +86,7 @@ private:
         kSetClip_Cmd        = 4,
         kClear_Cmd          = 5,
         kCopySurface_Cmd    = 6,
-        kFillPath_Cmd       = 7,
+        kDrawPath_Cmd       = 7,
     };
 
     class DrawRecord : public DrawInfo {
@@ -101,15 +100,13 @@ private:
         StencilPath();
 
         SkAutoTUnref<const GrPath>  fPath;
-        SkStrokeRec                 fStroke;
         SkPath::FillType            fFill;
     };
 
-    struct FillPath : public ::SkNoncopyable {
-        FillPath();
+    struct DrawPath : public ::SkNoncopyable {
+        DrawPath();
 
         SkAutoTUnref<const GrPath>  fPath;
-        SkStrokeRec                 fStroke;
         SkPath::FillType            fFill;
         GrDeviceCoordTexture        fDstCopy;
     };
@@ -136,9 +133,11 @@ private:
                             const SkMatrix* matrix,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
-    virtual void onFillPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType,
+
+    virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;
@@ -181,7 +180,7 @@ private:
     void            recordClip();
     DrawRecord*     recordDraw(const DrawInfo&);
     StencilPath*    recordStencilPath();
-    FillPath*       recordFillPath();
+    DrawPath*       recordDrawPath();
     Clear*          recordClear();
     CopySurface*    recordCopySurface();
 
@@ -190,7 +189,7 @@ private:
         kCmdPreallocCnt          = 32,
         kDrawPreallocCnt         = 8,
         kStencilPathPreallocCnt  = 8,
-        kFillPathPreallocCnt     = 8,
+        kDrawPathPreallocCnt     = 8,
         kStatePreallocCnt        = 8,
         kClipPreallocCnt         = 8,
         kClearPreallocCnt        = 4,
@@ -201,7 +200,7 @@ private:
     SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
     GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
     GrSTAllocator<kStatePreallocCnt, StencilPath>                      fStencilPaths;
-    GrSTAllocator<kStatePreallocCnt, FillPath>                         fFillPaths;
+    GrSTAllocator<kStatePreallocCnt, DrawPath>                         fDrawPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
