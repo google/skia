@@ -11,6 +11,7 @@
 #include "GrDrawTarget.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
+#include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
@@ -413,17 +414,18 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     return true;
 }
 
-bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
+bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds) {
     if (this->caps()->dstReadInShaderSupport() || !this->getDrawState().willEffectReadDstColor()) {
         return true;
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
-
-    const GrClipData* clip = this->getClip();
     SkIRect copyRect;
-    clip->getConservativeBounds(this->getDrawState().getRenderTarget(), &copyRect);
-    SkIRect drawIBounds;
-    if (info->getDevIBounds(&drawIBounds)) {
+    const GrClipData* clip = this->getClip();
+    clip->getConservativeBounds(rt, &copyRect);
+
+    if (NULL != drawBounds) {
+        SkIRect drawIBounds;
+        drawBounds->roundOut(&drawIBounds);
         if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
             GrPrintf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
@@ -451,8 +453,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     }
     SkIPoint dstPoint = {0, 0};
     if (this->copySurface(ast.texture(), rt, copyRect, dstPoint)) {
-        info->fDstCopy.setTexture(ast.texture());
-        info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
+        dstCopy->setTexture(ast.texture());
+        dstCopy->setOffset(copyRect.fLeft, copyRect.fTop);
         return true;
     } else {
         return false;
@@ -518,10 +520,35 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 void GrDrawTarget::stencilPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(NULL != path);
-    SkASSERT(this->caps()->pathStencilingSupport());
+    SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(!stroke.isHairlineStyle());
     SkASSERT(!SkPath::IsInverseFillType(fill));
     this->onStencilPath(path, stroke, fill);
+}
+
+void GrDrawTarget::fillPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
+    // TODO: extract portions of checkDraw that are relevant to path rendering.
+    SkASSERT(NULL != path);
+    SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(!stroke.isHairlineStyle());
+    const GrDrawState* drawState = &getDrawState();
+
+    SkRect devBounds;
+    if (SkPath::IsInverseFillType(fill)) {
+        devBounds = SkRect::MakeWH(SkIntToScalar(drawState->getRenderTarget()->width()),
+                                   SkIntToScalar(drawState->getRenderTarget()->height()));
+    } else {
+        devBounds = path->getBounds();
+    }
+    SkMatrix viewM = drawState->getViewMatrix();
+    viewM.mapRect(&devBounds);
+
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(&dstCopy, &devBounds)) {
+        return;
+    }
+
+    this->onFillPath(path, stroke, fill, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -949,7 +976,7 @@ void GrDrawTargetCaps::reset() {
     fGeometryShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fBufferLockSupport = false;
-    fPathStencilingSupport = false;
+    fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fReuseScratchTextures = true;
 
@@ -968,7 +995,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fGeometryShaderSupport = other.fGeometryShaderSupport;
     fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
     fBufferLockSupport = other.fBufferLockSupport;
-    fPathStencilingSupport = other.fPathStencilingSupport;
+    fPathRenderingSupport = other.fPathRenderingSupport;
     fDstReadInShaderSupport = other.fDstReadInShaderSupport;
     fReuseScratchTextures = other.fReuseScratchTextures;
 
@@ -990,7 +1017,7 @@ void GrDrawTargetCaps::print() const {
     GrPrintf("Geometry Shader Support     : %s\n", gNY[fGeometryShaderSupport]);
     GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
     GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
-    GrPrintf("Path Stenciling Support     : %s\n", gNY[fPathStencilingSupport]);
+    GrPrintf("Path Rendering Support      : %s\n", gNY[fPathRenderingSupport]);
     GrPrintf("Dst Read In Shader Support  : %s\n", gNY[fDstReadInShaderSupport]);
     GrPrintf("Reuse Scratch Textures      : %s\n", gNY[fReuseScratchTextures]);
     GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);

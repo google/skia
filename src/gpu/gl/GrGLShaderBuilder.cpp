@@ -930,7 +930,7 @@ GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
 
     SkASSERT(!desc.getHeader().fHasVertexCode);
     SkASSERT(gpu->glCaps().fixedFunctionSupport());
-    SkASSERT(gpu->glCaps().pathStencilingSupport());
+    SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
 }

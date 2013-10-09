@@ -1012,3 +1012,29 @@ void GrClipMaskManager::setGpu(GrGpu* gpu) {
     fGpu = gpu;
     fAACache.setContext(gpu->getContext());
 }
+
+void GrClipMaskManager::adjustPathStencilParams(GrStencilSettings* settings) {
+    const GrDrawState& drawState = fGpu->getDrawState();
+    GrClipMaskManager::StencilClipMode clipMode;
+    if (this->isClipInStencil() && drawState.isClipState()) {
+        clipMode = GrClipMaskManager::kRespectClip_StencilClipMode;
+        // We can't be modifying the clip and respecting it at the same time.
+        SkASSERT(!drawState.isStateFlagEnabled(
+                    GrGpu::kModifyStencilClip_StateBit));
+    } else if (drawState.isStateFlagEnabled(
+                    GrGpu::kModifyStencilClip_StateBit)) {
+        clipMode = GrClipMaskManager::kModifyClip_StencilClipMode;
+    } else {
+        clipMode = GrClipMaskManager::kIgnoreClip_StencilClipMode;
+    }
+
+    // TODO: dynamically attach a stencil buffer
+    int stencilBits = 0;
+    GrStencilBuffer* stencilBuffer =
+        drawState.getRenderTarget()->getStencilBuffer();
+    if (NULL != stencilBuffer) {
+        stencilBits = stencilBuffer->bits();
+        this->adjustStencilParams(settings, clipMode, stencilBits);
+    }
+}
+

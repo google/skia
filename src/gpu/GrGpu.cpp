@@ -198,7 +198,7 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 GrPath* GrGpu::createPath(const SkPath& path) {
-    SkASSERT(this->caps()->pathStencilingSupport());
+    SkASSERT(this->caps()->pathRenderingSupport());
     this->handleDirtyContext();
     return this->onCreatePath(path);
 }
@@ -245,6 +245,42 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
     this->onResolveRenderTarget(target);
+}
+
+static const GrStencilSettings& winding_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kIncClamp_StencilOp,
+        kIncClamp_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+
+static const GrStencilSettings& even_odd_path_stencil_settings() {
+    GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
+        kInvert_StencilOp,
+        kInvert_StencilOp,
+        kAlwaysIfInClip_StencilFunc,
+        0xFFFF, 0xFFFF, 0xFFFF);
+    return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
+}
+
+void GrGpu::getPathStencilSettingsForFillType(SkPath::FillType fill, GrStencilSettings* outStencilSettings) {
+
+    switch (fill) {
+        default:
+            GrCrash("Unexpected path fill.");
+            /* fallthrough */;
+        case SkPath::kWinding_FillType:
+        case SkPath::kInverseWinding_FillType:
+            *outStencilSettings = winding_path_stencil_settings();
+            break;
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
+            *outStencilSettings = even_odd_path_stencil_settings();
+            break;
+    }
+    fClipMaskManager.adjustPathStencilParams(outStencilSettings);
 }
 
 
@@ -349,16 +385,26 @@ void GrGpu::onDraw(const DrawInfo& info) {
 void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillType fill) {
     this->handleDirtyContext();
 
-    // TODO: make this more efficient (don't copy and copy back)
-    GrAutoTRestore<GrStencilSettings> asr(this->drawState()->stencil());
-
-    this->setStencilPathSettings(*path, fill, this->drawState()->stencil());
     GrDrawState::AutoRestoreEffects are;
     if (!this->setupClipAndFlushState(kStencilPath_DrawType, NULL, &are)) {
         return;
     }
 
     this->onGpuStencilPath(path, fill);
+}
+
+void GrGpu::onFillPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill,
+                       const GrDeviceCoordTexture* dstCopy) {
+    this->handleDirtyContext();
+
+    drawState()->setDefaultVertexAttribs();
+
+    GrDrawState::AutoRestoreEffects are;
+    if (!this->setupClipAndFlushState(kFillPath_DrawType, dstCopy, &are)) {
+        return;
+    }
+
+    this->onGpuFillPath(path, fill);
 }
 
 void GrGpu::finalizeReservedVertices() {

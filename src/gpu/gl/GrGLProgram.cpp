@@ -52,7 +52,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
 
     if (fDesc.getHeader().fHasVertexCode ||
         !fGpu->glCaps().fixedFunctionSupport() ||
-        !fGpu->glCaps().pathStencilingSupport()) {
+        !fGpu->glCaps().pathRenderingSupport()) {
 
         GrGLFullShaderBuilder fullBuilder(fGpu, fUniformManager, fDesc);
         if (this->genProgram(&fullBuilder, colorStages, coverageStages)) {

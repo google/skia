@@ -329,6 +329,12 @@ public:
     void stencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill);
 
     /**
+     * Fills a path. Fill must not be a hairline. It will respect the HW
+     * antialias flag on the draw state (if possible in the 3D API).
+     */
+    void fillPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill);
+
+    /**
      * Helper function for drawing rects. It performs a geometry src push and pop
      * and thus will finalize any reserved geometry.
      *
@@ -447,6 +453,14 @@ public:
      * For subclass internal use to invoke a call to onDraw(). See DrawInfo below.
      */
     void executeDraw(const DrawInfo& info) { this->onDraw(info); }
+
+    /**
+     * For subclass internal use to invoke a call to onFillPath().
+     */
+    void executeFillPath(const GrPath* path, const SkStrokeRec& stroke,
+                         SkPath::FillType fill, const GrDeviceCoordTexture* dstCopy) {
+        this->onFillPath(path, stroke, fill, dstCopy);
+    }
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -761,15 +775,6 @@ protected:
         }
         const SkRect* getDevBounds() const { return fDevBounds; }
 
-        bool getDevIBounds(SkIRect* bounds) const {
-            if (NULL != fDevBounds) {
-                fDevBounds->roundOut(bounds);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         // NULL if no copy of the dst is needed for the draw.
         const GrDeviceCoordTexture* getDstCopy() const {
             if (NULL != fDstCopy.texture()) {
@@ -834,6 +839,8 @@ private:
                             const SkRect* localRect,
                             const SkMatrix* localMatrix);
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
+    virtual void onFillPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill,
+                            const GrDeviceCoordTexture* dstCopy) = 0;
 
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(size_t vertexSize,
@@ -852,7 +859,10 @@ private:
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.
-    bool setupDstReadIfNecessary(DrawInfo* info);
+    bool setupDstReadIfNecessary(DrawInfo* info) {
+        return this->setupDstReadIfNecessary(&info->fDstCopy, info->getDevBounds());
+    }
+    bool setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds);
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }

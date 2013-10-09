@@ -70,6 +70,8 @@ public:
     }
 
     void setGpu(GrGpu* gpu);
+
+    void adjustPathStencilParams(GrStencilSettings* settings);
 private:
     /**
      * Informs the helper function adjustStencilParams() about how the stencil

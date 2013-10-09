@@ -151,11 +151,8 @@ private:
 
     virtual void onGpuDraw(const DrawInfo&) SK_OVERRIDE;
 
-    virtual void setStencilPathSettings(const GrPath&,
-                                        SkPath::FillType,
-                                        GrStencilSettings* settings)
-                                        SK_OVERRIDE;
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
+    virtual void onGpuFillPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const SkIRect& rect,
@@ -245,6 +242,7 @@ private:
     void flushRenderTarget(const SkIRect* bound);
     void flushStencil(DrawType);
     void flushAAState(DrawType);
+    void flushPathStencilSettings(SkPath::FillType fill);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
@@ -434,6 +432,7 @@ private:
 
     GrStencilSettings           fHWStencilSettings;
     TriState                    fHWStencilTestEnabled;
+    GrStencilSettings           fHWPathStencilSettings;
 
     GrDrawState::DrawFace       fHWDrawFace;
     TriState                    fHWWriteToColor;

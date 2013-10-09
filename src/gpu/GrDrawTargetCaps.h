@@ -34,7 +34,7 @@ public:
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool bufferLockSupport() const { return fBufferLockSupport; }
-    bool pathStencilingSupport() const { return fPathStencilingSupport; }
+    bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool reuseScratchTextures() const { return fReuseScratchTextures; }
 
@@ -53,7 +53,7 @@ protected:
     bool fGeometryShaderSupport     : 1;
     bool fDualSourceBlendingSupport : 1;
     bool fBufferLockSupport         : 1;
-    bool fPathStencilingSupport     : 1;
+    bool fPathRenderingSupport      : 1;
     bool fDstReadInShaderSupport    : 1;
     bool fReuseScratchTextures      : 1;
 
