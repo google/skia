@@ -175,19 +175,19 @@ void SkPdfNativeDoc::loadWithoutXRef() {
     // TODO(edisonn): read pdf version
     current = ignoreLine(current, end);
 
-    current = skipPdfWhiteSpaces(0, current, end);
+    current = skipPdfWhiteSpaces(current, end);
     while (current < end) {
         SkPdfNativeObject token;
-        current = nextObject(0, current, end, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+        current = nextObject(current, end, &token, NULL, NULL);
         if (token.isInteger()) {
             int id = (int)token.intValue();
 
             token.reset();
-            current = nextObject(0, current, end, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, end, &token, NULL, NULL);
             // int generation = (int)token.intValue();  // TODO(edisonn): ignored for now
 
             token.reset();
-            current = nextObject(0, current, end, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, end, &token, NULL, NULL);
             // TODO(edisonn): must be obj, return error if not? ignore ?
             if (!token.isKeyword("obj")) {
                 SkPdfReport(kWarning_SkPdfIssueSeverity, kMissingToken_SkPdfIssue, "Could not find obj", NULL, NULL);
@@ -201,7 +201,7 @@ void SkPdfNativeDoc::loadWithoutXRef() {
             fObjects[id].fOffset = current - fFileContent;
 
             SkPdfNativeObject* obj = fAllocator->allocObject();
-            current = nextObject(0, current, end, obj, fAllocator, this PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, end, obj, fAllocator, this);
 
             fObjects[id].fResolvedReference = obj;
             fObjects[id].fObj = obj;
@@ -214,10 +214,10 @@ void SkPdfNativeDoc::loadWithoutXRef() {
             current = readTrailer(current, end, true, &dummy, true);
         } else if (token.isKeyword("startxref")) {
             token.reset();
-            current = nextObject(0, current, end, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));  // ignore
+            current = nextObject(current, end, &token, NULL, NULL);  // ignore
         }
 
-        current = skipPdfWhiteSpaces(0, current, end);
+        current = skipPdfWhiteSpaces(current, end);
     }
 
     // TODO(edisonn): hack, detect root catalog - we need to implement liniarized support, and remove this hack.
@@ -252,7 +252,7 @@ SkPdfNativeDoc::~SkPdfNativeDoc() {
 
 const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd) {
     SkPdfNativeObject xref;
-    const unsigned char* current = nextObject(0, xrefStart, trailerEnd, &xref, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    const unsigned char* current = nextObject(xrefStart, trailerEnd, &xref, NULL, NULL);
 
     if (!xref.isKeyword("xref")) {
         SkPdfReport(kWarning_SkPdfIssueSeverity, kMissingToken_SkPdfIssue, "Could not find sref", NULL, NULL);
@@ -263,7 +263,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
     while (current < trailerEnd) {
         token.reset();
         const unsigned char* previous = current;
-        current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+        current = nextObject(current, trailerEnd, &token, NULL, NULL);
         if (!token.isInteger()) {
             SkPdfReport(kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue, "Done readCrossReferenceSection", NULL, NULL);
             return previous;
@@ -271,7 +271,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
 
         int startId = (int)token.intValue();
         token.reset();
-        current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+        current = nextObject(current, trailerEnd, &token, NULL, NULL);
 
         if (!token.isInteger()) {
             SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
@@ -282,7 +282,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
 
         for (int i = 0; i < entries; i++) {
             token.reset();
-            current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, trailerEnd, &token, NULL, NULL);
             if (!token.isInteger()) {
                 SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
                 return current;
@@ -290,7 +290,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
             int offset = (int)token.intValue();
 
             token.reset();
-            current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, trailerEnd, &token, NULL, NULL);
             if (!token.isInteger()) {
                 SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection", &token, SkPdfNativeObject::kInteger_PdfObjectType, NULL);
                 return current;
@@ -298,7 +298,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
             int generation = (int)token.intValue();
 
             token.reset();
-            current = nextObject(0, current, trailerEnd, &token, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+            current = nextObject(current, trailerEnd, &token, NULL, NULL);
             if (!token.isKeyword() || token.lenstr() != 1 || (*token.c_str() != 'f' && *token.c_str() != 'n')) {
                 SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readCrossReferenceSection: f or n expected", &token, SkPdfNativeObject::kKeyword_PdfObjectType, NULL);
                 return current;
@@ -319,7 +319,7 @@ const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerSta
         SkPdfNativeObject trailerKeyword;
         // TODO(edisonn): use null allocator, and let it just fail if memory
         // needs allocated (but no crash)!
-        current = nextObject(0, current, trailerEnd, &trailerKeyword, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+        current = nextObject(current, trailerEnd, &trailerKeyword, NULL, NULL);
 
         if (!trailerKeyword.isKeyword() || strlen("trailer") != trailerKeyword.lenstr() ||
             strncmp(trailerKeyword.c_str(), "trailer", strlen("trailer")) != 0) {
@@ -330,7 +330,7 @@ const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerSta
     }
 
     SkPdfNativeObject token;
-    current = nextObject(0, current, trailerEnd, &token, fAllocator, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    current = nextObject(current, trailerEnd, &token, fAllocator, NULL);
     if (!token.isDictionary()) {
         return current;
     }
@@ -385,19 +385,19 @@ SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/
     SkPdfNativeObject objKeyword;
     SkPdfNativeObject* dict = fAllocator->allocObject();
 
-    current = nextObject(0, current, end, &idObj, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    current = nextObject(current, end, &idObj, NULL, NULL);
     if (current >= end) {
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading id", NULL, NULL);
         return NULL;
     }
 
-    current = nextObject(0, current, end, &generationObj, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    current = nextObject(current, end, &generationObj, NULL, NULL);
     if (current >= end) {
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading generation", NULL, NULL);
         return NULL;
     }
 
-    current = nextObject(0, current, end, &objKeyword, NULL, NULL PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    current = nextObject(current, end, &objKeyword, NULL, NULL);
     if (current >= end) {
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kReadStreamError_SkPdfIssue, "reading keyword obj", NULL, NULL);
         return NULL;
@@ -416,7 +416,7 @@ SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/
         SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "readObject: unexpected obj keyword", &objKeyword, SkPdfNativeObject::kKeyword_PdfObjectType, NULL);
     }
 
-    current = nextObject(1, current, end, dict, fAllocator, this PUT_TRACK_STREAM_ARGS_EXPL2(0, fFileContent));
+    current = nextObject(current, end, dict, fAllocator, this);
 
     // TODO(edisonn): report warning/error - verify last token is endobj
 
@@ -524,19 +524,22 @@ const SkPdfMapper* SkPdfNativeDoc::mapper() const {
 
 SkPdfReal* SkPdfNativeDoc::createReal(double value) const {
     SkPdfNativeObject* obj = fAllocator->allocObject();
-    SkPdfNativeObject::makeReal(value, obj PUT_TRACK_PARAMETERS_SRC);
+    SkPdfNativeObject::makeReal(value, obj);
+    // TODO(edisonn): TRACK_FROM_CODE(obj);
     return (SkPdfReal*)obj;
 }
 
 SkPdfInteger* SkPdfNativeDoc::createInteger(int value) const {
     SkPdfNativeObject* obj = fAllocator->allocObject();
-    SkPdfNativeObject::makeInteger(value, obj PUT_TRACK_PARAMETERS_SRC);
+    SkPdfNativeObject::makeInteger(value, obj);
+    // TODO(edisonn): TRACK_FROM_CODE(obj);
     return (SkPdfInteger*)obj;
 }
 
 SkPdfString* SkPdfNativeDoc::createString(const unsigned char* sz, size_t len) const {
     SkPdfNativeObject* obj = fAllocator->allocObject();
-    SkPdfNativeObject::makeString(sz, len, obj PUT_TRACK_PARAMETERS_SRC);
+    SkPdfNativeObject::makeString(sz, len, obj);
+    // TODO(edisonn): TRACK_FROM_CODE(obj);
     return (SkPdfString*)obj;
 }
 

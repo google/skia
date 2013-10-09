@@ -49,6 +49,7 @@ DEFINE_string2(config, c, "8888", "Canvas to render:\n"
 #endif
                                   "\tnul - render in null canvas, any draw will just return.\n"
                );
+DEFINE_bool2(transparentBackground, t, false, "Make background transparent instead of white.");
 
 
 // TODO(edisonn): add config for device target(gpu, raster, pdf), + ability not to render at all
@@ -156,7 +157,7 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
                                                    PNG_FILE_EXTENSION);
 }
 
-static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color = SK_ColorTRANSPARENT) {
+static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color) {
     bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
 
     bitmap->allocPixels();
@@ -199,10 +200,12 @@ static bool render_page(const SkString& outputDir,
 
         rect = SkRect::MakeWH(width, height);
 
+        SkColor background = FLAGS_transparentBackground ? SK_ColorTRANSPARENT : SK_ColorWHITE;
+
 #ifdef PDF_DEBUG_3X
-        setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(width), 3 * (int)SkScalarToDouble(height));
+        setup_bitmap(&bitmap, 3 * (int)SkScalarToDouble(width), 3 * (int)SkScalarToDouble(height), background);
 #else
-        setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
+        setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height), background);
 #endif
         SkAutoTUnref<SkBaseDevice> device;
         if (strcmp(FLAGS_config[0], "8888") == 0) {

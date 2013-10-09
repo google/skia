@@ -70,8 +70,8 @@ class SkPdfImageDictionary;
 #define isPdfDigit(ch) ((ch)>='0'&&(ch)<='9')
 #define isPdfNumeric(ch) (isPdfDigit(ch)||(ch)=='+'||(ch)=='-'||(ch)=='.')
 
-const unsigned char* skipPdfWhiteSpaces(int level, const unsigned char* buffer, const unsigned char* end);
-const unsigned char* endOfPdfToken(int level, const unsigned char* start, const unsigned char* end);
+const unsigned char* skipPdfWhiteSpaces(const unsigned char* buffer, const unsigned char* end);
+const unsigned char* endOfPdfToken(const unsigned char* start, const unsigned char* end);
 
 // TODO(edisonn): typedef read and integer tyepes? make less readable...
 //typedef double SkPdfReal;
@@ -118,7 +118,7 @@ public:
 };
 
 class SkPdfNativeDoc;
-const unsigned char* nextObject(int level, const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc GET_TRACK_STREAM);
+const unsigned char* nextObject(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
 
 enum SkPdfTokenType {
     kKeyword_TokenType,
@@ -157,10 +157,6 @@ private:
     bool fEmpty;
     bool fHasPutBack;
     PdfToken fPutBack;
-
-#ifdef PDF_TRACK_STREAM_OFFSETS
-    int fStreamId;
-#endif  // PDF_TRACK_STREAM_OFFSETS
 };
 
 #endif  // SkPdfNativeTokenizer_DEFINED

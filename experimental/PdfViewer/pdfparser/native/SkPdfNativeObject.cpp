@@ -20,7 +20,7 @@
 
 #include "SkPdfReporter.h"
 
-SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull(PUT_TRACK_PARAMETERS_SRC0);
+SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull();
 
 bool SkPdfNativeObject::applyFlateDecodeFilter() {
     if (!SkFlate::HaveFlate()) {
@@ -106,7 +106,7 @@ bool SkPdfNativeObject::filterStream() {
 
 void SkPdfNativeObject::releaseData() {
 #ifdef PDF_TRACK_OBJECT_USAGE
-    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, NULL, this, "Unused object in rendering");
+    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue, "Unused object in rendering", this, NULL);
 #endif  // PDF_TRACK_OBJECT_USAGE
 
     SkPdfMarkObjectUnused();
