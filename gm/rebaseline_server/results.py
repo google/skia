@@ -1,15 +1,13 @@
 #!/usr/bin/python
 
-'''
+"""
 Copyright 2013 Google Inc.
 
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
-'''
 
-'''
 Repackage expected/actual GM results as needed by our HTML rebaseline viewer.
-'''
+"""
 
 # System-level imports
 import fnmatch
@@ -41,7 +39,7 @@ class Results(object):
 
   def __init__(self, actuals_root, expected_root):
     """
-    params:
+    Args:
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
     """
@@ -55,52 +53,56 @@ class Results(object):
     """Return results of all tests, as a dictionary in this form:
 
        {
-         "categories": # dictionary of categories listed in
+         'categories': # dictionary of categories listed in
                        # CATEGORIES_TO_SUMMARIZE, with the number of times
                        # each value appears within its category
          {
-           "resultType": # category name
+           'resultType': # category name
            {
-             "failed": 29, # category value and total number found of that value
-             "failure-ignored": 948,
-             "no-comparison": 4502,
-             "succeeded": 38609,
+             'failed': 29, # category value and total number found of that value
+             'failure-ignored': 948,
+             'no-comparison': 4502,
+             'succeeded': 38609,
            },
-           "builder":
+           'builder':
            {
-             "Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug": 1286,
-             "Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release": 1134,
+             'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug': 1286,
+             'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release': 1134,
              ...
            },
            ... # other categories from CATEGORIES_TO_SUMMARIZE
-         }, # end of "categories" dictionary
+         }, # end of 'categories' dictionary
 
-         "testData": # list of test results, with a dictionary for each
+         'testData': # list of test results, with a dictionary for each
          [
            {
-             "builder": "Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug",
-             "test": "bigmatrix",
-             "config": "8888",
-             "resultType": "failed",
-             "expectedHashType": "bitmap-64bitMD5",
-             "expectedHashDigest": "10894408024079689926",
-             "actualHashType": "bitmap-64bitMD5",
-             "actualHashDigest": "2409857384569",
+             'index': 0,   # index of this result within testData list
+             'builder': 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
+             'test': 'bigmatrix',
+             'config': '8888',
+             'resultType': 'failed',
+             'expectedHashType': 'bitmap-64bitMD5',
+             'expectedHashDigest': '10894408024079689926',
+             'actualHashType': 'bitmap-64bitMD5',
+             'actualHashDigest': '2409857384569',
            },
            ...
-         ], # end of "testData" list
+         ], # end of 'testData' list
        }
     """
     return self._all_results
 
   @staticmethod
   def _GetDictsFromRoot(root, pattern='*.json'):
-    """Read all JSON dictionaries within a directory tree, returning them within
-    a meta-dictionary (keyed by the builder name for each dictionary).
+    """Read all JSON dictionaries within a directory tree.
 
-    params:
+    Args:
       root: path to root of directory tree
       pattern: which files to read within root (fnmatch-style pattern)
+
+    Returns:
+      A meta-dictionary containing all the JSON dictionaries found within
+      the directory tree, keyed by the builder name of each dictionary.
     """
     meta_dict = {}
     for dirpath, dirnames, filenames in os.walk(root):
@@ -115,12 +117,21 @@ class Results(object):
   @staticmethod
   def _Combine(actual_builder_dicts, expected_builder_dicts):
     """Gathers the results of all tests, across all builders (based on the
-    contents of actual_builder_dicts and expected_builder_dicts)
-    and returns it in a list in the same form needed for self.GetAll().
+    contents of actual_builder_dicts and expected_builder_dicts).
 
     This is a static method, because once we start refreshing results
     asynchronously, we need to make sure we are not corrupting the object's
     member variables.
+
+    Args:
+      actual_builder_dicts: a meta-dictionary of all actual JSON results,
+          as returned by _GetDictsFromRoot().
+      actual_builder_dicts: a meta-dictionary of all expected JSON results,
+          as returned by _GetDictsFromRoot().
+
+    Returns:
+      A list of all the results of all tests, in the same form returned by
+      self.GetAll().
     """
     test_data = []
     category_dict = {}
@@ -183,14 +194,14 @@ class Results(object):
             expected_image = [None, None]
 
           # If this test was recently rebaselined, it will remain in
-          # the "failed" set of actuals until all the bots have
+          # the 'failed' set of actuals until all the bots have
           # cycled (although the expectations have indeed been set
           # from the most recent actuals).  Treat these as successes
           # instead of failures.
           #
           # TODO(epoger): Do we need to do something similar in
           # other cases, such as when we have recently marked a test
-          # as ignoreFailure but it still shows up in the "failed"
+          # as ignoreFailure but it still shows up in the 'failed'
           # category?  Maybe we should not rely on the result_type
           # categories recorded within the gm_actuals AT ALL, and
           # instead evaluate the result_type ourselves based on what
@@ -202,30 +213,31 @@ class Results(object):
 
           (test, config) = IMAGE_FILENAME_RE.match(image_name).groups()
           results_for_this_test = {
-              "builder": builder,
-              "test": test,
-              "config": config,
-              "resultType": updated_result_type,
-              "actualHashType": actual_image[0],
-              "actualHashDigest": str(actual_image[1]),
-              "expectedHashType": expected_image[0],
-              "expectedHashDigest": str(expected_image[1]),
+              'index': len(test_data),
+              'builder': builder,
+              'test': test,
+              'config': config,
+              'resultType': updated_result_type,
+              'actualHashType': actual_image[0],
+              'actualHashDigest': str(actual_image[1]),
+              'expectedHashType': expected_image[0],
+              'expectedHashDigest': str(expected_image[1]),
           }
           Results._AddToCategoryDict(category_dict, results_for_this_test)
           test_data.append(results_for_this_test)
-    return {"categories": category_dict, "testData": test_data}
+    return {'categories': category_dict, 'testData': test_data}
 
   @staticmethod
   def _AddToCategoryDict(category_dict, test_results):
     """Add test_results to the category dictionary we are building.
     (See documentation of self.GetAll() for the format of this dictionary.)
 
-    params:
+    Args:
       category_dict: category dict-of-dicts to add to; modify this in-place
       test_results: test data with which to update category_list, in a dict:
          {
-           "category_name": "category_value",
-           "category_name": "category_value",
+           'category_name': 'category_value',
+           'category_name': 'category_value',
            ...
          }
     """
@@ -246,7 +258,7 @@ class Results(object):
     even if there aren't any results with that name/value pair.
     (See documentation of self.GetAll() for the format of this dictionary.)
 
-    params:
+    Args:
       category_dict: category dict-of-dicts to modify
       category_name: category name, as a string
       category_values: list of values we want to make sure are represented

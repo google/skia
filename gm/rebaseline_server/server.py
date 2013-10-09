@@ -1,15 +1,13 @@
 #!/usr/bin/python
 
-'''
+"""
 Copyright 2013 Google Inc.
 
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
-'''
 
-'''
 HTTP server for our HTML rebaseline viewer.
-'''
+"""
 
 # System-level imports
 import argparse
@@ -60,24 +58,30 @@ DEFAULT_PORT = 8888
 _SERVER = None   # This gets filled in by main()
 
 class Server(object):
-  """ HTTP server for our HTML rebaseline viewer.
+  """ HTTP server for our HTML rebaseline viewer. """
 
-  params:
-    actuals_dir: directory under which we will check out the latest actual
-                 GM results
-    expectations_dir: directory under which to find GM expectations (they
-                      must already be in that directory)
-    port: which TCP port to listen on for HTTP requests
-    export: whether to allow HTTP clients on other hosts to access this server
-  """
   def __init__(self,
                actuals_dir=DEFAULT_ACTUALS_DIR,
                expectations_dir=DEFAULT_EXPECTATIONS_DIR,
                port=DEFAULT_PORT, export=False):
+    """
+    Args:
+      actuals_dir: directory under which we will check out the latest actual
+                   GM results
+      expectations_dir: directory under which to find GM expectations (they
+                        must already be in that directory)
+      port: which TCP port to listen on for HTTP requests
+      export: whether to allow HTTP clients on other hosts to access this server
+    """
     self._actuals_dir = actuals_dir
     self._expectations_dir = expectations_dir
     self._port = port
     self._export = export
+
+  def is_exported(self):
+    """ Returns true iff HTTP clients on other hosts are allowed to access
+    this server. """
+    return self._export
 
   def fetch_results(self):
     """ Create self.results, based on the expectations in
@@ -131,8 +135,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # All requests must be of this form:
     #   /dispatcher/remainder
-    # where "dispatcher" indicates which do_GET_* dispatcher to run
-    # and "remainder" is the remaining path sent to that dispatcher.
+    # where 'dispatcher' indicates which do_GET_* dispatcher to run
+    # and 'remainder' is the remaining path sent to that dispatcher.
     normpath = posixpath.normpath(self.path)
     (dispatcher_name, remainder) = PATHSPLIT_RE.match(normpath).groups()
     dispatchers = {
@@ -147,11 +151,30 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     For now, we ignore the remaining path info, because we only know how to
     return all results.
 
+    Args:
+      result_type: currently unused
+
     TODO(epoger): Unless we start making use of result_type, remove that
     parameter."""
     print 'do_GET_results: sending results of type "%s"' % result_type
+    # TODO(epoger): Cache response_dict rather than the results object, to save
+    # time on subsequent fetches (no need to regenerate the header, etc.)
     response_dict = _SERVER.results.GetAll()
     if response_dict:
+      response_dict['header'] = {
+        # Hash of testData, which the client must return with any edits--
+        # this ensures that the edits were made to a particular dataset.
+        'data-hash': str(hash(repr(response_dict['testData']))),
+
+        # Whether the server will accept edits back.
+        # TODO(epoger): Not yet implemented, so hardcoding to False;
+        # once we implement the 'browseonly' mode discussed in
+        # https://codereview.chromium.org/24274003/#msg6 , this value will vary.
+        'isEditable': False,
+
+        # Whether the service is accessible from other hosts.
+        'isExported': _SERVER.is_exported(),
+      }
       self.send_json_dict(response_dict)
     else:
       self.send_error(404)
@@ -159,7 +182,11 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def do_GET_static(self, path):
     """ Handle a GET request for a file under the 'static' directory.
     Only allow serving of files within the 'static' directory that is a
-    filesystem sibling of this script. """
+    filesystem sibling of this script.
+
+    Args:
+      path: path to file (under static directory) to retrieve
+    """
     print 'do_GET_static: sending file "%s"' % path
     static_dir = os.path.realpath(os.path.join(PARENT_DIRECTORY, 'static'))
     full_path = os.path.realpath(os.path.join(static_dir, path))
@@ -171,14 +198,22 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_error(404)
 
   def redirect_to(self, url):
-    """ Redirect the HTTP client to a different url. """
+    """ Redirect the HTTP client to a different url.
+
+    Args:
+      url: URL to redirect the HTTP client to
+    """
     self.send_response(301)
     self.send_header('Location', url)
     self.end_headers()
 
   def send_file(self, path):
     """ Send the contents of the file at this path, with a mimetype based
-        on the filename extension. """
+        on the filename extension.
+
+    Args:
+      path: path of file whose contents to send to the HTTP client
+    """
     # Grab the extension if there is one
     extension = os.path.splitext(path)[1]
     if len(extension) >= 1:
@@ -199,7 +234,11 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def send_json_dict(self, json_dict):
     """ Send the contents of this dictionary in JSON format, with a JSON
-        mimetype. """
+        mimetype.
+
+    Args:
+      json_dict: dictionary to send
+    """
     self.send_response(200)
     self.send_header('Content-type', 'application/json')
     self.end_headers()

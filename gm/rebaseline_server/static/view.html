@@ -11,10 +11,6 @@
 <body>
   <div ng-controller="Loader.Controller">
 
-  <!-- TODO(epoger): Add a warning banner if the server is running in
-  --export mode
-  -->
-
   <!-- TODO(epoger): Add some indication of how old the
   expected/actual data is -->
 
@@ -23,6 +19,11 @@
   </em>
 
   <div ng-hide="!categories">
+    <div ng-hide="!(header.isEditable && header.isExported)"
+         style="background-color:#ffbb00">
+      WARNING!  These results are editable and exported, so any user
+      who can connect to this server over the network can modify them.
+    </div>
   <table border="1">
     <tr>
       <th colspan="2">
@@ -131,6 +132,10 @@
                    ng-click="sortResultsBy('actualHashDigest')">
             actual image
           </th>
+          <th ng-hide="!header.isEditable">
+            <!-- item-selection checkbox column -->
+            {{selectedItems}}  <!-- TODO(epoger): temporary debug output -->
+          </th>
         </tr>
         <tr ng-repeat="result in limitedTestData">
           <td>{{result.resultType}}</td>
@@ -147,6 +152,12 @@
 	      <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
             </a>
           </td>
+          <td ng-hide="!header.isEditable">
+            <input type="checkbox"
+                   name="rowSelect"
+                   value="{{result.index}}"
+                   ng-checked="isItemSelected(result.index)"
+                   ng-click="toggleItemSelected(result.index)">
         </tr>
       </table>
   </div>

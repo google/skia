@@ -18,11 +18,11 @@ Loader.filter(
     return function(unfilteredItems, hiddenResultTypes, hiddenConfigs) {
       var filteredItems = [];
       for (var i = 0; i < unfilteredItems.length; i++) {
-	var item = unfilteredItems[i];
-	if ((hiddenResultTypes.indexOf(item.resultType) < 0) &&
-	    (hiddenConfigs.indexOf(item.config) < 0)) {
-	  filteredItems.push(item);
-	}
+        var item = unfilteredItems[i];
+        if (!(true == hiddenResultTypes[item.resultType]) &&
+            !(true == hiddenConfigs[item.config])) {
+          filteredItems.push(item);
+        }
       }
       return filteredItems;
     };
@@ -34,27 +34,44 @@ Loader.controller(
   function($scope, $http, $filter) {
     $http.get("/results/all").then(
       function(response) {
+        $scope.header = response.data.header;
         $scope.categories = response.data.categories;
         $scope.testData = response.data.testData;
         $scope.sortColumn = 'test';
 
-        $scope.hiddenResultTypes = [
-          'failure-ignored', 'no-comparison', 'succeeded'];
-        $scope.hiddenConfigs = [];
+        $scope.hiddenResultTypes = {
+          'failure-ignored': true,
+          'no-comparison': true,
+          'succeeded': true,
+        };
+        $scope.hiddenConfigs = {};
+        $scope.selectedItems = {};
 
         $scope.updateResults();
       }
     );
 
+    $scope.isItemSelected = function(index) {
+      return (true == $scope.selectedItems[index]);
+    }
+    $scope.toggleItemSelected = function(index) {
+      if (true == $scope.selectedItems[index]) {
+        delete $scope.selectedItems[index];
+      } else {
+        $scope.selectedItems[index] = true;
+      }
+      // unlike other toggle methods below, does not set
+      // $scope.areUpdatesPending = true;
+    }
+
     $scope.isHiddenResultType = function(thisResultType) {
-      return ($scope.hiddenResultTypes.indexOf(thisResultType) >= 0);
+      return (true == $scope.hiddenResultTypes[thisResultType]);
     }
     $scope.toggleHiddenResultType = function(thisResultType) {
-      var i = $scope.hiddenResultTypes.indexOf(thisResultType);
-      if (i >= 0) {
-	$scope.hiddenResultTypes.splice(i, 1);
+      if (true == $scope.hiddenResultTypes[thisResultType]) {
+        delete $scope.hiddenResultTypes[thisResultType];
       } else {
-	$scope.hiddenResultTypes.push(thisResultType);
+        $scope.hiddenResultTypes[thisResultType] = true;
       }
       $scope.areUpdatesPending = true;
     }
@@ -65,14 +82,13 @@ Loader.controller(
     // category.
     // But for now, I wanted to see this working. :-)
     $scope.isHiddenConfig = function(thisConfig) {
-      return ($scope.hiddenConfigs.indexOf(thisConfig) >= 0);
+      return (true == $scope.hiddenConfigs[thisConfig]);
     }
     $scope.toggleHiddenConfig = function(thisConfig) {
-      var i = $scope.hiddenConfigs.indexOf(thisConfig);
-      if (i >= 0) {
-	$scope.hiddenConfigs.splice(i, 1);
+      if (true == $scope.hiddenConfigs[thisConfig]) {
+        delete $scope.hiddenConfigs[thisConfig];
       } else {
-	$scope.hiddenConfigs.push(thisConfig);
+        $scope.hiddenConfigs[thisConfig] = true;
       }
       $scope.areUpdatesPending = true;
     }
@@ -84,15 +100,15 @@ Loader.controller(
       // the items as they are displayed, rather than storing multiple
       // array copies?  (For better performance.)
       $scope.filteredTestData =
-	  $filter("orderBy")(
-	      $filter("removeHiddenItems")(
-		  $scope.testData,
-		  $scope.hiddenResultTypes,
-		  $scope.hiddenConfigs
-	      ),
-	      $scope.sortColumn);
+          $filter("orderBy")(
+              $filter("removeHiddenItems")(
+                  $scope.testData,
+                  $scope.hiddenResultTypes,
+                  $scope.hiddenConfigs
+              ),
+              $scope.sortColumn);
       $scope.limitedTestData = $filter("limitTo")(
-	  $scope.filteredTestData, $scope.displayLimit);
+          $scope.filteredTestData, $scope.displayLimit);
       $scope.imageSize = $scope.imageSizePending;
       $scope.areUpdatesPending = false;
     }
