@@ -28,24 +28,25 @@ class SkPdfNativeTokenizer;
 
 class SkStream;
 
+// TODO(edisonn): Implement a smart stream that can seek, and that can also fall back to reading
+// the bytes in order. For example, we can try to read the stream optimistically, but if there
+// are issues in the pdf, we must read the pdf from the beginning, and fix whatever errors we can.
+// This would be useful to show quickly page 100 in a pdf (www.example.com/foo.pdf#page100)
+// But if the pdf is missing the xref, then we will have to read most of pdf to be able to render
+// page 100.
+
 class SkPdfNativeDoc {
 private:
     struct PublicObjectEntry {
         long fOffset;
-        // long endOffset;  // TODO(edisonn): determine the end of the object, to be used when the doc is corrupted
+        // long endOffset;  // TODO(edisonn): determine the end of the object,
+                            // to be used when the doc is corrupted, for fast failure.
         SkPdfNativeObject* fObj;
-        // TODO(edisonn): perf ... probably it does not make sense to cache the ref. test it!
         SkPdfNativeObject* fResolvedReference;
         bool fIsReferenceResolved;
     };
 
 public:
-    // TODO(edisonn): read methods: file, stream, http(s)://url, url with seek?
-    // TODO(edisonn): read first page asap, linearized
-    // TODO(edisonn): read page N asap, read all file
-    // TODO(edisonn): allow corruptions of file (e.g. missing endobj, missing stream length, ...)
-    // TODO(edisonn): encryption
-
     SkPdfNativeDoc(const char* path);
     SkPdfNativeDoc(SkStream* stream);
 
@@ -83,10 +84,13 @@ private:
     void init(const void* bytes, size_t length);
     void loadWithoutXRef();
 
-    const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart, const unsigned char* trailerEnd);
-    const unsigned char* readTrailer(const unsigned char* trailerStart, const unsigned char* trailerEnd, bool storeCatalog, long* prev, bool skipKeyword);
+    const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart,
+                                                   const unsigned char* trailerEnd);
+    const unsigned char* readTrailer(const unsigned char* trailerStart,
+                                     const unsigned char* trailerEnd,
+                                     bool storeCatalog, long* prev, bool skipKeyword);
 
-    // TODO(edisonn): updates not supported right now, generation ignored
+    // TODO(edisonn): pdfs with updates not supported right now, generation ignored.
     void addCrossSectionInfo(int id, int generation, int offset, bool isFreed);
     static void reset(PublicObjectEntry* obj) {
         obj->fObj = NULL;
@@ -99,7 +103,6 @@ private:
 
     void fillPages(SkPdfPageTreeNodeDictionary* tree);
 
-    // private fields
     SkPdfAllocator* fAllocator;
     SkPdfMapper* fMapper;
     const unsigned char* fFileContent;

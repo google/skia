@@ -7,24 +7,24 @@
 
 #include "SkPdfNativeObject.h"
 
+#include "SkBitmap.h"
+#include "SkFlate.h"
+#include "SkPdfFont.h"
+#include "SkPdfNativeTokenizer.h"
+#include "SkPdfReporter.h"
+#include "SkStream.h"
+
 // TODO(edisonn): mac builder does not find the header ... but from headers is ok
 //#include "SkPdfStreamCommonDictionary_autogen.h"
 #include "SkPdfHeaders_autogen.h"
 
-#include "SkFlate.h"
-#include "SkStream.h"
-#include "SkPdfNativeTokenizer.h"
-
-#include "SkBitmap.h"
-#include "SkPdfFont.h"
-
-#include "SkPdfReporter.h"
 
 SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull();
 
 bool SkPdfNativeObject::applyFlateDecodeFilter() {
     if (!SkFlate::HaveFlate()) {
-        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNoFlateLibrary_SkPdfIssue, "forgot to link with flate library?", NULL, NULL);
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNoFlateLibrary_SkPdfIssue,
+                    "forgot to link with flate library?", NULL, NULL);
         return false;
     }
 
@@ -35,7 +35,8 @@ bool SkPdfNativeObject::applyFlateDecodeFilter() {
     SkDynamicMemoryWStream uncompressedData;
 
     if (SkFlate::Inflate(&skstream, &uncompressedData)) {
-        fStr.fBytes = (uncompressedData.bytesWritten() << 2) + kOwnedStreamBit + kUnfilteredStreamBit;
+        fStr.fBytes = (uncompressedData.bytesWritten() << 2) + kOwnedStreamBit +
+                      kUnfilteredStreamBit;
         fStr.fBuffer = (const unsigned char*)new unsigned char[uncompressedData.bytesWritten()];
         uncompressedData.copyTo((void*)fStr.fBuffer);
 
@@ -51,9 +52,9 @@ bool SkPdfNativeObject::applyFlateDecodeFilter() {
 }
 
 bool SkPdfNativeObject::applyDCTDecodeFilter() {
-    // this would fail, and it won't allow any more filters.
-    // technically, it would be possible, but not a real world scenario
-    // TODO(edisonn): or get the image here and store it for fast retrieval?
+    // applyDCTDecodeFilter will fail, and it won't allow any more filters.
+    // technically, it would be possible, but not a real world scenario.
+    // in this way we create the image from the DCT stream directly.
     return false;
 }
 
@@ -63,7 +64,8 @@ bool SkPdfNativeObject::applyFilter(const char* name) {
     } else if (strcmp(name, "DCTDecode") == 0) {
         return applyDCTDecodeFilter();
     }
-    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "filter not supported", this, NULL);
+    SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "filter not supported", this,
+                NULL);
     return false;
 }
 
@@ -71,7 +73,8 @@ bool SkPdfNativeObject::filterStream() {
     SkPdfMarkObjectUsed();
 
     if (!hasStream()) {
-        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kBadStream_SkPdfIssue, "No Stream", this, NULL);
+        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kBadStream_SkPdfIssue, "No Stream", this,
+                    NULL);
         return false;
     }
 
@@ -96,7 +99,8 @@ bool SkPdfNativeObject::filterStream() {
                     break;
                 }
             } else {
-                SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncositentSyntax_SkPdfIssue, "filter name should be a Name", this, NULL);
+                SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncositentSyntax_SkPdfIssue,
+                            "filter name should be a Name", this, NULL);
             }
         }
     }
@@ -106,7 +110,8 @@ bool SkPdfNativeObject::filterStream() {
 
 void SkPdfNativeObject::releaseData() {
 #ifdef PDF_TRACK_OBJECT_USAGE
-    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue, "Unused object in rendering", this, NULL);
+    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue,
+                  "Unused object in rendering", this, NULL);
 #endif  // PDF_TRACK_OBJECT_USAGE
 
     SkPdfMarkObjectUnused();

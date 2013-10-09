@@ -32,6 +32,7 @@ enum SkPdfResult {
 
 struct NotOwnedString {
     const unsigned char* fBuffer;
+    // TODO(edisonn): clean up, the last two bytes are used to signal if compression is used
     size_t fBytes;
 
     static void init(NotOwnedString* str) {
@@ -49,6 +50,8 @@ struct NotOwnedString {
 
     }
 };
+
+SkMatrix SkMatrixFromPdfMatrix(double array[6]);
 
 // TODO(edisonn): hack to make code generation simpler. Alternatively we can update the
 // generate_code.py not to rely on != operator
@@ -68,6 +71,48 @@ void SkTraceRect(const SkRect& rect, const char* sz);
 #else
 #define SkTraceMatrix(a,b)
 #define SkTraceRect(a,b)
+#endif
+
+#ifdef PDF_TRACE_TOKENIZER
+
+static void TRACE_COMMENT(char ch) {
+    printf("%c", ch);
+}
+
+static void TRACE_TK(char ch) {
+    printf("%c", ch);
+}
+
+static void TRACE_NAME(const unsigned char* start, const unsigned char* end) {
+    while (start < end) {
+        printf("%c", *start);
+        start++;
+    }
+    printf("\n");
+}
+
+static void TRACE_STRING(const unsigned char* start, const unsigned char* end) {
+    while (start < end) {
+        printf("%c", *start);
+        start++;
+    }
+    printf("\n");
+}
+
+static void TRACE_HEXSTRING(const unsigned char* start, const unsigned char* end) {
+    while (start < end) {
+        printf("%c", *start);
+        start++;
+    }
+    printf("\n");
+}
+
+#else
+#define TRACE_COMMENT(ch)
+#define TRACE_TK(ch)
+#define TRACE_NAME(start,end)
+#define TRACE_STRING(start,end)
+#define TRACE_HEXSTRING(start,end)
 #endif
 
 #endif   // SkPdfUtils_DEFINED

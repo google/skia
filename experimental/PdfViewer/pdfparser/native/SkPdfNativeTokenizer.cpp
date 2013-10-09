@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPdfNativeTokenizer.h"
-#include "SkPdfNativeObject.h"
 #include "SkPdfConfig.h"
+#include "SkPdfNativeObject.h"
+#include "SkPdfNativeTokenizer.h"
+#include "SkPdfUtils.h"
 
 // TODO(edisonn): mac builder does not find the header ... but from headers is ok
 //#include "SkPdfStreamCommonDictionary_autogen.h"
@@ -15,8 +16,9 @@
 #include "SkPdfHeaders_autogen.h"
 
 
-// TODO(edisonn): perf!!!
-// there could be 0s between start and end! but not in the needle.
+// TODO(edisonn): Perf, Make this function run faster.
+// There could be 0s between start and end.
+// needle will not contain 0s.
 static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
     int needleLen = strlen(needle);
     if ((isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) || (hayStart+needleLen == hayEnd)) &&
@@ -28,7 +30,8 @@ static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
 
     while (hayStart < hayEnd) {
         if (isPdfWhiteSpaceOrPdfDelimiter(*(hayStart-1)) &&
-                (isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) || (hayStart+needleLen == hayEnd)) &&
+                (isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) ||
+                      (hayStart+needleLen == hayEnd)) &&
                 strncmp(hayStart, needle, needleLen) == 0) {
             return hayStart;
         }
@@ -37,67 +40,22 @@ static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
     return NULL;
 }
 
-#ifdef PDF_TRACE_TOKENIZER
-
-static void TRACE_COMMENT(char ch) {
-    printf("%c", ch);
-}
-
-static void TRACE_TK(char ch) {
-    printf("%c", ch);
-}
-
-static void TRACE_NAME(const unsigned char* start, const unsigned char* end) {
-    while (start < end) {
-        printf("%c", *start);
-        start++;
-    }
-    printf("\n");
-}
-
-static void TRACE_STRING(const unsigned char* start, const unsigned char* end) {
-    while (start < end) {
-        printf("%c", *start);
-        start++;
-    }
-    printf("\n");
-}
-
-static void TRACE_HEXSTRING(const unsigned char* start, const unsigned char* end) {
-    while (start < end) {
-        printf("%c", *start);
-        start++;
-    }
-    printf("\n");
-}
-
-#else
-#define TRACE_COMMENT(ch)
-#define TRACE_TK(ch)
-#define TRACE_NAME(start,end)
-#define TRACE_STRING(start,end)
-#define TRACE_HEXSTRING(start,end)
-#endif
-
 const unsigned char* skipPdfWhiteSpaces(const unsigned char* start, const unsigned char* end) {
     while (start < end && (isPdfWhiteSpace(*start) || *start == kComment_PdfDelimiter)) {
         TRACE_COMMENT(*start);
         if (*start == kComment_PdfDelimiter) {
             // skip the comment until end of line
             while (start < end && !isPdfEOL(*start)) {
-                //*start = '\0';
                 start++;
                 TRACE_COMMENT(*start);
             }
         } else {
-            //*start = '\0';
             start++;
         }
     }
     return start;
 }
 
-// TODO(edisonn) '(' can be used, will it break the string a delimiter or space inside () ?
 const unsigned char* endOfPdfToken(const unsigned char* start, const unsigned char* end) {
     SkASSERT(!isPdfWhiteSpace(*start));
 
@@ -114,13 +72,15 @@ const unsigned char* endOfPdfToken(const unsigned char* start, const unsigned ch
     return start;
 }
 
-// last elem has to be ]
-static const unsigned char* readArray(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* array, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
+// The parsing should end with a ].
+static const unsigned char* readArray(const unsigned char* start, const unsigned char* end,
+                                      SkPdfNativeObject* array,
+                                      SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
     SkPdfNativeObject::makeEmptyArray(array);
     // PUT_TRACK_STREAM(array, start, start)
 
     if (allocator == NULL) {
-        // TODO(edisonn): report/warning error
+        // TODO(edisonn): report/warning error/assert
         return end;
     }
 
@@ -141,15 +101,17 @@ static const unsigned char* readArray(const unsigned char* start, const unsigned
 
         SkPdfNativeObject* newObj = allocator->allocObject();
         start = nextObject(start, end, newObj, allocator, doc);
-        // TODO(edisonn): perf/memory: put the variables on the stack, and flush them on the array only when
-        // we are sure they are not references!
-        if (newObj->isKeywordReference() && array->size() >= 2 && array->objAtAIndex(array->size() - 1)->isInteger() && array->objAtAIndex(array->size() - 2)->isInteger()) {
+        // TODO(edisonn): perf/memory: put the variables on the stack, and flush them on the array
+        // only when we are sure they are not references!
+        if (newObj->isKeywordReference() && array->size() >= 2 &&
+                array->objAtAIndex(array->size() - 1)->isInteger() &&
+                array->objAtAIndex(array->size() - 2)->isInteger()) {
             SkPdfNativeObject* gen = array->removeLastInArray();
             SkPdfNativeObject* id = array->removeLastInArray();
 
-            SkPdfNativeObject::resetAndMakeReference((unsigned int)id->intValue(), (unsigned int)gen->intValue(), newObj);
+            SkPdfNativeObject::resetAndMakeReference((unsigned int)id->intValue(),
+                                                     (unsigned int)gen->intValue(), newObj);
             // newObj  PUT_TRACK_PARAMETERS_OBJ2(id, newObj) - store end, as now
-
         }
         array->appendInArray(newObj);
     }
@@ -159,12 +121,8 @@ static const unsigned char* readArray(const unsigned char* start, const unsigned
     return start;
 }
 
-// When we read strings we will rewrite the string so we will reuse the memory
-// when we start to read the string, we already consumed the opened bracket
-
-// TODO(edisonn): space: add paramater, taht would report if we need to allocate new buffer, or we can reuse the one we have
-
-static const unsigned char* readString(const unsigned char* start, const unsigned char* end, unsigned char* out) {
+static const unsigned char* readString(const unsigned char* start, const unsigned char* end,
+                                       unsigned char* out) {
     const unsigned char* in = start;
     bool hasOut = (out != NULL);
 
@@ -260,7 +218,7 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
                         break;
 
                     default:
-                        // Per spec, backslash is ignored is escaped ch is unknown
+                        // Per spec, backslash is ignored if escaped ch is unknown
                         in++;
                         break;
                 }
@@ -268,9 +226,6 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
                 in++;
             }
         } else {
-            // TODO(edisonn): perf, avoid copy into itself, maybe first do a simple scan until found backslash ?
-            // we could have one look that first just inc current, and when we find the backslash
-            // we go to this loop
             if (hasOut) { *out = *in; }
             in++;
             out++;
@@ -280,7 +235,8 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
     if (hasOut) {
         return in;  // consumed already ) at the end of the string
     } else {
-        return start + (out - (const unsigned char*)NULL); // return where the string would end if we reuse the string
+        // return where the string would end if we reuse the string
+        return start + (out - (const unsigned char*)NULL);
     }
 }
 
@@ -288,12 +244,14 @@ static int readStringLength(const unsigned char* start, const unsigned char* end
     return readString(start, end, NULL) - start;
 }
 
-static const unsigned char* readString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* str, SkPdfAllocator* allocator) {
+static const unsigned char* readString(const unsigned char* start, const unsigned char* end,
+                                       SkPdfNativeObject* str, SkPdfAllocator* allocator) {
     if (!allocator) {
+        // TODO(edisonn): report error/warn/assert
         return end;
     }
+
     int outLength = readStringLength(start, end);
-    // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readString(start, end, out);
     SkPdfNativeObject::makeString(out, out + outLength, str);
@@ -302,7 +260,8 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
     return now;  // consumed already ) at the end of the string
 }
 
-static const unsigned char* readHexString(const unsigned char* start, const unsigned char* end, unsigned char* out) {
+static const unsigned char* readHexString(const unsigned char* start, const unsigned char* end,
+                                          unsigned char* out) {
     bool hasOut = (out != NULL);
     const unsigned char* in = start;
 
@@ -314,7 +273,6 @@ static const unsigned char* readHexString(const unsigned char* start, const unsi
         }
 
         if (*in == kClosedInequityBracket_PdfDelimiter) {
-            //*in = '\0';
             in++;  // consume >
             // normal exit
             break;
@@ -425,9 +383,10 @@ static const unsigned char* readHexString(const unsigned char* start, const unsi
     }
 
     if (hasOut) {
-        return in;  // consumed already > at the end of the string
+        return in;  // consumed already ) at the end of the string
     } else {
-        return start + (out - (const unsigned char*)NULL); // return where the string would end if we reuse the string
+        // return where the string would end if we reuse the string
+        return start + (out - (const unsigned char*)NULL);
     }
 }
 
@@ -437,10 +396,10 @@ static int readHexStringLength(const unsigned char* start, const unsigned char* 
 
 static const unsigned char* readHexString(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* str, SkPdfAllocator* allocator) {
     if (!allocator) {
+        // TODO(edisonn): report error/warn/assert
         return end;
     }
     int outLength = readHexStringLength(start, end);
-    // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readHexString(start, end, out);
     SkPdfNativeObject::makeHexString(out, out + outLength, str);
@@ -449,8 +408,9 @@ static const unsigned char* readHexString(const unsigned char* start, const unsi
     return now;  // consumed already > at the end of the string
 }
 
-// TODO(edisonn): before PDF 1.2 name could not have special characters, add version parameter
-static const unsigned char* readName(const unsigned char* start, const unsigned char* end, unsigned char* out) {
+// TODO(edisonn): add version parameter, before PDF 1.2 name could not have special characters.
+static const unsigned char* readName(const unsigned char* start, const unsigned char* end,
+                                     unsigned char* out) {
     bool hasOut = (out != NULL);
     const unsigned char* in = start;
 
@@ -550,9 +510,10 @@ static const unsigned char* readName(const unsigned char* start, const unsigned 
     }
 
     if (hasOut) {
-        return in;
+        return in;  // consumed already ) at the end of the string
     } else {
-        return start + (out - (const unsigned char*)NULL); // return where the string would end if we reuse the string
+        // return where the string would end if we reuse the string
+        return start + (out - (const unsigned char*)NULL);
     }
 }
 
@@ -560,12 +521,13 @@ static int readNameLength(const unsigned char* start, const unsigned char* end) 
     return readName(start, end, NULL) - start;
 }
 
-static const unsigned char* readName(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* name, SkPdfAllocator* allocator) {
+static const unsigned char* readName(const unsigned char* start, const unsigned char* end,
+                                     SkPdfNativeObject* name, SkPdfAllocator* allocator) {
     if (!allocator) {
+        // TODO(edisonn): report error/warn/assert
         return end;
     }
     int outLength = readNameLength(start, end);
-    // TODO(edisonn): optimize the allocation, don't allocate new string, but put it in a preallocated buffer
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readName(start, end, out);
     SkPdfNativeObject::makeName(out, out + outLength, name);
@@ -597,10 +559,15 @@ and it could get worse, with multiple object like this
 
 // right now implement the silly algorithm that assumes endstream is finishing the stream
 
-
-static const unsigned char* readStream(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* dict, SkPdfNativeDoc* doc) {
+static const unsigned char* readStream(const unsigned char* start, const unsigned char* end,
+                                       SkPdfNativeObject* dict, SkPdfNativeDoc* doc) {
     start = skipPdfWhiteSpaces(start, end);
-    if (!(start[0] == 's' && start[1] == 't' && start[2] == 'r' && start[3] == 'e' && start[4] == 'a' && start[5] == 'm')) {
+    if (!(  start[0] == 's' &&
+            start[1] == 't' &&
+            start[2] == 'r' &&
+            start[3] == 'e' &&
+            start[4] == 'a' &&
+            start[5] == 'm')) {
         // no stream. return.
         return start;
     }
@@ -614,7 +581,6 @@ static const unsigned char* readStream(const unsigned char* start, const unsigne
         start += 1;
     } else {
         // TODO(edisonn): warn it should be isPdfDelimiter(start[0])) ?
-        // TODO(edisonn): warning?
     }
 
     SkPdfStreamCommonDictionary* stream = (SkPdfStreamCommonDictionary*) dict;
@@ -626,9 +592,10 @@ static const unsigned char* readStream(const unsigned char* start, const unsigne
         length = stream->Length(doc);
     }
 
-    // TODO(edisonn): laod external streams
-    // TODO(edisonn): look at the last filter, to determione how to deal with possible issue
-
+    // TODO(edisonn): load external streams
+    // TODO(edisonn): look at the last filter, to determine how to deal with possible parsing
+    // issues. The last filter can have special rules to terminate a stream, which we could
+    // use to determine end of stream.
 
     if (length >= 0) {
         const unsigned char* endstream = start + length;
@@ -647,7 +614,8 @@ static const unsigned char* readStream(const unsigned char* start, const unsigne
     if (length < 0) {
         // scan the buffer, until we find first endstream
         // TODO(edisonn): all buffers must have a 0 at the end now,
-        const unsigned char* endstream = (const unsigned char*)strrstrk((char*)start, (char*)end, "endstream");
+        const unsigned char* endstream = (const unsigned char*)strrstrk((char*)start, (char*)end,
+                                                                        "endstream");
 
         if (endstream) {
             length = endstream - start;
@@ -674,10 +642,19 @@ static const unsigned char* readStream(const unsigned char* start, const unsigne
     return start;
 }
 
-static const unsigned char* readInlineImageStream(const unsigned char* start, const unsigned char* end, SkPdfImageDictionary* inlineImage, SkPdfNativeDoc* doc) {
+static const unsigned char* readInlineImageStream(const unsigned char* start,
+                                                  const unsigned char* end,
+                                                  SkPdfImageDictionary* inlineImage,
+                                                  SkPdfNativeDoc* doc) {
     // We already processed ID keyword, and we should be positioned immediately after it
 
-    // TODO(edisonn): security: read after end check, or make buffers with extra 2 bytes
+    // TODO(edisonn): security: either make all streams to have extra 2 bytes at the end,
+    // instead of this if.
+    //if (end - start <= 2) {
+    //    // TODO(edisonn): warning?
+    //    return end; // but can we have a pixel image encoded in 1-2 bytes?
+    //}
+
     if (start[0] == kCR_PdfWhiteSpace && start[1] == kLF_PdfWhiteSpace) {
         start += 2;
     } else if (start[0] == kLF_PdfWhiteSpace) {
@@ -705,7 +682,9 @@ static const unsigned char* readInlineImageStream(const unsigned char* start, co
     return endEI;
 }
 
-static const unsigned char* readDictionary(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* dict, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
+static const unsigned char* readDictionary(const unsigned char* start, const unsigned char* end,
+                                           SkPdfNativeObject* dict,
+                                           SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
     if (allocator == NULL) {
         // TODO(edisonn): report/warning error
         return end;
@@ -714,7 +693,7 @@ static const unsigned char* readDictionary(const unsigned char* start, const uns
     // PUT_TRACK_STREAM(dict, start, start)
 
     start = skipPdfWhiteSpaces(start, end);
-    SkPdfAllocator tmpStorage;  // keys will be stored in dict, we can free them immediately after set.
+    SkPdfAllocator tmpStorage;  // keys will be stored in dict, we can free them after set.
 
     while (start < end && *start == kNamed_PdfDelimiter) {
         SkPdfNativeObject key;
@@ -730,7 +709,7 @@ static const unsigned char* readDictionary(const unsigned char* start, const uns
             start = skipPdfWhiteSpaces(start, end);
 
             if (start < end) {
-                // seems we have an indirect reference
+                // We should have an indirect reference
                 if (isPdfDigit(*start)) {
                     SkPdfNativeObject generation;
                     start = nextObject(start, end, &generation, allocator, doc);
@@ -738,13 +717,17 @@ static const unsigned char* readDictionary(const unsigned char* start, const uns
                     SkPdfNativeObject keywordR;
                     start = nextObject(start, end, &keywordR, allocator, doc);
 
-                    if (value->isInteger() && generation.isInteger() && keywordR.isKeywordReference()) {
+                    if (value->isInteger() && generation.isInteger() &&
+                            keywordR.isKeywordReference()) {
                         int64_t id = value->intValue();
-                        SkPdfNativeObject::resetAndMakeReference((unsigned int)id, (unsigned int)generation.intValue(), value);
+                        SkPdfNativeObject::resetAndMakeReference(
+                                (unsigned int)id,
+                                (unsigned int)generation.intValue(),
+                                value);
                         //  PUT_TRACK_PARAMETERS_OBJ2(value, &generation)
                         dict->set(&key, value);
                     } else {
-                        // error, ignore
+                        // TODO(edisonn) error?, ignore it for now.
                         dict->set(&key, value);
                     }
                 } else {
@@ -763,19 +746,17 @@ static const unsigned char* readDictionary(const unsigned char* start, const uns
         }
     }
 
-    // TODO(edisonn): options to ignore these errors
-
     // now we should expect >>
     start = skipPdfWhiteSpaces(start, end);
     if (*start != kClosedInequityBracket_PdfDelimiter) {
         // TODO(edisonn): report/warning
     }
-    //*start = '\0';
+
     start++;  // skip >
     if (*start != kClosedInequityBracket_PdfDelimiter) {
         // TODO(edisonn): report/warning
     }
-    //*start = '\0';
+
     start++;  // skip >
 
     //STORE_TRACK_PARAMETER_OFFSET_END(dict,start);
@@ -785,7 +766,9 @@ static const unsigned char* readDictionary(const unsigned char* start, const uns
     return start;
 }
 
-const unsigned char* nextObject(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
+const unsigned char* nextObject(const unsigned char* start, const unsigned char* end,
+                                SkPdfNativeObject* token,
+                                SkPdfAllocator* allocator, SkPdfNativeDoc* doc) {
     const unsigned char* current;
 
     // skip white spaces
@@ -808,17 +791,13 @@ const unsigned char* nextObject(const unsigned char* start, const unsigned char*
         // start array
         switch (*start) {
             case kOpenedSquareBracket_PdfDelimiter:
-                //*start = '\0';
                 return readArray(current, end, token, allocator, doc);
 
             case kOpenedRoundBracket_PdfDelimiter:
-                //*start = '\0';
                 return readString(start + 1, end, token, allocator);
 
             case kOpenedInequityBracket_PdfDelimiter:
-                //*start = '\0';
                 if (end > start + 1 && start[1] == kOpenedInequityBracket_PdfDelimiter) {
-                    //start[1] = '\0';  // optional
                     // TODO(edisonn): pass here the length somehow?
                     return readDictionary(start + 2, end, token, allocator, doc);  // skip <<
                 } else {
@@ -826,10 +805,9 @@ const unsigned char* nextObject(const unsigned char* start, const unsigned char*
                 }
 
             case kNamed_PdfDelimiter:
-                //*start = '\0';
                 return readName(start + 1, end, token, allocator);
 
-            // TODO(edisonn): what to do curly brackets? read spec!
+            // TODO(edisonn): what to do curly brackets?
             case kOpenedCurlyBracket_PdfDelimiter:
             default:
                 break;
@@ -837,7 +815,7 @@ const unsigned char* nextObject(const unsigned char* start, const unsigned char*
 
         SkASSERT(!isPdfWhiteSpace(*start));
         if (isPdfDelimiter(*start)) {
-            // TODO(edisonn): how stream ] } > ) will be handled?
+            // TODO(edisonn): how unexpected stream ] } > ) will be handled?
             // for now ignore, and it will become a keyword to be ignored
         }
     }
@@ -854,7 +832,12 @@ const unsigned char* nextObject(const unsigned char* start, const unsigned char*
         return current;
     }
 
-    if (tokenLen == 5 && start[0] == 'f' && start[1] == 'a' && start[2] == 'l' && start[3] == 's' && start[4] == 'e') {
+    // TODO(edisonn): again, make all buffers have 5 extra bytes
+    if (tokenLen == 5 && start[0] == 'f' &&
+                         start[1] == 'a' &&
+                         start[2] == 'l' &&
+                         start[3] == 's' &&
+                         start[4] == 'e') {
         SkPdfNativeObject::makeBoolean(false, token);
         // PUT_TRACK_STREAM(start, start + 5)
         return current;
@@ -902,12 +885,23 @@ SkPdfNativeObject* SkPdfAllocator::allocObject() {
     return &fCurrent[fCurrentUsed - 1];
 }
 
-// TODO(edisonn): perf: do no copy the buffers, but use them, and mark cache the result, so there is no need of a second pass
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fAllocator(allocator), fUncompressedStream(NULL), fUncompressedStreamEnd(NULL), fEmpty(false), fHasPutBack(false) {
+// TODO(edisonn): perf: do no copy the buffers, but reuse them, and mark cache the result,
+// so there is no need of a second pass
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream,
+                                           SkPdfAllocator* allocator,
+                                           SkPdfNativeDoc* doc)
+            : fDoc(doc)
+            , fAllocator(allocator)
+            , fUncompressedStream(NULL)
+            , fUncompressedStreamEnd(NULL)
+            , fEmpty(false)
+            , fHasPutBack(false) {
     const unsigned char* buffer = NULL;
     size_t len = 0;
     objWithStream->GetFilteredStreamRef(&buffer, &len);
-    // TODO(edisonn): hack, find end of object
+    // TODO(edisonn): really bad hack, find end of object (endobj might be in a comment!)
+    // we need to do now for perf, and our generated pdfs do not have comments,
+    // but we need to remove this hack for pdfs in the wild
     char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {
         len = endobj - (char*)buffer + strlen("endobj");
@@ -916,8 +910,15 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, SkP
     fUncompressedStreamEnd = fUncompressedStream + len;
 }
 
-SkPdfNativeTokenizer::SkPdfNativeTokenizer(const unsigned char* buffer, int len, SkPdfAllocator* allocator, SkPdfNativeDoc* doc) : fDoc(doc), fAllocator(allocator), fEmpty(false), fHasPutBack(false) {
-    // TODO(edisonn): hack, find end of object
+SkPdfNativeTokenizer::SkPdfNativeTokenizer(const unsigned char* buffer, int len,
+                                           SkPdfAllocator* allocator,
+                                           SkPdfNativeDoc* doc) : fDoc(doc)
+                                                                , fAllocator(allocator)
+                                                                , fEmpty(false)
+                                                                , fHasPutBack(false) {
+    // TODO(edisonn): really bad hack, find end of object (endobj might be in a comment!)
+    // we need to do now for perf, and our generated pdfs do not have comments,
+    // but we need to remove this hack for pdfs in the wild
     char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {
         len = endobj - (char*)buffer + strlen("endobj");
@@ -930,10 +931,10 @@ SkPdfNativeTokenizer::~SkPdfNativeTokenizer() {
 }
 
 bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
-    SkPdfNativeObject obj;
 #ifdef PDF_TRACE_READ_TOKEN
     static int read_op = 0;
 #endif
+
     token->fKeyword = NULL;
     token->fObject = NULL;
 
@@ -942,10 +943,11 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
         return false;
     }
 
+    SkPdfNativeObject obj;
     fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, &obj, fAllocator, fDoc);
     //  PUT_TRACK_STREAM_ARGS_EXPL2(fStreamId, fUncompressedStreamStart)
 
-    // If it is a keyword, we will only get the pointer of the string
+    // If it is a keyword, we will only get the pointer of the string.
     if (obj.type() == SkPdfNativeObject::kKeyword_PdfObjectType) {
         token->fKeyword = obj.c_str();
         token->fKeywordLength = obj.lenstr();
@@ -964,7 +966,9 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
         printf("break;\n");
     }
 #endif
-    printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
+    printf("%i READ %s %s\n", read_op, token->fType == kKeyword_TokenType ? "Keyword" : "Object",
+           token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() :
+                             token->fObject->toString().c_str());
 #endif
 
     return true;
@@ -975,7 +979,9 @@ void SkPdfNativeTokenizer::PutBack(PdfToken token) {
     fHasPutBack = true;
     fPutBack = token;
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("PUT_BACK %s %s\n", token.fType == kKeyword_TokenType ? "Keyword" : "Object", token.fKeyword ? SkString(token.fKeyword, token.fKeywordLength).c_str(): token.fObject->toString().c_str());
+    printf("PUT_BACK %s %s\n", token.fType == kKeyword_TokenType ? "Keyword" : "Object",
+           token.fKeyword ? SkString(token.fKeyword, token.fKeywordLength).c_str() :
+                            token.fObject->toString().c_str());
 #endif
 }
 
@@ -984,7 +990,9 @@ bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
         *token = fPutBack;
         fHasPutBack = false;
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object", token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() : token->fObject->toString().c_str());
+    printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object",
+           token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() :
+                             token->fObject->toString().c_str());
 #endif
         return true;
     }
@@ -1009,7 +1017,7 @@ DECLARE_PDF_NAME(DecodeParms);
 DECLARE_PDF_NAME(Filter);
 DECLARE_PDF_NAME(Height);
 DECLARE_PDF_NAME(ImageMask);
-DECLARE_PDF_NAME(Intent); // PDF 1.1 - the key, or the abreviations?
+DECLARE_PDF_NAME(Intent); // PDF 1.1 - the key, or the abBreviations?
 DECLARE_PDF_NAME(Interpolate);
 DECLARE_PDF_NAME(Width);
 
@@ -1079,21 +1087,26 @@ SkPdfImageDictionary* SkPdfNativeTokenizer::readInlineImage() {
 
     SkPdfImageDictionary* inlineImage = (SkPdfImageDictionary*)fAllocator->allocObject();
     SkPdfNativeObject::makeEmptyDictionary(inlineImage);
-    //  PUT_TRACK_STREAM_ARGS_EXPL(fStreamId, fUncompressedStream - fUncompressedStreamStart, fUncompressedStream - fUncompressedStreamStart)
+    //  PUT_TRACK_STREAM_ARGS_EXPL(fStreamId, fUncompressedStream - fUncompressedStreamStart,
+    //                             fUncompressedStream - fUncompressedStreamStart)
 
     while (fUncompressedStream < fUncompressedStreamEnd) {
         SkPdfNativeObject* key = fAllocator->allocObject();
-        fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, key, fAllocator, fDoc);
+        fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, key,
+                                         fAllocator, fDoc);
         // PUT_TRACK_STREAM_ARGS_EXPL2(fStreamId, fUncompressedStreamStart)s
 
-        if (key->isKeyword() && key->lenstr() == 2 && key->c_str()[0] == 'I' && key->c_str()[1] == 'D') { // ID
-            fUncompressedStream = readInlineImageStream(fUncompressedStream, fUncompressedStreamEnd, inlineImage, fDoc);
+        if (key->isKeyword() && key->lenstr() == 2 &&
+                    key->c_str()[0] == 'I' && key->c_str()[1] == 'D') { // ID
+            fUncompressedStream = readInlineImageStream(fUncompressedStream, fUncompressedStreamEnd,
+                                                        inlineImage, fDoc);
             return inlineImage;
         } else {
             SkPdfNativeObject* obj = fAllocator->allocObject();
-            fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, obj, fAllocator, fDoc);
+            fUncompressedStream = nextObject(fUncompressedStream, fUncompressedStreamEnd, obj,
+                                             fAllocator, fDoc);
             //  PUT_TRACK_STREAM_ARGS_EXPL2(fStreamId, fUncompressedStreamStart)s
-            // TODO(edisonn): perf maybe we should not expand abreviation like this
+            // TODO(edisonn): perf maybe we should not expand abBreviation like this
             inlineImage->set(inlineImageKeyAbbreviationExpand(key),
                              inlineImageValueAbbreviationExpand(obj));
         }
