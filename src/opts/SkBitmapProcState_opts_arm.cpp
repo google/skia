@@ -184,7 +184,7 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
                       );
     }
 
-    s.fBitmap->getColorTable()->unlockColors(false);
+    s.fBitmap->getColorTable()->unlockColors();
 }
 #endif // SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
 

@@ -536,16 +536,12 @@ bool SkBitmap::isOpaque() const {
             return (fFlags & kImageIsOpaque_Flag) != 0;
 
         case kIndex8_Config: {
-            uint32_t flags = 0;
+            bool isOpaque;
 
             this->lockPixels();
-            // if lockPixels failed, we may not have a ctable ptr
-            if (fColorTable) {
-                flags = fColorTable->getFlags();
-            }
+            isOpaque = fColorTable && fColorTable->isOpaque();
             this->unlockPixels();
-
-            return (flags & SkColorTable::kColorsAreOpaque_Flag) != 0;
+            return isOpaque;
         }
 
         case kRGB_565_Config:
@@ -1494,7 +1490,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
                 s += rb;
                 alpha += alphaRowBytes;
             }
-            ct->unlockColors(false);
+            ct->unlockColors();
         }
     } else {    // src is opaque, so just fill alpha[] with 0xFF
         memset(alpha, 0xFF, h * alphaRowBytes);
