@@ -39,6 +39,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 #if MAC_OS_X_VERSION_10_7
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
+        kCGLPFADoubleBuffer,
         (CGLPixelFormatAttribute)0
     };
     CGLPixelFormatObj pixFormat;
@@ -73,4 +74,8 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
 void SkNativeGLContext::makeCurrent() const {
     CGLSetCurrentContext(fContext);
+}
+
+void SkNativeGLContext::swapBuffers() const {
+    CGLFlushDrawable(fContext);
 }

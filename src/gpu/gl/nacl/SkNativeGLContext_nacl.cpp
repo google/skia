@@ -32,3 +32,6 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
 void SkNativeGLContext::makeCurrent() const {
 }
+
+void SkNativeGLContext::swapBuffers() const {
+}

@@ -30,6 +30,7 @@ public:
     virtual ~SkNativeGLContext();
 
     virtual void makeCurrent() const SK_OVERRIDE;
+    virtual void swapBuffers() const SK_OVERRIDE;
 
     class AutoContextRestore {
     public:

@@ -16,6 +16,7 @@ public:
     SkDebugGLContext() {};
 
     virtual void makeCurrent() const SK_OVERRIDE {};
+    virtual void swapBuffers() const SK_OVERRIDE {};
 
 protected:
     virtual const GrGLInterface* createGLContext() SK_OVERRIDE;

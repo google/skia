@@ -104,3 +104,5 @@ void SkMesaGLContext::makeCurrent() const {
         }
     }
 }
+
+void SkMesaGLContext::swapBuffers() const { }

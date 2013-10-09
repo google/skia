@@ -34,6 +34,18 @@ public:
 
     virtual void makeCurrent() const = 0;
 
+    /**
+     * The primary purpose of this function it to provide a means of scheduling
+     * work on the GPU (since all of the subclasses create primary buffers for
+     * testing that are small and not meant to be rendered to the screen).
+     *
+     * If the drawing surface provided by the platform is double buffered this
+     * call will cause the platform to swap which buffer is currently being
+     * targeted.  If the current surface does not include a back buffer, this
+     * call has no effect.
+     */
+    virtual void swapBuffers() const = 0;
+
     bool hasExtension(const char* extensionName) const {
         SkASSERT(NULL != fGL);
         return fExtensions.has(extensionName);

@@ -165,3 +165,9 @@ void SkNativeGLContext::makeCurrent() const {
         SkDebugf("Could not set the context.\n");
     }
 }
+
+void SkNativeGLContext::swapBuffers() const {
+    if (!eglSwapBuffers(fDisplay, fSurface)) {
+        SkDebugf("Could not complete eglSwapBuffers.\n");
+    }
+}

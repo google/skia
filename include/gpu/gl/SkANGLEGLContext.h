@@ -22,6 +22,7 @@ public:
     virtual ~SkANGLEGLContext();
 
     virtual void makeCurrent() const SK_OVERRIDE;
+    virtual void swapBuffers() const SK_OVERRIDE;
 
     class AutoContextRestore {
     public:

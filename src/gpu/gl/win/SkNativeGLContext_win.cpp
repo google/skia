@@ -112,3 +112,9 @@ void SkNativeGLContext::makeCurrent() const {
         SkDebugf("Could not create rendering context.\n");
     }
 }
+
+void SkNativeGLContext::swapBuffers() const {
+    if (!SwapBuffers(fDeviceContext)) {
+        SkDebugf("Could not complete SwapBuffers.\n");
+    }
+}
