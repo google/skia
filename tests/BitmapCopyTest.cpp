@@ -57,6 +57,10 @@ static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
         if (bitmap.getColorTable()) {
             sk_bzero(bitmap.getPixels(), bitmap.getSize());
+        } else if (SkBitmap::kA1_Config == bitmap.config()) {
+            // The A1 config can have uninitialized bits at the
+            // end of each row if eraseColor is used
+            memset(bitmap.getPixels(), 0xff, bitmap.getSafeSize());
         } else {
             bitmap.eraseColor(SK_ColorWHITE);
         }
