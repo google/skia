@@ -172,6 +172,8 @@ class JsonRebaseliner(object):
   #                   TODO(epoger): Add that capability to a review tool.
   #  mark_ignore_failure: if True, mark failures of a given test as being
   #                       ignored.
+  #  from_trybot: if True, read actual-result JSON files generated from a
+  #               trybot run rather than a waterfall run.
   def __init__(self, expectations_root, expectations_input_filename,
                expectations_output_filename, actuals_base_url,
                actuals_filename, exception_handler,
@@ -191,7 +193,10 @@ class JsonRebaseliner(object):
     self._notes = notes
     self._mark_unreviewed = mark_unreviewed
     self._mark_ignore_failure = mark_ignore_failure;
-    self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+    if self._tests or self._configs:
+      self._image_filename_re = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+    else:
+      self._image_filename_re = None
     self._using_svn = os.path.isdir(os.path.join(expectations_root, '.svn'))
     self._from_trybot = from_trybot
 
@@ -293,15 +298,16 @@ class JsonRebaseliner(object):
     skipped_images = []
     if results_to_update:
       for (image_name, image_results) in results_to_update.iteritems():
-        (test, config) = self._image_filename_re.match(image_name).groups()
-        if self._tests:
-          if test not in self._tests:
-            skipped_images.append(image_name)
-            continue
-        if self._configs:
-          if config not in self._configs:
-            skipped_images.append(image_name)
-            continue
+        if self._image_filename_re:
+          (test, config) = self._image_filename_re.match(image_name).groups()
+          if self._tests:
+            if test not in self._tests:
+              skipped_images.append(image_name)
+              continue
+          if self._configs:
+            if config not in self._configs:
+              skipped_images.append(image_name)
+              continue
         if not expected_results.get(image_name):
           expected_results[image_name] = {}
         expected_results[image_name]\
@@ -344,8 +350,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--actuals-base-url',
                     help=('base URL from which to read files containing JSON '
                           'summaries of actual GM results; defaults to '
-                          '%(default)s. To get a specific revision (useful for'
-                          'trybots) replace "svn" with "svn-history/r123".'),
+                          '%(default)s. To get a specific revision (useful for '
+                          'trybots) replace "svn" with "svn-history/r123". '
+                          'If SKIMAGE is True, defaults to ' +
+                          gm_json.SKIMAGE_ACTUALS_BASE_URL),
                     default='http://skia-autogen.googlecode.com/svn/gm-actual')
 parser.add_argument('--actuals-filename',
                     help=('filename (within builder-specific subdirectories '
@@ -370,7 +378,8 @@ parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help=('which configurations to rebaseline, e.g. '
                           '"--configs 565 8888", as a filter over the full set '
                           'of results in ACTUALS_FILENAME; if unspecified, '
-                          'rebaseline *all* configs that are available.'))
+                          'rebaseline *all* configs that are available. '
+                          'Ignored if SKIMAGE is True.'))
 parser.add_argument('--expectations-filename',
                     help=('filename (under EXPECTATIONS_ROOT) to read '
                           'current expectations from, and to write new '
@@ -386,7 +395,8 @@ parser.add_argument('--expectations-filename-output',
 parser.add_argument('--expectations-root',
                     help=('root of expectations directory to update-- should '
                           'contain one or more builder subdirectories. '
-                          'Defaults to %(default)s'),
+                          'Defaults to %(default)s. If SKIMAGE is set, '
+                          ' defaults to ' + gm_json.SKIMAGE_EXPECTATIONS_ROOT),
                     default=os.path.join('expectations', 'gm'))
 parser.add_argument('--keep-going-on-failure', action='store_true',
                     help=('instead of halting at the first error encountered, '
@@ -402,7 +412,7 @@ parser.add_argument('--tests', metavar='TEST', nargs='+',
                           '"--tests aaclip bigmatrix", as a filter over the '
                           'full set of results in ACTUALS_FILENAME; if '
                           'unspecified, rebaseline *all* tests that are '
-                          'available.'))
+                          'available. Ignored if SKIMAGE is True.'))
 parser.add_argument('--unreviewed', action='store_true',
                     help=('mark all expectations modified by this run as '
                           '"%s": False' %
@@ -414,6 +424,11 @@ parser.add_argument('--ignore-failure', action='store_true',
 parser.add_argument('--from-trybot', action='store_true',
                     help=('pull the actual-results.json file from the '
                           'corresponding trybot, rather than the main builder'))
+parser.add_argument('--skimage', action='store_true',
+                    help=('Rebaseline skimage results instead of gm. Defaults '
+                          'to False. If True, TESTS and CONFIGS are ignored, '
+                          'and ACTUALS_BASE_URL and EXPECTATIONS_ROOT are set '
+                          'to alternate defaults, specific to skimage.'))
 args = parser.parse_args()
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
@@ -423,6 +438,15 @@ if args.builders:
 else:
   builders = sorted(TEST_BUILDERS)
   missing_json_is_fatal = False
+if args.skimage:
+  # Use a different default if --skimage is specified.
+  if args.actuals_base_url == parser.get_default('actuals_base_url'):
+    args.actuals_base_url = gm_json.SKIMAGE_ACTUALS_BASE_URL
+  if args.expectations_root == parser.get_default('expectations_root'):
+    args.expectations_root = gm_json.SKIMAGE_EXPECTATIONS_ROOT
+  # Also ignore TESTS and CONFIGS
+  args.tests = None
+  args.configs = None
 for builder in builders:
   if not builder in TEST_BUILDERS:
     raise Exception(('unrecognized builder "%s"; ' +
