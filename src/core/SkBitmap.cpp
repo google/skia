@@ -1119,10 +1119,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
             }
         }
     } else {
-        // if the src has alpha, we have to clear the dst first
-        if (!src->isOpaque()) {
-            tmpDst.eraseColor(SK_ColorTRANSPARENT);
-        }
+        // Always clear the dest in case one of the blitters accesses it
+        // TODO: switch the allocation of tmpDst to call sk_calloc_throw
+        tmpDst.eraseColor(SK_ColorTRANSPARENT);
 
         SkCanvas canvas(tmpDst);
         SkPaint  paint;
