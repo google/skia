@@ -150,15 +150,15 @@ static bool needs_deep_copy(const SkPaint& paint) {
     /*
      *  These fields are known to be immutable, and so can be shallow-copied
      *
-     *  getTypeface();
-     *  getAnnotation();
-     *  getXfermode();
+     *  getTypeface()
+     *  getAnnotation()
+     *  paint.getColorFilter()
+     *  getXfermode()
      */
 
     return paint.getPathEffect() ||
            paint.getShader() ||
            paint.getMaskFilter() ||
-           paint.getColorFilter() ||
            paint.getRasterizer() ||
            paint.getLooper() ||
            paint.getImageFilter();
