@@ -363,6 +363,7 @@ DEF_BENCH( return new BitmapBench(true, SkBitmap::kIndex8_Config); )
 DEF_BENCH( return new BitmapBench(true, SkBitmap::kARGB_8888_Config, true, true); )
 DEF_BENCH( return new BitmapBench(true, SkBitmap::kARGB_8888_Config, true, false); )
 
+/* TODO(mtklein): figure out why these are broken (suspect caching is interfering) and restore
 // scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2
 DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
 DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag); )
@@ -377,6 +378,7 @@ DEF_BENCH( return new FilterBitmapBench(true, SkBitmap::kARGB_8888_Config, true,
 
 DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kBilerp_Flag | kBicubic_Flag); )
 DEF_BENCH( return new FilterBitmapBench(false, SkBitmap::kARGB_8888_Config, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag | kBicubic_Flag); )
+*/
 
 // source alpha tests -> S32A_Opaque_BlitRow32_{arm,neon}
 DEF_BENCH( return new SourceAlphaBitmapBench(SourceAlphaBitmapBench::kOpaque_SourceAlpha, SkBitmap::kARGB_8888_Config); )
