@@ -14,27 +14,11 @@
 
 SK_DEFINE_INST_COUNT(SkColorTable)
 
-SkColorTable::SkColorTable(int count)
-    : f16BitCache(NULL), fFlags(0)
-{
-    if (count < 0)
-        count = 0;
-    else if (count > 256)
-        count = 256;
-
-    fCount = SkToU16(count);
-    fColors = (SkPMColor*)sk_malloc_throw(count * sizeof(SkPMColor));
-    memset(fColors, 0, count * sizeof(SkPMColor));
-
-    SkDEBUGCODE(fColorLockCount = 0;)
-    SkDEBUGCODE(f16BitCacheLockCount = 0;)
-}
-
 // As copy constructor is hidden in the class hierarchy, we need to call
 // default constructor explicitly to suppress a compiler warning.
 SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
     f16BitCache = NULL;
-    fFlags = src.fFlags;
+    fAlphaType = src.fAlphaType;
     int count = src.count();
     fCount = SkToU16(count);
     fColors = reinterpret_cast<SkPMColor*>(
@@ -45,20 +29,22 @@ SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 }
 
-SkColorTable::SkColorTable(const SkPMColor colors[], int count)
-    : f16BitCache(NULL), fFlags(0)
+SkColorTable::SkColorTable(const SkPMColor colors[], int count, SkAlphaType at)
+    : f16BitCache(NULL), fAlphaType(SkToU8(at))
 {
-    if (count < 0)
+    SkASSERT(0 == count || NULL != colors);
+
+    if (count < 0) {
         count = 0;
-    else if (count > 256)
+    } else if (count > 256) {
         count = 256;
+    }
 
     fCount = SkToU16(count);
     fColors = reinterpret_cast<SkPMColor*>(
                                     sk_malloc_throw(count * sizeof(SkPMColor)));
 
-    if (colors)
-        memcpy(fColors, colors, count * sizeof(SkPMColor));
+    memcpy(fColors, colors, count * sizeof(SkPMColor));
 
     SkDEBUGCODE(fColorLockCount = 0;)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
@@ -73,67 +59,28 @@ SkColorTable::~SkColorTable()
     sk_free(f16BitCache);
 }
 
-void SkColorTable::setFlags(unsigned flags)
-{
-    fFlags = SkToU8(flags);
-}
-
-void SkColorTable::unlockColors(bool changed)
-{
+void SkColorTable::unlockColors() {
     SkASSERT(fColorLockCount != 0);
     SkDEBUGCODE(sk_atomic_dec(&fColorLockCount);)
-    if (changed)
-        this->inval16BitCache();
-}
-
-void SkColorTable::inval16BitCache()
-{
-    SkASSERT(f16BitCacheLockCount == 0);
-    if (f16BitCache)
-    {
-        sk_free(f16BitCache);
-        f16BitCache = NULL;
-    }
 }
 
 #include "SkColorPriv.h"
 
-static inline void build_16bitcache(uint16_t dst[], const SkPMColor src[], int count)
-{
-    while (--count >= 0)
+static inline void build_16bitcache(uint16_t dst[], const SkPMColor src[],
+                                    int count) {
+    while (--count >= 0) {
         *dst++ = SkPixel32ToPixel16_ToU16(*src++);
+    }
 }
 
-const uint16_t* SkColorTable::lock16BitCache()
-{
-    if (fFlags & kColorsAreOpaque_Flag)
-    {
-        if (f16BitCache == NULL) // build the cache
-        {
-            f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
-            build_16bitcache(f16BitCache, fColors, fCount);
-        }
-    }
-    else    // our colors have alpha, so no cache
-    {
-        this->inval16BitCache();
-        if (f16BitCache)
-        {
-            sk_free(f16BitCache);
-            f16BitCache = NULL;
-        }
+const uint16_t* SkColorTable::lock16BitCache() {
+    if (this->isOpaque() && NULL == f16BitCache) {
+        f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
+        build_16bitcache(f16BitCache, fColors, fCount);
     }
 
     SkDEBUGCODE(f16BitCacheLockCount += 1);
     return f16BitCache;
-}
-
-void SkColorTable::setIsOpaque(bool isOpaque) {
-    if (isOpaque) {
-        fFlags |= kColorsAreOpaque_Flag;
-    } else {
-        fFlags &= ~kColorsAreOpaque_Flag;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,7 +90,7 @@ SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
     SkDEBUGCODE(fColorLockCount = 0;)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 
-    fFlags = buffer.readUInt();
+    fAlphaType = SkToU8(buffer.readUInt());
     fCount = buffer.getArrayCount();
     fColors = (SkPMColor*)sk_malloc_throw(fCount * sizeof(SkPMColor));
     SkDEBUGCODE(const uint32_t countRead =) buffer.readColorArray(fColors);
@@ -154,6 +101,6 @@ SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
 }
 
 void SkColorTable::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.writeUInt(fFlags);
+    buffer.writeUInt(fAlphaType);
     buffer.writeColorArray(fColors, fCount);
 }

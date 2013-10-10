@@ -33,9 +33,9 @@ static uint8_t compute666Index(SkPMColor c) {
     return convByteTo6(r) * 36 + convByteTo6(g) * 6 + convByteTo6(b);
 }
 
-static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
-    SkColorTable* ctable = new SkColorTable(216);
-    SkPMColor* colors = ctable->lockColors();
+static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, bool isOpaque) {
+    SkPMColor storage[216];
+    SkPMColor* colors = storage;
     // rrr ggg bbb
     for (int r = 0; r < 6; r++) {
         int rr = conv6ToByte(r);
@@ -47,7 +47,8 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
             }
         }
     }
-    ctable->unlockColors(true);
+    SkColorTable* ctable = new SkColorTable(storage, 216,
+                         isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     dst->setConfig(SkBitmap::kIndex8_Config, src.width(), src.height());
     dst->allocPixels(ctable);
     ctable->unref();
@@ -120,14 +121,11 @@ protected:
         onDrawIntoBitmap(bm);
 
         if (SkBitmap::kIndex8_Config == fConfig) {
-            convertToIndex666(bm, &fBitmap);
+            convertToIndex666(bm, &fBitmap, fIsOpaque);
         } else {
             fBitmap = bm;
         }
 
-        if (fBitmap.getColorTable()) {
-            fBitmap.getColorTable()->setIsOpaque(fIsOpaque);
-        }
         fBitmap.setIsOpaque(fIsOpaque);
         fBitmap.setIsVolatile(fIsVolatile);
     }

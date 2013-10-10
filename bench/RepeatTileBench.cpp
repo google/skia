@@ -52,9 +52,10 @@ static uint8_t compute_666_index(SkPMColor c) {
     return conv_byte_to_6(r) * 36 + conv_byte_to_6(g) * 6 + conv_byte_to_6(b);
 }
 
-static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
-    SkColorTable* ctable = new SkColorTable(216);
-    SkPMColor* colors = ctable->lockColors();
+static void convert_to_index666(const SkBitmap& src, SkBitmap* dst,
+                                bool isOpaque) {
+    SkPMColor storage[216];
+    SkPMColor* colors = storage;
     // rrr ggg bbb
     for (int r = 0; r < 6; r++) {
         int rr = conv_6_to_byte(r);
@@ -66,7 +67,8 @@ static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
             }
         }
     }
-    ctable->unlockColors(true);
+    SkAlphaType aType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    SkColorTable* ctable = new SkColorTable(storage, 216, aType);
     dst->setConfig(SkBitmap::kIndex8_Config, src.width(), src.height());
     dst->allocPixels(ctable);
     ctable->unref();
@@ -119,7 +121,7 @@ protected:
 
         if (SkBitmap::kIndex8_Config == fConfig) {
             SkBitmap tmp;
-            convert_to_index666(fBitmap, &tmp);
+            convert_to_index666(fBitmap, &tmp, fIsOpaque);
             fBitmap = tmp;
         }
 

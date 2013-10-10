@@ -10,6 +10,7 @@
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
+#include "SkAlpha.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
 
@@ -25,25 +26,15 @@ public:
     /** Makes a deep copy of colors.
      */
     SkColorTable(const SkColorTable& src);
-    /** Preallocates the colortable to have 'count' colors, which
-     *  are initially set to 0.
-    */
-    explicit SkColorTable(int count);
-    SkColorTable(const SkPMColor colors[], int count);
+    SkColorTable(const SkPMColor colors[], int count,
+                 SkAlphaType alphaType = kPremul_SkAlphaType);
     virtual ~SkColorTable();
 
-    enum Flags {
-        kColorsAreOpaque_Flag   = 0x01  //!< if set, all of the colors in the table are opaque (alpha==0xFF)
-    };
-    /** Returns the flag bits for the color table. These can be changed with setFlags().
-    */
-    unsigned getFlags() const { return fFlags; }
-    /** Set the flags for the color table. See the Flags enum for possible values.
-    */
-    void    setFlags(unsigned flags);
+    SkAlphaType alphaType() const { return (SkAlphaType)fAlphaType; }
 
-    bool isOpaque() const { return (fFlags & kColorsAreOpaque_Flag) != 0; }
-    void setIsOpaque(bool isOpaque);
+    bool isOpaque() const {
+        return SkAlphaTypeIsOpaque(this->alphaType());
+    }
 
     /** Returns the number of colors in the table.
     */
@@ -57,25 +48,19 @@ public:
         return fColors[index];
     }
 
-    /** Specify the number of colors in the color table. This does not initialize the colors
-        to any value, just allocates memory for them. To initialize the values, either call
-        setColors(array, count), or follow setCount(count) with a call to
-        lockColors()/{set the values}/unlockColors(true).
-    */
-//    void    setColors(int count) { this->setColors(NULL, count); }
-//    void    setColors(const SkPMColor[], int count);
-
-    /** Return the array of colors for reading and/or writing. This must be
-        balanced by a call to unlockColors(changed?), telling the colortable if
-        the colors were changed during the lock.
-    */
-    SkPMColor* lockColors() {
+    /**
+     *  Return the array of colors for reading. This must be balanced by a call
+     *  to unlockColors().
+     */
+    const SkPMColor* lockColors() {
         SkDEBUGCODE(sk_atomic_inc(&fColorLockCount);)
         return fColors;
     }
-    /** Balancing call to lockColors(). If the colors have been changed, pass true.
-    */
-    void unlockColors(bool changed);
+
+    /**
+     *  Balancing call to lockColors().
+     */
+    void unlockColors();
 
     /** Similar to lockColors(), lock16BitCache() returns the array of
         RGB16 colors that mirror the 32bit colors. However, this function
@@ -100,7 +85,7 @@ private:
     SkPMColor*  fColors;
     uint16_t*   f16BitCache;
     uint16_t    fCount;
-    uint8_t     fFlags;
+    uint8_t     fAlphaType;
     SkDEBUGCODE(int fColorLockCount;)
     SkDEBUGCODE(int f16BitCacheLockCount;)
 
