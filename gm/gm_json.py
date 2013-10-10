@@ -83,7 +83,7 @@ GM_ACTUALS_ROOT_HTTP_URL = (
 GM_ACTUALS_ROOT_GS_URL = 'gs://chromium-skia-gm/gm'
 
 # Pattern used to assemble each image's filename
-IMAGE_FILENAME_PATTERN = '(\S+)_(\S+).png'  # matches (testname, config)
+IMAGE_FILENAME_PATTERN = '(\S+)_(\S+)\.png'  # matches (testname, config)
 
 def CreateGmActualUrl(test_name, hash_type, hash_digest,
                       gm_actuals_root_url=GM_ACTUALS_ROOT_HTTP_URL):
