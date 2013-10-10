@@ -289,6 +289,7 @@
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'DYNAMIC_ANNOTATIONS_ENABLED=1' ],
+                'cflags': [ '-fPIC' ],
                 'target_conditions': [
                   [ '_type == "executable"', {
                     'cflags': [ '-fPIE' ],
