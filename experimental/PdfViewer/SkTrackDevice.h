@@ -150,7 +150,8 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
         before();
-        INHERITED::drawVertices(dummy1, dummy2, vertexCount,verts, texs,colors, xmode, indices, indexCount, paint);
+        INHERITED::drawVertices(dummy1, dummy2, vertexCount,verts, texs,colors, xmode, indices,
+                                indexCount, paint);
         after();
     }
 

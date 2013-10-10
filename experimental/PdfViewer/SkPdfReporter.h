@@ -14,9 +14,11 @@
 class SkPdfNativeObject;
 class SkPdfContext;
 
+// TODO(edisonn): ability to turn on asserts for known good files
+
 enum SkPdfIssueSeverity {
     kInfo_SkPdfIssueSeverity,
-    kCodeWarning_SkPdfIssueSeverity, // e.g. like NYI, which has nothing to do with an error in the file
+    kCodeWarning_SkPdfIssueSeverity, // e.g. like NYI, PDF file is Ok.
     kWarning_SkPdfIssueSeverity,
     kIgnoreError_SkPdfIssueSeverity,
     kError_SkPdfIssueSeverity,
@@ -51,15 +53,24 @@ enum SkPdfIssue {
     kNoFlateLibrary_SkPdfIssue,
     kBadStream_SkPdfIssue,
 
-
     _kCount__SkPdfIssue
 };
 
 #ifdef PDF_REPORT
 
-void SkPdfReportIf(bool report, SkPdfIssueSeverity sev, SkPdfIssue issue, const char* context, const SkPdfNativeObject* obj,                 SkPdfContext* pdfContext);
-void SkPdfReport(               SkPdfIssueSeverity sev, SkPdfIssue issue, const char* context, const SkPdfNativeObject* obj,                 SkPdfContext* pdfContext);
-void SkPdfReportUnexpectedType( SkPdfIssueSeverity sev,                   const char* context, const SkPdfNativeObject* obj, int anyOfTypes, SkPdfContext* pdfContext);
+void SkPdfReportIf(bool report,
+                   SkPdfIssueSeverity sev, SkPdfIssue issue,
+                   const char* context,
+                   const SkPdfNativeObject* obj,
+                   SkPdfContext* pdfContext);
+void SkPdfReport(SkPdfIssueSeverity sev, SkPdfIssue issue,
+                 const char* context,
+                 const SkPdfNativeObject* obj,
+                 SkPdfContext* pdfContext);
+void SkPdfReportUnexpectedType(SkPdfIssueSeverity sev,
+                               const char* context,
+                               const SkPdfNativeObject* obj, int anyOfTypes,
+                               SkPdfContext* pdfContext);
 #define SkPdfREPORTCODE(code) code
 
 #else  // !PDF_REPORT

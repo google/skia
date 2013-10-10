@@ -30,22 +30,33 @@ const char* getSeverityName(SkPdfIssueSeverity sev) {
 // TODO(edisonn): add a flag to set the minimum warning level
 
 #ifdef PDF_REPORT
-void SkPdfReport(               SkPdfIssueSeverity sev, SkPdfIssue issue, const char* context, const SkPdfNativeObject* obj,                 SkPdfContext* pdfContext) {
+void SkPdfReport(SkPdfIssueSeverity sev, SkPdfIssue issue,
+                 const char* context,
+                 const SkPdfNativeObject* obj,
+                 SkPdfContext* pdfContext) {
     if (sev >= kIgnoreError_SkPdfIssueSeverity) {
         printf("%s: %s\n", getSeverityName(sev), context);
     }
 }
 
-void SkPdfReportUnexpectedType(SkPdfIssueSeverity sev, const char* context, const SkPdfNativeObject* obj, int anyOfTypes, SkPdfContext* pdfContext) {
-    if (sev >= kIgnoreError_SkPdfIssueSeverity) {
-        printf("%s: %s\n", getSeverityName(sev), context);
-    }
-}
-
-void SkPdfReportIf(bool report, SkPdfIssueSeverity sev, SkPdfIssue issue, const char* context, const SkPdfNativeObject* obj,                 SkPdfContext* pdfContext) {
+void SkPdfReportIf(bool report,
+                   SkPdfIssueSeverity sev, SkPdfIssue issue,
+                   const char* context,
+                   const SkPdfNativeObject* obj,
+SkPdfContext* pdfContext) {
     if (!report) {
         return;
     }
     SkPdfReport(sev, issue, context, obj, pdfContext);
 }
+
+void SkPdfReportUnexpectedType(SkPdfIssueSeverity sev,
+                               const char* context,
+                               const SkPdfNativeObject* obj,
+                               int anyOfTypes, SkPdfContext* pdfContext) {
+    if (sev >= kIgnoreError_SkPdfIssueSeverity) {
+        printf("%s: %s\n", getSeverityName(sev), context);
+    }
+}
+
 #endif  // PDF_REPORT

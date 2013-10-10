@@ -6,9 +6,9 @@
  */
 
 #include "SkPdfGraphicsState.h"
-#include "SkPdfNativeTokenizer.h"
 
 #include "SkDashPathEffect.h"
+#include "SkPdfNativeTokenizer.h"
 
 SkPdfContext::SkPdfContext(SkPdfNativeDoc* doc)
     : fPdfDoc(doc)
@@ -26,17 +26,19 @@ void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
         fNonStroking.applyGraphicsState(paint);
     }
 
-    // TODO(edisonn): get this from pdfContext->options,
+    // TODO(edisonn): Perf, we should load this option from pdfContext->options,
     // or pdfContext->addPaintOptions(&paint);
     paint->setAntiAlias(true);
 
     // TODO(edisonn): miter, ...
     if (stroking) {
         paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
-        // TODO(edisonn): perf, two sets of allocs, create SkDashPathEffect constr that takes ownership
+        // TODO(edisonn): perf, avoid allocs allocs
         // of the intervals
         if (fDashArrayLength > 0) {
-            paint->setPathEffect(new SkDashPathEffect(fDashArray, fDashArrayLength, fDashPhase))->unref();
+            paint->setPathEffect(new SkDashPathEffect(fDashArray,
+                                                      fDashArrayLength,
+                                                      fDashPhase))->unref();
         }
     }
 

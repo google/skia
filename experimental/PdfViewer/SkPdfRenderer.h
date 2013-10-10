@@ -9,9 +9,7 @@
 #ifndef SkPdfRenderer_DEFINED
 #define SkPdfRenderer_DEFINED
 
-// TODO(edisonn): how to remove this dependency? Should I remove the ref counting?
-#include "SkRefCnt.h"
-// TODO(edisonn): remove this dependency
+// TODO(edisonn): remove this dependency, and load only from a stream!
 #include "SkString.h"
 
 class SkBitmap;
@@ -26,22 +24,36 @@ enum SkPdfContent {
     kAll_SkPdfContent,
 };
 
-// TODO(edisonn): move in another file
-class SkPdfRenderer : public SkRefCnt {
+// TODO(edisonn): add options to render forms, checkboxes, ...
+// TODO(edisonn): Add API for Forms viewing and editing
+// e.g. SkBitmap getPage(int page);
+//      int formsCount();
+//      SkForm getForm(int formID); // SkForm(SkRect, .. other data)
+// TODO (edisonn): Add intend when loading pdf, for example: for viewing, for parsing content, ...
+
+class SkPdfRenderer {
     SkPdfNativeDoc* fPdfDoc;
 public:
     SkPdfRenderer() : fPdfDoc(NULL) {}
     virtual ~SkPdfRenderer() {unload();}
 
-    // TODO(edisonn): add options to render forms, or not
     bool renderPage(int page, SkCanvas* canvas, const SkRect& dst) const;
 
+    // TODO(edisonn): deprecated, should be removed!
     bool load(const SkString inputFileName);
+
     bool load(SkStream* stream);
-    bool loaded() const {return fPdfDoc != NULL;}
-    int pages() const;
+
     void unload();
+
+    bool loaded() const {return fPdfDoc != NULL;}
+
+    int pages() const;
+
     SkRect MediaBox(int page) const;
+
+    // TODO(edisonn): for testing only, probably it should be removed, unless some client wants to
+    // let users know how much memory the PDF needs.
     size_t bytesUsed() const;
 };
 

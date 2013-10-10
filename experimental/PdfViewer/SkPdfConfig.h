@@ -62,7 +62,9 @@ class SkPdfNativeObject;
 
 #ifdef PDF_TRACK_STREAM_OFFSETS
 #define TRACK_OBJECT_SRC(a)
-#define STORE_TRACK_PARAMETERS(obj) (obj)->fStreamId = streamId; (obj)->fOffsetStart = offsetStart; (obj)->fOffsetEnd = offsetEnd;
+#define STORE_TRACK_PARAMETERS(obj) (obj)->fStreamId = streamId;\
+                                    (obj)->fOffsetStart = offsetStart;\
+                                    (obj)->fOffsetEnd = offsetEnd;
 #define STORE_TRACK_PARAMETER_OFFSET_END(obj,offsetEnd) (obj)->fOffsetEnd = (offsetEnd)-streamStart;
 #else
 #define TRACK_OBJECT_SRC(a)

@@ -59,7 +59,8 @@ bool operator !=(const SkString& first, const char* second);
 
 SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray);
 
-SkPdfResult doType3Char(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfNativeObject* skobj, SkRect bBox, SkMatrix matrix, double textSize);
+SkPdfResult doType3Char(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfNativeObject* skobj,
+                        SkRect bBox, SkMatrix matrix, double textSize);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

@@ -13,8 +13,6 @@
 #include "SkPdfConfig.h"
 #include "SkPdfUtils.h"
 
-//#include "SkTDStack.h"
-
 class SkPdfFont;
 class SkPdfDoc;
 class SkPdfNativeObject;
@@ -461,9 +459,7 @@ smoothness             number             (PDF 1.3) The precision with which col
 
 
 
-
-
-
+    // TODO(edisonn): some defaults are contextual, they could on colorspace, pdf version, ...
 
     SkPdfGraphicsState() {
         fCurPosX      = 0.0;
@@ -493,19 +489,18 @@ smoothness             number             (PDF 1.3) The precision with which col
         fSMask        = NULL;
     }
 
-    // TODO(edisonn): make two functons instead, stroking and non stoking, avoid branching
+    // TODO(edisonn): make two functions instead, stroking and non stoking, avoid branching
     void applyGraphicsState(SkPaint* paint, bool stroking);
 };
 
-// TODO(edisonn): better class design.
-// TODO(edisonn): rename to SkPdfContext
 class SkPdfContext {
 public:
     SkTDStackNew<SkPdfNativeObject*>  fObjectStack;
     SkTDStackNew<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
     SkPdfNativeDoc*                 fPdfDoc;
-    // TODO(edisonn): the allocator, could be freed after the page is done drawing.
+    // TODO(edisonn): the allocator, could be freed after the page is done drawing, so we have the
+    // pixels on the screen asap.
     SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;
 

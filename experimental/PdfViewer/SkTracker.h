@@ -11,6 +11,10 @@
 #include "SkBitmap.h"
 #include "SkPoint.h"
 
+// TODO(edisonn): draw plan from point! - list of draw ops of a point, like a tree!
+// TODO(edisonn): Minimal PDF to draw some points - remove everything that it is not needed,
+//                save pdf uncompressed
+
 #define MAX_TRACKING_POINTS 100
 
 class SkTracker {
@@ -105,7 +109,8 @@ public:
             fBeforeTouched[i] = pickColor(bitmap, fExpectedTouched[i].x(), fExpectedTouched[i].y());
         }
         for (int i = 0 ; i < fCntExpectedUntouched; i++) {
-            fBeforeUntouched[i] = pickColor(bitmap, fExpectedUntouched[i].x(), fExpectedUntouched[i].y());
+            fBeforeUntouched[i] = pickColor(bitmap, fExpectedUntouched[i].x(),
+                                            fExpectedUntouched[i].y());
         }
     }
 
@@ -119,17 +124,20 @@ public:
         if (fBreakOnAny) {
             doBreak = false;
             for (int i = 0 ; i < fCntExpectedTouched; i++) {
-                doBreak = doBreak || fBeforeTouched[i] != pickColor(bitmap, fExpectedTouched[i].x(), fExpectedTouched[i].y());
+                doBreak = doBreak || fBeforeTouched[i] != pickColor(bitmap, fExpectedTouched[i].x(),
+                                                                    fExpectedTouched[i].y());
             }
         } else {
             doBreak = true;
             for (int i = 0 ; i < fCntExpectedTouched; i++) {
-                doBreak = doBreak && fBeforeTouched[i] != pickColor(bitmap, fExpectedTouched[i].x(), fExpectedTouched[i].y());
+                doBreak = doBreak && fBeforeTouched[i] != pickColor(bitmap, fExpectedTouched[i].x(),
+                                                                    fExpectedTouched[i].y());
             }
         }
 
         for (int i = 0 ; i < fCntExpectedUntouched; i++) {
-            doBreak = doBreak && fBeforeUntouched[i] == pickColor(bitmap, fExpectedUntouched[i].x(), fExpectedUntouched[i].y());
+            doBreak = doBreak && fBeforeUntouched[i] == pickColor(bitmap, fExpectedUntouched[i].x(),
+                                                                  fExpectedUntouched[i].y());
         }
 
         if (doBreak) {
