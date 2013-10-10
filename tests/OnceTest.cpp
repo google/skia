@@ -6,7 +6,6 @@
  */
 
 #include "SkOnce.h"
-#include "SkRunnable.h"
 #include "SkThreadPool.h"
 #include "Test.h"
 #include "TestClassDef.h"
@@ -56,11 +55,11 @@ DEF_TEST(SkOnce_Multithreaded, r) {
     }
 
     // Let them race.
-    SkAutoTDelete<SkThreadPool> pool(new SkThreadPool(kThreads));
+    SkThreadPool pool(kThreads);
     for (int i = 0; i < kTasks; i++) {
-        pool->add(&racers[i]);
+        pool.add(&racers[i]);
     }
-    pool.free();  // Blocks until all threads are done.
+    pool.wait();
 
     // Only one should have done the +=.
     REPORTER_ASSERT(r, 6 == x);

@@ -8,7 +8,6 @@
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
-#include "SkRunnable.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
 #include "SkThreadPool.h"
@@ -229,7 +228,7 @@ int tool_main(int argc, char** argv) {
     int32_t failCount = 0;
     int skipCount = 0;
 
-    SkAutoTDelete<SkThreadPool> threadpool(SkNEW_ARGS(SkThreadPool, (FLAGS_threads)));
+    SkThreadPool threadpool(FLAGS_threads);
     SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
     for (int i = 0; i < total; i++) {
         SkAutoTDelete<Test> test(iter.next());
@@ -238,7 +237,7 @@ int tool_main(int argc, char** argv) {
         } else if (!test->isThreadsafe()) {
             unsafeTests.push_back() = test.detach();
         } else {
-            threadpool->add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
+            threadpool.add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
         }
     }
 
@@ -247,8 +246,8 @@ int tool_main(int argc, char** argv) {
         SkNEW_ARGS(SkTestRunnable, (unsafeTests[i], &failCount))->run();
     }
 
-    // Blocks until threaded tests finish.
-    threadpool.free();
+    // Block until threaded tests finish.
+    threadpool.wait();
 
     SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
              toRun, failCount, skipCount);

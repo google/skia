@@ -39,6 +39,12 @@ SkThreadPool::SkThreadPool(int count)
 }
 
 SkThreadPool::~SkThreadPool() {
+    if (!fDone) {
+        this->wait();
+    }
+}
+
+void SkThreadPool::wait() {
     fReady.lock();
     fDone = true;
     fReady.broadcast();
@@ -99,6 +105,7 @@ void SkThreadPool::add(SkRunnable* r) {
 
     // We have some threads.  Queue it up!
     fReady.lock();
+    SkASSERT(!fDone);  // We shouldn't be adding work to a pool that's shut down.
     LinkedRunnable* linkedRunnable = SkNEW(LinkedRunnable);
     linkedRunnable->fRunnable = r;
     fQueue.addToHead(linkedRunnable);

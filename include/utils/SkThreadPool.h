@@ -9,10 +9,10 @@
 #define SkThreadPool_DEFINED
 
 #include "SkCondVar.h"
+#include "SkRunnable.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
-class SkRunnable;
 class SkThread;
 
 class SkThreadPool {
@@ -30,6 +30,11 @@ public:
      * count is 0.  NULL is a safe no-op.  Does not take ownership.
      */
     void add(SkRunnable*);
+
+    /**
+     * Block until all added SkRunnables have completed.  Once called, calling add() is undefined.
+     */
+    void wait();
 
  private:
     struct LinkedRunnable {
