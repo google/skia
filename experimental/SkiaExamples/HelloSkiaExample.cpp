@@ -24,7 +24,7 @@ public:
 
         fWindow->setupBackend(SkExampleWindow::kGPU_DeviceType);
         // Another option is software rendering:
-        // setupBackend(SkExampleWindow::kRaster_DeviceType);
+        // fWindow->setupBackend(SkExampleWindow::kRaster_DeviceType);
     }
 
 protected:
