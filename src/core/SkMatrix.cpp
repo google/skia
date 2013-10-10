@@ -8,6 +8,7 @@
 #include "SkMatrix.h"
 #include "Sk64.h"
 #include "SkFloatBits.h"
+#include "SkOnce.h"
 #include "SkScalarCompare.h"
 #include "SkString.h"
 
@@ -1893,13 +1894,14 @@ SkScalar SkMatrix::getMaxStretch() const {
     return SkScalarSqrt(largerRoot);
 }
 
+DEF_SK_ONCE(reset_identity_matrix, SkMatrix* identity) {
+    identity->reset();
+}
+
 const SkMatrix& SkMatrix::I() {
+    // If you can use C++11 now, you might consider replacing this with a constexpr constructor.
     static SkMatrix gIdentity;
-    static bool gOnce;
-    if (!gOnce) {
-        gIdentity.reset();
-        gOnce = true;
-    }
+    SK_ONCE(reset_identity_matrix, &gIdentity);
     return gIdentity;
 }
 
