@@ -70,11 +70,15 @@ protected:
             {  24,  24,  25,  25 },
         };
         SkPaint paint;
+#ifdef SK_CROP_RECT_IS_INT
         SkIRect cropRect = SkIRect::MakeXYWH(25, 20, 100, 80);
+#else
+        SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(25, 20, 100, 80));
+#endif
 
         for (unsigned j = 0; j < 4; ++j) {
             for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
-                const SkIRect* cr = j & 0x02 ? &cropRect : NULL;
+                const SkImageFilter::CropRect* cr = j & 0x02 ? &cropRect : NULL;
                 if (j & 0x01) {
                     paint.setImageFilter(new SkErodeImageFilter(
                         samples[i].fRadiusX,

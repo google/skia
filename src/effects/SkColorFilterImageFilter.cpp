@@ -57,7 +57,7 @@ bool matrix_needs_clamping(SkScalar matrix[20]) {
 };
 
 SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
-        SkImageFilter* input, const SkIRect* cropRect) {
+        SkImageFilter* input, const CropRect* cropRect) {
     SkASSERT(cf);
     SkScalar colorMatrix[20], inputMatrix[20];
     SkColorFilter* inputColorFilter;
@@ -76,7 +76,7 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
-        SkImageFilter* input, const SkIRect* cropRect)
+        SkImageFilter* input, const CropRect* cropRect)
     : INHERITED(input, cropRect), fColorFilter(cf) {
     SkASSERT(cf);
     SkSafeRef(cf);
@@ -126,7 +126,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
 }
 
 bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
-    if (cropRect().isLargest()) {
+    if (!cropRectIsSet()) {
         if (filter) {
             *filter = fColorFilter;
             fColorFilter->ref();

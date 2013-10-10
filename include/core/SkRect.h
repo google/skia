@@ -371,6 +371,12 @@ struct SK_API SkRect {
         return r;
     }
 
+    static SkRect SK_WARN_UNUSED_RESULT MakeLargest() {
+        SkRect r;
+        r.setLargest();
+        return r;
+    }
+
     static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
         SkRect r;
         r.set(0, 0, w, h);
@@ -418,6 +424,11 @@ struct SK_API SkRect {
      *  Return true if the rectangle's width or height are <= 0
      */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
+
+    bool isLargest() const { return SK_ScalarMin == fLeft &&
+                                    SK_ScalarMin == fTop &&
+                                    SK_ScalarMax == fRight &&
+                                    SK_ScalarMax == fBottom; }
 
     /**
      *  Returns true iff all values in the rect are finite. If any are

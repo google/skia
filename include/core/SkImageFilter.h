@@ -31,6 +31,28 @@ class SK_API SkImageFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkImageFilter)
 
+#ifdef SK_CROP_RECT_IS_INT
+    typedef SkIRect CropRect;
+#else
+    struct CropRect {
+        SkRect fRect;
+        uint32_t fFlags;
+        enum CropEdge {
+            kHasLeft_CropEdge   = 0x01,
+            kHasTop_CropEdge    = 0x02,
+            kHasRight_CropEdge  = 0x04,
+            kHasBottom_CropEdge = 0x08,
+            kHasAll_CropEdge    = 0x0F,
+        };
+        CropRect() {}
+        explicit CropRect(const SkRect& rect, uint32_t flags = kHasAll_CropEdge) : fRect(rect), fFlags(flags) {}
+        bool isSet() const
+        {
+            return fFlags != 0x0;
+        }
+    };
+#endif
+
     class Proxy {
     public:
         virtual ~Proxy() {};
@@ -138,16 +160,20 @@ public:
      *  "offset" parameter in onFilterImage and filterImageGPU(). (The latter
      *  ensures that the resulting buffer is drawn in the correct location.)
      */
-    const SkIRect& cropRect() const { return fCropRect; }
+#ifdef SK_CROP_RECT_IS_INT
+    bool cropRectIsSet() const { return !fCropRect.isLargest(); }
+#else
+    bool cropRectIsSet() const { return fCropRect.isSet(); }
+#endif
 
 protected:
-    SkImageFilter(int inputCount, SkImageFilter** inputs, const SkIRect* cropRect = NULL);
+    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
 
     // Convenience constructor for 1-input filters.
-    explicit SkImageFilter(SkImageFilter* input, const SkIRect* cropRect = NULL);
+    explicit SkImageFilter(SkImageFilter* input, const CropRect* cropRect = NULL);
 
     // Convenience constructor for 2-input filters.
-    SkImageFilter(SkImageFilter* input1, SkImageFilter* input2, const SkIRect* cropRect = NULL);
+    SkImageFilter(SkImageFilter* input1, SkImageFilter* input2, const CropRect* cropRect = NULL);
 
     virtual ~SkImageFilter();
 
@@ -170,7 +196,7 @@ private:
     typedef SkFlattenable INHERITED;
     int fInputCount;
     SkImageFilter** fInputs;
-    SkIRect fCropRect;
+    CropRect fCropRect;
 };
 
 #endif

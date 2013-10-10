@@ -207,9 +207,14 @@ protected:
                                                  y + offsets[i][1],
                                                  fBitmap.width()  + offsets[i][2],
                                                  fBitmap.height() + offsets[i][3]);
+#ifdef SK_CROP_RECT_IS_INT
+            SkIRect rect = cropRect;
+#else
+            SkImageFilter::CropRect rect(SkRect::Make(cropRect));
+#endif
             mode.reset(SkXfermode::Create(sampledModes[i]));
             filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
-                                    (mode, offsetBackground, offsetForeground, &cropRect)));
+                                    (mode, offsetBackground, offsetForeground, &rect)));
             paint.setImageFilter(filter);
             canvas->save();
             canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),

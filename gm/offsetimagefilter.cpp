@@ -92,11 +92,16 @@ protected:
                                                  y + i * 8,
                                                  bitmap->width() - i * 8,
                                                  bitmap->height() - i * 12);
+#ifdef SK_CROP_RECT_IS_INT
+            SkIRect rect = cropRect;
+#else
+            SkImageFilter::CropRect rect(SkRect::Make(cropRect));
+#endif
             SkAutoTUnref<SkImageFilter> tileInput(SkNEW_ARGS(SkBitmapSource, (*bitmap)));
             SkScalar dx = SkIntToScalar(i*5);
             SkScalar dy = SkIntToScalar(i*10);
             SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
-                SkOffsetImageFilter, (dx, dy, tileInput, &cropRect)));
+                SkOffsetImageFilter, (dx, dy, tileInput, &rect)));
             paint.setImageFilter(filter);
             drawClippedBitmap(canvas, *bitmap, paint, SkIntToScalar(x), SkIntToScalar(y));
             x += bitmap->width() + MARGIN;

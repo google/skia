@@ -19,7 +19,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         SkIPoint* loc) {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
-    if (cropRect().isLargest()) {
+    if (!cropRectIsSet()) {
         if (input && !input->filterImage(proxy, source, matrix, &src, loc)) {
             return false;
         }
@@ -71,7 +71,7 @@ void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input,
-                                         const SkIRect* cropRect) : INHERITED(input, cropRect) {
+                                         const CropRect* cropRect) : INHERITED(input, cropRect) {
     fOffset.set(dx, dy);
 }
 

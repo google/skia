@@ -16,7 +16,7 @@ class SK_API SkOffsetImageFilter : public SkImageFilter {
 
 public:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL,
-                        const SkIRect* cropRect = NULL);
+                        const CropRect* cropRect = NULL);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
 
 protected:
