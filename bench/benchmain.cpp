@@ -654,7 +654,7 @@ int tool_main(int argc, char** argv) {
                     if (frameIntervalTime >= FLAGS_minMs) {
                         frameIntervalComputed = true;
                         loopsPerFrame =
-                            ((double)frameIntervalTotalLoops / frameIntervalTime) * FLAGS_minMs;
+                          (int)(((double)frameIntervalTotalLoops / frameIntervalTime) * FLAGS_minMs);
                         if (loopsPerFrame < 1) {
                             loopsPerFrame = 1;
                         }
