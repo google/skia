@@ -565,21 +565,27 @@ int tool_main(int argc, char** argv) {
 
             double previous = std::numeric_limits<double>::infinity();
             bool converged = false;
-            bench->setLoops(0);
+
+            // variables used to compute loopsPerFrame
+            double frameIntervalTime = 0.0f;
+            int frameIntervalTotalLoops = 0;
+
+            bool frameIntervalComputed = false;
+            int loopsPerFrame = 0;
+            int loopsPerIter = 0;
             if (FLAGS_verbose) { SkDebugf("%s %s: ", bench->getName(), config.name); }
             do {
-                // Ramp up 1 -> 4 -> 16 -> ... -> ~1 billion.
-                const int loops = bench->getLoops();
-                if (loops >= (1<<30) || timer.fWall > FLAGS_maxMs) {
+                // Ramp up 1 -> 2 -> 4 -> 8 -> 16 -> ... -> ~1 billion.
+                loopsPerIter = (loopsPerIter == 0) ? 1 : loopsPerIter * 2;
+                if (loopsPerIter >= (1<<30) || timer.fWall > FLAGS_maxMs) {
                     // If you find it takes more than a billion loops to get up to 20ms of runtime,
                     // you've got a computer clocked at several THz or have a broken benchmark.  ;)
                     //     "1B ought to be enough for anybody."
                     logger.logError(SkStringPrintf(
-                        "Can't get %s %s to converge in %dms.\n",
-                         bench->getName(), config.name, FLAGS_maxMs));
+                        "\nCan't get %s %s to converge in %dms (%d loops)",
+                         bench->getName(), config.name, FLAGS_maxMs, loopsPerIter));
                     break;
                 }
-                bench->setLoops(loops == 0 ? 1 : loops * 2);
 
                 if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
                     // Clear the recorded commands so that they do not accumulate.
@@ -590,16 +596,39 @@ int tool_main(int argc, char** argv) {
                 if (NULL != canvas) {
                     canvas->save();
                 }
-                if (benchMode == kPictureRecord_BenchMode) {
-                    recordFrom.draw(canvas);
-                } else {
-                    bench->draw(canvas);
-                }
 
-                if (kDeferredSilent_BenchMode == benchMode) {
-                    static_cast<SkDeferredCanvas*>(canvas.get())->silentFlush();
-                } else if (NULL != canvas) {
-                    canvas->flush();
+                // Inner loop that allows us to break the run into smaller
+                // chunks (e.g. frames). This is especially useful for the GPU
+                // as we can flush and/or swap buffers to keep the GPU from
+                // queuing up too much work.
+                for (int loopCount = loopsPerIter; loopCount > 0; ) {
+                    if (frameIntervalComputed && loopCount > loopsPerFrame) {
+                        bench->setLoops(loopsPerFrame);
+                        loopCount -= loopsPerFrame;
+                    } else {
+                        bench->setLoops(loopCount);
+                        loopCount = 0;
+                    }
+
+                    if (benchMode == kPictureRecord_BenchMode) {
+                        recordFrom.draw(canvas);
+                    } else {
+                        bench->draw(canvas);
+                    }
+
+                    if (kDeferredSilent_BenchMode == benchMode) {
+                        static_cast<SkDeferredCanvas*>(canvas.get())->silentFlush();
+                    } else if (NULL != canvas) {
+                        canvas->flush();
+                    }
+
+#if SK_SUPPORT_GPU
+                    // swap drawing buffers on each frame to prevent the GPU
+                    // from queuing up too much work
+                    if (NULL != glContext) {
+                        glContext->swapBuffers();
+                    }
+#endif
                 }
 
                 if (NULL != canvas) {
@@ -616,7 +645,26 @@ int tool_main(int argc, char** argv) {
                 }
 #endif
                 timer.end();
-                const double current = timer.fWall / bench->getLoops();
+
+#if SK_SUPPORT_GPU
+                // currently we only setup the frame interval for the GPU
+                if (!frameIntervalComputed && NULL != glContext) {
+                    frameIntervalTime += timer.fWall;
+                    frameIntervalTotalLoops += loopsPerIter;
+                    if (frameIntervalTime >= FLAGS_minMs) {
+                        frameIntervalComputed = true;
+                        loopsPerFrame =
+                            ((double)frameIntervalTotalLoops / frameIntervalTime) * FLAGS_minMs;
+                        if (loopsPerFrame < 1) {
+                            loopsPerFrame = 1;
+                        }
+//                        SkDebugf("  %s has %d loops in %f ms (normalized to %d)\n",
+//                                 bench->getName(), frameIntervalTotalLoops,
+//                                 timer.fWall, loopsPerFrame);
+                    }
+                }
+#endif
+                const double current = timer.fWall / loopsPerIter;
                 if (FLAGS_verbose && current > previous) { SkDebugf("↑"); }
                 if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
                 converged = HasConverged(previous, current, timer.fWall);
@@ -637,7 +685,7 @@ int tool_main(int argc, char** argv) {
             }
 
             // Normalize to ms per 1000 iterations.
-            const double normalize = 1000.0 / bench->getLoops();
+            const double normalize = 1000.0 / loopsPerIter;
             const struct { char shortName; const char* longName; double ms; } times[] = {
                 {'w', "msecs",  normalize * timer.fWall},
                 {'W', "Wmsecs", normalize * timer.fTruncatedWall},
