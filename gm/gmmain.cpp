@@ -821,7 +821,7 @@ public:
     }
 
     /**
-     * Add this result to the appropriate JSON collection of actual results,
+     * Add this result to the appropriate JSON collection of actual results (but just ONE),
      * depending on errors encountered.
      */
     void add_actual_results_to_json_summary(const char testName[],
@@ -829,33 +829,35 @@ public:
                                             ErrorCombination errors,
                                             bool ignoreFailure) {
         Json::Value jsonActualResults = actualResultDigest.asJsonTypeValuePair();
+        Json::Value *resultCollection = NULL;
+
         if (errors.isEmpty()) {
-            this->fJsonActualResults_Succeeded[testName] = jsonActualResults;
-        } else {
+            resultCollection = &this->fJsonActualResults_Succeeded;
+        } else if (errors.includes(kRenderModeMismatch_ErrorType)) {
+            resultCollection = &this->fJsonActualResults_Failed;
+        } else if (errors.includes(kExpectationsMismatch_ErrorType)) {
             if (ignoreFailure) {
-                this->fJsonActualResults_FailureIgnored[testName] =
-                    jsonActualResults;
+                resultCollection = &this->fJsonActualResults_FailureIgnored;
             } else {
-                if (errors.includes(kMissingExpectations_ErrorType)) {
-                    // TODO: What about the case where there IS an
-                    // expected image hash digest, but that gm test
-                    // doesn't actually run?  For now, those cases
-                    // will always be ignored, because gm only looks
-                    // at expectations that correspond to gm tests
-                    // that were actually run.
-                    //
-                    // Once we have the ability to express
-                    // expectations as a JSON file, we should fix this
-                    // (and add a test case for which an expectation
-                    // is given but the test is never run).
-                    this->fJsonActualResults_NoComparison[testName] =
-                        jsonActualResults;
-                }
-                if (errors.includes(kExpectationsMismatch_ErrorType) ||
-                    errors.includes(kRenderModeMismatch_ErrorType)) {
-                    this->fJsonActualResults_Failed[testName] = jsonActualResults;
-                }
+                resultCollection = &this->fJsonActualResults_Failed;
             }
+        } else if (errors.includes(kMissingExpectations_ErrorType)) {
+            // TODO: What about the case where there IS an expected
+            // image hash digest, but that gm test doesn't actually
+            // run?  For now, those cases will always be ignored,
+            // because gm only looks at expectations that correspond
+            // to gm tests that were actually run.
+            //
+            // Once we have the ability to express expectations as a
+            // JSON file, we should fix this (and add a test case for
+            // which an expectation is given but the test is never
+            // run).
+            resultCollection = &this->fJsonActualResults_NoComparison;
+        }
+
+        // If none of the above cases match, we don't add it to ANY tally of actual results.
+        if (resultCollection) {
+            (*resultCollection)[testName] = jsonActualResults;
         }
     }
 

@@ -209,7 +209,9 @@ gm_test "--verbose --hierarchy --match selftest1 --ignoreTests 8888/selfte $CONF
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-ignore-some-failures.json" "$GM_OUTPUTS/ignoring-some-failures"
 
 # Compare generated image against an empty "expected image" dir.
-gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+# Even the tests that have been marked as ignore-failure should show up as
+# no-comparison.
+gm_test "--verbose --hierarchy --match selftest1 --ignoreTests 8888 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # Compare generated image against a nonexistent "expected image" dir.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r ../path/to/nowhere" "$GM_OUTPUTS/compared-against-nonexistent-dir"

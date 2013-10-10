@@ -15,7 +15,7 @@
       },
       "8888/selftest1.png" : {
          "allowed-digests" : null,
-         "ignore-failure" : false
+         "ignore-failure" : true
       }
    }
 }
