@@ -15,9 +15,10 @@
  *  http://www.w3.org/TR/SVG/masking.html#Masking
  *  http://www.w3.org/TR/css-masking/#MaskValues
  *
- *  Each color is scaled by the (unpremultiplied) luminance value:
+ *  The resulting color is black with transparency equal to the
+ *  luminance value modulated by alpha:
  *
- *  C' = [Lum * a, Lum * r, Lum * g, Lum * b]
+ *    C' = [ Lum * a, 0, 0, 0 ]
  *
  */
 class SK_API SkLumaColorFilter : public SkColorFilter {

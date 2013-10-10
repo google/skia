@@ -101,11 +101,14 @@ static void test_lumaColorFilter(skiatest::Reporter* reporter) {
     SkPMColor in, out;
     SkAutoTUnref<SkColorFilter> lf(SkLumaColorFilter::Create());
 
-    // Applying luma to white is a nop (luminance(white) == 1.0)
+    // Applying luma to white produces black with the same transparency.
     for (unsigned i = 0; i < 256; ++i) {
         in = SkPackARGB32(i, i, i, i);
         lf->filterSpan(&in, 1, &out);
-        REPORTER_ASSERT(reporter, out == in);
+        REPORTER_ASSERT(reporter, SkGetPackedA32(out) == i);
+        REPORTER_ASSERT(reporter, SkGetPackedR32(out) == 0);
+        REPORTER_ASSERT(reporter, SkGetPackedG32(out) == 0);
+        REPORTER_ASSERT(reporter, SkGetPackedB32(out) == 0);
     }
 
     // Applying luma to black yields transparent black (luminance(black) == 0)
@@ -115,15 +118,15 @@ static void test_lumaColorFilter(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, out == SK_ColorTRANSPARENT);
     }
 
-    // For general colors, a luma filter has an attenuating effect.
+    // For general colors, a luma filter generates black with an attenuated alpha channel.
     for (unsigned i = 1; i < 256; ++i) {
         in = SkPackARGB32(i, i, i / 2, i / 3);
         lf->filterSpan(&in, 1, &out);
         REPORTER_ASSERT(reporter, out != in);
         REPORTER_ASSERT(reporter, SkGetPackedA32(out) <= i);
-        REPORTER_ASSERT(reporter, SkGetPackedR32(out) <= i);
-        REPORTER_ASSERT(reporter, SkGetPackedG32(out) <= i / 2);
-        REPORTER_ASSERT(reporter, SkGetPackedB32(out) <= i / 3);
+        REPORTER_ASSERT(reporter, SkGetPackedR32(out) == 0);
+        REPORTER_ASSERT(reporter, SkGetPackedG32(out) == 0);
+        REPORTER_ASSERT(reporter, SkGetPackedB32(out) == 0);
     }
 }
 

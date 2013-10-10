@@ -9,7 +9,6 @@
 
 #include "SkColorPriv.h"
 #include "SkString.h"
-#include "SkUnPreMultiply.h"
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
@@ -19,44 +18,21 @@
 
 void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
                                    SkPMColor dst[]) const {
-    const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
-
     for (int i = 0; i < count; ++i) {
         SkPMColor c = src[i];
 
-        unsigned r = SkGetPackedR32(c);
-        unsigned g = SkGetPackedG32(c);
-        unsigned b = SkGetPackedB32(c);
-        unsigned a = SkGetPackedA32(c);
-
-       // No need to do anything for white (luminance == 1.0)
-       if (a != r || a != g || a != b) {
-            /*
-             *  To avoid un-premultiplying multiple components, we can start
-             *  with the luminance computed in PM space:
-             *
-             *    Lum = i * (r / a) + j * (g / a) + k * (b / a)
-             *    Lum = (i * r + j * g + k * b) / a
-             *    Lum = Lum'(PM) / a
-             *
-             *  Then the filter function is:
-             *
-             *    C' = [ Lum * a, Lum * r, Lum * g, Lum * b ]
-             *
-             *  which is equivalent to:
-             *
-             *    C' = [ Lum'(PM), Lum * r, Lum * g, Lum * b ]
-             */
-            unsigned pm_lum = SkComputeLuminance(r, g, b);
-            unsigned lum = SkUnPreMultiply::ApplyScale(table[a], pm_lum);
-
-            c = SkPackARGB32(pm_lum,
-                             SkMulDiv255Round(r, lum),
-                             SkMulDiv255Round(g, lum),
-                             SkMulDiv255Round(b, lum));
-        }
-
-        dst[i] = c;
+        /*
+         * While LuminanceToAlpha is defined to operate on un-premultiplied
+         * inputs, due to the final alpha scaling it can be computed based on
+         * premultipled components:
+         *
+         *   LumA = (k1 * r / a + k2 * g / a + k3 * b / a) * a
+         *   LumA = (k1 * r + k2 * g + k3 * b)
+         */
+        unsigned luma = SkComputeLuminance(SkGetPackedR32(c),
+                                           SkGetPackedG32(c),
+                                           SkGetPackedB32(c));
+        dst[i] = SkPackARGB32(luma, 0, 0, 0);
     }
 }
 
@@ -97,7 +73,9 @@ public:
 
     virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
-        *validFlags = 0;
+        // The output is always black.
+        *color = GrColorPackRGBA(0, 0, 0, GrColorUnpackA(*color));
+        *validFlags = kRGB_GrColorComponentFlags;
     }
 
     class GLEffect : public GrGLEffect {
@@ -123,16 +101,13 @@ public:
                 inputColor = "vec4(1)";
             }
 
-            // The max() is to guard against 0 / 0 during unpremul when the incoming color is
-            // transparent black.
-            builder->fsCodeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n", inputColor);
             builder->fsCodeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                    SK_ITU_BT709_LUM_COEFF_R,
                                    SK_ITU_BT709_LUM_COEFF_G,
                                    SK_ITU_BT709_LUM_COEFF_B,
                                    inputColor);
-            builder->fsCodeAppendf("\t%s = vec4(%s.rgb * luma / nonZeroAlpha, luma);\n",
-                                   outputColor, inputColor);
+            builder->fsCodeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
+                                   outputColor);
 
         }
 

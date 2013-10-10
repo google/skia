@@ -34,6 +34,7 @@ static void draw_scene(SkCanvas* canvas, SkColorFilter* filter,
 
     c = bounds;
     c.fRight = bounds.centerX();
+    paint.setARGB(0x20, 0, 0, 0xff);
     canvas->drawRect(bounds, paint);
 
     canvas->saveLayer(&bounds, NULL);
