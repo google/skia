@@ -646,9 +646,8 @@ int tool_main(int argc, char** argv) {
 #endif
                 timer.end();
 
-#if SK_SUPPORT_GPU
-                // currently we only setup the frame interval for the GPU
-                if (!frameIntervalComputed && NULL != glContext) {
+                // setup the frame interval for subsequent iterations
+                if (!frameIntervalComputed) {
                     frameIntervalTime += timer.fWall;
                     frameIntervalTotalLoops += loopsPerIter;
                     if (frameIntervalTime >= FLAGS_minMs) {
@@ -663,7 +662,7 @@ int tool_main(int argc, char** argv) {
 //                                 timer.fWall, loopsPerFrame);
                     }
                 }
-#endif
+
                 const double current = timer.fWall / loopsPerIter;
                 if (FLAGS_verbose && current > previous) { SkDebugf("↑"); }
                 if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
