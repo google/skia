@@ -274,12 +274,12 @@ desk_pinterest.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7
 desk_pokemonwiki.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,19.380,7.442,31.318
 desk_sfgate.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.280,2.852,25.708
 desk_techcrunch.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,15.130,3.617,26.643
-desk_twitter.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,195.290,160.761,224.819
+desk_twitter.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,160.000,145.000,175.000
 desk_weather.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,40.360,14.324,54.396
 desk_wordpress.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,7.610,-3.151,18.371
 desk_wowwiki.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,35.740,22.166,49.314
 desk_yahooanswers.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,37.900,24.110,51.690
-desk_yahoogames.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,38.340,24.506,52.174
+desk_yahoogames.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,52.000,42.000,56.000
 desk_yahoonews.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,27.940,15.146,40.734
 desk_yahoosports.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,36.450,22.805,50.095
 desk_youtube.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,22.220,9.998,34.442
