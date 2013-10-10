@@ -261,9 +261,9 @@ def SvnDiff(path_to_skdiff, dest_dir, source_dir):
             else:
                 _GitExportBaseVersionOfFile(
                     modified_file_path, original_file.name)
-            original_directory = os.path.dirname(original_file.name)
+            modified_dir = os.path.dirname(modified_file_path)
             platform_prefix = (re.sub(re.escape(os.sep), '__',
-                                      os.path.splitdrive(original_directory)[1])
+                                      os.path.splitdrive(modified_dir)[1])
                               + '__')
             _CallJsonDiff(old_json_path=original_file.name,
                           new_json_path=modified_file_path,
