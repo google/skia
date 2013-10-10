@@ -33,9 +33,8 @@ protected:
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
 private:
-    SkRectShaderImageFilter(SkShader* s, const SkRect& rect);
+    SkRectShaderImageFilter(SkShader* s, const CropRect* rect);
     SkShader*  fShader;
-    SkRect     fRect;
 
     typedef SkImageFilter INHERITED;
 };
