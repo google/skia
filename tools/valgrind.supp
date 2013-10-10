@@ -25,4 +25,10 @@
     fun:_Znwm
     fun:_ZN16SkRTConfRegistry12registerConfEP12SkRTConfBase
 }
-
+{
+    XML_ParseBuffer_leak
+    Memcheck:Leak
+    fun:malloc
+    fun:FcPatternObjectInsertElt
+    fun:FcPatternObjectAddWithBinding
+}
