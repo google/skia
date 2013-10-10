@@ -10,7 +10,7 @@
 #include "SkGraphics.h"
 #include "SkTypeface.h"
 
-// GM to stress the GPU font cache 
+// GM to stress the GPU font cache
 
 const char* gFamilyNames[] = {
     "sans-serif", "serif", "monospace"
@@ -45,7 +45,7 @@ public:
             SkSafeUnref(fTypefaces[i]);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("fontcache");
@@ -64,7 +64,7 @@ protected:
             }
         }
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar y = 32;
         SkPaint paint;
@@ -78,29 +78,29 @@ protected:
         for (size_t i = 0; i < 2; ++i) {
             paint.setTypeface(fTypefaces[i]);
             SkScalar x = 20;
-            
+
             for (size_t j = 0; j < SK_ARRAY_COUNT(gTextSizes); ++j) {
                 paint.setTextSize(gTextSizes[j]);
                 x = draw_string(canvas, text, x, y, paint) + 19;
             }
             y += 32;
         }
-        
+
         // force a flush
         canvas->flush();
-        
+
         // draw again, and more to overflow the cache
         for (size_t i = 0; i < TYPEFACE_COUNT; ++i) {
             paint.setTypeface(fTypefaces[i]);
             SkScalar x = 20;
-            
+
             for (size_t j = 0; j < SK_ARRAY_COUNT(gTextSizes); ++j) {
                 paint.setTextSize(gTextSizes[j]);
                 x = draw_string(canvas, text, x, y, paint) + 19;
             }
             y += 32;
         }
-        
+
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -117,4 +117,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(FontCacheGM); )
-

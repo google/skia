@@ -89,4 +89,3 @@ void GrGLSLMulVarBy4f(SkString* outAppend,
     }
     outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor.c_str());
 }
-

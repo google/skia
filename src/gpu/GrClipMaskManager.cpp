@@ -1037,4 +1037,3 @@ void GrClipMaskManager::adjustPathStencilParams(GrStencilSettings* settings) {
         this->adjustStencilParams(settings, clipMode, stencilBits);
     }
 }
-
