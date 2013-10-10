@@ -284,7 +284,7 @@ desk_yahoonews.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7
 desk_yahoosports.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,36.450,22.805,50.095
 desk_youtube.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,22.220,9.998,34.442
 mobi_wikipedia.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.640,10.376,45.904
-tabl_androidpolice.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,391.770,322.593,440.947
+tabl_androidpolice.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,328.00.,300.000,360.000
 tabl_cnet.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,24.070,11.663,36.477
 tabl_cnn.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.960,3.464,26.456
 tabl_culturalsolutions.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,41.690,27.521,55.859
